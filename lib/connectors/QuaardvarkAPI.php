@@ -29,9 +29,9 @@ class QuaardvarkAPI
         https://animaldiversity.ummz.umich.edu/quaardvark/search/1E268FF7-B855-0001-DDF1-12C01181A670/?start=201
         https://animaldiversity.ummz.umich.edu/quaardvark/search/1E268FF7-B855-0001-DDF1-12C01181A670/?start=401
         */
-        $this->report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/ADW_Quaardvark';
-        if(!is_dir($this->report)) mkdir($this->report);
-        $this->report .= '/all_species_with_habitat_keywords.txt';
+        $path = CONTENT_RESOURCE_LOCAL_PATH.'/reports/ADW_Quaardvark/';
+        if(!is_dir($path)) mkdir($path);
+        $this->report = $path;
         // exit("\n$this->report\n");
     }
     public function start()
@@ -56,8 +56,10 @@ class QuaardvarkAPI
                 $sum = $sum + 200;
                 if($i >= 2) break; //debug only
             }
-            exit("\n-end-\n");
         }
+        print_r($this->debug);
+        exit("\n-end-\n");
+        
     }
     private function parse_page($html, $data)
     {
@@ -70,7 +72,7 @@ class QuaardvarkAPI
             print_r($fields);
             if(count($fields) != $this->field_count[$data]) exit("\nInvestigate fields <th> tags: ".count($fields)."\n");
             
-            $f = Functions::file_open($this->report, "w");
+            $f = Functions::file_open($this->report.str_replace(' ','_',$data).'.txt', "w");
             fwrite($f, implode("\t", $fields)."\n");
 
             if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $main_block, $a2)) {
@@ -137,13 +139,49 @@ class QuaardvarkAPI
                             [Aquatic Biomes] => Benthic | Reef | Coastal | Brackish Water
                             [Wetlands] => Marsh
                             [Other Habitat Features] => Estuarine
+                        )
+                        Array(
+                            [Species] => Aotus azarae
+                            [Class] => Mammalia
+                            [Order] => Primates
+                            [Family] => Aotidae
+                            [Other Physical Features] => Endothermic | Homoiothermic | Bilateral symmetry
+                            [Sexual Dimorphism] => Sexes alike
+                            [Length - average - mm] => 305
+                            [Length - extreme low - mm] => 240
+                            [Length - extreme high - mm] => 370
+                            [Wingspan - average - mm] => 
+                            [Wingspan - extreme low - mm] => 
+                            [Wingspan - extreme high - mm] => 
+                            [Mass - average - g] => 800
+                            [Mass - extreme low - g] => 600
+                            [Mass - extreme high - g] => 1000
+                            [Basal Metabolic Rate - average - W] => 
+                            [Basal Metabolic Rate - extreme low - W] => 
+                            [Basal Metabolic Rate - extreme high - W] => 
                         )*/
+                        
+                        self::for_stats($rek, $data);
+                        
                         fwrite($f, implode("\t", $rek)."\n");
                     }
                 }
             }
             fclose($f);
             // exit("\n-end-\n"); //if you want to investigate 1 html or 1 page
+        }
+    }
+    private function for_stats($rek, $data)
+    {
+        $habitat = array('Habitat Regions', 'Terrestrial Biomes', 'Aquatic Biomes', 'Wetlands', 'Other Habitat Features');
+        //[Other Physical Features] => Endothermic | Homoiothermic | Bilateral symmetry
+        $physical_desc = array('Other Physical Features', 'Sexual Dimorphism');
+        $pipe_separated = array_merge($habitat, $physical_desc); // print_r($pipe_separated); exit;
+        foreach($pipe_separated as $topic) {
+            if($str = $rek[$topic]) {
+                $arr = explode(' | ', $str);
+                foreach($arr as $value) $this->debug[$data][$topic][$value] = '';
+            }
         }
     }
     private function get_total_number_of_pages()
