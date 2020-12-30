@@ -20,9 +20,8 @@ class QuaardvarkAPI
         $this->url['Physical Description'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E26905C-DEFA-0001-C0BD-C94B291C77C0/?start=';
 
         $this->field_count['Habitat'] = 9;
-        $this->field_count['Geographic Range'] = 0;
+        $this->field_count['Geographic Range'] = 6;
         $this->field_count['Physical Description'] = 18;
-
 
         /*
         https://animaldiversity.ummz.umich.edu/quaardvark/search/1E268FDE-F3B2-0001-913C-B28812191D82/?start=1
@@ -45,8 +44,9 @@ class QuaardvarkAPI
                 
                 $url = $this->url['Habitat'].$sum;
                 $url = $this->url['Geographic Range'].$sum;
+                // $data = 'Habitat';
                 $data = 'Geographic Range';
-                $data = 'Physical Description';
+                // $data = 'Physical Description';
                 $url = $this->url[$data].$sum;
                 
                 
@@ -174,11 +174,13 @@ class QuaardvarkAPI
     private function for_stats($rek, $data)
     {
         $habitat = array('Habitat Regions', 'Terrestrial Biomes', 'Aquatic Biomes', 'Wetlands', 'Other Habitat Features');
+        $geographic_range = array('Biogeographic Regions', 'Other Geographic Terms');
+        
         //[Other Physical Features] => Endothermic | Homoiothermic | Bilateral symmetry
         $physical_desc = array('Other Physical Features', 'Sexual Dimorphism');
-        $pipe_separated = array_merge($habitat, $physical_desc); // print_r($pipe_separated); exit;
+        $pipe_separated = array_merge($habitat, $geographic_range, $physical_desc); // print_r($pipe_separated); exit;
         foreach($pipe_separated as $topic) {
-            if($str = $rek[$topic]) {
+            if($str = @$rek[$topic]) {
                 $arr = explode(' | ', $str);
                 foreach($arr as $value) $this->debug[$data][$topic][$value] = '';
             }
