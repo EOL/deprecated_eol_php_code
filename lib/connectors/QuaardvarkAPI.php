@@ -22,12 +22,11 @@ class QuaardvarkAPI
         $this->url['Reproduction: Mating Systems'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690A5-331A-0001-C982-113D71801250/?start=';
         $this->url['Reproduction: General Behavior'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E26909A-D938-0001-B067-96FC19F012D8/?start=';
         $this->url['Reproduction: Parental Investment'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690A7-C348-0001-C87C-1A92B3001DBB/?start=';
-        $this->url['Lifespan/Longevity'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690EB-D94C-0001-9425-1FC0D300FD80/?start=';
+        $this->url['Lifespan Longevity'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690EB-D94C-0001-9425-1FC0D300FD80/?start=';
         $this->url['Behavior'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690EC-4A91-0001-4ECD-1683ECF087C0/?start=';
         $this->url['Communication and Perception'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690ED-B734-0001-3854-537018B0183F/?start=';
         $this->url['Food Habits'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690EF-01A6-0001-A675-17101E2016DF/?start=';
 
-         
         $this->field_count['Habitat'] = 9;
         $this->field_count['Geographic Range'] = 6;
         $this->field_count['Physical Description'] = 18; //it varies - due to ranges that sometimes disappears if without value
@@ -35,7 +34,7 @@ class QuaardvarkAPI
         $this->field_count['Reproduction: Mating Systems'] = 5;
         $this->field_count['Reproduction: General Behavior'] = 25; //it varies
         $this->field_count['Reproduction: Parental Investment'] = 5;
-        $this->field_count['Lifespan/Longevity'] = 14;
+        $this->field_count['Lifespan Longevity'] = 14;
         $this->field_count['Behavior'] = 8;
         $this->field_count['Communication and Perception'] = 7;
         $this->field_count['Food Habits'] = 9;
@@ -53,9 +52,10 @@ class QuaardvarkAPI
     public function start()
     {
         $topics = array('Habitat', 'Geographic Range', 'Physical Description', 'Development', 'Reproduction: General Behavior',
-                        'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 'Lifespan/Longevity', 'Behavior',
+                        'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 'Lifespan Longevity', 'Behavior',
                         'Communication and Perception', 'Food Habits');
         $topics = array('Food Habits'); //debug only
+        $topics = array('Lifespan Longevity', 'Behavior', 'Communication and Perception', 'Food Habits'); //debug only
 
         foreach($topics as $data) self::main($data);
         echo "\n"; print_r($this->debug);
@@ -74,7 +74,7 @@ class QuaardvarkAPI
                     $recs = self::parse_page($html, $data);
                 }
                 $sum = $sum + 200;
-                if($i >= 2) break; //debug only
+                // if($i >= 2) break; //debug only
             }
         }
         if(isset($this->debug['Habitat'])) {
