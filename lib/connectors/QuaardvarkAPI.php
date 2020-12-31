@@ -24,6 +24,9 @@ class QuaardvarkAPI
         $this->url['Reproduction: Parental Investment'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690A7-C348-0001-C87C-1A92B3001DBB/?start=';
         $this->url['Lifespan/Longevity'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690EB-D94C-0001-9425-1FC0D300FD80/?start=';
         $this->url['Behavior'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690EC-4A91-0001-4ECD-1683ECF087C0/?start=';
+        $this->url['Communication and Perception'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690ED-B734-0001-3854-537018B0183F/?start=';
+        $this->url['Food Habits'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690EF-01A6-0001-A675-17101E2016DF/?start=';
+
          
         $this->field_count['Habitat'] = 9;
         $this->field_count['Geographic Range'] = 6;
@@ -34,6 +37,8 @@ class QuaardvarkAPI
         $this->field_count['Reproduction: Parental Investment'] = 5;
         $this->field_count['Lifespan/Longevity'] = 14;
         $this->field_count['Behavior'] = 8;
+        $this->field_count['Communication and Perception'] = 7;
+        $this->field_count['Food Habits'] = 9;
 
         /*
         https://animaldiversity.ummz.umich.edu/quaardvark/search/1E268FDE-F3B2-0001-913C-B28812191D82/?start=1
@@ -48,10 +53,9 @@ class QuaardvarkAPI
     public function start()
     {
         $topics = array('Habitat', 'Geographic Range', 'Physical Description', 'Development', 'Reproduction: General Behavior',
-                        'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 'Lifespan/Longevity', 'Behavior');
-        // $topics = array('Reproduction: Parental Investment'); //debug only
-
-        $topics = array('Behavior');
+                        'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 'Lifespan/Longevity', 'Behavior',
+                        'Communication and Perception', 'Food Habits');
+        $topics = array('Food Habits'); //debug only
 
         foreach($topics as $data) self::main($data);
         echo "\n"; print_r($this->debug);
@@ -70,7 +74,7 @@ class QuaardvarkAPI
                     $recs = self::parse_page($html, $data);
                 }
                 $sum = $sum + 200;
-                // if($i >= 2) break; //debug only
+                if($i >= 2) break; //debug only
             }
         }
         if(isset($this->debug['Habitat'])) {
@@ -102,6 +106,18 @@ class QuaardvarkAPI
         }
         if(isset($this->debug['Behavior'])) {
             ksort($this->debug['Behavior']['Key Behaviors']);
+        }
+        if(isset($this->debug['Communication and Perception'])) {
+            ksort($this->debug['Communication and Perception']['Communication Channels']);
+            ksort($this->debug['Communication and Perception']['Other Communication Modes']);
+            ksort($this->debug['Communication and Perception']['Perception Channels']);
+        }
+        if(isset($this->debug['Food Habits'])) {
+            ksort($this->debug['Food Habits']['Primary Diet']);
+            ksort($this->debug['Food Habits']['Animal Foods']);
+            ksort($this->debug['Food Habits']['Plant Foods']);
+            ksort($this->debug['Food Habits']['Other Foods']);
+            ksort($this->debug['Food Habits']['Foraging Behavior']);
         }
         // exit("\n-end-\n");
     }
@@ -222,9 +238,12 @@ class QuaardvarkAPI
         $Reproduction_General_Behavior = array('Key Reproductive Features');
         $Reproduction_Parental_Investment = array('Parental Investment');
         $Behavior = array('Key Behaviors');
+        $Communication_and_Perception = array('Communication Channels', 'Other Communication Modes', 'Perception Channels');
+        $Food_Habits = array('Primary Diet', 'Animal Foods', 'Plant Foods', 'Other Foods', 'Foraging Behavior');
         
         $pipe_separated = array_merge($habitat, $geographic_range, $physical_desc, $development, $Reproduction_Mating_Systems,
-                                      $Reproduction_General_Behavior, $Reproduction_Parental_Investment, $Behavior); // print_r($pipe_separated); exit;
+                                      $Reproduction_General_Behavior, $Reproduction_Parental_Investment, $Behavior,
+                                      $Communication_and_Perception, $Food_Habits); // print_r($pipe_separated); exit;
         foreach($pipe_separated as $topic) {
             if($str = @$rek[$topic]) {
                 $arr = explode(' | ', $str);
