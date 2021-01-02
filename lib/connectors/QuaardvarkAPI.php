@@ -6,12 +6,10 @@ class QuaardvarkAPI
 {
     function __construct($folder = null)
     {
-        /*
-        if($folder) {
-            $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
-            $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        }
-        */
+        $this->resource_id = $folder;
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+
         $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 3000000, 'timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 1);
         $this->download_options["expire_seconds"] = false; //60*60*24*25;
         $this->debug = array();
@@ -54,10 +52,9 @@ class QuaardvarkAPI
         $topics = array('Habitat', 'Geographic Range', 'Physical Description', 'Development', 'Reproduction: General Behavior',
                         'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 'Lifespan Longevity', 'Behavior',
                         'Communication and Perception', 'Food Habits');
-        $topics = array('Food Habits'); //debug only
-        $topics = array('Lifespan Longevity', 'Behavior', 'Communication and Perception', 'Food Habits'); //debug only
-
+        $topics = array('Habitat'); //debug only
         foreach($topics as $data) self::main($data);
+        $this->archive_builder->finalize(true);
         echo "\n"; print_r($this->debug);
     }
     private function main($data)
@@ -74,7 +71,7 @@ class QuaardvarkAPI
                     $recs = self::parse_page($html, $data);
                 }
                 $sum = $sum + 200;
-                // if($i >= 2) break; //debug only
+                if($i >= 2) break; //debug only
             }
         }
         if(isset($this->debug['Habitat'])) {
@@ -185,6 +182,7 @@ class QuaardvarkAPI
                             }
                             $i++;
                         }
+                        $rek = array_map('trim', $rek);
                         // print_r($rek); //exit("\nsample record\n"); //good debug
                         /*Array( Habitat
                             [Species] => Alpheus heterochaelis
@@ -217,7 +215,7 @@ class QuaardvarkAPI
                             [Basal Metabolic Rate - extreme low - W] => 
                             [Basal Metabolic Rate - extreme high - W] => 
                         )*/
-                        
+                        self::write_taxon($rek);
                         self::for_stats($rek, $data); //for stats only
                         fwrite($f, implode("\t", $rek)."\n");
                     }
@@ -225,6 +223,25 @@ class QuaardvarkAPI
             }
             fclose($f);
             // exit("\n-end-\n"); //if you want to investigate 1 html or 1 page
+        }
+    }
+    private function write_taxon($rek)
+    {   /*  [Species] => Aotus azarae
+            [Class] => Mammalia
+            [Order] => Primates
+            [Family] => Aotidae*/
+        $taxonID = str_replace(' ', '_', $rek['Species']);
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = $taxonID;
+        $taxon->scientificName  = $rek['Species'];
+        $taxon->class           = $rek['Class'];
+        $taxon->order           = $rek['Order'];
+        $taxon->family          = $rek['Family'];
+        $taxon->furtherInformationURL = 'https://animaldiversity.org/accounts/'.$taxonID.'/';
+        // if($reference_ids = @$this->taxa_reference_ids[$t['int_id']]) $taxon->referenceID = implode("; ", $reference_ids); //copied template
+        if(!isset($this->taxon_ids[$taxonID])) {
+            $this->taxon_ids[$taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);
         }
     }
     private function for_stats($rek, $data)
