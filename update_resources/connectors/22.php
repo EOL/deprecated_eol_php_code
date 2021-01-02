@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-
+exit("\nObsolete. Now replaced by quaardvark.php.\nLast DwCA from this script is: [22_2017Dec3.tar.gz]\n\n");
 $new_resource_path = DOC_ROOT . "temp/22.xml.gz";
 
 $download_options = array('cache' => 1, 'expire_seconds' => false, 'timeout' => 60*60); //doesn't expire since partner no longer hosts the file
