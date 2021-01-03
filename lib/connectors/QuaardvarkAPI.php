@@ -276,5 +276,131 @@ class QuaardvarkAPI
             else exit("\nNo hits, investigate URL: [$url]\n");
         }
     }
+    private function initialize()
+    {
+        $Habitat = Array(
+                'measurementType' => 'http://purl.obolibrary.org/obo/RO_0002303',
+                'Habitat Regions' => Array(
+                        'Freshwater' => 'http://purl.obolibrary.org/obo/ENVO_00000873',
+                        'Polar' => 'http://purl.obolibrary.org/obo/ENVO_01000339',
+                        'Saltwater or marine' => 'http://purl.obolibrary.org/obo/ENVO_00000447',
+                        'Temperate' => 'http://purl.obolibrary.org/obo/ENVO_01000206',
+                        'Terrestrial' => 'http://purl.obolibrary.org/obo/ENVO_00000446',
+                        'Tropical' => 'http://purl.obolibrary.org/obo/ENVO_01000204'
+                    ),
+                'Terrestrial Biomes' => Array(
+                        'Chaparral' => 'http://purl.obolibrary.org/obo/ENVO_00000301',
+                        'Desert or dune' => 'http://purl.obolibrary.org/obo/ENVO_01000179',
+                        'Forest' => 'http://purl.obolibrary.org/obo/ENVO_01000174',
+                        'Icecap' => 'http://purl.obolibrary.org/obo/ENVO_00000145',
+                        'Mountains' => 'http://purl.obolibrary.org/obo/ENVO_00000081',
+                        'Rainforest' => 'http://purl.obolibrary.org/obo/ENVO_01000228',
+                        'Savanna or grassland' => 'http://purl.obolibrary.org/obo/ENVO_01000177',
+                        'Scrub forest' => 'http://purl.obolibrary.org/obo/ENVO_00000300',
+                        'Taiga' => 'http://eol.org/schema/terms/boreal_forests_taiga',
+                        'Tundra' => 'http://purl.obolibrary.org/obo/ENVO_01000180'
+                    ),
+                'Aquatic Biomes' => Array(
+                        'Abyssal' => 'http://purl.obolibrary.org/obo/ENVO_01000027',
+                        'Benthic' => 'http://eol.org/schema/terms/benthic',
+                        'Brackish Water' => 'http://purl.obolibrary.org/obo/ENVO_00002019',
+                        'Coastal' => 'http://purl.obolibrary.org/obo/ENVO_01000687',
+                        'Lakes and Ponds' => 'http://purl.obolibrary.org/obo/ENVO_00000873',
+                        'Oceanic vent' => 'http://purl.obolibrary.org/obo/ENVO_01000030',
+                        'Pelagic' => 'http://purl.obolibrary.org/obo/ENVO_00000208',
+                        'Reef' => 'http://purl.obolibrary.org/obo/ENVO_01000029',
+                        'Rivers and Streams' => 'http://purl.obolibrary.org/obo/ENVO_00000873',
+                        'Temporary Pools' => 'http://eol.org/schema/terms/temporaryAquatic'
+                    ),
+                'Other Habitat Features' => Array(
+                        'Agricultural' => 'http://purl.obolibrary.org/obo/ENVO_00000077',
+                        'Caves' => 'http://purl.obolibrary.org/obo/ENVO_00000067',
+                        'Estuarine' => 'http://purl.obolibrary.org/obo/ENVO_01000020',
+                        'Intertidal or littoral' => 'http://purl.obolibrary.org/obo/ENVO_00000316',
+                        'Riparian' => 'http://eol.org/schema/terms/riparianWetland',
+                        'Suburban' => 'http://purl.obolibrary.org/obo/ENVO_00000002',
+                        'Urban' => 'http://purl.obolibrary.org/obo/ENVO_00000856'
+                    ),
+                'Wetlands' => Array(
+                        'Bog' => 'http://eol.org/schema/terms/bogPond',
+                        'Marsh' => 'http://purl.obolibrary.org/obo/ENVO_00000035',
+                        'Swamp' => 'http://purl.obolibrary.org/obo/ENVO_00000233'
+                    )
+            );
+    $Geographic_Range = Array(
+                'measurementType' => 'http://eol.org/schema/terms/Present',
+                'Biogeographic Regions' => Array(
+                        'Antarctica' => 'http://www.geonames.org/6255152',
+                        // 'Antarctica :: Introduced' => 
+                        // 'Antarctica :: Native' => 
+                        'Arctic Ocean' => 'http://www.marineregions.org/mrgid/1906',
+                        // 'Arctic Ocean :: Introduced' => 
+                        // 'Arctic Ocean :: Native' => 
+                        'Atlantic Ocean' => 'http://www.marineregions.org/mrgid/1902',
+                        // 'Atlantic Ocean :: Introduced' => 
+                        // 'Atlantic Ocean :: Native' => 
+                        'Australian' => 'http://www.geonames.org/2077456',
+                        // 'Australian :: Introduced' => 
+                        // 'Australian :: Native' => 
+                        'Ethiopian' => 'http://www.geonames.org/337996',
+                        // 'Ethiopian :: Introduced' => 
+                        // 'Ethiopian :: Native' => 
+                        'Indian Ocean' => 'http://www.marineregions.org/mrgid/1904',
+                        // 'Indian Ocean :: Introduced' => 
+                        // 'Indian Ocean :: Native' => 
+                        'Mediterranean Sea' => 'http://www.marineregions.org/mrgid/1905',
+                        // 'Mediterranean Sea :: Introduced' => 
+                        // 'Mediterranean Sea :: Native' => 
+                        'Nearctic' => 'https://www.wikidata.org/entity/Q737742',
+                        // 'Nearctic :: Introduced' => 
+                        // 'Nearctic :: Native' => 
+                        'Neotropical' => 'https://www.wikidata.org/entity/Q217151',
+                        // 'Neotropical :: Introduced' => 
+                        // 'Neotropical :: Native' => 
+                        'Oceanic Islands' => 'http://purl.obolibrary.org/obo/ENVO_00000222',
+                        // 'Oceanic Islands :: Introduced' => 
+                        // 'Oceanic Islands :: Native' => 
+                        'Oriental' => 'http://www.geonames.org/6255147',
+                        // 'Oriental :: Introduced' => 
+                        // 'Oriental :: Native' => 
+                        'Pacific Ocean' => 'http://www.marineregions.org/mrgid/1903',
+                        // 'Pacific Ocean :: Introduced' => 
+                        // 'Pacific Ocean :: Native' => 
+                        'Palearctic' => 'https://www.wikidata.org/entity/Q106447',
+                        // 'Palearctic :: Introduced' => 
+                        // 'Palearctic :: Native' => 
+                    ),
+                'Other Geographic Terms' => Array(
+                        'Cosmopolitan' => 'http://eol.org/schema/terms/Cosmopolitan',
+                        'Holarctic' => 'https://www.wikidata.org/entity/Q39061',
+                        'Island endemic' => 'DISCARD',
+                    )
+            );
+    $Physical_Description = Array(
+                'measurementType' => 'http://eol.org/schema/terms/BodyShape',
+                'Other Physical Features' => Array(
+                        'Bilateral symmetry' => 'http://purl.obolibrary.org/obo/PATO_0001324',
+                        'Ectothermic' => 'DISCARD',
+                        'Endothermic' => 'DISCARD',
+                        'Heterothermic' => 'DISCARD',
+                        'Homoiothermic' => 'DISCARD',
+                        'Poisonous' => 'DISCARD',
+                        'Polymorphic' => 'DISCARD',
+                        'Radial symmetry' => 'http://purl.obolibrary.org/obo/PATO_0001325',
+                        'Venomous' => 'DISCARD',
+                    ),
+                'Sexual Dimorphism' => Array(
+                        'measurementType' => 'http://www.owl-ontologies.com/unnamed.owl#Dimorphism',
+                        'Female larger' => 'http://eol.org/schema/terms/female_larger',
+                        'Female more colorful' => 'http://eol.org/schema/terms/female_more_colorful',
+                        'Male larger' => 'http://eol.org/schema/terms/male_larger',
+                        'Male more colorful' => 'http://eol.org/schema/terms/male_more_colorful',
+                        'Ornamentation' => 'DISCARD',
+                        'Sexes alike' => 'DISCARD',
+                        'Sexes colored or patterned differently' => 'DISCARD',
+                        'Sexes shaped differently' => 'DISCARD',
+                    )
+            );
+    }
 }
 ?>
