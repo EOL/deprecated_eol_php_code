@@ -48,7 +48,14 @@ class QuaardvarkAPI
         // exit("\n$this->report\n");
     }
     public function start()
-    {
+    {   // /* copied template
+        require_library('connectors/TraitGeneric'); 
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        /* START DATA-1841 terms remapping */
+        $this->func->initialize_terms_remapping(60*60*24); //param is $expire_seconds. 0 means expire now.
+        /* END DATA-1841 terms remapping */
+        // */
+        self::initialize();
         $topics = array('Habitat', 'Geographic Range', 'Physical Description', 'Development', 'Reproduction: General Behavior',
                         'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 'Lifespan Longevity', 'Behavior',
                         'Communication and Perception', 'Food Habits');
@@ -215,14 +222,50 @@ class QuaardvarkAPI
                             [Basal Metabolic Rate - extreme low - W] => 
                             [Basal Metabolic Rate - extreme high - W] => 
                         )*/
-                        self::write_taxon($rek);
+                        $rek = self::write_taxon($rek);
                         self::for_stats($rek, $data); //for stats only
+                        if($data == 'Habitat') self::write_habitat_MoF($rek);
                         fwrite($f, implode("\t", $rek)."\n");
                     }
                 }
             }
             fclose($f);
             // exit("\n-end-\n"); //if you want to investigate 1 html or 1 page
+        }
+    }
+    private function write_habitat_MoF($rek)
+    {   /*Array( Habitat
+        [Species] => Alpheus heterochaelis
+        [Class] => Malacostraca
+        [Order] => Decapoda
+        [Family] => Alpheidae
+        [Habitat Regions] => Temperate | Tropical | Saltwater or marine
+        [Terrestrial Biomes] => 
+        [Aquatic Biomes] => Benthic | Reef | Coastal | Brackish Water
+        [Wetlands] => Marsh
+        [Other Habitat Features] => Estuarine
+        )*/
+        $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
+        print_r($rek);
+        $subtopics = array('Habitat Regions', 'Terrestrial Biomes', 'Aquatic Biomes', 'Wetlands', 'Other Habitat Features');
+        foreach($subtopics as $subtopic) {
+            if($str = @$rek[$subtopic]) {
+                $arr = explode(' | ', $str);
+                $arr = array_map('trim', $arr);
+                // print_r($arr); exit("\n[$subtopic]\n");
+                foreach($arr as $string) {
+                    if($mValue = $this->Habitat[$subtopic][$string]) {
+                        $save = array();
+                        $save['taxon_id'] = $rek['taxonID'];
+                        $save["catnum"] = $rek['taxonID'].'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                        $save['source'] = $rek['furtherInformationURL'];
+                        $save['measurementRemarks'] = $string;
+                        // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit; //just testing
+                        $this->func->pre_add_string_types($save, $mValue, $mType, "true");
+                    }
+                    else exit("\nShould not go here. Habitat. {$subtopic} [$string]\n");
+                }
+            }
         }
     }
     private function write_taxon($rek)
@@ -243,6 +286,9 @@ class QuaardvarkAPI
             $this->taxon_ids[$taxonID] = '';
             $this->archive_builder->write_object_to_file($taxon);
         }
+        $rek['taxonID'] = $taxon->taxonID;
+        $rek['furtherInformationURL'] = $taxon->furtherInformationURL;
+        return $rek;
     }
     private function for_stats($rek, $data)
     {
@@ -278,7 +324,7 @@ class QuaardvarkAPI
     }
     private function initialize()
     {
-        $Habitat = Array(
+        $this->Habitat = Array(
                 'measurementType' => 'http://purl.obolibrary.org/obo/RO_0002303',
                 'Habitat Regions' => Array(
                         'Freshwater' => 'http://purl.obolibrary.org/obo/ENVO_00000873',
