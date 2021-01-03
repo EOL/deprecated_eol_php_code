@@ -59,7 +59,7 @@ class QuaardvarkAPI
         $topics = array('Habitat', 'Geographic Range', 'Physical Description', 'Development', 'Reproduction: General Behavior',
                         'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 'Lifespan Longevity', 'Behavior',
                         'Communication and Perception', 'Food Habits');
-        $topics = array('Habitat'); //debug only
+        $topics = array('Physical Description'); //debug only
         foreach($topics as $data) self::main($data);
         $this->archive_builder->finalize(true);
         echo "\n"; print_r($this->debug);
@@ -224,7 +224,8 @@ class QuaardvarkAPI
                         )*/
                         $rek = self::write_taxon($rek);
                         self::for_stats($rek, $data); //for stats only
-                        if($data == 'Habitat') self::write_habitat_MoF($rek);
+                        // if($data == 'Habitat') 
+                        self::write_habitat_MoF($rek, $data);
                         fwrite($f, implode("\t", $rek)."\n");
                     }
                 }
@@ -233,7 +234,7 @@ class QuaardvarkAPI
             // exit("\n-end-\n"); //if you want to investigate 1 html or 1 page
         }
     }
-    private function write_habitat_MoF($rek)
+    private function write_habitat_MoF($rek, $data)
     {   /*Array( Habitat
         [Species] => Alpheus heterochaelis
         [Class] => Malacostraca
@@ -245,16 +246,45 @@ class QuaardvarkAPI
         [Wetlands] => Marsh
         [Other Habitat Features] => Estuarine
         )*/
-        $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
-        print_r($rek);
-        $subtopics = array('Habitat Regions', 'Terrestrial Biomes', 'Aquatic Biomes', 'Wetlands', 'Other Habitat Features');
+        
+        // $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
+        $mType = $this->values[$data]['measurementType'];
+        // print_r($rek);
+        
+        // $subtopics = array('Habitat Regions', 'Terrestrial Biomes', 'Aquatic Biomes', 'Wetlands', 'Other Habitat Features');
+        $subtopics = array_keys($this->values[$data]); //print_r($subtopics); exit;
         foreach($subtopics as $subtopic) {
             if($str = @$rek[$subtopic]) {
                 $arr = explode(' | ', $str);
                 $arr = array_map('trim', $arr);
                 // print_r($arr); exit("\n[$subtopic]\n");
                 foreach($arr as $string) {
-                    if($mValue = $this->Habitat[$subtopic][$string]) {
+                    /*Caveats:
+                    For the [Biogeographic Regions] section, the measurementType should be http://eol.org/schema/terms/Present, 
+                    unless the value has Native or Introduced appended. If those are present, they should change the measurementType:
+                    Native => http://eol.org/schema/terms/NativeRange
+                    Introduced => http://eol.org/schema/terms/IntroducedRange*/
+                    if($subtopic == 'Biogeographic Regions') {
+                        $mType = 'http://eol.org/schema/terms/Present';
+                        if(stripos($string, "Native") !== false)         $mType = 'http://eol.org/schema/terms/NativeRange'; //string is found
+                        elseif(stripos($string, "Introduced") !== false) $mType = 'http://eol.org/schema/terms/IntroducedRange'; //string is found
+
+                        /*[Oceanic Islands] is an exception. This is a habitat, more than a distribution, 
+                        so it should have measurementType=http://purl.obolibrary.org/obo/RO_0002303, 
+                        regardless of whether "Native" or with nothing appended. If "Introduced" is present for this one, please discard the record.*/
+                        if(stripos($string, "Oceanic Islands") !== false) { //string is found
+                            $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
+                            if(stripos($string, "Introduced") !== false) continue; //string is found
+                        }
+                    }
+
+                    /*For the [Other Physical Features] section, the measurementType specified works for the values we're using so far. 
+                    If we eventually start using some of the others, we'll probably assign them different ones. Don't say I didn't warn you */
+                    if($subtopic == 'Other Physical Features') {
+                    }
+                    
+                    if($mValue = $this->values[$data][$subtopic][$string]) {
+                        if($mValue == 'DISCARD') continue;
                         $save = array();
                         $save['taxon_id'] = $rek['taxonID'];
                         $save["catnum"] = $rek['taxonID'].'_'.$mType.$mValue; //making it unique. no standard way of doing it.
@@ -263,7 +293,7 @@ class QuaardvarkAPI
                         // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit; //just testing
                         $this->func->pre_add_string_types($save, $mValue, $mType, "true");
                     }
-                    else exit("\nShould not go here. Habitat. {$subtopic} [$string]\n");
+                    else exit("\nShould not go here, not yet initialized. [$data] {$subtopic} [$string]\n");
                 }
             }
         }
@@ -324,7 +354,12 @@ class QuaardvarkAPI
     }
     private function initialize()
     {
-        $this->Habitat = Array(
+        $topics = array('', '', '', 'Development', 'Reproduction: General Behavior',
+                        'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 'Lifespan Longevity', 'Behavior',
+                        'Communication and Perception', 'Food Habits');
+        
+        
+        $this->values['Habitat'] = Array(
                 'measurementType' => 'http://purl.obolibrary.org/obo/RO_0002303',
                 'Habitat Regions' => Array(
                         'Freshwater' => 'http://purl.obolibrary.org/obo/ENVO_00000873',
@@ -373,48 +408,48 @@ class QuaardvarkAPI
                         'Swamp' => 'http://purl.obolibrary.org/obo/ENVO_00000233'
                     )
             );
-    $Geographic_Range = Array(
+    $this->values['Geographic Range'] = Array(
                 'measurementType' => 'http://eol.org/schema/terms/Present',
                 'Biogeographic Regions' => Array(
                         'Antarctica' => 'http://www.geonames.org/6255152',
-                        // 'Antarctica :: Introduced' => 
-                        // 'Antarctica :: Native' => 
+                        'Antarctica :: Introduced' => 'http://www.geonames.org/6255152',
+                        'Antarctica :: Native' => 'http://www.geonames.org/6255152',
                         'Arctic Ocean' => 'http://www.marineregions.org/mrgid/1906',
-                        // 'Arctic Ocean :: Introduced' => 
-                        // 'Arctic Ocean :: Native' => 
+                        'Arctic Ocean :: Introduced' => 'http://www.marineregions.org/mrgid/1906',
+                        'Arctic Ocean :: Native' => 'http://www.marineregions.org/mrgid/1906',
                         'Atlantic Ocean' => 'http://www.marineregions.org/mrgid/1902',
-                        // 'Atlantic Ocean :: Introduced' => 
-                        // 'Atlantic Ocean :: Native' => 
+                        'Atlantic Ocean :: Introduced' => 'http://www.marineregions.org/mrgid/1902',
+                        'Atlantic Ocean :: Native' => 'http://www.marineregions.org/mrgid/1902',
                         'Australian' => 'http://www.geonames.org/2077456',
-                        // 'Australian :: Introduced' => 
-                        // 'Australian :: Native' => 
+                        'Australian :: Introduced' => 'http://www.geonames.org/2077456',
+                        'Australian :: Native' => 'http://www.geonames.org/2077456',
                         'Ethiopian' => 'http://www.geonames.org/337996',
-                        // 'Ethiopian :: Introduced' => 
-                        // 'Ethiopian :: Native' => 
+                        'Ethiopian :: Introduced' => 'http://www.geonames.org/337996',
+                        'Ethiopian :: Native' => 'http://www.geonames.org/337996',
                         'Indian Ocean' => 'http://www.marineregions.org/mrgid/1904',
-                        // 'Indian Ocean :: Introduced' => 
-                        // 'Indian Ocean :: Native' => 
+                        'Indian Ocean :: Introduced' => 'http://www.marineregions.org/mrgid/1904',
+                        'Indian Ocean :: Native' => 'http://www.marineregions.org/mrgid/1904',
                         'Mediterranean Sea' => 'http://www.marineregions.org/mrgid/1905',
-                        // 'Mediterranean Sea :: Introduced' => 
-                        // 'Mediterranean Sea :: Native' => 
+                        'Mediterranean Sea :: Introduced' => 'http://www.marineregions.org/mrgid/1905',
+                        'Mediterranean Sea :: Native' => 'http://www.marineregions.org/mrgid/1905',
                         'Nearctic' => 'https://www.wikidata.org/entity/Q737742',
-                        // 'Nearctic :: Introduced' => 
-                        // 'Nearctic :: Native' => 
+                        'Nearctic :: Introduced' => 'https://www.wikidata.org/entity/Q737742',
+                        'Nearctic :: Native' => 'https://www.wikidata.org/entity/Q737742',
                         'Neotropical' => 'https://www.wikidata.org/entity/Q217151',
-                        // 'Neotropical :: Introduced' => 
-                        // 'Neotropical :: Native' => 
+                        'Neotropical :: Introduced' => 'https://www.wikidata.org/entity/Q217151',
+                        'Neotropical :: Native' => 'https://www.wikidata.org/entity/Q217151',
                         'Oceanic Islands' => 'http://purl.obolibrary.org/obo/ENVO_00000222',
-                        // 'Oceanic Islands :: Introduced' => 
-                        // 'Oceanic Islands :: Native' => 
+                        'Oceanic Islands :: Introduced' => 'DISCARD',
+                        'Oceanic Islands :: Native' => 'http://purl.obolibrary.org/obo/ENVO_00000222',
                         'Oriental' => 'http://www.geonames.org/6255147',
-                        // 'Oriental :: Introduced' => 
-                        // 'Oriental :: Native' => 
+                        'Oriental :: Introduced' => 'http://www.geonames.org/6255147',
+                        'Oriental :: Native' => 'http://www.geonames.org/6255147',
                         'Pacific Ocean' => 'http://www.marineregions.org/mrgid/1903',
-                        // 'Pacific Ocean :: Introduced' => 
-                        // 'Pacific Ocean :: Native' => 
+                        'Pacific Ocean :: Introduced' => 'http://www.marineregions.org/mrgid/1903',
+                        'Pacific Ocean :: Native' => 'http://www.marineregions.org/mrgid/1903',
                         'Palearctic' => 'https://www.wikidata.org/entity/Q106447',
-                        // 'Palearctic :: Introduced' => 
-                        // 'Palearctic :: Native' => 
+                        'Palearctic :: Introduced' => 'https://www.wikidata.org/entity/Q106447',
+                        'Palearctic :: Native' => 'https://www.wikidata.org/entity/Q106447'
                     ),
                 'Other Geographic Terms' => Array(
                         'Cosmopolitan' => 'http://eol.org/schema/terms/Cosmopolitan',
@@ -422,7 +457,7 @@ class QuaardvarkAPI
                         'Island endemic' => 'DISCARD',
                     )
             );
-    $Physical_Description = Array(
+    $this->values['Physical Description'] = Array(
                 'measurementType' => 'http://eol.org/schema/terms/BodyShape',
                 'Other Physical Features' => Array(
                         'Bilateral symmetry' => 'http://purl.obolibrary.org/obo/PATO_0001324',
