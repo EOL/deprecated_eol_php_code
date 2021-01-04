@@ -354,11 +354,6 @@ class QuaardvarkAPI
     }
     private function initialize()
     {
-        $topics = array('', '', '', 'Development', 'Reproduction: General Behavior',
-                        'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 'Lifespan Longevity', 'Behavior',
-                        'Communication and Perception', 'Food Habits');
-        
-        
         $this->values['Habitat'] = Array(
                 'measurementType' => 'http://purl.obolibrary.org/obo/RO_0002303',
                 'Habitat Regions' => Array(
@@ -482,6 +477,159 @@ class QuaardvarkAPI
                         'Sexes shaped differently' => 'DISCARD',
                     )
             );
+    //start mapping 2
+    $this->values['Reproduction: Mating Systems'] => Array(
+        'measurementType' => 'http://eol.org/schema/terms/MatingSystem',
+        'Mating System' => Array(
+                'Cooperative breeder' => 'http://purl.obolibrary.org/obo/GO_0060746,http://eol.org/schema/terms/CooperativeBreeding',
+                'Eusocial' => 'http://eol.org/schema/terms/SocialSystem,https://www.wikidata.org/entity/Q753694',
+                'Monogamous' => 'http://purl.obolibrary.org/obo/ECOCORE_00000063',
+                'Polyandrous' => 'http://purl.obolibrary.org/obo/ECOCORE_00000064',
+                'Polygynandrous (promiscuous)' => 'http://purl.obolibrary.org/obo/ECOCORE_00000067',
+                'Polygynous' => 'http://purl.obolibrary.org/obo/ECOCORE_00000065'
+            )
+    );
+    $this->values['Reproduction: Parental Investment'] => Array(
+        'measurementType' => 'http://purl.obolibrary.org/obo/GO_0060746', //usually
+        'Parental Investment' => Array(
+                'Altricial' => 'http://eol.org/schema/terms/DevelopmentalMode,http://eol.org/schema/terms/altricial',
+                'Female parental care' => 'http://eol.org/schema/terms/parentalCareFemale',
+                'Male parental care' => 'http://eol.org/schema/terms/paternalCare',
+                'No parental involvement' => 'http://polytraits.lifewatchgreece.eu/terms/BP_NO',
+                'Post-independence association with parents' => 'http://polytraits.lifewatchgreece.eu/terms/BP_YES',
+                'Pre-fertilization :: Protecting' => 'https://www.wikidata.org/entity/Q2251595',
+                'Pre-fertilization :: Protecting :: Female' => 'http://eol.org/schema/terms/parentalCareFemale',
+                'Pre-fertilization :: Protecting :: Male' => 'http://eol.org/schema/terms/paternalCare',
+                'Pre-fertilization :: Provisioning' => 'https://www.wikidata.org/entity/Q2874419',
+                'Pre-hatching/birth :: Protecting' => 'https://www.wikidata.org/entity/Q2251595',
+                'Pre-hatching/birth :: Protecting :: Female' => 'http://eol.org/schema/terms/parentalCareFemale',
+                'Pre-hatching/birth :: Protecting :: Male' => 'http://eol.org/schema/terms/paternalCare',
+                'Pre-hatching/birth :: Provisioning' => 'https://www.wikidata.org/entity/Q2874419',
+                'Pre-hatching/birth :: Provisioning :: Female' => 'http://eol.org/schema/terms/parentalCareFemale',
+                'Pre-hatching/birth :: Provisioning :: Male' => 'http://eol.org/schema/terms/paternalCare',
+                'Pre-independence :: Protecting' => 'https://www.wikidata.org/entity/Q2251595',
+                'Pre-independence :: Protecting :: Female' => 'http://eol.org/schema/terms/parentalCareFemale',
+                'Pre-independence :: Protecting :: Male' => 'http://eol.org/schema/terms/paternalCare',
+                'Pre-independence :: Provisioning' => 'https://www.wikidata.org/entity/Q2874419',
+                'Pre-independence :: Provisioning :: Female' => 'http://eol.org/schema/terms/parentalCareFemale',
+                'Pre-independence :: Provisioning :: Male' => 'http://eol.org/schema/terms/paternalCare',
+                'Pre-weaning/fledging :: Protecting' => 'https://www.wikidata.org/entity/Q2251595',
+                'Pre-weaning/fledging :: Protecting :: Female' => 'http://eol.org/schema/terms/parentalCareFemale',
+                'Pre-weaning/fledging :: Protecting :: Male' => 'http://eol.org/schema/terms/paternalCare',
+                'Pre-weaning/fledging :: Provisioning' => 'https://www.wikidata.org/entity/Q2874419',
+                'Pre-weaning/fledging :: Provisioning :: Female' => 'http://eol.org/schema/terms/parentalCareFemale',
+                'Pre-weaning/fledging :: Provisioning :: Male' => 'http://eol.org/schema/terms/paternalCare',
+                'Precocial' => 'http://eol.org/schema/terms/DevelopmentalMode,http://eol.org/schema/terms/precocial'
+            )
+    );
+    //start mapping 3
+    $this->values['Behavior'] = Array(
+            'Key Behaviors' => Array(
+                    'aestivation' => 'DISCARD',
+                    'arboreal' => 'http://purl.obolibrary.org/obo/RO_0002303,http://purl.obolibrary.org/obo/NBO_0000364',
+                    'colonial' => 'http://eol.org/schema/terms/SocialSystem,http://eol.org/schema/terms/socialGroupLiving',
+                    'crepuscular' => 'http://purl.obolibrary.org/obo/VT_0001502, http://purl.obolibrary.org/obo/ECOCORE_00000078',
+                    'cursorial' => 'http://purl.obolibrary.org/obo/GO_0040011,http://purl.obolibrary.org/obo/NBO_0000055',
+                    'daily torpor' => 'DISCARD',
+                    'diurnal' => 'http://purl.obolibrary.org/obo/VT_0001502, http://www.wikidata.org/entity/Q906470',
+                    'dominance hierarchies' => 'DISCARD',
+                    'flies' => 'http://purl.obolibrary.org/obo/GO_0040011,http://purl.obolibrary.org/obo/NBO_0000367',
+                    'fossorial' => 'http://eol.org/schema/terms/EcomorphologicalGuild, http://www.wikidata.org/entity/Q2850019',
+                    'glides' => 'http://purl.obolibrary.org/obo/GO_0040011,http://purl.obolibrary.org/obo/NBO_0000369',
+                    'hibernation' => 'DISCARD',
+                    'migratory' => 'http://purl.obolibrary.org/obo/IDOMAL_0002084, http://eol.org/schema/terms/migratory',
+                    'motile' => 'http://www.wikidata.org/entity/Q33596, http://eol.org/schema/terms/activelyMobile',
+                    'natatorial' => 'http://purl.obolibrary.org/obo/GO_0040011,http://purl.obolibrary.org/obo/GO_0036268',
+                    'nocturnal' => 'http://purl.obolibrary.org/obo/VT_0001502, http://www.wikidata.org/entity/Q309179',
+                    'nomadic' => 'DISCARD',
+                    'parasite' => 'http://eol.org/schema/terms/TrophicGuild, https://www.wikidata.org/entity/Q12806437',
+                    'saltatorial' => 'http://purl.obolibrary.org/obo/GO_0040011,http://purl.obolibrary.org/obo/NBO_0000370',
+                    'scansorial' => 'http://purl.obolibrary.org/obo/GO_0040011,http://purl.obolibrary.org/obo/NBO_0000368',
+                    'sedentary' => 'http://purl.obolibrary.org/obo/IDOMAL_0002084, http://eol.org/schema/terms/nonmigratory',
+                    'sessile' => 'http://www.wikidata.org/entity/Q33596, http://www.wikidata.org/entity/Q1759860',
+                    'social' => 'http://eol.org/schema/terms/SocialSystem,http://eol.org/schema/terms/socialGroupLiving',
+                    'solitary' => 'http://eol.org/schema/terms/SocialSystem,http://eol.org/schema/terms/solitary',
+                    'terricolous' => 'http://purl.obolibrary.org/obo/RO_0002303,http://eol.org/schema/terms/groundDwelling',
+                    'territorial' => 'DISCARD',
+                    'troglophilic' => 'http://purl.obolibrary.org/obo/RO_0002303,http://purl.obolibrary.org/obo/ENVO_00000067'
+                )
+        );
+    $this->values['Food Habits'] = Array(
+            'Primary Diet' => Array(
+                    'Carnivore' => 'http://www.wikidata.org/entity/Q1053008,https://www.wikidata.org/entity/Q81875',
+                    'Carnivore :: Eats body fluids' => 'DISCARD',
+                    'Carnivore :: Eats eggs' => 'http://eol.org/schema/terms/TrophicGuild,https://www.wikidata.org/entity/Q60743215',
+                    'Carnivore :: Eats non-insect arthropods' => 'http://eol.org/schema/terms/TrophicGuild,http://eol.org/schema/terms/invertivore',
+                    'Carnivore :: Eats other marine invertebrates' => 'http://eol.org/schema/terms/TrophicGuild,http://eol.org/schema/terms/invertivore',
+                    'Carnivore :: Eats terrestrial vertebrates' => 'http://eol.org/schema/terms/TrophicGuild,http://eol.org/schema/terms/vertivore',
+                    'Carnivore :: Insectivore' => 'http://eol.org/schema/terms/TrophicGuild,http://www.wikidata.org/entity/Q677088',
+                    'Carnivore :: Molluscivore' => 'http://eol.org/schema/terms/TrophicGuild,https://www.wikidata.org/entity/Q3319613',
+                    'Carnivore :: Piscivore' => 'http://eol.org/schema/terms/TrophicGuild,http://www.wikidata.org/entity/Q1420208',
+                    'Carnivore :: Sanguivore' => 'http://eol.org/schema/terms/TrophicGuild,http://www.wikidata.org/entity/Q939099',
+                    'Carnivore :: Scavenger' => 'http://eol.org/schema/terms/TrophicGuild,http://eol.org/schema/terms/carnivorous_scavenger',
+                    'Carnivore :: Vermivore' => 'http://eol.org/schema/terms/TrophicGuild,http://eol.org/schema/terms/invertivore',
+                    'Coprophage' => 'http://eol.org/schema/terms/TrophicGuild,http://www.wikidata.org/entity/Q320011',
+                    'Detritivore' => 'http://www.wikidata.org/entity/Q1053008,http://wikidata.org/entity/Q2750657',
+                    'Herbivore' => 'http://www.wikidata.org/entity/Q1053008,https://www.wikidata.org/entity/Q59099',
+                    'Herbivore :: Algivore' => 'http://eol.org/schema/terms/TrophicGuild,https://www.wikidata.org/entity/Q7486201',
+                    'Herbivore :: Eats sap or other plant foods' => 'http://eol.org/schema/terms/TrophicGuild',
+                    'Herbivore :: Folivore' => 'http://eol.org/schema/terms/TrophicGuild,http://www.wikidata.org/entity/Q617573',
+                    'Herbivore :: Frugivore' => 'http://eol.org/schema/terms/TrophicGuild,http://www.wikidata.org/entity/Q1470764',
+                    'Herbivore :: Granivore' => 'http://eol.org/schema/terms/TrophicGuild,http://www.wikidata.org/entity/Q1974986',
+                    'Herbivore :: Lignivore' => 'http://eol.org/schema/terms/TrophicGuild,http://www.wikidata.org/entity/Q45879481',
+                    'Herbivore :: Nectarivore' => 'http://eol.org/schema/terms/TrophicGuild,http://www.wikidata.org/entity/Q120880',
+                    'Mycophage' => 'http://eol.org/schema/terms/TrophicGuild,https://www.wikidata.org/entity/Q3331325',
+                    'Omnivore' => 'http://www.wikidata.org/entity/Q1053008,http://www.wikidata.org/entity/Q164509',
+                    'Planktivore' => 'http://eol.org/schema/terms/TrophicGuild,http://wikidata.org/entity/Q7201320'
+                ),
+            'Plant Foods' => Array(
+                    'Algae' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q37868',
+                    'Bryophytes' => 'http://eol.org/schema/terms/Diet,http://www.wikidata.org/entity/Q29993',
+                    'Flowers' => 'http://eol.org/schema/terms/Diet,http://purl.obolibrary.org/obo/PO_0009046',
+                    'Fruit' => 'http://eol.org/schema/terms/Diet,http://purl.obolibrary.org/obo/PO_0009001',
+                    'Leaves' => 'http://eol.org/schema/terms/Diet,http://purl.obolibrary.org/obo/PO_0025034',
+                    'Lichens' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q43142',
+                    'Macroalgae' => 'http://eol.org/schema/terms/Diet,http://purl.obolibrary.org/obo/OMIT_0013523',
+                    'Nectar' => 'http://eol.org/schema/terms/Diet,http://purl.obolibrary.org/obo/BTO_0000537',
+                    'Phytoplankton' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q184755',
+                    'Pollen' => 'http://eol.org/schema/terms/Diet,http://purl.obolibrary.org/obo/PO_0025281',
+                    'Roots and tubers' => 'http://eol.org/schema/terms/Diet,http://purl.obolibrary.org/obo/PO_0009005',
+                    'Sap or other plant fluids' => 'http://eol.org/schema/terms/Diet,http://purl.obolibrary.org/obo/PO_0025538',
+                    'Seeds, grains, and nuts' => 'http://eol.org/schema/terms/Diet,http://purl.obolibrary.org/obo/PO_0009010',
+                    'Wood, bark, or stems' => 'http://eol.org/schema/terms/Diet,http://purl.obolibrary.org/obo/ENVO_00002040'
+                ),
+            'Animal Foods' => Array(
+                    'Amphibians' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q10908',
+                    'Aquatic Crustaceans' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q25364',
+                    'Aquatic or Marine Worms' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q47253',
+                    'Birds' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q5113',
+                    'Blood' => 'http://eol.org/schema/terms/Diet,http://purl.obolibrary.org/obo/NCIT_C12434',
+                    'Body fluids' => 'DISCARD',
+                    'Carrion' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q202994',
+                    'Cnidarians' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q25441',
+                    'Echinoderms' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q44631',
+                    'Eggs' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q17147',
+                    'Fish' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q152',
+                    'Insects' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q1390',
+                    'Mammals' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q7377',
+                    'Mollusks' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q25326',
+                    'Other Marine Invertebrates' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q3737872',
+                    'Reptiles' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q10811',
+                    'Terrestrial Non-insect Arthropods' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q1360',
+                    'Terrestrial Worms' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q47253',
+                    'Zooplankton' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q842627'
+                ),
+            'Other Foods' => Array(
+                    'Detritus' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q736879',
+                    'Dung' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q496',
+                    'Fungus' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q764',
+                    'Microbes' => 'http://eol.org/schema/terms/Diet,https://www.wikidata.org/entity/Q39833'
+                ),
+            'Foraging Behavior' => Array(
+                    'Filter-feeding' => 'http://eol.org/schema/terms/TrophicGuild,http://www.wikidata.org/entity/Q1252491',
+                    'Stores or caches food' => 'DISCARD'
+                )
+        );
     }
 }
 ?>
