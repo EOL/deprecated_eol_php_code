@@ -59,7 +59,7 @@ class QuaardvarkAPI
         $topics = array('Habitat', 'Geographic Range', 'Physical Description', 'Development', 'Reproduction: General Behavior',
                         'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 'Lifespan Longevity', 'Behavior',
                         'Communication and Perception', 'Food Habits');
-        $topics = array('Physical Description'); //debug only
+        $topics = array('Reproduction: Parental Investment'); //debug only
         foreach($topics as $data) self::main($data);
         $this->archive_builder->finalize(true);
         echo "\n"; print_r($this->debug);
@@ -190,7 +190,7 @@ class QuaardvarkAPI
                             $i++;
                         }
                         $rek = array_map('trim', $rek);
-                        // print_r($rek); //exit("\nsample record\n"); //good debug
+                        // print_r($rek); exit("\nsample record\n"); //good debug
                         /*Array( Habitat
                             [Species] => Alpheus heterochaelis
                             [Class] => Malacostraca
@@ -255,6 +255,7 @@ class QuaardvarkAPI
         $subtopics = array_keys($this->values[$data]); //print_r($subtopics); exit;
         foreach($subtopics as $subtopic) {
             if($str = @$rek[$subtopic]) {
+                $mType = @$this->values[$data]['measurementType'][$subtopic];
                 $arr = explode(' | ', $str);
                 $arr = array_map('trim', $arr);
                 // print_r($arr); exit("\n[$subtopic]\n");
@@ -280,20 +281,34 @@ class QuaardvarkAPI
 
                     /*For the [Other Physical Features] section, the measurementType specified works for the values we're using so far. 
                     If we eventually start using some of the others, we'll probably assign them different ones. Don't say I didn't warn you */
-                    if($subtopic == 'Other Physical Features') {
-                    }
+                    if($subtopic == 'Other Physical Features') {}
+                    elseif($subtopic == 'Sexual Dimorphism') $mType = 'http://www.owl-ontologies.com/unnamed.owl#Dimorphism';
                     
-                    if($mValue = $this->values[$data][$subtopic][$string]) {
+                    if(!$mType) exit("\nNo mType yet: [$data] [$subtopic] [$string]\n");
+                    if($mValue = @$this->values[$data][$subtopic][$string]) {
                         if($mValue == 'DISCARD') continue;
+                        
+                        /* e.g. [Eusocial] => http://eol.org/schema/terms/SocialSystem,https://www.wikidata.org/entity/Q753694
+                        then mType is http://eol.org/schema/terms/SocialSystem
+                        and mValue is https://www.wikidata.org/entity/Q753694
+                        */
+                        if($ret = self::comma_separated_value($mValue)) {
+                            $mType = $ret['mType'];
+                            $mValue = $ret['mValue'];
+                        }
+                        
                         $save = array();
                         $save['taxon_id'] = $rek['taxonID'];
                         $save["catnum"] = $rek['taxonID'].'_'.$mType.$mValue; //making it unique. no standard way of doing it.
                         $save['source'] = $rek['furtherInformationURL'];
-                        $save['measurementRemarks'] = $string;
+                        
+                        if($subtopic == 'Parental Investment') $save['measurementRemarks'] = $str;      //e.g. 'aaa | bbb | ccc'
+                        else                                   $save['measurementRemarks'] = $string;   //e.g. 'aaa'
+                        
                         // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit; //just testing
                         $this->func->pre_add_string_types($save, $mValue, $mType, "true");
                     }
-                    else exit("\nShould not go here, not yet initialized. [$data] {$subtopic} [$string]\n");
+                    // else exit("\nShould not go here, not yet initialized. [$data] [$subtopic] [$string]\n"); //acceptable, just ignore it.
                 }
             }
         }
@@ -478,7 +493,7 @@ class QuaardvarkAPI
                     )
             );
     //start mapping 2
-    $this->values['Reproduction: Mating Systems'] => Array(
+    $this->values['Reproduction: Mating Systems'] = Array(
         'measurementType' => 'http://eol.org/schema/terms/MatingSystem',
         'Mating System' => Array(
                 'Cooperative breeder' => 'http://purl.obolibrary.org/obo/GO_0060746,http://eol.org/schema/terms/CooperativeBreeding',
@@ -489,7 +504,7 @@ class QuaardvarkAPI
                 'Polygynous' => 'http://purl.obolibrary.org/obo/ECOCORE_00000065'
             )
     );
-    $this->values['Reproduction: Parental Investment'] => Array(
+    $this->values['Reproduction: Parental Investment'] = Array(
         'measurementType' => 'http://purl.obolibrary.org/obo/GO_0060746', //usually
         'Parental Investment' => Array(
                 'Altricial' => 'http://eol.org/schema/terms/DevelopmentalMode,http://eol.org/schema/terms/altricial',
@@ -630,6 +645,54 @@ class QuaardvarkAPI
                     'Stores or caches food' => 'DISCARD'
                 )
         );
+        
+        
+        
+        [Parental Investment] => Array
+             (
+                 [Altricial] => http://eol.org/schema/terms/DevelopmentalMode,http://eol.org/schema/terms/altricial
+                 [No parental involvement] => http://polytraits.lifewatchgreece.eu/terms/BP_NO
+                 [Post-independence association with parents] => http://polytraits.lifewatchgreece.eu/terms/BP_YES
+                 [Precocial] => http://eol.org/schema/terms/DevelopmentalMode,http://eol.org/schema/terms/precocial
+             )
+    
+    $this->parent_child[]
+
+                 [Pre-fertilization :: Protecting] => https://www.wikidata.org/entity/Q2251595
+                 [Pre-hatching/birth :: Protecting] => https://www.wikidata.org/entity/Q2251595
+                 [Pre-independence :: Protecting] => https://www.wikidata.org/entity/Q2251595
+                 [Pre-weaning/fledging :: Protecting] => https://www.wikidata.org/entity/Q2251595
+
+                 [Pre-fertilization :: Provisioning] => https://www.wikidata.org/entity/Q2874419
+                 [Pre-hatching/birth :: Provisioning] => https://www.wikidata.org/entity/Q2874419
+                 [Pre-independence :: Provisioning] => https://www.wikidata.org/entity/Q2874419
+                 [Pre-weaning/fledging :: Provisioning] => https://www.wikidata.org/entity/Q2874419
+
+                 [Male parental care] => http://eol.org/schema/terms/paternalCare
+                 [Pre-fertilization :: Protecting :: Male] => http://eol.org/schema/terms/paternalCare
+                 [Pre-hatching/birth :: Protecting :: Male] => http://eol.org/schema/terms/paternalCare
+                 [Pre-hatching/birth :: Provisioning :: Male] => http://eol.org/schema/terms/paternalCare
+                 [Pre-independence :: Protecting :: Male] => http://eol.org/schema/terms/paternalCare
+                 [Pre-independence :: Provisioning :: Male] => http://eol.org/schema/terms/paternalCare
+                 [Pre-weaning/fledging :: Protecting :: Male] => http://eol.org/schema/terms/paternalCare
+                 [Pre-weaning/fledging :: Provisioning :: Male] => http://eol.org/schema/terms/paternalCare
+
+                 [Female parental care] => http://eol.org/schema/terms/parentalCareFemale
+                 [Pre-fertilization :: Protecting :: Female] => http://eol.org/schema/terms/parentalCareFemale
+                 [Pre-hatching/birth :: Protecting :: Female] => http://eol.org/schema/terms/parentalCareFemale
+                 [Pre-hatching/birth :: Provisioning :: Female] => http://eol.org/schema/terms/parentalCareFemale
+                 [Pre-independence :: Protecting :: Female] => http://eol.org/schema/terms/parentalCareFemale
+                 [Pre-independence :: Provisioning :: Female] => http://eol.org/schema/terms/parentalCareFemale
+                 [Pre-weaning/fledging :: Protecting :: Female] => http://eol.org/schema/terms/parentalCareFemale
+                 [Pre-weaning/fledging :: Provisioning :: Female] => http://eol.org/schema/terms/parentalCareFemale
+             
+    }
+    private function comma_separated_value($str)
+    {   //e.g. [Eusocial] => http://eol.org/schema/terms/SocialSystem,https://www.wikidata.org/entity/Q753694
+        $arr = explode(',', $str);
+        $arr = array_map('trim', $arr);
+        if(count($arr) == 1) return false;
+        else return array('mType' => $arr[0], 'mValue' => $arr[1]);
     }
 }
 ?>
