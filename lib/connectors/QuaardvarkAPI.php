@@ -259,6 +259,22 @@ class QuaardvarkAPI
                 $arr = explode(' | ', $str);
                 $arr = array_map('trim', $arr);
                 // print_r($arr); exit("\n[$subtopic]\n");
+                
+                start here...
+                /*Array
+                (
+                    [Species] => Abrocoma boliviensis
+                    [Class] => Mammalia
+                    [Order] => Rodentia
+                    [Family] => Abrocomidae
+                    [Parental Investment] => Pre-fertilization | Pre-fertilization :: Provisioning | Pre-fertilization :: Protecting | 
+                        Pre-fertilization :: Protecting :: Female | Pre-hatching/birth | Pre-hatching/birth :: Provisioning | 
+                        Pre-hatching/birth :: Provisioning :: Female | Pre-hatching/birth :: Protecting | Pre-hatching/birth :: Protecting :: Female | 
+                        Pre-weaning/fledging | Pre-weaning/fledging :: Provisioning | Pre-weaning/fledging :: Provisioning :: Female
+                )
+                */
+                
+                
                 foreach($arr as $string) {
                     /*Caveats:
                     For the [Biogeographic Regions] section, the measurementType should be http://eol.org/schema/terms/Present, 
@@ -647,45 +663,18 @@ class QuaardvarkAPI
         );
         
         
-        
-        [Parental Investment] => Array
-             (
-                 [Altricial] => http://eol.org/schema/terms/DevelopmentalMode,http://eol.org/schema/terms/altricial
-                 [No parental involvement] => http://polytraits.lifewatchgreece.eu/terms/BP_NO
-                 [Post-independence association with parents] => http://polytraits.lifewatchgreece.eu/terms/BP_YES
-                 [Precocial] => http://eol.org/schema/terms/DevelopmentalMode,http://eol.org/schema/terms/precocial
-             )
-    
-    $this->parent_child[]
-
-                 [Pre-fertilization :: Protecting] => https://www.wikidata.org/entity/Q2251595
-                 [Pre-hatching/birth :: Protecting] => https://www.wikidata.org/entity/Q2251595
-                 [Pre-independence :: Protecting] => https://www.wikidata.org/entity/Q2251595
-                 [Pre-weaning/fledging :: Protecting] => https://www.wikidata.org/entity/Q2251595
-
-                 [Pre-fertilization :: Provisioning] => https://www.wikidata.org/entity/Q2874419
-                 [Pre-hatching/birth :: Provisioning] => https://www.wikidata.org/entity/Q2874419
-                 [Pre-independence :: Provisioning] => https://www.wikidata.org/entity/Q2874419
-                 [Pre-weaning/fledging :: Provisioning] => https://www.wikidata.org/entity/Q2874419
-
-                 [Male parental care] => http://eol.org/schema/terms/paternalCare
-                 [Pre-fertilization :: Protecting :: Male] => http://eol.org/schema/terms/paternalCare
-                 [Pre-hatching/birth :: Protecting :: Male] => http://eol.org/schema/terms/paternalCare
-                 [Pre-hatching/birth :: Provisioning :: Male] => http://eol.org/schema/terms/paternalCare
-                 [Pre-independence :: Protecting :: Male] => http://eol.org/schema/terms/paternalCare
-                 [Pre-independence :: Provisioning :: Male] => http://eol.org/schema/terms/paternalCare
-                 [Pre-weaning/fledging :: Protecting :: Male] => http://eol.org/schema/terms/paternalCare
-                 [Pre-weaning/fledging :: Provisioning :: Male] => http://eol.org/schema/terms/paternalCare
-
-                 [Female parental care] => http://eol.org/schema/terms/parentalCareFemale
-                 [Pre-fertilization :: Protecting :: Female] => http://eol.org/schema/terms/parentalCareFemale
-                 [Pre-hatching/birth :: Protecting :: Female] => http://eol.org/schema/terms/parentalCareFemale
-                 [Pre-hatching/birth :: Provisioning :: Female] => http://eol.org/schema/terms/parentalCareFemale
-                 [Pre-independence :: Protecting :: Female] => http://eol.org/schema/terms/parentalCareFemale
-                 [Pre-independence :: Provisioning :: Female] => http://eol.org/schema/terms/parentalCareFemale
-                 [Pre-weaning/fledging :: Protecting :: Female] => http://eol.org/schema/terms/parentalCareFemale
-                 [Pre-weaning/fledging :: Provisioning :: Female] => http://eol.org/schema/terms/parentalCareFemale
-             
+    /* under $data = [Reproduction: Parental Investment]
+             $subtopic = [Parental Investment] */
+    $this->parent_child['https://www.wikidata.org/entity/Q2251595'] = array('Pre-fertilization :: Protecting', 'Pre-hatching/birth :: Protecting', 
+                    'Pre-independence :: Protecting', 'Pre-weaning/fledging :: Protecting');
+    $this->parent_child['https://www.wikidata.org/entity/Q2874419'] = array('Pre-fertilization :: Provisioning', 'Pre-hatching/birth :: Provisioning', 
+                    'Pre-independence :: Provisioning', 'Pre-weaning/fledging :: Provisioning');
+    $this->parent_child['http://eol.org/schema/terms/paternalCare'] = array('Male parental care', 'Pre-fertilization :: Protecting :: Male', 
+                    'Pre-hatching/birth :: Protecting :: Male', 'Pre-hatching/birth :: Provisioning :: Male', 'Pre-independence :: Protecting :: Male', 
+                    'Pre-independence :: Provisioning :: Male', 'Pre-weaning/fledging :: Protecting :: Male', 'Pre-weaning/fledging :: Provisioning :: Male');
+    $this->parent_child['http://eol.org/schema/terms/parentalCareFemale'] = array('Female parental care', 'Pre-fertilization :: Protecting :: Female', 
+                    'Pre-hatching/birth :: Protecting :: Female', 'Pre-hatching/birth :: Provisioning :: Female', 'Pre-independence :: Protecting :: Female', 
+                    'Pre-independence :: Provisioning :: Female', 'Pre-weaning/fledging :: Protecting :: Female', 'Pre-weaning/fledging :: Provisioning :: Female');
     }
     private function comma_separated_value($str)
     {   //e.g. [Eusocial] => http://eol.org/schema/terms/SocialSystem,https://www.wikidata.org/entity/Q753694
