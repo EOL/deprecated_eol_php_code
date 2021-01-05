@@ -61,6 +61,7 @@ class QuaardvarkAPI
                         'Communication and Perception', 'Food Habits');
         $topics = array('Reproduction: Parental Investment'); //debug only
         $topics = array('Habitat'); //debug only
+        $topics = array('Geographic Range'); //debug only
         
         foreach($topics as $data) self::main($data);
         $this->archive_builder->finalize(true);
@@ -258,17 +259,18 @@ class QuaardvarkAPI
         foreach($subtopics as $subtopic) {
             if($str = @$rek[$subtopic]) {
                 $ret = self::group_pipe_separated_items_if_needed($str, $data, $subtopic, $mType);
-                $final = $ret['final'];
+                $final = $ret['final']; //see group_pipe_separated_items_if_needed()
                 $mType = $ret['mType'];
-                foreach($final as $mValue => $terms) {
-                    $mRemarks = implode(";", $terms);
+                foreach($final as $mValue => $sections) {
+                    $mRemarks = implode(";", $sections['terms']);
+                    $mType = $sections['mType'];
                     $save = array();
                     $save['taxon_id'] = $rek['taxonID'];
                     $save["catnum"] = $rek['taxonID'].'_'.$mType.$mValue; //making it unique. no standard way of doing it.
                     $save['source'] = $rek['furtherInformationURL'];
                     $save['measurementRemarks'] = $mRemarks;
                     // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit; //just testing
-                    print_r($save); exit("\n[$mType] [$mValue]\n"); //good debug
+                    // print_r($save); exit("\n[$mType] [$mValue]\n"); //good debug
                     $this->func->pre_add_string_types($save, $mValue, $mType, "true");
                 }
             }
@@ -651,12 +653,15 @@ class QuaardvarkAPI
                 Pre-hatching/birth :: Provisioning :: Female | Pre-hatching/birth :: Protecting | Pre-hatching/birth :: Protecting :: Female | 
                 Pre-weaning/fledging | Pre-weaning/fledging :: Provisioning | Pre-weaning/fledging :: Provisioning :: Female
         )*/
-        if($val = @$this->values[$data][$subtopic]['measurementType']) $mType = $val;
         
-        echo("\n[$str]\n");
+        // echo("\n[$str]\n");
         $arr = explode(' | ', $str);
         $arr = array_map('trim', $arr);
         foreach($arr as $string) {
+
+            if($val = @$this->values[$data]['measurementType']) $mType = $val;
+            if($val = @$this->values[$data][$subtopic]['measurementType']) $mType = $val;
+
             /*Caveats:
             For the [Biogeographic Regions] section, the measurementType should be http://eol.org/schema/terms/Present, 
             unless the value has Native or Introduced appended. If those are present, they should change the measurementType:
@@ -666,7 +671,8 @@ class QuaardvarkAPI
                 $mType = 'http://eol.org/schema/terms/Present';
                 if(stripos($string, "Native") !== false)         $mType = 'http://eol.org/schema/terms/NativeRange'; //string is found
                 elseif(stripos($string, "Introduced") !== false) $mType = 'http://eol.org/schema/terms/IntroducedRange'; //string is found
-
+                else                                             $mType = 'http://eol.org/schema/terms/Present';
+                
                 /*[Oceanic Islands] is an exception. This is a habitat, more than a distribution, 
                 so it should have measurementType=http://purl.obolibrary.org/obo/RO_0002303, 
                 regardless of whether "Native" or with nothing appended. If "Introduced" is present for this one, please discard the record.*/
@@ -683,7 +689,6 @@ class QuaardvarkAPI
             
             if(!$mType) exit("\nNo mType yet: [$data] [$subtopic] [$string]\n");
             
-            if($mValue = @$this->values[$data][$subtopic][$string]) 
             if($mValue = @$this->values[$data][$subtopic][$string]) {
                 if($mValue == 'DISCARD') continue;
                 
@@ -695,7 +700,9 @@ class QuaardvarkAPI
                     $mType = $ret['mType'];
                     $mValue = $ret['mValue'];
                 }
-                $final[$mValue][] = $string;
+                if($subtopic == 'Parental Investment') $final[$mValue]['terms'][] = $string;
+                else                                   $final[$mValue]['terms'] = array($string);
+                $final[$mValue]['mType'] = $mType;
                 
                 // $save = array();
                 // $save['taxon_id'] = $rek['taxonID'];
