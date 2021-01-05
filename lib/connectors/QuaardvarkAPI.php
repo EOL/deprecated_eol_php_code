@@ -59,9 +59,25 @@ class QuaardvarkAPI
         $topics = array('Habitat', 'Geographic Range', 'Physical Description', 'Development', 'Reproduction: General Behavior',
                         'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 'Lifespan Longevity', 'Behavior',
                         'Communication and Perception', 'Food Habits');
-        $topics = array('Reproduction: Parental Investment'); //debug only
-        $topics = array('Habitat'); //debug only
+        /*
+        x- Habitat
+        x- Geographic Range
+        x- Physical Description
+        - Development
+        x- Reproduction: Mating Systems
+        - Reproduction: General Behavior
+        x- Reproduction: Parental Investment
+        - Lifespan Longevity
+        x- Behavior
+        - Communication and Perception
+        x- Food Habits
+        */
+        $topics = array('Habitat', 'Geographic Range', 'Physical Description', 'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 
+                        'Behavior', 'Food Habits');
+        // $topics = array('Reproduction: Parental Investment'); //debug only
+        // $topics = array('Habitat'); //debug only
         // $topics = array('Geographic Range'); //debug only
+        // $topics = array('Food Habits'); //debug only
         
         foreach($topics as $data) self::main($data);
         $this->archive_builder->finalize(true);
@@ -81,7 +97,7 @@ class QuaardvarkAPI
                     $recs = self::parse_page($html, $data);
                 }
                 $sum = $sum + 200;
-                if($i >= 2) break; //debug only
+                // if($i >= 2) break; //debug only
             }
         }
         if(isset($this->debug['Habitat'])) {
@@ -251,7 +267,7 @@ class QuaardvarkAPI
         )*/
         
         // $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
-        $mType = $this->values[$data]['measurementType']; //exit("\n$mType\n");
+        $mType = @$this->values[$data]['measurementType']; //exit("\n$mType\n");
         // print_r($rek);
         
         // $subtopics = array('Habitat Regions', 'Terrestrial Biomes', 'Aquatic Biomes', 'Wetlands', 'Other Habitat Features');
@@ -654,7 +670,7 @@ class QuaardvarkAPI
                 Pre-hatching/birth :: Provisioning :: Female | Pre-hatching/birth :: Protecting | Pre-hatching/birth :: Protecting :: Female | 
                 Pre-weaning/fledging | Pre-weaning/fledging :: Provisioning | Pre-weaning/fledging :: Provisioning :: Female
         )*/
-        
+        $final = array();
         // echo("\n[$str]\n");
         $arr = explode(' | ', $str);
         $arr = array_map('trim', $arr);
@@ -688,8 +704,6 @@ class QuaardvarkAPI
             if($subtopic == 'Other Physical Features') {}
             elseif($subtopic == 'Sexual Dimorphism') $mType = 'http://www.owl-ontologies.com/unnamed.owl#Dimorphism';
             
-            if(!$mType) exit("\nNo mType yet: [$data] [$subtopic] [$string]\n");
-            
             if($mValue = @$this->values[$data][$subtopic][$string]) {
                 if($mValue == 'DISCARD') continue;
                 
@@ -701,8 +715,12 @@ class QuaardvarkAPI
                     $mType = $ret['mType'];
                     $mValue = $ret['mValue'];
                 }
-                if(in_array($subtopic, array('Parental Investment')) || $data == 'Habitat') $final[$mValue]['terms'][] = $string;
-                else                                   $final[$mValue]['terms'] = array($string);
+                
+                if(!$mType) exit("\nNo mType yet: [$data] [$subtopic] [$string]\n");
+                
+                if(in_array($subtopic, array('Parental Investment')) || 
+                   in_array($data, array('Habitat', 'Food Habits'))) $final[$mValue]['terms'][] = $string;
+                else                                                 $final[$mValue]['terms'] = array($string);
                 $final[$mValue]['mType'] = $mType;
                 
                 // $save = array();
@@ -738,8 +756,11 @@ class QuaardvarkAPI
                     [0] => Terrestrial
                 )
         )*/
+        
+        // if(!$final) exit("\n[$data] [$subtopic] [$str] qwerty\n"); //debug only
+        
         $ret = array('mType' => $mType, 'final' => $final);
-        print_r($ret); //exit("\n-111-\n");
+        // print_r($ret); //exit("\n-111-\n");
         return $ret;
     }
 }
