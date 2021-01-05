@@ -60,6 +60,8 @@ class QuaardvarkAPI
                         'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 'Lifespan Longevity', 'Behavior',
                         'Communication and Perception', 'Food Habits');
         $topics = array('Reproduction: Parental Investment'); //debug only
+        $topics = array('Habitat'); //debug only
+        
         foreach($topics as $data) self::main($data);
         $this->archive_builder->finalize(true);
         echo "\n"; print_r($this->debug);
@@ -248,83 +250,26 @@ class QuaardvarkAPI
         )*/
         
         // $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
-        $mType = $this->values[$data]['measurementType'];
+        $mType = $this->values[$data]['measurementType']; //exit("\n$mType\n");
         // print_r($rek);
         
         // $subtopics = array('Habitat Regions', 'Terrestrial Biomes', 'Aquatic Biomes', 'Wetlands', 'Other Habitat Features');
         $subtopics = array_keys($this->values[$data]); //print_r($subtopics); exit;
         foreach($subtopics as $subtopic) {
             if($str = @$rek[$subtopic]) {
-                $mType = @$this->values[$data]['measurementType'][$subtopic];
-                $arr = explode(' | ', $str);
-                $arr = array_map('trim', $arr);
-                // print_r($arr); exit("\n[$subtopic]\n");
-                
-                start here...
-                /*Array
-                (
-                    [Species] => Abrocoma boliviensis
-                    [Class] => Mammalia
-                    [Order] => Rodentia
-                    [Family] => Abrocomidae
-                    [Parental Investment] => Pre-fertilization | Pre-fertilization :: Provisioning | Pre-fertilization :: Protecting | 
-                        Pre-fertilization :: Protecting :: Female | Pre-hatching/birth | Pre-hatching/birth :: Provisioning | 
-                        Pre-hatching/birth :: Provisioning :: Female | Pre-hatching/birth :: Protecting | Pre-hatching/birth :: Protecting :: Female | 
-                        Pre-weaning/fledging | Pre-weaning/fledging :: Provisioning | Pre-weaning/fledging :: Provisioning :: Female
-                )
-                */
-                
-                
-                foreach($arr as $string) {
-                    /*Caveats:
-                    For the [Biogeographic Regions] section, the measurementType should be http://eol.org/schema/terms/Present, 
-                    unless the value has Native or Introduced appended. If those are present, they should change the measurementType:
-                    Native => http://eol.org/schema/terms/NativeRange
-                    Introduced => http://eol.org/schema/terms/IntroducedRange*/
-                    if($subtopic == 'Biogeographic Regions') {
-                        $mType = 'http://eol.org/schema/terms/Present';
-                        if(stripos($string, "Native") !== false)         $mType = 'http://eol.org/schema/terms/NativeRange'; //string is found
-                        elseif(stripos($string, "Introduced") !== false) $mType = 'http://eol.org/schema/terms/IntroducedRange'; //string is found
-
-                        /*[Oceanic Islands] is an exception. This is a habitat, more than a distribution, 
-                        so it should have measurementType=http://purl.obolibrary.org/obo/RO_0002303, 
-                        regardless of whether "Native" or with nothing appended. If "Introduced" is present for this one, please discard the record.*/
-                        if(stripos($string, "Oceanic Islands") !== false) { //string is found
-                            $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
-                            if(stripos($string, "Introduced") !== false) continue; //string is found
-                        }
-                    }
-
-                    /*For the [Other Physical Features] section, the measurementType specified works for the values we're using so far. 
-                    If we eventually start using some of the others, we'll probably assign them different ones. Don't say I didn't warn you */
-                    if($subtopic == 'Other Physical Features') {}
-                    elseif($subtopic == 'Sexual Dimorphism') $mType = 'http://www.owl-ontologies.com/unnamed.owl#Dimorphism';
-                    
-                    if(!$mType) exit("\nNo mType yet: [$data] [$subtopic] [$string]\n");
-                    if($mValue = @$this->values[$data][$subtopic][$string]) {
-                        if($mValue == 'DISCARD') continue;
-                        
-                        /* e.g. [Eusocial] => http://eol.org/schema/terms/SocialSystem,https://www.wikidata.org/entity/Q753694
-                        then mType is http://eol.org/schema/terms/SocialSystem
-                        and mValue is https://www.wikidata.org/entity/Q753694
-                        */
-                        if($ret = self::comma_separated_value($mValue)) {
-                            $mType = $ret['mType'];
-                            $mValue = $ret['mValue'];
-                        }
-                        
-                        $save = array();
-                        $save['taxon_id'] = $rek['taxonID'];
-                        $save["catnum"] = $rek['taxonID'].'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-                        $save['source'] = $rek['furtherInformationURL'];
-                        
-                        if($subtopic == 'Parental Investment') $save['measurementRemarks'] = $str;      //e.g. 'aaa | bbb | ccc'
-                        else                                   $save['measurementRemarks'] = $string;   //e.g. 'aaa'
-                        
-                        // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit; //just testing
-                        $this->func->pre_add_string_types($save, $mValue, $mType, "true");
-                    }
-                    // else exit("\nShould not go here, not yet initialized. [$data] [$subtopic] [$string]\n"); //acceptable, just ignore it.
+                $ret = self::group_pipe_separated_items_if_needed($str, $data, $subtopic, $mType);
+                $final = $ret['final'];
+                $mType = $ret['mType'];
+                foreach($final as $mValue => $terms) {
+                    $mRemarks = implode(";", $terms);
+                    $save = array();
+                    $save['taxon_id'] = $rek['taxonID'];
+                    $save["catnum"] = $rek['taxonID'].'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                    $save['source'] = $rek['furtherInformationURL'];
+                    $save['measurementRemarks'] = $mRemarks;
+                    // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit; //just testing
+                    print_r($save); exit("\n[$mType] [$mValue]\n"); //good debug
+                    $this->func->pre_add_string_types($save, $mValue, $mType, "true");
                 }
             }
         }
@@ -384,7 +329,19 @@ class QuaardvarkAPI
         }
     }
     private function initialize()
-    {
+    {   /*
+        x- Habitat
+        x- Geographic Range
+        x- Physical Description
+        - Development
+        x- Reproduction: Mating Systems
+        - Reproduction: General Behavior
+        x- Reproduction: Parental Investment
+        - Lifespan Longevity
+        x- Behavior
+        - Communication and Perception
+        x- Food Habits
+        */
         $this->values['Habitat'] = Array(
                 'measurementType' => 'http://purl.obolibrary.org/obo/RO_0002303',
                 'Habitat Regions' => Array(
@@ -682,6 +639,100 @@ class QuaardvarkAPI
         $arr = array_map('trim', $arr);
         if(count($arr) == 1) return false;
         else return array('mType' => $arr[0], 'mValue' => $arr[1]);
+    }
+    private function group_pipe_separated_items_if_needed($str, $data, $subtopic, $mType)
+    {   /*Array(
+            [Species] => Abrocoma boliviensis
+            [Class] => Mammalia
+            [Order] => Rodentia
+            [Family] => Abrocomidae
+            $str = [Parental Investment] => Pre-fertilization | Pre-fertilization :: Provisioning | Pre-fertilization :: Protecting | 
+                Pre-fertilization :: Protecting :: Female | Pre-hatching/birth | Pre-hatching/birth :: Provisioning | 
+                Pre-hatching/birth :: Provisioning :: Female | Pre-hatching/birth :: Protecting | Pre-hatching/birth :: Protecting :: Female | 
+                Pre-weaning/fledging | Pre-weaning/fledging :: Provisioning | Pre-weaning/fledging :: Provisioning :: Female
+        )*/
+        if($val = @$this->values[$data][$subtopic]['measurementType']) $mType = $val;
+        
+        echo("\n[$str]\n");
+        $arr = explode(' | ', $str);
+        $arr = array_map('trim', $arr);
+        foreach($arr as $string) {
+            /*Caveats:
+            For the [Biogeographic Regions] section, the measurementType should be http://eol.org/schema/terms/Present, 
+            unless the value has Native or Introduced appended. If those are present, they should change the measurementType:
+            Native => http://eol.org/schema/terms/NativeRange
+            Introduced => http://eol.org/schema/terms/IntroducedRange*/
+            if($subtopic == 'Biogeographic Regions') {
+                $mType = 'http://eol.org/schema/terms/Present';
+                if(stripos($string, "Native") !== false)         $mType = 'http://eol.org/schema/terms/NativeRange'; //string is found
+                elseif(stripos($string, "Introduced") !== false) $mType = 'http://eol.org/schema/terms/IntroducedRange'; //string is found
+
+                /*[Oceanic Islands] is an exception. This is a habitat, more than a distribution, 
+                so it should have measurementType=http://purl.obolibrary.org/obo/RO_0002303, 
+                regardless of whether "Native" or with nothing appended. If "Introduced" is present for this one, please discard the record.*/
+                if(stripos($string, "Oceanic Islands") !== false) { //string is found
+                    $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
+                    if(stripos($string, "Introduced") !== false) continue; //string is found
+                }
+            }
+
+            /*For the [Other Physical Features] section, the measurementType specified works for the values we're using so far. 
+            If we eventually start using some of the others, we'll probably assign them different ones. Don't say I didn't warn you */
+            if($subtopic == 'Other Physical Features') {}
+            elseif($subtopic == 'Sexual Dimorphism') $mType = 'http://www.owl-ontologies.com/unnamed.owl#Dimorphism';
+            
+            if(!$mType) exit("\nNo mType yet: [$data] [$subtopic] [$string]\n");
+            
+            if($mValue = @$this->values[$data][$subtopic][$string]) 
+            if($mValue = @$this->values[$data][$subtopic][$string]) {
+                if($mValue == 'DISCARD') continue;
+                
+                /* e.g. [Eusocial] => http://eol.org/schema/terms/SocialSystem,https://www.wikidata.org/entity/Q753694
+                then mType is http://eol.org/schema/terms/SocialSystem
+                and mValue is https://www.wikidata.org/entity/Q753694
+                */
+                if($ret = self::comma_separated_value($mValue)) {
+                    $mType = $ret['mType'];
+                    $mValue = $ret['mValue'];
+                }
+                $final[$mValue][] = $string;
+                
+                // $save = array();
+                // $save['taxon_id'] = $rek['taxonID'];
+                // $save["catnum"] = $rek['taxonID'].'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                // $save['source'] = $rek['furtherInformationURL'];
+                // // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit; //just testing
+                // $this->func->pre_add_string_types($save, $mValue, $mType, "true");
+                
+            }
+            // else exit("\nShould not go here, not yet initialized. [$data] [$subtopic] [$string]\n"); //acceptable, just ignore it.
+        } //end foreach()
+        
+        /*Array( 'Parental Investment' sample
+            [https://www.wikidata.org/entity/Q2874419] => Array(
+                    [0] => Pre-fertilization :: Provisioning
+                    [1] => Pre-hatching/birth :: Provisioning
+                    [2] => Pre-weaning/fledging :: Provisioning)
+            [https://www.wikidata.org/entity/Q2251595] => Array(
+                    [0] => Pre-fertilization :: Protecting
+                    [1] => Pre-hatching/birth :: Protecting)
+            [http://eol.org/schema/terms/parentalCareFemale] => Array(
+                    [0] => Pre-fertilization :: Protecting :: Female
+                    [1] => Pre-hatching/birth :: Provisioning :: Female
+                    [2] => Pre-hatching/birth :: Protecting :: Female
+                    [3] => Pre-weaning/fledging :: Provisioning :: Female)
+        )
+        Array( 'Habitat' sample
+            [http://purl.obolibrary.org/obo/ENVO_01000204] => Array(
+                    [0] => Tropical
+                )
+            [http://purl.obolibrary.org/obo/ENVO_00000446] => Array(
+                    [0] => Terrestrial
+                )
+        )*/
+        $ret = array('mType' => $mType, 'final' => $final);
+        print_r($ret); //exit("\n-111-\n");
+        return $ret;
     }
 }
 ?>
