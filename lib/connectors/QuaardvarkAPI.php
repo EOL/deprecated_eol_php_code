@@ -61,7 +61,7 @@ class QuaardvarkAPI
                         'Communication and Perception', 'Food Habits');
         $topics = array('Reproduction: Parental Investment'); //debug only
         $topics = array('Habitat'); //debug only
-        $topics = array('Geographic Range'); //debug only
+        // $topics = array('Geographic Range'); //debug only
         
         foreach($topics as $data) self::main($data);
         $this->archive_builder->finalize(true);
@@ -621,19 +621,20 @@ class QuaardvarkAPI
                 )
         );
         
-        
-    /* under $data = [Reproduction: Parental Investment]
-             $subtopic = [Parental Investment] */
-    $this->parent_child['https://www.wikidata.org/entity/Q2251595'] = array('Pre-fertilization :: Protecting', 'Pre-hatching/birth :: Protecting', 
-                    'Pre-independence :: Protecting', 'Pre-weaning/fledging :: Protecting');
-    $this->parent_child['https://www.wikidata.org/entity/Q2874419'] = array('Pre-fertilization :: Provisioning', 'Pre-hatching/birth :: Provisioning', 
-                    'Pre-independence :: Provisioning', 'Pre-weaning/fledging :: Provisioning');
-    $this->parent_child['http://eol.org/schema/terms/paternalCare'] = array('Male parental care', 'Pre-fertilization :: Protecting :: Male', 
-                    'Pre-hatching/birth :: Protecting :: Male', 'Pre-hatching/birth :: Provisioning :: Male', 'Pre-independence :: Protecting :: Male', 
-                    'Pre-independence :: Provisioning :: Male', 'Pre-weaning/fledging :: Protecting :: Male', 'Pre-weaning/fledging :: Provisioning :: Male');
-    $this->parent_child['http://eol.org/schema/terms/parentalCareFemale'] = array('Female parental care', 'Pre-fertilization :: Protecting :: Female', 
-                    'Pre-hatching/birth :: Protecting :: Female', 'Pre-hatching/birth :: Provisioning :: Female', 'Pre-independence :: Protecting :: Female', 
-                    'Pre-independence :: Provisioning :: Female', 'Pre-weaning/fledging :: Protecting :: Female', 'Pre-weaning/fledging :: Provisioning :: Female');
+        /* NOT NEEDED ANYMORE...
+           under $data = [Reproduction: Parental Investment]
+             $subtopic = [Parental Investment]
+        $this->parent_child['https://www.wikidata.org/entity/Q2251595'] = array('Pre-fertilization :: Protecting', 'Pre-hatching/birth :: Protecting', 
+                        'Pre-independence :: Protecting', 'Pre-weaning/fledging :: Protecting');
+        $this->parent_child['https://www.wikidata.org/entity/Q2874419'] = array('Pre-fertilization :: Provisioning', 'Pre-hatching/birth :: Provisioning', 
+                        'Pre-independence :: Provisioning', 'Pre-weaning/fledging :: Provisioning');
+        $this->parent_child['http://eol.org/schema/terms/paternalCare'] = array('Male parental care', 'Pre-fertilization :: Protecting :: Male', 
+                        'Pre-hatching/birth :: Protecting :: Male', 'Pre-hatching/birth :: Provisioning :: Male', 'Pre-independence :: Protecting :: Male', 
+                        'Pre-independence :: Provisioning :: Male', 'Pre-weaning/fledging :: Protecting :: Male', 'Pre-weaning/fledging :: Provisioning :: Male');
+        $this->parent_child['http://eol.org/schema/terms/parentalCareFemale'] = array('Female parental care', 'Pre-fertilization :: Protecting :: Female', 
+                        'Pre-hatching/birth :: Protecting :: Female', 'Pre-hatching/birth :: Provisioning :: Female', 'Pre-independence :: Protecting :: Female', 
+                        'Pre-independence :: Provisioning :: Female', 'Pre-weaning/fledging :: Protecting :: Female', 'Pre-weaning/fledging :: Provisioning :: Female');
+        */
     }
     private function comma_separated_value($str)
     {   //e.g. [Eusocial] => http://eol.org/schema/terms/SocialSystem,https://www.wikidata.org/entity/Q753694
@@ -700,7 +701,7 @@ class QuaardvarkAPI
                     $mType = $ret['mType'];
                     $mValue = $ret['mValue'];
                 }
-                if($subtopic == 'Parental Investment') $final[$mValue]['terms'][] = $string;
+                if(in_array($subtopic, array('Parental Investment')) || $data == 'Habitat') $final[$mValue]['terms'][] = $string;
                 else                                   $final[$mValue]['terms'] = array($string);
                 $final[$mValue]['mType'] = $mType;
                 
