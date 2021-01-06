@@ -804,36 +804,60 @@ class QuaardvarkAPI
                 [extension] => jpg
                 [filename] => medium
             )*/
-            $rec = self::parse_image_summary($pathinfo['dirname']);
+            $img_rec = self::parse_image_summary($pathinfo['dirname']);
+            $img_rec['taxonID'] = $rek['taxonID'];
+            $img_rec['source'] = $pathinfo['dirname'];
+            $img_rec['mimetype'] = Functions::get_mimetype($pathinfo['basename']);
+            $img_rec['datatype'] = Functions::get_datatype_given_mimetype($img_rec['mimetype']);
+            print_r($img_rec); exit;
+            /*Array(
+                [Caption] => Sleepy orange (Abaeis nicippe)
+                [Agent long] => Melody Lytle (photographer; copyright holder; identification)
+                [agent role] => photographer
+                [Agent short] => Melody Lytle
+                [license] => by-nc-sa
+                [license long] => This work is licensed under a Creative Commons Attribution-Noncommercial-Share Alike 3.0 Unported License.
+                [source] => https://animaldiversity.org/collections/contributors/melody_lytle/abaeis_nicippe
+                [mimetype] => image/jpeg
+                [datatype] => http://purl.org/dc/dcmitype/StillImage
+            )*/
+            $this->accepted_licenses = array('by-nc-sa', 'by-nc', 'by-sa', 'by', 'publicdomain');
+            $this->license_lookup['publicdomain'] = 'http://creativecommons.org/licenses/publicdomain/';
+            $this->license_lookup['by'] = 'http://creativecommons.org/licenses/by/3.0/';
+            $this->license_lookup['by-nc'] = 'http://creativecommons.org/licenses/by-nc/3.0/';
+            $this->license_lookup['by-sa'] = 'http://creativecommons.org/licenses/by-sa/3.0/';
+            $this->license_lookup['by-nc-sa'] = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
+            if(in_array($img_rec['license'], $this->accepted_licenses)) self::write_media_objects();
         }
-        exit("\nstop munax\n");
+        // exit("\nstop munax\n");
     }
     private function parse_image_summary($url)
     {
+        // $url = 'https://animaldiversity.org/collections/contributors/farhang_torki/Apannonicus3'; //debug only - forced value
         $options = $this->download_options;
         $options['expire_seconds'] = 60*60*24*365; //expires in a year
-        if($html = Functions::lookup_with_cache($url, $options)) {
-            // echo "\n$url\n"; exit("\n$html\n");
+        if($html = Functions::lookup_with_cache($url, $options)) { // echo "\n$url\n"; exit("\n$html\n");
             $img = array();
             if(preg_match("/<h3>Date Taken<\/h3>(.*?)<\/p>/ims", $html, $a)) $img['Date Taken'] = strip_tags(trim($a[1]));
             if(preg_match("/<h3>Caption<\/h3>(.*?)<\/p>/ims", $html, $a)) $img['Caption'] = strip_tags(trim($a[1]));
-
             /*<h3>Contributors</h3>
-          <div class="block">
+            <div class="block">
             <p><a href="http://www.karenmelody.com/" class="external-link">Melody Lytle</a> (photographer; copyright holder; identification)</p>
-          </div>*/
+            </div>*/
             if(preg_match("/<h3>Contributors<\/h3>(.*?)<\/div>/ims", $html, $a)) {
                 $img['Agent long'] = trim(strip_tags(trim($a[1])));
                 if(stripos($img['Agent long'], "photographer") !== false) $img['agent role'] = 'photographer'; //string is found
                 $img['Agent short'] = trim(preg_replace('/\s*\([^)]*\)/', '', $img['Agent long'])); //remove parenthesis
             }
-            
             if(preg_match("/<h3>Conditions of Use<\/h3>(.*?)<\/p>/ims", $html, $a)) {
                 // http://creativecommons.org/licenses/by-nc-sa/3.0/
                 if(preg_match("/\:\/\/creativecommons\.org\/licenses\/(.*?)\//ims", $a[1], $a2)) $img['license'] = $a2[1];
+                $img['license long'] = trim(strip_tags(trim($a[1])));
             }
-
-            print_r($img); //exit;
+            // print_r($img); //exit;
+            return $img;
+        }
+        else exit("\nInvestigate down URL [$url]\n");
             
             /*
             <h3>Date Taken</h3>
@@ -875,7 +899,6 @@ class QuaardvarkAPI
             <p><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons Attribution-Noncommercial-Share Alike 3.0 Unported License</a>.
                 </p>            
             */
-        }
     }
 }
 ?>
