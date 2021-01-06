@@ -49,7 +49,8 @@ class QuaardvarkAPI
         
         $this->url['Media Assets: Subjects > Live Animal'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379B89-5DF7-0001-62C8-9A96CCF04A50/?start=';
         $this->field_count['Media Assets: Subjects > Live Animal'] = 5;
-        
+        $this->url['Media Assets: Subjects > Behaviors'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379B95-BFFC-0001-9DBF-374010D0F720/?start=';
+        $this->field_count['Media Assets: Subjects > Behaviors'] = 5;
     }
     public function start()
     {   // /* copied template
@@ -81,7 +82,10 @@ class QuaardvarkAPI
         // $topics = array('Reproduction: Parental Investment'); //debug only
         // $topics = array('Habitat'); //debug only
         // $topics = array('Geographic Range'); //debug only
+        
         $topics = array('Media Assets: Subjects > Live Animal'); // for stillImage objects
+        $topics = array('Media Assets: Subjects > Behaviors'); // for stillImage objects
+        
         
         foreach($topics as $data) self::main($data);
         $this->archive_builder->finalize(true);
@@ -259,7 +263,7 @@ class QuaardvarkAPI
                             [Basal Metabolic Rate - extreme high - W] => 
                         )*/
                         $rek = self::write_taxon($rek);
-                        if($data == 'Media Assets: Subjects > Live Animal') self::main_proc_images($rek);
+                        if(in_array($data, array('Media Assets: Subjects > Live Animal', 'Media Assets: Subjects > Behaviors'))) self::main_proc_images($rek);
                         else {
                             self::for_stats($rek, $data); //for stats only
                             self::write_habitat_MoF($rek, $data);
@@ -793,8 +797,13 @@ class QuaardvarkAPI
             [taxonID] => Abaeis_nicippe
             [furtherInformationURL] => https://animaldiversity.org/accounts/Abaeis_nicippe/
         )*/
-        $arr = explode("|", $rek['Live Animal :: Live Animal']);
-        print_r($arr); //exit;
+        
+        if($val = @$rek['Live Animal :: Live Animal']) {}
+        elseif($val = @$rek['Behaviors :: Behaviors']) {}
+        else exit("\nNot yet initialized.\n");
+        $arr = explode("|", $val);
+        
+        // print_r($arr); exit("\n---\n");
         foreach($arr as $url) {
             $pathinfo = pathinfo($url);
             // print_r($pathinfo); exit;
