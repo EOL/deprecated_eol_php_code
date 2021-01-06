@@ -46,6 +46,10 @@ class QuaardvarkAPI
         if(!is_dir($path)) mkdir($path);
         $this->report = $path;
         // exit("\n$this->report\n");
+        
+        $this->url['Media Assets: Subjects > Live Animal'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379B89-5DF7-0001-62C8-9A96CCF04A50/?start=';
+        $this->field_count['Media Assets: Subjects > Live Animal'] = 5;
+        
     }
     public function start()
     {   // /* copied template
@@ -77,7 +81,7 @@ class QuaardvarkAPI
         // $topics = array('Reproduction: Parental Investment'); //debug only
         // $topics = array('Habitat'); //debug only
         // $topics = array('Geographic Range'); //debug only
-        // $topics = array('Food Habits'); //debug only
+        $topics = array('Media Assets: Subjects > Live Animal'); // for stillImage objects
         
         foreach($topics as $data) self::main($data);
         $this->archive_builder->finalize(true);
@@ -97,7 +101,7 @@ class QuaardvarkAPI
                     $recs = self::parse_page($html, $data);
                 }
                 $sum = $sum + 200;
-                // if($i >= 2) break; //debug only
+                if($i >= 2) break; //debug only
             }
         }
         if(isset($this->debug['Habitat'])) {
@@ -176,16 +180,29 @@ class QuaardvarkAPI
                         // print_r($cols); exit; //good debug
                         $ret = array();
                         foreach($cols as $col) {
-                            $tmp = strip_tags("<td".$col, "<span>");
-                            if(preg_match_all("/<span>(.*?)<\/span>/ims", $tmp, $a4)) {
-                                $tmp = $a4[1];
-                                $tmp = array_filter($tmp); //remove null arrays
-                                $tmp = array_unique($tmp); //make unique
-                                $tmp = array_values($tmp); //reindex key
-                                if($tmp) $tmp = implode(" | ", $tmp);
-                                else     $tmp = '';
+                            // echo "\n---[$col]\n";
+                            
+                            if(substr(trim($col),0,15) == 'type="gallery">') {
+                                // print_r($ret); exit("\n123\n");
+                                if(preg_match_all("/href=\"(.*?)\"/ims", $col, $eli)) {
+                                    // print_r($eli[1]); //exit;
+                                    $ret[] = implode("|", $eli[1]);
+                                }
                             }
-                            $ret[] = $tmp;
+                            else { //orig
+                                $tmp = strip_tags("<td".$col, "<span>");
+                                if(preg_match_all("/<span>(.*?)<\/span>/ims", $tmp, $a4)) {
+                                    $tmp = $a4[1];
+                                    $tmp = array_filter($tmp); //remove null arrays
+                                    $tmp = array_unique($tmp); //make unique
+                                    $tmp = array_values($tmp); //reindex key
+                                    if($tmp) $tmp = implode(" | ", $tmp);
+                                    else     $tmp = '';
+                                }
+                                $ret[] = $tmp;
+                            }
+                            
+                            
                         }
                         $ret = array_map('trim', $ret);
                         // print_r($ret); exit; //good debug
@@ -242,9 +259,11 @@ class QuaardvarkAPI
                             [Basal Metabolic Rate - extreme high - W] => 
                         )*/
                         $rek = self::write_taxon($rek);
-                        self::for_stats($rek, $data); //for stats only
-                        // if($data == 'Habitat') 
-                        self::write_habitat_MoF($rek, $data);
+                        if($data == 'Media Assets: Subjects > Live Animal') self::main_proc_images($rek);
+                        else {
+                            self::for_stats($rek, $data); //for stats only
+                            self::write_habitat_MoF($rek, $data);
+                        }
                         fwrite($f, implode("\t", $rek)."\n");
                     }
                 }
@@ -762,6 +781,101 @@ class QuaardvarkAPI
         $ret = array('mType' => $mType, 'final' => $final);
         // print_r($ret); //exit("\n-111-\n");
         return $ret;
+    }
+    private function main_proc_images($rek)
+    {   //print_r($rek); exit;
+        /*Array(
+            [Species] => Abaeis nicippe
+            [Class] => Insecta
+            [Order] => Lepidoptera
+            [Family] => Pieridae
+            [Live Animal :: Live Animal] => https://animaldiversity.org/collections/contributors/melody_lytle/abaeis_nicippe/medium.jpg|https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/Abaeis0791/medium.jpg|https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/Abaeis9231/medium.jpg|https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/butterfly0935/medium.jpg|https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/butterfly1088/medium.jpg|https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/Eurema7287/medium.jpg
+            [taxonID] => Abaeis_nicippe
+            [furtherInformationURL] => https://animaldiversity.org/accounts/Abaeis_nicippe/
+        )*/
+        $arr = explode("|", $rek['Live Animal :: Live Animal']);
+        print_r($arr); //exit;
+        foreach($arr as $url) {
+            $pathinfo = pathinfo($url);
+            // print_r($pathinfo); exit;
+            /*Array(
+                [dirname] => https://animaldiversity.org/collections/contributors/melody_lytle/abaeis_nicippe
+                [basename] => medium.jpg
+                [extension] => jpg
+                [filename] => medium
+            )*/
+            $rec = self::parse_image_summary($pathinfo['dirname']);
+        }
+        exit("\nstop munax\n");
+    }
+    private function parse_image_summary($url)
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24*365; //expires in a year
+        if($html = Functions::lookup_with_cache($url, $options)) {
+            // echo "\n$url\n"; exit("\n$html\n");
+            $img = array();
+            if(preg_match("/<h3>Date Taken<\/h3>(.*?)<\/p>/ims", $html, $a)) $img['Date Taken'] = strip_tags(trim($a[1]));
+            if(preg_match("/<h3>Caption<\/h3>(.*?)<\/p>/ims", $html, $a)) $img['Caption'] = strip_tags(trim($a[1]));
+
+            /*<h3>Contributors</h3>
+          <div class="block">
+            <p><a href="http://www.karenmelody.com/" class="external-link">Melody Lytle</a> (photographer; copyright holder; identification)</p>
+          </div>*/
+            if(preg_match("/<h3>Contributors<\/h3>(.*?)<\/div>/ims", $html, $a)) {
+                $img['Agent long'] = trim(strip_tags(trim($a[1])));
+                if(stripos($img['Agent long'], "photographer") !== false) $img['agent role'] = 'photographer'; //string is found
+                $img['Agent short'] = trim(preg_replace('/\s*\([^)]*\)/', '', $img['Agent long'])); //remove parenthesis
+            }
+            
+            if(preg_match("/<h3>Conditions of Use<\/h3>(.*?)<\/p>/ims", $html, $a)) {
+                // http://creativecommons.org/licenses/by-nc-sa/3.0/
+                if(preg_match("/\:\/\/creativecommons\.org\/licenses\/(.*?)\//ims", $a[1], $a2)) $img['license'] = $a2[1];
+            }
+
+            print_r($img); //exit;
+            
+            /*
+            <h3>Date Taken</h3>
+          <p>7 September 2006</p>
+          <h3>Location</h3>
+          <p>Kalamani Nature Reserve, Xinjiang Province, China</p>
+          <h3>Caption</h3>
+          <p>Kulans, or Asiatic wild asses (Equus hemionus).</p>
+          <ul class="keywords">
+            <li class="keywords-header">Subject</li>
+            <li>
+              <span>Live Animal</span>
+            </li>
+          </ul>
+          <ul class="keywords">
+            <li class="keywords-header">Type</li>
+            <li>
+              <span>Photo</span>
+            </li>
+          </ul>
+          <ul class="keywords">
+            <li class="keywords-header">Life Stages And Gender</li>
+            <li>
+              <span>Adult/Sexually Mature</span>
+            </li>
+          </ul>
+          <ul class="keywords last">
+            <li class="keywords-header">Subject</li>
+            <li>
+              <span>Habitat</span>
+            </li>
+          </ul>
+          <h3>Contributors</h3>
+          <div class="block">
+            <p>David Blank (photographer; copyright holder; identification)</p>
+          </div>
+          <div>
+            <h3>Conditions of Use</h3>
+            <p><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons Attribution-Noncommercial-Share Alike 3.0 Unported License</a>.
+                </p>            
+            */
+        }
     }
 }
 ?>
