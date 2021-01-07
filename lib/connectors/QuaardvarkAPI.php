@@ -903,7 +903,9 @@ class QuaardvarkAPI
                 </li>
               </ul>
               <h3>Contributors</h3>*/
-            if(preg_match("/<h3>Caption<\/h3>(.*?)<h3>/ims", $html, $a)) {
+            if(preg_match("/<h3>Caption<\/h3>(.*?)<h3>/ims", $html, $a) ||
+               preg_match("/<h3>Location<\/h3>(.*?)<h3>/ims", $html, $a)
+            ) {
                 if(preg_match_all("/<ul class=(.*?)<\/ul>/ims", $a[1], $a2)) {
                     // print_r($a2[1]); exit;
                     $arr = array();
@@ -999,7 +1001,7 @@ class QuaardvarkAPI
         if($val = @$o['copyright holder']) $mr->Owner = $val;
         else                               $mr->Owner = $o['Agent long'];
         
-        $mr->title          = $o['Caption'];
+        $mr->title          = @$o['Caption'];
         $mr->UsageTerms     = $this->license_lookup[$o['license']];
         // $mr->audience       = 'Everyone';
         $mr->description    = $o['description'];
@@ -1029,7 +1031,7 @@ class QuaardvarkAPI
         $agent_ids = array();
         $r = new \eol_schema\Agent();
         $r->term_name       = $name;
-        $r->agentRole       = $o['agent role'];
+        $r->agentRole       = (@$o['agent role']) ? $o['agent role'] : "creator";
         $r->identifier      = md5("$r->term_name|$r->agentRole");
         // $r->term_homepage   = '';
         $agent_ids[] = $r->identifier;
