@@ -85,19 +85,20 @@ class QuaardvarkAPI
         x- Food Habits
         */
 
-        // /*
+        /* un-comment in real operation
         $topics = array('Habitat', 'Geographic Range', 'Physical Description', 'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 
                         'Behavior', 'Food Habits');
         // $topics = array('Reproduction: Parental Investment'); //debug only
         // $topics = array('Habitat'); //debug only
         // $topics = array('Geographic Range'); //debug only
         foreach($topics as $data) self::main($data);
-        // */
+        */
         
         $topics = array('Media Assets: Subjects > Live Animal'); // for stillImage objects
         // $topics = array('Media Assets: Subjects > Behaviors'); // for stillImage objects
         foreach($topics as $data) self::main($data);
         
+        exit("\ncaching only...\n");
         $this->archive_builder->finalize(true);
         echo "\n"; print_r($this->debug);
     }
@@ -915,7 +916,7 @@ class QuaardvarkAPI
             // print_r($img); exit;
             return $img;
         }
-        else exit("\nInvestigate down URL [$url]\n");
+        else $this->debug['url down'][$url] = '';
             
             /*
             <h3>Date Taken</h3>
@@ -971,6 +972,13 @@ class QuaardvarkAPI
             [mimeType] => image/jpeg
             [dataType] => http://purl.org/dc/dcmitype/StillImage
         )*/
+        
+        if(!@$o['Caption']) print_r($o);
+        if(!@$o['description']) print_r($o);
+        if(!@$o['agent role']) print_r($o);
+
+        
+        
         $o['identifier'] = md5($o['source']);
         $mr = new \eol_schema\MediaResource();
         $mr->taxonID        = $o['taxonID'];
