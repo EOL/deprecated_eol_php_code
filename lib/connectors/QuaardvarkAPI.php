@@ -95,7 +95,7 @@ class QuaardvarkAPI
         */
         
         $topics = array('Media Assets: Subjects > Live Animal'); // for stillImage objects
-        // $topics = array('Media Assets: Subjects > Behaviors'); // for stillImage objects
+        $topics = array('Media Assets: Subjects > Behaviors'); // for stillImage objects
         foreach($topics as $data) self::main($data);
         
         exit("\ncaching only...\n");
