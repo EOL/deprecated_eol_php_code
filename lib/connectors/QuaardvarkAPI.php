@@ -51,6 +51,13 @@ class QuaardvarkAPI
         $this->field_count['Media Assets: Subjects > Live Animal'] = 5;
         $this->url['Media Assets: Subjects > Behaviors'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379B95-BFFC-0001-9DBF-374010D0F720/?start=';
         $this->field_count['Media Assets: Subjects > Behaviors'] = 5;
+        
+        $this->accepted_licenses = array('by-nc-sa', 'by-nc', 'by-sa', 'by', 'publicdomain');
+        $this->license_lookup['publicdomain'] = 'http://creativecommons.org/licenses/publicdomain/';
+        $this->license_lookup['by'] = 'http://creativecommons.org/licenses/by/3.0/';
+        $this->license_lookup['by-nc'] = 'http://creativecommons.org/licenses/by-nc/3.0/';
+        $this->license_lookup['by-sa'] = 'http://creativecommons.org/licenses/by-sa/3.0/';
+        $this->license_lookup['by-nc-sa'] = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
     }
     public function start()
     {   // /* copied template
@@ -77,17 +84,20 @@ class QuaardvarkAPI
         - Communication and Perception
         x- Food Habits
         */
+
+        // /*
         $topics = array('Habitat', 'Geographic Range', 'Physical Description', 'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 
                         'Behavior', 'Food Habits');
         // $topics = array('Reproduction: Parental Investment'); //debug only
         // $topics = array('Habitat'); //debug only
         // $topics = array('Geographic Range'); //debug only
+        foreach($topics as $data) self::main($data);
+        // */
         
         $topics = array('Media Assets: Subjects > Live Animal'); // for stillImage objects
-        $topics = array('Media Assets: Subjects > Behaviors'); // for stillImage objects
-        
-        
+        // $topics = array('Media Assets: Subjects > Behaviors'); // for stillImage objects
         foreach($topics as $data) self::main($data);
+        
         $this->archive_builder->finalize(true);
         echo "\n"; print_r($this->debug);
     }
@@ -105,7 +115,7 @@ class QuaardvarkAPI
                     $recs = self::parse_page($html, $data);
                 }
                 $sum = $sum + 200;
-                if($i >= 2) break; //debug only
+                // if($i >= 2) break; //debug only
             }
         }
         if(isset($this->debug['Habitat'])) {
@@ -263,7 +273,9 @@ class QuaardvarkAPI
                             [Basal Metabolic Rate - extreme high - W] => 
                         )*/
                         $rek = self::write_taxon($rek);
-                        if(in_array($data, array('Media Assets: Subjects > Live Animal', 'Media Assets: Subjects > Behaviors'))) self::main_proc_images($rek);
+                        if(in_array($data, array('Media Assets: Subjects > Live Animal', 'Media Assets: Subjects > Behaviors'))) {
+                            self::main_proc_images($rek);
+                        }
                         else {
                             self::for_stats($rek, $data); //for stats only
                             self::write_habitat_MoF($rek, $data);
@@ -793,7 +805,12 @@ class QuaardvarkAPI
             [Class] => Insecta
             [Order] => Lepidoptera
             [Family] => Pieridae
-            [Live Animal :: Live Animal] => https://animaldiversity.org/collections/contributors/melody_lytle/abaeis_nicippe/medium.jpg|https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/Abaeis0791/medium.jpg|https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/Abaeis9231/medium.jpg|https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/butterfly0935/medium.jpg|https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/butterfly1088/medium.jpg|https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/Eurema7287/medium.jpg
+            [Live Animal :: Live Animal] => https://animaldiversity.org/collections/contributors/melody_lytle/abaeis_nicippe/medium.jpg|
+                                            https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/Abaeis0791/medium.jpg|
+                                            https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/Abaeis9231/medium.jpg|
+                                            https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/butterfly0935/medium.jpg|
+                                            https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/butterfly1088/medium.jpg|
+                                            https://animaldiversity.org/collections/contributors/phil_myers/lepidoptera/Pieridae/Eurema7287/medium.jpg
             [taxonID] => Abaeis_nicippe
             [furtherInformationURL] => https://animaldiversity.org/accounts/Abaeis_nicippe/
         )*/
@@ -816,9 +833,9 @@ class QuaardvarkAPI
             $img_rec = self::parse_image_summary($pathinfo['dirname']);
             $img_rec['taxonID'] = $rek['taxonID'];
             $img_rec['source'] = $pathinfo['dirname'];
-            $img_rec['mimetype'] = Functions::get_mimetype($pathinfo['basename']);
-            $img_rec['datatype'] = Functions::get_datatype_given_mimetype($img_rec['mimetype']);
-            print_r($img_rec); exit;
+            $img_rec['mimeType'] = Functions::get_mimetype($pathinfo['basename']);
+            $img_rec['dataType'] = Functions::get_datatype_given_mimetype($img_rec['mimeType']);
+            // print_r($img_rec); //exit;
             /*Array(
                 [Caption] => Sleepy orange (Abaeis nicippe)
                 [Agent long] => Melody Lytle (photographer; copyright holder; identification)
@@ -826,17 +843,12 @@ class QuaardvarkAPI
                 [Agent short] => Melody Lytle
                 [license] => by-nc-sa
                 [license long] => This work is licensed under a Creative Commons Attribution-Noncommercial-Share Alike 3.0 Unported License.
+                [taxonID] => Abaeis_nicippe
                 [source] => https://animaldiversity.org/collections/contributors/melody_lytle/abaeis_nicippe
-                [mimetype] => image/jpeg
-                [datatype] => http://purl.org/dc/dcmitype/StillImage
+                [mimeType] => image/jpeg
+                [dataType] => http://purl.org/dc/dcmitype/StillImage
             )*/
-            $this->accepted_licenses = array('by-nc-sa', 'by-nc', 'by-sa', 'by', 'publicdomain');
-            $this->license_lookup['publicdomain'] = 'http://creativecommons.org/licenses/publicdomain/';
-            $this->license_lookup['by'] = 'http://creativecommons.org/licenses/by/3.0/';
-            $this->license_lookup['by-nc'] = 'http://creativecommons.org/licenses/by-nc/3.0/';
-            $this->license_lookup['by-sa'] = 'http://creativecommons.org/licenses/by-sa/3.0/';
-            $this->license_lookup['by-nc-sa'] = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
-            if(in_array($img_rec['license'], $this->accepted_licenses)) self::write_media_objects();
+            if(in_array(@$img_rec['license'], $this->accepted_licenses)) self::write_media_objects($img_rec);
         }
         // exit("\nstop munax\n");
     }
@@ -863,7 +875,44 @@ class QuaardvarkAPI
                 if(preg_match("/\:\/\/creativecommons\.org\/licenses\/(.*?)\//ims", $a[1], $a2)) $img['license'] = $a2[1];
                 $img['license long'] = trim(strip_tags(trim($a[1])));
             }
-            // print_r($img); //exit;
+            
+            /*<h3>Caption</h3>
+              <p>sleepy orange</p>
+              <ul class="keywords">
+                <li class="keywords-header">Subject</li>
+                <li>
+                  <span>Live Animal</span>
+                </li>
+              </ul>
+              <ul class="keywords">
+                <li class="keywords-header">Type</li>
+                <li>
+                  <span>Photo</span>
+                </li>
+              </ul>
+              <ul class="keywords last">
+                <li class="keywords-header">Life Stages And Gender</li>
+                <li>
+                  <span>Adult/Sexually Mature</span>
+                </li>
+              </ul>
+              <h3>Contributors</h3>*/
+            if(preg_match("/<h3>Caption<\/h3>(.*?)<h3>/ims", $html, $a)) {
+                if(preg_match_all("/<ul class=(.*?)<\/ul>/ims", $a[1], $a2)) {
+                    // print_r($a2[1]); exit;
+                    $arr = array();
+                    foreach($a2[1] as $tmp) {
+                        $tmp = strip_tags("<ul".$tmp, "<span>");
+                        $tmp = str_replace("\n",'',$tmp);
+                        $tmp = Functions::remove_whitespace(trim($tmp));
+                        $tmp = strip_tags(str_replace(' <span>', ": ", $tmp));
+                        $arr[] = $tmp;
+                    }
+                    // print_r($arr); exit;
+                    $img['description'] = implode(" | ", $arr);
+                }
+            }
+            // print_r($img); exit;
             return $img;
         }
         else exit("\nInvestigate down URL [$url]\n");
@@ -908,6 +957,69 @@ class QuaardvarkAPI
             <p><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons Attribution-Noncommercial-Share Alike 3.0 Unported License</a>.
                 </p>            
             */
+    }
+    private function write_media_objects($o)
+    {   /*Array(
+            [Caption] => Sleepy orange (Abaeis nicippe)
+            [Agent long] => Melody Lytle (photographer; copyright holder; identification)
+            [agent role] => photographer
+            [Agent short] => Melody Lytle
+            [license] => by-nc-sa
+            [license long] => This work is licensed under a Creative Commons Attribution-Noncommercial-Share Alike 3.0 Unported License.
+            [taxonID] => Abaeis_nicippe
+            [source] => https://animaldiversity.org/collections/contributors/melody_lytle/abaeis_nicippe
+            [mimeType] => image/jpeg
+            [dataType] => http://purl.org/dc/dcmitype/StillImage
+        )*/
+        $o['identifier'] = md5($o['source']);
+        $mr = new \eol_schema\MediaResource();
+        $mr->taxonID        = $o['taxonID'];
+        $mr->identifier     = $o['identifier'];
+        $mr->type           = $o['dataType'];
+        $mr->language       = 'en';
+        $mr->format         = $o['mimeType'];
+        $mr->furtherInformationURL = $o['source'];
+        $mr->accessURI      = $o['source'].'large.jpg';
+        // $mr->CVterm         = '';
+        $mr->Owner          = $o['Agent long'];
+        // $mr->rights         = '';
+        $mr->title          = $o['Caption'];
+        $mr->UsageTerms     = $this->license_lookup[$o['license']];
+        // $mr->audience       = 'Everyone';
+        $mr->description    = $o['description'];
+        $mr->CreateDate     = @$o['Date taken'];
+        // $mr->bibliographicCitation = '';
+        // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids); //copied template
+        if($agent_ids = self::create_agent($o))  $mr->agentID = implode("; ", $agent_ids);
+        
+        if(!isset($this->object_ids[$mr->identifier])) {
+            $this->archive_builder->write_object_to_file($mr);
+            $this->object_ids[$mr->identifier] = '';
+        }
+    }
+    private function create_agent($o)
+    {   /*Array(
+            [Agent long] => Melody Lytle (photographer; copyright holder; identification)
+            [agent role] => photographer
+            [Agent short] => Melody Lytle
+        */
+        $name = false;
+        if($name = $o['Agent short']) {}
+        elseif($name = $o['Agent long']) {}
+        else exit("\nInvestigate no agent...\n");
+
+        $agent_ids = array();
+        $r = new \eol_schema\Agent();
+        $r->term_name       = $name;
+        $r->agentRole       = $o['agent role'];
+        $r->identifier      = md5("$r->term_name|$r->agentRole");
+        // $r->term_homepage   = '';
+        $agent_ids[] = $r->identifier;
+        if(!isset($this->agent_ids[$r->identifier])) {
+           $this->agent_ids[$r->identifier] = '';
+           $this->archive_builder->write_object_to_file($r);
+        }
+        return $agent_ids;
     }
 }
 ?>
