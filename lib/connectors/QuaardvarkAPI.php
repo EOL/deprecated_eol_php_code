@@ -48,11 +48,11 @@ class QuaardvarkAPI
         // exit("\n$this->report\n");
         
         $this->url['Media Assets: Subjects > Live Animal'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379B89-5DF7-0001-62C8-9A96CCF04A50/?start=';
-        $this->field_count['Media Assets: Subjects > Live Animal'] = 5;
+        $this->field_count['Media Assets: Subjects > Live Animal'] = 5; //7119 matches
         $this->url['Media Assets: Subjects > Behaviors'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379B95-BFFC-0001-9DBF-374010D0F720/?start=';
-        $this->field_count['Media Assets: Subjects > Behaviors'] = 5;
+        $this->field_count['Media Assets: Subjects > Behaviors'] = 5; //1808 matches
         $this->url['Media Assets: Subjects > Habitat'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379C11-DC75-0001-2777-1630CB40DCC0/?start=';
-        $this->field_count['Media Assets: Subjects > Habitat'] = 5;
+        $this->field_count['Media Assets: Subjects > Habitat'] = 5; //79 matches
         
         $this->accepted_licenses = array('by-nc-sa', 'by-nc', 'by-sa', 'by', 'publicdomain');
         $this->license_lookup['publicdomain'] = 'http://creativecommons.org/licenses/publicdomain/';
@@ -97,8 +97,8 @@ class QuaardvarkAPI
         */
         
         $topics = array('Media Assets: Subjects > Live Animal'); // for stillImage objects
-        $topics = array('Media Assets: Subjects > Behaviors'); // for stillImage objects
-        $topics = array('Media Assets: Subjects > Habitat'); // for stillImage objects
+        $topics = array('Media Assets: Subjects > Behaviors', 'Media Assets: Subjects > Habitat'); // for stillImage objects
+        // $topics = array('Media Assets: Subjects > Habitat'); // for stillImage objects
         
         foreach($topics as $data) self::main($data);
         
