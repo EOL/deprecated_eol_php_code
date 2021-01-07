@@ -980,9 +980,11 @@ class QuaardvarkAPI
             [dataType] => http://purl.org/dc/dcmitype/StillImage
         )*/
         
-        if(!@$o['Caption']) print_r($o);
-        if(!@$o['description']) print_r($o);
-        if(!@$o['agent role']) print_r($o);
+        // if(!@$o['Caption']) print_r($o);
+        if(!@$o['description']) {
+            print_r($o); echo " - no desc...";
+        }
+        // if(!@$o['agent role']) print_r($o);
 
         
         
