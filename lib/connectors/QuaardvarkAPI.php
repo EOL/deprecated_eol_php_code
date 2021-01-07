@@ -996,7 +996,7 @@ class QuaardvarkAPI
         // $mr->CVterm         = '';
         // $mr->rights         = '';
         
-        if($val = @$o['copyright holder']) $mr->Owner = $val
+        if($val = @$o['copyright holder']) $mr->Owner = $val;
         else                               $mr->Owner = $o['Agent long'];
         
         $mr->title          = $o['Caption'];
