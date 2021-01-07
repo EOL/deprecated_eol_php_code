@@ -10,7 +10,7 @@ class QuaardvarkAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
-        $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 3000000, 'timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 1);
+        $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 1);
         $this->download_options["expire_seconds"] = false; //60*60*24*25;
         $this->debug = array();
         $this->url['Habitat'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E268FDE-F3B2-0001-913C-B28812191D82/?start=';
