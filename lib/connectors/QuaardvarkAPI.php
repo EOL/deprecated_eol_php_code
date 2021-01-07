@@ -862,6 +862,7 @@ class QuaardvarkAPI
             $img = array();
             if(preg_match("/<h3>Date Taken<\/h3>(.*?)<\/p>/ims", $html, $a)) $img['Date Taken'] = strip_tags(trim($a[1]));
             if(preg_match("/<h3>Caption<\/h3>(.*?)<\/p>/ims", $html, $a)) $img['Caption'] = strip_tags(trim($a[1]));
+            if(preg_match("/<h3>Location<\/h3>(.*?)<\/p>/ims", $html, $a)) $img['Location'] = strip_tags(trim($a[1]));
             /*<h3>Contributors</h3>
             <div class="block">
             <p><a href="http://www.karenmelody.com/" class="external-link">Melody Lytle</a> (photographer; copyright holder; identification)</p>
@@ -870,6 +871,10 @@ class QuaardvarkAPI
                 $img['Agent long'] = trim(strip_tags(trim($a[1])));
                 if(stripos($img['Agent long'], "photographer") !== false) $img['agent role'] = 'photographer'; //string is found
                 $img['Agent short'] = trim(preg_replace('/\s*\([^)]*\)/', '', $img['Agent long'])); //remove parenthesis
+                
+                if(stripos($img['Agent long'], "copyright holder") !== false) $img['copyright holder'] = $img['Agent short']; //string is found
+                
+                
             }
             if(preg_match("/<h3>Conditions of Use<\/h3>(.*?)<\/p>/ims", $html, $a)) {
                 // http://creativecommons.org/licenses/by-nc-sa/3.0/
@@ -989,13 +994,18 @@ class QuaardvarkAPI
         $mr->furtherInformationURL = $o['source'];
         $mr->accessURI      = $o['source'].'large.jpg';
         // $mr->CVterm         = '';
-        $mr->Owner          = $o['Agent long'];
         // $mr->rights         = '';
+        
+        if($val = @$o['copyright holder']) $mr->Owner = $val
+        else                               $mr->Owner = $o['Agent long'];
+        
         $mr->title          = $o['Caption'];
         $mr->UsageTerms     = $this->license_lookup[$o['license']];
         // $mr->audience       = 'Everyone';
         $mr->description    = $o['description'];
         $mr->CreateDate     = @$o['Date taken'];
+        $mr->LocationCreated     = @$o['Location'];
+        
         // $mr->bibliographicCitation = '';
         // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids); //copied template
         if($agent_ids = self::create_agent($o))  $mr->agentID = implode("; ", $agent_ids);
