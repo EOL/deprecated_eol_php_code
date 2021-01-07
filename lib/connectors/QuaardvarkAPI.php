@@ -904,7 +904,8 @@ class QuaardvarkAPI
               </ul>
               <h3>Contributors</h3>*/
             if(preg_match("/<h3>Caption<\/h3>(.*?)<h3>/ims", $html, $a) ||
-               preg_match("/<h3>Location<\/h3>(.*?)<h3>/ims", $html, $a)
+               preg_match("/<h3>Location<\/h3>(.*?)<h3>/ims", $html, $a) ||
+               preg_match("/<h3>Identification<\/h3>(.*?)<h3>/ims", $html, $a)
             ) {
                 if(preg_match_all("/<ul class=(.*?)<\/ul>/ims", $a[1], $a2)) {
                     // print_r($a2[1]); exit;
