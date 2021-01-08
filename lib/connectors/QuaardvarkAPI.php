@@ -55,6 +55,8 @@ class QuaardvarkAPI
         $this->field_count['Media Assets: Subjects > Habitat'] = 5; //79 matches
         $this->url['Media Assets: Subjects > Anatomy'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379C4B-6C59-0001-3C1A-181617A08B00/?start=';
         $this->field_count['Media Assets: Subjects > Anatomy'] = 5; //4934 matches
+        $this->url['Media Assets: Subjects > Life Stages and Gender'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379C4D-186B-0001-6A78-151C47601950/?start=';
+        $this->field_count['Media Assets: Subjects > Life Stages and Gender'] = 5; //6976 matches
         
         $this->accepted_licenses = array('by-nc-sa', 'by-nc', 'by-sa', 'by', 'publicdomain');
         $this->license_lookup['publicdomain'] = 'http://creativecommons.org/licenses/publicdomain/';
@@ -100,7 +102,7 @@ class QuaardvarkAPI
         
         $topics = array('Media Assets: Subjects > Live Animal'); // for stillImage objects
         $topics = array('Media Assets: Subjects > Behaviors', 'Media Assets: Subjects > Habitat'); // for stillImage objects
-        $topics = array('Media Assets: Subjects > Anatomy'); // for stillImage objects
+        $topics = array('Media Assets: Subjects > Life Stages and Gender', 'Media Assets: Subjects > Anatomy'); // for stillImage objects
         
         foreach($topics as $data) self::main($data);
         
@@ -281,7 +283,8 @@ class QuaardvarkAPI
                         )*/
                         $rek = self::write_taxon($rek);
                         if(in_array($data, array('Media Assets: Subjects > Live Animal', 'Media Assets: Subjects > Behaviors', 
-                                                 'Media Assets: Subjects > Habitat', 'Media Assets: Subjects > Anatomy'))) {
+                                                 'Media Assets: Subjects > Habitat', 'Media Assets: Subjects > Anatomy', 
+                                                 'Media Assets: Subjects > Life Stages and Gender'))) {
                             self::main_proc_images($rek);
                         }
                         else {
@@ -827,6 +830,7 @@ class QuaardvarkAPI
         elseif($val = @$rek['Behaviors :: Behaviors']) {}
         elseif($val = @$rek['Habitat :: Habitat']) {}
         elseif($val = @$rek['Anatomy :: Anatomy']) {}
+        elseif($val = @$rek['Life Stages and Gender :: Life Stages and Gender']) {}
         else exit("\nNot yet initialized.\n");
         $arr = explode("|", $val);
         
@@ -845,7 +849,7 @@ class QuaardvarkAPI
             $img_rec['source'] = $pathinfo['dirname'];
             $img_rec['mimeType'] = Functions::get_mimetype($pathinfo['basename']);
             $img_rec['dataType'] = Functions::get_datatype_given_mimetype($img_rec['mimeType']);
-            // print_r($img_rec); exit("\nsample image record\n");
+            // print_r($img_rec); exit("\nsample record image\n");
             /*Array(
                 [Caption] => Sleepy orange (Abaeis nicippe)
                 [Agent long] => Melody Lytle (photographer; copyright holder; identification)
