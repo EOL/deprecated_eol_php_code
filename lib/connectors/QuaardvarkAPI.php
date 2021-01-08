@@ -53,6 +53,8 @@ class QuaardvarkAPI
         $this->field_count['Media Assets: Subjects > Behaviors'] = 5; //1808 matches
         $this->url['Media Assets: Subjects > Habitat'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379C11-DC75-0001-2777-1630CB40DCC0/?start=';
         $this->field_count['Media Assets: Subjects > Habitat'] = 5; //79 matches
+        $this->url['Media Assets: Subjects > Anatomy'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379C4B-6C59-0001-3C1A-181617A08B00/?start=';
+        $this->field_count['Media Assets: Subjects > Anatomy'] = 5; //4934 matches
         
         $this->accepted_licenses = array('by-nc-sa', 'by-nc', 'by-sa', 'by', 'publicdomain');
         $this->license_lookup['publicdomain'] = 'http://creativecommons.org/licenses/publicdomain/';
@@ -98,7 +100,7 @@ class QuaardvarkAPI
         
         $topics = array('Media Assets: Subjects > Live Animal'); // for stillImage objects
         $topics = array('Media Assets: Subjects > Behaviors', 'Media Assets: Subjects > Habitat'); // for stillImage objects
-        // $topics = array('Media Assets: Subjects > Habitat'); // for stillImage objects
+        $topics = array('Media Assets: Subjects > Anatomy'); // for stillImage objects
         
         foreach($topics as $data) self::main($data);
         
@@ -279,7 +281,7 @@ class QuaardvarkAPI
                         )*/
                         $rek = self::write_taxon($rek);
                         if(in_array($data, array('Media Assets: Subjects > Live Animal', 'Media Assets: Subjects > Behaviors', 
-                                                 'Media Assets: Subjects > Habitat'))) {
+                                                 'Media Assets: Subjects > Habitat', 'Media Assets: Subjects > Anatomy'))) {
                             self::main_proc_images($rek);
                         }
                         else {
@@ -824,6 +826,7 @@ class QuaardvarkAPI
         if($val = @$rek['Live Animal :: Live Animal']) {}
         elseif($val = @$rek['Behaviors :: Behaviors']) {}
         elseif($val = @$rek['Habitat :: Habitat']) {}
+        elseif($val = @$rek['Anatomy :: Anatomy']) {}
         else exit("\nNot yet initialized.\n");
         $arr = explode("|", $val);
         
