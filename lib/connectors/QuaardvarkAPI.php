@@ -91,22 +91,25 @@ class QuaardvarkAPI
         x- Food Habits
         */
 
-        /* un-comment in real operation
+        // /* MoF records: un-comment in real operation
         $topics = array('Habitat', 'Geographic Range', 'Physical Description', 'Reproduction: Mating Systems', 'Reproduction: Parental Investment', 
                         'Behavior', 'Food Habits');
         // $topics = array('Reproduction: Parental Investment'); //debug only
         // $topics = array('Habitat'); //debug only
         // $topics = array('Geographic Range'); //debug only
         foreach($topics as $data) self::main($data);
-        */
-        
-        $topics = array('Media Assets: Subjects > Live Animal'); // for stillImage objects
-        $topics = array('Media Assets: Subjects > Behaviors', 'Media Assets: Subjects > Habitat'); // for stillImage objects
-        $topics = array('Media Assets: Subjects > Life Stages and Gender', 'Media Assets: Subjects > Anatomy'); // for stillImage objects
-        
+        // */
+
+        // /* Image objects: un-comment in real operation
+        $topics = array('Media Assets: Subjects > Live Animal', 'Media Assets: Subjects > Behaviors', 'Media Assets: Subjects > Habitat', 
+                        'Media Assets: Subjects > Life Stages and Gender', 'Media Assets: Subjects > Anatomy'); // for stillImage objects
+        // $topics = array('Media Assets: Subjects > Live Animal'); // for stillImage objects
+        // $topics = array('Media Assets: Subjects > Behaviors', 'Media Assets: Subjects > Habitat'); // for stillImage objects
+        // $topics = array('Media Assets: Subjects > Life Stages and Gender', 'Media Assets: Subjects > Anatomy'); // for stillImage objects
         foreach($topics as $data) self::main($data);
+        // exit("\ncaching only...\n");
+        // */
         
-        exit("\ncaching only...\n");
         $this->archive_builder->finalize(true);
         echo "\n"; print_r($this->debug);
     }
