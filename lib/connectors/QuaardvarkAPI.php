@@ -48,16 +48,33 @@ class QuaardvarkAPI
         // exit("\n$this->report\n");
         
         $this->url['Media Assets: Subjects > Live Animal'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379B89-5DF7-0001-62C8-9A96CCF04A50/?start=';
-        $this->field_count['Media Assets: Subjects > Live Animal'] = 5; //7119 matches
+            $this->field_count['Media Assets: Subjects > Live Animal'] = 5; //7119 matches
         $this->url['Media Assets: Subjects > Behaviors'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379B95-BFFC-0001-9DBF-374010D0F720/?start=';
-        $this->field_count['Media Assets: Subjects > Behaviors'] = 5; //1808 matches
+            $this->field_count['Media Assets: Subjects > Behaviors'] = 5; //1808 matches
         $this->url['Media Assets: Subjects > Habitat'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379C11-DC75-0001-2777-1630CB40DCC0/?start=';
-        $this->field_count['Media Assets: Subjects > Habitat'] = 5; //79 matches
+            $this->field_count['Media Assets: Subjects > Habitat'] = 5; //79 matches
         $this->url['Media Assets: Subjects > Anatomy'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379C4B-6C59-0001-3C1A-181617A08B00/?start=';
-        $this->field_count['Media Assets: Subjects > Anatomy'] = 5; //4934 matches
+            $this->field_count['Media Assets: Subjects > Anatomy'] = 5; //4934 matches
         $this->url['Media Assets: Subjects > Life Stages and Gender'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379C4D-186B-0001-6A78-151C47601950/?start=';
-        $this->field_count['Media Assets: Subjects > Life Stages and Gender'] = 5; //6976 matches
+            $this->field_count['Media Assets: Subjects > Life Stages and Gender'] = 5; //6976 matches
         
+        $this->url['Media Assets: Specimens > Specimen: Foot'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379D9A-176D-0001-A9BE-13C01DA011A6/?start=';
+            $this->field_count['Media Assets: Specimens > Specimen: Foot'] = 8; //36 matches
+        $this->url['Media Assets: Specimens > Specimen: Forefoot'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379D9C-A848-0001-FACA-18101297D8D0/?start=';
+            $this->field_count['Media Assets: Specimens > Specimen: Forefoot'] = 7; //27 matches
+        $this->url['Media Assets: Specimens > Specimen: Forelimb'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379D9D-2F3D-0001-C77D-1A8CB6D015A7/?start=';
+            $this->field_count['Media Assets: Specimens > Specimen: Forelimb'] = 8; //19 matches
+        $this->url['Media Assets: Specimens > Specimen: Hindfoot'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379D9D-B055-0001-6082-14F013C0185C/?start=';
+            $this->field_count['Media Assets: Specimens > Specimen: Hindfoot'] = 7; //53 matches
+        $this->url['Media Assets: Specimens > Specimen: Lower Jaw'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379D9E-3338-0001-994F-118EA2D7D2C0/?start=';
+            $this->field_count['Media Assets: Specimens > Specimen: Lower Jaw'] = 7; //584 matches
+        $this->url['Media Assets: Specimens > Specimen: Skull'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379DA1-1DB4-0001-F442-184024E517D6/?start=';
+            $this->field_count['Media Assets: Specimens > Specimen: Skull'] = 22; //762 matches --- CONNECTOR DIDN'T GET ANY RECORDS
+        $this->url['Media Assets: Specimens > Specimen: Teeth'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E379DA0-1AC2-0001-D8FF-B6B561E0193B/?start=';
+            $this->field_count['Media Assets: Specimens > Specimen: Teeth'] = 14; //709 matches
+        $this->url['Media Assets: Specimens > Specimen: Vertebrae'] = '';
+            $this->field_count['Media Assets: Specimens > Specimen: Vertebrae'] = 0; //0 matches
+
         $this->accepted_licenses = array('by-nc-sa', 'by-nc', 'by-sa', 'by', 'publicdomain');
         $this->license_lookup['publicdomain'] = 'http://creativecommons.org/licenses/publicdomain/';
         $this->license_lookup['by'] = 'http://creativecommons.org/licenses/by/3.0/';
@@ -102,10 +119,13 @@ class QuaardvarkAPI
 
         // /* Image objects: un-comment in real operation
         $topics = array('Media Assets: Subjects > Live Animal', 'Media Assets: Subjects > Behaviors', 'Media Assets: Subjects > Habitat', 
-                        'Media Assets: Subjects > Life Stages and Gender', 'Media Assets: Subjects > Anatomy'); // for stillImage objects
-        // $topics = array('Media Assets: Subjects > Live Animal'); // for stillImage objects
-        // $topics = array('Media Assets: Subjects > Behaviors', 'Media Assets: Subjects > Habitat'); // for stillImage objects
-        // $topics = array('Media Assets: Subjects > Life Stages and Gender', 'Media Assets: Subjects > Anatomy'); // for stillImage objects
+                        'Media Assets: Subjects > Life Stages and Gender', 'Media Assets: Subjects > Anatomy',
+                        'Media Assets: Specimens > Specimen: Foot', 'Media Assets: Specimens > Specimen: Forefoot',
+                        'Media Assets: Specimens > Specimen: Forelimb', 'Media Assets: Specimens > Specimen: Hindfoot',
+                        'Media Assets: Specimens > Specimen: Lower Jaw', 'Media Assets: Specimens > Specimen: Skull',
+                        'Media Assets: Specimens > Specimen: Teeth'); // for stillImage objects
+
+        // $topics = array('Media Assets: Specimens > Specimen: Skull'); // for stillImage objects
         foreach($topics as $data) self::main($data);
         // exit("\ncaching only...\n");
         // */
@@ -177,7 +197,7 @@ class QuaardvarkAPI
     private function parse_page($html, $data)
     {
         $left = '<table xmlns:media="urn:animaldiversity.org:templates:media"';
-        if(preg_match("/".preg_quote($left, '/')."(.*?)<\/table>/ims", $html, $a)) {
+        if(preg_match("/".preg_quote($left, '/')."(.*?)<\/table>/ims", $html, $a)) { //exit("\naaa\n");
             $main_block = $a[1];
 
             $fields = array();
@@ -193,14 +213,16 @@ class QuaardvarkAPI
             $f = Functions::file_open($this->report.str_replace(' ','_',$data).'.txt', "w");
             fwrite($f, implode("\t", $fields)."\n");
 
-            if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $main_block, $a2)) {
+            if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $main_block, $a2)) { //exit("\nbbb\n");
                 $rows201 = $a2[1];
                 foreach($rows201 as $row) {
+                    /*IMPORTANT MANUAL change...*/
                     $row = str_replace('<td type="sequence"/>', '<td type="sequence"></td>', $row);
                     $row = str_replace('<td type="text"/>', '<td type="text"></td>', $row);
                     $row = str_replace("<span/>", "<span></span>", $row);
                     $row = str_replace("<td/>", "<td></td>", $row);
-                    
+                    $row = str_replace('<td type="gallery"/>', '<td type="gallery"></td>', $row);
+
                     if(preg_match_all("/<td(.*?)<\/td>/ims", $row, $a3)) {
                         $cols = $a3[1];
                         // print_r($cols); exit; //good debug
@@ -214,6 +236,7 @@ class QuaardvarkAPI
                                     // print_r($eli[1]); //exit;
                                     $ret[] = implode("|", $eli[1]);
                                 }
+                                else $ret[] = ''; //blank entry
                             }
                             else { //orig
                                 $tmp = strip_tags("<td".$col, "<span>");
@@ -247,7 +270,7 @@ class QuaardvarkAPI
                         foreach($fields as $field) {
                             $rek[$field] = $ret[$i];
                             if(!isset($ret[$i])) {
-                                print_r($ret); exit;
+                                print_r($ret); exit("\nwent here...\n");
                             }
                             $i++;
                         }
@@ -287,7 +310,10 @@ class QuaardvarkAPI
                         $rek = self::write_taxon($rek);
                         if(in_array($data, array('Media Assets: Subjects > Live Animal', 'Media Assets: Subjects > Behaviors', 
                                                  'Media Assets: Subjects > Habitat', 'Media Assets: Subjects > Anatomy', 
-                                                 'Media Assets: Subjects > Life Stages and Gender'))) {
+                                                 'Media Assets: Subjects > Life Stages and Gender', 'Media Assets: Specimens > Specimen: Foot',
+                                                 'Media Assets: Specimens > Specimen: Forefoot', 'Media Assets: Specimens > Specimen: Forelimb',
+                                                 'Media Assets: Specimens > Specimen: Hindfoot', 'Media Assets: Specimens > Specimen: Lower Jaw',
+                                                 'Media Assets: Specimens > Specimen: Skull', 'Media Assets: Specimens > Specimen: Teeth'))) {
                             self::main_proc_images($rek);
                         }
                         else {
@@ -834,6 +860,12 @@ class QuaardvarkAPI
         elseif($val = @$rek['Habitat :: Habitat']) {}
         elseif($val = @$rek['Anatomy :: Anatomy']) {}
         elseif($val = @$rek['Life Stages and Gender :: Life Stages and Gender']) {}
+        elseif($val = @$rek['Specimen: Foot :: Foot']) {}
+        elseif($val = @$rek['Specimen: Forefoot :: Forefoot']) {}
+        elseif($val = @$rek['Specimen: Forelimb :: Forelimb']) {}
+        elseif($val = @$rek['Specimen: Hindfoot :: Hindfoot']) {}
+        elseif($val = @$rek['Specimen: Lower Jaw :: Lower Jaw']) {}
+        elseif($val = @$rek['Specimen: Teeth :: Teeth']) {}
         else exit("\nNot yet initialized.\n");
         $arr = explode("|", $val);
         
