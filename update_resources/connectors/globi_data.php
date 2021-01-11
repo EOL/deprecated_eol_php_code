@@ -209,7 +209,16 @@ Latest as of Dec 22, 2020. For review.
 [7. Records of organisms other than plants having flower visitors are probably errors] => 599
 [Expand rule (#7) to also cover the reverse] => 1254 [DATA-1874|https://eol-jira.bibalex.org/browse/DATA-1874]
 Total rows = 14014
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+as of Jan 11, 2021 -- initiated by Eli. Not asked by anyone.
+[change the associationType to pathogen_of] => 190
+[1. Records of non-carnivorous plants eating animals are likely to be errors] => 1404
+[2. Records of plants parasitizing animals are likely to be errors] => 1271
+[3. Records of plants having animals as hosts are likely to be errors] => 1198
+[4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors] => 1037
+[6a. Records of other organisms parasitizing or eating viruses are likely to be errors] => 7553
+[7a. Records of organisms other than plants having flower visitors are probably errors] => 624
+[7c. Records of organisms other than plants having flower visitors are probably errors] => 1322
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 
