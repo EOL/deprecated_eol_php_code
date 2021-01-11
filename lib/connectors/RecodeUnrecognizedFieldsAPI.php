@@ -13,6 +13,16 @@ class RecodeUnrecognizedFieldsAPI
         $this->download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*1); //probably default expires in 1 day 60*60*24*1. Not false.
         $this->debug = array();
     }
+    public function process_all_resources()
+    {
+        $arr = array();
+        foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "*.tar.gz") as $filename) {
+            $pathinfo = pathinfo($filename, PATHINFO_BASENAME);
+            $arr[$pathinfo] = '';
+        }
+        print_r($arr);
+        return $arr;
+    }
     public function scan_dwca($dwca_file = false) //utility to search meta.xml for certain fields
     {
         if(!$dwca_file) $dwca_file = $this->dwca_file; //used if called elsewhere
@@ -70,6 +80,8 @@ class RecodeUnrecognizedFieldsAPI
 
         // /* development only
         $paths = Array(
+            // 'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_28647/',
+            // 'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_28647/'
             'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_81560/',
             'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_81560/'
         );
