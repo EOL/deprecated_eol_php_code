@@ -256,6 +256,8 @@ exit("\n-end test-\n");
 
 // /* //main operation
 require_library('connectors/DwCA_Utility');
+ini_set('memory_limit','9096M'); //required
+
 $resource_id = "globi_associations";
 $dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 // $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
