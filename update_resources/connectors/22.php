@@ -2,6 +2,10 @@
 namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 exit("\nObsolete. Now replaced by quaardvark.php.\nLast DwCA from this script is: [22_2017Dec3.tar.gz]\n\n");
+/* 22.tar.gz was renamed to 22_2017Dec3.tar.gz
+22	Sun 2021-01-10 07:18:59 PM	{"agent.tab":3061, "media_resource.tab":44424, "reference.tab":33048, "taxon.tab":5843, "vernacular_name.tab":4155, "time_elapsed":false}
+*/
+
 $new_resource_path = DOC_ROOT . "temp/22.xml.gz";
 
 $download_options = array('cache' => 1, 'expire_seconds' => false, 'timeout' => 60*60); //doesn't expire since partner no longer hosts the file
@@ -38,6 +42,12 @@ $func->save_resource_document($xml);
 $xml_string = file_get_contents($resource_path);
 $xml = $func->replace_data_object_element_value("subject", "", "http://eol.org/schema/eol_info_items.xml#Notes", $xml_string);
 $func->save_resource_document($xml);
+
+// /* New: Jan 10, 2021
+$xml_string = file_get_contents($resource_path);
+$xml = $func->remove_data_object_of_certain_element_value("dataType", "http://purl.org/dc/dcmitype/StillImage", $xml_string);
+$func->save_resource_document($xml);
+// */
 
 // Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate the 22.xml
 
