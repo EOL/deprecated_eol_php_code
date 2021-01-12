@@ -22,7 +22,7 @@ class RecodeUnrecognizedFieldsAPI
     {
         self::sought_fields('opendata'); //initialize
         $dwca_files = self::get_all_tr_gz_files_in_OpenData(); //print_r($dwca_files);
-        echo "\n--Report--\n"; self::print_report();
+        // echo "\n--Report--\n"; self::print_report(); //working OK but now called separately
     }
     private function get_all_tr_gz_files_in_OpenData()
     {
@@ -86,8 +86,9 @@ class RecodeUnrecognizedFieldsAPI
         // */
         echo "\n--Report--\n"; self::print_report();
     }
-    private function print_report()
+    public function print_report($what = false)
     {
+        if($what == 'opendata') $this->unrecognized_fields_report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/unrecognized_fields_opendata.txt';
         foreach(new FileIterator($this->unrecognized_fields_report) as $line_number => $line) {
             print_r(json_decode($line, true));
         }
