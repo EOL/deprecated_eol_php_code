@@ -14,8 +14,11 @@ $cmdline_params['jenkins_or_cron']                  = @$argv[1]; //irrelevant he
 $cmdline_params['resource_id']                      = @$argv[2]; //useful here; e.g. "ioc-birdlist". Assumed to be a DwCA "ioc-birdlist.tar.gz"
 print_r($cmdline_params);
 
+$resource_id = false;
+/* not essential
 if($resource_id = @$cmdline_params['resource_id']) {}
 else exit("\nERROR: Missing param.\n");
+*/
 
 // /* //main operation
 $func = new RecodeUnrecognizedFieldsAPI($resource_id);
