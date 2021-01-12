@@ -68,7 +68,7 @@ class RecodeUnrecognizedFieldsAPI
                     }
                     // exit;
                 }
-                break; //debug only
+                // break; //debug only
             } //end foreach()
         }
     }
