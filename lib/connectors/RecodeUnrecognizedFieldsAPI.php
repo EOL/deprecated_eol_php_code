@@ -123,7 +123,7 @@ class RecodeUnrecognizedFieldsAPI
         // remove temp dir
         // /*
         recursive_rmdir($paths['temp_dir']);
-        echo ("\n temporary directory removed: " . $paths['temp_dir']);
+        echo ("\n temporary directory removed: " . $paths['temp_dir']."\n");
         // */
     }
     private function search_sought_fields($xml_info, $dwca_file, $resource_info)
@@ -161,7 +161,7 @@ class RecodeUnrecognizedFieldsAPI
     }
     private function parse_meta_xml($meta_xml)
     {
-        echo "\n$meta_xml\n";
+        // echo "\n$meta_xml\n";
         $xml = simplexml_load_file($meta_xml);
         $final = array();
         foreach($xml->table as $tab) {
