@@ -18,17 +18,13 @@ class RecodeUnrecognizedFieldsAPI
         self::sought_fields(); //initialize
         $dwca_files = self::get_all_tr_gz_files_in_resources_folder(); //print_r($dwca_files);
         foreach($dwca_files as $file) { echo "\nProcessing [$file]...\n";
+            // $file = '24.tar.gz'; //debug only - forced value
             self::scan_dwca($file);
-            break; //debug only
+            // break; //debug only
         }
-    }
-    private function scrutinize_dwca($file)
-    {
-        
     }
     private function get_all_tr_gz_files_in_resources_folder()
     {
-        // $this->sought['MEDIA']
         $arr = array();
         foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "*.tar.gz") as $filename) {
             $pathinfo = pathinfo($filename, PATHINFO_BASENAME);
@@ -42,7 +38,13 @@ class RecodeUnrecognizedFieldsAPI
         if($dwca_file) $dwca_file = CONTENT_RESOURCE_LOCAL_PATH . $dwca_file;
         else           $dwca_file = $this->dwca_file; //used if called elsewhere
         if($paths = self::extract_dwca($dwca_file)) {
-            if(is_file($paths['temp_dir'].'meta.xml')) self::parse_meta_xml($paths['temp_dir'].'meta.xml');
+            if(is_file($paths['temp_dir'].'meta.xml')) {
+                $xml_info = self::parse_meta_xml($paths['temp_dir'].'meta.xml');
+                if($found = self::search_sought_fields($xml_info, $dwca_file)) {
+                    echo "\nFOUND: ";
+                    print_r($found);
+                }
+            }
             else echo "\n- No meta.xml [$dwca_file]\n";
         }
         else echo "\nERROR: Cannot extract [$dwca_file]\n";
@@ -52,6 +54,26 @@ class RecodeUnrecognizedFieldsAPI
         recursive_rmdir($paths['temp_dir']);
         echo ("\n temporary directory removed: " . $paths['temp_dir']);
         // */
+    }
+    private function search_sought_fields($xml_info, $dwca_file)
+    {
+        $sought_rowType_names = array('MEDIA');
+        $rowTypes_info['MEDIA'] = array('http://eol.org/schema/media/Document'); //array bec. in the future it may be e.g. 'http://rs.gbif.org/terms/1.0/multimedia'
+        
+        // print_r($xml_info);
+        $final = array();
+        
+        foreach($sought_rowType_names as $name) {
+        }
+        
+        foreach($this->sought['MEDIA'] as $uri) { // echo "\n$uri\n";
+            foreach($xml_info as $rowType => $fields) {
+                if(in_array($rowType, $rowTypes_info['MEDIA'])) {
+                    if(in_array($uri, $fields)) $final[$dwca_file][$rowType][] = $uri;
+                }
+            }
+        }
+        return $final;
     }
     private function parse_meta_xml($meta_xml)
     {
@@ -84,7 +106,8 @@ class RecodeUnrecognizedFieldsAPI
                 $final[$rowType][] = (string) $fld{'term'};
             }
         }
-        print_r($final);
+        // print_r($final);
+        return $final;
     }
     private function extract_dwca($dwca_file)
     {
