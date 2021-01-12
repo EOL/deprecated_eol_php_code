@@ -12,6 +12,8 @@ class RecodeUnrecognizedFieldsAPI
         }
         $this->download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*1); //probably default expires in 1 day 60*60*24*1. Not false.
         $this->debug = array();
+        
+        $this->unrecognized_fields_report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/unrecognized_fields.txt';
     }
     public function process_all_resources()
     {
@@ -42,7 +44,11 @@ class RecodeUnrecognizedFieldsAPI
                 $xml_info = self::parse_meta_xml($paths['temp_dir'].'meta.xml');
                 if($found = self::search_sought_fields($xml_info, $dwca_file)) {
                     echo "\nFOUND: ";
-                    print_r($found);
+                    // print_r($found);
+                    //write
+                    $WRITE = Functions::file_open($this->unrecognized_fields_report, "a");
+                    fwrite($WRITE, json_encode($found) . "\n");
+                    fclose($WRITE);
                 }
             }
             else echo "\n- No meta.xml [$dwca_file]\n";
@@ -130,6 +136,9 @@ class RecodeUnrecognizedFieldsAPI
     }
     private function sought_fields()
     {
+        $WRITE = Functions::file_open($this->unrecognized_fields_report, "w"); //initialize report
+        fclose($WRITE);
+        
         /*REFERENCES
         FYI, but you can leave these as is. We're not using them yet, but when we get cleverer with references, we aught to:
             http://eol.org/schema/reference/publicationType
