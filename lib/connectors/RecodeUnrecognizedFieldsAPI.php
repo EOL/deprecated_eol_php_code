@@ -10,7 +10,7 @@ class RecodeUnrecognizedFieldsAPI
             $this->resource_id = $resource_id;
             $this->dwca_file = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '.tar.gz';
         }
-        $this->download_options = array('resource_id' => 'UnrecognizedFields' 'timeout' => 172800, 'expire_seconds' => 60*60*24*1, 'download_wait_time' => 1000000); //probably default expires in 1 day 60*60*24*1. Not false.
+        $this->download_options = array('resource_id' => 'UnrecognizedFields', 'timeout' => 172800, 'expire_seconds' => 60*60*24*1, 'download_wait_time' => 1000000); //probably default expires in 1 day 60*60*24*1. Not false.
         $this->debug = array();
         
         $this->unrecognized_fields_report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/unrecognized_fields.txt';
@@ -20,8 +20,9 @@ class RecodeUnrecognizedFieldsAPI
     }
     public function process_OpenData_resources()
     {
-        self::sought_fields(); //initialize
+        self::sought_fields('opendata'); //initialize
         $dwca_files = self::get_all_tr_gz_files_in_OpenData(); //print_r($dwca_files);
+        echo "\n--Report--\n"; self::print_report();
     }
     private function get_all_tr_gz_files_in_OpenData()
     {
@@ -33,30 +34,13 @@ class RecodeUnrecognizedFieldsAPI
                 if($json = Functions::lookup_with_cache($url, $this->download_options)) {
                     $info = json_decode($json, true); //print_r($info); exit;
                     foreach($info['result']['resources'] as $res) {
-                        print_r($res);
+                        $res['main_dataset'] = $id;
+                        // print_r($res); //good debug
                         /*Array(
-                            [cache_last_updated] => 
                             [package_id] => e4a7239b-7297-4a75-9fe9-1f5cff5e20d7
-                            [webstore_last_updated] => 
-                            [datastore_active] => 
                             [id] => 7408693e-094a-4335-a0c9-b114d7dc64d3
-                            [size] => 
-                            [state] => active
-                            [hash] => 
-                            [description] => 
-                            [format] => ZIP
-                            [mimetype_inner] => 
-                            [url_type] => upload
-                            [mimetype] => 
-                            [cache_url] => 
                             [name] => Cicadellinae
-                            [created] => 2018-02-12T15:26:14.972122
                             [url] => https://opendata.eol.org/dataset/e4a7239b-7297-4a75-9fe9-1f5cff5e20d7/resource/7408693e-094a-4335-a0c9-b114d7dc64d3/download/archive.zip
-                            [webstore_url] => 
-                            [last_modified] => 2018-02-12T20:26:14.953828
-                            [position] => 1
-                            [revision_id] => e8ab8b64-751e-4187-adbc-5d0820e21b3f
-                            [resource_type] => 
                         )*/
                         $pathinfo = pathinfo($res['url']);
                         // print_r($pathinfo); //exit;
@@ -73,16 +57,19 @@ class RecodeUnrecognizedFieldsAPI
                             [filename] => archive
                         )*/
                         if(stripos($res['url'], "editors.eol.org/eol_php_code/applications/content_server/resources") !== false) {
-                            $res['url_actual'] = CONTENT_RESOURCE_LOCAL_PATH."/".$pathinfo['basename'];
+                            $file = CONTENT_RESOURCE_LOCAL_PATH."/".$pathinfo['basename'];
+                            self::scan_dwca($file, $res);
                         }
-                        elseif(stripos($res['url'], "opendata.eol.org/dataset/") !== false) && $pathinfo['basename'] == 'archive.zip') {
-                            
+                        elseif((stripos($res['url'], "opendata.eol.org/dataset/") !== false) && ($pathinfo['basename'] == 'archive.zip')) {
+                            $file = $res['url'];
+                            self::scan_dwca($file, $res);
                         }
                         else continue; //ignore
                     }
-                    exit;
+                    // exit;
                 }
-            }
+                break; //debug only
+            } //end foreach()
         }
     }
     public function process_all_resources()
@@ -92,12 +79,12 @@ class RecodeUnrecognizedFieldsAPI
         $dwca_files = self::get_all_tr_gz_files_in_resources_folder(); //print_r($dwca_files);
         foreach($dwca_files as $file) { echo "\nProcessing [$file]...\n";
             // $file = '24.tar.gz'; //debug only - forced value
+            $file = CONTENT_RESOURCE_LOCAL_PATH . $dwca_file;
             self::scan_dwca($file);
             // break; //debug only
         }
         // */
-        echo "\n--Report--\n";
-        self::print_report();
+        echo "\n--Report--\n"; self::print_report();
     }
     private function print_report()
     {
@@ -109,23 +96,21 @@ class RecodeUnrecognizedFieldsAPI
     {
         $arr = array();
         foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "*.tar.gz") as $filename) {
-            $pathinfo = pathinfo($filename, PATHINFO_BASENAME);
-            $arr[$pathinfo] = '';
+            $basename = pathinfo($filename, PATHINFO_BASENAME);
+            $arr[$basename] = '';
         }
         ksort($arr);
         return array_keys($arr);
     }
-    public function scan_dwca($dwca_file = false) //utility to search meta.xml for certain fields
+    public function scan_dwca($dwca_file, $resource_info = array()) //utility to search meta.xml for certain fields
     {
-        if($dwca_file) $dwca_file = CONTENT_RESOURCE_LOCAL_PATH . $dwca_file;
-        else           $dwca_file = $this->dwca_file; //used if called elsewhere
         if($paths = self::extract_dwca($dwca_file)) {
             if(is_file($paths['temp_dir'].'meta.xml')) {
                 $xml_info = self::parse_meta_xml($paths['temp_dir'].'meta.xml');
-                if($found = self::search_sought_fields($xml_info, $dwca_file)) {
-                    echo "\nFOUND: ";
+                if($found = self::search_sought_fields($xml_info, $dwca_file, $resource_info)) {
+                    // echo "\nFOUND: ";
                     // print_r($found);
-                    //write
+                    //write to report:
                     $WRITE = Functions::file_open($this->unrecognized_fields_report, "a");
                     fwrite($WRITE, json_encode($found) . "\n");
                     fclose($WRITE);
@@ -141,23 +126,37 @@ class RecodeUnrecognizedFieldsAPI
         echo ("\n temporary directory removed: " . $paths['temp_dir']);
         // */
     }
-    private function search_sought_fields($xml_info, $dwca_file)
+    private function search_sought_fields($xml_info, $dwca_file, $resource_info)
     {
         $sought_rowType_names = array('MEDIA', 'OCCURRENCES');
         $rowTypes_info['MEDIA'] = array('http://eol.org/schema/media/Document'); //array bec. in the future it may be e.g. 'http://rs.gbif.org/terms/1.0/multimedia'
         $rowTypes_info['OCCURRENCES'] = array('http://rs.tdwg.org/dwc/terms/Occurrence');
-        
         // print_r($xml_info);
+        // print_r($resource_info);
+        /*Array(
+            [package_id] => e4a7239b-7297-4a75-9fe9-1f5cff5e20d7
+            [id] => 7408693e-094a-4335-a0c9-b114d7dc64d3
+            [name] => Cicadellinae
+            ...
+        )*/
         $final = array();
         foreach($sought_rowType_names as $name) { //e.g. 'MEDIA'
             foreach($this->sought[$name] as $uri) { // echo "\n$uri\n";
                 foreach($xml_info as $rowType => $fields) {
                     if(in_array($rowType, $rowTypes_info[$name])) {
-                        if(in_array($uri, $fields)) $final[$dwca_file][$rowType][] = $uri;
+                        if(in_array($uri, $fields)) {
+                            if($resource_info) {
+                                $final['main dataset'] = $resource_info['main_dataset'];
+                                $final['resource name'] = $resource_info['name'];
+                                $final['resource ID'] = $resource_info['id'];
+                            }
+                            $final[$dwca_file][$rowType][] = $uri;
+                        }
                     }
                 }
             }
         }
+        // print_r($final); exit;
         return $final;
     }
     private function parse_meta_xml($meta_xml)
@@ -211,8 +210,9 @@ class RecodeUnrecognizedFieldsAPI
         */
         return $paths;
     }
-    private function sought_fields()
+    private function sought_fields($what = false)
     {
+        if($what == 'opendata') $this->unrecognized_fields_report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/unrecognized_fields_opendata.txt';
         $WRITE = Functions::file_open($this->unrecognized_fields_report, "w"); //initialize report
         fclose($WRITE);
         
