@@ -22,8 +22,9 @@ else exit("\nERROR: Missing param.\n");
 
 // /* //main operation
 $func = new RecodeUnrecognizedFieldsAPI($resource_id);
-// $func->scan_dwca(); //utility
-$func->process_all_resources();
+// $func->scan_dwca(); //utility                                       --- working OK
+// $func->process_all_resources(); //using CONTENT_RESOURCE_LOCAL_PATH --- working OK
+$func->process_OpenData_resources();
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;

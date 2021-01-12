@@ -10,10 +10,80 @@ class RecodeUnrecognizedFieldsAPI
             $this->resource_id = $resource_id;
             $this->dwca_file = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '.tar.gz';
         }
-        $this->download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*1); //probably default expires in 1 day 60*60*24*1. Not false.
+        $this->download_options = array('resource_id' => 'UnrecognizedFields' 'timeout' => 172800, 'expire_seconds' => 60*60*24*1, 'download_wait_time' => 1000000); //probably default expires in 1 day 60*60*24*1. Not false.
         $this->debug = array();
         
         $this->unrecognized_fields_report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/unrecognized_fields.txt';
+        //Below used if DwCA files are from OpenData.eol.org:
+        $this->opendata_resources_list = 'https://opendata.eol.org/api/3/action/package_list';
+        $this->opendata_resource_info = 'https://opendata.eol.org/api/3/action/package_show?id=RESOURCE_ID';
+    }
+    public function process_OpenData_resources()
+    {
+        self::sought_fields(); //initialize
+        $dwca_files = self::get_all_tr_gz_files_in_OpenData(); //print_r($dwca_files);
+    }
+    private function get_all_tr_gz_files_in_OpenData()
+    {
+        if($json = Functions::lookup_with_cache($this->opendata_resources_list, $this->download_options)) {
+            $IDs = json_decode($json, true); //print_r($IDs); exit;
+            foreach($IDs['result'] as $id) {
+                // $id = 'fishbase'; //debug only -- forced value
+                $url = str_replace('RESOURCE_ID', $id, $this->opendata_resource_info); // exit("\n[$url]\n");
+                if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+                    $info = json_decode($json, true); //print_r($info); exit;
+                    foreach($info['result']['resources'] as $res) {
+                        print_r($res);
+                        /*Array(
+                            [cache_last_updated] => 
+                            [package_id] => e4a7239b-7297-4a75-9fe9-1f5cff5e20d7
+                            [webstore_last_updated] => 
+                            [datastore_active] => 
+                            [id] => 7408693e-094a-4335-a0c9-b114d7dc64d3
+                            [size] => 
+                            [state] => active
+                            [hash] => 
+                            [description] => 
+                            [format] => ZIP
+                            [mimetype_inner] => 
+                            [url_type] => upload
+                            [mimetype] => 
+                            [cache_url] => 
+                            [name] => Cicadellinae
+                            [created] => 2018-02-12T15:26:14.972122
+                            [url] => https://opendata.eol.org/dataset/e4a7239b-7297-4a75-9fe9-1f5cff5e20d7/resource/7408693e-094a-4335-a0c9-b114d7dc64d3/download/archive.zip
+                            [webstore_url] => 
+                            [last_modified] => 2018-02-12T20:26:14.953828
+                            [position] => 1
+                            [revision_id] => e8ab8b64-751e-4187-adbc-5d0820e21b3f
+                            [resource_type] => 
+                        )*/
+                        $pathinfo = pathinfo($res['url']);
+                        // print_r($pathinfo); //exit;
+                        /*Array(
+                            [dirname] => https://editors.eol.org/eol_php_code/applications/content_server/resources
+                            [basename] => 42_meta_recoded.tar.gz
+                            [extension] => gz
+                            [filename] => 42_meta_recoded.tar
+                        )
+                        Array(
+                            [dirname] => https://opendata.eol.org/dataset/e4a7239b-7297-4a75-9fe9-1f5cff5e20d7/resource/7408693e-094a-4335-a0c9-b114d7dc64d3/download
+                            [basename] => archive.zip
+                            [extension] => zip
+                            [filename] => archive
+                        )*/
+                        if(stripos($res['url'], "editors.eol.org/eol_php_code/applications/content_server/resources") !== false) {
+                            $res['url_actual'] = CONTENT_RESOURCE_LOCAL_PATH."/".$pathinfo['basename'];
+                        }
+                        elseif(stripos($res['url'], "opendata.eol.org/dataset/") !== false) && $pathinfo['basename'] == 'archive.zip') {
+                            
+                        }
+                        else continue; //ignore
+                    }
+                    exit;
+                }
+            }
+        }
     }
     public function process_all_resources()
     {
@@ -130,13 +200,11 @@ class RecodeUnrecognizedFieldsAPI
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($dwca_file, "meta.xml", $this->download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
-        print_r($paths); //exit("\n-exit muna-\n");
+        // print_r($paths); //exit("\n-exit muna-\n");
         // */
 
         /* development only
         $paths = Array(
-            // 'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_28647/',
-            // 'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_28647/'
             'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_81560/',
             'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_81560/'
         );
