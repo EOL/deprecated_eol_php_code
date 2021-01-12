@@ -17,12 +17,22 @@ class RecodeUnrecognizedFieldsAPI
     }
     public function process_all_resources()
     {
+        // /*
         self::sought_fields(); //initialize
         $dwca_files = self::get_all_tr_gz_files_in_resources_folder(); //print_r($dwca_files);
         foreach($dwca_files as $file) { echo "\nProcessing [$file]...\n";
             // $file = '24.tar.gz'; //debug only - forced value
             self::scan_dwca($file);
             // break; //debug only
+        }
+        // */
+        echo "\n--Report--\n";
+        self::print_report();
+    }
+    private function print_report()
+    {
+        foreach(new FileIterator($this->unrecognized_fields_report) as $line_number => $line) {
+            print_r(json_decode($line, true));
         }
     }
     private function get_all_tr_gz_files_in_resources_folder()
@@ -63,19 +73,18 @@ class RecodeUnrecognizedFieldsAPI
     }
     private function search_sought_fields($xml_info, $dwca_file)
     {
-        $sought_rowType_names = array('MEDIA');
+        $sought_rowType_names = array('MEDIA', 'OCCURRENCES');
         $rowTypes_info['MEDIA'] = array('http://eol.org/schema/media/Document'); //array bec. in the future it may be e.g. 'http://rs.gbif.org/terms/1.0/multimedia'
+        $rowTypes_info['OCCURRENCES'] = array('http://rs.tdwg.org/dwc/terms/Occurrence');
         
         // print_r($xml_info);
         $final = array();
-        
-        foreach($sought_rowType_names as $name) {
-        }
-        
-        foreach($this->sought['MEDIA'] as $uri) { // echo "\n$uri\n";
-            foreach($xml_info as $rowType => $fields) {
-                if(in_array($rowType, $rowTypes_info['MEDIA'])) {
-                    if(in_array($uri, $fields)) $final[$dwca_file][$rowType][] = $uri;
+        foreach($sought_rowType_names as $name) { //e.g. 'MEDIA'
+            foreach($this->sought[$name] as $uri) { // echo "\n$uri\n";
+                foreach($xml_info as $rowType => $fields) {
+                    if(in_array($rowType, $rowTypes_info[$name])) {
+                        if(in_array($uri, $fields)) $final[$dwca_file][$rowType][] = $uri;
+                    }
                 }
             }
         }
@@ -172,20 +181,17 @@ class RecodeUnrecognizedFieldsAPI
             http://www.w3.org/2003/01/geo/wgs84_pos#lat
             http://www.w3.org/2003/01/geo/wgs84_pos#long
 
-        I'm not sure what this is. Can you get me an example of some content from this field?
-            http://rs.tdwg.org/ac/terms/additionalInformation
-
+        I'm not sure what this is. Can you get me an example of some content from this field? */
+        $this->sought['MEDIA'][] = 'http://rs.tdwg.org/ac/terms/additionalInformation';
+        
+        /*
         OCCURRENCES
-        Recode as MoF records of with MeasurementOfTaxon=false:
-            http://rs.tdwg.org/dwc/terms/basisOfRecord
-            http://rs.tdwg.org/dwc/terms/catalogNumber
-            http://rs.tdwg.org/dwc/terms/collectionCode
-            http://rs.tdwg.org/dwc/terms/countryCode
-            http://rs.tdwg.org/dwc/terms/institutionCode
-
-        Discard. But alert me if you find a resource with an actual Events file. Its contents will need recoding too:
-            http://rs.tdwg.org/dwc/terms/eventID
-
+        Recode as MoF records of with MeasurementOfTaxon=false: */
+        $this->sought['OCCURRENCES'] = array('http://rs.tdwg.org/dwc/terms/basisOfRecord', 'http://rs.tdwg.org/dwc/terms/catalogNumber', 'http://rs.tdwg.org/dwc/terms/collectionCode', 'http://rs.tdwg.org/dwc/terms/countryCode', 'http://rs.tdwg.org/dwc/terms/institutionCode');
+        /*
+        Discard. But alert me if you find a resource with an actual Events file. Its contents will need recoding too: */
+        $this->sought['OCCURRENCES'][] = 'http://rs.tdwg.org/dwc/terms/eventID';
+        /*
         GLOBI
         I think there's currently a typo in both of these fields (http:/eol.org...) but either way, they want recoding again. 
         I think this will work- MoF records, measurementOfTaxon=false, should attach these to their occurrences. But they should be mapped to eol terms:
