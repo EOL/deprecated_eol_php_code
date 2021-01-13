@@ -66,7 +66,9 @@ class RecodeUnrecognizedFieldsAPI
                             [filename] => archive
                         )*/
                         if(stripos($res['url'], "editors.eol.org/eol_php_code/applications/content_server/resources") !== false && 
-                           substr($res['url'], -7) != '.txt.gz') {
+                           substr($res['url'], -7) != '.txt.gz' &&
+                           substr($res['url'], -4) != '.tsv' &&
+                           substr($res['url'], -8) != '.json.gz') {
                             $file = CONTENT_RESOURCE_LOCAL_PATH."/".$pathinfo['basename'];
                             self::scan_dwca($file, $res, 'opendata');
                         }
@@ -76,7 +78,6 @@ class RecodeUnrecognizedFieldsAPI
                         }
                         else continue; //ignore
                     }
-                    // exit;
                 }
                 // break; //debug only -- PROCESS JUST 1 RECORD
             } //end foreach()
