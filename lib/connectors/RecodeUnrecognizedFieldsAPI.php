@@ -63,7 +63,8 @@ class RecodeUnrecognizedFieldsAPI
                             [extension] => zip
                             [filename] => archive
                         )*/
-                        if(stripos($res['url'], "editors.eol.org/eol_php_code/applications/content_server/resources") !== false) {
+                        if(stripos($res['url'], "editors.eol.org/eol_php_code/applications/content_server/resources") !== false && 
+                           substr($res['url'], -7) != '.txt.gz') {
                             $file = CONTENT_RESOURCE_LOCAL_PATH."/".$pathinfo['basename'];
                             self::scan_dwca($file, $res, 'opendata');
                         }
