@@ -35,7 +35,9 @@ class RecodeUnrecognizedFieldsAPI
     {
         if($json = Functions::lookup_with_cache($this->opendata_resources_list, $this->download_options)) {
             $IDs = json_decode($json, true); //print_r($IDs); exit;
-            foreach($IDs['result'] as $id) {
+            $total = count($IDs['result']); $i = 0;
+            foreach($IDs['result'] as $id) { $i++;
+                echo "\n$i of $total [$id]\n";
                 // $id = 'fishbase'; //debug only -- forced value
                 $url = str_replace('RESOURCE_ID', $id, $this->opendata_resource_info); // exit("\n[$url]\n");
                 if($json = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -124,8 +126,9 @@ class RecodeUnrecognizedFieldsAPI
                 $xml_info = self::parse_meta_xml($paths['temp_dir'].'meta.xml');
                 if($found = self::search_sought_fields($xml_info, $dwca_file, $resource_info)) {
                     // echo "\nFOUND: ";
-                    // print_r($found);
+                    // print_r($found); //good debug
                     //write to report:
+                    if(@$found['main dataset']) echo "\n[".$found['main dataset']."] [".$found['resource name']."] [".$found['resource ID']."]\n";
                     $file = self::get_file($what);
                     $WRITE = Functions::file_open($file, "a");
                     fwrite($WRITE, json_encode($found) . "\n");
@@ -140,7 +143,7 @@ class RecodeUnrecognizedFieldsAPI
         // /*
         if($val = $paths['temp_dir']) {
             recursive_rmdir($val);
-            echo ("\n temporary directory removed: [$val]\n");
+            // echo ("\n temporary directory removed: [$val]\n");
         }
         // */
     }
