@@ -137,8 +137,10 @@ class RecodeUnrecognizedFieldsAPI
         
         // remove temp dir
         // /*
-        recursive_rmdir($paths['temp_dir']);
-        echo ("\n temporary directory removed: " . $paths['temp_dir']."\n");
+        if($val = $paths['temp_dir']) {
+            recursive_rmdir($val);
+            echo ("\n temporary directory removed: [$val]\n");
+        }
         // */
     }
     private function search_sought_fields($xml_info, $dwca_file, $resource_info)
