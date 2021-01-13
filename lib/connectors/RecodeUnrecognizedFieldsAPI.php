@@ -18,6 +18,12 @@ class RecodeUnrecognizedFieldsAPI
         $this->opendata_resources_list = 'https://opendata.eol.org/api/3/action/package_list';
         $this->opendata_resource_info = 'https://opendata.eol.org/api/3/action/package_show?id=RESOURCE_ID';
     }
+    public function scan_a_resource($resource_id)
+    {
+        $file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'.tar.gz';
+        self::sought_fields($resource_id); //initialize
+        self::scan_dwca($file);
+    }
     public function process_OpenData_resources()
     {
         self::sought_fields('opendata'); //initialize
@@ -75,7 +81,7 @@ class RecodeUnrecognizedFieldsAPI
     public function process_all_resources()
     {
         // /*
-        self::sought_fields(); //initialize
+        self::sought_fields('local path'); //initialize
         $dwca_files = self::get_all_tr_gz_files_in_resources_folder(); //print_r($dwca_files);
         foreach($dwca_files as $file) { echo "\nProcessing [$file]...\n";
             // $file = '24.tar.gz'; //debug only - forced value
@@ -214,6 +220,9 @@ class RecodeUnrecognizedFieldsAPI
     private function sought_fields($what = false)
     {
         if($what == 'opendata') $this->unrecognized_fields_report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/unrecognized_fields_opendata.txt';
+        elseif($what == 'local path') $this->unrecognized_fields_report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/unrecognized_fields.txt';
+        elseif($what) $this->unrecognized_fields_report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/'.$what.'.txt';
+        
         $WRITE = Functions::file_open($this->unrecognized_fields_report, "w"); //initialize report
         fclose($WRITE);
         

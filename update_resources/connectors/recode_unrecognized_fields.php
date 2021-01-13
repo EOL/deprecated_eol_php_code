@@ -1,11 +1,9 @@
 <?php
 namespace php_active_record;
 /* DATA-1875: recoding unrecognized fields
-$ php recode_unrecognized_fields.php _ ioc-birdlist           //in Mac Mini
-$ php recode_unrecognized_fields.php jenkins ioc-birdlist     //in eol-archive
-
-$ php recode_unrecognized_fields.php _ print_report_opendata            //in Mac Mini
-$ php recode_unrecognized_fields.php _ process_OpenData_resources       //in Mac Mini
+$ php recode_unrecognized_fields.php _ ioc-birdlist                 //in Mac Mini
+$ php recode_unrecognized_fields.php _ print_report_opendata        //in Mac Mini
+$ php recode_unrecognized_fields.php _ process_OpenData_resources   //in Mac Mini
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -31,6 +29,7 @@ if($resource_id == 'print_report_opendata')          $func->print_report('openda
 elseif($resource_id == 'print_report')               $func->print_report();
 elseif($resource_id == 'process_OpenData_resources') $func->process_OpenData_resources(); //using OpenData API --- working OK!
 elseif($resource_id == 'process_all_resources')      $func->process_all_resources(); //using CONTENT_RESOURCE_LOCAL_PATH --- working OK!
+elseif($resource_id)                                 $func->scan_a_resource($resource_id);
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
