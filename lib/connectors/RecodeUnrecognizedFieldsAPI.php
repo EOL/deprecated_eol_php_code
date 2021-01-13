@@ -4,7 +4,7 @@ namespace php_active_record;
 */
 class RecodeUnrecognizedFieldsAPI
 {
-    function __construct($resource_id = NULL, $dwca_file = NULL, $params = array())
+    function __construct($resource_id = NULL)
     {
         if($resource_id) {
             $this->resource_id = $resource_id;
@@ -13,7 +13,8 @@ class RecodeUnrecognizedFieldsAPI
         $this->download_options = array('resource_id' => 'UnrecognizedFields', 'timeout' => 172800, 'expire_seconds' => 60*60*24*1, 'download_wait_time' => 1000000); //probably default expires in 1 day 60*60*24*1. Not false.
         $this->debug = array();
         
-        $this->unrecognized_fields_report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/unrecognized_fields.txt';
+        $this->unrecognized_fields_report['opendata'] = CONTENT_RESOURCE_LOCAL_PATH.'/reports/unrecognized_fields_opendata.txt';
+        $this->unrecognized_fields_report['local path'] = CONTENT_RESOURCE_LOCAL_PATH.'/reports/unrecognized_fields.txt';
         //Below used if DwCA files are from OpenData.eol.org:
         $this->opendata_resources_list = 'https://opendata.eol.org/api/3/action/package_list';
         $this->opendata_resource_info = 'https://opendata.eol.org/api/3/action/package_show?id=RESOURCE_ID';
@@ -22,13 +23,13 @@ class RecodeUnrecognizedFieldsAPI
     {
         $file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'.tar.gz';
         self::sought_fields($resource_id); //initialize
-        self::scan_dwca($file);
+        self::scan_dwca($file, false, $resource_id);
     }
     public function process_OpenData_resources()
     {
         self::sought_fields('opendata'); //initialize
         $dwca_files = self::get_all_tr_gz_files_in_OpenData(); //print_r($dwca_files);
-        // echo "\n--Report--\n"; self::print_report(); //working OK but now called separately
+        // echo "\n--Report--\n"; self::print_report('opendata'); //working OK but now called separately
     }
     private function get_all_tr_gz_files_in_OpenData()
     {
@@ -64,17 +65,17 @@ class RecodeUnrecognizedFieldsAPI
                         )*/
                         if(stripos($res['url'], "editors.eol.org/eol_php_code/applications/content_server/resources") !== false) {
                             $file = CONTENT_RESOURCE_LOCAL_PATH."/".$pathinfo['basename'];
-                            self::scan_dwca($file, $res);
+                            self::scan_dwca($file, $res, 'opendata');
                         }
                         elseif((stripos($res['url'], "opendata.eol.org/dataset/") !== false) && ($pathinfo['basename'] == 'archive.zip')) {
                             $file = $res['url'];
-                            self::scan_dwca($file, $res);
+                            self::scan_dwca($file, $res, 'opendata');
                         }
                         else continue; //ignore
                     }
                     // exit;
                 }
-                // break; //debug only
+                // break; //debug only -- PROCESS JUST 1 RECORD
             } //end foreach()
         }
     }
@@ -85,17 +86,17 @@ class RecodeUnrecognizedFieldsAPI
         $dwca_files = self::get_all_tr_gz_files_in_resources_folder(); //print_r($dwca_files);
         foreach($dwca_files as $file) { echo "\nProcessing [$file]...\n";
             // $file = '24.tar.gz'; //debug only - forced value
-            $file = CONTENT_RESOURCE_LOCAL_PATH . $dwca_file;
-            self::scan_dwca($file);
-            // break; //debug only
+            $file = CONTENT_RESOURCE_LOCAL_PATH . $file;
+            self::scan_dwca($file, false, 'local path');
+            // break; //debug only -- PROCESS JUST 1 RECORD
         }
         // */
-        echo "\n--Report--\n"; self::print_report();
+        echo "\n--Report--\n"; self::print_report('local path');
     }
-    public function print_report($what = false)
+    public function print_report($what)
     {
-        if($what == 'opendata') $this->unrecognized_fields_report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/unrecognized_fields_opendata.txt';
-        foreach(new FileIterator($this->unrecognized_fields_report) as $line_number => $line) {
+        $file = self::get_file($what);
+        foreach(new FileIterator($file) as $line_number => $line) {
             print_r(json_decode($line, true));
         }
     }
@@ -109,7 +110,13 @@ class RecodeUnrecognizedFieldsAPI
         ksort($arr);
         return array_keys($arr);
     }
-    public function scan_dwca($dwca_file, $resource_info = array()) //utility to search meta.xml for certain fields
+    private function get_file($what)
+    {
+        if(in_array($what, array('local path', 'opendata'))) $file = $this->unrecognized_fields_report[$what];
+        else                                                 $file = CONTENT_RESOURCE_LOCAL_PATH.'/reports/'.$what.'.txt';
+        return $file;
+    }
+    public function scan_dwca($dwca_file, $resource_info = array(), $what) //utility to search meta.xml for certain fields
     {
         if($paths = self::extract_dwca($dwca_file)) {
             if(is_file($paths['temp_dir'].'meta.xml')) {
@@ -118,7 +125,8 @@ class RecodeUnrecognizedFieldsAPI
                     // echo "\nFOUND: ";
                     // print_r($found);
                     //write to report:
-                    $WRITE = Functions::file_open($this->unrecognized_fields_report, "a");
+                    $file = self::get_file($what);
+                    $WRITE = Functions::file_open($file, "a");
                     fwrite($WRITE, json_encode($found) . "\n");
                     fclose($WRITE);
                 }
@@ -217,13 +225,10 @@ class RecodeUnrecognizedFieldsAPI
         */
         return $paths;
     }
-    private function sought_fields($what = false)
+    private function sought_fields($what)
     {
-        if($what == 'opendata') $this->unrecognized_fields_report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/unrecognized_fields_opendata.txt';
-        elseif($what == 'local path') $this->unrecognized_fields_report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/unrecognized_fields.txt';
-        elseif($what) $this->unrecognized_fields_report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/'.$what.'.txt';
-        
-        $WRITE = Functions::file_open($this->unrecognized_fields_report, "w"); //initialize report
+        $file = self::get_file($what);
+        $WRITE = Functions::file_open($file, "w"); //initialize report
         fclose($WRITE);
         
         /*REFERENCES
@@ -244,10 +249,10 @@ class RecodeUnrecognizedFieldsAPI
         Thanks.
         */
 
-        /* Discard. We make our own thumbnails now for all media, even if someone is trying to make them for us:
-            http://eol.org/schema/media/thumbnailURL
+        /* Discard. We make our own thumbnails now for all media, even if someone is trying to make them for us:*/
+        $this->sought['MEDIA'][] = 'http://eol.org/schema/media/thumbnailURL';
 
-        FYI, but you can leave these as is. They're either redundant or not super important, but let's not throw them away.
+        /* FYI, but you can leave these as is. They're either redundant or not super important, but let's not throw them away.
             http://ns.adobe.com/xap/1.0/CreateDate
             http://ns.adobe.com/xap/1.0/Rating
             http://purl.org/dc/terms/audience

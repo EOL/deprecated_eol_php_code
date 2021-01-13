@@ -26,7 +26,7 @@ else exit("\nERROR: Missing param.\n");
 $func = new RecodeUnrecognizedFieldsAPI($resource_id);
 // $func->scan_dwca(); //utility                                       --- working OK, but may need some adjustments
 if($resource_id == 'print_report_opendata')          $func->print_report('opendata'); //default report
-elseif($resource_id == 'print_report')               $func->print_report();
+elseif($resource_id == 'print_report')               $func->print_report('local path');
 elseif($resource_id == 'process_OpenData_resources') $func->process_OpenData_resources(); //using OpenData API --- working OK!
 elseif($resource_id == 'process_all_resources')      $func->process_all_resources(); //using CONTENT_RESOURCE_LOCAL_PATH --- working OK!
 elseif($resource_id)                                 $func->scan_a_resource($resource_id);
