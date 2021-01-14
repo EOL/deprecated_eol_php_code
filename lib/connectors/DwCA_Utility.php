@@ -115,7 +115,7 @@ class DwCA_Utility
             else                           $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
         }
         elseif(substr($this->resource_id,0,3) == 'SC_' || substr($this->resource_id,0,2) == 'c_') $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*1)); //1 day expire
-        elseif(stripos($this->resource_id, "_meta_recoded") !== false) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
+        elseif(stripos($this->resource_id, "_meta_recoded") !== false) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //0 orig expires now | during dev false
         else $info = self::start(); //default doesn't expire. Your call.
 
         $temp_dir = $info['temp_dir'];

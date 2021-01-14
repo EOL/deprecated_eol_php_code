@@ -57,7 +57,7 @@ class MetaRecodingAPI
         
         // /* start Unrecognized_fields tasks
         if(in_array($this->resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
-            '168_meta_recoded', '200_meta_recoded'))) {
+            '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded'))) {
             self::task_200($tables); //task_200: contributor, creator, publisher from Document to Agents
         }
         // */
@@ -580,9 +580,23 @@ class MetaRecodingAPI
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
             $tmp = explode("\t", $row);
             $rec = array(); $k = 0;
+            
+            /*
+            echo "\n".count($meta->fields)." -- ".count($tmp)."\n";
+            if(count($meta->fields) != count($tmp)) {
+                print_r($meta->fields);
+                print_r($tmp);
+                exit;
+            }
+            */
+
+            if(count($meta->fields) != count($tmp)) continue; //maybe harsh but needed
+            
             foreach($meta->fields as $field) {
-                if(!$field['term']) continue;
-                $rec[$field['term']] = $tmp[$k];
+                $term = $field['term'];
+                if(!$term) continue;
+                if(stripos($term, "#") !== false) $term = self::get_proper_field($term); //string is found
+                $rec[$term] = $tmp[$k];
                 $k++;
             }
             $rec = array_map('trim', $rec);
@@ -607,15 +621,30 @@ class MetaRecodingAPI
                 if(isset($rec['http://purl.org/dc/terms/publisher'])) unset($rec['http://purl.org/dc/terms/publisher']);
                 if(isset($rec['http://eol.org/schema/media/thumbnailURL'])) unset($rec['http://eol.org/schema/media/thumbnailURL']);
                 $uris = array_keys($rec);
+                
+                // print_r($uris);
+                // print_r(pathinfo("http://www.w3.org/2003/01/geo/wgs84_pos#lat"));
+                // exit;
+                
                 $o = new \eol_schema\MediaResource();
                 foreach($uris as $uri) {
                     $field = pathinfo($uri, PATHINFO_BASENAME);
+                    if(stripos($field, "#") !== false) $field = self::get_proper_field($field); //string is found
                     $o->$field = $rec[$uri];
                 }
                 if($agent_ids) $o->agentID = implode("; ", $agent_ids);
                 $this->archive_builder->write_object_to_file($o);
             }
         }
+    }
+    private function get_proper_field($field)
+    {   /* e.g. with "#"
+        [23] => http://www.w3.org/2003/01/geo/wgs84_pos#lat
+        [24] => http://www.w3.org/2003/01/geo/wgs84_pos#long
+        [25] => http://www.w3.org/2003/01/geo/wgs84_pos#alt
+        */
+        $arr = explode('#', $field);
+        return trim($arr[1]);
     }
     private function add_agents($rec)
     {   
