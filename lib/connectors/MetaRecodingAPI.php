@@ -56,7 +56,8 @@ class MetaRecodingAPI
         */
         
         // /* start Unrecognized_fields tasks
-        if(in_array($this->resource_id, array('Cicadellinae_meta_recoded'))) { //exit("\non the spot.\n");
+        if(in_array($this->resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
+            '168_meta_recoded'))) {
             self::task_200($tables); //task_200: contributor, creator, publisher from Document to Agents
         }
         // */
@@ -64,7 +65,7 @@ class MetaRecodingAPI
     private function task_200($tables)
     {
         self::process_document($tables['http://eol.org/schema/media/document'][0], 'move_CCP_to_Agents'); //CCP is contributor creator publisher
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'add_missing_measurementID');
+        if($val = @$tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]) self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'add_missing_measurementID');
     }
     private function task_individualCount_as_child_in_MoF($tables) //replace mType to 'http://eol.org/schema/terms/SampleSize'
     {
@@ -440,7 +441,14 @@ class MetaRecodingAPI
         }
         // */
 
-        $this->archive_builder->write_object_to_file($m);
+        // /* New Jan 14, 2021 --- measurementValue should not be blank
+        if(!$m->measurementValue) return $m;
+        // */
+
+        if(!isset($this->measurementIDs[$m->measurementID])) {
+            $this->measurementIDs[$m->measurementID] = '';
+            $this->archive_builder->write_object_to_file($m);
+        }
         return $m;
     }
     private function process_occurrence($meta, $what)

@@ -55,6 +55,12 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "test3_m
 
 -------------------------- START of Unrecognized_fields --------------------------
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "Cicadellinae_meta_recoded", "task": "metadata_recoding"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "Deltocephalinae_meta_recoded", "task": "metadata_recoding"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "Appeltans_et_al_meta_recoded", "task": "metadata_recoding"}'
+
+BioImages, the virtual fieldguide, UK (168.tar.gz)
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "168_meta_recoded", "task": "metadata_recoding"}'
+
 -------------------------- END of Unrecognized_fields --------------------------
 
 
@@ -248,6 +254,15 @@ elseif($task == 'metadata_recoding') {
     elseif($resource_id == 'Cicadellinae_meta_recoded') { //task_200: contributor, creator, publisher from Document to Agents
         $dwca_file = "https://opendata.eol.org/dataset/e4a7239b-7297-4a75-9fe9-1f5cff5e20d7/resource/7408693e-094a-4335-a0c9-b114d7dc64d3/download/archive.zip";
     }
+    elseif($resource_id == 'Deltocephalinae_meta_recoded') { //task_200: contributor, creator, publisher from Document to Agents
+        $dwca_file = "https://opendata.eol.org/dataset/e4a7239b-7297-4a75-9fe9-1f5cff5e20d7/resource/5d6f7139-0d1f-4d9f-adb0-15ec7a1ea16e/download/archive.zip";
+    }
+    elseif($resource_id == 'Appeltans_et_al_meta_recoded') { //task_200: contributor, creator, publisher from Document to Agents
+        $dwca_file = "https://opendata.eol.org/dataset/b5b2b058-8b2c-4a2d-98f9-f4f5bba77ae5/resource/d9adfd62-01d7-41e1-a125-34130ce33cf4/download/archive.zip";
+    }
+    elseif($resource_id == '168_meta_recoded') { //task_200: contributor, creator, publisher from Document to Agents
+        $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/168.tar.gz";
+    }
     // */
     
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
@@ -289,8 +304,13 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
                                         '26_meta_recoded_1'))) {
             $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //means occurrence tab is just carry-over
         }
-        elseif(in_array($resource_id, array('Cicadellinae_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+        elseif(in_array($resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
+            '168_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
         else $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+
+        /* works but just testing. COMMENT IN REAL OPERATION
+        if($resource_id == '168_meta_recoded') $excluded_rowtypes[] = 'http://eol.org/schema/agent/agent';
+        */
     }
     
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
