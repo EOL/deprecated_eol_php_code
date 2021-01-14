@@ -57,7 +57,7 @@ class MetaRecodingAPI
         
         // /* start Unrecognized_fields tasks
         if(in_array($this->resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
-            '168_meta_recoded'))) {
+            '168_meta_recoded', '200_meta_recoded'))) {
             self::task_200($tables); //task_200: contributor, creator, publisher from Document to Agents
         }
         // */

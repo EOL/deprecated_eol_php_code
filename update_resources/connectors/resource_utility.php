@@ -60,6 +60,10 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "Appelta
 
 BioImages, the virtual fieldguide, UK (168.tar.gz)
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "168_meta_recoded", "task": "metadata_recoding"}'
+168_meta_recoded	Thu 2021-01-14 07:53:44 AM	{"agent.tab":98, "media_resource.tab":129821, "taxon.tab":22302, "time_elapsed":{"sec":74.27, "min":1.24, "hr":0.02}} - eol-archive
+
+Bioimages Vanderbilt (200) DwCA (200.tar.gz)
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "200_meta_recoded", "task": "metadata_recoding"}'
 
 -------------------------- END of Unrecognized_fields --------------------------
 
@@ -263,6 +267,9 @@ elseif($task == 'metadata_recoding') {
     elseif($resource_id == '168_meta_recoded') { //task_200: contributor, creator, publisher from Document to Agents
         $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/168.tar.gz";
     }
+    elseif($resource_id == '200_meta_recoded') { //task_200: contributor, creator, publisher from Document to Agents
+        $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/200.tar.gz";
+    }
     // */
     
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
@@ -305,7 +312,7 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
             $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //means occurrence tab is just carry-over
         }
         elseif(in_array($resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
-            '168_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+            '168_meta_recoded', '200_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
         else $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
 
         /* works but just testing. COMMENT IN REAL OPERATION

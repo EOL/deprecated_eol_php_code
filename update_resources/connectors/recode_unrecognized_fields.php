@@ -5,6 +5,7 @@ $ php recode_unrecognized_fields.php _ ioc-birdlist                 //in Mac Min
 $ php recode_unrecognized_fields.php _ print_report_opendata        //in Mac Mini
 $ php recode_unrecognized_fields.php _ process_OpenData_resources   //in Mac Mini
 
+$ php recode_unrecognized_fields.php _ 168_meta_recoded
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/RecodeUnrecognizedFieldsAPI');
