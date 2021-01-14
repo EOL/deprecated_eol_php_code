@@ -63,7 +63,8 @@ class MetaRecodingAPI
     }
     private function task_200($tables)
     {
-        self::process_document($tables['http://eol.org/schema/media/document'][0], 'check_CCP_then_write'); //CCP is contributor creator publisher
+        self::process_document($tables['http://eol.org/schema/media/document'][0], 'move_CCP_to_Agents'); //CCP is contributor creator publisher
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'add_missing_measurementID');
     }
     private function task_individualCount_as_child_in_MoF($tables) //replace mType to 'http://eol.org/schema/terms/SampleSize'
     {
@@ -191,7 +192,7 @@ class MetaRecodingAPI
                 [http://rs.tdwg.org/dwc/terms/measurementUnit] => http://purl.obolibrary.org/obo/UO_0000185
                 [http://eol.org/schema/terms/statisticalMethod] => http://semanticscience.org/resource/SIO_001113
             )*/
-            $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
+            $measurementID = @$rec['http://rs.tdwg.org/dwc/terms/measurementID'];
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             $measurementOfTaxon = $rec['http://eol.org/schema/measurementOfTaxon'];
             $measurementType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
@@ -290,6 +291,7 @@ class MetaRecodingAPI
                 self::write_MoF_rec($rec);
             }
             
+            if($what == 'add_missing_measurementID') self::write_MoF_rec($rec);
             
             if($what == 'task_67_info_1') { //lifeStage | sex
                 if($val = @$rec['http://rs.tdwg.org/dwc/terms/lifeStage']) $this->oID_lifeStage[$occurrenceID] = $val;   //task_6
@@ -431,6 +433,13 @@ class MetaRecodingAPI
             $field = pathinfo($uri, PATHINFO_BASENAME);
             $m->$field = $rec[$uri];
         }
+
+        // /* add measurementID if missing --- New Jan 14, 2021
+        if(!isset($m->measurementID)) {
+            $m->measurementID = Functions::generate_measurementID($m, $this->resource_id); //3rd param is optional. If blank then it will consider all properties of the extension
+        }
+        // */
+
         $this->archive_builder->write_object_to_file($m);
         return $m;
     }
@@ -583,18 +592,43 @@ class MetaRecodingAPI
                 [http://ns.adobe.com/xap/1.0/rights/Owner] => D. M. Takiya & D. Dmitriev
                 [http://purl.org/dc/terms/creator] => D. M. Takiya & D. Dmitriev
             )*/
-            if($what == 'check_CCP_then_write') {
-                $flds = array('http://purl.org/dc/terms/contributor', 'http://purl.org/dc/terms/creator', 'http://purl.org/dc/terms/publisher');
-                foreach($flds as $index) {
-                    if($val = @$rec[$index]) self::add_agent($val, $index);
+            if($what == 'move_CCP_to_Agents') {
+                $agent_ids = self::add_agents($rec);
+                if(isset($rec['http://purl.org/dc/terms/contributor'])) unset($rec['http://purl.org/dc/terms/contributor']);
+                if(isset($rec['http://purl.org/dc/terms/creator'])) unset($rec['http://purl.org/dc/terms/creator']);
+                if(isset($rec['http://purl.org/dc/terms/publisher'])) unset($rec['http://purl.org/dc/terms/publisher']);
+                if(isset($rec['http://eol.org/schema/media/thumbnailURL'])) unset($rec['http://eol.org/schema/media/thumbnailURL']);
+                $uris = array_keys($rec);
+                $o = new \eol_schema\MediaResource();
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $o->$field = $rec[$uri];
                 }
+                if($agent_ids) $o->agentID = implode("; ", $agent_ids);
+                $this->archive_builder->write_object_to_file($o);
             }
         }
     }
-    private function add_agent($name, $role_uri)
-    {
-        exit("\n$name\n$role_uri\n");
+    private function add_agents($rec)
+    {   
+        $flds = array('http://purl.org/dc/terms/contributor', 'http://purl.org/dc/terms/creator', 'http://purl.org/dc/terms/publisher');
+        $agent_ids = array();
+        foreach($flds as $index) {
+            if($name = @$rec[$index]) {
+                if(!$name) continue;
+                $r = new \eol_schema\Agent();
+                $r->term_name       = $name;
+                $r->agentRole       = pathinfo($index, PATHINFO_BASENAME);
+                $r->identifier      = md5("$r->term_name|$r->agentRole");
+                // $r->term_homepage   = '';
+                $agent_ids[] = $r->identifier;
+                if(!isset($this->agent_ids[$r->identifier])) {
+                   $this->agent_ids[$r->identifier] = '';
+                   $this->archive_builder->write_object_to_file($r);
+                }
+            }
+        }
+        return $agent_ids;
     }
-    
 }
 ?>
