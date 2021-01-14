@@ -53,6 +53,13 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "test2_m
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "test3_meta_recoded", "task": "metadata_recoding"}'
  -------------------------- END of metadata_recoding --------------------------
 
+-------------------------- START of Unrecognized_fields --------------------------
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "Cicadellinae_meta_recoded", "task": "metadata_recoding"}'
+-------------------------- END of Unrecognized_fields --------------------------
+
+
+
+
 201	                Wed 2020-10-14 02:15:39 PM	{"MoF":195703, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":518.17, "min":8.640000000000001, "hr":0.14}}
 201_meta_recoded	Thu 2020-10-29 10:54:43 AM	{"MoF":148096, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":216.07, "min":3.6, "hr":0.06}}
 less MoF is expected for 201_meta_recoded
@@ -236,6 +243,12 @@ elseif($task == 'metadata_recoding') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/26_meta_recoded_1.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26_meta_recoded_1.tar.gz";
     }
+
+    // /* Unrecognized_fields
+    elseif($resource_id == 'Cicadellinae_meta_recoded') { //task_200: contributor, creator, publisher from Document to Agents
+        $dwca_file = "https://opendata.eol.org/dataset/e4a7239b-7297-4a75-9fe9-1f5cff5e20d7/resource/7408693e-094a-4335-a0c9-b114d7dc64d3/download/archive.zip";
+    }
+    // */
     
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
 }
@@ -276,6 +289,7 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
                                         '26_meta_recoded_1'))) {
             $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //means occurrence tab is just carry-over
         }
+        elseif(in_array($resource_id, array('Cicadellinae_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document');
         else $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
     }
     

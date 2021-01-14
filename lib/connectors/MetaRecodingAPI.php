@@ -54,6 +54,16 @@ class MetaRecodingAPI
         DONE2: if measurementUnit or statisticalMethod is a child row in MoF. Implemented in WoRMS (26).
         DONE: if mUnit and sMethod is a column in occurrence -> moved to a column in MoF
         */
+        
+        // /* start Unrecognized_fields tasks
+        if(in_array($this->resource_id, array('Cicadellinae_meta_recoded'))) { //exit("\non the spot.\n");
+            self::task_200($tables); //task_200: contributor, creator, publisher from Document to Agents
+        }
+        // */
+    }
+    private function task_200($tables)
+    {
+        self::process_document($tables['http://eol.org/schema/media/document'][0], 'check_CCP_then_write'); //CCP is contributor creator publisher
     }
     private function task_individualCount_as_child_in_MoF($tables) //replace mType to 'http://eol.org/schema/terms/SampleSize'
     {
@@ -543,5 +553,48 @@ class MetaRecodingAPI
     }
     */
     /*================================================================= ENDS HERE ======================================================================*/
+    private function process_document($meta, $what)
+    {   //print_r($meta);
+        echo "\nprocess_document...[$what]\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\ndebug...\n");
+            /*Array(
+                [http://purl.org/dc/terms/identifier] => 0f2e3e3b8fd91fcb3f542f8760fd4172
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 474
+                [http://purl.org/dc/terms/type] => http://purl.org/dc/dcmitype/Text
+                [http://purl.org/dc/terms/format] => text/html
+                [http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution
+                [http://purl.org/dc/terms/description] => <b>Distribution</b>:   Neotropical.
+                [http://rs.tdwg.org/ac/terms/furtherInformationURL] => http://takiya.speciesfile.org/taxahelp.asp?hc=474&key=Proconia&lng=En
+                [http://purl.org/dc/terms/language] => En
+                [http://ns.adobe.com/xap/1.0/rights/UsageTerms] => http://creativecommons.org/licenses/by/3.0/
+                [http://ns.adobe.com/xap/1.0/rights/Owner] => D. M. Takiya & D. Dmitriev
+                [http://purl.org/dc/terms/creator] => D. M. Takiya & D. Dmitriev
+            )*/
+            if($what == 'check_CCP_then_write') {
+                $flds = array('http://purl.org/dc/terms/contributor', 'http://purl.org/dc/terms/creator', 'http://purl.org/dc/terms/publisher');
+                foreach($flds as $index) {
+                    if($val = @$rec[$index]) self::add_agent($val, $index);
+                }
+            }
+        }
+    }
+    private function add_agent($name, $role_uri)
+    {
+        exit("\n$name\n$role_uri\n");
+    }
+    
 }
 ?>
