@@ -43,7 +43,7 @@ class RecodeUnrecognizedFieldsAPI
                 echo "\n$i of $total [$id]\n";
                 // $id = 'fishbase'; //debug only -- forced value
                 $url = str_replace('RESOURCE_ID', $id, $this->opendata_resource_info); // exit("\n[$url]\n");
-                if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+                if($json = Functions::lookup_with_cache($url, $options)) {
                     $info = json_decode($json, true); //print_r($info); exit;
                     foreach($info['result']['resources'] as $res) {
                         $res['main_dataset'] = $id;
