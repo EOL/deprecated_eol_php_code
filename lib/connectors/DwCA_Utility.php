@@ -678,8 +678,7 @@ class DwCA_Utility
                 
                 
                 /* Need to have unique agent ids. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique ref ids.
-                First used for DATA-1569 resource 'lifedesks.tar.gz', connector [lifedesk_eol_export.php]
-                */
+                First used for DATA-1569 resource 'lifedesks.tar.gz', connector [lifedesk_eol_export.php] */
                 if(in_array($this->resource_id, array('lifedesks')) || in_array(substr($this->resource_id,0,3), array('LD_', 'EOL'))) {
                     if($class == "agent") {
                         if($field == "identifier") {
@@ -689,6 +688,20 @@ class DwCA_Utility
                                 $c = false; break; //exclude entire agent entry if id already exists
                             }
                             else $this->agent_ids[$identifier] = '';
+                        }
+                    }
+                }
+
+                /* Need to have unique taxon ids. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique taxon ids.*/
+                if(in_array($this->resource_id, array('Carrano_2006_meta_recoded'))) {
+                    if($class == "taxon") {
+                        if($field == "taxonID") {
+                            $identifier = @$rec[$key];
+                            if(isset($this->taxonIDs[$identifier])) {
+                                $this->debug['duplicate taxonIDs'][$identifier] = '';
+                                $c = false; break; //exclude entire agent entry if id already exists
+                            }
+                            else $this->taxonIDs[$identifier] = '';
                         }
                     }
                 }
