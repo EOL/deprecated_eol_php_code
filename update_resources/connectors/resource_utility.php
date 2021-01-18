@@ -71,9 +71,8 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "Braconi
 Carrano, 2006
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "Carrano_2006_meta_recoded", "task": "metadata_recoding"}'
 
-
-
-
+Catalogue of Life 2018-03-28 (col.tar.gz)
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "col_meta_recoded", "task": "metadata_recoding"}'
 
 -------------------------- END of Unrecognized_fields --------------------------
 
@@ -168,6 +167,8 @@ $param                     = json_decode(@$argv[2], true);
 $resource_id = $param['resource_id'];
 $task = $param['task'];
 print_r($param);
+
+if($resource_id == 'col_meta_recoded') ini_set('memory_limit','15096M'); //15096M
 
 if($task == 'remove_taxa_without_MoF') {
     if(Functions::is_production()) $dwca_file = '/u/scripts/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
@@ -286,6 +287,9 @@ elseif($task == 'metadata_recoding') {
     elseif($resource_id == 'Carrano_2006_meta_recoded') { //task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false
         $dwca_file = "https://opendata.eol.org/dataset/e33a9544-1aa1-4e50-9efa-c04ef4098d57/resource/002cd101-cfa8-4b1c-a4e6-e4e45d00c3bc/download/archive.zip";
     }
+    elseif($resource_id == 'col_meta_recoded') { //task_200: contributor, creator, publisher from Document to Agents
+        $dwca_file = CONTENT_RESOURCE_LOCAL_PATH."/col.tar.gz";
+    }
     // */
     
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
@@ -330,6 +334,10 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
         elseif(in_array($resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
             '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document', 
                                                                                                  'http://rs.tdwg.org/dwc/terms/measurementorfact');
+
+        elseif(in_array($resource_id, array('col_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document');
+
+                                                                                                 
         elseif(in_array($resource_id, array('Carrano_2006_meta_recoded'))) $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence');
         else $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
         /* works but just testing. COMMENT IN REAL OPERATION

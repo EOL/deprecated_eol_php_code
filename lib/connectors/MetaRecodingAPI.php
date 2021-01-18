@@ -58,6 +58,12 @@ class MetaRecodingAPI
         */
         
         // /* start Unrecognized_fields tasks
+        if(in_array($this->resource_id, array('col_meta_recoded'))) {
+            /* task_200() but DOCUMENT extension only
+            self::task_200($tables); //task_200: contributor, creator, publisher from Document to Agents
+            */
+            self::process_document($tables['http://eol.org/schema/media/document'][0], 'move_CCP_to_Agents'); //CCP is contributor creator publisher
+        }
         if(in_array($this->resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
             '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded'))) {
             self::task_200($tables); //task_200: contributor, creator, publisher from Document to Agents
