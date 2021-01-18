@@ -447,6 +447,7 @@ class ConvertEOLtoDWCaAPI
             }
         }
         elseif($type == "data object") {
+            unset(@$t->thumbnailURL);
             if(!isset($this->media_ids[$t->identifier])) {
                 $this->media_ids[$t->identifier] = '';
                 $this->archive_builder->write_object_to_file($t);
