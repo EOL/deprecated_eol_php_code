@@ -22,6 +22,7 @@ class RecodeUnrecognizedFieldsAPI
     public function scan_a_resource($resource_id)
     {
         $file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'.tar.gz';
+        // $file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'.zip'; //debug only -- force value
         self::sought_fields($resource_id); //initialize
         self::scan_dwca($file, false, $resource_id);
     }
@@ -124,11 +125,18 @@ class RecodeUnrecognizedFieldsAPI
     {
         if($paths = self::extract_dwca($dwca_file)) {
             if(is_file($paths['temp_dir'].'meta.xml')) {
-                $xml_info = self::parse_meta_xml($paths['temp_dir'].'meta.xml');
+                $ret = self::parse_meta_xml($paths['temp_dir'].'meta.xml');
+                $xml_info = $ret['final'];
+                $location = $ret['location'];
                 if($found = self::search_sought_fields($xml_info, $dwca_file, $resource_info)) {
                     // echo "\nFOUND: ";
-                    // print_r($found); //good debug
-                    //write to report:
+                    /* look deeper if the said fields have actual values. */
+                    $found = self::scrutinize_tables($found, $location, $paths);
+                    // print_r($xml_info); print_r($location); exit;
+                    if($GLOBALS['ENV_DEBUG']) print_r($found); //good debug
+                    // print_r($found); exit("\nexit muna\n");
+
+                    /* write to report: */
                     if(@$found['main dataset']) echo "\n[".$found['main dataset']."] [".$found['resource name']."] [".$found['resource ID']."]\n";
                     $file = self::get_file($what);
                     $WRITE = Functions::file_open($file, "a");
@@ -147,6 +155,73 @@ class RecodeUnrecognizedFieldsAPI
             // echo ("\n temporary directory removed: [$val]\n");
         }
         // */
+    }
+    private function scrutinize_tables($found, $location, $paths)
+    {   //print_r($found);
+        /*Array $found
+        (
+            [tables] => Array(
+                    [http://eol.org/schema/media/Document] => Array(
+                            [0] => http://purl.org/dc/terms/contributor
+                            [1] => http://purl.org/dc/terms/creator
+                            [2] => http://purl.org/dc/terms/publisher
+                            [3] => http://eol.org/schema/media/thumbnailURL
+                        )
+                    [http://rs.tdwg.org/dwc/terms/Occurrence] => Array(
+                            [0] => http://rs.tdwg.org/dwc/terms/catalogNumber
+                            [1] => http://rs.tdwg.org/dwc/terms/collectionCode
+                            [2] => http://rs.tdwg.org/dwc/terms/institutionCode
+                            [3] => http://rs.tdwg.org/dwc/terms/eventID
+                        )
+                )
+            [DwCA] => /Library/WebServer/Documents/eol_php_code/applications/content_server/resources/copepod_sizes_Archive.zip
+        )*/
+        foreach($found['tables'] as $rowtype => $uri_fields) {
+            // echo "\n$rowtype\n"; print_r($fields); continue; //debug only
+            $basenames = self::get_sought_fields($uri_fields);
+            $file = $paths['temp_dir'].$location[$rowtype]; // echo "\n$file\n";
+            $i = 0;
+            foreach(new FileIterator($file) as $line => $row) {
+                $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+                if(!$row) continue;
+                // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+                $tmp = explode("\t", $row);
+                if($i == 1) {
+                    $fields = $tmp;
+                    continue;
+                }
+                $rec = array(); $k = 0;
+                foreach($fields as $field) {
+                    if(!$field) continue;
+                    $rec[$field] = $tmp[$k]; //put "@" as @$tmp[$k] during development
+                    $k++;
+                } //print_r($rec); //exit;
+                $rec = array_map('trim', $rec);
+                foreach(array_keys($basenames) as $basename) if(@$rec[$basename]) $basenames[$basename] = 'Y';
+            }//end foreach()
+            $found['with values'][$rowtype] = $basenames;
+        }
+        return $found;
+    }
+    private function get_sought_fields($uri_fields)
+    {   //MEDIA
+        $info['http://purl.org/dc/terms/publisher'] = "Publisher";
+        $info['http://purl.org/dc/terms/contributor'] = "Contributor";
+        $info['http://purl.org/dc/terms/creator'] = "Creator";
+        $info['http://eol.org/schema/media/thumbnailURL'] = "ThumbnailURL";
+        //OCCURRENCE
+        $info['http://rs.tdwg.org/dwc/terms/basisOfRecord'] = "Basis of Record";        //??
+        $info['http://rs.tdwg.org/dwc/terms/catalogNumber'] = "Catalog Number";
+        $info['http://rs.tdwg.org/dwc/terms/collectionCode'] = "Collection Code";
+        $info['http://rs.tdwg.org/dwc/terms/countryCode'] = "Country Code";             //??
+        $info['http://rs.tdwg.org/dwc/terms/institutionCode'] = "Institution Code";
+        $info['http://rs.tdwg.org/dwc/terms/eventID'] = "Event ID";
+        
+        foreach($uri_fields as $uri) {
+            if($val = $info[$uri]) $basenames[$val] = '';
+            else exit("\nUnknown field: [$uri]\n");
+        }
+        return $basenames;
     }
     private function search_sought_fields($xml_info, $dwca_file, $resource_info)
     {
@@ -172,7 +247,9 @@ class RecodeUnrecognizedFieldsAPI
                                 $final['resource name'] = $resource_info['name'];
                                 $final['resource ID'] = $resource_info['id'];
                             }
-                            $final[$dwca_file][$rowType][] = $uri;
+                            $final['tables'][$rowType][] = $uri;
+                            $final['DwCA'] = $dwca_file;
+                            // $final[$dwca_file][$rowType][] = $uri; //orig
                         }
                     }
                 }
@@ -185,7 +262,7 @@ class RecodeUnrecognizedFieldsAPI
     {
         // echo "\n$meta_xml\n";
         $xml = simplexml_load_file($meta_xml);
-        $final = array();
+        $final = array(); $location = array();
         foreach($xml->table as $tab) {
             // print_r($tab);
             /*SimpleXMLElement Object(
@@ -209,11 +286,12 @@ class RecodeUnrecognizedFieldsAPI
             */
             $rowType = (string) $tab{'rowType'}; //echo "\n$rowType";
             foreach($tab->field as $fld) { //echo "\n".$fld{'term'}."\n";
+                $location[$rowType] = (string) $tab->files->location;
                 $final[$rowType][] = (string) $fld{'term'};
             }
         }
         // print_r($final);
-        return $final;
+        return array('final' => $final, 'location' => $location);
     }
     private function extract_dwca($dwca_file)
     {

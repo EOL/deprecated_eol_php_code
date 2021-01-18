@@ -1,12 +1,12 @@
 <?php
 namespace php_active_record;
 /* DATA-1875: recoding unrecognized fields
-$ php recode_unrecognized_fields.php _ ioc-birdlist                 //in Mac Mini
-$ php recode_unrecognized_fields.php _ print_report_opendata        //in Mac Mini
-$ php recode_unrecognized_fields.php _ process_OpenData_resources   //in Mac Mini
+php update_resources/connectors/recode_unrecognized_fields.php _ ioc-birdlist                 
+php update_resources/connectors/recode_unrecognized_fields.php _ print_report_opendata        
+php update_resources/connectors/recode_unrecognized_fields.php _ process_OpenData_resources   
 
 php update_resources/connectors/recode_unrecognized_fields.php _ Carrano_2006_meta_recoded
-php update_resources/connectors/recode_unrecognized_fields.php _ 100
+php update_resources/connectors/recode_unrecognized_fields.php _ copepod_sizes_Archive
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
