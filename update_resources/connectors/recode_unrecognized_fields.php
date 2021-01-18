@@ -6,6 +6,8 @@ $ php recode_unrecognized_fields.php _ print_report_opendata        //in Mac Min
 $ php recode_unrecognized_fields.php _ process_OpenData_resources   //in Mac Mini
 
 php update_resources/connectors/recode_unrecognized_fields.php _ Carrano_2006_meta_recoded
+php update_resources/connectors/recode_unrecognized_fields.php _ 100
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/RecodeUnrecognizedFieldsAPI');

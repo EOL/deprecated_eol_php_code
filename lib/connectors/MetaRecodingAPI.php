@@ -62,7 +62,7 @@ class MetaRecodingAPI
             /* task_200() but DOCUMENT extension only
             self::task_200($tables); //task_200: contributor, creator, publisher from Document to Agents
             */
-            self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/Taxon'][0], 'carry_over');
+            self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'carry_over');
             self::process_document($tables['http://eol.org/schema/media/document'][0], 'move_CCP_to_Agents'); //CCP is contributor creator publisher
         }
         if(in_array($this->resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
