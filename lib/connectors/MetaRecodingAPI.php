@@ -7,8 +7,10 @@ class MetaRecodingAPI
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
+        /* Hmmm not used...
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
+        */
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -60,6 +62,9 @@ class MetaRecodingAPI
             '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded'))) {
             self::task_200($tables); //task_200: contributor, creator, publisher from Document to Agents
         }
+        if(in_array($this->resource_id, array('Carrano_2006_meta_recoded'))) { //exit("\ngoes here 2...\n");
+            self::task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false($tables);
+        }
         // */
     }
     private function task_200($tables)
@@ -75,6 +80,11 @@ class MetaRecodingAPI
     {
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_eventDate_info');
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_eventDate');
+    }
+    private function task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false($tables) //for DATA-1875: recoding unrecognized fields
+    {
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'task_201_info_write');
+        self::write_task_201();
     }
     private function task_45($tables)
     {
@@ -398,6 +408,7 @@ class MetaRecodingAPI
                 // */
             }
             //===========================================================================================================================================================
+            //===========================================================================================================================================================
             /* not used at the moment...
             if($what == 'write') {
                 $m = new \eol_schema\MeasurementOrFact_specific();
@@ -517,6 +528,27 @@ class MetaRecodingAPI
                 // print_r($rec); exit;
                 self::write_occurrence($rec);
             }
+            elseif($what == 'task_201_info_write') { //exit("\n111\n");
+                /*OCCURRENCES
+                Recode as MoF records of with MeasurementOfTaxon=false:
+                */
+                $fields = array('http://rs.tdwg.org/dwc/terms/basisOfRecord', 'http://rs.tdwg.org/dwc/terms/catalogNumber',
+                                'http://rs.tdwg.org/dwc/terms/collectionCode', 'http://rs.tdwg.org/dwc/terms/countryCode',
+                                'http://rs.tdwg.org/dwc/terms/institutionCode');
+                // print_r($rec); exit;
+                foreach($fields as $fld) {
+                    if(isset($rec[$fld])) {
+                        // print_r(pathinfo($fld)); exit("\n222\n");
+                        $fld_name = "oID_".pathinfo($fld, PATHINFO_BASENAME); //exit("\n$fld_name\n");
+                        if($val = @$rec[$fld]) {
+                            $this->{$fld_name}[$occurrenceID] = $val;
+                            // print_r($this->$fld_name);
+                        }
+                        unset($rec[$fld]);
+                    }
+                }
+                self::write_occurrence($rec);
+            }
             //===========================================================================================================================================================
             /* not used atm.
             elseif($what == 'write') {
@@ -530,6 +562,31 @@ class MetaRecodingAPI
             }
             */
             // if($i >= 10) break; //debug only
+        }
+    }
+    private function write_task_201()
+    {   $fields = array('http://rs.tdwg.org/dwc/terms/basisOfRecord', 'http://rs.tdwg.org/dwc/terms/catalogNumber',
+                        'http://rs.tdwg.org/dwc/terms/collectionCode', 'http://rs.tdwg.org/dwc/terms/countryCode',
+                        'http://rs.tdwg.org/dwc/terms/institutionCode');
+        foreach($fields as $fld) {
+            $fld_name = "oID_".pathinfo($fld, PATHINFO_BASENAME); //e.g. 'oID_catalogNumber'
+            // echo "\n$fld_name\n"; print_r($this->{$fld_name});
+            if(!isset($this->{$fld_name})) continue;
+            foreach($this->{$fld_name} as $oID => $val) {
+                $m2 = new \eol_schema\MeasurementOrFact();
+                $rek = array();
+                $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$oID|$fld|$val");
+                $rek['http://rs.tdwg.org/dwc/terms/occurrenceID'] = $oID;
+                $rek['http://rs.tdwg.org/dwc/terms/measurementType'] = 'http://rs.tdwg.org/dwc/terms/'.pathinfo($fld, PATHINFO_BASENAME);
+                $rek['http://rs.tdwg.org/dwc/terms/measurementValue'] = $val;
+                $rek['http://eol.org/schema/measurementOfTaxon'] = 'false';
+                $uris = array_keys($rek);
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $m2->$field = $rek[$uri];
+                }
+                $this->archive_builder->write_object_to_file($m2);
+            }
         }
     }
     private function write_occurrence($rec)

@@ -68,6 +68,13 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "200_met
 Braconid wasps, caterpillars and biocontrol
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "Braconids_meta_recoded", "task": "metadata_recoding"}'
 
+Carrano, 2006
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "Carrano_2006_meta_recoded", "task": "metadata_recoding"}'
+
+
+
+
+
 -------------------------- END of Unrecognized_fields --------------------------
 
 
@@ -276,7 +283,9 @@ elseif($task == 'metadata_recoding') {
     elseif($resource_id == 'Braconids_meta_recoded') { //task_200: contributor, creator, publisher from Document to Agents
         $dwca_file = "https://opendata.eol.org/dataset/1838b614-4d4e-4c57-a0c0-4ac18c825f5f/resource/3c38b485-e5dc-44de-af7a-88d2f74e616c/download/archive.zip";
     }
-    
+    elseif($resource_id == 'Carrano_2006_meta_recoded') { //task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false
+        $dwca_file = "https://opendata.eol.org/dataset/e33a9544-1aa1-4e50-9efa-c04ef4098d57/resource/002cd101-cfa8-4b1c-a4e6-e4e45d00c3bc/download/archive.zip";
+    }
     // */
     
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
@@ -319,9 +328,10 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
             $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //means occurrence tab is just carry-over
         }
         elseif(in_array($resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
-            '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+            '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document', 
+                                                                                                 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+        elseif(in_array($resource_id, array('Carrano_2006_meta_recoded'))) $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence');
         else $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
-
         /* works but just testing. COMMENT IN REAL OPERATION
         if($resource_id == '168_meta_recoded') $excluded_rowtypes[] = 'http://eol.org/schema/agent/agent';
         */
