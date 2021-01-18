@@ -335,7 +335,8 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
             '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document', 
                                                                                                  'http://rs.tdwg.org/dwc/terms/measurementorfact');
 
-        elseif(in_array($resource_id, array('col_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document');
+        elseif(in_array($resource_id, array('col_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document',
+            'http://rs.tdwg.org/dwc/terms/taxon');
 
                                                                                                  
         elseif(in_array($resource_id, array('Carrano_2006_meta_recoded'))) $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence');
