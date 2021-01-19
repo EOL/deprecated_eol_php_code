@@ -19,6 +19,9 @@ classification resource:    33,377
 872	Sunday 2018-03-11 11:11:45 PM	{"measurement_or_fact.tab":639195,"occurrence.tab":167662,"taxon.tab":80072} - local, no measurementID
 872	Monday 2018-03-12 12:09:00 AM	{"measurement_or_fact.tab":639195,"occurrence.tab":167662,"taxon.tab":80072} - local with measurementID - MacMini
 
+872	Friday 2019-10-04 08:09:27 PM	{"measurement_or_fact.tab":1049247, "occurrence.tab":271867, "taxon.tab":151012, "time_elapsed":{"sec":1029.14, "min":17.15, "hr":0.29}}
+872	Tue 2021-01-19 08:54:17 AM	    {"measurement_or_fact.tab":1049247, "occurrence.tab":271867, "taxon.tab":151012, "time_elapsed":{"sec":1245.83, "min":20.76, "hr":0.35}}
+                                                               
 for 1k taxa:
 measurement_or_fact.tab     [3655]
 occurrence.tab              [970]

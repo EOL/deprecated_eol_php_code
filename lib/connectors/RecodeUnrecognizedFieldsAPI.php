@@ -35,7 +35,7 @@ class RecodeUnrecognizedFieldsAPI
     private function get_all_tr_gz_files_in_OpenData()
     {
         $options = $this->download_options;
-        $options['expire_seconds'] = 60*60*24; //1 day expires
+        $options['expire_seconds'] = 60*60*1; //1 hour expires
         if($json = Functions::lookup_with_cache($this->opendata_resources_list, $options)) {
             $IDs = json_decode($json, true); //print_r($IDs); exit;
             $total = count($IDs['result']); $i = 0;

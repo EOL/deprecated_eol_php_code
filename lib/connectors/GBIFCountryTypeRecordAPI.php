@@ -739,7 +739,10 @@ class GBIFCountryTypeRecordAPI
         $m = new \eol_schema\MeasurementOrFact();
         // =====================
         if($measurementOfTaxon == "true") {
-            $occurrence_id = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+            $ret = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+            $occurrence_id = $ret['oID'];
+            $to_MoF = $ret['to_MoF'];
+            
             $m->occurrenceID = $occurrence_id;
             $m->measurementOfTaxon = $measurementOfTaxon;
 
@@ -774,6 +777,27 @@ class GBIFCountryTypeRecordAPI
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
         */
+        
+        // /* New: for DATA-1875: recoding unrecognized fields
+        foreach($to_MoF as $fld => $val) {
+            if($val) {
+                $m2 = new \eol_schema\MeasurementOrFact();
+                $rek = array();
+                $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$occurrence_id|$fld|$val");
+                $rek['http://rs.tdwg.org/dwc/terms/occurrenceID'] = $occurrence_id;
+                $rek['http://rs.tdwg.org/dwc/terms/measurementType'] = 'http://rs.tdwg.org/dwc/terms/'.pathinfo($fld, PATHINFO_BASENAME);
+                $rek['http://rs.tdwg.org/dwc/terms/measurementValue'] = $val;
+                $rek['http://eol.org/schema/measurementOfTaxon'] = 'false';
+                $uris = array_keys($rek);
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $m2->$field = $rek[$uri];
+                }
+                $this->archive_builder->write_object_to_file($m2);
+            }
+        }
+        // */
+        
     }
     private function prepare_reference($citation)
     {
@@ -797,9 +821,15 @@ class GBIFCountryTypeRecordAPI
         
         if($rec["dataset"] == "GBIF") {
             // /* temporarily commented
+            /* move as rows in MoF with mOfTaxon = false
             $o->institutionCode     = $rec["institutionCode"];
             $o->catalogNumber       = $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"];
             $o->collectionCode      = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"];
+            */
+            $to_MoF['institutionCode'] = $rec['institutionCode'];
+            $to_MoF['catalogNumber'] = $rec['http://rs.tdwg.org/dwc/terms/catalogNumber'];
+            $to_MoF['collectionCode'] = $rec['http://rs.tdwg.org/dwc/terms/collectionCode'];
+            
             $o->decimalLatitude     = $rec["http://rs.tdwg.org/dwc/terms/decimalLatitude"];
             $o->decimalLongitude    = $rec["http://rs.tdwg.org/dwc/terms/decimalLongitude"];
             $o->identifiedBy        = $rec["http://rs.tdwg.org/dwc/terms/identifiedBy"];
@@ -841,9 +871,11 @@ class GBIFCountryTypeRecordAPI
             $o->verbatimLongitude   = $rec["http://rs.tdwg.org/dwc/terms/verbatimLongitude"];
             $o->samplingProtocol    = $rec["http://rs.tdwg.org/dwc/terms/samplingProtocol"];
             $o->preparations        = $rec["http://rs.tdwg.org/dwc/terms/preparations"];
+            
             $o->catalogNumber       = $catalogNumber;
             $o->collectionCode      = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"];
             $o->institutionCode     = $rec["http://rs.tdwg.org/dwc/terms/institutionCode"];
+            
             $o->individualCount     = $rec["http://rs.tdwg.org/dwc/terms/individualCount"];
             $o->decimalLongitude    = $rec["http://rs.tdwg.org/dwc/terms/decimalLongitude"];
             $o->decimalLatitude     = $rec["http://rs.tdwg.org/dwc/terms/decimalLatitude"];
@@ -872,7 +904,8 @@ class GBIFCountryTypeRecordAPI
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$o->occurrenceID] = '';
-        return $o->occurrenceID;
+        // return $o->occurrenceID; //orig
+        return array('oID' => $o->occurrenceID, 'to_MoF' => $to_MoF); //due to DATA-1875: recoding unrecognized fields
 
         /* old ways
         $this->occurrence_ids[$occurrence_id] = '';
