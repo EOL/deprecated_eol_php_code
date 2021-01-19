@@ -128,12 +128,12 @@ class RecodeUnrecognizedFieldsAPI
         if($paths = self::extract_dwca($dwca_file)) {
             if(is_file($paths['temp_dir'].'meta.xml')) {
                 $ret = self::parse_meta_xml($paths['temp_dir'].'meta.xml');
-                $xml_info = $ret['final'];
+                $xml_info = $ret['final']; //print_r($xml_info); exit;
                 $location = $ret['location'];
                 if($found = self::search_sought_fields($xml_info, $dwca_file, $resource_info)) {
                     // echo "\nFOUND: ";
                     /* look deeper if the said fields have actual values. */
-                    $found = self::scrutinize_tables($found, $location, $paths);
+                    $found = self::scrutinize_tables($found, $location, $paths, $xml_info);
                     // print_r($xml_info); print_r($location); exit;
                     if($GLOBALS['ENV_DEBUG']) print_r($found); //good debug
                     // print_r($found); exit("\nexit muna\n");
@@ -158,7 +158,7 @@ class RecodeUnrecognizedFieldsAPI
         }
         // */
     }
-    private function scrutinize_tables($found, $location, $paths)
+    private function scrutinize_tables($found, $location, $paths, $xml_info)
     {   //print_r($found);
         /*Array $found
         (
@@ -180,8 +180,8 @@ class RecodeUnrecognizedFieldsAPI
         )*/
         foreach($found['tables'] as $rowtype => $uri_fields) {
             // echo "\n$rowtype\n"; print_r($fields); continue; //debug only
-            $basenames = self::get_sought_fields($uri_fields);
             $file = $paths['temp_dir'].$location[$rowtype]; // echo "\n$file\n";
+            $basenames = self::get_sought_fields($uri_fields, $file, $xml_info[$rowtype]);
             $i = 0;
             foreach(new FileIterator($file) as $line => $row) {
                 $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
@@ -205,8 +205,11 @@ class RecodeUnrecognizedFieldsAPI
         }
         return $found;
     }
-    private function get_sought_fields($uri_fields)
-    {   //MEDIA
+    private function get_sought_fields($uri_fields, $file, $orig_fields)
+    {   // print_r($uri_fields); print_r($orig_fields); exit("\n$file\n");
+        $info = self::build_uri_label_info($orig_fields, $file); //e.g. $info['http://purl.org/dc/terms/publisher'] = 'Publisher'
+        /* Initially it was manually done. Not good.
+        //MEDIA
         $info['http://purl.org/dc/terms/publisher'] = "Publisher";
         $info['http://purl.org/dc/terms/contributor'] = "Contributor";
         $info['http://purl.org/dc/terms/creator'] = "Creator";
@@ -218,12 +221,32 @@ class RecodeUnrecognizedFieldsAPI
         $info['http://rs.tdwg.org/dwc/terms/countryCode'] = "Country Code";             //??
         $info['http://rs.tdwg.org/dwc/terms/institutionCode'] = "Institution Code";
         $info['http://rs.tdwg.org/dwc/terms/eventID'] = "Event ID";
-        
+        */
         foreach($uri_fields as $uri) {
             if($val = $info[$uri]) $basenames[$val] = '';
             else exit("\nUnknown field: [$uri]\n");
         }
         return $basenames;
+    }
+    private function build_uri_label_info($uris, $file)
+    {   $i = 0;
+        foreach(new FileIterator($file) as $line => $row) {
+            $i++; 
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            if($i == 1) {
+                $fields = $tmp;
+                $rec = array(); $k = 0;
+                foreach($fields as $field) {
+                    if(!$field) continue;
+                    $info[$uris[$k]] = $fields[$k];
+                    $k++;
+                }
+                $info = array_map('trim', $info); // print_r($info); exit;
+                return $info;
+            }
+        }
     }
     private function search_sought_fields($xml_info, $dwca_file, $resource_info)
     {
