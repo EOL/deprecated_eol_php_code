@@ -71,14 +71,20 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "Braconi
 Carrano, 2006 (1st client of task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false)
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "Carrano_2006_meta_recoded", "task": "metadata_recoding"}'
 
+Plant Growth Form Data from NMNH Botany specimens ---> (task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false)
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "plant_growth_form_meta_recoded", "task": "metadata_recoding"}'
+
 Catalogue of Life 2018-03-28 (col.tar.gz)
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "col_meta_recoded", "task": "metadata_recoding"}'
 
-Families (ZADBI.xlsx) [V2 resource ID = 678]
+Families (ZADBI.xlsx) [V2 resource ID = 678] ---> CCP only
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "678_meta_recoded", "task": "metadata_recoding"}'
 
 Eastfield College Scanning Electron Microscope Lab (ECSEML)
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "ECSEML_meta_recoded", "task": "metadata_recoding"}'
+
+Freshwater and Marine Image Bank
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "fwater_marine_image_bank_meta_recoded", "task": "metadata_recoding"}'
 
 -------------------------- END of Unrecognized_fields --------------------------
 
@@ -302,6 +308,12 @@ elseif($task == 'metadata_recoding') {
     elseif($resource_id == 'ECSEML_meta_recoded') { //task_200: contributor, creator, publisher from Document to Agents
         $dwca_file = "https://opendata.eol.org/dataset/b5e9a5d8-174e-4213-82f6-052a5cc46412/resource/ecd9ae2a-187c-427a-8b73-c05e8076008d/download/archive.zip";
     }
+    elseif($resource_id == 'fwater_marine_image_bank_meta_recoded') { //task_200: contributor, creator, publisher from Document to Agents
+        $dwca_file = "https://opendata.eol.org/dataset/a4408d81-175e-4d0e-9111-c2d4742ebd9b/resource/194f10d4-3187-4be5-ac49-4518f57a1ff2/download/archive.zip";
+    }
+    elseif($resource_id == 'plant_growth_form_meta_recoded') { //task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false
+        $dwca_file = "https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/archive.zip";
+    }
     // */
     
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
@@ -351,10 +363,10 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
             'http://rs.tdwg.org/dwc/terms/taxon');
 
         //CCP only
-        elseif(in_array($resource_id, array('678_meta_recoded', 'ECSEML_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document');
+        elseif(in_array($resource_id, array('678_meta_recoded', 'ECSEML_meta_recoded', 'fwater_marine_image_bank_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document');
         
         //occurrence cols to MoF rows only
-        elseif(in_array($resource_id, array('Carrano_2006_meta_recoded'))) $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence');
+        elseif(in_array($resource_id, array('Carrano_2006_meta_recoded', 'plant_growth_form_meta_recoded'))) $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence');
         
         else $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
         /* works but just testing. COMMENT IN REAL OPERATION

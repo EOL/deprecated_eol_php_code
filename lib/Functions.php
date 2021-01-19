@@ -456,10 +456,10 @@ class Functions
             // Functions::set_resource_status_to_harvest_requested($resource_id); //not needed anymore
             $arr = Functions::count_resource_tab_files($resource_id);
             if(!$big_file) {
-                // /* temporarily commented until the trait terms service is back.
+                /* temporarily commented until the trait terms service is back.
                 if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
                 echo "\nUndefined URIs: " . count($undefined_uris) . "\n";
-                // */
+                */
                 require_library('connectors/DWCADiagnoseAPI');
                 $func = new DWCADiagnoseAPI();
                 $func->check_unique_ids($resource_id);

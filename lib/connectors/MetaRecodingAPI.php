@@ -66,10 +66,10 @@ class MetaRecodingAPI
             self::process_document($tables['http://eol.org/schema/media/document'][0], 'move_CCP_to_Agents'); //CCP is contributor creator publisher
         }
         if(in_array($this->resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
-            '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded', '678_meta_recoded', 'ECSEML_meta_recoded'))) {
+            '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded', '678_meta_recoded', 'ECSEML_meta_recoded', 'fwater_marine_image_bank_meta_recoded'))) {
             self::task_200($tables); //task_200: contributor, creator, publisher from Document to Agents
         }
-        if(in_array($this->resource_id, array('Carrano_2006_meta_recoded'))) { //exit("\ngoes here 2...\n");
+        if(in_array($this->resource_id, array('Carrano_2006_meta_recoded', 'plant_growth_form_meta_recoded'))) {
             self::task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false($tables);
         }
         // */
