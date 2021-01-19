@@ -66,7 +66,7 @@ class MetaRecodingAPI
             self::process_document($tables['http://eol.org/schema/media/document'][0], 'move_CCP_to_Agents'); //CCP is contributor creator publisher
         }
         if(in_array($this->resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
-            '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded'))) {
+            '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded', '678_meta_recoded', 'ECSEML_meta_recoded'))) {
             self::task_200($tables); //task_200: contributor, creator, publisher from Document to Agents
         }
         if(in_array($this->resource_id, array('Carrano_2006_meta_recoded'))) { //exit("\ngoes here 2...\n");
@@ -697,9 +697,29 @@ class MetaRecodingAPI
                     $o->$field = $rec[$uri];
                 }
                 if($agent_ids) $o->agentID = implode("; ", $agent_ids);
+                // /* customized
+                if($this->resource_id == '678_meta_recoded') { //no license
+                    if(!$o->UsageTerms) $o->UsageTerms = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
+                }
+                if($this->resource_id == 'ECSEML_meta_recoded') { //with duplicate identifier
+                    if(!isset($this->object_ids[$o->identifier])) {
+                        $this->object_ids[$o->identifier] = '';
+                        $this->archive_builder->write_object_to_file($o);
+                    }
+                    else {
+                        $o->identifier = md5($o->accessURI);
+                        if(!isset($this->object_ids[$o->identifier])) {
+                            $this->object_ids[$o->identifier] = '';
+                            $this->archive_builder->write_object_to_file($o);
+                        }
+                        else exit("\nDuplicate accessURI\n");
+                    }
+                    continue;
+                }
+                // */
                 $this->archive_builder->write_object_to_file($o);
             }
-        }
+        } //end foreach()
     }
     private function get_proper_field($field)
     {   /* e.g. with "#"

@@ -57,7 +57,8 @@ class Agent extends DarwinCoreExtensionBase
             'provider',
             'publisher',
             'recorder',
-            'source')))
+            'source',
+            'contributor')))
         {
             return false;
         }

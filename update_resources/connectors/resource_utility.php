@@ -68,11 +68,17 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "200_met
 Braconid wasps, caterpillars and biocontrol
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "Braconids_meta_recoded", "task": "metadata_recoding"}'
 
-Carrano, 2006
+Carrano, 2006 (1st client of task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false)
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "Carrano_2006_meta_recoded", "task": "metadata_recoding"}'
 
 Catalogue of Life 2018-03-28 (col.tar.gz)
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "col_meta_recoded", "task": "metadata_recoding"}'
+
+Families (ZADBI.xlsx) [V2 resource ID = 678]
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "678_meta_recoded", "task": "metadata_recoding"}'
+
+Eastfield College Scanning Electron Microscope Lab (ECSEML)
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "ECSEML_meta_recoded", "task": "metadata_recoding"}'
 
 -------------------------- END of Unrecognized_fields --------------------------
 
@@ -290,6 +296,12 @@ elseif($task == 'metadata_recoding') {
     elseif($resource_id == 'col_meta_recoded') { //task_200: contributor, creator, publisher from Document to Agents
         $dwca_file = CONTENT_RESOURCE_LOCAL_PATH."/col.tar.gz";
     }
+    elseif($resource_id == '678_meta_recoded') { //task_200: contributor, creator, publisher from Document to Agents
+        $dwca_file = "https://opendata.eol.org/dataset/32fe565d-40d8-4903-b7ab-7fc778b9b396/resource/3b732b90-113d-4141-a9c2-588f3c3f3b95/download/archive.zip";
+    }
+    elseif($resource_id == 'ECSEML_meta_recoded') { //task_200: contributor, creator, publisher from Document to Agents
+        $dwca_file = "https://opendata.eol.org/dataset/b5e9a5d8-174e-4213-82f6-052a5cc46412/resource/ecd9ae2a-187c-427a-8b73-c05e8076008d/download/archive.zip";
+    }
     // */
     
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
@@ -338,7 +350,12 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
         elseif(in_array($resource_id, array('col_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document',
             'http://rs.tdwg.org/dwc/terms/taxon');
 
+        //CCP only
+        elseif(in_array($resource_id, array('678_meta_recoded', 'ECSEML_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document');
+        
+        //occurrence cols to MoF rows only
         elseif(in_array($resource_id, array('Carrano_2006_meta_recoded'))) $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence');
+        
         else $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
         /* works but just testing. COMMENT IN REAL OPERATION
         if($resource_id == '168_meta_recoded') $excluded_rowtypes[] = 'http://eol.org/schema/agent/agent';
