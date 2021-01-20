@@ -710,6 +710,7 @@ class GBIFCountryTypeRecordAPI
         else {
             if(in_array($field, array("TypeInformation"))) {
                 $value = strtolower($value);
+                if($value == '|syntype') $value = 'syntype';
                 if($val = @$this->uris[$value]) return $val;
                 else {
                     $this->debug["undefined"][$field][$value] = '';
