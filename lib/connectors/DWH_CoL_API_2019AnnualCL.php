@@ -467,8 +467,7 @@ class DWH_CoL_API_2019AnnualCL
     private function get_removed_branches_from_spreadsheet($params = false)
     {
         $final = array();
-        $rows = Functions::get_google_sheet_using_GoogleClientAPI($params);
-        if($GLOBALS['ENV_DEBUG']) print_r($rows);
+        $rows = Functions::get_google_sheet_using_GoogleClientAPI($params); //print_r($rows);
         if(@$params['first_row_is_headerYN']) $fields = $rows[0];
         else                                  exit("\nNo headers in spreadsheet.\n");
         $i = -1;
