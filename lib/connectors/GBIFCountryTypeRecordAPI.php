@@ -779,21 +779,23 @@ class GBIFCountryTypeRecordAPI
         */
         
         // /* New: for DATA-1875: recoding unrecognized fields
-        foreach($to_MoF as $fld => $val) { //echo " -goes here 1- ";
-            if($val) { //echo " -goes here 2- ";
-                $m2 = new \eol_schema\MeasurementOrFact();
-                $rek = array();
-                $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$occurrence_id|$fld|$val");
-                $rek['http://rs.tdwg.org/dwc/terms/occurrenceID'] = $occurrence_id;
-                $rek['http://rs.tdwg.org/dwc/terms/measurementType'] = 'http://rs.tdwg.org/dwc/terms/'.pathinfo($fld, PATHINFO_BASENAME);
-                $rek['http://rs.tdwg.org/dwc/terms/measurementValue'] = $val;
-                $rek['http://eol.org/schema/measurementOfTaxon'] = 'false';
-                $uris = array_keys($rek);
-                foreach($uris as $uri) { //echo " -goes here 3- ";
-                    $field = pathinfo($uri, PATHINFO_BASENAME);
-                    $m2->$field = $rek[$uri];
+        if($to_MoF) {
+            foreach($to_MoF as $fld => $val) { //echo " -goes here 1- ";
+                if($val) { //echo " -goes here 2- ";
+                    $m2 = new \eol_schema\MeasurementOrFact();
+                    $rek = array();
+                    $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$occurrence_id|$fld|$val");
+                    $rek['http://rs.tdwg.org/dwc/terms/occurrenceID'] = $occurrence_id;
+                    $rek['http://rs.tdwg.org/dwc/terms/measurementType'] = 'http://rs.tdwg.org/dwc/terms/'.pathinfo($fld, PATHINFO_BASENAME);
+                    $rek['http://rs.tdwg.org/dwc/terms/measurementValue'] = $val;
+                    $rek['http://eol.org/schema/measurementOfTaxon'] = 'false';
+                    $uris = array_keys($rek);
+                    foreach($uris as $uri) { //echo " -goes here 3- ";
+                        $field = pathinfo($uri, PATHINFO_BASENAME);
+                        $m2->$field = $rek[$uri];
+                    }
+                    $this->archive_builder->write_object_to_file($m2);
                 }
-                $this->archive_builder->write_object_to_file($m2);
             }
         }
         // */
