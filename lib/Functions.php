@@ -657,6 +657,7 @@ class Functions
         </span>
         */
         //get total no. of pages
+        $pages = 0;
         if($html = Functions::lookup_with_cache($url."1", $download_options)) {
             if(preg_match("/<span class=\"last\">(.*?)<\/span>/ims", $html, $arr)) {
                 // print_r($arr[1]);
