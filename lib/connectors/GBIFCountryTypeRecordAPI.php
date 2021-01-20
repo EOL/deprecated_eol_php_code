@@ -737,6 +737,7 @@ class GBIFCountryTypeRecordAPI
         $occurrence_id = $catnum;
 
         $m = new \eol_schema\MeasurementOrFact();
+        $to_MoF = array();
         // =====================
         if($measurementOfTaxon == "true") {
             $ret = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
