@@ -764,7 +764,7 @@ class GBIFCountryTypeRecordAPI
         if($measurementOfTaxon == 'child') $m->parentMeasurementID = $parent;
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
-        return $m->measurementID;
+        // return $m->measurementID; //moved below
         
         /* For child records - copied template from another resource
         $m = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific() for non-standard fields like 'm->label'
@@ -779,8 +779,8 @@ class GBIFCountryTypeRecordAPI
         */
         
         // /* New: for DATA-1875: recoding unrecognized fields
-        foreach($to_MoF as $fld => $val) {
-            if($val) {
+        foreach($to_MoF as $fld => $val) { //echo " -goes here 1- ";
+            if($val) { //echo " -goes here 2- ";
                 $m2 = new \eol_schema\MeasurementOrFact();
                 $rek = array();
                 $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$occurrence_id|$fld|$val");
@@ -789,7 +789,7 @@ class GBIFCountryTypeRecordAPI
                 $rek['http://rs.tdwg.org/dwc/terms/measurementValue'] = $val;
                 $rek['http://eol.org/schema/measurementOfTaxon'] = 'false';
                 $uris = array_keys($rek);
-                foreach($uris as $uri) {
+                foreach($uris as $uri) { //echo " -goes here 3- ";
                     $field = pathinfo($uri, PATHINFO_BASENAME);
                     $m2->$field = $rek[$uri];
                 }
@@ -798,6 +798,7 @@ class GBIFCountryTypeRecordAPI
         }
         // */
         
+        return $m->measurementID;
     }
     private function prepare_reference($citation)
     {
