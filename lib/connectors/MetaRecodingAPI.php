@@ -77,7 +77,7 @@ class MetaRecodingAPI
             self::task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false($tables);
         }
         //CCP and occurrence2MoF
-        if(in_array($this->resource_id, array('circa_meta_recoded'))) {
+        if(in_array($this->resource_id, array('circa_meta_recoded', '201_meta_recoded_2'))) {
             self::task_CCP2Agents($tables); //task_200: contributor, creator, publisher from Document to Agents
             self::task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false($tables);
         }

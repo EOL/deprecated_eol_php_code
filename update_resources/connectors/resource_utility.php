@@ -11,7 +11,10 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "WoRMS2E
  -------------------------- START of metadata_recoding  --------------------------
 task_123
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "692_meta_recoded", "task": "metadata_recoding"}'
+
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "201_meta_recoded", "task": "metadata_recoding"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "201_meta_recoded_2", "task": "metadata_recoding"}'
+
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "726_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "griis_meta_recoded", "task": "metadata_recoding"}'
 
@@ -88,6 +91,7 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "fwater_
 
 snapshot circa Nov. 2015 (CCP and occurrence2MoF)
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "circa_meta_recoded", "task": "metadata_recoding"}'
+circa_meta_recoded	Thu 2021-01-21 02:30:10 AM	{"agent.tab":1, "measurement_or_fact.tab":199328, "media_resource.tab":248157, "occurrence_specific.tab":28136, "taxon.tab":30629, "time_elapsed":{"sec":192.71, "min":3.21, "hr":0.05}}
 
 -------------------------- END of Unrecognized_fields --------------------------
 
@@ -214,6 +218,10 @@ elseif($task == 'metadata_recoding') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/201.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/201.tar.gz";
     }
+    elseif($resource_id == '201_meta_recoded_2') {
+        $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/201_meta_recoded.tar.gz";
+    }
+
     elseif($resource_id == '726_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/726.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/726.tar.gz";
@@ -380,7 +388,7 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
         
         
         //CCP and occurrence2MoF
-        elseif(in_array($resource_id, array('circa_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/occurrence');
+        elseif(in_array($resource_id, array('circa_meta_recoded', '201_meta_recoded_2'))) $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/occurrence');
         
         else $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
         /* works but just testing. COMMENT IN REAL OPERATION
