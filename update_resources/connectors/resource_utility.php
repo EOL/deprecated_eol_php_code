@@ -86,6 +86,9 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "ECSEML_
 Freshwater and Marine Image Bank
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "fwater_marine_image_bank_meta_recoded", "task": "metadata_recoding"}'
 
+snapshot circa Nov. 2015 (CCP and occurrence2MoF)
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "circa_meta_recoded", "task": "metadata_recoding"}'
+
 -------------------------- END of Unrecognized_fields --------------------------
 
 
@@ -314,6 +317,9 @@ elseif($task == 'metadata_recoding') {
     elseif($resource_id == 'plant_growth_form_meta_recoded') { //task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false
         $dwca_file = "https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/archive.zip";
     }
+    elseif($resource_id == 'circa_meta_recoded') { //CCP and occurrence2MoF
+        $dwca_file = "https://opendata.eol.org/dataset/b4a77ad4-7f80-434f-a68f-aaabdfda3bb8/resource/9bc2fcb5-61c9-44d1-a691-df5287218ed8/download/archive.zip";
+    }
     // */
     
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
@@ -355,18 +361,26 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
                                         '26_meta_recoded_1'))) {
             $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //means occurrence tab is just carry-over
         }
-        elseif(in_array($resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
-            '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document', 
-                                                                                                 'http://rs.tdwg.org/dwc/terms/measurementorfact');
 
         elseif(in_array($resource_id, array('col_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document',
             'http://rs.tdwg.org/dwc/terms/taxon');
 
+        //CCP and missing measurementID
+        elseif(in_array($resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
+            '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded'))) {
+            $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+        }
+        
         //CCP only
         elseif(in_array($resource_id, array('678_meta_recoded', 'ECSEML_meta_recoded', 'fwater_marine_image_bank_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document');
         
-        //occurrence cols to MoF rows only
+        //occurrence2MoF only
         elseif(in_array($resource_id, array('Carrano_2006_meta_recoded', 'plant_growth_form_meta_recoded'))) $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence');
+
+        
+        
+        //CCP and occurrence2MoF
+        elseif(in_array($resource_id, array('circa_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/occurrence');
         
         else $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
         /* works but just testing. COMMENT IN REAL OPERATION

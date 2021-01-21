@@ -57,26 +57,38 @@ class MetaRecodingAPI
         DONE: if mUnit and sMethod is a column in occurrence -> moved to a column in MoF
         */
         
-        // /* start Unrecognized_fields tasks
+        // /* start Unrecognized_fields tasks -----------------------------------------------------
         if(in_array($this->resource_id, array('col_meta_recoded'))) {
-            /* task_200() but DOCUMENT extension only
-            self::task_200($tables); //task_200: contributor, creator, publisher from Document to Agents
-            */
             self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'carry_over');
-            self::process_document($tables['http://eol.org/schema/media/document'][0], 'move_CCP_to_Agents'); //CCP is contributor creator publisher
+            self::task_CCP2Agents($tables); //task_200: contributor, creator, publisher from Document to Agents
         }
-        if(in_array($this->resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
-            '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded', '678_meta_recoded', 'ECSEML_meta_recoded', 'fwater_marine_image_bank_meta_recoded'))) {
-            self::task_200($tables); //task_200: contributor, creator, publisher from Document to Agents
+        //CCP and probably missing measurementID
+        if(in_array($this->resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded', 
+            '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded'))) {
+            self::task_CCP2Agents($tables); //task_200: contributor, creator, publisher from Document to Agents
+            self::task_carryOverMoF($tables);
         }
+        //CCP only
+        if(in_array($this->resource_id, array('678_meta_recoded', 'ECSEML_meta_recoded', 'fwater_marine_image_bank_meta_recoded'))) {
+            self::task_CCP2Agents($tables); //task_200: contributor, creator, publisher from Document to Agents
+        }
+        //occurrence2MoF
         if(in_array($this->resource_id, array('Carrano_2006_meta_recoded', 'plant_growth_form_meta_recoded'))) {
             self::task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false($tables);
         }
-        // */
+        //CCP and occurrence2MoF
+        if(in_array($this->resource_id, array('circa_meta_recoded'))) {
+            self::task_CCP2Agents($tables); //task_200: contributor, creator, publisher from Document to Agents
+            self::task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false($tables);
+        }
+        // ----------------------------------------------------- */
     }
-    private function task_200($tables)
+    private function task_CCP2Agents($tables) //task_200: contributor, creator, publisher from Document to Agents
     {
         self::process_document($tables['http://eol.org/schema/media/document'][0], 'move_CCP_to_Agents'); //CCP is contributor creator publisher
+    }
+    private function task_carryOverMoF($tables) //carryover MoF, but add measurementID if missing
+    {
         if($val = @$tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]) self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'add_missing_measurementID');
     }
     private function task_individualCount_as_child_in_MoF($tables) //replace mType to 'http://eol.org/schema/terms/SampleSize'
@@ -90,8 +102,8 @@ class MetaRecodingAPI
     }
     private function task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false($tables) //for DATA-1875: recoding unrecognized fields
     {
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'task_201_info_write');
-        self::write_task_201();
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'task_occurrence2MoF');
+        self::write_occurrence2MoF();
     }
     private function task_45($tables)
     {
@@ -535,7 +547,7 @@ class MetaRecodingAPI
                 // print_r($rec); exit;
                 self::write_occurrence($rec);
             }
-            elseif($what == 'task_201_info_write') { //exit("\n111\n");
+            elseif($what == 'task_occurrence2MoF') { //exit("\n111\n");
                 /*OCCURRENCES
                 Recode as MoF records of with MeasurementOfTaxon=false:
                 */
@@ -571,7 +583,7 @@ class MetaRecodingAPI
             // if($i >= 10) break; //debug only
         }
     }
-    private function write_task_201()
+    private function write_occurrence2MoF()
     {   $fields = array('http://rs.tdwg.org/dwc/terms/basisOfRecord', 'http://rs.tdwg.org/dwc/terms/catalogNumber',
                         'http://rs.tdwg.org/dwc/terms/collectionCode', 'http://rs.tdwg.org/dwc/terms/countryCode',
                         'http://rs.tdwg.org/dwc/terms/institutionCode');
