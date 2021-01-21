@@ -876,10 +876,16 @@ class GBIFCountryTypeRecordAPI
             $o->verbatimLongitude   = $rec["http://rs.tdwg.org/dwc/terms/verbatimLongitude"];
             $o->samplingProtocol    = $rec["http://rs.tdwg.org/dwc/terms/samplingProtocol"];
             $o->preparations        = $rec["http://rs.tdwg.org/dwc/terms/preparations"];
-            
+
             $o->catalogNumber       = $catalogNumber;
             $o->collectionCode      = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"];
             $o->institutionCode     = $rec["http://rs.tdwg.org/dwc/terms/institutionCode"];
+
+            // /* move as rows in MoF with mOfTaxon = false
+            $to_MoF['institutionCode'] = $o->institutionCode;
+            $to_MoF['catalogNumber'] = $o->catalogNumber;
+            $to_MoF['collectionCode'] = $o->collectionCode;
+            // */
             
             $o->individualCount     = $rec["http://rs.tdwg.org/dwc/terms/individualCount"];
             $o->decimalLongitude    = $rec["http://rs.tdwg.org/dwc/terms/decimalLongitude"];
