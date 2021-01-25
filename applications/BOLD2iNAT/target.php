@@ -7,9 +7,11 @@ elseif($_POST) {
     // print_r($_POST);
     $username = $_POST['username'];
     $password = $_POST['password'];
+    /*
     if($username != 'nmnh_fishes') echo "\nWrong Username\n";
     if($password != 'fishes2020') echo "\nWrong Password\n";
     if($password != 'fishes2020' || $username != 'nmnh_fishes') exit("\n<a href='index.php'>Try again</a>\n");
+    */
 }
 
 // if(!isset($auth_code)) {

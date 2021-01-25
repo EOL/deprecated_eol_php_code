@@ -42,8 +42,10 @@ else {
 
     <form name='fn' action="target.php" method="post">
     <table>
-    <tr>
+    <tr><!---
         <td>NMNH Fishes Department iNaturalist Username: </td>
+        --->
+        <td>iNaturalist Username: </td>
         <td><input type='text' name='username' value='' required></td>
     </tr>
     <tr>
