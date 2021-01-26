@@ -724,10 +724,8 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Present");
-        // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
-        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
         
-        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
@@ -741,11 +739,20 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //questioned by Jen, missing ref under biblio field
 
-        // $input[] = array('page_id' => 1037781, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
+        //has "existing records" only. Existing meaning, records not in this resource but that are already in EOL.
         // $input[] = array('page_id' => 328604, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
+        // $input[] = array('page_id' => 1000231, 'predicate' => "http://eol.org/schema/terms/Present"); // 1000231  Callianassa tyrrhena    1000231
         
-        // page_id: 1004183 | predicate: [http://eol.org/schema/terms/Present]
+        // has new records only - write to DwCA
         // $input[] = array('page_id' => 1004183, 'predicate' => "http://eol.org/schema/terms/Present"); // Jun 6, 2019 - seems infinite loop
+        // $input[] = array('page_id' => 1037781, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
+
+        // has both new records and existing records:
+        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
+        // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
+        
+        
+        
 
         foreach($input as $i) {
             /* temp block
@@ -1491,7 +1498,7 @@ class SummaryDataResourcesAllAPI
             $i++;
         }
         $rows = array_filter($rows);
-        debug("\nnew rows count: ".count($rows)."\n");
+        debug("\ndeduplicated rows count: ".count($rows)."\n");
         //step 5: finally writing the rows
         foreach($rows as $row) fwrite($WRITE, implode("\t", $row). "\n");
         return;
