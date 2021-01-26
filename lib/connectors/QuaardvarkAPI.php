@@ -1045,7 +1045,11 @@ class QuaardvarkAPI
         $mr->language       = 'en';
         $mr->format         = $o['mimeType'];
         $mr->furtherInformationURL = $o['source'];
-        $mr->accessURI      = $o['source'].'large.jpg';
+        
+        if($mr->accessURI = self::get_access_uri($o['source'])) {}
+        else return; //can't access image
+        // exit("\n[$mr->accessURI]\n");
+        
         // $mr->CVterm         = '';
         // $mr->rights         = '';
         
@@ -1067,6 +1071,18 @@ class QuaardvarkAPI
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
         }
+    }
+    private function get_access_uri($source)
+    {
+        $filenames = array('large.jpg', 'medium.jpg');
+        foreach($filenames as $filename) {
+            $remoteFile = $source."/".$filename;
+            // Open file
+            $handle = @fopen($remoteFile, 'r');
+            // Check if file exists
+            if($handle) return $remoteFile;
+        }
+        return false;
     }
     private function create_agent($o)
     {   /*Array(
