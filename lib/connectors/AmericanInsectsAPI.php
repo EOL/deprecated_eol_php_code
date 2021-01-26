@@ -257,7 +257,7 @@ class AmericanInsectsAPI
         foreach($this->to_exclude as $exclude) {
             if(is_numeric(stripos($url, $exclude))) return array();
         }
-        echo "\n processing [$url]\n";
+        // echo "\n processing [$url]\n"; //good debug
         $temp = array();
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             $html = str_ireplace(array(' class="style1"', ' class="style2"', ' class="style3"', ' class="style4"', ' class="style5"', 
