@@ -52,6 +52,7 @@ class USDAPlants2019
         $this->state_list_page = 'https://plants.sc.egov.usda.gov/dl_state.html';
         $this->service['taxon_page'] = 'https://plants.usda.gov/core/profile?symbol=';
         $this->service['per_state_page'] = 'https://plants.sc.egov.usda.gov/java/stateDownload?statefips=';
+        $this->debug = array();
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
