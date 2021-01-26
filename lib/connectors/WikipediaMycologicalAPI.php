@@ -98,7 +98,7 @@ class WikipediaMycologicalAPI
         $total = count($urls);
         foreach($urls as $url) {
             $i++; 
-            if(($i % 50) == 0) echo "\n$i of $total";
+            if(($i % 1000) == 0) echo "\n$i of $total";
             $url = str_ireplace("&amp;", "&", $url);
             self::get_triple($url, $wrong_urls);
         }
