@@ -228,7 +228,7 @@ class MetaRecodingAPI
             $measurementType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
             $measurementValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
             $parentMeasurementID = @$rec['http://eol.org/schema/parentMeasurementID'];
-            $measurementRemarks = $rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'];
+            $measurementRemarks = @$rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'];
             
             // /* manual correction of not-needed value. e.g. 'Unit' for measurementUnit.
             if($mUnit = @$rec['http://rs.tdwg.org/dwc/terms/measurementUnit']) {
