@@ -44,7 +44,7 @@ class AmericanInsectsAPI
         $total = count($urls);
         foreach($urls as $url) {
             $i++;
-            echo "\n - $i of $total [$url]\n";
+            // echo "\n - $i of $total [$url]\n"; //good debug
             if(isset($this->stored_offline_urls[$url])) continue;
             
             /* breakdown when caching debug
