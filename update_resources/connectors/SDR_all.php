@@ -2,6 +2,9 @@
 namespace php_active_record;
 /*  DATA-1777: Writing resource files
     https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=63478&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63478
+
+basal_values	Wed 2021-01-27 10:13:36 AM	{"measurement_or_fact_specific.tab":473596,  "occurrence.tab":236798, "taxon.tab":80366, "time_elapsed":false}
+BV_consolid8	Wed 2021-01-27 10:19:17 AM	{"measurement_or_fact_specific.tab":1497150, "occurrence.tab":236798, "taxon.tab":80366, "time_elapsed":false}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAllAPI');
