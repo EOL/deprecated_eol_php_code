@@ -496,6 +496,14 @@ class BrazilianFloraAPI
             $remove = array('originalNameUsageID', 'acceptedNameUsage', 'parentNameUsage', 'namePublishedInYear', 'higherClassification', 'specificEpithet', 'infraspecificEpithet', 
             'bibliographicCitation', 'nomenclaturalStatus');
             //===========================================================================================================================================================
+            // /* https://eol-jira.bibalex.org/browse/DATA-1839?focusedCommentId=65555&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65555
+            // another tweak for this resource: We got the meta file straight from the provider's GBIF archive, I think? 
+            // They use an element in their meta, for the taxa file, "http://purl.org/dc/terms/references". 
+            // That should be "http://eol.org/schema/reference/referenceID". Can you switch it?
+            $rec['http://eol.org/schema/reference/referenceID'] = $rec['http://purl.org/dc/terms/references'];
+            unset($rec['http://purl.org/dc/terms/references']);
+            // */
+            //===========================================================================================================================================================
             $uris = array_keys($rec);
             $o = new \eol_schema\Taxon();
             foreach($uris as $uri) {
