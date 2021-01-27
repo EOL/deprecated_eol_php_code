@@ -219,7 +219,7 @@ class DWH_ITIS_API
         $a[154400] = "Chilopoda";
         $a[154408] = "Symphyla";
         $a[846119] = "Marchantiophyta";
-        // $a[174118] = "Serpentes"; //from Katja: https://eol-jira.bibalex.org/browse/TRAM-987?focusedCommentId=65560&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65560
+        $a[174118] = "Serpentes"; //from Katja: https://eol-jira.bibalex.org/browse/TRAM-987?focusedCommentId=65560&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65560
         return array_keys($a);
     }
     private function build_taxonID_info($info, $remove_ids) //this a specific function for implementing SynonymMtce. Each resource will have something like this one.
