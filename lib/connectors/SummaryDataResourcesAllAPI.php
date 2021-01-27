@@ -716,7 +716,8 @@ class SummaryDataResourcesAllAPI
     function test_basal_values($dbase)
     {   $this->dbname = 'traits_'.$dbase;
         self::initialize_basal_values();
-        $resource_id = 'test_BV'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
+        $resource_id = 'test_BV';                     $WRITE = self::start_write2DwCA($resource_id, 'BV');
+        $resource_id_consolid8 = 'test_BV_consolid8'; $WRITE_consolid8 = self::start_write2DwCA_consolid8($resource_id_consolid8, 'BV');
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Present");
@@ -751,9 +752,6 @@ class SummaryDataResourcesAllAPI
         $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
         
-        
-        
-
         foreach($input as $i) {
             /* temp block
             $this->taxon_ids = array(); $this->reference_ids = array(); $this->occurrence_ids = array();
@@ -785,6 +783,7 @@ class SummaryDataResourcesAllAPI
             */
         }
         fclose($WRITE); self::end_write2DwCA();
+        fclose($WRITE_consolid8); self::end_write2DwCA_consolid8();
         if($GLOBALS['ENV_DEBUG']) print_r($this->debug);
         echo("\n-- end method: basal values --\n");
         // */
@@ -1008,6 +1007,17 @@ class SummaryDataResourcesAllAPI
     {
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
+    }
+    private function start_write2DwCA_consolid8($resource_id, $method)
+    {
+        $this->resource_id_consolid8 = $resource_id;
+        $this->path_to_archive_dir = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id_consolid8 . '_working/';
+        $this->archive_builder_consolid8 = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_dir));
+    }
+    private function end_write2DwCA_consolid8()
+    {
+        $this->archive_builder_consolid8->finalize(TRUE);
+        if(file_exists($this->path_to_archive_dir."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id_consolid8);
     }
     //############################################################################################ start write resource file - method = 'parent taxon summary'
     private function gen_children_of_taxon_given_ancestry($anc)
