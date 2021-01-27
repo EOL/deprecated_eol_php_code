@@ -2019,17 +2019,19 @@ class Functions
     public static function generate_measurementID($m, $resource_id, $extension = 'measurement', $properties = false)
     {
         $url['measurement'] = "https://editors.eol.org/other_files/ontology/measurement_extension.xml";
+        $url['measurement_specific'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/ontology/measurement_extension_specific.xml";
         $url['occurrence'] = "https://editors.eol.org/other_files/ontology/occurrence_extension.xml"; //not used for now coz it will generate many many records both for occurrence and measurement extensions...
         $url['association'] = "https://editors.eol.org/other_files/ontology/association_extension.xml";
         $final = '';
-        if($extension == 'measurement') {
+        // if($extension == 'measurement') { //orig
+        if(in_array($extension, array('measurement', 'measurement_specific'))) {
             if($properties) {
                 foreach($properties as $field) {
                     if($val = @$m->$field) $final .= $val."_";
                 }
             }
             else {
-                if($xml = Functions::lookup_with_cache($url[$extension], array('expire_seconds' => false))) {
+                if($xml = Functions::lookup_with_cache($url[$extension], array('expire_seconds' => 60*60*24))) { //orig false
                     if(preg_match_all("/<property name=\"(.*?)\"/ims", $xml, $a)) { // <property name="measurementID"
                         foreach($a[1] as $field) {
                             if($resource_id == 'cites_taxa') { //until I get the real issue

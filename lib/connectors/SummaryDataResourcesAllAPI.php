@@ -717,7 +717,7 @@ class SummaryDataResourcesAllAPI
     {   $this->dbname = 'traits_'.$dbase;
         self::initialize_basal_values();
         $resource_id = 'test_BV';                     $WRITE = self::start_write2DwCA($resource_id, 'BV');
-        $resource_id_consolid8 = 'test_BV_consolid8'; $WRITE_consolid8 = self::start_write2DwCA_consolid8($resource_id_consolid8, 'BV');
+        $resource_id_consolid8 = 'test_BV_consolid8';          self::start_write2DwCA_consolid8($resource_id_consolid8, 'BV');
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Present");
@@ -783,7 +783,7 @@ class SummaryDataResourcesAllAPI
             */
         }
         fclose($WRITE); self::end_write2DwCA();
-        fclose($WRITE_consolid8); self::end_write2DwCA_consolid8();
+                        self::end_write2DwCA_consolid8();
         if($GLOBALS['ENV_DEBUG']) print_r($this->debug);
         echo("\n-- end method: basal values --\n");
         // */
@@ -1368,6 +1368,7 @@ class SummaryDataResourcesAllAPI
             /* ver 2 OK */
             $new_records_refs = self::assemble_refs_for_new_recs($new_records, $recs);
             self::create_archive($new_records, $new_records_refs, $info);
+            self::create_archive_consolid8($new_records, $info);
         }
         else debug("\nNo new records. Will not write to DwCA.\n");
     }
@@ -1463,6 +1464,8 @@ class SummaryDataResourcesAllAPI
         }
         if(!isset($study)) { debug("\nNo selected values available in multiple records.\n");
             foreach($rows as $row) fwrite($WRITE, implode("\t", $row). "\n");
+            // exit("\nfinal existing records 01\n"); //good debug
+            if($rows) self::consolidate_existing_records($rows);
             return;
         }
         //step 3: choose 1 among multiple eol_pks based on metadata (references + biblio). If same count just pick one.
@@ -1511,7 +1514,33 @@ class SummaryDataResourcesAllAPI
         debug("\ndeduplicated rows count: ".count($rows)."\n");
         //step 5: finally writing the rows
         foreach($rows as $row) fwrite($WRITE, implode("\t", $row). "\n");
+        // exit("\nfinal existing records 02\n"); //good debug
+        if($rows) self::consolidate_existing_records($rows);
         return;
+    }
+    private function consolidate_existing_records($rows)
+    {   /*Array(
+        [0] => Array(
+                [0] => 46559217
+                [1] => R101-PK131219120
+                [2] => http://www.marineregions.org/mrgid/1908
+                [3] => https://eol.org/schema/terms/representative  )
+        [1] => Array(
+                [0] => 46559217
+                [1] => R406-PK131150454
+                [2] => http://www.marineregions.org/mrgid/1912
+                [3] => https://eol.org/schema/terms/representative  )
+        )*/
+        foreach($rows as $row) {
+            $m = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific() for non-standard fields like 'm->label'
+            $m->measurementType     = 'https://eol.org/schema/terms/exemplary';
+            $m->measurementValue    = $row[3];
+            $m->parentMeasurementEolPk = $row[1]; //http://eol.org/schema/parentMeasurementEolPk
+            $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement_specific');
+            $this->archive_builder_consolid8->write_object_to_file($m);
+        }
+        // 2                    https://eol.org/schema/terms/exemplary  https://eol.org/schema/terms/representative             R210-PK102217809
+        // 3                    https://eol.org/schema/terms/exemplary  https://eol.org/schema/terms/primary                R226-PK102877920
     }
     private function add_taxon($info)
     {
@@ -1521,6 +1550,17 @@ class SummaryDataResourcesAllAPI
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->taxon_ids[$taxon->taxonID] = '';
             $this->archive_builder->write_object_to_file($taxon);
+        }
+        return $taxon;
+    }
+    private function add_taxon_consolid8($info)
+    {
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = $info['page_id'];
+        $taxon->EOL_taxonID     = $info['page_id'];
+        if(!isset($this->taxon_ids_consolid8[$taxon->taxonID])) {
+            $this->taxon_ids_consolid8[$taxon->taxonID] = '';
+            $this->archive_builder_consolid8->write_object_to_file($taxon);
         }
         return $taxon;
     }
@@ -1546,6 +1586,21 @@ class SummaryDataResourcesAllAPI
             self::add_string_types($rec);
         }
     }
+    private function create_archive_consolid8($records, $info)
+    {
+        $taxon = self::add_taxon_consolid8($info);
+        foreach($records as $value_uri) { //e.g. http://purl.obolibrary.org/obo/ENVO_01001125
+            $predicate = $info['predicate'];
+            //start structured data
+            $rec['label'] = $info['label'];
+            $rec['taxon_id'] = $taxon->taxonID;
+            $rec['measurementType'] = $predicate;
+            $rec['measurementValue'] = $value_uri;
+            $rec['catnum'] = $taxon->taxonID . "_" . pathinfo($predicate, PATHINFO_BASENAME) . "_" . pathinfo($value_uri, PATHINFO_BASENAME);
+            $rec['source'] = "https://eol.org/terms/search_results?utf8=✓&term_query[clade_id]=".$taxon->taxonID."&term_query[filters_attributes][0][pred_uri]=".$predicate."&term_query[filters_attributes][0][op]=is_any&term_query[result_type]=record&commit=Search";
+            self::add_string_types($rec, $this->archive_builder_consolid8);
+        }
+    }
     private function create_references($refs)
     {
         if(!$refs) return array();
@@ -1562,8 +1617,13 @@ class SummaryDataResourcesAllAPI
         }
         return array_keys($reference_ids);
     }
-    private function add_string_types($rec)
-    {    /* print_r($rec); exit;
+    private function add_string_types($rec, $archive_builder = false)
+    {   if(!$archive_builder) {
+            $archive_builder = $this->archive_builder;
+            $moreMetaYN = true;
+        }
+        else $moreMetaYN = false;
+        /* print_r($rec); exit;
         Array(
             [label] => REP
             [taxon_id] => 7662
@@ -1576,7 +1636,8 @@ class SummaryDataResourcesAllAPI
         */
         $taxon_id = $rec['taxon_id'];
         $catnum = $rec['catnum'];
-        $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
+        if($moreMetaYN) $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
+        else            $occurrence_id = $this->add_occurrence_consolid8($taxon_id, $catnum, $rec);
 
         $m = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific() for non-standard fields like 'm->label'
         // $m->IAO_0000009         = $rec['label']; //removed per: https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=65029&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65029
@@ -1584,10 +1645,14 @@ class SummaryDataResourcesAllAPI
         $m->measurementOfTaxon  = 'true';
         $m->measurementType     = $rec['measurementType'];
         $m->measurementValue    = $rec['measurementValue'];
+        
         $m->source              = $rec['source'];
         $m->measurementMethod   = 'summary of records available in EOL';
-        $m->measurementDeterminedDate = "2018-Oct-10"; //date("Y-M-d");
-        $m->referenceID   = @$rec['referenceID']; //not all have refs
+        
+        if($moreMetaYN) {
+            $m->measurementDeterminedDate = "2018-Oct-10"; //date("Y-M-d");
+            $m->referenceID = @$rec['referenceID']; //not all have refs
+        }
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $parent = $m->measurementID;
         // if($m->measurementID == "08eea7c40c13234a8e9699b52676236a_parent_basal_values")
@@ -1597,7 +1662,7 @@ class SummaryDataResourcesAllAPI
         //     print_r($this->info);
         //     exit("\nabove is eol_pks\n");
         // }
-        $this->archive_builder->write_object_to_file($m);
+        $archive_builder->write_object_to_file($m);
 
         /* copied from template. Not used in SDR.
         $m->bibliographicCitation   = '';
@@ -1621,7 +1686,7 @@ class SummaryDataResourcesAllAPI
         $m->parentMeasurementID = $parent;
         // $m->measurementRemarks = $rec['label']; //removed per: https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=65029&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65029
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
-        $this->archive_builder->write_object_to_file($m);
+        $archive_builder->write_object_to_file($m);
     }
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
@@ -1633,6 +1698,18 @@ class SummaryDataResourcesAllAPI
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+    }
+    private function add_occurrence_consolid8($taxon_id, $catnum, $rec)
+    {
+        $occurrence_id = $catnum; //can be just this, no need to add taxon_id
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID      = $taxon_id;
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids_consolid8[$o->occurrenceID])) return $o->occurrenceID;
+        $this->archive_builder_consolid8->write_object_to_file($o);
+        $this->occurrence_ids_consolid8[$o->occurrenceID] = '';
         return $o->occurrenceID;
     }
     function append_to_MySQL_table($table, $file_append, $csvFileYN = false)
