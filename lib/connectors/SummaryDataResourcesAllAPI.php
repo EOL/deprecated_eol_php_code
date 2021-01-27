@@ -749,8 +749,8 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 1037781, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
 
         // has both new records and existing records:
-        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
-        // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
+        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
+        $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
         
         foreach($input as $i) {
             /* temp block
