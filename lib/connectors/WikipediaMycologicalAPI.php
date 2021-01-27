@@ -232,6 +232,7 @@ class WikipediaMycologicalAPI
             
             // structured data
             foreach($rec["triples"] as $triple) {
+                $triple = trim(Functions::remove_whitespace($triple));
                 if($triple == "hymenium attachment is not applicable") continue; //excluded per Jen's spreadsheet
                 if($mtype = $this->uris[$triple]["mtype"]) {
                     if($v1 = $this->uris[$triple]["v1"]) {

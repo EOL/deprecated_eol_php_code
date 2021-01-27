@@ -10,6 +10,7 @@ BF	Thursday 2019-10-10 05:46:16 AM	{"measurement_or_fact_specific.tab":413020,"o
 BF	Monday 2019-10-14 04:19:54 AM	{"measurement_or_fact_specific.tab":413020,"occurrence_specific.tab":404891,"reference.tab":55234,"taxon.tab":122658,"vernacular_name.tab":9124,"time_elapsed":{"sec":461.29,"min":7.69,"hr":0.13}} all eol-archive at this point.
 BF	Monday 2019-11-25 09:20:28 AM	{"measurement_or_fact_specific.tab":413020, "occurrence_specific.tab":404891, "reference.tab":55234, "taxon.tab":122658, "vernacular_name.tab":9124,"time_elapsed":{"sec":454.81,"min":7.58,"hr":0.13}}
 BF	Tue 2021-01-05 11:18:15 PM	    {"measurement_or_fact_specific.tab":413020, "occurrence_specific.tab":404891, "reference.tab":55234, "taxon.tab":122658, "vernacular_name.tab":9124, "time_elapsed":{"sec":643.33, "min":10.72, "hr":0.18}}
+BF	Tue 2021-01-26 08:11:48 PM	    {"measurement_or_fact_specific.tab":413020, "occurrence_specific.tab":404891, "reference.tab":55234, "taxon.tab":122658, "vernacular_name.tab":9124, "time_elapsed":{"sec":589.04, "min":9.82, "hr":0.16}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
