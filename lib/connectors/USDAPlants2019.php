@@ -375,7 +375,7 @@ class USDAPlants2019
     {   $string_value = $this->area_id_info[$state_id];
         if($string_uri = self::get_string_uri($string_value)) {}
         else {
-            $this->debug['no uri mapping yet'][$string_value];
+            $this->debug['no uri mapping yet'][$string_value] = '';
             $string_uri = $string_value;
         }
         $mValue = $string_uri;
