@@ -403,7 +403,6 @@ class SummaryDataResourcesAllAPI
         // /*
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values');
         if($GLOBALS['ENV_DEBUG']) print_r($predicates);
-        $resource_id = 'basal_values';
         // [0] => http://eol.org/schema/terms/Present
         // [1] => http://eol.org/schema/terms/Habitat
         // [2] => http://purl.obolibrary.org/obo/FLOPO_0900032
@@ -412,8 +411,10 @@ class SummaryDataResourcesAllAPI
         $predicates = array('http://eol.org/schema/terms/Present'); $resource_id = 'basal_values_Present';
         // $predicates = array('http://eol.org/schema/terms/Habitat'); $resource_id = 'basal_values_Habitat';
         */
+
+        $resource_id = 'basal_values';              $WRITE = self::start_write2DwCA($resource_id, 'BV');
+        $resource_id_consolid8 = 'BV_consolid8';             self::start_write2DwCA_consolid8($resource_id_consolid8, 'BV');
         
-        $WRITE = self::start_write2DwCA($resource_id, 'BV');
         self::initialize_basal_values();
         /* removed. Moved below
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
@@ -446,6 +447,7 @@ class SummaryDataResourcesAllAPI
             }
         }
         fclose($WRITE); self::end_write2DwCA();
+                        self::end_write2DwCA_consolid8();
         if($GLOBALS['ENV_DEBUG']) print_r($this->debug);
         echo("\n-end print resource files (Basal values)-\n");
     }
@@ -719,12 +721,12 @@ class SummaryDataResourcesAllAPI
         $resource_id = 'test_BV';                     $WRITE = self::start_write2DwCA($resource_id, 'BV');
         $resource_id_consolid8 = 'test_BV_consolid8';          self::start_write2DwCA_consolid8($resource_id_consolid8, 'BV');
         
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present");
-        // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Present");
-        // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Present");
-        // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Present");
-        // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Present");
-        // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Present");
+        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present");
+        $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Present");
+        $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Present");
+        $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Present");
+        $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Present");
+        $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Present");
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
@@ -741,15 +743,15 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //questioned by Jen, missing ref under biblio field
 
         //has "existing records" only. Existing meaning, records not in this resource but that are already in EOL.
-        // $input[] = array('page_id' => 328604, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
-        // $input[] = array('page_id' => 1000231, 'predicate' => "http://eol.org/schema/terms/Present"); // 1000231  Callianassa tyrrhena    1000231
+        $input[] = array('page_id' => 328604, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
+        $input[] = array('page_id' => 1000231, 'predicate' => "http://eol.org/schema/terms/Present"); // 1000231  Callianassa tyrrhena    1000231
         
         // has new records only - write to DwCA
-        // $input[] = array('page_id' => 1004183, 'predicate' => "http://eol.org/schema/terms/Present"); // Jun 6, 2019 - seems infinite loop
-        // $input[] = array('page_id' => 1037781, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
+        $input[] = array('page_id' => 1004183, 'predicate' => "http://eol.org/schema/terms/Present"); // Jun 6, 2019 - seems infinite loop
+        $input[] = array('page_id' => 1037781, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
 
         // has both new records and existing records:
-        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
+        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
         $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
         
         foreach($input as $i) {
