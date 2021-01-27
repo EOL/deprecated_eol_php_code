@@ -65,7 +65,6 @@ else {
     $dwca_file = "http://localhost/cp/ITIS_DWH/2019-02-25/itisMySQLTables.tar.gz";
     $dwca_file = "http://localhost/cp/ITIS_DWH/2020-07-28/itisMySQLTables.tar.gz";
     $dwca_file = "http://localhost/cp/ITIS_DWH/2020-12-01/itisMySQLTables.tar.gz";
-    
 }
 $resource_id = "itis_2019-02-25";
 $resource_id = "itis_2019-03-31";

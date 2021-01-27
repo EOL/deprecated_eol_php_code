@@ -17,7 +17,8 @@ class DWH_ITIS_API
         $this->for_mapping = array();
         
         $this->download_options = array( //Note: Database download files are currently from the 25-Feb-2019 data load.
-            'expire_seconds'     => 60*60*24*10, //10 days for now since we're going to use latest March 31, 2019 dump
+            // 'expire_seconds'     => 60*60*24*10, //10 days for now since we're going to use latest March 31, 2019 dump
+            'expire_seconds'     => false, //false for now, since we're going to use the same dataset from last run: itis_2020-12-01 dump
             //expires false since we're not going to run periodically. And data dump uses specific date e.g. 25-Feb-2019
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->api['itis_taxon'] = 'https://www.itis.gov/ITISWebService/services/ITISService/getFullRecordFromTSN?tsn=';
