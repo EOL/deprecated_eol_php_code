@@ -32,7 +32,10 @@ With trial #2 - improves a bit - but I guess consistent now as latest adjustment
 727	Thursday 2020-03-26 12:19:25 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":602217, "media_resource.tab":5, "occurrence_specific.tab":656907, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
 727	Saturday 2020-06-20 09:52:32 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":602221, "media_resource.tab":5, "occurrence_specific.tab":656911, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false} - Consistent OK
 Below start where mtype == Uses are removed
-727	Tuesday 2020-07-14 03:31:37 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":581781, "media_resource.tab":5, "occurrence_specific.tab":636471, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false} - expected decrease in MoF
+727	            Tuesday 2020-07-14 03:31:37 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":581781, "media_resource.tab":5, "occurrence_specific.tab":636471, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false} - expected decrease in MoF
+
+727	                Wed 2021-01-27 08:35:54 PM	{"agent.tab":1, "measurement_or_fact_specific.tab":581781, "media_resource.tab":5, "occurrence_specific.tab":636471, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
+727_meta_recoded	Wed 2021-01-27 08:45:30 PM	{"agent.tab":1, "measurement_or_fact_specific.tab":581757, "media_resource.tab":5, "occurrence_specific.tab":636471, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":{"sec":576.47, "min":9.61, "hr":0.16}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

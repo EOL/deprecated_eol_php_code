@@ -154,6 +154,9 @@ cotr_meta_recoded	Tue 2020-12-01 10:00:30 PM	{"MoF":52298, "occurrence.tab":3347
 727_meta_recoded	Mon 2020-11-02 08:59:01 AM	{"agent.tab":1, "MoF":581778, "media_resource.tab":5, "occurrence_specific.tab":636468, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":{"sec":524.71, "min":8.75, "hr":0.15}}
 727	                Tue 2020-12-01 10:23:40 PM	{"agent.tab":1, "MoF":581779, "media_resource.tab":5, "occurrence_specific.tab":636469, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
 727_meta_recoded	Tue 2020-12-01 10:32:27 PM	{"agent.tab":1, "MoF":581779, "media_resource.tab":5, "occurrence_specific.tab":636469, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":{"sec":526.2, "min":8.77, "hr":0.15}}
+refreshed, lookup cache expired at this point: re-harvested
+727	                Wed 2021-01-27 08:35:54 PM	{"agent.tab":1, "MoF":581781, "media_resource.tab":5, "occurrence_specific.tab":636471, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
+727_meta_recoded	Wed 2021-01-27 08:45:30 PM	{"agent.tab":1, "MoF":581757, "media_resource.tab":5, "occurrence_specific.tab":636471, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":{"sec":576.47, "min":9.61, "hr":0.16}}
 
 26_meta_recoded_1	Wed 2020-11-11 08:13:07 AM	{"agent.tab":1682, "MoF.tab":3180852, "media.tab":91653, "occurrence.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":{"sec":3044.71, "min":50.75, "hr":0.85}}
 26_meta_recoded	    Wed 2020-11-11 09:00:11 AM	{"agent.tab":1682, "MoF.tab":2535563, "media.tab":91653, "occurrence.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":{"sec":2824, "min":47.07, "hr":0.78}}
