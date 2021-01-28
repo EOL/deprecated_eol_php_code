@@ -174,6 +174,7 @@ class DWH_NCBI_API
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
+            $rec = array_map('trim', $rec);
             //start filter
             /*Array(
                 [taxonID] => 1_1
@@ -227,6 +228,35 @@ class DWH_NCBI_API
                     continue;
                 }
             }
+            
+            /*Array(
+                [taxonID] => 1_1
+                [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1
+                [acceptedNameUsageID] => 1
+                [parentNameUsageID] => 
+                [scientificName] => all
+                [taxonRank] => no rank
+                [taxonomicStatus] => synonym
+                [referenceID] => 
+            )*/
+            
+            /* https://eol-jira.bibalex.org/browse/TRAM-989?focusedCommentId=65561&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65561
+            Hi Eli,
+            I would like to make a couple of tweaks to this resource:
+            1. Please remove all taxa (and their children) that have one of the following rank values:
+                biotype
+                forma specialis
+                isolate
+                pathogroup
+                serogroup
+                serotype
+                strain
+            2. Please change the following rank values:
+                forma -> form
+                varietas -> variety
+            */
+            if(in_array($rec['taxonRank'], array('biotype', 'forma specialis', 'isolate', 'pathogroup', 'serogroup', 'serotype', 'strain'))) $filtered_ids[$rec['taxonID']] = '';
+            
         } //end loop
 
         // /* Added during TRAM-981
@@ -246,6 +276,7 @@ class DWH_NCBI_API
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
+            $rec = array_map('trim', $rec);
             /*Array(
                 [taxonID] => 1_1
                 [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1
@@ -256,10 +287,18 @@ class DWH_NCBI_API
                 [taxonomicStatus] => synonym
                 [referenceID] => 
             )*/
+            
+            /*
+            2. Please change the following rank values:
+                forma -> form
+                varietas -> variety
+            */
+            if($rec['taxonRank'] == 'forma') $rec['taxonRank'] = 'form';
+            if($rec['taxonRank'] == 'varietas') $rec['taxonRank'] = 'variety';
+            
             if(isset($filtered_ids[$rec['taxonID']])) continue;
             if(isset($filtered_ids[$rec['acceptedNameUsageID']])) continue;
             if(isset($filtered_ids[$rec['parentNameUsageID']])) continue;
-
             if(isset($removed_branches[$rec['acceptedNameUsageID']])) continue;
             
             if($rec['taxonomicStatus'] == "accepted") {
