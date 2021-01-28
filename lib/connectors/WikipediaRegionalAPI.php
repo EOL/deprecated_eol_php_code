@@ -201,11 +201,9 @@ class WikipediaRegionalAPI
         For 'fr' the wiki template structure has changed. Starting range is the same, no change:
                                         <div id="mw-content-text" lang="fr" dir="ltr" class="mw-content-ltr">
         While our ending range is now:  <div id='mw-data-after-content'> ---> Works OK
+        Now 'eu' also is same with 'fr' case.
         */
-        elseif($lang == 'fr') {
-            if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-        }
-        elseif($lang == 'eu') {
+        elseif(in_array($lang, array('fr', 'eu'))) {
             if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
         }
         else {
