@@ -205,6 +205,9 @@ class WikipediaRegionalAPI
         elseif($lang == 'fr') {
             if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
         }
+        elseif($lang == 'eu') {
+            if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+        }
         else {
             if($lang == 'no')               $lang = 'nb'; //2nd option for 'no' Norwegian is to use 'nb'.
             elseif($lang == 'zh-min-nan')   $lang = 'nan';
