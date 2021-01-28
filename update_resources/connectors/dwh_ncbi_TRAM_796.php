@@ -2,6 +2,19 @@
 namespace php_active_record;
 /* NCBI Taxonomy Extract for Dynamic Hierarchy - https://eol-jira.bibalex.org/browse/TRAM-796
 estimated execution time: 
+
+NCBI_Taxonomy_Harvest_no_vernaculars	Mon 2020-09-21 06:44:36 AM	{"reference.tab":50881, "taxon.tab":1635339, "time_elapsed":{"sec":1097.65, "min":18.29, "hr":0.3}}
+NCBI_Taxonomy_Harvest	                Mon 2020-09-21 07:03:24 AM	{"reference.tab":50881, "taxon.tab":1635339, "vernacular_name.tab":44046, "time_elapsed":{"sec":1078.24, "min":17.97, "hr":0.3}}
+NCBI_Taxonomy_Harvest_DH	            Mon 2020-09-21 10:39:33 AM	{"reference.tab":24828, "taxon.tab":172951, "time_elapsed":{"sec":203.53, "min":3.39, "hr":0.06}}
+
+NCBI_Taxonomy_Harvest_no_vernaculars	Wed 2021-01-27 07:34:54 PM	{"reference.tab":50881, "taxon.tab":1635339, "time_elapsed":{"sec":1045.24, "min":17.42, "hr":0.29}}
+NCBI_Taxonomy_Harvest	                Wed 2021-01-27 07:53:07 PM	{"reference.tab":50881, "taxon.tab":1635339, "vernacular_name.tab":44046, "time_elapsed":{"sec":1044.42, "min":17.41, "hr":0.29}}
+NCBI_Taxonomy_Harvest_DH	            Wed 2021-01-27 07:57:00 PM	{"reference.tab":24828, "taxon.tab":172951, "time_elapsed":{"sec":183.75, "min":3.06, "hr":0.05}}
+
+with new more filters
+NCBI_Taxonomy_Harvest_no_vernaculars	Wed 2021-01-27 10:52:11 PM	{"reference.tab":50881, "taxon.tab":1635339, "time_elapsed":{"sec":1069.87, "min":17.83, "hr":0.3}}
+NCBI_Taxonomy_Harvest	                Wed 2021-01-27 11:10:58 PM	{"reference.tab":50881, "taxon.tab":1635339, "vernacular_name.tab":44046, "time_elapsed":{"sec":1076.39, "min":17.94, "hr":0.3}}
+NCBI_Taxonomy_Harvest_DH	            Wed 2021-01-27 11:14:39 PM	{"reference.tab":23683, "taxon.tab":115794, "time_elapsed":{"sec":169.7, "min":2.83, "hr":0.05}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_NCBI_API');

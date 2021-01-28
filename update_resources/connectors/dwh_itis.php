@@ -29,6 +29,8 @@ itis_2020-07-28	Tue 2020-09-01 11:02:23 PM	{"taxon.tab":104014, "vernacular_name
 itis_2020-12-01	Sun 2020-12-06 09:40:54 PM	{"taxon.tab":104571, "vernacular_name.tab":11368, "time_elapsed":{"sec":161.96, "min":2.7, "hr":0.04}}
 itis_2020-12-01	Sun 2020-12-06 09:41:44 PM	{"taxon.tab":104571, "vernacular_name.tab":11368, "time_elapsed":false}
 
+itis_2020-12-01	Wed 2021-01-27 06:27:52 PM	{"taxon.tab":110126, "vernacular_name.tab":15586, "time_elapsed":{"sec":176.86, "min":2.95, "hr":0.05}}
+itis_2020-12-01	Wed 2021-01-27 06:28:44 PM	{"taxon.tab":110126, "vernacular_name.tab":15586, "time_elapsed":false}
 
 Reminders: what is in Jenkins eol-archive. Run one after the other, these 2 scripts:
 (1)
