@@ -296,7 +296,7 @@ class BioImagesAPI
         $taxon->order                       = (string)$row[$col['Order']];
         $taxon->family                      = (string)$row[$col['Family']];
         $taxon->furtherInformationURL       = $row[$col['BioImages taxon page']];
-        $taxon->acceptedNameUsage           = ''; //'Accepted name'
+        // $taxon->acceptedNameUsage           = ''; //'Accepted name' --- just remove it: DATA-1878
         $original_identification            = (string)$row[$col['Original ident']];
         $taxon->namePublishedIn             = $original_identification;
         $taxonRemarks = '';
@@ -305,7 +305,7 @@ class BioImagesAPI
         $NBN_Code = (string)$row[$col['NBN Code']];
         $taxonRemarks .= $NBN_Code != "" ? "UK NBN (National Biodiversity Network) taxon code: " . $NBN_Code . ". " : "";
         $taxon->taxonRemarks                = $taxonRemarks;
-        $taxon->infraspecificEpithet        = '';
+        // $taxon->infraspecificEpithet        = ''; //--- just remove it: DATA-1878
         $this->taxa[$taxon->taxonID] = $taxon;
     }
 

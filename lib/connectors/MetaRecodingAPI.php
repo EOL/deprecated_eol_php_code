@@ -68,6 +68,11 @@ class MetaRecodingAPI
             self::task_CCP2Agents($tables); //task_200: contributor, creator, publisher from Document to Agents
             self::task_carryOverMoF($tables);
         }
+        
+        if(in_array($this->resource_id, array('168_meta_recoded'))) { //DATA-1878
+            self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'carry_over');
+        }
+        
         //CCP only
         if(in_array($this->resource_id, array('678_meta_recoded', 'ECSEML_meta_recoded', 'fwater_marine_image_bank_meta_recoded'))) {
             self::task_CCP2Agents($tables); //task_200: contributor, creator, publisher from Document to Agents
@@ -783,6 +788,14 @@ class MetaRecodingAPI
             if($what == 'carry_over') {
                 // /* start write DwCA
                 $uris = array_keys($rec);
+                
+                /* ---------- START customization ---------- */
+                if($this->resource_id == '168_meta_recoded') { //DATA-1878
+                    unset($rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsage']);
+                    unset($rec['http://rs.tdwg.org/dwc/terms/infraspecificEpithet']);
+                }
+                /* ---------- END customization ---------- */
+                
                 $o = new \eol_schema\Taxon();
                 foreach($uris as $uri) {
                     $field = pathinfo($uri, PATHINFO_BASENAME);

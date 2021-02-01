@@ -380,8 +380,13 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
 
         //CCP and missing measurementID
         elseif(in_array($resource_id, array('Cicadellinae_meta_recoded', 'Deltocephalinae_meta_recoded', 'Appeltans_et_al_meta_recoded',
-            '168_meta_recoded', '200_meta_recoded', 'Braconids_meta_recoded'))) {
+            '200_meta_recoded', 'Braconids_meta_recoded'))) {
             $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+        }
+
+        elseif(in_array($resource_id, array('168_meta_recoded'))) {
+            $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+            $excluded_rowtype[] = 'http://rs.tdwg.org/dwc/terms/taxon'; //per DATA-1878
         }
         
         //CCP only
