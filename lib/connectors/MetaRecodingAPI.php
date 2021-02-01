@@ -787,7 +787,6 @@ class MetaRecodingAPI
             $rec = array_map('trim', $rec);
             if($what == 'carry_over') {
                 // /* start write DwCA
-                $uris = array_keys($rec);
                 
                 /* ---------- START customization ---------- */
                 if($this->resource_id == '168_meta_recoded') { //DATA-1878
@@ -795,7 +794,8 @@ class MetaRecodingAPI
                     unset($rec['http://rs.tdwg.org/dwc/terms/infraspecificEpithet']);
                 }
                 /* ---------- END customization ---------- */
-                
+
+                $uris = array_keys($rec);
                 $o = new \eol_schema\Taxon();
                 foreach($uris as $uri) {
                     $field = pathinfo($uri, PATHINFO_BASENAME);
