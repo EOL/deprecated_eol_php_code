@@ -64,6 +64,7 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "Appelta
 BioImages, the virtual fieldguide, UK (168.tar.gz)
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "168_meta_recoded", "task": "metadata_recoding"}'
 168_meta_recoded	Thu 2021-01-14 07:53:44 AM	{"agent.tab":98, "media_resource.tab":129821, "taxon.tab":22302, "time_elapsed":{"sec":74.27, "min":1.24, "hr":0.02}} - eol-archive
+168_meta_recoded	Sun 2021-01-31 10:41:19 PM	{"agent.tab":98, "media_resource.tab":129821, "taxon.tab":44604, "time_elapsed":{"sec":75.14, "min":1.25, "hr":0.02}}
 
 Bioimages Vanderbilt (200) DwCA (200.tar.gz)
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "200_meta_recoded", "task": "metadata_recoding"}'
@@ -386,7 +387,7 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
 
         elseif(in_array($resource_id, array('168_meta_recoded'))) {
             $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
-            $excluded_rowtype[] = 'http://rs.tdwg.org/dwc/terms/taxon'; //per DATA-1878
+            $excluded_rowtypes[] = 'http://rs.tdwg.org/dwc/terms/taxon'; //per DATA-1878
         }
         
         //CCP only
