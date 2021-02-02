@@ -127,7 +127,9 @@ class PaleoDBAPI_v2
             if(substr($line, 0, strlen('{"oid":')) == '{"oid":') {
                 $str = substr($line, 0, -1); //remove last char (",") the comma, very important to convert from json to array.
                 $arr = json_decode($str, true);
-                $taxon_id = self::create_taxon_archive($arr);
+                $ret = self::create_taxon_archive($arr);
+                if(!$ret) continue;
+                $taxon_id = $ret['taxonID'];
                 if($taxon_id === false) continue;
                 if($taxon_id == false) continue;
                 
@@ -140,7 +142,7 @@ class PaleoDBAPI_v2
                 */
                 
                 self::create_vernacular_archive($arr, $taxon_id);
-                self::create_trait_archive($arr, $taxon_id);
+                self::create_trait_archive($arr, $ret);
             }
             // if($i > 1000) break; //debug
         }
@@ -152,10 +154,12 @@ class PaleoDBAPI_v2
         // exit("\n[$json]\n");
         return md5($json);
     }
-    private function create_trait_archive($a, $taxon_id)
+    private function create_trait_archive($a, $ret)
     {
+        $taxon_id = $ret['taxonID'];
         $rec = array();
         $rec["taxon_id"] = $taxon_id;
+        $rec['phylum'] = $ret['phylum'];
         $rec["catnum"]   = self::generate_id_from_array_record($a);
         $rec['source']                = $this->source_url . self::numerical_part($a['oid']);
         $rec['bibliographicCitation'] = 'The Paleobiology Database, https://paleobiodb.org';
@@ -570,6 +574,11 @@ class PaleoDBAPI_v2
         */
         if(stripos($rec['measurementRemarks'], "Inferred from Echinoidea") !== false) return; //string is found
         
+        // /* per Jen: remove Q1053008 if Arthropoda -> https://eol-jira.bibalex.org/browse/DATA-1831?focusedCommentId=65581&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65581
+        if($rec['measurementType'] == 'http://www.wikidata.org/entity/Q1053008') { //echo "\n-FOUND-\n";
+            if($rec['phylum'] == 'Arthropoda') return;
+        }
+        // */
         
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"], $rec);
         unset($rec['catnum']);
@@ -737,7 +746,8 @@ class PaleoDBAPI_v2
             return false;
         }
         
-        return $taxon->taxonID;
+        // return $taxon->taxonID; //orig
+        return array('taxonID' => $taxon->taxonID, 'phylum' => @$taxon->phylum);
     }
     private function compute_taxonID($a, $taxon_status)
     {
