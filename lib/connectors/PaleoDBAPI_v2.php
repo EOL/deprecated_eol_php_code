@@ -578,6 +578,7 @@ class PaleoDBAPI_v2
         if($rec['measurementType'] == 'http://www.wikidata.org/entity/Q1053008') { //echo "\n-FOUND-\n";
             if($rec['phylum'] == 'Arthropoda') return;
         }
+        unset($rec['phylum']); //not needed below. Must be removed before writing $rec to MoF
         // */
         
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"], $rec);
