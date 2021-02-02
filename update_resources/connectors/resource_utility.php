@@ -65,6 +65,7 @@ BioImages, the virtual fieldguide, UK (168.tar.gz)
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "168_meta_recoded", "task": "metadata_recoding"}'
 168_meta_recoded	Thu 2021-01-14 07:53:44 AM	{"agent.tab":98, "media_resource.tab":129821, "taxon.tab":22302, "time_elapsed":{"sec":74.27, "min":1.24, "hr":0.02}} - eol-archive
 168_meta_recoded	Sun 2021-01-31 11:17:51 PM	{"agent.tab":98, "media_resource.tab":129821, "taxon.tab":22302, "time_elapsed":{"sec":69.7, "min":1.16, "hr":0.02}}
+168_meta_recoded	Mon 2021-02-01 09:43:36 PM	{"agent.tab":98, "media_resource.tab":129821, "taxon.tab":22302, "time_elapsed":{"sec":66.99, "min":1.12, "hr":0.02}}
 
 Bioimages Vanderbilt (200) DwCA (200.tar.gz)
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "200_meta_recoded", "task": "metadata_recoding"}'
