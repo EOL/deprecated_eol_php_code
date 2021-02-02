@@ -103,7 +103,7 @@ EXPECTED DECREASE SINCE Now removed in MoF, measurementType=http://purl.obolibra
 368_merged_MoF	Thu 2020-12-03 10:41:40 PM	        {"MoF":2232890, "occurrence.tab":540001, "taxon.tab":394515, "vernacular_name.tab":4756, "time_elapsed":{"sec":1141.51, "min":19.03, "hr":0.32}}
 ----------------------------------------------------------------------------
 Reminders:
-# Three (3) connectors to run, one after the other - OK
+# Four (4) connectors to run, one after the other - OK
 
 # OK
 php5.6 pbdb_fresh_harvest.php jenkins #this generates 368.tar.gz
