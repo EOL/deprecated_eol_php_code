@@ -101,6 +101,11 @@ EXPECTED DECREASE SINCE Now removed in MoF, measurementType=http://purl.obolibra
 368_removed_aves	Thu 2020-12-03 10:02:04 PM	    {"MoF":2233159, "occurrence.tab":540001, "taxon.tab":405382, "vernacular_name.tab":4756, "time_elapsed":false}
 368_final	Thu 2020-12-03 10:22:18 PM	            {"MoF":2233159, "occurrence.tab":540001, "taxon.tab":394515, "vernacular_name.tab":4756, "time_elapsed":false}
 368_merged_MoF	Thu 2020-12-03 10:41:40 PM	        {"MoF":2232890, "occurrence.tab":540001, "taxon.tab":394515, "vernacular_name.tab":4756, "time_elapsed":{"sec":1141.51, "min":19.03, "hr":0.32}}
+EXPECTED DECREASE IN MoF SINCE: Remove Q1053008 if Arthropoda. *Interestingly occurrence increased, maybe due to new data coming in. Since raw source is from remote partner, not static.
+368	                    Tue 2021-02-02 10:30:12 AM	{"MoF":2332102, "occurrence.tab":567170, "taxon.tab":417986, "vernacular_name.tab":7320, "time_elapsed":false}
+368_removed_aves	    Tue 2021-02-02 10:49:32 AM	{"MoF":2224916, "occurrence.tab":543337, "taxon.tab":408235, "vernacular_name.tab":4889, "time_elapsed":false}
+368_final	            Tue 2021-02-02 11:10:01 AM	{"MoF":2224916, "occurrence.tab":543337, "taxon.tab":397131, "vernacular_name.tab":4889, "time_elapsed":false}
+368_merged_MoF	        Tue 2021-02-02 11:30:12 AM	{"MoF":2224647, "occurrence.tab":543337, "taxon.tab":397131, "vernacular_name.tab":4889, "time_elapsed":{"sec":1194.32, "min":19.91, "hr":0.33}}
 ----------------------------------------------------------------------------
 Reminders:
 # Four (4) connectors to run, one after the other - OK

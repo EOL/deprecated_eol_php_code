@@ -699,7 +699,7 @@ class MetaRecodingAPI
             /* ---------- START customization ---------- */
             if($this->resource_id == '168_meta_recoded') { //per Jen: https://eol-jira.bibalex.org/browse/DATA-1878?focusedCommentId=65579&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65579
                 $identifier = $rec['http://purl.org/dc/terms/identifier'];
-                if(strlen($identifier) > 25) $rec['http://purl.org/dc/terms/identifier'] = md5($identifier);
+                if(strlen($identifier) > 32) $rec['http://purl.org/dc/terms/identifier'] = md5($identifier);
             }
             /* ---------- END customization ---------- */
             
