@@ -17,6 +17,9 @@ protisten	Mon 2020-08-10 02:22:28 AM	{"agent.tab":1, "media_resource.tab":1842, 
 protisten	Sat 2020-08-29 11:32:40 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":1389.91, "min":23.17, "hr":0.39}}
 protisten	Tue 2020-12-01 10:10:58 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":1443.34, "min":24.06, "hr":0.4}}
 protisten	Mon 2020-12-07 06:22:08 PM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1125, "time_elapsed":{"sec":1424.74, "min":23.75, "hr":0.4}}
+protisten	Sun 2021-01-10 02:33:53 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1125, "time_elapsed":{"sec":2093.39, "min":34.89, "hr":0.58}}
+after fixing sciname inclusion
+protisten	Wed 2021-02-03 02:37:37 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":2337.88, "min":38.96, "hr":0.65}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();

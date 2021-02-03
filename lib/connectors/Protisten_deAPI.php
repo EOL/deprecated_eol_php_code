@@ -24,9 +24,12 @@ class Protisten_deAPI
         $this->page['main'] = 'http://www.protisten.de/gallery_ALL/Galerie001.html';
         $this->page['pre_url'] = 'http://www.protisten.de/gallery_ALL/Galerie';
         $this->page['image_page_url'] = 'http://www.protisten.de/gallery_ALL/';
+        /* Google sheet used: This is sciname mapping to EOL PageID. Initiated by Wolfgang Bettighofer.
+        https://docs.google.com/spreadsheets/d/1QnT-o-t4bVp-BP4jFFA-Alr4PlIj7fAD6RRb5iC6BYA/edit#gid=0
+        */
     }
     function start()
-    {
+    {   self::taxon_mapping_from_GoogleSheet();
         self::write_agent();
         $batches = self::get_total_batches(); print_r($batches);
         foreach($batches as $filename) {
@@ -187,6 +190,9 @@ class Protisten_deAPI
             $r['source_url'] = $this->page['image_page_url'].@$rec['next_pages'][$i];
             $taxon->taxonID                 = $r['taxon_id'];
             $taxon->scientificName          = $r['sciname'];
+            
+            if($EOLid = @$this->taxon_EOLpageID[$r['sciname']]) $taxon->EOLid = $EOLid; // http://eol.org/schema/EOLid
+            
             $taxon->parentNameUsageID       = $r['parent_id'];
             $taxon->furtherInformationURL   = $r['source_url'];
             // $taxon->taxonRank                = '';
@@ -221,6 +227,9 @@ class Protisten_deAPI
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                 = $store[$i];
             $taxon->scientificName          = $sci;
+            
+            if($EOLid = @$this->taxon_EOLpageID[$sci]) $taxon->EOLid = $EOLid; // http://eol.org/schema/EOLid
+            
             $taxon->parentNameUsageID       = @$store[$i-1];
             $taxon->higherClassification    = self::get_higherClassification($ancestry, $i);
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
@@ -267,6 +276,26 @@ class Protisten_deAPI
             $this->archive_builder->write_object_to_file($mr);
             $this->obj_ids[$mr->identifier] = '';
         }
+    }
+    private function taxon_mapping_from_GoogleSheet()
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1QnT-o-t4bVp-BP4jFFA-Alr4PlIj7fAD6RRb5iC6BYA';
+        $params['range']         = 'Sheet1!A2:B40'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params); // print_r($arr); exit;
+        /*Array(
+            [0] => Array(
+                    [0] => Actinotaenium clevei
+                    [1] => https://eol.org/pages/913594
+                )
+            [1] => Array(
+                    [0] => Ankistrodesmus gracilis
+                    [1] => https://eol.org/pages/6051692
+                )
+        */
+        foreach($arr as $rec) $this->taxon_EOLpageID[$rec[0]] = pathinfo($rec[1], PATHINFO_BASENAME);
+        print_r($this->taxon_EOLpageID); //exit;
     }
 }
 ?>
