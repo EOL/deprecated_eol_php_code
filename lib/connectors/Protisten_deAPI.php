@@ -14,7 +14,7 @@ class Protisten_deAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->resource_reference_ids = array();
         $this->do_ids = array();
-        $this->download_options = array('cache' => 1, 'resource_id' => $this->resource_id, 'download_wait_time' => 500000, 'timeout' => 1200, 
+        $this->download_options = array('cache' => 1, 'resource_id' => $this->resource_id, 'download_wait_time' => 1000000, 'timeout' => 1200, 
         // 'download_attempts' => 1, 'delay_in_minutes' => 2, 
                                         'expire_seconds' => 60*60*24*1); //jenkins harvest monthly, but set to expires every 15 days
         // $this->download_options['expire_seconds'] = false;
@@ -28,7 +28,7 @@ class Protisten_deAPI
     function start()
     {
         self::write_agent();
-        $batches = self::get_total_batches();
+        $batches = self::get_total_batches(); print_r($batches);
         foreach($batches as $filename) {
             echo "\nprocess batch [$filename]\n";
             self::process_one_batch($filename);
@@ -37,8 +37,12 @@ class Protisten_deAPI
         $this->archive_builder->finalize(true);
     }
     private function process_one_batch($filename)
-    {
-        if($html = Functions::lookup_with_cache($this->page['pre_url'].$filename, $this->download_options)) {
+    {   
+        // $url = 'http://www.protisten.de/gallery_ALL/Galerie022.html'; //debug only - force
+                // http://www.protisten.de/gallery_ALL/Galerie001.html
+        $url = $this->page['pre_url'].$filename;
+        echo "\nProcessing ".$url."\n";
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             if(preg_match("/<table border=\'0\'(.*?)<\/table>/ims", $html, $arr)) {
                 if(preg_match_all("/<td align=\'center\'(.*?)<\/td>/ims", $arr[1], $arr2)) {
                     $rows = $arr2[1];
@@ -88,7 +92,7 @@ class Protisten_deAPI
             $html = self::clean_str($html);
             if(preg_match("/MARK 14\:(.*?)<\/td>/ims", $html, $arr)) {
                 $tmp = str_replace("&nbsp;", " ", strip_tags($arr[1]));
-                if(preg_match("/\-\-\>(.*?)xxx/ims", $tmp."xxx", $arr)) $tmp = $arr[1];
+                if(preg_match("/\-\-\>(.*?)~~~/ims", $tmp."~~~", $arr)) $tmp = $arr[1];
                 $tmp = Functions::remove_whitespace(trim($tmp));
                 $m['desc'] = $tmp;
             }
@@ -101,14 +105,14 @@ class Protisten_deAPI
             }
             if(preg_match("/MARK 13\:(.*?)<\/td>/ims", $html, $arr)) {
                 $tmp = str_replace("&nbsp;", " ", strip_tags($arr[1]));
-                if(preg_match("/\-\-\>(.*?)xxx/ims", $tmp."xxx", $arr)) $tmp = $arr[1];
+                if(preg_match("/\-\-\>(.*?)~~~/ims", $tmp."~~~", $arr)) $tmp = $arr[1];
                 $tmp = str_ireplace(' spec.', '', $tmp);
                 $tmp = Functions::remove_whitespace(trim($tmp));
                 $m['sciname'] = $tmp;
             }
             if(preg_match("/MARK 10\:(.*?)<\/td>/ims", $html, $arr)) {
                 $tmp = str_replace("&nbsp;", " ", strip_tags($arr[1]));
-                if(preg_match("/\-\-\>(.*?)xxx/ims", $tmp."xxx", $arr)) $tmp = Functions::remove_whitespace($arr[1]);
+                if(preg_match("/\-\-\>(.*?)~~~/ims", $tmp."~~~", $arr)) $tmp = Functions::remove_whitespace($arr[1]);
                 // echo "\n[".$tmp."]\n";
                 $arr = explode(":",$tmp);
                 $arr = array_map('trim', $arr);
