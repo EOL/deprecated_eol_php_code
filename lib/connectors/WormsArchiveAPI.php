@@ -1028,6 +1028,7 @@ class WormsArchiveAPI
                 $save['measurementUnit'] = self::format_measurementUnit($rec); //no instruction here
                 $mTypev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementType'], 'mType', 'child of Body size');
                 $mValuev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 'mValue', "child of Body size-".$rec['http://rs.tdwg.org/dwc/terms/measurementType']);
+                if($mValuev == 'DISCARD') continue;
                 $this->func->pre_add_string_types($save, $mValuev, $mTypev, "child");
                 // break; //do this if you want to proceed create DwCA
                 continue; //part of real operation. Can go next row now
@@ -1094,7 +1095,7 @@ class WormsArchiveAPI
     }
     private function tsv2array($url)
     {   $options = $this->download_options;
-        $options['expire_seconds'] = 60*60*24; //1 day expires
+        $options['expire_seconds'] = 60*60*1; //1 hour expires
         $local = Functions::save_remote_file_to_local($url, $options);
         $i = 0;
         foreach(new FileIterator($local) as $line_number => $line) {

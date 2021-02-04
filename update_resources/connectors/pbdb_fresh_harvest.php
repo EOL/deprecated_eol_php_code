@@ -106,6 +106,11 @@ EXPECTED DECREASE IN MoF SINCE: Remove Q1053008 if Arthropoda. *Interestingly oc
 368_removed_aves	    Tue 2021-02-02 10:49:32 AM	{"MoF":2224916, "occurrence.tab":543337, "taxon.tab":408235, "vernacular_name.tab":4889, "time_elapsed":false}
 368_final	            Tue 2021-02-02 11:10:01 AM	{"MoF":2224916, "occurrence.tab":543337, "taxon.tab":397131, "vernacular_name.tab":4889, "time_elapsed":false}
 368_merged_MoF	        Tue 2021-02-02 11:30:12 AM	{"MoF":2224647, "occurrence.tab":543337, "taxon.tab":397131, "vernacular_name.tab":4889, "time_elapsed":{"sec":1194.32, "min":19.91, "hr":0.33}}
+
+368	                    Wed 2021-02-03 10:05:00 PM	{"MoF":2332102, "occurrence.tab":567170, "taxon.tab":417986, "vernacular_name.tab":7320, "time_elapsed":false}
+368_removed_aves	    Wed 2021-02-03 10:23:54 PM	{"MoF":2224916, "occurrence.tab":543337, "taxon.tab":408235, "vernacular_name.tab":4889, "time_elapsed":false}
+368_final	            Wed 2021-02-03 10:43:17 PM	{"MoF":2224916, "occurrence.tab":543337, "taxon.tab":397131, "vernacular_name.tab":4889, "time_elapsed":false}
+368_merged_MoF	        Wed 2021-02-03 11:03:11 PM	{"MoF":2224647, "occurrence.tab":543337, "taxon.tab":397131, "vernacular_name.tab":4889, "time_elapsed":{"sec":1174.18, "min":19.57, "hr":0.33}}
 ----------------------------------------------------------------------------
 Reminders:
 # Four (4) connectors to run, one after the other - OK
