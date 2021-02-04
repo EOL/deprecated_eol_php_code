@@ -144,7 +144,7 @@ class TraitGeneric
         require_library('connectors/TropicosArchiveAPI');
         $func = new TropicosArchiveAPI(NULL);
         $this->remapped_terms = $func->add_additional_mappings(true, $url, $expire_seconds); //*this is not add_additional_mappings() like how was used normally in Functions().
-        echo "\nremapped_terms lib: ".count($this->remapped_terms)."\n";
+        echo "\n(TraitGeneric.php) remapped_terms lib: ".count($this->remapped_terms)."\n";
         return $this->remapped_terms;
         /* END DATA-1841 terms remapping */
     }

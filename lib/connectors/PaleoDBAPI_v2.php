@@ -562,6 +562,14 @@ class PaleoDBAPI_v2
         if(!$rec) return;
         // */
 
+        /* just debug during dev
+        // [http://purl.obolibrary.org/obo/ENVO_00002011] => http://purl.obolibrary.org/obo/ENVO_00000873
+        // [http://purl.obolibrary.org/obo/ENVO_00002037] => http://purl.obolibrary.org/obo/ENVO_00002011
+        if($rec['measurementValue'] == 'http://purl.obolibrary.org/obo/ENVO_00002037') {
+            print_r($rec); exit("\n-huli ka-\n");
+        }
+        */
+
         // /* DATA-1841 terms remapping
         if($new_uri = @$this->func->remapped_terms[$rec['measurementType']]) $rec['measurementType'] = $new_uri;
         if($new_uri = @$this->func->remapped_terms[$rec['measurementValue']]) $rec['measurementValue'] = $new_uri;
