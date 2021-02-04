@@ -234,7 +234,7 @@ class WormsArchiveAPI
         echo "\n01 of 8\n";  self::build_parentOf_childOf_data($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         echo "\n02 of 8\n";  self::get_mIDs_2exclude($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         echo "\n03 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
-        print_r($this->debug);
+        // print_r($this->debug);
         unset($this->childOf); unset($this->parentOf); unset($this->ToExcludeMeasurementIDs);
         unset($this->BodysizeDimension); unset($this->FeedingType); unset($this->lifeStageOf); unset($this->measurementIDz);
         // $this->archive_builder->finalize(TRUE); return; //debug only - delete row in normal operation
@@ -249,7 +249,6 @@ class WormsArchiveAPI
         unset($harvester);
         echo "\n8 of 8\n";  $this->archive_builder->finalize(TRUE);
 
-        print_r($this->debug);
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
@@ -1043,8 +1042,7 @@ class WormsArchiveAPI
         if($uri = @$this->value_uri_map[$val]) return $uri;
         elseif($uri = @$this->value_uri_map[$orig]) return $uri;
         else {
-            // if(!is_numeric($orig)) 
-            $this->debug['no uri'][$what][$what2][$orig] = ''; //log only non-numeric values
+            if(!is_numeric($orig)) $this->debug['no uri'][$what][$what2][$orig] = ''; //log only non-numeric values
             return $orig;
         }
     }
