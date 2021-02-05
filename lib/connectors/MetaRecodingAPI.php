@@ -342,7 +342,7 @@ class MetaRecodingAPI
             if($what == 'task_67_info_2') { //lifeStage | sex
                 // /* lifeStage
                 if($parentMeasurementID && $measurementType == 'http://rs.tdwg.org/dwc/terms/lifeStage') { //via parentMeasurementID
-                    $occur_id = $this->mID_oID[$parentMeasurementID];
+                    $occur_id = @$this->mID_oID[$parentMeasurementID];
                     $this->oID_lifeStage[$occur_id] = $measurementValue;
                 }
                 elseif($measurementOfTaxon != 'true' && $measurementType == 'http://rs.tdwg.org/dwc/terms/lifeStage') { //via mOfTaxon not 'true'
