@@ -87,6 +87,7 @@ class MetaRecodingAPI
             self::task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false($tables);
         }
         // ----------------------------------------------------- */
+        if(isset($this->debug)) print_r($this->debug);
     }
     private function task_CCP2Agents($tables) //task_200: contributor, creator, publisher from Document to Agents
     {
@@ -136,6 +137,7 @@ class MetaRecodingAPI
             unset($this->mID_oID);
             unset($this->oID_lifeStage);
             unset($this->oID_sex);
+            // print_r($this->debug); //exit("\n---------------------\n");
             // */
         }
         else { //the rest
@@ -145,7 +147,7 @@ class MetaRecodingAPI
             self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_67_1');
             unset($this->oID_lifeStage);   //task_6
             unset($this->oID_sex);         //task_7
-            print_r($this->debug); //exit("\n---------------------\n");
+            // print_r($this->debug); //exit("\n---------------------\n");
             // */
         }
     }
@@ -615,6 +617,8 @@ class MetaRecodingAPI
     }
     private function write_occurrence($rec)
     {
+        self::log_unmapped_string_if_needed($rec, 'occurrence');
+        
         $uris = array_keys($rec);
         $o = new \eol_schema\Occurrence_specific();
         foreach($uris as $uri) {
@@ -622,6 +626,17 @@ class MetaRecodingAPI
             $o->$field = $rec[$uri];
         }
         $this->archive_builder->write_object_to_file($o);
+    }
+    private function log_unmapped_string_if_needed($rec, $what)
+    {
+        if($what == 'occurrence') {
+            if($val = @$rec['http://rs.tdwg.org/dwc/terms/lifeStage']) {
+                if(substr($val,0,4) != 'http') $this->debug['no uri']['lifeStage'][$val] = '';
+            }
+            if($val = @$rec['http://rs.tdwg.org/dwc/terms/sex']) {
+                if(substr($val,0,4) != 'http') $this->debug['no uri']['sex'][$val] = '';
+            }
+        }
     }
     /* not used, from copied template
     private function create_taxon($rec)
