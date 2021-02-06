@@ -74,7 +74,10 @@ class WoRMS_post_process
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
             }
-            $this->archive_builder->write_object_to_file($o);
+            if(!isset($this->measurementIDs[$o->measurementID])) {
+                $this->archive_builder->write_object_to_file($o);
+                $this->measurementIDs[$o->measurementID] = '';
+            }
             // if($i >= 10) break; //debug only
         }
     }
@@ -107,7 +110,10 @@ class WoRMS_post_process
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
             }
-            $this->archive_builder->write_object_to_file($o);
+            if(!isset($this->occurrenceIDs[$o->occurrenceID])) {
+                $this->archive_builder->write_object_to_file($o);
+                $this->occurrenceIDs[$o->occurrenceID] = '';
+            }
             // if($i >= 10) break; //debug only
         }
     }
