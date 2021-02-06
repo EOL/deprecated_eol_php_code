@@ -15,6 +15,8 @@ class TraitGeneric
     {
         if($value == 'DISCARD') return false;
         if($measurementType == 'DISCARD') return false;
+        if(!$value) return false;
+        if(!$measurementType) return false;
 
         // /* Per Jen: https://eol-jira.bibalex.org/browse/DATA-1863?focusedCommentId=65399&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65399
         // - MeasurementOfTaxon should be blank for child records.

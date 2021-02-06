@@ -1028,7 +1028,10 @@ class WormsArchiveAPI
                 $save['measurementUnit'] = self::format_measurementUnit($rec); //no instruction here
                 $mTypev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementType'], 'mType', 'child of Body size');
                 $mValuev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 'mValue', "child of Body size-".$rec['http://rs.tdwg.org/dwc/terms/measurementType']);
-                if($mValuev == 'DISCARD') continue;
+                // /* both of these are synonymous to one another. FILTER OUT - just the metadata, not the MoF record
+                if($mValuev == 'DISCARD') continue; //no case yet in metastats-2.tsv
+                if($mValuev == 'FILTER OUT') continue; //with case already in metastats-2.tsv
+                // */
                 $this->func->pre_add_string_types($save, $mValuev, $mTypev, "child");
                 // break; //do this if you want to proceed create DwCA
                 continue; //part of real operation. Can go next row now
