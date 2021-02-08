@@ -263,6 +263,7 @@ class DwCA_Utility
             $func->remove_surrogates_from_GBIF($info);
         }
         if(in_array($this->resource_id, array('21_ENV', '617_ENV', '26_ENV'))) { //first 2 clients: Amphibiaweb, Wikipedia EN
+            echo "\nGoes here: [$this->resource_id]\n";
             require_library('connectors/Environments2EOLfinal');
             $func = new Environments2EOLfinal($this->archive_builder, $this->resource_id);
             $func->start($info);
