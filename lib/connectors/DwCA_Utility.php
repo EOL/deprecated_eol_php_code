@@ -12,12 +12,12 @@ class DwCA_Utility
         if($folder) {
             $this->resource_id = $folder;
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
-            $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+            $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array("directory_path" => $this->path_to_archive_directory));
         }
         $this->params = $params;
         $this->dwca_file = $dwca_file;
         /* un-comment if it will cause probs to other connectors
-        $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26);
+        $this->download_options = array("download_wait_time" => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26);
         $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
         */
         $this->debug = array();
@@ -51,7 +51,7 @@ class DwCA_Utility
         $this->public_domains = array("http://creativecommons.org/licenses/publicdomain/", "https://creativecommons.org/share-your-work/public-domain/", "https://creativecommons.org/share-your-work/public-domain/cc0/");
     }
 
-    private function start($dwca_file = false, $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*1)) //probably default expires in 1 day 60*60*24*1. Not false.
+    private function start($dwca_file = false, $download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1)) //probably default expires in 1 day 60*60*24*1. Not false.
     {
         if($dwca_file) $this->dwca_file = $dwca_file; //used by /conncectors/lifedesk_eol_export.php
         
@@ -105,17 +105,17 @@ class DwCA_Utility
         echo "\nConverting archive to EOL DwCA...\n";
         
         //placeholder for customized resources with respective download_options
-        if(in_array($this->resource_id, array('170_final', 'BF'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //1 month expire
-        elseif(in_array($this->resource_id, array('wikimedia_comnames', '71_new', '368_removed_aves', 'itis_2019-08-28', 'itis_2020-07-28', 'itis_2020-12-01', '368_final'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
-        elseif(in_array($this->resource_id, array('wiki_en_report'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
-        elseif(in_array($this->resource_id, array('globi_associations'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24)); //expires in a day
-        elseif(in_array($this->resource_id, array('gbif_classification', 'gbif_classification_without_ancestry', 'gbif_classification_final', 
-                                                  '26', '368_removed_aves', '617_ENV', 'wikipedia_en_traits_FTG'))) {
-            if(Functions::is_production()) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
-            else                           $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
+        if(in_array($this->resource_id, array("170_final", "BF"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24*30)); //1 month expire
+        elseif(in_array($this->resource_id, array("wikimedia_comnames", "71_new", "368_removed_aves", "itis_2019-08-28", "itis_2020-07-28", "itis_2020-12-01", "368_final"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
+        elseif(in_array($this->resource_id, array("wiki_en_report"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
+        elseif(in_array($this->resource_id, array("globi_associations"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24)); //expires in a day
+        elseif(in_array($this->resource_id, array("gbif_classification", "gbif_classification_without_ancestry", "gbif_classification_final', 
+                                                  '26", "368_removed_aves", "617_ENV", "wikipedia_en_traits_FTG"))) {
+            if(Functions::is_production()) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
+            else                           $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
         }
-        elseif(substr($this->resource_id,0,3) == 'SC_' || substr($this->resource_id,0,2) == 'c_') $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*1)); //1 day expire
-        elseif(stripos($this->resource_id, "_meta_recoded") !== false) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //0 orig expires now | during dev false
+        elseif(substr($this->resource_id,0,3) == 'SC_' || substr($this->resource_id,0,2) == 'c_') $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24*1)); //1 day expire
+        elseif(stripos($this->resource_id, "_meta_recoded") !== false) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //0 orig expires now | during dev false
         else $info = self::start(); //default doesn't expire. Your call.
 
         $temp_dir = $info['temp_dir'];
@@ -145,9 +145,9 @@ class DwCA_Utility
             /* not used
             if($this->resource_id == 'globi_associations_refuted') break; //all extensions will be processed elsewhere IN real operation.
             */
-                if(in_array($this->resource_id, array('368_removed_aves', 'wiki_en_report'))) break; //all extensions will be processed elsewhere.
-            elseif(in_array($this->resource_id, array('BF', 'gbif_classification', 'gbif_classification_without_ancestry', 'gbif_classification_final', 
-                                                      '708'))) break; //all extensions will be processed elsewhere.
+                if(in_array($this->resource_id, array("368_removed_aves", "wiki_en_report"))) break; //all extensions will be processed elsewhere.
+            elseif(in_array($this->resource_id, array("BF", "gbif_classification", "gbif_classification_without_ancestry", "gbif_classification_final", 
+                                                      "708"))) break; //all extensions will be processed elsewhere.
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
@@ -217,7 +217,7 @@ class DwCA_Utility
             $func = new BirdsADW_Data($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        if(in_array($this->resource_id, array('parent_basal_values_Carnivora', 'parent_basal_values'))) {
+        if(in_array($this->resource_id, array("parent_basal_values_Carnivora", "parent_basal_values"))) {
             require_library('connectors/SDRreportLib');
             $func = new SDRreportLib($this->archive_builder, $this->resource_id);
             $func->start($info);
@@ -227,7 +227,7 @@ class DwCA_Utility
             $func = new RemoveAvesChildrenAPI($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        if(in_array($this->resource_id, array('itis_2019-08-28', 'itis_2020-07-28', 'itis_2020-12-01', '368_final'))) { //all resources which undergo SynonymsHandling
+        if(in_array($this->resource_id, array("itis_2019-08-28", "itis_2020-07-28", "itis_2020-12-01", "368_final"))) { //all resources which undergo SynonymsHandling
             require_library('connectors/SynonymsHandlingAPI');
             $func = new SynonymsHandlingAPI($this->archive_builder, $this->resource_id);
             $func->synonym_updates($info);
@@ -262,37 +262,37 @@ class DwCA_Utility
             $func = new RemoveSurrogatesGBIF($this->resource_id, $this->archive_builder);
             $func->remove_surrogates_from_GBIF($info);
         }
-        if(in_array($this->resource_id, array('21_ENV', '617_ENV', '26_ENV'))) { //first 2 clients: Amphibiaweb, Wikipedia EN
-            echo "\nGoes here: [$this->resource_id]\n";
+        if(in_array($this->resource_id, array("21_ENV", "617_ENV", "26_ENV"))) { //first 2 clients: Amphibiaweb, Wikipedia EN
+            echo "\nGoes here really: [$this->resource_id]\n";
             require_library('connectors/Environments2EOLfinal');
             $func = new Environments2EOLfinal($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
         /*
-        if(in_array($this->resource_id, array('21_ENVO', '617_ENVO'))) { exit("\nOBSOLETE: Vangelis path\n");
+        if(in_array($this->resource_id, array("21_ENVO", "617_ENVO"))) { exit("\nOBSOLETE: Vangelis path\n");
             require_library('connectors/EnvironmentsFilters');
             $func = new EnvironmentsFilters($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
         */
-        if(in_array($this->resource_id, array('708', '21_final', '617_final'))) {
+        if(in_array($this->resource_id, array("708", "21_final", "617_final"))) {
             require_library('connectors/New_EnvironmentsEOLDataConnector');
             $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
         // /* parts of a whole: will run one after the other --------------------
-        if(in_array($this->resource_id, array('wikipedia_en_traits_FTG'))) { //calls FTG library
+        if(in_array($this->resource_id, array("wikipedia_en_traits_FTG"))) { //calls FTG library
             require_library('connectors/FilterTermGroupByTaxa');
             $func = new FilterTermGroupByTaxa($this->archive_builder, $this->resource_id, $this->params);
             $func->start($info);
         }
-        if(in_array($this->resource_id, array('wikipedia_en_traits'))) { //calls a generic utility
+        if(in_array($this->resource_id, array("wikipedia_en_traits"))) { //calls a generic utility
             require_library('connectors/ResourceUtility');
             $func = new ResourceUtility($this->archive_builder, $this->resource_id);
             $func->remove_taxa_without_MoF($info);
         }
         // -------------------- */
-        if(in_array($this->resource_id, array('WoRMS2EoL_zip'))) { //calls a generic utility
+        if(in_array($this->resource_id, array("WoRMS2EoL_zip"))) { //calls a generic utility
             require_library('connectors/ResourceUtility');
             $func = new ResourceUtility($this->archive_builder, $this->resource_id);
             $func->gen_canonical_list_from_taxa($info);
@@ -304,7 +304,7 @@ class DwCA_Utility
             $func->report_4_Wikipedia_EN_traits($info);
             exit("\n-stop munax-\n");
         }
-        if(in_array($this->resource_id, array('368_merged_MoF'))) {
+        if(in_array($this->resource_id, array("368_merged_MoF"))) {
             require_library('connectors/MergeMoFrecordsAPI');
             $func = new MergeMoFrecordsAPI($this->archive_builder, $this->resource_id);
             $func->start($info);
@@ -407,13 +407,13 @@ class DwCA_Utility
     function convert_archive_normalized() //this same as above two, but this removes taxa that don't have objects. Only taxa with objects will remain in taxon.tab.
     {
         echo "\ndoing this: convert_archive_normalized()\n";
-        $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0));
+        $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0));
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];
         $index = $info['index'];
 
-        if($records = $harvester->process_row_type('http://eol.org/schema/media/Document'))
+        if($records = $harvester->process_row_type("http://eol.org/schema/media/Document"))
         {
             $taxon_ids_with_objects = self::build_taxonIDs_with_objects_array($records);        echo "\n1 of 3\n";
             $records = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon');      echo "\n2 of 3\n";
@@ -605,7 +605,7 @@ class DwCA_Utility
                 /* Need to have unique taxon ids. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique taxon ids.
                 Useful for e.g. DATA-1724 resource 'plant_forms_habitat_and_distribution'.
                 */
-                if(in_array($this->resource_id, array('plant_forms_habitat_and_distribution-adjusted', '1000_final', 'fwater_marine_image_bank_meta_recoded')) || in_array(substr($this->resource_id,0,3), array('LD_', 'EOL'))) {
+                if(in_array($this->resource_id, array("plant_forms_habitat_and_distribution-adjusted", "1000_final", "fwater_marine_image_bank_meta_recoded")) || in_array(substr($this->resource_id,0,3), array("LD_", "EOL"))) {
                     if($class == "taxon") {
                         if($field == "taxonID") {
                             $taxon_id = @$rec[$key];
@@ -621,7 +621,7 @@ class DwCA_Utility
                 /* Need to have unique occurrenceIDs. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique occurrenceIDs.
                 Useful for e.g. DATA-1841 resource '1000_final'.
                 */
-                if(in_array($this->resource_id, array('1000_final'))) {
+                if(in_array($this->resource_id, array("1000_final"))) {
                     if($class == "occurrence") {
                         if($field == "occurrenceID") {
                             $occurrence_id = @$rec[$key];
@@ -640,7 +640,7 @@ class DwCA_Utility
                 /*
                 Also used for: https://eol-jira.bibalex.org/browse/DATA-1733 --> Shelled_animal_body_mass, added this resource bec. it doesn't have unique ref ids.
                 */
-                if(in_array($this->resource_id, array('plant_forms_habitat_and_distribution-adjusted', 'Shelled_animal_body_mass-adjusted'))) {
+                if(in_array($this->resource_id, array("plant_forms_habitat_and_distribution-adjusted", "Shelled_animal_body_mass-adjusted"))) {
                     if($class == "reference") {
                         if($field == "identifier") {
                             $identifier = @$rec[$key];
@@ -656,7 +656,7 @@ class DwCA_Utility
                 /* measurementType must have value. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have non-null measurementType.
                 Useful for e.g. https://eol-jira.bibalex.org/browse/DATA-1733 - 'Shelled_animal_body_mass'
                 */
-                if(in_array($this->resource_id, array('Shelled_animal_body_mass-adjusted'))) {
+                if(in_array($this->resource_id, array("Shelled_animal_body_mass-adjusted"))) {
                     if($class == "measurementorfact") {
                         if($field == "measurementType" && !@$rec[$key]) { //meaning measurementType is blank or null, then exclude entire row.
                             $c = false; break;
@@ -680,7 +680,7 @@ class DwCA_Utility
                 
                 /* Need to have unique agent ids. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique ref ids.
                 First used for DATA-1569 resource 'lifedesks.tar.gz', connector [lifedesk_eol_export.php] */
-                if(in_array($this->resource_id, array('lifedesks')) || in_array(substr($this->resource_id,0,3), array('LD_', 'EOL'))) {
+                if(in_array($this->resource_id, array("lifedesks")) || in_array(substr($this->resource_id,0,3), array("LD_", "EOL"))) {
                     if($class == "agent") {
                         if($field == "identifier") {
                             $identifier = @$rec[$key];
@@ -694,7 +694,7 @@ class DwCA_Utility
                 }
 
                 /* Need to have unique taxon ids. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique taxon ids.*/
-                if(in_array($this->resource_id, array('Carrano_2006_meta_recoded'))) {
+                if(in_array($this->resource_id, array("Carrano_2006_meta_recoded"))) {
                     if($class == "taxon") {
                         if($field == "taxonID") {
                             $identifier = @$rec[$key];
@@ -912,7 +912,7 @@ class DwCA_Utility
             $i++;
             $taxon_id = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
             $taxon_status = (string) @$rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
-            if(!in_array($taxon_id, $taxon_ids_with_objects) && !in_array($taxon_status, array('synonym'))) $records[$i] = null;
+            if(!in_array($taxon_id, $taxon_ids_with_objects) && !in_array($taxon_status, array("synonym"))) $records[$i] = null;
         }
         $records = array_filter($records); //remove null arrays
         $records = array_values($records); //reindex key
