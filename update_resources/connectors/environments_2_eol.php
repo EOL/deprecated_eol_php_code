@@ -147,6 +147,20 @@ Combined MoF:
 "occurrence_specific.tab":2170859, "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":2733, "min":45.55, "hr":0.76}}
 26_ENV	Thu 2020-12-24 01:35:09 AM	{"agent.tab":1690, "measurement_or_fact_specific.tab":2548585, "media_resource.tab":91778, 
 "occurrence_specific.tab":2170848, "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":2537.16, "min":42.29, "hr":0.7}}
+
+Time where error is admitted. Causing big increase in occurrence here. Found the problem -> in_array($resource_id, array()). resource_id has to be "26" and not 26 integer.
+Another change here is adding lifeStage URI instead of just string.
+26_ENV	Fri 2021-02-05 02:40:16 AM	{"agent.tab":1709, "measurement_or_fact_specific.tab":2552252, "media_resource.tab":92007, 
+"occurrence_specific.tab":4335418, "reference.tab":677563, "taxon.tab":369567, "vernacular_name.tab":85178, "time_elapsed":{"sec":3080.13, "min":51.34, "hr":0.86}}
+
+Here should fix the big occurrence:
+26	Mon 2021-02-08 05:35:41 AM	{"agent.tab":1709, "measurement_or_fact_specific.tab":3335411, "media_resource.tab":92007, "occurrence_specific.tab":2163968, "reference.tab":677563, "taxon.tab":369567, "vernacular_name.tab":85178, "time_elapsed":false}
+26_meta_recoded_1	Mon 2021-02-08 06:48:16 AM	{"agent.tab":1709, "measurement_or_fact_specific.tab":3190943, "media_resource.tab":92007, "occurrence.tab":2163968, "reference.tab":677563, "taxon.tab":369567, "vernacular_name.tab":85178, "time_elapsed":{"sec":3256.18, "min":54.27, "hr":0.9}}
+26_meta_recoded	Mon 2021-02-08 07:35:52 AM	{"agent.tab":1709, "measurement_or_fact_specific.tab":2544770, "media_resource.tab":92007, 
+"occurrence_specific.tab":2163968, "reference.tab":677563, "taxon.tab":369567, "vernacular_name.tab":85178, "time_elapsed":{"sec":2855.44, "min":47.59, "hr":0.79}}
+26_ENV	Mon 2021-02-08 08:18:55 AM	{"agent.tab":1709, "measurement_or_fact_specific.tab":2548511, "media_resource.tab":92007, 
+"occurrence_specific.tab":2167709, "reference.tab":677563, "taxon.tab":369567, "vernacular_name.tab":85178, "time_elapsed":{"sec":2582.03, "min":43.03, "hr":0.72}}
+===================================================================================================================== WoRMS end
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
