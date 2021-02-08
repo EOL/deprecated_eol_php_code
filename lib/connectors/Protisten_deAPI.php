@@ -192,6 +192,7 @@ class Protisten_deAPI
             $taxon->scientificName          = $r['sciname'];
             
             if($EOLid = @$this->taxon_EOLpageID[$r['sciname']]) $taxon->EOLid = $EOLid; // http://eol.org/schema/EOLid
+            if(isset($this->remove_scinames[$r['sciname']])) continue;
             
             $taxon->parentNameUsageID       = $r['parent_id'];
             $taxon->furtherInformationURL   = $r['source_url'];
@@ -282,7 +283,7 @@ class Protisten_deAPI
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1QnT-o-t4bVp-BP4jFFA-Alr4PlIj7fAD6RRb5iC6BYA';
-        $params['range']         = 'Sheet1!A2:B40'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'Sheet1!A2:D70'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $arr = $func->access_google_sheet($params); // print_r($arr); exit;
         /*Array(
             [0] => Array(
@@ -292,10 +293,19 @@ class Protisten_deAPI
             [1] => Array(
                     [0] => Ankistrodesmus gracilis
                     [1] => https://eol.org/pages/6051692
+            [37] => Array(
+                    [0] => Edaphoallogromia australica
+                    [1] => https://eol.org/pages/12155574
+                    [2] => Lieberkuehnia wageneri
+                    [3] => https://eol.org/pages/39306525
                 )
         */
-        foreach($arr as $rec) $this->taxon_EOLpageID[$rec[0]] = pathinfo($rec[1], PATHINFO_BASENAME);
-        print_r($this->taxon_EOLpageID); //exit;
+        foreach($arr as $rec) {
+            $this->taxon_EOLpageID[$rec[0]] = pathinfo($rec[1], PATHINFO_BASENAME);
+            if($val = @$rec[2]) $this->remove_scinames[$val] = '';
+        }
+        print_r($this->taxon_EOLpageID);
+        print_r($this->remove_scinames); //exit;
     }
 }
 ?>
