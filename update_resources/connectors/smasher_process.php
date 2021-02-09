@@ -58,36 +58,17 @@ $p["ERE"] = array("desc" => "EOL Dynamic Hierarchy Erebidae Patch", "url" => "ht
 $p["COC"] = array("desc" => "EOL Dynamic Hierarchy Coccinelloidea Patch", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/eolcoccinelloideapatch/taxa.txt");
 $p["VSP"] = array("desc" => "EOL Dynamic Hierarchy Vespoidea Patch", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/eolvespoideapatch/taxa.txt");
 $p["ONY"] = array("desc" => "Oliveira et al. 2012 Onychophora Classification", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/onychophora/taxa.txt");
-
-$p["ANN"] = array("desc" => "EOL Annelida Patch", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/xxx/xxx.xxx");
-
-$p["TRI"] = array("desc" => "EOL Trilobites Patch", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/xxx/xxx.xxx");
-
-Catalogue of Life Collembola	SPR	open data
-$p["xxx"] = array("desc" => "xxx", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/xxx/xxx.xxx");
-
-ITIS extract	ITIS	open data
-$p["xxx"] = array("desc" => "xxx", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/xxx/xxx.xxx");
-
-EOL Microbes Patch	MIP	open data
-$p["xxx"] = array("desc" => "xxx", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/xxx/xxx.xxx");
-
-NCBI extract	NCBI	open data
-$p["xxx"] = array("desc" => "xxx", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/xxx/xxx.xxx");
-
-WoRMS extract	WOR	open data
-$p["xxx"] = array("desc" => "xxx", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/xxx/xxx.xxx");
-
-EOL Crustacea Patch	CRU	open data
-$p["xxx"] = array("desc" => "xxx", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/xxx/xxx.xxx");
-
-EOL Mollusca Patch	MOL	open data
-$p["xxx"] = array("desc" => "xxx", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/xxx/xxx.xxx");
-
-Catalogue of Life extract	COL	open data
-$p["xxx"] = array("desc" => "xxx", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/xxx/xxx.xxx");
+$p["ANN"] = array("desc" => "EOL Annelida Patch", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/eolannelidapatch/taxon.txt");
+$p["TRI"] = array("desc" => "EOL Trilobites Patch", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/eoltrilobitespatch/taxa.txt");
+$p["SPR"] = array("desc" => "Catalogue of Life Collembola", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/Collembola_DH/taxon.tab");
+$p["ITIS"] = array("desc" => "ITIS extract", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/itis_2020-12-01/taxon.tab");
+$p["MIP"] = array("desc" => "EOL Microbes Patch", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/eolmicrobespatch/taxa.txt");
+$p["NCBI"] = array("desc" => "NCBI extract", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/NCBI_Taxonomy_Harvest_DH/taxon.tab");
+$p["WOR"] = array("desc" => "WoRMS extract", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/WoRMS_DH/taxon.tab");
+$p["CRU"] = array("desc" => "EOL Crustacea Patch", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/eolcrustaceapatch/taxa.txt");
+$p["MOL"] = array("desc" => "EOL Mollusca Patch", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/eolmolluscapatch/taxa.txt");
+$p["COL"] = array("desc" => "Catalogue of Life extract", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/Catalogue_of_Life_DH_2019/taxon.tab");
 // */
-
 
 
 // /* sample IOC process.txt  -> should get 18990
@@ -121,9 +102,6 @@ $first = Array(
     'taxon_id' => 769244);
 $sciname = "Aahithis Schallreuter, 1988";
 */
-
-
-
 /*
 $rek = Array(
     'taxonID' => -2318121,
