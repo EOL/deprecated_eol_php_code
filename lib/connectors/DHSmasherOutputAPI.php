@@ -792,8 +792,7 @@ class DHSmasherOutputAPI
             'taxon_id' => 724953); */
         
         /*
-        $rek = Array
-        (
+        $rek = Array(
             'taxonID' => -5447000,
             'acceptedNameUsageID' => -5447000,
             'parentNameUsageID' => -17961,
@@ -802,15 +801,12 @@ class DHSmasherOutputAPI
             'source' => 'trunk:00000000-76c9-439d-82a4-8f592fd6f68c',
             'taxonomicStatus' => 'accepted'
         );
-        $first = Array
-        (
+        $first = Array(
             'first_source' => 'trunk:00000000-76c9-439d-82a4-8f592fd6f68c',
             'acronym' => 'trunk',
             'taxon_id' => '00000000-76c9-439d-82a4-8f592fd6f68c'
         );
         */
-        
-        
         
         $d['fetched'] = self::fetch_record($first, $rek); //$rek is smasher record
         // print_r($d); //exit;
