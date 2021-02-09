@@ -3042,7 +3042,7 @@ class WikiDataAPI extends WikipediaAPI
                 if($filename = self::taxon_media($title)) {
                     $i++; if(($i % 100000) == 0) echo("\n".number_format($i).". saving content"); //just a row count indicator
                     $month_num = date('m'); //if month is February value is 02
-                    if(in_array($month_num, array('03','06','09','12'))) { //scheduled quarterly to refresh all cached information from XML.
+                    if(in_array($month_num, array('04','08','12'))) { //scheduled every other month (2,4,6,8,10,12) to refresh all cached information from XML (4,8,12 only).
                         $json = json_encode($t);
                         if($FILE = Functions::file_open($filename, 'w')) { // normal
                             fwrite($FILE, $json);
