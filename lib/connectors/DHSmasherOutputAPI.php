@@ -19,7 +19,9 @@ class DHSmasherOutputAPI
         $this->print_header = true;
         
         $this->download_options = array(
-            'cache_path'         => '/Volumes/Thunderbolt4/eol_cache_gbif/',  //used in MacBook - generating map data using GBIF API and also the dynamic hierarchy smasher file process.
+            'cache_path' => '/Volumes/Thunderbolt4/eol_cache_gbif/',  //used in generating map data using GBIF API and 
+                                                                      // also the dynamic hierarchy smasher file process.
+                                                                      // Truncated as of 2021_02_09
             // 'expire_seconds'     => 5184000, //orig 2 months to expire
             'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->download_options['expire_seconds'] = false; //debug | true -- expires now
@@ -37,14 +39,14 @@ class DHSmasherOutputAPI
         $this->webservice['AphiaRecordByAphiaID'] = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
         
         //services
-        $this->smasher_cache = "/Volumes/Thunderbolt4/eol_cache_smasher/";
-        $this->smasher_cache_noID = "/Volumes/Thunderbolt4/eol_cache_smasher_noID/";
+        $this->smasher_cache = "/Volumes/AKiTiO4/eol_cache_smasher/";              // carried over from last smasher run
+        $this->smasher_cache_noID = "/Volumes/AKiTiO4/eol_cache_smasher_noID/";    // Truncated as of 2021_02_09
         
         //TRAM-581
         $this->url['api_search'] = "http://eol.org/api/search/1.0.json?page=1&exact=true&cache_ttl=&q=";
         $this->download_options2 = array("resource_id" => "trait_request", "download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1);
         $this->download_options2['expire_seconds'] = false;
-        $this->path_EHE_tsv_files = CONTENT_RESOURCE_LOCAL_PATH . "smasher_EHE_3/";
+        $this->path_EHE_tsv_files = CONTENT_RESOURCE_LOCAL_PATH . "smasher_EHE_3/";     // Truncated as of 2021_02_09
         
         //furtherInformationURLs
         $this->fiu["APH"] = "http://aphid.speciesfile.org/Common/basic/Taxa.aspx?TaxonNameID=";
