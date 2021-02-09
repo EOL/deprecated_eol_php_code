@@ -664,11 +664,9 @@ class DHSmasherOutputAPI
                 if($rek)
                 {
                     // for caching gbif name service start with 335975
-                    // /* breakdown when caching:
+                    /* breakdown when caching:
                     $cont = false;
-
                     if($i >= 857805) $cont = true; //GBIF name service
-                    
                     // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
                     // if($i >=  $m*2 && $i < $m*3) $cont = true;
@@ -693,12 +691,11 @@ class DHSmasherOutputAPI
                     // if($i >=  $m*21 && $i < $m*22) $cont = true;
                     // if($i >=  $m*22 && $i < $m*23) $cont = true;
                     // if($i >=  $m*23 && $i < $m*24) $cont = true;
-
                     if(!$cont) continue;
-                    // */
+                    */
                     
                     // echo "\nsmasher record: ----------------------------";
-                    // print_r($rek); //debug only
+                    print_r($rek); exit; //debug only
                     $first_source = self::get_first_source($rek['source']);
                     // print_r($first_source);
                     
