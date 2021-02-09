@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
-/* connector: [dwh_v2.php] */
-class DHSourceHierarchiesAPI_v2
+/* connector: [dwh_v3.php] */
+class DHSourceHierarchiesAPI_v3
 {
     function __construct($folder = "") //sometimes blank bec. e.g. used in ---> private function get_meta_info()
     {

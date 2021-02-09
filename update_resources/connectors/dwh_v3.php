@@ -1,17 +1,18 @@
 <?php
 namespace php_active_record;
-/* For the 2nd smasher run.
-https://eol-jira.bibalex.org/browse/TRAM-805: Dynamic Hierarchy Version 1.1.
+/* For the 3rd smasher run.
+TRAM-991: Smasher run for DH 2
 
-Note: separation files in zip format is provided by Katja, both for ver 1.0 (newSeparationFiles.zip) and ver 1.1 (separationFiles.zip)
-
+Note: separation files in zip format is provided by Katja, both for ver 1.0 (newSeparationFiles.zip) and 
+                                                                    ver 1.1 (separationFiles.zip) and now
+                                                                    taxonomy.tsv attached in TRAM-991
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 /* e.g. php dws.php _ gbif */
 $cmdline_params['jenkins_or_cron']  = @$argv[1]; //irrelevant here
 $cmdline_params['what']             = @$argv[2]; //useful here
 
-require_library('connectors/DHSourceHierarchiesAPI_v2');
+require_library('connectors/DHSourceHierarchiesAPI_v3');
 $timestart = time_elapsed();
 ini_set('memory_limit','7096M'); //required
 
@@ -30,7 +31,8 @@ exit("\n");
 
 // /* //main operation ------------------------------------------------------------
 $resource_id = "2019_04_04";
-$func = new DHSourceHierarchiesAPI_v2($resource_id);
+$resource_id = "2021_02_09";
+$func = new DHSourceHierarchiesAPI_v3($resource_id);
 // $func->start($cmdline_params['what']); //main to generate the respective taxonomy.tsv (and synonym.tsv if available).
 
 // $func->syn_integrity_check(); exit("\n-end syn_integrity_check-\n"); //to check record integrity of synoyms spreadsheet: 1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng
