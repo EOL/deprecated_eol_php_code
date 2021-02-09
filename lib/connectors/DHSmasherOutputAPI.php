@@ -1,9 +1,14 @@
 <?php
 namespace php_active_record;
-/* connector: freedata_globi.php 
+/* seems from a copied template:
+connector:
 added 1st column headers in its resource file:
 dynamichierarchytrunk14jun201720170615085118/
 */
+
+/* connector: smasher_process.php OK
+*/
+
 class DHSmasherOutputAPI
 {
     function __construct($params)
