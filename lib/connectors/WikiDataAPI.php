@@ -2995,7 +2995,9 @@ class WikiDataAPI extends WikipediaAPI
     
     // ============================ start temp file generation ================================================================================================
     function create_temp_files_based_on_wikimedia_filenames()
-    {   /*
+    {   /* # Can be repeated from this point.
+           # Especially if harvest was aborted due to maintenance, you can start here. */
+        /*
         $files = array();
         $files[] = "Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg";
         $files[] = "Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16531419109).jpg";
@@ -3022,7 +3024,8 @@ class WikiDataAPI extends WikipediaAPI
         }
     }
     function fill_in_temp_files_with_wikimedia_dump_data()
-    {
+    {   /* # Can be repeated from this point.
+           # Especially if harvest was aborted due to maintenance, you can start here. */
         $path = $this->path['commons'];
         $reader = new \XMLReader();
         $reader->open($path);
