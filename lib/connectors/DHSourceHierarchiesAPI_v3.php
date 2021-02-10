@@ -1447,6 +1447,9 @@ php update_resources/connectors/dwh_v3.php _ TRI
     }
     private function Taxa2Remove_from_DH_Resources()
     {
+        // /* waiting on Katja
+        return array();
+        // */
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1fK4QzdExFRY16Du8nSAY2sJf8NeykkFB8fD0DyKu2nM'; //same spreadsheet in ver 1.0 and ver 1.1
