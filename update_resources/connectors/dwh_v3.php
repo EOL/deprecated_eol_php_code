@@ -5,7 +5,7 @@ TRAM-991: Smasher run for DH 2
 
 Note: separation files in zip format is provided by Katja, both for ver 1.0 (newSeparationFiles.zip) and 
                                                                     ver 1.1 (separationFiles.zip) and now
-                                                                    taxonomy.tsv attached in TRAM-991
+                                                                    ver 2.0 taxonomy.tsv attached in TRAM-991
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 /* e.g. php dws.php _ gbif */

@@ -126,9 +126,31 @@ class DHSourceHierarchiesAPI_v3
 php update_resources/connectors/dwh_v3.php _ TRI
 */        
         // /* THIS IS FROM LATEST RUN: TRAM-991
+        $all = array("trunk", "ictv", "dino", "MAM", "IOC", "LIZ", "ODO", "BOM", "ERE", "COC", "VSP", "ONY", "ANN", "TRI", "SPR", "ITIS", "MIP", "NCBI", "WOR", "CRU", "MOL", "COL");
+        foreach($all as $acronym) $run_gnparse[$acronym] = false;
+        // So the only resources that need running through gnparser to generate canonicals are: LIZ,ODO,BOM,COC,VSP,ANN,TRI,WOR,CRU,MOL
+        $acronyms = array("LIZ", "ODO", "BOM", "COC", "VSP", "ANN", "TRI", "WOR", "CRU", "MOL");
+        foreach($acronyms as $acronym) $run_gnparse[$acronym] = true;
+        
+        $this->sh['trunk']['source']        = $this->main_path."/dhtrunk27jan2021/"; //EOL Dynamic Hierarchy Trunk
+        $this->sh['trunk']['has_syn']       = false;
+        $this->sh['trunk']['run_gnparse']   = $run_gnparse["trunk"]; //false;
+        
+        $this->sh['ictv']['source']         = $this->main_path."/ICTV-virus_taxonomy-with-higherClassification/"; //ICTV Virus Taxonomy
+        $this->sh['ictv']['has_syn']        = false;
+        $this->sh['ictv']['run_gnparse']    = $run_gnparse["ictv"]; //false;
+        
+        $this->sh['dino']['source']         = $this->main_path."/eoldinosauriapatch/"; //EOL Dynamic Hierarchy Dinosauria Patch
+        $this->sh['dino']['has_syn']        = false;
+        $this->sh['dino']['run_gnparse']    = $run_gnparse["dino"]; //false;
+
+        $this->sh['IOC']['source']          = $this->main_path."/ioc-birdlist/"; //IOC World Bird List
+        $this->sh['IOC']['has_syn']         = false;
+        $this->sh['IOC']['run_gnparse']     = $run_gnparse["IOC"]; //false;
+        
         $this->sh['TRI']['source']          = $this->main_path."/eoltrilobitespatch/"; //EOL Trilobites Patch
         $this->sh['TRI']['has_syn']         = false;
-        $this->sh['TRI']['run_gnparse']     = true;
+        $this->sh['TRI']['run_gnparse']     = $run_gnparse["TRI"]; //true;
         
         // --------------------------------------------------------------------------------------------------- */
 
@@ -801,7 +823,7 @@ php update_resources/connectors/dwh_v3.php _ TRI
             }
             $t = array();
             $t['parent_id']     = $rec['parentNameUsageID'];
-            $t['name']          = self::fix_sciname($rec['scientificName']);
+            $t['name']          = self::fix_sciname($rec, $meta); //ditox Katja has specs
             $t['taxon_id']      = $rec['taxonID'];
             $t['accepted_id']   = @$rec['acceptedNameUsageID'];
             $t['rank']          = ($val = @$rec['taxonRank']) ? self::clean_rank($val): "no rank";
@@ -981,7 +1003,7 @@ php update_resources/connectors/dwh_v3.php _ TRI
         }
         elseif($what == "NCBI") { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; } //accepted
         elseif(in_array($what, array("ictv", "IOC"))) {
-            if(!$rec['taxonomicStatus']) return true; //blank, all taxa
+            if(!@$rec['taxonomicStatus']) return true; //blank, all taxa
             else exit("\nShould not come here 02 [$what].\n");
         }
         elseif(in_array($what, array("trunk", "ITIS"))) {
@@ -1183,8 +1205,9 @@ php update_resources/connectors/dwh_v3.php _ TRI
         }
         return $str;
     }
-    private function fix_sciname($str)
+    private function fix_sciname($rec, $meta)
     {
+        $str = $rec['scientificName'];
         $str = str_replace('"', "", $str);
         $str = str_replace(",,", ",", $str); //e.g. Matsucoccus sinensis Chen,, 1937
         //from COL ======================================================================================================= start
@@ -1214,6 +1237,43 @@ php update_resources/connectors/dwh_v3.php _ TRI
         $str = str_ireplace("?erný", "Černý", $str);
         $str = str_ireplace("?tyroký", "Čtyroký", $str);
         $str = str_ireplace("†", "", $str); //remove dagger
+        
+        /* for TRAM-991 ------------------
+        • Several of the resources already have canonical name values: trunk, dino,IOC (except for a few higher taxon names where 
+        scientificName = canonical),MAM,ERE,ONY,ITIS,MIP. Whenever a canonical value is available in the resource, 
+        we should use that rather than getting it through gnparser. */
+        $acronyms = array("trunk", "dino", "MAM", "ERE", "ONY", "ITIS", "MIP");
+        if(in_array($meta['what'], $acronyms)) {
+            if($val = $rec['canonicalName']) return $val;
+            else exit("\nINVESTIGATE. Said to have canonicalName: ".$meta['what']."\n");
+        }
+        elseif($meta['what'] == "IOC") {
+            if($val = $rec['canonicalName']) return $val;
+            else {
+                if($rec['scientificName'] == Functions::canonical_form($rec['scientificName'])) return $rec['scientificName'];
+                else exit("\nInvestigate 01: [".$rec['canonicalName']."] -- [".$rec['scientificName']."] -- [".$str."]\n");
+            }
+        }
+        // print_r($meta); exit("\nstop muna...\n");
+        /*Array(
+            [fields] => Array(
+                    [0] => taxonID
+                    [1] => scientificName
+                    [2] => taxonRank
+                    [3] => parentNameUsageID
+                    [4] => taxonRemarks
+                    [5] => canonicalName
+                    [6] => source
+                    [7] => scientificNameAuthorship
+                )
+            [taxon_file] => taxon.tab
+            [file] => taxon.tab
+            [ignoreHeaderLines] => 1
+            [what] => IOC
+        )*/
+        //end for TRAM-991 ------------------
+        
+        
         return $str;
     }
     private function scan_resource_file($meta, $final) //a utility
