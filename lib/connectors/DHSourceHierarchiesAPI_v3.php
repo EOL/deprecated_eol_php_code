@@ -136,6 +136,14 @@ php update_resources/connectors/dwh_v3.php _ TRI
         $acronyms = array("LIZ", "ODO", "BOM", "COC", "VSP", "ANN", "TRI", "WOR", "CRU", "MOL");
         foreach($acronyms as $acronym) $run_gnparse[$acronym] = true;
 
+        $this->sh['NCBI']['source']          = $this->main_path."/NCBI_Taxonomy_Harvest_DH/"; //NCBI extract
+        $this->sh['NCBI']['has_syn']         = true;
+        $this->sh['NCBI']['run_gnparse']     = $run_gnparse["NCBI"];
+
+        $this->sh['BOM']['source']          = $this->main_path."/kitchingetal2018/"; //A global checklist of the Bombycoidea
+        $this->sh['BOM']['has_syn']         = true;
+        $this->sh['BOM']['run_gnparse']     = $run_gnparse["BOM"];
+
         $this->sh['MAM']['source']          = $this->main_path."/eolmammalpatch/"; //EOL Dynamic Hierarchy Mammals Patch
         $this->sh['MAM']['has_syn']         = true;
         $this->sh['MAM']['run_gnparse']     = $run_gnparse["MAM"];
@@ -1039,7 +1047,7 @@ php update_resources/connectors/dwh_v3.php _ TRI
             elseif(!$rec['taxonomicStatus']) return true;                                                             //accepted name, provisionally accepted name, blank
         }
         // */
-        // print_r($rec);
+        print_r($rec);
         // $this->debug[$rec['taxonID']] = ''; //for debug only
         exit("\nUndefined resource here [$what]\n");
     }
@@ -1050,7 +1058,10 @@ php update_resources/connectors/dwh_v3.php _ TRI
         elseif($what == "WOR")  { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; }
         */
         // /* for TRAM-991
-        if    ($what == "MAM")  { if(in_array($rec['taxonomicStatus'], array("invalid"))) return true; }
+        if    ($what == "BOM")  { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; }
+        elseif($what == "ODO")  { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; } //waiting confirmation from Katja
+        elseif($what == "MAM")  { if(in_array($rec['taxonomicStatus'], array("invalid"))) return true; }
+        elseif($what == "NCBI") { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; }
         // */
         return false;
     }
