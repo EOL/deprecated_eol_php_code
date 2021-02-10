@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* First draft of EOL Dynamic Hierarchy: Smasher output processing: https://eol-jira.bibalex.org/browse/TRAM-580 */
+/* First draft of EOL Dynamic Hierarchy: Smasher output processing: https://eol-jira.bibalex.org/browse/TRAM-580 
+This script processes the smasher output from eol-smasher server.
+*/
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // echo "\n[".Functions::canonical_form("Aahithis Schallreuter 1988")."]";
 // echo "\n[".Functions::canonical_form("Abstrusomyzus Jensen & Stoetzel, 1999")."]";
@@ -12,7 +14,7 @@ $timestart = time_elapsed();
 
 // This is built using this google sheet: https://docs.google.com/spreadsheets/d/1mBgsVZi1hqcwz37ZZI_5mEHdlXS_RiXpP_CY3RnLzXA/edit#gid=0
 // and this Dropbox folder: https://www.dropbox.com/scl/fo/nn34xhcjcoxnuro65ryve/AACaBly_BUjkJDHMdHBr-hoka?dl=0&oref=e&r=AAdw397jN5KF6_UtynJjAYlSPhAGW7V4VHBVxs7tSv4Rrj0brXhqgzCKAOvkTbx0j-Tv6NI8eLsU1QHfg3o8VTy8r6GqE0jbHGXkn0S411EhTgS3hd1dQaIIILlsVFUJhpqGuD3Y1PYN_lApCOIQL5JiLCSQfQwvFe7KhsqHx3311A&sm=1
-/* TRAM-800
+// /* TRAM-800
 $p["smasher"] = array("desc" => "Smasher Output file", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/EOLDynamicHierarchyDraftAug2017/dwh_taxa.txt");
 $p["EHE"] = array("desc" => "EOL Hierarchy Entries (EHE)", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/richness_and_names.tsv");
 $p["AMP"] = array("desc" => "Amphibia Genera & Species", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/amphibia/amphibia.txt");
@@ -44,8 +46,8 @@ $p["TPL"] = array("desc" => "The Plant List with literature", "url" => "http://l
 $p["trunk"] = array("desc" => "Dynamic Hierarchy Trunk 14 June 2017", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dynamichierarchytrunk14jun201720170615085118/taxon.txt");
 $p["WOR"] = array("desc" => "WoRMS: use original WoRMS2EOL file for this", "url" => "http://localhost/cp/WORMS/WoRMS2EoL/taxon.txt"); //will use downloaded Aug 16, 2017
 $p["ZOR"] = array("desc" => "Zoraptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-zoraptera-v1.4/taxon.txt");
-*/
-// /* TRAM-991
+// */
+/* TRAM-991 - this block was never used here yet. I'm not sure if it will ever be. Let us see...
 $p["trunk"] = array("desc" => "EOL Dynamic Hierarchy Trunk", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/dhtrunk27jan2021/taxon.txt");
 $p["ictv"] = array("desc" => "ICTV Virus Taxonomy", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/ICTV-virus_taxonomy-with-higherClassification/taxon.tab");
 $p["dino"] = array("desc" => "EOL Dynamic Hierarchy Dinosauria Patch", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/eoldinosauriapatch/taxa.txt");
@@ -68,7 +70,7 @@ $p["WOR"] = array("desc" => "WoRMS extract", "url" => "http://localhost/cp/dynam
 $p["CRU"] = array("desc" => "EOL Crustacea Patch", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/eolcrustaceapatch/taxa.txt");
 $p["MOL"] = array("desc" => "EOL Mollusca Patch", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/eolmolluscapatch/taxa.txt");
 $p["COL"] = array("desc" => "Catalogue of Life extract", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/Catalogue_of_Life_DH_2019/taxon.tab");
-// */
+*/
 
 // /* sample IOC process.txt  -> should get 18990
 $rek = Array(
