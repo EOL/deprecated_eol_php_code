@@ -11,7 +11,7 @@ class DHSourceHierarchiesAPI_v3
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
         $this->gnparser = "http://parser.globalnames.org/api?q=";
-        if(Functions::is_production()) {
+        if(Functions::is_production()) { //WAS NEVER RUN IN eol-archive Jenkins or command-line, since these folders don't exist in eol-archive.
             $this->smasher_download_options = array(
                 'cache_path'         => '/extra/eol_cache_smasher/',
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false); //false
@@ -19,13 +19,14 @@ class DHSourceHierarchiesAPI_v3
         }
         else {
             $this->smasher_download_options = array(
-                'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/', //new, started from blank
-                // 'cache_path'         => '/Volumes/Thunderbolt4/z backup of AKiTiO4/eol_cache_smasher/',
+                // 'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',      //with cache from previous run
+                'cache_path'         => '/Volumes/Thunderbolt4/eol_cache_smasher/', //new, started from blank
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false); //false
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/dynamic_working_hierarchy-master/"; //still during Anne's time. I never used it. Just for testing in the earlier days.
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/2018_06/"; //old - initial runs
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/2018_12/"; //new - TRAM-800 - 1st Smasher run
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/2019_04/"; //new - TRAM-805 - 2nd Smasher run
+            $this->main_path = "/Volumes/AKiTiO4/d_w_h/2021_02/"; //new - TRAM-991 - 3rd Smasher run
         }
         /* Functions::lookup_with_cache($this->gnparser.urlencode($rec['scientificName']), $this->smasher_download_options); */
         
@@ -33,31 +34,29 @@ class DHSourceHierarchiesAPI_v3
         $this->taxonomy_header = array("uid", "parent_uid", "name", "rank", "sourceinfo"); //('uid	|	parent_uid	|	name	|	rank	|	sourceinfo	|	' + '\n')
         $this->synonym_header = array("uid", "name", "type", "rank");                      //('uid	|	name	|	type	|	rank	|	' + '\n')
 
-
-/*paste these in terminal
-php update_resources/connectors/dwh_v2.php _ EET
-php update_resources/connectors/dwh_v2.php _ ASW
-php update_resources/connectors/dwh_v2.php _ ictv
-php update_resources/connectors/dwh_v2.php _ CLP
-php update_resources/connectors/dwh_v2.php _ trunk
-php update_resources/connectors/dwh_v2.php _ ERE
-php update_resources/connectors/dwh_v2.php _ IOC
-php update_resources/connectors/dwh_v2.php _ BOM
-php update_resources/connectors/dwh_v2.php _ NCBI
-php update_resources/connectors/dwh_v2.php _ ONY
-php update_resources/connectors/dwh_v2.php _ ODO
-php update_resources/connectors/dwh_v2.php _ WOR
-php update_resources/connectors/dwh_v2.php _ COL
-php update_resources/connectors/dwh_v2.php _ COC
-php update_resources/connectors/dwh_v2.php _ VSP
-*/
         //for testing
         $this->sh['xxx']['source']          = $this->main_path."/xxx/";
         $this->sh['xxx']['has_syn']         = false;
         $this->sh['xxx']['run_gnparse']     = true;
-
-        // /* 2 new from March 2019 run ---------------------------------------------------------------------------------------------------
-
+        
+        /* ALL THESE FROM PREVIOUS RUN
+        paste these in terminal
+        php update_resources/connectors/dwh_v2.php _ EET
+        php update_resources/connectors/dwh_v2.php _ ASW
+        php update_resources/connectors/dwh_v2.php _ ictv
+        php update_resources/connectors/dwh_v2.php _ CLP
+        php update_resources/connectors/dwh_v2.php _ trunk
+        php update_resources/connectors/dwh_v2.php _ ERE
+        php update_resources/connectors/dwh_v2.php _ IOC
+        php update_resources/connectors/dwh_v2.php _ BOM
+        php update_resources/connectors/dwh_v2.php _ NCBI
+        php update_resources/connectors/dwh_v2.php _ ONY
+        php update_resources/connectors/dwh_v2.php _ ODO
+        php update_resources/connectors/dwh_v2.php _ WOR
+        php update_resources/connectors/dwh_v2.php _ COL
+        php update_resources/connectors/dwh_v2.php _ COC
+        php update_resources/connectors/dwh_v2.php _ VSP
+        ----- 2 new from March 2019 run ---------------------------------------------------------------------------------------------------
         $this->sh['COC']['source']          = $this->main_path."/eolcoccinelloideapatch/";
         $this->sh['COC']['has_syn']         = false;
         $this->sh['COC']['run_gnparse']     = true;
@@ -65,8 +64,8 @@ php update_resources/connectors/dwh_v2.php _ VSP
         $this->sh['VSP']['source']          = $this->main_path."/eolvespoideapatch/";
         $this->sh['VSP']['has_syn']         = false;
         $this->sh['VSP']['run_gnparse']     = true;
-
-        // /* new list ---------------------------------------------------------------------------------------------------
+        ---------------------------------------------------------------------------------------------------
+        ----- new list ---------------------------------------------------------------------------------------------------
         $this->sh['EET']['source']          = $this->main_path."/eolearthwormpatch/";
         $this->sh['EET']['has_syn']         = false;
         $this->sh['EET']['run_gnparse']     = true;
@@ -120,7 +119,20 @@ php update_resources/connectors/dwh_v2.php _ VSP
         $this->sh['WOR']['source']          = $this->main_path."/WoRMS_DH/";
         $this->sh['WOR']['has_syn']         = true;
         $this->sh['WOR']['run_gnparse']     = true;
+        --------------------------------------------------------------------------------------------------- */
+
+
+/* paste these in terminal
+php update_resources/connectors/dwh_v3.php _ TRI
+*/        
+        // /* THIS IS FROM LATEST RUN: TRAM-991
+        $this->sh['TRI']['source']          = $this->main_path."/eoltrilobitespatch/"; //EOL Trilobites Patch
+        $this->sh['TRI']['has_syn']         = false;
+        $this->sh['TRI']['run_gnparse']     = true;
+        
         // --------------------------------------------------------------------------------------------------- */
+
+        
         $this->taxonomy_header_tmp = array("name", "uid", "parent_uid", "rank");
         $this->synonym_header_tmp = array("name", "uid", "accepted_x_id", "type");
         
@@ -232,7 +244,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
         $this->problematic_names = array();
         // /* get problematic names from Google sheet
         $this->problematic_names = self::get_problematic_names();   //UN-COMMENT IN REAL OPERATION
-        // print_r($this->problematic_names); exit;
+        // print_r($this->problematic_names); exit("\nproblematic_names\n");
         // */
 
         // /* utility write all names. This has now become the only sustainable approach especially for big resources like COL, since it has 3,620,095 rows
@@ -262,8 +274,10 @@ php update_resources/connectors/dwh_v2.php _ VSP
     {
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
-        $params['spreadsheetID'] = '1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg'; //same spreadsheet for ver 1.0 and ver 1.1
+        $params['spreadsheetID'] = '1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg'; //same spreadsheet for ver 1.0 and ver 1.1 and ver 2.0 (TRAM-991)
         $params['range']         = 'gnparser failures!B2:D1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = '1.1 gnparser failures!B2:D1000'; //for TRAM-991
+        // Resource taxonID scientificName  canonical   problem category    notes
         $arr = $func->access_google_sheet($params);
         //start massage array
         foreach($arr as $item) $final[$item[0]] = $item[2];
@@ -931,7 +945,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
         Functions::file_rename($path, $path.".proc"); //.proc for processed already
     }
     private function is_name_valid($what, $rec)
-    {
+    {   /* PREVIOUS RUN
         if   ($what == "trunk") { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
         elseif($what == "ictv") return true;
         elseif($what == "IOC") return true;
@@ -956,6 +970,41 @@ php update_resources/connectors/dwh_v2.php _ VSP
         }
         elseif($what == "COC") { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
         elseif($what == "VSP") { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
+        */
+        // /* for TRAM-991
+        if(in_array($what, array("TRI", "CRU", "MOL", "LIZ", "ERE", "COC", "VSP", "ONY", "ANN", "dino"))) {
+            if(in_array($rec['taxonomicStatus'], array("valid"))) return true; //valid, all taxa
+            else exit("\nShould not come here 01 [$what].\n");
+        }
+        elseif(in_array($what, array("MAM", "ODO", "BOM"))) {
+            if(in_array($rec['taxonomicStatus'], array("valid"))) return true; //valid
+        }
+        elseif($what == "NCBI") { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; } //accepted
+        elseif(in_array($what, array("ictv", "IOC"))) {
+            if(!$rec['taxonomicStatus']) return true; //blank, all taxa
+            else exit("\nShould not come here 02 [$what].\n");
+        }
+        elseif(in_array($what, array("trunk", "ITIS"))) {
+            if(in_array($rec['taxonomicStatus'], array("accepted", "valid"))) return true; //accepted, valid, all taxa
+            else exit("\nShould not come here 03 [$what].\n");
+        }
+        elseif(in_array($what, array("SPR"))) {
+            if(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name"))) return true; //all taxa: accepted name, provisionally accepted name, blank
+            elseif(!$rec['taxonomicStatus']) return true;                                                             //all taxa: accepted name, provisionally accepted name, blank
+            else exit("\nShould not come here 04 [$what].\n");
+        }
+        elseif(in_array($what, array("MIP"))) {
+            if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; //accepted, all taxa
+            else exit("\nShould not come here 05 [$what].\n");
+        }
+        elseif(in_array($what, array("WOR"))) {
+            if(in_array($rec['taxonomicStatus'], array("accepted", "doubtful"))) return true; //accepted, doubtful
+        }
+        elseif(in_array($what, array("COL"))) {
+            if(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name"))) return true; //accepted name, provisionally accepted name, blank
+            elseif(!$rec['taxonomicStatus']) return true;                                                             //accepted name, provisionally accepted name, blank
+        }
+        // */
         // print_r($rec);
         // $this->debug[$rec['taxonID']] = ''; //for debug only
         exit("\nUndefined resource here [$what]\n");
@@ -1248,6 +1297,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg'; //same spreadsheet for ver 1.0 and ver 1.1
         $params['range']         = 'source data sets!C2:C50'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'ranks!A2:A50'; //for TRAM-991
         $arr = $func->access_google_sheet($params);
         foreach($arr as $item) $final[] = $item[0];
         // print_r($final); //good debug to see perfect order of hierarchies
@@ -1314,15 +1364,17 @@ php update_resources/connectors/dwh_v2.php _ VSP
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng'; //same for ver 1.0 and ver 1.1
         //left side
         $params['range']         = 'Updated_Sheet1!A2:B1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'Updated_Sheet1!A2:B7100'; //for TRAM-991
         $arr = $func->access_google_sheet($params);
         foreach($arr as $item) $final[$item[0]][] = $item[1];
-        // print_r($final['WOR']); echo "\n".count($final['WOR'])."\n";
+        print_r($final['WOR']); echo "\n".count($final['WOR'])."\n";
         //right side
         $params['range']         = 'Updated_Sheet1!D2:E1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'Updated_Sheet1!D2:E7100'; //for TRAM-991
         $arr = $func->access_google_sheet($params);
         foreach($arr as $item) $final[$item[0]][] = $item[1];
-        // print_r($final['WOR']); echo "\n".count($final['WOR'])."\n";
-        // print_r($final);
+        print_r($final['WOR']); echo "\n".count($final['WOR'])."\n";
+        print_r($final); exit("\nget_syn_ids_from_spreadsheet\n");
         return $final;
     }
     
@@ -1345,6 +1397,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng'; //same for ver 1.0 and ver 1.1
         $params['range']         = 'Updated_Sheet1!A2:F1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'Updated_Sheet1!A2:F7100'; //for TRAM-991
         $arr = $func->access_google_sheet($params);
         //start massage array
         /* PriorityHierarchy	taxonID	scientificName	SynonymHierarchy	taxonID	scientificName 

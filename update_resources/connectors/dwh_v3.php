@@ -30,10 +30,10 @@ exit("\n");
 */
 
 // /* //main operation ------------------------------------------------------------
-$resource_id = "2019_04_04";
-$resource_id = "2021_02_09";
+$resource_id = "2019_04_04";    //for previous
+$resource_id = "2021_02_09";    //for TRAM-991
 $func = new DHSourceHierarchiesAPI_v3($resource_id);
-// $func->start($cmdline_params['what']); //main to generate the respective taxonomy.tsv (and synonym.tsv if available).
+$func->start($cmdline_params['what']); //main to generate the respective taxonomy.tsv (and synonym.tsv if available).
 
 // $func->syn_integrity_check(); exit("\n-end syn_integrity_check-\n"); //to check record integrity of synoyms spreadsheet: 1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng
 /* but this check is driven by taxonID and NOT by the sciname. It is the sciname that is important.
@@ -47,7 +47,6 @@ So generally we don't need this syn_integrity_check(). We can just add to phytho
 
 // this is now OBSOLETE in TRAM-805: Dynamic Hierarchy Version 1.1.
 // $func->start($cmdline_params['what'], "CLP_adjustment"); //from CLP #3 from: https://eol-jira.bibalex.org/browse/TRAM-800?focusedCommentId=63045&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63045
-
 
 // $func->compare_results();                                //a utility to compare results. During initial stages
 // -------------------------------------------------------------------------------- */
