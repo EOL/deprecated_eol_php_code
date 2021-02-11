@@ -136,6 +136,25 @@ php update_resources/connectors/dwh_v3.php _ TRI
         $acronyms = array("LIZ", "ODO", "BOM", "COC", "VSP", "ANN", "TRI", "WOR", "CRU", "MOL");
         foreach($acronyms as $acronym) $run_gnparse[$acronym] = true;
         
+        $this->sh['trunk']['source']        = $this->main_path."/dhtrunk27jan2021/"; //EOL Dynamic Hierarchy Trunk
+        $this->sh['trunk']['has_syn']       = false;
+        $this->sh['trunk']['run_gnparse']   = $run_gnparse["trunk"];
+        $this->sh['ictv']['source']         = $this->main_path."/ICTV-virus_taxonomy-with-higherClassification/"; //ICTV Virus Taxonomy
+        $this->sh['ictv']['has_syn']        = false;
+        $this->sh['ictv']['run_gnparse']    = $run_gnparse["ictv"];
+        $this->sh['dino']['source']         = $this->main_path."/eoldinosauriapatch/"; //EOL Dynamic Hierarchy Dinosauria Patch
+        $this->sh['dino']['has_syn']        = false;
+        $this->sh['dino']['run_gnparse']    = $run_gnparse["dino"];
+        $this->sh['MAM']['source']          = $this->main_path."/eolmammalpatch/"; //EOL Dynamic Hierarchy Mammals Patch
+        $this->sh['MAM']['has_syn']         = true;
+        $this->sh['MAM']['run_gnparse']     = $run_gnparse["MAM"];
+        $this->sh['IOC']['source']          = $this->main_path."/ioc-birdlist/"; //IOC World Bird List
+        $this->sh['IOC']['has_syn']         = false;
+        $this->sh['IOC']['run_gnparse']     = $run_gnparse["IOC"];
+        $this->sh['LIZ']['source']          = $this->main_path."/eollizardspatch/"; //EOL Dynamic Hierarchy Lizards Patch
+        $this->sh['LIZ']['has_syn']         = false;
+        $this->sh['LIZ']['run_gnparse']     = $run_gnparse["LIZ"];
+        
         $this->sh['ODO']['source']          = $this->main_path."/worldodonatalist/"; //World Odonata List
         $this->sh['ODO']['has_syn']         = true;
         $this->sh['ODO']['run_gnparse']     = $run_gnparse["ODO"];
@@ -148,29 +167,9 @@ php update_resources/connectors/dwh_v3.php _ TRI
         $this->sh['BOM']['has_syn']         = true;
         $this->sh['BOM']['run_gnparse']     = $run_gnparse["BOM"];
 
-        $this->sh['MAM']['source']          = $this->main_path."/eolmammalpatch/"; //EOL Dynamic Hierarchy Mammals Patch
-        $this->sh['MAM']['has_syn']         = true;
-        $this->sh['MAM']['run_gnparse']     = $run_gnparse["MAM"];
-
         $this->sh['COL']['source']          = $this->main_path."/Catalogue_of_Life_DH_2019/"; //Catalogue of Life extract
         $this->sh['COL']['has_syn']         = false;
         $this->sh['COL']['run_gnparse']     = $run_gnparse["COL"];
-        
-        $this->sh['trunk']['source']        = $this->main_path."/dhtrunk27jan2021/"; //EOL Dynamic Hierarchy Trunk
-        $this->sh['trunk']['has_syn']       = false;
-        $this->sh['trunk']['run_gnparse']   = $run_gnparse["trunk"];
-        
-        $this->sh['ictv']['source']         = $this->main_path."/ICTV-virus_taxonomy-with-higherClassification/"; //ICTV Virus Taxonomy
-        $this->sh['ictv']['has_syn']        = false;
-        $this->sh['ictv']['run_gnparse']    = $run_gnparse["ictv"];
-        
-        $this->sh['dino']['source']         = $this->main_path."/eoldinosauriapatch/"; //EOL Dynamic Hierarchy Dinosauria Patch
-        $this->sh['dino']['has_syn']        = false;
-        $this->sh['dino']['run_gnparse']    = $run_gnparse["dino"];
-
-        $this->sh['IOC']['source']          = $this->main_path."/ioc-birdlist/"; //IOC World Bird List
-        $this->sh['IOC']['has_syn']         = false;
-        $this->sh['IOC']['run_gnparse']     = $run_gnparse["IOC"];
         
         $this->sh['TRI']['source']          = $this->main_path."/eoltrilobitespatch/"; //EOL Trilobites Patch
         $this->sh['TRI']['has_syn']         = false;
