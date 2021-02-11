@@ -154,18 +154,18 @@ php update_resources/connectors/dwh_v3.php _ TRI
         $this->sh['LIZ']['source']          = $this->main_path."/eollizardspatch/"; //EOL Dynamic Hierarchy Lizards Patch
         $this->sh['LIZ']['has_syn']         = false;
         $this->sh['LIZ']['run_gnparse']     = $run_gnparse["LIZ"];
-        
         $this->sh['ODO']['source']          = $this->main_path."/worldodonatalist/"; //World Odonata List
         $this->sh['ODO']['has_syn']         = true;
         $this->sh['ODO']['run_gnparse']     = $run_gnparse["ODO"];
+        $this->sh['BOM']['source']          = $this->main_path."/kitchingetal2018/"; //A global checklist of the Bombycoidea
+        $this->sh['BOM']['has_syn']         = true;
+        $this->sh['BOM']['run_gnparse']     = $run_gnparse["BOM"];
+
+        
 
         $this->sh['NCBI']['source']          = $this->main_path."/NCBI_Taxonomy_Harvest_DH/"; //NCBI extract
         $this->sh['NCBI']['has_syn']         = true;
         $this->sh['NCBI']['run_gnparse']     = $run_gnparse["NCBI"];
-
-        $this->sh['BOM']['source']          = $this->main_path."/kitchingetal2018/"; //A global checklist of the Bombycoidea
-        $this->sh['BOM']['has_syn']         = true;
-        $this->sh['BOM']['run_gnparse']     = $run_gnparse["BOM"];
 
         $this->sh['COL']['source']          = $this->main_path."/Catalogue_of_Life_DH_2019/"; //Catalogue of Life extract
         $this->sh['COL']['has_syn']         = false;
