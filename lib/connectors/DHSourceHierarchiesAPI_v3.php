@@ -135,6 +135,10 @@ php update_resources/connectors/dwh_v3.php _ TRI
         // So the only resources that need running through gnparser to generate canonicals are: LIZ,ODO,BOM,COC,VSP,ANN,TRI,WOR,CRU,MOL
         $acronyms = array("LIZ", "ODO", "BOM", "COC", "VSP", "ANN", "TRI", "WOR", "CRU", "MOL");
         foreach($acronyms as $acronym) $run_gnparse[$acronym] = true;
+        
+        $this->sh['ODO']['source']          = $this->main_path."/worldodonatalist/"; //World Odonata List
+        $this->sh['ODO']['has_syn']         = true;
+        $this->sh['ODO']['run_gnparse']     = $run_gnparse["ODO"];
 
         $this->sh['NCBI']['source']          = $this->main_path."/NCBI_Taxonomy_Harvest_DH/"; //NCBI extract
         $this->sh['NCBI']['has_syn']         = true;
@@ -375,7 +379,7 @@ php update_resources/connectors/dwh_v3.php _ TRI
         }
     }
     private function is_record_valid($what, $rec)
-    {
+    {   /*
         if($what == "NCBI") {
             if(in_array($rec['taxonomicStatus'], array("in-part", "authority", "misspelling", "equivalent name", "genbank synonym", "misnomer", "teleomorph"))) return false;
         }
@@ -388,6 +392,33 @@ php update_resources/connectors/dwh_v3.php _ TRI
         elseif($what == "ODO") {
             if(in_array($rec['taxonomicStatus'], array("synonym"))) return false;
         }
+        */
+
+        // start for TRAM-991 -----------
+        /* from taxStatus worksheet: https://docs.google.com/spreadsheets/d/1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg/edit#gid=2121540051 */
+        if($what == "ODO") {
+            /* for TRAM-991
+            per Katja's answer: RE: ODO synonyms. No it's not a typo. We do want the ODO synonyms in the final DH resource, 
+            but there is no point in using them in the smasher synonym.tsv. This is because ODO is the sole source for the entire Odonata branch.
+            There are no Odonata taxa in any of the other resources, so there is no chance for ODO synonyms to match with any taxa in other resources.
+            
+            -> So Eli will now comment this line, so the synonyms be saved for the final DH resource.
+            if(in_array($rec['taxonomicStatus'], array("synonym"))) return false;
+            */
+        }
+        elseif($what == "NCBI") {
+            //from previous. I just included them just to be sure...
+            if(in_array($rec['taxonomicStatus'], array("misspelling", "misnomer", "teleomorph"))) return false;
+            //for TRAM-991
+            if(in_array($rec['taxonomicStatus'], array("in-part", "authority", "equivalent name", "genbank synonym"))) return false;
+        }
+        elseif($what == "WOR") { //for TRAM-991
+            if(in_array($rec['taxonomicStatus'], array("unaccepted"))) return false;
+        }
+        elseif($what == "COL") { //still good for TRAM-991
+            if(in_array($rec['taxonomicStatus'], array("synonym", "ambiguous synonym", "misapplied name"))) return false;
+        }
+        // end for TRAM-991 -------------
         return true;
     }
     private function clean_rank($rank)
@@ -1046,6 +1077,11 @@ php update_resources/connectors/dwh_v3.php _ TRI
             if(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name"))) return true; //accepted name, provisionally accepted name, blank
             elseif(!$rec['taxonomicStatus']) return true;                                                             //accepted name, provisionally accepted name, blank
         }
+        //for some datasets, blank taxonomicStatus still means valid names
+        if(in_array($what, array("ictv", "IOC", "BOM", "SPR", "COL"))) {
+            if($rec['taxonomicStatus'] == "") return true;
+            if(!$rec['taxonomicStatus']) return true;
+        }
         // */
         print_r($rec);
         // $this->debug[$rec['taxonID']] = ''; //for debug only
@@ -1059,9 +1095,10 @@ php update_resources/connectors/dwh_v3.php _ TRI
         */
         // /* for TRAM-991
         if    ($what == "BOM")  { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; }
-        elseif($what == "ODO")  { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; } //waiting confirmation from Katja
+        elseif($what == "ODO")  { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; } //use only in final DH
         elseif($what == "MAM")  { if(in_array($rec['taxonomicStatus'], array("invalid"))) return true; }
         elseif($what == "NCBI") { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; }
+        elseif($what == "WOR")  { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; } //use only in final DH
         // */
         return false;
     }
@@ -1565,7 +1602,8 @@ php update_resources/connectors/dwh_v3.php _ TRI
     }
     private function Taxa2Remove_from_DH_Resources()
     {
-        // /* waiting on Katja
+        // /* will be initiated by Katja: https://eol-jira.bibalex.org/browse/TRAM-991?focusedCommentId=65611&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65611
+        // exit("\nWe will probably get a new list based on the results of the smasher run.\n");
         return array();
         // */
         require_library('connectors/GoogleClientAPI');
