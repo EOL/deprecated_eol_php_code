@@ -157,27 +157,55 @@ php update_resources/connectors/dwh_v3.php _ TRI
         $this->sh['ODO']['source']          = $this->main_path."/worldodonatalist/"; //World Odonata List
         $this->sh['ODO']['has_syn']         = true;
         $this->sh['ODO']['run_gnparse']     = $run_gnparse["ODO"];
+        //check BOM again soon
         $this->sh['BOM']['source']          = $this->main_path."/kitchingetal2018/"; //A global checklist of the Bombycoidea
         $this->sh['BOM']['has_syn']         = true;
         $this->sh['BOM']['run_gnparse']     = $run_gnparse["BOM"];
-
-        
-
-        $this->sh['NCBI']['source']          = $this->main_path."/NCBI_Taxonomy_Harvest_DH/"; //NCBI extract
-        $this->sh['NCBI']['has_syn']         = true;
-        $this->sh['NCBI']['run_gnparse']     = $run_gnparse["NCBI"];
-
+        $this->sh['ERE']['source']          = $this->main_path."/eoldynamichierarchyerebidaepatch/"; //EOL Dynamic Hierarchy Erebidae Patch
+        $this->sh['ERE']['has_syn']         = false;
+        $this->sh['ERE']['run_gnparse']     = $run_gnparse["ERE"];
+        $this->sh['COC']['source']          = $this->main_path."/eolcoccinelloideapatch/"; //EOL Dynamic Hierarchy Coccinelloidea Patch
+        $this->sh['COC']['has_syn']         = false;
+        $this->sh['COC']['run_gnparse']     = $run_gnparse["COC"];
+        // "ITIS", "MIP", "NCBI", "WOR", "CRU", "MOL", "COL");
+        $this->sh['VSP']['source']          = $this->main_path."/eolvespoideapatch/"; //EOL Dynamic Hierarchy Vespoidea Patch
+        $this->sh['VSP']['has_syn']         = false;
+        $this->sh['VSP']['run_gnparse']     = $run_gnparse["VSP"];
+        $this->sh['ONY']['source']          = $this->main_path."/onychophora/"; //Oliveira et al. 2012 Onychophora Classification
+        $this->sh['ONY']['has_syn']         = false;
+        $this->sh['ONY']['run_gnparse']     = $run_gnparse["ONY"];
+        $this->sh['ANN']['source']          = $this->main_path."/eolannelidapatch/"; //EOL Annelida Patch
+        $this->sh['ANN']['has_syn']         = false;
+        $this->sh['ANN']['run_gnparse']     = $run_gnparse["ANN"];
+        $this->sh['TRI']['source']          = $this->main_path."/eoltrilobitespatch/"; //EOL Trilobites Patch
+        $this->sh['TRI']['has_syn']         = false;
+        $this->sh['TRI']['run_gnparse']     = $run_gnparse["TRI"];
+        $this->sh['SPR']['source']          = $this->main_path."/Collembola_DH/"; //Catalogue of Life Collembola
+        $this->sh['SPR']['has_syn']         = false;
+        $this->sh['SPR']['run_gnparse']     = $run_gnparse["SPR"];
+        $this->sh['ITIS']['source']         = $this->main_path."/itis_2020-12-01/"; //ITIS extract
+        $this->sh['ITIS']['has_syn']        = false;
+        $this->sh['ITIS']['run_gnparse']    = $run_gnparse["ITIS"];
+        $this->sh['MIP']['source']          = $this->main_path."/eolmicrobespatch/"; //EOL Microbes Patch
+        $this->sh['MIP']['has_syn']         = false;
+        $this->sh['MIP']['run_gnparse']     = $run_gnparse["MIP"];
+        $this->sh['NCBI']['source']         = $this->main_path."/NCBI_Taxonomy_Harvest_DH/"; //NCBI extract
+        $this->sh['NCBI']['has_syn']        = true;
+        $this->sh['NCBI']['run_gnparse']    = $run_gnparse["NCBI"];
+        $this->sh['WOR']['source']          = $this->main_path."/WoRMS_DH/"; //WoRMS extract
+        $this->sh['WOR']['has_syn']         = true;
+        $this->sh['WOR']['run_gnparse']     = $run_gnparse["WOR"];
+        $this->sh['CRU']['source']          = $this->main_path."/eolcrustaceapatch/"; //EOL Crustacea Patch
+        $this->sh['CRU']['has_syn']         = false;
+        $this->sh['CRU']['run_gnparse']     = $run_gnparse["CRU"];
+        $this->sh['MOL']['source']          = $this->main_path."/eolmolluscapatch/"; //EOL Mollusca Patch
+        $this->sh['MOL']['has_syn']         = false;
+        $this->sh['MOL']['run_gnparse']     = $run_gnparse["MOL"];
         $this->sh['COL']['source']          = $this->main_path."/Catalogue_of_Life_DH_2019/"; //Catalogue of Life extract
         $this->sh['COL']['has_syn']         = false;
         $this->sh['COL']['run_gnparse']     = $run_gnparse["COL"];
-        
-        $this->sh['TRI']['source']          = $this->main_path."/eoltrilobitespatch/"; //EOL Trilobites Patch
-        $this->sh['TRI']['has_syn']         = false;
-        $this->sh['TRI']['run_gnparse']     = $run_gnparse["TRI"]; //true;
-        
         // --------------------------------------------------------------------------------------------------- */
 
-        
         $this->taxonomy_header_tmp = array("name", "uid", "parent_uid", "rank");
         $this->synonym_header_tmp = array("name", "uid", "accepted_x_id", "type");
         
