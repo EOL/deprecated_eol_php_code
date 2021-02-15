@@ -127,7 +127,30 @@ class DHSourceHierarchiesAPI_v3
 
 
 /* paste these in terminal
+php update_resources/connectors/dwh_v3.php _ trunk
+php update_resources/connectors/dwh_v3.php _ ictv
+php update_resources/connectors/dwh_v3.php _ dino
+php update_resources/connectors/dwh_v3.php _ MAM
+php update_resources/connectors/dwh_v3.php _ IOC
+php update_resources/connectors/dwh_v3.php _ LIZ
+php update_resources/connectors/dwh_v3.php _ ODO
+php update_resources/connectors/dwh_v3.php _ BOM
+php update_resources/connectors/dwh_v3.php _ NCBI
+php update_resources/connectors/dwh_v3.php _ COL
 php update_resources/connectors/dwh_v3.php _ TRI
+
+php update_resources/connectors/dwh_v3.php _ ERE
+php update_resources/connectors/dwh_v3.php _ COC
+php update_resources/connectors/dwh_v3.php _ VSP
+php update_resources/connectors/dwh_v3.php _ ONY
+php update_resources/connectors/dwh_v3.php _ ANN
+php update_resources/connectors/dwh_v3.php _ SPR
+php update_resources/connectors/dwh_v3.php _ ITIS
+php update_resources/connectors/dwh_v3.php _ MIP
+php update_resources/connectors/dwh_v3.php _ WOR
+php update_resources/connectors/dwh_v3.php _ CRU
+php update_resources/connectors/dwh_v3.php _ MOL
+
 */        
         // /* THIS IS FROM LATEST RUN: TRAM-991
         $all = array("trunk", "ictv", "dino", "MAM", "IOC", "LIZ", "ODO", "BOM", "ERE", "COC", "VSP", "ONY", "ANN", "TRI", "SPR", "ITIS", "MIP", "NCBI", "WOR", "CRU", "MOL", "COL");
