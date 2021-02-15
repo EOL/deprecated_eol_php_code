@@ -32,6 +32,7 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71	Sunday 2020-07-26 10:24:37 AM	 {"agent.tab":199589, "media_resource.tab":1448582, "taxon.tab":141903, "vernacular_name.tab":829198, "time_elapsed":{"sec":355504.68, "min":5925.08, "hr":98.75, "day":4.11}} consistent OK except for time elapsed?
 71	Thu 2020-10-08 07:35:33 PM	     {"agent.tab":201017, "media_resource.tab":1469784, "taxon.tab":143231, "vernacular_name.tab":865272, "time_elapsed":{"sec":104842.09, "min":1747.37, "hr":29.12, "day":1.21}}
 71	Tue 2020-12-08 11:27:38 PM	     {"agent.tab":202505, "media_resource.tab":1490601, "taxon.tab":144044, "vernacular_name.tab":869681, "time_elapsed":{"sec":112827.97, "min":1880.47, "hr":31.34, "day":1.31}}
+71	Fri 2021-02-12 07:37:48 PM	     {"agent.tab":380186, "media_resource.tab":1497199, "taxon.tab":145396, "vernacular_name.tab":880106, "time_elapsed":{"sec":138060.39, "min":2301.01, "hr":38.35, "day":1.6}}
 
 *this one (71_new) eventually becomes 71.tar.gz
 71_new	Wednesday 2018-10-17 05:10:07 AM{"agent.tab": 22435,"media_resource.tab": 956972,"taxon.tab": 90844}
@@ -56,6 +57,7 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71_new	Sunday 2020-07-26 10:48:51 AM	{"agent.tab":199589, "media_resource.tab":1448582, "taxon.tab":141903, "time_elapsed":false} consistent OK
 71_new	Thu 2020-10-08 08:00:42 PM	    {"agent.tab":201017, "media_resource.tab":1469784, "taxon.tab":143231, "time_elapsed":false}
 71_new	Tue 2020-12-08 11:51:54 PM	    {"agent.tab":202505, "media_resource.tab":1490601, "taxon.tab":144044, "time_elapsed":false}
+71_new	Fri 2021-02-12 08:04:22 PM	    {"agent.tab":380186, "media_resource.tab":1497199, "taxon.tab":145396, "time_elapsed":false}
 
 when doing tests locally:
 php update_resources/connectors/wikidata.php _ generate_resource
