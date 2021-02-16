@@ -156,7 +156,7 @@ php update_resources/connectors/dwh_v3.php _ MOL
         $all = array("trunk", "ictv", "dino", "MAM", "IOC", "LIZ", "ODO", "BOM", "ERE", "COC", "VSP", "ONY", "ANN", "TRI", "SPR", "ITIS", "MIP", "NCBI", "WOR", "CRU", "MOL", "COL");
         foreach($all as $acronym) $run_gnparse[$acronym] = false;
         // So the only resources that need running through gnparser to generate canonicals are: LIZ,ODO,BOM,COC,VSP,ANN,TRI,WOR,CRU,MOL
-        $acronyms = array("LIZ", "ODO", "BOM", "COC", "VSP", "ANN", "TRI", "WOR", "CRU", "MOL");
+        $acronyms = array("LIZ", "ODO", "BOM", "COC", "VSP", "WOR", "CRU", "MOL"); //"ANN", "TRI" removed here, now have canonicalName
         foreach($acronyms as $acronym) $run_gnparse[$acronym] = true;
         
         $this->sh['trunk']['source']        = $this->main_path."/dhtrunk27jan2021/"; //EOL Dynamic Hierarchy Trunk
@@ -916,7 +916,71 @@ php update_resources/connectors/dwh_v3.php _ MOL
             // if($rec['taxonID'] == "Sphingonaepiopsis-Genus-Group") exit;
             
             // $this->debug[$rec['taxonomicStatus']] = ''; continue; //for debug only
+            // if($rec['scientificName'] == '[unassigned] Gadilida') {print_r($rec); exit("\n111\n");}
+            // if($rec['scientificName'] == '[unassigned] Gadilida') {print_r($rec); exit("\n222\n");}
+            // if($rec['parentNameUsageID'] == '343642') print_r($rec);
+            /*Array(
+                [taxonID] => 343642
+                [furtherInformationURL] => http://www.molluscabase.org/aphia.php?p=taxdetails&id=343642
+                [acceptedNameUsageID] => 
+                [parentNameUsageID] => 382321
+                [scientificName] => [unassigned] Gadilida
+                [taxonRank] => family
+                [taxonomicStatus] => accepted
+                [taxonRemarks] => 
+            )*/
+            /* from WOR_failures.txt, at some point.
+            */
+
+            /* START adjustments per Katja: https://eol-jira.bibalex.org/browse/TRAM-991?focusedCommentId=65615&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65615
+            However, most of these failures indicate deeper poblems that require a bit of surgery in the WOR resource file: */
+            if($what == "WOR") {
+                // [unassigned] Gadilida - please remove this taxon from the WOR resource but preserve its children and attach them to the parent node: 382321
+                if($rec['scientificName'] == "[unassigned] Gadilida") continue; //343642
+                if($rec['parentNameUsageID'] == "343642") $rec['parentNameUsageID'] = "382321";
+
+                // [unassigned] Euthyneura - please remove this taxon from the WOR resource but preserve its child and attach it to the parent node: 1057247
+                if($rec['scientificName'] == "[unassigned] Euthyneura") continue; //1060141
+                if($rec['parentNameUsageID'] == "1060141") $rec['parentNameUsageID'] = "1057247";
             
+                // glaukopis-group - this taxon does not have any children, please remove it from the WOR resource
+                if($rec['scientificName'] == "glaukopis-group") continue; //410375
+
+                // 'Gammarus' & 'Gammarus' heteroclitus Viviani, 1805 - please remove both of these taxa from the WOR resource
+                if($rec['scientificName'] == "'Gammarus'") continue; //740304
+                if($rec['scientificName'] == "'Gammarus' heteroclitus Viviani, 1805") continue; //740305
+
+                // IIyogynnis R.B Manning & Holthuis, 1981 & IIyogynnis microcheirum (Tweedie, 1937) - These are actually misspellings. Please correct the scientificName values in the WOR resource:
+                if($rec['scientificName'] == "IIyogynnis R.B. Manning & Holthuis, 1981") $rec['scientificName'] = "Ilyogynnis R.B. Manning & Holthuis, 1981"; //439203
+                if($rec['scientificName'] == "IIyogynnis microcheirum (Tweedie, 1937)") $rec['scientificName'] = "Ilyogynnis microcheirum (Tweedie, 1937)"; //444849
+                // gnparser should then have no trouble giving you the correct canonicals.
+
+                // Tricornina (Bicornina) jordan, 1964 - Here the author name is misspelled. Please correct the scientificName value:
+                // gnparser should then come up with the proper canonical: Tricornina subgen. Bicornina
+                if($rec['scientificName'] == "Tricornina (Bicornina) jordan, 1964") $rec['scientificName'] = "Tricornina (Bicornina) Jordan, 1964"; //768886
+
+                /* from Katja, attached delete.txt */
+                $delete_txt = array("230531", "1074977", "856033", "1439885", "814883", "153100", "204163", "1410384", "816921", "409568", "994828", "814944", "1454019", "814987", "771672", "768260", "768268", 
+                "768883", "768666", "771671", "771676", "989085", "1404733", "1440000", "1378547", "1405124", "1453049", "1440144", "1452001", "1452400");
+                if(in_array($rec['taxonID'], $delete_txt)) continue;
+                
+                /* from Katja, attached rename.txt */
+                if($rec['taxonID'] == "1447047") $rec['scientificName'] = "Echinoderes sieboldii Pagenstecher, 1875";
+                if($rec['taxonID'] == "107296") $rec['scientificName'] = "Ebalia edwardsii O.G. Costa, 1838 [in O.G. Costa & A. Costa, 1838-1871]";
+                if($rec['taxonID'] == "835512") $rec['scientificName'] = "Bougainvillia mertensii L. Agassiz, 1862";
+                if($rec['taxonID'] == "530422") $rec['scientificName'] = "Ocnus ayresii Stimpson, 1853";
+                if($rec['taxonID'] == "462146") $rec['scientificName'] = "Cytherois dissimilis McKenzie, 1967";
+                if($rec['taxonID'] == "1391785") $rec['scientificName'] = "Lepidopora fistulosa Cairns, 2020";
+                if($rec['taxonID'] == "247742") $rec['scientificName'] = "Tanais gayi Nicolet, 1849";
+                if($rec['taxonID'] == "1422771") $rec['scientificName'] = "Gelasimus huttoni Filhol, 1885";
+                if($rec['taxonID'] == "1423501") $rec['scientificName'] = "Ashinkailepas indica Gale, Little, Johnson & Giosan, 2020";
+                if($rec['taxonID'] == "1043582") $rec['scientificName'] = "Ceratoconcha kojumdgievae (Kolosvary, 1962)";
+                if($rec['taxonID'] == "715490") $rec['scientificName'] = "Huckea huckea Schallreuter, 1964";
+                if($rec['taxonID'] == "1425185") $rec['scientificName'] = "Ivoelepas ischnia (Pilsbry & Olsson, 1951)";
+                
+
+            } //endif $what is WOR
+            /* END adjustments */
             //=======================================================================================
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
             if(in_array($what, $Taxa2Remove_resources)) {
@@ -1356,7 +1420,7 @@ php update_resources/connectors/dwh_v3.php _ MOL
         • Several of the resources already have canonical name values: trunk, dino,IOC (except for a few higher taxon names where 
         scientificName = canonical),MAM,ERE,ONY,ITIS,MIP. Whenever a canonical value is available in the resource, 
         we should use that rather than getting it through gnparser. */
-        $acronyms = array("trunk", "dino", "MAM", "ERE", "ONY", "ITIS", "MIP");
+        $acronyms = array("trunk", "dino", "MAM", "ERE", "ONY", "ITIS", "MIP", "TRI", "ANN"); //"TRI", "ANN" added later on.
         if(in_array($meta['what'], $acronyms)) {
             if($val = $rec['canonicalName']) return $val;
             else exit("\nINVESTIGATE. Said to have canonicalName: ".$meta['what']."\n");
