@@ -1562,9 +1562,9 @@ php update_resources/connectors/dwh_v3.php _ COL
     {
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
-        $params['spreadsheetID'] = '1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg'; //same spreadsheet for ver 1.0 and ver 1.1
+        $params['spreadsheetID'] = '1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg'; //same spreadsheet for ver 1.0 and ver 1.1, ver 2.0
+        //for TRAM-991 applicable also
         $params['range']         = 'source data sets!C2:C50'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-        $params['range']         = 'ranks!A2:A50'; //for TRAM-991
         $arr = $func->access_google_sheet($params);
         foreach($arr as $item) $final[] = $item[0];
         // print_r($final); //good debug to see perfect order of hierarchies
@@ -1572,7 +1572,7 @@ php update_resources/connectors/dwh_v3.php _ COL
     }
     private function priority_list_resources()
     {
-        $final = self::get_order_of_hierarchies();
+        $final = self::get_order_of_hierarchies(); //print_r($final);
         $i = 0;
         foreach($final as $hierarchy) {
             $i++; echo "# $i. $hierarchy\n";
@@ -1590,7 +1590,8 @@ php update_resources/connectors/dwh_v3.php _ COL
             // echo "\n".$this->main_path;
             
             // $str .= "$h = Taxonomy.getTaxonomy('t/tax_2018_12".$folder."', '".$h."')\n";    //ver 1.0
-            $str .= "$h = Taxonomy.getTaxonomy('t/tax_2019_04".$folder."', '".$h."')\n";       //ver 1.1
+            // $str .= "$h = Taxonomy.getTaxonomy('t/tax_2019_04".$folder."', '".$h."')\n";       //ver 1.1
+            $str .= "$h = Taxonomy.getTaxonomy('t/tax_2021_02".$folder."', '".$h."')\n";       //ver 1.1
             
         }
         echo "\n$str\n";
@@ -1659,7 +1660,7 @@ php update_resources/connectors/dwh_v3.php _ COL
     public function generate_python_file()
     {
         echo self::phython_file_start();
-        $hierarchies = self::priority_list_resources();
+        $hierarchies = self::priority_list_resources(); // print_r($hierarchies); exit;
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng'; //same for ver 1.0 and ver 1.1
