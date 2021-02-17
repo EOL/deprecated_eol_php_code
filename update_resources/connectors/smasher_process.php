@@ -47,7 +47,7 @@ $p["trunk"] = array("desc" => "Dynamic Hierarchy Trunk 14 June 2017", "url" => "
 $p["WOR"] = array("desc" => "WoRMS: use original WoRMS2EOL file for this", "url" => "http://localhost/cp/WORMS/WoRMS2EoL/taxon.txt"); //will use downloaded Aug 16, 2017
 $p["ZOR"] = array("desc" => "Zoraptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-zoraptera-v1.4/taxon.txt");
 // */
-/* TRAM-991 - this block was never used here yet. I'm not sure if it will ever be. Let us see...
+/* TRAM-991 - this block was never used here.
 $p["trunk"] = array("desc" => "EOL Dynamic Hierarchy Trunk", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/dhtrunk27jan2021/taxon.txt");
 $p["ictv"] = array("desc" => "ICTV Virus Taxonomy", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/ICTV-virus_taxonomy-with-higherClassification/taxon.tab");
 $p["dino"] = array("desc" => "EOL Dynamic Hierarchy Dinosauria Patch", "url" => "http://localhost/cp/dynamic_hierarchy/smasher_TRAM991/eoldinosauriapatch/taxa.txt");
