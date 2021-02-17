@@ -1589,9 +1589,9 @@ php update_resources/connectors/dwh_v3.php _ COL
             // echo "\n".$this->sh[$h]['destin'];
             // echo "\n".$this->main_path;
             
-            // $str .= "$h = Taxonomy.getTaxonomy('t/tax_2018_12".$folder."', '".$h."')\n";    //ver 1.0
-            // $str .= "$h = Taxonomy.getTaxonomy('t/tax_2019_04".$folder."', '".$h."')\n";       //ver 1.1
-            $str .= "$h = Taxonomy.getTaxonomy('t/tax_2021_02".$folder."', '".$h."')\n";       //ver 1.1
+            // $str .= "$h = Taxonomy.getTaxonomy('t/tax_2018_12".$folder."', '".$h."')\n";     //ver 1.0
+            // $str .= "$h = Taxonomy.getTaxonomy('t/tax_2019_04".$folder."', '".$h."')\n";     //ver 1.1
+            $str .= "$h = Taxonomy.getTaxonomy('t/tax_2021_02".$folder."', '".$h."')\n";        //ver 2.0
             
         }
         echo "\n$str\n";
