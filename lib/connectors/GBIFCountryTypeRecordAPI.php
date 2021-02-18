@@ -108,12 +108,13 @@ class GBIFCountryTypeRecordAPI
         if(!is_dir($this->download_options['cache_path']))  mkdir($this->download_options['cache_path']);
         
         $this->uris2 = self::get_uris($params, $params["uri_file"]);
+        $this->specific_mapping_for_this_resource = $this->uris2;
         echo "\nURIs 2 total: ".count($this->uris2)."\n";
         
         $this->uris = array_merge($this->uris1, $this->uris2);
         echo "\nURIs total: ".count($this->uris)."\n"; //exit;
         unset($this->uris1); unset($this->uris2);
-        // print_r($this->uris); exit;
+        // print_r($this->uris); print_r($this->specific_mapping_for_this_resource); exit;
         
         $params["uri_type"] = "citation";
         if($file = @$params["citation_file"]) $this->citations = self::get_uris($params, $file);
@@ -640,10 +641,11 @@ class GBIFCountryTypeRecordAPI
                 $institutionCode = self::get_contributor_name($datasetKey);
             }
         }
-        else {
+        else { //exit("\nelix 100\n");
             if(!$institutionCode = (string) $rec["http://rs.tdwg.org/dwc/terms/institutionCode"]) return;
-            if(!$institutionCode_uri = self::get_uri($institutionCode, "institutionCode")) return;
+            if(!$institutionCode_uri = self::get_institutionCode_uri($institutionCode, "institutionCode")) return;
             if($institutionCode_uri == "Exclude- literature dataset") return;
+            // exit("\n[$institutionCode] [$institutionCode_uri]\n");
         }
         
         $rec["institutionCode"] = $institutionCode;
@@ -724,6 +726,17 @@ class GBIFCountryTypeRecordAPI
             }
         }
     }
+
+
+    private function get_institutionCode_uri($value, $field)
+    {
+        if($val = @$this->specific_mapping_for_this_resource[$value]) return $val;
+        else {
+            $this->debug["undefined"][$field][$value] = '';
+            return $value;
+        }
+    }
+
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "", $parent = false)
     {
         $taxon_id = $rec["taxon_id"];
