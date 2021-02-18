@@ -33,15 +33,15 @@ exit("\n");
 $resource_id = "2019_04_04";    //for previous
 $resource_id = "2021_02_09";    //for TRAM-991
 $func = new DHSourceHierarchiesAPI_v3($resource_id);
-// /*
+/*
 $func->start($cmdline_params['what']); //main to generate the respective taxonomy.tsv (and synonym.tsv if available).
-// */
+*/
 // $func->syn_integrity_check(); exit("\n-end syn_integrity_check-\n"); //to check record integrity of 
 // synoyms spreadsheet: 1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng
 /* but this check is driven by taxonID and NOT by the sciname. It is the sciname that is important.
 So generally we don't need this syn_integrity_check(). We can just add to phython file all those we know that are synonyms.
 */
-
+$func->generate_separation_files_using_NewDHSynonyms_googleSheet(); exit("\n-end cleanup-\n");
 // $func->generate_python_file();           exit("\n-end generate_python_file-\n"); //to generate script entry to build_dwh.py
 // $func->clean_up_destination_folder();    exit("\n-end cleanup-\n");              //to do before uploading hierarchies to eol-smasher server
 
@@ -53,34 +53,72 @@ So generally we don't need this syn_integrity_check(). We can just add to phytho
 // $func->compare_results();                                //a utility to compare results. During initial stages
 // -------------------------------------------------------------------------------- */
 
+/* Notes for TRAM-991
+----------------------------------------------------------------
+based on taxStatus worksheet in google sheet: https://docs.google.com/spreadsheets/d/1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg/edit#gid=2121540051
+ODO won't submit any synonym.tsv in Smasher.
+So ignore /zFailures/ODO_duplicates_syn.txt
+----------------------------------------------------------------
+BOM_duplicates_syn.txt.proc has been processed to exclude these synonym duplicates in its synonym.tsv for Smasher
+So just ignore /zFailures/BOM_duplicates_syn.txt.proc
+----------------------------------------------------------------
+From Katja: https://eol-jira.bibalex.org/browse/TRAM-991?focusedCommentId=65627&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65627
+
+Regarding Homonyms, I wasn't sure whether you already had a script to feed homonym information into the separation taxonomy file. 
+It sounds like you don't and that's fine. Let's proceed with the basic separation taxonomy.tsv already attached to this ticket. 
+Most of the homonyms should already be covered in this file, and we can use the DH Homonyms doc to check for bad merges in the smasher output:
+https://docs.google.com/spreadsheets/d/1IMw75qXtEqS9TvHg0fZ1swKxFgvCJCd4XMfrKTpJ2Qk/edit#gid=365059775
+I will add the homonyms from resourceHomonyms.txt to this doc. If we get bad merges in this smasher run, we can amend the separation taxonomy as needed and do another smasher run.
+----------------------------------------------------------------
+HOW TO GENERATE THE taxonomy.tsv separation file:
+1. load the taxonomy.tsv given by Katja (attached in TRAM-991) into Numbers
+2. remove the extra column (higherClassification)
+3. remove the header row
+4. save - export to tsv file (taxonomy.tsv) -> this will be our separation file
+----------------------------------------------------------------
+----------------------------------------------------------------
+----------------------------------------------------------------
+*/
+
+/* when updating just the file build_dwh.py
+scp build_dwh.py smasher:~/temp/.
+cp build_dwh.py /home/annethessen/reference-taxonomy/
+*
+
 /*
 start smasher terminal steps:
 
 step1: from macmini
 scp Archive1.zip smasher:~/temp/.
 scp separationFiles.zip smasher:~/temp/.
-
+====================================================================================================
 step2:
 in smasher
 from eagbayani/temp folder
+
+For Previous:
 cp Archive1.zip /home/annethessen/reference-taxonomy/t/tax_2019_04/
 cp synonyms.tsv /home/annethessen/reference-taxonomy/tax/separation/
 cp taxonomy.tsv /home/annethessen/reference-taxonomy/tax/separation/
 
-
+For TRAM-991:
+cp Archive.zip /home/annethessen/reference-taxonomy/t/tax_2021_02/
+cp taxonomy.tsv /home/annethessen/reference-taxonomy/tax/separation/
+====================================================================================================
 step:
 cp /tax_2019_04/build_dwh.py /home/annethessen/reference-taxonomy/
-
+cp /tax_2021_02/build_dwh.py /home/annethessen/reference-taxonomy/
+====================================================================================================
 step:
 To execute python file that builds dwh on the server type this into command line:
 bin/jython build_dwh.py
-
+====================================================================================================
 step: zip the /test/ folder
 zip -r test_2019_04_04.zip test
-
+====================================================================================================
 step:
 scp smasher:~/temp/test_2019_04_04.zip ~/Desktop/
-
+====================================================================================================
 step: copy to eol-archive for Katja
 
 scp taxon_with_higherClassification.tab.zip archive:~/temp/.

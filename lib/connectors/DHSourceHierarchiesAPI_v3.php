@@ -1547,7 +1547,7 @@ php update_resources/connectors/dwh_v3.php _ COL
     public function clean_up_destination_folder()
     {
         $hierarchies = self::get_order_of_hierarchies();
-        print_r($hierarchies);
+        // print_r($hierarchies); exit;
         foreach($hierarchies as $what) {
             $this->sh[$what]['destin'] = $this->main_path."/zDestination/$what/";
             $files = $this->sh[$what]['destin']."*.txt";
@@ -1649,7 +1649,8 @@ php update_resources/connectors/dwh_v3.php _ COL
     
     private function phython_file_start()
     {
-        $str  = "import sys, os, csv\n\n";
+        $str  = "# -*- coding: utf-8 -*-\n";
+        $str .= "import sys, os, csv\n\n";
         $str .= "from org.opentreeoflife.taxa import Taxonomy, SourceTaxonomy, Taxon\n";
         $str .= "from org.opentreeoflife.smasher import UnionTaxonomy\n\n";
         $str .= "dwh = UnionTaxonomy.newTaxonomy('dwh')\n\n";
@@ -1660,7 +1661,12 @@ php update_resources/connectors/dwh_v3.php _ COL
     public function generate_python_file()
     {
         echo self::phython_file_start();
-        $hierarchies = self::priority_list_resources(); // print_r($hierarchies); exit;
+        $hierarchies = self::priority_list_resources(); 
+        
+        // print_r($hierarchies);
+        array_pop($hierarchies); //remove last item - COL. The sol'n for now, to limit size of [build_dwh.py].
+        // print_r($hierarchies); exit;
+        
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng'; //same for ver 1.0 and ver 1.1
@@ -1701,6 +1707,46 @@ php update_resources/connectors/dwh_v3.php _ COL
         alignment.same(wor.taxon('Cephalorhyncha'), dwh.taxon('Scalidophora'))
         alignment.same(wor.taxon('Codonosiga'), dwh.taxon('Codosiga'))
         */
+    }
+    public function generate_separation_files_using_NewDHSynonyms_googleSheet()
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng'; //same for ver 1.0 and ver 1.1
+        $params['range']         = 'Updated_Sheet1!A2:F1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'Updated_Sheet1!A2:F7100'; //for TRAM-991
+        $params['range']         = 'Updated_Sheet1!A1:F10'; //debug only - during dev only
+        $arr = $func->access_google_sheet($params);
+        //start massage array
+        /* PriorityHierarchy	taxonID	scientificName	SynonymHierarchy	taxonID	scientificName 
+           $item[0]                     $item[2]        $item[3]                    $item[5]);  */
+        $fields = $arr[0]; //print_r($fields);
+        /*Array(
+            [0] => PriorityHierarchy
+            [1] => taxonID
+            [2] => scientificName
+            [3] => SynonymHierarchy
+            [4] => taxonID
+            [5] => scientificName
+        )*/
+        $fields[4] = 'taxonID_2';
+        $fields[5] = 'scientificName_2';
+
+        array_shift($arr); //remove header row
+        // print_r($arr); exit("\naaa\n");
+        
+        foreach($arr as $item) {
+            $item = array_map('trim', $item);
+            $rec = array();
+            $k = 0;
+            foreach($fields as $field) {
+                $rec[$field] = $item[$k];
+                $k++;
+            }
+            print_r($fields);
+            print_r($item);
+            print_r($rec); exit;
+        }
     }
     private function get_uids_from_taxonomy_tsv($what, $withNames = false)
     {
