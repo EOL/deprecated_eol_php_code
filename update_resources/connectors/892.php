@@ -11,6 +11,8 @@ occurrence                  23159   12434
 taxon                       12662   5954
 
 892	Monday 2018-03-12 02:44:43 AM	{"measurement_or_fact.tab":49469,"occurrence.tab":12433,"taxon.tab":5953}
+892	Wed 2021-01-20 10:19:41 PM	    {"measurement_or_fact.tab":527794, "occurrence.tab":75544, "taxon.tab":25667, "time_elapsed":{"sec":411.75, "min":6.86, "hr":0.11}}
+892	Thu 2021-02-18 11:35:52 AM	    {"measurement_or_fact.tab":527794, "occurrence.tab":75544, "taxon.tab":25667, "time_elapsed":{"sec":433, "min":7.22, "hr":0.12}}
 
 classification resource:
 */
