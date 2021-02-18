@@ -41,7 +41,7 @@ $func->start($cmdline_params['what']); //main to generate the respective taxonom
 /* but this check is driven by taxonID and NOT by the sciname. It is the sciname that is important.
 So generally we don't need this syn_integrity_check(). We can just add to phython file all those we know that are synonyms.
 */
-$func->generate_separation_files_using_NewDHSynonyms_googleSheet(); exit("\n-end cleanup-\n");
+$func->generate_separation_files_using_NewDHSynonyms_googleSheet(); exit("\n-end generate_separation_files_using_NewDHSynonyms_googleSheet-\n");
 // $func->generate_python_file();           exit("\n-end generate_python_file-\n"); //to generate script entry to build_dwh.py
 // $func->clean_up_destination_folder();    exit("\n-end cleanup-\n");              //to do before uploading hierarchies to eol-smasher server
 

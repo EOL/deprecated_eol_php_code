@@ -1713,9 +1713,8 @@ php update_resources/connectors/dwh_v3.php _ COL
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng'; //same for ver 1.0 and ver 1.1
-        $params['range']         = 'Updated_Sheet1!A2:F1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-        $params['range']         = 'Updated_Sheet1!A2:F7100'; //for TRAM-991
-        $params['range']         = 'Updated_Sheet1!A1:F10'; //debug only - during dev only
+        $params['range']         = 'Updated_Sheet1!A1:F7100'; //for TRAM-991
+        // $params['range']         = 'Updated_Sheet1!A1:F10'; //debug only - during dev only
         $arr = $func->access_google_sheet($params);
         //start massage array
         /* PriorityHierarchy	taxonID	scientificName	SynonymHierarchy	taxonID	scientificName 
@@ -1743,10 +1742,57 @@ php update_resources/connectors/dwh_v3.php _ COL
                 $rec[$field] = $item[$k];
                 $k++;
             }
-            print_r($fields);
-            print_r($item);
-            print_r($rec); exit;
+            // print_r($fields); print_r($item);
+            // print_r($rec); exit;
+            /*Array(
+                [PriorityHierarchy] => ANN
+                [taxonID] => Acanthobdellida
+                [scientificName] => Acanthobdellida
+                [SynonymHierarchy] => COL
+                [taxonID_2] => 81d1941f2ef1079fb53601c0170f18c7
+                [scientificName_2] => Acanthobdellida
+            )*/
+            if($rec['SynonymHierarchy'] == "COL") {
+                $synonyms_tsv[$rec['taxonID_2']] = $rec['scientificName_2'];
+                $taxonomy_tsv[$rec['PriorityHierarchy']][$rec['taxonID']] = array('sci' => $rec['scientificName']);
+                $resources_2_lookup[$rec['PriorityHierarchy']] = '';
+            }
         }
+        /*step 2: to get parents of priority taxa, we need to loop/lookup to some resources */
+        // print_r($resources_2_lookup); exit;
+        foreach(array_keys($resources_2_lookup) as $what) { echo "\nLooking up [$what]\n";
+            $this->sh[$what]['destin'] = $this->main_path."/zDestination/$what/";
+            $i = 0;
+            foreach(new FileIterator($this->sh[$what]['destin'].'taxonomy.tsv') as $line => $row) { $i++;
+                $rec = explode("\t|\t", $row);
+                if($i == 1) {
+                    $fields = $rec;
+                    continue;
+                }
+                $rek = array(); $k = 0;
+                foreach($fields as $field) {
+                    $rek[$field] = $rec[$k];
+                    $k++;
+                }
+                // print_r($rek); //exit;
+                /*Array(
+                    [uid] => Stephenoscolex-argutus
+                    [parent_uid] => Stephenoscolex
+                    [name] => Stephenoscolex argutus
+                    [rank] => species
+                    [sourceinfo] => 
+                    [] => 
+                )*/
+                if($val = @$taxonomy_tsv[$what][$rek['uid']]) {
+                    $val['p'] = $rek['parent_uid'];
+                    $taxonomy_tsv[$what][$rek['uid']] = $val;
+                    // print_r($taxonomy_tsv[$what][$rek['uid']]); //exit;
+                }
+            }
+            // exit;
+            
+        }//end foreach() loop hierarchies
+        print_r($taxonomy_tsv); exit;
     }
     private function get_uids_from_taxonomy_tsv($what, $withNames = false)
     {
