@@ -1664,9 +1664,9 @@ php update_resources/connectors/dwh_v3.php _ COL
         $hierarchies = self::priority_list_resources(); 
         
         // print_r($hierarchies);
-        /*
+        // /*
         array_pop($hierarchies); //remove last item - COL. The sol'n for now, to limit size of [build_dwh.py].
-        */
+        // */
         // print_r($hierarchies); exit;
         
         require_library('connectors/GoogleClientAPI');
@@ -1674,7 +1674,7 @@ php update_resources/connectors/dwh_v3.php _ COL
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng'; //same for ver 1.0 and ver 1.1
         $params['range']         = 'Updated_Sheet1!A2:F1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $params['range']         = 'Updated_Sheet1!A2:F7100'; //for TRAM-991
-        $params['range']         = 'Updated_Sheet1-full!A2:F1400'; //for TRAM-991 - reduced version by Katja around 1400
+        // $params['range']         = 'Updated_Sheet1-full!A2:F1400'; //for TRAM-991 - reduced version by Katja around 1400
         $arr = $func->access_google_sheet($params);
         //start massage array
         /* PriorityHierarchy	taxonID	scientificName	SynonymHierarchy	taxonID	scientificName 
@@ -1717,7 +1717,7 @@ php update_resources/connectors/dwh_v3.php _ COL
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng'; //same for ver 1.0 and ver 1.1
         $params['range']         = 'Updated_Sheet1!A1:F7100'; //for TRAM-991
-        $params['range']         = 'Updated_Sheet1-full!A1:F1400'; //for TRAM-991 - reduced version by Katja around 1400
+        // $params['range']         = 'Updated_Sheet1-full!A1:F1400'; //for TRAM-991 - reduced version by Katja around 1400
         // $params['range']         = 'Updated_Sheet1-full!A1:F10'; //debug only - during dev only
         $arr = $func->access_google_sheet($params);
         //start massage array
@@ -1790,6 +1790,7 @@ php update_resources/connectors/dwh_v3.php _ COL
                 if($val = @$taxonomy_tsv[$what][$rek['uid']]) {
                     $val['p'] = $rek['parent_uid'];
                     $val['can'] = $rek['name'];
+                    $val['r'] = $rek['rank'];
                     $taxonomy_tsv[$what][$rek['uid']] = $val;
                     // print_r($taxonomy_tsv[$what][$rek['uid']]); //exit;
                 }
@@ -1797,7 +1798,31 @@ php update_resources/connectors/dwh_v3.php _ COL
             // exit;
             
         }//end foreach() loop hierarchies
-        print_r($taxonomy_tsv); exit;
+        // print_r($taxonomy_tsv); //exit;
+        
+        /*step 3: write to taxonomy.tsv*/
+        $source = $this->main_path."zDestination/taxonomy_Katja.tsv";
+        $target = $this->main_path."zDestination/taxonomy.tsv";
+        copy($source, $target);
+        
+        $file = fopen($this->main_path."zDestination/taxonomy.tsv", "a"); //will append existing
+        fwrite($file, "\n");
+        foreach($taxonomy_tsv as $what => $val) {
+            foreach($val as $uid => $rek) fwrite($file, implode("\t", array($uid, $rek['p'], $rek['can'], $rek['r']))."\n");
+        }
+        fclose($file);
+        
+        /*step 4: write to synonyms.tsv*/
+        /*  [3a5775e27edd4187467be9b377951e6b] => Trefusiidae
+            [a1d05b99e90391f50a5eb666c28d2a4b] => Triodontolaimidae
+            [ca275d4ff27ad08100e650a8e7d2c7bb] => Tripyloididae
+            [962ba1e1044dcb72be2d3e44eae79f53] => Xyalidae
+        )*/
+        // print_r($synonyms_tsv); exit;
+        $file = fopen($this->main_path."zDestination/synonyms.tsv", "w"); //will overwrite existing
+        fwrite($file, implode("\t", array("name", "uid"))."\n");
+        foreach($synonyms_tsv as $uid => $name) fwrite($file, implode("\t", array($name, $uid))."\n");
+        fclose($file);
     }
     private function get_uids_from_taxonomy_tsv($what, $withNames = false)
     {
