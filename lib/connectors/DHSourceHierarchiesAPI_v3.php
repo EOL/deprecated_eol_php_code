@@ -1664,7 +1664,9 @@ php update_resources/connectors/dwh_v3.php _ COL
         $hierarchies = self::priority_list_resources(); 
         
         // print_r($hierarchies);
+        /*
         array_pop($hierarchies); //remove last item - COL. The sol'n for now, to limit size of [build_dwh.py].
+        */
         // print_r($hierarchies); exit;
         
         require_library('connectors/GoogleClientAPI');
@@ -1672,6 +1674,7 @@ php update_resources/connectors/dwh_v3.php _ COL
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng'; //same for ver 1.0 and ver 1.1
         $params['range']         = 'Updated_Sheet1!A2:F1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $params['range']         = 'Updated_Sheet1!A2:F7100'; //for TRAM-991
+        $params['range']         = 'Updated_Sheet1-full!A2:F1400'; //for TRAM-991 - reduced version by Katja around 1400
         $arr = $func->access_google_sheet($params);
         //start massage array
         /* PriorityHierarchy	taxonID	scientificName	SynonymHierarchy	taxonID	scientificName 
@@ -1714,7 +1717,8 @@ php update_resources/connectors/dwh_v3.php _ COL
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng'; //same for ver 1.0 and ver 1.1
         $params['range']         = 'Updated_Sheet1!A1:F7100'; //for TRAM-991
-        // $params['range']         = 'Updated_Sheet1!A1:F10'; //debug only - during dev only
+        $params['range']         = 'Updated_Sheet1-full!A1:F1400'; //for TRAM-991 - reduced version by Katja around 1400
+        // $params['range']         = 'Updated_Sheet1-full!A1:F10'; //debug only - during dev only
         $arr = $func->access_google_sheet($params);
         //start massage array
         /* PriorityHierarchy	taxonID	scientificName	SynonymHierarchy	taxonID	scientificName 
@@ -1785,6 +1789,7 @@ php update_resources/connectors/dwh_v3.php _ COL
                 )*/
                 if($val = @$taxonomy_tsv[$what][$rek['uid']]) {
                     $val['p'] = $rek['parent_uid'];
+                    $val['can'] = $rek['name'];
                     $taxonomy_tsv[$what][$rek['uid']] = $val;
                     // print_r($taxonomy_tsv[$what][$rek['uid']]); //exit;
                 }
