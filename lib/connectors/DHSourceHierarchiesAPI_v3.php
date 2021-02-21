@@ -127,6 +127,13 @@ class DHSourceHierarchiesAPI_v3
 
 
 /* paste these in terminal
+ANN,ERE,LIZ,trunk
+php update_resources/connectors/dwh_v3.php _ trunk
+php update_resources/connectors/dwh_v3.php _ LIZ
+php update_resources/connectors/dwh_v3.php _ ANN
+php update_resources/connectors/dwh_v3.php _ ERE
+
+
 php update_resources/connectors/dwh_v3.php _ trunk
 php update_resources/connectors/dwh_v3.php _ ictv
 php update_resources/connectors/dwh_v3.php _ dino
@@ -158,6 +165,7 @@ php update_resources/connectors/dwh_v3.php _ COL
         foreach($acronyms as $acronym) $run_gnparse[$acronym] = true;
         
         $this->sh['trunk']['source']        = $this->main_path."/dhtrunk27jan2021/"; //EOL Dynamic Hierarchy Trunk
+        $this->sh['trunk']['source']        = $this->main_path."/dhtrunk/";          //EOL Dynamic Hierarchy Trunk - now with syn
         $this->sh['trunk']['has_syn']       = true;
         $this->sh['trunk']['run_gnparse']   = $run_gnparse["trunk"];
         $this->sh['ictv']['source']         = $this->main_path."/ICTV-virus_taxonomy-with-higherClassification/"; //ICTV Virus Taxonomy
@@ -1670,7 +1678,7 @@ php update_resources/connectors/dwh_v3.php _ COL
         $hierarchies = self::priority_list_resources(); 
         
         // print_r($hierarchies);
-        // /*
+        // /* COL synonyms and respective left side will go to separation files: synonyms.tsv, taxonomy.tsv respectively
         array_pop($hierarchies); //remove last item - COL. The sol'n for now, to limit size of [build_dwh.py].
         // */
         // print_r($hierarchies); exit;
@@ -1679,8 +1687,8 @@ php update_resources/connectors/dwh_v3.php _ COL
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng'; //same for ver 1.0 and ver 1.1
         $params['range']         = 'Updated_Sheet1!A2:F1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-        $params['range']         = 'Updated_Sheet1!A2:F7100'; //for TRAM-991
-        // $params['range']         = 'Updated_Sheet1-full!A2:F1400'; //for TRAM-991 - reduced version by Katja around 1400
+        // $params['range']         = 'Updated_Sheet1!A2:F7100'; //for TRAM-991 - orig full version
+        $params['range']         = 'Updated_Sheet1-full!A2:F1400'; //for TRAM-991 - reduced version by Katja around 1400
         $arr = $func->access_google_sheet($params);
         //start massage array
         /* PriorityHierarchy	taxonID	scientificName	SynonymHierarchy	taxonID	scientificName 
@@ -1722,9 +1730,8 @@ php update_resources/connectors/dwh_v3.php _ COL
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng'; //same for ver 1.0 and ver 1.1
-        $params['range']         = 'Updated_Sheet1!A1:F7100'; //for TRAM-991
-        // $params['range']         = 'Updated_Sheet1-full!A1:F1400'; //for TRAM-991 - reduced version by Katja around 1400
-        // $params['range']         = 'Updated_Sheet1-full!A1:F10'; //debug only - during dev only
+        // $params['range']         = 'Updated_Sheet1!A1:F7100'; //for TRAM-991 - orig full version
+        $params['range']         = 'Updated_Sheet1-full!A1:F1400'; //for TRAM-991 - reduced version by Katja around 1400
         $arr = $func->access_google_sheet($params);
         //start massage array
         /* PriorityHierarchy	taxonID	scientificName	SynonymHierarchy	taxonID	scientificName 
