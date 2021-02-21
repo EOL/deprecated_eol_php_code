@@ -158,7 +158,7 @@ php update_resources/connectors/dwh_v3.php _ COL
         foreach($acronyms as $acronym) $run_gnparse[$acronym] = true;
         
         $this->sh['trunk']['source']        = $this->main_path."/dhtrunk27jan2021/"; //EOL Dynamic Hierarchy Trunk
-        $this->sh['trunk']['has_syn']       = false;
+        $this->sh['trunk']['has_syn']       = true;
         $this->sh['trunk']['run_gnparse']   = $run_gnparse["trunk"];
         $this->sh['ictv']['source']         = $this->main_path."/ICTV-virus_taxonomy-with-higherClassification/"; //ICTV Virus Taxonomy
         $this->sh['ictv']['has_syn']        = false;
@@ -173,7 +173,7 @@ php update_resources/connectors/dwh_v3.php _ COL
         $this->sh['IOC']['has_syn']         = false;
         $this->sh['IOC']['run_gnparse']     = $run_gnparse["IOC"];
         $this->sh['LIZ']['source']          = $this->main_path."/eollizardspatch/"; //EOL Dynamic Hierarchy Lizards Patch
-        $this->sh['LIZ']['has_syn']         = false;
+        $this->sh['LIZ']['has_syn']         = true;
         $this->sh['LIZ']['run_gnparse']     = $run_gnparse["LIZ"];
         $this->sh['ODO']['source']          = $this->main_path."/worldodonatalist/"; //World Odonata List
         $this->sh['ODO']['has_syn']         = true;
@@ -183,7 +183,7 @@ php update_resources/connectors/dwh_v3.php _ COL
         $this->sh['BOM']['has_syn']         = true;
         $this->sh['BOM']['run_gnparse']     = $run_gnparse["BOM"];
         $this->sh['ERE']['source']          = $this->main_path."/eoldynamichierarchyerebidaepatch/"; //EOL Dynamic Hierarchy Erebidae Patch
-        $this->sh['ERE']['has_syn']         = false;
+        $this->sh['ERE']['has_syn']         = true;
         $this->sh['ERE']['run_gnparse']     = $run_gnparse["ERE"];
         $this->sh['COC']['source']          = $this->main_path."/eolcoccinelloideapatch/"; //EOL Dynamic Hierarchy Coccinelloidea Patch
         $this->sh['COC']['has_syn']         = false;
@@ -196,7 +196,7 @@ php update_resources/connectors/dwh_v3.php _ COL
         $this->sh['ONY']['has_syn']         = false;
         $this->sh['ONY']['run_gnparse']     = $run_gnparse["ONY"];
         $this->sh['ANN']['source']          = $this->main_path."/eolannelidapatch/"; //EOL Annelida Patch
-        $this->sh['ANN']['has_syn']         = false;
+        $this->sh['ANN']['has_syn']         = true;
         $this->sh['ANN']['run_gnparse']     = $run_gnparse["ANN"];
         $this->sh['TRI']['source']          = $this->main_path."/eoltrilobitespatch/"; //EOL Trilobites Patch
         $this->sh['TRI']['has_syn']         = false;
@@ -1210,7 +1210,13 @@ php update_resources/connectors/dwh_v3.php _ COL
         elseif($what == "ODO")  { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; } //use only in final DH
         elseif($what == "MAM")  { if(in_array($rec['taxonomicStatus'], array("invalid"))) return true; }
         elseif($what == "NCBI") { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; }
-        elseif($what == "WOR")  { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; } //use only in final DH
+        elseif($what == "WOR")  { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; }
+        
+        // ANN,ERE,LIZ,trunk -> eventually, now with synonyms. https://eol-jira.bibalex.org/browse/TRAM-991?focusedCommentId=65638&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65638
+        elseif($what == "ANN")  { if(in_array($rec['taxonomicStatus'], array("invalid"))) return true; }
+        elseif($what == "ERE")  { if(in_array($rec['taxonomicStatus'], array("invalid"))) return true; }
+        elseif($what == "LIZ")  { if(in_array($rec['taxonomicStatus'], array("invalid"))) return true; }
+        elseif($what == "trunk")  { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; }
         // */
         return false;
     }
