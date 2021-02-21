@@ -1781,6 +1781,7 @@ php update_resources/connectors/dwh_v3.php _ COL
             $this->sh[$what]['destin'] = $this->main_path."/zDestination/$what/";
             $i = 0;
             foreach(new FileIterator($this->sh[$what]['destin'].'taxonomy.tsv') as $line => $row) { $i++;
+                if(!$row) continue;
                 $rec = explode("\t|\t", $row);
                 if($i == 1) {
                     $fields = $rec;
