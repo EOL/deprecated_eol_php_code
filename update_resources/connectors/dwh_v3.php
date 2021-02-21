@@ -84,7 +84,7 @@ HOW TO GENERATE THE taxonomy.tsv separation file:
 ----------------------------------------------------------------
 */
 
-/* when updating just the file build_dwh.py
+/* when updating just certain files. e.g. file build_dwh.py
 scp build_dwh.py smasher:~/temp/.
 scp taxonomy.tsv smasher:~/temp/.
 scp synonyms.tsv smasher:~/temp/.
@@ -92,7 +92,6 @@ scp synonyms.tsv smasher:~/temp/.
 cp build_dwh.py /home/annethessen/reference-taxonomy/
 cp synonyms.tsv /home/annethessen/reference-taxonomy/tax/separation/
 cp taxonomy.tsv /home/annethessen/reference-taxonomy/tax/separation/
-
 */
 
 /*
@@ -101,6 +100,9 @@ start smasher terminal steps:
 step1: from macmini
 scp Archive1.zip smasher:~/temp/.
 scp separationFiles.zip smasher:~/temp/.
+
+For TRAM-991:
+scp Archive.zip smasher:~/temp/.
 ====================================================================================================
 step2:
 in smasher
@@ -113,7 +115,12 @@ cp taxonomy.tsv /home/annethessen/reference-taxonomy/tax/separation/
 
 For TRAM-991:
 cp Archive.zip /home/annethessen/reference-taxonomy/t/tax_2021_02/
+cd /home/annethessen/reference-taxonomy/t/tax_2021_02/
+unzip Archive.zip
+cp build_dwh.py /home/annethessen/reference-taxonomy/
+cp synonyms.tsv /home/annethessen/reference-taxonomy/tax/separation/
 cp taxonomy.tsv /home/annethessen/reference-taxonomy/tax/separation/
+
 ====================================================================================================
 step:
 cp /tax_2019_04/build_dwh.py /home/annethessen/reference-taxonomy/
@@ -125,11 +132,12 @@ bin/jython build_dwh.py
 ====================================================================================================
 step: zip the /test/ folder
 zip -r test_2019_04_04.zip test
-zip -r test_2021_02_20.zip test
+zip -r test_2021_02_21.zip test
+cp test_2021_02_21.zip /home/eagbayani/temp/
 ====================================================================================================
-step:
+step: in Mac Mini
 scp smasher:~/temp/test_2019_04_04.zip ~/Desktop/
-scp smasher:~/temp/test_2021_02_20.zip ~/Desktop/
+scp smasher:~/temp/test_2021_02_21.zip ~/Desktop/
 
 ====================================================================================================
 step: copy to eol-archive for Katja
@@ -138,16 +146,30 @@ scp taxon_with_higherClassification.tab.zip archive:~/temp/.
 scp 2019_04_04.tar.gz archive:~/temp/.
 scp results_2019_04_04.zip archive:~/temp/.
 
-
-scp results_2021_02_20.zip archive:~/temp/.
-
-
 Hi Katja, here are the reports. First crack at the DH ver. 1.1:
 Here is the raw Smasher output: https://editors.eol.org/other_files/DWH/1.1/results_2019_04_04.zip
 Here is the DwCA based on Smasher output: https://editors.eol.org/other_files/DWH/1.1/2019_04_04.tar.gz
 Here is the taxon.tab file with higherClassification based on DwCA: https://editors.eol.org/other_files/DWH/1.1/taxon_with_higherClassification.tab.zip
 
-https://editors.eol.org/other_files/DWH/2.0/results_2021_02_20.zip
+
+for TRAM-991:
+scp ForReview_Feb21.zip archive:~/temp/.
+
+cp ForReview_Feb21.zip /extra/other_files/DWH/2.0/
+
+Hi Katja,
+First crack, for review.
+Here is the input files and Smasher output files.
+https://editors.eol.org/other_files/DWH/2.0/ForReview_Feb21.zip
+
+The separation files are in:
+input_2021_02_21/synonyms.tsv
+input_2021_02_21/taxonomy.tsv
+input_2021_02_21/taxonomy_Katja.tsv - what Katja attached in TRAM-991.
+
+Thanks,
+Eli
+
 
 
 */
