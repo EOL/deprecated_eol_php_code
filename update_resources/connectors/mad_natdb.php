@@ -17,6 +17,16 @@ natdb	Wednesday 2020-01-15 09:24:06 AM{"measurement_or_fact_specific.tab":130356
 natdb	Monday 2020-01-27 04:12:46 AM	{"measurement_or_fact_specific.tab":130356,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":251.15,"min":4.19,"hr":0.07000000000000001}}
 natdb	Friday 2020-02-28 02:42:38 AM	{"measurement_or_fact_specific.tab":130356,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":250.3,"min":4.17,"hr":0.07000000000000001}}
 natdb	Friday 2020-07-17 11:24:08 AM	{"measurement_or_fact_specific.tab":129380, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":293.77, "min":4.9, "hr":0.08}}
+
+Now includes other steps (metadata recoding) after main connector:
+php5.6 mad_natdb.php jenkins
+    -> generates natdb.tar.gz
+php5.6 resource_utility.php jenkins '{"resource_id": "natdb_meta_recoded_1", "task": "metadata_recoding"}'
+    -> occurrenceRemarks
+    -> generates natdb_meta_recoded_1.tar.gz
+php5.6 resource_utility.php jenkins '{"resource_id": "natdb_meta_recoded", "task": "metadata_recoding"}'
+    -> lifeStage
+    -> generates natdb_meta_recoded.tar.gz
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MADtoolNatDBAPI');

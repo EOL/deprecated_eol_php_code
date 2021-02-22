@@ -25,6 +25,7 @@ Using list from partner, we now remove images from certain scientificNames.
 protisten	Mon 2021-02-08 05:04:23 AM	{"agent.tab":1, "media_resource.tab":1841, "taxon.tab":1123, "time_elapsed":{"sec":39.49, "min":0.66, "hr":0.01}}
 should add 1 taxon and 1 image
 protisten	Tue 2021-02-09 08:46:28 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1125, "time_elapsed":{"sec":2386.3, "min":39.77, "hr":0.66}}
+protisten	Mon 2021-02-22 11:49:41 AM	{"agent.tab":1, "media_resource.tab":1894, "taxon.tab":1136, "time_elapsed":{"sec":2389.3, "min":39.82, "hr":0.66}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
