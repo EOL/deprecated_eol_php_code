@@ -154,19 +154,15 @@ Here is the taxon.tab file with higherClassification based on DwCA: https://edit
 
 for TRAM-991:
 scp ForReview_Feb21.zip archive:~/temp/.
-
 cp ForReview_Feb21.zip /extra/other_files/DWH/2.0/
-
 Hi Katja,
 First crack, for review.
 Here is the input files and Smasher output files.
 https://editors.eol.org/other_files/DWH/2.0/ForReview_Feb21.zip
-
 The separation files are in:
 input_2021_02_21/synonyms.tsv
 input_2021_02_21/taxonomy.tsv
 input_2021_02_21/taxonomy_Katja.tsv - what Katja attached in TRAM-991.
-
 Thanks,
 Eli
 

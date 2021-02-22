@@ -3,6 +3,20 @@ namespace php_active_record;
 /* connectors which used this are:
  - AfricaTreeDBAPI.php 
  - CITESspeciesAPI.php
+-------------------------------------------------------------------------
+child record in MoF:
+    - doesn't have: occurrenceID | measurementOfTaxon -> meaning blank for child records
+    - has parentMeasurementID
+    - has also a unique measurementID, as expected.
+minimum cols on a child record in MoF
+    - measurementID
+    - measurementType
+    - measurementValue
+    - parentMeasurementID
+-------------------------------------------------------------------------
+- MeasurementOfTaxon should be blank for child records.
+- MeasurementOfTaxon should be 'false' if to represent additional metadata.
+-------------------------------------------------------------------------
 */
 class TraitGeneric
 {
