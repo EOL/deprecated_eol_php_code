@@ -42,11 +42,11 @@ $func->start($cmdline_params['what']); //main to generate the respective taxonom
 So generally we don't need this syn_integrity_check(). We can just add to phython file all those we know that are synonyms.
 */
 
-/* Eli-only-inspired initiative - should work but abandoned for now as Katja lessens the [New DH Synonyms] spreadsheet anyway.
+// /* Eli-only-inspired initiative - should work but abandoned for now as Katja lessens the [New DH Synonyms] spreadsheet anyway.
 $func->generate_separation_files_using_NewDHSynonyms_googleSheet(); exit("\n-end generate_separation_files_using_NewDHSynonyms_googleSheet-\n");
-*/
+// */
 
-$func->generate_python_file();           exit("\n-end generate_python_file-\n"); //to generate script entry to build_dwh.py
+// $func->generate_python_file();           exit("\n-end generate_python_file-\n"); //to generate script entry to build_dwh.py
 // $func->clean_up_destination_folder();    exit("\n-end cleanup-\n");              //to do before uploading hierarchies to eol-smasher server
 
 // $func->test($cmdline_params['what']);                    //for testing only
@@ -121,6 +121,9 @@ cp build_dwh.py /home/annethessen/reference-taxonomy/
 cp synonyms.tsv /home/annethessen/reference-taxonomy/tax/separation/
 cp taxonomy.tsv /home/annethessen/reference-taxonomy/tax/separation/
 
+
+cp taxonomy_Katja.tsv /home/annethessen/reference-taxonomy/tax/separation/taxonomy.tsv
+
 ====================================================================================================
 step:
 cp /tax_2019_04/build_dwh.py /home/annethessen/reference-taxonomy/
@@ -128,16 +131,34 @@ cp /tax_2021_02/build_dwh.py /home/annethessen/reference-taxonomy/
 ====================================================================================================
 step:
 To execute python file that builds dwh on the server type this into command line:
+cd /home/annethessen/reference-taxonomy/
 bin/jython build_dwh.py
 ====================================================================================================
 step: zip the /test/ folder
 zip -r test_2019_04_04.zip test
 zip -r test_2021_02_21.zip test
 cp test_2021_02_21.zip /home/eagbayani/temp/
+
+zip -r results_2021_02_23.zip test
+cp results_2021_02_23.zip /home/eagbayani/temp/
+
+zip -r results_2021_02_23_orig.zip test
+cp results_2021_02_23_orig.zip /home/eagbayani/temp/
+
+
+#zip -r results_default_taxonomy_tsv.zip test
+#zip -r results_big_taxonomy_tsv_with_complete_hierarchy.zip test
+
 ====================================================================================================
 step: in Mac Mini
 scp smasher:~/temp/test_2019_04_04.zip ~/Desktop/
 scp smasher:~/temp/test_2021_02_21.zip ~/Desktop/
+
+scp smasher:~/temp/results_2021_02_23.zip ~/Desktop/
+scp smasher:~/temp/results_2021_02_23_orig.zip ~/Desktop/
+
+#scp smasher:~/temp/results_default_taxonomy_tsv.zip ~/Desktop/
+#scp smasher:~/temp/results_big_taxonomy_tsv_with_complete_hierarchy.zip ~/Desktop/
 
 ====================================================================================================
 step: copy to eol-archive for Katja
@@ -150,6 +171,13 @@ Hi Katja, here are the reports. First crack at the DH ver. 1.1:
 Here is the raw Smasher output: https://editors.eol.org/other_files/DWH/1.1/results_2019_04_04.zip
 Here is the DwCA based on Smasher output: https://editors.eol.org/other_files/DWH/1.1/2019_04_04.tar.gz
 Here is the taxon.tab file with higherClassification based on DwCA: https://editors.eol.org/other_files/DWH/1.1/taxon_with_higherClassification.tab.zip
+
+scp results_default_taxonomy_tsv.zip archive:~/temp/.
+scp results_big_taxonomy_tsv_with_complete_hierarchy.zip archive:~/temp/.
+
+scp results_2021_02_23.zip archive:~/temp/.
+scp results_2021_02_23_orig.zip archive:~/temp/.
+scp taxonomy.tsv archive:~/temp/.
 
 
 for TRAM-991:
@@ -165,6 +193,23 @@ input_2021_02_21/taxonomy.tsv
 input_2021_02_21/taxonomy_Katja.tsv - what Katja attached in TRAM-991.
 Thanks,
 Eli
+
+Hi Katja,
+I think I found why there is so few on my first run. COL was excluded in the Smasher app. That is now fixed.
+Here is the latest Smasher results using the original (separation) taxonomy.tsv you've attached in TRAM-991.
+https://editors.eol.org/other_files/DWH/2.0/results_2021_02_23_orig.zip
+
+Here is the Smasher results using the taxonomy.tsv with added names with complete hierarchy.
+https://editors.eol.org/other_files/DWH/2.0/results_2021_02_23.zip
+Here is the taxonomy.tsv with added names with complete hierarchy.
+https://editors.eol.org/other_files/DWH/2.0/taxonomy.tsv
+
+For review.
+Thanks.
+
+
+
+
 
 
 

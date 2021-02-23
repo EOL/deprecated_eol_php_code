@@ -1675,13 +1675,12 @@ php update_resources/connectors/dwh_v3.php _ COL
     public function generate_python_file()
     {
         echo self::phython_file_start();
-        $hierarchies = self::priority_list_resources(); 
+        $hierarchies = self::priority_list_resources(); // print_r($hierarchies);
         
-        // print_r($hierarchies);
-        // /* COL synonyms and respective left side will go to separation files: synonyms.tsv, taxonomy.tsv respectively
+        /* from [New DH Synonysm], COL synonyms and respective left side will go to separation files: synonyms.tsv, taxonomy.tsv respectively
+        THIS SHOULD NOW BE COMMENTED: since COL will be excluded below, NOT HERE.
         array_pop($hierarchies); //remove last item - COL. The sol'n for now, to limit size of [build_dwh.py].
-        // */
-        // print_r($hierarchies); exit;
+        */
         
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
@@ -1701,8 +1700,10 @@ php update_resources/connectors/dwh_v3.php _ COL
         foreach($hierarchies as $hierarchy) { //synonym portion
             $str .= "alignment = dwh.alignment($hierarchy)\n";
             if($val = @$final[$hierarchy]) {
-                foreach($val as $rec) {
-                    $str .= 'alignment.same('.$hierarchy.'.taxon("'.$rec['Synonym_sci'].'"), dwh.taxon("'.$rec['Priority_sci'].'"))'."\n";
+                if($hierarchy != 'COL') { //from [New DH Synonyms], COL synonyms and respective left side will go to separation files: synonyms.tsv, taxonomy.tsv respectively
+                    foreach($val as $rec) {
+                        $str .= 'alignment.same('.$hierarchy.'.taxon("'.$rec['Synonym_sci'].'"), dwh.taxon("'.$rec['Priority_sci'].'"))'."\n";
+                    }
                 }
             }
             $str .= "dwh.align(alignment)\n";
@@ -1775,6 +1776,31 @@ php update_resources/connectors/dwh_v3.php _ COL
                 $resources_2_lookup[$rec['PriorityHierarchy']] = '';
             }
         }
+        
+        // print_r($taxonomy_tsv); exit;
+        /*[WOR] => Array(
+                    [22851] => Array(
+                            [sci] => Acuariidae Railliet, Henry & Sisoff, 1912
+                        )
+                    [2194] => Array(
+                            [sci] => Anoplostomatidae Gerlach & Riemann, 1974
+                        )
+        */
+        // /* added step: request ancestry given list of IDs ----------
+        require_library('connectors/GenericGetAncestryAPI');
+        $func_ancestry = new GenericGetAncestryAPI();
+        foreach($taxonomy_tsv as $what => $names) {
+            $ids = array_keys($names); // print_r($ids); print("\n[$what]\n");
+            $text_file = $this->main_path."/zDestination/$what/".'taxonomy.tsv';
+            $ancestries[$what] = $func_ancestry->get_ancestry_of_IDs_given_text_file($ids, $text_file);
+            echo "\nAncestries of [$what]: ".count($ancestries[$what])."\n";
+            // add ancestries to taxonomy_tsv
+            foreach($ancestries[$what] as $anc) $taxonomy_tsv[$what][$anc] = array('sci' => '');
+            // print_r($taxonomy_tsv); exit("\nstop muna 111\n");
+        }
+        // print_r($taxonomy_tsv); exit;
+        // ---------- */
+        
         /*step 2: to get parents of priority taxa, we need to loop/lookup to some resources */
         // print_r($resources_2_lookup); exit;
         foreach(array_keys($resources_2_lookup) as $what) { echo "\nLooking up [$what]\n";
