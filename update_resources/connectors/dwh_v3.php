@@ -145,6 +145,9 @@ cp results_2021_02_23.zip /home/eagbayani/temp/
 zip -r results_2021_02_23_orig.zip test
 cp results_2021_02_23_orig.zip /home/eagbayani/temp/
 
+zip -r results_2021_02_24.zip test
+cp results_2021_02_24.zip /home/eagbayani/temp/
+
 
 #zip -r results_default_taxonomy_tsv.zip test
 #zip -r results_big_taxonomy_tsv_with_complete_hierarchy.zip test
@@ -157,8 +160,7 @@ scp smasher:~/temp/test_2021_02_21.zip ~/Desktop/
 scp smasher:~/temp/results_2021_02_23.zip ~/Desktop/
 scp smasher:~/temp/results_2021_02_23_orig.zip ~/Desktop/
 
-#scp smasher:~/temp/results_default_taxonomy_tsv.zip ~/Desktop/
-#scp smasher:~/temp/results_big_taxonomy_tsv_with_complete_hierarchy.zip ~/Desktop/
+scp smasher:~/temp/results_2021_02_24.zip ~/Desktop/
 
 ====================================================================================================
 step: copy to eol-archive for Katja
@@ -172,12 +174,11 @@ Here is the raw Smasher output: https://editors.eol.org/other_files/DWH/1.1/resu
 Here is the DwCA based on Smasher output: https://editors.eol.org/other_files/DWH/1.1/2019_04_04.tar.gz
 Here is the taxon.tab file with higherClassification based on DwCA: https://editors.eol.org/other_files/DWH/1.1/taxon_with_higherClassification.tab.zip
 
-scp results_default_taxonomy_tsv.zip archive:~/temp/.
-scp results_big_taxonomy_tsv_with_complete_hierarchy.zip archive:~/temp/.
 
 scp results_2021_02_23.zip archive:~/temp/.
 scp results_2021_02_23_orig.zip archive:~/temp/.
 scp taxonomy.tsv archive:~/temp/.
+scp synonyms.tsv archive:~/temp/.
 
 
 for TRAM-991:
@@ -194,6 +195,14 @@ input_2021_02_21/taxonomy_Katja.tsv - what Katja attached in TRAM-991.
 Thanks,
 Eli
 
+cp synonyms.tsv /extra/other_files/DWH/2.0/
+scp newTaxonomy.tsv smasher:~/temp/.
+cp newTaxonomy.tsv /home/annethessen/reference-taxonomy/tax/separation/taxonomy.tsv
+
+scp results_2021_02_24.zip archive:~/temp/.
+cp results_2021_02_24.zip /extra/other_files/DWH/2.0/
+
+
 Hi Katja,
 I think I found why there is so few on my first run. COL was excluded in the Smasher app. That is now fixed.
 Here is the latest Smasher results using the original (separation) taxonomy.tsv you've attached in TRAM-991.
@@ -203,14 +212,10 @@ Here is the Smasher results using the taxonomy.tsv with added names with complet
 https://editors.eol.org/other_files/DWH/2.0/results_2021_02_23.zip
 Here is the taxonomy.tsv with added names with complete hierarchy.
 https://editors.eol.org/other_files/DWH/2.0/taxonomy.tsv
+https://editors.eol.org/other_files/DWH/2.0/synonyms.tsv
 
 For review.
 Thanks.
-
-
-
-
-
 
 
 */
