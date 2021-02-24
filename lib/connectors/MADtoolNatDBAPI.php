@@ -149,12 +149,17 @@ class MADtoolNatDBAPI
                     }
                     else $rek['occur']['lifeStage'] = $mapped_record['http://rs.tdwg.org/dwc/terms/lifeStage'];  //occurrence_property
                     $rek['occur']['occurrenceRemarks'] = $metadata;                                              //occurrence_property
+
+                    /* no more SampleSize in occurrence, move it to MoF child records. https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=65607&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65607
                     if($samplesize > 1) { //you can now add arbitrary cols in occurrence
                         $rek['occur']['SampleSize'] = $samplesize;              //occurrence_property - http://eol.org/schema/terms/SampleSize
                     }
+                    */
                     
                     if($val = @$this->main[$species]['occurrence']) {
+                        /* no more PATO_0000146, EO_0007196 in occurrence, move it to MoF child records. https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=65607&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65607
                         $rek = self::additional_occurrence_property($val, $rek, $metadata, $dataset);
+                        */
                     }
                     $rek['referenceID'] = self::generate_reference($dataset);
                     $rek = self::further_adjustments($rek, $mValue);
@@ -162,17 +167,26 @@ class MADtoolNatDBAPI
                     $occurrenceID = $ret_MoT_true['occurrenceID'];
                     $measurementID = $ret_MoT_true['measurementID'];
 
-                    /* now moved to occurrence
+                    // /* add child to MoF: SampleSize
                     $rek = array();
-                    $rek["taxon_id"] = $taxon_id;
-                    $rek["catnum"] = ''; //can be blank coz occurrenceID is already generated.
-                    $rek['occurrenceID'] = $occurrenceID; //this will be the occurrenceID for all mOfTaxon that is equal to 'false'. That is required.
+                    $rek["taxon_id"] = $taxon_id; //you don't need it
+                    $rek["catnum"] = ''; //you don't need it
+                    $rek['occurrenceID'] = '';
+                    $rek['measurementOfTaxon'] = '';
+                    $rek["parentMeasurementID"] = $measurementID;
                     if($samplesize > 1) {
                         $mType_var = 'http://eol.org/schema/terms/SampleSize';
                         $mValue_var = $samplesize;
-                        $this->func->add_string_types($rek, $mValue_var, $mType_var, "false");
+                        $this->func->add_string_types($rek, $mValue_var, $mType_var, "");
                     }
-                    */
+                    // */
+                    
+                    // /* add child to MoF: PATO_0000146 and EO_0007196 ----------
+                    if($val = @$this->main[$species]['occurrence']) {
+                        self::add_other_child_records($val, $taxon_id, $measurementID);
+                    }
+                    // ---------- */
+                    
                     if($mapped_record['dataset'] == ".benesh.2017") {
                         $mType_var = 'http://eol.org/schema/terms/TrophicGuild';
                         $mValue_var = 'http://www.wikidata.org/entity/Q12806437';
@@ -230,6 +244,75 @@ class MADtoolNatDBAPI
         if(@$rek['measurementUnit'] == 'kg/kg') $rek['measurementUnit'] = 'http://purl.obolibrary.org/obo/UO_0010006';
         return $rek;
     }
+    private function add_other_child_records($arr, $taxon_id, $measurementID)
+    {
+        $ret = array();
+        foreach($arr as $mType => $rec) {
+            if(in_array($mType, array('http://purl.obolibrary.org/obo/PATO_0000146', 'http://purl.obolibrary.org/obo/EO_0007196'))) {
+            // if(in_array($mType, array('http://purl.obolibrary.org/obo/PATO_0000146'))) {
+            // if(in_array($mType, array('http://purl.obolibrary.org/obo/EO_0007196'))) {
+                $ret[$mType] = $rec;
+                
+                $rek = array();
+                $rek["taxon_id"] = $taxon_id; //you don't need it
+                $rek["catnum"] = ''; //you don't need it
+                $rek['occurrenceID'] = '';
+                $rek['measurementOfTaxon'] = '';
+                $rek["parentMeasurementID"] = $measurementID;
+                foreach($rec as $value => $record) {
+                    $mType_var = $mType;
+                    $mValue_var = $value;
+                    $rek['measurementUnit'] = $record['r']['mu'];
+                    $rek['measurementRemarks'] = $record['r']['md'];
+                    $this->func->add_string_types($rek, $mValue_var, $mType_var, "");
+                }
+            }
+        }
+        /*
+        if($ret) {
+            echo "\n--------------\n";
+            print_r($ret);
+            echo "\n=============\n";
+        }
+        */
+        /*Array(
+            [http://purl.obolibrary.org/obo/PATO_0000146] => Array(
+                    [25] => Array(
+                            [temp__.benesh.2017_degc_] => 1
+                            [r] => Array(
+                                    [md] => Parasite.genus:Acanthocephalus;Parasite.group:acanthocephalan;Development.remarks:NA;Size.reported.as:NA;Size.remarks:NA;Author:Andryuk;Year:1979;Journal:Parazitologiya;Volume:13;Pages:530-539
+                                    [mr] => 
+                                    [mu] => http://purl.obolibrary.org/obo/UO_0000027
+                                    [ds] => .benesh.2017
+                                    [ty] => n
+                                )
+                        )
+                    [22] => Array(
+                            [temp__.benesh.2017_degc_] => 3
+                            [r] => Array(
+                                    [md] => Parasite.genus:Acanthocephalus;Parasite.group:acanthocephalan;Development.remarks:NA;Size.reported.as:range;Size.remarks:n for max is number of measured cystacanths from low int infections (<3);Author:Pilecka-Rapacz;Year:1986;Journal:Acta Parasitol.;Volume:26;Pages:233-250
+                                    [mr] => 
+                                    [mu] => http://purl.obolibrary.org/obo/UO_0000027
+                                    [ds] => .benesh.2017
+                                    [ty] => n
+                                )
+                        )
+
+        Array(
+            [http://purl.obolibrary.org/obo/EO_0007196] => Array(
+                    [full light (bare ground)] => Array(
+                            [light_full light (bare ground)_.falster.2015__] => 42
+                            [r] => Array(
+                                    [md] => studyName:Camac0000;location:Bogong High Plains, Victoria, Australia;latitude:-36.90574;longitude:147.27787;species:Grevillea australis;family:Proteaceae
+                                    [mr] => 
+                                    [mu] => 
+                                    [ds] => .falster.2015
+                                    [ty] => c
+                                )
+                        )
+                )
+        )*/
+    }
     private function additional_occurrence_property($arr, $retx, $metadata_x, $dataset_x)
     {   /* sample $arr value
         $a['Gadus morhua']['occurrence'] = Array(
@@ -268,8 +351,28 @@ class MADtoolNatDBAPI
                 }
             }
             // print_r($retx);
+            // if(in_array($property, array('PATO_0000146'))) { //debug only
+            // if(in_array($property, array('EO_0007196'))) { //debug only
+            //     print_r($arr);
+            //     print_r($final);
+            //     print_r($retx);
+            // }
         }
         return $retx;
+        /*Array(
+            [taxon_id] => grevillea_australis
+            [catnum] => n_0.00137
+            [measurementUnit] => http://purl.obolibrary.org/obo/UO_0000008
+            [measurementRemarks] => at base
+            [statisticalMethod] => http://www.ebi.ac.uk/efo/EFO_0001444
+            [occur] => Array(
+                    [lifeStage] => 
+                    [occurrenceRemarks] => studyName:Camac0000;location:Bogong High Plains, Victoria, Australia;latitude:-36.90574;longitude:147.27787;species:Grevillea australis;family:Proteaceae
+                    [fieldNotes] => field wild
+                    [EO_0007196] => full light (bare ground)
+                )
+        )
+        */
     }
     private function create_taxon($species)
     {
