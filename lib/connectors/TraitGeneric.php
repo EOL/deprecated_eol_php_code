@@ -43,10 +43,10 @@ class TraitGeneric
         // - MeasurementOfTaxon should be blank for child records.
         // - MeasurementOfTaxon should be 'false' if to represent additional metadata.
         if($measurementOfTaxon == '') {
-            if(@$rec['parentMeasurementID']) {} //means a child record
+            if(@$rec['parentMeasurementID']) $measurementOfTaxon = 'child'; //means a child record
             else $measurementOfTaxon = 'false';
         }
-        if(@$rec['parentMeasurementID']) $measurementOfTaxon = ''; //means a child record
+        if(@$rec['parentMeasurementID']) $measurementOfTaxon = 'child'; //means a child record
         // */
 
         $taxon_id = $rec["taxon_id"];
