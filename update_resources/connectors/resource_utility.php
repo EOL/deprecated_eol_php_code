@@ -126,6 +126,9 @@ natdb	                Tue 2020-12-01 10:00:47 PM	{"MoF":129380, "occurrence_spec
 natdb_meta_recoded_1	Tue 2020-12-01 10:02:15 PM	{"MoF":129380, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":87.87, "min":1.46, "hr":0.02}}
 natdb_meta_recoded	    Tue 2020-12-01 10:03:40 PM	{"MoF":129380, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":84.94, "min":1.42, "hr":0.02}}
 
+natdb	                Wed 2021-02-24 10:30:06 AM	{"MoF":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":314.37, "min":5.24, "hr":0.09}}
+natdb_meta_recoded_1	Wed 2021-02-24 10:31:57 AM	{"MoF":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":111.05, "min":1.85, "hr":0.03}}
+natdb_meta_recoded	    Wed 2021-02-24 10:33:41 AM	{"MoF":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":103.38, "min":1.72, "hr":0.03}}
 
 
 copepods	        Thursday 2019-07-11 08:30:46 AM	{"MoF":21345,"occurrence.tab":18259,"reference.tab":925,"taxon.tab":2644}
