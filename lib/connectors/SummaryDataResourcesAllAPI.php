@@ -231,6 +231,10 @@ class SummaryDataResourcesAllAPI
 
         $WRITE = self::start_write2DwCA($resource_id, 'BV');
         
+        $resource_id_consolid8 = 'parent_BV_consolid8'; 
+                 self::start_write2DwCA_consolid8($resource_id_consolid8, 'BV');
+        
+        
         // $excluded_page_ids = array('xxx', 'yyy'); //debug only
 
         /* for indicator */
@@ -278,6 +282,7 @@ class SummaryDataResourcesAllAPI
             }
         }
         fclose($WRITE); self::end_write2DwCA();
+                        self::end_write2DwCA_consolid8();
         if($GLOBALS['ENV_DEBUG']) print_r($this->debug);
         echo("\n-- end parents basal values --\n");
     }
@@ -622,13 +627,18 @@ class SummaryDataResourcesAllAPI
         // self::parse_DH(); //seems not needed here...?
         
         $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
-        // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
-        // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
-        // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
-        // $input[] = array('page_id' => 164, 'predicate' => "http://eol.org/schema/terms/Present"); //e.g. reached level 16. May need to extend more. LONG process.
+        $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
+        $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
+        $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
+        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
+        $input[] = array('page_id' => 164, 'predicate' => "http://eol.org/schema/terms/Present"); //e.g. reached level 16. May need to extend more. LONG process.
 
-        $resource_id = 'test_parent_BV'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
+        $input[] = array('page_id' => 46575784, 'predicate' => "http://eol.org/schema/terms/Present");
+
+
+        $resource_id = 'test_parent_BV';            $WRITE = self::start_write2DwCA($resource_id, 'BV');
+        $resource_id_consolid8 = 'test_parent_BV_consolid8'; self::start_write2DwCA_consolid8($resource_id_consolid8, 'BV');
+        
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
@@ -639,6 +649,7 @@ class SummaryDataResourcesAllAPI
             }
         }
         fclose($WRITE); self::end_write2DwCA();
+                        self::end_write2DwCA_consolid8();
         if($this->debug) {
             if($GLOBALS['ENV_DEBUG']) print_r($this->debug);
         }
