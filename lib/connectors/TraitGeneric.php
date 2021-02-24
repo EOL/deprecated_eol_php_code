@@ -32,14 +32,21 @@ class TraitGeneric
         if(!$value) return false;
         if(!$measurementType) return false;
 
+        // /* new Feb 24, 2021
+        if(isset($rec['http://eol.org/schema/parentMeasurementID'])) {
+            $rec['parentMeasurementID'] = $rec['http://eol.org/schema/parentMeasurementID'];
+            print("\nEli investigate this resource [$this->resource_id]\n");
+        } //should be $rec['parentMeasurementID] not $rec['http://eol.org/schema/parentMeasurementID']. Weird I missed it, it was the latter for some time now.
+        // */
+
         // /* Per Jen: https://eol-jira.bibalex.org/browse/DATA-1863?focusedCommentId=65399&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65399
         // - MeasurementOfTaxon should be blank for child records.
         // - MeasurementOfTaxon should be 'false' if to represent additional metadata.
         if($measurementOfTaxon == '') {
-            if(@$rec['http://eol.org/schema/parentMeasurementID']) {} //means a child record
+            if(@$rec['parentMeasurementID']) {} //means a child record
             else $measurementOfTaxon = 'false';
         }
-        if(@$rec['http://eol.org/schema/parentMeasurementID']) $measurementOfTaxon = ''; //means a child record
+        if(@$rec['parentMeasurementID']) $measurementOfTaxon = ''; //means a child record
         // */
 
         $taxon_id = $rec["taxon_id"];

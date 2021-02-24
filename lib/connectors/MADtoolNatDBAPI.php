@@ -172,12 +172,12 @@ class MADtoolNatDBAPI
                     $rek["taxon_id"] = $taxon_id; //you don't need it
                     $rek["catnum"] = ''; //you don't need it
                     $rek['occurrenceID'] = '';
-                    $rek['measurementOfTaxon'] = '';
+                    $rek['measurementOfTaxon'] = 'child';
                     $rek["parentMeasurementID"] = $measurementID;
                     if($samplesize > 1) {
                         $mType_var = 'http://eol.org/schema/terms/SampleSize';
                         $mValue_var = $samplesize;
-                        $this->func->add_string_types($rek, $mValue_var, $mType_var, "");
+                        $this->func->add_string_types($rek, $mValue_var, $mType_var, "child");
                     }
                     // */
                     
@@ -257,14 +257,14 @@ class MADtoolNatDBAPI
                 $rek["taxon_id"] = $taxon_id; //you don't need it
                 $rek["catnum"] = ''; //you don't need it
                 $rek['occurrenceID'] = '';
-                $rek['measurementOfTaxon'] = '';
+                $rek['measurementOfTaxon'] = 'child';
                 $rek["parentMeasurementID"] = $measurementID;
                 foreach($rec as $value => $record) {
                     $mType_var = $mType;
                     $mValue_var = $value;
                     $rek['measurementUnit'] = $record['r']['mu'];
                     $rek['measurementRemarks'] = $record['r']['md'];
-                    $this->func->add_string_types($rek, $mValue_var, $mType_var, "");
+                    $this->func->add_string_types($rek, $mValue_var, $mType_var, "child");
                 }
             }
         }
