@@ -70,9 +70,10 @@ class SDR_Consolid8API
     {
         $txt_file = CONTENT_RESOURCE_LOCAL_PATH.'parent_basal_values_resource.txt';
         $txt_file = 'https://editors.eol.org/other_files/SDR/parent_basal_values_resource.txt';
+        $local = Functions::save_remote_file_to_local($txt_file);
         echo "\n append_parent_BV_resource_txt...\n";
         $i = 0;
-        foreach(new FileIterator($txt_file) as $line => $row) { $i++;
+        foreach(new FileIterator($local) as $line => $row) { $i++;
             if(!$row) continue;
             $rec = explode("\t", $row);
             if($i == 1) {
@@ -113,6 +114,7 @@ class SDR_Consolid8API
                 $this->archive_builder->write_object_to_file($m);
             }
         }
+        if(unlink($local)) echo "\nTemp file deleted: $local\n";
     }
 }
 ?>
