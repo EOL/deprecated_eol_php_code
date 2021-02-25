@@ -69,6 +69,7 @@ class SDR_Consolid8API
     private function append_parent_BV_resource_txt()
     {
         $txt_file = CONTENT_RESOURCE_LOCAL_PATH.'parent_basal_values_resource.txt';
+        $txt_file = 'https://editors.eol.org/other_files/SDR/parent_basal_values_resource.txt';
         echo "\n append_parent_BV_resource_txt...\n";
         $i = 0;
         foreach(new FileIterator($txt_file) as $line => $row) { $i++;

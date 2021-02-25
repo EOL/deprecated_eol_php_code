@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_87618/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_87618/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_38219/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_38219/'
         );
         */
         
@@ -138,7 +138,7 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             */
-            // if($this->resource_id == '368_merged_MoF') break; //all extensions will be processed elsewhere. debug only, during dev only
+            // if($this->resource_id == 'parent_BV_consolid8') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == 'globi_associations') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if(stripos($this->resource_id, "_meta_recoded") !== false) break; //all extensions will be processed elsewhere. debug only, during dev only
             
@@ -312,6 +312,11 @@ class DwCA_Utility
         if(stripos($this->resource_id, "_meta_recoded") !== false) {
             require_library('connectors/MetaRecodingAPI');
             $func = new MetaRecodingAPI($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+        if(in_array($this->resource_id, array("parent_BV_consolid8"))) {
+            require_library('connectors/SDR_Consolid8API');
+            $func = new SDR_Consolid8API($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
         // ================================= end of customization ================================= */ 
