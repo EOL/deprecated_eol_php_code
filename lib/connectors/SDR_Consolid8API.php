@@ -8,17 +8,12 @@ class SDR_Consolid8API
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
     }
-    /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
     {
-        // require_library('connectors/TraitGeneric'); 
-        // $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-        /* START DATA-1841 terms remapping */
-        // $this->func->initialize_terms_remapping(60*60*24); //param is $expire_seconds. 0 means expire now.
-        /* END DATA-1841 terms remapping */
-        
         $tables = $info['harvester']->tables;
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'carry-over');
+        $MoF = $tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0];
+        self::process_measurementorfact($MoF, 'carry_over');
+        self::append_parent_BV_resource_txt();
     }
     private function process_measurementorfact($meta, $what)
     {   //print_r($meta);
@@ -35,7 +30,7 @@ class SDR_Consolid8API
                 if(!$field['term']) continue;
                 $rec[$field['term']] = $tmp[$k]; //put "@" as @$tmp[$k] during development
                 $k++;
-            } print_r($rec); exit;
+            } //print_r($rec); exit;
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/measurementID] => 81ec79aed2c2cc9ef21dbb386ad75d0d_parent_basal_values
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => f5c907b74855c54eac52d520c95cf30e_parent_basal_values
@@ -48,9 +43,7 @@ class SDR_Consolid8API
                 [http://eol.org/schema/parentMeasurementID] => 
             )*/
             $rec = array_map('trim', $rec);
-            if($what == 'carry-over') self::write_MoF_rec($rec);
-            elseif($what == 'consolidate_parent_BV') self::append_parent_BV_resource_txt($rec);
-            //===========================================================================================================================================================
+            if($what == 'carry_over') self::write_MoF_rec($rec);
             // if($i >= 10) break; //debug only
         }
     }
@@ -62,18 +55,63 @@ class SDR_Consolid8API
             $field = pathinfo($uri, PATHINFO_BASENAME);
             $m->$field = $rec[$uri];
         }
-
         /* add measurementID if missing --- New Jan 14, 2021
         if(!isset($m->measurementID)) {
             $m->measurementID = Functions::generate_measurementID($m, $this->resource_id); //3rd param is optional. If blank then it will consider all properties of the extension
         }
         */
-
         if(!isset($this->measurementIDs[$m->measurementID])) {
             $this->measurementIDs[$m->measurementID] = '';
             $this->archive_builder->write_object_to_file($m);
         }
         return $m;
+    }
+    private function append_parent_BV_resource_txt()
+    {
+        $txt_file = CONTENT_RESOURCE_LOCAL_PATH.'parent_basal_values_resource.txt';
+        echo "\n append_parent_BV_resource_txt...\n";
+        $i = 0;
+        foreach(new FileIterator($txt_file) as $line => $row) { $i++;
+            if(!$row) continue;
+            $rec = explode("\t", $row);
+            if($i == 1) {
+                $fields = $rec;
+                continue;
+            }
+            $rek = array(); $k = 0;
+            foreach($fields as $field) {
+                $rek[$field] = $rec[$k];
+                $k++;
+            }
+            // print_r($rek); exit;
+            /*Array(
+                [Page ID] => 288
+                [eol_pk] => R98-PK130902594
+                [Value URI] => http://www.marineregions.org/mrgid/1904
+                [Label] => https://eol.org/schema/terms/representative
+            )*/
+            /*Array(
+                [0] => Array(
+                        [0] => 46559217
+                        [1] => R101-PK131219120
+                        [2] => http://www.marineregions.org/mrgid/1908
+                        [3] => https://eol.org/schema/terms/representative  )
+                [1] => Array(
+                        [0] => 46559217
+                        [1] => R406-PK131150454
+                        [2] => http://www.marineregions.org/mrgid/1912
+                        [3] => https://eol.org/schema/terms/representative  )
+                )*/
+            $m = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific() for non-standard fields like 'm->label'
+            $m->measurementType     = 'https://eol.org/schema/terms/exemplary';
+            $m->measurementValue    = $rek['Label']; //$row[3];
+            $m->parentMeasurementEolPk = $rek['eol_pk']; //$row[1]; //http://eol.org/schema/parentMeasurementEolPk
+            $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement_specific');
+            if(!isset($this->measurementIDs[$m->measurementID])) {
+                $this->measurementIDs[$m->measurementID] = '';
+                $this->archive_builder->write_object_to_file($m);
+            }
+        }
     }
 }
 ?>

@@ -14,6 +14,13 @@ $dwca = CONTENT_RESOURCE_LOCAL_PATH.'parent_basal_values.tar.gz';
 $func = new DwCA_Utility($resource_id, $dwca);
 $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.tdwg.org/dwc/terms/occurrence');
 $func->convert_archive($preferred_rowtypes);
-Functions::finalize_dwca_resource($resource_id, true, true, $timestart);
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
+
+//diagnosing...
+require_library('connectors/DWCADiagnoseAPI');
+$func = new DWCADiagnoseAPI();
+$undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true); //2nd param true means output will write to text file
+echo "\nTotal undefined parents:" . count($undefined_parents)."\n"; unset($undefined_parents);
+
 // */
 ?>
