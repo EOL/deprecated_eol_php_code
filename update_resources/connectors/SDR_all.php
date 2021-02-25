@@ -94,8 +94,8 @@ $first_tasks = array("download_extract_zip_file", "build_MySQL_table_from_text",
 if(in_array($task, $first_tasks)) $stop_here = true;
 else                              $stop_here = false;
 
-$complex_consolid8 = false
-if(in_array($task, array('test_basal_values', 'print_basal_values'))) $complex_consolid8 = true
+$complex_consolid8 = false;
+if(in_array($task, array('test_basal_values', 'print_basal_values'))) $complex_consolid8 = true;
 $func = new SummaryDataResourcesAllAPI($resource_id, $folder_date, $complex_consolid8);
 
 if($task == 'download_extract_zip_file') $func->download_extract_zip_file($traits_zip_file, $folder_date);
