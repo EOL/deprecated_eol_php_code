@@ -9,7 +9,7 @@ has not yet been implemented here. Maybe by design but we'll know.
 */
 class SummaryDataResourcesAllAPI
 {
-    public function __construct($folder, $folder_date)
+    public function __construct($folder, $folder_date, $complex_consolid8)
     {
         $this->resource_id = $folder;
         /*
@@ -1531,7 +1531,7 @@ class SummaryDataResourcesAllAPI
         if($rows) self::consolidate_existing_records($rows);
         return;
     }
-    private function consolidate_existing_records($rows)
+    private function consolidate_existing_records($rows) //for basal_values only
     {   /*Array(
         [0] => Array(
                 [0] => 46559217
