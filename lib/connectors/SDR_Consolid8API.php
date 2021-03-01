@@ -10,9 +10,10 @@ class SDR_Consolid8API
         //initialize
         $this->input['parent_BV_consolid8']['txt_file'] = CONTENT_RESOURCE_LOCAL_PATH.'parent_basal_values_resource.txt.zip';
         $this->input['parent_BV_consolid8']['txt_file'] = 'https://editors.eol.org/other_files/SDR/parent_basal_values_resource.txt.zip';
-
         $this->input['TS_consolid8']['txt_file'] = CONTENT_RESOURCE_LOCAL_PATH.'taxon_summary_resource.txt.zip';
         $this->input['TS_consolid8']['txt_file'] = 'https://editors.eol.org/other_files/SDR/taxon_summary_resource.txt.zip';
+        $this->input['parent_TS_consolid8']['txt_file'] = CONTENT_RESOURCE_LOCAL_PATH.'parent_taxon_summary_resource.txt.zip';
+        $this->input['parent_TS_consolid8']['txt_file'] = 'https://editors.eol.org/other_files/SDR/parent_taxon_summary_resource.txt.zip';
         //end initialize
     }
     function start($info)
@@ -54,6 +55,12 @@ class SDR_Consolid8API
             Array( TS_consolid8
                 [http://rs.tdwg.org/dwc/terms/measurementID] => 0d377fe29dac1b3a346a1e31dd41c472_taxon_summary
                 [http://eol.org/schema/parentMeasurementID] => aef4e0c71c786d2a0390e2d9f13cb8b1_taxon_summary
+                [http://rs.tdwg.org/dwc/terms/measurementType] => https://eol.org/schema/terms/exemplary
+                [http://rs.tdwg.org/dwc/terms/measurementValue] => https://eol.org/schema/terms/representative
+            )
+            Array( parent_TS_consolid8
+                [http://rs.tdwg.org/dwc/terms/measurementID] => 9c7a40d47a1cb5b1cdb25f2e6111112f_parent_taxon_summary
+                [http://eol.org/schema/parentMeasurementID] => 3f26abe2c962521fce28ad706a344eb6_parent_taxon_summary
                 [http://rs.tdwg.org/dwc/terms/measurementType] => https://eol.org/schema/terms/exemplary
                 [http://rs.tdwg.org/dwc/terms/measurementValue] => https://eol.org/schema/terms/representative
             )
@@ -106,6 +113,10 @@ class SDR_Consolid8API
                     [temp_dir] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_73146/
                     [temp_file_path] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_73146/taxon_summary_resource.txt.zip
         )
+        Array(      [extracted_file] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_24478/parent_taxon_summary_resource.txt
+                    [temp_dir] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_24478/
+                    [temp_file_path] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_24478/parent_taxon_summary_resource.txt.zip
+        )
         */
         $local = $paths['extracted_file'];
         echo "\n append_resource_txt [$this->resource_id]...\n";
@@ -146,6 +157,12 @@ class SDR_Consolid8API
                 [Page ID] => 190593
                 [eol_pk] => R20-PK21695705
                 [object_page_id] => 1061757
+                [Label] => https://eol.org/schema/terms/representative
+            )
+            Array( parent_TS_consolid8
+                [Page ID] => 288
+                [eol_pk] => R20-PK21836738
+                [object_page_id] => 901752
                 [Label] => https://eol.org/schema/terms/representative
             )
             */

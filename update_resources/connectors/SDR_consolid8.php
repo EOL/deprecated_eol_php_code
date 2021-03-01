@@ -20,9 +20,10 @@ require_library('connectors/DwCA_Utility');
 //initialize
 $input['parent_BV_consolid8']['dwca'] = CONTENT_RESOURCE_LOCAL_PATH.'parent_basal_values.tar.gz';
 $input['parent_BV_consolid8']['dwca'] = 'https://editors.eol.org/other_files/SDR/parent_basal_values.tar.gz';
-
 $input['TS_consolid8']['dwca'] = CONTENT_RESOURCE_LOCAL_PATH.'taxon_summary.tar.gz';
 $input['TS_consolid8']['dwca'] = 'https://editors.eol.org/other_files/SDR/taxon_summary.tar.gz';
+$input['parent_TS_consolid8']['dwca'] = CONTENT_RESOURCE_LOCAL_PATH.'parent_taxon_summary.tar.gz';
+$input['parent_TS_consolid8']['dwca'] = 'https://editors.eol.org/other_files/SDR/parent_taxon_summary.tar.gz';
 //end initialize
 
 $dwca = $input[$resource_id]['dwca'];
