@@ -19,12 +19,14 @@ class SDR_Consolid8API
     {
         $tables = $info['harvester']->tables;
         $MoF = $tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0];
-        self::process_measurementorfact($MoF, 'carry_over');
+        $Assoc = $tables['http://eol.org/schema/association'][0];
+        self::process_table($MoF, 'measurement');
+        if(in_array($this->resource_id, array("TS_consolid8"))) self::process_table($Assoc, 'association');
         self::append_resource_txt();
     }
-    private function process_measurementorfact($meta, $what)
+    private function process_table($meta, $what)
     {   //print_r($meta);
-        echo "\nprocess_measurementorfact...[$what]\n"; $i = 0;
+        echo "\n process_table...[$what]\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -37,8 +39,8 @@ class SDR_Consolid8API
                 if(!$field['term']) continue;
                 $rec[$field['term']] = $tmp[$k]; //put "@" as @$tmp[$k] during development
                 $k++;
-            } //print_r($rec); exit;
-            /*Array(
+            } //print_r($rec); exit("\naaa\n");
+            /*Array( parent_BV_consolid8
                 [http://rs.tdwg.org/dwc/terms/measurementID] => 81ec79aed2c2cc9ef21dbb386ad75d0d_parent_basal_values
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => f5c907b74855c54eac52d520c95cf30e_parent_basal_values
                 [http://eol.org/schema/measurementOfTaxon] => true
@@ -48,28 +50,46 @@ class SDR_Consolid8API
                 [http://rs.tdwg.org/dwc/terms/measurementMethod] => summary of records available in EOL
                 [http://purl.org/dc/terms/source] => https://eol.org/terms/search_results?utf8=✓&term_query[clade_id]=288&term_query[filters_attributes][0][pred_uri]=http://eol.org/schema/terms/Present&term_query[filters_attributes][0][op]=is_any&term_query[result_type]=record&commit=Search
                 [http://eol.org/schema/parentMeasurementID] => 
-            )*/
+            )
+            Array( TS_consolid8
+                [http://rs.tdwg.org/dwc/terms/measurementID] => 0d377fe29dac1b3a346a1e31dd41c472_taxon_summary
+                [http://eol.org/schema/parentMeasurementID] => aef4e0c71c786d2a0390e2d9f13cb8b1_taxon_summary
+                [http://rs.tdwg.org/dwc/terms/measurementType] => https://eol.org/schema/terms/exemplary
+                [http://rs.tdwg.org/dwc/terms/measurementValue] => https://eol.org/schema/terms/representative
+            )
+            */
             $rec = array_map('trim', $rec);
-            if($what == 'carry_over') self::write_MoF_rec($rec);
+            self::write_MoF_rec($rec, $what);
             // if($i >= 10) break; //debug only
         }
     }
-    private function write_MoF_rec($rec)
+    private function write_MoF_rec($rec, $what)
     {
-        $m = new \eol_schema\MeasurementOrFact_specific();
+        if    ($what == 'measurement') $m = new \eol_schema\MeasurementOrFact_specific();
+        elseif($what == 'association') $m = new \eol_schema\Association_specific();
         $uris = array_keys($rec);
         foreach($uris as $uri) {
             $field = pathinfo($uri, PATHINFO_BASENAME);
+            if($field == 'IAO_0000009') $field = 'label';
             $m->$field = $rec[$uri];
         }
-        /* add measurementID if missing --- New Jan 14, 2021
+        /* add measurementID if missing --- New Jan 14, 2021 --- copied template
         if(!isset($m->measurementID)) {
             $m->measurementID = Functions::generate_measurementID($m, $this->resource_id); //3rd param is optional. If blank then it will consider all properties of the extension
         }
         */
-        if(!isset($this->measurementIDs[$m->measurementID])) {
-            $this->measurementIDs[$m->measurementID] = '';
-            $this->archive_builder->write_object_to_file($m);
+
+        if($what == 'measurement') {
+            if(!isset($this->measurementIDs[$m->measurementID])) {
+                $this->measurementIDs[$m->measurementID] = '';
+                $this->archive_builder->write_object_to_file($m);
+            }
+        }
+        elseif($what == 'association') {
+            if(!isset($this->associationIDs[$m->associationID])) {
+                $this->associationIDs[$m->associationID] = '';
+                $this->archive_builder->write_object_to_file($m);
+            }
         }
         return $m;
     }
@@ -77,11 +97,16 @@ class SDR_Consolid8API
     {   $zip_file = $this->input[$this->resource_id]['txt_file'];
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_zip_file($zip_file, array("timeout" => 172800, 'expire_seconds' => 60*60*24*1)); //print_r($paths);
-        /*Array( [extracted_file] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/parent_basal_values_resource.txt
-                 [temp_dir] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/
-                 [temp_file_path] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/parent_basal_values_resource.txt.zip
-        )*/
+        $paths = $func->extract_zip_file($zip_file, array("timeout" => 172800, 'expire_seconds' => 60*60*24*1)); //print_r($paths); exit("\nbbb\n");
+        /*Array(    [extracted_file] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/parent_basal_values_resource.txt
+                    [temp_dir] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/
+                    [temp_file_path] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/parent_basal_values_resource.txt.zip
+        )
+        Array(      [extracted_file] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_73146/taxon_summary_resource.txt
+                    [temp_dir] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_73146/
+                    [temp_file_path] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_73146/taxon_summary_resource.txt.zip
+        )
+        */
         $local = $paths['extracted_file'];
         echo "\n append_resource_txt [$this->resource_id]...\n";
         $i = 0;
@@ -97,14 +122,14 @@ class SDR_Consolid8API
                 $rek[$field] = $rec[$k];
                 $k++;
             }
-            // print_r($rek); exit;
-            /*Array(
+            // print_r($rek); exit("\nccc\n");
+            /*Array( parent_BV_consolid8
                 [Page ID] => 288
                 [eol_pk] => R98-PK130902594
                 [Value URI] => http://www.marineregions.org/mrgid/1904
                 [Label] => https://eol.org/schema/terms/representative
             )*/
-            /*Array(
+            /*Array( from original process...
                 [0] => Array(
                         [0] => 46559217
                         [1] => R101-PK131219120
@@ -115,7 +140,15 @@ class SDR_Consolid8API
                         [1] => R406-PK131150454
                         [2] => http://www.marineregions.org/mrgid/1912
                         [3] => https://eol.org/schema/terms/representative  )
-                )*/
+                )
+            */
+            /*Array( TS_consolid8
+                [Page ID] => 190593
+                [eol_pk] => R20-PK21695705
+                [object_page_id] => 1061757
+                [Label] => https://eol.org/schema/terms/representative
+            )
+            */
             $m = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific() for non-standard fields like 'm->label'
             $m->measurementType     = 'https://eol.org/schema/terms/exemplary';
             $m->measurementValue    = $rek['Label']; //$row[3];
