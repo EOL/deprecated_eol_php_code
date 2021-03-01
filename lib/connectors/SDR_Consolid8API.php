@@ -7,13 +7,20 @@ class SDR_Consolid8API
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
+        //initialize
+        $this->input['parent_BV_consolid8']['txt_file'] = CONTENT_RESOURCE_LOCAL_PATH.'parent_basal_values_resource.txt.zip';
+        $this->input['parent_BV_consolid8']['txt_file'] = 'https://editors.eol.org/other_files/SDR/parent_basal_values_resource.txt.zip';
+
+        $this->input['TS_consolid8']['txt_file'] = CONTENT_RESOURCE_LOCAL_PATH.'taxon_summary_resource.txt.zip';
+        $this->input['TS_consolid8']['txt_file'] = 'https://editors.eol.org/other_files/SDR/taxon_summary_resource.txt.zip';
+        //end initialize
     }
     function start($info)
     {
         $tables = $info['harvester']->tables;
         $MoF = $tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0];
         self::process_measurementorfact($MoF, 'carry_over');
-        self::append_parent_BV_resource_txt();
+        self::append_resource_txt();
     }
     private function process_measurementorfact($meta, $what)
     {   //print_r($meta);
@@ -66,12 +73,17 @@ class SDR_Consolid8API
         }
         return $m;
     }
-    private function append_parent_BV_resource_txt()
-    {
-        $txt_file = CONTENT_RESOURCE_LOCAL_PATH.'parent_basal_values_resource.txt';
-        $txt_file = 'https://editors.eol.org/other_files/SDR/parent_basal_values_resource.txt';
-        $local = Functions::save_remote_file_to_local($txt_file);
-        echo "\n append_parent_BV_resource_txt...\n";
+    private function append_resource_txt()
+    {   $zip_file = $this->input[$this->resource_id]['txt_file'];
+        require_library('connectors/INBioAPI');
+        $func = new INBioAPI();
+        $paths = $func->extract_zip_file($zip_file, array("timeout" => 172800, 'expire_seconds' => 60*60*24*1)); //print_r($paths);
+        /*Array( [extracted_file] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/parent_basal_values_resource.txt
+                 [temp_dir] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/
+                 [temp_file_path] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/parent_basal_values_resource.txt.zip
+        )*/
+        $local = $paths['extracted_file'];
+        echo "\n append_resource_txt [$this->resource_id]...\n";
         $i = 0;
         foreach(new FileIterator($local) as $line => $row) { $i++;
             if(!$row) continue;
@@ -114,7 +126,8 @@ class SDR_Consolid8API
                 $this->archive_builder->write_object_to_file($m);
             }
         }
-        if(unlink($local)) echo "\nTemp file deleted: $local\n";
+        recursive_rmdir($paths['temp_dir']);
+        echo ("\n temporary directory removed: " . $paths['temp_dir']);
     }
 }
 ?>

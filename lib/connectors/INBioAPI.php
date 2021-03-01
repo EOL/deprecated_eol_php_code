@@ -59,6 +59,32 @@ class INBioAPI
         elseif(substr($file,0,1) == '/') return file_get_contents($file);
         else exit("\nInvestigate get_contents() in INBioAPI.php\n");
     }
+    function extract_zip_file($dwca_file, $download_options = array('timeout' => 172800, 'expire_seconds' => 0))
+    {
+        debug("Please wait, extract_zip_file...");
+        $path_parts = pathinfo($dwca_file); print_r($path_parts); //exit;
+        if(strtolower($path_parts['extension']) != 'zip') exit("\nERROR: Not a zip file.\n");
+        $filename = $path_parts['basename'];
+        $temp_dir = create_temp_dir() . "/";
+        debug($temp_dir);
+        if($file_contents = self::get_contents($dwca_file, $download_options)) {
+            $temp_file_path = $temp_dir . "" . $filename;
+            debug("temp_dir: $temp_dir");
+            debug("Extracting... $temp_file_path");
+            if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
+            fwrite($TMP, $file_contents);
+            fclose($TMP);
+            sleep(5);
+            shell_exec("unzip -ad $temp_dir $temp_file_path");
+            $extracted_file = str_ireplace(".zip", "", $temp_file_path);
+            return array('extracted_file' => $extracted_file, 'temp_dir' => $temp_dir, 'temp_file_path' => $temp_file_path);
+            /*Array(
+                [extracted_file] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/parent_basal_values_resource.txt
+                [temp_dir] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/
+                [temp_file_path] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/parent_basal_values_resource.txt.zip
+            )*/
+        }
+    }
     function extract_archive_file($dwca_file, $check_file_or_folder_name, $download_options = array('timeout' => 172800, 'expire_seconds' => 0), $force_extension = false) //e.g. with force_extension is NMNHTypeRecordAPI_v2.php
     {
         debug("Please wait, downloading resource document...");
