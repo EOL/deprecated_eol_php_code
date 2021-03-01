@@ -4,6 +4,7 @@ namespace php_active_record;
 php update_resources/connectors/SDR_consolid8.php _ parent_BV_consolid8
 php update_resources/connectors/SDR_consolid8.php _ TS_consolid8
 php update_resources/connectors/SDR_consolid8.php _ parent_TS_consolid8
+php update_resources/connectors/SDR_consolid8.php _ consolidate_all_reports
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
@@ -12,6 +13,13 @@ $timestart = time_elapsed();
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $resource_id                 = @$argv[2]; //useful here
 
+if($resource_id == 'consolidate_all_reports')
+{
+    require_library('connectors/SDR_Consolid8API');
+    $func = new SDR_Consolid8API(false, $resource_id);
+    $func->consolidate_all_reports();
+    return;
+}
 
 // /* //main operation
 require_library('connectors/DwCA_Utility');

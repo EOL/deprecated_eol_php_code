@@ -15,7 +15,90 @@ class SDR_Consolid8API
         $this->input['parent_TS_consolid8']['txt_file'] = CONTENT_RESOURCE_LOCAL_PATH.'parent_taxon_summary_resource.txt.zip';
         $this->input['parent_TS_consolid8']['txt_file'] = 'https://editors.eol.org/other_files/SDR/parent_taxon_summary_resource.txt.zip';
         //end initialize
+        
+        
+        $this->all['BV'] = 'https://editors.eol.org/other_files/SDR/BV_consolid8.tar.gz';
+        $this->all['pBV'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/parent_BV_consolid8.tar.gz';
+        $this->all['TS'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/TS_consolid8.tar.gz';
+        $this->all['pTS'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/parent_TS_consolid8.tar.gz';
+        $this->all['Num'] = 'https://editors.eol.org/other_files/SDR/Numerical_value.zip';
     }
+    /* START consolidate all */
+    function consolidate_all_reports()
+    {
+        $this->resource_id = 'SDR_consolidated';
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array("directory_path" => $this->path_to_archive_directory));
+        
+        foreach($this->all as $what => $dwca) {
+            echo "\n$what = $dwca\n";
+            $info = self::extract($dwca, array("timeout" => 172800, 'expire_seconds' => 60*60*24*1));
+            $temp_dir = $info['temp_dir'];
+            $harvester = $info['harvester'];
+            $tables = $info['tables'];
+            $index = $info['index'];
+            self::append_dwca($info);
+        }
+        
+        $this->archive_builder->finalize(TRUE);
+        // /* un-comment in real operation -- remove temp dir
+        recursive_rmdir($temp_dir);
+        echo ("\n temporary directory removed: " . $temp_dir);
+        // */
+        
+        
+        exit;
+    }
+    private function append_dwca($info)
+    {
+        $tables = $info['harvester']->tables;
+        // print_r(array_keys($tables)); exit("\nelix1\n");
+        /*Array(
+            [0] => http://rs.tdwg.org/dwc/terms/measurementorfact
+            [1] => http://rs.tdwg.org/dwc/terms/taxon
+            [2] => http://rs.tdwg.org/dwc/terms/occurrence
+        )*/
+        foreach(array_keys($tables) as $extension) {
+            // print_r(pathinfo($extension)); exit("\nelix2\n");
+            self::process_table($tables[$extension][0], pathinfo($extension, PATHINFO_BASENAME));
+        }
+        
+        // $MoF = $tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0];
+        // $Assoc = $tables['http://eol.org/schema/association'][0];
+        // self::process_table($MoF, 'measurement');
+        // if(in_array($this->resource_id, array("TS_consolid8", "parent_TS_consolid8"))) self::process_table($Assoc, 'association');
+    }
+    private function extract($dwca_file = false, $download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1))
+    {
+        if($dwca_file) $this->dwca_file = $dwca_file;
+        // /* un-comment in real operation
+        require_library('connectors/INBioAPI');
+        $func = new INBioAPI();
+        $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
+        // print_r($paths); exit("\n-exit muna-\n");
+        // */
+        /* development only
+        $paths = Array(
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_37560/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_37560/'
+        );
+        // dir_51489 - parent_BV_consolid8
+        // dir_18969 - TS_consolid8
+        // dir_37560 - parent_TS_consolid8
+        */
+        $archive_path = $paths['archive_path'];
+        $temp_dir = $paths['temp_dir'];
+        $harvester = new ContentArchiveReader(NULL, $archive_path);
+        $tables = $harvester->tables;
+        $index = array_keys($tables);
+        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
+            debug("Invalid archive file. Program will terminate.");
+            return false;
+        }
+        return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
+    }
+    
+    /* END consolidate all */
     function start($info)
     {
         $tables = $info['harvester']->tables;
