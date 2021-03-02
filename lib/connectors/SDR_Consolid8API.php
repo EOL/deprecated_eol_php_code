@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* connector: [called from DwCA_Utility.php, which is called from SDR_consolid8.php for DATA-1777] */
+/* connector: [called from:
+1. DwCA_Utility.php, which is called from SDR_consolid8.php for DATA-1777]
+2. SDR_consolid8.php _ SDR_consolidated -> when consolidating all reports
+*/
 class SDR_Consolid8API
 {
     function __construct($archive_builder, $resource_id)
@@ -8,11 +11,13 @@ class SDR_Consolid8API
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
         //initialize
+        /* local source
         $this->input['parent_BV_consolid8']['txt_file'] = CONTENT_RESOURCE_LOCAL_PATH.'parent_basal_values_resource.txt.zip';
-        $this->input['parent_BV_consolid8']['txt_file'] = 'https://editors.eol.org/other_files/SDR/parent_basal_values_resource.txt.zip';
         $this->input['TS_consolid8']['txt_file'] = CONTENT_RESOURCE_LOCAL_PATH.'taxon_summary_resource.txt.zip';
-        $this->input['TS_consolid8']['txt_file'] = 'https://editors.eol.org/other_files/SDR/taxon_summary_resource.txt.zip';
         $this->input['parent_TS_consolid8']['txt_file'] = CONTENT_RESOURCE_LOCAL_PATH.'parent_taxon_summary_resource.txt.zip';
+        */
+        $this->input['parent_BV_consolid8']['txt_file'] = 'https://editors.eol.org/other_files/SDR/parent_basal_values_resource.txt.zip';
+        $this->input['TS_consolid8']['txt_file'] = 'https://editors.eol.org/other_files/SDR/taxon_summary_resource.txt.zip';
         $this->input['parent_TS_consolid8']['txt_file'] = 'https://editors.eol.org/other_files/SDR/parent_taxon_summary_resource.txt.zip';
         //end initialize
         
@@ -53,22 +58,15 @@ class SDR_Consolid8API
     }
     private function append_dwca($info)
     {
-        $tables = $info['harvester']->tables;
-        // print_r(array_keys($tables)); //exit("\nelix1\n");
+        $tables = $info['harvester']->tables; // print_r(array_keys($tables)); //exit("\nelix1\n");
         /*Array(
             [0] => http://rs.tdwg.org/dwc/terms/measurementorfact
             [1] => http://rs.tdwg.org/dwc/terms/taxon
             [2] => http://rs.tdwg.org/dwc/terms/occurrence
         )*/
-        foreach(array_keys($tables) as $extension) {
-            // print_r(pathinfo($extension)); exit("\nelix2\n");
+        foreach(array_keys($tables) as $extension) { // print_r(pathinfo($extension)); exit("\nelix2\n");
             self::process_table($tables[$extension][0], pathinfo($extension, PATHINFO_BASENAME));
         }
-        
-        // $MoF = $tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0];
-        // $Assoc = $tables['http://eol.org/schema/association'][0];
-        // self::process_table($MoF, 'measurement');
-        // if(in_array($this->resource_id, array("TS_consolid8", "parent_TS_consolid8"))) self::process_table($Assoc, 'association');
     }
     private function extract($dwca_file = false, $download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1))
     {
@@ -84,9 +82,6 @@ class SDR_Consolid8API
             'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_37560/',
             'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_37560/'
         );
-        // dir_51489 - parent_BV_consolid8
-        // dir_18969 - TS_consolid8
-        // dir_37560 - parent_TS_consolid8
         */
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
@@ -94,7 +89,7 @@ class SDR_Consolid8API
         $tables = $harvester->tables;
         $index = array_keys($tables);
         if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
-            debug("Invalid archive file. Program will terminate.");
+            exit("\nInvalid archive file. Program will terminate [SDR_Consolid8API.php].\n");
             return false;
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
@@ -208,8 +203,7 @@ class SDR_Consolid8API
         else                   $zip_file = $this->input[$this->resource_id]['txt_file'];
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_zip_file($zip_file, array("timeout" => 172800, 'expire_seconds' => 60*60*24*1)); //print_r($paths); exit("\nbbb\n");
-
+        $paths = $func->extract_zip_file($zip_file, array("timeout" => 172800, 'expire_seconds' => 60*60*24*1));
         // print_r(pathinfo($paths['temp_file_path'])); exit;
         /*Array(
             [dirname] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_20647
@@ -220,7 +214,7 @@ class SDR_Consolid8API
         $pathinfo_basename = pathinfo($paths['temp_file_path'], PATHINFO_BASENAME);
         if($pathinfo_basename == 'Numerical_value.zip') $Numerical_value_YN = true;
         else $Numerical_value_YN = false;
-
+        //print_r($paths); exit("\nbbb\n");
         /*Array(    [extracted_file] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/parent_basal_values_resource.txt
                     [temp_dir] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/
                     [temp_file_path] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_68666/parent_basal_values_resource.txt.zip
@@ -306,7 +300,7 @@ class SDR_Consolid8API
                 $this->archive_builder->write_object_to_file($m);
             }
             
-            /* Seems no need to add taxa here. Since Page ID wan't recorded anyway.
+            /* Seems no need to add taxa here. Since Page ID wan't be recorded anyway. DO NOT UN-COMMENT.
             // if($Numerical_value_YN) {
             if(true) {
                 $m = new \eol_schema\Taxon();

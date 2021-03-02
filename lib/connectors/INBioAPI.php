@@ -61,7 +61,7 @@ class INBioAPI
     }
     function extract_zip_file($dwca_file, $download_options = array('timeout' => 172800, 'expire_seconds' => 0))
     { //1st client is lib/connectors/SDR_Consolid8API.php
-        debug("Please wait, extract_zip_file...");
+        debug("Please wait, extract_zip_file [$dwca_file]...");
         $path_parts = pathinfo($dwca_file); //print_r($path_parts); //exit;
         /*Array( [dirname] => https://editors.eol.org/other_files/SDR
                  [basename] => parent_basal_values_resource.txt.zip
