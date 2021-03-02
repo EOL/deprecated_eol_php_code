@@ -319,7 +319,7 @@ class SDR_Consolid8API
             }
             
         }
-        // recursive_rmdir($paths['temp_dir']);
+        recursive_rmdir($paths['temp_dir']);
         echo ("\n temporary directory removed: " . $paths['temp_dir']);
     }
 }
