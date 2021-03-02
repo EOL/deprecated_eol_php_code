@@ -306,6 +306,7 @@ class SDR_Consolid8API
                 $this->archive_builder->write_object_to_file($m);
             }
             
+            /* Seems no need to add taxa here. Since Page ID wan't recorded anyway.
             // if($Numerical_value_YN) {
             if(true) {
                 $m = new \eol_schema\Taxon();
@@ -317,6 +318,7 @@ class SDR_Consolid8API
                     @$this->debug[$pathinfo_basename]['taxon added from Numerical_value']++;
                 }
             }
+            */
             
         }
         recursive_rmdir($paths['temp_dir']);
