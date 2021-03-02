@@ -5,6 +5,16 @@ php update_resources/connectors/SDR_consolid8.php _ parent_BV_consolid8
 php update_resources/connectors/SDR_consolid8.php _ TS_consolid8
 php update_resources/connectors/SDR_consolid8.php _ parent_TS_consolid8
 php update_resources/connectors/SDR_consolid8.php _ SDR_consolidated
+
+in jenkins.eol.org:
+php5.6 SDR_consolid8.php jenkins parent_BV_consolid8
+php5.6 SDR_consolid8.php jenkins TS_consolid8
+php5.6 SDR_consolid8.php jenkins parent_TS_consolid8
+php5.6 SDR_consolid8.php jenkins SDR_consolidated
+
+SDR_consolidated	Tue 2021-03-02 11:22:42 AM	{"association_specific.tab":25078, "measurement_or_fact_specific.tab":1964045, "occurrence.tab":312630, "taxon.tab":90371, "time_elapsed":{"sec":1312.96, "min":21.88, "hr":0.36}} Mac Mini
+SDR_consolidated	Tue 2021-03-02 11:23:36 AM	{"association_specific.tab":25078, "measurement_or_fact_specific.tab":1964045, "occurrence.tab":312630, "taxon.tab":90371, "time_elapsed":{"sec":769.91, "min":12.83, "hr":0.21}} eol-archive
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
