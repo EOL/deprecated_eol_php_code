@@ -99,9 +99,11 @@ class SDR_Consolid8API
     {
         $tables = $info['harvester']->tables;
         $MoF = $tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0];
-        $Assoc = $tables['http://eol.org/schema/association'][0];
         self::process_table($MoF, 'measurement');
-        if(in_array($this->resource_id, array("TS_consolid8", "parent_TS_consolid8"))) self::process_table($Assoc, 'association');
+        if(in_array($this->resource_id, array("TS_consolid8", "parent_TS_consolid8"))) {
+            $Assoc = $tables['http://eol.org/schema/association'][0];
+            self::process_table($Assoc, 'association');
+        }
         self::append_resource_txt();
     }
     private function process_table($meta, $what)
