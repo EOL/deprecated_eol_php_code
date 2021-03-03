@@ -85,9 +85,10 @@ class BOLD2iNaturalistAPI_csv
                     $rek['iNat_desc'] = $rec['notes'];
                     $rek['coordinates'] = $this->get_coordinates($rec);
                     $rek['iNat_place_guess'] = $rec['locality'];
-                    $rek['image_urls'] = self::get_image_urls_csv($rec);
+                    $rek['image_urls'] = self::get_arr_from_pipe_delimited_string($rec['relevantMedia']);
                     $rek['date_collected'] = $rec['date'];
                     $rek['OFields'] = $final;
+                    $rek['flickr_photo_IDs'] = self::get_arr_from_pipe_delimited_string(@$rec['FlickrID']);
                     $count++;
                     // self::save_observation_and_images_2iNat($rek, $rec);
                     print_r($rek);
@@ -96,14 +97,11 @@ class BOLD2iNaturalistAPI_csv
             }
         }
     }
-    private function get_image_urls_csv($rec)
-    {   /* These fields are pipe "|" delimited if there are multiple images:
-        image_ids	image_urls	media_descriptors	captions	copyright_holders	copyright_years	copyright_licenses	copyright_institutions	photographers
-        */
-        if($val = $rec['relevantMedia']) {
-            $arr = explode("|", $val);
-            $arr = array_map('trim', $arr);
-            // print_r($arr);
+    private function get_arr_from_pipe_delimited_string($str)
+    {
+        if($str) {
+            $arr = explode("|", $str);
+            $arr = array_map('trim', $arr); // print_r($arr);
             return $arr;
         }
     }

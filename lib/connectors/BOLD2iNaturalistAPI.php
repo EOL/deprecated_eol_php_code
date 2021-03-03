@@ -100,10 +100,10 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             $this->path['summary_folder'] = $path;
             
             $this->observation_fields = array('uniqueID', 'museumID', 'CMECS_geoform', 'CMECS_substrate', 'habitat', 'microhabitat', 'depthRange', 'lifeStage', 'sex', 'aliveOrDead', 'recordedBy');
-            $this->OField_ID['uniqueID']        = ''; 
-            $this->OField_ID['museumID']        = ''; 
-            $this->OField_ID['CMECS_geoform']   = ''; 
-            $this->OField_ID['CMECS_substrate'] = ''; 
+            $this->OField_ID['uniqueID']        = '13177';
+            $this->OField_ID['museumID']        = '13175';
+            $this->OField_ID['CMECS_geoform']   = '13178';
+            $this->OField_ID['CMECS_substrate'] = '13179';
             $this->OField_ID['habitat']         = '10';
             $this->OField_ID['microhabitat']    = '2882';
             $this->OField_ID['depthRange']      = '8906';
@@ -494,7 +494,6 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         observation[observation_field_values_attributes][1][observation_field_id]=10&observation[observation_field_values_attributes][0][value]="mountains"
         */
 
-        
         $input_arr['observation'] = array(
             'species_guess' => $rek['sciname'],
             'taxon_id' => $rek['iNat_taxonID'],
@@ -510,6 +509,12 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             foreach($OField as $of) { $i++;
                 $input_arr['observation_field_values_attributes'][$i]['observation_field_id'] = $of['id'];
                 $input_arr['observation_field_values_attributes'][$i]['value'] = $of['value'];
+            }
+        }
+        if($photo_IDs = @$rek['flickr_photo_IDs']) {
+            $i = -1;
+            foreach($photo_IDs as $id) { $i++;
+                $input_arr['flickr_photos'][$i] = $id;
             }
         }
         
@@ -650,7 +655,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         $cache_path = $options['cache_path'] . "$cache1/$cache2/$filename";
         if(file_exists($cache_path)) {} //echo("\nFile already exists\n");
         else {
-            echo("\nSaving photo to local...\n");
+            echo("\nSaving photo to local...[$cache_path]\n");
             self::save_image($url, $cache_path);
         }
         return $cache_path;
