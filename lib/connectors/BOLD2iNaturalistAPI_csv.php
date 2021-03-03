@@ -24,7 +24,7 @@ class BOLD2iNaturalistAPI_csv
             else { //main records
                 $values = $row;
                 if(count($fields) != count($values)) { //row validation - correct no. of columns
-                    print_r($values); print_r($rec); print_r($fields);
+                    print_r($values); print_r($fields);
                     echo "\n$count != ".count($values)."\n";
                     exit("\nWrong CSV format for this row.\n");
                     // $this->debug['wrong csv'][$class]['identifier'][$rec['identifier']] = '';
