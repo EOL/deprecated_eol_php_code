@@ -33,7 +33,7 @@ class BOLD2iNaturalistAPI_csv
                 $k = 0;
                 $rec = array();
                 foreach($fields as $field) {
-                    $rec[$field] = $values[$k];
+                    $rec[$field] = ($values[$k] != 'NA') ? $values[$k] : "";
                     $k++;
                 }
                 $rec = array_map('trim', $rec); //print_r($rec); //exit;
@@ -82,7 +82,7 @@ class BOLD2iNaturalistAPI_csv
                     $rek['rank'] = '';
                     debug("\nSearching for '$rek[sciname]' with rank '$rek[rank]'\n");
                     $rek['iNat_taxonID'] = $this->get_iNat_taxonID($rek);
-                    $rek['iNat_desc'] = ($rec['notes']!='NA') ? $rec['notes'] : "";
+                    $rek['iNat_desc'] = $rec['notes'];
                     $rek['coordinates'] = $this->get_coordinates($rec);
                     $rek['iNat_place_guess'] = $rec['locality'];
                     $rek['image_urls'] = self::get_image_urls_csv($rec);
