@@ -16,7 +16,13 @@ Sample with 2 observations, each has a photo    ---> 'Abudefduf sordidus'
 Sample with 1 observation, 3 photos             ---> 'Diodon hystrix'
 
 First record created: https://www.inaturalist.org/observations.json?id=37814858
+
+For Katie O. csv
+$json = '{"JWT":"5e18007deaf128b0f2f87d8aea79da3aae7d0b127526ba806761cb0ef0100050" , "token_type":"Bearer", "Proj":"", "Taxon":"", "Dept":"FISH" , "Proj_refresh":"0" , "Katie_O_csv":"Yes"}';
+php update_resources/connectors/bold2inat.php _ 1614743288.csv _ _ '$json'
+php update_resources/connectors/bold2inat.php _ 1614743288.csv _ _ '{"JWT":"5e18007deaf128b0f2f87d8aea79da3aae7d0b127526ba806761cb0ef0100050" , "token_type":"Bearer", "Proj":"", "Taxon":"", "Dept":"FISH" , "Proj_refresh":"0" , "Katie_O_csv":"Yes"}'
 */
+
 
 // print_r(pathinfo('http://www.boldsystems.org/index.php/API_Public/specimen?container=KANB&format=tsv')); exit;
 
@@ -65,8 +71,7 @@ $params['filename']         = @$argv[2];
 $params['form_url']         = @$argv[3];
 $params['uuid']             = @$argv[4];
 $params['json']             = @$argv[5];
-
-// print_r($params); exit;
+// print_r($params); exit("\nccc\n");
 /*Array(
     [jenkins_or_cron] => jenkins
     [filename] => 1574915471.zip
@@ -81,7 +86,7 @@ if($val = $params['json'])     $json = $val;
 else                           $json = '';
 
 $resource_id = ''; //no longer used from here
-$func = new BOLD2iNaturalistAPI('bold2inat');
+$func = new BOLD2iNaturalistAPI('bold2inat_csv');
 $func->start($filename, $form_url, $uuid, $json);
 // Functions::get_time_elapsed($timestart);
 ?>

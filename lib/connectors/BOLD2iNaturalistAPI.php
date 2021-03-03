@@ -138,6 +138,9 @@ class BOLD2iNaturalistAPI
                 else echo "\nNo records found. Please modify search parameters.\n";
             }
         }
+        elseif($this->app == 'bold2inat_csv') {
+            self::process_KatieO_csv($filename);
+        }
 
         /* not used here...
         // for $form_url:
@@ -1212,5 +1215,12 @@ class BOLD2iNaturalistAPI
         unlink($local_xls);
         */
     }
+    /* =============================== START KatieO csv =============================== */
+    private function process_KatieO_csv($filename)
+    {
+        exit("\n[$filename]\n");
+    }
+    /* =============================== END KatieO csv =============================== */
+
 }
 ?>
