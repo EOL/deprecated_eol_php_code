@@ -85,8 +85,12 @@ else                           $uuid = '';
 if($val = $params['json'])     $json = $val;
 else                           $json = '';
 
+$obj = json_decode($params['json']); //print_r($json); exit("\n100\n");
+if(@$obj->Katie_O_csv == "Yes") $app = 'bold2inat_csv';
+else                            $app = 'bold2inat'; //orig
+
 $resource_id = ''; //no longer used from here
-$func = new BOLD2iNaturalistAPI('bold2inat_csv');
+$func = new BOLD2iNaturalistAPI($app);
 $func->start($filename, $form_url, $uuid, $json);
 // Functions::get_time_elapsed($timestart);
 ?>

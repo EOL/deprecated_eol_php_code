@@ -63,6 +63,7 @@ applications/specimen_image_export/temp/*
 applications/specimen_export/zdev_samples/*
 applications/specimen_export/zbak/*
 applications/BOLD2iNAT/temp/*
+applications/BOLD2iNAT_csv/temp/*
 applications/dwc_validator_jenkins/temp/*
 
 config/constants.php
