@@ -1,6 +1,14 @@
 <?php
 namespace php_active_record;
-/* class extends from BOLD2iNaturalistAPI - this is for Katie O. csv template upload to iNat */
+/* class extends from BOLD2iNaturalistAPI - this is for Katie O. csv template upload to iNat
+https://www.inaturalist.org/pages/api+reference#post-observations
+- added provision for atomized data by using Observation Fields Attributes.
+- added provision to use Flick photos.
+
+The photo Flickr ID is 291793938 in these examples:
+https://www.flickr.com/photos/samjudson/291793938/
+https://www.flickr.com/photo.gne?id=291793938
+*/
 class BOLD2iNaturalistAPI_csv
 {
     function __construct()
