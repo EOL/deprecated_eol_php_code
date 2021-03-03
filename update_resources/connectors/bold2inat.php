@@ -33,6 +33,7 @@ $GLOBALS['ENV_DEBUG'] = false;
 // error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
 // */
 ini_set('memory_limit','7096M');
+require_library('connectors/BOLD2iNaturalistAPI_csv');
 require_library('connectors/BOLD2iNaturalistAPI');
 $timestart = time_elapsed();
 

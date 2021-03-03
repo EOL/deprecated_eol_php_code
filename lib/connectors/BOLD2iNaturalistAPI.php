@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connectors: [bold2inat.php] https://eol-jira.bibalex.org/browse/COLLAB-1004 */
-class BOLD2iNaturalistAPI
+class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
 {
     function __construct($app)
     {
@@ -69,6 +69,37 @@ class BOLD2iNaturalistAPI
             $this->html['by processid'] = 'http://www.boldsystems.org/index.php/Public_RecordView?processid=PROCESS_ID';
         }
         /* ============================= END for bold2inat ============================= */
+
+        /* ============================= START for bold2inat_csv ============================= */
+        if($app == 'bold2inat_csv') {
+            $this->input['path'] = DOC_ROOT.'/applications/BOLD2iNAT_csv/temp/'; //input.csv
+            $dir = $this->input['path'];
+            if(!is_dir($dir)) mkdir($dir);
+            
+            $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."KatieO_bold2inat/";
+            $dir = $this->resources['path'];
+            if(!is_dir($dir)) mkdir($dir);
+            
+            $this->inat_service['taxa'] = 'https://api.inaturalist.org/v1/taxa?q=NAME_STR&rank=RANK_STR';
+            
+            //create working folders
+            if(Functions::is_production()) $main_path = "/extra/other_files/KatieO_CSV/";
+            else                           $main_path = "/Volumes/AKiTiO4/other_files/KatieO_CSV/";
+            if(!is_dir($main_path)) mkdir($main_path);
+            
+            $path = $main_path."Bold2iNat_csv/";
+            if(!is_dir($path)) mkdir($path);
+            $this->path['image_folder'] = $path;
+            
+            $path = $main_path."TSVs/";
+            if(!is_dir($path)) mkdir($path);
+            $this->path['TSV_folder'] = $path;
+
+            $path = $main_path."summary/";
+            if(!is_dir($path)) mkdir($path);
+            $this->path['summary_folder'] = $path;
+        }
+        /* ============================= END for bold2inat_csv ============================= */
     }
     private function summary_report($what, $arr = array())
     {
@@ -139,7 +170,7 @@ class BOLD2iNaturalistAPI
             }
         }
         elseif($this->app == 'bold2inat_csv') {
-            self::process_KatieO_csv($filename);
+            self::process_KatieO_csv($filename); //main loop for the CSV file
         }
 
         /* not used here...
@@ -1215,12 +1246,5 @@ class BOLD2iNaturalistAPI
         unlink($local_xls);
         */
     }
-    /* =============================== START KatieO csv =============================== */
-    private function process_KatieO_csv($filename)
-    {
-        exit("\n[$filename]\n");
-    }
-    /* =============================== END KatieO csv =============================== */
-
 }
 ?>
