@@ -287,6 +287,22 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
                     $rek['iNat_place_guess'] = $rec['exactsite'];
                     $rek['image_urls'] = self::get_image_urls($rec);
                     $rek['date_collected'] = self::get_date_collected_from_html($rec);
+                    // print_r($rek); exit("\n222\n");
+                    /*Array(
+                        [sciname] => Lutjanus fulvus
+                        [rank] => species
+                        [iNat_taxonID] => 121459
+                        [iNat_desc] => Hawaii, Oahu, Kaneohe Bay, He`eia fish pond. Collected between 0-3 meters. Identified by: Zeehan Jaafar.
+                        [coordinates] => Array(
+                                [lat] => 21.4372
+                                [lon] => -157.806
+                            )
+                        [iNat_place_guess] => Hawaii, Oahu, Kaneohe Bay, He`eia fish pond.
+                        [image_urls] => Array(
+                                [0] => http://www.boldsystems.org/pics/KANB/USNM_442246_photograph_KB17_073_110.5mmSL_LRP_17_13+1507842990.JPG
+                            )
+                        [date_collected] => 2017-05-23
+                    )*/
                     $count++;
                     self::save_observation_and_images_2iNat($rek, $rec);
                 }
@@ -650,10 +666,13 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             }
         }
     }
-    private function get_coordinates($rec)
+    function get_coordinates($rec)
     {
-        if($rec['lat'] && $rec['lon']) {
+        if(@$rec['lat'] && @$rec['lon']) {  //bold2inat orig
             return array('lat' => $rec['lat'], 'lon' => $rec['lon']);
+        }
+        if(@$rec['latitude'] && @$rec['longitude']) {   //bold2inat_csv new
+            return array('lat' => $rec['latitude'], 'lon' => $rec['longitude']);
         }
     }
     private function get_iNat_desc($rec)
@@ -664,7 +683,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         $tmp = str_replace("..", ".", $tmp);
         return $tmp;
     }
-    private function get_iNat_taxonID($rek)
+    function get_iNat_taxonID($rek)
     {   /* Array(
             [sciname] => Zebrasoma flavescens
             [rank] => species
