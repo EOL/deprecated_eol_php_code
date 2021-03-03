@@ -98,6 +98,19 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             $path = $main_path."summary/";
             if(!is_dir($path)) mkdir($path);
             $this->path['summary_folder'] = $path;
+            
+            $this->observation_fields = array('uniqueID', 'museumID', 'CMECS_geoform', 'CMECS_substrate', 'habitat', 'microhabitat', 'depthRange', 'lifeStage', 'sex', 'aliveOrDead', 'recordedBy');
+            $this->OField_ID['uniqueID']        = ''; 
+            $this->OField_ID['museumID']        = ''; 
+            $this->OField_ID['CMECS_geoform']   = ''; 
+            $this->OField_ID['CMECS_substrate'] = ''; 
+            $this->OField_ID['habitat']         = '10';
+            $this->OField_ID['microhabitat']    = '2882';
+            $this->OField_ID['depthRange']      = '8906';
+            $this->OField_ID['lifeStage']       = '4650';
+            $this->OField_ID['sex']             = '5';
+            $this->OField_ID['aliveOrDead']     = '10751';
+            $this->OField_ID['recordedBy']      = '453';
         }
         /* ============================= END for bold2inat_csv ============================= */
     }
@@ -159,7 +172,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
     {
         if($this->app == 'bold2inat') {
             if($json) {
-                $this->manual_entry = json_decode($json); //for specimen_image_export
+                $this->manual_entry = json_decode($json);
                 self::summary_report('initialize');
                 // print_r($this->manual_entry); exit("\n-end 1-\n");
                 if($recs_count = self::generate_info_list_tsv($this->manual_entry->Proj, $this->manual_entry->Taxon)) {
@@ -170,6 +183,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             }
         }
         elseif($this->app == 'bold2inat_csv') {
+            $this->manual_entry = json_decode($json);
             self::process_KatieO_csv($filename); //main loop for the CSV file
         }
 
@@ -304,7 +318,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
                         [date_collected] => 2017-05-23
                     )*/
                     $count++;
-                    self::save_observation_and_images_2iNat($rek, $rec);
+                    self::save_observation_and_images_2iNat($rek, $rec); //un-comment in real operation
                 }
                 // else exit("\nInvestigate: cannot get name.\n"); //Should be commented. Since there are recs now that should be excluded.
             }
@@ -463,6 +477,24 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         observation[geoprivacy]=obscured&
         observation[observation_field_values_attributes][0][observation_field_id]=
         */
+        /*observation[observation_field_values_attributes][order]
+        Nested fields for observation field values are specified in the observation_field_values_attributes param. 
+        order is just an integer starting with zero specifying the order of entry. 
+        Allowed values: ObservationFieldValue attributes. 
+        So you might specify an entire observation field value for an observation field with an ID of 1 as 
+        observation[observation_field_values_attributes][0][observation_field_id]=1&
+        observation[observation_field_values_attributes][0][value]=foo.
+
+        Hi Kenshi,
+        May I ask what is the correct format for ObservationFieldValue.
+        If I have:
+        [recordedBy] => https://www.inaturalist.org/observation_fields/453
+        [habitat] => https://www.inaturalist.org/observation_fields/10
+        observation[observation_field_values_attributes][0][observation_field_id]=453&observation[observation_field_values_attributes][0][value]="John"
+        observation[observation_field_values_attributes][1][observation_field_id]=10&observation[observation_field_values_attributes][0][value]="mountains"
+        */
+
+        
         $input_arr['observation'] = array(
             'species_guess' => $rek['sciname'],
             'taxon_id' => $rek['iNat_taxonID'],
@@ -472,6 +504,14 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             'place_guess' => $rek['iNat_place_guess'],
             'observed_on_string' => $rek['date_collected']
         );
+        
+        if($OFields = @$rek['OFields']) {
+            $i = -1;
+            foreach($OField as $of) { $i++;
+                $input_arr['observation_field_values_attributes'][$i]['observation_field_id'] = $of['id'];
+                $input_arr['observation_field_values_attributes'][$i]['value'] = $of['value'];
+            }
+        }
         
         // http://v3.boldsystems.org/index.php/API_Public/specimen?format=tsv&ids=KANB014-17
        // http://v3.boldsystems.org/index.php/API_Public/specimen?format=json&ids=KANB003-17

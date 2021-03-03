@@ -38,22 +38,22 @@ class BOLD2iNaturalistAPI_csv
                 }
                 $rec = array_map('trim', $rec); //print_r($rec); //exit;
                 /*Array(
-                    [uniqueID] => 2019_USATXS_0001
-                    [museumID] => Smithsonian
+                    *[uniqueID] => 2019_USATXS_0001
+                    *[museumID] => Smithsonian
                     [date] => 5/29/19
                     [scientificName] => Minuca rapax
                     [locality] => Oso Bay
                     [latitude] => 27.707445
                     [longitude] => -97.323996
-                    [CMECS_geoform] => NA
-                    [CMECS_substrate] => NA
-                    [habitat] => NA
-                    [microhabitat] => Brackish Marsh
-                    [depthRange] => NA
-                    [lifeStage] => adult
-                    [sex] => male
-                    [aliveOrDead] => NA
-                    [recordedBy] => NA
+                    *[CMECS_geoform] => NA
+                    *[CMECS_substrate] => NA
+                    *[habitat] => NA
+                    *[microhabitat] => Brackish Marsh
+                    *[depthRange] => NA
+                    *[lifeStage] => adult
+                    *[sex] => male
+                    *[aliveOrDead] => NA
+                    *[recordedBy] => NA
                     [relevantMedia] => https://photos.geome-db.org/44/Sample_Photo/GOM_BB_MarGEO_TXS_MinucaRapax_img_046_1024.4.jpg
                     [notes] => NA
 
@@ -68,9 +68,12 @@ class BOLD2iNaturalistAPI_csv
                     [sex] => https://www.inaturalist.org/observation_fields/5
                     [aliveOrDead] => https://www.inaturalist.org/observation_fields/10751
                     [recordedBy] => https://www.inaturalist.org/observation_fields/453
-
-
                 )*/
+                
+                $final = array();
+                foreach($this->observation_fields as $field) {
+                    if($val = @$rec[$field]) $final[] = array('id' => $this->OField_ID[$field], 'value' => $val);
+                }
                 
                 // /* main assignment routine
                 $rek = array();
@@ -82,27 +85,30 @@ class BOLD2iNaturalistAPI_csv
                     $rek['iNat_desc'] = ($rec['notes']!='NA') ? $rec['notes'] : "";
                     $rek['coordinates'] = $this->get_coordinates($rec);
                     $rek['iNat_place_guess'] = $rec['locality'];
-                    $rek['image_urls'] = self::get_image_urls($rec);
+                    $rek['image_urls'] = self::get_image_urls_csv($rec);
                     $rek['date_collected'] = $rec['date'];
+                    $rek['OFields'] = $final;
                     $count++;
                     // self::save_observation_and_images_2iNat($rek, $rec);
                     print_r($rek);
                 }
                 // */
-                
             }
         }
     }
-    // private function get_coordinates($rec)
-    // {
-    //     if($rec['lat'] && $rec['lon']) {
-    //         return array('lat' => $rec['lat'], 'lon' => $rec['lon']);
-    //     }
-    // }
-    
-    private function fill_up_blank_fieldnames($cols)
-    {
-        $i = 0;
+    private function get_image_urls_csv($rec)
+    {   /* These fields are pipe "|" delimited if there are multiple images:
+        image_ids	image_urls	media_descriptors	captions	copyright_holders	copyright_years	copyright_licenses	copyright_institutions	photographers
+        */
+        if($val = $rec['relevantMedia']) {
+            $arr = explode("|", $val);
+            $arr = array_map('trim', $arr);
+            // print_r($arr);
+            return $arr;
+        }
+    }
+    private function fill_up_blank_fieldnames($cols) //copied template
+    {   $i = 0;
         foreach($cols as $col) {
             $i++;
             if(!$col) $final['col_'.$i] = '';
@@ -110,9 +116,8 @@ class BOLD2iNaturalistAPI_csv
         }
         return array_keys($final);
     }
-    private function clean_html($arr)
-    {
-        $delimeter = "elicha173";
+    private function clean_html($arr) //copied template
+    {   $delimeter = "elicha173";
         $html = implode($delimeter, $arr);
         $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
         $html = str_ireplace("> |", ">", $html);
