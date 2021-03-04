@@ -18,9 +18,11 @@ Sample with 1 observation, 3 photos             ---> 'Diodon hystrix'
 First record created: https://www.inaturalist.org/observations.json?id=37814858
 
 For Katie O. csv
+how to run:
 $json = '{"JWT":"5e18007deaf128b0f2f87d8aea79da3aae7d0b127526ba806761cb0ef0100050" , "token_type":"Bearer", "Proj":"", "Taxon":"", "Dept":"FISH" , "Proj_refresh":"0" , "Katie_O_csv":"Yes"}';
 php update_resources/connectors/bold2inat.php _ 1614743288.csv _ _ '$json'
-php update_resources/connectors/bold2inat.php _ 1614743288.csv _ _ '{"JWT":"5e18007deaf128b0f2f87d8aea79da3aae7d0b127526ba806761cb0ef0100050" , "token_type":"Bearer", "Proj":"", "Taxon":"", "Dept":"FISH" , "Proj_refresh":"0" , "Katie_O_csv":"Yes"}'
+php update_resources/connectors/bold2inat.php _ 1614841304.csv _ _ '{"JWT":"9c6c99987b11284793beace06a9d3b8724a9197377fd87d754ceb461762039f7" , "token_type":"Bearer", "Proj":"", "Taxon":"", "Dept":"FISH" , "Proj_refresh":"0" , "Katie_O_csv":"Yes"}'
+php update_resources/connectors/bold2inat.php _ '1614873457.csv' _ _ '{"JWT":"580bed96252d1f622414a1a24321542be89b20d3c0b9dcac42f915534123608c" , "token_type":"Bearer", "Proj":"", "Taxon":"" , "Dept":"FISH" , "Proj_refresh":"0" , "Katie_O_csv":"Yes"}'
 */
 
 

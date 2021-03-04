@@ -19,6 +19,7 @@ $form_url = '';
 // /* from copied template ====================
 $form_url = @get_val_var('form_url');
 if($form_url) { //URL is pasted. --- NOT USED YET FOR KATIE O.
+    /* working but not used for Katie O.
     $orig_file = pathinfo($form_url, PATHINFO_BASENAME);
     $newfile = time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
     if(!in_array(pathinfo($form_url, PATHINFO_EXTENSION), array('xls', 'xlsx', 'zip'))) exit("\nERROR: Wrong file format.\n\n");
@@ -28,6 +29,7 @@ if($form_url) { //URL is pasted. --- NOT USED YET FOR KATIE O.
     echo "<hr>orig_file: [$orig_file]";
     echo "<hr>newfile: [$newfile]<hr>";
     // exit;
+    */
 }
 elseif($file_type = @$_FILES["file_upload"]["type"]) {
     if(in_array($file_type, array("text/csv", "application/zip"))) {
@@ -41,9 +43,9 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
             else echo "<br>uploading file - ERROR<br>";
         }
         $newfile = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
-        echo "<hr>orig_file: [$orig_file]";
-        echo "<hr>url: [$url]";
-        echo "<hr>newfile: [$newfile]<hr>";
+        // echo "<hr>orig_file: [$orig_file]";
+        // echo "<hr>url: [$url]";
+        // echo "<hr>newfile: [$newfile]<hr>";
         // exit("\naaa\n");
     }
     else exit("<hr>$file_type<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");

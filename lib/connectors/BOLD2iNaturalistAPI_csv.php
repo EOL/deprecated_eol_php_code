@@ -8,6 +8,7 @@ https://www.inaturalist.org/pages/api+reference#post-observations
 The photo Flickr ID is 291793938 in these examples:
 https://www.flickr.com/photos/samjudson/291793938/
 https://www.flickr.com/photo.gne?id=291793938
+https://www.flickr.com/photo.gne?id=49966353906
 */
 class BOLD2iNaturalistAPI_csv
 {
@@ -26,7 +27,7 @@ class BOLD2iNaturalistAPI_csv
             $i++; if(($i % 2000) == 0) echo "\n $i ";
             if($i == 1) {
                 $fields = $row; //print_r($fields); //exit("\nfields daw1\n");
-                $fields = self::fill_up_blank_fieldnames($fields); print_r($fields);
+                $fields = self::fill_up_blank_fieldnames($fields); //print_r($fields);
                 $count = count($fields);
             }
             else { //main records
@@ -65,7 +66,7 @@ class BOLD2iNaturalistAPI_csv
                     [relevantMedia] => https://photos.geome-db.org/44/Sample_Photo/GOM_BB_MarGEO_TXS_MinucaRapax_img_046_1024.4.jpg
                     [notes] => NA
                 )*/
-                
+                if(!self::valid_record($rec)) continue;
                 $OFields = array();
                 foreach($this->observation_fields as $field) {
                     if($val = @$rec[$field]) $OFields[] = array('id' => $this->OField_ID[$field], 'value' => $val);
@@ -93,6 +94,14 @@ class BOLD2iNaturalistAPI_csv
                 // */
             }
         }
+    }
+    private function valid_record($rec)
+    {
+        if(!@$rec['relevantMedia'] && !@$rec['FlickrID']) return false;
+        if($val = @$rec['relevantMedia']) {
+            if(pathinfo($val, PATHINFO_EXTENSION) == "" && !@$rec['relevantMedia_ext']) return false;
+        }
+        return true;
     }
     private function get_arr_from_pipe_delimited_string($str)
     {

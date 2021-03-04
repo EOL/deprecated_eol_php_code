@@ -116,7 +116,8 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
     }
     private function summary_report($what, $arr = array())
     {
-        $filename = $this->manual_entry->Proj."_".str_replace(' ','_',$this->manual_entry->Taxon).".tsv";
+        if($this->app == 'bold2inat')           $filename = $this->manual_entry->Proj."_".str_replace(' ','_',$this->manual_entry->Taxon).".tsv";
+        elseif($this->app == 'bold2inat_csv')   $filename = "KatieO_summary".".tsv";
         $tsvfile = $this->path['summary_folder'] . $filename;
         $headers = array('scientificName', 'rank', 'iNat_taxonID', 'iNat_Observation_ID', 'date_collected', 'iNat_desc', 'lat', 'lon', 'iNat_place_guess', 'iNat_photo_record_IDs', 
         'iNat_photo_IDs', 'image_urls');
@@ -126,7 +127,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             fclose($WRITE);
         }
         elseif($what == 'write row') {
-            $rek = $arr['rek'];
+            $rek = $arr['rek']; //print_r($rek); exit;
             $ret_photo_record_ids = $arr['ret_photo_record_ids'];
             /*
             Array(
@@ -184,6 +185,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         }
         elseif($this->app == 'bold2inat_csv') {
             $this->manual_entry = json_decode($json);
+            self::summary_report('initialize');
             self::process_KatieO_csv($filename); //main loop for the CSV file
         }
 
@@ -325,17 +327,17 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         }
         echo "\nTotal records: [$count]\n";
     }
-    private function save_observation_and_images_2iNat($rek, $rec)
+    function save_observation_and_images_2iNat($rek, $rec)
     {   echo "\nStart saving...\n";
         //step 1: save image(s) locally
         if($val = @$rek['image_urls']) {
             foreach($val as $url) {
-                $rek['local_paths'][] = self::save_image_to_local($url);
+                $rek['local_paths'][] = self::save_image_to_local($url, $rek);
             }
         }
-        print_r($rek); //good debug
+        // print_r($rek); //good debug
         //step 2: save observation to iNat
-        $observation_id = self::save_observation_2iNat($rek, $rec);
+        $observation_id = self::save_observation_2iNat($rek, $rec); //un-comment in real operation
         //step 3: save image(s) to iNat
         $ret_photo_record_ids = array();
         if($observation_id && $rek['image_urls']) {
@@ -351,14 +353,16 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
     {
         // print_r($rec); echo "\n$observation_id\n"; exit;
         //step 1: build info
-        $info = self::build_image_info($rec, $rek['local_paths']);
+        if($this->app == 'bold2inat')         $info = self::build_image_info($rec, $rek['local_paths']);
+        elseif($this->app == 'bold2inat_csv') $info = self::build_image_info_csv($rec, $rek['local_paths']);
+
         //step 2: save image(s)
         $ret_photo_record_ids = self::upload_images_2iNat($observation_id, $info);
         return $ret_photo_record_ids; //for stats
     }
     private function upload_images_2iNat($observation_id, $info)
     {   //print_r($info); exit("\n--[$observation_id]--\n");
-        /*Array(
+        /*Array( --- bold2inat ---
             [0] => Array(
                     [image_ids] => 3206817
                     [image_urls] => http://www.boldsystems.org/pics/KANB/USNM_442246_photograph_KB17_073_110.5mmSL_LRP_17_13+1507842990.JPG
@@ -372,6 +376,14 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
                     [local_path] => /Volumes/AKiTiO4/other_files/MarineGeo/Bold2iNat/0c/ac/USNM_442246_photograph_KB17_073_110.5mmSL_LRP_17_13+1507842990.JPG
                 )
         )*/
+        /*Array( --- bold2inat_csv ---
+            [0] => Array(
+                    [relevantMedia] => https://photos.geome-db.org/44/Sample_Photo/GOM_BB_MarGEO_TXS_MinucaRapax_img_046_1024.4.jpg
+                    [image_id] => 29de3d231724e6e0ab3adbd77b3e9a8c
+                    [local_path] => /Volumes/AKiTiO4/other_files/KatieO_CSV/Bold2iNat_csv/4a/e0/GOM_BB_MarGEO_TXS_MinucaRapax_img_046_1024.4.jpg
+                    [uuid] => 29de3d231724e6e0ab3adbd77b3e9a8c
+                )
+        )*/
         $ret_photo_record_ids = array();
         foreach($info as $r) {
             /*curl --verbose \
@@ -383,8 +395,14 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             
             $id_arr = array();
             $id_arr['observation_id'] = $observation_id;
-            $id_arr['image_id'] = $r['image_ids'];
-            $id_arr['image_url'] = $r['image_urls'];
+            if($this->app == 'bold2inat') {
+                $id_arr['image_id'] = $r['image_ids'];
+                $id_arr['image_url'] = $r['image_urls'];
+            }
+            elseif($this->app == 'bold2inat_csv') {
+                $id_arr['image_id'] = $r['image_id'];
+                $id_arr['image_url'] = $r['relevantMedia'];
+            }
             
             /* Check if photo was already added in iNat */
             $photo_local_id = md5(json_encode($id_arr));
@@ -498,9 +516,9 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         
         if($OFields = @$rek['OFields']) {
             $i = -1;
-            foreach($OField as $of) { $i++;
-                $input_arr['observation_field_values_attributes'][$i]['observation_field_id'] = $of['id'];
-                $input_arr['observation_field_values_attributes'][$i]['value'] = $of['value'];
+            foreach($OFields as $of) { $i++;
+                $input_arr['observation']['observation_field_values_attributes'][$i]['observation_field_id'] = $of['id'];
+                $input_arr['observation']['observation_field_values_attributes'][$i]['value'] = $of['value'];
             }
         }
         if($photo_IDs = @$rek['flickr_photo_IDs']) {
@@ -509,6 +527,10 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
                 $input_arr['flickr_photos'][$i] = $id;
             }
         }
+        
+        // print_r($input_arr); //good debug
+        // $json = json_encode($input_arr); //echo "\n$json\n"; //good debug
+        // exit("\nelix100\n");
         
         // http://v3.boldsystems.org/index.php/API_Public/specimen?format=tsv&ids=KANB014-17
        // http://v3.boldsystems.org/index.php/API_Public/specimen?format=json&ids=KANB003-17
@@ -528,6 +550,10 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         else echo " --> New observation, proceed saving to iNat...\n";
         /* Start adding observation via API */
         $json = Functions::json_encode_decode($input_arr, 'encode');
+        
+        // print_r($input_arr);
+        // exit("\n$json\nelix200\n");
+        
         $YOUR_JWT = $this->manual_entry->JWT;
         $token_type = $this->manual_entry->token_type;
         // $cmd = "curl --verbose \    ----- never use this, only if you want to see diagnostics
@@ -541,7 +567,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         // /*
         sleep(1);
         $shell_debug = shell_exec($cmd);
-        // echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
+        echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
         if(stripos($shell_debug, '{"error":{"original":{"error"') !== false) echo("\n<i>Has error: Invetigate build no. in Jenkins.</i>\n\n"); //string is found
         else {
             $ret = self::parse_shell_debug($shell_debug);
@@ -557,6 +583,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             else echo "\nInvestigate: no observation ID detected from iNat API result\n";
         }
         // */
+        
     }
     private function parse_shell_debug($json)
     {   
@@ -635,10 +662,19 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
         return $options['cache_path'] . "$cache1/$cache2/$filename";
     }
-    private function save_image_to_local($url)
+    private function save_image_to_local($url, $rek)
     {
         $options['cache_path'] = $this->path['image_folder'];
         $filename = pathinfo($url, PATHINFO_BASENAME);
+        
+        // /* for bold2inat_csv
+        if($this->app == 'bold2inat_csv') {
+            $extension = @$rek['image_urls_ext'];
+            // exit("\n[".pathinfo($url, PATHINFO_EXTENSION)."]\n");
+            if(pathinfo($url, PATHINFO_EXTENSION) == '' && $extension) $filename .= ".$extension";
+        }
+        // */
+        
         $md5 = md5($filename);
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
@@ -650,6 +686,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             echo("\nSaving photo to local...[$cache_path]\n");
             self::save_image($url, $cache_path);
         }
+        // print_r($rek); exit("\n[$cache_path]\nelix300\n");
         return $cache_path;
     }
     private function save_image($url, $target)
@@ -679,7 +716,30 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             $info[$i]['local_path'] = $local_paths[$i];
             $info[$i]['uuid'] = $this->manual_entry->Proj."_".$r['image_ids'];
         }
-        // print_r($info); exit;
+        return $info;
+    }
+    private function build_image_info_csv($rec, $local_paths)
+    {
+        $fields = array('relevantMedia');
+        foreach($fields as $fld) {
+            if($val = $rec[$fld]) {
+                $arr = explode("|", $val);
+                $arr = array_map('trim', $arr);
+                $i = -1;
+                foreach($arr as $a) { $i++;
+                    $info[$i][$fld] = $a;
+                    $info[$i]['image_id'] = md5($a);
+                }
+            }
+        }
+        $i = -1;
+        foreach($info as $r) { $i++;
+            // $info[$i]['license'] = self::get_license($r['copyright_licenses']); //copied template
+            $info[$i]['local_path'] = $local_paths[$i];
+            // $info[$i]['uuid'] = $this->manual_entry->Proj."_".$r['image_ids']; //copied template
+            $info[$i]['uuid'] = $r['image_id'];
+        }
+        // print_r($info); exit("\nbuild_image_info\n");
         return $info;
     }
     private function get_image_urls($rec)
