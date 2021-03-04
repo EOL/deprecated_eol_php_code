@@ -45,7 +45,7 @@ class BOLD2iNaturalistAPI_csv
                     $k++;
                 }
                 $rec = array_map('trim', $rec); //print_r($rec); //exit;
-                /*Array(
+                /*Array( $rec
                     *[uniqueID] => 2019_USATXS_0001
                     *[museumID] => Smithsonian
                     [date] => 5/29/19
@@ -85,9 +85,10 @@ class BOLD2iNaturalistAPI_csv
                     $rek['date_collected'] = $rec['date'];
                     $rek['OFields'] = $OFields;
                     $rek['flickr_photo_IDs'] = self::get_arr_from_pipe_delimited_string(@$rec['FlickrID']);
+                    $rek['image_urls_ext'] = $rec['relevantMedia_ext'];
                     $count++;
-                    // self::save_observation_and_images_2iNat($rek, $rec);
-                    print_r($rek);
+                    $this->save_observation_and_images_2iNat($rek, $rec); //un-comment in real operation
+                    // print_r($rek); exit("\n000\n");
                 }
                 // */
             }
