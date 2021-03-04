@@ -66,18 +66,17 @@ else {
     <input type='hidden' name='Dept' value='fishes'>
     <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
         <tr align="center">
-            <td><b>BOLD SYSTEMS -- to -- iNaturalist</b></td>
+            <td><b>Smithsonian MarineGEO Observations -- to -- iNaturalist</b></td>
         </tr>
         <tr align="center">
             <td>
                 <table align='center'>
                 <tr align="center">
-                    <td width="50%" bgcolor='darkgreen'><img src='http://www.boldsystems.org/libhtml_v4/images/BOLDlogo.png' height='25'></td>
+                    <td width="50%" bgcolor='blue'><img src='https://marinegeo.si.edu/sites/all/themes/si_marinegeo/logo.png' height='40'></td>
                     <td width="50%"><img src='https://static.inaturalist.org/sites/1-logo.svg?1573071870' height='25'></td>
                 </tr>
                 <tr align="center">
-                    <td colspan='2'>This tool uploads observations from BOLD Systems to iNaturalist.
-                    </td>
+                    <td colspan='2'>This tool uploads observations to iNaturalist using a specific CSV file.</td>
                 </tr>
                 </table>
             </td>
@@ -107,7 +106,9 @@ else {
                 </tr>
                 <tr>
                     <td>
+                        <!---
                         <small>(.csv) OR (.csv.zip)</small>
+                        --->
                     </td>
                 </tr>
                 </table>
@@ -116,7 +117,7 @@ else {
         </tr>
         <tr align="center">
             <td>
-                <input type="submit" value="Add BOLD Observations to iNaturalist">
+                <input type="submit" value="Add Observations to iNaturalist">
                 <input type="reset" value="Reset">
             </td>
         </tr>

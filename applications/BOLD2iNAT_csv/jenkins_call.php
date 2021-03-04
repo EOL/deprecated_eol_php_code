@@ -74,7 +74,7 @@ $newfile = pathinfo($newfile, PATHINFO_BASENAME);
 if($form_url) $cmd = PHP_PATH.' bold2inat.php jenkins _ ' . "'" . $form_url . "' ".$params['uuid']. " '".$params['json']."'"; //no filename but there is form_url and uuid
 else          $cmd = PHP_PATH.' bold2inat.php jenkins ' . "'" . $newfile . "' _ _ ". "'".$params['json']."'";
 
-// exit("\n[$cmd]\nbbb\n");
+// exit("\n[$cmd]\nbbb\n"); //good debug to stop operation
 /*
 [/usr/local/php5/bin/php bold2inat.php jenkins '1614743288.csv' _ _ '{"JWT":"5e18007deaf128b0f2f87d8aea79da3aae7d0b127526ba806761cb0ef0100050" , "token_type":"Bearer", "Proj":"", "Taxon":"", "Dept":"FISH" , "Proj_refresh":"0" , "Katie_O_csv":"Yes"}']
 */
