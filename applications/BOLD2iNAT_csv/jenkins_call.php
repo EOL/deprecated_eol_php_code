@@ -73,10 +73,12 @@ echo "<hr>"; //exit("\nddd\n");
 // php update_resources/connectors/marine_geo_image.php _ _ 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO/image_input.xlsx' uuid001 '$json'
 
 $newfile = pathinfo($newfile, PATHINFO_BASENAME);
+
 // /* eol-archive
 if($form_url) $cmd = PHP_PATH.' bold2inat.php jenkins _ ' . "'" . $form_url . "' ".$params['uuid']. " '".$params['json']."'"; //no filename but there is form_url and uuid
 else          $cmd = PHP_PATH.' bold2inat.php jenkins ' . "'" . $newfile . "' _ _ ". "'".$params['json']."'";
 // */
+
 /* Mac mini - during development using local Jenkins
 if($form_url) $cmd = PHP_PATH.' bold2inat.php _ _ ' . "'" . $form_url . "' ".$params['uuid']. " '".$params['json']."'"; //no filename but there is form_url and uuid
 else          $cmd = PHP_PATH.' bold2inat.php _ ' . "'" . $newfile . "' _ _ ". "'".$params['json']."'";

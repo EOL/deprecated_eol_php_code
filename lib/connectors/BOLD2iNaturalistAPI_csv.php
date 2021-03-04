@@ -9,6 +9,7 @@ The photo Flickr ID is 291793938 in these examples:
 https://www.flickr.com/photos/samjudson/291793938/
 https://www.flickr.com/photo.gne?id=291793938
 https://www.flickr.com/photo.gne?id=49966353906
+https://www.flickr.com/photo.gne?id=50902281443 (Katie's image)
 */
 class BOLD2iNaturalistAPI_csv
 {
