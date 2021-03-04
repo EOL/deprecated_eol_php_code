@@ -2699,7 +2699,7 @@ class Functions
     }
     public static function json_encode_decode($arrayOrstring, $what)
     {
-        if($what == 'encode')       $ret = json_encode($arrayOrstring); //arr to json
+        if($what == 'encode')       $ret = json_encode($arrayOrstring, JSON_HEX_APOS); //arr to json
         elseif($what == 'decode')   $ret = json_decode($arrayOrstring); //json to arr
         if($error = json_last_error()) echo "\nJSON [$what] error:";
         else                           echo "\nJSON [$what] OK:";
