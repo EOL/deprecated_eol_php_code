@@ -102,6 +102,9 @@ class BOLD2iNaturalistAPI_csv
         if($val = @$rec['relevantMedia']) {
             if(pathinfo($val, PATHINFO_EXTENSION) == "" && !@$rec['relevantMedia_ext']) return false;
         }
+        // /* No FlickrID atm
+        if(!@$rec['relevantMedia'] && @$rec['FlickrID']) return false;
+        // */
         return true;
     }
     private function get_arr_from_pipe_delimited_string($str)
