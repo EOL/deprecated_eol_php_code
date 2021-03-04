@@ -484,14 +484,6 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         So you might specify an entire observation field value for an observation field with an ID of 1 as 
         observation[observation_field_values_attributes][0][observation_field_id]=1&
         observation[observation_field_values_attributes][0][value]=foo.
-
-        Hi Kenshi,
-        May I ask what is the correct format for ObservationFieldValue.
-        If I have:
-        [recordedBy] => https://www.inaturalist.org/observation_fields/453
-        [habitat] => https://www.inaturalist.org/observation_fields/10
-        observation[observation_field_values_attributes][0][observation_field_id]=453&observation[observation_field_values_attributes][0][value]="John"
-        observation[observation_field_values_attributes][1][observation_field_id]=10&observation[observation_field_values_attributes][0][value]="mountains"
         */
 
         $input_arr['observation'] = array(

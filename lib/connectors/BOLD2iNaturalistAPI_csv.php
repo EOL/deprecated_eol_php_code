@@ -64,18 +64,6 @@ class BOLD2iNaturalistAPI_csv
                     *[recordedBy] => NA
                     [relevantMedia] => https://photos.geome-db.org/44/Sample_Photo/GOM_BB_MarGEO_TXS_MinucaRapax_img_046_1024.4.jpg
                     [notes] => NA
-
-                    [uniqueID] => 
-                    [museumID] => 
-                    [CMECS_geoform] => 
-                    [CMECS_substrate] => 
-                    [habitat] => https://www.inaturalist.org/observation_fields/10
-                    [microhabitat] => https://www.inaturalist.org/observation_fields/2882
-                    [depthRange] => https://www.inaturalist.org/observation_fields/8906
-                    [lifeStage] => https://www.inaturalist.org/observation_fields/4650
-                    [sex] => https://www.inaturalist.org/observation_fields/5
-                    [aliveOrDead] => https://www.inaturalist.org/observation_fields/10751
-                    [recordedBy] => https://www.inaturalist.org/observation_fields/453
                 )*/
                 
                 $final = array();
