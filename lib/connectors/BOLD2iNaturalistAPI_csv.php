@@ -66,9 +66,9 @@ class BOLD2iNaturalistAPI_csv
                     [notes] => NA
                 )*/
                 
-                $final = array();
+                $OFields = array();
                 foreach($this->observation_fields as $field) {
-                    if($val = @$rec[$field]) $final[] = array('id' => $this->OField_ID[$field], 'value' => $val);
+                    if($val = @$rec[$field]) $OFields[] = array('id' => $this->OField_ID[$field], 'value' => $val);
                 }
                 
                 // /* main assignment routine
@@ -83,7 +83,7 @@ class BOLD2iNaturalistAPI_csv
                     $rek['iNat_place_guess'] = $rec['locality'];
                     $rek['image_urls'] = self::get_arr_from_pipe_delimited_string($rec['relevantMedia']);
                     $rek['date_collected'] = $rec['date'];
-                    $rek['OFields'] = $final;
+                    $rek['OFields'] = $OFields;
                     $rek['flickr_photo_IDs'] = self::get_arr_from_pipe_delimited_string(@$rec['FlickrID']);
                     $count++;
                     // self::save_observation_and_images_2iNat($rek, $rec);
