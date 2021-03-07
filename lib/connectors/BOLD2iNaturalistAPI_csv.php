@@ -10,6 +10,20 @@ https://www.flickr.com/photos/samjudson/291793938/
 https://www.flickr.com/photo.gne?id=291793938
 https://www.flickr.com/photo.gne?id=49966353906
 https://www.flickr.com/photo.gne?id=50902281443 (Katie's image)
+
+
+How to get a direct image URL for a Flickr Photo
+    Click a photo to open it.
+    Click the Download icon.
+    Click View all sizes.
+    Click on the size you want to see.
+    Right-click the image.
+    Select Copy Image Location or Copy Image URL or Copy Image Address (text may vary per browser).
+    -end-
+
+e.g.
+https://live.staticflickr.com/65535/50902281443_66d1299d8d_c_d.jpg
+https://live.staticflickr.com/65535/50902281443_fe473ab2f3_k_d.jpg
 */
 class BOLD2iNaturalistAPI_csv
 {
@@ -102,7 +116,7 @@ class BOLD2iNaturalistAPI_csv
         if($val = @$rec['relevantMedia']) {
             if(pathinfo($val, PATHINFO_EXTENSION) == "" && !@$rec['relevantMedia_ext']) return false;
         }
-        // /* No FlickrID atm
+        // /* No FlickrID atm | comment to allow Flickr IDs | un-comment to disable FlickrID
         if(!@$rec['relevantMedia'] && @$rec['FlickrID']) return false;
         // */
         return true;

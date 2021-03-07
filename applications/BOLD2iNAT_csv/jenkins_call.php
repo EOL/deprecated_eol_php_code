@@ -88,6 +88,7 @@ else          $cmd = PHP_PATH.' bold2inat.php _ ' . "'" . $newfile . "' _ _ ". "
 /*
 [/usr/local/php5/bin/php bold2inat.php jenkins '1614743288.csv' _ _ '{"JWT":"5e18007deaf128b0f2f87d8aea79da3aae7d0b127526ba806761cb0ef0100050" , "token_type":"Bearer", "Proj":"", "Taxon":"", "Dept":"FISH" , "Proj_refresh":"0" , "Katie_O_csv":"Yes"}']
 [/usr/local/php5/bin/php bold2inat.php _ '1614873457.csv' _ _ '{"JWT":"580bed96252d1f622414a1a24321542be89b20d3c0b9dcac42f915534123608c" , "token_type":"Bearer", "Proj":"", "Taxon":"" , "Dept":"FISH" , "Proj_refresh":"0" , "Katie_O_csv":"Yes"}'
+[/usr/local/php5/bin/php bold2inat.php _ '1615079292.csv' _ _ '{"JWT":"bfe708e1141e39bd0d4ee4c43c431b221488c82d007485d8d67047656bf23d23" , "token_type":"Bearer", "Proj":"", "Taxon":"" , "Dept":"FISH", "Proj_refresh":"0" , "Katie_O_csv":"Yes"}'] bbb 
 */
 
 // /* un-comment in real operation

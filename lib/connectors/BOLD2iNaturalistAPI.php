@@ -524,7 +524,8 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         if($photo_IDs = @$rek['flickr_photo_IDs']) {
             $i = -1;
             foreach($photo_IDs as $id) { $i++;
-                $input_arr['flickr_photos'][$i] = $id;
+                // $input_arr['flickr_photos'][$i] = $id;   //first try didn't work
+                $input_arr['flickr_photos'][$i][] = $id;    //2nd try from Ken-ichi didn't work either
             }
         }
         
