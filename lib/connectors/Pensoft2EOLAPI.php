@@ -404,7 +404,7 @@ class Pensoft2EOLAPI
                     self::select_envo($arr['data']);
                     // echo("\nretrieved (newly created) partial OK\n"); //good debug
                 }
-                else exit("\nShould not go here, since record should be created now.\n");
+                else exit("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n");
             }
             else exit(" -- nothing to save..."); //doesn't go here
         }
