@@ -67,6 +67,17 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             $this->path['summary_folder'] = $path;
             
             $this->html['by processid'] = 'http://www.boldsystems.org/index.php/Public_RecordView?processid=PROCESS_ID';
+
+            // for bold2inat
+            /* should work but not yet implemented. Will wait for the widget's users to request first.
+            $this->observation_fields_1 = array('photographers', 'lifestage', 'sex', 'elev', 'depth', 'habitat');
+            $this->OField_ID_1['photographers'] = '54';
+            $this->OField_ID_1['lifestage']     = '4650';
+            $this->OField_ID_1['sex']           = '5';
+            $this->OField_ID_1['elev']          = '445';
+            $this->OField_ID_1['depth']         = '143';
+            $this->OField_ID_1['habitat']       = '10';
+            */
         }
         /* ============================= END for bold2inat ============================= */
 
@@ -98,7 +109,8 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             $path = $main_path."summary/";
             if(!is_dir($path)) mkdir($path);
             $this->path['summary_folder'] = $path;
-            
+
+            // for bold2inat_csv
             $this->observation_fields = array('uniqueID', 'museumID', 'CMECS_geoform', 'CMECS_substrate', 'habitat', 'microhabitat', 'depthRange', 'lifeStage', 'sex', 'aliveOrDead', 'recordedBy');
             $this->OField_ID['uniqueID']        = '13177';
             $this->OField_ID['museumID']        = '13175';
