@@ -10,7 +10,8 @@ https://www.flickr.com/photos/samjudson/291793938/
 https://www.flickr.com/photo.gne?id=291793938
 https://www.flickr.com/photo.gne?id=49966353906
 https://www.flickr.com/photo.gne?id=50902281443 (Katie's image)
-
+https://www.flickr.com/photo.gne?id=50996846868
+https://www.flickr.com/photo.gne?id=50993925303
 
 How to get a direct image URL for a Flickr Photo
     Click a photo to open it.
