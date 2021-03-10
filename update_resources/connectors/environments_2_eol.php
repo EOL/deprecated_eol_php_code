@@ -117,6 +117,11 @@ wikipedia_en_traits	Sun 2020-12-13 11:59:11 PM	    {"MoF":167647, "occurrence.ta
 wikipedia_en_traits_FTG	Thu 2020-12-17 05:00:26 AM	{"MoF.tab":169039, "occurrence.tab":169039, "taxon.tab":412880, "time_elapsed":{"sec":751.7, "min":12.53, "hr":0.21}}
 wikipedia_en_traits	Thu 2020-12-17 05:02:54 AM	    {"MoF.tab":169039, "occurrence.tab":169039, "taxon.tab":102305, "time_elapsed":false}
 
+- removed 'sea' - expected decrease in MoF
+617_ENV	Sun 2021-03-07 09:15:58 PM	                {"MoF.tab":131650, "occurrence.tab":131650, "taxon.tab":412880, "time_elapsed":{"sec":3687.23, "min":61.45, "hr":1.02}}
+wikipedia_en_traits_FTG	Sun 2021-03-07 09:27:59 PM	{"MoF.tab":131477, "occurrence.tab":131477, "taxon.tab":412880, "time_elapsed":{"sec":714.08, "min":11.9, "hr":0.2}}
+wikipedia_en_traits	Sun 2021-03-07 09:29:48 PM	    {"MoF.tab":131477, "occurrence.tab":131477, "taxon.tab":74839, "time_elapsed":false}
+
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
 
@@ -154,6 +159,9 @@ XML from partnet refreshed:
 with the new "terms_to_remove" list (Unlike AntWeb, AmphibiaWeb is not affected.)
 21	Thu 2020-12-17 03:47:05 AM	    {"agent.tab":834,             "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":12.57, "min":0.21, "hr":0}}
 21_ENV	Thu 2020-12-17 03:48:10 AM	{"agent.tab":834, "MoF":2097, "media_resource.tab":8454, "occurrence.tab":2097, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":64.89, "min":1.08, "hr":0.02}}
+removed 'sea' - expected decrease in MoF
+21	Mon 2021-03-08 01:21:31 AM	    {"agent.tab":834,                 "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":14.44, "min":0.24, "hr":0}}
+21_ENV	Mon 2021-03-08 01:22:27 AM	{"agent.tab":834, "MoF.tab":2094, "media_resource.tab":8454, "occurrence.tab":2094, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":55.83, "min":0.93, "hr":0.02}}
 ===================================================================================================================== WoRMS
 26	Tue 2020-11-10 01:54:23 AM	     "agent.tab":1682, "measurement_or_fact.tab":3325053,       "media_resource.tab":91653, "occurrence_specific.tab":2157834, 
         "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":false}
@@ -182,8 +190,9 @@ Here should fix the big occurrence:
 26_meta_recoded_1	Mon 2021-02-08 06:48:16 AM	{"agent.tab":1709, "measurement_or_fact_specific.tab":3190943, "media_resource.tab":92007, "occurrence.tab":2163968, "reference.tab":677563, "taxon.tab":369567, "vernacular_name.tab":85178, "time_elapsed":{"sec":3256.18, "min":54.27, "hr":0.9}}
 26_meta_recoded	Mon 2021-02-08 07:35:52 AM	{"agent.tab":1709, "measurement_or_fact_specific.tab":2544770, "media_resource.tab":92007, 
 "occurrence_specific.tab":2163968, "reference.tab":677563, "taxon.tab":369567, "vernacular_name.tab":85178, "time_elapsed":{"sec":2855.44, "min":47.59, "hr":0.79}}
-26_ENV	Mon 2021-02-08 08:18:55 AM	{"agent.tab":1709, "measurement_or_fact_specific.tab":2548511, "media_resource.tab":92007, 
-"occurrence_specific.tab":2167709, "reference.tab":677563, "taxon.tab":369567, "vernacular_name.tab":85178, "time_elapsed":{"sec":2582.03, "min":43.03, "hr":0.72}}
+26_ENV	Mon 2021-02-08 08:18:55 AM	{"agent.tab":1709, "measurement_or_fact_specific.tab":2548511, "media_resource.tab":92007, "occurrence_specific.tab":2167709, "reference.tab":677563, "taxon.tab":369567, "vernacular_name.tab":85178, "time_elapsed":{"sec":2582.03, "min":43.03, "hr":0.72}}
+removed 'sea' - expected decrease in MoF
+26_ENV	Wed 2021-03-10 05:09:58 AM	{"agent.tab":1749, "measurement_or_fact_specific.tab":2541359, "media_resource.tab":92097, "occurrence_specific.tab":2167217, "reference.tab":680112, "taxon.tab":370148, "vernacular_name.tab":85180, "time_elapsed":{"sec":2552.51, "min":42.54, "hr":0.71}}
 ===================================================================================================================== WoRMS end
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
