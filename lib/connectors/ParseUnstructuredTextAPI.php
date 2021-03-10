@@ -34,11 +34,13 @@ class ParseUnstructuredTextAPI
         $hits = 0;
         
         // /* loop text file
-        $i = 0; $ready2tag = false;
+        $i = 0; $ready2tag = false; $this->force_ready_to_tag = false;
         foreach(new FileIterator($edited_file) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
             if($ready2tag) {
                 if(self::first_part_of_row_is_sciname($row)) {
                     if(stripos($row, 'misidentification') !== false) {} //string is found
+                    elseif(stripos($row, 'fig.') !== false) {} //string is found
+                    elseif(stripos($row, 'Stock') !== false) {} //string is found
                     else $row = "</taxon><taxon sciname=''> ".$row;
                 }
             }
@@ -48,17 +50,13 @@ class ParseUnstructuredTextAPI
             fwrite($WRITE, $row."\n");
             
         }//end loop text
-        
-        
-        
         fclose($WRITE);
         if(copy($temp_file, $edited_file)) unlink($temp_file);
         // $WRITE = fopen($temp_file, "w"); //initialize
-        
-        
     }
     private function first_part_of_row_is_sciname($row)
     {
+        $this->force_ready_to_tag = false;
         if(!$row) return false;
         $a = explode(" ", $row);
         $sciname = trim($a[0]." ".@$a[1]." ".@$a[2]." ".@$a[3]);
@@ -69,10 +67,21 @@ class ParseUnstructuredTextAPI
         if(in_array($sciname, $this->scinames)) return true;
         $sciname = trim($a[0]);
         if(in_array($sciname, $this->scinames)) return true;
+        
+        if(in_array($a[0], $this->possible_prefix_word)) {
+            $this->force_ready_to_tag = true;
+            $sciname = trim($a[1]." ".@$a[2]);
+            if(in_array($sciname, $this->scinames)) return true;
+            $sciname = trim($a[1]);
+            if(in_array($sciname, $this->scinames)) return true;
+        }
+        
+        
         return false;
     }
     private function is_ready_to_tag_YN($row)
     {
+        if($this->force_ready_to_tag) return true;
         if(!$row) return true;
         if(substr($row, -1) == ".") return true;
         return false;
