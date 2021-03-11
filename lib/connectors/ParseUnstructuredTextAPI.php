@@ -22,6 +22,7 @@ class ParseUnstructuredTextAPI
     {
         $this->scinames = self::get_unique_scinames($filename); //print_r($this->scinames); exit;
         $edited_file = self::add_taxon_tags_to_text_file($filename); //big process
+        self::show_parsed_texts_for_mining($edited_file);
     }
     private function add_taxon_tags_to_text_file($filename)
     {
@@ -37,11 +38,11 @@ class ParseUnstructuredTextAPI
         $i = 0; $ready2tag = false; $this->force_ready_to_tag = false;
         foreach(new FileIterator($edited_file) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
             if($ready2tag) {
-                if(self::first_part_of_row_is_sciname($row)) {
+                if($sciname = self::first_part_of_row_is_sciname($row)) {
                     if(stripos($row, 'misidentification') !== false) {} //string is found
                     elseif(stripos($row, 'fig.') !== false) {} //string is found
                     elseif(stripos($row, 'Stock') !== false) {} //string is found
-                    else $row = "</taxon><taxon sciname=''> ".$row;
+                    else $row = "</taxon><taxon sciname='$sciname'> ".$row;
                 }
             }
             $ready2tag = self::is_ready_to_tag_YN($row);
@@ -51,6 +52,7 @@ class ParseUnstructuredTextAPI
         fclose($WRITE);
         if(copy($temp_file, $edited_file)) unlink($temp_file);
         // $WRITE = fopen($temp_file, "w"); //initialize -------- copied template
+        return $edited_file;
     }
     private function first_part_of_row_is_sciname($row)
     {
@@ -58,20 +60,20 @@ class ParseUnstructuredTextAPI
         if(!$row) return false;
         $a = explode(" ", $row);
         $sciname = trim($a[0]." ".@$a[1]." ".@$a[2]." ".@$a[3]);
-        if(in_array($sciname, $this->scinames)) return true;
+        if(in_array($sciname, $this->scinames)) return $sciname;
         $sciname = trim($a[0]." ".@$a[1]." ".@$a[2]);
-        if(in_array($sciname, $this->scinames)) return true;
+        if(in_array($sciname, $this->scinames)) return $sciname;
         $sciname = trim($a[0]." ".@$a[1]);
-        if(in_array($sciname, $this->scinames)) return true;
+        if(in_array($sciname, $this->scinames)) return $sciname;
         $sciname = trim($a[0]);
-        if(in_array($sciname, $this->scinames)) return true;
+        if(in_array($sciname, $this->scinames)) return $sciname;
         
         if(in_array($a[0], $this->possible_prefix_word)) {
             $this->force_ready_to_tag = true;
             $sciname = trim($a[1]." ".@$a[2]);
-            if(in_array($sciname, $this->scinames)) return true;
+            if(in_array($sciname, $this->scinames)) return $sciname;
             $sciname = trim($a[1]);
-            if(in_array($sciname, $this->scinames)) return true;
+            if(in_array($sciname, $this->scinames)) return $sciname;
         }
         return false;
     }
