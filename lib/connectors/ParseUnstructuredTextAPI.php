@@ -20,7 +20,7 @@ class ParseUnstructuredTextAPI
     
     function parse_pdftotext_result($filename)
     {
-        $this->scinames = self::get_unique_scinames($filename);
+        $this->scinames = self::get_unique_scinames($filename); //print_r($this->scinames); exit;
         $edited_file = self::add_taxon_tags_to_text_file($filename); //big process
     }
     private function add_taxon_tags_to_text_file($filename)
@@ -44,15 +44,13 @@ class ParseUnstructuredTextAPI
                     else $row = "</taxon><taxon sciname=''> ".$row;
                 }
             }
-            
             $ready2tag = self::is_ready_to_tag_YN($row);
-            
             fwrite($WRITE, $row."\n");
-            
         }//end loop text
+        
         fclose($WRITE);
         if(copy($temp_file, $edited_file)) unlink($temp_file);
-        // $WRITE = fopen($temp_file, "w"); //initialize
+        // $WRITE = fopen($temp_file, "w"); //initialize -------- copied template
     }
     private function first_part_of_row_is_sciname($row)
     {
@@ -75,15 +73,13 @@ class ParseUnstructuredTextAPI
             $sciname = trim($a[1]);
             if(in_array($sciname, $this->scinames)) return true;
         }
-        
-        
         return false;
     }
     private function is_ready_to_tag_YN($row)
     {
         if($this->force_ready_to_tag) return true;
         if(!$row) return true;
-        if(substr($row, -1) == ".") return true;
+        if(substr($row, -1) == "." && substr($row, -2) != "..") return true;
         return false;
     }
     /*#################################################################################################################################*/

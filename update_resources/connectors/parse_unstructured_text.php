@@ -15,9 +15,7 @@ $func->parse_text_file($filename);
 // /* parsing result pf pdftotext (legacy xpdf in EOL codebase)
 $filename = 'SCtZ-0293-Hi_res.txt';
 $func->parse_pdftotext_result($filename);
-
 // */
-
 
 // Functions::finalize_dwca_resource($resource_id, false, true);
 $elapsed_time_sec = time_elapsed() - $timestart;
