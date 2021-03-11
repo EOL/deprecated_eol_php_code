@@ -144,10 +144,14 @@ class ConvertEOLtoDWCaAPI
                 if(!Functions::valid_uri_url($rec['mediaURL'])) continue; //Media objects must have accessURI
             }
 
+            if($this->resource_id == '100') { //Conabio has many if not all media URLs are not accessible
+                if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') {
+                    if(!Functions::accessible_uri_url($rec['mediaURL'])) continue; //Media objects must be accessible
+                }
+            }
             if($this->resource_id == 'TaiEOL') {
                 if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') continue; //images are already offline, so as its dc:source. So no way to get the image URL.
             }
-
             if($this->resource_id == '20') {
                 if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') {
                     // print_r($rec);

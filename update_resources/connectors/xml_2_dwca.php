@@ -21,6 +21,12 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ConvertEOLtoDWCaAPI');
 $timestart = time_elapsed();
 
+/*
+$url = "https://editors.eol.org/eoearth/resources/assets/EOL_logo_simple_jpg.jpg";
+if(!Functions::accessible_uri_url($url)) exit("\nnot accessible\n");
+exit("\nok accessible\n");
+*/
+
 $cmdline_params['jenkins_or_cron']  = @$argv[1]; //irrelevant here
 $cmdline_params['resource_id']      = @$argv[2]; //useful here
 $cmdline_params['expire_seconds']   = @$argv[3]; //useful here
@@ -46,6 +52,8 @@ $xml['6']['url'] = 'https://opendata.eol.org/dataset/7fa7309c-52e5-4071-a10b-e1f
 $xml['339']['url'] = 'http://data.rbge.org.uk/service/static/Rhododendron_curtis_images_eol_transfer.xml'; //Rhododendron Images from Curtis Botanical
 $xml['63']['url'] = 'https://opendata.eol.org/dataset/b526f101-ea5d-4d28-a5ab-19ea5aac7c73/resource/a38bb047-3bdb-4caa-a45d-57fef8cfaee5/download/63.xml'; //INOTAXA
 $xml['116']['url'] = 'https://opendata.eol.org/dataset/11dff9b4-0779-45cd-ade6-0ab223ddd5aa/resource/ffe53549-0eb1-4ed8-9e13-bb88b1d2ba93/download/116.xml'; //The Dutch Ascidians Homepage
+$xml['100']['url'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/100.xml.gz';
+
 
 /* Not used but values are correct
 $xml['TaiEOL']['images'] = false;
@@ -66,6 +74,7 @@ $xml['6']['xmlYN'] = true;
 $xml['339']['xmlYN'] = true;
 $xml['63']['xmlYN'] = true;
 $xml['116']['xmlYN'] = true;
+$xml[100]['xmlYN'] = false;
 
 $xml[20]['expire_seconds'] = false; //no expire
 $xml[327]['expire_seconds'] = false;
@@ -78,6 +87,7 @@ $xml['6']['expire_seconds'] = false;
 $xml['339']['expire_seconds'] = 60*60*24*30;
 $xml['63']['expire_seconds'] = false;
 $xml['116']['expire_seconds'] = false;
+$xml['100']['expire_seconds'] = 60*60*24; //expires in a day
 
 if($val = @$cmdline_params['expire_seconds']) $xml[$resource_id]['expire_seconds'] = $val;
 

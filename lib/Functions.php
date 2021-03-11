@@ -2153,6 +2153,12 @@ class Functions
         elseif(substr($str,0,8) == "https://") return true;
         return false;
     }
+    public static function accessible_uri_url($url)
+    {
+        $output = shell_exec("curl -fsS $url 2>&1");
+        if(stripos($output, 'curl: (') !== false) return false; //string is found
+        return true;
+    }
 
     public static function cardinal_to_ordinal($number)
     {
