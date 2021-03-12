@@ -654,6 +654,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         $path = self::build_path($item_id);
         debug("\ndebug: $path\n"); //debug only
         if(file_exists($path)) {
+            echo "\n[$what] [$path]\n";
             $json = trim(file_get_contents($path));
             $arr = json_decode($json, true);
             if($what == 'observation') {
