@@ -44,6 +44,7 @@ class ConabioAPI
             if($contents = Functions::lookup_with_cache($filename, $this->download_options))
             {
                 // manual adjustments
+                $contents = str_ireplace("text/plain", "text/html", $contents); //for Conabio (resource_id = 100)
                 if($resource_id == 106) $contents = str_ireplace(array("*"), "", $contents); // tamborine mt.
                 if($resource_id == 100) $contents = str_ireplace("http://creativecommons.org/licenses/by-nc-sa/2.5/mx/", "http://creativecommons.org/licenses/by-nc-sa/2.5/", $contents); // conabio.
 
