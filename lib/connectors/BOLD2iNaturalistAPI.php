@@ -541,9 +541,11 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             }
         }
         
-        // print_r($input_arr); //good debug
-        // $json = json_encode($input_arr); //echo "\n$json\n"; //good debug
-        // exit("\nelix100\n");
+        /* good debug -- here json is sent to Ken-ichi for further debugging
+        print_r($input_arr); //good debug
+        $json = json_encode($input_arr); echo "\n$json\n"; //good debug
+        exit("\nelix100\n");
+        */
         
         // http://v3.boldsystems.org/index.php/API_Public/specimen?format=tsv&ids=KANB014-17
        // http://v3.boldsystems.org/index.php/API_Public/specimen?format=json&ids=KANB003-17

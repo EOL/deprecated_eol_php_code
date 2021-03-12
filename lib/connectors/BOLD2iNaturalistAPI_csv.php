@@ -87,6 +87,12 @@ class BOLD2iNaturalistAPI_csv
                 foreach($this->observation_fields as $field) {
                     if($val = @$rec[$field]) $OFields[] = array('id' => $this->OField_ID[$field], 'value' => $val);
                 }
+
+                /* good debug
+                print_r($rec);
+                print_r($this->observation_fields);
+                print_r($OFields); exit("\nelix\n");
+                */
                 
                 // /* main assignment routine
                 $rek = array();
@@ -142,9 +148,11 @@ class BOLD2iNaturalistAPI_csv
     private function clean_html($arr) //copied template
     {   $delimeter = "elicha173";
         $html = implode($delimeter, $arr);
-        $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
+        $html = str_ireplace(array("﻿", "\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html)); //NOTICE weird 1st char
         $html = str_ireplace("> |", ">", $html);
+        $html = Functions::conv_to_utf8($html);
         $arr = explode($delimeter, $html);
+        $arr = array_map('trim', $arr);
         return $arr;
     }
 }
