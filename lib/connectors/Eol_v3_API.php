@@ -125,8 +125,7 @@ class Eol_v3_API
 
                         if($this->resource_name == "NMNH Entomology") { //means there is a resource filter
                             if(stripos($obj['mediaURL'], "nmnh.si.edu/services/media.php?env=ento") !== false) { //string is found
-                                print_r($obj);
-                                echo "- found $this->resource_name";
+                                // print_r($obj); echo "- found $this->resource_name";
                             }
                             else continue;
                         }
