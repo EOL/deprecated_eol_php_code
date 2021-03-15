@@ -21,7 +21,8 @@ php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":1704, "sci":"Squamata"}'
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":1553, "sci":"Anura"}'
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":345, "sci":"Coleoptera"}'
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":7662, "sci":"Carnivora"}'
-Next batch as of Jun 29, 2020:
+
+Next batch as of Jun 29, 2020: 1st batch with ancestry
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms"}'
 Next batch as of Aug 24, 2020
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms", "limit_images_per_family":20}' ///DATA-1861

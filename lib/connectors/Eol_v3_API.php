@@ -136,7 +136,7 @@ class Eol_v3_API
                                 exit("\nelix here...\n");
                             }
                             */
-                            if(self::is_max_no_of_images_per_family_reached_YN($ancestry, $func2->families)) continue;
+                            if(self::is_max_no_of_images_per_family_reached_YN($ancestry, @$func2->families)) continue;
                         }
 
                         // /* normal operation
