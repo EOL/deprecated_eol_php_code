@@ -80,6 +80,12 @@ else { //original bundles
     if($val = @$param['bundles']) $bundles = $val;
     $str = substr($bundles,0,strlen($bundles)-3);
     $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_".$str."K.txt"; //false;
+    
+    if($val = @$param['resource_name']) {
+        $resource_name = str_replace(" ", "_", $val);
+        $destination = str_replace(".txt", "_".$resource_name.".txt", $destination);
+    }
+    
     $func->get_images_per_eol_page_id($param, array(), $destination, $bundles, $func2); //normal operation
     // */
 
