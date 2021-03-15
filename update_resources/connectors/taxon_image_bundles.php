@@ -25,6 +25,10 @@ Next batch as of Jun 29, 2020:
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms"}'
 Next batch as of Aug 24, 2020
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms", "limit_images_per_family":20}' ///DATA-1861
+
+Next batch as of Mar 15, 2021:
+php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":164, "sci":"Arthropoda"}'
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
@@ -40,7 +44,8 @@ require_library('connectors/Eol_v3_API');
 $resource_id = '';
 $func = new Eol_v3_API($resource_id);
 
-if($param['sci'] == 'Angiosperms') {
+// if($param['sci'] == 'Angiosperms') { //orig
+if(in_array($param['sci'], array('Angiosperms', 'Arthropoda'))) { //now Arthropoda included
     require_library('connectors/DHConnLib');
     $func2 = new DHConnLib($resource_id);
     $func2->initialize_get_ancestry_func();
