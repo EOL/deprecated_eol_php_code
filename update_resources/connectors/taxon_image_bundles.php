@@ -29,6 +29,9 @@ php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms",
 
 Next batch as of Mar 15, 2021:
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":164, "sci":"Arthropoda"}'
+php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":164, "sci":"Arthropoda", "resource_name": "NMNH Entomology", "bundles": 5000}'
+
+
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -46,7 +49,7 @@ $resource_id = '';
 $func = new Eol_v3_API($resource_id);
 
 // if($param['sci'] == 'Angiosperms') { //orig
-if(in_array($param['sci'], array('Angiosperms', 'Arthropoda'))) { //now Arthropoda included
+if(in_array($param['sci'], array('Angiosperms', 'Arthropoda'))) { //now Arthropoda included. Orig Arthropoda wasn't included.
     require_library('connectors/DHConnLib');
     $func2 = new DHConnLib($resource_id);
     $func2->initialize_get_ancestry_func();
@@ -73,8 +76,11 @@ else { //original bundles
     */
 
     // /* 20K bundles
-    $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_20K.txt"; //false;
-    $func->get_images_per_eol_page_id($param, array(), $destination, 20000, $func2); //normal operation
+    $bundles = 20000;
+    if($val = @$param['bundles']) $bundles = $val;
+    $str = substr($bundles,0,strlen($bundles)-3);
+    $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_".$str."K.txt"; //false;
+    $func->get_images_per_eol_page_id($param, array(), $destination, $bundles, $func2); //normal operation
     // */
 
     /* 10K bundles

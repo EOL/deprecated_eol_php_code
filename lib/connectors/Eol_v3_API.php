@@ -56,8 +56,11 @@ class Eol_v3_API
         
         $this->basename = "cypher_".date('YmdHis');
         
-        // /* for Katies bundles Angiosperms
+        // /* for Katies bundles
+        //for Angiosperms
         $this->limit_images_per_family = 10; //DATA-1861
+        //for Arthropoda with resource filter
+        $this->resource_name = '';
         // */
         $this->debug = array();
     }
@@ -65,15 +68,18 @@ class Eol_v3_API
     {
         $eol_page_id = $param['eol_page_id'];
         if($val = @$param['limit_images_per_family']) $this->limit_images_per_family = $val;
+        if($val = @$param['resource_name']) $this->resource_name = $val;
+        
         
         /* For multitaxa taxon groups: Squamata Anura Coleoptera Carnivora */
         if(in_array($eol_page_id, array(1704, 1553, 345, 7662))) $fields = array('identifier', 'dataObjectVersionID', 'dataType', 'dataSubtype', 'vettedStatus', 
                 'mediumType', 'dataRating', 'mimeType', 'height', 'width', 'license', 'language', 'rightsHolder', 'source', 'mediaURL', 
                 'eolMediaURL', 'eolThumbnailURL');
-        /* For Angiosperms */
-        if(in_array($eol_page_id, array(282))) $fields = array('identifier', 'dataObjectVersionID', 'dataType', 'dataSubtype', 'vettedStatus', 
+        /* For Angiosperms, Arthropoda - both need ancestry */
+        elseif(in_array($eol_page_id, array(282, 164))) $fields = array('identifier', 'dataObjectVersionID', 'dataType', 'dataSubtype', 'vettedStatus', 
                 'mediumType', 'dataRating', 'mimeType', 'height', 'width', 'license', 'language', 'rightsHolder', 'source', 'mediaURL', 
                 'eolMediaURL', 'eolThumbnailURL', 'ancestry');
+        else exit("\nERROR: eol_page_id is undefined.\n");
         
         if(!$options) $options = $this->download_options;
         $options['expire_seconds'] = false;
@@ -99,7 +105,7 @@ class Eol_v3_API
                         unset($obj['modified']);
                         unset($obj['license_id']);
 
-                        // print_r($obj); exit;
+                        // print_r($obj); exit("\nstop munax Mar 15\n");
                         /*Array(
                             [identifier] => EOL-media-18-https://www.inaturalist.org/photos/3859832
                             [dataObjectVersionID] => 2775581
@@ -117,6 +123,15 @@ class Eol_v3_API
                             [eolThumbnailURL] => https://content.eol.org/data/media/39/16/f3/18.https___www_inaturalist_org_photos_3859832.98x68.jpg
                         )*/
 
+                        if($this->resource_name == "NMNH Entomology") { //means there is a resource filter
+                            if(stripos($obj['mediaURL'], "nmnh.si.edu/services/media.php?env=ento") !== false) { //string is found
+                                print_r($obj);
+                                echo "- found $this->resource_name";
+                            }
+                            else continue;
+                        }
+                        
+
                         /* Eli investigates...
                         // if($obj['dataObjectVersionID'] == 1997701) {
                         if($obj['mediaURL'] == 'http://www.discoverlife.org/mp/20p?img=I_MWS21442&res=mx') {
@@ -125,7 +140,7 @@ class Eol_v3_API
                         }
                         continue;
                         */
-                        if($func2) {
+                        if($func2) { //right now Angiosperms (282) and Arthropoda (164) go here...need ancestry.
                             $ancestry = self::get_ancestry_given_object_id($obj['dataObjectVersionID'], $func2);
                             $obj['ancestry'] = $ancestry;
                             /* good debug
@@ -136,14 +151,14 @@ class Eol_v3_API
                                 exit("\nelix here...\n");
                             }
                             */
-                            if(self::is_max_no_of_images_per_family_reached_YN($ancestry, @$func2->families)) continue;
+                            if($eol_page_id == 282) { //only Angiosperms has family limit
+                                if(self::is_max_no_of_images_per_family_reached_YN($ancestry, @$func2->families)) continue;
+                            }
                         }
 
                         // /* normal operation
                         $final[] = $obj;
-                        
                         if(!isset($fields)) $fields = array_keys($obj);
-                        
                         if($items_count == $items_per_bundle) {
                             $folder_no++; //echo "\n$folder_no\n";
                             $items_count = 0;
