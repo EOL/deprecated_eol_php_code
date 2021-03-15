@@ -92,7 +92,7 @@ class Eol_v3_API
             // if($PAGE_NO >= 2) break; //debug only
             $url = str_replace("EOL_PAGE_ID", $eol_page_id, $this->api['Pages4']);
             $url = str_replace("PAGE_NO", $PAGE_NO, $url);
-            if(($PAGE_NO % 100) == 0) echo "\n".number_format($PAGE_NO). " [$url]";
+            if(($PAGE_NO % 200) == 0) echo "\n".number_format($PAGE_NO). " [$url]";
             if($json = Functions::lookup_with_cache($url, $options)) {
                 $arr = json_decode($json, true);
                 if($objects = @$arr['taxonConcept']['dataObjects']) {
