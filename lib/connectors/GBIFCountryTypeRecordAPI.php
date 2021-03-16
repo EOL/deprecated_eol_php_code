@@ -427,6 +427,7 @@ class GBIFCountryTypeRecordAPI
         $typestatus_uri = self::get_uri($typestatus, "TypeInformation");
         $rec["institutionCode"] = $institution;
         if($institution_uri && $typestatus_uri) {
+            if(strtolower($typestatus_uri) == "exclude") return; //https://eol-jira.bibalex.org/browse/DATA-1549?focusedCommentId=65600&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65600
             $parent_id = self::add_string_types($rec, $institution_uri, "http://eol.org/schema/terms/TypeSpecimenRepository", "true");
             self::add_string_types($rec, $typestatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus", 'child', $parent_id);
             if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificName"]) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/scientificName", 'child', $parent_id);
