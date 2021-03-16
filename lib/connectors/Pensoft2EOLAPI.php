@@ -75,6 +75,7 @@ class Pensoft2EOLAPI
         $this->another_set_exclude_URIs = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/terms_implying_missing_filter.txt';
         $this->another_set_exclude_URIs_02 = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/terms_to_remove.txt';
         $this->pensoft_run_cnt = 0;
+        $this->ontologies = "envo";
     }
     public function initialize_remaps_deletions_adjustments()
     {
@@ -294,20 +295,19 @@ class Pensoft2EOLAPI
                     [http://purl.org/dc/terms/description] => intertidal to shallow infratidal
                 )*/
                 
+                $this->ontologies = "envo"; //always 'envo' unless WoRMS' distribution texts.
                 // /* customized
-                if($this->param['resource_id'] == '26_ENV') { //for WoRMS only with title = 'Habitat' will be processed.
-                    if(strtolower($rec['http://purl.org/dc/terms/title']) != 'habitat') continue;
-                    else {
-                        @$this->text_that_are_habitat++;
-                        // continue; //debug only | commented in real operation
-                    }
+                if($this->param['resource_id'] == '26_ENV') { //for WoRMS only with title = 'habitat' and 'distribution' will be processed.
+                    if(strtolower($rec['http://purl.org/dc/terms/title']) == 'habitat') @$this->text_that_are_habitat++;
+                    elseif(strtolower($rec['http://purl.org/dc/terms/title']) == 'distribution') $this->ontologies = "eol-geonames";
+                    else continue;
                 }
                 // */
                 // print_r($rec); exit("\n[2]\n");
                 
                 $this->debug['subjects'][$rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']] = '';
                 // $this->debug['titles'][$rec['http://purl.org/dc/terms/title']] = ''; //debug only
-                $saved++;
+                // $saved++; //debug only
                 $this->results = array();
                 // $this->eli = array(); //good debug
                 self::save_article_2_txtfile($rec);
@@ -315,7 +315,7 @@ class Pensoft2EOLAPI
             }
             // if($i >= 10) break; //debug only
             // if($saved >= 20) break; //debug only
-        }
+        } //end loop
         if($this->param['resource_id'] == '26_ENV') echo("\n text_that_are_habitat: ".$this->text_that_are_habitat."\n");
     }
     private function save_article_2_txtfile($rec)
@@ -339,7 +339,7 @@ class Pensoft2EOLAPI
         $basename = $rec['http://rs.tdwg.org/dwc/terms/taxonID']."_-_".$rec['http://purl.org/dc/terms/identifier'];
         $desc = strip_tags($rec['http://purl.org/dc/terms/description']);
         $desc = trim(Functions::remove_whitespace($desc));
-        self::retrieve_annotation($basename, $desc);
+        self::retrieve_annotation($basename, $desc); //it is in this routine where the pensoft annotator is called/run
         self::write_to_pensoft_tags($basename);
     }
     private function write_to_pensoft_tags($basename)
@@ -457,8 +457,13 @@ class Pensoft2EOLAPI
     }
     private function run_partial($desc)
     {   //echo "\nRunning Pensoft annotator...";
+        /*
+        http://api.pensoft.net/annotator?text=West Sahara woodlands&ontologies=eol-geonames
+        http://api.pensoft.net/annotator?text=ocean marine sanctuary&ontologies=envo
+        */
         $this->pensoft_run_cnt++;
-        $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies=envo"';
+        // $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies=envo"'; //orig
+        $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies='.$this->ontologies.'"'; //new
         $cmd .= " 2>&1";
         $json = shell_exec($cmd);
         // echo "\n$desc\n---------";

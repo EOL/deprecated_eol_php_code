@@ -163,6 +163,20 @@ removed 'sea' - expected decrease in MoF
 21	Mon 2021-03-08 01:21:31 AM	    {"agent.tab":834,                 "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":14.44, "min":0.24, "hr":0}}
 21_ENV	Mon 2021-03-08 01:22:27 AM	{"agent.tab":834, "MoF.tab":2094, "media_resource.tab":8454, "occurrence.tab":2094, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":55.83, "min":0.93, "hr":0.02}}
 ===================================================================================================================== WoRMS
+HOW TO RUN:
+php5.6 26.php jenkins
+#generates 26.tar.gz
+
+php5.6 resource_utility.php jenkins '{"resource_id": "26_meta_recoded_1", "task": "metadata_recoding"}'
+#generates 26_meta_recoded_1.tar.gz
+
+php5.6 resource_utility.php jenkins '{"resource_id": "26_meta_recoded", "task": "metadata_recoding"}'
+#generates 26_meta_recoded.tar.gz
+
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"World Register of Marine Species", 
+                                        "resource_id":"26", "subjects":"Habitat"}'
+#generates 26_ENV
+----------------------------------
 26	Tue 2020-11-10 01:54:23 AM	     "agent.tab":1682, "measurement_or_fact.tab":3325053,       "media_resource.tab":91653, "occurrence_specific.tab":2157834, 
         "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":false}
 
