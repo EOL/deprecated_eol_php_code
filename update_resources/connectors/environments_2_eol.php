@@ -174,7 +174,7 @@ php5.6 resource_utility.php jenkins '{"resource_id": "26_meta_recoded", "task": 
 #generates 26_meta_recoded.tar.gz
 
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"World Register of Marine Species", 
-                                        "resource_id":"26", "subjects":"Habitat"}'
+                                        "resource_id":"26", "subjects":"Habitat|Distribution"}'
 #generates 26_ENV
 ----------------------------------
 26	Tue 2020-11-10 01:54:23 AM	     "agent.tab":1682, "measurement_or_fact.tab":3325053,       "media_resource.tab":91653, "occurrence_specific.tab":2157834, 
