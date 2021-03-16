@@ -259,7 +259,8 @@ class Eol_v3_API
         return $taxon;
     }
     private function write_2file_bundle($final, $param, $folder_no, $destination, $fields)
-    {   // /* multiple file start ----------------------------------------------------
+    {   echo "\nSaving batch now: ".count($final)."\n";
+        // /* multiple file start ----------------------------------------------------
         $orig_destination = $destination;
         $destination = str_replace(".txt", "_breakdown.txt", $orig_destination); //new destination file: images_for_Panthera_leo_breakdown.txt
         $destination2 = str_replace(".txt", "_download.txt", $destination); //new destination2 file: images_for_Panthera_leo_breakdown_download.txt
