@@ -97,7 +97,7 @@ class Eol_v3_API
                 $arr = json_decode($json, true);
                 if($objects = @$arr['taxonConcept']['dataObjects']) {
                     if(($PAGE_NO % 100) == 0) echo "\nobjects: ".count($objects)."\n";
-                    foreach($objects as $obj) { $items_count++; $i++;
+                    foreach($objects as $obj) { $i++; //$items_count++; -- transferred below due to new filters
                         unset($obj['dataRatings']);
                         unset($obj['agents']);
                         unset($obj['description']);
@@ -155,6 +155,7 @@ class Eol_v3_API
                             }
                         }
 
+                        $items_count++;
                         // /* normal operation
                         $final[] = $obj;
                         if(!isset($fields)) $fields = array_keys($obj);
