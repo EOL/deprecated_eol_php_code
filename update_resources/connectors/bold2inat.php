@@ -98,6 +98,15 @@ else                            $app = 'bold2inat'; //orig
 
 $resource_id = ''; //no longer used from here
 $func = new BOLD2iNaturalistAPI($app);
+
+/* test only - works OK
+$photo_id = "50902281443";
+$photo_id = "50997663907";
+$url = $func->get_flickr_photo_url($photo_id);
+echo "\n$url\n";
+exit("\n-end test-\n");
+*/
+
 $func->start($filename, $form_url, $uuid, $json);
 // Functions::get_time_elapsed($timestart);
 ?>

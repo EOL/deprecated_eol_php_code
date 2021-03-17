@@ -22,6 +22,8 @@ http://api.flickr.com/services/rest/?method=flickr.people.getPublicPhotos&api_ke
 
 flickr.photos.getInfo
 https://api.flickr.com/services/rest/?&method=flickr.photos.getInfo&api_key=1142baaccbaf8c6cc46f8f4ce26a7135&photo_id=48861925538&secret=34933773ab
+{secret} is optional
+https://api.flickr.com/services/rest/?&method=flickr.photos.getInfo&api_key=1142baaccbaf8c6cc46f8f4ce26a7135&photo_id=48861925538
 
 flickr.groups.pools.getPhotos
 https://api.flickr.com/services/rest/?&method=flickr.groups.pools.getPhotos&api_key=1142baaccbaf8c6cc46f8f4ce26a7135&photo_id=48861925538&group_id=806927@N20
