@@ -97,7 +97,10 @@ class Environments2EOLfinal
             
                 if(@$arr[5] == "envo")         $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
             elseif(@$arr[5] == "eol-geonames") $mType = 'http://eol.org/schema/terms/Present';
-            else exit("\nERROR: Undefined ontology: [".@$arr[5]."]\n");
+            else {
+                print_r($arr);
+                exit("\nERROR: Undefined ontology: [".@$arr[5]."]\n");
+            }
             
             $arr[0] = str_replace('.txt', '', $arr[0]);
             $a = explode("_-_", $arr[0]);
