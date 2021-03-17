@@ -7,8 +7,11 @@ measurement     6748    1385056     3191194
 occurrence      2250    461686      461686
 taxon           2157    224065      224065
 reference							189866
-885	Monday 2018-03-12 02:12:34 PM	{"measurement_or_fact.tab":3263772,"occurrence.tab":475706,"reference.tab":195897,"taxon.tab":215141}
-885	Monday 2018-08-06 12:37:07 PM	{"measurement_or_fact.tab":3263859,"occurrence.tab":475729,"reference.tab":195897,"taxon.tab":215138} eol-archive
+885	Monday 2018-03-12 02:12:34 PM	{"measurement_or_fact.tab":3263772, "occurrence.tab":475706, "reference.tab":195897, "taxon.tab":215141}
+885	Monday 2018-08-06 12:37:07 PM	{"measurement_or_fact.tab":3263859, "occurrence.tab":475729, "reference.tab":195897, "taxon.tab":215138} eol-archive
+885	Monday 2019-10-07 07:34:29 PM	{"measurement_or_fact.tab":3263760, "occurrence.tab":475704, "reference.tab":195897, "taxon.tab":215117, "time_elapsed":{"sec":67953.72,"min":1132.56,"hr":18.88}}
+885	Fri 2021-01-22 07:13:38 AM	    {"measurement_or_fact.tab":4590822, "occurrence.tab":475704, "reference.tab":195897, "taxon.tab":215117, "time_elapsed":{"sec":73431.03999999999, "min":1223.85, "hr":20.4}}
+885	Tue 2021-03-16 09:55:02 PM	    {"measurement_or_fact.tab":4588886, "occurrence.tab":475435, "reference.tab":195628, "taxon.tab":215103, "time_elapsed":{"sec":67327.67, "min":1122.13, "hr":18.7}}
 
 Undefined:
 [institution] => Array

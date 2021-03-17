@@ -350,6 +350,7 @@ class Pensoft2EOLAPI
                      [http://purl.obolibrary.org/obo/ENVO_00000026] => well
             )*/
             // print_r($this->eli); //good debug
+            /* OLD
             foreach($this->results as $uri => $label) {
                 if($ret = self::apply_adjustments($uri, $label)) {
                     $uri = $ret['uri'];
@@ -365,6 +366,24 @@ class Pensoft2EOLAPI
                 
                 fwrite($f, implode("\t", $arr)."\n");
             }
+            */
+            // /* NEW
+            foreach($this->results as $uri => $rek) {
+                if($ret = self::apply_adjustments($uri, $rek['lbl'])) {
+                    $uri = $ret['uri'];
+                    $label = $ret['label'];
+                    $this->all_envo_terms[$uri] = $label; //for stats only - report for Jen
+                }
+                else continue;
+                
+                if(stripos($uri, "ENVO_") !== false) { //string is found
+                    $arr = array($basename, '', '', $label, pathinfo($uri, PATHINFO_FILENAME), $rek['ontology']);
+                }
+                else $arr = array($basename, '', '', $label, $uri, $rek['ontology']);
+                
+                fwrite($f, implode("\t", $arr)."\n");
+            }
+            // */
             fclose($f);
         }
     }
@@ -437,12 +456,22 @@ class Pensoft2EOLAPI
             
             if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN
                 if(ctype_lower(substr($rek['lbl'],0,1))) { //bec. references has a lot like 'Urban C.' which are authors.
+                    /* OLD
                     $this->results[$rek['id']] = $rek['lbl'];
+                    */
+                    // /* NEW
+                    $this->results[$rek['id']] = array("lbl" => $rek['lbl'], "ontology" => $rek['ontology']);
+                    // */
                     // $this->eli[$rek['id']][] = $rek['lbl']; //good debug
                 }
             }
             else { //rest of the resources --> Just be sure the citation, reference, biblio parts of text is not included as input to Pensoft
+                /* OLD
                 $this->results[$rek['id']] = $rek['lbl'];
+                */
+                // /* NEW
+                $this->results[$rek['id']] = array("lbl" => $rek['lbl'], "ontology" => $rek['ontology']);
+                // */
             }
         }
     }
@@ -538,6 +567,7 @@ class Pensoft2EOLAPI
                 [2] => 122
                 [3] => shrubs
                 [4] => ENVO:00000300
+                [5] => envo
             )*/
             $arr[0] = str_replace('.txt', '', $arr[0]);
             $a = explode("_-_", $arr[0]);
@@ -708,6 +738,13 @@ class Pensoft2EOLAPI
         Q140_-_3534a7422ad054e6972151018c05cb38			habitat	ENVO_01000739
         Q140_-_3534a7422ad054e6972151018c05cb38			radiation	ENVO_01001023
         Q140_-_3534a7422ad054e6972151018c05cb38			climate	ENVO_01001082
+        
+        From this point we now have 6 columns. The 6th is the ontology (NEW)
+        From WoRMS process:
+        244557_-_WoRMS:note:86413			Western Australia	http://www.geonames.org/2058645	eol-geonames
+        244557_-_WoRMS:note:86413			Arafura Sea	http://www.marineregions.org/mrgid/4347	eol-geonames
+        244558_-_WoRMS:note:86414			mud	ENVO_01000001	envo
+        244558_-_WoRMS:note:86414			gravel	ENVO_01000018	envo
         */
         $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "w"); fclose($f); //initialize
         $file = $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"; $i = 0;
@@ -723,13 +760,23 @@ class Pensoft2EOLAPI
                 [2] => 
                 [3] => habitat
                 [4] => ENVO_01000739
+                [5] => envo
             )*/
-            $envo_term = pathinfo($tmp[4], PATHINFO_BASENAME); //bec it can be "http://www.wikidata.org/entity/Q1342399" or "ENVO_01001082".
-            if(isset($envoFromEntities[$envo_term])) {
+            
+            if($tmp[5] == "envo") {
+                $envo_term = pathinfo($tmp[4], PATHINFO_BASENAME); //bec it can be "http://www.wikidata.org/entity/Q1342399" or "ENVO_01001082".
+                if(isset($envoFromEntities[$envo_term])) {
+                    $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "a");
+                    fwrite($f, $row."\n");
+                    fclose($f);
+                }
+            }
+            elseif($tmp[5] == "eol-geonames") {
                 $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "a");
                 fwrite($f, $row."\n");
                 fclose($f);
             }
+            else exit("\nUndefined ontology: [".$tmp[5]."]\n");
         }
         $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"); echo "\n eol_tags_noParentTerms.tsv.old ($out)\n";
         $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv");     echo "\n eol_tags_noParentTerms.tsv ($out)\n";

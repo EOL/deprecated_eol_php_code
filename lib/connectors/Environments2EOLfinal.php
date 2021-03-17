@@ -90,7 +90,13 @@ class Environments2EOLfinal
                 [2] => 122
                 [3] => shrubs
                 [4] => ENVO:00000300
+                [5] => envo
             )*/
+            
+                if($arr[5] == "envo")         $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
+            elseif($arr[5] == "eol-geonames") $mType = 'http://eol.org/schema/terms/Present';
+            else exit("\nERROR: Undefined ontology: [".$arr[5]."]\n");
+            
             $arr[0] = str_replace('.txt', '', $arr[0]);
             $a = explode("_-_", $arr[0]);
             $taxonID = @$a[0];
@@ -105,7 +111,7 @@ class Environments2EOLfinal
                 $rec = array();
                 $rec["taxon_id"] = $taxonID;
                 $rec["catnum"] = md5($row);
-                $rec['measurementType'] = 'http://purl.obolibrary.org/obo/RO_0002303';
+                $rec['measurementType'] = $mType;
                 
                 // /* customized:
                 if($this->resource_id == '26_ENV')  $rec['measurementRemarks'] = "";
