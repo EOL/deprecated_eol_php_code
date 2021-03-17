@@ -82,8 +82,10 @@ class Environments2EOLfinal
         $tsv = $this->eol_tags_path.'eol_tags_noParentTerms.tsv';
         $i = 0;
         foreach(new FileIterator($tsv) as $line_number => $row) {
+            if(!$row) continue;
             $i++; if(($i % $this->modulo) == 0) echo "\n".number_format($i);
             $arr = explode("\t", $row); // print_r($arr); exit;
+            if(!$arr) continue;
             /* Array(
                 [0] => 1005_-_1005_distribution.txt
                 [1] => 117
@@ -93,9 +95,9 @@ class Environments2EOLfinal
                 [5] => envo
             )*/
             
-                if($arr[5] == "envo")         $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
-            elseif($arr[5] == "eol-geonames") $mType = 'http://eol.org/schema/terms/Present';
-            else exit("\nERROR: Undefined ontology: [".$arr[5]."]\n");
+                if(@$arr[5] == "envo")         $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
+            elseif(@$arr[5] == "eol-geonames") $mType = 'http://eol.org/schema/terms/Present';
+            else exit("\nERROR: Undefined ontology: [".@$arr[5]."]\n");
             
             $arr[0] = str_replace('.txt', '', $arr[0]);
             $a = explode("_-_", $arr[0]);
