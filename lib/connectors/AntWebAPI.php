@@ -798,13 +798,18 @@ class AntWebAPI
             // print_r($arr); //exit("\n-test muna\n");
             /*Array(
                 [http://purl.obolibrary.org/obo/ENVO_01000204] => tropical
-            )
-            */
+            )*/
+            /* NEW format for $arr is:
+            Array(
+                [http://purl.obolibrary.org/obo/ENVO_01000204] => array("lbl" => "tropical", "ontology" => "envo");
+            )*/
+            
             //======================================================================================
             $arr2 = array();
             // /* copied template from Pensoft2EOLAPI.php
-            foreach($arr as $uri => $label) {
-                if($ret = $this->pensoft->apply_adjustments($uri, $label)) {
+            // foreach($arr as $uri => $label) {
+            foreach($arr as $uri => $rek) {
+                if($ret = $this->pensoft->apply_adjustments($uri, $rek['lbl'])) {
                     $uri = $ret['uri'];
                     $label = $ret['label'];
                     $arr2[$uri] = $label;

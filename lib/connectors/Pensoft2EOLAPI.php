@@ -111,9 +111,19 @@ class Pensoft2EOLAPI
         // */
 
         // /* un-comment in real operation
+        // /* un-comment real operation
         self::process_table($tables['http://eol.org/schema/media/document'][0]); //generates individual text files & runs environment tagger
+        // */
         // exit("\nDebug early exit...\n"); //if u want to investigate the individual text files.
         // print_r($this->debug);
+        
+        // /* NEW WoRMS only: annotate WoRMS orig strings for MoF with mType = Present. Basically convert them to URIs
+        if($this->param['resource_id'] == '26_ENV') {
+            self::process_table_v2($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], "info_list");
+            self::process_table_v2($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], "annotate");
+            exit("\nelix 3\n");
+        }
+        // */
         
         /* report for Jen - 'difference' report
         self::generate_difference_report(); exit("\n-end report-\n");
@@ -240,8 +250,8 @@ class Pensoft2EOLAPI
         print_r($paths); //exit("\n-exit muna-\n");
         // */
         /* development only
-        $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_15833/",
-                       "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_15833/");
+        $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_00817/",
+                       "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_00817/");
         */
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
@@ -256,7 +266,7 @@ class Pensoft2EOLAPI
     }
     private function process_table($meta) //generates individual text files & runs environment tagger
     {   //print_r($meta);
-        echo "\nprocess media tab...\n";
+        echo "\nprocess ".$meta->file_uri."...\n";
         echo "\nRun Pensoft annotator...\n";
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -318,7 +328,62 @@ class Pensoft2EOLAPI
         } //end loop
         if($this->param['resource_id'] == '26_ENV') echo("\n text_that_are_habitat: ".$this->text_that_are_habitat."\n");
     }
-    private function save_article_2_txtfile($rec)
+    private function process_table_v2($meta, $what)
+    {   //print_r($meta);
+        echo "\n process_table_v2 ".$meta->file_uri."...\n";
+        $i = 0; $saved = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 20000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit("\n[1]\n");
+            if($what == 'info_list') { //occurrence extension
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => 0191a5b6bbee617be3f101758872e911_26
+                    [http://rs.tdwg.org/dwc/terms/taxonID] => 1054700
+                    [http://rs.tdwg.org/dwc/terms/lifeStage] => 
+                    [http://rs.tdwg.org/dwc/terms/sex] => 
+                )*/
+                $this->occurrenceID_taxonID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            }
+            elseif($what == 'annotate') { //MoF extension
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/measurementID] => 286376_1054700
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => 0191a5b6bbee617be3f101758872e911_26
+                    [http://eol.org/schema/measurementOfTaxon] => true
+                    [http://eol.org/schema/parentMeasurementID] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementType] => http://rs.tdwg.org/dwc/terms/habitat
+                    [http://rs.tdwg.org/dwc/terms/measurementValue] => http://purl.obolibrary.org/obo/ENVO_01000024
+                    [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+                    [http://eol.org/schema/terms/statisticalMethod] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementDeterminedDate] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementDeterminedBy] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementMethod] => inherited from urn:lsid:marinespecies.org:taxname:101, Gastropoda Cuvier, 1795
+                    [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
+                    [http://purl.org/dc/terms/source] => http://www.marinespecies.org/aphia.php?p=taxdetails&id=1054700
+                    [http://purl.org/dc/terms/bibliographicCitation] => 
+                    [http://purl.org/dc/terms/contributor] => 
+                    [http://eol.org/schema/reference/referenceID] => 
+                )*/
+                if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'http://eol.org/schema/terms/Present' && $rec['http://rs.tdwg.org/dwc/terms/measurementValue']) {
+                    if($taxonID = $this->occurrenceID_taxonID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']]) {}
+                    else exit("\nShould not go here\n");
+                    $this->ontologies = "eol-geonames";
+                    // print_r($rec); exit("\nfound 1\n");
+                    self::save_article_2_txtfile_MoF($rec, $taxonID);
+                }
+            }
+        }
+    }
+    private function save_article_2_txtfile($rec) //Media extension
     {   /* Array(
         [http://purl.org/dc/terms/identifier] => 8687_distribution
         [http://rs.tdwg.org/dwc/terms/taxonID] => 8687
@@ -333,11 +398,35 @@ class Pensoft2EOLAPI
         [http://eol.org/schema/agent/agentID] => 40dafcb8c613187d62bc1033004b43b9
         [http://eol.org/schema/reference/referenceID] => d08a99802fc760abbbfc178a391f9336; 8d5b9dee4f523c6243387c962196b8e0; 4d496c9853b52d6d4ee443b4a6103cca
         )*/
-
         // exit("\ntaxonID: ".$rec['http://rs.tdwg.org/dwc/terms/taxonID']."\n"); //debug only
         // exit("\n[".$this->param['resource_id']."]\n"); //e.g. '617_ENV'
         $basename = $rec['http://rs.tdwg.org/dwc/terms/taxonID']."_-_".$rec['http://purl.org/dc/terms/identifier'];
         $desc = strip_tags($rec['http://purl.org/dc/terms/description']);
+        $desc = trim(Functions::remove_whitespace($desc));
+        self::retrieve_annotation($basename, $desc); //it is in this routine where the pensoft annotator is called/run
+        self::write_to_pensoft_tags($basename);
+    }
+    private function save_article_2_txtfile_MoF($rec, $taxonID) //MoF extension
+    {   /*Array(
+            [http://rs.tdwg.org/dwc/terms/measurementID] => 286376_1054700
+            [http://rs.tdwg.org/dwc/terms/occurrenceID] => 0191a5b6bbee617be3f101758872e911_26
+            [http://eol.org/schema/measurementOfTaxon] => true
+            [http://eol.org/schema/parentMeasurementID] => 
+            [http://rs.tdwg.org/dwc/terms/measurementType] => http://rs.tdwg.org/dwc/terms/habitat
+            [http://rs.tdwg.org/dwc/terms/measurementValue] => http://purl.obolibrary.org/obo/ENVO_01000024
+            [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+            [http://eol.org/schema/terms/statisticalMethod] => 
+            [http://rs.tdwg.org/dwc/terms/measurementDeterminedDate] => 
+            [http://rs.tdwg.org/dwc/terms/measurementDeterminedBy] => 
+            [http://rs.tdwg.org/dwc/terms/measurementMethod] => inherited from urn:lsid:marinespecies.org:taxname:101, Gastropoda Cuvier, 1795
+            [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
+            [http://purl.org/dc/terms/source] => http://www.marinespecies.org/aphia.php?p=taxdetails&id=1054700
+            [http://purl.org/dc/terms/bibliographicCitation] => 
+            [http://purl.org/dc/terms/contributor] => 
+            [http://eol.org/schema/reference/referenceID] => 
+        )*/
+        $basename = $taxonID."_-_".$rec['http://rs.tdwg.org/dwc/terms/measurementID'];
+        $desc = strip_tags($rec['http://rs.tdwg.org/dwc/terms/measurementValue']);
         $desc = trim(Functions::remove_whitespace($desc));
         self::retrieve_annotation($basename, $desc); //it is in this routine where the pensoft annotator is called/run
         self::write_to_pensoft_tags($basename);
@@ -404,7 +493,7 @@ class Pensoft2EOLAPI
         }
         // print_r($this->results);
         // exit("\n[$loops]\n");
-        if(isset($this->results)) return $this->results;
+        if(isset($this->results)) return $this->results; //the return value is used in AntWebAPI.php
     }
     private function retrieve_partial($id, $desc, $loop)
     {
