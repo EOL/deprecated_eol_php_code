@@ -333,7 +333,7 @@ class Pensoft2EOLAPI
         echo "\n process_table_v2 ".$meta->file_uri."...\n";
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 20000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             $row = Functions::conv_to_utf8($row); //possibly to fix special chars
