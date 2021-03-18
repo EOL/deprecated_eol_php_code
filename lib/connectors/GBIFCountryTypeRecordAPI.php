@@ -914,7 +914,7 @@ class GBIFCountryTypeRecordAPI
             elseif(is_numeric(stripos($sex, "EMBRYO")))         $lifestage = "EMBRYO";
             elseif(is_numeric(stripos($sex, "EGGS")))           $lifestage = "EGG";
             elseif(is_numeric(stripos($sex, "HATCHLING")))      $lifestage = "HATCHLING";
-            elseif(is_numeric(stripos($sex, "COPULA")))         $lifestage = "COPULA"; //still undefined
+            elseif(is_numeric(stripos($sex, "COPULA")))         $lifestage = "ADULT"; //now defined as adult: https://eol-jira.bibalex.org/browse/DATA-1549?focusedCommentId=65758&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65758
             elseif($sex == "LARVAE")                            $lifestage = "LARVAE";
             elseif($sex == "SHELL")                             $lifestage = "EMBRYO IN SHELL";
             elseif($sex == "META-YOUNG")                        $lifestage = "YOUNG";
