@@ -187,7 +187,9 @@ else {
         </tr>
         <tr align="left">
             <td><small>
-            <a href='../specimen_image_export/'>Specimen Image Export Tool</a> <br>
+            <a href='../specimen_image_export/'>Specimen Image Export Tool</a> <br>&nbsp;<br>
+            <a href='../BOLD2iNAT_csv/'>SI MarineGEO Observations - to - iNaturalist Tool</a> <br>&nbsp;<br>
+
             <a href='https://www.inaturalist.org/observations?place_id=any&subview=table&user_id=nmnh_fishes&verifiable=any'>NMNH Fishes Observations in iNaturalist</a> <br>
             <a href='https://www.inaturalist.org/observations?place_id=any&subview=table&user_id=smithsonian_marinegeo&verifiable=any'>Smithsonian MarineGEO Observations in iNaturalist</a> <br>
             <a href='https://www.inaturalist.org/observations?place_id=any&subview=table&user_id=sercfisheries&verifiable=any'>Username <b>sercfisheries</b> in iNaturalist</a>
