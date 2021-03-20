@@ -83,7 +83,7 @@ class Eol_v3_API
         
         if(!$options) $options = $this->download_options;
         $options['expire_seconds'] = false;
-        $options['download_wait_time'] = 2000000; //2 seconds
+        $options['download_wait_time'] = 500000; //half a second        //2000000; //2 seconds orig
         $PAGE_NO = 0; 
         $i = 0; //stats only
         $items_count = 0; $folder_no = 0; $final = array();
@@ -92,7 +92,7 @@ class Eol_v3_API
             // if($PAGE_NO >= 2) break; //debug only
             $url = str_replace("EOL_PAGE_ID", $eol_page_id, $this->api['Pages4']);
             $url = str_replace("PAGE_NO", $PAGE_NO, $url);
-            if(($PAGE_NO % 200) == 0) echo "\n".number_format($PAGE_NO). " [$url]";
+            if(($PAGE_NO % 100) == 0) echo "\n".number_format($PAGE_NO). " [$url]";
             if($json = Functions::lookup_with_cache($url, $options)) {
                 $arr = json_decode($json, true);
                 if($objects = @$arr['taxonConcept']['dataObjects']) {
@@ -345,7 +345,9 @@ class Eol_v3_API
     }
     /* ---------------------------------------------------------- END image bundles ------------------------------------------------------------ */
     function search_eol_page_id($eol_page_id, $options = array(), $PagesX = 'Pages3')
-    {   if(!$options) $options = $this->download_options;
+    {   if(!$options) {
+            $options = $this->download_options;
+        }
         $url = str_replace("EOL_PAGE_ID", $eol_page_id, $this->api[$PagesX]);
         if($json = Functions::lookup_with_cache($url, $options)) {
             $arr = json_decode($json, true);
