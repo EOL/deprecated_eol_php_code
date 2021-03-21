@@ -117,11 +117,10 @@ class Pensoft2EOLAPI
         // exit("\nDebug early exit...\n"); //if u want to investigate the individual text files.
         // print_r($this->debug);
         
-        // /* NEW WoRMS only: annotate WoRMS orig strings for MoF with mType = Present. Basically convert them to URIs
+        // /* NEW: for WoRMS only: annotate WoRMS orig strings for MoF with mType = Present. Basically convert them to URIs
         if($this->param['resource_id'] == '26_ENV') {
             self::process_table_v2($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], "info_list");
-            self::process_table_v2($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], "annotate");
-            exit("\nelix 3\n");
+            self::process_table_v2($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], "annotate"); // exit("\nelix 3\n");
         }
         // */
         

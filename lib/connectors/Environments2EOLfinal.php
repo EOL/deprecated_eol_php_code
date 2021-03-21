@@ -232,6 +232,23 @@ class Environments2EOLfinal
                 elseif($class == "occurrence_specific")          $o = new \eol_schema\Occurrence_specific();
                 elseif($class == "measurementorfact_specific")   $o = new \eol_schema\MeasurementOrFact_specific();
                 $uris = array_keys($rec);
+                
+                // /* start customized
+                if($this->resource_id == '26_ENV') { //in MoF, exclude where mType = Present. These are those orig location text from WoRMS
+                                                     //in Occurrence, exclude respective occurrence record
+                    $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                    if($class == "measurementorfact_specific") {
+                        if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'http://eol.org/schema/terms/Present') {
+                            $this->occurrenceIDs_to_delete[$occurrenceID] = '';
+                            continue;
+                        }
+                    }
+                    elseif($class == "occurrence_specific") {
+                        if(isset($this->occurrenceIDs_to_delete[$occurrenceID])) continue;
+                    }
+                }
+                // */
+                
                 foreach($uris as $uri) {
                     $field = pathinfo($uri, PATHINFO_BASENAME);
                     $o->$field = $rec[$uri];
