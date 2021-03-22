@@ -213,7 +213,9 @@ now with Distribution textmined using eol-geonames ontology
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
-ini_set('memory_limit','8096M'); //required
+// ini_set('memory_limit','8096M'); //required
+ini_set('memory_limit','12096M'); //required
+
 $timestart = time_elapsed();
 // print_r($argv);
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
