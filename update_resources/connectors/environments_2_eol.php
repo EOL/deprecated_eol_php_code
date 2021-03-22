@@ -209,12 +209,13 @@ removed 'sea' - expected decrease in MoF
 26_ENV	Wed 2021-03-10 05:09:58 AM	{"agent.tab":1749, "measurement_or_fact_specific.tab":2541359, "media_resource.tab":92097, "occurrence_specific.tab":2167217, "reference.tab":680112, "taxon.tab":370148, "vernacular_name.tab":85180, "time_elapsed":{"sec":2552.51, "min":42.54, "hr":0.71}}
 now with Distribution textmined using eol-geonames ontology
 26_ENV	Wed 2021-03-17 10:07:45 AM	{"agent.tab":1749, "measurement_or_fact_specific.tab":2578440, "media_resource.tab":92097, "occurrence_specific.tab":2204298, "reference.tab":680112, "taxon.tab":370148, "vernacular_name.tab":85180, "time_elapsed":{"sec":2927.3, "min":48.79, "hr":0.81}}
+now with orig location string textmined in MoF
+26_ENV	Mon 2021-03-22 02:27:35 AM	{"agent.tab":1749, "measurement_or_fact_specific.tab":2530239, "media_resource.tab":92097, "occurrence_specific.tab":2156097, "reference.tab":680112, "taxon.tab":370148, "vernacular_name.tab":85180, "time_elapsed":{"sec":2962.03, "min":49.37, "hr":0.82}}
 ===================================================================================================================== WoRMS end
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
-// ini_set('memory_limit','8096M'); //required
-ini_set('memory_limit','12096M'); //required
+ini_set('memory_limit','8096M'); //required
 
 $timestart = time_elapsed();
 // print_r($argv);
