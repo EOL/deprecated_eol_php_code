@@ -41,5 +41,20 @@ https://www.pdfparser.org/documentation
 
 
 ===========================================================================================================================================
+another option: a ruby script: pdf2txt.rb
+https://gist.github.com/emad-elsaid/9722831
+gem install pdf-reader
+-> install in Mac OS
+ruby pdf2txt.rb /path-to-file/file1.pdf [/path-to-file/file2.pdf..]
+-> how to run
+
 ===========================================================================================================================================
+another option: [pdftotext] https://www.cyberciti.biz/faq/converter-pdf-files-to-text-format-command/
+- command-line utility in Linux distributions
+In Linux eol-archive:
+yum install poppler-utils
+->install
+$ pdftotext SCtZ-0293-Hi_res.pdf SCtZ-0293-Hi_res.pdf.txt
+-> how to run
+
 ===========================================================================================================================================
