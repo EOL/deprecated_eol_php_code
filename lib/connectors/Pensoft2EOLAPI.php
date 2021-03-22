@@ -377,6 +377,7 @@ class Pensoft2EOLAPI
                     else exit("\nShould not go here\n");
                     $this->ontologies = "eol-geonames";
                     // print_r($rec); exit("\nfound 1\n");
+                    $this->results = array();
                     self::save_article_2_txtfile_MoF($rec, $taxonID);
                 }
             }
