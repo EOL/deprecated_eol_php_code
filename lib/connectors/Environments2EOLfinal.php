@@ -24,13 +24,44 @@ class Environments2EOLfinal
             if(!is_dir($this->root_path)) mkdir($this->root_path);
             // exit("\n$this->root_path\n");
         }
-        
         // */
         $this->eol_tags_path        = $this->root_path.'eol_tags/';
         $this->json_temp_path       = $this->root_path.'temp_json/';
         echo "\nEnvironments2EOLfinal resource_id: [$this->resource_id]\n";
         if($this->resource_id == '617_ENV') $this->modulo = 50000; //Wikipedia EN
         else                                $this->modulo = 2000;
+        
+        // /* Utility: reports for WoRMS
+        if(Functions::is_production()) $this->source_tsv = '/html/Pensoft_annotator/26/eol_tags/eol_tags_noParentTerms.tsv';
+        else                           $this->source_tsv = '/Library/WebServer/Documents/Pensoft_annotator/26/eol_tags/eol_tags_noParentTerms.tsv';
+        // */
+    }
+    function report_for_WoRMS() //https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65762&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65762
+    {
+        $i = 0;
+        foreach(new FileIterator($this->source_tsv) as $line_number => $row) {
+            if(!$row) continue;
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            $arr = explode("\t", $row); //print_r($arr); exit;
+            if(!$arr) continue;
+            /*Array(
+                [0] => 134891_-_WoRMS:note:10
+                [1] => 
+                [2] => 
+                [3] => marine
+                [4] => ENVO_00000447
+                [5] => eol-geonames
+            )*/
+            $lbl = $arr[3];
+            $uri = $arr[4];
+            $ontology = $arr[5];
+            if($ontology == "eol-geonames") {
+                $final[$lbl][$uri] = '';
+            }
+        }
+        asort($final);      echo "\n1 ".count($final)."\n";
+        ksort($final);      echo "\n2 ".count($final)."\n";
+        print_r($final);    echo "\n3 ".count($final)."\n";
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
