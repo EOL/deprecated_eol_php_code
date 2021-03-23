@@ -12,8 +12,21 @@ $func = new ParseUnstructuredTextAPI();
 $filename = 'pdf2text_output.txt';
 $func->parse_text_file($filename);
 */
-// /* parsing result pf pdftotext (legacy xpdf in EOL codebase)
+/* parsing result pf pdftotext (legacy xpdf in EOL codebase)
 $filename = 'SCtZ-0293-Hi_res.txt';
+$func->parse_pdftotext_result($filename);
+*/
+/* parsing
+$filename = 'pdf2text_output.txt';
+$func->parse_pdftotext_result($filename);
+*/
+/* parsing SCtZ-0293-Hi_res.html
+$filename = 'SCtZ-0293-Hi_res.html';
+$func->parse_pdf2htmlEX_result($filename);
+*/
+
+// /* parsing SCZ637_pdftotext.txt
+$filename = 'SCZ637_pdftotext.txt';
 $func->parse_pdftotext_result($filename);
 // */
 
