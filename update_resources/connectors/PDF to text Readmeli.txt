@@ -10,8 +10,9 @@ $ brew install poppler
 suddenly came to life and is working
 
 so I tried, in PHP codebase:
-$ cd eol_php_code/vendor/xpdf/pdftotext
+$ cd eol_php_code/vendor/xpdf/
 $ pdftotext /Volumes/AKiTiO4/other_files/pdf2htmlEX/samples/SCtZ-0293-Hi_res.pdf
+$ pdftotext /Volumes/AKiTiO4/other_files/pdf2htmlEX/samples/SCZ637-Foster_web-FINAL.pdf
 And it worked, it generated a cleaner text version of the PDF file.
 
 *I no longer did use and continue installation of https://github.com/spatie/pdf-to-text
@@ -39,13 +40,14 @@ Another during initial exploring:
 https://editors.eol.org/other_files/temp/pdf2text_output.txt
 https://www.pdfparser.org/documentation
 
-
 ===========================================================================================================================================
 another option: a ruby script: pdf2txt.rb
 https://gist.github.com/emad-elsaid/9722831
 gem install pdf-reader
 -> install in Mac OS
 ruby pdf2txt.rb /path-to-file/file1.pdf [/path-to-file/file2.pdf..]
+ruby pdf2txt.rb SCZ637-Foster_web-FINAL.pdf
+
 -> how to run
 
 ===========================================================================================================================================
