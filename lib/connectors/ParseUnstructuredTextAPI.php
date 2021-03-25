@@ -29,26 +29,21 @@ class ParseUnstructuredTextAPI
     function parse_pdftotext_result($filename) //Mar 25, 2021 - start epub series
     {   
         // $this->scinames = self::get_unique_scinames($filename); //print_r($this->scinames); exit;
-        $edited_file = self::add_taxon_tags_to_text_file_v3($filename); //big process
-        // self::show_parsed_texts_for_mining($edited_file);
+        self::get_main_scinames($filename);
+        print_r($this->lines_to_tag); echo "\nscinames: ".count($this->lines_to_tag)."\n";
+        $edited_file = self::add_taxon_tags_to_text_file_v3($filename);
+        self::remove_some_rows($edited_file);
+        self::show_parsed_texts_for_mining($edited_file);
     }
     //else           $row = "</taxon><taxon sciname='$sciname'> ".$row;
-    private function add_taxon_tags_to_text_file_v3($filename)
+    private function get_main_scinames($filename)
     {
         $local = $this->path['epub_output_txts_dir'].$filename;
-        $temp_file = $local.".tmp";
-        $edited_file = str_replace(".txt", "_edited.txt", $local);
-        copy($local, $edited_file);
-        
-        $WRITE = fopen($temp_file, "w"); //initialize
-        $hits = 0;
-        
         $start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family", "*", "(", "Contents", "Literature", "Miscellaneous", 
         "Introduction", "Appendix", "ACKNOWLEDGMENTS", "TERMINOLOGY");
-        
         // /* loop text file
         $i = 0; $ctr = 0;
-        foreach(new FileIterator($edited_file) as $line => $row) {
+        foreach(new FileIterator($local) as $line => $row) { $ctr++;
             $i++; if(($i % 5000) == 0) echo " $i";
             $row = trim($row);
             
@@ -74,7 +69,7 @@ class ParseUnstructuredTextAPI
                 }
             }
             // */
-                        
+            
             $rows[] = $row;
             if(count($rows) == 5) { //start evaluating records of 5 rows
                 if(!$rows[0] && !$rows[1] && !$rows[3] && !$rows[4]) {
@@ -82,16 +77,19 @@ class ParseUnstructuredTextAPI
                         $words = explode(" ", $rows[2]);
                         if(count($words) <= 6)  {
                             if(substr($rows[2],1,1) != ".") { //not e.g. "C. Allan Child"
-                                if(self::is_sciname($rows[2])) print_r($rows);
+                                if(self::is_sciname($rows[2])) {
+                                    print_r($rows);
+                                    // $this->lines_to_tag[$rows[2]] = '';
+                                    $this->lines_to_tag[$ctr-2] = '';
+                                }
                             }
                         }
                     }
                 }
-                array_shift($rows); //remove 1st element
+                array_shift($rows); //remove 1st element, once it reaches 5 rows.
             }
         }
         // */
-        return $edited_file;
     }
     private function is_sciname($string)
     {
@@ -107,9 +105,9 @@ class ParseUnstructuredTextAPI
         }
         return false;
     }
-    private function add_taxon_tags_to_text_file_v2($filename)
+    private function add_taxon_tags_to_text_file_v3($filename)
     {
-        $local = $this->path['pdftotext_output'].$filename;
+        $local = $this->path['epub_output_txts_dir'].$filename;
         $temp_file = $local.".tmp";
         $edited_file = str_replace(".txt", "_edited.txt", $local);
         copy($local, $edited_file);
@@ -118,56 +116,53 @@ class ParseUnstructuredTextAPI
         $hits = 0;
         
         // /* loop text file
-        $i = 0; $ready2tag = false; $this->force_ready_to_tag = false;
+        $i = 0;
         foreach(new FileIterator($edited_file) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
-            if(!$row) continue;
-            if($ready2tag) {
-                if($sciname = self::first_part_of_row_is_sciname($row)) {
-                    if(stripos($row, 'misidentification') !== false) {} //string is found
-                    elseif(stripos($row, 'fig.') !== false) {} //string is found
-                    elseif(stripos($row, 'Stock') !== false) {} //string is found
-                    else $row = "</taxon><taxon sciname='$sciname'> ".$row;
-                    $ready2tag = true;
-                }
+            $row = trim($row);
+            if(isset($this->lines_to_tag[$i])) { $hits++;
+                if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
+                else            $row = "</taxon><taxon sciname='$row'> ".$row;
+                // exit("\ngot one finally\n".$row."\n");
             }
-            if(!$ready2tag) $ready2tag = self::is_ready_to_tag_YN($row);
+            // else echo "\n[$row]\n";
             fwrite($WRITE, $row."\n");
         }//end loop text
-        
         fclose($WRITE);
         if(copy($temp_file, $edited_file)) unlink($temp_file);
-        // $WRITE = fopen($temp_file, "w"); //initialize -------- copied template
+        
+        // print_r($this->lines_to_tag);
         return $edited_file;
     }
-    private function first_part_of_row_is_sciname($row)
+    private function remove_some_rows($edited_file)
     {
-        $this->force_ready_to_tag = false;
-        if(!$row) return false;
-        $a = explode(" ", $row);
-        $sciname = trim($a[0]." ".@$a[1]." ".@$a[2]." ".@$a[3]);
-        if(in_array($sciname, $this->scinames)) return $sciname;
-        $sciname = trim($a[0]." ".@$a[1]." ".@$a[2]);
-        if(in_array($sciname, $this->scinames)) return $sciname;
-        $sciname = trim($a[0]." ".@$a[1]);
-        if(in_array($sciname, $this->scinames)) return $sciname;
-        $sciname = trim($a[0]);
-        if(in_array($sciname, $this->scinames)) return $sciname;
+        // exit("\nxxx[$edited_file]\n");
+        $local = $edited_file;
+        $temp_file = $local.".tmp";
+        $WRITE = fopen($temp_file, "w"); //initialize
+        $start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family");
         
-        if(in_array($a[0], $this->possible_prefix_word)) {
-            $this->force_ready_to_tag = true;
-            $sciname = trim($a[1]." ".@$a[2]);
-            if(in_array($sciname, $this->scinames)) return $sciname;
-            $sciname = trim($a[1]);
-            if(in_array($sciname, $this->scinames)) return $sciname;
-        }
-        return false;
-    }
-    private function is_ready_to_tag_YN($row)
-    {
-        if($this->force_ready_to_tag) return true;
-        if(!$row) return true;
-        if(substr($row, -1) == "." && substr($row, -2) != "..") return true;
-        return false;
+        // /* loop text file
+        $i = 0;
+        foreach(new FileIterator($local) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
+            $row = trim($row);
+            
+            $cont = true;
+            // /* criteria 1
+            foreach($start_of_row_2_exclude as $start_of_row) {
+                $len = strlen($start_of_row);
+                if(substr($row,0,$len) == $start_of_row) {
+                    $rows = array();
+                    $cont = false; break;
+                }
+            }
+            if(!$cont) continue;
+            // */
+            
+            fwrite($WRITE, $row."\n");
+        }//end loop text
+        fclose($WRITE);
+        if(copy($temp_file, $edited_file)) unlink($temp_file);
+        
     }
     /*#################################################################################################################################*/
     function parse_text_file($filename)
@@ -193,6 +188,7 @@ class ParseUnstructuredTextAPI
             }
         }
         fclose($WRITE);
+        echo "\nblocks: ".count($a[1])."\n";
     }
     private function get_unique_scinames($filename) //get unique names using GNRD
     {
