@@ -74,6 +74,7 @@ class Pensoft2EOLAPI
         $this->remove_across_all_resources[] = 'http://purl.obolibrary.org/obo/ENVO_00000016'; //per Jen: https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=65552&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65552
         $this->another_set_exclude_URIs = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/terms_implying_missing_filter.txt';
         $this->another_set_exclude_URIs_02 = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/terms_to_remove.txt';
+        $this->another_set_exclude_URIs_03 = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/geo_synonyms.txt';
         $this->pensoft_run_cnt = 0;
         $this->ontologies = "envo";
     }
@@ -1173,15 +1174,19 @@ class Pensoft2EOLAPI
         foreach($arr as $uri) $this->delete_MoF_with_these_uris[$uri] = '';
         */
         
-        // /* Jen: "I've found a bunch more measurementValue terms we should ALWAYS remove." : https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65451&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65451
-        $str = file_get_contents($this->another_set_exclude_URIs_02);
-        $arr = explode("\n", $str);
-        $arr = array_map('trim', $arr);
-        $arr = array_filter($arr); //remove null arrays
-        $arr = array_unique($arr); //make unique
-        $arr = array_values($arr); //reindex key
-        // print_r($arr); exit("\n".count($arr)."\n");
-        foreach($arr as $uri) $this->delete_MoF_with_these_uris[$uri] = '';
+        // /* 
+        $to_delete_sources = array($this->another_set_exclude_URIs_02,  //Jen: "I've found a bunch more measurementValue terms we should ALWAYS remove." : https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65451&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65451
+                                   $this->another_set_exclude_URIs_03); //Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65780&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65780
+        foreach($to_delete_sources as $source) {
+            $str = file_get_contents($source);
+            $arr = explode("\n", $str);
+            $arr = array_map('trim', $arr);
+            $arr = array_filter($arr); //remove null arrays
+            $arr = array_unique($arr); //make unique
+            $arr = array_values($arr); //reindex key
+            // print_r($arr); exit("\n".count($arr)."\n");
+            foreach($arr as $uri) $this->delete_MoF_with_these_uris[$uri] = '';
+        }
         // */
         
         // /* for WoRMS only: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65471&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65471
@@ -1190,8 +1195,6 @@ class Pensoft2EOLAPI
             $this->delete_MoF_with_these_uris['http://purl.obolibrary.org/obo/ENVO_00000182'] = '';
         }
         // */
-        
-        
     }
     private function filter_out_from_entities()
     {   //from: https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=65359&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65359
