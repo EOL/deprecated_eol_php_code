@@ -125,6 +125,11 @@ class ParseUnstructuredTextAPI
                 // exit("\ngot one finally\n".$row."\n");
             }
             // else echo "\n[$row]\n";
+
+            // /* to close tag the last block
+            if($row == "Appendix") $row = "</taxon>$row";
+            // */
+
             fwrite($WRITE, $row."\n");
         }//end loop text
         fclose($WRITE);
