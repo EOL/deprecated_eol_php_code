@@ -8,6 +8,21 @@ require_library('connectors/ParseUnstructuredTextAPI');
 $timestart = time_elapsed();
 $func = new ParseUnstructuredTextAPI();
 
+/* test
+$arr[] = 'aa';
+$arr[] = 'bb';
+print_r($arr);
+$arr[] = 'cc';
+$arr[] = 'dd';
+$arr[] = 'ee';
+print_r($arr);
+array_shift($arr);
+print_r($arr);
+$arr[] = 'ff';
+print_r($arr);
+exit("\n-end test-\n");
+*/
+
 /* parsing result of PdfParser
 $filename = 'pdf2text_output.txt';
 $func->parse_text_file($filename);
@@ -24,11 +39,17 @@ $func->parse_pdftotext_result($filename);
 $filename = 'SCtZ-0293-Hi_res.html';
 $func->parse_pdf2htmlEX_result($filename);
 */
-
-// /* parsing SCZ637_pdftotext.txt
+/* parsing SCZ637_pdftotext.txt
 $filename = 'SCZ637_pdftotext.txt';
 $func->parse_pdftotext_result($filename);
+*/
+
+// /* Start epub series: process our first file from the ticket
+$filename = 'SCtZ-0293_convertio.txt';
+$func->parse_pdftotext_result($filename);
 // */
+
+
 
 // Functions::finalize_dwca_resource($resource_id, false, true);
 $elapsed_time_sec = time_elapsed() - $timestart;
