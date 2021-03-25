@@ -130,7 +130,7 @@ curl -i -X POST -d '{"apikey": "_YOUR_API_KEY_", "file":"http://google.com/", "o
 
 --------------------------- SAMPLE IF INPUT IS URL ---------------------------
 STEP 1:
-curl -i -X POST -d '{"apikey": "0faab539f8de23cd027d32cbddd6b620", "file":"https://editors.eol.org/other_files/temp/SCtZ-0293.epub", "outputformat":"txt"}' http://api.convertio.co/convert
+curl -i -X POST -d '{"apikey": "eli_api_key", "file":"https://editors.eol.org/other_files/temp/SCtZ-0293.epub", "outputformat":"txt"}' http://api.convertio.co/convert
 -> start conversion
 {"code":200,"status":"ok","data":{"id":"63ce87a42ab51fa45c0ef5af8b329612","minutes":25}}
 
@@ -140,7 +140,7 @@ curl -i -X GET http://api.convertio.co/convert/63ce87a42ab51fa45c0ef5af8b329612/
 {"code":200,"status":"ok","data":{"id":"63ce87a42ab51fa45c0ef5af8b329612","step":"finish","step_percent":100,"minutes":"1",
   "output":{"url":"https:\/\/s163.convertio.me\/p\/PiX4oKMhB9YQZYnX_k-OIg\/0faab539f8de23cd027d32cbddd6b620\/SCtZ-0293.txt","size":"272899"}}}
 - end -
---------------------------- SAMPLE IS IF INPUT IS POST LOCAL FILE ---------------------------
+--------------------------- SAMPLE IF INPUT IS TO POST A LOCAL FILE ---------------------------
 STEP 1:
 curl -i -X POST -d '{"apikey": "0faab539f8de23cd027d32cbddd6b620", "input":"upload", "outputformat":"txt"}' http://api.convertio.co/convert
 -> start

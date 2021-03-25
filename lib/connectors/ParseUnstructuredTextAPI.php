@@ -34,6 +34,7 @@ class ParseUnstructuredTextAPI
         $edited_file = self::add_taxon_tags_to_text_file_v3($filename);
         self::remove_some_rows($edited_file);
         self::show_parsed_texts_for_mining($edited_file);
+        print_r($this->scinames); echo "\n".count($this->scinames)."\n";
     }
     //else           $row = "</taxon><taxon sciname='$sciname'> ".$row;
     private function get_main_scinames($filename)
@@ -79,7 +80,7 @@ class ParseUnstructuredTextAPI
                             if(substr($rows[2],1,1) != ".") { //not e.g. "C. Allan Child"
                                 if(self::is_sciname($rows[2])) {
                                     print_r($rows);
-                                    // $this->lines_to_tag[$rows[2]] = '';
+                                    $this->scinames[$rows[2]] = ''; //for reporting
                                     $this->lines_to_tag[$ctr-2] = '';
                                 }
                             }
