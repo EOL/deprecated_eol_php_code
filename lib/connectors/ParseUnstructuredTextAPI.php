@@ -9,7 +9,6 @@ class ParseUnstructuredTextAPI
 
         $this->service['GNRD'] = 'http://gnrd.globalnames.org/name_finder.json?url=https://editors.eol.org/other_files/temp/FILENAME&unique=true';
         //e.g. http://gnrd.globalnames.org/name_finder.json?url=https://editors.eol.org/other_files/temp/pdf2text_output.txt&unique=true
-        $this->possible_prefix_word = array('Family', 'Genus');
         
         /* START pdftotext */
         $this->path['pdftotext_output'] = '/Volumes/AKiTiO4/other_files/pdftotext/'; //pertains to xpdf in legacy codebase
@@ -19,18 +18,25 @@ class ParseUnstructuredTextAPI
         /* START epub series */
         $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
+        
+        /* index key here is the lines_before_and_after_sciname */
+        $this->no_of_rows_per_block[2] = 5; //orig, first sample epub (SCtZ-0293_convertio.txt)
+        $this->no_of_rows_per_block[1] = 3; //orig, first sample epub (SCtZ-0293_convertio.txt)
         /* END epub series */
+        
     }
     /* Special chard mentioned by Dima, why GNRD stops running.
     str_replace("")
     str_replace("")
     */
     /*#################################################################################################################################*/
-    function parse_pdftotext_result($filename) //Mar 25, 2021 - start epub series
+    function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
     {   
-        // $this->scinames = self::get_unique_scinames($filename); //print_r($this->scinames); exit;
+        $filename = $input['filename'];
+        $lines_before_and_after_sciname = $input['lines_before_and_after_sciname'];
+        $this->magic_no = $this->no_of_rows_per_block[$lines_before_and_after_sciname];
         self::get_main_scinames($filename);
-        print_r($this->lines_to_tag); echo "\nscinames: ".count($this->lines_to_tag)."\n";
+        print_r($this->lines_to_tag); echo "\nscinames: ".count($this->lines_to_tag)."\n"; //exit("\n-end-\n");
         $edited_file = self::add_taxon_tags_to_text_file_v3($filename);
         self::remove_some_rows($edited_file);
         self::show_parsed_texts_for_mining($edited_file);
@@ -40,8 +46,11 @@ class ParseUnstructuredTextAPI
     private function get_main_scinames($filename)
     {
         $local = $this->path['epub_output_txts_dir'].$filename;
-        $start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family", "*", "(", "Contents", "Literature", "Miscellaneous", 
+        $this->start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family", "*", "(", "Contents", "Literature", "Miscellaneous", 
         "Introduction", "Appendix", "ACKNOWLEDGMENTS", "TERMINOLOGY");
+
+        $start_of_row_2_exclude = $this->start_of_row_2_exclude;
+        
         // /* loop text file
         $i = 0; $ctr = 0;
         foreach(new FileIterator($local) as $line => $row) { $ctr++;
@@ -72,6 +81,8 @@ class ParseUnstructuredTextAPI
             // */
             
             $rows[] = $row;
+            $rows = self::process_magic_no($this->magic_no, $rows, $ctr);
+            /*
             if(count($rows) == 5) { //start evaluating records of 5 rows
                 if(!$rows[0] && !$rows[1] && !$rows[3] && !$rows[4]) {
                     if($rows[2]) {
@@ -79,9 +90,11 @@ class ParseUnstructuredTextAPI
                         if(count($words) <= 6)  {
                             if(substr($rows[2],1,1) != ".") { //not e.g. "C. Allan Child"
                                 if(self::is_sciname($rows[2])) {
-                                    print_r($rows);
-                                    $this->scinames[$rows[2]] = ''; //for reporting
-                                    $this->lines_to_tag[$ctr-2] = '';
+                                    if(!self::has_species_string($rows[2])) {
+                                        print_r($rows);
+                                        $this->scinames[$rows[2]] = ''; //for reporting
+                                        $this->lines_to_tag[$ctr-2] = '';
+                                    }
                                 }
                             }
                         }
@@ -89,8 +102,58 @@ class ParseUnstructuredTextAPI
                 }
                 array_shift($rows); //remove 1st element, once it reaches 5 rows.
             }
+            */
         }
         // */
+    }
+    private function process_magic_no($magic_no, $rows, $ctr)
+    {
+        if($magic_no == 5) {
+            if(count($rows) == 5) { //start evaluating records of 5 rows
+                if(!$rows[0] && !$rows[1] && !$rows[3] && !$rows[4]) {
+                    if($rows[2]) {
+                        $words = explode(" ", $rows[2]);
+                        if(count($words) <= 6)  {
+                            if(substr($rows[2],1,1) != ".") { //not e.g. "C. Allan Child"
+                                if(self::is_sciname($rows[2])) {
+                                    if(!self::has_species_string($rows[2])) {
+                                        print_r($rows);
+                                        $this->scinames[$rows[2]] = ''; //for reporting
+                                        $this->lines_to_tag[$ctr-2] = '';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                array_shift($rows); //remove 1st element, once it reaches 5 rows.
+            }
+            return $rows;
+        }
+        
+        if($magic_no == 3) {
+            if(count($rows) == 3) { //start evaluating records of 5 rows
+                if(!$rows[0] && !$rows[2]) {
+                    if($rows[1]) {
+                        $words = explode(" ", $rows[1]);
+                        if(count($words) <= 6)  {
+                            if(substr($rows[1],1,1) != ".") { //not e.g. "C. Allan Child"
+                                if(self::is_sciname($rows[1])) {
+                                    if(!self::has_species_string($rows[1])) {
+                                        print_r($rows);
+                                        $this->scinames[$rows[1]] = ''; //for reporting
+                                        $this->lines_to_tag[$ctr-1] = '';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                array_shift($rows); //remove 1st element, once it reaches 5 rows.
+            }
+            return $rows;
+        }
+        
     }
     private function is_sciname($string)
     {
@@ -103,6 +166,16 @@ class ParseUnstructuredTextAPI
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
             if($obj->names) return true;
+        }
+        return false;
+    }
+    private function has_species_string($row)
+    {
+        if(stripos($row, " sp.") !== false) return true;  //string is found
+        if(stripos($row, " sp ") !== false) return true;  //string is found
+        if(stripos($row, " species") !== false) {  //string is found
+            if(stripos($row, "new species") !== false) {}  //string is found
+            else return true;
         }
         return false;
     }
@@ -145,7 +218,8 @@ class ParseUnstructuredTextAPI
         $local = $edited_file;
         $temp_file = $local.".tmp";
         $WRITE = fopen($temp_file, "w"); //initialize
-        $start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family");
+        // $start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family"); //not used anymore
+        $start_of_row_2_exclude = $this->start_of_row_2_exclude;
         
         // /* loop text file
         $i = 0;

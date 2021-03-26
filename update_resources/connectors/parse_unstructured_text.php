@@ -45,8 +45,9 @@ $func->parse_pdftotext_result($filename);
 */
 
 // /* Start epub series: process our first file from the ticket
-$filename = 'SCtZ-0293_convertio.txt';
-$func->parse_pdftotext_result($filename);
+$input = array('filename' => 'SCtZ-0293_convertio.txt', 'lines_before_and_after_sciname' => 2);
+// $input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' => 1);
+$func->parse_pdftotext_result($input);
 // */
 
 
