@@ -47,10 +47,14 @@ class ParseUnstructuredTextAPI
     {
         $local = $this->path['epub_output_txts_dir'].$filename;
 
-        $this->start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family");
+        // /* This is a different list of words from below. These rows can be removed from the final text blocks.
+        $this->start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family", "Subgenus", "Superfamily", "Subfamily",
+        "? Subfamily");
+        // */
         
-        // /* This is a different list of words from below. These rows can be removed ONLY when hunting for the scinames.
-        $exclude = array("*", "(", "Contents", "Literature", "Miscellaneous", "Introduction", "Appendix", "ACKNOWLEDGMENTS", "TERMINOLOGY");
+        // /* This is a different list of words from above. These rows can be removed ONLY when hunting for the scinames.
+        $exclude = array("*", "(", "Contents", "Literature", "Miscellaneous", "Introduction", "Appendix", "ACKNOWLEDGMENTS", "TERMINOLOGY",
+        "ETYMOLOGY.", "TYPE-");
         // */
         
         $start_of_row_2_exclude = array_merge($this->start_of_row_2_exclude, $exclude);
@@ -117,7 +121,7 @@ class ParseUnstructuredTextAPI
                 if(!$rows[0] && !$rows[1] && !$rows[3] && !$rows[4]) {
                     if($rows[2]) {
                         $words = explode(" ", $rows[2]);
-                        if(count($words) <= 6)  {
+                        if(count($words) <= 10)  { //orig is 6
                             if(substr($rows[2],1,1) != ".") { //not e.g. "C. Allan Child"
                                 if(self::is_sciname($rows[2])) {
                                     if(!self::has_species_string($rows[2])) {
@@ -140,7 +144,7 @@ class ParseUnstructuredTextAPI
                 if(!$rows[0] && !$rows[2]) {
                     if($rows[1]) {
                         $words = explode(" ", $rows[1]);
-                        if(count($words) <= 6)  {
+                        if(count($words) <= 6)  { //orig is 6
                             if(substr($rows[1],1,1) != ".") { //not e.g. "C. Allan Child"
                                 if(self::is_sciname($rows[1])) {
                                     if(!self::has_species_string($rows[1])) {
@@ -159,8 +163,19 @@ class ParseUnstructuredTextAPI
         }
         
     }
+    private function get_numbers_from_string($str)
+    {
+        if(preg_match_all('/\d+/', $str, $a)) return $a[0];
+    }
     private function is_sciname($string)
     {
+        if(ctype_lower(substr($string,0,1))) return false;
+
+        if($numbers = self::get_numbers_from_string($string)) { //if there is a single digit or 2-digit or 3-digit number in string then not sciname.
+            foreach($numbers as $num) {
+                if(strlen($num) <= 3) return false;
+            }
+        }
         /* from GNRD
         http://gnrd.globalnames.org/name_finder.json?text=A+spider+named+Pardosa+moesta+Banks,+1892 
         */
@@ -222,6 +237,7 @@ class ParseUnstructuredTextAPI
         $local = $edited_file;
         $temp_file = $local.".tmp";
         $WRITE = fopen($temp_file, "w"); //initialize
+        
         // /* This is a different list of words from above. These rows can be removed from the final text blocks.
         $start_of_row_2_exclude = $this->start_of_row_2_exclude;
         // */

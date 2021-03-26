@@ -9,6 +9,21 @@ $timestart = time_elapsed();
 $func = new ParseUnstructuredTextAPI();
 
 /* test
+$str = "eli is 123 but cha is 23 and isaiah is 3";
+if(preg_match_all('/\d+/', $str, $a)) //print_r($a[0]);
+{
+    $arr = $a[0];
+    print_r($arr);
+    foreach($arr as $num) {
+
+        echo "\n$num is ".strlen($num)." digit(s)\n";
+        
+    }
+}
+exit("\n-end test-\n");
+*/
+
+/* test
 $arr[] = 'aa';
 $arr[] = 'bb';
 print_r($arr);
