@@ -46,10 +46,14 @@ class ParseUnstructuredTextAPI
     private function get_main_scinames($filename)
     {
         $local = $this->path['epub_output_txts_dir'].$filename;
-        $this->start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family", "*", "(", "Contents", "Literature", "Miscellaneous", 
-        "Introduction", "Appendix", "ACKNOWLEDGMENTS", "TERMINOLOGY");
 
-        $start_of_row_2_exclude = $this->start_of_row_2_exclude;
+        $this->start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family");
+        
+        // /* This is a different list of words from below. These rows can be removed ONLY when hunting for the scinames.
+        $exclude = array("*", "(", "Contents", "Literature", "Miscellaneous", "Introduction", "Appendix", "ACKNOWLEDGMENTS", "TERMINOLOGY");
+        // */
+        
+        $start_of_row_2_exclude = array_merge($this->start_of_row_2_exclude, $exclude);
         
         // /* loop text file
         $i = 0; $ctr = 0;
@@ -218,8 +222,9 @@ class ParseUnstructuredTextAPI
         $local = $edited_file;
         $temp_file = $local.".tmp";
         $WRITE = fopen($temp_file, "w"); //initialize
-        // $start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family"); //not used anymore
+        // /* This is a different list of words from above. These rows can be removed from the final text blocks.
         $start_of_row_2_exclude = $this->start_of_row_2_exclude;
+        // */
         
         // /* loop text file
         $i = 0;
