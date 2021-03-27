@@ -36,7 +36,7 @@ class ParseUnstructuredTextAPI
         $lines_before_and_after_sciname = $input['lines_before_and_after_sciname'];
         $this->magic_no = $this->no_of_rows_per_block[$lines_before_and_after_sciname];
         self::get_main_scinames($filename);
-        print_r($this->lines_to_tag); echo "\nscinames: ".count($this->lines_to_tag)."\n"; //exit("\n-end-\n");
+        print_r($this->lines_to_tag); echo "\n lines_to_tag: ".count($this->lines_to_tag)."\n"; //exit("\n-end-\n");
         $edited_file = self::add_taxon_tags_to_text_file_v3($filename);
         self::remove_some_rows($edited_file);
         self::show_parsed_texts_for_mining($edited_file);
@@ -58,6 +58,7 @@ class ParseUnstructuredTextAPI
         // */
         
         $start_of_row_2_exclude = array_merge($this->start_of_row_2_exclude, $exclude);
+        $start_of_row_2_exclude = $exclude;
         
         // /* loop text file
         $i = 0; $ctr = 0;
@@ -124,11 +125,12 @@ class ParseUnstructuredTextAPI
                         if(count($words) <= 10)  { //orig is 6
                             if(substr($rows[2],1,1) != ".") { //not e.g. "C. Allan Child"
                                 if(self::is_sciname($rows[2])) {
-                                    if(!self::has_species_string($rows[2])) {
-                                        print_r($rows);
-                                        $this->scinames[$rows[2]] = ''; //for reporting
-                                        $this->lines_to_tag[$ctr-2] = '';
-                                    }
+                                    // /*
+                                    if(!self::has_species_string($rows[2])) {}
+                                    print_r($rows);
+                                    $this->scinames[$rows[2]] = ''; //for reporting
+                                    $this->lines_to_tag[$ctr-2] = '';
+                                    // */
                                 }
                             }
                         }
@@ -147,11 +149,13 @@ class ParseUnstructuredTextAPI
                         if(count($words) <= 6)  { //orig is 6
                             if(substr($rows[1],1,1) != ".") { //not e.g. "C. Allan Child"
                                 if(self::is_sciname($rows[1])) {
-                                    if(!self::has_species_string($rows[1])) {
-                                        print_r($rows);
-                                        $this->scinames[$rows[1]] = ''; //for reporting
-                                        $this->lines_to_tag[$ctr-1] = '';
-                                    }
+                                    // /* 
+                                    // if(!self::has_species_string($rows[1])) {}
+                                    //these 3 lines removed from the if() above
+                                    print_r($rows);
+                                    $this->scinames[$rows[1]] = ''; //for reporting
+                                    $this->lines_to_tag[$ctr-1] = '';
+                                    // */
                                 }
                             }
                         }
@@ -173,7 +177,10 @@ class ParseUnstructuredTextAPI
 
         if($numbers = self::get_numbers_from_string($string)) { //if there is a single digit or 2-digit or 3-digit number in string then not sciname.
             foreach($numbers as $num) {
-                if(strlen($num) <= 3) return false;
+                if(strlen($num) <= 3) {
+                    if(stripos($string, " species $num") !== false) return true; //e.g. "Pontocypris species 1" //string is found
+                    else return false;
+                }
             }
         }
         /* from GNRD
@@ -194,6 +201,18 @@ class ParseUnstructuredTextAPI
         if(stripos($row, " sp ") !== false) return true;  //string is found
         if(stripos($row, " species") !== false) {  //string is found
             if(stripos($row, "new species") !== false) {}  //string is found
+            elseif(stripos($row, " species 1") !== false) {}  //string is found
+            elseif(stripos($row, " species 2") !== false) {}  //string is found
+            elseif(stripos($row, " species 3") !== false) {}  //string is found
+            elseif(stripos($row, " species 4") !== false) {}  //string is found
+            elseif(stripos($row, " species 5") !== false) {}  //string is found
+            elseif(stripos($row, " species 6") !== false) {}  //string is found
+            elseif(stripos($row, " species 7") !== false) {}  //string is found
+            elseif(stripos($row, " species 8") !== false) {}  //string is found
+            elseif(stripos($row, " species 9") !== false) {}  //string is found
+            elseif(stripos($row, " species 10") !== false) {}  //string is found
+            elseif(stripos($row, " species 11") !== false) {}  //string is found
+            elseif(stripos($row, " species 12") !== false) {}  //string is found
             else return true;
         }
         return false;
@@ -220,7 +239,8 @@ class ParseUnstructuredTextAPI
             // else echo "\n[$row]\n";
 
             // /* to close tag the last block
-            if($row == "Appendix") $row = "</taxon>$row";
+            if($row == "Appendix") $row = "</taxon>$row";               //SCtZ-0293_convertio.txt
+            elseif($row == "Literature Cited") $row = "</taxon>$row";   //SCtZ-0007.txt
             // */
 
             fwrite($WRITE, $row."\n");
@@ -266,12 +286,6 @@ class ParseUnstructuredTextAPI
         
     }
     /*#################################################################################################################################*/
-    function parse_text_file($filename)
-    {
-        $scinames = self::get_unique_scinames($filename);
-        $edited_file = self::add_taxon_tags_to_text_file_v1($scinames, $filename); //big process
-        self::show_parsed_texts_for_mining($edited_file);
-    }
     private function show_parsed_texts_for_mining($edited_file)
     {
         $with_blocks_file = str_replace("_edited.txt", "_blocks.txt", $edited_file);
@@ -284,12 +298,26 @@ class ParseUnstructuredTextAPI
                 // if(count($rows) >= 5) {
                 if(true) {
                     $show = "\n-----------------------\n<$block</sciname>\n-----------------------\n";
-                    fwrite($WRITE, $show); // echo $show;
+                    /*
+                    <sciname='Pontocypria humesi Maddocks (Nosy Bé, Madagascar)'> Pontocypria humesi Maddocks (Nosy Bé, Madagascar)
+                    </sciname>
+                    */
+                    if(self::is_valid_block("<$block</sciname>")) fwrite($WRITE, $show); // echo $show;
+                    else echo " -- not valid block";
                 }
             }
         }
         fclose($WRITE);
         echo "\nblocks: ".count($a[1])."\n";
+    }
+    private function is_valid_block($block)
+    {
+        if(preg_match("/<sciname=\'(.*?)\'/ims", $block, $a)) {
+            $sciname = $a[1];
+            $contents = Functions::remove_whitespace(trim(strip_tags($block)));
+            if($sciname == $contents) return false;
+        }
+        return true;
     }
     private function get_unique_scinames($filename) //get unique names using GNRD
     {
