@@ -57,8 +57,8 @@ class ParseUnstructuredTextAPI
         "ETYMOLOGY.", "TYPE-");
         // */
         
-        $start_of_row_2_exclude = array_merge($this->start_of_row_2_exclude, $exclude);
-        $start_of_row_2_exclude = $exclude;
+        // $start_of_row_2_exclude = array_merge($this->start_of_row_2_exclude, $exclude); not used anymore...
+        // $start_of_row_2_exclude = $exclude;
         
         // /* loop text file
         $i = 0; $ctr = 0;
@@ -68,7 +68,7 @@ class ParseUnstructuredTextAPI
             
             $cont = true;
             // /* criteria 1
-            foreach($start_of_row_2_exclude as $start_of_row) {
+            foreach($exclude as $start_of_row) {
                 $len = strlen($start_of_row);
                 if(substr($row,0,$len) == $start_of_row) {
                     $rows = array();
@@ -91,27 +91,6 @@ class ParseUnstructuredTextAPI
             
             $rows[] = $row;
             $rows = self::process_magic_no($this->magic_no, $rows, $ctr);
-            /*
-            if(count($rows) == 5) { //start evaluating records of 5 rows
-                if(!$rows[0] && !$rows[1] && !$rows[3] && !$rows[4]) {
-                    if($rows[2]) {
-                        $words = explode(" ", $rows[2]);
-                        if(count($words) <= 6)  {
-                            if(substr($rows[2],1,1) != ".") { //not e.g. "C. Allan Child"
-                                if(self::is_sciname($rows[2])) {
-                                    if(!self::has_species_string($rows[2])) {
-                                        print_r($rows);
-                                        $this->scinames[$rows[2]] = ''; //for reporting
-                                        $this->lines_to_tag[$ctr-2] = '';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                array_shift($rows); //remove 1st element, once it reaches 5 rows.
-            }
-            */
         }
         // */
     }
@@ -126,7 +105,8 @@ class ParseUnstructuredTextAPI
                             if(substr($rows[2],1,1) != ".") { //not e.g. "C. Allan Child"
                                 if(self::is_sciname($rows[2])) {
                                     // /*
-                                    if(!self::has_species_string($rows[2])) {}
+                                    // if(!self::has_species_string($rows[2])) {}
+                                    //these 3 lines removed from the if() above
                                     print_r($rows);
                                     $this->scinames[$rows[2]] = ''; //for reporting
                                     $this->lines_to_tag[$ctr-2] = '';
@@ -259,7 +239,7 @@ class ParseUnstructuredTextAPI
         $WRITE = fopen($temp_file, "w"); //initialize
         
         // /* This is a different list of words from above. These rows can be removed from the final text blocks.
-        $start_of_row_2_exclude = $this->start_of_row_2_exclude;
+        $exclude = $this->start_of_row_2_exclude;
         // */
         
         // /* loop text file
@@ -269,7 +249,7 @@ class ParseUnstructuredTextAPI
             
             $cont = true;
             // /* criteria 1
-            foreach($start_of_row_2_exclude as $start_of_row) {
+            foreach($exclude as $start_of_row) {
                 $len = strlen($start_of_row);
                 if(substr($row,0,$len) == $start_of_row) {
                     $rows = array();
@@ -314,8 +294,12 @@ class ParseUnstructuredTextAPI
     {
         if(preg_match("/<sciname=\'(.*?)\'/ims", $block, $a)) {
             $sciname = $a[1];
-            $contents = Functions::remove_whitespace(trim(strip_tags($block)));
-            if($sciname == $contents) return false;
+            
+            if(!self::has_species_string($sciname)) {
+                $contents = Functions::remove_whitespace(trim(strip_tags($block)));
+                if($sciname == $contents) return false;
+            }
+            
         }
         return true;
     }
