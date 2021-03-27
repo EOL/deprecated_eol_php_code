@@ -296,11 +296,36 @@ class ParseUnstructuredTextAPI
             $sciname = $a[1];
             
             if(!self::has_species_string($sciname)) {
-                $contents = Functions::remove_whitespace(trim(strip_tags($block)));
-                if($sciname == $contents) return false;
+                if(self::is_sciname_we_want($sciname)) {
+                    $contents = Functions::remove_whitespace(trim(strip_tags($block)));
+                    if($sciname == $contents) return false;
+                }
+                else return false;
             }
-            
+            else return false;
         }
+        return true;
+    }
+    private function is_sciname_we_want($sciname)
+    {   
+        // /*
+        if($numbers = self::get_numbers_from_string($sciname)) { //if there is a single digit or 2-digit or 3-digit number in string then not sciname.
+            foreach($numbers as $num) {
+                if(strlen($num) <= 3) {
+                    if(stripos($sciname, " species $num") !== false) return false; //e.g. "Pontocypris species 1" //string is found
+                }
+            }
+        }
+        // */
+        
+        // /*
+        $ranks = array("Genus", "Family", "Subgenus", "Superfamily", "Subfamily", "? Subfamily");
+        foreach($ranks as $rank) {
+            $len = strlen($rank);
+            if(substr($sciname,0,$len) == $rank) return false;
+        }
+        // */
+        
         return true;
     }
     private function get_unique_scinames($filename) //get unique names using GNRD
