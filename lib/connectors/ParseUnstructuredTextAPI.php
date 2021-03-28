@@ -282,8 +282,8 @@ class ParseUnstructuredTextAPI
                     <sciname='Pontocypria humesi Maddocks (Nosy Bé, Madagascar)'> Pontocypria humesi Maddocks (Nosy Bé, Madagascar)
                     </sciname>
                     */
-                    if(self::is_valid_block("<$block</sciname>")) fwrite($WRITE, $show); // echo $show;
-                    else echo " -- not valid block";
+                    if(self::is_valid_block("<$block</sciname>")) fwrite($WRITE, $show);
+                    // else echo " -- not valid block"; //just debug
                 }
             }
         }
@@ -304,6 +304,7 @@ class ParseUnstructuredTextAPI
             }
             else return false;
         }
+        echo "\n[$sciname]";
         return true;
     }
     private function is_sciname_we_want($sciname)
