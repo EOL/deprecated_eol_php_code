@@ -27,7 +27,7 @@ class TRAM_992_API
                 }
             }
             echo "\nResources: [$i]\n";
-            print_r($this->package); echo " - package"; //exit("exit 2"); //good debug
+            // print_r($this->package); echo " - package"; //exit("exit 2"); //good debug
         }
         /* assemble data then print */
         /*Array(
@@ -45,7 +45,7 @@ class TRAM_992_API
         foreach($this->package as $package_id => $ids) {
             foreach(array_keys($ids) as $id) $final[$id][] = $package_id;
         }
-        print_r($final); echo " - final"; //good debug
+        // print_r($final); echo " - final"; //good debug
         /* print to text file */
         /*Array(
             [110558] => Array(
