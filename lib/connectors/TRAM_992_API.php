@@ -82,7 +82,7 @@ class TRAM_992_API
         foreach($rec->resources as $resource) self::process_resource($resource);
     }
     private function process_resource($res)
-    {   print_r($res);
+    {   //print_r($res);
         /*stdClass Object(
             [description] => 
             [name] => Lewis and Taylor, 1965
@@ -91,19 +91,23 @@ class TRAM_992_API
             [url] => https://opendata.eol.org/dataset/10c26a35-e332-4c56-94fd-a5b39d245ff6/resource/98edf631-a461-4761-a25e-f36c6527dc46/download/archive.zip
             [id] => 98edf631-a461-4761-a25e-f36c6527dc46
         )*/
+        echo "\nProcessing ".$res->name."...\n";
         $this->batch = array();
         
         $ext = pathinfo($res->url, PATHINFO_EXTENSION);
         if(in_array($ext, array('zip', 'gz'))) self::process_dwca($res->url);
 
-        /* working, but replaced below by actual 'telling' name. Not the package_id.
+        // /* working, but replaced below by actual 'telling' name. Not the package_id.
         $this->package[$res->package_id] = $this->batch;
-        */
+        // */
+        /* cannot convert/format $res->name to proper URL
         $this->package[self::format_title($res->name)] = $this->batch;
+        */
         // print_r($this->batch); exit("\n-exit muna-\n");
     }
     private function format_title($str)
     {
+        if($str == "Queirós et al, 2013") $str = "queiros-et-al-2013";
         $str = strtolower($str);
         $str = str_replace(" ", "-", $str);
         $str = str_replace(array(","), "", $str);
