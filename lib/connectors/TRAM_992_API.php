@@ -27,7 +27,7 @@ class TRAM_992_API
                 }
             }
             echo "\nResources: [$i]\n";
-            print_r($this->package); //exit("exit 2");
+            print_r($this->package); echo " - package"; //exit("exit 2"); //good debug
         }
         /* assemble data then print */
         /*Array(
@@ -45,7 +45,7 @@ class TRAM_992_API
         foreach($this->package as $package_id => $ids) {
             foreach(array_keys($ids) as $id) $final[$id][] = $package_id;
         }
-        print_r($final);
+        print_r($final); echo " - final"; //good debug
         /* print to text file */
         /*Array(
             [110558] => Array(
@@ -69,7 +69,21 @@ class TRAM_992_API
         print_r($this->debug);
     }
     private function process_rec($rec)
-    {   //print_r($rec);
+    {   //print_r($rec); exit;
+        /* 
+        [num_resources] => 1
+        [tags] => Array(
+             [0] => stdClass Object(
+                     [vocabulary_id] => 
+                     [state] => active
+                     [display_name] => taxonomic inference
+                     [id] => 3ab34f90-5543-4c40-b3fa-ea817137463e
+                     [name] => taxonomic inference
+                 )
+         )
+        [name] => lewis-and-taylor-1965
+        */
+        
         
         // if(in_array($rec->name, array('mineralogy', 'marine-ecology-literature'))) {}
         // else {
@@ -79,9 +93,9 @@ class TRAM_992_API
             }
         // }
         
-        foreach($rec->resources as $resource) self::process_resource($resource);
+        foreach($rec->resources as $resource) self::process_resource($resource, $rec->name, count($rec->resources));
     }
-    private function process_resource($res)
+    private function process_resource($res, $dataset_name, $resources_count)
     {   //print_r($res);
         /*stdClass Object(
             [description] => 
@@ -91,18 +105,17 @@ class TRAM_992_API
             [url] => https://opendata.eol.org/dataset/10c26a35-e332-4c56-94fd-a5b39d245ff6/resource/98edf631-a461-4761-a25e-f36c6527dc46/download/archive.zip
             [id] => 98edf631-a461-4761-a25e-f36c6527dc46
         )*/
-        echo "\nProcessing ".$res->name."...\n";
+        echo "\nProcessing ".$dataset_name." -> ".$res->name."...\n";
         $this->batch = array();
         
         $ext = pathinfo($res->url, PATHINFO_EXTENSION);
         if(in_array($ext, array('zip', 'gz'))) self::process_dwca($res->url);
 
-        // /* working, but replaced below by actual 'telling' name. Not the package_id.
-        $this->package[$res->package_id] = $this->batch;
-        // */
-        /* cannot convert/format $res->name to proper URL
-        $this->package[self::format_title($res->name)] = $this->batch;
-        */
+        if($resources_count == 1)       $id_to_use = $dataset_name;
+        elseif($resources_count > 1)    $id_to_use = $dataset_name."/resource/".$res->id;
+        else exit("\nNo resources!\n");
+        $this->package[$id_to_use] = $this->batch;
+
         // print_r($this->batch); exit("\n-exit muna-\n");
     }
     private function format_title($str)
