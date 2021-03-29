@@ -65,8 +65,6 @@ $input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' =
 $func->parse_pdftotext_result($input);
 // */
 
-
-
 // Functions::finalize_dwca_resource($resource_id, false, true);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
