@@ -17,11 +17,11 @@ class TRAM_992_API
     {
         if($json = Functions::lookup_with_cache($this->opendata_api['tag taxonomic inference'], $this->download_options)) {
             $obj = json_decode($json); //print_r($obj);
-            $i = 0;
+            $i = 0; $count = 0;
             foreach($obj->result->results as $rec) { //loop all resources with tags = 'taxonomic inference'
                 // print_r($rec->tags); exit;
-                if(@$rec->tags{0}->name == 'taxonomic inference') {
-                    self::process_rec($rec);
+                if(@$rec->tags{0}->name == 'taxonomic inference') { $count++;
+                    self::process_rec($rec, $count);
                     $i++;
                     // if($i > 5) break; //debug only
                 }
@@ -68,7 +68,7 @@ class TRAM_992_API
         fclose($f);
         print_r($this->debug);
     }
-    private function process_rec($rec)
+    private function process_rec($rec, $count)
     {   //print_r($rec); exit;
         /* 
         [num_resources] => 1
@@ -93,9 +93,9 @@ class TRAM_992_API
             }
         // }
         
-        foreach($rec->resources as $resource) self::process_resource($resource, $rec->name, count($rec->resources));
+        foreach($rec->resources as $resource) self::process_resource($resource, $rec->name, count($rec->resources), $count);
     }
-    private function process_resource($res, $dataset_name, $resources_count)
+    private function process_resource($res, $dataset_name, $resources_count, $count)
     {   //print_r($res);
         /*stdClass Object(
             [description] => 
@@ -105,7 +105,7 @@ class TRAM_992_API
             [url] => https://opendata.eol.org/dataset/10c26a35-e332-4c56-94fd-a5b39d245ff6/resource/98edf631-a461-4761-a25e-f36c6527dc46/download/archive.zip
             [id] => 98edf631-a461-4761-a25e-f36c6527dc46
         )*/
-        echo "\nProcessing ".$dataset_name." -> ".$res->name."...\n";
+        echo "\nProcessing [$count]. ".$dataset_name." -> ".$res->name."...\n";
         $this->batch = array();
         
         $ext = pathinfo($res->url, PATHINFO_EXTENSION);
