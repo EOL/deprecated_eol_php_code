@@ -269,7 +269,7 @@ class ParseUnstructuredTextAPI
     /*#################################################################################################################################*/
     private function show_parsed_texts_for_mining($edited_file)
     {
-        $with_blocks_file = str_replace("_edited.txt", "_blocks.txt", $edited_file);
+        $with_blocks_file = str_replace("_edited.txt", "_tagged.txt", $edited_file);
         $WRITE = fopen($with_blocks_file, "w"); //initialize
         $contents = file_get_contents($edited_file);
         if(preg_match_all("/<taxon (.*?)<\/taxon>/ims", $contents, $a)) {
@@ -278,6 +278,17 @@ class ParseUnstructuredTextAPI
                 $rows = explode("\n", $block);
                 // if(count($rows) >= 5) {
                 if(true) {
+                    
+                    // /* remove "REMARKS.—" section if exists
+                    $str = "elicha".$block;
+                    if(preg_match("/elicha(.*?)REMARKS\.\—/ims", $str, $a2)) $block = $a2[1];
+                    //*/
+                    // /* remove "REMARK.—" section if exists
+                    $str = "elicha".$block;
+                    if(preg_match("/elicha(.*?)REMARK\.\—/ims", $str, $a2)) $block = $a2[1];
+                    //*/
+                    
+                    
                     $show = "\n-----------------------\n<$block</sciname>\n-----------------------\n";
                     /*
                     <sciname='Pontocypria humesi Maddocks (Nosy Bé, Madagascar)'> Pontocypria humesi Maddocks (Nosy Bé, Madagascar)

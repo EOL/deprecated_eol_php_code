@@ -213,6 +213,8 @@ now with orig location string textmined in MoF
 26_ENV	Mon 2021-03-22 02:27:35 AM	{"agent.tab":1749, "measurement_or_fact_specific.tab":2530239, "media_resource.tab":92097, "occurrence_specific.tab":2156097, "reference.tab":680112, "taxon.tab":370148, "vernacular_name.tab":85180, "time_elapsed":{"sec":2962.03, "min":49.37, "hr":0.82}}
 now with exclude many URI from Jen's geo_synonyms.txt
 26_ENV	Thu 2021-03-25 12:13:18 PM	{"agent.tab":1749, "measurement_or_fact_specific.tab":2425694, "media_resource.tab":92097, "occurrence_specific.tab":2051552, "reference.tab":680112, "taxon.tab":370148, "vernacular_name.tab":85180, "time_elapsed":{"sec":3229.15, "min":53.82, "hr":0.9}}
+now added source where there is none
+26_ENV	Mon 2021-03-29 12:56:36 PM	{"agent.tab":1749, "measurement_or_fact_specific.tab":2425694, "media_resource.tab":92097, "occurrence_specific.tab":2051552, "reference.tab":680112, "taxon.tab":370148, "vernacular_name.tab":85180, "time_elapsed":{"sec":3329.67, "min":55.49, "hr":0.92}}
 ===================================================================================================================== WoRMS end
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
