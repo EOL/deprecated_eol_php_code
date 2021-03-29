@@ -33,6 +33,7 @@ class ParseUnstructuredTextAPI
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
     {   
         $filename = $input['filename'];
+        $this->filename = $filename; //for referencing below
         $lines_before_and_after_sciname = $input['lines_before_and_after_sciname'];
         $this->magic_no = $this->no_of_rows_per_block[$lines_before_and_after_sciname];
         self::get_main_scinames($filename);
@@ -297,7 +298,15 @@ class ParseUnstructuredTextAPI
             
             if(!self::has_species_string($sciname)) {
                 if(self::is_sciname_we_want($sciname)) {
+
                     $contents = Functions::remove_whitespace(trim(strip_tags($block)));
+                    $word_count = self::get_number_of_words($contents);
+                    if($this->filename == 'SCtZ-0007.txt') //2nd PDF
+                        if($word_count < 100) return false;
+                    elseif($this->filename == 'elix') {}
+                    else { //SCtZ-0293_convertio.txt goese here, our 1st PDF
+                        
+                    }
                     if($sciname == $contents) return false;
                 }
                 else return false;
@@ -305,7 +314,13 @@ class ParseUnstructuredTextAPI
             else return false;
         }
         echo "\n[$sciname]";
+        echo " - Word count: ".$word_count."\n";
         return true;
+    }
+    private function get_number_of_words($contents)
+    {
+        $arr = explode(" ", $contents);
+        return count($arr);
     }
     private function is_sciname_we_want($sciname)
     {   
