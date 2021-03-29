@@ -169,6 +169,11 @@ class Environments2EOLfinal
                 // */
                 
                 if($val = @$rek['source']) $rec['source'] = $val;
+                else {
+                    if($this->resource_id == '26_ENV') {
+                        $rec['source'] = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=".$taxonID;
+                    }
+                }
                 if($val = @$rek['bibliographicCitation']) $rec['bibliographicCitation'] = $val;
                 if($val = @$rek['contributor']) $rec['contributor'] = $val;
                 if($val = @$rek['referenceID']) $rec['referenceID'] = $val;
