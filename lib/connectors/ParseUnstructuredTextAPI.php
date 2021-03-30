@@ -279,15 +279,8 @@ class ParseUnstructuredTextAPI
                 // if(count($rows) >= 5) {
                 if(true) {
                     
-                    // /* remove "REMARKS.—" section if exists
-                    $str = "elicha".$block;
-                    if(preg_match("/elicha(.*?)REMARKS\.\—/ims", $str, $a2)) $block = $a2[1];
-                    //*/
-                    // /* remove "REMARK.—" section if exists
-                    $str = "elicha".$block;
-                    if(preg_match("/elicha(.*?)REMARK\.\—/ims", $str, $a2)) $block = $a2[1];
-                    //*/
-                    
+                    $last_sections_2b_removed = array("REMARKS.—", "REMARK.—", "AFFINITIES.—");
+                    $block = self::remove_last_sections($last_sections_2b_removed, $block);
                     
                     $show = "\n-----------------------\n<$block</sciname>\n-----------------------\n";
                     /*
@@ -301,6 +294,22 @@ class ParseUnstructuredTextAPI
         }
         fclose($WRITE);
         echo "\nblocks: ".count($a[1])."\n";
+    }
+    private function remove_last_sections($sections, $block)
+    {
+        /* remove "REMARKS.—" section if exists
+        $str = "elicha".$block;
+        if(preg_match("/elicha(.*?)REMARKS\.\—/ims", $str, $a2)) $block = $a2[1];
+        */
+        /* remove "REMARK.—" section if exists
+        $str = "elicha".$block;
+        if(preg_match("/elicha(.*?)REMARK\.\—/ims", $str, $a2)) $block = $a2[1];
+        */
+        foreach($sections as $section) {
+            $str = "elicha".$block;
+            if(preg_match("/elicha(.*?)".preg_quote($section, '/')."/ims", $str, $a2)) $block = $a2[1];
+        }
+        return $block;
     }
     private function is_valid_block($block)
     {
