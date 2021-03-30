@@ -195,7 +195,9 @@ class GloBIDataAPI extends Globi_Refuted_Records
             elseif($what == 'create extension') {
                 /* first change request */
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002437', 'http://purl.obolibrary.org/obo/RO_0002220', 
-                                                    'http://purl.obolibrary.org/obo/RO_0002321', 'http://purl.obolibrary.org/obo/RO_0008506'))) { //delete all records of this associationType
+                                                    'http://purl.obolibrary.org/obo/RO_0002321', 'http://purl.obolibrary.org/obo/RO_0008506',
+                                                    'http://purl.obolibrary.org/obo/RO_0008505' //Jen: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=65789&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65789
+                                                    ))) { //delete all records of this associationType
                     $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
                     $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
                     continue;
