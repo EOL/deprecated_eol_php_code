@@ -8,14 +8,12 @@ class SmithsonianPDFsAPI
         $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        $this->download_options = array('resource_id' => "SI", 'timeout' => 172800, 'expire_seconds' => false, 'download_wait_time' => 1000000); // expire_seconds = every 45 days in normal operation
+        $this->download_options = array('resource_id' => "SI", 'timeout' => 172800, 'expire_seconds' => false, 'download_wait_time' => 2000000);
         $this->debug = array();
-        
         // https://repository.si.edu/handle/10088/5097/browse?rpp=20&sort_by=2&type=dateissued&offset=0&etal=-1&order=ASC
         // https://repository.si.edu/handle/10088/5097/browse?rpp=20&sort_by=2&type=dateissued&offset=20&etal=-1&order=ASC
         $this->web['PDFs per page'] = "https://repository.si.edu/handle/10088/5097/browse?rpp=20&sort_by=2&type=dateissued&offset=NUM_OFFSET&etal=-1&order=ASC";
         $this->web['domain'] = 'https://repository.si.edu';
-
         if(Functions::is_production()) $this->path['working_dir'] = '/extra/other_files/Smithsonian/epub/';
         else                           $this->path['working_dir'] = '/Volumes/AKiTiO4/other_files/Smithsonian/epub/';
     }
@@ -48,11 +46,20 @@ class SmithsonianPDFsAPI
             [filename] => SCtZ-0007.epub
             [url] => https://repository.si.edu/bitstream/handle/10088/5292/SCtZ-0007.epub
         )*/
-        $destination = $this->path['working_dir'].$epub_info['filename'];
+        self::download_epub($epub_info);
+        
+    }
+    private function download_epub($epub_info)
+    {
+        $folder = pathinfo($epub_info['url'], PATHINFO_FILENAME);
+        $dir = $this->path['working_dir']."$folder/";
+        if(!is_dir($dir)) mkdir($dir);
+        $destination = $dir."/".$epub_info['filename'];
         $cmd = "wget -nc ".$epub_info['url']." -O $destination";
         $cmd .= " 2>&1";
         $json = shell_exec($cmd);
-        exit;
+        if(file_exists($destination)) echo "\n".$epub_info['filename']." downloaded successfully.\n";
+        else                          exit("\nERROR: can not download ".$epub_info['filename']."\n");
     }
     private function get_epub_info($url)
     {   /*

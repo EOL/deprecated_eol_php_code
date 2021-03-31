@@ -1,0 +1,96 @@
+<?php
+namespace php_active_record;
+/* connector: [convertio.php] for testing */
+class ConvertioAPI
+{
+    public function __construct($destination_folder = false)
+    {
+        // if(Functions::is_production()) $this->path['working_dir'] = '/extra/other_files/Smithsonian/epub/';
+        // else                           $this->path['working_dir'] = '/Volumes/AKiTiO4/other_files/Smithsonian/epub/';
+    }
+    /*
+    --------------------------- SAMPLE IF INPUT IS TO POST A LOCAL FILE ---------------------------
+    STEP 1:
+    curl -i -X POST -d '{"apikey": "ELI API KEY", "input":"upload", "outputformat":"txt"}' http://api.convertio.co/convert
+    -> start, initialize request
+    {"code":200,"status":"ok","data":{"id":"5aa1df42168c5b872947e0c0cc68fe34"}}
+    This step required only if chooses input = 'upload' on previous step. 
+    In order to upload file for conversion, you need to do a following PUT request
+
+    STEP 2:
+    curl -i -X PUT --upload-file 'SCtZ-0293.epub' http://api.convertio.co/convert/5aa1df42168c5b872947e0c0cc68fe34/SCtZ-0293.epub
+    -> PUT request for local file
+    {"code":200,"status":"ok","data":{"id":"5aa1df42168c5b872947e0c0cc68fe34","file":"SCtZ-0293.epub","size":3754860}}
+
+    STEP 3:
+    curl -i -X GET http://api.convertio.co/convert/5aa1df42168c5b872947e0c0cc68fe34/status
+    -> get status
+    {"code":200,"status":"ok","data":{"id":"5aa1df42168c5b872947e0c0cc68fe34","step":"finish","step_percent":100,"minutes":"1",
+      "output":{"url":"https:\/\/s110.convertio.me\/p\/PiX4oKMhB9YQZYnX_k-OIg\/0faab539f8de23cd027d32cbddd6b620\/SCtZ-0293.txt","size":"272899"}}}
+    - end -
+    */
+    function initialize_request() //step 1
+    {   // -i ->     --include       Include protocol headers in the output (H/F)
+        $cmd = "curl -S -s -X POST -d "."'".'{"apikey": "'.CONVERTIO_API_KEY.'", "input":"upload", "outputformat":"txt"}'."' http://api.convertio.co/convert";
+        $cmd .= " 2>&1";
+        $json = shell_exec($cmd); //echo "\n$json\n";
+        $obj = json_decode(trim($json)); //print_r($obj);
+        /*
+        {"code":200,"status":"ok","data":{"id":"cb13182ccbd69f6c74618f5a47d1b065"}}
+        stdClass Object(
+            [code] => 200
+            [status] => ok
+            [data] => stdClass Object(
+                    [id] => cb13182ccbd69f6c74618f5a47d1b065
+                )
+        )
+        */
+        if($obj->status == "ok") return $obj->data->id;
+        else exit("\nERROR: initialization failed.\n");
+        return false;
+    }
+    function upload_local_file($source, $filename, $api_id) //step 2
+    {
+        /*
+        curl -S -s -X PUT --upload-file 'SCtZ-0293.epub' http://api.convertio.co/convert/5aa1df42168c5b872947e0c0cc68fe34/SCtZ-0293.epub
+        -> PUT request for local file
+        */
+        $cmd = "curl -S -s -X PUT --upload-file '".$source."' http://api.convertio.co/convert/".$api_id."/".$filename;
+        $cmd .= " 2>&1";
+        $json = shell_exec($cmd); echo "\n$json\n";
+        $obj = json_decode(trim($json)); print_r($obj);
+        if($obj->status == "ok") return $obj;
+        else exit("\nERROR: file upload failed.\n");
+        return false;
+    }
+    function check_status($api_id)
+    {
+        $cmd = "curl -S -s -X GET http://api.convertio.co/convert/".$api_id."/status";
+        $cmd .= " 2>&1";
+        $json = shell_exec($cmd); echo "\n$json\n";
+        $obj = json_decode(trim($json)); print_r($obj);
+        if($obj->status != "ok") exit("\nERROR: status check failed.\n");
+        if($obj->status == "ok" && $obj->data->step_percent == 100) return $obj;
+        else {
+            echo("\nSTATUS: still processing...Check again after 3 minutes\n");
+            delay(60*3);
+            self::check_status($api_id);
+        }
+        return false;
+        /*stdClass Object(
+            [code] => 200
+            [status] => ok
+            [data] => stdClass Object(
+                    [id] => 31d5363e37189a0650835c5c9a26d2b2
+                    [step] => finish
+                    [step_percent] => 100
+                    [minutes] => 1
+                    [output] => stdClass Object(
+                            [url] => https://s183.convertio.me/p/aiRl8zoMB5y_RX5c0RY4Fw/0faab539f8de23cd027d32cbddd6b620/SCtZ-0007.txt
+                            [size] => 157826
+                        )
+                )
+        )*/
+    }
+}
+?>

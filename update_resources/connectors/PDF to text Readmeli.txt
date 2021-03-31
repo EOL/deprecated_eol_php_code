@@ -147,18 +147,19 @@ curl -i -X POST -d '{"apikey": "0faab539f8de23cd027d32cbddd6b620", "input":"uplo
 id = a1528fe98081ef0f9fa5f4eebd54ddd2
 id = b6247685a3926973b95b4b6edf55800d
 id = 111af057c100c28100bb1b28a761e3da
+{"code":200,"status":"ok","data":{"id":"5aa1df42168c5b872947e0c0cc68fe34"}}
 This step required only if chooses input = 'upload' on previous step. 
 In order to upload file for conversion, you need to do a following PUT request
 STEP 2:
 curl -i -X PUT --upload-file 'SCtZ-0293.epub' http://api.convertio.co/convert/a1528fe98081ef0f9fa5f4eebd54ddd2/SCtZ-0293.epub
-curl -i -X PUT --upload-file 'SCtZ-0293.epub' http://api.convertio.co/convert/b6247685a3926973b95b4b6edf55800d/SCtZ-0293.epub
-curl -i -X PUT --upload-file 'SCtZ-0007.epub' http://api.convertio.co/convert/111af057c100c28100bb1b28a761e3da/SCtZ-0007.epub
+curl -i -X PUT --upload-file 'SCtZ-0293.epub' http://api.convertio.co/convert/5aa1df42168c5b872947e0c0cc68fe34/SCtZ-0293.epub
+curl -i -X PUT --upload-file 'SCtZ-0007.epub' http://api.convertio.co/convert/5aa1df42168c5b872947e0c0cc68fe34/SCtZ-0007.epub
 -> PUT request for local file
-
+{"code":200,"status":"ok","data":{"id":"5aa1df42168c5b872947e0c0cc68fe34","file":"SCtZ-0293.epub","size":3754860}}
 STEP 3:
 curl -i -X GET http://api.convertio.co/convert/a1528fe98081ef0f9fa5f4eebd54ddd2/status
 curl -i -X GET http://api.convertio.co/convert/b6247685a3926973b95b4b6edf55800d/status
-curl -i -X GET http://api.convertio.co/convert/111af057c100c28100bb1b28a761e3da/status
+curl -i -X GET http://api.convertio.co/convert/5aa1df42168c5b872947e0c0cc68fe34/status
 
 -> get status
 {"code":200,"status":"ok","data":{"id":"a1528fe98081ef0f9fa5f4eebd54ddd2","step":"finish","step_percent":100,"minutes":"1",
@@ -167,6 +168,10 @@ curl -i -X GET http://api.convertio.co/convert/111af057c100c28100bb1b28a761e3da/
   "output":{"url":"https:\/\/s169.convertio.me\/p\/PiX4oKMhB9YQZYnX_k-OIg\/0faab539f8de23cd027d32cbddd6b620\/SCtZ-0293.txt","size":"272899"}}}
 {"code":200,"status":"ok","data":{"id":"111af057c100c28100bb1b28a761e3da","step":"finish","step_percent":100,"minutes":"1",
   "output":{"url":"https:\/\/s110.convertio.me\/p\/aiRl8zoMB5y_RX5c0RY4Fw\/0faab539f8de23cd027d32cbddd6b620\/SCtZ-0007.txt","size":"157826"}}}
+{"code":200,"status":"ok","data":{"id":"5aa1df42168c5b872947e0c0cc68fe34","step":"finish","step_percent":100,"minutes":"1",
+  "output":{"url":"https:\/\/s110.convertio.me\/p\/PiX4oKMhB9YQZYnX_k-OIg\/0faab539f8de23cd027d32cbddd6b620\/SCtZ-0293.txt","size":"272899"}}}
+
+
 - end -
 
 CONCLUSION: Zamzar's online tool has the same output as Convertio's API command-line output.
