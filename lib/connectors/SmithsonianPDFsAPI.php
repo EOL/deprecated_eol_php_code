@@ -31,11 +31,11 @@ class SmithsonianPDFsAPI
         */
         $i = -1;
         foreach($pdfs_info as $info) { $i++;
-            self::process_a_pdf($info);
+            if(self::valid_pdf($info['title'])) self::process_a_pdf($info);
         }
     }
     private function process_a_pdf($info)
-    {   // print_r($info); exit;
+    {   //print_r($info); exit;
         /*Array(
             [url] => https://repository.si.edu//handle/10088/5292
             [title] => Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean
@@ -47,7 +47,7 @@ class SmithsonianPDFsAPI
         )*/
         self::download_epub($epub_info);
         self::convert_epub_to_txt($epub_info);
-        exit("\n-done 1 pdf'\n");
+        exit("\n-done 1 pdf'\n"); //debug only
     }
     private function convert_epub_to_txt($epub_info)
     {   // print_r($epub_info); exit("\nelix\n");
@@ -171,7 +171,7 @@ class SmithsonianPDFsAPI
                 }
             }
             $offset = $offset + 20;
-            if($page == 5) break; //debug only
+            // if($page == 5) break; //debug only
         }
         return $final;
     }
@@ -182,5 +182,10 @@ class SmithsonianPDFsAPI
             /*Now showing items 1-20 of 660</p>*/
             if(preg_match("/Now showing items 1-20 of (.*?)<\/p>/ims", $html, $a)) return trim($a[1]);
         }
+    }
+    private function valid_pdf($title)
+    {
+        if(stripos($title, "checklist") !== false) return false; //string is found
+        return true;
     }
 }
