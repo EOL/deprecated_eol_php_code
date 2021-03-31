@@ -47,6 +47,11 @@ class ConvertioAPI
         */
         if($obj->status == "ok") return $obj->data->id;
         else {
+            /*stdClass Object(
+                [code] => 422
+                [status] => error
+                [error] => No convertion minutes left
+            )*/
             print_r($obj);
             exit("\nERROR: call initialize failed.\n");
         }
