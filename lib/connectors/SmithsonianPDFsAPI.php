@@ -47,19 +47,72 @@ class SmithsonianPDFsAPI
             [url] => https://repository.si.edu/bitstream/handle/10088/5292/SCtZ-0007.epub
         )*/
         self::download_epub($epub_info);
-        
+        self::convert_epub_to_txt($epub_info);
+        exit("\n-done 1 pdf'\n");
+    }
+    private function convert_epub_to_txt($epub_info)
+    {   // print_r($epub_info); exit("\nelix\n");
+        /*Array(
+            [filename] => SCtZ-0007.epub
+            [url] => https://repository.si.edu/bitstream/handle/10088/5292/SCtZ-0007.epub
+        )*/
+        $source = self::create_epub_filename_path($epub_info);
+        $destination = str_replace(".epub", ".txt", $source);
+        $filename = $epub_info['filename']; //'SCtZ-0007.epub';
+        // echo("\nsource: [$source]\ndestination: [$destination]\nfilename: [$filename]\n"); exit;
+        /*
+        source:         [/Volumes/AKiTiO4/other_files/Smithsonian/epub/SCtZ-0007/SCtZ-0007.epub]
+        destination:    [/Volumes/AKiTiO4/other_files/Smithsonian/epub/SCtZ-0007/SCtZ-0007.txt]
+        filename:       [SCtZ-0007.epub]
+        */
+        if(file_exists($destination)) {
+            echo "\ntxt file already exists: [$destination]\n";
+            return;
+        }
+        require_library('connectors/ConvertioAPI');
+        $func = new ConvertioAPI();
+        $api_id = $func->initialize_request();
+        $func->upload_local_file($source, $filename, $api_id);
+        sleep(60);
+        if($obj = $func->check_status($api_id)) {
+            if($txt_url = $obj->data->output->url) {
+                $cmd = "wget -nc ".$txt_url." -O $destination";
+                $cmd .= " 2>&1";
+                $json = shell_exec($cmd);
+                if(file_exists($destination)) echo "\n".$destination." downloaded successfully from Convertio.\n";
+                else                          exit("\nERROR: can not download ".$epub_info['filename']."\n");
+            }
+        }
+        /*stdClass Object(
+            [code] => 200
+            [status] => ok
+            [data] => stdClass Object(
+                    [id] => 31d5363e37189a0650835c5c9a26d2b2
+                    [step] => finish
+                    [step_percent] => 100
+                    [minutes] => 1
+                    [output] => stdClass Object(
+                            [url] => https://s183.convertio.me/p/aiRl8zoMB5y_RX5c0RY4Fw/0faab539f8de23cd027d32cbddd6b620/SCtZ-0007.txt
+                            [size] => 157826
+                        )
+                )
+        )*/
     }
     private function download_epub($epub_info)
     {
-        $folder = pathinfo($epub_info['url'], PATHINFO_FILENAME);
-        $dir = $this->path['working_dir']."$folder/";
-        if(!is_dir($dir)) mkdir($dir);
-        $destination = $dir."/".$epub_info['filename'];
+        $destination = self::create_epub_filename_path($epub_info);
         $cmd = "wget -nc ".$epub_info['url']." -O $destination";
         $cmd .= " 2>&1";
         $json = shell_exec($cmd);
-        if(file_exists($destination)) echo "\n".$epub_info['filename']." downloaded successfully.\n";
+        if(file_exists($destination)) echo "\n".$epub_info['filename']." downloaded successfully from Smithsonian.\n";
         else                          exit("\nERROR: can not download ".$epub_info['filename']."\n");
+    }
+    private function create_epub_filename_path($epub_info)
+    {
+        $folder = pathinfo($epub_info['url'], PATHINFO_FILENAME);
+        $dir = $this->path['working_dir']."$folder";
+        if(!is_dir($dir)) mkdir($dir);
+        return $dir."/".$epub_info['filename'];
     }
     private function get_epub_info($url)
     {   /*
