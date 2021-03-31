@@ -100,6 +100,10 @@ class SmithsonianPDFsAPI
     private function download_epub($epub_info)
     {
         $destination = self::create_epub_filename_path($epub_info);
+        if(file_exists($destination)) {
+            echo "\n".$epub_info['filename']." was already downloaded from Smithsonian.\n";
+            return;
+        }
         $cmd = "wget -nc ".$epub_info['url']." -O $destination";
         $cmd .= " 2>&1";
         $json = shell_exec($cmd);
