@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
-/* 
-*/
+/* testing ConvertioAPI */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ConvertioAPI');
 $func = new ConvertioAPI();

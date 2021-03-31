@@ -33,8 +33,8 @@ class ConvertioAPI
     {   // -i ->     --include       Include protocol headers in the output (H/F)
         $cmd = "curl -S -s -X POST -d "."'".'{"apikey": "'.CONVERTIO_API_KEY.'", "input":"upload", "outputformat":"txt"}'."' http://api.convertio.co/convert";
         $cmd .= " 2>&1";
-        $json = shell_exec($cmd); //echo "\n$json\n";
-        $obj = json_decode(trim($json)); //print_r($obj);
+        $json = shell_exec($cmd);           //echo "\n$json\n";
+        $obj = json_decode(trim($json));    //print_r($obj);
         /*
         {"code":200,"status":"ok","data":{"id":"cb13182ccbd69f6c74618f5a47d1b065"}}
         stdClass Object(
@@ -46,30 +46,38 @@ class ConvertioAPI
         )
         */
         if($obj->status == "ok") return $obj->data->id;
-        else exit("\nERROR: initialization failed.\n");
+        else {
+            print_r($obj);
+            exit("\nERROR: call initialize failed.\n");
+        }
         return false;
     }
     function upload_local_file($source, $filename, $api_id) //step 2
-    {
-        /*
+    {   /*
         curl -S -s -X PUT --upload-file 'SCtZ-0293.epub' http://api.convertio.co/convert/5aa1df42168c5b872947e0c0cc68fe34/SCtZ-0293.epub
         -> PUT request for local file
         */
         $cmd = "curl -S -s -X PUT --upload-file '".$source."' http://api.convertio.co/convert/".$api_id."/".$filename;
         $cmd .= " 2>&1";
-        $json = shell_exec($cmd); echo "\n$json\n";
-        $obj = json_decode(trim($json)); print_r($obj);
+        $json = shell_exec($cmd);           //echo "\n$json\n";
+        $obj = json_decode(trim($json));    //print_r($obj);
         if($obj->status == "ok") return $obj;
-        else exit("\nERROR: file upload failed.\n");
+        else {
+            print_r($obj);
+            exit("\nERROR: file upload failed.\n");
+        }
         return false;
     }
     function check_status($api_id)
     {
         $cmd = "curl -S -s -X GET http://api.convertio.co/convert/".$api_id."/status";
         $cmd .= " 2>&1";
-        $json = shell_exec($cmd); echo "\n$json\n";
-        $obj = json_decode(trim($json)); print_r($obj);
-        if($obj->status != "ok") exit("\nERROR: status check failed.\n");
+        $json = shell_exec($cmd);           //echo "\n$json\n";
+        $obj = json_decode(trim($json));    //print_r($obj);
+        if($obj->status != "ok") {
+            print_r($obj);
+            exit("\nERROR: status check failed.\n");
+        }
         if($obj->status == "ok" && $obj->data->step_percent == 100) return $obj;
         else {
             echo("\nSTATUS: still processing...Check again after 2 minutes\n");
