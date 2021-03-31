@@ -72,8 +72,8 @@ class ConvertioAPI
         if($obj->status != "ok") exit("\nERROR: status check failed.\n");
         if($obj->status == "ok" && $obj->data->step_percent == 100) return $obj;
         else {
-            echo("\nSTATUS: still processing...Check again after 3 minutes\n");
-            delay(60*3);
+            echo("\nSTATUS: still processing...Check again after 2 minutes\n");
+            delay(60*2);
             self::check_status($api_id);
         }
         return false;
