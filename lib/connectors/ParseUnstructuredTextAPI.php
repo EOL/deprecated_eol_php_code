@@ -361,45 +361,7 @@ class ParseUnstructuredTextAPI
             if(substr($sciname,0,$len) == $rank) return false;
         }
         // */
-        
         return true;
-    }
-    private function get_unique_scinames($filename) //get unique names using GNRD
-    {
-        $url = str_replace('FILENAME', $filename, $this->service['GNRD']);
-        $options = $this->download_options;
-        // $options['expire_seconds'] = 10; //10 seconds
-        if($json = Functions::lookup_with_cache($url, $options)) {
-            $obj = json_decode($json);
-            foreach($obj->names as $name) $final[$name->scientificName] = '';
-        }
-        $scinames = array_keys($final);
-        return self::arrange_order_of_names($scinames);
-    }
-    private function arrange_order_of_names($scinames)
-    {   
-        // echo("\n orig ".count($scinames)."\n");
-        foreach($scinames as $sciname) { $arr = explode(" ", $sciname);
-            if(count($arr) >= 3) $final[] = $sciname;
-        }
-        foreach($scinames as $sciname) { $arr = explode(" ", $sciname);
-            if(count($arr) == 2) $final[] = $sciname;
-        }
-        foreach($scinames as $sciname) { $arr = explode(" ", $sciname);
-            if(count($arr) == 1) $final[] = $sciname;
-        }
-        foreach($scinames as $sciname) { $arr = explode(" ", $sciname);
-            if(count($arr) == 0) $final[] = $sciname;
-        }
-        // print_r($final); exit("\n sorted ".count($final)."\n");
-        return $final;
-    }
-    function parse_pdf2htmlEX_result($filename)
-    {
-        $html_file = $this->path['pdf2htmlEX_output'].$filename;
-        $html = file_get_contents($html_file);
-        $html = strip_tags($html, "<br>");
-        echo "\n$html\n";
     }
 }
 ?>
