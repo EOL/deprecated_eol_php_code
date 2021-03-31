@@ -47,7 +47,7 @@ class SmithsonianPDFsAPI
         )*/
         self::download_epub($epub_info);
         self::convert_epub_to_txt($epub_info);
-        exit("\n-done 1 pdf'\n"); //debug only
+        // exit("\n-done 1 pdf'\n"); //debug only
     }
     private function convert_epub_to_txt($epub_info)
     {   // print_r($epub_info); exit("\nelix\n");
