@@ -19,6 +19,11 @@ class SmithsonianPDFsAPI
     }
     function start()
     {
+        // /* Initialize other libraries
+        require_library('connectors/ParseUnstructuredTextAPI');
+        $this->func_ParseUnstructured = new ParseUnstructuredTextAPI();
+        // */
+        
         $pdfs_info = self::get_all_pdfs();
         // print_r($pdfs_info); exit;
         /*Array(
@@ -46,8 +51,19 @@ class SmithsonianPDFsAPI
             [url] => https://repository.si.edu/bitstream/handle/10088/5292/SCtZ-0007.epub
         )*/
         self::download_epub($epub_info);
-        self::convert_epub_to_txt($epub_info);
-        // exit("\n-done 1 pdf'\n"); //debug only
+        $ret = self::convert_epub_to_txt($epub_info); //print_r($ret);
+        /*Array(
+            [source] => /Volumes/AKiTiO4/other_files/Smithsonian/epub/SCtZ-0007/SCtZ-0007.txt
+            [resource_working_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub/SCtZ-0007
+        )*/
+
+        //start preparing $input to next step: parsing of txt file
+        // $input = array('filename' => 'SCtZ-0293.txt', 'lines_before_and_after_sciname' => 2);
+        // $input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' => 1);
+        $input = array('filename' => str_replace(".epub", ".txt", $epub_info['filename']), 'lines_before_and_after_sciname' => 1);
+        $input['epub_output_txts_dir'] = $ret['resource_working_dir'];
+        $this->func_ParseUnstructured->parse_pdftotext_result($input);
+        exit("\n-done 1 pdf'\n"); //debug only
     }
     private function convert_epub_to_txt($epub_info)
     {   // print_r($epub_info); exit("\nelix\n");
@@ -64,9 +80,14 @@ class SmithsonianPDFsAPI
         destination:    [/Volumes/AKiTiO4/other_files/Smithsonian/epub/SCtZ-0007/SCtZ-0007.txt]
         filename:       [SCtZ-0007.epub]
         */
+        
+        // get resource_working_dir
+        $folder = pathinfo($epub_info['url'], PATHINFO_FILENAME);
+        $resource_working_dir = $this->path['working_dir'].$folder."/";
+        
         if(file_exists($destination)) {
             echo "\ntxt file already exists: [$destination]\n";
-            return;
+            return array('source' => $destination, 'resource_working_dir' => $resource_working_dir);
         }
         require_library('connectors/ConvertioAPI');
         $func = new ConvertioAPI();
@@ -82,6 +103,7 @@ class SmithsonianPDFsAPI
                 else                          exit("\nERROR: can not download ".$epub_info['filename']."\n");
             }
         }
+        return array('source' => $destination, 'resource_working_dir' => $resource_working_dir);
         /*stdClass Object(
             [code] => 200
             [status] => ok
@@ -175,7 +197,7 @@ class SmithsonianPDFsAPI
                 }
             }
             $offset = $offset + 20;
-            // if($page == 5) break; //debug only
+            if($page == 5) break; //debug only
         }
         return $final;
     }

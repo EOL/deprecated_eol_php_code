@@ -7,16 +7,8 @@ class ParseUnstructuredTextAPI
     {
         $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
 
-        $this->service['GNRD'] = 'http://gnrd.globalnames.org/name_finder.json?url=https://editors.eol.org/other_files/temp/FILENAME&unique=true';
-        //e.g. http://gnrd.globalnames.org/name_finder.json?url=https://editors.eol.org/other_files/temp/pdf2text_output.txt&unique=true
-        
-        /* START pdftotext */
-        $this->path['pdftotext_output'] = '/Volumes/AKiTiO4/other_files/pdftotext/'; //pertains to xpdf in legacy codebase
-        $this->service['GNRD'] = 'http://gnrd.globalnames.org/name_finder.json?url=https://editors.eol.org/other_files/temp/FILENAME&unique=true';
-        /* END pdftotext */
-        
         /* START epub series */
-        $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
+        // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
         
         /* index key here is the lines_before_and_after_sciname */
@@ -32,6 +24,14 @@ class ParseUnstructuredTextAPI
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
     {   
+        // print_r($input); exit("\nelix 1\n");
+        /*Array(
+            [filename] => SCtZ-0007.txt
+            [lines_before_and_after_sciname] => 1
+            [epub_output_txts_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub/SCtZ-0007/
+        )*/
+        if($val = $input['epub_output_txts_dir']) $this->path['epub_output_txts_dir'] = $val;
+        
         $filename = $input['filename'];
         $this->filename = $filename; //for referencing below
         $lines_before_and_after_sciname = $input['lines_before_and_after_sciname'];
