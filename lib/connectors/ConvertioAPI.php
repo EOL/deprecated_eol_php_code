@@ -68,7 +68,7 @@ class ConvertioAPI
         }
         return false;
     }
-    function check_status($api_id)
+    function check_status($api_id, $ctr = 0)
     {
         $cmd = "curl -S -s -X GET http://api.convertio.co/convert/".$api_id."/status";
         $cmd .= " 2>&1";
@@ -82,7 +82,12 @@ class ConvertioAPI
         else {
             echo("\nSTATUS: still processing...Check again after 2 minutes\n");
             delay(60*2);
-            self::check_status($api_id);
+            $ctr++;
+            if($ctr >= 4) {
+                print_r($obj);
+                exit("\nTried 3x already. Investigate Convertio, daily limit might have been reached.\n");
+            }
+            self::check_status($api_id, $ctr);
         }
         return false;
         /*stdClass Object(

@@ -35,8 +35,7 @@ class SmithsonianPDFsAPI
         }
     }
     private function process_a_pdf($info)
-    {
-        // print_r($info); exit;
+    {   // print_r($info); exit;
         /*Array(
             [url] => https://repository.si.edu//handle/10088/5292
             [title] => Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean
@@ -59,7 +58,7 @@ class SmithsonianPDFsAPI
         $source = self::create_epub_filename_path($epub_info);
         $destination = str_replace(".epub", ".txt", $source);
         $filename = $epub_info['filename']; //'SCtZ-0007.epub';
-        // echo("\nsource: [$source]\ndestination: [$destination]\nfilename: [$filename]\n"); exit;
+        // echo("\nsource: [$source]\ndestination: [$destination]\nfilename: [$filename]\n"); exit; //good debug
         /*
         source:         [/Volumes/AKiTiO4/other_files/Smithsonian/epub/SCtZ-0007/SCtZ-0007.epub]
         destination:    [/Volumes/AKiTiO4/other_files/Smithsonian/epub/SCtZ-0007/SCtZ-0007.txt]
