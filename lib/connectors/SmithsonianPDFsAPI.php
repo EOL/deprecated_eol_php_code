@@ -40,10 +40,10 @@ class SmithsonianPDFsAPI
             if(self::valid_pdf($info['title'])) {
                 self::process_a_pdf($info);
                 // print_r($info);
-                if($i == 2) break;
+                // if($i == 2) break; //debug only
             }
         }
-        exit("\n-end 1 repository-\n");
+        // exit("\n-end 1 repository-\n"); //debug only
     }
     private function process_a_pdf($info)
     {   //print_r($info); exit;
