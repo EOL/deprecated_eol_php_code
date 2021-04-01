@@ -32,6 +32,7 @@ class ParseUnstructuredTextAPI
         )*/
         if($val = $input['epub_output_txts_dir']) $this->path['epub_output_txts_dir'] = $val;
         
+        $this->lines_to_tag = array();
         $filename = $input['filename'];
         $this->filename = $filename; //for referencing below
         $lines_before_and_after_sciname = $input['lines_before_and_after_sciname'];
@@ -146,7 +147,6 @@ class ParseUnstructuredTextAPI
             }
             return $rows;
         }
-        
     }
     private function get_numbers_from_string($str)
     {
