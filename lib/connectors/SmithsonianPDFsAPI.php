@@ -60,7 +60,15 @@ class SmithsonianPDFsAPI
         //start preparing $input to next step: parsing of txt file
         // $input = array('filename' => 'SCtZ-0293.txt', 'lines_before_and_after_sciname' => 2);
         // $input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' => 1);
-        $input = array('filename' => str_replace(".epub", ".txt", $epub_info['filename']), 'lines_before_and_after_sciname' => 1);
+        
+        $this->lines_before_and_after_sciname['SCtZ-0293.txt'] = 2;
+        $this->lines_before_and_after_sciname['SCtZ-0007.txt'] = 1;
+        $this->lines_before_and_after_sciname['SCtZ-0029.txt'] = 2;
+        
+        $txt_filename = str_replace(".epub", ".txt", $epub_info['filename']);
+        if($LBAAS = @$this->lines_before_and_after_sciname['SCtZ-0029.txt']) {}
+        else exit("\n[lines_before_and_after_sciname] not yet initialized for [$txt_filename]\n");
+        $input = array('filename' => $txt_filename, 'lines_before_and_after_sciname' => $LBAAS);
         $input['epub_output_txts_dir'] = $ret['resource_working_dir'];
         $this->func_ParseUnstructured->parse_pdftotext_result($input);
         exit("\n-done 1 pdf'\n"); //debug only
