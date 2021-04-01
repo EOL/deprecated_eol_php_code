@@ -289,7 +289,7 @@ class SmithsonianPDFsAPI
         $mr->format         = 'text/html';
         $mr->UsageTerms     = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
         $mr->description    = $rec['body'];
-        $mr->CVterm         = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription';
+        $mr->CVterm         = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description';
 
         // $mr->furtherInformationURL = '';
         // $mr->Owner          = $o['dc_rightsHolder'];
