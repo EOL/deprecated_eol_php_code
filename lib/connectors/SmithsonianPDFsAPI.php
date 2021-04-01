@@ -71,14 +71,14 @@ class SmithsonianPDFsAPI
         $this->lines_before_and_after_sciname['SCtZ-0007.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0029.txt'] = 2;
 
-        // /* working OK
+        /* working OK
         $txt_filename = str_replace(".epub", ".txt", $epub_info['filename']);
         if($LBAAS = @$this->lines_before_and_after_sciname[$txt_filename]) {}
         else exit("\n[lines_before_and_after_sciname] not yet initialized for [$txt_filename]\n");
         $input = array('filename' => $txt_filename, 'lines_before_and_after_sciname' => $LBAAS);
         $input['epub_output_txts_dir'] = $ret['resource_working_dir'];
         $this->func_ParseUnstructured->parse_pdftotext_result($input);
-        // */
+        */
         // exit("\n-done 1 pdf'\n"); //debug only
     }
     private function convert_epub_to_txt($epub_info)
