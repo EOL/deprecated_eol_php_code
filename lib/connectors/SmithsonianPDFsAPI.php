@@ -21,10 +21,14 @@ class SmithsonianPDFsAPI
     function start()
     {
         // /* Initialize other libraries
-        require_library('connectors/ParseUnstructuredTextAPI');
-        $this->func_ParseUnstructured = new ParseUnstructuredTextAPI();
+        require_library('connectors/ParseUnstructuredTextAPI'); $this->func_ParseUnstructured = new ParseUnstructuredTextAPI();
+        require_library('connectors/ConvertioAPI');             $this->func_Convertio = new ConvertioAPI();
         // */
-        
+        // self::process_all_pdfs_for_a_repository(); //includes conversion of .epub to .txt AND generation of filename_tagged.txt.
+        self::generate_dwca_for_a_repository();
+    }
+    private function process_all_pdfs_for_a_repository()
+    {
         $pdfs_info = self::get_all_pdfs();
         // print_r($pdfs_info); exit;
         /*Array(
@@ -40,7 +44,7 @@ class SmithsonianPDFsAPI
             if(self::valid_pdf($info['title'])) {
                 self::process_a_pdf($info);
                 // print_r($info);
-                // if($i == 2) break; //debug only
+                if($i == 2) break; //debug only
             }
         }
         // exit("\n-end 1 repository-\n"); //debug only
@@ -71,7 +75,7 @@ class SmithsonianPDFsAPI
         $this->lines_before_and_after_sciname['SCtZ-0007.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0029.txt'] = 2;
 
-        /* working OK
+        /* working OK -- un-comment in real operation. Comment during caching in eol-archive
         $txt_filename = str_replace(".epub", ".txt", $epub_info['filename']);
         if($LBAAS = @$this->lines_before_and_after_sciname[$txt_filename]) {}
         else exit("\n[lines_before_and_after_sciname] not yet initialized for [$txt_filename]\n");
@@ -105,12 +109,11 @@ class SmithsonianPDFsAPI
             echo "\ntxt file already exists: [$destination]\n";
             return array('source' => $destination, 'resource_working_dir' => $resource_working_dir);
         }
-        require_library('connectors/ConvertioAPI');
-        $func = new ConvertioAPI();
-        $api_id = $func->initialize_request();
-        $func->upload_local_file($source, $filename, $api_id);
+        //start Convertio
+        $api_id = $this->func_Convertio->initialize_request();
+        $this->func_Convertio->upload_local_file($source, $filename, $api_id);
         sleep(60);
-        if($obj = $func->check_status($api_id)) {
+        if($obj = $this->func_Convertio->check_status($api_id)) {
             if($txt_url = $obj->data->output->url) {
                 $cmd = "wget -nc ".$txt_url." -O $destination";
                 $cmd .= " 2>&1";
@@ -213,7 +216,7 @@ class SmithsonianPDFsAPI
                 }
             }
             $offset = $offset + 20;
-            if($page == 5) break; //debug only
+            // if($page == 5) break; //debug only
         }
         return $final;
     }
@@ -229,5 +232,14 @@ class SmithsonianPDFsAPI
     {
         if(stripos($title, "checklist") !== false) return false; //string is found
         return true;
+    }
+    private function generate_dwca_for_a_repository()
+    {
+        foreach(glob($this->path['working_dir'] . "*") as $folder) {
+            $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."_tagged.txt";
+            $txt_filename = $folder."/".$txt_filename;
+            echo "\n$txt_filename\n";
+        }
+        exit("\nstop munax\n");
     }
 }
