@@ -26,6 +26,7 @@ class SmithsonianPDFsAPI
         // */
         // self::process_all_pdfs_for_a_repository(); //includes conversion of .epub to .txt AND generation of filename_tagged.txt.
         self::generate_dwca_for_a_repository();
+        $this->archive_builder->finalize(true);
     }
     private function process_all_pdfs_for_a_repository()
     {
@@ -239,7 +240,70 @@ class SmithsonianPDFsAPI
             $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."_tagged.txt";
             $txt_filename = $folder."/".$txt_filename;
             echo "\n$txt_filename\n";
+            self::process_a_txt_file($txt_filename);
         }
-        exit("\nstop munax\n");
+        // exit("\nstop munax\n");
+    }
+    private function process_a_txt_file($txt_filename)
+    {
+        /*
+        <sciname='Pontostratiotes scotti Brodskaya, 1959'> Pontostratiotes scotti Brodskaya, 1959
+        </sciname>
+        */
+        $contents = file_get_contents($txt_filename);;
+        if(preg_match_all("/<sciname=(.*?)<\/sciname>/ims", $contents, $a)) {
+            foreach($a[1] as $str) {
+                $rec = array();
+                if(preg_match("/\'(.*?)\'/ims", $str, $a2)) $rec['sciname'] = self::clean_sciname(trim($a2[1]));
+                if(preg_match("/>(.*?)elicha/ims", $str."elicha", $a2)) {
+                    $tmp = Functions::remove_whitespace(trim($a2[1]));
+                    $tmp = str_replace("\n\n\n\n", "\n\n", $tmp);
+                    $tmp = str_replace("\n\n\n", "\n\n", $tmp);
+                    $tmp = str_replace("\n\n\n", "\n\n", $tmp);
+                    $tmp = str_replace("\n\n\n", "\n\n", $tmp);
+                    $tmp = str_replace("\n\n\n", "\n\n", $tmp);
+                    $tmp = str_replace("\n", "<br>", $tmp);
+                    // echo "\n$tmp\n";
+                    $rec['body'] = $tmp;
+                } // print_r($rec); //exit;
+                if($rec['sciname'] && $rec['body']) self::write_archive($rec);
+            }
+        }
+    }
+    private function write_archive($rec)
+    {   //write taxon
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = md5($rec['sciname']);
+        $taxon->scientificName  = $rec['sciname'];
+        // $taxon->furtherInformationURL = $t['dc_source'];
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->taxon_ids[$taxon->taxonID] = '';
+        }
+        //write text object
+        $mr = new \eol_schema\MediaResource();
+        $mr->taxonID        = $taxon->taxonID;
+        $mr->identifier     = md5($rec['body']);
+        $mr->type           = 'http://purl.org/dc/dcmitype/Text';
+        $mr->language       = 'en';
+        $mr->format         = 'text/html';
+        $mr->UsageTerms     = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
+        $mr->description    = $rec['body'];
+        $mr->CVterm         = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription';
+
+        // $mr->furtherInformationURL = '';
+        // $mr->Owner          = $o['dc_rightsHolder'];
+        // $mr->rights         = $o['dc_rights'];
+        // $mr->title          = $o['dc_title'];
+        if(!isset($this->object_ids[$mr->identifier])) {
+            $this->archive_builder->write_object_to_file($mr);
+            $this->object_ids[$mr->identifier] = '';
+        }
+    }
+    private function clean_sciname($name)
+    {
+        $name = str_ireplace(", new species", "", $name);
+        $name = str_ireplace(", new subspecies", "", $name);
+        return Functions::remove_whitespace($name);
     }
 }
