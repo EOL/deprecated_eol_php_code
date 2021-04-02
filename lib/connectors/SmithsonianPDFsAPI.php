@@ -166,7 +166,6 @@ class SmithsonianPDFsAPI
         </div>
         */
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-            self::get_metadata_for_pdf($html, $url);
             if(preg_match_all("/".preg_quote('class="file-link">', '/')."(.*?)<\/div>/ims", $html, $a)) {
                 // print_r($a[1]); exit;
                 foreach($a[1] as $line) {
@@ -179,6 +178,11 @@ class SmithsonianPDFsAPI
                             $ret['filename'] = pathinfo($tmp, PATHINFO_FILENAME).".epub";
                             $ret['url'] = pathinfo($tmp, PATHINFO_DIRNAME)."/".$ret['filename'];
                             // print_r($ret); exit;
+                            /*Array(
+                                [filename] => SCtZ-0007.epub
+                                [url] => https://repository.si.edu/bitstream/handle/10088/5292/SCtZ-0007.epub
+                            )*/
+                            self::get_metadata_for_pdf($html, $url, pathinfo($ret['filename'], PATHINFO_FILENAME));
                             return $ret;
                         }
                     }
@@ -235,14 +239,16 @@ class SmithsonianPDFsAPI
         if(stripos($title, "checklist") !== false) return false; //string is found
         return true;
     }
-    private function get_metadata_for_pdf($html, $url)
+    private function get_metadata_for_pdf($html, $url, $pdf_id)
     {   /*
         <meta name="DCTERMS.bibliographicCitation" content="Maddocks, Rosalie F. 1969. &quot;&lt;a href=&quot;http%3A%2F%2Fdx.doi.org%2F10.5479%2Fsi.00810282.7&quot;&gt;Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean&lt;/a&gt;.&quot; &lt;em&gt;Smithsonian Contributions to Zoology&lt;/em&gt;. 1&amp;ndash;56. &lt;a href=&quot;https://doi.org/10.5479/si.00810282.7&quot;&gt;https://doi.org/10.5479/si.00810282.7&lt;/a&gt;" xml:lang="en" />
         <meta name="DC.relation" content="http://dx.doi.org/10.5479/si.00810282.7" />
         https://repository.si.edu//handle/10088/5292
         */
+        /* not needed anymore $pdf_id was created above already.
         $left = "/handle/";
         if(preg_match("/".preg_quote($left, '/')."(.*?)elicha/ims", $url."elicha", $a)) $pdf_id = str_replace("/", "_", $a[1]);
+        */
         $left = '<meta name="DCTERMS.bibliographicCitation" content="';
         if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) {
             $biblio = $a[1];                echo "\n$biblio\n";
@@ -255,7 +261,7 @@ class SmithsonianPDFsAPI
         $left = '<meta name="DC.relation" content="';
         if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) $this->meta[$pdf_id]['dc.relation.url'] = $a[1];
         print_r($this->meta);
-        exit("\n$url\n");;
+        // exit("\n$url\n");;
     }
     private function generate_dwca_for_a_repository()
     {
