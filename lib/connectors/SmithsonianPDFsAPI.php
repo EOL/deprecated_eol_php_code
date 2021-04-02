@@ -24,7 +24,7 @@ class SmithsonianPDFsAPI
         require_library('connectors/ParseUnstructuredTextAPI'); $this->func_ParseUnstructured = new ParseUnstructuredTextAPI();
         require_library('connectors/ConvertioAPI');             $this->func_Convertio = new ConvertioAPI();
         // */
-        // self::process_all_pdfs_for_a_repository(); //includes conversion of .epub to .txt AND generation of filename_tagged.txt.
+        self::process_all_pdfs_for_a_repository(); //includes conversion of .epub to .txt AND generation of filename_tagged.txt.
         self::generate_dwca_for_a_repository();
         $this->archive_builder->finalize(true);
     }
@@ -166,6 +166,7 @@ class SmithsonianPDFsAPI
         </div>
         */
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            self::get_metadata_for_pdf($html, $url);
             if(preg_match_all("/".preg_quote('class="file-link">', '/')."(.*?)<\/div>/ims", $html, $a)) {
                 // print_r($a[1]); exit;
                 foreach($a[1] as $line) {
@@ -217,7 +218,7 @@ class SmithsonianPDFsAPI
                 }
             }
             $offset = $offset + 20;
-            // if($page == 5) break; //debug only
+            if($page == 5) break; //debug only
         }
         return $final;
     }
@@ -233,6 +234,28 @@ class SmithsonianPDFsAPI
     {
         if(stripos($title, "checklist") !== false) return false; //string is found
         return true;
+    }
+    private function get_metadata_for_pdf($html, $url)
+    {   /*
+        <meta name="DCTERMS.bibliographicCitation" content="Maddocks, Rosalie F. 1969. &quot;&lt;a href=&quot;http%3A%2F%2Fdx.doi.org%2F10.5479%2Fsi.00810282.7&quot;&gt;Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean&lt;/a&gt;.&quot; &lt;em&gt;Smithsonian Contributions to Zoology&lt;/em&gt;. 1&amp;ndash;56. &lt;a href=&quot;https://doi.org/10.5479/si.00810282.7&quot;&gt;https://doi.org/10.5479/si.00810282.7&lt;/a&gt;" xml:lang="en" />
+        <meta name="DC.relation" content="http://dx.doi.org/10.5479/si.00810282.7" />
+        https://repository.si.edu//handle/10088/5292
+        */
+        $left = "/handle/";
+        if(preg_match("/".preg_quote($left, '/')."(.*?)elicha/ims", $url."elicha", $a)) $pdf_id = str_replace("/", "_", $a[1]);
+        $left = '<meta name="DCTERMS.bibliographicCitation" content="';
+        if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) {
+            $biblio = $a[1];                echo "\n$biblio\n";
+            $biblio = urldecode($biblio);   echo "\n$biblio\n";
+            $biblio = html_entity_decode($biblio);          echo "\n$biblio\n";
+            $biblio = strip_tags($biblio);                  echo "\n$biblio\n";
+            $biblio = str_replace("&ndash;", "-", $biblio); echo "\n$biblio\n";
+            $this->meta[$pdf_id]['bibliographicCitation'] = $biblio;
+        }
+        $left = '<meta name="DC.relation" content="';
+        if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) $this->meta[$pdf_id]['dc.relation.url'] = $a[1];
+        print_r($this->meta);
+        exit("\n$url\n");;
     }
     private function generate_dwca_for_a_repository()
     {
