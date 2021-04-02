@@ -245,8 +245,7 @@ class SmithsonianPDFsAPI
         // exit("\nstop munax\n");
     }
     private function process_a_txt_file($txt_filename)
-    {
-        /*
+    {   /*
         <sciname='Pontostratiotes scotti Brodskaya, 1959'> Pontostratiotes scotti Brodskaya, 1959
         </sciname>
         */
@@ -289,7 +288,7 @@ class SmithsonianPDFsAPI
         $mr->format         = 'text/html';
         $mr->UsageTerms     = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
         $mr->description    = $rec['body'];
-        $mr->CVterm         = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description';
+        $mr->CVterm         = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description'; //ComprehensiveDescription
 
         // $mr->furtherInformationURL = '';
         // $mr->Owner          = $o['dc_rightsHolder'];
