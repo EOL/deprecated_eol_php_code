@@ -260,7 +260,7 @@ class SmithsonianPDFsAPI
         }
         $left = '<meta name="DC.relation" content="';
         if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) $this->meta[$pdf_id]['dc.relation.url'] = $a[1];
-        print_r($this->meta);
+        // print_r($this->meta);
         // exit("\n$url\n");;
     }
     private function generate_dwca_for_a_repository()
