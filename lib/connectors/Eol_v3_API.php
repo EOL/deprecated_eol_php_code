@@ -207,6 +207,7 @@ class Eol_v3_API
     {
         if($taxon = self::get_taxon_given_object_id($dataObjectVersionID)) { // print_r($taxon); //exit;
             $eol_id = $taxon['taxon_id'];
+            if(!$eol_id) return;
             if($ancestry = $func->get_ancestry_of_taxID($eol_id)) { //worked OK // print_r($ancestry);
                 array_shift($ancestry); //remove first element, which is the taxon where object belongs to.
                 $names = self::convert_ids_to_names($ancestry);
@@ -226,6 +227,7 @@ class Eol_v3_API
     {
         $final = array();
         foreach($eol_ids as $eol_id) {
+            if(!$eol_id) continue;
             if($name = self::get_name_from_eol_id($eol_id)) $final[$name] = '';
         }
         $final = array_keys($final);

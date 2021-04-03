@@ -429,6 +429,7 @@ if($val = @$this->descendants[$child17]) {
     function get_ancestry_of_taxID($tax_id)
     {
         $final = array();
+        if(!$tax_id) return $final;
         $final[] = $tax_id;
         while($parent_id = @$this->taxID_info[$tax_id]['pID']) {
             
