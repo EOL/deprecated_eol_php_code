@@ -251,11 +251,11 @@ class SmithsonianPDFsAPI
         */
         $left = '<meta name="DCTERMS.bibliographicCitation" content="';
         if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) {
-            $biblio = $a[1];                echo "\n$biblio\n";
-            $biblio = urldecode($biblio);   echo "\n$biblio\n";
-            $biblio = html_entity_decode($biblio);          echo "\n$biblio\n";
-            $biblio = strip_tags($biblio);                  echo "\n$biblio\n";
-            $biblio = str_replace("&ndash;", "-", $biblio); echo "\n$biblio\n";
+            $biblio = $a[1];                                //echo "\n$biblio\n";
+            $biblio = urldecode($biblio);                   //echo "\n$biblio\n";
+            $biblio = html_entity_decode($biblio);          //echo "\n$biblio\n";
+            $biblio = strip_tags($biblio);                  //echo "\n$biblio\n";
+            $biblio = str_replace("&ndash;", "-", $biblio); //echo "\n$biblio\n";
             $this->meta[$pdf_id]['bibliographicCitation'] = $biblio;
         }
         $left = '<meta name="DC.relation" content="';
