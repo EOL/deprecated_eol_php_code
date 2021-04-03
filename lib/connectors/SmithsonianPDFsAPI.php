@@ -45,10 +45,10 @@ class SmithsonianPDFsAPI
             if(self::valid_pdf($info['title'])) {
                 self::process_a_pdf($info);
                 // print_r($info);
-                if($i == 2) break; //debug only
+                // if($i == 2) break; //debug only
             }
         }
-        // exit("\n-end 1 repository-\n"); //debug only
+        exit("\n-end 1 repository-\n"); //debug only
     }
     private function process_a_pdf($info)
     {   //print_r($info); exit;
@@ -222,7 +222,7 @@ class SmithsonianPDFsAPI
                 }
             }
             $offset = $offset + 20;
-            if($page == 5) break; //debug only
+            // if($page == 5) break; //debug only
         }
         return $final;
     }
