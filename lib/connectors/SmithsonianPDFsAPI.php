@@ -45,7 +45,8 @@ class SmithsonianPDFsAPI
             if(self::valid_pdf($info['title'])) {
                 self::process_a_pdf($info);
                 // print_r($info);
-                // if($i == 2) break; //debug only
+                // if($i == 2) break; //debug only Mac Mini
+                if($i == 10) break; //debug only eol-archive
             }
         }
         // exit("\n-end 1 repository-\n"); //debug only
@@ -76,14 +77,17 @@ class SmithsonianPDFsAPI
         $this->lines_before_and_after_sciname['SCtZ-0007.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0029.txt'] = 2;
 
-        /* working OK -- un-comment in real operation. Comment during caching in eol-archive
+        // /* working OK -- un-comment in real operation. Comment during caching in eol-archive
         $txt_filename = str_replace(".epub", ".txt", $epub_info['filename']);
         if($LBAAS = @$this->lines_before_and_after_sciname[$txt_filename]) {}
-        else exit("\n[lines_before_and_after_sciname] not yet initialized for [$txt_filename]\n");
+        else {
+            // exit("\n[lines_before_and_after_sciname] not yet initialized for [$txt_filename]\n");
+            $LBAAS = 2;
+        }
         $input = array('filename' => $txt_filename, 'lines_before_and_after_sciname' => $LBAAS);
         $input['epub_output_txts_dir'] = $ret['resource_working_dir'];
         $this->func_ParseUnstructured->parse_pdftotext_result($input); //this will generate the xxxxxx_tagged.txt file
-        */
+        // */
         // exit("\n-done 1 pdf'\n"); //debug only
     }
     private function convert_epub_to_txt($epub_info)
@@ -268,9 +272,12 @@ class SmithsonianPDFsAPI
         foreach(glob($this->path['working_dir'] . "*") as $folder) {
             $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."_tagged.txt";
             $txt_filename = $folder."/".$txt_filename;
-            echo "\n$txt_filename\n";
-            $pdf_id = pathinfo($folder, PATHINFO_BASENAME);
-            self::process_a_txt_file($txt_filename, $pdf_id);
+            echo "\n$txt_filename";
+            if(file_exists($txt_filename)) { echo " - OK\n"
+                $pdf_id = pathinfo($folder, PATHINFO_BASENAME);
+                self::process_a_txt_file($txt_filename, $pdf_id);
+            }
+            echo " - tagged version not yet generated\n"
         }
         // exit("\nstop munax\n");
     }

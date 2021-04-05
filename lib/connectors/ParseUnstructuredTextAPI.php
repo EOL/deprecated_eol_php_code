@@ -103,7 +103,7 @@ class ParseUnstructuredTextAPI
                 if(!$rows[0] && !$rows[1] && !$rows[3] && !$rows[4]) {
                     if($rows[2]) {
                         $words = explode(" ", $rows[2]);
-                        if(count($words) <= 10)  { //orig is 6
+                        if(count($words) <= 9)  { //orig is 6
                             if(self::is_sciname($rows[2])) {
                                 // /*
                                 // if(!self::has_species_string($rows[2])) {}
@@ -405,11 +405,14 @@ class ParseUnstructuredTextAPI
             $txt_url = "https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/".$id."/".$id.".txt";
             $path = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/".$id."/";
             if(!is_dir($path)) mkdir($path);
+            else continue; //so not to process thosed processed already
             $destination = $path.$id.".txt";
             $cmd = "wget -nc ".$txt_url." -O $destination";
             $cmd .= " 2>&1";
             $json = shell_exec($cmd);
-            break; //debug only
+            echo "\n$json\n";
+            sleep(3);
+            // break; //debug only
         }
     }
 }
