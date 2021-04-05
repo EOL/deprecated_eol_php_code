@@ -157,7 +157,7 @@ class ParseUnstructuredTextAPI
         Review of the Classification of the Rhinocryptidae and Menurae
         Helmut W. Zibrowius, Station Marine d’Endoume, Marseille, France.
         */
-        $exclude = array("Hernán ", "Review ", "Helmut W.");
+        $exclude = array("Hernán ", "Review ", "Helmut W.", "List ", "Key ");
         foreach($exclude as $exc) {
             if(substr($string,0,strlen($exc)) == $exc) return false;
         }
@@ -195,6 +195,7 @@ class ParseUnstructuredTextAPI
     private function has_species_string($row)
     {
         if(stripos($row, " genus") !== false) return true;  //string is found
+        if(stripos($row, " Subspecies") !== false) return true;  //string is found
         if(stripos($row, " sp.") !== false) return true;  //string is found
         if(stripos($row, " sp ") !== false) return true;  //string is found
         if(stripos($row, " species") !== false) {  //string is found
