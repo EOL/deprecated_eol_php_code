@@ -48,7 +48,7 @@ class SmithsonianPDFsAPI
                 // if($i == 2) break; //debug only
             }
         }
-        exit("\n-end 1 repository-\n"); //debug only
+        // exit("\n-end 1 repository-\n"); //debug only
     }
     private function process_a_pdf($info)
     {   //print_r($info); exit;
@@ -269,11 +269,12 @@ class SmithsonianPDFsAPI
             $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."_tagged.txt";
             $txt_filename = $folder."/".$txt_filename;
             echo "\n$txt_filename\n";
-            self::process_a_txt_file($txt_filename);
+            $pdf_id = pathinfo($folder, PATHINFO_BASENAME);
+            self::process_a_txt_file($txt_filename, $pdf_id);
         }
         // exit("\nstop munax\n");
     }
-    private function process_a_txt_file($txt_filename)
+    private function process_a_txt_file($txt_filename, $pdf_id)
     {   /*
         <sciname='Pontostratiotes scotti Brodskaya, 1959'> Pontostratiotes scotti Brodskaya, 1959
         </sciname>
@@ -282,6 +283,7 @@ class SmithsonianPDFsAPI
         if(preg_match_all("/<sciname=(.*?)<\/sciname>/ims", $contents, $a)) {
             foreach($a[1] as $str) {
                 $rec = array();
+                $rec['pdf_id'] = $pdf_id;
                 if(preg_match("/\'(.*?)\'/ims", $str, $a2)) $rec['sciname'] = self::clean_sciname(trim($a2[1]));
                 if(preg_match("/>(.*?)elicha/ims", $str."elicha", $a2)) {
                     $tmp = Functions::remove_whitespace(trim($a2[1]));
@@ -319,7 +321,8 @@ class SmithsonianPDFsAPI
         $mr->description    = $rec['body'];
         $mr->CVterm         = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description'; //ComprehensiveDescription
 
-        // $mr->furtherInformationURL = '';
+        $mr->furtherInformationURL = $this->meta[$rec['pdf_id']]['dc.relation.url'];
+        $mr->bibliographicCitation = $this->meta[$rec['pdf_id']]['bibliographicCitation'];
         // $mr->Owner          = $o['dc_rightsHolder'];
         // $mr->rights         = $o['dc_rights'];
         // $mr->title          = $o['dc_title'];

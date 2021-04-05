@@ -9,7 +9,7 @@ $resource_id = "10088_5097"; //Smithsonian Contributions to Zoology --> first re
 require_library('connectors/SmithsonianPDFsAPI');
 $func = new SmithsonianPDFsAPI($resource_id);
 $func->start();
-Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param true means to delete working resource folder
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder
 // */
 
 /* utility --- copied template

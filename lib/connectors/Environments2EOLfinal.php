@@ -138,6 +138,11 @@ class Environments2EOLfinal
             $taxonID = @$a[0];
             $identifier = @$a[1];
             $rek = self::retrieve_json($taxonID."_".$identifier);
+            // print_r($rek); exit;
+            /*Array( this saved in json in Pensoft2EOLAPI.php
+                [source] => http://dx.doi.org/10.5479/si.00810282.7
+                [bibliographicCitation] => Maddocks, Rosalie F. 1969. "Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean." Smithsonian Contributions to Zoology. 1-56. https://doi.org/10.5479/si.00810282.7
+            )*/
             if(@$arr[3] && @$arr[4]) {
                 // /* post legacy filters: start Aug 5, 2020: /DATA-1851?focusedCommentId=65084&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65084
                 $tags_not_to_be_used = array("Playa", "nest", "aquarium", "logged areas", "trenches", "bamboo");

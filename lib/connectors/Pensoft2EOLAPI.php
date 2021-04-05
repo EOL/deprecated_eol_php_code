@@ -312,6 +312,7 @@ class Pensoft2EOLAPI
                     elseif(strtolower($rec['http://purl.org/dc/terms/title']) == 'distribution') $this->ontologies = "eol-geonames";
                     else continue;
                 }
+                if($this->param['resource_id'] == '10088_5097_ENV') $this->ontologies = "envo,eol-geonames";
                 // */
                 // print_r($rec); exit("\n[2]\n");
                 
@@ -347,7 +348,7 @@ class Pensoft2EOLAPI
             // print_r($rec); exit("\n[1]\n");
             if($what == 'info_list') { //occurrence extension
                 /*Array(
-                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => 0191a5b6bbee617be3f101758872e911_26
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => 0191a5b6bbeexxxbe3f101758872e911_26
                     [http://rs.tdwg.org/dwc/terms/taxonID] => 1054700
                     [http://rs.tdwg.org/dwc/terms/lifeStage] => 
                     [http://rs.tdwg.org/dwc/terms/sex] => 
@@ -357,7 +358,7 @@ class Pensoft2EOLAPI
             elseif($what == 'annotate') { //MoF extension
                 /*Array(
                     [http://rs.tdwg.org/dwc/terms/measurementID] => 286376_1054700
-                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => 0191a5b6bbee617be3f101758872e911_26
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => 0191a5b6bbeexxxbe3f101758872e911_26
                     [http://eol.org/schema/measurementOfTaxon] => true
                     [http://eol.org/schema/parentMeasurementID] => 
                     [http://rs.tdwg.org/dwc/terms/measurementType] => http://rs.tdwg.org/dwc/terms/habitat
@@ -410,7 +411,7 @@ class Pensoft2EOLAPI
     private function save_article_2_txtfile_MoF($rec, $taxonID) //MoF extension
     {   /*Array(
             [http://rs.tdwg.org/dwc/terms/measurementID] => 286376_1054700
-            [http://rs.tdwg.org/dwc/terms/occurrenceID] => 0191a5b6bbee617be3f101758872e911_26
+            [http://rs.tdwg.org/dwc/terms/occurrenceID] => 0191a5b6bbeexxxbe3f101758872e911_26
             [http://eol.org/schema/measurementOfTaxon] => true
             [http://eol.org/schema/parentMeasurementID] => 
             [http://rs.tdwg.org/dwc/terms/measurementType] => http://rs.tdwg.org/dwc/terms/habitat
@@ -799,7 +800,16 @@ class Pensoft2EOLAPI
             $this->DwCA_URLs[$resource_name] = $dwca_url;
             print_r($this->DwCA_URLs);
         }
-        else exit("\nOpenData resource not found [$resource_name]\n");
+        else {
+            $tmp = str_replace("_ENV", "", $this->param['resource_id']);
+            $dwca_url = "https://editors.eol.org/eol_php_code/applications/content_server/resources/".$tmp.".tar.gz";
+            echo "\n$dwca_url\n".$this->param['resource_id']."\n";
+            if(Functions::ping_v2($dwca_url)) {
+                $this->DwCA_URLs[$resource_name] = $dwca_url;
+                print_r($this->DwCA_URLs);
+            }
+            else exit("\nOpenData resource not found [$resource_name]\n");
+        }
         // exit("\n-exit muna-\n");
     }
     private function noParentTerms_less_entities_file()

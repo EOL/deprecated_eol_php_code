@@ -2728,5 +2728,16 @@ class Functions
         echo "\n";
         return $ret;
     }
+    public static function ping_v2($url)
+    {   $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6');
+        curl_exec($ch);
+        $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE); /* $retcode >= 400 -> not found, $retcode = 200, found. */
+        curl_close($ch);
+        echo "\nCURL ping retcode: [$retcode]\n";
+        if($retcode == 200) return true;
+        else                return false;
+    }
 }
 ?>

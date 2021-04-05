@@ -113,7 +113,7 @@ class DwCA_Utility
         elseif(in_array($this->resource_id, array("wiki_en_report"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array("globi_associations"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24)); //expires in a day
         elseif(in_array($this->resource_id, array("gbif_classification", "gbif_classification_without_ancestry", "gbif_classification_final', 
-                                                  '26", "368_removed_aves", "617_ENV", "wikipedia_en_traits_FTG"))) {
+                                                  '26", "368_removed_aves", "617_ENV", "wikipedia_en_traits_FTG", "10088_5097_ENV"))) {
             if(Functions::is_production()) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
             else                           $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
         }
@@ -265,7 +265,7 @@ class DwCA_Utility
             $func = new RemoveSurrogatesGBIF($this->resource_id, $this->archive_builder);
             $func->remove_surrogates_from_GBIF($info);
         }
-        if(in_array($this->resource_id, array("21_ENV", "617_ENV", "26_ENV"))) { //first 2 clients: Amphibiaweb, Wikipedia EN
+        if(in_array($this->resource_id, array("21_ENV", "617_ENV", "26_ENV", "10088_5097_ENV"))) { //first 2 clients: Amphibiaweb, Wikipedia EN
             echo "\nGoes here really: [$this->resource_id]\n";
             require_library('connectors/Environments2EOLfinal');
             $func = new Environments2EOLfinal($this->archive_builder, $this->resource_id);

@@ -37,8 +37,10 @@ class EnvironmentsEOLDataConnector
         $this->file['dangling_terrestrial_taxa'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Environments/dangling terrestrial taxa.txt";
         
         // stats
+        /* moved below, in generate_EnvEOL_data(). Since these 2 rows pertains to that function only. Or so it seems.
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->need_to_check_tc_id_dump_file = $this->TEMP_DIR . "need_to_check_tc_id.txt";
+        */
         $this->debug = array();
         // exit("\n\nObsolete. See 708.php for more details.\n\n");
     }
@@ -59,6 +61,10 @@ class EnvironmentsEOLDataConnector
     */
     function generate_EnvEOL_data()
     {
+        // stats
+        $this->TEMP_DIR = create_temp_dir() . "/";
+        $this->need_to_check_tc_id_dump_file = $this->TEMP_DIR . "need_to_check_tc_id.txt";
+        
         /* obsolete doesn't work anymore...
         require_library('connectors/IUCNRedlistDataConnector');
         $func = new IUCNRedlistDataConnector();
