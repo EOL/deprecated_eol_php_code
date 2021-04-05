@@ -25,7 +25,9 @@ class SmithsonianPDFsAPI
         require_library('connectors/ConvertioAPI');             $this->func_Convertio = new ConvertioAPI();
         // */
         self::process_all_pdfs_for_a_repository(); //includes conversion of .epub to .txt AND generation of filename_tagged.txt.
+        /* un-comment in real operation
         self::generate_dwca_for_a_repository();
+        */
         $this->archive_builder->finalize(true);
     }
     private function process_all_pdfs_for_a_repository()
@@ -46,7 +48,7 @@ class SmithsonianPDFsAPI
                 self::process_a_pdf($info);
                 // print_r($info);
                 // if($i == 2) break; //debug only Mac Mini
-                if($i == 20) break; //debug only eol-archive
+                // if($i == 20) break; //debug only eol-archive
             }
         }
         // exit("\n-end 1 repository-\n"); //debug only
