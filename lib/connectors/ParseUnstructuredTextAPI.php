@@ -33,12 +33,14 @@ class ParseUnstructuredTextAPI
         if($val = $input['epub_output_txts_dir']) $this->path['epub_output_txts_dir'] = $val;
         
         $this->lines_to_tag = array();
+        $this->scinames = array();
+        
         $filename = $input['filename'];
         $this->filename = $filename; //for referencing below
         $lines_before_and_after_sciname = $input['lines_before_and_after_sciname'];
         $this->magic_no = $this->no_of_rows_per_block[$lines_before_and_after_sciname];
-        self::get_main_scinames($filename);
-        print_r($this->lines_to_tag); echo "\n lines_to_tag: ".count($this->lines_to_tag)."\n"; //exit("\n-end-\n");
+        self::get_main_scinames($filename); // print_r($this->lines_to_tag); 
+        echo "\n lines_to_tag: ".count($this->lines_to_tag)."\n"; //exit("\n-end-\n");
         $edited_file = self::add_taxon_tags_to_text_file_v3($filename);
         self::remove_some_rows($edited_file);
         self::show_parsed_texts_for_mining($edited_file);
