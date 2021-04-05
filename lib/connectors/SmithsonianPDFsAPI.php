@@ -273,11 +273,11 @@ class SmithsonianPDFsAPI
             $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."_tagged.txt";
             $txt_filename = $folder."/".$txt_filename;
             echo "\n$txt_filename";
-            if(file_exists($txt_filename)) { echo " - OK\n"
+            if(file_exists($txt_filename)) { echo " - OK\n";
                 $pdf_id = pathinfo($folder, PATHINFO_BASENAME);
                 self::process_a_txt_file($txt_filename, $pdf_id);
             }
-            echo " - tagged version not yet generated\n"
+            echo " - tagged version not yet generated\n";
         }
         // exit("\nstop munax\n");
     }
