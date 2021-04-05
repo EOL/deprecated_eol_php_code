@@ -277,7 +277,7 @@ class SmithsonianPDFsAPI
                 $pdf_id = pathinfo($folder, PATHINFO_BASENAME);
                 self::process_a_txt_file($txt_filename, $pdf_id);
             }
-            echo " - tagged version not yet generated\n";
+            else echo " - tagged version not yet generated\n";
         }
         // exit("\nstop munax\n");
     }
