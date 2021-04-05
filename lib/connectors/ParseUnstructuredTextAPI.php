@@ -104,16 +104,14 @@ class ParseUnstructuredTextAPI
                     if($rows[2]) {
                         $words = explode(" ", $rows[2]);
                         if(count($words) <= 10)  { //orig is 6
-                            if(substr($rows[2],1,1) != ".") { //not e.g. "C. Allan Child"
-                                if(self::is_sciname($rows[2])) {
-                                    // /*
-                                    // if(!self::has_species_string($rows[2])) {}
-                                    //these 3 lines removed from the if() above
-                                    print_r($rows);
-                                    $this->scinames[$rows[2]] = ''; //for reporting
-                                    $this->lines_to_tag[$ctr-2] = '';
-                                    // */
-                                }
+                            if(self::is_sciname($rows[2])) {
+                                // /*
+                                // if(!self::has_species_string($rows[2])) {}
+                                //these 3 lines removed from the if() above
+                                print_r($rows);
+                                $this->scinames[$rows[2]] = ''; //for reporting
+                                $this->lines_to_tag[$ctr-2] = '';
+                                // */
                             }
                         }
                     }
@@ -129,16 +127,14 @@ class ParseUnstructuredTextAPI
                     if($rows[1]) {
                         $words = explode(" ", $rows[1]);
                         if(count($words) <= 6)  { //orig is 6
-                            if(substr($rows[1],1,1) != ".") { //not e.g. "C. Allan Child"
-                                if(self::is_sciname($rows[1])) {
-                                    // /* 
-                                    // if(!self::has_species_string($rows[1])) {}
-                                    //these 3 lines removed from the if() above
-                                    print_r($rows);
-                                    $this->scinames[$rows[1]] = ''; //for reporting
-                                    $this->lines_to_tag[$ctr-1] = '';
-                                    // */
-                                }
+                            if(self::is_sciname($rows[1])) {
+                                // /* 
+                                // if(!self::has_species_string($rows[1])) {}
+                                //these 3 lines removed from the if() above
+                                print_r($rows);
+                                $this->scinames[$rows[1]] = ''; //for reporting
+                                $this->lines_to_tag[$ctr-1] = '';
+                                // */
                             }
                         }
                     }
@@ -155,11 +151,19 @@ class ParseUnstructuredTextAPI
     private function is_sciname($string)
     {
         if(ctype_lower(substr($string,0,1))) return false;
+        if(substr($string,1,1) == "." && !is_numeric(substr($string,0,1))) return false; //not e.g. "C. Allan Child"
+        // /* exclude one-word names e.g. "Sarsiellidae"
+        $words = explode(" ", $string);
+        if(count($words) == 1) return false;
+        // */
 
         if($numbers = self::get_numbers_from_string($string)) { //if there is a single digit or 2-digit or 3-digit number in string then not sciname.
             foreach($numbers as $num) {
                 if(strlen($num) <= 3) {
                     if(stripos($string, " species $num") !== false) return true; //e.g. "Pontocypris species 1" //string is found
+                    elseif(stripos($string, "$num.") !== false) { //e.g. 13. Oratosquilla gonypetes (Kemp, 1911) //string is found
+                        if(substr($string,0,strlen("$num.")) == "$num.") {} //return true;
+                    }
                     else return false;
                 }
             }
@@ -213,6 +217,7 @@ class ParseUnstructuredTextAPI
         foreach(new FileIterator($edited_file) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
             $row = trim($row);
             if(isset($this->lines_to_tag[$i])) { $hits++;
+                $row = self::format_row_to_sciname($row);
                 if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
                 else            $row = "</taxon><taxon sciname='$row'> ".$row;
                 // exit("\ngot one finally\n".$row."\n");
@@ -222,6 +227,7 @@ class ParseUnstructuredTextAPI
             // /* to close tag the last block
             if($row == "Appendix") $row = "</taxon>$row";               //SCtZ-0293_convertio.txt
             elseif($row == "Literature Cited") $row = "</taxon>$row";   //SCtZ-0007.txt
+            elseif($row == "References") $row = "</taxon>$row";         //SCtZ-0008.txt
             // */
 
             fwrite($WRITE, $row."\n");
@@ -231,6 +237,17 @@ class ParseUnstructuredTextAPI
         
         // print_r($this->lines_to_tag);
         return $edited_file;
+    }
+    private function format_row_to_sciname($row)
+    {   //e.g. "9. Meiosquilla desmarestii (Risso, 1816)" to "Meiosquilla desmarestii (Risso, 1816)"
+        $words = explode(" ", $row); // print_r($words); exit;
+        if(substr($words[0], -1) == ".") {
+            $tmp = str_replace(".", "", $words[0]);
+            if(is_numeric($tmp)) array_shift($words);
+            // print_r($words); exit("\nditox\n");
+            return implode(" ", $words);
+        }
+        return $row;
     }
     private function remove_some_rows($edited_file)
     {
@@ -297,6 +314,15 @@ class ParseUnstructuredTextAPI
     }
     private function remove_last_sections($sections, $block)
     {
+        // /* for SCtZ-0001 -> remove REMARKS.— but include sections after it e.g. DISTRIBUTION.—
+        $beginning = "REMARKS.—"; 
+        $end = "DISTRIBUTION.—"; //works also but better to use "\n". Or maybe case to case basis.
+        $end = "\n";
+        if(preg_match("/".preg_quote($beginning, '/')."(.*?)".preg_quote($end, '/')."/ims", $block, $a)) {
+            $block = str_replace($beginning.$a[1], "", $block);
+        }
+        // */
+        
         /* remove "REMARKS.—" section if exists
         $str = "elicha".$block;
         if(preg_match("/elicha(.*?)REMARKS\.\—/ims", $str, $a2)) $block = $a2[1];
@@ -305,6 +331,7 @@ class ParseUnstructuredTextAPI
         $str = "elicha".$block;
         if(preg_match("/elicha(.*?)REMARK\.\—/ims", $str, $a2)) $block = $a2[1];
         */
+        
         foreach($sections as $section) {
             $str = "elicha".$block;
             if(preg_match("/elicha(.*?)".preg_quote($section, '/')."/ims", $str, $a2)) $block = $a2[1];
@@ -362,6 +389,28 @@ class ParseUnstructuredTextAPI
         }
         // */
         return true;
+    }
+    function utility_download_txt_files()
+    {   //SCtZ-0001
+        $pdf_ids = array("SCtZ-0008", "SCtZ-0016", "SCtZ-0023", "SCtZ-0030", "SCtZ-0038", "SCtZ-0045", "SCtZ-0053", "SCtZ-0060", "SCtZ-0067", "SCtZ-0074", "SCtZ-0082", "SCtZ-0089", "SCtZ-0096",
+        "SCtZ-0002", "SCtZ-0009", "SCtZ-0017", "SCtZ-0024", "SCtZ-0031", "SCtZ-0039", "SCtZ-0046", "SCtZ-0054", "SCtZ-0061", "SCtZ-0068", "SCtZ-0075", "SCtZ-0083", "SCtZ-0090", "SCtZ-0099",
+        "SCtZ-0003", "SCtZ-0011", "SCtZ-0018", "SCtZ-0025", "SCtZ-0032", "SCtZ-0040", "SCtZ-0047", "SCtZ-0055", "SCtZ-0062", "SCtZ-0069", "SCtZ-0076", "SCtZ-0084", "SCtZ-0091", "SCtZ-0100",
+        "SCtZ-0004", "SCtZ-0012", "SCtZ-0019", "SCtZ-0026", "SCtZ-0034", "SCtZ-0041", "SCtZ-0048", "SCtZ-0056", "SCtZ-0063", "SCtZ-0070", "SCtZ-0077", "SCtZ-0085", "SCtZ-0092", "SCtZ-0104",
+        "SCtZ-0005", "SCtZ-0013", "SCtZ-0020", "SCtZ-0027", "SCtZ-0035", "SCtZ-0042", "SCtZ-0049", "SCtZ-0057", "SCtZ-0064", "SCtZ-0071", "SCtZ-0078", "SCtZ-0086", "SCtZ-0093", "SCtZ-0106",
+        "SCtZ-0006", "SCtZ-0014", "SCtZ-0021", "SCtZ-0028", "SCtZ-0036", "SCtZ-0043", "SCtZ-0051", "SCtZ-0058", "SCtZ-0065", "SCtZ-0072", "SCtZ-0080", "SCtZ-0087", "SCtZ-0094", "SCtZ-0107",
+        "SCtZ-0007", "SCtZ-0015", "SCtZ-0022", "SCtZ-0029", "SCtZ-0037", "SCtZ-0044", "SCtZ-0052", "SCtZ-0059", "SCtZ-0066", "SCtZ-0073", "SCtZ-0081", "SCtZ-0088", "SCtZ-0095", "SCtZ-0111");
+        foreach($pdf_ids as $id) {
+            // https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0001/SCtZ-0001.txt
+            // destination:    [/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/SCtZ-0007.txt]
+            $txt_url = "https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/".$id."/".$id.".txt";
+            $path = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/".$id."/";
+            if(!is_dir($path)) mkdir($path);
+            $destination = $path.$id.".txt";
+            $cmd = "wget -nc ".$txt_url." -O $destination";
+            $cmd .= " 2>&1";
+            $json = shell_exec($cmd);
+            break; //debug only
+        }
     }
 }
 ?>

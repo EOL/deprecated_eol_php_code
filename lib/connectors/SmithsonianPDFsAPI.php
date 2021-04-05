@@ -82,7 +82,7 @@ class SmithsonianPDFsAPI
         else exit("\n[lines_before_and_after_sciname] not yet initialized for [$txt_filename]\n");
         $input = array('filename' => $txt_filename, 'lines_before_and_after_sciname' => $LBAAS);
         $input['epub_output_txts_dir'] = $ret['resource_working_dir'];
-        $this->func_ParseUnstructured->parse_pdftotext_result($input);
+        $this->func_ParseUnstructured->parse_pdftotext_result($input); //this will generate the xxxxxx_tagged.txt file
         */
         // exit("\n-done 1 pdf'\n"); //debug only
     }

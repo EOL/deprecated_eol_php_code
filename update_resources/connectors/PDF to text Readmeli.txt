@@ -1,3 +1,24 @@
+
+SCtZ-0001  SCtZ-0008  SCtZ-0016  SCtZ-0023  SCtZ-0030  SCtZ-0038  SCtZ-0045  
+SCtZ-0053  SCtZ-0060  SCtZ-0067  SCtZ-0074  SCtZ-0082  SCtZ-0089  
+SCtZ-0096
+SCtZ-0002  SCtZ-0009  SCtZ-0017  SCtZ-0024  SCtZ-0031  SCtZ-0039  SCtZ-0046  
+SCtZ-0054  SCtZ-0061  SCtZ-0068  SCtZ-0075  SCtZ-0083  SCtZ-0090  
+SCtZ-0099
+SCtZ-0003  SCtZ-0011  SCtZ-0018  SCtZ-0025  SCtZ-0032  SCtZ-0040  SCtZ-0047  SCtZ-0055  SCtZ-0062  SCtZ-0069  SCtZ-0076  SCtZ-0084  SCtZ-0091  
+SCtZ-0100
+SCtZ-0004  SCtZ-0012  SCtZ-0019  SCtZ-0026  SCtZ-0034  SCtZ-0041  SCtZ-0048  SCtZ-0056  SCtZ-0063  SCtZ-0070  SCtZ-0077  SCtZ-0085  SCtZ-0092  
+SCtZ-0104
+SCtZ-0005  SCtZ-0013  SCtZ-0020  SCtZ-0027  SCtZ-0035  SCtZ-0042  SCtZ-0049  SCtZ-0057  SCtZ-0064  SCtZ-0071  SCtZ-0078  SCtZ-0086  SCtZ-0093  
+SCtZ-0106
+SCtZ-0006  SCtZ-0014  SCtZ-0021  SCtZ-0028  SCtZ-0036  SCtZ-0043  SCtZ-0051  SCtZ-0058  SCtZ-0065  SCtZ-0072  SCtZ-0080  SCtZ-0087  SCtZ-0094  
+SCtZ-0107
+SCtZ-0007  SCtZ-0015  SCtZ-0022  SCtZ-0029  SCtZ-0037  SCtZ-0044  SCtZ-0052  SCtZ-0059  SCtZ-0066  SCtZ-0073  SCtZ-0081  SCtZ-0088  SCtZ-0095  
+SCtZ-0111
+
+
+https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0001/SCtZ-0001.txt
+
 ===========================================================================================================================================
 I was about to install pdf-to-text using this:
 https://github.com/spatie/pdf-to-text
@@ -171,7 +192,7 @@ curl -i -X GET http://api.convertio.co/convert/5aa1df42168c5b872947e0c0cc68fe34/
 {"code":200,"status":"ok","data":{"id":"5aa1df42168c5b872947e0c0cc68fe34","step":"finish","step_percent":100,"minutes":"1",
   "output":{"url":"https:\/\/s110.convertio.me\/p\/PiX4oKMhB9YQZYnX_k-OIg\/0faab539f8de23cd027d32cbddd6b620\/SCtZ-0293.txt","size":"272899"}}}
 
-
 - end -
 
 CONCLUSION: Zamzar's online tool has the same output as Convertio's API command-line output.
+======================================================================================================================================

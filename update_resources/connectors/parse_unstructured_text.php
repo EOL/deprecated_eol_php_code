@@ -60,12 +60,17 @@ $func->parse_pdftotext_result($filename);
 */
 
 // /* Start epub series: process our first file from the ticket
-$input = array('filename' => 'SCtZ-0293.txt', 'lines_before_and_after_sciname' => 2);
-$input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' => 1);
+$input = array('filename' => 'SCtZ-0293.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0293/');
+// $input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/');
+// $input = array('filename' => 'SCtZ-0001.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0001/');
+// $input = array('filename' => 'SCtZ-0008.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0008/');
 $func->parse_pdftotext_result($input);
 // */
 
-// Functions::finalize_dwca_resource($resource_id, false, true);
+/* a utility
+$func->utility_download_txt_files();
+*/
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
