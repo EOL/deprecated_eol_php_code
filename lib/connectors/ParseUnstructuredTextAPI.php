@@ -108,7 +108,7 @@ class ParseUnstructuredTextAPI
                                 // /*
                                 // if(!self::has_species_string($rows[2])) {}
                                 //these 3 lines removed from the if() above
-                                if($GLOBALS("ENV_DEBUG")) print_r($rows);
+                                if($GLOBALS["ENV_DEBUG"]) print_r($rows);
                                 $this->scinames[$rows[2]] = ''; //for reporting
                                 $this->lines_to_tag[$ctr-2] = '';
                                 // */
