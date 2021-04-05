@@ -83,7 +83,7 @@ class Eol_v3_API
         
         if(!$options) $options = $this->download_options;
         $options['expire_seconds'] = false;
-        $options['download_wait_time'] = 500000; //half a second        //2000000; //2 seconds orig
+        $options['download_wait_time'] = 300000; //0.3 seconds        //2000000; //2 seconds orig
         $PAGE_NO = 0; 
         $i = 0; //stats only
         $items_count = 0; $folder_no = 0; $final = array();
@@ -238,7 +238,7 @@ class Eol_v3_API
         $url = str_replace("EOL_PAGE_ID", $eol_id, $this->api['Pages7']); // echo "\n$url\n";
         $options = $this->download_options;
         $options['expire_seconds'] = false; //always false, since an eol ID will only have 1 taxon name in its lifetime.
-        $options['download_wait_time'] = 500000; //half a second
+        $options['download_wait_time'] = 300000; //half a second
         $options['delay_in_minutes'] = 0.125; //7.5 seconds
         if($json = Functions::lookup_with_cache($url, $options)) {
             $arr = json_decode($json, true); // print_r($arr); 
@@ -251,7 +251,7 @@ class Eol_v3_API
         // echo "\n$url\n";
         $options = $this->download_options;
         $options['expire_seconds'] = false; //always false, since an object_id will only have 1 same taxon in its lifetime.
-        $options['download_wait_time'] = 500000; //half a second
+        $options['download_wait_time'] = 300000; //half a second
         $options['delay_in_minutes'] = 0.125; //7.5 seconds
         if($json = Functions::lookup_with_cache($url, $options)) {
             $arr = json_decode($json, true); // print_r($arr); 

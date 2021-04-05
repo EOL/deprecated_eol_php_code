@@ -150,6 +150,16 @@ class ParseUnstructuredTextAPI
     }
     private function is_sciname($string)
     {
+        /*
+        Hernán Ortega and Richard P. Vari
+        Review of the Classification of the Rhinocryptidae and Menurae
+        Helmut W. Zibrowius, Station Marine d’Endoume, Marseille, France.
+        */
+        $exclude = array("Hernán ", "Review ", "Helmut W.");
+        foreach($exclude as $exc) {
+            if(substr($string,0,strlen($exc)) == $exc) return false;
+        }
+        
         if(ctype_lower(substr($string,0,1))) return false;
         if(substr($string,1,1) == "." && !is_numeric(substr($string,0,1))) return false; //not e.g. "C. Allan Child"
         // /* exclude one-word names e.g. "Sarsiellidae"
@@ -182,6 +192,7 @@ class ParseUnstructuredTextAPI
     }
     private function has_species_string($row)
     {
+        if(stripos($row, " genus") !== false) return true;  //string is found
         if(stripos($row, " sp.") !== false) return true;  //string is found
         if(stripos($row, " sp ") !== false) return true;  //string is found
         if(stripos($row, " species") !== false) {  //string is found

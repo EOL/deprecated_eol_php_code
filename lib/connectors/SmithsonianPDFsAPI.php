@@ -46,7 +46,7 @@ class SmithsonianPDFsAPI
                 self::process_a_pdf($info);
                 // print_r($info);
                 // if($i == 2) break; //debug only Mac Mini
-                if($i == 10) break; //debug only eol-archive
+                if($i == 20) break; //debug only eol-archive
             }
         }
         // exit("\n-end 1 repository-\n"); //debug only
