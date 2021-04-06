@@ -12,7 +12,16 @@ https://www.flickr.com/photo.gne?id=49966353906
 https://www.flickr.com/photo.gne?id=50902281443 (Katie's image)
 https://www.flickr.com/photo.gne?id=50996846868
 https://www.flickr.com/photo.gne?id=50993925303
+https://www.flickr.com/photo.gne?id=50997663907
 
+from API: http://farm66.static.flickr.com/65535/50997663907_9f6a0699c9.jpg
+        : http://farm66.static.flickr.com/65535/50997663907_9f6a0699c9_b.jpg (bigger)
+from web: https://live.staticflickr.com/65535/50997663907_9f6a0699c9_b.jpg (bigger)
+
+from API: http://farm66.static.flickr.com/65535/50902281443_66d1299d8d.jpg
+        : http://farm66.static.flickr.com/65535/50902281443_66d1299d8d_b.jpg (bigger)
+from web: https://live.staticflickr.com/65535/50902281443_66d1299d8d_b.jpg (bigger)
+          
 How to get a direct image URL for a Flickr Photo
     Click a photo to open it.
     Click the Download icon.
@@ -110,6 +119,7 @@ class BOLD2iNaturalistAPI_csv
                     $rek['iNat_taxonID'] = $this->get_iNat_taxonID($rek);
                     $rek['iNat_desc'] = $rec['notes'];
                     $rek['coordinates'] = $this->get_coordinates($rec);
+                    $rek['geoprivacy'] = @$rec['Geoprivacy'];
                     $rek['iNat_place_guess'] = $rec['locality'];
                     $rek['image_urls'] = self::get_arr_from_pipe_delimited_string($rec['relevantMedia']);
                     $rek['image_urls_ext'] = $rec['relevantMedia_ext'];
@@ -148,7 +158,12 @@ class BOLD2iNaturalistAPI_csv
     public function get_flickr_photo_url($photo_id)
     {
         if($info = self::flickr_photos_getInfo($photo_id)) {
-            return "http://farm".$info['farm'].".static.flickr.com/".$info['server']."/".$photo_id."_".$info['secret'].".jpg";
+            $url1 = "https://farm".$info['farm'].".static.flickr.com/".$info['server']."/".$photo_id."_".$info['secret']."_b.jpg"; //bigger image
+            $url2 = "https://farm".$info['farm'].".static.flickr.com/".$info['server']."/".$photo_id."_".$info['secret'].".jpg"; //orig
+            if(Functions::ping_v2($url1)) return $url1;
+            if(Functions::ping_v2($url2)) return $url2;
+            echo "\n----------\nFlickr ID: $photo_id\n";
+            exit("\nERROR: Should not go here. Contact eagbayani@eol.org if you see this message.\n----------\n");
         }
         else echo "\nFlickr photo inaccessible [$photo_id]\n";
     }

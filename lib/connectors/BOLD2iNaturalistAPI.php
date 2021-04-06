@@ -522,6 +522,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             'description' => $rek['iNat_desc'],
             'latitude' => $rek['coordinates']['lat'],
             'longitude' => $rek['coordinates']['lon'],
+            'geoprivacy' => $rek['geoprivacy'],
             'place_guess' => $rek['iNat_place_guess'],
             'observed_on_string' => $rek['date_collected']
         );
