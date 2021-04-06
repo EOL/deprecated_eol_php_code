@@ -44,7 +44,8 @@ class ParseUnstructuredTextAPI
         $edited_file = self::add_taxon_tags_to_text_file_v3($filename);
         self::remove_some_rows($edited_file);
         self::show_parsed_texts_for_mining($edited_file);
-        print_r($this->scinames); echo "\n".count($this->scinames)."\n";
+        // print_r($this->scinames); 
+        echo "\nRaw scinames count: ".count($this->scinames)."\n";
     }
     //else           $row = "</taxon><taxon sciname='$sciname'> ".$row;
     private function get_main_scinames($filename)
