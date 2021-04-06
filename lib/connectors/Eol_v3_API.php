@@ -84,7 +84,12 @@ class Eol_v3_API
         if(!$options) $options = $this->download_options;
         $options['expire_seconds'] = false;
         $options['download_wait_time'] = 300000; //0.3 seconds        //2000000; //2 seconds orig
-        $PAGE_NO = 0; 
+        $PAGE_NO = 0;
+        
+        // /* caching purposes
+        $PAGE_NO = 20000;
+        // */
+        
         $i = 0; //stats only
         $items_count = 0; $folder_no = 0; $final = array();
         while(true) {
