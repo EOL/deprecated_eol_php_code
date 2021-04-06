@@ -581,6 +581,11 @@ class Pensoft2EOLAPI
         http://api.pensoft.net/annotator?text=West Sahara woodlands&ontologies=eol-geonames
         http://api.pensoft.net/annotator?text=ocean marine sanctuary&ontologies=envo
         */
+        
+        // /* false-positive: https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65818&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65818
+        $desc = str_ireplace("United States National Museum", "", $desc);
+        // */
+        
         $this->pensoft_run_cnt++;
         // $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies=envo"'; //orig
         $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies='.$this->ontologies.'"'; //new
