@@ -44,12 +44,11 @@ class SmithsonianPDFsAPI
         */
         $i = 0;
         foreach($pdfs_info as $info) { $i++;
-            if(self::valid_pdf($info['title'])) {
-                self::process_a_pdf($info);
-                // print_r($info);
-                // if($i == 2) break; //debug only Mac Mini
-                // if($i == 20) break; //debug only eol-archive
-            }
+            // if(self::valid_pdf($info['title'])) {} //no longer filters our titles with word "checklist"
+            self::process_a_pdf($info);
+            // print_r($info);
+            // if($i == 2) break; //debug only Mac Mini
+            // if($i == 20) break; //debug only eol-archive
         }
         // exit("\n-end 1 repository-\n"); //debug only
     }
@@ -59,7 +58,23 @@ class SmithsonianPDFsAPI
             [url] => https://repository.si.edu//handle/10088/5292
             [title] => Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean
         )*/
-        $epub_info = self::get_epub_info($info['url']);
+        $epub_info = self::get_epub_info($info['url']); //within this where $this->meta is generated
+        // print_r($epub_info); print_r($this->meta); exit("\n$this->resource_id\n"); //good deb ug
+        /*Array(
+            [pdf_id] => SCtZ-0007
+            [filename] => SCtZ-0007.epub
+            [url] => https://repository.si.edu/bitstream/handle/10088/5292/SCtZ-0007.epub
+            [checklistYN] => 0
+        )
+        Array(
+            [SCtZ-0007] => Array(
+                    [bibliographicCitation] => Maddocks, Rosalie F. 1969. "Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean." Smithsonian Contributions to Zoology. 1-56. https://doi.org/10.5479/si.00810282.7
+                    [dc.relation.url] => http://dx.doi.org/10.5479/si.00810282.7
+                    [dc.title] => Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean
+                )
+        )*/
+        
+        
         /*Array(
             [filename] => SCtZ-0007.epub
             [url] => https://repository.si.edu/bitstream/handle/10088/5292/SCtZ-0007.epub
@@ -181,6 +196,7 @@ class SmithsonianPDFsAPI
                         if(preg_match("/href=\"(.*?)\"/ims", $line, $a)) {
                             $tmp = $this->web['domain'].$a[1];
                             $ret = array();
+                            $ret['pdf_id'] = pathinfo($tmp, PATHINFO_FILENAME);
                             $ret['filename'] = pathinfo($tmp, PATHINFO_FILENAME).".epub";
                             $ret['url'] = pathinfo($tmp, PATHINFO_DIRNAME)."/".$ret['filename'];
                             // print_r($ret); exit;
@@ -188,13 +204,15 @@ class SmithsonianPDFsAPI
                                 [filename] => SCtZ-0007.epub
                                 [url] => https://repository.si.edu/bitstream/handle/10088/5292/SCtZ-0007.epub
                             )*/
-                            self::get_metadata_for_pdf($html, $url, pathinfo($ret['filename'], PATHINFO_FILENAME));
+                            self::get_metadata_for_pdf($html, $url, pathinfo($ret['filename'], PATHINFO_FILENAME)); //where $this->meta is generated
+                            
+                            if(self::is_pdf_checklistYN($this->meta[$ret['pdf_id']]['dc.title'])) $ret['checklistYN'] = 1;
+                            else $ret['checklistYN'] = 0;
                             return $ret;
                         }
                     }
                 }
             }
-            
         }
     }
     private function get_all_pdfs()
@@ -228,7 +246,7 @@ class SmithsonianPDFsAPI
                 }
             }
             $offset = $offset + 20;
-            // if($page == 5) break; //debug only
+            if($page == 5) break; //debug only
         }
         return $final;
     }
@@ -240,10 +258,10 @@ class SmithsonianPDFsAPI
             if(preg_match("/Now showing items 1-20 of (.*?)<\/p>/ims", $html, $a)) return trim($a[1]);
         }
     }
-    private function valid_pdf($title)
+    private function is_pdf_checklistYN($title)
     {
-        if(stripos($title, "checklist") !== false) return false; //string is found
-        return true;
+        if(stripos($title, "checklist") !== false) return true; //string is found
+        return false;
     }
     private function get_metadata_for_pdf($html, $url, $pdf_id)
     {   /*
@@ -266,8 +284,9 @@ class SmithsonianPDFsAPI
         }
         $left = '<meta name="DC.relation" content="';
         if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) $this->meta[$pdf_id]['dc.relation.url'] = $a[1];
-        // print_r($this->meta);
-        // exit("\n$url\n");;
+        $left = '<meta name="DC.title" content="';
+        if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) $this->meta[$pdf_id]['dc.title'] = $a[1];
+        // print_r($this->meta); exit("\n$url\n");;
     }
     private function generate_dwca_for_a_repository()
     {
