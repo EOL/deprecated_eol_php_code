@@ -246,7 +246,7 @@ class SmithsonianPDFsAPI
                 }
             }
             $offset = $offset + 20;
-            if($page == 5) break; //debug only
+            // if($page == 5) break; //debug only
         }
         return $final;
     }
