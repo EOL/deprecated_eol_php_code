@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* connector: [process_SI_pdfs.php] */
+/* connector: [process_SI_pdfs.php]
+https://docs.google.com/spreadsheets/d/11m5Wxj9NyYfd38LcRvX7VxTq8ew7pSDRQnQ88MKWPZY/edit?ts=606c9760#gid=0
+-> list of patterns compiled by Jen
+*/
 class SmithsonianPDFsAPI
 {
     public function __construct($folder)
