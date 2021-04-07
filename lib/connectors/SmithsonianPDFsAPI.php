@@ -49,6 +49,7 @@ class SmithsonianPDFsAPI
                     [title] => Deep-sea Cerviniidae (Copepoda: Harpacticoida) from the Western Indian Ocean, collected with RV Anton Bruun in 1964)
         */
         // /* Utility report for Jen - one time run
+        $this->ctr = 0;
         $this->WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH."/Smithsonian_Contributions_to_Zoology.txt", "w"); //initialize
         $arr = array('Title', "URL", 'Citation', 'DOI');
         fwrite($this->WRITE, implode("\t", $arr)."\n");
@@ -239,6 +240,9 @@ class SmithsonianPDFsAPI
                             $tmp = $this->web['domain'].$a[1];
                             $ret = array();
                             $ret['pdf_id'] = pathinfo($tmp, PATHINFO_FILENAME);
+                            // /* Utility report for Jen - one time run
+                            $ret['pdf_id'] = @$this->ctr++;
+                            // */
                             $ret['filename'] = pathinfo($tmp, PATHINFO_FILENAME).".epub";
                             $ret['url'] = pathinfo($tmp, PATHINFO_DIRNAME)."/".$ret['filename'];
                             // print_r($ret); exit;
