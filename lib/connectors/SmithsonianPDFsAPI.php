@@ -250,7 +250,8 @@ class SmithsonianPDFsAPI
                                 [filename] => SCtZ-0007.epub
                                 [url] => https://repository.si.edu/bitstream/handle/10088/5292/SCtZ-0007.epub
                             )*/
-                            self::get_metadata_for_pdf($html, $url, pathinfo($ret['filename'], PATHINFO_FILENAME)); //where $this->meta is generated
+                            // self::get_metadata_for_pdf($html, $url, pathinfo($ret['filename'], PATHINFO_FILENAME)); //where $this->meta is generated
+                            self::get_metadata_for_pdf($html, $url, $ret['pdf_id']); //where $this->meta is generated
                             
                             if(self::is_pdf_checklistYN($this->meta[$ret['pdf_id']]['dc.title'])) $ret['checklistYN'] = 1;
                             else $ret['checklistYN'] = 0;
