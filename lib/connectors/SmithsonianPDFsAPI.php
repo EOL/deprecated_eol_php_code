@@ -48,12 +48,12 @@ class SmithsonianPDFsAPI
                     [url] => https://repository.si.edu//handle/10088/5349
                     [title] => Deep-sea Cerviniidae (Copepoda: Harpacticoida) from the Western Indian Ocean, collected with RV Anton Bruun in 1964)
         */
-        // /* Utility report for Jen - one time run
+        /* Utility report for Jen - one time run
         $this->ctr = 0;
         $this->WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH."/Smithsonian_Contributions_to_Zoology.txt", "w"); //initialize
         $arr = array("#", 'Title', "URL", 'Citation', 'DOI');
         fwrite($this->WRITE, implode("\t", $arr)."\n");
-        // */
+        */
         $i = 0;
         foreach($pdfs_info as $info) { $i++;
             // if(self::valid_pdf($info['title'])) {} //no longer filters our titles with word "checklist"
@@ -64,9 +64,9 @@ class SmithsonianPDFsAPI
         }
         // exit("\n-end 1 repository-\n"); //debug only
 
-        // /* Utility report for Jen - one time run
+        /* Utility report for Jen - one time run
         fclose($this->WRITE);
-        // */
+        */
     }
     private function process_a_pdf($info)
     {   //print_r($info); exit;
@@ -77,7 +77,8 @@ class SmithsonianPDFsAPI
         
         $epub_info = self::get_epub_info($info['url']); //within this where $this->meta is generated
         // print_r($epub_info); print_r($this->meta); exit("\n$this->resource_id\n"); //good debug
-        // /* Utility report for Jen - one time run
+
+        /* Utility report for Jen - one time run
         $w = array();
         if($info['title'] == $this->meta[$epub_info['pdf_id']]['dc.title']) {
             $title = $info['title'];
@@ -93,7 +94,8 @@ class SmithsonianPDFsAPI
             exit("\ntitles not the same\n");
         }
         return;
-        // */
+        */
+
         /*Array(
             [pdf_id] => SCtZ-0007
             [filename] => SCtZ-0007.epub
@@ -233,21 +235,13 @@ class SmithsonianPDFsAPI
             if(preg_match_all("/".preg_quote('class="file-link">', '/')."(.*?)<\/div>/ims", $html, $a)) {
                 // print_r($a[1]); exit;
                 foreach($a[1] as $line) {
-                    /* un-comment in real operation
                     if(stripos($line, ".epub") !== false) { //string is found
-                    */
-                    // /* Utility report for Jen - one time run
-                    if(stripos($line, ".pdf") !== false) { //string is found
-                    // */
                         // exit("\n$line\n");
                         /* <a href="/bitstream/handle/10088/5292/SCtZ-0007.epub?sequence=3&amp;isAllowed=y">View/<wbr xmlns:i18n="http://apache.org/cocoon/i18n/2.1" />Open</a> */
                         if(preg_match("/href=\"(.*?)\"/ims", $line, $a)) {
                             $tmp = $this->web['domain'].$a[1];
                             $ret = array();
                             $ret['pdf_id'] = pathinfo($tmp, PATHINFO_FILENAME);
-                            // /* Utility report for Jen - one time run
-                            $ret['pdf_id'] = @$this->ctr++;
-                            // */
                             $ret['filename'] = pathinfo($tmp, PATHINFO_FILENAME).".epub";
                             $ret['url'] = pathinfo($tmp, PATHINFO_DIRNAME)."/".$ret['filename'];
                             // print_r($ret); exit;
