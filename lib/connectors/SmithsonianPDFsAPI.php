@@ -59,7 +59,7 @@ class SmithsonianPDFsAPI
             // if(self::valid_pdf($info['title'])) {} //no longer filters our titles with word "checklist"
             self::process_a_pdf($info);
             // print_r($info);
-            // if($i == 2) break; //debug only Mac Mini
+            if($i == 2) break; //debug only Mac Mini
             // if($i == 20) break; //debug only eol-archive
         }
         // exit("\n-end 1 repository-\n"); //debug only
@@ -231,9 +231,14 @@ class SmithsonianPDFsAPI
         */
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             if(preg_match_all("/".preg_quote('class="file-link">', '/')."(.*?)<\/div>/ims", $html, $a)) {
-                // print_r($a[1]); exit;
+                print_r($a[1]); exit;
                 foreach($a[1] as $line) {
+                    /* un-comment in real operation
                     if(stripos($line, ".epub") !== false) { //string is found
+                    */
+                    // /* Utility report for Jen - one time run
+                    if(stripos($line, ".pdf") !== false) { //string is found
+                    // */
                         // exit("\n$line\n");
                         /* <a href="/bitstream/handle/10088/5292/SCtZ-0007.epub?sequence=3&amp;isAllowed=y">View/<wbr xmlns:i18n="http://apache.org/cocoon/i18n/2.1" />Open</a> */
                         if(preg_match("/href=\"(.*?)\"/ims", $line, $a)) {
@@ -293,7 +298,7 @@ class SmithsonianPDFsAPI
                 }
             }
             $offset = $offset + 20;
-            // if($page == 5) break; //debug only
+            if($page == 5) break; //debug only
         }
         return $final;
     }
