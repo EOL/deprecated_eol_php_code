@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* */
-class ParseUnstructuredTextAPI
+class ParseUnstructuredTextAPI extends ParseListTypeAPI
 {
     function __construct()
     {
@@ -16,6 +16,9 @@ class ParseUnstructuredTextAPI
         $this->no_of_rows_per_block[1] = 3; //orig, first sample epub (SCtZ-0293_convertio.txt)
         /* END epub series */
         
+        // /* copied from SmithsonianPDFsAPI
+        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0033');
+        // */
     }
     /* Special chard mentioned by Dima, why GNRD stops running.
     str_replace("")
@@ -29,7 +32,18 @@ class ParseUnstructuredTextAPI
             [filename] => SCtZ-0007.txt
             [lines_before_and_after_sciname] => 1
             [epub_output_txts_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub/SCtZ-0007/
+            [type] => {blank} or 'list'
         )*/
+        
+        // /* this serves when script is called from parse_unstructured_text.php
+        if(in_array(pathinfo($input['filename'], PATHINFO_FILENAME), $this->PDFs_that_are_lists)) {
+            print_r($input);
+            echo "- IS A LIST, NOT SPECIES-DESCRIPTION-TYPE\n";
+            $this->parse_list_type_pdf($input);
+            return;
+        }
+        // */
+        
         if($val = $input['epub_output_txts_dir']) $this->path['epub_output_txts_dir'] = $val;
         
         $this->lines_to_tag = array();
@@ -240,9 +254,11 @@ class ParseUnstructuredTextAPI
             // else echo "\n[$row]\n";
 
             // /* to close tag the last block
-            if($row == "Appendix") $row = "</taxon>$row";               //SCtZ-0293_convertio.txt
-            elseif($row == "Literature Cited") $row = "</taxon>$row";   //SCtZ-0007.txt
-            elseif($row == "References") $row = "</taxon>$row";         //SCtZ-0008.txt
+            if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293_convertio.txt
+            elseif($row == "Literature Cited") $row = "</taxon>$row";       //SCtZ-0007.txt
+            elseif($row == "References") $row = "</taxon>$row";             //SCtZ-0008.txt
+            elseif($row == "General Conclusions") $row = "</taxon>$row";    //SCtZ-0029.txt
+            elseif($row == "Bibliography") $row = "</taxon>$row";           //SCtZ-0011.txt
             // */
 
             fwrite($WRITE, $row."\n");
@@ -310,8 +326,7 @@ class ParseUnstructuredTextAPI
                 $rows = explode("\n", $block);
                 // if(count($rows) >= 5) {
                 if(true) {
-                    
-                    $last_sections_2b_removed = array("REMARKS.—", "REMARK.—", "AFFINITIES.—");
+                    $last_sections_2b_removed = array("REMARKS.—", "REMARK.—", "AFFINITIES.—", "DISCUSSION.—", "NOTE.—", "NOTES.—");
                     $block = self::remove_last_sections($last_sections_2b_removed, $block);
                     
                     $show = "\n-----------------------\n<$block</sciname>\n-----------------------\n";
@@ -327,25 +342,27 @@ class ParseUnstructuredTextAPI
         fclose($WRITE);
         echo "\nblocks: ".count($a[1])."\n";
     }
+    private function species_section_append_pattern($begin, $end, $block)
+    {
+        if(preg_match("/".preg_quote($begin, '/')."(.*?)".preg_quote($end, '/')."/ims", $block, $a)) {
+            $block = str_replace($begin.$a[1], "", $block);
+        }
+        return $block;
+    }
     private function remove_last_sections($sections, $block)
     {
         // /* for SCtZ-0001 -> remove REMARKS.— but include sections after it e.g. DISTRIBUTION.—
-        $beginning = "REMARKS.—"; 
-        $end = "DISTRIBUTION.—"; //works also but better to use "\n". Or maybe case to case basis.
-        $end = "\n";
-        if(preg_match("/".preg_quote($beginning, '/')."(.*?)".preg_quote($end, '/')."/ims", $block, $a)) {
-            $block = str_replace($beginning.$a[1], "", $block);
-        }
+        $begin = "REMARKS.—";       $end = "DISTRIBUTION.—"; //works also but better to use "\n". Or maybe case to case basis.
+        $block = self::species_section_append_pattern($begin, $end, $block);
         // */
-        
-        /* remove "REMARKS.—" section if exists
-        $str = "elicha".$block;
-        if(preg_match("/elicha(.*?)REMARKS\.\—/ims", $str, $a2)) $block = $a2[1];
-        */
-        /* remove "REMARK.—" section if exists
-        $str = "elicha".$block;
-        if(preg_match("/elicha(.*?)REMARK\.\—/ims", $str, $a2)) $block = $a2[1];
-        */
+        // /* for SCtZ-0007 -> remove AFFINITIES.— but include sections after it e.g. DISTRIBUTION.—
+        $begin = "AFFINITIES.—";    $end = "DISTRIBUTION.—"; //works also but better to use "\n". Or maybe case to case basis.
+        $block = self::species_section_append_pattern($begin, $end, $block);
+        // */
+        // /* for SCtZ-0023 -> remove DISCUSSION.— but include sections after it e.g. VARIATION.—
+        $begin = "DISCUSSION.—";    $end = "VARIATION.—"; //works also but better to use "\n". Or maybe case to case basis.
+        $block = self::species_section_append_pattern($begin, $end, $block);
+        // */
         
         foreach($sections as $section) {
             $str = "elicha".$block;
@@ -397,7 +414,7 @@ class ParseUnstructuredTextAPI
         // */
         
         // /*
-        $ranks = array("Genus", "Family", "Subgenus", "Superfamily", "Subfamily", "? Subfamily");
+        $ranks = array("Genus", "Family", "Order", "Subgenus", "Superfamily", "Subfamily", "? Subfamily");
         foreach($ranks as $rank) {
             $len = strlen($rank);
             if(substr($sciname,0,$len) == $rank) return false;

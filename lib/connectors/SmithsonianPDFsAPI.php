@@ -20,6 +20,7 @@ class SmithsonianPDFsAPI
         if(Functions::is_production()) $this->path['working_dir'] = '/extra/other_files/Smithsonian/epub_'.$this->resource_id.'/';
         else                           $this->path['working_dir'] = '/Volumes/AKiTiO4/other_files/Smithsonian/epub_'.$this->resource_id.'/';
         if(!is_dir($this->path['working_dir'])) mkdir($this->path['working_dir']);
+        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0033');
     }
     function start()
     {
@@ -77,7 +78,10 @@ class SmithsonianPDFsAPI
                     [dc.title] => Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean
                 )
         )*/
-        
+        if(in_array($epub_info['pdf_id'], $this->PDFs_that_are_lists)) {
+            echo "\n[".$epub_info['pdf_id']."] ".$info['title']." - IS A LIST, NOT SPECIES-DESCRIPTION-TYPE\n";
+            return;
+        }
         
         /*Array(
             [filename] => SCtZ-0007.epub
