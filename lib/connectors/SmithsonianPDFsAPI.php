@@ -103,7 +103,12 @@ class SmithsonianPDFsAPI
         }
         $input = array('filename' => $txt_filename, 'lines_before_and_after_sciname' => $LBAAS);
         $input['epub_output_txts_dir'] = $ret['resource_working_dir'];
-        $this->func_ParseUnstructured->parse_pdftotext_result($input); //this will generate the xxxxxx_tagged.txt file
+        if($input['filename']) $this->func_ParseUnstructured->parse_pdftotext_result($input); //this will generate the xxxxxx_tagged.txt file
+        else {
+            echo "\n-----------------\n";
+            print_r($info); print_r($epub_info); print_r($input);
+            echo "\n-----------------\nPlease investigate: no input filename\n";
+        }
         // */
         // exit("\n-done 1 pdf'\n"); //debug only
     }
