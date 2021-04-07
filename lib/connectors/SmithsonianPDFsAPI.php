@@ -29,6 +29,7 @@ class SmithsonianPDFsAPI
         self::generate_dwca_for_a_repository();
         */
         $this->archive_builder->finalize(true);
+        if($this->debug) print_r($this->debug);
     }
     private function process_all_pdfs_for_a_repository()
     {
@@ -105,9 +106,10 @@ class SmithsonianPDFsAPI
         $input['epub_output_txts_dir'] = $ret['resource_working_dir'];
         if($input['filename']) $this->func_ParseUnstructured->parse_pdftotext_result($input); //this will generate the xxxxxx_tagged.txt file
         else {
-            echo "\n-----------------\n";
+            echo "\n-----------------\nWarning: no input epub file\n";
             print_r($info); print_r($epub_info); print_r($input);
-            echo "\n-----------------\nPlease investigate: no input filename\n";
+            echo "\n-----------------\n";
+            $this->debug['No epub'][] = $info;
         }
         // */
         // exit("\n-done 1 pdf'\n"); //debug only
