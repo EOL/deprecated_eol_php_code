@@ -88,7 +88,7 @@ class SmithsonianPDFsAPI
         }
         else {
             echo "\n===========================================================\n";
-            print_r($info); print_r($epub_info); print_r($this->meta);
+            print_r($info); print_r($epub_info); print_r($this->meta[$epub_info['pdf_id']]);
             exit("\ntitles not the same\n");
         }
         return;
