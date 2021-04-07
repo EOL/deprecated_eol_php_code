@@ -20,7 +20,7 @@ class SmithsonianPDFsAPI
         if(Functions::is_production()) $this->path['working_dir'] = '/extra/other_files/Smithsonian/epub_'.$this->resource_id.'/';
         else                           $this->path['working_dir'] = '/Volumes/AKiTiO4/other_files/Smithsonian/epub_'.$this->resource_id.'/';
         if(!is_dir($this->path['working_dir'])) mkdir($this->path['working_dir']);
-        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0033');
+        $this->PDFs_that_are_lists = array('xSCtZ-0011', 'xSCtZ-0033');
     }
     function start()
     {
