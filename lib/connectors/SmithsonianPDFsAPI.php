@@ -87,6 +87,7 @@ class SmithsonianPDFsAPI
             fwrite($this->WRITE, implode("\t", $arr)."\n");
         }
         else {
+            echo "\n===========================================================\n";
             print_r($info); print_r($epub_info); print_r($this->meta);
             exit("\ntitles not the same\n");
         }
