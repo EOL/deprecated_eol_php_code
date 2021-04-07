@@ -13,5 +13,35 @@ class ParseListTypeAPI
     {
         print_r($input); exit("\nelix\n");
     }
+    
+    
+    /*################################## Jen's utility ################################################################################*/
+    function is_title_inside_epub_YN($title, $txtfile)
+    {   // exit("\n$title\n$txtfile\n");
+        $title .= '';
+        $ret = self::check_title($txtfile, $title);
+        if(!$ret['found']) {
+            // echo "\nTITLE NOT FOUND\n---------------epub content\n".$ret['ten_rows']."\n---------------\n";
+            return false;
+        }
+        else return true; //exit("\ntitle found\n");
+    }
+    private function check_title($txtfile, $title)
+    {
+        $i = 0; $final = "";
+        foreach(new FileIterator($txtfile) as $line => $row) { $i++;
+            $row = trim($row). "\n";
+            $final .= $row;
+            if($i >= 100) break;
+        }
+        $final = trim($final);
+        $final = str_replace(array("/"), "", $final);
+        
+        
+        if(stripos($final, $title) !== false) { //string is found
+            return array("found" => true);
+        }
+        else  return array("found" => false, "ten_rows" => $final);
+    }
 }
 ?>

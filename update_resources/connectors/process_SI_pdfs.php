@@ -6,6 +6,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = "10088_5097"; //Smithsonian Contributions to Zoology --> first repository to process
 // /* un-comment in real operation
+require_library('connectors/ParseListTypeAPI');
 require_library('connectors/SmithsonianPDFsAPI');
 $func = new SmithsonianPDFsAPI($resource_id);
 $func->start();

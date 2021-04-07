@@ -4,7 +4,7 @@ namespace php_active_record;
 https://docs.google.com/spreadsheets/d/11m5Wxj9NyYfd38LcRvX7VxTq8ew7pSDRQnQ88MKWPZY/edit?ts=606c9760#gid=0
 -> list of patterns compiled by Jen
 */
-class SmithsonianPDFsAPI
+class SmithsonianPDFsAPI extends ParseListTypeAPI
 {
     public function __construct($folder)
     {
@@ -48,12 +48,12 @@ class SmithsonianPDFsAPI
                     [url] => https://repository.si.edu//handle/10088/5349
                     [title] => Deep-sea Cerviniidae (Copepoda: Harpacticoida) from the Western Indian Ocean, collected with RV Anton Bruun in 1964)
         */
-        /* Utility report for Jen - one time run
+        // /* Utility report for Jen - one time run
         $this->ctr = 0;
         $this->WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH."/Smithsonian_Contributions_to_Zoology.txt", "w"); //initialize
-        $arr = array("#", 'Title', "URL", 'Citation', 'DOI');
+        $arr = array("#", 'Title', "URL", 'DOI', "epub file");
         fwrite($this->WRITE, implode("\t", $arr)."\n");
-        */
+        // */
         $i = 0;
         foreach($pdfs_info as $info) { $i++;
             // if(self::valid_pdf($info['title'])) {} //no longer filters our titles with word "checklist"
@@ -64,9 +64,9 @@ class SmithsonianPDFsAPI
         }
         // exit("\n-end 1 repository-\n"); //debug only
 
-        /* Utility report for Jen - one time run
+        // /* Utility report for Jen - one time run
         fclose($this->WRITE);
-        */
+        // */
     }
     private function process_a_pdf($info)
     {   //print_r($info); exit;
@@ -78,15 +78,32 @@ class SmithsonianPDFsAPI
         $epub_info = self::get_epub_info($info['url']); //within this where $this->meta is generated
         // print_r($epub_info); print_r($this->meta); exit("\n$this->resource_id\n"); //good debug
 
-        /* Utility report for Jen - one time run
+        // /* Utility report for Jen - one time run
         $w = array();
         if($info['title'] == $this->meta[$epub_info['pdf_id']]['dc.title']) {
+            // echo "\n".$info['title']."\n";
+            // echo "\n".$this->meta[$epub_info['pdf_id']]['dc.title']."\n";
             $title = $info['title'];
+            $title = strip_tags(htmlspecialchars_decode($title));
+            // echo "\n".$title."\n";
+            
+            self::download_epub($epub_info);
+            $ret = self::convert_epub_to_txt($epub_info); //print_r($ret); //exit("\neli 100\n");
+            /*Array(
+                [source] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/SCtZ-0007.txt
+                [resource_working_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/
+            )*/
             $url1 = $info['url'];
             $citation = $this->meta[$epub_info['pdf_id']]['bibliographicCitation'];
             $url2 = $this->meta[$epub_info['pdf_id']]['dc.relation.url'];
-            $arr = array($this->ctr, $title, $url1, $citation, $url2);
-            fwrite($this->WRITE, implode("\t", $arr)."\n");
+            
+            if(!$this->is_title_inside_epub_YN($title, $ret['source'])) { $this->ctr++;
+                $arr = array($this->ctr, $title, $url1, $url2, $epub_info['pdf_id'].".epub");
+                fwrite($this->WRITE, implode("\t", $arr)."\n");
+                // echo "\nMisfiled | $title | $url1 | $url2 | ".$epub_info['pdf_id'];
+            }
+            else return;
+            
         }
         else {
             echo "\n===========================================================\n";
@@ -94,7 +111,7 @@ class SmithsonianPDFsAPI
             exit("\ntitles not the same\n");
         }
         return;
-        */
+        // */
 
         /*Array(
             [pdf_id] => SCtZ-0007
@@ -292,7 +309,7 @@ class SmithsonianPDFsAPI
                 }
             }
             $offset = $offset + 20;
-            // if($page == 5) break; //debug only
+            if($page == 5) break; //debug only
         }
         return $final;
     }
