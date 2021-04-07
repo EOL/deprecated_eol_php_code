@@ -25,6 +25,7 @@ class SmithsonianPDFsAPI
     function start()
     {
         // /* Initialize other libraries
+        require_library('connectors/ParseListTypeAPI');
         require_library('connectors/ParseUnstructuredTextAPI'); $this->func_ParseUnstructured = new ParseUnstructuredTextAPI();
         require_library('connectors/ConvertioAPI');             $this->func_Convertio = new ConvertioAPI();
         // */
@@ -47,6 +48,11 @@ class SmithsonianPDFsAPI
                     [url] => https://repository.si.edu//handle/10088/5349
                     [title] => Deep-sea Cerviniidae (Copepoda: Harpacticoida) from the Western Indian Ocean, collected with RV Anton Bruun in 1964)
         */
+        // /* Utility report for Jen - one time run
+        $this->WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH."/Smithsonian_Contributions_to_Zoology.txt", "w"); //initialize
+        $arr = array('Title', "URL", 'Citation', 'DOI');
+        fwrite($this->WRITE, implode("\t", $arr)."\n");
+        // */
         $i = 0;
         foreach($pdfs_info as $info) { $i++;
             // if(self::valid_pdf($info['title'])) {} //no longer filters our titles with word "checklist"
@@ -56,6 +62,10 @@ class SmithsonianPDFsAPI
             // if($i == 20) break; //debug only eol-archive
         }
         // exit("\n-end 1 repository-\n"); //debug only
+
+        // /* Utility report for Jen - one time run
+        fclose($this->WRITE);
+        // */
     }
     private function process_a_pdf($info)
     {   //print_r($info); exit;
@@ -63,8 +73,25 @@ class SmithsonianPDFsAPI
             [url] => https://repository.si.edu//handle/10088/5292
             [title] => Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean
         )*/
+        
         $epub_info = self::get_epub_info($info['url']); //within this where $this->meta is generated
-        // print_r($epub_info); print_r($this->meta); exit("\n$this->resource_id\n"); //good deb ug
+        // print_r($epub_info); print_r($this->meta); exit("\n$this->resource_id\n"); //good debug
+        // /* Utility report for Jen - one time run
+        $w = array();
+        if($info['title'] == $this->meta[$epub_info['pdf_id']]['dc.title']) {
+            $title = $info['title'];
+            $url1 = $info['url'];
+            $citation = $this->meta[$epub_info['pdf_id']]['bibliographicCitation'];
+            $url2 = $this->meta[$epub_info['pdf_id']]['dc.relation.url'];
+            $arr = array($title, $url1, $citation, $url2);
+            fwrite($this->WRITE, implode("\t", $arr)."\n");
+        }
+        else {
+            print_r($info); print_r($epub_info); print_r($this->meta);
+            exit("\ntitles not the same\n");
+        }
+        return;
+        // */
         /*Array(
             [pdf_id] => SCtZ-0007
             [filename] => SCtZ-0007.epub
