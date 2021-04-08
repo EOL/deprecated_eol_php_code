@@ -82,7 +82,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         // /* Utility report for Jen - one time run
         if(!$epub_info) return;
         if(in_array($epub_info['pdf_id'], array("SCtZ-0160", "SCtZ-0169", "SCtZ-0150", "SCtZ-0117", "SCtZ-0071", "SCtZ-0077", "SCtZ-0070", 
-            "SCtZ-0085", "SCtZ-0038", "SCtZ-0028", "SCtZ-0026"))) return;
+            "SCtZ-0085", "SCtZ-0038", "SCtZ-0028", "SCtZ-0026", "SCtZ-0014", "SCtZ-0005", "SCtZ-0003", "SCtZ-0004", "SCtZ-0018"))) return;
         $w = array();
         if($info['title'] == $this->meta[$epub_info['pdf_id']]['dc.title']) {
             // echo "\n".$info['title']."\n";
