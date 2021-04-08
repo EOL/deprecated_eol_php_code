@@ -48,7 +48,7 @@ class ParseListTypeAPI
     private function get_first_8_words($title)
     {
         $a = explode(" ", $title);
-        return implode(" ", array($a[0], $a[1], $a[2], $a[3], $a[4], $a[5], $a[6], $a[7]));
+        return trim(implode(" ", array($a[0], $a[1], $a[2], @$a[3], @$a[4], @$a[5], @$a[6], @$a[7])));
     }
 }
 ?>
