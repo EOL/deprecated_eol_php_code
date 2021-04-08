@@ -108,7 +108,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         }
         else {
             echo "\n===========================================================\n";
-            print_r($info); print_r($epub_info); print_r($this->meta[$epub_info['pdf_id']]);
+            print_r($info); echo "\n-----\n"; print_r($epub_info); echo "\n-----\n"; print_r($this->meta[$epub_info['pdf_id']]);
             exit("\ntitles not the same\n");
         }
         return;
