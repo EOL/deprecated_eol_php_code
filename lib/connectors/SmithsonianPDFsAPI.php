@@ -80,6 +80,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         // print_r($epub_info); print_r($this->meta); exit("\n$this->resource_id\n"); //good debug
 
         // /* Utility report for Jen - one time run
+        if(!$epub_info) return;
         $w = array();
         if($info['title'] == $this->meta[$epub_info['pdf_id']]['dc.title']) {
             // echo "\n".$info['title']."\n";
