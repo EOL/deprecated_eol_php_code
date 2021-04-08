@@ -79,7 +79,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $epub_info = self::get_epub_info($info['url']); //within this where $this->meta is generated
         // print_r($epub_info); print_r($this->meta); exit("\n$this->resource_id\n"); //good debug
 
-        // /* Utility report for Jen - one time run
+        // /* ========================= Utility report for Jen - one time run
         if(!$epub_info) return;
         if(in_array($epub_info['pdf_id'], array("SCtZ-0160", "SCtZ-0169", "SCtZ-0150", "SCtZ-0117", "SCtZ-0071", "SCtZ-0077", "SCtZ-0070",
             "SCtZ-0085", "SCtZ-0038", "SCtZ-0028", "SCtZ-0026", "SCtZ-0014", "SCtZ-0005", "SCtZ-0003", "SCtZ-0004", "SCtZ-0018", "SCtZ-0011",
@@ -108,7 +108,6 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                 // echo "\nMisfiled | $title | $url1 | $url2 | ".$epub_info['pdf_id'];
             }
             else return;
-            
         }
         else {
             echo "\n===========================================================\n";
@@ -116,7 +115,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             exit("\ntitles not the same\n");
         }
         return;
-        // */
+        // ========================= */
 
         /*Array(
             [pdf_id] => SCtZ-0007
@@ -152,8 +151,10 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         // $input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' => 1);
         
         $this->lines_before_and_after_sciname['SCtZ-0293.txt'] = 2;
-        $this->lines_before_and_after_sciname['SCtZ-0007.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0029.txt'] = 2;
+        $this->lines_before_and_after_sciname['SCtZ-0007.txt'] = 1;
+        $this->lines_before_and_after_sciname['SCtZ-0025.txt'] = 1;
+        $this->lines_before_and_after_sciname['SCtZ-0011.txt'] = 1; //FYI weird species-type
 
         // /* working OK -- un-comment in real operation. Comment during caching in eol-archive
         $txt_filename = str_replace(".epub", ".txt", $epub_info['filename']);
