@@ -35,14 +35,14 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             [type] => {blank} or 'list'
         )*/
         
-        /* this serves when script is called from parse_unstructured_text.php --- un-comment in real operation
+        // /* this serves when script is called from parse_unstructured_text.php --- un-comment in real operation
         if(in_array(pathinfo($input['filename'], PATHINFO_FILENAME), $this->PDFs_that_are_lists)) {
             print_r($input);
             echo "- IS A LIST, NOT SPECIES-DESCRIPTION-TYPE\n";
             $this->parse_list_type_pdf($input);
             return;
         }
-        */
+        // */
         
         if($val = $input['epub_output_txts_dir']) $this->path['epub_output_txts_dir'] = $val;
         
@@ -75,9 +75,6 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $exclude = array("*", "(", "Contents", "Literature", "Miscellaneous", "Introduction", "Appendix", "ACKNOWLEDGMENTS", "TERMINOLOGY",
         "ETYMOLOGY.", "TYPE-");
         // */
-        
-        // $start_of_row_2_exclude = array_merge($this->start_of_row_2_exclude, $exclude); not used anymore...
-        // $start_of_row_2_exclude = $exclude;
         
         // /* loop text file
         $i = 0; $ctr = 0;
