@@ -127,23 +127,7 @@ Using the API we should be able to do this programmatically. That is convert all
 What do you think?
 Thanks.
 ======================================================================= CONVERTIO, another epub - txt converter - with working API
-https://developers.convertio.co/
-email = eagbayani@eol.org
-pw = ile173xyz
-Your personal API Key --- 0faab539f8de23cd027d32cbddd6b620
-You have a daily limit of 25 conversion minutes. To extend this limit, you can buy prepaid packages
-You have 10 OCR pages left.
-You may buy prepaid packages to increase OCR pages limit
------------------ email confirmation
-Hello,
-Thank you for registering for Convertio!
-We noticed your registration is incomplete and you’re almost finished!
-Please finalize your sign-up here.
-https://convertio.co/pricing/?utm_source=mail
-If you experienced a technical issue, please see our knowledge base at https://support.convertio.co/ or contact us at support@convertio.co, we’re happy to help.
-Your feedback is important to us and helps us improve our services.
-The Convertio Team
------------------
+api keys are in "reminders_office.txt"
 
 https://editors.eol.org/other_files/temp/SCtZ-0293.epub
 
