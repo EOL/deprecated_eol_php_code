@@ -32,8 +32,8 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         self::process_all_pdfs_for_a_repository(); //includes conversion of .epub to .txt AND generation of filename_tagged.txt.
         /* un-comment in real operation
         self::generate_dwca_for_a_repository();
-        */
         $this->archive_builder->finalize(true);
+        */
         if($this->debug) print_r($this->debug);
     }
     private function process_all_pdfs_for_a_repository()
@@ -50,7 +50,8 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         */
         // /* Utility report for Jen - one time run
         $this->ctr = 0;
-        $this->WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH."/Smithsonian_Contributions_to_Zoology.txt", "w"); //initialize
+        // $this->WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH."/Smithsonian_Contributions_to_Zoology.txt", "w"); //initialize
+        $this->WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH."/10088_5097_misfiled_epubs.txt", "w"); //initialize
         $arr = array("#", 'Title', "URL", 'DOI', "epub file");
         fwrite($this->WRITE, implode("\t", $arr)."\n");
         // */
@@ -62,11 +63,11 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             // if($i == 2) break; //debug only Mac Mini
             // if($i == 20) break; //debug only eol-archive
         }
-        // exit("\n-end 1 repository-\n"); //debug only
-
         // /* Utility report for Jen - one time run
         fclose($this->WRITE);
         // */
+        
+        // exit("\n-end 1 repository-\n"); //debug only
     }
     private function process_a_pdf($info)
     {   //print_r($info); exit;
@@ -309,7 +310,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                 }
             }
             $offset = $offset + 20;
-            if($page == 5) break; //debug only
+            // if($page == 5) break; //debug only
         }
         return $final;
     }
