@@ -38,6 +38,7 @@ class ParseListTypeAPI
         $final = str_replace(array("/"), "", $final);
         
         $title = self::get_first_8_words($title);
+        $title = str_ireplace("Caddisflies ", "Caddisflies, ", $title); //manual
         
         if(stripos($final, $title) !== false) { //string is found
             return array("found" => true);
