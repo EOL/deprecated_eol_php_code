@@ -162,7 +162,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
     {
         if(preg_match_all('/\d+/', $str, $a)) return $a[0];
     }
-    private function is_sciname($string)
+    function is_sciname($string)
     {
         /*
         Hernán Ortega and Richard P. Vari

@@ -34,7 +34,7 @@ class ParseListTypeAPI
         echo "\n lines_to_tag: ".count($this->lines_to_tag)."\n"; //exit("\n-end-\n");
 
         $edited_file = self::add_taxon_tags_to_text_file_LT($filename);
-        // self::remove_some_rows($edited_file);
+        self::remove_some_rows_LT($edited_file);
         // self::show_parsed_texts_for_mining($edited_file);
         // // print_r($this->scinames); 
         // echo "\nRaw scinames count: ".count($this->scinames)."\n";
@@ -164,7 +164,58 @@ class ParseListTypeAPI
         }
         return $row;
     }
-    
+    private function remove_some_rows_LT($edited_file)
+    {
+        // exit("\nxxx[$edited_file]\n");
+        $local = $edited_file;
+        $temp_file = $local.".tmp";
+        $WRITE = fopen($temp_file, "w"); //initialize
+        
+        // /* This is a different list of words from above. These rows can be removed from the final text blocks.
+        $exclude = $this->start_of_row_2_exclude;
+        // */
+        
+        // /* loop text file
+        $i = 0;
+        foreach(new FileIterator($local) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
+            $row = trim($row);
+            
+            $cont = true;
+            // /* criteria 1
+            foreach($exclude as $start_of_row) {
+                $len = strlen($start_of_row);
+                if(substr($row,0,$len) == $start_of_row) {
+                    $rows = array();
+                    $cont = false; break;
+                }
+            }
+            if(!$cont) continue;
+            // */
+            
+            // /* criteria 2: if first word is all caps e.g. ABSTRACT
+            if($row) {
+                $words = explode(" ", $row);
+                $words = array_map('trim', $words);
+                if(ctype_upper($words[0]) && strlen($words[0]) > 1) {
+                    // print_r($words); //exit;
+                    $rows = array();
+                    continue;
+                }
+                
+                //other filters:
+                if(is_numeric($row)) continue;
+                if($row == "-") continue;
+                if(!$this->is_sciname($words[0])) continue;
+                
+            }
+            // */
+            
+            fwrite($WRITE, $row."\n");
+        }//end loop text
+        fclose($WRITE);
+        if(copy($temp_file, $edited_file)) unlink($temp_file);
+        
+    }
     private function is_valid_list_header($row)
     {
         if(stripos($row, "list") !== false) return true; //string is found
