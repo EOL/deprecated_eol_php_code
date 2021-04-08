@@ -94,7 +94,7 @@ class NMNHTypeRecordAPI_v2
         $this->debug['RENAMED'] = array(); //debug stats only
         
         $this->uris = self::get_uris($params);
-        // print_r($this->uris); exit;
+        print_r($this->uris); exit;
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", $this->download_options, "zip"); 
