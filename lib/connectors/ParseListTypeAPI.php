@@ -34,16 +34,16 @@ class ParseListTypeAPI
             $final .= $row;
             if($i >= 100) break;
         }
+        /* title from epub file */
         $final = trim($final);
         $final = str_replace(array("/"), "", $final); //manual
         $final = str_ireplace("–", "-", $final); //manual
         
+        /* title from repository page */
         $title = self::get_first_8_words($title);
         $title = str_ireplace("Caddisflies ", "Caddisflies, ", $title); //manual
         $title = str_ireplace("Solencera", "Solenocera", $title); //manual
 
-        
-        
         if(stripos($final, $title) !== false) { //string is found
             return array("found" => true);
         }
