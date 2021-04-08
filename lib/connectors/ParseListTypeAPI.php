@@ -37,11 +37,17 @@ class ParseListTypeAPI
         $final = trim($final);
         $final = str_replace(array("/"), "", $final);
         
+        $final = self::get_first_8_words($final);
         
         if(stripos($final, $title) !== false) { //string is found
             return array("found" => true);
         }
         else  return array("found" => false, "ten_rows" => $final);
+    }
+    private function get_first_8_words($final)
+    {
+        $a = explode(" ", $final);
+        return implode(" ", array($a[0], $a[1], $a[2], $a[3], $a[4], $a[5], $a[6], $a[7]));
     }
 }
 ?>
