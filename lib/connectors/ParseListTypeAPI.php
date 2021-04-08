@@ -35,12 +35,13 @@ class ParseListTypeAPI
             if($i >= 100) break;
         }
         $final = trim($final);
-        $final = str_replace(array("/"), "", $final);
+        $final = str_replace(array("/"), "", $final); //manual
+        $final = str_ireplace("–", "-", $final); //manual
         
         $title = self::get_first_8_words($title);
         $title = str_ireplace("Caddisflies ", "Caddisflies, ", $title); //manual
         $title = str_ireplace("Solencera", "Solenocera", $title); //manual
-        $title = str_ireplace("–", "-", $title); //manual
+
         
         
         if(stripos($final, $title) !== false) { //string is found
