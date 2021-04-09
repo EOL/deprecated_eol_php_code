@@ -90,8 +90,56 @@ Taxonomy, sexual dimorphism, vertical distribution, and evolutionary zoogeograph
 SCtZ-0031
 Ten Rhyparus from the Western Hemisphere (Coleoptera: Scarabaeidae: Aphodiinae)	
 SCtZ-0021
-wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0240/SCtZ-0240.txt
+wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0276/SCtZ-0276.txt
+
+SCtZ-0103
+wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0103/SCtZ-0103.txt
+Gammaridean Amphipoda of Australia, Part III. The Phoxocephalidae
+Gammaridean Amphipoda of Australia, Part I
 */
+
+wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0218/SCtZ-0218.txt
+
+The ecology and behavior of Nephila maculata : a supplement
+The Ecology and Behavior of Nephila maculata: A Supplement
+SCtZ-0218
+
+The Entocytherid Ostracods from North Carolina
+The Entocytherid Ostracods of North Carolina
+SCtZ-0247
+
+Socio ecology of the blue monkeys (Cercopithecus mitis stuhlmanni) of the Kibale Forest, Uganda	
+Socioecology of the Blue Monkeys (Cercopithecus mitis stuhlmanni) of the Kibale Forest, Uganda
+SCtZ-0249
+
+A further contribution of knowledge of the host relations of the parasitic cowbirds	
+A Further Contribution to Knowledge of the Host Relations of the Parasitic Cowbirds
+SCtZ-0235
+
+The North American Moths of the General Phaeoses, Opogona, and Oinophila, with a Discussion of their Supergeneric Affinities (Lepidoptera: Tineidae)	
+The North American Moths of the Genera Phaeoses, Opogona, and Oinophila, with a Discussion of Their Supergeneric Affinities (Lepidoptera: Tineidae)
+SCtZ-0282
+
+Gammaridean Amphipoda of Australia, Part III. the Phoxocephalidae
+Gammaridean Amphipoda of Australia, Part III: The Phoxocephalidae
+SCtZ-0245
+
+A catalogue of the type-specimens of Recent cephalopods in the National Museum of Natural History
+A Catalog of the Type-Specimens of Recent Cephalopoda in the National Museum of Natural History
+SCtZ-0278
+
+Revision of the pelagic amphipod genus Primo (Hyperiidea: Phrosinidae)
+Revision of the Pelagic Amphipod Genus Primno (Hyperiidea: Phrosinidae)
+SCTZ-0275
+
+Anuran locomotion-structure and function
+Anuran Locomotion—Structure and Function, 2: Jumping Performance of Semiaquatic, Terrestrial, and Arboreal Frogs
+SCTZ-0276
+
+Neotropical Microlepidoptera, XXI : new genera and species of Oecophoridae from Chile
+Neotropical Microlepidoptera, XXI: New Genera and Species of Oecophoridae from Chile
+SCtZ-0273
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
