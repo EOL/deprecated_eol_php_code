@@ -83,7 +83,8 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         if(!$epub_info) return;
         if(in_array($epub_info['pdf_id'], array("SCtZ-0160", "SCtZ-0169", "SCtZ-0150", "SCtZ-0117", "SCtZ-0071", "SCtZ-0077", "SCtZ-0070",
             "SCtZ-0085", "SCtZ-0038", "SCtZ-0028", "SCtZ-0026", "SCtZ-0014", "SCtZ-0005", "SCtZ-0003", "SCtZ-0004", "SCtZ-0018", "SCtZ-0011",
-            "SCtZ-0001", "SCtZ-0211", "SCtZ-0177", "SCtZ-0163.1", "SCtZ-0185", "SCtZ-0240", "SCtZ-0219"))) return;
+            "SCtZ-0001", "SCtZ-0211", "SCtZ-0177", "SCtZ-0163.1", "SCtZ-0185", "SCtZ-0240", "SCtZ-0219", "SCTZ-0276", "SCtZ-0273",
+            "SCTZ-0275", "SCtZ-0278", "SCtZ-0245", "SCtZ-0282", "SCtZ-0235", "SCtZ-0249", "SCtZ-0247", "SCtZ-0218"))) return;
         $w = array();
         if($info['title'] == $this->meta[$epub_info['pdf_id']]['dc.title']) {
             // echo "\n".$info['title']."\n";
@@ -99,7 +100,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                 [resource_working_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/
             )*/
             $url1 = $info['url'];
-            $citation = $this->meta[@$epub_info['pdf_id']]['bibliographicCitation'];
+            $citation = @$this->meta[@$epub_info['pdf_id']]['bibliographicCitation'];
             $url2 = $this->meta[@$epub_info['pdf_id']]['dc.relation.url'];
             
             if(!$this->is_title_inside_epub_YN($title, $ret['source'])) { $this->ctr++;
