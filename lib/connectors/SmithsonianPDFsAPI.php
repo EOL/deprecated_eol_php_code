@@ -201,6 +201,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         }
         //start Convertio
         $api_id = $this->func_Convertio->initialize_request();
+        // exit("\napi_id: [$api_id]\n");
         $this->func_Convertio->upload_local_file($source, $filename, $api_id);
         sleep(60);
         if($obj = $this->func_Convertio->check_status($api_id)) {

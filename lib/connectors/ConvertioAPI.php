@@ -50,7 +50,11 @@ class ConvertioAPI
                 )
         )
         */
-        if($obj->status == "ok") return $obj->data->id;
+        if($obj->status == "ok") {
+            print_r($obj);
+            echo "\nOK api_id: ". (string) $obj->data->id."\n";
+            return (string) $obj->data->id;
+        }
         else {
             /*stdClass Object(
                 [code] => 422
@@ -59,7 +63,9 @@ class ConvertioAPI
             )*/
             // print_r($obj);
             self::switch_api();
-            self::initialize_request();
+            $id = self::initialize_request();
+            // exit("\nShould not go here\n"); //but it does!
+            return $id;
             // exit("\nERROR: call initialize failed.\n");
         }
         return false;
@@ -88,12 +94,17 @@ class ConvertioAPI
         curl -S -s -X PUT --upload-file 'SCtZ-0293.epub' http://api.convertio.co/convert/5aa1df42168c5b872947e0c0cc68fe34/SCtZ-0293.epub
         -> PUT request for local file
         */
+        // echo "\nsource: $source\n";
+        // echo "\nfilename: $filename\n";
+        // echo "\napi_id: $api_id\n";
+
         $cmd = "curl -S -s -X PUT --upload-file '".$source."' http://api.convertio.co/convert/".$api_id."/".$filename;
         $cmd .= " 2>&1";
         $json = shell_exec($cmd);           //echo "\n$json\n";
         $obj = json_decode(trim($json));    //print_r($obj);
         if($obj->status == "ok") return $obj;
         else {
+            echo "\n$cmd\n";
             print_r($obj);
             exit("\nERROR: file upload failed.\n");
         }
