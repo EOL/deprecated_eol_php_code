@@ -63,10 +63,8 @@ class ConvertioAPI
             )*/
             // print_r($obj);
             self::switch_api();
-            $id = self::initialize_request();
-            // exit("\nShould not go here\n"); //but it does!
-            return $id; //important line
-            // exit("\nERROR: call initialize failed.\n");
+            if($id = self::initialize_request()) return $id; //important line. It loops but also returns the id.
+            else exit("\nERROR: Should not go here.\n");
         }
         return false;
     }
@@ -104,9 +102,7 @@ class ConvertioAPI
         $obj = json_decode(trim($json));    //print_r($obj);
         if($obj->status == "ok") return $obj;
         else {
-            echo "\n$cmd\n";
-            print_r($obj);
-            exit("\nERROR: file upload failed.\n");
+            echo "\n$cmd\n"; print_r($obj); exit("\nERROR: file upload failed.\n");
         }
         return false;
     }
@@ -117,8 +113,7 @@ class ConvertioAPI
         $json = shell_exec($cmd);           //echo "\n$json\n";
         $obj = json_decode(trim($json));    //print_r($obj);
         if($obj->status != "ok") {
-            print_r($obj);
-            exit("\nERROR: status check failed.\n");
+            echo "\n$cmd\n"; print_r($obj); exit("\nERROR: status check failed.\n");
         }
         if($obj->status == "ok" && $obj->data->step_percent == 100) return $obj;
         else {
