@@ -75,7 +75,11 @@ class ConvertioAPI
             echo "\nkey 2 expired, will try key 3\n";
         }
         elseif($this->api_key == CONVERTIO_API_KEY_3) {
-            echo "\nkey 3 expired, will terminate now...\n";
+            $this->api_key = CONVERTIO_API_KEY_4;
+            echo "\nkey 3 expired, will try key 4\n";
+        }
+        elseif($this->api_key == CONVERTIO_API_KEY_4) {
+            echo "\nkey 4 expired, will terminate now...\n";
             exit("\nERROR: call initialize failed. All keys expired.\n");
         }
     }
