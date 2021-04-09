@@ -51,8 +51,8 @@ class ConvertioAPI
         )
         */
         if($obj->status == "ok") {
-            print_r($obj);
-            echo "\nOK api_id: ". (string) $obj->data->id."\n";
+            // print_r($obj);
+            // echo "\nOK api_id: ". (string) $obj->data->id."\n";
             return (string) $obj->data->id;
         }
         else {
@@ -65,7 +65,7 @@ class ConvertioAPI
             self::switch_api();
             $id = self::initialize_request();
             // exit("\nShould not go here\n"); //but it does!
-            return $id;
+            return $id; //important line
             // exit("\nERROR: call initialize failed.\n");
         }
         return false;
