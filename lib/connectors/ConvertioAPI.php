@@ -55,7 +55,7 @@ class ConvertioAPI
             )*/
             // print_r($obj);
             self::switch_api();
-            initialize_request();
+            self::initialize_request();
             // exit("\nERROR: call initialize failed.\n");
         }
         return false;
