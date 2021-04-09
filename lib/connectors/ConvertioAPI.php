@@ -31,7 +31,11 @@ class ConvertioAPI
     */
     function initialize_request() //step 1
     {   // -i ->     --include       Include protocol headers in the output (H/F)
-        if(!isset($this->api_key)) $this->api_key = CONVERTIO_API_KEY_1;
+        if(!isset($this->api_key)) {
+            $this->api_key = CONVERTIO_API_KEY_1;
+            echo "\nkey initialized OK\n";
+        }
+        else echo "\nkey initialized already\n";
         $cmd = "curl -S -s -X POST -d "."'".'{"apikey": "'.$this->api_key.'", "input":"upload", "outputformat":"txt"}'."' http://api.convertio.co/convert";
         $cmd .= " 2>&1";
         $json = shell_exec($cmd);           //echo "\n$json\n";
@@ -62,9 +66,18 @@ class ConvertioAPI
     }
     private function switch_api()
     {
-        if($this->api_key == CONVERTIO_API_KEY_1) $this->api_key = CONVERTIO_API_KEY_2;
-        elseif($this->api_key == CONVERTIO_API_KEY_2) $this->api_key = CONVERTIO_API_KEY_3;
-        elseif($this->api_key == CONVERTIO_API_KEY_3) exit("\nERROR: call initialize failed. All keys expired.\n");
+        if($this->api_key == CONVERTIO_API_KEY_1) { 
+            $this->api_key = CONVERTIO_API_KEY_2;
+            echo "\nkey 1 expired, will try key 2\n";
+        }
+        elseif($this->api_key == CONVERTIO_API_KEY_2) {
+            $this->api_key = CONVERTIO_API_KEY_3;
+            echo "\nkey 2 expired, will try key 3\n";
+        }
+        elseif($this->api_key == CONVERTIO_API_KEY_3) {
+            echo "\nkey 3 expired, will terminate now...\n";
+            exit("\nERROR: call initialize failed. All keys expired.\n");
+        }
     }
     function upload_local_file($source, $filename, $api_id) //step 2
     {   /*
