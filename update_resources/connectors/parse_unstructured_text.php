@@ -98,7 +98,31 @@ Gammaridean Amphipoda of Australia, Part III. The Phoxocephalidae
 Gammaridean Amphipoda of Australia, Part I
 */
 
-wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0218/SCtZ-0218.txt
+wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0280/SCtZ-0280.txt
+
+The planarians (Turbellaria, Tricladida Paludicola) of Lake Ohrid in Macedonia
+The Planarians (Turbellaria: Tricladida Paludicola) of Lake Ohrid in Macedonia
+SCtZ-0280
+
+The Scarabaeoides of Dominica (Coleoptera) : Bredin-Archbold-Smithsonian biological survey	
+BREDIN-ARCHBOLD-SMITHSONIAN BIOLOGICAL SURVEY OF DOMINICA: The Superfamily Scarabaeoidea (Coleoptera)
+SCtZ-0279
+
+Shallow-water Pycnogonida of the Isthmus of Panamá and the coasts of Middle America	
+Shallow-Water Pycnogonida of the Isthmus of Panama and the Coasts of Middle America
+SCtZ-0293
+
+New and little-known Crayfish of the virilis Section of the Genus Orconectes (Decapoda: Cambaridae) from the Southeastern United States	
+New and Little-known Crayfishes of the virilis Section of Genus Orconectes (Decapoda: Cambaridae) from the Southeastern United States
+SCtZ-0320
+
+The tribe Alasmidontini (Unionidae, Anodontinae), Part I: Pegias, Alasmidonta and Arcidens	
+The Tribe Alasmidontini (Unionidae: Anodontinae), Part I: Pegias, Alasmidonta, and Arcidens
+SCtZ-0326
+
+Studies of Ephydrinae (Diptera: Ephydridae), V: Systematics, Phylogeny, and Natural History of the Genera Cirrula Cresson and Dimecoenia Cresson in North America	
+Studies of Ephydrinae (Diptera: Ephydridae), V: The Genera Cirrula Cresson and Dimecoenia Cresson in North America
+SCtZ-0329
 
 The ecology and behavior of Nephila maculata : a supplement
 The Ecology and Behavior of Nephila maculata: A Supplement
