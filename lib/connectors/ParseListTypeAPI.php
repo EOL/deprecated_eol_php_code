@@ -267,8 +267,8 @@ class ParseListTypeAPI
     {
         // repo -> Revision of the clearwing moth genus Osminia (Lepidoptera, Sesiidae)
         // epub -> Revision of the Clearwing Moth Genus Osminia (Lepidoptera: Sesiidae)
-        if(preg_match("/\((.*?\))/ims", $repo, $a1)) {
-            if(preg_match("/\((.*?\))/ims", $epub, $a2)) {
+        if(preg_match("/\((.*?)\)/ims", $repo, $a1)) {
+            if(preg_match("/\((.*?)\)/ims", $epub, $a2)) {
                 $from_repo = str_replace(",", ":", $a1[1]);
                 $repo = str_replace($a1[1], $from_repo, $repo);
                 if(stripos($epub, $repo) !== false) return true;
