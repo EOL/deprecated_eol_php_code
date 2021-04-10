@@ -259,8 +259,11 @@ class ParseListTypeAPI
             return array("found" => true);
         }
         else {
+            /* will review again
             if(self::meet_case_1($title, $final)) return array("found" => true);
             else return array("found" => false, "ten_rows" => $final);
+            */
+            return array("found" => false, "ten_rows" => $final);
         }
     }
     private function meet_case_1($repo, $epub)
