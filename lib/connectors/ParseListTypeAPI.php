@@ -247,7 +247,6 @@ class ParseListTypeAPI
         $final = str_ireplace("Leafmining", "Leaf Mining", $final); //manual
         $final = str_ireplace("—", "-", $final); //manual
         
-        
         /* title from repository page */
         $title = self::get_first_8_words($title);
         $title = str_ireplace("Caddisflies ", "Caddisflies, ", $title); //manual
@@ -255,12 +254,27 @@ class ParseListTypeAPI
         $title = str_ireplace(" : ", ": ", $title); //manual
         $title = str_ireplace("Indo- West", "Indo-West", $title); //manual
         $title = str_ireplace("--", "-", $title); //manual
-        
 
         if(stripos($final, $title) !== false) { //string is found
             return array("found" => true);
         }
-        else  return array("found" => false, "ten_rows" => $final);
+        else {
+            if(self::meet_case_1($title, $final)) return array("found" => true);
+            else return array("found" => false, "ten_rows" => $final);
+        }
+    }
+    private function meet_case_1($repo, $epub)
+    {
+        // repo -> Revision of the clearwing moth genus Osminia (Lepidoptera, Sesiidae)
+        // epub -> Revision of the Clearwing Moth Genus Osminia (Lepidoptera: Sesiidae)
+        if(preg_match("/\((.*?\))/ims", $repo, $a1)) {
+            if(preg_match("/\((.*?\))/ims", $epub, $a2)) {
+                $from_repo = str_replace(",", ":", $a1[1]);
+                $repo = str_replace($a1[1], $from_repo);
+                if(stripos($epub, $repo) !== false) return true;
+                else return false;
+            }
+        }
     }
     private function get_first_8_words($title)
     {
