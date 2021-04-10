@@ -245,6 +245,7 @@ class ParseListTypeAPI
         $final = str_replace(array("/"), "", $final); //manual
         $final = str_ireplace("–", "-", $final); //manual
         $final = str_ireplace("Leafmining", "Leaf Mining", $final); //manual
+        $final = str_ireplace("—", "-", $final); //manual
         
         
         /* title from repository page */
@@ -253,6 +254,7 @@ class ParseListTypeAPI
         $title = str_ireplace("Solencera", "Solenocera", $title); //manual
         $title = str_ireplace(" : ", ": ", $title); //manual
         $title = str_ireplace("Indo- West", "Indo-West", $title); //manual
+        $title = str_ireplace("--", "-", $title); //manual
         
 
         if(stripos($final, $title) !== false) { //string is found
