@@ -270,7 +270,7 @@ class ParseListTypeAPI
         if(preg_match("/\((.*?\))/ims", $repo, $a1)) {
             if(preg_match("/\((.*?\))/ims", $epub, $a2)) {
                 $from_repo = str_replace(",", ":", $a1[1]);
-                $repo = str_replace($a1[1], $from_repo);
+                $repo = str_replace($a1[1], $from_repo, $repo);
                 if(stripos($epub, $repo) !== false) return true;
                 else return false;
             }
