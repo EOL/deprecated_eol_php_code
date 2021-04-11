@@ -97,7 +97,67 @@ SCtZ-0103
 wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0442/SCtZ-0442.txt
 */
 
-wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0432/SCtZ-0432.txt
+wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0468/SCtZ-0468.txt
+
+Pycnogonida of the Western Pacific Islands. III. Recent Smithsonian-Philippine Expeditions
+Pycnogonida of the Western Pacific Islands, III: Recent Smithsonian-Philippine Expeditions
+SCtZ-0468
+
+A Revision of the Neotropical Riffle Beetle Genus Stenhelmoides (Coleoptera: Elmidae)
+A Revision of the Neotropical Aquatic Beetle Genus Stenhelmoides (Coleoptera: Elmidae)
+SCtZ-0479
+
+Morphology of Luvarus imperialis (Luvaridae) with a phylogenetic analysis of the Acanthuroidei (Pisces)
+Morphology of Luvarus imperialis (Luvaridae), with a Phylogenetic Analysis of the Acanthuroidei (Pisces)
+SCtZ-0485
+
+Ostracoda (Myodocopina, Cladocopina, Halocypridina) from Anchialine Caves in Bermuda
+Ostracoda (Myodocopina, Cladocopina, Halocypridina) Mainly from Anchialine Caves in Bermuda
+SCTZ-0475
+
+An Illustrated Checklist of the American Crayfishes (Decapoda, Astacidae, Cambaridae, Parastacidae)
+An Illustrated Checklist of the American Crayfishes (Decapoda: Astacidae, Cambaridae, and Parastacidae)
+SCTZ-0480
+
+Studies of Neotropical Caddiflies, XXXIX: The Genus Smicridea in the Chilean Subregion (Trichoptera: Hydropsychidae)
+Studies of Neotropical Caddisflies, XXXIX: The Genus Smicridea in the Chilean Subregion (Trichoptera: Hydropsychidae)
+SCtZ-0472 ???
+
+Decapod and stomatopod crustaceans from Ascension Island, south Atlantic Ocean
+Decapod and Stomatopod Crustacea from Ascension Island, South Atlantic Ocean
+SCtZ-0503
+
+Pycnogonida of Waters Adjacent to Japan
+Pycnogonida from Waters Adjacent to Japan
+SCtZ-0512
+
+Stomatopod Crustacea collected by the Galathea Expedition, 1950-1952,with a list of Stomatopoda known from depths below 400 meters
+Stomatopod Crustacea Collected by the Galathea Expedition, 1950-1952, with a List of Stomatopoda Known from Depths below 400 Meters
+SCtZ-0521
+
+Evolution, Comparative Morphology, and Identification of the Emaeine Butterfly Genus Rekoa Kay (Lycaenidae: Theclinae)
+Evolution, Comparative Morphology, and Identification of the Eumaeine Butterfly Genus Rekoa Kaye (Lycaenidae: Theclinae)
+SCtZ-0498
+
+The ground beetles of Central America (Carabidae) I: Carabinae (in part): Notiophilini, Loricerini, Carabini
+The Ground-Beetles of Central America (Carabidae), Part II: Notiophilini, Loricerini, and Carabini
+SCtZ-0501
+
+Phylogenetic relationships of hedgehogs and gymnures (Mammalia, Insectivora, Erinaceidae)
+Phylogenetic Relationships of Hedgehogs and Gymnures (Mammalia: Insectivora: Erinaceidae)
+SCtZ-0518
+
+Monograph of the genus Cerithium Bruguiere in the Indo-Pacific (Cerithiidae: Prosobranchia)
+Monograph of the Genus Cerithium Bruguière in the Indo-Pacific (Cerithiidae: Prosobranchia)
+SCtZ-0510 ???
+
+Myodocopid Ostracoda of the BenthIdi Expedition, 1977, to the NE Mozambique Channel, Indian Ocean
+Myodocopid Ostracoda of the Benthédi Expedition, 1977, to the NE Mozambique Channel, Indian Ocean
+SCtZ-0531 ???
+
+Stylasteridae (Hydrozoa: Hydroida) of the Galapagos Islands
+Stylasteridae (Hydrozoa: Hydroida) of the Galápagos Islands
+SCtZ-0426 ???
 
 Families Oplophoridae and Nematocarcinidae. The caridean shrimps of the Albatross Philippine Expedition, 1907-1910, part 4
 The Caridean Shrimps (Crustacea: Decapoda) of the Albatross Philippine Expedition, 1907–1910, Part 4: Families Oplophoridae and Nematocarcinidae
