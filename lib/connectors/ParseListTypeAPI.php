@@ -251,8 +251,10 @@ class ParseListTypeAPI
         $title = self::get_first_8_words($title);
         $title = str_ireplace("Caddisflies ", "Caddisflies, ", $title); //manual
         $title = str_ireplace("Solencera", "Solenocera", $title); //manual
-        $title = str_ireplace(" : ", ": ", $title); //manual
         $title = str_ireplace("Indo- West", "Indo-West", $title); //manual
+        $title = str_ireplace("Ostariophysi:Siluroidei", "Ostariophysi: Siluroidei", $title); //manual
+        $title = str_ireplace("Echinodermata:Asteroidea", "Echinodermata: Asteroidea", $title); //manual
+        $title = str_ireplace(" : ", ": ", $title); //manual
         $title = str_ireplace("--", "-", $title); //manual
 
         if(stripos($final, $title) !== false) { //string is found

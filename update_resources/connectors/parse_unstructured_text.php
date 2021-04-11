@@ -94,8 +94,22 @@ SCtZ-0021
 Gammaridean Amphipoda of Australia, Part I
 SCtZ-0103
 
-wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0386/SCtZ-0386.txt
+wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0442/SCtZ-0442.txt
 */
+
+wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0432/SCtZ-0432.txt
+
+Families Oplophoridae and Nematocarcinidae. The caridean shrimps of the Albatross Philippine Expedition, 1907-1910, part 4
+The Caridean Shrimps (Crustacea: Decapoda) of the Albatross Philippine Expedition, 1907–1910, Part 4: Families Oplophoridae and Nematocarcinidae
+SCtZ-0432
+
+Revision of the Atlantic Brisingida (Echinodermata:Asteroidea), with description of a new genus and family
+Revision of the Atlantic Brisingida (Echinodermata: Asteroidea), with Description of a New Genus and Family
+SCtZ-0435 ???
+
+The catfishes of the neotropical family Helogenidae (Ostariophysi:Siluroidei)
+The Catfishes of the Neotropical Family Helogenidae (Ostariophysi: Siluroidei)
+SCtZ-0442 ???
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

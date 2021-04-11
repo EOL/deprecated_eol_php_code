@@ -87,7 +87,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             "SCTZ-0275", "SCtZ-0278", "SCtZ-0245", "SCtZ-0282", "SCtZ-0235", "SCtZ-0249", "SCtZ-0247", "SCtZ-0218", "SCtZ-0329",
             "SCtZ-0326", "SCtZ-0320", "SCtZ-0293", "SCtZ-0279", "SCtZ-0280", "SCtZ-0344", "SCtZ-0373", "SCtZ-0352", "SCtZ-0314",
             "SCtZ-0337", "SCtZ-0346", "SCtZ-0425", "SCtZ-0417", "SCtZ-0391", "SCtZ-0397", "SCtZ-0411", "SCtZ-0361", "SCtZ-0382",
-            "SCtZ-0394", "SCtZ-0376", "SCtZ-0375", "SCtZ-0386"))) return;
+            "SCtZ-0394", "SCtZ-0376", "SCtZ-0375", "SCtZ-0386", "SCtZ-0432"))) return;
         $w = array();
         if($info['title'] == $this->meta[$epub_info['pdf_id']]['dc.title']) {
             // echo "\n".$info['title']."\n";
