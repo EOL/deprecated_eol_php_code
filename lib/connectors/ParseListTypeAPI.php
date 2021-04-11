@@ -246,6 +246,7 @@ class ParseListTypeAPI
         $final = str_ireplace("–", "-", $final); //manual
         $final = str_ireplace("Leafmining", "Leaf Mining", $final); //manual
         $final = str_ireplace("—", "-", $final); //manual
+        $final = str_ireplace("á", "a", $final); //manual
         
         /* title from repository page */
         $title = self::get_first_8_words($title);
@@ -256,6 +257,7 @@ class ParseListTypeAPI
         $title = str_ireplace("Echinodermata:Asteroidea", "Echinodermata: Asteroidea", $title); //manual
         $title = str_ireplace(" : ", ": ", $title); //manual
         $title = str_ireplace("--", "-", $title); //manual
+        $title = str_ireplace("á", "a", $title); //manual
 
         if(stripos($final, $title) !== false) { //string is found
             return array("found" => true);
