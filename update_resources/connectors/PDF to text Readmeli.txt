@@ -147,7 +147,7 @@ curl -i -X GET http://api.convertio.co/convert/63ce87a42ab51fa45c0ef5af8b329612/
 - end -
 --------------------------- SAMPLE IF INPUT IS TO POST A LOCAL FILE ---------------------------
 STEP 1:
-curl -i -X POST -d '{"apikey": "0faab539f8de23cd027d32cbddd6b620", "input":"upload", "outputformat":"txt"}' http://api.convertio.co/convert
+curl -i -X POST -d '{"apikey": "eli_api_key", "input":"upload", "outputformat":"txt"}' http://api.convertio.co/convert
 -> start
 id = a1528fe98081ef0f9fa5f4eebd54ddd2
 id = b6247685a3926973b95b4b6edf55800d

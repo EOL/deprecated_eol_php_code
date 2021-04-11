@@ -86,16 +86,15 @@ $func->utility_download_txt_files();
 
 /*
 Real misfiled:
-Taxonomy, sexual dimorphism, vertical distribution, and evolutionary zoogeography of the bathypelagic fish genus Stomias (Stomiatidae)
+1. Taxonomy, sexual dimorphism, vertical distribution, and evolutionary zoogeography of the bathypelagic fish genus Stomias (Stomiatidae)
 SCtZ-0031
-Ten Rhyparus from the Western Hemisphere (Coleoptera: Scarabaeidae: Aphodiinae)	
+2. Ten Rhyparus from the Western Hemisphere (Coleoptera: Scarabaeidae: Aphodiinae)	
 SCtZ-0021
-wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0276/SCtZ-0276.txt
-
-SCtZ-0103
-wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0103/SCtZ-0103.txt
-Gammaridean Amphipoda of Australia, Part III. The Phoxocephalidae
+3.Gammaridean Amphipoda of Australia, Part III. The Phoxocephalidae
 Gammaridean Amphipoda of Australia, Part I
+SCtZ-0103
+
+wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0386/SCtZ-0386.txt
 */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
