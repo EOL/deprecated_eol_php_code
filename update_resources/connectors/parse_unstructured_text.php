@@ -97,7 +97,15 @@ SCtZ-0103
 wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0442/SCtZ-0442.txt
 */
 
-wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0468/SCtZ-0468.txt
+wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0513/SCtZ-0513.txt
+
+&quot;Larval&quot; and juvenile cephalopods: a manual for their identification	
+“Larval” and Juvenile Cephalopods: A Manual for Their Identification
+SCtZ-0513
+
+External morphology of the genus Aegla (Crustacea, Anomura, Aeglidae)
+External Morphology of the Genus Aegla (Crustacea: Anomura: Aeglidae)
+SCtZ-0453
 
 Pycnogonida of the Western Pacific Islands. III. Recent Smithsonian-Philippine Expeditions
 Pycnogonida of the Western Pacific Islands, III: Recent Smithsonian-Philippine Expeditions
