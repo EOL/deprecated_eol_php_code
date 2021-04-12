@@ -194,18 +194,22 @@ class ParseListTypeAPI
             
             // /* criteria 2: if first word is all caps e.g. ABSTRACT
             if($row) {
+                if(stripos($row, "<taxon") !== false) {fwrite($WRITE, $row."\n"); continue;} //string is found
+                if(stripos($row, "</taxon") !== false) {fwrite($WRITE, $row."\n"); continue;} //string is found
+                
+                // /* first word is all caps removed: OK
                 $words = explode(" ", $row);
-                $words = array_map('trim', $words);
+                $words = array_map('trim', $words); // print_r($words); //exit;
                 if(ctype_upper($words[0]) && strlen($words[0]) > 1) {
-                    // print_r($words); //exit;
                     $rows = array();
                     continue;
                 }
+                // */
                 
                 //other filters:
                 if(is_numeric($row)) continue;
                 if($row == "-") continue;
-                if(!$this->is_sciname($words[0])) continue;
+                if(!$this->is_sciname_LT(trim($words[0]." ".@$words[1]))) continue;
                 
             }
             // */
@@ -214,6 +218,12 @@ class ParseListTypeAPI
         }//end loop text
         fclose($WRITE);
         if(copy($temp_file, $edited_file)) unlink($temp_file);
+        
+    }
+    private function is_sciname_LT($string)
+    {
+        if($this->is_sciname_using_GNRD($string)) return true;
+        else return false;
         
     }
     private function is_valid_list_header($row)

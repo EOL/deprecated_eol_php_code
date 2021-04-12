@@ -192,6 +192,12 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                 }
             }
         }
+        
+        if(self::is_sciname_using_GNRD($string)) return true;
+        else return false;
+    }
+    function is_sciname_using_GNRD($string)
+    {
         /* from GNRD
         http://gnrd.globalnames.org/name_finder.json?text=A+spider+named+Pardosa+moesta+Banks,+1892 
         */

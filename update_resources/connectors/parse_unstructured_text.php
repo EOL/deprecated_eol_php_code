@@ -96,8 +96,20 @@ SCtZ-0103
 
 wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0442/SCtZ-0442.txt
 */
+/*
+wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0577/SCtZ-0577.txt
 
-wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0513/SCtZ-0513.txt
+The neotropical fish family Chilodontidae (Teleostei: Characiformes) : a phylogenetic study and a revision of Caenotropus Günther
+The Neotropical Fish Family Chilodontidae (Teleostei: Characiformes): A Phylogenetic Study and a Revision of Caenotropus Günther
+SCtZ-0577
+
+A review of hermit crabs of the genus Xylopagurus A. Milne Edwards, 1880 (Crustacea: Decapoda: Paguridae), with description of two new species
+A Review of the Hermit Crabs of the Genus Xylopagurus A. Milne Edwards, 1880 (Crustacea: Decapoda: Paguridae), Including Descriptions of Two New Species
+SCtZ-0570
+
+Systematics of the trans-Andean species of Creagrutus (Ostariophysi:Characiformes:Characidae)
+Systematics of the Trans-Andean Species of Creagrutus (Ostariophysi: Characiformes: Characidae)
+SCtZ-0551
 
 &quot;Larval&quot; and juvenile cephalopods: a manual for their identification	
 “Larval” and Juvenile Cephalopods: A Manual for Their Identification
@@ -178,7 +190,7 @@ SCtZ-0435 ???
 The catfishes of the neotropical family Helogenidae (Ostariophysi:Siluroidei)
 The Catfishes of the Neotropical Family Helogenidae (Ostariophysi: Siluroidei)
 SCtZ-0442 ???
-
+*/
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
