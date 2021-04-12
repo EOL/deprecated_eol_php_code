@@ -122,7 +122,8 @@ class ParseListTypeAPI
                         $words = explode(" ", $rows[2]);
                         if(count($words) <= 12)  { //12 suggested by Jen
                             if(self::is_valid_list_header($rows[2])) {
-                                if($GLOBALS["ENV_DEBUG"]) print_r($rows);
+                                // if($GLOBALS["ENV_DEBUG"])
+                                print_r($rows);
                                 $this->scinames[$rows[2]] = ''; //for reporting
                                 $this->lines_to_tag[$ctr-2] = '';
                             }
@@ -141,7 +142,8 @@ class ParseListTypeAPI
                         $words = explode(" ", $rows[1]);
                         if(count($words) <= 6)  { //orig is 6
                             if(self::is_valid_list_header($rows[1])) {
-                                if($GLOBALS["ENV_DEBUG"]) print_r($rows);
+                                // if($GLOBALS["ENV_DEBUG"])
+                                print_r($rows);
                                 $this->scinames[$rows[1]] = ''; //for reporting
                                 $this->lines_to_tag[$ctr-1] = '';
                             }
