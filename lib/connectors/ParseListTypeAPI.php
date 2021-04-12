@@ -56,11 +56,11 @@ class ParseListTypeAPI
                 $rows = array_values($rows); //reindex key
                 if($rows) {
                     echo "\n------------------------\n$list_header\n------------------------\n";
-                    // print_r($rows);
+                    print_r($rows);
                     foreach($rows as $sciname_line) { $rek = array();
                         $rek['varbatim'] = $sciname_line;
                         if($obj = self::run_gnparser($sciname_line)) $rek['scientificName'] = $obj[0]->normalized;
-                        print_r($rek); exit;
+                        // print_r($rek); exit;
                     }
                 }
             }
