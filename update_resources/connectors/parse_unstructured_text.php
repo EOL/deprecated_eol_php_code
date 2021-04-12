@@ -78,7 +78,7 @@ $input = array('filename' => 'SCtZ-0011.txt', 'type' => 'list', 'epub_output_txt
 // $input = array('filename' => 'SCtZ-0033.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0033/');
 // $input = array('filename' => 'SCtZ-0437.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/', 'lines_before_and_after_sciname' => 2);
 
-$input['epub_output_txts_dir'] = str_replace("/Volumes/AKiTiO4/other_files/Smithsonian/", "/extra/other_files/Smithsonian/", $input['epub_output_txts_dir']);
+$input = array('filename' => 'SCtZ-0011.txt', 'type' => 'list', 'epub_output_txts_dir' => '/extra/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/', 'lines_before_and_after_sciname' => 2);
 
 $func->parse_pdftotext_result($input);
 // */
@@ -100,7 +100,7 @@ SCtZ-0103
 wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/SCtZ-0437.txt
 */
 /*
-wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0577/SCtZ-0577.txt
+wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/SCtZ-0011.txt
 
 The neotropical fish family Chilodontidae (Teleostei: Characiformes) : a phylogenetic study and a revision of Caenotropus Günther
 The Neotropical Fish Family Chilodontidae (Teleostei: Characiformes): A Phylogenetic Study and a Revision of Caenotropus Günther
