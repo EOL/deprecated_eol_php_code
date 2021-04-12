@@ -74,11 +74,11 @@ $input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' =
 
 //List-type here:
 /* var lines_before_and_after_sciname is important. It is the lines before and after the "list header". */
-$input = array('filename' => 'SCtZ-0011.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/', 'lines_before_and_after_sciname' => 2);
 // $input = array('filename' => 'SCtZ-0033.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0033/');
-// $input = array('filename' => 'SCtZ-0437.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/', 'lines_before_and_after_sciname' => 2);
+$input = array('filename' => 'SCtZ-0437.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/', 'lines_before_and_after_sciname' => 2);
+// $input = array('filename' => 'SCtZ-0011.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/', 'lines_before_and_after_sciname' => 2);
 
-$input = array('filename' => 'SCtZ-0011.txt', 'type' => 'list', 'epub_output_txts_dir' => '/extra/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/', 'lines_before_and_after_sciname' => 2);
+$input['epub_output_txts_dir'] = str_replace("/Volumes/AKiTiO4/other_files/Smithsonian/", "/extra/other_files/Smithsonian/", $input['epub_output_txts_dir']);
 
 $func->parse_pdftotext_result($input);
 // */
