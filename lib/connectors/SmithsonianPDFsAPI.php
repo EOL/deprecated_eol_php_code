@@ -21,6 +21,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         else                           $this->path['working_dir'] = '/Volumes/AKiTiO4/other_files/Smithsonian/epub_'.$this->resource_id.'/';
         if(!is_dir($this->path['working_dir'])) mkdir($this->path['working_dir']);
         $this->PDFs_that_are_lists = array('xSCtZ-0011', 'xSCtZ-0033');
+        $this->PDFs_not_a_monograph = array('SCtZ-0009');
     }
     function start()
     {
@@ -78,7 +79,8 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         
         $epub_info = self::get_epub_info($info['url']); //within this where $this->meta is generated
         // print_r($epub_info); print_r($this->meta); exit("\n$this->resource_id\n"); //good debug
-
+        if(in_array($epub_info['pdf_id'], $this->PDFs_not_a_monograph)) return; //Not a taxon nor a list type PDF.
+        
         // /* ========================= Utility report for Jen - one time run
         if(!$epub_info) return;
         if(in_array($epub_info['pdf_id'], array("SCtZ-0160", "SCtZ-0169", "SCtZ-0150", "SCtZ-0117", "SCtZ-0071", "SCtZ-0077", "SCtZ-0070",

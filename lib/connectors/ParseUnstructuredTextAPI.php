@@ -10,15 +10,25 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         /* START epub series */
         // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
-        
+        /*
+        http://gnrd.globalnames.org/name_finder.json?text=Paratrygon aieraba (Müller and Henle, 1841), AM, Raya amazónica; R. Rosa, pers. comm.
+        https://parser.globalnames.org/api/v1/Paratrygon+aieraba+%28Muller+and+Henle%2C+1841%29%2C+AM%2C+Raya+amaz%C3%B3nica%3B+R.+Rosa%2C+pers.+comm.
+        https://parser.globalnames.org/api/v1/Paratrygon aieraba (Müller and Henle, 1841), AM, Raya amazónica; R. Rosa, pers. comm.
+        https://parser.globalnames.org/?q=Paratrygon+aieraba+%28M%C3%BCller+and+Henle%2C+1841%29%2C+AM%2C+Raya+amaz%C3%B3nica%3B+R.+Rosa%2C+pers.+comm.
+        %2C - ,
+        %28 - (
+        %29 - )
+        %3B - ;
+        */
         /* index key here is the lines_before_and_after_sciname */
         $this->no_of_rows_per_block[2] = 5; //orig, first sample epub (SCtZ-0293_convertio.txt)
         $this->no_of_rows_per_block[1] = 3; //orig, first sample epub (SCtZ-0293_convertio.txt)
         /* END epub series */
         
         // /* copied from SmithsonianPDFsAPI
-        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0033');
+        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0033', 'SCtZ-0437');
         // */
+        $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
     }
     /* Special chard mentioned by Dima, why GNRD stops running.
     str_replace("")
@@ -27,13 +37,19 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
     {
-        // print_r($input); exit("\nelix 1\n");
+        // print_r($input); print_r(pathinfo($input['filename'])); exit("\nelix 1\n");
         /*Array(
             [filename] => SCtZ-0007.txt
             [lines_before_and_after_sciname] => 1
             [epub_output_txts_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub/SCtZ-0007/
             [type] => {blank} or 'list'
-        )*/
+        )
+        Array(
+            [filename] => SCtZ-0437.txt
+            [type] => list
+            [epub_output_txts_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/
+        )
+        */
         
         // /* this serves when script is called from parse_unstructured_text.php --- un-comment in real operation
         if(in_array(pathinfo($input['filename'], PATHINFO_FILENAME), $this->PDFs_that_are_lists)) {
@@ -169,9 +185,14 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         Review of the Classification of the Rhinocryptidae and Menurae
         Helmut W. Zibrowius, Station Marine d’Endoume, Marseille, France.
         */
-        $exclude = array("Hernán ", "Review ", "Helmut W.", "List ", "Key ");
+        $exclude = array("Hernán", "Review ", "Helmut W.", "List ", "Key ");
         foreach($exclude as $exc) {
+            /* for the longest time
             if(substr($string,0,strlen($exc)) == $exc) return false;
+            */
+            // /* new 
+            if(stripos($string, $exc) !== false) return false; //string is found
+            // */
         }
         
         if(ctype_lower(substr($string,0,1))) return false;

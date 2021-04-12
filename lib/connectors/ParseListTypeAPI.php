@@ -30,18 +30,56 @@ class ParseListTypeAPI
         $this->filename = $filename; //for referencing below
         $lines_before_and_after_sciname = $input['lines_before_and_after_sciname'];
         $this->magic_no = $this->no_of_rows_per_block[$lines_before_and_after_sciname];
-        self::get_main_scinames_v2($filename); // print_r($this->lines_to_tag); 
+        self::get_main_scinames_v2($filename); print_r($this->lines_to_tag); //exit("\nstopx\n");
         echo "\n lines_to_tag: ".count($this->lines_to_tag)."\n"; //exit("\n-end-\n");
 
         $edited_file = self::add_taxon_tags_to_text_file_LT($filename);
         self::remove_some_rows_LT($edited_file);
-        // self::show_parsed_texts_for_mining($edited_file);
+        $tagged_file = self::show_parsed_texts_for_mining_LT($edited_file);
+        self::get_scinames_per_list($tagged_file);
         // // print_r($this->scinames); 
         // echo "\nRaw scinames count: ".count($this->scinames)."\n";
         
         // */
     }
-    private function get_main_scinames_v2($filename)
+    private function get_scinames_per_list($tagged_file)
+    {
+        $contents = file_get_contents($tagged_file);
+        if(preg_match_all("/<sciname=(.*?)<\/sciname>/ims", $contents, $a)) {
+            // print_r($a[1]);
+            foreach($a[1] as $block) {
+                $rows = explode("\n", $block);
+                if(preg_match("/\'(.*?)\'/ims", $rows[0], $a2)) $list_header = $a2[1];
+                array_shift($rows);
+                $rows = array_filter($rows); //remove null arrays
+                $rows = array_unique($rows); //make unique
+                $rows = array_values($rows); //reindex key
+                if($rows) {
+                    echo "\n------------------------\n$list_header\n------------------------\n";
+                    // print_r($rows);
+                    foreach($rows as $sciname_line) { $rek = array();
+                        $rek['varbatim'] = $sciname_line;
+                        if($obj = self::run_gnparser($sciname_line)) $rek['scientificName'] = $obj[0]->normalized;
+                        print_r($rek); exit;
+                    }
+                }
+            }
+        }
+        // exit("\n$tagged_file\n");
+    }
+    private function run_gnparser($string)
+    {
+        if(substr($string,0,1) == "*") $string = trim(substr($string,1,strlen($string)));
+        $url = $this->service['GNParser'].$string;
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $obj = json_decode($json);
+            print_r($obj); //exit;
+            return $obj;
+        }
+    }
+    private function get_main_scinames_v2($filename) //get main 'headers for list type'
     {
         $local = $this->path['epub_output_txts_dir'].$filename;
 
@@ -182,6 +220,8 @@ class ParseListTypeAPI
             
             $cont = true;
             // /* criteria 1
+            
+            $exclude = array_merge($exclude, array("(", "Order ", "Family ", "Genus "));
             foreach($exclude as $start_of_row) {
                 $len = strlen($start_of_row);
                 if(substr($row,0,$len) == $start_of_row) {
@@ -209,7 +249,8 @@ class ParseListTypeAPI
                 //other filters:
                 if(is_numeric($row)) continue;
                 if($row == "-") continue;
-                if(!$this->is_sciname_LT(trim($words[0]." ".@$words[1]))) continue;
+                if(!$this->is_sciname(trim($words[0]." ".@$words[1]))) continue;
+                // if(!$this->is_sciname_LT(trim($words[0]." ".@$words[1]))) continue;
                 
             }
             // */
@@ -224,12 +265,38 @@ class ParseListTypeAPI
     {
         if($this->is_sciname_using_GNRD($string)) return true;
         else return false;
-        
     }
     private function is_valid_list_header($row)
     {
         if(stripos($row, "list") !== false) return true; //string is found
         else return false;
+    }
+    private function show_parsed_texts_for_mining_LT($edited_file)
+    {
+        $with_blocks_file = str_replace("_edited_LT.txt", "_tagged_LT.txt", $edited_file);
+        $WRITE = fopen($with_blocks_file, "w"); //initialize
+        $contents = file_get_contents($edited_file);
+        if(preg_match_all("/<taxon (.*?)<\/taxon>/ims", $contents, $a)) {
+            // print_r($a[1]);
+            foreach($a[1] as $block) {
+                $rows = explode("\n", $block);
+                if(true) {
+                    /* copied template
+                    $last_sections_2b_removed = array("REMARKS.—", "REMARK.—", "AFFINITIES.—", "DISCUSSION.—", "NOTE.—", "NOTES.—");
+                    $block = self::remove_last_sections($last_sections_2b_removed, $block);
+                    */
+                    $show = "\n-----------------------\n<$block</sciname>\n-----------------------\n";
+                    /* copied template
+                    if(self::is_valid_block("<$block</sciname>")) fwrite($WRITE, $show);
+                    // else echo " -- not valid block"; //just debug
+                    */
+                    fwrite($WRITE, $show);
+                }
+            }
+        }
+        fclose($WRITE);
+        echo "\nblocks: ".count($a[1])."\n";
+        return $with_blocks_file;
     }
     /*################################## Jen's utility ################################################################################*/
     function is_title_inside_epub_YN($title, $txtfile)

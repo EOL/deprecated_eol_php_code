@@ -73,10 +73,10 @@ $input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' =
 // $input = array('filename' => 'SCtZ-0003.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0003/');
 
 //List-type here:
-$input = array('filename' => 'SCtZ-0011.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/',
-                'lines_before_and_after_sciname' => 2);
+/* var lines_before_and_after_sciname is important. It is the lines before and after the "list header". */
+$input = array('filename' => 'SCtZ-0011.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/', 'lines_before_and_after_sciname' => 2);
 // $input = array('filename' => 'SCtZ-0033.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0033/');
-
+// $input = array('filename' => 'SCtZ-0437.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/', 'lines_before_and_after_sciname' => 2);
 $func->parse_pdftotext_result($input);
 // */
 
@@ -94,7 +94,7 @@ SCtZ-0021
 Gammaridean Amphipoda of Australia, Part I
 SCtZ-0103
 
-wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0442/SCtZ-0442.txt
+wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/SCtZ-0437.txt
 */
 /*
 wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0577/SCtZ-0577.txt
