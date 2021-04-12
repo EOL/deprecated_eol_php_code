@@ -30,7 +30,7 @@ class ParseListTypeAPI
         $this->filename = $filename; //for referencing below
         $lines_before_and_after_sciname = $input['lines_before_and_after_sciname'];
         $this->magic_no = $this->no_of_rows_per_block[$lines_before_and_after_sciname];
-        self::get_main_scinames_v2($filename); print_r($this->lines_to_tag); //exit("\nstopx\n");
+        self::get_main_scinames_v2($filename); print_r($this->lines_to_tag); exit("\nstopx\n");
         echo "\n lines_to_tag: ".count($this->lines_to_tag)."\n"; //exit("\n-end-\n");
 
         $edited_file = self::add_taxon_tags_to_text_file_LT($filename);
