@@ -75,7 +75,7 @@ class ParseListTypeAPI
         $options['expire_seconds'] = false;
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
-            print_r($obj); //exit;
+            // print_r($obj); //exit;
             return $obj;
         }
     }
