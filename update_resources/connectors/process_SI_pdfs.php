@@ -1,6 +1,10 @@
 <?php
 namespace php_active_record;
 /* 
+
+wget https://editors.eol.org/eol_php_code/applications/content_server/resources/10088_5097.tar.gz
+wget https://editors.eol.org/eol_php_code/applications/content_server/resources/10088_5097_ENV.tar.gz
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();

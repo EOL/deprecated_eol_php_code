@@ -22,6 +22,10 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         if(!is_dir($this->path['working_dir'])) mkdir($this->path['working_dir']);
         $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0033', 'SCtZ-0437', 'SCtZ-0018');
         $this->PDFs_not_a_monograph = array('SCtZ-0009'); //exclude; not a species nor a list type.
+        $this->overwrite_tagged_files = false; //orig false means don't overwrite tagged files.
+        
+        $this->with_epub_count = 0;
+        $this->without_epub_count = 0;
     }
     function start()
     {
@@ -31,10 +35,10 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         require_library('connectors/ConvertioAPI');             $this->func_Convertio = new ConvertioAPI();
         // */
         self::process_all_pdfs_for_a_repository(); //includes conversion of .epub to .txt AND generation of filename_tagged.txt.
-        /* un-comment in real operation
+        // /* un-comment in real operation
         self::generate_dwca_for_a_repository();
         $this->archive_builder->finalize(true);
-        */
+        // */
         if($this->debug) print_r($this->debug);
     }
     private function process_all_pdfs_for_a_repository()
@@ -79,6 +83,33 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         
         $epub_info = self::get_epub_info($info['url']); //within this where $this->meta is generated
         // print_r($epub_info); print_r($this->meta); exit("\n$this->resource_id\n"); //good debug
+        /*Array(
+            [pdf_id] => SCtZ-0007
+            [filename] => SCtZ-0007.epub
+            [url] => https://repository.si.edu/bitstream/handle/10088/5292/SCtZ-0007.epub
+            [checklistYN] => 0
+        )
+        Array(
+            [SCtZ-0007] => Array(
+                    [bibliographicCitation] => Maddocks, Rosalie F. 1969. "Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean." Smithsonian Contributions to Zoology. 1-56. https://doi.org/10.5479/si.00810282.7
+                    [dc.relation.url] => http://dx.doi.org/10.5479/si.00810282.7
+                    [dc.title] => Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean
+                )
+        )*/
+        
+        // /* Provision not to overwrite tagged files
+        $pdf_id = $epub_info['pdf_id'];
+        $tagged_file = $this->path['working_dir']."$pdf_id/".$pdf_id."_tagged.txt";
+        echo "\n[$tagged_file]\n";
+        if(!$this->overwrite_tagged_files) {
+            if(file_exists($tagged_file)) {echo("\nAlready exists, will not overwrite\n"); return;}
+            else echo("\nNo tag file yet, will proceed..\n");
+        }
+        else {
+            if(file_exists($tagged_file)) {echo("\nAlready exists, will overwrite now\n");}
+            else echo("\nNo tag file yet, will proceed...\n");
+        }
+        // */
         
         if(in_array($epub_info['pdf_id'], $this->PDFs_not_a_monograph)) return; //Not a taxon nor a list type PDF.
         if(!$epub_info) return;
@@ -164,7 +195,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $this->lines_before_and_after_sciname['SCtZ-0025.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0011.txt'] = 1; //FYI weird species-type
 
-        // /* working OK -- un-comment in real operation. Comment during caching in eol-archive
+        // /* ==================== working OK -- un-comment in real operation. Comment during caching in eol-archive
         $txt_filename = str_replace(".epub", ".txt", $epub_info['filename']);
         if($LBAAS = @$this->lines_before_and_after_sciname[$txt_filename]) {}
         else {
@@ -180,7 +211,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             echo "\n-----------------\n";
             $this->debug['No epub'][] = $info;
         }
-        // */
+        // ==================== */
         // exit("\n-done 1 pdf'\n"); //debug only
     }
     private function convert_epub_to_txt($epub_info)
@@ -403,7 +434,12 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                     $tmp = str_replace("\n", "<br>", $tmp);
                     // echo "\n$tmp\n";
                     $rec['body'] = $tmp;
-                } // print_r($rec); //exit;
+                } //print_r($rec); exit;
+                /*Array(
+                    [pdf_id] => SCtZ-0001
+                    [sciname] => Lysiosquilla capensis Hansen, 1895
+                    [body] => Lysiosquilla capensis Hansen, 1895<br><br>Lysiosquilla capensis Hansen, 1895, p. 74.—Stebbing,...
+                )*/
                 if($rec['sciname'] && $rec['body']) self::write_archive($rec);
             }
         }
@@ -429,8 +465,8 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $mr->description    = $rec['body'];
         $mr->CVterm         = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description'; //ComprehensiveDescription
 
-        $mr->furtherInformationURL = $this->meta[$rec['pdf_id']]['dc.relation.url'];
-        $mr->bibliographicCitation = $this->meta[$rec['pdf_id']]['bibliographicCitation'];
+        $mr->furtherInformationURL = @$this->meta[$rec['pdf_id']]['dc.relation.url'];
+        $mr->bibliographicCitation = @$this->meta[$rec['pdf_id']]['bibliographicCitation'];
         // $mr->Owner          = $o['dc_rightsHolder'];
         // $mr->rights         = $o['dc_rights'];
         // $mr->title          = $o['dc_title'];

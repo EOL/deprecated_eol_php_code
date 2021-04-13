@@ -26,6 +26,7 @@ taxon               716
 891	Fri 2021-03-12 03:47:08 AM	{"measurement_or_fact.tab":5613072, "occurrence.tab":358203, "taxon.tab":259147, "time_elapsed":false}
 891	Thu 2021-04-08 01:59:07 PM	{"measurement_or_fact.tab":5619683, "occurrence.tab":358624, "taxon.tab":259334, "time_elapsed":false}
 891	Tue 2021-04-13 04:46:03 AM	{"measurement_or_fact.tab":5619683, "occurrence.tab":358624, "taxon.tab":259334, "time_elapsed":false}
+891	Tue 2021-04-13 09:39:43 AM	{"measurement_or_fact.tab":5619683, "occurrence.tab":358624, "taxon.tab":259334, "time_elapsed":false}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

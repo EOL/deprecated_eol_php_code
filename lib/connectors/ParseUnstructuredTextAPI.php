@@ -449,7 +449,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // */
         
         // /*
-        $ranks = array("Genus", "Family", "Order", "Subgenus", "Superfamily", "Subfamily", "? Subfamily");
+        $ranks = array("Genus", "Family", "Order", "Suborder", "Subgenus", "Superfamily", "Subfamily", "? Subfamily");
         foreach($ranks as $rank) {
             $len = strlen($rank);
             if(substr($sciname,0,$len) == $rank) return false;
