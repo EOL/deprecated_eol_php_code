@@ -68,6 +68,9 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         // /* Utility report for Jen - one time run
         fclose($this->WRITE);
         // */
+
+        echo "\nwith_epub_count: $this->with_epub_count\n";
+        echo "\nwithout_epub_count: $this->without_epub_count\n";
         
         // exit("\n-end 1 repository-\n"); //debug only
     }
@@ -288,12 +291,14 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                             
                             if(self::is_pdf_checklistYN($this->meta[$ret['pdf_id']]['dc.title'])) $ret['checklistYN'] = 1;
                             else $ret['checklistYN'] = 0;
+                            @$this->with_epub_count++;
                             return $ret;
                         }
                     }
                 }
             }
         }
+        @$this->without_epub_count++;
     }
     private function get_all_pdfs()
     {
