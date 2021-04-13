@@ -104,11 +104,63 @@ SCtZ-0021
 3.Gammaridean Amphipoda of Australia, Part III. The Phoxocephalidae
 Gammaridean Amphipoda of Australia, Part I
 SCtZ-0103
+4.The Caridean shrimps (Crustacea:Decapoda) of the Albatross Philippine Expedition, 1907-1910, Part 7: Families Atyidae, Eugonatonotidae, Rhynchocinetidae, Bathypalaemonidae, Processidae, and Hippolytidae
+The Caridean Shrimps (Crustacea: Decapoda) of the Albatross Philippine Expedition, 1907–1910, Part 5: Family Alpheidae
+SCTZ-0466
 
 wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/SCtZ-0437.txt
 */
 /*
-wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/SCtZ-0011.txt
+
+A Revision of the Axinellidae (Porifera: Demospongiae) of the Central-West Atlantic Region
+A Revision of Axinellidae (Porifera: Demospongiae) of the Central West Atlantic Region
+SCtZ-0598
+
+Systematics and Biogeography of cephalopods. Volume II
+Systematics and Biogeography of Cephalopods
+VOLUME II
+SCtZ-0586.2
+
+Systematics and Biogeography of cephalopods. Volume I
+Systematics and Biogeography of Cephalopods
+VOLUME I
+SCtZ-0586.1
+
+Ostracoda (Myodocopina) of Tulear reef complex, SW Madagascar
+Ostracoda (Myodocopina) of Tuléar Reef Complex, SW Madagascar
+SCtZ-0595 ???
+
+Myodocopoid Ostracoda from Exuma Sound, Bahamas, and from the marine caves and blue holes in the Bahamas, Bermuda, and Mexico
+Myodocopid Ostracoda from Exuma Sound, Bahamas, and from Marine Caves and Blue Holes in the Bahamas, Bermuda, and Mexico
+SCtZ-0606
+
+Biodiversity of Domatia Occupants (Ants, Wasps, Bees, and Others) of the Sri Lankan Myrmecophyte Humboldtia laurifolia Vahl (Fabaceae)
+Biodiversity of the Domatia Occupants (Ants, Wasps, Bees, and Others) of the Sri Lankan Myrmecophyte Humboldtia laurifolia Vahl (Fabaceae)
+SCtZ-0603
+
+Jimmorinia a new genus of myodocopid Ostracoda (Cypridinidae) from the Bahamas, Jamaica, Honduras, and Panamá
+Jimmorinia, a New Genus of Myodocopid Ostracoda (Cypridinidae) from the Bahamas, Jamaica, Honduras, and Panama
+SCtZ-0605
+
+Biology and Systematics of the North Phyllonorycter Leafminers on Salicaceae, with a Synoptical Catalogue of the Palearctic Species Lepidoptera: Gracillariidae)
+Biology and Systematics of the North American Phyllonorycter Leafminers on Salicaceae, with a Synoptic Catalog of the Palearctic Species (Lepidoptera: Gracillariidae)
+SCtZ-0614
+
+Lace bug genera of the world, II : subfamily Tinginae : tribes Litadeini and Ypsotingini (Heteroptera:Tingidae)
+Lace Bug Genera of the World, II: Subfamily Tinginae: Tribes Litadeini and Ypsotingini (Heteroptera: Tingidae)
+SCtZ-0611
+
+A monograph of the family Arrhenophanidea( Lepidoptera: Tineoidea)
+A Monograph of the Family Arrhenophanidae (Lepidoptera: Tineoidea)
+SCtZ-0620
+
+Studies of Halictinae (Apoidea:Halictidae)
+Studies of Halictinae (Apoidea: Halictidae), II: Revision of Sphecodogastra Ashmead, Floral Specialists of Onagraceae
+SCtZ-0610
+
+Catalogue of Type Specimens of Recent Crocodilia and Testudines in the National Museum of Natural History, Smithsonian Institution
+Catalog of Type Specimens of Recent Crocodilia and Testudines in the National Museum of Natural History, Smithsonian Institution
+scz-0626 ???
 
 The neotropical fish family Chilodontidae (Teleostei: Characiformes) : a phylogenetic study and a revision of Caenotropus Günther
 The Neotropical Fish Family Chilodontidae (Teleostei: Characiformes): A Phylogenetic Study and a Revision of Caenotropus Günther

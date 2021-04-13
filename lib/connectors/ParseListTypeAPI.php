@@ -56,29 +56,85 @@ class ParseListTypeAPI
                 $rows = array_values($rows); //reindex key
                 if($rows) {
                     echo "\n------------------------\n$list_header\n------------------------\n";
-                    print_r($rows);
-                    foreach($rows as $sciname_line) { $rek = array();
-                        $rek['varbatim'] = $sciname_line;
-                        if($obj = self::run_gnparser($sciname_line)) $rek['scientificName'] = $obj[0]->normalized;
-                        // print_r($rek); exit;
+                    print_r($rows); //continue; //exit; //good debug
+                    echo "\n n = ".count($rows)."\n"; continue; //exit;
+                    $i = 0;
+                    foreach($rows as $sciname_line) { $rek = array(); $i++;
+                        $rek['verbatim'] = $sciname_line;
+                        
+                        if(stripos($sciname_line, "...") !== false) continue; //string is found
+                        
+                        /* divide it by period (.), then get the first array element
+                        $a = explode(".", $sciname_line);
+                        $sciname_line = trim($a[0]);
+                        */
+                        
+                        if($obj = self::run_gnparser($sciname_line)) {
+                            $rek['normalized gnparser'] = @$obj[0]->normalized;
+                        }
+                        if($obj = self::run_GNRD($sciname_line)) {
+                            $sciname = @$obj->names[0]->scientificName;
+                            $rek['sciname GNRD'] = $sciname;
+                            if($obj = self::run_gnparser($sciname_line)) {
+                                $authorship = @$obj[0]->authorship->verbatim;
+                                $rek['authorship gnparser'] = $authorship;
+                                $rek['scientificName'] = trim("$sciname $authorship");
+                            }
+                            print_r($rek); //exit;
+                        }
+                        // if($i >= 10) break; //debug only
                     }
                 }
             }
         }
         // exit("\n$tagged_file\n");
     }
-    private function run_gnparser($string)
+    private function clean_name($string)
     {
+        $exclude = array("The ", "This "); //starts with these will be excluded, not a sciname
+        foreach($exclude as $exc) {
+            if(substr($string,0,strlen($exc)) == $exc) return false;
+        }
+        
+        if(stripos($string, "...") !== false) return false; //string is found
+        
         if(substr($string,0,1) == "*") $string = trim(substr($string,1,strlen($string)));
-        $url = $this->service['GNParser'].$string;
+        
+        if(stripos($string, ", new species") !== false) {
+            $string = trim(str_ireplace(", new species", "", $string));
+        }
+        
+        return $string;
+    }
+    private function run_GNRD($string)
+    {
+        if($string = self::clean_name($string)) {}
+        else return false;
+        
+        $url = $this->service['GNRD text input'].$string;
         $options = $this->download_options;
         $options['expire_seconds'] = false;
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
-            // print_r($obj); //exit;
+            return $obj;
+        }
+        return false;
+    }
+    // /*
+    private function run_gnparser($string) //not used anymore...
+    {
+        if($string = self::clean_name($string)) {}
+        else return false;
+
+        $url = $this->service['GNParser'].$string;
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $obj = json_decode($json); // print_r($obj); //exit;
             return $obj;
         }
     }
+    // */
     private function get_main_scinames_v2($filename) //get main 'headers for list type'
     {
         $local = $this->path['epub_output_txts_dir'].$filename;
@@ -156,7 +212,7 @@ class ParseListTypeAPI
         }
     }
     private function add_taxon_tags_to_text_file_LT($filename)
-    {
+    {   //exit("\n[$filename]\n"); [SCtZ-0018.txt]
         $local = $this->path['epub_output_txts_dir'].$filename;
         $temp_file = $local.".tmp";
         $edited_file = str_replace(".txt", "_edited_LT.txt", $local);
@@ -179,10 +235,16 @@ class ParseListTypeAPI
 
             // /* to close tag the last block
             if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293.txt
-            elseif($row == "Literature Cited") $row = "</taxon>$row";       //SCtZ-0007.txt
             elseif($row == "References") $row = "</taxon>$row";             //SCtZ-0008.txt
             elseif($row == "General Conclusions") $row = "</taxon>$row";    //SCtZ-0029.txt
             elseif($row == "Bibliography") $row = "</taxon>$row";           //SCtZ-0011.txt
+            
+            if(pathinfo($filename, PATHINFO_FILENAME) != 'SCtZ-0018') { //manual specific
+                if($row == "Literature Cited") $row = "</taxon>$row";       //SCtZ-0007.txt
+            }
+            else {
+                if($row == "Braun, Annette F.") $row = "</taxon>$row";      //SCtZ-0018.txt
+            }
             // */
 
             fwrite($WRITE, $row."\n");
@@ -249,9 +311,12 @@ class ParseListTypeAPI
                 // */
                 
                 //other filters:
+                if(ctype_upper(substr($words[0],0,2)) && strlen($words[0]) >= 2) continue; //e.g. RECORD, FIGURE, etc.
                 if(is_numeric($row)) continue;
                 if($row == "-") continue;
-                if(!$this->is_sciname(trim($words[0]." ".@$words[1]))) continue;
+                if(is_numeric(substr($words[0],0,1))) continue; //e.g. table of contents section
+                
+                if(!$this->is_sciname(trim($words[0]." ".@$words[1]), 'list_type')) continue;
                 // if(!$this->is_sciname_LT(trim($words[0]." ".@$words[1]))) continue;
                 
             }
@@ -263,11 +328,19 @@ class ParseListTypeAPI
         if(copy($temp_file, $edited_file)) unlink($temp_file);
         
     }
+    /* not used atm
     private function is_sciname_LT($string)
     {
+        // criteria 1 = exclude if line starts with these: 
+        $exclude = array("The ", "This ");
+        foreach($exclude as $exc) {
+            if(substr($string,0,strlen($exc)) == $exc) return false;
+        }
+        // criteria 2
         if($this->is_sciname_using_GNRD($string)) return true;
         else return false;
     }
+    */
     private function is_valid_list_header($row)
     {
         if(stripos($row, "list") !== false) return true; //string is found
@@ -327,6 +400,8 @@ class ParseListTypeAPI
         $final = str_ireplace("—", "-", $final); //manual
         $final = str_ireplace("á", "a", $final); //manual
         $final = str_ireplace("è", "e", $final); //manual
+        $final = str_ireplace("é", "e", $final); //manual
+        $final = str_ireplace("Catalog of Type", "Catalogue of Type", $final); //manual
         
         /* title from repository page */
         $title = self::get_first_8_words($title);

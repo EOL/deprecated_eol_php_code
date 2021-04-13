@@ -10,6 +10,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         /* START epub series */
         // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
+        
+        // http://gnrd.globalnames.org/name_finder.json?text=Stilbosis lonchocarpella Busck, 1934, p. 157.
+        // http://gnrd.globalnames.org/name_finder.json?text=Siskiwitia alticolans looks like a small Periploca that has a white, transverse band on the forewing.
+        
         /*
         http://gnrd.globalnames.org/name_finder.json?text=Paratrygon aieraba (Müller and Henle, 1841), AM, Raya amazónica; R. Rosa, pers. comm.
         https://parser.globalnames.org/api/v1/Paratrygon+aieraba+%28Muller+and+Henle%2C+1841%29%2C+AM%2C+Raya+amaz%C3%B3nica%3B+R.+Rosa%2C+pers.+comm.
@@ -26,9 +30,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         /* END epub series */
         
         // /* copied from SmithsonianPDFsAPI
-        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0033', 'SCtZ-0437');
+        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0033', 'SCtZ-0437', 'SCtZ-0018');
         // */
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
+        // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
     }
     /* Special chard mentioned by Dima, why GNRD stops running.
     str_replace("")
@@ -178,8 +183,13 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
     {
         if(preg_match_all('/\d+/', $str, $a)) return $a[0];
     }
-    function is_sciname($string)
+    function is_sciname($string, $doc_type = 'species_type')
     {
+        $exclude = array("The ", "This ", "When "); //starts with these will be excluded, not a sciname
+        foreach($exclude as $exc) {
+            if(substr($string,0,strlen($exc)) == $exc) return false;
+        }
+        
         /*
         Hernán Ortega and Richard P. Vari
         Review of the Classification of the Rhinocryptidae and Menurae
@@ -194,8 +204,9 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             if(stripos($string, $exc) !== false) return false; //string is found
             // */
         }
-        
-        if(ctype_lower(substr($string,0,1))) return false;
+        if($doc_type != "list_type") {
+            if(ctype_lower(substr($string,0,1))) return false;
+        }
         if(substr($string,1,1) == "." && !is_numeric(substr($string,0,1))) return false; //not e.g. "C. Allan Child"
         // /* exclude one-word names e.g. "Sarsiellidae"
         $words = explode(" ", $string);

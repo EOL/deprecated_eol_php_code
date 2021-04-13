@@ -20,7 +20,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         if(Functions::is_production()) $this->path['working_dir'] = '/extra/other_files/Smithsonian/epub_'.$this->resource_id.'/';
         else                           $this->path['working_dir'] = '/Volumes/AKiTiO4/other_files/Smithsonian/epub_'.$this->resource_id.'/';
         if(!is_dir($this->path['working_dir'])) mkdir($this->path['working_dir']);
-        $this->PDFs_that_are_lists = array('xSCtZ-0011', 'xSCtZ-0033');
+        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0033', 'SCtZ-0437', 'SCtZ-0018');
         $this->PDFs_not_a_monograph = array('SCtZ-0009');
     }
     function start()
@@ -52,14 +52,15 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         // /* Utility report for Jen - one time run
         $this->ctr = 0;
         // $this->WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH."/Smithsonian_Contributions_to_Zoology.txt", "w"); //initialize
-        $this->WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH."/10088_5097_misfiled_epubs.txt", "w"); //initialize
+        $this->WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH."/10088_5097_misfiled_epubs.txt", "w"); //initialize OK
         $arr = array("#", 'Title', "URL", 'DOI', "epub file");
         fwrite($this->WRITE, implode("\t", $arr)."\n");
         // */
         $i = 0;
         foreach($pdfs_info as $info) { $i++;
             // if(self::valid_pdf($info['title'])) {} //no longer filters our titles with word "checklist"
-            self::process_a_pdf($info);
+            self::process_a_pdf($info); //epub-sensitive
+            // self::process_a_pdf_all($info); //epub-INsensitive
             // print_r($info);
             // if($i == 2) break; //debug only Mac Mini
             // if($i == 20) break; //debug only eol-archive
@@ -79,6 +80,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         
         $epub_info = self::get_epub_info($info['url']); //within this where $this->meta is generated
         // print_r($epub_info); print_r($this->meta); exit("\n$this->resource_id\n"); //good debug
+        
         if(in_array($epub_info['pdf_id'], $this->PDFs_not_a_monograph)) return; //Not a taxon nor a list type PDF.
         
         // /* ========================= Utility report for Jen - one time run
@@ -91,7 +93,8 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             "SCtZ-0337", "SCtZ-0346", "SCtZ-0425", "SCtZ-0417", "SCtZ-0391", "SCtZ-0397", "SCtZ-0411", "SCtZ-0361", "SCtZ-0382",
             "SCtZ-0394", "SCtZ-0376", "SCtZ-0375", "SCtZ-0386", "SCtZ-0432", "SCtZ-0518", "SCtZ-0501", "SCtZ-0498", "SCtZ-0521", "SCtZ-0512",
             "SCtZ-0503", "SCTZ-0480", "SCTZ-0475", "SCtZ-0485", "SCtZ-0479", "SCtZ-0468", "SCtZ-0453", "SCtZ-0513", "SCtZ-0551", "SCtZ-0570",
-            "SCtZ-0577"))) return;
+            "SCtZ-0577", "SCtZ-0610", "SCtZ-0620", "SCtZ-0611", "SCtZ-0614", "SCtZ-0605", "SCtZ-0603", "SCtZ-0606", "SCtZ-0586.1", "SCtZ-0586.2",
+            "SCtZ-0598"))) return;
         $w = array();
         if($info['title'] == $this->meta[$epub_info['pdf_id']]['dc.title']) {
             // echo "\n".$info['title']."\n";
@@ -108,8 +111,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             )*/
             $url1 = $info['url'];
             $citation = @$this->meta[@$epub_info['pdf_id']]['bibliographicCitation'];
-            $url2 = $this->meta[@$epub_info['pdf_id']]['dc.relation.url'];
-            
+            $url2 = @$this->meta[@$epub_info['pdf_id']]['dc.relation.url'];
             if(!$this->is_title_inside_epub_YN($title, $ret['source'])) { $this->ctr++;
                 $arr = array($this->ctr, $title, $url1, $url2, $epub_info['pdf_id'].".epub");
                 fwrite($this->WRITE, implode("\t", $arr)."\n");
@@ -442,5 +444,41 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $name = str_ireplace(", new species", "", $name);
         $name = str_ireplace(", new subspecies", "", $name);
         return Functions::remove_whitespace($name);
+    }
+    private function process_a_pdf_all($info)
+    {   //print_r($info); exit;
+        /*Array(
+            [url] => https://repository.si.edu//handle/10088/5292
+            [title] => Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean
+        )*/
+        $epub_info = self::get_epub_info($info['url']); //within this where $this->meta is generated
+        // print_r($epub_info); print_r($this->meta); exit("\n$this->resource_id\n"); //good debug
+        // /* ========================= Utility report for Jen - one time run
+        $w = array();
+        if(true) {
+            // echo "\n".$info['title']."\n";
+            // echo "\n".$this->meta[$epub_info['pdf_id']]['dc.title']."\n";
+            $title = $info['title'];
+            $title = strip_tags(htmlspecialchars_decode($title));
+            // echo "\n".$title."\n";
+            /*Array(
+                [source] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/SCtZ-0007.txt
+                [resource_working_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/
+            )*/
+            $url1 = $info['url'];
+            $citation = @$this->meta[@$epub_info['pdf_id']]['bibliographicCitation'];
+            $url2 = @$this->meta[@$epub_info['pdf_id']]['dc.relation.url'];
+            $this->ctr++; //remove in normal operation
+            $arr = array($this->ctr, $title, $url1, $url2, $epub_info['pdf_id'].".epub");
+            fwrite($this->WRITE, implode("\t", $arr)."\n");
+        }
+        else {
+            echo "\n===========================================================\n";
+            print_r($info); echo "\n-----\n"; print_r($epub_info); echo "\n-----\n"; print_r($this->meta[$epub_info['pdf_id']]);
+            exit("\ntitles not the same\n");
+        }
+        return;
+        // ========================= */
+        // exit("\n-done 1 pdf'\n"); //debug only
     }
 }
