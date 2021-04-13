@@ -22,7 +22,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         if(!is_dir($this->path['working_dir'])) mkdir($this->path['working_dir']);
         $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0033', 'SCtZ-0437', 'SCtZ-0018');
         $this->PDFs_not_a_monograph = array('SCtZ-0009'); //exclude; not a species nor a list type.
-        $this->overwrite_tagged_files = false; //orig false means don't overwrite tagged files.
+        $this->overwrite_tagged_files = true; //orig false means don't overwrite tagged files.
         
         $this->with_epub_count = 0;
         $this->without_epub_count = 0;
@@ -96,6 +96,16 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                     [dc.title] => Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean
                 )
         )*/
+        
+        // /* Provision to save PDF metadata as json 
+        $pdf_id = $epub_info['pdf_id'];
+        $json_file = $this->path['working_dir']."$pdf_id/".$pdf_id."_meta.json";
+        if(!file_exists($json_file)) {
+            $WRITE = fopen($json_file, "w"); //initialize OK
+            fwrite($WRITE, json_encode($info));
+            fclose($WRITE);
+        }
+        // */
         
         // /* Provision not to overwrite tagged files
         $pdf_id = $epub_info['pdf_id'];
@@ -405,15 +415,29 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."_tagged.txt";
             $txt_filename = $folder."/".$txt_filename;
             echo "\n$txt_filename";
+            // /*
+            $pdf_meta_obj = self::get_pdf_meta_from_json(str_replace("_tagged.txt", "_meta.json", $txt_filename));
+            // */
             if(file_exists($txt_filename)) { echo " - OK\n";
                 $pdf_id = pathinfo($folder, PATHINFO_BASENAME);
-                self::process_a_txt_file($txt_filename, $pdf_id);
+                self::process_a_txt_file($txt_filename, $pdf_id, $pdf_meta_obj);
             }
             else echo " - tagged version not yet generated\n";
         }
         // exit("\nstop munax\n");
     }
-    private function process_a_txt_file($txt_filename, $pdf_id)
+    private function get_pdf_meta_from_json($json_file)
+    {
+        if(file_exists($json_file)) {
+            $json = file_get_contents($json_file);
+            return json_decode($json);
+            /*stdClass Object(
+                [url] => https://repository.si.edu//handle/10088/5273
+                [title] => Species of Spalangia Latreille in the United States National Museum collection (Hymenoptera: Pteromalidae)
+            )*/
+        }
+    }
+    private function process_a_txt_file($txt_filename, $pdf_id, $pdf_meta_obj)
     {   /*
         <sciname='Pontostratiotes scotti Brodskaya, 1959'> Pontostratiotes scotti Brodskaya, 1959
         </sciname>
@@ -440,15 +464,22 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                     [sciname] => Lysiosquilla capensis Hansen, 1895
                     [body] => Lysiosquilla capensis Hansen, 1895<br><br>Lysiosquilla capensis Hansen, 1895, p. 74.—Stebbing,...
                 )*/
-                if($rec['sciname'] && $rec['body']) self::write_archive($rec);
+                if($rec['sciname'] && $rec['body']) self::write_archive($rec, $pdf_meta_obj);
             }
         }
     }
-    private function write_archive($rec)
+    private function write_archive($rec, $pdf_meta_obj)
     {   //write taxon
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = md5($rec['sciname']);
         $taxon->scientificName  = $rec['sciname'];
+        
+        // if($taxon->scientificName == "Halter yellow ………………………… E. halteralis") {
+            // print_r($rec); print_r($pdf_meta_obj);
+            // exit("\nelix\n");
+        // }
+        
+        
         // $taxon->furtherInformationURL = $t['dc_source'];
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);

@@ -88,13 +88,14 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $local = $this->path['epub_output_txts_dir'].$filename;
 
         // /* This is a different list of words from below. These rows can be removed from the final text blocks.
-        $this->start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family", "Subgenus", "Superfamily", "Subfamily",
-        "? Subfamily");
+        $this->start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family", "Order", "Subgenus", "Superfamily", "Subfamily",
+        "? Subfamily", "Suborder", "Subgenus", "Tribe");
         // */
         
         // /* This is a different list of words from above. These rows can be removed ONLY when hunting for the scinames.
         $exclude = array("*", "(", "Contents", "Literature", "Miscellaneous", "Introduction", "Appendix", "ACKNOWLEDGMENTS", "TERMINOLOGY",
         "ETYMOLOGY.", "TYPE-");
+        $exclude = array_merge($exclude, $this->start_of_row_2_exclude);
         // */
         
         // /* loop text file
