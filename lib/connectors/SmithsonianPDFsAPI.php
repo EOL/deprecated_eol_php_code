@@ -57,7 +57,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         fwrite($this->WRITE, implode("\t", $arr)."\n");
         // */
         $i = 0;
-        foreach($pdfs_info as $info) { $i++;
+        foreach($pdfs_info as $info) { $i++; echo "\nPDF $i -> \n";
             // if(self::valid_pdf($info['title'])) {} //no longer filters our titles with word "checklist"
             self::process_a_pdf($info); //epub-sensitive
             // self::process_a_pdf_all($info); //epub-INsensitive
