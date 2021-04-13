@@ -416,7 +416,6 @@ class ParseListTypeAPI
         $title = str_ireplace("á", "a", $title); //manual
         $title = str_ireplace("BenthIdi", "Benthédi", $title); //manual
 
-
         if(stripos($final, $title) !== false) { //string is found
             return array("found" => true);
         }

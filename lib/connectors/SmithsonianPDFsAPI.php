@@ -21,7 +21,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         else                           $this->path['working_dir'] = '/Volumes/AKiTiO4/other_files/Smithsonian/epub_'.$this->resource_id.'/';
         if(!is_dir($this->path['working_dir'])) mkdir($this->path['working_dir']);
         $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0033', 'SCtZ-0437', 'SCtZ-0018');
-        $this->PDFs_not_a_monograph = array('SCtZ-0009');
+        $this->PDFs_not_a_monograph = array('SCtZ-0009'); //exclude; not a species nor a list type.
     }
     function start()
     {
@@ -49,29 +49,25 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                     [url] => https://repository.si.edu//handle/10088/5349
                     [title] => Deep-sea Cerviniidae (Copepoda: Harpacticoida) from the Western Indian Ocean, collected with RV Anton Bruun in 1964)
         */
-        // /* Utility report for Jen - one time run
+        /* Utility report for Jen - one time run
         $this->ctr = 0;
         // $this->WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH."/Smithsonian_Contributions_to_Zoology.txt", "w"); //initialize
         $this->WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH."/10088_5097_misfiled_epubs.txt", "w"); //initialize OK
         $arr = array("#", 'Title', "URL", 'DOI', "epub file");
         fwrite($this->WRITE, implode("\t", $arr)."\n");
-        // */
+        */
         $i = 0;
-        foreach($pdfs_info as $info) { $i++; echo "\nPDF $i -> \n";
-            // if(self::valid_pdf($info['title'])) {} //no longer filters our titles with word "checklist"
+        foreach($pdfs_info as $info) { $i++; echo "\nPDF $i -> \n"; // print_r($info);
             self::process_a_pdf($info); //epub-sensitive
-            // self::process_a_pdf_all($info); //epub-INsensitive
-            // print_r($info);
+            // self::process_a_pdf_all($info); //epub-INsensitive -> just a utility, used in generating reports
             // if($i == 2) break; //debug only Mac Mini
             // if($i == 20) break; //debug only eol-archive
         }
-        // /* Utility report for Jen - one time run
+        /* Utility report for Jen - one time run
         fclose($this->WRITE);
-        // */
-
+        */
         echo "\nwith_epub_count: $this->with_epub_count\n";
         echo "\nwithout_epub_count: $this->without_epub_count\n";
-        
         // exit("\n-end 1 repository-\n"); //debug only
     }
     private function process_a_pdf($info)
@@ -85,9 +81,9 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         // print_r($epub_info); print_r($this->meta); exit("\n$this->resource_id\n"); //good debug
         
         if(in_array($epub_info['pdf_id'], $this->PDFs_not_a_monograph)) return; //Not a taxon nor a list type PDF.
-        
-        // /* ========================= Utility report for Jen - one time run
         if(!$epub_info) return;
+        
+        /* ========================= Utility report for Jen - one time run
         if(in_array($epub_info['pdf_id'], array("SCtZ-0160", "SCtZ-0169", "SCtZ-0150", "SCtZ-0117", "SCtZ-0071", "SCtZ-0077", "SCtZ-0070",
             "SCtZ-0085", "SCtZ-0038", "SCtZ-0028", "SCtZ-0026", "SCtZ-0014", "SCtZ-0005", "SCtZ-0003", "SCtZ-0004", "SCtZ-0018", "SCtZ-0011",
             "SCtZ-0001", "SCtZ-0211", "SCtZ-0177", "SCtZ-0163.1", "SCtZ-0185", "SCtZ-0240", "SCtZ-0219", "SCTZ-0276", "SCtZ-0273",
@@ -105,13 +101,12 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             $title = $info['title'];
             $title = strip_tags(htmlspecialchars_decode($title));
             // echo "\n".$title."\n";
-            
             self::download_epub($epub_info);
             $ret = self::convert_epub_to_txt($epub_info); //print_r($ret); //exit("\neli 100\n");
-            /*Array(
-                [source] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/SCtZ-0007.txt
-                [resource_working_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/
-            )*/
+            // Array(
+            //     [source] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/SCtZ-0007.txt
+            //     [resource_working_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/
+            // )
             $url1 = $info['url'];
             $citation = @$this->meta[@$epub_info['pdf_id']]['bibliographicCitation'];
             $url2 = @$this->meta[@$epub_info['pdf_id']]['dc.relation.url'];
@@ -128,7 +123,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             exit("\ntitles not the same\n");
         }
         return;
-        // ========================= */
+        ========================= */
 
         /*Array(
             [pdf_id] => SCtZ-0007
@@ -466,10 +461,10 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             $title = $info['title'];
             $title = strip_tags(htmlspecialchars_decode($title));
             // echo "\n".$title."\n";
-            /*Array(
-                [source] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/SCtZ-0007.txt
-                [resource_working_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/
-            )*/
+            // Array(
+            //     [source] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/SCtZ-0007.txt
+            //     [resource_working_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/
+            // )
             $url1 = $info['url'];
             $citation = @$this->meta[@$epub_info['pdf_id']]['bibliographicCitation'];
             $url2 = @$this->meta[@$epub_info['pdf_id']]['dc.relation.url'];
