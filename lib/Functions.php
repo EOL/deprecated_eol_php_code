@@ -2743,6 +2743,7 @@ class Functions
     {
         if($source) $ret = self::remove_whitespace(trim("$prepend; ".$source));
         else        $ret = $source;
+        return $ret;
     }
 }
 ?>
