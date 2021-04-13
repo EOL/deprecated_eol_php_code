@@ -400,7 +400,7 @@ class ParseListTypeAPI
         $final = str_ireplace("—", "-", $final); //manual
         $final = str_ireplace("á", "a", $final); //manual
         $final = str_ireplace("è", "e", $final); //manual
-        $final = str_ireplace("é", "e", $final); //manual
+        //$final = str_ireplace("é", "e", $final); //manual
         // $final = str_ireplace("Catalog of Type", "Catalogue of Type", $final); //manual
         
         /* title from repository page */
