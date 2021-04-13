@@ -503,7 +503,10 @@ class NMNHTypeRecordAPI_v2
 
             //additional requirement: from https://docs.google.com/spreadsheets/d/1Wepvr0FcaY8Y-LXcAY_8NXQD2jj8p11a4bKBeCr23jM/edit?ts=5a00b75a#gid=0  =====================================
             $life_stage = strtoupper($rec["http://rs.tdwg.org/dwc/terms/lifeStage"]);
-            if($life_stage == 'EXUVIAE') self::add_string_types($rec, self::get_uri($life_stage, 'lifeStage'), "http://eol.org/schema/terms/bodyPart");
+            if($life_stage == 'EXUVIAE') {
+                $uri = self::get_uri($life_stage, 'lifeStage');
+                if($uri && $uri != $life_stage) self::add_string_types($rec, $uri, "http://eol.org/schema/terms/bodyPart");
+            }
                 /*
                 http://eol.org/globi/terms/bodyPart - should be phased out as advised by Jen. Never use.
                 http://eol.org/known_uris?page=5&uri_type_id=1
@@ -781,11 +784,24 @@ class NMNHTypeRecordAPI_v2
         $o->occurrenceRemarks   = $rec["http://rs.tdwg.org/dwc/terms/occurrenceRemarks"]; //careful: there are quotes, commas, semicolons in this field.
         $o->recordedBy          = $rec["http://rs.tdwg.org/dwc/terms/recordedBy"];
         $o->individualCount     = $rec["http://rs.tdwg.org/dwc/terms/individualCount"];
-        if($val = self::get_uri((string) $rec["http://rs.tdwg.org/dwc/terms/sex"], "sex")) $o->sex = $val;
+        
+        $sex = (string) $rec["http://rs.tdwg.org/dwc/terms/sex"];
+        if($val = self::get_uri($sex, "sex")) {
+            if($val == $sex) $o->occurrenceRemarks = Functions::prepend($o->occurrenceRemarks, $sex);
+            else $o->sex = $val;
+        }
+        else {} //meaning exclude
+        
         //lifestage
         $lifeStage = strtoupper((string) $rec["http://rs.tdwg.org/dwc/terms/lifeStage"]);
-        if(!in_array($lifeStage, array("LIFESTAGE", "RESEARCH", "STERILE", "TOP; BOTTOM", "UNKNOWN"))) $o->lifeStage = self::get_uri($lifeStage, "lifeStage");
-
+        if(!in_array($lifeStage, array("LIFESTAGE", "RESEARCH", "STERILE", "TOP; BOTTOM", "UNKNOWN"))) {
+            if($val = self::get_uri($lifeStage, "lifeStage")) {
+                if($val == $lifeStage) $o->occurrenceRemarks = Functions::prepend($o->occurrenceRemarks, $lifeStage);
+                else $o->lifeStage = $val;
+            }
+            else {} //meaning exclude
+        }
+        
         $o->preparations        = $rec["http://rs.tdwg.org/dwc/terms/preparations"];
         $o->fieldNotes          = $rec["http://rs.tdwg.org/dwc/terms/fieldNotes"];
         $o->locality            = $rec["http://rs.tdwg.org/dwc/terms/locality"];

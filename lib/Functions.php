@@ -2739,5 +2739,10 @@ class Functions
         if($retcode == 200) return true;
         else                return false;
     }
+    public static function prepend($source, $prepend)
+    {
+        if($source) $ret = self::remove_whitespace(trim("$prepend; ".$source));
+        else        $ret = $source;
+    }
 }
 ?>
