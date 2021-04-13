@@ -620,6 +620,7 @@ class NMNHTypeRecordAPI_v2
             elseif(is_numeric(stripos($value, "JUVENILE; OVIGEROUS")))  $value = "JUVENILE & OVIGEROUS";
             elseif(is_numeric(stripos($value, "OVIGEROUS; JUVENILE")))  $value = "JUVENILE & OVIGEROUS";
             elseif(is_numeric(stripos($value, "NYMPH; NYMPH")))         $value = "NYMPH";
+            elseif(is_numeric(stripos($value, "; NYMPH")))              $value = "NYMPH";
             elseif(is_numeric(stripos($value, "A-")))                   $value = "JUVENILE";
             elseif(is_numeric(stripos($value, "J-")))                   $value = "JUVENILE";
             elseif(is_numeric(stripos($value, "I; JUVENILE")))          $value = "JUVENILE";
@@ -635,15 +636,12 @@ class NMNHTypeRecordAPI_v2
             elseif(stripos($value, "JUVENILE;") !== false) $value = "JUVENILE"; //string is found
             elseif(stripos($value, "IMMATURE;") !== false) $value = "IMMATURE"; //string is found
             
-            
             //last options
             elseif(stripos($value, "OVIGEROUS") !== false) $value = "OVIGEROUS"; //string is found
             elseif(stripos($value, "MANCA") !== false) $value = "MANCA"; //string is found
             elseif(stripos($value, "LARVAE") !== false) $value = "LARVA"; //string is found
             elseif(stripos($value, "SUBADULT") !== false) $value = "IMMATURE"; //string is found
-            
-            
-            
+            elseif(stripos($value, "PUPA; LARVA") !== false) $value = "LARVA"; //string is found
         }
 
         if($val = @$this->uris[$value]) {

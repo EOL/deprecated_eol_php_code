@@ -276,6 +276,7 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	Tuesday 2020-07-28 06:04:54 PM	{"media_resource.tab":772431, "taxon.tab":410005, "time_elapsed":{"sec":96793.74, "min":1613.23, "hr":26.89, "day":1.12}} consistent OK
 80	Sun 2020-10-11 03:06:21 AM	    {"media_resource.tab":776135, "taxon.tab":411865, "time_elapsed":{"sec":98899.51, "min":1648.33, "hr":27.47, "day":1.14}}
 80	Fri 2020-12-11 07:24:21 AM	    {"media_resource.tab":778595, "taxon.tab":412880, "time_elapsed":{"sec":98810.19, "min":1646.84, "hr":27.45, "day":1.14}}
+80	Tue 2021-04-13 02:34:32 AM	    {"media_resource.tab":794167, "taxon.tab":420490, "time_elapsed":{"sec":125783.54, "min":2096.39, "hr":34.94, "day":1.46}} consistent OK
 
 wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
 wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
