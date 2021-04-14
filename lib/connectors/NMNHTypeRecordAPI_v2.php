@@ -785,18 +785,18 @@ class NMNHTypeRecordAPI_v2
         $o->individualCount     = $rec["http://rs.tdwg.org/dwc/terms/individualCount"];
         
         $sex = (string) $rec["http://rs.tdwg.org/dwc/terms/sex"];
-        if($val = self::get_uri($sex, "sex")) {
-            if($val == $sex) $o->occurrenceRemarks = Functions::prepend($o->occurrenceRemarks, $sex);
-            else $o->sex = $val;
+        if($uri = self::get_uri($sex, "sex")) {
+            if(substr($uri,0,4) == 'http') $o->sex = $uri;
+            else $o->occurrenceRemarks = Functions::prepend($o->occurrenceRemarks, $uri);
         }
         else {} //meaning exclude
         
         //lifestage
         $lifeStage = strtoupper((string) $rec["http://rs.tdwg.org/dwc/terms/lifeStage"]);
         if(!in_array($lifeStage, array("LIFESTAGE", "RESEARCH", "STERILE", "TOP; BOTTOM", "UNKNOWN"))) {
-            if($val = self::get_uri($lifeStage, "lifeStage")) {
-                if($val == $lifeStage) $o->occurrenceRemarks = Functions::prepend($o->occurrenceRemarks, $lifeStage);
-                else $o->lifeStage = $val;
+            if($uri = self::get_uri($lifeStage, "lifeStage")) {
+                if(substr($uri,0,4) == 'http') $o->lifeStage = $uri;
+                else $o->occurrenceRemarks = Functions::prepend($o->occurrenceRemarks, $uri);
             }
             else {} //meaning exclude
         }
