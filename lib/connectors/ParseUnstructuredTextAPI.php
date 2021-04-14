@@ -134,6 +134,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             $cont = true;
             // /* criteria 3: any occurrence of these strings in any part of the row
             $exclude = array(" of ", " in ", " the ", " this ", " with ", "Three ", "There ", " are ", "…", " for ", " dos ", " on ");
+            $exclude = array_merge($exclude, array('order', 'family', 'subgenus', 'tribe')) //is valid "Anoplodactylus lagenus"
             foreach($exclude as $exc) {
                 if(stripos($row, $exc) !== false) { //string is found
                     $rows = array();
@@ -294,6 +295,8 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         }
         // */
         
+        if(substr($str,0,1) == "(") return false;
+        
         /* criteria 2: any part of the row where rank value exists
         $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
         foreach($ranks as $rank) {
@@ -328,7 +331,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             if(isset($this->lines_to_tag[$i])) { $hits++;
                 $row = self::format_row_to_sciname($row);
                 $row = self::format_row_to_sciname_v2($row); //fix e.g. "Amastus aphraates Schaus, 1927, p. 74."
-                if(self::is_valid_species($row)) {
+                if(self::is_valid_species($row)) { //important last line
                     if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
                     else            $row = "</taxon><taxon sciname='$row'> ".$row;
                     // exit("\ngot one finally\n".$row."\n");
