@@ -134,7 +134,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             $cont = true;
             // /* criteria 3: any occurrence of these strings in any part of the row
             $exclude = array(" of ", " in ", " the ", " this ", " with ", "Three ", "There ", " are ", "…", " for ", " dos ", " on ");
-            $exclude = array_merge($exclude, array('order', 'family', 'subgenus', 'tribe')) //is valid "Anoplodactylus lagenus"
+            $exclude = array_merge($exclude, array('order', 'family', 'subgenus', 'tribe')); //is valid "Anoplodactylus lagenus"
             foreach($exclude as $exc) {
                 if(stripos($row, $exc) !== false) { //string is found
                     $rows = array();
