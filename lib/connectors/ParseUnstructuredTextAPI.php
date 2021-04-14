@@ -93,7 +93,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
 
         // /* This is a different list of words from below. These rows can be removed from the final text blocks.
         $this->start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family", "Order", "Subgenus", "Superfamily", "Subfamily",
-        "? Subfamily", "Suborder", "Subgenus", "Tribe");
+        "? Subfamily", "Suborder", "Subgenus", "Tribe", "Infraorder");
         // */
         
         // /* This is a different list of words from above. These rows can be removed ONLY when hunting for the scinames.
@@ -271,6 +271,15 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         }
         return false;
     }
+    private function is_valid_species($str)
+    {
+        $words = explode(" ", $str); 
+        if(!@$words[1]) return false; //No 2nd word
+        else {
+            if(ctype_upper(substr($words[1],0,1))) return false; //2nd word is capitalized
+            else return true;
+        }
+    }
     private function add_taxon_tags_to_text_file_v3($filename)
     {
         $local = $this->path['epub_output_txts_dir'].$filename;
@@ -288,9 +297,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             if(isset($this->lines_to_tag[$i])) { $hits++;
                 $row = self::format_row_to_sciname($row);
                 $row = self::format_row_to_sciname_v2($row); //fix e.g. "Amastus aphraates Schaus, 1927, p. 74."
-                if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
-                else            $row = "</taxon><taxon sciname='$row'> ".$row;
-                // exit("\ngot one finally\n".$row."\n");
+                if(self::is_valid_species($row)) {
+                    if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
+                    else            $row = "</taxon><taxon sciname='$row'> ".$row;
+                    // exit("\ngot one finally\n".$row."\n");
+                }
             }
             // else echo "\n[$row]\n";
 
