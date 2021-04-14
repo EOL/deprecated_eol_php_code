@@ -103,6 +103,10 @@ class ParseListTypeAPI
         if(stripos($string, ", new species") !== false) {
             $string = trim(str_ireplace(", new species", "", $string));
         }
+
+        if(stripos($string, ", new combination") !== false) {
+            $string = trim(str_ireplace(", new combination", "", $string));
+        }
         
         return $string;
     }
@@ -121,7 +125,7 @@ class ParseListTypeAPI
         return false;
     }
     // /*
-    private function run_gnparser($string) //not used anymore...
+    function run_gnparser($string) //not used anymore...
     {
         if($string = self::clean_name($string)) {}
         else return false;

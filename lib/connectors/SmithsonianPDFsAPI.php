@@ -506,10 +506,20 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             $this->object_ids[$mr->identifier] = '';
         }
     }
-    private function clean_sciname($name)
+    function clean_sciname($name)
     {
-        $name = str_ireplace(", new species", "", $name);
-        $name = str_ireplace(", new subspecies", "", $name);
+        // $name = str_ireplace(", new order", "", $name);
+        // $name = str_ireplace(", new species", "", $name);
+        // $name = str_ireplace(", new subspecies", "", $name);
+        // $name = str_ireplace(", new subgenus", "", $name);
+        // $name = str_ireplace(", new combination", "", $name);
+        // $name = str_ireplace(", new subfamily", "", $name);
+        // $name = str_ireplace(", new status", "", $name);
+        // $name = str_ireplace(", new name", "", $name);
+        // $name = str_ireplace(", new rank", "", $name);
+        
+        $pos = stripos($name, ", new ");
+        if($pos > 5) $name = substr($name, 0, $pos);
         return Functions::remove_whitespace($name);
     }
     private function process_a_pdf_all($info)

@@ -13,6 +13,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         
         // http://gnrd.globalnames.org/name_finder.json?text=Stilbosis lonchocarpella Busck, 1934, p. 157.
         // http://gnrd.globalnames.org/name_finder.json?text=Siskiwitia alticolans looks like a small Periploca that has a white, transverse band on the forewing.
+
+        // http://gnrd.globalnames.org/name_finder.json?text=Halisidota agatha Schaus, 1924, p. 35.
+        // https://parser.globalnames.org/api/v1/Halisidota agatha Schaus, 1924, p. 35.
+
         
         /*
         http://gnrd.globalnames.org/name_finder.json?text=Paratrygon aieraba (Müller and Henle, 1841), AM, Raya amazónica; R. Rosa, pers. comm.
@@ -283,6 +287,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             $row = trim($row);
             if(isset($this->lines_to_tag[$i])) { $hits++;
                 $row = self::format_row_to_sciname($row);
+                $row = self::format_row_to_sciname_v2($row); //fix e.g. "Amastus aphraates Schaus, 1927, p. 74."
                 if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
                 else            $row = "</taxon><taxon sciname='$row'> ".$row;
                 // exit("\ngot one finally\n".$row."\n");
@@ -316,6 +321,24 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         }
         return $row;
     }
+    private function format_row_to_sciname_v2($row) //Amastus aphraates Schaus, 1927, p. 74.
+    {
+        $row = self::clean_sciname_here($row);
+        if(stripos($row, " p. ") !== false) {   //string is found
+            $obj = $this->run_gnparser($row);
+            // print_r($obj); exit;
+            $sciname = trim($obj[0]->canonical->full." ".@$obj[0]->authorship->normalized);
+            return $sciname;
+        }
+        return $row;
+    }
+    function clean_sciname_here($name)
+    {
+        $pos = stripos($name, ", new ");
+        if($pos > 5) $name = substr($name, 0, $pos);
+        return Functions::remove_whitespace($name);
+    }
+    
     private function remove_some_rows($edited_file)
     {
         // exit("\nxxx[$edited_file]\n");
