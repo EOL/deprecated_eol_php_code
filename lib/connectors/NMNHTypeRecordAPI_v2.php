@@ -534,6 +534,7 @@ class NMNHTypeRecordAPI_v2
 
     private function get_uri($value, $field)
     {
+        $orig_value = $value;
         $value = trim(str_replace("'", "", $value));
         if(in_array($field, array("sex", "typeStatus"))) $value = strtoupper($value);
         
@@ -645,13 +646,13 @@ class NMNHTypeRecordAPI_v2
         }
 
         if($val = @$this->uris[$value]) {
-            if($val == "use verbatim text") return trim($value);
+            if($val == "use verbatim text") return trim($orig_value);
             if(in_array($val, array("Exclude- literature dataset", "EXCLUDE"))) return '';
             else                                                                return $val; //success
         }
         else {
             $this->debug["undefined"][$field][$value] = '';
-            return $value; // returned verbatim
+            return $orig_value; // returned verbatim
         }
     }
     
