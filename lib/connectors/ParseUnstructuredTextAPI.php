@@ -98,7 +98,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         
         // /* This is a different list of words from above. These rows can be removed ONLY when hunting for the scinames.
         $exclude = array("*", "(", "Contents", "Literature", "Miscellaneous", "Introduction", "Appendix", "ACKNOWLEDGMENTS", "TERMINOLOGY",
-        "ETYMOLOGY.", "TYPE-");
+        "ETYMOLOGY.", "TYPE-", "COMPOSITION");
         $exclude = array_merge($exclude, $this->start_of_row_2_exclude);
         // */
         
@@ -129,6 +129,18 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                     continue;
                 }
             }
+            // */
+
+            $cont = true;
+            // /* criteria 3: any occurrence of these strings in any part of the row
+            $exclude = array(" of ", " in ", " the ", " this ", " with ", "Three ", "There ", " are ", "…", " for ", " dos ", " on ");
+            foreach($exclude as $exc) {
+                if(stripos($row, $exc) !== false) { //string is found
+                    $rows = array();
+                    $cont = false; break;
+                }
+            }
+            if(!$cont) continue;
             // */
             
             $rows[] = $row;
@@ -272,13 +284,32 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         return false;
     }
     private function is_valid_species($str)
-    {
+    {   
+        // /* criteria 1
         $words = explode(" ", $str); 
         if(!@$words[1]) return false; //No 2nd word
         else {
             if(ctype_upper(substr($words[1],0,1))) return false; //2nd word is capitalized
             else return true;
         }
+        // */
+        
+        /* criteria 2: any part of the row where rank value exists
+        $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
+        foreach($ranks as $rank) {
+            found
+        }
+        */
+        
+        /* cannot do this bec. many like e.g. Nicomedes difficilis Kinberg, 1866: 179.—Hartman 1949:57.
+        if(stripos($str, ":") !== false) return false;  //string is found
+        */
+        
+        /* cannot do it also
+        if(stripos($str, "?") !== false) return false;  //string is found
+        */
+        
+        return true;
     }
     private function add_taxon_tags_to_text_file_v3($filename)
     {

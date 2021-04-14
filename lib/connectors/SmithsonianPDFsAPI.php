@@ -508,6 +508,12 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
     }
     function clean_sciname($name)
     {
+        $pos = stripos($name, " (see ");
+        if($pos > 5) $name = substr($name, 0, $pos);
+
+        $pos = stripos($name, ". See ");
+        if($pos > 5) $name = substr($name, 0, $pos);
+
         // $name = str_ireplace(", new order", "", $name);
         // $name = str_ireplace(", new species", "", $name);
         // $name = str_ireplace(", new subspecies", "", $name);
@@ -520,6 +526,22 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         
         $pos = stripos($name, ", new ");
         if($pos > 5) $name = substr($name, 0, $pos);
+
+        $pos = stripos($name, "; new ");
+        if($pos > 5) $name = substr($name, 0, $pos);
+        
+        $pos = stripos($name, " new ");
+        if($pos > 5) $name = substr($name, 0, $pos);
+
+        $pos = stripos($name, " (of ");
+        if($pos > 5) $name = substr($name, 0, $pos);
+        
+        $pos = stripos($name, " (from ");
+        if($pos > 5) $name = substr($name, 0, $pos);
+
+        $pos = stripos($name, " (propinquus ");
+        if($pos > 5) $name = substr($name, 0, $pos);
+        
         return Functions::remove_whitespace($name);
     }
     private function process_a_pdf_all($info)
