@@ -304,6 +304,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(ctype_upper(substr($str,0,3))) return false; //e.g. "TYPE-SPECIES.—Ancohenia hawaiiensis Kornicker, 1976, monotypy."
         // */
         
+        // /*
+        if(stripos($str, " from ") !== false) return false; //string is found
+        // */
+        
         /* criteria 2: any part of the row where rank value exists
         $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
         foreach($ranks as $rank) {
@@ -410,7 +414,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         
         // Caecidotea nodulus (Williams, 1970) (Maryland specimens)
         $name = trim(str_ireplace("(Maryland specimens)", "", $name));
-        
+
         return $name;
     }
     private function remove_some_rows($edited_file)
