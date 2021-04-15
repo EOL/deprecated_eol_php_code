@@ -591,8 +591,10 @@ class DwCA_Utility
                         if(!self::valid_uri_url($val)) { //then should be valid URI or URL
                             // $c = false; break; //you don't totally exclude the entire data_object but just set the field URI/URL to blank
                             $rec[$key] = "";
+                            /* To do: investigate more
                             print_r($rec);
                             echo "\nURI/URL [$key] [$val] set to blank because it is invalid.\n";
+                            */
                         }
                     }
                 }
