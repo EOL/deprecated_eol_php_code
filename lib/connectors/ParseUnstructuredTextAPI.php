@@ -411,7 +411,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // Caecidotea nodulus (Williams, 1970) (Maryland specimens)
         $name = trim(str_ireplace("(Maryland specimens)", "", $name));
         
-        return $name
+        return $name;
     }
     private function remove_some_rows($edited_file)
     {
