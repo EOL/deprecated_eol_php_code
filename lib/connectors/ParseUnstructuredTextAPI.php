@@ -291,13 +291,12 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(!@$words[1]) return false; //No 2nd word
         else {
             if(ctype_upper(substr($words[1],0,1))) return false; //2nd word is capitalized
-            else return true;
         }
         // */
         
         if(substr($str,0,1) == "(") return false;
         
-        if(stripos($str, " gen. nov.") !== false) return false;  //string is found
+        if(stripos($str, "gen. nov.") !== false) return false;  //string is found
         // e.g. Eguchipsammia, gen. nov.
         
         // /* criteria: if first 3 chars are upper case then exclude
@@ -382,7 +381,6 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $row = self::clean_sciname_here($row);
         if(stripos($row, " p. ") !== false) {   //string is found
             $obj = $this->run_gnparser($row);
-            // print_r($obj); exit;
             $row = trim($obj[0]->canonical->full." ".@$obj[0]->authorship->normalized);
         }
         $row = self::clean_sciname_here2($row);
