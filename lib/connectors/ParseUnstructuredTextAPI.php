@@ -397,7 +397,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // */
         return $name;
     }
-    function clean_sciname_here($name)
+    function clean_sciname_here2($name)
     {
         // Gammaropsis digitata (Schellenberg) from Canton Island
         if($name == "Gammaropsis digitata (Schellenberg) from Canton Island") $name = "Gammaropsis digitata (Schellenberg)";
