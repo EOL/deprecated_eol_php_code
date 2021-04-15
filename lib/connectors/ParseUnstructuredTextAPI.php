@@ -297,6 +297,13 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         
         if(substr($str,0,1) == "(") return false;
         
+        if(stripos($str, " gen. nov.") !== false) return false;  //string is found
+        // e.g. Eguchipsammia, gen. nov.
+        
+        // /* criteria: if first 3 chars are upper case then exclude
+        if(ctype_upper(substr($str,0,3))) return false; //e.g. "TYPE-SPECIES.—Ancohenia hawaiiensis Kornicker, 1976, monotypy."
+        // */
+        
         /* criteria 2: any part of the row where rank value exists
         $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
         foreach($ranks as $rank) {
@@ -372,18 +379,40 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(stripos($row, " p. ") !== false) {   //string is found
             $obj = $this->run_gnparser($row);
             // print_r($obj); exit;
-            $sciname = trim($obj[0]->canonical->full." ".@$obj[0]->authorship->normalized);
-            return $sciname;
+            $row = trim($obj[0]->canonical->full." ".@$obj[0]->authorship->normalized);
         }
+        $row = self::clean_sciname_here2($row);
         return $row;
     }
     function clean_sciname_here($name)
     {
+        // /* criteria 1
         $pos = stripos($name, ", new ");
         if($pos > 5) $name = substr($name, 0, $pos);
-        return Functions::remove_whitespace($name);
+        $name = Functions::remove_whitespace($name);
+        // */
+        // /* criteria 2
+        if(substr($name,0,1) == "*") $name = trim(substr($name,1,strlen($name)));
+        // e.g. *Percnon gibbesi (H. Milne Edwards, 1853)
+        // */
+        return $name;
     }
-    
+    function clean_sciname_here($name)
+    {
+        // Gammaropsis digitata (Schellenberg) from Canton Island
+        if($name == "Gammaropsis digitata (Schellenberg) from Canton Island") $name = "Gammaropsis digitata (Schellenberg)";
+        
+        // Elasmopus ?rapax Costa from Eastern Pacific
+        if($name == "Elasmopus ?rapax Costa from Eastern Pacific") $name = "Elasmopus ?rapax Costa";
+
+        // Rutiderma rostratum Juday, 1907, emendation
+        $name = trim(str_ireplace(", emendation", "", $name));
+        
+        // Caecidotea nodulus (Williams, 1970) (Maryland specimens)
+        $name = trim(str_ireplace("(Maryland specimens)", "", $name));
+        
+        return $name
+    }
     private function remove_some_rows($edited_file)
     {
         // exit("\nxxx[$edited_file]\n");
