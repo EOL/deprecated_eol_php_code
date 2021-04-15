@@ -160,6 +160,7 @@ class NMNHTypeRecordAPI_v2
                  }
             }
         }
+        // print_r($uris); exit; //good debug
         return $uris;
     }
 

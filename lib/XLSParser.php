@@ -50,6 +50,7 @@ class XLSParser
             for ($col = 0; $col <= $highestColumnIndex; ++$col)
             {
                 $cell = self::cell_value($objWorksheet, $col, $row, $ext);
+                $cell = trim((string) $cell); //new Apr 15, 2021
                 if($row == $startRow)
                 {
                     $sheet_label[] = $cell;
