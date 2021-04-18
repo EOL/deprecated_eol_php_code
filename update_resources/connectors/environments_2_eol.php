@@ -73,6 +73,10 @@ wikipedia_en_traits	Thu 2020-12-17 05:02:54 AM	    {"MoF.tab":169039, "occurrenc
 617_ENV	Sun 2021-03-07 09:15:58 PM	                {"MoF.tab":131650, "occurrence.tab":131650, "taxon.tab":412880, "time_elapsed":{"sec":3687.23, "min":61.45, "hr":1.02}}
 wikipedia_en_traits_FTG	Sun 2021-03-07 09:27:59 PM	{"MoF.tab":131477, "occurrence.tab":131477, "taxon.tab":412880, "time_elapsed":{"sec":714.08, "min":11.9, "hr":0.2}}
 wikipedia_en_traits	Sun 2021-03-07 09:29:48 PM	    {"MoF.tab":131477, "occurrence.tab":131477, "taxon.tab":74839, "time_elapsed":false}
+after monthly harvest:
+wikipedia_en_traits_FTG	Fri 2021-04-16 09:40:13 AM	{"MoF.tab":148313, "occurrence.tab":148313, "taxon.tab":420490, "time_elapsed":{"sec":818.31, "min":13.64, "hr":0.23}}
+wikipedia_en_traits	Fri 2021-04-16 09:42:18 AM	    {"MoF.tab":148313, "occurrence.tab":148313, "taxon.tab":81756, "time_elapsed":false} - consistent OK
+
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors

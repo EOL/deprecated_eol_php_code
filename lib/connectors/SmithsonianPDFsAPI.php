@@ -388,11 +388,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
     {   /*
         <meta name="DCTERMS.bibliographicCitation" content="Maddocks, Rosalie F. 1969. &quot;&lt;a href=&quot;http%3A%2F%2Fdx.doi.org%2F10.5479%2Fsi.00810282.7&quot;&gt;Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean&lt;/a&gt;.&quot; &lt;em&gt;Smithsonian Contributions to Zoology&lt;/em&gt;. 1&amp;ndash;56. &lt;a href=&quot;https://doi.org/10.5479/si.00810282.7&quot;&gt;https://doi.org/10.5479/si.00810282.7&lt;/a&gt;" xml:lang="en" />
         <meta name="DC.relation" content="http://dx.doi.org/10.5479/si.00810282.7" />
-        https://repository.si.edu//handle/10088/5292
-        */
-        /* not needed anymore $pdf_id was created above already.
-        $left = "/handle/";
-        if(preg_match("/".preg_quote($left, '/')."(.*?)elicha/ims", $url."elicha", $a)) $pdf_id = str_replace("/", "_", $a[1]);
+        https://repository.si.edu//handle/10088/5292 e.g. $url
         */
         $left = '<meta name="DCTERMS.bibliographicCitation" content="';
         if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) {
@@ -404,7 +400,18 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             $this->meta[$pdf_id]['bibliographicCitation'] = $biblio;
         }
         $left = '<meta name="DC.relation" content="';
-        if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) $this->meta[$pdf_id]['dc.relation.url'] = $a[1];
+        if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) {
+            if(substr($a[1],0,4) == 'http') $this->meta[$pdf_id]['dc.relation.url'] = $a[1];
+            else { another option to get furtherInformationURL
+                /* e.g. from https://repository.si.edu/handle/10088/6301?show=full
+                dc.identifier.uri</td>
+                <td>http://hdl.handle.net/10088/6301</td>
+                */
+                $left = 'dc.identifier.uri</td>';
+                if(preg_match("/".preg_quote($left, '/')."(.*?)<\/td>/ims", $html, $a)) $this->meta[$pdf_id]['dc.relation.url'] = trim(strip_tags(trim($a[1])));
+                else $this->meta[$pdf_id]['dc.relation.url'] = $url; //last option
+            }
+        }
         $left = '<meta name="DC.title" content="';
         if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) $this->meta[$pdf_id]['dc.title'] = $a[1];
         // print_r($this->meta); exit("\n$url\n");;

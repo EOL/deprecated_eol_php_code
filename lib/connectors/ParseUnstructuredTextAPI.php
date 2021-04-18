@@ -92,7 +92,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $local = $this->path['epub_output_txts_dir'].$filename;
 
         // /* This is a different list of words from below. These rows can be removed from the final text blocks.
-        $this->start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family", "Order", "Subgenus", "Superfamily", "Subfamily",
+        $this->start_of_row_2_exclude = array("FIGURE", "PLATE", "Key to the", "Genus", "Family", "Order", "Subgenus", "Superfamily", "Subfamily",
         "? Subfamily", "Suborder", "Subgenus", "Tribe", "Infraorder");
         // */
         
@@ -357,6 +357,17 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             elseif($row == "Bibliography") $row = "</taxon>$row";           //SCtZ-0011.txt
             // */
 
+            // /* New: per Jen: https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65856&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65856
+            // remove species sections with < 60 chars long
+            if(stripos($row, "<taxon ") !== false) {}   //string is found
+            elseif(stripos($row, "</taxon>") !== false) {}   //string is found
+            else {
+                if($row) { //not blank
+                    if(strlen($row) < 60) continue;
+                }
+            }
+            // */
+            
             fwrite($WRITE, $row."\n");
         }//end loop text
         fclose($WRITE);
