@@ -402,7 +402,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $left = '<meta name="DC.relation" content="';
         if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) {
             if(substr($a[1],0,4) == 'http') $this->meta[$pdf_id]['dc.relation.url'] = $a[1];
-            else { another option to get furtherInformationURL
+            else { //another option to get furtherInformationURL
                 /* e.g. from https://repository.si.edu/handle/10088/6301?show=full
                 dc.identifier.uri</td>
                 <td>http://hdl.handle.net/10088/6301</td>
