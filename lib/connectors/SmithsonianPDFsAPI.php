@@ -403,13 +403,28 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) {
             if(substr($a[1],0,4) == 'http') $this->meta[$pdf_id]['dc.relation.url'] = $a[1];
             else { //another option to get furtherInformationURL
-                /* e.g. from https://repository.si.edu/handle/10088/6301?show=full
-                dc.identifier.uri</td>
-                <td>http://hdl.handle.net/10088/6301</td>
-                */
+                
+                // /* 2nd option
+                // <meta name="DC.identifier" content="http://hdl.handle.net/10088/6301" xml:lang="en_US" scheme="DCTERMS.URI" />
+                $left = '<meta name="DC.identifier" content="';
+                if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) {
+                    if(substr($a[1],0,4) == 'http') $this->meta[$pdf_id]['dc.relation.url'] = $a[1];
+                    else { //another option to get furtherInformationURL
+                        $this->meta[$pdf_id]['dc.relation.url'] = $url; //3rd last option
+                    }
+                }
+                // */
+                
+                
+                /* But we don't use: ?show=full when accessing $url
+                // e.g. from https://repository.si.edu/handle/10088/6301?show=full
+                // dc.identifier.uri</td>
+                // <td>http://hdl.handle.net/10088/6301</td>
                 $left = 'dc.identifier.uri</td>';
                 if(preg_match("/".preg_quote($left, '/')."(.*?)<\/td>/ims", $html, $a)) $this->meta[$pdf_id]['dc.relation.url'] = trim(strip_tags(trim($a[1])));
                 else $this->meta[$pdf_id]['dc.relation.url'] = $url; //last option
+                */
+                
             }
         }
         $left = '<meta name="DC.title" content="';
