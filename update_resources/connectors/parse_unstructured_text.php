@@ -16,6 +16,7 @@ almost clean, first submission for review
 start where species sections with < 60 chars were removed: consistent, expected slightly decrease in all tables.
 10088_5097	Sun 2021-04-18 01:30:45 PM	{"media_resource.tab":12211, "taxon.tab":11574, "time_elapsed":{"sec":362.79, "min":6.05, "hr":0.1}}
 10088_5097_ENV	Sun 2021-04-18 01:42:34 PM	{"measurement_or_fact_specific.tab":49757, "media_resource.tab":12211, "occurrence_specific.tab":49757, "taxon.tab":11574, "time_elapsed":{"sec":704.52, "min":11.74, "hr":0.2}}
+10088_5097	Mon 2021-04-19 09:17:13 AM	{"media_resource.tab":12211, "taxon.tab":11574, "time_elapsed":{"sec":405.85, "min":6.76, "hr":0.11}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -106,8 +107,12 @@ $input = array('filename' => 'SCTZ-0128.txt', 'lines_before_and_after_sciname' =
 $input = array('filename' => 'SCtZ-0095.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0095/');
 $input = array('filename' => 'SCtZ-0557.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0557/');
 $input = array('filename' => 'SCtZ-0140.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0140/');
+$input = array('filename' => 'SCTZ-0105.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0105/');
+$input = array('filename' => 'SCtZ-0616.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0616/');
 
-    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0140/SCtZ-0140.txt
+$input = array('filename' => 'scz-0630.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/scz-0630/');
+
+    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/scz-0630/scz-0630.txt
 
 
 //List-type here:

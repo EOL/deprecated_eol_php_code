@@ -92,7 +92,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $local = $this->path['epub_output_txts_dir'].$filename;
 
         // /* This is a different list of words from below. These rows can be removed from the final text blocks.
-        $this->start_of_row_2_exclude = array("FIGURE", "PLATE", "Key to the", "Genus", "Family", "Order", "Subgenus", "Superfamily", "Subfamily",
+        $this->start_of_row_2_exclude = array("FIGURE", "TABLE", "PLATE", "Key to the", "Genus", "Family", "Order", "Subgenus", "Superfamily", "Subfamily",
         "? Subfamily", "Suborder", "Subgenus", "Tribe", "Infraorder");
         // */
         
@@ -427,8 +427,15 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         return $name;
     }
     private function remove_some_rows($edited_file)
-    {
-        // exit("\nxxx[$edited_file]\n");
+    {   // print_r(pathinfo($edited_file));
+        /*Array(
+            [dirname] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/scz-0630
+            [basename] => scz-0630_edited.txt
+            [extension] => txt
+            [filename] => scz-0630_edited
+        )*/
+        $pdf_id = str_replace("_edited", "", pathinfo($edited_file, PATHINFO_FILENAME)); //e.g. "scz-0630"
+        
         $local = $edited_file;
         $temp_file = $local.".tmp";
         $WRITE = fopen($temp_file, "w"); //initialize
@@ -447,11 +454,17 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             foreach($exclude as $start_of_row) {
                 $len = strlen($start_of_row);
                 if(substr($row,0,$len) == $start_of_row) {
-                    $rows = array();
+                    // $rows = array(); //copied template
                     $cont = false; break;
                 }
             }
             if(!$cont) continue;
+            // */
+            
+            // /* big customization:
+            // if($pdf_id == "scz-0630") {
+                if(stripos($row, "Abbreviations defined:") !== false) continue; //string is found
+            // }
             // */
             
             fwrite($WRITE, $row."\n");
@@ -462,7 +475,9 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
     }
     /*#################################################################################################################################*/
     private function show_parsed_texts_for_mining($edited_file)
-    {
+    {   // exit("\n$edited_file\n");
+        $pdf_id = str_replace("_edited", "", pathinfo($edited_file, PATHINFO_FILENAME)); //e.g. "scz-0630"
+        
         $with_blocks_file = str_replace("_edited.txt", "_tagged.txt", $edited_file);
         $WRITE = fopen($with_blocks_file, "w"); //initialize
         $contents = file_get_contents($edited_file);
@@ -472,10 +487,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                 $rows = explode("\n", $block);
                 // if(count($rows) >= 5) {
                 if(true) {
-                    $last_sections_2b_removed = array("REMARKS.—", "REMARK.—", "AFFINITIES.—", "AFFINITY.—",
+                    $last_sections_2b_removed = array("REMARKS.—", "REMARK.—", "REMARKS. ",
+                    "AFFINITIES.—", "AFFINITY.—",
                     "DISCUSSIONS.—", "DISCUSSION.—",
                     "LIFE HISTORY NOTES.—", "LIFE HISTORY NOTE.—", "NOTES.—", "NOTE.—");
-                    $block = self::remove_last_sections($last_sections_2b_removed, $block);
+                    $block = self::remove_last_sections($last_sections_2b_removed, $block, $pdf_id);
                     
                     $show = "\n-----------------------\n<$block</sciname>\n-----------------------\n";
                     /*
@@ -497,7 +513,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         }
         return $block;
     }
-    private function remove_last_sections($sections, $block)
+    private function remove_last_sections($sections, $block, $pdf_id)
     {
         // /* for SCtZ-0001 -> remove REMARKS.— but include sections after it e.g. DISTRIBUTION.—
         $begin = "REMARKS.—";       $end = "DISTRIBUTION.—"; //works also but better to use "\n". Or maybe case to case basis.
@@ -511,7 +527,13 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $begin = "DISCUSSION.—";    $end = "VARIATION.—"; //works also but better to use "\n". Or maybe case to case basis.
         $block = self::species_section_append_pattern($begin, $end, $block);
         // */
-        
+        // /* for scz-0630 -> remove REMARKS. but include sections after it e.g. TYPE SPECIES.—
+        if($pdf_id == "scz-0630") {
+            $begin = "REMARKS. ";   $end = "TYPE SPECIES. "; //works also but better to use "\n". Or maybe case to case basis.
+            $block = self::species_section_append_pattern($begin, $end, $block);
+        }
+        // */
+
         foreach($sections as $section) {
             $str = "elicha".$block;
             if(preg_match("/elicha(.*?)".preg_quote($section, '/')."/ims", $str, $a2)) $block = $a2[1];
