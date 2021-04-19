@@ -472,7 +472,9 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                 $rows = explode("\n", $block);
                 // if(count($rows) >= 5) {
                 if(true) {
-                    $last_sections_2b_removed = array("REMARKS.—", "REMARK.—", "AFFINITIES.—", "DISCUSSION.—", "NOTE.—", "NOTES.—");
+                    $last_sections_2b_removed = array("REMARKS.—", "REMARK.—", "AFFINITIES.—", "AFFINITY.—",
+                    "DISCUSSIONS.—", "DISCUSSION.—",
+                    "LIFE HISTORY NOTES.—", "LIFE HISTORY NOTE.—", "NOTES.—", "NOTE.—");
                     $block = self::remove_last_sections($last_sections_2b_removed, $block);
                     
                     $show = "\n-----------------------\n<$block</sciname>\n-----------------------\n";
