@@ -9,6 +9,8 @@ wget https://editors.eol.org/eol_php_code/applications/content_server/resources/
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = "10088_5097"; //Smithsonian Contributions to Zoology --> first repository to process
+// $resource_id = "10088_6943"; //Smithsonian Contributions to Botany -- 2nd repo to process
+
 // /* un-comment in real operation
 require_library('connectors/ParseListTypeAPI');
 require_library('connectors/SmithsonianPDFsAPI');
