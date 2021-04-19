@@ -296,6 +296,7 @@ wikipedia-es	Monday 2020-04-20 12:36:02 PM	  {"media_resource.tab":314924, "taxo
 wikipedia-es	Thursday 2020-05-07 07:47:46 AM	{"media_resource.tab":315058, "taxon.tab":173605, "time_elapsed":{"sec":19515.3, "min":325.26, "hr":5.42}} OK - start updated gen. connector
 wikipedia-es	Wednesday 2020-07-29 04:21:20 PM{"media_resource.tab":319705, "taxon.tab":175913, "time_elapsed":{"sec":28860.25, "min":481, "hr":8.02}} consistent OK
 wikipedia-es	Mon 2020-10-12 01:06:01 AM	    {"media_resource.tab":324055, "taxon.tab":178175, "time_elapsed":{"sec":28331.05, "min":472.18, "hr":7.87}}
+wikipedia-es	Wed 2021-04-14 06:23:53 AM	    {"media_resource.tab":330887, "taxon.tab":181835, "time_elapsed":{"sec":50379.04, "min":839.65, "hr":13.99}}
 
 wikipedia-it	Tuesday 2017-11-14 04:48:25 AM	{"media_resource.tab":64723,"taxon.tab":39992}
 wikipedia-it	Monday 2017-12-04 05:16:39 AM	{"media_resource.tab":64861,"taxon.tab":40069}
@@ -315,6 +316,7 @@ wikipedia-it	Tuesday 2020-05-05 12:26:38 PM	{"media_resource.tab":70002, "taxon.
 wikipedia-it	Thursday 2020-05-07 09:45:39 AM	{"media_resource.tab":70002, "taxon.tab":43578, "time_elapsed":{"sec":5527.71, "min":92.13, "hr":1.54}} OK - start updated gen. connector
 wikipedia-it	Wednesday 2020-07-29 09:41:53 PM{"media_resource.tab":70874, "taxon.tab":44086, "time_elapsed":{"sec":6447.42, "min":107.46, "hr":1.79}} consistent OK
 wikipedia-it	Mon 2020-10-12 06:54:04 AM	    {"media_resource.tab":71278, "taxon.tab":44261, "time_elapsed":{"sec":7042.68, "min":117.38, "hr":1.96}}
+wikipedia-it	Wed 2021-04-14 01:35:23 PM	    {"media_resource.tab":72874, "taxon.tab":45086, "time_elapsed":{"sec":13247.94, "min":220.8, "hr":3.68}}
 
 wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.tab":55915}
 957	            Monday 2017-12-04 05:20:51 AM	{"media_resource.tab":87940,"taxon.tab":56041}
@@ -333,6 +335,7 @@ wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.
 957	            Friday 2020-05-01 01:23:49 AM	  {"media_resource.tab":94721, "taxon.tab":60524, "time_elapsed":{"sec":5103.87, "min":85.06, "hr":1.42}}
 957	            Thursday 2020-07-30 07:16:51 AM	{"media_resource.tab":95942, "taxon.tab":61291, "time_elapsed":{"sec":17174.28, "min":286.24, "hr":4.77}} consistent OK
 957	            Mon 2020-10-12 04:16:19 PM	    {"media_resource.tab":96843, "taxon.tab":61895, "time_elapsed":{"sec":17716.67, "min":295.28, "hr":4.92}}
+957	            Thu 2021-04-15 01:22:25 AM	    {"media_resource.tab":99078, "taxon.tab":63389, "time_elapsed":{"sec":25487.67, "min":424.79, "hr":7.08}}
 
 wikipedia-fr	Sunday 2017-12-03 12:04:24 AM	{"media_resource.tab":214962,"taxon.tab":119824}
 wikipedia-fr	Sunday 2018-04-29 04:10:02 PM	{"media_resource.tab":214956,"taxon.tab":119821}
@@ -352,7 +355,7 @@ wikipedia-fr	Tuesday 2020-04-21 10:44:37 PM	  {"media_resource.tab":236261, "tax
 wikipedia-fr	Thursday 2020-05-07 05:25:29 PM	  {"media_resource.tab":236366, "taxon.tab":134394, "time_elapsed":{"sec":14052.37, "min":234.21, "hr":3.9}} OK - start updated gen. connector
 wikipedia-fr	Friday 2020-07-31 01:54:47 AM	    {"media_resource.tab":241386, "taxon.tab":136694, "time_elapsed":{"sec":22568.44, "min":376.14, "hr":6.27}} OK
 wikipedia-fr	Mon 2020-11-23 07:19:04 AM	      {"media_resource.tab":242884, "taxon.tab":137331, "time_elapsed":{"sec":16572.19, "min":276.2, "hr":4.6}}
-
+wikipedia-fr	Fri 2021-04-16 12:44:44 AM	      {"media_resource.tab":246448, "taxon.tab":139087, "time_elapsed":{"sec":42528.69, "min":708.81, "hr":11.81}}
 
 wikipedia-ja	Friday 2017-11-10 08:35:41 AM	{"media_resource.tab":26208,"taxon.tab":20431}
 wikipedia-ja	Saturday 2017-12-02 10:53:40 PM	{"media_resource.tab":26264,"taxon.tab":20475}
@@ -371,6 +374,7 @@ wikipedia-ja	Thursday 2020-04-16 04:52:13 AM	{"media_resource.tab":28921, "taxon
 wikipedia-ja	Thursday 2020-05-07 06:17:07 PM	{"media_resource.tab":27148, "taxon.tab":21493, "time_elapsed":{"sec":3089.37, "min":51.49, "hr":0.86}} OK - start updated gen. connector
 wikipedia-ja	Friday 2020-07-31 08:24:59 AM	  {"media_resource.tab":16599, "taxon.tab":21825, "time_elapsed":{"sec":23404.6, "min":390.08, "hr":6.5}} will monitor big drop in media, but will accept for now.
 wikipedia-ja	Tue 2020-10-13 04:30:50 PM	    {"media_resource.tab":16800, "taxon.tab":22038, "time_elapsed":{"sec":23055.08, "min":384.25, "hr":6.4}}
+wikipedia-ja	Fri 2021-04-16 07:06:20 AM	    {"media_resource.tab":17160, "taxon.tab":22487, "time_elapsed":{"sec":22887.46, "min":381.46, "hr":6.36}}
 
 wikipedia-ko	Thursday 2017-11-30 10:29:47 PM	{"media_resource.tab":24527,"taxon.tab":16954}
 wikipedia-ko	Sunday 2017-12-03 12:48:17 AM	{"media_resource.tab":24701,"taxon.tab":17060}
@@ -422,6 +426,7 @@ wikipedia-ru	Thursday 2020-04-16 09:53:10 PM	{"media_resource.tab":87993, "taxon
 wikipedia-ru	Thursday 2020-05-07 07:36:34 PM	{"media_resource.tab":87486, "taxon.tab":53086, "time_elapsed":{"sec":7857.18, "min":130.95, "hr":2.18}} OK - start updated gen. connector
 wikipedia-ru	Friday 2020-07-31 09:53:01 PM	  {"media_resource.tab":60360, "taxon.tab":53847, "time_elapsed":{"sec":71886.82, "min":1198.11, "hr":19.97}} will monitor big drop in media, but will accept for now.
 wikipedia-ru	Wed 2020-10-14 06:43:54 AM	    {"media_resource.tab":60894, "taxon.tab":54313, "time_elapsed":{"sec":74238.29, "min":1237.3, "hr":20.62}}
+wikipedia-ru	Fri 2021-04-16 09:12:40 PM	    {"media_resource.tab":62349, "taxon.tab":55617, "time_elapsed":{"sec":73666.32, "min":1227.77, "hr":20.46}}
 
 wikipedia-zh	Tuesday 2017-11-14 03:41:12 PM	{"media_resource.tab":156137,"taxon.tab":91145}
 wikipedia-zh	Sunday 2017-12-03 12:33:20 AM	{"media_resource.tab":156585,"taxon.tab":91396}
@@ -441,6 +446,7 @@ wikipedia-zh	Thursday 2020-04-16 10:29:52 PM	{"media_resource.tab":187938, "taxo
 wikipedia-zh	Friday 2020-05-08 12:34:26 AM	  {"media_resource.tab":173006, "taxon.tab":103275, "time_elapsed":{"sec":8758.71, "min":145.98, "hr":2.43}} OK - start updated gen. connector
 wikipedia-zh	Sunday 2020-08-02 02:04:10 PM	  {"media_resource.tab":90977, "taxon.tab":103294, "time_elapsed":{"sec":23144.7, "min":385.75, "hr":6.43}} will monitor big drop in media, but will accept for now.
 wikipedia-zh	Wed 2020-10-14 02:55:11 PM	    {"media_resource.tab":91789, "taxon.tab":104095, "time_elapsed":{"sec":22283.49, "min":371.39, "hr":6.19}}
+wikipedia-zh	Sat 2021-04-17 08:14:37 AM	    {"media_resource.tab":94110, "taxon.tab":105830, "time_elapsed":{"sec":29965.73, "min":499.43, "hr":8.32}}
 
 --------------------------------------------- START OF NEW BATCH ---------------------------------------------
 
