@@ -125,7 +125,7 @@ class ParseListTypeAPI
         return false;
     }
     // /*
-    function run_gnparser($string) //not used anymore...
+    function run_gnparser($string)
     {
         if($string = self::clean_name($string)) {}
         else return false;

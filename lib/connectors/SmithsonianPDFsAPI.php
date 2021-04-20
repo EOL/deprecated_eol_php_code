@@ -27,12 +27,17 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $this->with_epub_count = 0;
         $this->without_epub_count = 0;
     }
+    function initialize()
+    {
+        require_library('connectors/ParseAssocTypeAPI');        $this->func_Assoc = new ParseAssocTypeAPI();
+    }
     function start()
     {
         // /* Initialize other libraries
         require_library('connectors/ParseListTypeAPI');
         require_library('connectors/ParseUnstructuredTextAPI'); $this->func_ParseUnstructured = new ParseUnstructuredTextAPI();
         require_library('connectors/ConvertioAPI');             $this->func_Convertio = new ConvertioAPI();
+        self::initialize();
         // */
         self::process_all_pdfs_for_a_repository(); //includes conversion of .epub to .txt AND generation of filename_tagged.txt.
         // /* un-comment in real operation
@@ -459,11 +464,12 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             )*/
         }
     }
-    private function process_a_txt_file($txt_filename, $pdf_id, $pdf_meta_obj)
+    function process_a_txt_file($txt_filename, $pdf_id, $pdf_meta_obj)
     {   /*
         <sciname='Pontostratiotes scotti Brodskaya, 1959'> Pontostratiotes scotti Brodskaya, 1959
         </sciname>
         */
+        // exit("\ntxt_filename: [$txt_filename]\npdf_id: [$pdf_id]\n");
         $contents = file_get_contents($txt_filename);;
         if(preg_match_all("/<sciname=(.*?)<\/sciname>/ims", $contents, $a)) {
             foreach($a[1] as $str) {
@@ -480,6 +486,12 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                     $tmp = str_replace("\n", "<br>", $tmp);
                     // echo "\n$tmp\n";
                     $rec['body'] = $tmp;
+                    
+                    // /* associations block
+                    $assoc = $this->func_Assoc->parse_associations($rec['body']);
+                    print_r($assoc); //exit("\nend2\n");
+                    // */
+                    
                 } //print_r($rec); exit;
                 /*Array(
                     [pdf_id] => SCtZ-0001

@@ -12,21 +12,21 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
         
         // http://gnrd.globalnames.org/name_finder.json?text=Stilbosis lonchocarpella Busck, 1934, p. 157.
-        // http://gnrd.globalnames.org/name_finder.json?text=Siskiwitia alticolans looks like a small Periploca that has a white, transverse band on the forewing.
-
-        // http://gnrd.globalnames.org/name_finder.json?text=Halisidota agatha Schaus, 1924, p. 35.
+        // http://gnrd.globalnames.org/name_finder.json?text=Apanteles ornigus Weed
+        // http://gnrd.globalnames.org/name_finder.json?text=PARASITOIDS (Table 2).—Braconidae: Apanteles ornigus Weed
         // https://parser.globalnames.org/api/v1/Halisidota agatha Schaus, 1924, p. 35.
 
-        
         /*
-        http://gnrd.globalnames.org/name_finder.json?text=Paratrygon aieraba (Müller and Henle, 1841), AM, Raya amazónica; R. Rosa, pers. comm.
-        https://parser.globalnames.org/api/v1/Paratrygon+aieraba+%28Muller+and+Henle%2C+1841%29%2C+AM%2C+Raya+amaz%C3%B3nica%3B+R.+Rosa%2C+pers.+comm.
-        https://parser.globalnames.org/api/v1/Paratrygon aieraba (Müller and Henle, 1841), AM, Raya amazónica; R. Rosa, pers. comm.
-        https://parser.globalnames.org/?q=Paratrygon+aieraba+%28M%C3%BCller+and+Henle%2C+1841%29%2C+AM%2C+Raya+amaz%C3%B3nica%3B+R.+Rosa%2C+pers.+comm.
+        http://gnrd.globalnames.org/name_finder.json?text=HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
+        https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
+        https://parser.globalnames.org/api/v1/Populus tremuloides Michx.
+        https://parser.globalnames.org/?q=https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
+        %26 - &
         %2C - ,
         %28 - (
         %29 - )
         %3B - ;
+        + - space
         */
         /* index key here is the lines_before_and_after_sciname */
         $this->no_of_rows_per_block[2] = 5; //orig, first sample epub (SCtZ-0293_convertio.txt)

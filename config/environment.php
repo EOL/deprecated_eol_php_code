@@ -11,7 +11,7 @@ ini_set('max_execution_time', 60*60*24*15); // 15 days | 21600 = 6 hours
 ini_set('display_errors', false);
 
 /* Default Environment */
-if(!isset($GLOBALS['ENV_NAME'])) $GLOBALS['ENV_NAME'] = 'development';
+if(!isset($GLOBALS['ENV_NAME'])) $GLOBALS['ENV_NAME'] = 'production';
 // passing in the CLI arguments
 set_and_load_proper_environment($argv);
 
