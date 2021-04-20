@@ -97,7 +97,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                 )
         )*/
         
-        // /* Provision to save PDF metadata as json 
+        // /* Provision to save PDF metadata as json. Although this hasn't been used yet, but a good provision in the future.
         $pdf_id = $epub_info['pdf_id'];
         $json_file = $this->path['working_dir']."$pdf_id/".$pdf_id."_meta.json";
         if(!file_exists($json_file)) {
@@ -437,7 +437,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."_tagged.txt";
             $txt_filename = $folder."/".$txt_filename;
             echo "\n$txt_filename";
-            // /*
+            // /* Not used at the moment though...
             $pdf_meta_obj = self::get_pdf_meta_from_json(str_replace("_tagged.txt", "_meta.json", $txt_filename));
             // */
             if(file_exists($txt_filename)) { echo " - OK\n";
