@@ -11,8 +11,9 @@ class ParseAssocTypeAPI
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
     }
     /*#################################################################################################################################*/
-    function parse_associations($html)
+    function parse_associations($html, $pdf_id)
     {
+        $this->pdf_id = $pdf_id; //works but not being used atm.
         $arr = explode("<br>", $html); // print_r($arr);
         /*[35] => 
           [36] => HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
@@ -34,6 +35,9 @@ class ParseAssocTypeAPI
             $row = trim(Functions::remove_whitespace($row));
             $row = Functions::conv_to_utf8($row);
             $parts = explode(",", $row); //exploded via a comma (","), since GNRD can't detect scinames from block of text sometimes.
+            
+            $possible_genuses = array();
+            
             foreach($parts as $part) {
                 $obj = self::run_GNRD_assoc($part); // print_r($obj); //exit;
                 foreach($obj->names as $name) {
@@ -51,13 +55,27 @@ class ParseAssocTypeAPI
                     */
                     // /* possible genus
                     $words = explode(" ", $tmp);
-                    if(substr($tmp,1,2) != ". ") $possible_genus = trim($words[0]);
+                    if(substr($tmp,1,2) != ". ") {
+                        $possible_genus = trim($words[0]);
+                        $possible_genuses[] = trim($words[0]);
+                    }
                     if(substr($tmp,1,2) == ". " && substr($tmp,0,1) === substr($possible_genus,0,1)) {
                         array_shift($words); //remove first element "P."
                         $new_sci = $possible_genus." ".implode(" ", $words);
                         $scinames["$prefix"][$new_sci] = '';
                         // exit("\ngoes here...\n");
                     }
+                    // /* New: good inclusion to complete genus names. Not perfect but better than nothing.
+                    elseif(substr($tmp,1,2) == ". ") { //will use $possible_genuses here
+                        foreach($possible_genuses as $pg) {
+                            if(substr($tmp,0,1) === substr($pg,0,1)) {
+                                array_shift($words); //remove first element "P."
+                                $new_sci = $pg." ".implode(" ", $words);
+                                $scinames["$prefix"][$new_sci] = '';
+                            }
+                        }
+                    }
+                    // */
                     else {
                         if(self::is_one_word($tmp)) continue;
                         $scinames[$prefix][$tmp] = '';

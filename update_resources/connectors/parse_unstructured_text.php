@@ -125,8 +125,9 @@ $input = array('filename' => 'scz-0630.txt', 'lines_before_and_after_sciname' =>
 $input = array('filename' => 'SCtZ-0614.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/');
 $input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/');
 $input = array('filename' => 'SCtZ-0272.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0272/');
+$input = array('filename' => 'SCtZ-0439.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0439/');
 
-    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0272/SCtZ-0272.txt
+    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0439/SCtZ-0439.txt
 
 
 //List-type here:

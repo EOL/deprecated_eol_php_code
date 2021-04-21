@@ -22,8 +22,9 @@ require_library('connectors/ParseListTypeAPI');
 require_library('connectors/SmithsonianPDFsAPI');
 $func = new SmithsonianPDFsAPI($resource_id);
 $func->initialize();
-$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/SCtZ-0614_tagged.txt";
-$pdf_id = "SCtZ-0614";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/SCtZ-0614_tagged.txt";  $pdf_id = "SCtZ-0614";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0439/SCtZ-0439_tagged.txt";  $pdf_id = "SCtZ-0439";
+
 $func->process_a_txt_file($txt_filename, $pdf_id, array());
 $func->archive_builder_finalize();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder

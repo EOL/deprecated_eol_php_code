@@ -502,7 +502,12 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                     $rec['body'] = $tmp;
                     
                     // /* associations block
-                    $assoc = $this->func_Assoc->parse_associations($rec['body']);
+                    // /* manual customization
+                    if($pdf_id == "SCtZ-0439") { //typo
+                        $rec['body'] = str_replace("Chrysopsisgraminifolia", "Chrysopsis graminifolia", $rec['body']);
+                    }
+                    // */
+                    $assoc = $this->func_Assoc->parse_associations($rec['body'], $pdf_id);
 
                     // good debug
                     // if($assoc['sciname'] != $rec['sciname']) { --> indeed sometimes they're not equal
