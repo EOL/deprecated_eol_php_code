@@ -541,6 +541,12 @@ class Pensoft2EOLAPI
                 )
         */
         foreach($arr as $rek) {
+            // /* general for all:
+            if($rek['ontology'] == "eol-geonames") { //per https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65861&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65861
+                if(stripos($rek['id'], "ENVO_") !== false) continue; //string is found
+            }
+            // */
+            
             // /* customize
             // exit("\n".$this->param['resource_id']."\n");
             if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text
@@ -627,20 +633,19 @@ class Pensoft2EOLAPI
         if(!file_exists($this->json_temp_path[$what] . "$cache1/$cache2")) mkdir($this->json_temp_path[$what] . "$cache1/$cache2");
         return $this->json_temp_path[$what] . "$cache1/$cache2/$filename";
     }
+    /* obsolete, still from Vangelis
     private function gen_noParentTerms()
     {   echo "\nRun gen_noParentTerms()...\n";
         $current_dir = getcwd(); //get current dir
         chdir($this->root_path);
-        /*
-        ./eol_scripts/exclude-parents-E.pl eol_tags/eol_tags.tsv eol_scripts/envo_child_parent.tsv > eol_tags/eol_tags_noParentTerms.tsv
-        */
+        // ./eol_scripts/exclude-parents-E.pl eol_tags/eol_tags.tsv eol_scripts/envo_child_parent.tsv > eol_tags/eol_tags_noParentTerms.tsv
         $cmd = "./eol_scripts/exclude-parents-E.pl $this->eol_tags_destination $this->eol_scripts_path"."envo_child_parent.tsv > $this->eol_tags_path"."eol_tags_noParentTerms.tsv";
         shell_exec($cmd);
         chdir($current_dir); //go back to current dir
-        /* un-comment if you want to investigate raw source files: eol_tags.tsv and eol_tags_noParentTerms.tsv
-        exit("\nStop muna, will investigate\n"); //comment in real operation
-        */
+        // un-comment if you want to investigate raw source files: eol_tags.tsv and eol_tags_noParentTerms.tsv
+        // exit("\nStop muna, will investigate\n"); //comment in real operation
     }
+    */
     private function valid_record($rec)
     {   if($rec['http://purl.org/dc/terms/type'] == 'http://purl.org/dc/dcmitype/Text' &&
            in_array(@$rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'], $this->allowed_subjects) &&
