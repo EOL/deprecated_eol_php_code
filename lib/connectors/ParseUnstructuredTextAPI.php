@@ -13,7 +13,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         
         // http://gnrd.globalnames.org/name_finder.json?text=Stilbosis lonchocarpella Busck, 1934, p. 157.
         // http://gnrd.globalnames.org/name_finder.json?text=Apanteles ornigus Weed
-        // http://gnrd.globalnames.org/name_finder.json?text=PARASITOIDS (Table 2).—Braconidae: Apanteles ornigus Weed
+        // http://gnrd.globalnames.org/name_finder.json?text=Populus fremontii S. Wats
         // https://parser.globalnames.org/api/v1/Halisidota agatha Schaus, 1924, p. 35.
 
         /*

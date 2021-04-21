@@ -27,10 +27,12 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $this->with_epub_count = 0;
         $this->without_epub_count = 0;
     }
-    function initialize()
-    {
-        require_library('connectors/ParseAssocTypeAPI');        $this->func_Assoc = new ParseAssocTypeAPI();
-    }
+    
+    // /* used during dev, from parse_unstructured_text.php when working on associations
+    function initialize() { require_library('connectors/ParseAssocTypeAPI'); $this->func_Assoc = new ParseAssocTypeAPI(); }
+    function archive_builder_finalize() { $this->archive_builder->finalize(true); }
+    // */
+    
     function start()
     {
         // /* Initialize other libraries
@@ -489,7 +491,11 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                     
                     // /* associations block
                     $assoc = $this->func_Assoc->parse_associations($rec['body']);
-                    print_r($assoc); //exit("\nend2\n");
+                    if($assoc['sciname'] != $rec['sciname']) exit("\nInvestigate sciname\n"); //should not go here
+                    if($val = @$assoc['assoc']) {
+                        $rec['associations'] = $val;
+                        print_r($assoc); //good debug
+                    }
                     // */
                     
                 } //print_r($rec); exit;
@@ -539,6 +545,8 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
         }
+        //write associations
+        if($val = @$rec['associations']) $this->func_Assoc->write_associations($val, $taxon, $this->archive_builder);
     }
     function clean_sciname($name)
     {

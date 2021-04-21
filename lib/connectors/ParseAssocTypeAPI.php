@@ -29,20 +29,44 @@ class ParseAssocTypeAPI
     {
         $scinames = array();
         foreach($rows as $prefix => $row) {
-            // $row = str_replace(":", ",", $row);
+            $row = str_replace(":", ",", $row);
+            $row = str_replace("—", ",", $row);
+            $row = trim(Functions::remove_whitespace($row));
             $row = Functions::conv_to_utf8($row);
-            
             $parts = explode(",", $row); //exploded via a comma (","), since GNRD can't detect scinames from block of text sometimes.
             foreach($parts as $part) {
                 $obj = self::run_GNRD_assoc($part); // print_r($obj); //exit;
                 foreach($obj->names as $name) {
                     $tmp = $name->scientificName;
-                    // if(self::is_one_word($tmp)) continue;
-                    $scinames[$prefix][$tmp] = '';
+                    /*
+                    Populus tremuloides
+                    P. grandidentata
+                    P. canescens
+                    Populus balsamifera
+                    P. deltoides
+                    Salix
+                    Populus alba
+                    P. nigra
+                    P. tremula
+                    */
+                    // /* possible genus
+                    $words = explode(" ", $tmp);
+                    if(substr($tmp,1,2) != ". ") $possible_genus = trim($words[0]);
+                    if(substr($tmp,1,2) == ". " && substr($tmp,0,1) === substr($possible_genus,0,1)) {
+                        array_shift($words); //remove first element "P."
+                        $new_sci = $possible_genus." ".implode(" ", $words);
+                        $scinames["$prefix"][$new_sci] = '';
+                        // exit("\ngoes here...\n");
+                    }
+                    else {
+                        if(self::is_one_word($tmp)) continue;
+                        $scinames[$prefix][$tmp] = '';
+                    }
+                    // */
                 }
             }
         }
-        // print_r($scinames);
+        // print_r($scinames); exit("\nexit muna\n");
         return $scinames;
     }
     private function get_relevant_blocks($arr)
@@ -102,7 +126,6 @@ class ParseAssocTypeAPI
         // %29 - )
         // %3B - ;
         // + - space
-
         $str = str_replace(",", "%2C", $str);
         $str = str_replace("(", "%28", $str);
         $str = str_replace(")", "%29", $str);
@@ -112,5 +135,86 @@ class ParseAssocTypeAPI
         return $str;
     }
     */
+    function write_associations($rec, $taxon, $archive_builder) //2nd param is source taxon object
+    {
+        $this->archive_builder = $archive_builder;
+        // print_r($rec); exit("\n111\n");
+        /*Array(
+            [HOSTS] => Array(
+                    [Populus tremuloides] => 
+                    [Populus grandidentata] => 
+                )
+            [PARASITOIDS] => Array(
+                    [Cirrospilus cinctithorax] => 
+                    [Closterocerus tricinctus] => 
+                )
+        )*/
+        
+        
+        // HOST(s)/HOST PLANT(s)   associationType=http://purl.obolibrary.org/obo/RO_0002454
+        // PARASITOID(s)           associationType=http://purl.obolibrary.org/obo/RO_0002209
+        
+        foreach($rec as $assoc_type => $scinames) {
+            $scinames = array_keys($scinames);
+            $associationType = self::get_assoc_type($assoc_type);
+            foreach($scinames as $target_sciname) {
+                $occurrence = $this->add_occurrence($taxon, "$taxon->scientificName $associationType");
+                $related_taxon = $this->add_taxon($target_sciname);
+                $related_occurrence = $this->add_occurrence($related_taxon, "$related_taxon->scientificName $associationType");
+                $a = new \eol_schema\Association();
+                $a->associationID = md5("$occurrence->occurrenceID $associationType $related_occurrence->occurrenceID");
+                $a->occurrenceID = $occurrence->occurrenceID;
+                $a->associationType = $associationType;
+                $a->targetOccurrenceID = $related_occurrence->occurrenceID;
+                if(!isset($this->association_ids[$a->associationID])) {
+                    $this->archive_builder->write_object_to_file($a);
+                    $this->association_ids[$a->associationID] = '';
+                }
+            }
+        }
+    }
+    private function add_occurrence($taxon, $identification_string)
+    {
+        $occurrence_id = md5($taxon->taxonID . 'occurrence' . $identification_string);
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxon->taxonID;
+        if(!isset($this->occurrence_ids[$occurrence_id])) {
+            $this->archive_builder->write_object_to_file($o);
+            $this->occurrence_ids[$occurrence_id] = '';
+        }
+        return $o;
+    }
+    private function add_taxon($taxon_name)
+    {
+        /* copied template
+        $taxon_id = md5($taxon_name);
+        if(isset($this->taxon_ids[$taxon_id])) return $this->taxon_ids[$taxon_id];
+        $t = new \eol_schema\Taxon();
+        $t->taxonID = $taxon_id;
+        $t->scientificName = $taxon_name;
+        $t->order = $order;
+        $this->archive_builder->write_object_to_file($t);
+        $this->taxon_ids[$taxon_id] = $t;
+        return $t;
+        */
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = md5($taxon_name);
+        $taxon->scientificName  = $taxon_name;
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->taxon_ids[$taxon->taxonID] = '';
+        }
+        return $taxon;
+    }
+    private function get_assoc_type($assoc_type)
+    {   /*
+        HOST(s)/HOST PLANT(s)   associationType=http://purl.obolibrary.org/obo/RO_0002454
+        PARASITOID(s)           associationType=http://purl.obolibrary.org/obo/RO_0002209
+        */
+        if(stripos($assoc_type, "HOST") !== false) return "http://purl.obolibrary.org/obo/RO_0002454"; //string is found
+        if(stripos($assoc_type, "PARASITOID") !== false) return "http://purl.obolibrary.org/obo/RO_0002209"; //string is found
+        return false;
+    }
 }
 ?>
