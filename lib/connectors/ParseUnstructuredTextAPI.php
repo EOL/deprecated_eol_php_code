@@ -308,6 +308,13 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(stripos($str, " from ") !== false) return false; //string is found
         // */
         
+        // /*
+        // bb7bc8588a2d5341f0a6be706547b585 O. striata
+        // a14d6967a3e39c47acc6282fbc6207a1 O. asiatica
+        // 3c6f75781e17fac48b341d71ea9ec40d O. stephensoni
+        if(substr($str,1,2) == ". ") return false;
+        // */
+        
         /* criteria 2: any part of the row where rank value exists
         $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
         foreach($ranks as $rank) {
