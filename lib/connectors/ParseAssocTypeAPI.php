@@ -19,11 +19,11 @@ class ParseAssocTypeAPI
           [37] => 
           [38] => PARASITOIDS (Table 2).—Braconidae: Apanteles ornigus Weed, Apanteles sp., Pholetesor sp., probably salicifoliella (Mason); Eulophidae: Chrysocharis sp., Cirrospilus cinctithorax (Girault), Cirrospilus sp., Closterocerus tricinctus (Ashmead), Closterocerus sp., near trifasciatus, Horismenus fraternus (Fitch), Pediobius sp., Pnigalio flavipes (Ashmead), Pnigalio tischeriae (Ashmead) (regarded by some as a junior synonym of Pnigalio flavipes), Pnigalio near proximus (Ashmead), Pnigalio sp., Sympiesis conica (Provancher), Sympiesis sp., Tetrastichus sp.; Ichneumonidae: Alophosternum foliicola (Cushman), Diadeg-ma sp., stenosomus complex, Scambus decorus (Whalley); Pteromalidae: Pteromalus sp. (most records from Auerbach (1991), in which a few records may pertain only to Phyllonorycter nipigon).
         */
-        $sciname = $arr[0];
+        $sciname = $arr[0]; //shouldn't be used bec it is uncleaned e.g. "Periploca orichalcella (Clemens), new combination"
         $arr = self::get_relevant_blocks($arr);
         $assoc = self::get_associations($arr);
         // exit("\n[$sciname]\n-end assoc-\n");
-        return array('sciname' => $sciname, 'assoc' => $assoc);
+        return array('assoc' => $assoc);
     }
     private function get_associations($rows)
     {
@@ -74,7 +74,7 @@ class ParseAssocTypeAPI
         $final = array();
         foreach($arr as $string) {
             foreach($this->prefixes as $prefix) {
-                if(substr($string,0,strlen($prefix)+1) == "$prefix ") {
+                if(substr($string,0,strlen($prefix)+1) === "$prefix ") {
                     $final[$prefix] = $string;
                     continue;
                 }

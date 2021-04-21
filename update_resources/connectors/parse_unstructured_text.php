@@ -12,7 +12,6 @@ almost clean, first submission for review
 10088_5097	Thu 2021-04-15 11:21:17 AM	{"media_resource.tab":12601, "taxon.tab":11936, "time_elapsed":{"sec":99.29, "min":1.65, "hr":0.03}}
 10088_5097	Thu 2021-04-15 12:00:54 PM	{"media_resource.tab":12582, "taxon.tab":11919, "time_elapsed":{"sec":96.86, "min":1.61, "hr":0.03}}
 10088_5097_ENV	Thu 2021-04-15 01:44:35 PM	{"measurement_or_fact_specific.tab":50022, "media_resource.tab":12582, "occurrence_specific.tab":50022, "taxon.tab":11919, "time_elapsed":{"sec":5788.24, "min":96.47, "hr":1.61}}
-
 start where species sections with < 60 chars were removed: consistent, expected slightly decrease in all tables.
 10088_5097	Sun 2021-04-18 01:30:45 PM	{"media_resource.tab":12211, "taxon.tab":11574, "time_elapsed":{"sec":362.79, "min":6.05, "hr":0.1}}
 10088_5097_ENV	Sun 2021-04-18 01:42:34 PM	{"measurement_or_fact_specific.tab":49757, "media_resource.tab":12211, "occurrence_specific.tab":49757, "taxon.tab":11574, "time_elapsed":{"sec":704.52, "min":11.74, "hr":0.2}}
@@ -20,6 +19,10 @@ start where species sections with < 60 chars were removed: consistent, expected 
 other adjustments:
 10088_5097	Mon 2021-04-19 11:13:38 AM	{"media_resource.tab":12211, "taxon.tab":11574, "time_elapsed":{"sec":103.12, "min":1.72, "hr":0.03}}
 10088_5097_ENV	Tue 2021-04-20 12:02:09 AM	{"measurement_or_fact_specific.tab":48153, "media_resource.tab":12211, "occurrence_specific.tab":48153, "taxon.tab":11574, "time_elapsed":{"sec":46101.88, "min":768.36, "hr":12.81}}
+start here: remove any terms from the geographic ontology that include the string /ENVO_
+10088_5097	Tue 2021-04-20 11:10:47 PM	{"media_resource.tab":12211, "taxon.tab":11574, "time_elapsed":{"sec":820.79, "min":13.68, "hr":0.23}}
+10088_5097_ENV	Wed 2021-04-21 12:48:11 AM	{"measurement_or_fact_specific.tab":46711, "media_resource.tab":12211, "occurrence_specific.tab":46711, "taxon.tab":11574, "time_elapsed":{"sec":5834.72, "min":97.25, "hr":1.62}}
+->expected decrease in MoF
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
