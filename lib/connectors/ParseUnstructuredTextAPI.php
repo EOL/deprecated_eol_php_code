@@ -392,7 +392,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $row = self::clean_sciname_here($row);
         if(stripos($row, " p. ") !== false) {   //string is found
             $obj = $this->run_gnparser($row);
-            $row = trim($obj[0]->canonical->full." ".@$obj[0]->authorship->normalized);
+            if($canonical = @$obj[0]->canonical->full) {}
+            else {
+                print_r($obj); exit("\nShould not go here...\n$row\n");
+            }
+            $row = trim($canonical." ".@$obj[0]->authorship->normalized);
         }
         $row = self::clean_sciname_here2($row);
         return $row;
