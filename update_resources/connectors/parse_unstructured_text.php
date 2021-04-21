@@ -23,6 +23,11 @@ start here: remove any terms from the geographic ontology that include the strin
 10088_5097	Tue 2021-04-20 11:10:47 PM	{"media_resource.tab":12211, "taxon.tab":11574, "time_elapsed":{"sec":820.79, "min":13.68, "hr":0.23}}
 10088_5097_ENV	Wed 2021-04-21 12:48:11 AM	{"measurement_or_fact_specific.tab":46711, "media_resource.tab":12211, "occurrence_specific.tab":46711, "taxon.tab":11574, "time_elapsed":{"sec":5834.72, "min":97.25, "hr":1.62}}
 ->expected decrease in MoF
+
+10088_5097	Wed 2021-04-21 07:57:54 AM	{"association.tab":159, "media_resource.tab":12103, "occurrence.tab":170, "taxon.tab":11606, "time_elapsed":{"sec":109.99, "min":1.83, "hr":0.03}}
+10088_5097_ENV	Wed 2021-04-21 08:47:34 AM	{"association.tab":159, "measurement_or_fact_specific.tab":45913, "media_resource.tab":12103, "occurrence.tab":170, "occurrence_specific.tab":45913, "taxon.tab":11606, "time_elapsed":{"sec":103.1, "min":1.72, "hr":0.03}}
+
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

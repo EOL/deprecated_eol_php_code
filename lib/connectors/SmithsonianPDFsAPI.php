@@ -60,6 +60,18 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                     [url] => https://repository.si.edu//handle/10088/5349
                     [title] => Deep-sea Cerviniidae (Copepoda: Harpacticoida) from the Western Indian Ocean, collected with RV Anton Bruun in 1964)
         */
+        
+        /* force value -- good during dev.
+        // Biology and Systematics of the North Phyllonorycter Leafminers on Salicaceae, with a Synoptical Catalogue of the Palearctic Species Lepidoptera: Gracillariidae)
+        // https://repository.si.edu//handle/10088/5495
+        // http://dx.doi.org/10.5479/si.00810282.614    
+        // SCtZ-0614.epub
+        $pdfs_info = array();
+        $pdfs_info[] = Array(
+                "url" => "https://repository.si.edu//handle/10088/5495",
+                "title" => "Biology and Systematics of the North Phyllonorycter Leafminers on Salicaceae, with a Synoptical Catalogue of the Palearctic Species Lepidoptera: Gracillariidae)");
+        */
+        
         /* Utility report for Jen - one time run
         $this->ctr = 0;
         // $this->WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH."/Smithsonian_Contributions_to_Zoology.txt", "w"); //initialize
@@ -556,7 +568,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         //write associations
         if($val = @$rec['associations']) {
             $val['pdf_id'] = $rec['pdf_id'];
-            $this->func_Assoc->write_associations($val, $taxon, $this->archive_builder);
+            $this->func_Assoc->write_associations($val, $taxon, $this->archive_builder, $this->meta);
         }
     }
     function clean_sciname($name)

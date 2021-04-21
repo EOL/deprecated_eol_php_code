@@ -135,7 +135,7 @@ class ParseAssocTypeAPI
         return $str;
     }
     */
-    function write_associations($rec, $taxon, $archive_builder) //2nd param is source taxon object
+    function write_associations($rec, $taxon, $archive_builder, $meta) //2nd param is source taxon object
     {
         $this->archive_builder = $archive_builder;
         // print_r($rec); exit("\n111\n");
@@ -166,7 +166,7 @@ class ParseAssocTypeAPI
                 $a->occurrenceID = $occurrence->occurrenceID;
                 $a->associationType = $associationType;
                 $a->targetOccurrenceID = $related_occurrence->occurrenceID;
-                $a->source = @$this->meta[$rec['pdf_id']]['dc.relation.url'];
+                $a->source = @$meta[$rec['pdf_id']]['dc.relation.url'];
                 if(!isset($this->association_ids[$a->associationID])) {
                     $this->archive_builder->write_object_to_file($a);
                     $this->association_ids[$a->associationID] = '';

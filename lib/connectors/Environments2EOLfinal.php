@@ -254,7 +254,7 @@ class Environments2EOLfinal
     {}
     */
     private function process_table($meta, $what, $class) //a generic method to populate an extension.
-    {   print_r($meta);
+    {   //print_r($meta);
         echo "\nprocess_table [$what]\n";
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
