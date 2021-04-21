@@ -554,7 +554,10 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             $this->object_ids[$mr->identifier] = '';
         }
         //write associations
-        if($val = @$rec['associations']) $this->func_Assoc->write_associations($val, $taxon, $this->archive_builder);
+        if($val = @$rec['associations']) {
+            $val['pdf_id'] = $rec['pdf_id'];
+            $this->func_Assoc->write_associations($val, $taxon, $this->archive_builder);
+        }
     }
     function clean_sciname($name)
     {

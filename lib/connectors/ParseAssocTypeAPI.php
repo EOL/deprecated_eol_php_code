@@ -140,21 +140,21 @@ class ParseAssocTypeAPI
         $this->archive_builder = $archive_builder;
         // print_r($rec); exit("\n111\n");
         /*Array(
-            [HOSTS] => Array(
+            [HOST] => Array(
                     [Populus tremuloides] => 
                     [Populus grandidentata] => 
                 )
-            [PARASITOIDS] => Array(
+            [PARASITOID] => Array(
                     [Cirrospilus cinctithorax] => 
                     [Closterocerus tricinctus] => 
                 )
+            [pdf_id] => SCtZ-0614
         )*/
-        
         
         // HOST(s)/HOST PLANT(s)   associationType=http://purl.obolibrary.org/obo/RO_0002454
         // PARASITOID(s)           associationType=http://purl.obolibrary.org/obo/RO_0002209
         
-        foreach($rec as $assoc_type => $scinames) {
+        foreach($rec as $assoc_type => $scinames) { if($assoc_type == 'pdf_id') continue;
             $scinames = array_keys($scinames);
             $associationType = self::get_assoc_type($assoc_type);
             foreach($scinames as $target_sciname) {
@@ -166,6 +166,7 @@ class ParseAssocTypeAPI
                 $a->occurrenceID = $occurrence->occurrenceID;
                 $a->associationType = $associationType;
                 $a->targetOccurrenceID = $related_occurrence->occurrenceID;
+                $a->source = @$this->meta[$rec['pdf_id']]['dc.relation.url'];
                 if(!isset($this->association_ids[$a->associationID])) {
                     $this->archive_builder->write_object_to_file($a);
                     $this->association_ids[$a->associationID] = '';
