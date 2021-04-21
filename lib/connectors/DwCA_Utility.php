@@ -34,7 +34,10 @@ class DwCA_Utility
                                   //start of other row_types: check for NOTICES or WARNINGS, add here those undefined URIs
                                   "http://rs.gbif.org/terms/1.0/description"        => "document",
                                   "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
-                                  "http://eol.org/schema/reference/reference"       => "reference"
+                                  "http://eol.org/schema/reference/reference"       => "reference",
+                                  
+                                  //revived for resource 10088_5097
+                                  "http://eol.org/schema/association"               => "association"
                                   );
 
                                   /*
