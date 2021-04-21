@@ -82,6 +82,15 @@ class Environments2EOLfinal
             $meta = $tables['http://rs.tdwg.org/dwc/terms/occurrence'][0];
             self::process_table($meta, 'create extension', 'occurrence_specific');
         }
+
+        if($this->resource_id == '10088_5097_ENV') { //this will just populate Associations. Not available in DwCA_Utility.php.
+            $tables = $info['harvester']->tables;
+            $meta = $tables['http://eol.org/schema/association'][0];
+            self::process_table($meta, 'create extension', 'association');
+        }
+        
+        
+        
         // */
         self::add_environmental_traits();
         /* Below will be used if there are adjustments to existing MoF and Occurrences
@@ -272,6 +281,8 @@ class Environments2EOLfinal
                 elseif($class == "measurementorfact")   $o = new \eol_schema\MeasurementOrFact();
                 elseif($class == "occurrence_specific")          $o = new \eol_schema\Occurrence_specific();
                 elseif($class == "measurementorfact_specific")   $o = new \eol_schema\MeasurementOrFact_specific();
+                elseif($class == "association")   $o = new \eol_schema\Association();
+
                 $uris = array_keys($rec);
                 
                 // /* start customized

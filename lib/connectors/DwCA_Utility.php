@@ -34,17 +34,14 @@ class DwCA_Utility
                                   //start of other row_types: check for NOTICES or WARNINGS, add here those undefined URIs
                                   "http://rs.gbif.org/terms/1.0/description"        => "document",
                                   "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
-                                  "http://eol.org/schema/reference/reference"       => "reference",
-                                  
-                                  //revived for resource 10088_5097
-                                  "http://eol.org/schema/association"               => "association"
+                                  "http://eol.org/schema/reference/reference"       => "reference"
                                   );
 
                                   /*
                                   [1] => http://rs.gbif.org/terms/1.0/speciesprofile
                                   [6] => http://rs.gbif.org/terms/1.0/typesandspecimen
                                   [7] => http://rs.gbif.org/terms/1.0/distribution
-                                  "http://eol.org/schema/association"               => "association"
+                                  "http://eol.org/schema/association"               => "association"  --> unsuccessful, ContentArchiveBuilder.php has to be updated.
                                   */
     
         if(@$this->resource_id == 24) {
