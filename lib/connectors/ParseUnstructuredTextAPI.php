@@ -112,6 +112,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             // /* criteria 1
             foreach($exclude as $start_of_row) {
                 $len = strlen($start_of_row);
+                // echo "\n$row\n".substr($row,0,$len)." == ".$start_of_row."\n"; //good debug
                 if(substr($row,0,$len) == $start_of_row) {
                     $rows = array();
                     $cont = false; break;
@@ -133,9 +134,9 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
 
             $cont = true;
             // /* criteria 3: any occurrence of these strings in any part of the row
-            $exclude = array(" of ", " in ", " the ", " this ", " with ", "Three ", "There ", " are ", "…", " for ", " dos ", " on ");
-            $exclude = array_merge($exclude, array('order', 'family', 'subgenus', 'tribe')); //is valid "Anoplodactylus lagenus"
-            foreach($exclude as $exc) {
+            $exclude2 = array(" of ", " in ", " the ", " this ", " with ", "Three ", "There ", " are ", "…", " for ", " dos ", " on ");
+            $exclude2 = array_merge($exclude2, array('order', 'family', 'subgenus', 'tribe')); //is valid "Anoplodactylus lagenus"
+            foreach($exclude2 as $exc) {
                 if(stripos($row, $exc) !== false) { //string is found
                     $rows = array();
                     $cont = false; break;
