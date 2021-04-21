@@ -491,7 +491,10 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                     
                     // /* associations block
                     $assoc = $this->func_Assoc->parse_associations($rec['body']);
-                    if($assoc['sciname'] != $rec['sciname']) exit("\nInvestigate sciname\n"); //should not go here
+                    if($assoc['sciname'] != $rec['sciname']) {
+                        echo "\n[".$assoc['sciname']."]\n[".$rec['sciname']."]\n";
+                        exit("\nInvestigate sciname\nshould not go here\n"); //should not go here
+                    }
                     if($val = @$assoc['assoc']) {
                         $rec['associations'] = $val;
                         print_r($assoc); //good debug
