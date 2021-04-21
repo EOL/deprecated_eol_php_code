@@ -9,15 +9,15 @@ $timestart = time_elapsed();
 $resource_id = "10088_5097"; //Smithsonian Contributions to Zoology --> first repository to process
 // $resource_id = "10088_6943"; //Smithsonian Contributions to Botany -- 2nd repo to process
 
-/* un-comment in real operation - main operation
+// /* un-comment in real operation - main operation
 require_library('connectors/ParseListTypeAPI');
 require_library('connectors/SmithsonianPDFsAPI');
 $func = new SmithsonianPDFsAPI($resource_id);
 $func->start();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder
-*/
+// */
 
-// /* during dev: processing associations
+/* during dev: processing associations
 require_library('connectors/ParseListTypeAPI');
 require_library('connectors/SmithsonianPDFsAPI');
 $func = new SmithsonianPDFsAPI($resource_id);
@@ -27,7 +27,7 @@ $pdf_id = "SCtZ-0614";
 $func->process_a_txt_file($txt_filename, $pdf_id, array());
 $func->archive_builder_finalize();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder
-// */
+*/
 
 
 /* utility --- copied template
