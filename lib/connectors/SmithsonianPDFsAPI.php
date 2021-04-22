@@ -119,7 +119,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         // /* Provision to save PDF metadata as json. Although this hasn't been used yet, but a good provision in the future.
         $pdf_id = $epub_info['pdf_id'];
         $json_file = $this->path['working_dir']."$pdf_id/".$pdf_id."_meta.json";
-        if(!file_exists($json_file)) {
+        if(!file_exists($json_file) && is_dir($this->path['working_dir']."$pdf_id/")) {
             $WRITE = fopen($json_file, "w"); //initialize OK
             fwrite($WRITE, json_encode($info));
             fclose($WRITE);
