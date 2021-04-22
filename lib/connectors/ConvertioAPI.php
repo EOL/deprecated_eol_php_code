@@ -64,7 +64,7 @@ class ConvertioAPI
             // print_r($obj);
             self::switch_api();
             if($id = self::initialize_request()) return $id; //important line. It loops but also returns the id.
-            else exit("\nERROR: Should not go here.\n");
+            else exit("\nERRORx: Should not go here.\n");
         }
         return false;
     }
@@ -88,7 +88,7 @@ class ConvertioAPI
         }
         elseif($this->api_key == CONVERTIO_API_KEY_5) {
             echo "\nkey 5 expired, will terminate now...\n";
-            exit("\nERROR: call initialize failed. All keys expired.\n");
+            exit("\nERRORx: call initialize failed. All keys expired.\n");
         }
     }
     function upload_local_file($source, $filename, $api_id) //step 2
@@ -106,7 +106,7 @@ class ConvertioAPI
         $obj = json_decode(trim($json));    //print_r($obj);
         if($obj->status == "ok") return $obj;
         else {
-            echo "\n$cmd\n"; print_r($obj); exit("\nERROR: file upload failed.\n");
+            echo "\n$cmd\n"; print_r($obj); print("\nERRORx: file upload failed [$filename].\n");
         }
         return false;
     }
