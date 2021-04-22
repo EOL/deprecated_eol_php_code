@@ -270,15 +270,16 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         //start Convertio
         $api_id = $this->func_Convertio->initialize_request();
         // exit("\napi_id: [$api_id]\n");
-        $this->func_Convertio->upload_local_file($source, $filename, $api_id);
-        sleep(60);
-        if($obj = $this->func_Convertio->check_status($api_id, 0, $filename)) { //3rd param $filename is just for debug
-            if($txt_url = $obj->data->output->url) {
-                $cmd = "wget -nc ".$txt_url." -O $destination";
-                $cmd .= " 2>&1";
-                $json = shell_exec($cmd);
-                if(file_exists($destination)) echo "\n".$destination." downloaded successfully from Convertio.\n";
-                else                          exit("\nERROR: can not download ".$epub_info['filename']."\n");
+        if($this->func_Convertio->upload_local_file($source, $filename, $api_id)) {
+            sleep(60);
+            if($obj = $this->func_Convertio->check_status($api_id, 0, $filename)) { //3rd param $filename is just for debug
+                if($txt_url = $obj->data->output->url) {
+                    $cmd = "wget -nc ".$txt_url." -O $destination";
+                    $cmd .= " 2>&1";
+                    $json = shell_exec($cmd);
+                    if(file_exists($destination)) echo "\n".$destination." downloaded successfully from Convertio.\n";
+                    else                          exit("\nERROR: can not download ".$epub_info['filename']."\n");
+                }
             }
         }
         return array('source' => $destination, 'resource_working_dir' => $resource_working_dir);

@@ -121,11 +121,11 @@ class ConvertioAPI
         }
         if($obj->status == "ok" && $obj->data->step_percent == 100) return $obj;
         else {
+            print_r($obj);
             echo("\nSTATUS: still processing...Check again after 2 minutes\n");
-            delay(60*2);
+            sleep(60*2);
             $ctr++;
             if($ctr >= 4) {
-                print_r($obj);
                 exit("\nTried 3x already. Investigate Convertio, daily limit might have been reached.\n");
             }
             self::check_status($api_id, $ctr);
