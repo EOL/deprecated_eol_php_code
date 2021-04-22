@@ -508,7 +508,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                     }
                     // */
                     $assoc = $this->func_Assoc->parse_associations($rec['body'], $pdf_id);
-
+                    $assoc['sciname'] = $rec['sciname']; //just for debug for now
                     // good debug
                     // if($assoc['sciname'] != $rec['sciname']) { --> indeed sometimes they're not equal
                     //     echo "\n[".$assoc['sciname']."]\n[".$rec['sciname']."]\n";
@@ -519,7 +519,9 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                     
                     if($val = @$assoc['assoc']) {
                         $rec['associations'] = $val;
+                        echo "\n---------\n";
                         print_r($assoc); //good debug
+                        echo "\n---------\n";
                     }
                     // */
                     

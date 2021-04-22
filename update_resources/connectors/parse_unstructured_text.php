@@ -29,6 +29,11 @@ start here: remove any terms from the geographic ontology that include the strin
 good status: 
 10088_5097	Wed 2021-04-21 09:31:33 AM	{"association.tab":159, "media_resource.tab":12103, "occurrence.tab":170, "taxon.tab":11606, "time_elapsed":{"sec":284.58, "min":4.74, "hr":0.08}}
 10088_5097_ENV	Wed 2021-04-21 09:33:26 AM	{"association.tab":159, "measurement_or_fact_specific.tab":45913, "media_resource.tab":12103, "occurrence.tab":170, "occurrence_specific.tab":45913, "taxon.tab":11606, "time_elapsed":{"sec":106.64, "min":1.78, "hr":0.03}}
+
+10088_5097	Wed 2021-04-21 12:31:24 PM	{"association.tab":157, "media_resource.tab":12100, "occurrence.tab":162, "taxon.tab":11596, "time_elapsed":{"sec":511.77, "min":8.53, "hr":0.14}}
+10088_5097_ENV	Wed 2021-04-21 12:45:28 PM	{"association.tab":157, "measurement_or_fact_specific.tab":45913, "media_resource.tab":12100, "occurrence.tab":162, "occurrence_specific.tab":45913, "taxon.tab":11596, "time_elapsed":{"sec":836, "min":13.93, "hr":0.23}}
+start where "(as E. ramosus)" is removed:
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
