@@ -13,17 +13,23 @@ From local Mac mini:
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
+// print_r($argv);
+$params['jenkins_or_cron'] = @$argv[1]; //not needed here
+$param                     = json_decode(@$argv[2], true);
+$resource_id = $param['resource_id'];
+/*
+php5.6 process_SI_pdfs.php jenkins '{"resource_id": "10088_5097", "resource_name":"SI Contributions to Zoology"}'   //1st repo to process
+php5.6 process_SI_pdfs.php jenkins '{"resource_id": "10088_6943", "resource_name":"SI Contributions to Botany"}'    //2nd repo
+process_SI_pdfs.php _ '{"resource_id": "10088_6943", "resource_name":"SI Contributions to Botany"}'
+*/
 
-/* test
+/* just test
 $string = "HOST PLANTS.—Aster adnatus, A. asteroides (as Sericocarpus asteroides), A. carolinianus (Benjamin, 1934:37), A. concolor, Chrysopsisgraminifolia (as C. microcephala), C. latifolia, C. oligantha, Erigeron canadensis (as E. pusillus), E. strigosus (as E. ramosus), E. nudicaulis (as E. vernus), Heracleum sp. (Phillips, 1946:52), Hieracium argyreaeum, H. Gronovii, H. scabrum, H. venosum, H. sp., Prenanthes trifoliata, Trilisa paniculata, Sericocarpus acutisquamosus.";
 echo "\n$string\n";
 $string = trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis
 echo "\n$string\n";
 exit("\n");
 */
-
-$resource_id = "10088_5097"; //Smithsonian Contributions to Zoology --> first repository to process
-// $resource_id = "10088_6943"; //Smithsonian Contributions to Botany -- 2nd repo to process
 
 // /* un-comment in real operation - main operation
 require_library('connectors/ParseListTypeAPI');

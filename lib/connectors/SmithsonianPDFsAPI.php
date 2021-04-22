@@ -272,7 +272,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         // exit("\napi_id: [$api_id]\n");
         $this->func_Convertio->upload_local_file($source, $filename, $api_id);
         sleep(60);
-        if($obj = $this->func_Convertio->check_status($api_id)) {
+        if($obj = $this->func_Convertio->check_status($api_id, 0, $filename)) { //3rd param $filename is just for debug
             if($txt_url = $obj->data->output->url) {
                 $cmd = "wget -nc ".$txt_url." -O $destination";
                 $cmd .= " 2>&1";

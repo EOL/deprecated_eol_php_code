@@ -110,14 +110,14 @@ class ConvertioAPI
         }
         return false;
     }
-    function check_status($api_id, $ctr = 0)
+    function check_status($api_id, $ctr = 0, $filename) //3rd param $filename is for debug only
     {
         $cmd = "curl -S -s -X GET http://api.convertio.co/convert/".$api_id."/status";
         $cmd .= " 2>&1";
         $json = shell_exec($cmd);           //echo "\n$json\n";
         $obj = json_decode(trim($json));    //print_r($obj);
         if($obj->status != "ok") {
-            echo "\n$cmd\n"; print_r($obj); exit("\nERROR: status check failed.\n");
+            echo "\n--------\n$cmd\n"; print_r($obj); print("\nERROR: status check failed [$filename]\n--------\n");
         }
         if($obj->status == "ok" && $obj->data->step_percent == 100) return $obj;
         else {
