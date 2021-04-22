@@ -1,10 +1,13 @@
 <?php
 namespace php_active_record;
 /*
+https://repository.si.edu/handle/10088/5097         1st repo
+https://repository.si.edu/handle/10088/6943         2nd repo
+
 wget https://editors.eol.org/eol_php_code/applications/content_server/resources/10088_5097.tar.gz
 wget https://editors.eol.org/eol_php_code/applications/content_server/resources/10088_5097_ENV.tar.gz
 
-From local Mac mini:
+From local Mac mini: SCtZ-0614
 10088_5097      {"association.tab":56, "media_resource.tab":10, "occurrence.tab":55, "taxon.tab":54}
 10088_5097_ENV  {"association.tab":56, "measurement_or_fact_specific.tab":150, "media_resource.tab":10, "occurrence.tab":55, "occurrence_specific.tab":150, "taxon.tab":54}
 
