@@ -93,6 +93,7 @@ class ParseAssocTypeAPI
         foreach($arr as $string) {
             foreach($this->prefixes as $prefix) {
                 if(substr($string,0,strlen($prefix)+1) === "$prefix ") {
+                    $string = trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis
                     $final[$prefix] = $string;
                     continue;
                 }
