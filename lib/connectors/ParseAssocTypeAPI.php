@@ -195,7 +195,7 @@ class ParseAssocTypeAPI
     }
     private function add_occurrence($taxon, $identification_string)
     {
-        $occurrence_id = md5($taxon->taxonID . 'occurrence' . $identification_string);
+        $occurrence_id = md5($taxon->taxonID . $this->pdf_id . "assoc_occur" . $identification_string);
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon->taxonID;

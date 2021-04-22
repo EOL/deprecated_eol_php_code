@@ -161,7 +161,14 @@ class DwCA_Utility
             if(@$this->extensions[$row_type]) { //process only defined row_types
                 // if(@$this->extensions[$row_type] == 'document') continue; //debug only
                 echo "\nprocessing...DwCA_Utility...: [$row_type]: ".@$this->extensions[$row_type]."...\n";
-                self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
+                
+                // /* customized
+                if($this->resource_id == "10088_5097_ENV" && $row_type == "http://rs.tdwg.org/dwc/terms/occurrence") {
+                    self::process_fields($harvester->process_row_type($row_type), 'occurrence_specific');
+                }
+                else self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]); //original, the rest goes here
+                // */
+                
             }
             else echo "\nun-processed: [$row_type]: ".@$this->extensions[$row_type]."\n";
         }
@@ -554,6 +561,7 @@ class DwCA_Utility
             elseif($class == "taxon")       $c = new \eol_schema\Taxon();
             elseif($class == "document")    $c = new \eol_schema\MediaResource();
             elseif($class == "occurrence")  $c = new \eol_schema\Occurrence();
+            elseif($class == "occurrence_specific")  $c = new \eol_schema\Occurrence_specific(); //1st client is 10088_5097_ENV
             elseif($class == "measurementorfact")   $c = new \eol_schema\MeasurementOrFact();
             
             if($this->resource_id == 'parent_basal_values_Carnivora') { //this actually works. But only goes here during dev. if needed, since MoF is customized in /lib/SDRreportLib.php in real operation
