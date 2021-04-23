@@ -6,7 +6,7 @@ class ParseAssocTypeAPI
     function __construct()
     {
         $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        $this->prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
+        $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
     }
@@ -14,14 +14,14 @@ class ParseAssocTypeAPI
     function parse_associations($html, $pdf_id)
     {
         $this->pdf_id = $pdf_id; //works but not being used atm.
-        $arr = explode("<br>", $html); // print_r($arr);
+        $arr = explode("<br>", $html); // print_r($arr); exit;
         /*[35] => 
           [36] => HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
           [37] => 
           [38] => PARASITOIDS (Table 2).—Braconidae: Apanteles ornigus Weed, Apanteles sp., Pholetesor sp., probably salicifoliella (Mason); Eulophidae: Chrysocharis sp., Cirrospilus cinctithorax (Girault), Cirrospilus sp., Closterocerus tricinctus (Ashmead), Closterocerus sp., near trifasciatus, Horismenus fraternus (Fitch), Pediobius sp., Pnigalio flavipes (Ashmead), Pnigalio tischeriae (Ashmead) (regarded by some as a junior synonym of Pnigalio flavipes), Pnigalio near proximus (Ashmead), Pnigalio sp., Sympiesis conica (Provancher), Sympiesis sp., Tetrastichus sp.; Ichneumonidae: Alophosternum foliicola (Cushman), Diadeg-ma sp., stenosomus complex, Scambus decorus (Whalley); Pteromalidae: Pteromalus sp. (most records from Auerbach (1991), in which a few records may pertain only to Phyllonorycter nipigon).
         */
         $sciname = $arr[0]; //shouldn't be used bec it is uncleaned e.g. "Periploca orichalcella (Clemens), new combination"
-        $arr = self::get_relevant_blocks($arr);
+        $arr = self::get_relevant_blocks($arr); //print_r($arr); exit;
         $assoc = self::get_associations($arr);
         // exit("\n[$sciname]\n-end assoc-\n");
         return array('assoc' => $assoc);
@@ -39,7 +39,24 @@ class ParseAssocTypeAPI
             $possible_genuses = array();
             
             foreach($parts as $part) {
-                $obj = self::run_GNRD_assoc($part); // print_r($obj); //exit;
+
+                // /* remove period from end of string
+                //HOST.—Helian thus.  -> remove period
+                //Gadus morhua L.     -> don't remove period
+                if(substr($part, -1) == ".") {
+                    $len = strlen($part);
+                    if(substr($part,$len-3,1) != " ") $part = substr($part,0,$len-1); //"Helian thus." -> remove period
+                }
+                // */
+                
+                // /* manual: these names are not recordnized by GNRD. So we manually accept it. Alerted Dima (GNRD).
+                if($part == "Helian thus") {
+                    $scinames[$prefix][$part] = '';
+                    continue;
+                }
+                // */
+                
+                $obj = self::run_GNRD_assoc($part); //echo "\nGNRD for: [$part]\n"; print_r($obj); //exit;
                 foreach($obj->names as $name) {
                     $tmp = $name->scientificName;
                     /*
@@ -88,11 +105,27 @@ class ParseAssocTypeAPI
         return $scinames;
     }
     private function get_relevant_blocks($arr)
-    {
+    {   //print_r($this->assoc_prefixes); exit;
         $final = array();
         foreach($arr as $string) {
-            foreach($this->prefixes as $prefix) {
-                if(substr($string,0,strlen($prefix)+1) === "$prefix ") {
+            foreach($this->assoc_prefixes as $prefix) {
+                // //a space
+                // echo "\nprocess: [$string]\n".substr($string,0,strlen($prefix)+1)." === [$prefix ]"."\n"; //debug only
+                
+                //a space
+                if(substr($string,0,strlen($prefix)+1) === "$prefix"." ") {
+                    $string = trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis
+                    $final[$prefix] = $string;
+                    continue;
+                }
+                //a period (.)
+                if(substr($string,0,strlen($prefix)+1) === "$prefix".".") {
+                    $string = trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis
+                    $final[$prefix] = $string;
+                    continue;
+                }
+                //a diff hyphen (—)
+                if(substr($string,0,strlen($prefix)+1) === "$prefix"."—") {
                     $string = trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis
                     $final[$prefix] = $string;
                     continue;

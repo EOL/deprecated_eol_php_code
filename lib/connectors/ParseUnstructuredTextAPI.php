@@ -13,7 +13,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         
         // http://gnrd.globalnames.org/name_finder.json?text=Stilbosis lonchocarpella Busck, 1934, p. 157.
         // http://gnrd.globalnames.org/name_finder.json?text=Apanteles ornigus Weed
-        // http://gnrd.globalnames.org/name_finder.json?text=V. interior
+        // http://gnrd.globalnames.org/name_finder.json?text=Helian thus
         // https://parser.globalnames.org/api/v1/Halisidota agatha Schaus, 1924, p. 35.
 
         /*
@@ -38,6 +38,8 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // */
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
+        
+        $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
     }
     /* Special chard mentioned by Dima, why GNRD stops running.
     str_replace("")
@@ -106,6 +108,8 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $i = 0; $ctr = 0;
         foreach(new FileIterator($local) as $line => $row) { $ctr++;
             $i++; if(($i % 5000) == 0) echo " $i";
+
+            $row = trim(preg_replace('/\s*\[[^)]*\]/', '', $row)); //remove brackets
             $row = trim($row);
             
             $cont = true;
@@ -132,6 +136,12 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             }
             // */
 
+            /* good debug
+            //Capitophorus ohioensis Smith, 1940:141
+            //Capitophorus ohioensis Smith, 1940:141 [type: apt.v.f., Columbus, Ohio, 15–X–1938, CFS, on Helianthus; in USNM].
+            if(stripos($row, "Capitophorus ohioensis") !== false) exit("\nok 3\n[$row]\n"); //string is found
+            */
+            
             $cont = true;
             // /* criteria 3: any occurrence of these strings in any part of the row
             $exclude2 = array(" of ", " in ", " the ", " this ", " with ", "Three ", "There ", " are ", "…", " for ", " dos ", " on ");
@@ -144,7 +154,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             }
             if(!$cont) continue;
             // */
-            
+
+            /* good debug
+            if(stripos($row, "Capitophorus ohioensis") !== false) exit("\nok 4\n[$row]\n"); //string is found
+            */
+
             $rows[] = $row;
             $rows = self::process_magic_no($this->magic_no, $rows, $ctr);
         }
@@ -156,8 +170,14 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             if(count($rows) == 5) { //start evaluating records of 5 rows
                 if(!$rows[0] && !$rows[1] && !$rows[3] && !$rows[4]) {
                     if($rows[2]) {
+                        
+                        // if(stripos($rows[2], "Capitophorus ohioensis") !== false) exit("\nok 2\n"); //string is found //good debug
+                        
                         $words = explode(" ", $rows[2]);
                         if(count($words) <= 9)  { //orig is 6
+                            
+                            // if(stripos($rows[2], "Capitophorus ohioensis") !== false) exit("\nok 1\n".$rows[2]."\n"); //string is found //good debug
+                            
                             if(self::is_sciname($rows[2])) {
                                 // /*
                                 // if(!self::has_species_string($rows[2])) {}
@@ -371,7 +391,13 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             elseif(stripos($row, "</taxon>") !== false) {}   //string is found
             else {
                 if($row) { //not blank
-                    if(strlen($row) < 60) continue;
+                    if(strlen($row) < 60) { //will be removed coz its short: "HOST.—Helian thus." but should not for Assoc prefixes
+                        $cont = false;
+                        foreach($this->assoc_prefixes as $start_of_row) {
+                            if(substr($row,0,strlen($start_of_row)) == $start_of_row) {$cont = true; break;}
+                        }
+                        if(!$cont) continue;
+                    }
                 }
             }
             // */
@@ -420,6 +446,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(substr($name,0,1) == "*") $name = trim(substr($name,1,strlen($name)));
         // e.g. *Percnon gibbesi (H. Milne Edwards, 1853)
         // */
+        
+        // if(stripos($name, "Capitophorus ohioensis") !== false) exit("\nok 22\n[$name]\n"); //string is found //good debug
+        $name = trim(preg_replace('/\s*\[[^)]*\]/', '', $name)); //remove brackets
+        // if(stripos($name, "Capitophorus ohioensis") !== false) exit("\nok 23\n[$name]\n"); //string is found //good debug
+        
         return $name;
     }
     function clean_sciname_here2($name)
