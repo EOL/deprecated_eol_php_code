@@ -56,8 +56,10 @@ class ParseAssocTypeAPI
                 }
                 // */
                 
+                $possible_genus = "";
                 $obj = self::run_GNRD_assoc($part); //echo "\nGNRD for: [$part]\n"; print_r($obj); //exit;
-                foreach($obj->names as $name) {
+                if(!$obj) continue;
+                foreach(@$obj->names as $name) {
                     $tmp = $name->scientificName;
                     /*
                     Populus tremuloides
@@ -98,7 +100,7 @@ class ParseAssocTypeAPI
                         $scinames[$prefix][$tmp] = '';
                     }
                     // */
-                }
+                } //end obj->names loop
             }
         }
         // print_r($scinames); exit("\nexit muna\n");
