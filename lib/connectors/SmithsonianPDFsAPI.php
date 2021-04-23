@@ -131,11 +131,11 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $tagged_file = $this->path['working_dir']."$pdf_id/".$pdf_id."_tagged.txt";
         echo "\n[$tagged_file]\n";
         if(!$this->overwrite_tagged_files) {
-            if(file_exists($tagged_file)) {echo("\nAlready exists, will not overwrite\n"); return;}
+            if(file_exists($tagged_file)) {echo("\nAlready exists tagged file [$pdf_id], will not overwrite\n"); return;}
             else echo("\nNo tag file yet, will proceed..\n");
         }
         else {
-            if(file_exists($tagged_file)) {echo("\nAlready exists, will overwrite now\n");}
+            if(file_exists($tagged_file)) {echo("\nAlready exists tagged file [$pdf_id], will overwrite now\n");}
             else echo("\nNo tag file yet, will proceed...\n");
         }
         // */
