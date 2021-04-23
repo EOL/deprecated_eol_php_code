@@ -187,8 +187,9 @@ class ParseAssocTypeAPI
         return $str;
     }
     */
-    function write_associations($rec, $taxon, $archive_builder, $meta) //2nd param is source taxon object
+    function write_associations($rec, $taxon, $archive_builder, $meta, $taxon_ids) //2nd param is source taxon object
     {
+        $this->taxon_ids = $taxon_ids;
         $this->archive_builder = $archive_builder;
         // print_r($rec); exit("\n111\n");
         /*Array(
@@ -225,6 +226,7 @@ class ParseAssocTypeAPI
                 }
             }
         }
+        return $this->taxon_ids;
     }
     private function add_occurrence($taxon, $identification_string)
     {
