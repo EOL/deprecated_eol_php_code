@@ -391,6 +391,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             elseif(stripos($row, "</taxon>") !== false) {}   //string is found
             else {
                 if($row) { //not blank
+                    /* < 60 chars long rule only for species name rows, not for species sections
                     if(strlen($row) < 60) { //will be removed coz its short: "HOST.—Helian thus." but should not for Assoc prefixes
                         $cont = false;
                         foreach($this->assoc_prefixes as $start_of_row) {
@@ -398,6 +399,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                         }
                         if(!$cont) continue;
                     }
+                    */
                 }
             }
             // */
@@ -439,6 +441,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
     {
         // /* criteria 1
         $pos = stripos($name, ", new ");
+        if($pos > 5) $name = substr($name, 0, $pos);
+        $name = Functions::remove_whitespace($name);
+        // */
+        // /* Blastobasis indigesta Meyrick, 1931, revised status
+        $pos = stripos($name, ", revised ");
         if($pos > 5) $name = substr($name, 0, $pos);
         $name = Functions::remove_whitespace($name);
         // */

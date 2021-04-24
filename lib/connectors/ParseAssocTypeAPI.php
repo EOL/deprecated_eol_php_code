@@ -50,10 +50,12 @@ class ParseAssocTypeAPI
                 // */
                 
                 // /* manual: these names are not recordnized by GNRD. So we manually accept it. Alerted Dima (GNRD).
+                /* not supposed to be a real species name: https://verifier.globalnames.org/?capitalize=on&format=html&names=Helianthus
                 if($part == "Helian thus") {
                     $scinames[$prefix][$part] = '';
                     continue;
                 }
+                */
                 // */
                 
                 $possible_genus = "";
