@@ -21,6 +21,12 @@ class ParseListTypeAPI
         Line [including species name and geographic and/or habitat terms] newline"
         */
         // print_r($input); exit("\nelix\n");
+        /*Array(
+            [filename] => SCtZ-0437.txt
+            [type] => list
+            [epub_output_txts_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/
+            [lines_before_and_after_sciname] => 2
+        )*/
         
         // /* start as copied template
         if($val = $input['epub_output_txts_dir']) $this->path['epub_output_txts_dir'] = $val;
@@ -43,7 +49,8 @@ class ParseListTypeAPI
         // */
     }
     private function get_scinames_per_list($tagged_file)
-    {
+    {   // exit("\n$tagged_file\n");
+        ///Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/SCtZ-0437_tagged_LT.txt
         $contents = file_get_contents($tagged_file);
         if(preg_match_all("/<sciname=(.*?)<\/sciname>/ims", $contents, $a)) {
             // print_r($a[1]);
@@ -56,9 +63,9 @@ class ParseListTypeAPI
                 $rows = array_values($rows); //reindex key
                 if($rows) {
                     echo "\n------------------------\n$list_header\n------------------------\n";
-                    print_r($rows); //continue; //exit; //good debug
-                    echo "\n n = ".count($rows)."\n"; continue; //exit;
-                    $i = 0;
+                    // print_r($rows); //continue; //exit; //good debug
+                    echo "\n n = ".count($rows)."\n"; //continue; //exit;
+                    $i = 0; $possible_genus = array();
                     foreach($rows as $sciname_line) { $rek = array(); $i++;
                         $rek['verbatim'] = $sciname_line;
                         
@@ -78,9 +85,24 @@ class ParseListTypeAPI
                             if($obj = self::run_gnparser($sciname_line)) {
                                 $authorship = @$obj[0]->authorship->verbatim;
                                 $rek['authorship gnparser'] = $authorship;
-                                $rek['scientificName'] = trim("$sciname $authorship");
+                                $rek['scientificName_author'] = trim("$sciname $authorship");
+                                $rek['scientificName_author_cleaned'] = self::clean_sciname($rek['scientificName_author']);
+
+                                // /* fill-up possible incomplete genus name. e.g. "A. plumosa" should be "Aristida plumosa"
+                                $words = explode(" ", $sciname);
+                                if(substr($sciname,1,2) == ". ") { //needs fill-up genus name -- assignment
+                                    // print_r($rek); echo " - xxx ";//exit;
+                                    $first_letter = substr($sciname,0,1);
+                                    array_shift($words);
+                                    $rek['scientificName_author'] = $possible_genus[$first_letter]." ".implode(" ", $words)." ".$authorship;
+                                    $rek['scientificName_author_cleaned'] = self::clean_sciname($rek['scientificName_author']);
+                                    // print_r($rek); echo " - aaa "; exit("\nstopx\n");
+                                }
+                                else $possible_genus[substr($sciname,0,1)] = $words[0]; //initialize
+                                // */
+
                             }
-                            print_r($rek); //exit;
+                            print_r($rek); //echo " - yyy ";//exit;
                         }
                         // if($i >= 10) break; //debug only
                     }
@@ -88,6 +110,11 @@ class ParseListTypeAPI
             }
         }
         // exit("\n$tagged_file\n");
+    }
+    private function clean_sciname($sciname)
+    {
+        if(substr($sciname, -1) == ".") $sciname = trim(substr($sciname, 0, strlen($sciname)-1)); //remove period if last char in name
+        return $sciname;
     }
     private function clean_name($string)
     {
