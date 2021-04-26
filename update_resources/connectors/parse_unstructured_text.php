@@ -37,6 +37,10 @@ start where "(as E. ramosus)" is removed: expected decrease in associations
 after fixing and started bringing in associations from e.g. HOST., and other adjustments.
 10088_5097	Fri 2021-04-23 01:43:14 AM	{"association.tab":363, "media_resource.tab":12109, "occurrence.tab":428, "taxon.tab":11732, "time_elapsed":{"sec":246.78, "min":4.11, "hr":0.07}}
 10088_5097_ENV	Fri 2021-04-23 02:14:12 AM	{"association.tab":363, "measurement_or_fact_specific.tab":45915, "media_resource.tab":12109, "occurrence_specific.tab":46343, "taxon.tab":11732, "time_elapsed":{"sec":1849.73, "min":30.83, "hr":0.51}}
+
+10088_5097	Fri 2021-04-23 10:38:22 PM	{"association.tab":358, "media_resource.tab":12372, "occurrence.tab":422, "taxon.tab":11963, "time_elapsed":{"sec":544.41, "min":9.07, "hr":0.15}}
+10088_5097_ENV	Fri 2021-04-23 10:49:30 PM	{"association.tab":358, "measurement_or_fact_specific.tab":45915, "media_resource.tab":12372, "occurrence_specific.tab":46337, "taxon.tab":11963, "time_elapsed":{"sec":661.79, "min":11.03, "hr":0.18}}
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
