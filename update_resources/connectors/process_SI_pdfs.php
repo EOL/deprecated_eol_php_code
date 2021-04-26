@@ -65,6 +65,21 @@ $func->archive_builder_finalize();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder
 ========================== */
 
+/* ========================== during dev: processing LIST-TYPE
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/SCtZ-0011_descriptions_LT.txt";  $pdf_id = "SCtZ-0011";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/SCtZ-0437_descriptions_LT.txt";  $pdf_id = "SCtZ-0437";
+
+$resource_id = $pdf_id;
+require_library('connectors/ParseListTypeAPI');
+require_library('connectors/SmithsonianPDFsAPI');
+$func = new SmithsonianPDFsAPI($resource_id);
+$func->initialize();
+
+$func->process_a_txt_file_LT($txt_filename, $pdf_id, array());
+$func->archive_builder_finalize();
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder
+========================== */
+
 
 /* utility --- copied template
 require_library('connectors/DWCADiagnoseAPI');

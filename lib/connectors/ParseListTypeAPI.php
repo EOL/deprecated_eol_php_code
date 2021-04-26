@@ -51,9 +51,12 @@ class ParseListTypeAPI
     private function get_scinames_per_list($tagged_file)
     {   // exit("\n$tagged_file\n");
         ///Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/SCtZ-0437_tagged_LT.txt
+        $destination = str_replace("_tagged_LT.txt", "_descriptions_LT.txt", $tagged_file);
+        $WRITE = fopen($destination, "w"); //initialize
+        
         $contents = file_get_contents($tagged_file);
         if(preg_match_all("/<sciname=(.*?)<\/sciname>/ims", $contents, $a)) {
-            // print_r($a[1]);
+            // print_r($a[1]); exit;
             foreach($a[1] as $block) {
                 $rows = explode("\n", $block);
                 if(preg_match("/\'(.*?)\'/ims", $rows[0], $a2)) $list_header = $a2[1];
@@ -103,6 +106,26 @@ class ParseListTypeAPI
 
                             }
                             print_r($rek); //echo " - yyy ";//exit;
+                            
+                            fwrite($WRITE, implode("\t", array($rek['scientificName_author_cleaned'], $rek['verbatim'], $list_header))."\n");
+                            /*Array(
+                                [verbatim] => Miscophus heliophilus Pulawski. 1 ♀. Captured in Malaise trap. The species has been described recently (Pulawski, 1968) from this unique specimen.
+                                [normalized gnparser] => Miscophus heliophilus Pulawski.
+                                [sciname GNRD] => Miscophus heliophilus
+                                [authorship gnparser] => Pulawski.
+                                [scientificName_author] => Miscophus heliophilus Pulawski.
+                                [scientificName_author_cleaned] => Miscophus heliophilus Pulawski
+                            )
+                            Array(
+                                [verbatim] => Achirus fluviatilis Meek and Steindachner, 1928, PA, Lenguado; Chirichigno, 1963:75.
+                                [normalized gnparser] => Achirus fluviatilis Meek & Steindachner 1928
+                                [sciname GNRD] => Achirus fluviatilis
+                                [authorship gnparser] => Meek and Steindachner, 1928
+                                [scientificName_author] => Achirus fluviatilis Meek and Steindachner, 1928
+                                [scientificName_author_cleaned] => Achirus fluviatilis Meek and Steindachner, 1928
+                            )
+                            */
+                            
                         }
                         // if($i >= 10) break; //debug only
                     }
@@ -110,6 +133,7 @@ class ParseListTypeAPI
             }
         }
         // exit("\n$tagged_file\n");
+        fclose($WRITE);
     }
     private function clean_sciname($sciname)
     {

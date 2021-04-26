@@ -17,6 +17,9 @@ Frist clients:
 - AmphibiaWeb textmined
 - AntWeb textmined: Biology
 - WoRMS textmined: Habitat and Distribution
+
+http://api.pensoft.net/annotator?text=Western Desert of Egypt&ontologies=envo,eol-geonames
+
 */
 class Pensoft2EOLAPI
 {
@@ -32,6 +35,7 @@ class Pensoft2EOLAPI
         $this->subjects['Description'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description';
         $this->subjects['TaxonBiology'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology';
         $this->subjects['Habitat'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat';
+        $this->subjects['Uses'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses'; //for list-type in SI PDFs
         
         /* Wikipedia EN
         http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description:  389994
@@ -317,7 +321,7 @@ class Pensoft2EOLAPI
                     elseif(strtolower($rec['http://purl.org/dc/terms/title']) == 'distribution') $this->ontologies = "eol-geonames";
                     else continue;
                 }
-                if($this->param['resource_id'] == '10088_5097_ENV') $this->ontologies = "envo,eol-geonames";
+                if(in_array($this->param['resource_id'], array("10088_5097_ENV", "SCtZ-0011_ENV", "SCtZ-0437_ENV"))) $this->ontologies = "envo,eol-geonames";
                 // */
                 // print_r($rec); exit("\n[2]\n");
                 

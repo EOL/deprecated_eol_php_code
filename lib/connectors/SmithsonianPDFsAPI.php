@@ -34,8 +34,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
     // */
     
     function start()
-    {
-        // /* Initialize other libraries
+    {   // /* Initialize other libraries
         require_library('connectors/ParseListTypeAPI');
         require_library('connectors/ParseUnstructuredTextAPI'); $this->func_ParseUnstructured = new ParseUnstructuredTextAPI();
         require_library('connectors/ConvertioAPI');             $this->func_Convertio = new ConvertioAPI();
@@ -449,10 +448,10 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         }
         $left = '<meta name="DC.title" content="';
         if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) $this->meta[$pdf_id]['dc.title'] = $a[1];
-        // print_r($this->meta); exit("\n$url\n");;
+        // print_r($this->meta); exit("\n$url\n");
     }
     private function generate_dwca_for_a_repository()
-    {
+    {   // SPECIES SECTIONS
         foreach(glob($this->path['working_dir'] . "*") as $folder) {
             $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."_tagged.txt";
             $txt_filename = $folder."/".$txt_filename;
@@ -463,6 +462,22 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             if(file_exists($txt_filename)) { echo " - OK\n";
                 $pdf_id = pathinfo($folder, PATHINFO_BASENAME);
                 self::process_a_txt_file($txt_filename, $pdf_id, $pdf_meta_obj);
+            }
+            else echo " - tagged version not yet generated\n";
+        }
+        
+        // LIST-TYPE
+        foreach(glob($this->path['working_dir'] . "*") as $folder) {
+            $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."_descriptions_LT.txt";
+            $txt_filename = $folder."/".$txt_filename;
+            echo "\n$txt_filename";
+            // /* COPIED TEMPLATE: Not used at the moment though...
+            // $pdf_meta_obj = self::get_pdf_meta_from_json(str_replace("_tagged.txt", "_meta.json", $txt_filename));
+            $pdf_meta_obj = array();
+            // */
+            if(file_exists($txt_filename)) { echo " - OK\n";
+                $pdf_id = pathinfo($folder, PATHINFO_BASENAME);
+                self::process_a_txt_file_LT($txt_filename, $pdf_id, $pdf_meta_obj);
             }
             else echo " - tagged version not yet generated\n";
         }
@@ -485,7 +500,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         </sciname>
         */
         // exit("\ntxt_filename: [$txt_filename]\npdf_id: [$pdf_id]\n");
-        $contents = file_get_contents($txt_filename);;
+        $contents = file_get_contents($txt_filename);
         if(preg_match_all("/<sciname=(.*?)<\/sciname>/ims", $contents, $a)) {
             foreach($a[1] as $str) {
                 $rec = array();
@@ -546,7 +561,29 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             }
         }
     }
-    private function write_archive($rec, $pdf_meta_obj)
+    function process_a_txt_file_LT($txt_filename, $pdf_id, $pdf_meta_obj)
+    {   // exit("\ntxt_filename: [$txt_filename]\npdf_id: [$pdf_id]\n");
+        $i = 0;
+        foreach(new FileIterator($txt_filename) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
+            $row = trim($row);
+            if(!$row) continue;
+            $arr = explode("\t", $row); // print_r($arr); exit;
+            /*Array(
+                [0] => Pulicaria crispa
+                [1] => *Pulicaria crispa (Forsskål) Bentham and J. D. Hooker f.: Karkur Murr. In all parts of wadi, particularly area of coarse alluvium and sand. Flowering. Shaw (1931): “High up K. Tahl, 3000 ft., low herb 1 ft. high. Found at Kissu.”
+                [2] => Annotated List of Plants
+            )*/
+            $rec = array();
+            $rec['pdf_id'] = $pdf_id;
+            $rec['sciname'] = $arr[0];
+            $body = $arr[1].". ".$arr[2];
+            $body = str_replace("..", ".", $body);
+            $rec['body'] = $body;
+            $others['additionalInformation'] = $arr[2]; //list-header
+            if($rec['sciname'] && $rec['body']) self::write_archive($rec, $pdf_meta_obj, "Uses", $others); //maybe just a temp text object, until trait is computed.
+        }
+    }
+    private function write_archive($rec, $pdf_meta_obj, $CVterm = "Description", $others = array())
     {   //write taxon
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = md5($rec['sciname']);
@@ -556,7 +593,6 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             // print_r($rec); print_r($pdf_meta_obj);
             // exit("\nelix\n");
         // }
-        
         
         // $taxon->furtherInformationURL = $t['dc_source'];
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
@@ -572,17 +608,22 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $mr->format         = 'text/html';
         $mr->UsageTerms     = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
         $mr->description    = $rec['body'];
-        $mr->CVterm         = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description'; //ComprehensiveDescription
+        // $mr->CVterm         = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description'; //ComprehensiveDescription
+        $mr->CVterm         = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#'.$CVterm;
 
         $mr->furtherInformationURL = @$this->meta[$rec['pdf_id']]['dc.relation.url'];
         $mr->bibliographicCitation = @$this->meta[$rec['pdf_id']]['bibliographicCitation'];
         // $mr->Owner          = $o['dc_rightsHolder'];
         // $mr->rights         = $o['dc_rights'];
         // $mr->title          = $o['dc_title'];
+        
+        if($val = $others['additionalInformation']) $mr->additionalInformation = $val;
+        
         if(!isset($this->object_ids[$mr->identifier])) {
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
         }
+        else exit("\nShould not go here. Same text object.\n");
         //write associations
         if($val = @$rec['associations']) {
             $val['pdf_id'] = $rec['pdf_id'];
