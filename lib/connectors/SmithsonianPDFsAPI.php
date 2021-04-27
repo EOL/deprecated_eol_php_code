@@ -197,10 +197,13 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                     [dc.title] => Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean
                 )
         )*/
+        
+        /* this should be commented. This prohibits from running list-type documents bec of the return; row
         if(in_array($epub_info['pdf_id'], $this->PDFs_that_are_lists)) {
             echo "\n[".$epub_info['pdf_id']."] ".$info['title']." - IS A LIST, NOT SPECIES-DESCRIPTION-TYPE 01\n";
             return;
         }
+        */
         
         /*Array(
             [filename] => SCtZ-0007.epub
