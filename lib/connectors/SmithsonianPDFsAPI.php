@@ -617,7 +617,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         // $mr->rights         = $o['dc_rights'];
         // $mr->title          = $o['dc_title'];
         
-        if($val = $others['additionalInformation']) $mr->additionalInformation = $val;
+        if($val = @$others['additionalInformation']) $mr->additionalInformation = $val;
         
         if(!isset($this->object_ids[$mr->identifier])) {
             $this->archive_builder->write_object_to_file($mr);
