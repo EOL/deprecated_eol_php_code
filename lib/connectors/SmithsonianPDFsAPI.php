@@ -198,7 +198,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                 )
         )*/
         if(in_array($epub_info['pdf_id'], $this->PDFs_that_are_lists)) {
-            echo "\n[".$epub_info['pdf_id']."] ".$info['title']." - IS A LIST, NOT SPECIES-DESCRIPTION-TYPE\n";
+            echo "\n[".$epub_info['pdf_id']."] ".$info['title']." - IS A LIST, NOT SPECIES-DESCRIPTION-TYPE 01\n";
             return;
         }
         
