@@ -623,7 +623,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
         }
-        else exit("\nShould not go here. Same text object.\n");
+        // else exit("\nShould not go here. Same text object.\n"); //Eli to investigate soon...
         //write associations
         if($val = @$rec['associations']) {
             $val['pdf_id'] = $rec['pdf_id'];
