@@ -34,7 +34,6 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         /* END epub series */
         
         // /* copied from SmithsonianPDFsAPI
-        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0033', 'SCtZ-0437', 'SCtZ-0018');
         $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437', 'SCtZ-0033');
         // */
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";

@@ -6,7 +6,6 @@ class ParseListTypeAPI
     function __construct()
     {
         // $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-
     }
     /*#################################################################################################################################*/
     function parse_list_type_pdf($input)
@@ -123,9 +122,13 @@ class ParseListTypeAPI
                             }
                             print_r($rek); //echo " - yyy ";//exit;
                             
-                            
+                            // /* another filter criteria
                             $words = explode(" ", $rek['scientificName_author_cleaned']);
-                            if(ctype_upper(substr($words[1],0,1))) continue; //2nd word must not be capitalized
+                            if(@$words[1]) {
+                                if(ctype_upper(substr(@$words[1],0,1))) continue; //2nd word must not be capitalized
+                            }
+                            else continue; //there must be a 2nd word
+                            // */
                             
                             fwrite($WRITE, implode("\t", array($rek['scientificName_author_cleaned'], $rek['verbatim'], $list_header))."\n");
                             /*Array(
@@ -213,6 +216,7 @@ class ParseListTypeAPI
     private function get_main_scinames_v2($filename) //get main 'headers for list type'
     {
         $local = $this->path['epub_output_txts_dir'].$filename;
+        echo "\nprocessing: [$local]\n";
 
         // /* This is a different list of words from below. These rows can be removed from the final text blocks.
         $this->start_of_row_2_exclude = array("FIGURE", "Key to the", "Genus", "Family", "Subgenus", "Superfamily", "Subfamily",

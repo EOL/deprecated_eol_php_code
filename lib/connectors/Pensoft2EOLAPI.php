@@ -19,7 +19,9 @@ Frist clients:
 - WoRMS textmined: Habitat and Distribution
 
 http://api.pensoft.net/annotator?text=Western Desert of Egypt&ontologies=envo,eol-geonames
-
+-> with annotations
+http://api.pensoft.net/annotator?text=List of Nearctic Walshiidae&ontologies=envo,eol-geonames
+-> no anotations from Pensoft
 */
 class Pensoft2EOLAPI
 {
@@ -321,7 +323,8 @@ class Pensoft2EOLAPI
                     elseif(strtolower($rec['http://purl.org/dc/terms/title']) == 'distribution') $this->ontologies = "eol-geonames";
                     else continue;
                 }
-                if(in_array($this->param['resource_id'], array("10088_5097_ENV", "SCtZ-0011_ENV", "SCtZ-0437_ENV"))) $this->ontologies = "envo,eol-geonames";
+                if(in_array($this->param['resource_id'], array("10088_5097_ENV", "SCtZ-0011_ENV", "SCtZ-0437_ENV",
+                "SCtZ-0033_ENV"))) $this->ontologies = "envo,eol-geonames";
                 // */
                 // print_r($rec); exit("\n[2]\n");
                 
