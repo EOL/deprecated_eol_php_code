@@ -35,7 +35,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         
         // /* copied from SmithsonianPDFsAPI
         $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0033', 'SCtZ-0437', 'SCtZ-0018');
-        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437');
+        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437', 'SCtZ-0033');
         // */
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
@@ -265,13 +265,27 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             }
         }
         
-        if(self::is_sciname_using_GNRD($string)) return true;
-        else return false;
+        if($doc_type == 'species_type') {
+            if(self::is_sciname_using_GNRD($string)) return true;
+            else return false;
+        }
+        elseif($doc_type == 'list_type') {
+            if(ctype_upper(substr($string,0,1))) { //only names starting with upper case will go to GNRD
+                if(self::is_sciname_using_GNRD($string)) return true;
+                else return false;
+            }
+            else return true; //e.g. brasiliensis (Régimbart) 95–238 (Brazil) --> SCtZ-0033.txt
+        }
+        else exit("\nERRORx: no doc_type\n");
+
+        exit("\nShould not go here anymore...\n");
+        return true; //seems it doesn't go here anymore
     }
     function is_sciname_using_GNRD($string)
     {
         /* from GNRD
-        http://gnrd.globalnames.org/name_finder.json?text=A+spider+named+Pardosa+moesta+Banks,+1892 
+        http://gnrd.globalnames.org/name_finder.json?text=A+spider+named+Pardosa+moesta+Banks,+1892
+        http://gnrd.globalnames.org/name_finder.json?text=boggianii Régimbart 00–526 (Paraguay)
         */
         $url = $this->service['GNRD text input'].$string;
         $options = $this->download_options;

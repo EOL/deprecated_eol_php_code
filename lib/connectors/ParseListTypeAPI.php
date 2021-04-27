@@ -39,8 +39,8 @@ class ParseListTypeAPI
         self::get_main_scinames_v2($filename); print_r($this->lines_to_tag); //exit("\nstopx\n");
         echo "\n lines_to_tag: ".count($this->lines_to_tag)."\n"; //exit("\n-end-\n");
 
-        $edited_file = self::add_taxon_tags_to_text_file_LT($filename);
-        self::remove_some_rows_LT($edited_file);
+        $edited_file = self::add_taxon_tags_to_text_file_LT($filename); //exit;
+        self::remove_some_rows_LT($edited_file); //exit;
         $tagged_file = self::show_parsed_texts_for_mining_LT($edited_file);
         self::get_scinames_per_list($tagged_file);
         // // print_r($this->scinames); 
@@ -69,6 +69,7 @@ class ParseListTypeAPI
                     // print_r($rows); //continue; //exit; //good debug
                     echo "\n n = ".count($rows)."\n"; //continue; //exit;
                     $i = 0; $possible_genus = array();
+                    $possible_genux = ''; //for those lists where the row starts with a species name e.g. "bicolor Guignot 57–36! (Brazil)"
                     foreach($rows as $sciname_line) { $rek = array(); $i++;
                         $rek['verbatim'] = $sciname_line;
                         
@@ -78,6 +79,21 @@ class ParseListTypeAPI
                         $a = explode(".", $sciname_line);
                         $sciname_line = trim($a[0]);
                         */
+                        
+                        if(substr($sciname_line,0,1) == "*") $sciname_line = trim(substr($sciname_line,1,strlen($sciname_line)));
+                        if(substr($sciname_line,0,1) == "?") continue;
+                        
+                        
+                        // /* fill-up genus name for rows e.g. "bicolor Guignot 57–36! (Brazil)" --> SCtZ-0033.txt
+                        $words = explode(" ", $sciname_line);
+                        if(ctype_upper(substr($sciname_line,0,1))) { //names starting with upper case
+                            $possible_genux = $words[0];
+                        }
+                        else { //rows starting with lower case
+                            $sciname_line = $possible_genux." ".$sciname_line;
+                        }
+                        // */
+                        
                         
                         if($obj = self::run_gnparser($sciname_line)) {
                             $rek['normalized gnparser'] = @$obj[0]->normalized;
@@ -106,6 +122,10 @@ class ParseListTypeAPI
 
                             }
                             print_r($rek); //echo " - yyy ";//exit;
+                            
+                            
+                            $words = explode(" ", $rek['scientificName_author_cleaned']);
+                            if(ctype_upper(substr($words[1],0,1))) continue; //2nd word must not be capitalized
                             
                             fwrite($WRITE, implode("\t", array($rek['scientificName_author_cleaned'], $rek['verbatim'], $list_header))."\n");
                             /*Array(
@@ -301,7 +321,7 @@ class ParseListTypeAPI
                 if($row == "Braun, Annette F.") $row = "</taxon>$row";      //SCtZ-0018.txt
             }
             // */
-
+            // echo "\n$row";
             fwrite($WRITE, $row."\n");
         }//end loop text
         fclose($WRITE);
@@ -339,7 +359,6 @@ class ParseListTypeAPI
             
             $cont = true;
             // /* criteria 1
-            
             $exclude = array_merge($exclude, array("(", "Order ", "Family ", "Genus "));
             foreach($exclude as $start_of_row) {
                 $len = strlen($start_of_row);

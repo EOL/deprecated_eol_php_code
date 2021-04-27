@@ -40,6 +40,9 @@ after fixing and started bringing in associations from e.g. HOST., and other adj
 
 10088_5097	Fri 2021-04-23 10:38:22 PM	{"association.tab":358, "media_resource.tab":12372, "occurrence.tab":422, "taxon.tab":11963, "time_elapsed":{"sec":544.41, "min":9.07, "hr":0.15}}
 10088_5097_ENV	Fri 2021-04-23 10:49:30 PM	{"association.tab":358, "measurement_or_fact_specific.tab":45915, "media_resource.tab":12372, "occurrence_specific.tab":46337, "taxon.tab":11963, "time_elapsed":{"sec":661.79, "min":11.03, "hr":0.18}}
+after some updates
+10088_5097	Tue 2021-04-27 12:06:18 AM	{"association.tab":358, "media_resource.tab":12218, "occurrence.tab":422, "taxon.tab":11835, "time_elapsed":{"sec":261.58, "min":4.36, "hr":0.07}}
+10088_5097_ENV	Tue 2021-04-27 01:42:33 AM	{"association.tab":358, "measurement_or_fact_specific.tab":47476, "media_resource.tab":12218, "occurrence_specific.tab":47898, "taxon.tab":11835, "time_elapsed":{"sec":5765.42, "min":96.09, "hr":1.6}}
 
 */
 
@@ -148,7 +151,7 @@ $input = array('filename' => 'SCTZ-0156.txt', 'lines_before_and_after_sciname' =
 /* var lines_before_and_after_sciname is important. It is the lines before and after the "list header". */
 // /*
 $input = array('filename' => 'SCtZ-0033.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0033/');
-$input = array('filename' => 'SCtZ-0437.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/'); //List of Freshwater Fishes of Peru
+// $input = array('filename' => 'SCtZ-0437.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/'); //List of Freshwater Fishes of Peru
 // $input = array('filename' => 'SCtZ-0011.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/');
 
 // $input = array('filename' => 'SCtZ-0018.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0018/');
