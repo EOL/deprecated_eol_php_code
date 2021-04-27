@@ -99,7 +99,10 @@ class ConvertioAPI
         // echo "\nsource: $source\n";
         // echo "\nfilename: $filename\n";
         // echo "\napi_id: $api_id\n";
-
+        if(!filesize($source)) {
+            echo "\nERRORx: Will not upload, .epub file is empty.\n";
+            return false;
+        }
         $cmd = "curl -S -s -X PUT --upload-file '".$source."' http://api.convertio.co/convert/".$api_id."/".$filename;
         $cmd .= " 2>&1";
         $json = shell_exec($cmd);           //echo "\n$json\n";
