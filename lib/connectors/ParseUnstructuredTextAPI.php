@@ -391,7 +391,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             elseif(stripos($row, "</taxon>") !== false) {}   //string is found
             else {
                 if($row) { //not blank
-                    /* < 60 chars long rule only for species name rows, not for species sections
+                    /* < 60 chars long rule only for the entire species section, not for individual species sections
                     if(strlen($row) < 60) { //will be removed coz its short: "HOST.—Helian thus." but should not for Assoc prefixes
                         $cont = false;
                         foreach($this->assoc_prefixes as $start_of_row) {
@@ -612,6 +612,23 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             }
             else return false;
         }
+        
+        // /* entire species section should not be < 60 chars long
+        $tmp = Functions::remove_whitespace(trim($block));
+        $tmp = str_replace("\n\n\n\n", "\n\n", $tmp);
+        $tmp = str_replace("\n\n\n", "\n\n", $tmp);
+        $tmp = str_replace("\n\n\n", "\n\n", $tmp);
+        $tmp = str_replace("\n\n\n", "\n\n", $tmp);
+        $tmp = str_replace("\n\n\n", "\n\n", $tmp);
+        $tmp = str_replace("\n", "<br>", $tmp);
+        $arr = explode("<br><br>", $tmp);
+        array_shift($arr); //print_r($arr);
+        $tmp = implode("<br>", $arr);
+        $tmp = strip_tags($tmp);
+        if(strlen($tmp) < 60) return false;
+        // echo "\n--------------------------------xxx\n".$tmp."\n--------------------------------yyy\n";
+        // */
+        
         echo "\n[$sciname]";
         echo " - Word count: ".$word_count."\n";
         return true;
