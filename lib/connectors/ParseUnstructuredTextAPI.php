@@ -66,7 +66,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(in_array(pathinfo($input['filename'], PATHINFO_FILENAME), $this->PDFs_that_are_lists)) {
             print_r($input);
             echo "- IS A LIST, NOT SPECIES-DESCRIPTION-TYPE\n";
-            $this->parse_list_type_pdf($input);
+            // $this->parse_list_type_pdf($input);
             return;
         }
         // */
