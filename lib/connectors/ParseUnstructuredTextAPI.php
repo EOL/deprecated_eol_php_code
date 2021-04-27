@@ -35,6 +35,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         
         // /* copied from SmithsonianPDFsAPI
         $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0033', 'SCtZ-0437', 'SCtZ-0018');
+        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437');
         // */
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
@@ -66,7 +67,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(in_array(pathinfo($input['filename'], PATHINFO_FILENAME), $this->PDFs_that_are_lists)) {
             print_r($input);
             echo "- IS A LIST, NOT SPECIES-DESCRIPTION-TYPE\n";
-            // $this->parse_list_type_pdf($input);
+            $this->parse_list_type_pdf($input);
             return;
         }
         // */
