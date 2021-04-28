@@ -15,7 +15,10 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $this->debug = array();
         // https://repository.si.edu/handle/10088/5097/browse?rpp=20&sort_by=2&type=dateissued&offset=0&etal=-1&order=ASC
         // https://repository.si.edu/handle/10088/5097/browse?rpp=20&sort_by=2&type=dateissued&offset=20&etal=-1&order=ASC
-        $this->web['PDFs per page'] = "https://repository.si.edu/handle/10088/5097/browse?rpp=20&sort_by=2&type=dateissued&offset=NUM_OFFSET&etal=-1&order=ASC";
+
+        $this->web['PDFs per page']['10088_5097'] = "https://repository.si.edu/handle/10088/5097/browse?rpp=20&sort_by=2&type=dateissued&offset=NUM_OFFSET&etal=-1&order=ASC";
+        $this->web['PDFs per page']['10088_6943'] = "https://repository.si.edu/handle/10088/6943/browse?rpp=20&sort_by=2&type=dateissued&offset=NUM_OFFSET&etal=-1&order=ASC";
+
         $this->web['domain'] = 'https://repository.si.edu';
         if(Functions::is_production()) $this->path['working_dir'] = '/extra/other_files/Smithsonian/epub_'.$this->resource_id.'/';
         else                           $this->path['working_dir'] = '/Volumes/AKiTiO4/other_files/Smithsonian/epub_'.$this->resource_id.'/';
@@ -366,7 +369,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         echo "\ntotal pages: [$total_pages]\n"; //exit;
         $page = 0; $offset = 0;
         while($page < $total_pages) { $page++; echo "\n[$page][$offset]\n";
-            $url = str_replace("NUM_OFFSET", $offset, $this->web['PDFs per page']);
+            $url = str_replace("NUM_OFFSET", $offset, $this->web['PDFs per page'][$this->resource_id]);
             if($html = Functions::lookup_with_cache($url, $this->download_options)) {
                 /*
                 <div class="artifact-title">
@@ -395,7 +398,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
     }
     private function get_total_pdfs()
     {
-        $url = str_replace("NUM_OFFSET", 0, $this->web['PDFs per page']);
+        $url = str_replace("NUM_OFFSET", 0, $this->web['PDFs per page'][$this->resource_id]);
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             /*Now showing items 1-20 of 660</p>*/
             if(preg_match("/Now showing items 1-20 of (.*?)<\/p>/ims", $html, $a)) return trim($a[1]);
