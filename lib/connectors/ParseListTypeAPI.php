@@ -252,12 +252,13 @@ class ParseListTypeAPI
                     $rows = array();
                     continue;
                 }
-
-                if(stripos($row, "list ") !== false) {} //string is found
+                
+                if(stripos($row, "list ") !== false) { //string is found
+                    if(stripos($row, "Appendix") !== false) { $rows = array(); continue; } //e.g. "Appendix A. List of specimen sightings and collections."
+                }
                 // elseif(stripos($row, " list") !== false) {} //string is found //not good
                 else {
-                    $rows = array();
-                    continue;
+                    $rows = array(); continue;
                 }
             }
             // */
