@@ -63,12 +63,12 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         */
         
         // /* this serves when script is called from parse_unstructured_text.php --- un-comment in real operation
-        // if(in_array(pathinfo($input['filename'], PATHINFO_FILENAME), $this->PDFs_that_are_lists)) {
+        if(in_array(pathinfo($input['filename'], PATHINFO_FILENAME), $this->PDFs_that_are_lists)) {
             // print_r($input);
             // echo "- IS A LIST, NOT SPECIES-DESCRIPTION-TYPE 02\n";
             $this->parse_list_type_pdf($input);
             // return; //should be commented coz some list-type docs have species sections as well
-        // }
+        }
         // */
         
         if($val = $input['epub_output_txts_dir']) $this->path['epub_output_txts_dir'] = $val;
