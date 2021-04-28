@@ -13,7 +13,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         
         // http://gnrd.globalnames.org/name_finder.json?text=Stilbosis lonchocarpella Busck, 1934, p. 157.
         // http://gnrd.globalnames.org/name_finder.json?text=Apanteles ornigus Weed
-        // http://gnrd.globalnames.org/name_finder.json?text=Helian thus
+        // http://gnrd.globalnames.org/name_finder.json?text=Neobidessus s-*floridanus (Fall) 17–168 (Florida)
         // https://parser.globalnames.org/api/v1/Halisidota agatha Schaus, 1924, p. 35.
 
         /*
@@ -34,7 +34,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         /* END epub series */
         
         // /* copied from SmithsonianPDFsAPI
-        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437', 'SCtZ-0033');
+        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437', 'SCtZ-0033'); //SCtZ-0018
         // */
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
@@ -67,7 +67,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             print_r($input);
             echo "- IS A LIST, NOT SPECIES-DESCRIPTION-TYPE 02\n";
             $this->parse_list_type_pdf($input);
-            return;
+            // return; //should be commented coz some list-type docs have species sections as well
         }
         // */
         

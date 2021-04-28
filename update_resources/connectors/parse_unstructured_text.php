@@ -44,6 +44,15 @@ after some updates
 10088_5097	Tue 2021-04-27 12:06:18 AM	{"association.tab":358, "media_resource.tab":12218, "occurrence.tab":422, "taxon.tab":11835, "time_elapsed":{"sec":261.58, "min":4.36, "hr":0.07}}
 10088_5097_ENV	Tue 2021-04-27 01:42:33 AM	{"association.tab":358, "measurement_or_fact_specific.tab":47476, "media_resource.tab":12218, "occurrence_specific.tab":47898, "taxon.tab":11835, "time_elapsed":{"sec":5765.42, "min":96.09, "hr":1.6}}
 
+10088_5097	Tue 2021-04-27 03:16:36 AM	{"association.tab":358, "media_resource.tab":12216, "occurrence.tab":422, "taxon.tab":11834, "time_elapsed":{"sec":777.37, "min":12.96, "hr":0.22}}
+10088_5097_ENV	Tue 2021-04-27 03:30:23 AM	{"association.tab":358, "measurement_or_fact_specific.tab":47474, "media_resource.tab":12216, "occurrence_specific.tab":47896, "taxon.tab":11834, "time_elapsed":{"sec":818.91, "min":13.65, "hr":0.23}}
+
+10088_5097	Tue 2021-04-27 11:10:27 AM	{"association.tab":358, "media_resource.tab":12216, "occurrence.tab":422, "taxon.tab":11834, "time_elapsed":{"sec":783.36, "min":13.06, "hr":0.22}}
+10088_5097_ENV	Tue 2021-04-27 11:22:32 AM	{"association.tab":358, "measurement_or_fact_specific.tab":47436, "media_resource.tab":12216, "occurrence_specific.tab":47858, "taxon.tab":11834, "time_elapsed":{"sec":715.81, "min":11.93, "hr":0.2}}
+
+10088_5097	Tue 2021-04-27 11:37:20 AM	{"association.tab":358, "media_resource.tab":12216, "occurrence.tab":422, "taxon.tab":11834, "time_elapsed":{"sec":443.47, "min":7.39, "hr":0.12}}
+10088_5097_ENV	Tue 2021-04-27 11:44:58 AM	{"association.tab":358, "measurement_or_fact_specific.tab":47436, "media_resource.tab":12216, "occurrence_specific.tab":47858, "taxon.tab":11834, "time_elapsed":{"sec":452.07, "min":7.53, "hr":0.13}}
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -156,7 +165,7 @@ $input = array('filename' => 'SCtZ-0011.txt', 'type' => 'list', 'epub_output_txt
 $input = array('filename' => 'SCtZ-0437.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/'); //List of Freshwater Fishes of Peru
 //-> good list data, very bad species sections
 
-// $input = array('filename' => 'SCtZ-0033.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0033/');
+$input = array('filename' => 'SCtZ-0033.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0033/');
 //-> good list data, a list-type with genus in one line and species in 2nd line. No species sections
 
 // $input = array('filename' => 'SCtZ-0018.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0018/');

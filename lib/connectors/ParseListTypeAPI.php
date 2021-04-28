@@ -93,12 +93,16 @@ class ParseListTypeAPI
                         }
                         // */
                         
-                        
                         if($obj = self::run_gnparser($sciname_line)) {
                             $rek['normalized gnparser'] = @$obj[0]->normalized;
                         }
+                        
+                        // /* customized
+                        $sciname_line = str_replace("s-*floridanus", "floridanus", $sciname_line); // SCtZ-0033
+                        // */
+                        
                         if($obj = self::run_GNRD($sciname_line)) {
-                            $sciname = @$obj->names[0]->scientificName;
+                            $sciname = @$obj->names[0]->scientificName; //echo "\n[$sciname]\n";
                             $rek['sciname GNRD'] = $sciname;
                             if($obj = self::run_gnparser($sciname_line)) {
                                 $authorship = @$obj[0]->authorship->verbatim;
@@ -171,6 +175,10 @@ class ParseListTypeAPI
         }
         
         if(stripos($string, "...") !== false) return false; //string is found
+
+        if(substr($string,0,3) == "s-*") $string = trim(substr($string,3,strlen($string)));
+
+        if(substr($string,0,2) == "s-") $string = trim(substr($string,2,strlen($string)));
         
         if(substr($string,0,1) == "*") $string = trim(substr($string,1,strlen($string)));
         
@@ -188,7 +196,7 @@ class ParseListTypeAPI
     {
         if($string = self::clean_name($string)) {}
         else return false;
-        
+        // echo "\n-- [$string]\n";
         $url = $this->service['GNRD text input'].$string;
         $options = $this->download_options;
         $options['expire_seconds'] = false;

@@ -20,12 +20,13 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         if(Functions::is_production()) $this->path['working_dir'] = '/extra/other_files/Smithsonian/epub_'.$this->resource_id.'/';
         else                           $this->path['working_dir'] = '/Volumes/AKiTiO4/other_files/Smithsonian/epub_'.$this->resource_id.'/';
         if(!is_dir($this->path['working_dir'])) mkdir($this->path['working_dir']);
-        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437', 'SCtZ-0033');
+        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437', 'SCtZ-0033'); //SCtZ-0018
         $this->PDFs_not_a_monograph = array('SCtZ-0009'); //exclude; not a species nor a list type.
         $this->overwrite_tagged_files = true; //orig false means don't overwrite tagged files.
         
         $this->with_epub_count = 0;
         $this->without_epub_count = 0;
+        $this->localRunYN = false; //false in normal operation. true during dev. used to force value
     }
     
     // /* used during dev, from parse_unstructured_text.php when working on associations
@@ -61,14 +62,13 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         */
         
         /* force value -- good during dev.
-        // Biology and Systematics of the North Phyllonorycter Leafminers on Salicaceae, with a Synoptical Catalogue of the Palearctic Species Lepidoptera: Gracillariidae)
-        // https://repository.si.edu//handle/10088/5495
-        // http://dx.doi.org/10.5479/si.00810282.614    
-        // SCtZ-0614.epub
         $pdfs_info = array();
         $pdfs_info[] = Array(
-                "url" => "https://repository.si.edu//handle/10088/5495",
-                "title" => "Biology and Systematics of the North Phyllonorycter Leafminers on Salicaceae, with a Synoptical Catalogue of the Palearctic Species Lepidoptera: Gracillariidae)");
+                // "url" => "https://repository.si.edu//handle/10088/5495", //SCtZ-0614.epub
+                // "title" => "eli is here...");
+                
+                "url" => "https://repository.si.edu//handle/10088/5322", //SCtZ-0018
+                "title" => "eli is here...");
         */
         
         /* Utility report for Jen - one time run
@@ -131,11 +131,11 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         echo "\n[$tagged_file]\n";
         if(!$this->overwrite_tagged_files) {
             if(file_exists($tagged_file)) {echo("\nAlready exists tagged file [$pdf_id], will not overwrite\n"); return;}
-            else echo("\nNo tag file yet, will proceed..\n");
+            else echo("\nNo tag file yet, will proceed 1 [$tagged_file]..\n");
         }
         else {
             if(file_exists($tagged_file)) {echo("\nAlready exists tagged file [$pdf_id], will overwrite now\n");}
-            else echo("\nNo tag file yet, will proceed...\n");
+            else echo("\nNo tag file yet, will proceed 2 [$tagged_file]...\n");
         }
         // */
         
@@ -198,7 +198,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                 )
         )*/
         
-        /* this should be commented. This prohibits from running list-type documents bec of the return; row
+        /* this should be commented. NOT NEEDED AT ALL. This prohibits from running list-type documents bec of the return; row
         if(in_array($epub_info['pdf_id'], $this->PDFs_that_are_lists)) {
             echo "\n[".$epub_info['pdf_id']."] ".$info['title']." - IS A LIST, NOT SPECIES-DESCRIPTION-TYPE 01\n";
             return;
@@ -454,7 +454,17 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         // print_r($this->meta); exit("\n$url\n");
     }
     private function generate_dwca_for_a_repository()
-    {   // SPECIES SECTIONS
+    {   
+        if($this->localRunYN) { //forced value
+            $pdf_id = 'SCtZ-0018'; $pdf_meta_obj = array();
+            $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0018/SCtZ-0018_tagged.txt";
+            if(file_exists($txt_filename)) self::process_a_txt_file($txt_filename, $pdf_id, $pdf_meta_obj);
+            $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0018/SCtZ-0018_descriptions_LT.txt";
+            if(file_exists($txt_filename)) self::process_a_txt_file_LT($txt_filename, $pdf_id, $pdf_meta_obj);
+            return;
+        }
+        
+        // SPECIES SECTIONS
         foreach(glob($this->path['working_dir'] . "*") as $folder) {
             $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."_tagged.txt";
             $txt_filename = $folder."/".$txt_filename;
