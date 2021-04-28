@@ -124,7 +124,9 @@ class ParseListTypeAPI
                                 // */
 
                             }
-                            print_r($rek); //echo " - yyy ";//exit;
+                            if($GLOBALS["ENV_DEBUG"]) print_r($rek);
+                            else echo "\nlist: [".$rek['scientificName_author_cleaned']."]\n";
+                            // exit; //good debug
                             
                             // /* another filter criteria
                             $words = explode(" ", $rek['scientificName_author_cleaned']);

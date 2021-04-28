@@ -83,13 +83,22 @@ class Environments2EOLfinal
             self::process_table($meta, 'create extension', 'occurrence_specific');
         }
 
-        if($this->resource_id == '10088_5097_ENV') { //this will just populate Associations. Not available in DwCA_Utility.php.
+        if(in_array($this->resource_id, array('10088_5097_ENV', 'SCtZ-0437_ENV'))) {
             $tables = $info['harvester']->tables;
-            $meta = $tables['http://eol.org/schema/association'][0];
-            self::process_table($meta, 'create extension', 'association');
+            
+            /* this will just populate Associations. Not available in DwCA_Utility.php. */
+            if($tbl = @$tables['http://eol.org/schema/association']) {
+                $meta = $tbl[0];
+                self::process_table($meta, 'create extension', 'association');
+            }
+            
+            /* this will populate media_object less the subject#uses */
+            if($tbl = @$tables['http://eol.org/schema/media/document']) {
+                $meta = $tbl[0];
+                self::process_table($meta, 'create extension', 'document');
+            }
+            else exit("\nditox 100\n");
         }
-        
-        
         
         // */
         self::add_environmental_traits();
@@ -298,6 +307,24 @@ class Environments2EOLfinal
                     elseif($class == "occurrence_specific") {
                         if(isset($this->occurrenceIDs_to_delete[$occurrenceID])) continue;
                     }
+                }
+                // */
+                
+                // /*
+                if(in_array($this->resource_id, array('10088_5097_ENV', 'SCtZ-0437_ENV'))) { //create document but excluded subject#use
+                    // print_r($rec); exit("\nexit muna Eli...\n");
+                    /*Array(
+                        [http://purl.org/dc/terms/identifier] => 9f2b9ca8dae440e29db6d83475a962f7
+                        [http://rs.tdwg.org/dwc/terms/taxonID] => e17367c269d607dcc99ec90ab8a4861e
+                        [http://purl.org/dc/terms/type] => http://purl.org/dc/dcmitype/Text
+                        [http://purl.org/dc/terms/format] => text/html
+                        [http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses
+                        [http://purl.org/dc/terms/description] => Paratrygon aieraba (Müller and Henle, 1841), AM, Raya amazónica; R. Rosa, pers. comm. List of Freshwater Fishes of Peru
+                        [http://purl.org/dc/terms/language] => en
+                        [http://ns.adobe.com/xap/1.0/rights/UsageTerms] => http://creativecommons.org/licenses/by-nc-sa/3.0/
+                        [http://rs.tdwg.org/ac/terms/additionalInformation] => List of Freshwater Fishes of Peru
+                    )*/
+                    if($rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses') continue;
                 }
                 // */
                 

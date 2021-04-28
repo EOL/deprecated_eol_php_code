@@ -53,6 +53,12 @@ after some updates
 10088_5097	Tue 2021-04-27 11:37:20 AM	{"association.tab":358, "media_resource.tab":12216, "occurrence.tab":422, "taxon.tab":11834, "time_elapsed":{"sec":443.47, "min":7.39, "hr":0.12}}
 10088_5097_ENV	Tue 2021-04-27 11:44:58 AM	{"association.tab":358, "measurement_or_fact_specific.tab":47436, "media_resource.tab":12216, "occurrence_specific.tab":47858, "taxon.tab":11834, "time_elapsed":{"sec":452.07, "min":7.53, "hr":0.13}}
 
+list-type incorporated:
+10088_5097	Wed 2021-04-28 08:04:40 AM	{"association.tab":358, "media_resource.tab":13188, "occurrence.tab":422, "taxon.tab":12795, "time_elapsed":{"sec":481.93, "min":8.03, "hr":0.13}}
+10088_5097_ENV	Wed 2021-04-28 08:16:42 AM	{"association.tab":358, "measurement_or_fact_specific.tab":47468, "media_resource.tab":13188, "occurrence_specific.tab":47890, "taxon.tab":12795, "time_elapsed":{"sec":711.2, "min":11.85, "hr":0.2}}
+
+subject = #uses removed:
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

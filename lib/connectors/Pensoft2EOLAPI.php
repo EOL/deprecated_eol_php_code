@@ -165,6 +165,8 @@ class Pensoft2EOLAPI
         // /* -------------------- start customize --------------------
         if($this->param['resource_id'] == '617_ENV') $excluded_rowtypes = array('http://eol.org/schema/media/document'); //Wikipedia EN -> creates a new DwCA
         if($this->param['resource_id'] == '21_ENV') $excluded_rowtypes = array(); //AmphibiaWeb text -> doesn't create a new DwCA
+        if($this->param['resource_id'] == '10088_5097_ENV') $excluded_rowtypes = array('http://eol.org/schema/media/document');
+        if($this->param['resource_id'] == 'SCtZ-0437_ENV') $excluded_rowtypes = array('http://eol.org/schema/media/document');
         
         // WoRMS -> doesn't create a new DwCA. But MoF is too big, memory issue.
         // Also MoF and Occurrence will be moved to MoF_specific and Occurrence_specific, together with the new traits from textmined Habitat articles.
