@@ -247,8 +247,14 @@ class ParseListTypeAPI
             $cont = true;
             // /* criteria 1, only for now
             if($row) {
+                
+                if(stripos($row, "List of Participants") !== false) { //string is found
+                    $rows = array();
+                    continue;
+                }
+
                 if(stripos($row, "list ") !== false) {} //string is found
-                // elseif(stripos($row, " list") !== false) {} //string is found
+                // elseif(stripos($row, " list") !== false) {} //string is found //not good
                 else {
                     $rows = array();
                     continue;
