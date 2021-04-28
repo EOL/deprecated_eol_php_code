@@ -57,8 +57,9 @@ list-type incorporated:
 10088_5097	Wed 2021-04-28 08:04:40 AM	{"association.tab":358, "media_resource.tab":13188, "occurrence.tab":422, "taxon.tab":12795, "time_elapsed":{"sec":481.93, "min":8.03, "hr":0.13}}
 10088_5097_ENV	Wed 2021-04-28 08:16:42 AM	{"association.tab":358, "measurement_or_fact_specific.tab":47468, "media_resource.tab":13188, "occurrence_specific.tab":47890, "taxon.tab":12795, "time_elapsed":{"sec":711.2, "min":11.85, "hr":0.2}}
 
-subject = #uses removed:
-
+subject = #uses removed: BEST STATS FOR COMPARISON
+10088_5097	Wed 2021-04-28 09:32:45 AM	{"association.tab":358, "media_resource.tab":13188, "occurrence.tab":422, "taxon.tab":12795, "time_elapsed":{"sec":482.53, "min":8.04, "hr":0.13}}
+10088_5097_ENV	Wed 2021-04-28 09:40:11 AM	{"association.tab":358, "measurement_or_fact_specific.tab":47468, "media_resource.tab":12222, "occurrence_specific.tab":47890, "taxon.tab":12795, "time_elapsed":{"sec":435.51, "min":7.26, "hr":0.12}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
