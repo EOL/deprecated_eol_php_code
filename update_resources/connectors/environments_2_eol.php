@@ -82,9 +82,9 @@ wikipedia_en_traits	Fri 2021-04-16 09:42:18 AM	    {"MoF.tab":148313, "occurrenc
 cd /html/eol_php_code/update_resources/connectors
 
 --------------------------------------------------------------------------------------- PDF repository 10088_5097
-php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"10088_5097", "subjects":"Description"}'
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"10088_5097", "subjects":"Uses|Description"}'
 
-environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"10088_5097", "subjects":"Description"}'
+environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"10088_5097", "subjects":"Uses|Description"}'
 
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0011", "subjects":"Uses|Description"}'
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0437", "subjects":"Uses|Description"}'
@@ -96,6 +96,7 @@ http://api.pensoft.net/annotator?text=List of Nearctic Walshiidae&ontologies=env
 
 
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0010", "subjects":"Uses|Description"}'
+
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0611", "subjects":"Uses|Description"}'
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0613", "subjects":"Uses|Description"}'
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0609", "subjects":"Uses|Description"}'
