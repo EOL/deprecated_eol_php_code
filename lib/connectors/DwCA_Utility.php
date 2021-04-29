@@ -272,8 +272,11 @@ class DwCA_Utility
             $func = new RemoveSurrogatesGBIF($this->resource_id, $this->archive_builder);
             $func->remove_surrogates_from_GBIF($info);
         }
-        if(in_array($this->resource_id, array("21_ENV", "617_ENV", "26_ENV", "10088_5097_ENV", "SCtZ-0011_ENV", "SCtZ-0437_ENV",
-        "SCtZ-0033_ENV"))) { //first 2 clients: Amphibiaweb, Wikipedia EN
+        
+        if(stripos($this->resource_id, "SCtZ-") !== false) $annotateYes = true;
+        else                                               $annotateYes = false;
+        
+        if(in_array($this->resource_id, array("21_ENV", "617_ENV", "26_ENV", "10088_5097_ENV")) || $annotateYes) { //first 2 clients: Amphibiaweb, Wikipedia EN
             echo "\nGoes here really: [$this->resource_id]\n";
             require_library('connectors/Environments2EOLfinal');
             $func = new Environments2EOLfinal($this->archive_builder, $this->resource_id);

@@ -82,6 +82,7 @@ class ParseListTypeAPI
                         
                         if(substr($sciname_line,0,1) == "*") $sciname_line = trim(substr($sciname_line,1,strlen($sciname_line)));
                         if(substr($sciname_line,0,1) == "?") continue;
+                        $sciname_line = str_ireplace("†","",$sciname_line); //special chars like this messes up GNRD and Gnparser
                         
                         
                         // /* fill-up genus name for rows e.g. "bicolor Guignot 57–36! (Brazil)" --> SCtZ-0033.txt
@@ -248,6 +249,14 @@ class ParseListTypeAPI
             // /* criteria 1, only for now
             if($row) {
                 
+                // /* force
+                if(stripos($row, "Checklist of Amphibians") !== false) { //string is found  --> SCtZ-0010
+                    $rows[] = $row;
+                    $rows = self::process_magic_no_v2($this->magic_no, $rows, $ctr);
+                    continue;
+                }
+                // */
+                
                 if(stripos($row, "List of Participants") !== false) { //string is found
                     $rows = array();
                     continue;
@@ -294,7 +303,7 @@ class ParseListTypeAPI
                 if(!$rows[0] && !$rows[2]) {
                     if($rows[1]) {
                         $words = explode(" ", $rows[1]);
-                        if(count($words) <= 6)  { //orig is 6
+                        if(count($words) <= 25)  { //orig is 6
                             if(self::is_valid_list_header($rows[1])) {
                                 // if($GLOBALS["ENV_DEBUG"])
                                 print_r($rows);

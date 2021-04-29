@@ -94,6 +94,9 @@ SCtZ-0018 no traits detected
 http://api.pensoft.net/annotator?text=List of Nearctic Walshiidae&ontologies=envo,eol-geonames
 -> no anotations from Pensoft
 
+
+environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0010", "subjects":"Uses"}'
+
 ---------------------------------------------------------------------------------------
 
 #step 1
