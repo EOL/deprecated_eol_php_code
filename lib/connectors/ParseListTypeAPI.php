@@ -84,6 +84,8 @@ class ParseListTypeAPI
                         if(substr($sciname_line,0,1) == "?") continue;
                         $sciname_line = str_ireplace("†","",$sciname_line); //special chars like this messes up GNRD and Gnparser
                         
+                        $sciname_line = str_replace(".—", " .— ", $sciname_line);
+                        $sciname_line = Functions::remove_whitespace($sciname_line);
                         
                         // /* fill-up genus name for rows e.g. "bicolor Guignot 57–36! (Brazil)" --> SCtZ-0033.txt
                         $words = explode(" ", $sciname_line);
@@ -250,17 +252,17 @@ class ParseListTypeAPI
             if($row) {
                 
                 // /* force
-                if(stripos($row, "Checklist of Amphibians") !== false) { //string is found  --> SCtZ-0010
+                if(stripos($row, "Checklist of Amphibians") !== false   ||          //--> SCtZ-0010
+                   stripos($row, "Species Accounts") !== false          ||          //--> SCtZ-0613
+                   stripos($row, "Material Examined") !== false                     //--> SCtZ-0609
+                  ) {
                     $rows[] = $row;
                     $rows = self::process_magic_no_v2($this->magic_no, $rows, $ctr);
                     continue;
                 }
                 // */
                 
-                if(stripos($row, "List of Participants") !== false) { //string is found
-                    $rows = array();
-                    continue;
-                }
+                if(stripos($row, "List of Participants") !== false) { $rows = array(); continue; } //string is found
                 
                 if(stripos($row, "list ") !== false) { //string is found
                     if(stripos($row, "Appendix") !== false) { $rows = array(); continue; } //e.g. "Appendix A. List of specimen sightings and collections."
@@ -289,6 +291,7 @@ class ParseListTypeAPI
                                 $this->scinames[$rows[2]] = ''; //for reporting
                                 $this->lines_to_tag[$ctr-2] = '';
                             }
+                            // else exit("\neli 100\n");
                         }
                     }
                 }
@@ -394,8 +397,8 @@ class ParseListTypeAPI
             foreach($exclude as $start_of_row) {
                 $len = strlen($start_of_row);
                 if(substr($row,0,$len) == $start_of_row) {
-                    $rows = array();
-                    $cont = false; break;
+                    $cont = false;
+                    break;
                 }
             }
             if(!$cont) continue;
@@ -409,9 +412,13 @@ class ParseListTypeAPI
                 // /* first word is all caps removed: OK
                 $words = explode(" ", $row);
                 $words = array_map('trim', $words); // print_r($words); //exit;
-                if(ctype_upper($words[0]) && strlen($words[0]) > 1) {
-                    $rows = array();
-                    continue;
+                if(ctype_upper($words[0]) && strlen($words[0]) > 1) continue;
+                // */
+                
+                // /* 2nd word must start with small letter
+                if($second_word = @$words[1]) {
+                    $first_letter_of_2nd_word = substr($second_word,0,1);
+                    if(ctype_upper($first_letter_of_2nd_word)) continue;
                 }
                 // */
                 
@@ -431,7 +438,6 @@ class ParseListTypeAPI
         }//end loop text
         fclose($WRITE);
         if(copy($temp_file, $edited_file)) unlink($temp_file);
-        
     }
     /* not used atm
     private function is_sciname_LT($string)
@@ -449,6 +455,8 @@ class ParseListTypeAPI
     private function is_valid_list_header($row)
     {
         if(stripos($row, "list") !== false) return true; //string is found
+        elseif($row == "Species Accounts") return true;
+        elseif($row == "Material Examined") return true;
         else return false;
     }
     private function show_parsed_texts_for_mining_LT($edited_file)

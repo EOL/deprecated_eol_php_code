@@ -83,7 +83,7 @@ class Environments2EOLfinal
             self::process_table($meta, 'create extension', 'occurrence_specific');
         }
 
-        if(in_array($this->resource_id, array('10088_5097_ENV', 'SCtZ-0437_ENV'))) {
+        if(in_array($this->resource_id, array('10088_5097_ENV')) || stripos($this->resource_id, "SCtZ-") !== false) {
             $tables = $info['harvester']->tables;
             
             /* this will just populate Associations. Not available in DwCA_Utility.php. */
@@ -311,7 +311,7 @@ class Environments2EOLfinal
                 // */
                 
                 // /*
-                if(in_array($this->resource_id, array('10088_5097_ENV', 'SCtZ-0437_ENV'))) { //create document but excluded subject#use
+                if(in_array($this->resource_id, array('10088_5097_ENV')) || stripos($this->resource_id, "SCtZ-") !== false) { //create document but excluded subject#use
                     // print_r($rec); exit("\nexit muna Eli...\n");
                     /*Array(
                         [http://purl.org/dc/terms/identifier] => 9f2b9ca8dae440e29db6d83475a962f7

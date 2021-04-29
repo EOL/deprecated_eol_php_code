@@ -13,8 +13,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         
         // http://gnrd.globalnames.org/name_finder.json?text=Stilbosis lonchocarpella Busck, 1934, p. 157.
         // http://gnrd.globalnames.org/name_finder.json?text=Apanteles ornigus Weed
-        // http://gnrd.globalnames.org/name_finder.json?text=Neobidessus s-*floridanus (Fall) 17–168 (Florida)
-        // https://parser.globalnames.org/api/v1/Halisidota agatha Schaus, 1924, p. 35.
+        
+        //http://gnrd.globalnames.org/name_finder.json?text=Derephysia (Derephysia) foliacea .— Péricart, 1983:194.
+        //https://parser.globalnames.org/api/v1/Derephysia (Derephysia) foliacea.—Péricart, 1983:194.
+        
 
         /*
         http://gnrd.globalnames.org/name_finder.json?text=HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
@@ -34,7 +36,8 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         /* END epub series */
         
         // /* copied from SmithsonianPDFsAPI
-        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437', 'SCtZ-0033', 'SCtZ-0010', 'SCtZ-0004', 'SCtZ-0611'); //SCtZ-0018
+        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437', 'SCtZ-0033', 'SCtZ-0010', 'SCtZ-0004', 'SCtZ-0611', 'SCtZ-0613',
+        'SCtZ-0609'); //SCtZ-0018
         // */
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
@@ -67,7 +70,8 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(in_array($pdf_id, $this->PDFs_that_are_lists)) {
             echo "- IS A LIST, NOT SPECIES-DESCRIPTION-TYPE 02\n";
             $this->parse_list_type_pdf($input);
-            if(in_array($pdf_id, array('SCtZ-0437', 'SCtZ-0010'))) return; //many lists have bad species sections
+            if(in_array($pdf_id, array('SCtZ-0437', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0609'))) return; //many lists have bad species sections
+            elseif(in_array($pdf_id, array('SCtZ-0613'))) {} //lists with good species sections
             // 
             // return; //should be commented coz some list-type docs have species sections as well
         }

@@ -23,7 +23,8 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         if(Functions::is_production()) $this->path['working_dir'] = '/extra/other_files/Smithsonian/epub_'.$this->resource_id.'/';
         else                           $this->path['working_dir'] = '/Volumes/AKiTiO4/other_files/Smithsonian/epub_'.$this->resource_id.'/';
         if(!is_dir($this->path['working_dir'])) mkdir($this->path['working_dir']);
-        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437', 'SCtZ-0033', 'SCtZ-0010'); //SCtZ-0018
+        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437', 'SCtZ-0033', 'SCtZ-0010', 'SCtZ-0004', 'SCtZ-0611', 'SCtZ-0613',
+        'SCtZ-0609'); //SCtZ-0018
         $this->PDFs_not_a_monograph = array('SCtZ-0009'); //exclude; not a species nor a list type.
         $this->overwrite_tagged_files = true; //orig false means don't overwrite tagged files.
         
@@ -230,6 +231,8 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         /* list-types */
         $this->lines_before_and_after_sciname['SCtZ-0011.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0010.txt'] = 1;
+        $this->lines_before_and_after_sciname['SCtZ-0611.txt'] = 1;
+
 
         // /* ==================== working OK -- un-comment in real operation. Comment during caching in eol-archive
         $txt_filename = str_replace(".epub", ".txt", $epub_info['filename']);

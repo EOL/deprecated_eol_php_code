@@ -160,8 +160,7 @@ $input = array('filename' => 'SCtZ-0614.txt', 'lines_before_and_after_sciname' =
 
 $input = array('filename' => 'SCTZ-0156.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0156/');
 
-    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0611/SCtZ-0611.txt
-
+    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0609/SCtZ-0609.txt
 
 // ---------------------------------- /* List-type here:
 // variable lines_before_and_after_sciname is important. It is the lines before and after the "list header".
@@ -181,6 +180,13 @@ $input = array('filename' => 'SCtZ-0437.txt', 'type' => 'list', 'epub_output_txt
 $input = array('filename' => 'SCtZ-0010.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0010/');
 $input = array('filename' => 'SCtZ-0004.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0004/');
 $input = array('filename' => 'SCtZ-0611.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0611/');
+$input = array('filename' => 'SCtZ-0613.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0613/');
+//-> has good many species sections
+
+$input = array('filename' => 'SCtZ-0609.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0609/');
+
+
+
 
 $pdf_id = pathinfo($input['filename'], PATHINFO_FILENAME);
 
