@@ -37,7 +37,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         
         // /* copied from SmithsonianPDFsAPI
         $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437', 'SCtZ-0033', 'SCtZ-0010', 'SCtZ-0004', 'SCtZ-0611', 'SCtZ-0613',
-        'SCtZ-0609'); //SCtZ-0018
+        'SCtZ-0609', 'SCtZ-0604x'); //SCtZ-0018
         // */
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
@@ -117,6 +117,15 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
 
             $row = trim(preg_replace('/\s*\[[^)]*\]/', '', $row)); //remove brackets
             $row = trim($row);
+            
+            // /* customize
+            $pdf_id = pathinfo($filename, PATHINFO_FILENAME); //exit("\n[$pdf_id]\n");
+            if($pdf_id == 'SCtZ-0604') { //exit("\nelix na\n");
+                if($row == "Ahl, E.") break; //so no more running GNRD for later part of the document
+            }
+            // */
+
+            
             
             $cont = true;
             // /* criteria 1

@@ -322,6 +322,8 @@ class ParseListTypeAPI
     }
     private function add_taxon_tags_to_text_file_LT($filename)
     {   //exit("\n[$filename]\n"); [SCtZ-0018.txt]
+        $pdf_id = pathinfo($filename, PATHINFO_FILENAME); // exit("\n[$pdf_id]\n"); e.g. SCtZ-0609
+        
         $local = $this->path['epub_output_txts_dir'].$filename;
         $temp_file = $local.".tmp";
         $edited_file = str_replace(".txt", "_edited_LT.txt", $local);
@@ -348,11 +350,15 @@ class ParseListTypeAPI
             elseif($row == "General Conclusions") $row = "</taxon>$row";    //SCtZ-0029.txt
             elseif($row == "Bibliography") $row = "</taxon>$row";           //SCtZ-0011.txt
             
-            if(pathinfo($filename, PATHINFO_FILENAME) != 'SCtZ-0018') { //manual specific
+            if($pdf_id != 'SCtZ-0018') { //manual specific
                 if($row == "Literature Cited") $row = "</taxon>$row";       //SCtZ-0007.txt
             }
             else {
                 if($row == "Braun, Annette F.") $row = "</taxon>$row";      //SCtZ-0018.txt
+            }
+            
+            if($pdf_id == 'SCtZ-0609') {
+                if($row == "Figures") $row = "</taxon>$row";                //SCtZ-0609.txt
             }
             // */
             // echo "\n$row";

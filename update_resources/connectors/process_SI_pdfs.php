@@ -78,6 +78,8 @@ $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0010/SCtZ-0010_descriptions_LT.txt";  $pdf_id = "SCtZ-0010";
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0611/SCtZ-0611_descriptions_LT.txt";  $pdf_id = "SCtZ-0611";
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0613/SCtZ-0613_descriptions_LT.txt";  $pdf_id = "SCtZ-0613";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0609/SCtZ-0609_descriptions_LT.txt";  $pdf_id = "SCtZ-0609";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0604/SCtZ-0604_descriptions_LT.txt";  $pdf_id = "SCtZ-0604";
 
 
 $resource_id = $pdf_id;
@@ -86,7 +88,7 @@ require_library('connectors/SmithsonianPDFsAPI');
 $func = new SmithsonianPDFsAPI($resource_id);
 $func->initialize();
 
-$func->process_a_txt_file_LT($txt_filename, $pdf_id, array());
+if(file_exists($txt_filename)) $func->process_a_txt_file_LT($txt_filename, $pdf_id, array());
 
 $txt_filename = str_replace("_descriptions_LT", "_tagged", $txt_filename);
 if(file_exists($txt_filename)) $func->process_a_txt_file($txt_filename, $pdf_id, array());

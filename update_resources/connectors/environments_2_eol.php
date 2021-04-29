@@ -98,6 +98,8 @@ http://api.pensoft.net/annotator?text=List of Nearctic Walshiidae&ontologies=env
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0010", "subjects":"Uses"}'
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0611", "subjects":"Uses"}'
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0613", "subjects":"Uses"}'
+environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0609", "subjects":"Uses"}'
+environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0604", "subjects":"Uses"}'
 
 ---------------------------------------------------------------------------------------
 
