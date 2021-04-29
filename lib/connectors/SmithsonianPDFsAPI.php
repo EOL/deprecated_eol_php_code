@@ -227,7 +227,9 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $this->lines_before_and_after_sciname['SCtZ-0029.txt'] = 2;
         $this->lines_before_and_after_sciname['SCtZ-0007.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0025.txt'] = 1;
-        $this->lines_before_and_after_sciname['SCtZ-0011.txt'] = 1; //FYI weird species-type
+        /* list-types */
+        $this->lines_before_and_after_sciname['SCtZ-0011.txt'] = 1;
+        $this->lines_before_and_after_sciname['SCtZ-0010.txt'] = 1;
 
         // /* ==================== working OK -- un-comment in real operation. Comment during caching in eol-archive
         $txt_filename = str_replace(".epub", ".txt", $epub_info['filename']);

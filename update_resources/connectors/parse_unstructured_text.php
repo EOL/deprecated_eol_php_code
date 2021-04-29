@@ -132,7 +132,7 @@ $filename = 'SCZ637_pdftotext.txt';
 $func->parse_pdftotext_result($filename);
 */
 
-// /* Start epub series: process our first file from the ticket
+/* Start epub series: process our first file from the ticket */
 $input = array('filename' => 'SCtZ-0293.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0293/');
 $input = array('filename' => 'SCtZ-0001.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0001/');
 $input = array('filename' => 'SCtZ-0008.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0008/');
@@ -160,31 +160,33 @@ $input = array('filename' => 'SCtZ-0614.txt', 'lines_before_and_after_sciname' =
 
 $input = array('filename' => 'SCTZ-0156.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0156/');
 
-    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCTZ-0156/SCTZ-0156.txt
+    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCTZ-0156/SCTZ-0156.txta
 
 
 //=====================List-type here:
 /* var lines_before_and_after_sciname is important. It is the lines before and after the "list header". */
-// /*
+// ---------------------------------- /*
 $input = array('filename' => 'SCtZ-0011.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/');
 //-> good list data, no species sections
 
 $input = array('filename' => 'SCtZ-0437.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/'); //List of Freshwater Fishes of Peru
 //-> good list data, very bad species sections
 
-$input = array('filename' => 'SCtZ-0033.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0033/');
+// $input = array('filename' => 'SCtZ-0033.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0033/');
 //-> good list data, a list-type with genus in one line and species in 2nd line. No species sections
 
 // $input = array('filename' => 'SCtZ-0018.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0018/');
 //-> a list-type with genus in one line and species in 2nd line BUT no traits detected by Pensoft AND ALSO has good species sections
 
+$input = array('filename' => 'SCtZ-0010.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0010/');
+
 $input['lines_before_and_after_sciname'] = 2;
-if($input['filename'] == 'SCtZ-xxxx.txt') $input['lines_before_and_after_sciname'] = 1;
+if($input['filename'] == 'SCtZ-0010.txt') $input['lines_before_and_after_sciname'] = 1;
 
 if(Functions::is_production()) $input['epub_output_txts_dir'] = str_replace("/Volumes/AKiTiO4/other_files/Smithsonian/", "/extra/other_files/Smithsonian/", $input['epub_output_txts_dir']);
-// */
+// ---------------------------------- */
+
 $func->parse_pdftotext_result($input);
-// */
 
 /* a utility
 $func->utility_download_txt_files();
