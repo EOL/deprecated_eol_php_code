@@ -160,12 +160,12 @@ $input = array('filename' => 'SCtZ-0614.txt', 'lines_before_and_after_sciname' =
 
 $input = array('filename' => 'SCTZ-0156.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0156/');
 
-    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCTZ-0156/SCTZ-0156.txta
+    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0611/SCtZ-0611.txt
 
 
-//=====================List-type here:
-/* var lines_before_and_after_sciname is important. It is the lines before and after the "list header". */
-// ---------------------------------- /*
+// ---------------------------------- /* List-type here:
+// variable lines_before_and_after_sciname is important. It is the lines before and after the "list header".
+
 $input = array('filename' => 'SCtZ-0011.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/');
 //-> good list data, no species sections
 
@@ -179,9 +179,15 @@ $input = array('filename' => 'SCtZ-0437.txt', 'type' => 'list', 'epub_output_txt
 //-> a list-type with genus in one line and species in 2nd line BUT no traits detected by Pensoft AND ALSO has good species sections
 
 $input = array('filename' => 'SCtZ-0010.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0010/');
+$input = array('filename' => 'SCtZ-0004.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0004/');
+$input = array('filename' => 'SCtZ-0611.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0611/');
 
-$input['lines_before_and_after_sciname'] = 2;
-if($input['filename'] == 'SCtZ-0010.txt') $input['lines_before_and_after_sciname'] = 1;
+$pdf_id = pathinfo($input['filename'], PATHINFO_FILENAME);
+
+$input['lines_before_and_after_sciname'] = 2; //default
+if(in_array($pdf_id, array('SCtZ-0010', 'SCtZ-0611'))) $input['lines_before_and_after_sciname'] = 1;
+
+
 
 if(Functions::is_production()) $input['epub_output_txts_dir'] = str_replace("/Volumes/AKiTiO4/other_files/Smithsonian/", "/extra/other_files/Smithsonian/", $input['epub_output_txts_dir']);
 // ---------------------------------- */

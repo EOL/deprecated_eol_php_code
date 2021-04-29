@@ -237,7 +237,7 @@ class ParseListTypeAPI
         
         // /* This is a different list of words from above. These rows can be removed ONLY when hunting for the scinames.
         $exclude = array("*", "(", "Contents", "Literature", "Miscellaneous", "Introduction", "Appendix", "ACKNOWLEDGMENTS", "TERMINOLOGY",
-        "ETYMOLOGY.", "TYPE-");
+        "ETYMOLOGY.", "TYPE-", 'Tribe');
         // */
         
         // /* loop text file
@@ -264,11 +264,10 @@ class ParseListTypeAPI
                 
                 if(stripos($row, "list ") !== false) { //string is found
                     if(stripos($row, "Appendix") !== false) { $rows = array(); continue; } //e.g. "Appendix A. List of specimen sightings and collections."
+                    else {} //proceeding OK...
                 }
-                // elseif(stripos($row, " list") !== false) {} //string is found //not good
-                else {
-                    $rows = array(); continue;
-                }
+                // elseif(stripos($row, " list") !== false) {} //string is found //not good strategy
+                else { $rows = array(); continue; }
             }
             // */
             $rows[] = $row;
