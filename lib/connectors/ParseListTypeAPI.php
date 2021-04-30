@@ -135,7 +135,7 @@ class ParseListTypeAPI
                             }
                             
                             // /* reconcile gnparser vs GNRD
-                            if(!$rek['scientificName_author_cleaned']) $rek['scientificName_author_cleaned'] = $rek['sciname GNRD'];
+                            if(!@$rek['scientificName_author_cleaned']) $rek['scientificName_author_cleaned'] = $rek['sciname GNRD'];
                             // */
                             
                             if($GLOBALS["ENV_DEBUG"]) print_r($rek);
