@@ -12,11 +12,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
         
         // http://gnrd.globalnames.org/name_finder.json?text=Stilbosis lonchocarpella Busck, 1934, p. 157.
-        // http://gnrd.globalnames.org/name_finder.json?text=Apanteles ornigus Weed
-        
-        //http://gnrd.globalnames.org/name_finder.json?text=Derephysia (Derephysia) foliacea .— Péricart, 1983:194.
-        //https://parser.globalnames.org/api/v1/Derephysia (Derephysia) foliacea.—Péricart, 1983:194.
-        
+        // https://parser.globalnames.org/api/v1/Creagrutus mucipu, USNM 350449, 1, 41.4 mm, paratype; Brazil, Goiás, Município de Minaçu/Colinas do Sul, Rio Tocantins.
 
         /*
         http://gnrd.globalnames.org/name_finder.json?text=HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.

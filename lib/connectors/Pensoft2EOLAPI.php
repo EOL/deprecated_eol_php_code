@@ -557,6 +557,13 @@ class Pensoft2EOLAPI
             // /* general for all:
             if($rek['ontology'] == "eol-geonames") { //per https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65861&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65861
                 if(stripos($rek['id'], "ENVO_") !== false) continue; //string is found
+                if(in_array($rek['lbl'], array('jordan'))) continue; //always remove
+            }
+            // */
+            
+            // /* https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65899&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65899
+            if($rek['ontology'] == "envo") {
+                if(in_array($rek['lbl'], array('mesa', 'laguna'))) continue;
             }
             // */
             
@@ -568,6 +575,9 @@ class Pensoft2EOLAPI
             }
             if(in_array($rek['id'], $this->remove_across_all_resources)) continue; //remove 'cloud', 'cut' for all resources
             // */
+            
+            $validTraitYN = self::John_Hill_vs_hill_mountain($rek);
+            if(!$validTraitYN) continue;
             
             if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN
                 if(ctype_lower(substr($rek['lbl'],0,1))) { //bec. references has a lot like 'Urban C.' which are authors.
@@ -665,6 +675,25 @@ class Pensoft2EOLAPI
            @$rec['http://purl.org/dc/terms/description'] && $rec['http://rs.tdwg.org/dwc/terms/taxonID'] && 
            $rec['http://purl.org/dc/terms/identifier']) return true;
         else return false;
+    }
+    private function John_Hill_vs_hill_mountain($rek) // accept small case 'hill', ignore upper case 'Hill'. Latter can be a person's name.
+    {   /*
+        "id": "http://purl.obolibrary.org/obo/ENVO_00000083",
+        "lbl": "hill",
+        "context": "the river and next to the <b>hill</b>",
+
+        "id": "http://purl.obolibrary.org/obo/ENVO_00000083",
+        "lbl": "hill",
+        "context": "Michael R. and Joseph <b>Hill</b>",
+        */
+        $words = array('urban', 'hill'); //Urban C. -> is a name
+        foreach($words as $word) {
+            if($rek['lbl'] == $word) {
+                if(strpos($rek['context'], $word) !== false) return true;   //if small letter then OK   //string is found
+                else return false;                                          //if not found, meaning big letter. then exclude. Might be a person's name.
+            }
+        }
+        return true; //for most part
     }
     private function get_allowed_subjects($pipe_delimited)
     {   $arr = explode("|", $pipe_delimited);

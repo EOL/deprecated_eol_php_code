@@ -103,6 +103,12 @@ class ParseListTypeAPI
                         
                         // /* customized
                         $sciname_line = str_replace("s-*floridanus", "floridanus", $sciname_line); // SCtZ-0033
+                        // $sciname_line = str_replace(", USNM", " , USNM", $sciname_line); // SCtZ-0613 --- already redundant from below
+
+                        $sciname_line = str_replace(",", " , ", $sciname_line);
+                        $sciname_line = str_replace(":", " : ", $sciname_line);
+                        $sciname_line = str_replace(";", " ; ", $sciname_line);
+                        $sciname_line = trim(Functions::remove_whitespace($sciname_line));
                         // */
                         
                         if($obj = self::run_GNRD($sciname_line)) {
@@ -126,8 +132,12 @@ class ParseListTypeAPI
                                 }
                                 else $possible_genus[substr($sciname,0,1)] = $words[0]; //initialize
                                 // */
-
                             }
+                            
+                            // /* reconcile gnparser vs GNRD
+                            if(!$rek['scientificName_author_cleaned']) $rek['scientificName_author_cleaned'] = $rek['sciname GNRD'];
+                            // */
+                            
                             if($GLOBALS["ENV_DEBUG"]) print_r($rek);
                             else echo "\nlist: [".$rek['scientificName_author_cleaned']."]\n";
                             // exit; //good debug
@@ -171,6 +181,7 @@ class ParseListTypeAPI
     private function clean_sciname($sciname)
     {
         if(substr($sciname, -1) == ".") $sciname = trim(substr($sciname, 0, strlen($sciname)-1)); //remove period if last char in name
+        if(substr($sciname, -6) == ", USNM") $sciname = trim(substr($sciname, 0, strlen($sciname)-6));
         return $sciname;
     }
     private function clean_name($string)
@@ -252,8 +263,8 @@ class ParseListTypeAPI
             if($row) {
                 
                 // /* force
-                if(stripos($row, "Checklist of Amphibians") !== false   ||          //--> SCtZ-0010
-                   stripos($row, "Species Accounts") !== false          ||          //--> SCtZ-0613
+                if(stripos($row, "Checklist of Amphibians") !== false           ||  //--> SCtZ-0010
+                   stripos($row, "Creagrutus and Piabina species") !== false    ||  //--> SCtZ-0613
                    stripos($row, "Material Examined") !== false                     //--> SCtZ-0609
                   ) {
                     $rows[] = $row;
@@ -360,6 +371,11 @@ class ParseListTypeAPI
             if($pdf_id == 'SCtZ-0609') {
                 if($row == "Figures") $row = "</taxon>$row";                //SCtZ-0609.txt
             }
+            
+            if($pdf_id == 'SCtZ-0613') {
+                if($row == "ACKNOWLEDGMENTS") $row = "</taxon>$row";                //SCtZ-0613.txt
+            }
+            
             // */
             // echo "\n$row";
             fwrite($WRITE, $row."\n");
@@ -461,7 +477,7 @@ class ParseListTypeAPI
     private function is_valid_list_header($row)
     {
         if(stripos($row, "list") !== false) return true; //string is found
-        elseif($row == "Species Accounts") return true;
+        elseif($row == "Creagrutus and Piabina species") return true;           //SCtZ-0613
         elseif($row == "Material Examined") return true;
         else return false;
     }
