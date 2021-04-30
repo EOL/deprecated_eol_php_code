@@ -234,6 +234,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $this->lines_before_and_after_sciname['SCtZ-0011.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0010.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0611.txt'] = 1;
+        $this->lines_before_and_after_sciname['SCtZ-0613.txt'] = 1;
 
 
         // /* ==================== working OK -- un-comment in real operation. Comment during caching in eol-archive
