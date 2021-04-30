@@ -32,8 +32,8 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         /* END epub series */
         
         // /* copied from SmithsonianPDFsAPI
-        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437', 'SCtZ-0033', 'SCtZ-0010', 'SCtZ-0004', 'SCtZ-0611', 'SCtZ-0613',
-        'SCtZ-0609', 'SCtZ-0604x'); //SCtZ-0018
+        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437', 'SCtZ-0033', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613',
+        'SCtZ-0609'); //SCtZ-0018 | 'SCtZ-0004' not a list-type
         // */
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
