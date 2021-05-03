@@ -232,11 +232,15 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $this->lines_before_and_after_sciname['SCtZ-0029.txt'] = 2;
         $this->lines_before_and_after_sciname['SCtZ-0007.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0025.txt'] = 1;
+        $this->lines_before_and_after_sciname['SCtZ-0020.txt'] = 1;
+
         /* list-types */
         $this->lines_before_and_after_sciname['SCtZ-0011.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0010.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0611.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0613.txt'] = 1;
+        
+        
 
 
         // /* ==================== working OK -- un-comment in real operation. Comment during caching in eol-archive
@@ -602,10 +606,10 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
             $rec = array();
             $rec['pdf_id'] = $pdf_id;
             $rec['sciname'] = $arr[0];
-            $body = $arr[1].". ".$arr[2];
+            $body = @$arr[1].". ".@$arr[2];
             $body = str_replace("..", ".", $body);
             $rec['body'] = $body;
-            $others['additionalInformation'] = $arr[2]; //list-header
+            $others['additionalInformation'] = @$arr[2]; //list-header
             if($rec['sciname'] && $rec['body']) self::write_archive($rec, $pdf_meta_obj, "Uses", $others); //maybe just a temp text object, until trait is computed.
         }
     }

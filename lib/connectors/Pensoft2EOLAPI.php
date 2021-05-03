@@ -164,10 +164,12 @@ class Pensoft2EOLAPI
         $excluded_rowtypes = array();
         // /* -------------------- start customize --------------------
         if($this->param['resource_id'] == '617_ENV') $excluded_rowtypes = array('http://eol.org/schema/media/document'); //Wikipedia EN -> creates a new DwCA
-        if($this->param['resource_id'] == '21_ENV') $excluded_rowtypes = array(); //AmphibiaWeb text -> doesn't create a new DwCA
-        if($this->param['resource_id'] == '10088_5097_ENV')         $excluded_rowtypes = array('http://eol.org/schema/media/document');
+        elseif($this->param['resource_id'] == '21_ENV') $excluded_rowtypes = array(); //AmphibiaWeb text -> doesn't create a new DwCA
+        if(in_array($this->param['resource_id'], array("10088_5097_ENV", "10088_6943_ENV"))) $excluded_rowtypes = array('http://eol.org/schema/media/document');
         if(stripos($this->param['resource_id'], "SCtZ-") !== false) $excluded_rowtypes = array('http://eol.org/schema/media/document'); //string is found
-        //SCtZ-0437_ENV
+        elseif(stripos($this->param['resource_id'], "scb-") !== false)  $excluded_rowtypes = array('http://eol.org/schema/media/document'); //string is found
+        elseif(stripos($this->param['resource_id'], "scz-") !== false)  $excluded_rowtypes = array('http://eol.org/schema/media/document'); //string is found
+        
         
         // WoRMS -> doesn't create a new DwCA. But MoF is too big, memory issue.
         // Also MoF and Occurrence will be moved to MoF_specific and Occurrence_specific, together with the new traits from textmined Habitat articles.
@@ -328,8 +330,10 @@ class Pensoft2EOLAPI
                     else continue;
                 }
                 
-                if(in_array($this->param['resource_id'], array("10088_5097_ENV"))) $this->ontologies = "envo,eol-geonames";
-                if(stripos($this->param['resource_id'], "SCtZ-") !== false)        $this->ontologies = "envo,eol-geonames"; //string is found
+                if(in_array($this->param['resource_id'], array("10088_5097_ENV", "10088_6943_ENV"))) $this->ontologies = "envo,eol-geonames";
+                elseif(stripos($this->param['resource_id'], "SCtZ-") !== false)        $this->ontologies = "envo,eol-geonames"; //string is found
+                elseif(stripos($this->param['resource_id'], "scb-") !== false)         $this->ontologies = "envo,eol-geonames"; //string is found
+                elseif(stripos($this->param['resource_id'], "scz-") !== false)         $this->ontologies = "envo,eol-geonames"; //string is found
                 // ---------------------- end customize ----------------------*/
                 
                 // print_r($rec); exit("\n[2]\n");
