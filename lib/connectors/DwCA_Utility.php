@@ -108,17 +108,26 @@ class DwCA_Utility
         echo "\nConverting archive to EOL DwCA...\n";
         
         //placeholder for customized resources with respective download_options
+        
+        // /* from Smithsonian Contribution to ???
+        if(stripos($this->resource_id, "SCtZ-") !== false)      $annotateYes = true;
+        elseif(stripos($this->resource_id, "scb-") !== false)   $annotateYes = true;
+        elseif(stripos($this->resource_id, "scz-") !== false)   $annotateYes = true;
+        else                                                    $annotateYes = false;
+        // */
+        
         if(in_array($this->resource_id, array("170_final", "BF"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24*30)); //1 month expire
         elseif(in_array($this->resource_id, array("wikimedia_comnames", "71_new", "368_removed_aves", "itis_2019-08-28", "itis_2020-07-28", "itis_2020-12-01", "368_final"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array("wiki_en_report"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array("globi_associations"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24)); //expires in a day
         elseif(in_array($this->resource_id, array("gbif_classification", "gbif_classification_without_ancestry", "gbif_classification_final', 
-                                                  '26", "368_removed_aves", "617_ENV", "wikipedia_en_traits_FTG", "10088_5097_ENV"))) {
+                                                  '26", "368_removed_aves", "617_ENV", "wikipedia_en_traits_FTG", "10088_5097_ENV", "10088_6943_ENV"))) {
             if(Functions::is_production()) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
             else                           $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
         }
         elseif(substr($this->resource_id,0,3) == 'SC_' || substr($this->resource_id,0,2) == 'c_') $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24*1)); //1 day expire
         elseif(stripos($this->resource_id, "_meta_recoded") !== false) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //0 orig expires now | during dev false
+        elseif($annotateYes) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
         else $info = self::start(); //default doesn't expire. Your call.
 
         $temp_dir = $info['temp_dir'];
@@ -163,7 +172,10 @@ class DwCA_Utility
                 echo "\nprocessing...DwCA_Utility...: [$row_type]: ".@$this->extensions[$row_type]."...\n";
                 
                 // /* customized
-                if($this->resource_id == "10088_5097_ENV" && $row_type == "http://rs.tdwg.org/dwc/terms/occurrence") {
+                if(in_array($this->resource_id, array("10088_5097_ENV", "10088_6943_ENV")) && $row_type == "http://rs.tdwg.org/dwc/terms/occurrence") {
+                    self::process_fields($harvester->process_row_type($row_type), 'occurrence_specific');
+                }
+                elseif($annotateYes && $row_type == "http://rs.tdwg.org/dwc/terms/occurrence") {
                     self::process_fields($harvester->process_row_type($row_type), 'occurrence_specific');
                 }
                 else self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]); //original, the rest goes here
@@ -273,10 +285,12 @@ class DwCA_Utility
             $func->remove_surrogates_from_GBIF($info);
         }
         
-        if(stripos($this->resource_id, "SCtZ-") !== false) $annotateYes = true;
-        else                                               $annotateYes = false;
+        // if(stripos($this->resource_id, "SCtZ-") !== false)      $annotateYes = true;
+        // elseif(stripos($this->resource_id, "scb-") !== false)  $annotateYes = true;
+        // elseif(stripos($this->resource_id, "scz-") !== false)  $annotateYes = true;
+        // else                                                    $annotateYes = false;
         
-        if(in_array($this->resource_id, array("21_ENV", "617_ENV", "26_ENV", "10088_5097_ENV")) || $annotateYes) { //first 2 clients: Amphibiaweb, Wikipedia EN
+        if(in_array($this->resource_id, array("21_ENV", "617_ENV", "26_ENV", "10088_5097_ENV", "10088_6943_ENV")) || $annotateYes) { //first 2 clients: Amphibiaweb, Wikipedia EN
             echo "\nGoes here really: [$this->resource_id]\n";
             require_library('connectors/Environments2EOLfinal');
             $func = new Environments2EOLfinal($this->archive_builder, $this->resource_id);

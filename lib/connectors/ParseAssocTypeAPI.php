@@ -32,6 +32,7 @@ class ParseAssocTypeAPI
         foreach($rows as $prefix => $row) {
             $row = str_replace(":", ",", $row);
             $row = str_replace("—", ",", $row);
+            $row = str_replace(";", ",", $row);
             $row = trim(Functions::remove_whitespace($row));
             $row = Functions::conv_to_utf8($row);
             $parts = explode(",", $row); //exploded via a comma (","), since GNRD can't detect scinames from block of text sometimes.
