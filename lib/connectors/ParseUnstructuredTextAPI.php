@@ -32,8 +32,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         /* END epub series */
         
         // /* copied from SmithsonianPDFsAPI
-        $this->PDFs_that_are_lists = array('SCtZ-0011', 'SCtZ-0437', 'SCtZ-0033', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613',
-        'SCtZ-0609'); //SCtZ-0018 | 'SCtZ-0004' not a list-type
+        $list_type_from_google_sheet = array('SCtZ-0033', 'SCtZ-0011', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613', 'SCtZ-0609');
+        $this->PDFs_that_are_lists = array_merge(array('SCtZ-0437'), $list_type_from_google_sheet);
+        // SCtZ-0018 | 'SCtZ-0004' not a list-type
+        // SCtZ-0604 - I considered not a list-type but a regular species section type
         // */
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
@@ -482,6 +484,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // if(stripos($name, "Capitophorus ohioensis") !== false) exit("\nok 22\n[$name]\n"); //string is found //good debug
         $name = trim(preg_replace('/\s*\[[^)]*\]/', '', $name)); //remove brackets
         // if(stripos($name, "Capitophorus ohioensis") !== false) exit("\nok 23\n[$name]\n"); //string is found //good debug
+        
+        // /* remove (.) period if last char
+        if(substr($name, -1) == ".") $name = substr($name,0,strlen($name)-1);
+        // */
         
         return $name;
     }
