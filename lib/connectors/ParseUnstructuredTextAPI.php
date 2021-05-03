@@ -37,6 +37,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // SCtZ-0018 | 'SCtZ-0004' not a list-type
         // SCtZ-0604 - I considered not a list-type but a regular species section type
         // */
+        
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
         

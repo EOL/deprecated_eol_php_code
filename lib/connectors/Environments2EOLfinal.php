@@ -324,7 +324,7 @@ class Environments2EOLfinal
                         [http://ns.adobe.com/xap/1.0/rights/UsageTerms] => http://creativecommons.org/licenses/by-nc-sa/3.0/
                         [http://rs.tdwg.org/ac/terms/additionalInformation] => List of Freshwater Fishes of Peru
                     )*/
-                    if($rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses') continue;
+                    if(@$rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses') continue;
                 }
                 // */
                 
