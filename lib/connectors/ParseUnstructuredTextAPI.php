@@ -34,7 +34,8 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // /* copied from SmithsonianPDFsAPI
         $list_type_from_google_sheet = array('SCtZ-0033', 'SCtZ-0011', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613', 'SCtZ-0609');
         $this->PDFs_that_are_lists = array_merge(array('SCtZ-0437'), $list_type_from_google_sheet);
-        // SCtZ-0018 | 'SCtZ-0004' not a list-type
+        // SCtZ-0018 - Nearctic Walshiidae: notes and new taxa (Lepidoptera: Gelechioidea) 
+        // SCtZ-0004 - not a list-type
         // SCtZ-0604 - I considered not a list-type but a regular species section type
         // */
         
@@ -97,6 +98,24 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
     private function get_main_scinames($filename)
     {
         $local = $this->path['epub_output_txts_dir'].$filename;
+        
+        /* start NEW ========================= */
+        // /* remvoe 'Included species' sections. First client SCtZ-0007
+        $local = $this->path['epub_output_txts_dir'].$filename;
+        $cleaned_file = str_replace(".txt", "_cleaned.txt", $local);
+        $contents = file_get_contents($local); //exit("\n$contents\n");
+        if(preg_match_all("/included species(.*?)\n\n\n/ims", $contents, $a)) {
+            // print_r($a[1]); exit("\ngot it\n");
+            foreach($a[1] as $delete_this) {
+                $contents = str_ireplace($delete_this, "", $contents);
+            }
+            $WRITE = fopen($cleaned_file, "w"); //initialize
+            fwrite($WRITE, $contents."\n");
+            fclose($WRITE);
+            $local = $cleaned_file;
+        }
+        // */
+        /* ========================= end NEW */
 
         // /* This is a different list of words from below. These rows can be removed from the final text blocks.
         $this->start_of_row_2_exclude = array("FIGURE", "TABLE", "PLATE", "Key to the", "Genus", "Family", "Order", "Subgenus", "Superfamily", "Subfamily",
@@ -124,8 +143,6 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             }
             // */
 
-            
-            
             $cont = true;
             // /* criteria 1
             foreach($exclude as $start_of_row) {
@@ -191,7 +208,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                         if(count($words) <= 9)  { //orig is 6
                             
                             // if(stripos($rows[2], "Capitophorus ohioensis") !== false) exit("\nok 1\n".$rows[2]."\n"); //string is found //good debug
-                            
+                            // echo "\n$rows[2] -- ";
                             if(self::is_sciname($rows[2])) {
                                 // /*
                                 // if(!self::has_species_string($rows[2])) {}
@@ -201,6 +218,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                                 $this->lines_to_tag[$ctr-2] = '';
                                 // */
                             }
+                            // else echo "not sci";
                         }
                     }
                 }
@@ -257,10 +275,17 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             if(stripos($string, $exc) !== false) return false; //string is found
             // */
         }
+        
+        // /* e.g. "16a. Cerceris bougainvillensis solomonis, new subspecies" --- remove "16a."
+        $string = self::remove_first_word_if_it_has_number($string);
+        // */
+        
         if($doc_type != "list_type") {
             if(ctype_lower(substr($string,0,1))) return false;
         }
+        
         if(substr($string,1,1) == "." && !is_numeric(substr($string,0,1))) return false; //not e.g. "C. Allan Child"
+        
         // /* exclude one-word names e.g. "Sarsiellidae"
         $words = explode(" ", $string);
         if(count($words) == 1) return false;
@@ -382,11 +407,18 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
     }
     private function add_taxon_tags_to_text_file_v3($filename)
     {
+        // /* orig working OK
         $local = $this->path['epub_output_txts_dir'].$filename;
-        $temp_file = $local.".tmp";
-        $edited_file = str_replace(".txt", "_edited.txt", $local);
-        copy($local, $edited_file);
+        $orig_local = $local;
         
+        $cleaned = str_replace(".txt", "_cleaned.txt", $local); //new line
+        if(file_exists($cleaned)) $local = $cleaned;
+        
+        $temp_file = $local.".tmp";
+        $edited_file = str_replace(".txt", "_edited.txt", $orig_local);
+        copy($local, $edited_file);
+        // */
+
         $WRITE = fopen($temp_file, "w"); //initialize
         $hits = 0;
         
@@ -442,6 +474,8 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
     }
     private function format_row_to_sciname($row)
     {   //e.g. "9. Meiosquilla desmarestii (Risso, 1816)" to "Meiosquilla desmarestii (Risso, 1816)"
+        //e.g. "9a. Blah blah blah"
+        /* old
         $words = explode(" ", $row); // print_r($words); exit;
         if(substr($words[0], -1) == ".") {
             $tmp = str_replace(".", "", $words[0]);
@@ -449,6 +483,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             // print_r($words); exit("\nditox\n");
             return implode(" ", $words);
         }
+        return $row;
+        */
+        
+        $row = self::remove_first_word_if_it_has_number($row);
         return $row;
     }
     private function format_row_to_sciname_v2($row) //Amastus aphraates Schaus, 1927, p. 74.
@@ -575,12 +613,14 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                     "LIFE HISTORY NOTES.—", "LIFE HISTORY NOTE.—", "NOTES.—", "NOTE.—");
                     $block = self::remove_last_sections($last_sections_2b_removed, $block, $pdf_id);
                     
-                    $show = "\n-----------------------\n<$block</sciname>\n-----------------------\n";
+                    $show = "\n-----------------------\n<$block</sciname>\n-----------------------\n"; // echo $show;
                     /*
                     <sciname='Pontocypria humesi Maddocks (Nosy Bé, Madagascar)'> Pontocypria humesi Maddocks (Nosy Bé, Madagascar)
                     </sciname>
                     */
-                    if(self::is_valid_block("<$block</sciname>")) fwrite($WRITE, $show);
+                    if(self::is_valid_block("<$block</sciname>")) { // echo $show;
+                        fwrite($WRITE, $show);
+                    }
                     // else echo " -- not valid block"; //just debug
                 }
             }
@@ -632,12 +672,15 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
 
                     $contents = Functions::remove_whitespace(trim(strip_tags($block)));
                     $word_count = self::get_number_of_words($contents);
+                    
+                    /* word count filter doesn't make sense at this point.
                     if($this->filename == 'SCtZ-0007.txt') //2nd PDF
                         if($word_count < 100) return false;
                     elseif($this->filename == 'elix') {}
                     else { //SCtZ-0293_convertio.txt goese here, our 1st PDF
-                        
                     }
+                    */
+                    
                     if($sciname == $contents) return false;
                 }
                 else return false;
@@ -690,6 +733,15 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         }
         // */
         return true;
+    }
+    private function remove_first_word_if_it_has_number($string)
+    {
+        $words = explode(" ", $string); // print_r($words); exit;
+        if(self::get_numbers_from_string($words[0])) { //first word has number(s)
+            array_shift($words);
+            $string = implode(" ", $words);
+        }
+        return $string;
     }
     function utility_download_txt_files() //for Mac mini only
     {   //SCtZ-0001
