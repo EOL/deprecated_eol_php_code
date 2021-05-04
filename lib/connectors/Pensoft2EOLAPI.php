@@ -28,6 +28,12 @@ class Pensoft2EOLAPI
     function __construct($param)
     {
         $this->param = $param; // print_r($param); exit;
+        
+        // /* add ontologies Yes/No in the id caching of Pensoft calls.
+        if(in_array($this->param['resource_id'], array('617_ENV', '21_ENV', '26_ENV'))) $this->includeOntologiesYN = false; //Wikipedia EN | AmphibiaWeb text | WoRMS
+        else $this->includeOntologiesYN = true; //the rest
+        // */
+        
         if($param['resource_id'] == '617_ENV') $this->modulo = 10000; //50000; //Wikipedia EN
         else                                   $this->modulo = 1000;
         /*-----------------------Resources-------------------*/
@@ -511,7 +517,10 @@ class Pensoft2EOLAPI
             $str = substr($desc, $ctr, 2000);
             $str = utf8_encode($str);
             // if($loop == 29) exit("\n--------\n[$str]\n---------\n");
-            $id = md5($str);
+            
+            if($this->includeOntologiesYN)  $id = md5($str.$this->ontologies); //for now only for those SI PDFs/epubs
+            else                            $id = md5($str); //orig, the rest goes here...
+            
             self::retrieve_partial($id, $str, $loop);
             $ctr = $ctr + 2000;
         }
