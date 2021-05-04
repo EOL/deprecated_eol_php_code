@@ -279,6 +279,27 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // /* e.g. "16a. Cerceris bougainvillensis solomonis, new subspecies" --- remove "16a."
         $string = self::remove_first_word_if_it_has_number($string);
         // */
+
+
+        // /* If there is a 2nd word, it should start with a lower case letter. That is if not "(". e.g. Enallopsammia Michelotti, 1871
+        $words = explode(" ", $string);
+        if($second_word = @$words[1]) { //there is 2nd word
+            if($second_word == 'de') return false; //e.g. Dendrophyllia de Blainville, 1830
+            if($second_word == 'd’Orbigny') return false; //e.g. Dactylosmilia d’Orbigny 1849
+            if($second_word == 'new') return false; //e.g. Pourtalopsammia new genus
+            $first_char_of_2nd_word = substr($second_word,0,1);
+            $second_char_of_2nd_word = substr($second_word,1,1);
+            if($first_char_of_2nd_word != "(" && ctype_upper($first_char_of_2nd_word)) return false; //Psammoseris Milne Edwards and Haime, 1851
+            if($first_char_of_2nd_word == "(") { //Balanophyllia (Balanophyllia) Wood, 1844
+                if($third_word = @$words[2]) { //there is a 3rd word
+                    $first_char_of_3rd_word = substr($third_word,0,1);
+                    if($first_char_of_3rd_word != "(" && ctype_upper($first_char_of_3rd_word)) return false; //first_char_of_3rd_word is upper case
+                }
+            }
+        }
+        // */
+
+
         
         if($doc_type != "list_type") {
             if(ctype_lower(substr($string,0,1))) return false;

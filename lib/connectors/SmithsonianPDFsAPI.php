@@ -234,6 +234,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $this->lines_before_and_after_sciname['SCtZ-0007.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0025.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0020.txt'] = 1;
+        $this->lines_before_and_after_sciname['SCtZ-0019.txt'] = 1;
 
         /* list-types */
         $this->lines_before_and_after_sciname['SCtZ-0011.txt'] = 1;
