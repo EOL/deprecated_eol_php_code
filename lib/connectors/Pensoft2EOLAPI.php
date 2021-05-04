@@ -637,6 +637,7 @@ class Pensoft2EOLAPI
         // $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies=envo"'; //orig
         $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies='.$this->ontologies.'"'; //new
         $cmd .= " 2>&1";
+        sleep(2); //temporary
         $json = shell_exec($cmd);
         // echo "\n$desc\n---------";
         // echo "\n$json\n-------------\n"; //exit("\n111\n");
