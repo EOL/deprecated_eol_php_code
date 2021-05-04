@@ -92,6 +92,17 @@ $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0016/SCtZ-0016_descriptions_LT.txt";  $pdf_id = "SCtZ-0016";
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0025/SCtZ-0025_descriptions_LT.txt";  $pdf_id = "SCtZ-0025";
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0022/SCtZ-0022_descriptions_LT.txt";  $pdf_id = "SCtZ-0022";
+// May 4, 2021
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0019/SCtZ-0019_descriptions_LT.txt";  $pdf_id = "SCtZ-0019";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0002/SCtZ-0002_descriptions_LT.txt";  $pdf_id = "SCtZ-0002";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0017/SCtZ-0017_descriptions_LT.txt";  $pdf_id = "SCtZ-0017";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0003/SCtZ-0003_descriptions_LT.txt";  $pdf_id = "SCtZ-0003";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0616/SCtZ-0616_descriptions_LT.txt";  $pdf_id = "SCtZ-0616";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0617/SCtZ-0617_descriptions_LT.txt";  $pdf_id = "SCtZ-0617";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0615/SCtZ-0615_descriptions_LT.txt";  $pdf_id = "SCtZ-0615";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/SCtZ-0614_descriptions_LT.txt";  $pdf_id = "SCtZ-0614";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0612/SCtZ-0612_descriptions_LT.txt";  $pdf_id = "SCtZ-0612";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0605/SCtZ-0605_descriptions_LT.txt";  $pdf_id = "SCtZ-0605";
 
 $resource_id = $pdf_id;
 require_library('connectors/ParseListTypeAPI');
