@@ -18,9 +18,9 @@ Frist clients:
 - AntWeb textmined: Biology
 - WoRMS textmined: Habitat and Distribution
 
-http://api.pensoft.net/annotator?text=Western Desert of Egypt&ontologies=envo,eol-geonames
+http://api.pensoft.net/annotator?text=I like to go to New Guinea&ontologies=envo,eol-geonames
 -> with annotations
-http://api.pensoft.net/annotator?text=List of Nearctic Walshiidae&ontologies=envo,eol-geonames
+http://api.pensoft.net/annotator?text=I like to test a guinea pig&ontologies=envo,eol-geonames
 -> no anotations from Pensoft
 */
 class Pensoft2EOLAPI
@@ -570,7 +570,7 @@ class Pensoft2EOLAPI
             // /* general for all:
             if($rek['ontology'] == "eol-geonames") { //per https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65861&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65861
                 if(stripos($rek['id'], "ENVO_") !== false) continue; //string is found
-                if(in_array($rek['lbl'], array('jordan'))) continue; //always remove
+                if(in_array($rek['lbl'], array('jordan', 'guinea'))) continue; //always remove
             }
             // */
             
@@ -637,7 +637,7 @@ class Pensoft2EOLAPI
         // $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies=envo"'; //orig
         $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies='.$this->ontologies.'"'; //new
         $cmd .= " 2>&1";
-        sleep(2); //temporary
+        // sleep(2); //temporary
         $json = shell_exec($cmd);
         // echo "\n$desc\n---------";
         // echo "\n$json\n-------------\n"; //exit("\n111\n");
