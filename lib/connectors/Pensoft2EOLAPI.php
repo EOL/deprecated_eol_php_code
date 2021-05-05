@@ -18,7 +18,7 @@ Frist clients:
 - AntWeb textmined: Biology
 - WoRMS textmined: Habitat and Distribution
 
-http://api.pensoft.net/annotator?text=I like to go to New Guinea&ontologies=envo,eol-geonames
+http://api.pensoft.net/annotator?text=The author was Urban C.&ontologies=envo,eol-geonames
 -> with annotations
 http://api.pensoft.net/annotator?text=I like to test a guinea pig&ontologies=envo,eol-geonames
 -> no anotations from Pensoft
@@ -639,8 +639,7 @@ class Pensoft2EOLAPI
         $cmd .= " 2>&1";
         // sleep(2); //temporary
         $json = shell_exec($cmd);
-        // echo "\n$desc\n---------";
-        // echo "\n$json\n-------------\n"; //exit("\n111\n");
+        // echo "\n$desc\n---------"; // echo "\n$json\n-------------\n"; //exit("\n111\n");
         return $json;
     }
     private function retrieve_path($id, $what) //$id is "$taxonID_$identifier"
