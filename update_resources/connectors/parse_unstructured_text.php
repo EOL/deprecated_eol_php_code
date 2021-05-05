@@ -191,12 +191,19 @@ $input = array('filename' => 'SCtZ-0009.txt', 'lines_before_and_after_sciname' =
 // $input = array('filename' => 'SCtZ-0612.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0612/');
 // $input = array('filename' => 'SCtZ-0605.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0605/');
 
-
-
-// if(ctype_upper("l")) exit("\nis upper\n");
-// else exit("\nis lower\n");
-
-    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0605/SCtZ-0605.txt
+// May 5, 2021 Wed
+    $input = array('filename' => 'SCtZ-0607.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0607/');
+    $input = array('filename' => 'SCtZ-0608.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0608/');
+    $input = array('filename' => 'SCtZ-0606.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0606/');
+    $input = array('filename' => 'SCtZ-0602.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0602/');
+    $input = array('filename' => 'SCtZ-0603.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0603/');
+    $input = array('filename' => 'SCtZ-0601.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0601/');
+    // // -> negative example, indeed no records created
+    $input = array('filename' => 'SCtZ-0598.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0598/');
+    $input = array('filename' => 'SCtZ-0594.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0594/');
+    
+    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0594/SCtZ-0594.txt
+    
 
 /* ---------------------------------- List-type here:
 // variable lines_before_and_after_sciname is important. It is the lines before and after the "list header".

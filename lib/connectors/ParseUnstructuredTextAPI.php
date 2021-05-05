@@ -254,7 +254,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
     {
         if(preg_match_all('/\d+/', $str, $a)) return $a[0];
     }
-    function is_sciname($string, $doc_type = 'species_type')
+    function is_sciname($string, $doc_type = 'species_type') //for initial scinames list
     {
         $exclude = array("The ", "This ", "When "); //starts with these will be excluded, not a sciname
         foreach($exclude as $exc) {
@@ -284,9 +284,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // /* If there is a 2nd word, it should start with a lower case letter. That is if not "(". e.g. Enallopsammia Michelotti, 1871
         $words = explode(" ", $string);
         if($second_word = @$words[1]) { //there is 2nd word
+            
             if($second_word == 'de') return false; //e.g. Dendrophyllia de Blainville, 1830
-            if($second_word == 'd’Orbigny') return false; //e.g. Dactylosmilia d’Orbigny 1849
-            if($second_word == 'new') return false; //e.g. Pourtalopsammia new genus
+            elseif($second_word == 'd’Orbigny') return false; //e.g. Dactylosmilia d’Orbigny 1849
+            elseif($second_word == 'new') return false; //e.g. Pourtalopsammia new genus
+            
             $first_char_of_2nd_word = substr($second_word,0,1);
             $second_char_of_2nd_word = substr($second_word,1,1);
             if($first_char_of_2nd_word != "(" && ctype_upper($first_char_of_2nd_word)) return false; //Psammoseris Milne Edwards and Haime, 1851
@@ -361,6 +363,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(stripos($row, " Subspecies") !== false) return true;  //string is found
         if(stripos($row, " sp.") !== false) return true;  //string is found
         if(stripos($row, " sp ") !== false) return true;  //string is found
+        if(stripos($row, " sp") !== false) return true;  //string is found
         if(stripos($row, " species") !== false) {  //string is found
             if(stripos($row, "new species") !== false) {}  //string is found
             elseif(stripos($row, " species 1") !== false) {}  //string is found
@@ -382,8 +385,9 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
     private function is_valid_species($str)
     {   
         // /* criteria 1
-        $words = explode(" ", $str); 
-        if(!@$words[1]) return false; //No 2nd word
+        $words = explode(" ", $str);
+        $second_word = @$words[1];
+        if(!$second_word) return false; //No 2nd word
         else {
             if(ctype_upper(substr($words[1],0,1))) return false; //2nd word is capitalized
         }
@@ -464,6 +468,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             elseif($row == "References") $row = "</taxon>$row";             //SCtZ-0008.txt
             elseif($row == "General Conclusions") $row = "</taxon>$row";    //SCtZ-0029.txt
             elseif($row == "Bibliography") $row = "</taxon>$row";           //SCtZ-0011.txt
+
+            elseif($row == "Zoogeography of the Species of the Genus Nannobrachium") $row = "</taxon>$row"; //SCtZ-0607.txt
+            elseif($row == "The Achirus Group") $row = "</taxon>$row";                                      //SCtZ-0607.txt
+            elseif($row == "Summary and Conclusions") $row = "</taxon>$row";
+            elseif($row == "Appendix Tables") $row = "</taxon>$row";
             // */
 
             // /* New: per Jen: https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65856&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65856
@@ -675,6 +684,22 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             $begin = "REMARKS. ";   $end = "TYPE SPECIES. "; //works also but better to use "\n". Or maybe case to case basis.
             $block = self::species_section_append_pattern($begin, $end, $block);
         }
+        // */
+        
+        // /* SCtZ-0607 -> remove DISCUSSION.— but include DISTRIBUTION AND GEOGRAPHIC VARIATION.—
+        $begin = "DISCUSSION.—";    $end = "DISTRIBUTION AND GEOGRAPHIC VARIATION.—";
+        $block = self::species_section_append_pattern($begin, $end, $block);
+        // */
+        
+        // /* SCtZ-0594
+        $begin = "REMARKS.—";    $end = "MATERIAL EXAMINED.—";
+        $block = self::species_section_append_pattern($begin, $end, $block);
+        
+        $begin = "REMARKS.—";    $end = "ADULT.—";
+        $block = self::species_section_append_pattern($begin, $end, $block);
+
+        $begin = "REMARKS.—";    $end = "MATERIAL.—";
+        $block = self::species_section_append_pattern($begin, $end, $block);
         // */
 
         foreach($sections as $section) {
