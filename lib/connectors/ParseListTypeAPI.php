@@ -228,7 +228,7 @@ class ParseListTypeAPI
     {
         if($string = self::clean_name($string)) {}
         else return false;
-
+        $string = str_replace("/", "-", $string); //the former causes error
         $url = $this->service['GNParser'].$string;
         $options = $this->download_options;
         $options['expire_seconds'] = false;
@@ -454,10 +454,10 @@ class ParseListTypeAPI
                 if($row == "-") continue;
                 if(is_numeric(substr($words[0],0,1))) continue; //e.g. table of contents section
                 
-                /* New: May 6, 2021 - SEEMS A SCINAME CHECK IS NOT NEEDED HERE AFTER ALL
+                // /* New: May 6, 2021 - SEEMS A SCINAME CHECK IS NOT NEEDED HERE AFTER ALL
                 if(!$this->is_sciname(trim($words[0]." ".@$words[1]), 'list_type')) continue;
                 // if(!$this->is_sciname_LT(trim($words[0]." ".@$words[1]))) continue;
-                */
+                // */
             }
             // */
             
