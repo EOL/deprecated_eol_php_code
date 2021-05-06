@@ -179,8 +179,10 @@ class ParseListTypeAPI
         fclose($WRITE);
     }
     private function clean_sciname($sciname)
-    {
-        if(substr($sciname, -1) == ".") $sciname = trim(substr($sciname, 0, strlen($sciname)-1)); //remove period if last char in name
+    {   //"Navia acaulis Martius ex Schultes f." --> don't remove period (.)
+        //"Navia acaulis Martius ex Schultes fff." -- remove period (.)
+        $second_to_last_char = substr($sciname, strlen($sciname)-3, 1);
+        if(substr($sciname, -1) == "." && $second_to_last_char != " ") $sciname = trim(substr($sciname, 0, strlen($sciname)-1)); //remove period if last char in name
         if(substr($sciname, -6) == ", USNM") $sciname = trim(substr($sciname, 0, strlen($sciname)-6));
         return $sciname;
     }
@@ -392,6 +394,7 @@ class ParseListTypeAPI
     }
     private function format_row_to_ListHeader($row)
     {   //e.g. "9. Annotated list of..." to "Annotated list of..."    //number infront removed
+        /* old, not even good...
         $words = explode(" ", $row); // print_r($words); exit;
         if(substr($words[0], -1) == ".") {
             $tmp = str_replace(".", "", $words[0]);
@@ -399,6 +402,8 @@ class ParseListTypeAPI
             // print_r($words); exit("\nditox\n");
             return implode(" ", $words);
         }
+        */
+        $row = $this->remove_first_word_if_it_has_number($row);
         return $row;
     }
     private function remove_some_rows_LT($edited_file)
@@ -454,10 +459,10 @@ class ParseListTypeAPI
                 if($row == "-") continue;
                 if(is_numeric(substr($words[0],0,1))) continue; //e.g. table of contents section
                 
-                // /* New: May 6, 2021 - SEEMS A SCINAME CHECK IS NOT NEEDED HERE AFTER ALL
+                /* New: May 6, 2021 - SEEMS A SCINAME CHECK IS NOT NEEDED HERE AFTER ALL
                 if(!$this->is_sciname(trim($words[0]." ".@$words[1]), 'list_type')) continue;
                 // if(!$this->is_sciname_LT(trim($words[0]." ".@$words[1]))) continue;
-                // */
+                */
             }
             // */
             

@@ -78,6 +78,12 @@ some epubs got included, expected increase:
 last run so far:
 10088_5097	Wed 2021-05-05 11:04:45 PM	{"association.tab":413, "media_resource.tab":13697, "occurrence.tab":465, "taxon.tab":14001, "time_elapsed":{"sec":950.83, "min":15.85, "hr":0.26}}
 10088_5097_ENV	Thu 2021-05-06 12:00:58 AM	{"association.tab":413, "measurement_or_fact_specific.tab":49419, "media_resource.tab":12185, "occurrence_specific.tab":49884, "taxon.tab":14001, "time_elapsed":{"sec":3362.21, "min":56.04, "hr":0.93}}
+
+10088_5097	Thu 2021-05-06 04:47:50 AM	{"association.tab":413, "media_resource.tab":13709, "occurrence.tab":465, "taxon.tab":14011, "time_elapsed":{"sec":1530.71, "min":25.51, "hr":0.43}}
+10088_5097_ENV	Thu 2021-05-06 05:40:09 AM	{"association.tab":413, "measurement_or_fact_specific.tab":49266, "media_resource.tab":12185, "occurrence_specific.tab":49731, "taxon.tab":14011, "time_elapsed":{"sec":3132.47, "min":52.21, "hr":0.87}}
+
+10088_5097	Thu 2021-05-06 09:20:29 AM	{"association.tab":413, "media_resource.tab":13697, "occurrence.tab":465, "taxon.tab":14001, "time_elapsed":{"sec":743.97, "min":12.4, "hr":0.21}}
+10088_5097_ENV	Thu 2021-05-06 09:30:32 AM	{"association.tab":413, "measurement_or_fact_specific.tab":49283, "media_resource.tab":12185, "occurrence_specific.tab":49748, "taxon.tab":14001, "time_elapsed":{"sec":593.88, "min":9.9, "hr":0.16}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

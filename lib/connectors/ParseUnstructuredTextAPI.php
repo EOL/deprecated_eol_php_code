@@ -780,7 +780,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // */
         return true;
     }
-    private function remove_first_word_if_it_has_number($string)
+    function remove_first_word_if_it_has_number($string)
     {
         $words = explode(" ", $string); // print_r($words); exit;
         if(self::get_numbers_from_string($words[0])) { //first word has number(s)

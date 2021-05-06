@@ -131,7 +131,8 @@ environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI C
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0603", "subjects":"Uses|Description"}'
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0598", "subjects":"Uses|Description"}'
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0594", "subjects":"Uses|Description"}'
-
+May 6, 2021 Thu
+environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"scb-0002", "subjects":"Uses|Description"}'
 
 ---------------------------------------------------------------------------------------
 
