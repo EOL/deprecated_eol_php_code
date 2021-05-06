@@ -39,8 +39,8 @@ class ParseListTypeAPI
         echo "\n lines_to_tag (list): ".count($this->lines_to_tag)."\n"; //exit("\n-end-\n");
         if(count($this->lines_to_tag)) {
             echo "\nList-type documents: [$filename]\n";
-            $edited_file = self::add_taxon_tags_to_text_file_LT($filename); //exit;
-            self::remove_some_rows_LT($edited_file); //exit;
+            $edited_file = self::add_taxon_tags_to_text_file_LT($filename); //exit("\nstop here muna\n");
+            self::remove_some_rows_LT($edited_file); //exit("\nstop muna\n");
             $tagged_file = self::show_parsed_texts_for_mining_LT($edited_file);
             self::get_scinames_per_list($tagged_file);
             // // print_r($this->scinames); 
@@ -277,10 +277,16 @@ class ParseListTypeAPI
                 
                 if(stripos($row, "list ") !== false) { //string is found
                     if(stripos($row, "Appendix") !== false) { $rows = array(); continue; } //e.g. "Appendix A. List of specimen sightings and collections."
+                    elseif(stripos($row, "see page") !== false) { $rows = array(); continue; } //2nd repo - scb-0002
                     else {} //proceeding OK...
                 }
                 // elseif(stripos($row, " list") !== false) {} //string is found //not good strategy
                 else { $rows = array(); continue; }
+                
+                // /* 2nd repo
+                
+                // */
+                
             }
             // */
             $rows[] = $row;
@@ -297,8 +303,7 @@ class ParseListTypeAPI
                         $words = explode(" ", $rows[2]);
                         if(count($words) <= 12)  { //12 suggested by Jen
                             if(self::is_valid_list_header($rows[2])) {
-                                // if($GLOBALS["ENV_DEBUG"])
-                                print_r($rows);
+                                if($GLOBALS["ENV_DEBUG"]) print_r($rows);
                                 $this->scinames[$rows[2]] = ''; //for reporting
                                 $this->lines_to_tag[$ctr-2] = '';
                             }
@@ -318,8 +323,7 @@ class ParseListTypeAPI
                         $words = explode(" ", $rows[1]);
                         if(count($words) <= 25)  { //orig is 6
                             if(self::is_valid_list_header($rows[1])) {
-                                // if($GLOBALS["ENV_DEBUG"])
-                                print_r($rows);
+                                if($GLOBALS["ENV_DEBUG"]) print_r($rows);
                                 $this->scinames[$rows[1]] = ''; //for reporting
                                 $this->lines_to_tag[$ctr-1] = '';
                             }
@@ -450,9 +454,10 @@ class ParseListTypeAPI
                 if($row == "-") continue;
                 if(is_numeric(substr($words[0],0,1))) continue; //e.g. table of contents section
                 
+                /* New: May 6, 2021 - SEEMS A SCINAME CHECK IS NOT NEEDED HERE AFTER ALL
                 if(!$this->is_sciname(trim($words[0]." ".@$words[1]), 'list_type')) continue;
                 // if(!$this->is_sciname_LT(trim($words[0]." ".@$words[1]))) continue;
-                
+                */
             }
             // */
             
