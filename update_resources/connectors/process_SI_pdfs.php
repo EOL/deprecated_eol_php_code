@@ -115,6 +115,9 @@ $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0601/SCtZ-0601_descriptions_LT.txt";  $pdf_id = "SCtZ-0601";
 // May 6, 2021 Thu
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0002/scb-0002_descriptions_LT.txt";  $pdf_id = "scb-0002";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0001/scb-0001_descriptions_LT.txt";  $pdf_id = "scb-0001";
+//weird names found by Jen
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0188/SCtZ-0188_descriptions_LT.txt";  $pdf_id = "SCtZ-0188";
 
 
 $resource_id = $pdf_id;
@@ -122,6 +125,15 @@ require_library('connectors/ParseListTypeAPI');
 require_library('connectors/SmithsonianPDFsAPI');
 $func = new SmithsonianPDFsAPI($resource_id);
 $func->initialize();
+
+//  utility - working OK
+// $resource_id = "10088_5097";
+// require_library('connectors/ParseListTypeAPI');
+// require_library('connectors/SmithsonianPDFsAPI');
+// $func = new SmithsonianPDFsAPI($resource_id);
+// $func->clean_repository_of_old_files();
+// exit;
+
 
 if(file_exists($txt_filename)) $func->process_a_txt_file_LT($txt_filename, $pdf_id, array());
 

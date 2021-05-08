@@ -50,6 +50,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         require_library('connectors/ConvertioAPI');             $this->func_Convertio = new ConvertioAPI();
         self::initialize();
         // */
+        self::clean_repository_of_old_files();
         self::process_all_pdfs_for_a_repository(); //includes conversion of .epub to .txt AND generation of filename_tagged.txt.
         // /* un-comment in real operation
         self::generate_dwca_for_a_repository();
@@ -235,15 +236,14 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $this->lines_before_and_after_sciname['SCtZ-0025.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0020.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0019.txt'] = 1;
-
+        $this->lines_before_and_after_sciname['scb-0001.txt'] = 1;
+        
         /* list-types */
         $this->lines_before_and_after_sciname['SCtZ-0011.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0010.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0611.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0613.txt'] = 1;
         $this->lines_before_and_after_sciname['scb-0002.txt'] = 1;
-        
-
 
         // /* ==================== working OK -- un-comment in real operation. Comment during caching in eol-archive
         $txt_filename = str_replace(".epub", ".txt", $epub_info['filename']);
@@ -471,6 +471,25 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $left = '<meta name="DC.title" content="';
         if(preg_match("/".preg_quote($left, '/')."(.*?)\"/ims", $html, $a)) $this->meta[$pdf_id]['dc.title'] = $a[1];
         // print_r($this->meta); exit("\n$url\n");
+    }
+    function clean_repository_of_old_files()
+    {
+        echo "\n".$this->path['working_dir']."\n";
+        foreach(glob($this->path['working_dir'] . "*") as $folder) {
+            $postfix = array("_tagged.txt", "_tagged_LT.txt", "_edited.txt", "_edited_LT.txt", "_descriptions_LT.txt");
+            foreach($postfix as $post) {
+                $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."$post";
+                $txt_filename = $folder."/".$txt_filename;
+                echo "\n$txt_filename - ";
+                if(file_exists($txt_filename)) {
+                    if(unlink($txt_filename)) echo " deleted OK\n";
+                }
+                else                          echo " does not exist";
+            }
+            // echo "\n$folder\n";
+            // /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0105
+        }
+        // exit("\nstop muna\n");
     }
     private function generate_dwca_for_a_repository()
     {   

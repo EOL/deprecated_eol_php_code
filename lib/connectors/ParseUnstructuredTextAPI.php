@@ -186,8 +186,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             if(!$cont) continue;
             // */
 
+            //for weird names, from Jen
+            $row = str_replace(array("“", "”"), "", $row); // “Clania” licheniphilus Koehler --> 0188.epub
+            
             /* good debug
-            if(stripos($row, "Capitophorus ohioensis") !== false) exit("\nok 4\n[$row]\n"); //string is found
+            if(stripos($row, "Clania") !== false) exit("\nok 4\n[$row]\n"); //string is found
             */
 
             $rows[] = $row;
@@ -348,6 +351,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         http://gnrd.globalnames.org/name_finder.json?text=A+spider+named+Pardosa+moesta+Banks,+1892
         http://gnrd.globalnames.org/name_finder.json?text=boggianii Régimbart 00–526 (Paraguay)
         */
+        // for weird names, form Jen
+        $string = str_replace("‘", "'", $string);
+        $string = str_replace("’", "'", $string);
+
         $url = $this->service['GNRD text input'].$string;
         $options = $this->download_options;
         $options['expire_seconds'] = false;
@@ -540,14 +547,20 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if($pos > 5) $name = substr($name, 0, $pos);
         $name = Functions::remove_whitespace($name);
         // */
+        // /* criteria
+        $pos = stripos($name, ", newspecies ");
+        if($pos > 5) $name = substr($name, 0, $pos);
+        $name = Functions::remove_whitespace($name);
+        // */
         // /* Blastobasis indigesta Meyrick, 1931, revised status
         $pos = stripos($name, ", revised ");
         if($pos > 5) $name = substr($name, 0, $pos);
         $name = Functions::remove_whitespace($name);
         // */
-        // /* criteria 2
-        if(substr($name,0,1) == "*") $name = trim(substr($name,1,strlen($name)));
-        // e.g. *Percnon gibbesi (H. Milne Edwards, 1853)
+        // /* criteria 2 -- for weird names, from Jen:
+        $name = self::remove_if_first_char_is("*", $name); //e.g. *Percnon gibbesi (H. Milne Edwards, 1853)
+        $name = self::remove_if_first_char_is("?", $name); //e.g. ?Antarctoecia nordenskioeldi Ulmer
+        $name = str_replace(array("“", "”"), "", $name); // “Clania” licheniphilus Koehler
         // */
         
         // if(stripos($name, "Capitophorus ohioensis") !== false) exit("\nok 22\n[$name]\n"); //string is found //good debug
@@ -788,6 +801,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             $string = implode(" ", $words);
         }
         return $string;
+    }
+    private function remove_if_first_char_is($char, $name)
+    {
+        if(substr($name,0,1) == $char) $name = trim(substr($name,1,strlen($name))); //e.g. ?Antarctoecia nordenskioeldi Ulmer
+        return $name;
     }
     function utility_download_txt_files() //for Mac mini only
     {   //SCtZ-0001

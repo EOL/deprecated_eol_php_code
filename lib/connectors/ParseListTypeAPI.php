@@ -208,7 +208,10 @@ class ParseListTypeAPI
         if(stripos($string, ", new combination") !== false) {
             $string = trim(str_ireplace(", new combination", "", $string));
         }
-        
+
+        //for weird names, from Jen
+        $string = str_replace("‘", "'", $string);
+        $string = str_replace("’", "'", $string);
         return $string;
     }
     private function run_GNRD($string)
