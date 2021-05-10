@@ -548,7 +548,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $name = Functions::remove_whitespace($name);
         // */
         // /* criteria
-        $pos = stripos($name, ", newspecies ");
+        $pos = stripos($name, ", newspecies");
         if($pos > 5) $name = substr($name, 0, $pos);
         $name = Functions::remove_whitespace($name);
         // */

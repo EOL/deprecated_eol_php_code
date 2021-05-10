@@ -87,6 +87,9 @@ last run so far:
 good stable stat:
 10088_5097	Thu 2021-05-06 10:14:48 AM	{"association.tab":413, "media_resource.tab":13709, "occurrence.tab":465, "taxon.tab":14011, "time_elapsed":{"sec":626.03, "min":10.43, "hr":0.17}}
 10088_5097_ENV	Thu 2021-05-06 10:17:00 AM	{"association.tab":413, "measurement_or_fact_specific.tab":49266, "media_resource.tab":12185, "occurrence_specific.tab":49731, "taxon.tab":14011, "time_elapsed":{"sec":126.81, "min":2.11, "hr":0.04}}
+
+10088_5097	Sat 2021-05-08 09:51:11 AM	{"association.tab":413, "media_resource.tab":13579, "occurrence.tab":465, "taxon.tab":13204, "time_elapsed":{"sec":1014.91, "min":16.92, "hr":0.28}}
+10088_5097_ENV	Sat 2021-05-08 10:01:10 AM	{"association.tab":413, "measurement_or_fact_specific.tab":49283, "media_resource.tab":12173, "occurrence_specific.tab":49748, "taxon.tab":13204, "time_elapsed":{"sec":591.33, "min":9.86, "hr":0.16}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -200,12 +203,13 @@ $input = array('filename' => 'SCtZ-0601.txt', 'lines_before_and_after_sciname' =
 // // -> negative example, indeed no records created
 $input = array('filename' => 'SCtZ-0598.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0598/');
 $input = array('filename' => 'SCtZ-0594.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0594/');
-    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0559/SCtZ-0559.txt
+    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCtZ-0061/SCtZ-0061.txt
 
 //fix weird names found by Jen:
 $input = array('filename' => 'SCtZ-0355.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0355/');
 $input = array('filename' => 'SCtZ-0188.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0188/');
 $input = array('filename' => 'SCtZ-0559.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0559/');
+$input = array('filename' => 'SCtZ-0061.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0061/');
 
 
 // May 6, 2021 Thu - 2nd repo
