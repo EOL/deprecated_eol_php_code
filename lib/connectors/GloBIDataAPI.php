@@ -23,6 +23,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
         $this->Carnivorous_plant_whitelist = array('Aldrovanda', 'Brocchinia', 'Byblis', 'Catopsis', 'Cephalotus', 'Darlingtonia', 'Dionaea', 'Drosera', 'Drosophyllum', 'Genlisea',
                                                    'Heliamphora', 'Nepenthes', 'Philcoxia', 'Pinguicula', 'Roridula', 'Sarracenia', 'Stylidium', 'Triphyophyllum', 'Utricularia');
         $this->preferred_term_table = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GloBI/reverse_assocs.csv';
+        $this->excluded_ranks = array('class', 'infraclass', 'infrakingdom', 'infraorder', 'infraphylum', 'kingdom', 'order', 'phylum', 'subclass', 'subkingdom', 'suborder', 'subphylum', 'subtribe', 'superclass', 'superfamily', 'superkingdom', 'superorder', 'superphylum', 'division', 'domain', 'grandorder', 'parvorder', 'realm', 'subdivision', 'tribe');
     }
     /*================================================================= STARTS HERE ======================================================================*/
     private function get_preferred_term_info()
@@ -88,12 +89,17 @@ class GloBIDataAPI extends Globi_Refuted_Records
         $this->initialize_report(); //for refuted records;
         $tables = $info['harvester']->tables; 
         
+        // /* New per Jen:
+        self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'build info 2'); //generates $this->exclude_taxonIDs
+        // */
+        
         //step 1 is build info list
         self::process_reference($tables['http://eol.org/schema/reference/reference'][0], 'build info');            
         self::process_association($tables['http://eol.org/schema/association'][0], 'build info');       //generates $this->targetOccurrenceIDS $this->toDeleteOccurrenceIDS
                                                                                                         //generates $this->occurrenceIDS
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'build info');  //generates $this->taxonIDS AND assigns taxonID to $this->targetOccurrenceIDS
                                                                                                         //                              assigns taxonID to $this->occurrenceIDS
+                                                                                                        
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'build info');            //assigns kingdom value to $this->taxonIDS
         //step 2 write extension
         self::process_association($tables['http://eol.org/schema/association'][0], 'create extension'); //main operation in DATA-1812: For every record, create an additional record in reverse.
@@ -144,7 +150,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
             $associationType = $rec['http://eol.org/schema/associationType'];
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             $targetOccurrenceID = $rec['http://eol.org/schema/targetOccurrenceID'];
-            if($what == 'build info') {
+            if($what == 'build info') { //process_association()
                 // /* compiled build info --- May 22, 2020 - Katja - https://eol-jira.bibalex.org/browse/DATA-1853
                 // source:
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002455', 'http://purl.obolibrary.org/obo/RO_0002618', 'http://purl.obolibrary.org/obo/RO_0008507'))) { //
@@ -192,7 +198,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
                 }
             }
-            elseif($what == 'create extension') {
+            elseif($what == 'create extension') { //process_association()
                 /* first change request */
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002437', 'http://purl.obolibrary.org/obo/RO_0002220', 
                                                     'http://purl.obolibrary.org/obo/RO_0002321', 'http://purl.obolibrary.org/obo/RO_0008506',
@@ -524,6 +530,12 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     $field = pathinfo($uri, PATHINFO_BASENAME);
                     $o->$field = $rec[$uri];
                 }
+                
+                // /* New per Jen:
+                if(isset($this->toDeleteOccurrenceIDS[$o->occurrenceID])) continue;
+                if(isset($this->toDeleteOccurrenceIDS[$o->targetOccurrenceID])) continue;
+                // */
+                
                 if($o->associationType == 'http://eol.org/schema/terms/DispersalVector') $o->associationType = 'http://eol.org/schema/terms/IsDispersalVectorFor'; //DATA-1841
                 // /* START new: implement preferred term
                 if($reverse_type = @$OR[$o->associationType]) { //there is reverse
@@ -638,7 +650,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
             )*/
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-            if($what == 'build info') {
+            if($what == 'build info') { //process_occurrence()
                 if(isset($this->targetOccurrenceIDS[$occurrenceID])) {
                     $this->taxonIDS[$taxonID] = '';
                     $this->targetOccurrenceIDS[$occurrenceID] = $taxonID;
@@ -647,8 +659,12 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     $this->taxonIDS[$taxonID] = '';
                     $this->occurrenceIDS[$occurrenceID] = $taxonID;
                 }
+                
+                // /* New per Jen:
+                if(isset($this->exclude_taxonIDs[$taxonID])) $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
+                // */
             }
-            elseif($what == 'create extension') {
+            elseif($what == 'create extension') { //process_occurrence()
                 if(isset($this->toDeleteOccurrenceIDS[$occurrenceID])) continue;
                 
                 $this->taxonIDhasOccurrence[$taxonID] = ''; //so we can only create taxon with occurrence.
@@ -745,7 +761,13 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     }
                 }
             }
-            elseif($what == 'create extension') {
+            elseif($what == 'build info 2') { //process_taxon()
+                // /* New per Jen: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=65929&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65929
+                $taxonRank = $rec['http://rs.tdwg.org/dwc/terms/taxonRank'];
+                if(in_array($taxonRank, $this->excluded_ranks)) $this->exclude_taxonIDs[$taxonID] = '';
+                // */
+            }
+            elseif($what == 'create extension') { //process_taxon()
                 if(isset($this->taxonIDhasOccurrence[$taxonID])) {
                     $o = new \eol_schema\Taxon();
                     $uris = array_keys($rec);
@@ -753,6 +775,11 @@ class GloBIDataAPI extends Globi_Refuted_Records
                         $field = pathinfo($uri, PATHINFO_BASENAME);
                         $o->$field = $rec[$uri];
                     }
+                    
+                    // /* New per Jen: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=65929&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65929
+                    if(isset($this->exclude_taxonIDs[$o->taxonID])) continue;
+                    // */
+                    
                     $this->archive_builder->write_object_to_file($o);
                 }
             }
