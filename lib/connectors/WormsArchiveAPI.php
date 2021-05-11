@@ -693,9 +693,16 @@ class WormsArchiveAPI
             $tmp = explode("\t", $row);
             $rec = array(); $k = 0;
             foreach($meta->fields as $field) {
+                /* old x
                 if(!$field['term']) continue;
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
+                */
+                // /* new May 11, 2021
+                $term = @$field['term'];
+                $rec[$term] = $tmp[$k];
+                $k++;
+                // */
             } //print_r($rec); exit;
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 1054700
@@ -751,9 +758,16 @@ class WormsArchiveAPI
             $tmp = explode("\t", $row);
             $rec = array(); $k = 0;
             foreach($meta->fields as $field) {
+                /* old x
                 if(!$field['term']) continue;
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
+                */
+                // /* new May 11, 2021
+                $term = @$field['term'];
+                $rec[$term] = $tmp[$k];
+                $k++;
+                // */
             }
             // print_r($rec); exit;
             /*Array(
@@ -805,9 +819,16 @@ class WormsArchiveAPI
             $tmp = explode("\t", $row);
             $rec = array(); $k = 0;
             foreach($meta->fields as $field) {
+                /* old x
                 if(!$field['term']) continue;
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
+                */
+                // /* new May 11, 2021
+                $term = @$field['term'];
+                $rec[$term] = $tmp[$k];
+                $k++;
+                // */
             } // print_r($rec); exit;
             $rec = array_map('trim', $rec); //worked OK - important!
 
