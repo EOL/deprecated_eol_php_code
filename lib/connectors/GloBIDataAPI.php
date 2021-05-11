@@ -776,9 +776,10 @@ class GloBIDataAPI extends Globi_Refuted_Records
                         $o->$field = $rec[$uri];
                     }
                     
-                    // /* New per Jen: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=65929&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65929
+                    /* New per Jen: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=65929&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65929
+                    Jen: "No, thanks, let's keep those in the taxa file. There's no need to change the GloBI taxonomy, in case that is of interest to someone."
                     if(isset($this->exclude_taxonIDs[$o->taxonID])) continue;
-                    // */
+                    */
                     
                     $this->archive_builder->write_object_to_file($o);
                 }
