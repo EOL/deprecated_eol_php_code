@@ -10,6 +10,23 @@ class WoRMS_post_process
         /* not used here...
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         */
+        /*
+        Pattern 1:
+        Dichelyne subgen. Dichelyne Jägerskiöld 1902                Dichelyne Jägerskiöld, 1902
+        Flustrellidra subgen. Flustrellidrella d'Hondt 1983         Flustrellidrella d'Hondt, 1983
+        Aglaophenia subgen. Pachyrhynchia Kirchenpauer 1872         Pachyrhynchia Kirchenpauer, 1872
+        Halliella subgen. Halliella Ulrich 1891                     Halliella Ulrich, 1891
+        
+        Pattern 2:
+        Dicranomyia subgen. Idiopyga Savchenko 1987                 Dicranomyia (Idiopyga) Savchenko, 1987
+        Nodobythere subgen. Cristobythere Schornikov 1987           Nodobythere (Cristobythere) Schornikov, 1987
+        Parydra subgen. Chaetoapnaea Hendel 1930                    Parydra (Chaetoapnaea) Hendel, 1930
+        Dicranomyia subgen. Glochina Meigen 1830                    Dicranomyia (Glochina) Meigen, 1830
+
+        Pattern 3:
+        Entomozoe subgen. Nandania Wang                             Entomozoe (Nandania) Wang (Shang-Qi), 1984
+        Ophiosema subgen. Sinophiosema Zhang                        Ophiosema (Sinophiosema) Zhang (Xi-Guang), 1986
+        */
     }
     /*================================================================= STARTS HERE ======================================================================*/
     private function get_undefined_parentMeasurementIDs()
