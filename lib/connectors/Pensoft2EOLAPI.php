@@ -20,7 +20,7 @@ Frist clients:
 
 http://api.pensoft.net/annotator?text=The author was Urban C.&ontologies=envo,eol-geonames
 -> with annotations
-http://api.pensoft.net/annotator?text=I like to test a guinea pig&ontologies=envo,eol-geonames
+http://api.pensoft.net/annotator?text=I like playing in the shrub&ontologies=growth
 -> no anotations from Pensoft
 */
 class Pensoft2EOLAPI

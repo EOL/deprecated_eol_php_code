@@ -134,6 +134,9 @@ environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI C
 May 6, 2021 Thu
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Botany", "resource_id":"scb-0002", "subjects":"Uses|Description"}'
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Botany", "resource_id":"scb-0001", "subjects":"Uses|Description"}'
+May 10, 2021 Mon
+environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Botany", "resource_id":"scb-0003", "subjects":"Uses|Description"}'
+environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Botany", "resource_id":"scb-0004", "subjects":"Uses|Description"}'
 
 ---------------------------------------------------------------------------------------
 
@@ -227,6 +230,11 @@ now with exclude many URI from Jen's geo_synonyms.txt
 26_ENV	Thu 2021-03-25 12:13:18 PM	{"agent.tab":1749, "measurement_or_fact_specific.tab":2425694, "media_resource.tab":92097, "occurrence_specific.tab":2051552, "reference.tab":680112, "taxon.tab":370148, "vernacular_name.tab":85180, "time_elapsed":{"sec":3229.15, "min":53.82, "hr":0.9}}
 now added source where there is none
 26_ENV	Mon 2021-03-29 12:56:36 PM	{"agent.tab":1749, "measurement_or_fact_specific.tab":2425694, "media_resource.tab":92097, "occurrence_specific.tab":2051552, "reference.tab":680112, "taxon.tab":370148, "vernacular_name.tab":85180, "time_elapsed":{"sec":3329.67, "min":55.49, "hr":0.92}}
+26_ENV	Mon 2021-05-10 01:00:05 AM	{"agent.tab":1749, "measurement_or_fact_specific.tab":2415845, "media_resource.tab":92097, "occurrence_specific.tab":2041703, "reference.tab":680112, "taxon.tab":370148, "vernacular_name.tab":85180, "time_elapsed":{"sec":3124.88, "min":52.08, "hr":0.87}}
+26_ENV	Tue 2021-05-11 10:53:48 AM	{"agent.tab":1771, "measurement_or_fact_specific.tab":2458884, "media_resource.tab":92507, "occurrence_specific.tab":2091386, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":{"sec":3309.03, "min":55.15, "hr":0.92}}
+-> steady increase
+start removed all occurrences and trait records associated with specified taxa (WoRMS_mismapped_subgenera):
+
 ===================================================================================================================== WoRMS end
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

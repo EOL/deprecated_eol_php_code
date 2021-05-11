@@ -42,6 +42,12 @@ globi_associations	Mon 2020-12-21 03:31:08 AM	{"association.tab":2436952, "occur
 globi_associations	Mon 2020-12-21 10:17:04 PM	{"association.tab":2435698, "occurrence_specific.tab":3455958, "reference.tab":1139966, "taxon.tab":294442, "time_elapsed":{"sec":4937.43, "min":82.29, "hr":1.37}}
 globi_associations	Wed 2021-02-24 04:49:21 PM	{"association.tab":2510170, "occurrence_specific.tab":3592395, "reference.tab":1402132, "taxon.tab":303931, "time_elapsed":{"sec":10879.17, "min":181.32, "hr":3.02}}
 globi_associations	Tue 2021-03-30 03:51:24 AM	{"association.tab":2240907, "occurrence_specific.tab":3351484, "reference.tab":1414468, "taxon.tab":304554, "time_elapsed":{"sec":5442.52, "min":90.71, "hr":1.51}}
+globi_associations	Mon 2021-05-10 01:40:30 PM	{"association.tab":2337436, "occurrence_specific.tab":3581811, "reference.tab":1565465, "taxon.tab":318274, "time_elapsed":{"sec":6551.32, "min":109.19, "hr":1.82}}
+remove all occurrences and association records for taxa with specified ranks:
+globi_associations	Tue 2021-05-11 02:29:20 AM	{"association.tab":2121276, "occurrence_specific.tab":3414583, "reference.tab":1565465, "taxon.tab":316748, "time_elapsed":{"sec":5216.04, "min":86.93, "hr":1.45}}
+-> hmmm taxa with specified ranks were mistakenly removed as well. They should remain.
+taxa now revived from prev mistake:
+globi_associations	Tue 2021-05-11 07:02:50 AM	{"association.tab":2157305, "occurrence_specific.tab":3414583, "reference.tab":1565465, "taxon.tab":318274, "time_elapsed":{"sec":5394.6, "min":89.91, "hr":1.5}}
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020
