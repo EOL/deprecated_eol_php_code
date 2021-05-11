@@ -700,7 +700,7 @@ class WormsArchiveAPI
                 */
                 // /* new May 11, 2021
                 $term = @$field['term'];
-                $rec[$term] = $tmp[$k];
+                $rec[$term] = @$tmp[$k];
                 $k++;
                 // */
             } //print_r($rec); exit;
@@ -765,7 +765,7 @@ class WormsArchiveAPI
                 */
                 // /* new May 11, 2021
                 $term = @$field['term'];
-                $rec[$term] = $tmp[$k];
+                $rec[$term] = @$tmp[$k];
                 $k++;
                 // */
             }
@@ -826,7 +826,7 @@ class WormsArchiveAPI
                 */
                 // /* new May 11, 2021
                 $term = @$field['term'];
-                $rec[$term] = $tmp[$k];
+                $rec[$term] = @$tmp[$k];
                 $k++;
                 // */
             } // print_r($rec); exit;
