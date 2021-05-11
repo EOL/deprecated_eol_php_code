@@ -532,8 +532,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 }
                 
                 // /* New per Jen:
-                if(isset($this->toDeleteOccurrenceIDS[$o->occurrenceID])) continue;
-                if(isset($this->toDeleteOccurrenceIDS[$o->targetOccurrenceID])) continue;
+                if(isset($this->toDeleteOccurrenceIDS_Jen[$o->occurrenceID])) continue;
+                if(isset($this->toDeleteOccurrenceIDS_Jen[$o->targetOccurrenceID])) continue;
                 // */
                 
                 if($o->associationType == 'http://eol.org/schema/terms/DispersalVector') $o->associationType = 'http://eol.org/schema/terms/IsDispersalVectorFor'; //DATA-1841
@@ -661,13 +661,16 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 }
                 
                 // /* New per Jen:
-                if(isset($this->exclude_taxonIDs[$taxonID])) $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
+                if(isset($this->exclude_taxonIDs[$taxonID])) $this->toDeleteOccurrenceIDS_Jen[$occurrenceID] = '';
                 // */
             }
             elseif($what == 'create extension') { //process_occurrence()
                 if(isset($this->toDeleteOccurrenceIDS[$occurrenceID])) continue;
-                
+
                 $this->taxonIDhasOccurrence[$taxonID] = ''; //so we can only create taxon with occurrence.
+
+                if(isset($this->toDeleteOccurrenceIDS_Jen[$occurrenceID])) continue; //Deliberately placed here so those taxa with the specified ranks can still be created in taxon.tab
+
                 $o = new \eol_schema\Occurrence_specific();
                 $uris = array_keys($rec);
                 foreach($uris as $uri) {
