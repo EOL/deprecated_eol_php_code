@@ -144,6 +144,13 @@ $func->investigate_missing_parents_in_MoF();
 exit("\n");
 */
 
+/* utility - May 11, 2021: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=65930&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65930
+require_library('connectors/WoRMS_post_process');
+$func = new WoRMS_post_process(false, false);
+$func->lookup_WoRMS_mismapped_subgenera();
+exit("\n-end-\n");
+*/
+
 // /* main operation - continued
 run_utility($resource_id);
 recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH."26/"); //we can now delete folder after run_utility() - DWCADiagnoseAPI
