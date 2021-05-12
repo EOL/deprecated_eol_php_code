@@ -152,6 +152,7 @@ class WoRMS_post_process
                 if(in_array($taxonID, $this->mismapped_subgenera)) $this->occurrence_2be_deleted_Jen[$occurrenceID] = '';
             }
         }
+        echo "\noccurrence_2be_deleted_Jen: ".count($this->occurrence_2be_deleted_Jen)."\n";
     }
     /*================================================================= ENDS HERE ======================================================================*/
     /*================== START WoRMS_mismapped_subgenera ========================*/

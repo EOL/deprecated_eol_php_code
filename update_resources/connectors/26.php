@@ -83,6 +83,10 @@ Batches of 2 rows:
 26	Tue 2020-11-10 01:54:23 AM	    {"agent.tab":1682, "measurement_or_fact_specific.tab":3325053, "media_resource.tab":91653, "occurrence_specific.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":false}
 Steady increase OK
 26	Mon 2021-02-08 05:35:41 AM	    {"agent.tab":1709, "measurement_or_fact_specific.tab":3335411, "media_resource.tab":92007, "occurrence_specific.tab":2163968, "reference.tab":677563, "taxon.tab":369567, "vernacular_name.tab":85178, "time_elapsed":false}
+26	Tue 2021-05-11 01:15:15 PM	    {"agent.tab":1771, "measurement_or_fact_specific.tab":3402028, "media_resource.tab":92507, "occurrence_specific.tab":2214437, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":false}
+
+26_meta_recoded_1	Tue 2021-05-11 02:13:44 PM	{"agent.tab":1771, "measurement_or_fact_specific.tab":3248559, "media_resource.tab":92507, "occurrence.tab":2214437, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":{"sec":3411.9, "min":56.87, "hr":0.95}}
+26_meta_recoded	Tue 2021-05-11 03:03:06 PM	{"agent.tab":1771, "measurement_or_fact_specific.tab":2581925, "media_resource.tab":92507, "occurrence_specific.tab":2214437, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":{"sec":2960.51, "min":49.34, "hr":0.82}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
@@ -159,6 +163,7 @@ recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH."26/"); //we can now delete folder a
 // ==============================================================================================================================
 // /* NEW Feb 11, 2020: start auto-remove children of 26_undefined_parentMeasurementIDs.txt in MoF ------------------------------
 if(@filesize(CONTENT_RESOURCE_LOCAL_PATH.'26_undefined_parentMeasurementIDs.txt')) {
+    echo "\nGoes here...\n";
     $resource_id = "26";
     $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/26.tar.gz';
     require_library('connectors/DwCA_Utility');

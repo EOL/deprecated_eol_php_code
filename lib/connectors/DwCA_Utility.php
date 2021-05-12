@@ -120,15 +120,19 @@ class DwCA_Utility
         elseif(in_array($this->resource_id, array("wikimedia_comnames", "71_new", "368_removed_aves", "itis_2019-08-28", "itis_2020-07-28", "itis_2020-12-01", "368_final"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array("wiki_en_report"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array("globi_associations"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24)); //expires in a day
-        elseif(in_array($this->resource_id, array("gbif_classification", "gbif_classification_without_ancestry", "gbif_classification_final', 
-                                                  '26", "368_removed_aves", "617_ENV", "wikipedia_en_traits_FTG", "10088_5097_ENV", "10088_6943_ENV"))) {
+        elseif(in_array($this->resource_id, array("gbif_classification", "gbif_classification_without_ancestry", "gbif_classification_final", 
+                                                  "26", "368_removed_aves", "617_ENV", "wikipedia_en_traits_FTG", "10088_5097_ENV", "10088_6943_ENV"))) {
             if(Functions::is_production()) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
             else                           $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
         }
         elseif(substr($this->resource_id,0,3) == 'SC_' || substr($this->resource_id,0,2) == 'c_') $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24*1)); //1 day expire
         elseif(stripos($this->resource_id, "_meta_recoded") !== false) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //0 orig expires now | during dev false
         elseif($annotateYes) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
-        else $info = self::start(); //default doesn't expire. Your call.
+        else {
+            // $info = self::start(); //default doesn't expire. Your call. -- orig row
+            if(Functions::is_production()) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
+            else                           $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
+        }
 
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
@@ -230,6 +234,7 @@ class DwCA_Utility
             $func->start($info);
         }
         if($this->resource_id == '26') {
+            echo "\nGoes here: [WoRMS_post_process]\n";
             require_library('connectors/WoRMS_post_process');
             $func = new WoRMS_post_process($this->archive_builder, $this->resource_id);
             $func->start($info);
