@@ -129,7 +129,7 @@ class Pensoft2EOLAPI
         // /* ------------------------- customize -------------------------
         $this->exclude_taxonIDs = array(); //initialize
         if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN - remove traits for specified ranks
-            self::process_table_taxa($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], "617_ENV");
+            self::process_table_taxa($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], "617_ENV"); //this will gen. $this->exclude_taxonIDs
         }
         // ------------------------- end customize ------------------------- */
         
