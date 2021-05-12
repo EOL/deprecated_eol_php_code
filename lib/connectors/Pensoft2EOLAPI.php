@@ -77,8 +77,10 @@ class Pensoft2EOLAPI
         
         /*-----------------------Others---------------------*/
         $this->num_of_saved_recs_bef_run_tagger = 1000; //1000 orig;
-        if($val = @$param['subjects']) $this->allowed_subjects = self::get_allowed_subjects($val);
-        echo "\n allowed_subjects: "; print_r($this->allowed_subjects);
+        if($val = @$param['subjects']) {
+            $this->allowed_subjects = self::get_allowed_subjects($val);
+            echo "\n allowed_subjects: "; print_r($this->allowed_subjects);
+        }
         
         $this->download_options = array('expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
         $this->call['opendata resource via name'] = "https://opendata.eol.org/api/3/action/resource_search?query=name:RESOURCE_NAME";
