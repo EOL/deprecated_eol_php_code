@@ -94,6 +94,8 @@ class Pensoft2EOLAPI
         $this->another_set_exclude_URIs_03 = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/geo_synonyms.txt';
         $this->pensoft_run_cnt = 0;
         $this->ontologies = "envo";
+        /* from DATA-1853 - exclude ranks */
+        $this->excluded_ranks = array('class', 'infraclass', 'infrakingdom', 'infraorder', 'infraphylum', 'kingdom', 'order', 'phylum', 'subclass', 'subkingdom', 'suborder', 'subphylum', 'subtribe', 'superclass', 'superfamily', 'superkingdom', 'superorder', 'superphylum', 'division', 'domain', 'grandorder', 'parvorder', 'realm', 'subdivision', 'tribe');
     }
     public function initialize_remaps_deletions_adjustments()
     {
@@ -110,11 +112,11 @@ class Pensoft2EOLAPI
         */
     }
     function generate_eol_tags_pensoft($resource, $timestart = '', $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
-    {   ///* customize
+    {   // /* ------------------------- customize -------------------------
         if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text: entire resource was processed.
             $this->descendants_of_saline_water = self::get_descendants_of_habitat_group('saline water'); //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
         }
-        //*/
+        // ------------------------- end customize ------------------------- */
         
         self::lookup_opendata_resource();
         // /* un-comment in real operation
@@ -124,6 +126,13 @@ class Pensoft2EOLAPI
         $tables = $info['harvester']->tables;
         print_r(array_keys($tables)); //exit;
 
+        // /* ------------------------- customize -------------------------
+        $this->exclude_taxonIDs = array(); //initialize
+        if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN - remove traits for specified ranks
+            self::process_table_taxa($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], "617_ENV");
+        }
+        // ------------------------- end customize ------------------------- */
+        
         // /* this is used to apply all the remaps, deletions, adjustments:
         self::initialize_remaps_deletions_adjustments();
         // */
@@ -306,6 +315,11 @@ class Pensoft2EOLAPI
             // print_r($rec); exit("\n[1]\n");
 
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            
+            // /* New: implement rank filter for occurrences and traits as described in DATA-1853.
+            if(isset($this->exclude_taxonIDs[$taxonID])) continue; //first client is Wikipedia EN (617_ENV)
+            // */
+            
             // if($taxonID != 'Q1000262') continue; //debug only
             
             /* debug only
@@ -412,6 +426,37 @@ class Pensoft2EOLAPI
                 }
             }
         }
+    }
+    private function process_table_taxa($meta)
+    {   //print_r($meta);
+        echo "\nprocess_table_taxa() ".$meta->file_uri."...\n";
+        $i = 0; $saved = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % $this->modulo) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); //exit("\nstop 1\n");
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => Q80005
+                [http://purl.org/dc/terms/source] => http://en.wikipedia.org/w/index.php?title=Fern&oldid=956482677
+                [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => Q178249
+                [http://rs.tdwg.org/dwc/terms/scientificName] => Filicophyta
+                [http://rs.tdwg.org/dwc/terms/taxonRank] => phylum
+                [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => 
+            )*/
+            $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            $taxonRank = $rec['http://rs.tdwg.org/dwc/terms/taxonRank'];
+            if(in_array($taxonRank, $this->excluded_ranks)) $this->exclude_taxonIDs[$taxonID] = '';
+        }
+        echo "\nexclude_taxonIDs: ".count($this->exclude_taxonIDs)."\n";
     }
     private function save_article_2_txtfile($rec) //Media extension
     {   /* Array(
@@ -860,6 +905,16 @@ class Pensoft2EOLAPI
             $this->DwCA_URLs[$resource_name] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/26_meta_recoded.tar.gz'; //bec. record is private in OpenData.eol.org
             print_r($this->DwCA_URLs);
             return;
+        }
+        // */
+        
+        // /* during dev only
+        if(!Functions::is_production()) {
+            if($this->param['resource_id'] == '617_ENV') {
+                $this->DwCA_URLs[$resource_name] = 'http://localhost/eol_php_code/applications/content_server/resources/80.tar.gz';
+                print_r($this->DwCA_URLs);
+                return;
+            }
         }
         // */
         

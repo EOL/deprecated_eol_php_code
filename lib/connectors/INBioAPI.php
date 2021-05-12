@@ -91,6 +91,11 @@ class INBioAPI
     }
     function extract_archive_file($dwca_file, $check_file_or_folder_name, $download_options = array('timeout' => 172800, 'expire_seconds' => 0), $force_extension = false) //e.g. with force_extension is NMNHTypeRecordAPI_v2.php
     {
+        // /* New May 12, 2021 - another option to detect $check_file_or_folder_name
+        $tmp = pathinfo($dwca_file, PATHINFO_BASENAME);
+        $tmpfolder = str_replace('.tar.gz', '', $tmp); //exit("\n[$tmpfolder]\n");
+        // */
+        
         debug("Please wait, downloading resource document...");
         $path_parts = pathinfo($dwca_file);
         $filename = $path_parts['basename'];
@@ -144,6 +149,7 @@ class INBioAPI
         elseif(file_exists($archive_path . "/" . $check_file_or_folder_name)) return array('archive_path' => $archive_path, 'temp_dir' => $temp_dir);
         elseif(file_exists($temp_dir ."dwca/". $check_file_or_folder_name))   return array('archive_path' => $temp_dir."dwca/", 'temp_dir' => $temp_dir); //for http://britishbryozoans.myspecies.info/eol-dwca.zip where it extracts to /dwca/ folder instead of usual /eol-dwca/.
         elseif(file_exists($temp_dir ."EOL_dynamic_hierarchy/". $check_file_or_folder_name)) return array('archive_path' => $temp_dir."EOL_dynamic_hierarchy/", 'temp_dir' => $temp_dir); //for https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6/download/eoldynamichierarchyv1revised.zip
+        elseif(file_exists($temp_dir ."$tmpfolder/". $check_file_or_folder_name))   return array('archive_path' => $temp_dir."$tmpfolder/", 'temp_dir' => $temp_dir);
         elseif(file_exists($temp_dir ."itisMySQL022519/". $check_file_or_folder_name)) return array('archive_path' => $temp_dir."itisMySQL022519/", 'temp_dir' => $temp_dir); //from ITIS downloads - TRAM-804
         elseif(file_exists($temp_dir ."itisMySQL033119/". $check_file_or_folder_name)) return array('archive_path' => $temp_dir."itisMySQL033119/", 'temp_dir' => $temp_dir); //from ITIS downloads - TRAM-806
         elseif(file_exists($temp_dir ."itisMySQL082819/". $check_file_or_folder_name)) return array('archive_path' => $temp_dir."itisMySQL082819/", 'temp_dir' => $temp_dir); //from ITIS downloads
@@ -153,6 +159,8 @@ class INBioAPI
             echo "\n1. ".$temp_dir . $check_file_or_folder_name."\n";
             echo "\n2. ".$archive_path . "/" . $check_file_or_folder_name."\n";
             echo "\n3. ".$temp_dir ."dwca/". $check_file_or_folder_name."\n";
+            echo "\n4. ".$temp_dir ."EOL_dynamic_hierarchy/". $check_file_or_folder_name."\n";
+            echo "\n5. ".$temp_dir ."$tmpfolder/". $check_file_or_folder_name."\n";
             debug("Can't find check_file_or_folder_name [$check_file_or_folder_name].");
             recursive_rmdir($temp_dir);
             return false;
