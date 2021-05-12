@@ -24,7 +24,8 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         else                           $this->path['working_dir'] = '/Volumes/AKiTiO4/other_files/Smithsonian/epub_'.$this->resource_id.'/';
         if(!is_dir($this->path['working_dir'])) mkdir($this->path['working_dir']);
 
-        $list_type_from_google_sheet = array('SCtZ-0033', 'SCtZ-0011', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613', 'SCtZ-0609');
+        $list_type_from_google_sheet = array('SCtZ-0033', 'SCtZ-0011', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613', 'SCtZ-0609',
+        'scb-0002');
         $this->PDFs_that_are_lists = array_merge(array('SCtZ-0437'), $list_type_from_google_sheet);
         // SCtZ-0018 - Nearctic Walshiidae: notes and new taxa (Lepidoptera: Gelechioidea) 
         // SCtZ-0004 - not a list-type
@@ -237,6 +238,10 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         $this->lines_before_and_after_sciname['SCtZ-0020.txt'] = 1;
         $this->lines_before_and_after_sciname['SCtZ-0019.txt'] = 1;
         $this->lines_before_and_after_sciname['scb-0001.txt'] = 1;
+        $this->lines_before_and_after_sciname['scb-0003.txt'] = 1;
+        $this->lines_before_and_after_sciname['scb-0006.txt'] = 1;
+        $this->lines_before_and_after_sciname['scb-0004.txt'] = 1;
+        $this->lines_before_and_after_sciname['scb-0007.txt'] = 1;
         
         /* list-types */
         $this->lines_before_and_after_sciname['SCtZ-0011.txt'] = 1;

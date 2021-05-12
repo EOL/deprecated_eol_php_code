@@ -90,6 +90,10 @@ good stable stat:
 
 10088_5097	Sat 2021-05-08 09:51:11 AM	{"association.tab":413, "media_resource.tab":13579, "occurrence.tab":465, "taxon.tab":13204, "time_elapsed":{"sec":1014.91, "min":16.92, "hr":0.28}}
 10088_5097_ENV	Sat 2021-05-08 10:01:10 AM	{"association.tab":413, "measurement_or_fact_specific.tab":49283, "media_resource.tab":12173, "occurrence_specific.tab":49748, "taxon.tab":13204, "time_elapsed":{"sec":591.33, "min":9.86, "hr":0.16}}
+Submitted:
+10088_5097	Mon 2021-05-10 08:54:34 AM	{"association.tab":413, "media_resource.tab":13579, "occurrence.tab":465, "taxon.tab":13204, "time_elapsed":{"sec":872.76, "min":14.55, "hr":0.24}}
+10088_5097_ENV	Mon 2021-05-10 09:04:03 AM	{"association.tab":413, "measurement_or_fact_specific.tab":49147, "media_resource.tab":12173, "occurrence_specific.tab":49612, "taxon.tab":13204, "time_elapsed":{"sec":562.4, "min":9.37, "hr":0.16}}
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -213,9 +217,22 @@ $input = array('filename' => 'SCtZ-0061.txt', 'lines_before_and_after_sciname' =
 
 
 // May 6, 2021 Thu - 2nd repo
-// $input = array('filename' => 'scb-0001.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0001/');
+$input = array('filename' => 'scb-0001.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0001/');
+// May 10, 2021 - 2nd repo
+$input = array('filename' => 'scb-0003.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0003/');
+// -> Jen considered as list but not really. Better to acquire is as regular species-sections type
+$input = array('filename' => 'scb-0006.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0006/');
+// -> no records created, skipped for the meantime
+// -> I don't think it's worth accomodating this case unless it turns out to be common.
 
-    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_6943/scb-0002/scb-0002.txt
+
+// $input = array('filename' => 'scb-0004.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0004/');
+// $input = array('filename' => 'scb-0005.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0005/');
+// -> as expected, didn't create any records
+// $input = array('filename' => 'scb-0007.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0007/');
+// -> still issues with scb-007
+
+    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_6943/scb-0007/scb-0007.txt
     
     
     
@@ -244,7 +261,7 @@ $input = array('filename' => 'SCtZ-0018.txt', 'type' => 'list', 'epub_output_txt
 // May 6, 2021 Thu - 2nd repo
 $input = array('filename' => 'scb-0002.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0002/');
 
-    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_6943/scb-0001/scb-0001.txt
+    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_6943/scb-0003/scb-0003.txt
 
 
 $pdf_id = pathinfo($input['filename'], PATHINFO_FILENAME);
