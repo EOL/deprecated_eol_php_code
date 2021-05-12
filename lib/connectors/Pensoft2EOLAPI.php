@@ -18,7 +18,7 @@ Frist clients:
 - AntWeb textmined: Biology
 - WoRMS textmined: Habitat and Distribution
 
-http://api.pensoft.net/annotator?text=The author was Urban C.&ontologies=envo,eol-geonames
+http://api.pensoft.net/annotator?text=The Nearctic author was Urban C.&ontologies=envo,eol-geonames
 -> with annotations
 http://api.pensoft.net/annotator?text=I like playing in the shrub&ontologies=growth
 -> no anotations from Pensoft
