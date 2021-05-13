@@ -150,6 +150,13 @@ class ParseListTypeAPI
                             else continue; //there must be a 2nd word
                             // */
                             
+                            $tmp = $rek['scientificName_author_cleaned'];
+                            $tmp = str_replace(" ,", ",", $tmp);
+                            $tmp = str_replace(" :", ":", $tmp);
+                            $tmp = str_replace(" ;", ";", $tmp);
+                            $tmp = trim(Functions::remove_whitespace($tmp));
+                            $rek['scientificName_author_cleaned'] = $tmp;
+                            
                             fwrite($WRITE, implode("\t", array($rek['scientificName_author_cleaned'], $rek['verbatim'], $list_header))."\n");
                             /*Array(
                                 [verbatim] => Miscophus heliophilus Pulawski. 1 ♀. Captured in Malaise trap. The species has been described recently (Pulawski, 1968) from this unique specimen.
@@ -520,6 +527,52 @@ class ParseListTypeAPI
         fclose($WRITE);
         echo "\nblocks: ".count($a[1])."\n";
         return $with_blocks_file;
+    }
+    function last_resort_to_clean_name($sciname_line) //this started from a copied template
+    {
+        $proceed = true;
+        if($numbers = $this->get_numbers_from_string($sciname_line)) { //if there is a single digit or 2-digit or 3-digit number in string then proceed to clean.
+            foreach($numbers as $num) {
+                if(strlen($num) <= 3) {$cont = false; break; }
+            }
+        }
+        if($proceed) {}
+        else return $sciname_line; //no need to clean further
+        
+        // /* ------------- last name cleaning ------------- use both gnparser and GNRD
+        $orig = $sciname_line;
+        if(substr($sciname_line,0,1) == "*") $sciname_line = trim(substr($sciname_line,1,strlen($sciname_line)));
+        $sciname_line = str_ireplace("†","",$sciname_line); //special chars like this messes up GNRD and Gnparser
+        $sciname_line = str_replace(".—", " .— ", $sciname_line);
+        $sciname_line = Functions::remove_whitespace($sciname_line);
+        
+        if($obj = self::run_gnparser($sciname_line)) $rek['normalized gnparser'] = @$obj[0]->normalized;
+        
+        $sciname_line = str_replace(",", " , ", $sciname_line);
+        $sciname_line = str_replace(":", " : ", $sciname_line);
+        $sciname_line = str_replace(";", " ; ", $sciname_line);
+        $sciname_line = trim(Functions::remove_whitespace($sciname_line));
+        
+        if($obj = self::run_GNRD($sciname_line)) {
+            $sciname = @$obj->names[0]->scientificName; //echo "\n[$sciname]\n";
+            $rek['sciname GNRD'] = $sciname;
+            if($obj = self::run_gnparser($sciname_line)) {
+                $authorship = @$obj[0]->authorship->verbatim;
+                $rek['authorship gnparser'] = $authorship;
+                $rek['scientificName_author'] = trim("$sciname $authorship");
+                $rek['scientificName_author_cleaned'] = self::clean_sciname($rek['scientificName_author']);
+            }
+            if(!@$rek['scientificName_author_cleaned']) $rek['scientificName_author_cleaned'] = $rek['sciname GNRD']; //reconcile gnparser vs GNRD
+        }
+        // ------------- end ------------- */
+        if($ret = @$rek['scientificName_author_cleaned']) {
+            $ret = str_replace(" ,", ",", $ret);
+            $ret = str_replace(" :", ":", $ret);
+            $ret = str_replace(" ;", ";", $ret);
+            $ret = trim(Functions::remove_whitespace($ret));
+            return $ret;
+        }
+        return $orig;
     }
     /*################################## Jen's utility ################################################################################*/
     function is_title_inside_epub_YN($title, $txtfile)

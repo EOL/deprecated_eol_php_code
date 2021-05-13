@@ -221,12 +221,14 @@ $input = array('filename' => 'scb-0001.txt', 'lines_before_and_after_sciname' =>
 // May 10, 2021 - 2nd repo
 $input = array('filename' => 'scb-0003.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0003/');
 // -> Jen considered as list but not really. Better to acquire is as regular species-sections type
-$input = array('filename' => 'scb-0006.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0006/');
-// -> no records created, skipped for the meantime
-// -> I don't think it's worth accomodating this case unless it turns out to be common.
 
 
 // $input = array('filename' => 'scb-0004.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0004/');
+
+// May 12, 2021 Wed
+$input = array('filename' => 'scb-0006.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0006/');
+// -> no records created, skipped for the meantime
+// -> I don't think it's worth accomodating this case unless it turns out to be common.
 // $input = array('filename' => 'scb-0005.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0005/');
 // -> as expected, didn't create any records
 // $input = array('filename' => 'scb-0007.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0007/');

@@ -15,10 +15,12 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // https://parser.globalnames.org/api/v1/Creagrutus mucipu, USNM 350449, 1, 41.4 mm, paratype; Brazil, Goiás, Município de Minaçu/Colinas do Sul, Rio Tocantins.
 
         /*
-        http://gnrd.globalnames.org/name_finder.json?text=HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
-        https://parser.globalnames.org/api/v1/Populus tremuloides Michx.
         https://parser.globalnames.org/?q=https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
+
+        http://gnrd.globalnames.org/name_finder.json?text=Thespesia banalo Blanco, Fl. Filip. ed. 2, 382, 1845
+        https://parser.globalnames.org/api/v1/Thespesia banalo Blanco, Fl. Filip. ed. 2, 382, 1845
+
         %26 - &
         %2C - ,
         %28 - (
@@ -32,7 +34,8 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         /* END epub series */
         
         // /* copied from SmithsonianPDFsAPI
-        $list_type_from_google_sheet = array('SCtZ-0033', 'SCtZ-0011', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613', 'SCtZ-0609', 'scb-0002');
+        $list_type_from_google_sheet = array('SCtZ-0033', 'SCtZ-0011', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613', 'SCtZ-0609',
+        'scb-0002');
         $this->PDFs_that_are_lists = array_merge(array('SCtZ-0437'), $list_type_from_google_sheet);
         // SCtZ-0018 - Nearctic Walshiidae: notes and new taxa (Lepidoptera: Gelechioidea) 
         // SCtZ-0004 - not a list-type
@@ -123,9 +126,14 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // */
         
         // /* This is a different list of words from above. These rows can be removed ONLY when hunting for the scinames.
-        $exclude = array("*", "(", "Contents", "Literature", "Miscellaneous", "Introduction", "Appendix", "ACKNOWLEDGMENTS", "TERMINOLOGY",
+        $exclude = array("(", "Contents", "Literature", "Miscellaneous", "Introduction", "Appendix", "ACKNOWLEDGMENTS", "TERMINOLOGY",
         "ETYMOLOGY.", "TYPE-", "COMPOSITION");
         $exclude = array_merge($exclude, $this->start_of_row_2_exclude);
+        // */
+        
+        // /* customize 
+        $pdf_id = pathinfo($filename, PATHINFO_FILENAME); //exit("\n[$pdf_id]\n");
+        if($pdf_id != 'scb-0003') $exclude[] = "*";
         // */
         
         // /* loop text file
@@ -137,7 +145,6 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             $row = trim($row);
             
             // /* customize
-            $pdf_id = pathinfo($filename, PATHINFO_FILENAME); //exit("\n[$pdf_id]\n");
             if($pdf_id == 'SCtZ-0604') { //exit("\nelix na\n");
                 if($row == "Ahl, E.") break; //so no more running GNRD for later part of the document
             }
@@ -190,7 +197,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             $row = str_replace(array("“", "”"), "", $row); // “Clania” licheniphilus Koehler --> 0188.epub
             
             /* good debug
-            if(stripos($row, "Clania") !== false) exit("\nok 4\n[$row]\n"); //string is found
+            if(stripos($row, "Thespesia howii") !== false) print("\nok 4\n[$row]\n"); //string is found
             */
 
             $rows[] = $row;
@@ -235,8 +242,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                 if(!$rows[0] && !$rows[2]) {
                     if($rows[1]) {
                         $words = explode(" ", $rows[1]);
-                        if(count($words) <= 6)  { //orig is 6
+                        if(count($words) <= 15)  { //orig is 6
+                            // echo("\ngoes here 1 [$rows[1]]...\n");
                             if(self::is_sciname($rows[1])) {
+                                // echo("\ngoes here 2 [$rows[1]]...\n");
                                 // /* 
                                 // if(!self::has_species_string($rows[1])) {}
                                 //these 3 lines removed from the if() above
@@ -253,12 +262,15 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             return $rows;
         }
     }
-    private function get_numbers_from_string($str)
+    function get_numbers_from_string($str)
     {
         if(preg_match_all('/\d+/', $str, $a)) return $a[0];
     }
     function is_sciname($string, $doc_type = 'species_type') //for initial scinames list
     {
+        
+        $string = self::remove_if_first_chars_are("* ", $string, 2); //e.g. "* Enteromorpha clathrata (Roth) J. Agardh"
+        
         $exclude = array("The ", "This ", "When "); //starts with these will be excluded, not a sciname
         foreach($exclude as $exc) {
             if(substr($string,0,strlen($exc)) == $exc) return false;
@@ -269,7 +281,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         Review of the Classification of the Rhinocryptidae and Menurae
         Helmut W. Zibrowius, Station Marine d’Endoume, Marseille, France.
         */
-        $exclude = array("Hernán", "Review ", "Helmut W.", "List ", "Key ");
+        $exclude = array("Hernán", "Review ", "Helmut W.", "List ", "Key ", " and ");
         foreach($exclude as $exc) {
             /* for the longest time
             if(substr($string,0,strlen($exc)) == $exc) return false;
@@ -283,7 +295,8 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $string = self::remove_first_word_if_it_has_number($string);
         // */
 
-
+        // echo "\nreach 1\n";
+        
         // /* If there is a 2nd word, it should start with a lower case letter. That is if not "(". e.g. Enallopsammia Michelotti, 1871
         $words = explode(" ", $string);
         if($second_word = @$words[1]) { //there is 2nd word
@@ -304,19 +317,23 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         }
         // */
 
+        // echo "\nreach 2 [$string]\n";
 
-        
         if($doc_type != "list_type") {
             if(ctype_lower(substr($string,0,1))) return false;
         }
-        
+        // echo "\nreach 2a [$string]\n";
         if(substr($string,1,1) == "." && !is_numeric(substr($string,0,1))) return false; //not e.g. "C. Allan Child"
-        
+        // echo "\nreach 2b [$string]\n";
         // /* exclude one-word names e.g. "Sarsiellidae"
         $words = explode(" ", $string);
         if(count($words) == 1) return false;
         // */
 
+        // echo "\nreach 3\n";
+        // [Thespesia howii Hu, Fl. China, Fam. 153:69, T.22, F.3, 1955.]
+        
+        // /*
         if($numbers = self::get_numbers_from_string($string)) { //if there is a single digit or 2-digit or 3-digit number in string then not sciname.
             foreach($numbers as $num) {
                 if(strlen($num) <= 3) {
@@ -324,10 +341,13 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                     elseif(stripos($string, "$num.") !== false) { //e.g. 13. Oratosquilla gonypetes (Kemp, 1911) //string is found
                         if(substr($string,0,strlen("$num.")) == "$num.") {} //return true;
                     }
-                    else return false;
+                    // else return false; //this is very wrong but it has been here for a while. SHOULD REMAIN COMMENTED
                 }
             }
         }
+        // */
+        
+        // echo "\nreach 4\n";
         
         if($doc_type == 'species_type') {
             if(self::is_sciname_using_GNRD($string)) return true;
@@ -462,8 +482,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                 $row = self::format_row_to_sciname($row);
                 $row = self::format_row_to_sciname_v2($row); //fix e.g. "Amastus aphraates Schaus, 1927, p. 74."
                 if(self::is_valid_species($row)) { //important last line
-                    if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
-                    else            $row = "</taxon><taxon sciname='$row'> ".$row;
+                    
+                    $sciname = self::last_resort_to_clean_name($row);
+                    
+                    if($hits == 1)  $row = "<taxon sciname='$sciname'> ".$row;
+                    else            $row = "</taxon><taxon sciname='$sciname'> ".$row;
                     // exit("\ngot one finally\n".$row."\n");
                 }
             }
@@ -475,11 +498,16 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             elseif($row == "References") $row = "</taxon>$row";             //SCtZ-0008.txt
             elseif($row == "General Conclusions") $row = "</taxon>$row";    //SCtZ-0029.txt
             elseif($row == "Bibliography") $row = "</taxon>$row";           //SCtZ-0011.txt
-
+            elseif($row == "Bibliography: p.") $row = "</taxon>$row";       //scb-0007.txt
             elseif($row == "Zoogeography of the Species of the Genus Nannobrachium") $row = "</taxon>$row"; //SCtZ-0607.txt
             elseif($row == "The Achirus Group") $row = "</taxon>$row";                                      //SCtZ-0607.txt
             elseif($row == "Summary and Conclusions") $row = "</taxon>$row";
             elseif($row == "Appendix Tables") $row = "</taxon>$row";
+            elseif($row == "Intermediates") $row = "</taxon>$row";          //scb-0007.txt
+
+            elseif(self::N_words_or_less_beginning_with_Key($row, 12)) $row = "</taxon>$row";   //scb-0001.txt -> from spreadsheet
+            elseif($row == "Dubious Binomials") $row = "</taxon>$row";                          //scb-0001.txt
+            elseif($row == "Excluded Species") $row = "</taxon>$row";                           //scb-0001.txt
             // */
 
             // /* New: per Jen: https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65856&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65856
@@ -558,8 +586,9 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $name = Functions::remove_whitespace($name);
         // */
         // /* criteria 2 -- for weird names, from Jen:
-        $name = self::remove_if_first_char_is("*", $name); //e.g. *Percnon gibbesi (H. Milne Edwards, 1853)
-        $name = self::remove_if_first_char_is("?", $name); //e.g. ?Antarctoecia nordenskioeldi Ulmer
+        $name = self::remove_if_first_chars_are("*", $name, 1); //e.g. *Percnon gibbesi (H. Milne Edwards, 1853)
+        $name = self::remove_if_first_chars_are("* ", $name, 2); //e.g. * Percnon gibbesi (H. Milne Edwards, 1853)
+        $name = self::remove_if_first_chars_are("?", $name, 1); //e.g. ?Antarctoecia nordenskioeldi Ulmer
         $name = str_replace(array("“", "”"), "", $name); // “Clania” licheniphilus Koehler
         // */
         
@@ -569,6 +598,12 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         
         // /* remove (.) period if last char
         if(substr($name, -1) == ".") $name = substr($name,0,strlen($name)-1);
+        // */
+        
+        // /* remove "?" question mark
+        $name = str_replace("(?)", "", $name);
+        $name = str_replace("?", "", $name);
+        $name = trim(Functions::remove_whitespace($name));
         // */
         
         return $name;
@@ -802,10 +837,19 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         }
         return $string;
     }
-    private function remove_if_first_char_is($char, $name)
+    private function remove_if_first_chars_are($char, $name, $length)
     {
-        if(substr($name,0,1) == $char) $name = trim(substr($name,1,strlen($name))); //e.g. ?Antarctoecia nordenskioeldi Ulmer
-        return $name;
+        // if(substr($name,0,1) == $char) $name = trim(substr($name,1,strlen($name))); //e.g. ?Antarctoecia nordenskioeldi Ulmer
+        if(substr($name,0,$length) == $char) $name = trim(substr($name,$length,strlen($name))); //e.g. ?Antarctoecia nordenskioeldi Ulmer
+        return $name;                                                                           //e.g. * Enteromorpha clathrata (Roth) J. Agardh
+    }
+    private function N_words_or_less_beginning_with_Key($row, $no_of_words)
+    {
+        $words = explode(" ", $row);
+        if($words[0] == "Key") {
+            if(count($words) <= $no_of_words) return true;
+        }
+        return false;
     }
     function utility_download_txt_files() //for Mac mini only
     {   //SCtZ-0001
