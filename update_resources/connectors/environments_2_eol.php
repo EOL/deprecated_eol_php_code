@@ -76,7 +76,10 @@ wikipedia_en_traits	Sun 2021-03-07 09:29:48 PM	    {"MoF.tab":131477, "occurrenc
 after monthly harvest:
 wikipedia_en_traits_FTG	Fri 2021-04-16 09:40:13 AM	{"MoF.tab":148313, "occurrence.tab":148313, "taxon.tab":420490, "time_elapsed":{"sec":818.31, "min":13.64, "hr":0.23}}
 wikipedia_en_traits	Fri 2021-04-16 09:42:18 AM	    {"MoF.tab":148313, "occurrence.tab":148313, "taxon.tab":81756, "time_elapsed":false} - consistent OK
-
+removed traits for specified rank:
+wikipedia_en_traits_FTG	Wed 2021-05-12 07:20:51 AM	{"MoF.tab":145396, "occurrence.tab":145396, "taxon.tab":420490, "time_elapsed":{"sec":757.46, "min":12.62, "hr":0.21}}
+wikipedia_en_traits	Wed 2021-05-12 07:22:53 AM	    {"MoF.tab":145396, "occurrence.tab":145396, "taxon.tab":80650, "time_elapsed":false}
+-> expected decrease in MoF
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
@@ -232,8 +235,10 @@ now added source where there is none
 26_ENV	Mon 2021-03-29 12:56:36 PM	{"agent.tab":1749, "measurement_or_fact_specific.tab":2425694, "media_resource.tab":92097, "occurrence_specific.tab":2051552, "reference.tab":680112, "taxon.tab":370148, "vernacular_name.tab":85180, "time_elapsed":{"sec":3329.67, "min":55.49, "hr":0.92}}
 26_ENV	Mon 2021-05-10 01:00:05 AM	{"agent.tab":1749, "measurement_or_fact_specific.tab":2415845, "media_resource.tab":92097, "occurrence_specific.tab":2041703, "reference.tab":680112, "taxon.tab":370148, "vernacular_name.tab":85180, "time_elapsed":{"sec":3124.88, "min":52.08, "hr":0.87}}
 26_ENV	Tue 2021-05-11 10:53:48 AM	{"agent.tab":1771, "measurement_or_fact_specific.tab":2458884, "media_resource.tab":92507, "occurrence_specific.tab":2091386, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":{"sec":3309.03, "min":55.15, "hr":0.92}}
+26_ENV	Tue 2021-05-11 03:57:46 PM	{"agent.tab":1771, "measurement_or_fact_specific.tab":2458884, "media_resource.tab":92507, "occurrence_specific.tab":2091386, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":{"sec":3278.52, "min":54.64, "hr":0.91}}
 -> steady increase
 start removed all occurrences and trait records associated with specified taxa (WoRMS_mismapped_subgenera):
+26_ENV	Wed 2021-05-12 03:07:37 PM	{"agent.tab":1771, "measurement_or_fact_specific.tab":2458703, "media_resource.tab":92507, "occurrence_specific.tab":2091215, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":{"sec":3633.44, "min":60.56, "hr":1.01}}
 
 ===================================================================================================================== WoRMS end
 */

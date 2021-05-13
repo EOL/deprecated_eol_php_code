@@ -82,11 +82,15 @@ Batches of 2 rows:
 26	Tue 2020-11-10 01:07:43 AM	    {"agent.tab":1682, "measurement_or_fact_specific.tab":3425398, "media_resource.tab":91653, "occurrence_specific.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":{"sec":3581.52, "min":59.69, "hr":0.99}}
 26	Tue 2020-11-10 01:54:23 AM	    {"agent.tab":1682, "measurement_or_fact_specific.tab":3325053, "media_resource.tab":91653, "occurrence_specific.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":false}
 Steady increase OK
-26	Mon 2021-02-08 05:35:41 AM	    {"agent.tab":1709, "measurement_or_fact_specific.tab":3335411, "media_resource.tab":92007, "occurrence_specific.tab":2163968, "reference.tab":677563, "taxon.tab":369567, "vernacular_name.tab":85178, "time_elapsed":false}
-26	Tue 2021-05-11 01:15:15 PM	    {"agent.tab":1771, "measurement_or_fact_specific.tab":3402028, "media_resource.tab":92507, "occurrence_specific.tab":2214437, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":false}
-
-26_meta_recoded_1	Tue 2021-05-11 02:13:44 PM	{"agent.tab":1771, "measurement_or_fact_specific.tab":3248559, "media_resource.tab":92507, "occurrence.tab":2214437, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":{"sec":3411.9, "min":56.87, "hr":0.95}}
-26_meta_recoded	Tue 2021-05-11 03:03:06 PM	{"agent.tab":1771, "measurement_or_fact_specific.tab":2581925, "media_resource.tab":92507, "occurrence_specific.tab":2214437, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":{"sec":2960.51, "min":49.34, "hr":0.82}}
+26	Mon 2021-02-08 05:35:41 AM	{"agent.tab":1709, "measurement_or_fact_specific.tab":3335411, "media_resource.tab":92007, "occurrence_specific.tab":2163968, "reference.tab":677563, "taxon.tab":369567, "vernacular_name.tab":85178, "time_elapsed":false}
+26	Tue 2021-05-11 12:23:29 PM	{"agent.tab":1771, "measurement_or_fact_specific.tab":3546416, "media_resource.tab":92507, "occurrence_specific.tab":2214608, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":{"sec":3891.53, "min":64.86, "hr":1.08}}
+26	Tue 2021-05-11 01:15:15 PM	{"agent.tab":1771, "measurement_or_fact_specific.tab":3402028, "media_resource.tab":92507, "occurrence_specific.tab":2214437, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":false}
+26	Tue 2021-05-11 11:54:18 PM	{"agent.tab":1771, "measurement_or_fact_specific.tab":3546416, "media_resource.tab":92507, "occurrence_specific.tab":2214608, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":{"sec":3820.85, "min":63.68, "hr":1.06}}
+26	Wed 2021-05-12 12:44:52 AM	{"agent.tab":1771, "measurement_or_fact_specific.tab":3402028, "media_resource.tab":92507, "occurrence_specific.tab":2214437, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":false}
+26	Wed 2021-05-12 09:00:05 AM	{"agent.tab":1771, "measurement_or_fact_specific.tab":3546416, "media_resource.tab":92507, "occurrence_specific.tab":2214608, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":{"sec":3976.91, "min":66.28, "hr":1.1}}
+26	Wed 2021-05-12 09:50:29 AM	{"agent.tab":1771, "measurement_or_fact_specific.tab":3402209, "media_resource.tab":92507, "occurrence_specific.tab":2214608, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":false}
+start removed all occurrences and trait records associated with specified taxa (WoRMS_mismapped_subgenera):
+26	Wed 2021-05-12 12:20:44 PM	{"agent.tab":1771, "measurement_or_fact_specific.tab":3402028, "media_resource.tab":92507, "occurrence_specific.tab":2214437, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":false}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
