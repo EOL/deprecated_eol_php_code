@@ -351,7 +351,7 @@ class MetaRecodingAPI
                 // */
                 // /* sex
                 if($parentMeasurementID && $measurementType == 'http://rs.tdwg.org/dwc/terms/sex') { //via parentMeasurementID
-                    $occur_id = $this->mID_oID[$parentMeasurementID];
+                    $occur_id = @$this->mID_oID[$parentMeasurementID];
                     $this->oID_sex[$occur_id] = $measurementValue;
                 }
                 elseif($measurementOfTaxon != 'true' && $measurementType == 'http://rs.tdwg.org/dwc/terms/sex') { //via mOfTaxon not 'true'
