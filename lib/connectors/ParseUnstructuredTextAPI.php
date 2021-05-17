@@ -34,10 +34,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         /* END epub series */
         
         // /* copied from SmithsonianPDFsAPI
-        $list_type_from_google_sheet = array('SCtZ-0033', 'SCtZ-0011', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613', 'SCtZ-0609',
+        $list_type_from_google_sheet = array('SCtZ-0033', 'SCtZ-0011', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613', 'SCtZ-0609', 'SCtZ-0018',
         'scb-0002');
         $this->PDFs_that_are_lists = array_merge(array('SCtZ-0437'), $list_type_from_google_sheet);
-        // SCtZ-0018 - Nearctic Walshiidae: notes and new taxa (Lepidoptera: Gelechioidea) 
+        // SCtZ-0018 - Nearctic Walshiidae: notes and new taxa (Lepidoptera: Gelechioidea). Both list-type and species-sections type
         // SCtZ-0004 - not a list-type
         // SCtZ-0604 - I considered not a list-type but a regular species section type
         // */
@@ -475,9 +475,13 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $hits = 0;
         
         // /* loop text file
-        $i = 0;
+        $i = 0; $count_of_blank_rows = 0;
         foreach(new FileIterator($edited_file) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
             $row = trim($row);
+            
+            if(!$row) $count_of_blank_rows++;
+            else      $count_of_blank_rows = 0;
+            
             if(isset($this->lines_to_tag[$i])) { $hits++;
                 $row = self::format_row_to_sciname($row);
                 $row = self::format_row_to_sciname_v2($row); //fix e.g. "Amastus aphraates Schaus, 1927, p. 74."
@@ -508,6 +512,14 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             elseif(self::N_words_or_less_beginning_with_Key($row, 12)) $row = "</taxon>$row";   //scb-0001.txt -> from spreadsheet
             elseif($row == "Dubious Binomials") $row = "</taxon>$row";                          //scb-0001.txt
             elseif($row == "Excluded Species") $row = "</taxon>$row";                           //scb-0001.txt
+
+            elseif($row == "Glossary") $row = "</taxon>$row";                                   //scb-0009.txt
+            elseif($row == "Aulonemia Goudot") $row = "</taxon>$row";                           //scb-0009.txt
+            elseif($row == "MUSEUM D’HISTOIRE NATURELLE DE PARIS") $row = "</taxon>$row";       //scb-0009.txt
+            elseif($row == "Arthrostylidium Ruprecht") $row = "</taxon>$row";                   //scb-0009.txt
+            
+            // if($count_of_blank_rows >= 5) $row = "</taxon>";       //scb-0009.txt --- NOT A GOOD IDEA
+            
             // */
 
             // /* New: per Jen: https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65856&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65856

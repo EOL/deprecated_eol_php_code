@@ -140,6 +140,9 @@ environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI C
 May 10, 2021 Mon
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Botany", "resource_id":"scb-0003", "subjects":"Uses|Description"}'
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Botany", "resource_id":"scb-0004", "subjects":"Uses|Description"}'
+May 13, 2021 Thu
+environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Botany", "resource_id":"scb-0007", "subjects":"Uses|Description"}'
+environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Botany", "resource_id":"scb-0009", "subjects":"Uses|Description"}'
 
 ---------------------------------------------------------------------------------------
 
@@ -239,7 +242,7 @@ now added source where there is none
 -> steady increase
 start removed all occurrences and trait records associated with specified taxa (WoRMS_mismapped_subgenera):
 26_ENV	Wed 2021-05-12 03:07:37 PM	{"agent.tab":1771, "measurement_or_fact_specific.tab":2458703, "media_resource.tab":92507, "occurrence_specific.tab":2091215, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":{"sec":3633.44, "min":60.56, "hr":1.01}}
-
+26_ENV	Fri 2021-05-14 06:56:47 AM	{"agent.tab":1771, "measurement_or_fact_specific.tab":2458703, "media_resource.tab":92507, "occurrence_specific.tab":2091215, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":{"sec":3263.46, "min":54.39, "hr":0.91}}
 ===================================================================================================================== WoRMS end
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
