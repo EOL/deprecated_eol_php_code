@@ -411,6 +411,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
     }
     private function is_valid_species($str)
     {   
+        // /*
+        if(stripos($str, " species ") !== false) return false;  //string is found --- exclude "Synasterope species A" --- 0032
+        if(stripos($str, " species") !== false) return false;  //string is found --- 0034
+        // */
+        
         // /* criteria 1
         $words = explode(" ", $str);
         $second_word = @$words[1];
@@ -486,6 +491,8 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                 $row = self::format_row_to_sciname($row);
                 $row = self::format_row_to_sciname_v2($row); //fix e.g. "Amastus aphraates Schaus, 1927, p. 74."
                 if(self::is_valid_species($row)) { //important last line
+                    
+                    // if(stripos($row, "Lembos") !== false) {echo("\n[$row]\n");}   //string is found  //good debug
                     
                     $sciname = self::last_resort_to_clean_name($row);
                     
