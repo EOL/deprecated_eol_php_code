@@ -413,7 +413,19 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
     {   
         // /*
         if(stripos($str, " species ") !== false) return false;  //string is found --- exclude "Synasterope species A" --- 0032
-        if(stripos($str, " species") !== false) return false;  //string is found --- 0034
+        if(substr($str, -8) == " species") return false;  //string is found --- 0034
+        if(strtolower(substr($str, -11)) == " subspecies") return false;  //string is found ---4e30fea9ba55c3c4c9b75edb72a64073	Holophygdon melanesica Subspecies
+        // */
+        
+        // /*
+        $words = explode(" ", $str);
+        $words = array_map('trim', $words);
+        if(count($words) == 1) return false; //beceee5e9c6734374d0ee01d1ee03c2a	Isomyia
+        if(count($words) == 2) { //493cff8f65ec17fe2c3a5974d8ac1803	Euborellia (Dohrn)
+            $first_char_2nd_word = substr($words[1],0,1);
+            if(ctype_upper($first_char_2nd_word)) return false; //06a2940e6881040955101a68e88c1f9c  Careospina Especies de Careospina Peters
+            if($first_char_2nd_word == "(") return false;
+        }
         // */
         
         // /* criteria 1
