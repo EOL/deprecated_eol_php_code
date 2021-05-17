@@ -456,12 +456,12 @@ class ParseListTypeAPI
                 if(ctype_upper($words[0]) && strlen($words[0]) > 1) continue;
                 // */
                 
-                // /* 2nd word must start with small letter
+                /* 2nd word must start with small letter --- COMMENT THIS - VERY WRONG TO PUT IT HERE
                 if($second_word = @$words[1]) {
                     $first_letter_of_2nd_word = substr($second_word,0,1);
                     if(ctype_upper($first_letter_of_2nd_word)) continue;
                 }
-                // */
+                */
                 
                 //other filters:
                 if(ctype_upper(substr($words[0],0,2)) && strlen($words[0]) >= 2) continue; //e.g. RECORD, FIGURE, etc.
