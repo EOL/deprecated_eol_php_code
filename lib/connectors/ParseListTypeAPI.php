@@ -418,7 +418,7 @@ class ParseListTypeAPI
     }
     private function remove_some_rows_LT($edited_file)
     {
-        // exit("\nxxx[$edited_file]\n");
+        // exit("\nxxx[$edited_file]\n"); //e.g. /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0018/SCtZ-0018_edited_LT.txt
         $local = $edited_file;
         $temp_file = $local.".tmp";
         $WRITE = fopen($temp_file, "w"); //initialize
@@ -462,6 +462,19 @@ class ParseListTypeAPI
                     if(ctype_upper($first_letter_of_2nd_word)) continue;
                 }
                 */
+                
+                // /* 0018
+                // Siskiwitia, new genus
+                // alticolans, new species
+                $row = str_ireplace(", new genus", "", $row);
+                $row = str_ireplace(", new species", "", $row);
+                // */
+                
+                // /* 0018 - manual adjustment
+                // Perimede, Chambers, 1874a
+                $row = str_ireplace("Perimede, Chambers, 1874a", "Perimede Chambers, 1874a", $row); //remove "," comma between name and author
+                // */
+                
                 
                 //other filters:
                 if(ctype_upper(substr($words[0],0,2)) && strlen($words[0]) >= 2) continue; //e.g. RECORD, FIGURE, etc.
