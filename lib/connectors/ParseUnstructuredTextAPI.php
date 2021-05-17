@@ -20,7 +20,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
 
         http://gnrd.globalnames.org/name_finder.json?text=Tiphia paupi Allen and Krombein, 1961
         http://gnrd.globalnames.org/name_finder.json?text=Tiphia (Tiphia) uruouma
-        http://gnrd.globalnames.org/name_finder.json?text=Tiphia uruouma
+        http://gnrd.globalnames.org/name_finder.json?text=Eunice segregate (Chamberlin, 1919a) restricted
 
 
         https://parser.globalnames.org/api/v1/Thespesia banalo Blanco, Fl. Filip. ed. 2, 382, 1845
@@ -71,6 +71,8 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             [epub_output_txts_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/
         )
         */
+        
+        $this->debug['sciname cnt'] = 0;
         
         // /* this serves when script is called from parse_unstructured_text.php --- un-comment in real operation
         $pdf_id = pathinfo($input['filename'], PATHINFO_FILENAME);
@@ -148,6 +150,12 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             $row = trim(preg_replace('/\s*\[[^)]*\]/', '', $row)); //remove brackets
             $row = trim($row);
             
+            // /*
+            if(stripos($row, "fig.") !== false) continue; //string is found
+            if(stripos($row, "incertae sedis") !== false) continue; //string is found
+            if(stripos($row, "cf.") !== false) continue; //string is found
+            // */
+            
             // /* customize
             if($pdf_id == 'SCtZ-0604') { //exit("\nelix na\n");
                 if($row == "Ahl, E.") break; //so no more running GNRD for later part of the document
@@ -175,6 +183,30 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                     $rows = array();
                     continue;
                 }
+                //another
+                if(@$words[1] == "species") { //2nd word is 'species'
+                    $rows = array();
+                    continue;
+                }
+                //another
+                if(is_numeric(substr(@$words[1],0,1))) { //2nd word starts with a number
+                    $rows = array();
+                    continue;
+                }
+                //another: "Propontocypris (Propontocypris), 27"
+                if(substr(@$words[1],0,1) == "(") { //2nd word starts with "("
+                    if($third = @$words[2]) { //has a 3rd word
+                        if(is_numeric(substr($third,0,1))) { //3rd word starts with a number
+                            $rows = array();
+                            continue;
+                        }
+                        if($third == 'species') { // "Propontocypris (Schedopontocypris) species 2"
+                            $rows = array();
+                            continue;
+                        }
+                    }
+                }
+                
             }
             // */
 
@@ -421,8 +453,13 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(substr($str, -8) == " species") return false;  //string is found --- 0034
         if(substr($str, -4) == " spp") return false;  //string is found --- 0067
         if(stripos($str, "Especies") !== false) return false;  //string is found --- exclude "Clave para las Especies de Farrodes Peters, nuevo género" --- 0062
+        if(stripos($str, "fig.") !== false) return false;
         if(strtolower(substr($str, -11)) == " subspecies") return false;  //string is found ---	Holophygdon melanesica Subspecies
         // */
+        /*
+        c9199c53c2f321d9aee75aa99d4b74cc	Eunice
+
+        */
         
         // /*
         $words = explode(" ", $str);
@@ -430,6 +467,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(count($words) == 1) return false; //beceee5e9c6734374d0ee01d1ee03c2a	Isomyia
         if(count($words) == 2) { //493cff8f65ec17fe2c3a5974d8ac1803	Euborellia (Dohrn)
             $first_char_2nd_word = substr($words[1],0,1);
+            if(is_numeric($first_char_2nd_word)) return false;
             if(ctype_upper($first_char_2nd_word)) return false; //06a2940e6881040955101a68e88c1f9c  Careospina Especies de Careospina Peters
             if($first_char_2nd_word == "(") return false;
         }
@@ -515,11 +553,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             else      $count_of_blank_rows = 0;
             
             if(isset($this->lines_to_tag[$i])) { $hits++;
-                $row = self::format_row_to_sciname($row);
                 $row = self::format_row_to_sciname_v2($row); //fix e.g. "Amastus aphraates Schaus, 1927, p. 74."
                 if(self::is_valid_species($row)) { //important last line
                     
-                    // if(stripos($row, "Tiphia") !== false) {echo("\nxx[$row]xx\n");}   //string is found  //good debug
+                    // if(stripos($row, "45,") !== false) {exit("\nxx[$row]xx\n");}   //string is found  //good debug
                     
                     $sciname = self::last_resort_to_clean_name($row);
                     
@@ -583,25 +620,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // print_r($this->lines_to_tag);
         return $edited_file;
     }
-    private function format_row_to_sciname($row)
-    {   //e.g. "9. Meiosquilla desmarestii (Risso, 1816)" to "Meiosquilla desmarestii (Risso, 1816)"
-        //e.g. "9a. Blah blah blah"
-        /* old
-        $words = explode(" ", $row); // print_r($words); exit;
-        if(substr($words[0], -1) == ".") {
-            $tmp = str_replace(".", "", $words[0]);
-            if(is_numeric($tmp)) array_shift($words);
-            // print_r($words); exit("\nditox\n");
-            return implode(" ", $words);
-        }
-        return $row;
-        */
-        
-        $row = self::remove_first_word_if_it_has_number($row);
-        return $row;
-    }
     private function format_row_to_sciname_v2($row) //Amastus aphraates Schaus, 1927, p. 74.
     {
+        $row = self::remove_first_word_if_it_has_number($row);
+        
         $row = self::clean_sciname_here($row);
         if(stripos($row, " p. ") !== false) {   //string is found
             $obj = $this->run_gnparser($row);
@@ -844,7 +866,8 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // echo "\n--------------------------------xxx\n".$tmp."\n--------------------------------yyy\n";
         // */
         
-        echo "\n[$sciname]";
+        @$this->debug['sciname cnt']++;
+        echo "\n[$sciname] ". $this->debug['sciname cnt'];
         echo " - Word count: ".$word_count."\n";
         return true;
     }

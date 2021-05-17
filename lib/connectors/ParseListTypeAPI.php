@@ -552,7 +552,12 @@ class ParseListTypeAPI
         }
         // */
         
-        // if(stripos($sciname_line, "Tiphia campanula") !== false) exit("\n$sciname_line\n"); //good debug - to see what string passes here.
+        // /* manual adjustment
+        if($sciname_line == "Megapodius molistructor") return $sciname_line;
+        if(stripos($sciname_line, "Eunice segregate (Chamberlin, 1919a) restricted") !== false) return "Eunice segregate (Chamberlin, 1919a)";
+        // */
+        
+        // if(stripos($sciname_line, "segregate") !== false) exit("\n[$sciname_line]\n"); //good debug - to see what string passes here.
         
         $proceed = true;
         if($numbers = $this->get_numbers_from_string($sciname_line)) { //if there is a single digit or 2-digit or 3-digit number in string then proceed to clean.
