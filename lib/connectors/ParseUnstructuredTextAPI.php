@@ -457,8 +457,25 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(strtolower(substr($str, -11)) == " subspecies") return false;  //string is found ---	Holophygdon melanesica Subspecies
         // */
         /*
-        c9199c53c2f321d9aee75aa99d4b74cc	Eunice
+        63af40db0f8a7678c68804077364d4da	Metachroma
 
+        6c827cf2d2b7cf1fde183d403d3a0069	Cerceris
+        
+        fa74cd32dbb9226cd22754a3fb2d5e7e	Pison
+        ab2c88e05686b58d73d814992a45fba4	Trypoxylon
+        
+        7f95fef5c511b6e996d24ce6d252dae7	Brevipalpus
+        
+        874a71637e34eb4d6325c6d6f242896c	Ethmia
+        
+        c2d52b066ecfe841a8a387c66cff3463	Syrrhoites
+        
+        d42affb509cc5d1b1ee03fced5c8962b	Plutonaster
+        
+        7ef3607f0a2b2d17486c03b99bdde64f	Pectinaster
+        
+        86ec3c7bedcb1a72af2504763b8713f3	Circeaster
+        
         */
         
         // /*
@@ -560,9 +577,16 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                     
                     $sciname = self::last_resort_to_clean_name($row);
                     
-                    if($hits == 1)  $row = "<taxon sciname='$sciname'> ".$row;
-                    else            $row = "</taxon><taxon sciname='$sciname'> ".$row;
-                    // exit("\ngot one finally\n".$row."\n");
+                    $words = explode(" ", $sciname);
+                    if(count($words) > 1) {
+                        if($hits == 1)  $row = "<taxon sciname='$sciname'> ".$row;
+                        else            $row = "</taxon><taxon sciname='$sciname'> ".$row;
+                    }
+                    else {
+                        if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
+                        else            $row = "</taxon><taxon sciname='$row'> ".$row;
+                    }
+                    
                 }
             }
             // else echo "\n[$row]\n";
