@@ -543,6 +543,17 @@ class ParseListTypeAPI
     }
     function last_resort_to_clean_name($sciname_line) //this started from a copied template
     {
+        // /* Tiphia (Tiphia) intermedia Malloch
+        $words = explode(" ", $sciname_line);
+        if(count($words) >= 3) {
+            if($words[1] == "(".$words[0].")") {
+                if(ctype_lower(substr($words[2],0,1))) return $sciname_line;
+            }
+        }
+        // */
+        
+        // if(stripos($sciname_line, "Tiphia campanula") !== false) exit("\n$sciname_line\n"); //good debug - to see what string passes here.
+        
         $proceed = true;
         if($numbers = $this->get_numbers_from_string($sciname_line)) { //if there is a single digit or 2-digit or 3-digit number in string then proceed to clean.
             foreach($numbers as $num) {

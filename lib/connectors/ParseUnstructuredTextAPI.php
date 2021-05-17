@@ -18,7 +18,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
         https://parser.globalnames.org/?q=https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
 
-        http://gnrd.globalnames.org/name_finder.json?text=Thespesia banalo Blanco, Fl. Filip. ed. 2, 382, 1845
+        http://gnrd.globalnames.org/name_finder.json?text=Tiphia paupi Allen and Krombein, 1961
+        http://gnrd.globalnames.org/name_finder.json?text=Tiphia (Tiphia) uruouma
+        http://gnrd.globalnames.org/name_finder.json?text=Tiphia uruouma
+
+
         https://parser.globalnames.org/api/v1/Thespesia banalo Blanco, Fl. Filip. ed. 2, 382, 1845
 
         %26 - &
@@ -391,6 +395,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(stripos($row, " sp.") !== false) return true;  //string is found
         if(stripos($row, " sp ") !== false) return true;  //string is found
         if(stripos($row, " sp") !== false) return true;  //string is found
+        if(stripos($row, " spp") !== false) return true;  //string is found
         if(stripos($row, " species") !== false) {  //string is found
             if(stripos($row, "new species") !== false) {}  //string is found
             elseif(stripos($row, " species 1") !== false) {}  //string is found
@@ -414,7 +419,9 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // /*
         if(stripos($str, " species ") !== false) return false;  //string is found --- exclude "Synasterope species A" --- 0032
         if(substr($str, -8) == " species") return false;  //string is found --- 0034
-        if(strtolower(substr($str, -11)) == " subspecies") return false;  //string is found ---4e30fea9ba55c3c4c9b75edb72a64073	Holophygdon melanesica Subspecies
+        if(substr($str, -4) == " spp") return false;  //string is found --- 0067
+        if(stripos($str, "Especies") !== false) return false;  //string is found --- exclude "Clave para las Especies de Farrodes Peters, nuevo género" --- 0062
+        if(strtolower(substr($str, -11)) == " subspecies") return false;  //string is found ---	Holophygdon melanesica Subspecies
         // */
         
         // /*
@@ -427,6 +434,9 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             if($first_char_2nd_word == "(") return false;
         }
         // */
+        
+        // 4e30fea9ba55c3c4c9b75edb72a64073 Holophygdon melanesica Subspecies
+        
         
         // /* criteria 1
         $words = explode(" ", $str);
@@ -476,6 +486,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
     }
     private function add_taxon_tags_to_text_file_v3($filename)
     {
+        // exit("\n[$filename]\n"); //SCtZ-0063.txt
         // /* orig working OK
         $local = $this->path['epub_output_txts_dir'].$filename;
         $orig_local = $local;
@@ -496,6 +507,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         foreach(new FileIterator($edited_file) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
             $row = trim($row);
             
+            // /* manual adjustment
+            if($filename == "SCtZ-0063.txt") $row = str_ireplace("Euborellia ståli", "Euborellia stali", $row);
+            // */
+            
             if(!$row) $count_of_blank_rows++;
             else      $count_of_blank_rows = 0;
             
@@ -504,7 +519,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                 $row = self::format_row_to_sciname_v2($row); //fix e.g. "Amastus aphraates Schaus, 1927, p. 74."
                 if(self::is_valid_species($row)) { //important last line
                     
-                    // if(stripos($row, "Lembos") !== false) {echo("\n[$row]\n");}   //string is found  //good debug
+                    // if(stripos($row, "Tiphia") !== false) {echo("\nxx[$row]xx\n");}   //string is found  //good debug
                     
                     $sciname = self::last_resort_to_clean_name($row);
                     
