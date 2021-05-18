@@ -685,6 +685,7 @@ class ParseListTypeAPI
         $words = explode(" ", $row); //print_r($words);
         if(count($words) == 1) {
             if(is_numeric($row)) return false;
+            if(stripos($row, ".—") !== false) return false; //string is found
             if(stripos($row, ",") !== false) return false; //string is found
             if(stripos($row, ":") !== false) return false; //string is found
             if(ctype_lower(substr($row,0,1))) return false;
@@ -705,7 +706,7 @@ class ParseListTypeAPI
     function two_words_rank_and_sciname_combo($row)
     {
         if(stripos($row, "taxon>") !== false) return false; //string is found
-        $ranks = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder');
+        $ranks = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 'Subphylum', 'Subclass');
         $words = explode(" ", $row); //print_r($words);
         if(count($words) == 2) {
             if(stripos($row, ",") !== false) return false; //string is found

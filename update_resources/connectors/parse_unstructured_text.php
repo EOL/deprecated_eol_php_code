@@ -273,9 +273,9 @@ $input = array('filename' => 'SCtZ-0061.txt', 'lines_before_and_after_sciname' =
 
 
 // May 17 Mon
-$input = array('filename' => 'SCtZ-0032.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0032/');
+// $input = array('filename' => 'SCtZ-0032.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0032/');
 // -> 7 scinames
-$input = array('filename' => 'SCtZ-0034.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0034/');
+// $input = array('filename' => 'SCtZ-0034.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0034/');
 // -> 103 scinames
 // $input = array('filename' => 'SCtZ-0062.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0062/');
 // -> 10 scinames
@@ -303,13 +303,15 @@ $input = array('filename' => 'SCtZ-0034.txt', 'lines_before_and_after_sciname' =
 
 // New - May 18 Tue    
 // $input = array('filename' => 'scb-0013.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0013/');
+// -> 11 scinames
 // $input = array('filename' => 'scb-0027.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0027/');
+// -> 131 scinames
 // $input = array('filename' => 'scb-0094.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0094/');
-
+// -> 116 scinames
 // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_6943/scb-0094/scb-0094.txt
     
 
-/* ---------------------------------- List-type here:
+// /* ---------------------------------- List-type here:
 // variable lines_before_and_after_sciname is important. It is the lines before and after the "list header".
 
 $input = array('filename' => 'SCtZ-0011.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/');
@@ -330,8 +332,8 @@ $input = array('filename' => 'SCtZ-0613.txt', 'type' => 'list', 'epub_output_txt
 
 // May 6, 2021 Thu - 2nd repo
 $input = array('filename' => 'scb-0002.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0002/');
--> http://rs.tdwg.org/dwc/terms/taxon:             Total: 162
--> http://rs.tdwg.org/dwc/terms/measurementorfact: Total: 165
+// -> http://rs.tdwg.org/dwc/terms/taxon:             Total: 162
+// -> http://rs.tdwg.org/dwc/terms/measurementorfact: Total: 165
 
 // May 17 Mon - 1st repo
 // $input = array('filename' => 'SCtZ-0018.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0018/');
@@ -341,7 +343,7 @@ $input = array('filename' => 'scb-0002.txt', 'type' => 'list', 'epub_output_txts
 
     // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_6943/scb-0003/scb-0003.txt
 
----------------------------------- */
+// ---------------------------------- */
 
 $pdf_id = pathinfo($input['filename'], PATHINFO_FILENAME);
 $input['lines_before_and_after_sciname'] = 2; //default
