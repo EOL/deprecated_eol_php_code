@@ -128,7 +128,9 @@ class ParseListTypeAPI
                                     // print_r($rek); echo " - xxx ";//exit;
                                     $first_letter = substr($sciname,0,1);
                                     array_shift($words);
-                                    $rek['scientificName_author'] = $possible_genus[$first_letter]." ".implode(" ", $words)." ".$authorship;
+                                    $tmp = @$possible_genus[$first_letter]." ".implode(" ", $words)." ".$authorship;
+                                    $rek['scientificName_author'] = trim(Functions::remove_whitespace($tmp));
+                                    // exit("\n".$rek['scientificName_author']."\n-end-\n");
                                     $rek['scientificName_author_cleaned'] = self::clean_sciname($rek['scientificName_author']);
                                     // print_r($rek); echo " - aaa "; exit("\nstopx\n");
                                 }
