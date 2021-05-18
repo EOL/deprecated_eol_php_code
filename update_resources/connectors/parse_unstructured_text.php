@@ -99,6 +99,18 @@ after working with repo 2:
 fixed list-type of repo 2:
 10088_5097	Sun 2021-05-16 09:42:45 PM	{"association.tab":365, "media_resource.tab":13272, "occurrence.tab":418, "taxon.tab":12629, "time_elapsed":{"sec":1619.13, "min":26.99, "hr":0.45}}
 10088_5097_ENV	Sun 2021-05-16 11:29:23 PM	{"association.tab":365, "measurement_or_fact_specific.tab":47983, "media_resource.tab":11812, "occurrence_specific.tab":48401, "taxon.tab":12629, "time_elapsed":{"sec":6389.05, "min":106.48, "hr":1.77}}
+
+10088_5097	Sun 2021-05-16 11:48:05 PM	{"association.tab":365, "media_resource.tab":13272, "occurrence.tab":418, "taxon.tab":12629, "time_elapsed":{"sec":747.56, "min":12.46, "hr":0.21}}
+10088_5097_ENV	Sun 2021-05-16 11:50:31 PM	{"association.tab":365, "measurement_or_fact_specific.tab":48036, "media_resource.tab":11812, "occurrence_specific.tab":48454, "taxon.tab":12629, "time_elapsed":{"sec":137.24, "min":2.29, "hr":0.04}}
+
+10088_5097	Mon 2021-05-17 01:23:21 AM	{"association.tab":365, "media_resource.tab":13119, "occurrence.tab":418, "taxon.tab":12526, "time_elapsed":{"sec":907.16, "min":15.12, "hr":0.25}}
+10088_5097_ENV	Mon 2021-05-17 01:25:04 AM	{"association.tab":365, "measurement_or_fact_specific.tab":48036, "media_resource.tab":11591, "occurrence_specific.tab":48454, "taxon.tab":12526, "time_elapsed":{"sec":94.42, "min":1.57, "hr":0.03}}
+
+10088_5097	Mon 2021-05-17 03:48:07 AM	{"association.tab":365, "media_resource.tab":13117, "occurrence.tab":418, "taxon.tab":12567, "time_elapsed":{"sec":748.43, "min":12.47, "hr":0.21}}
+10088_5097_ENV	Mon 2021-05-17 03:49:55 AM	{"association.tab":365, "measurement_or_fact_specific.tab":47827, "media_resource.tab":11589, "occurrence_specific.tab":48245, "taxon.tab":12567, "time_elapsed":{"sec":100.56, "min":1.68, "hr":0.03}}
+new stable for now:
+10088_5097	Mon 2021-05-17 10:14:02 AM	{"association.tab":365, "media_resource.tab":13063, "occurrence.tab":418, "taxon.tab":12547, "time_elapsed":{"sec":755.75, "min":12.6, "hr":0.21}}
+10088_5097_ENV	Mon 2021-05-17 10:30:33 AM	{"association.tab":365, "measurement_or_fact_specific.tab":47859, "media_resource.tab":11535, "occurrence_specific.tab":48277, "taxon.tab":12547, "time_elapsed":{"sec":982.78, "min":16.38, "hr":0.27}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -178,7 +190,6 @@ $input = array('filename' => 'SCtZ-0604.txt', 'lines_before_and_after_sciname' =
 
 //start google sheet
 $input = array('filename' => 'SCtZ-0004.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0004/');
-$input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/');
 $input = array('filename' => 'scz-0630.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/scz-0630/');
 $input = array('filename' => 'SCtZ-0029.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0029/');
 $input = array('filename' => 'SCtZ-0023.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0023/');
@@ -223,28 +234,76 @@ $input = array('filename' => 'SCtZ-0061.txt', 'lines_before_and_after_sciname' =
 
 // May 6, 2021 Thu - 2nd repo
 $input = array('filename' => 'scb-0001.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0001/');
+// http://rs.tdwg.org/dwc/terms/taxon: Total: 43
+// http://purl.org/dc/dcmitype/Text: 52
+// http://rs.tdwg.org/dwc/terms/measurementorfact: Total: 174
+
 // May 10, 2021 - 2nd repo
 $input = array('filename' => 'scb-0003.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0003/');
 // -> Jen considered as list but not really. Better to acquire is as regular species-sections type
+// http://rs.tdwg.org/dwc/terms/taxon: Total: 98
+// http://purl.org/dc/dcmitype/Text: 98
+// http://rs.tdwg.org/dwc/terms/measurementorfact: Total: 99
 
-
-// $input = array('filename' => 'scb-0004.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0004/');
+$input = array('filename' => 'scb-0004.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0004/');
+// http://rs.tdwg.org/dwc/terms/taxon: Total: 23
+// http://purl.org/dc/dcmitype/Text: 23
+// http://rs.tdwg.org/dwc/terms/measurementorfact: Total: 152
 
 // May 13, 2021 Thu
-$input = array('filename' => 'scb-0006.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0006/');
+// $input = array('filename' => 'scb-0006.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0006/');
 // -> no records created, skipped for the meantime
 // -> I don't think it's worth accomodating this case unless it turns out to be common.
 // $input = array('filename' => 'scb-0005.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0005/');
 // -> as expected, didn't create any records
-$input = array('filename' => 'scb-0007.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0007/');
-$input = array('filename' => 'scb-0009.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0009/');
 
-    // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_6943/scb-0009/scb-0009.txt
-    
-    
+// $input = array('filename' => 'scb-0007.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0007/');
+// http://rs.tdwg.org/dwc/terms/taxon: Total: 3
+// http://purl.org/dc/dcmitype/Text: 3
+// http://rs.tdwg.org/dwc/terms/measurementorfact: Total: 74
+
+// $input = array('filename' => 'scb-0009.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0009/');
+// http://rs.tdwg.org/dwc/terms/taxon: Total: 10
+// http://purl.org/dc/dcmitype/Text: 10
+// http://rs.tdwg.org/dwc/terms/measurementorfact: Total: 28
+
+
+/*
+// May 17 Mon
+$input = array('filename' => 'SCtZ-0032.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0032/');
+// -> 7 scinames
+$input = array('filename' => 'SCtZ-0034.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0034/');
+// -> 103 scinames
+$input = array('filename' => 'SCtZ-0062.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0062/');
+// -> 10 scinames
+$input = array('filename' => 'SCtZ-0067.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0067/');
+// -> 16 scinames
+$input = array('filename' => 'SCtZ-0063.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0063/');
+// -> 11 scinames
+$input = array('filename' => 'SCtZ-0113.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0113/');
+// -> 91 scinames
+$input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/');
+// -> 19 scinames
+$input = array('filename' => 'SCTZ-0275.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0275/');
+// -> 4 scinames
+$input = array('filename' => 'SCTZ-0469.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0469/');
+// -> 23 scinames
+$input = array('filename' => 'SCtZ-0006.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0006/');
+// -> 6 scinames
+*/
+
+// $input = array('filename' => 'SCtZ-0614.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/');
+//-> has associations (57), species sections (9), no lists
+// resources/SCtZ-0614/association.tab]    :: total: [57]
+// resources/SCtZ-0614/media_resource.tab] :: total: [9]
+// resources/SCtZ-0614/occurrence.tab]     :: total: [57]
+// resources/SCtZ-0614/taxon.tab]          :: total: [53]
     
 
-// /* ---------------------------------- List-type here:
+// wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCTZ-0469/SCTZ-0469.txt
+    
+
+/* ---------------------------------- List-type here:
 // variable lines_before_and_after_sciname is important. It is the lines before and after the "list header".
 
 $input = array('filename' => 'SCtZ-0011.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/');
@@ -258,27 +317,46 @@ $input = array('filename' => 'SCtZ-0033.txt', 'type' => 'list', 'epub_output_txt
 
 // $input = array('filename' => 'SCtZ-0010.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0010/');
 // $input = array('filename' => 'SCtZ-0611.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0611/');
-// $input = array('filename' => 'SCtZ-0613.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0613/');
+$input = array('filename' => 'SCtZ-0613.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0613/');
 //-> has good many species sections
 // $input = array('filename' => 'SCtZ-0609.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0609/');
+// -> 60 rows
 
 // May 6, 2021 Thu - 2nd repo
-// $input = array('filename' => 'scb-0002.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0002/');
+$input = array('filename' => 'scb-0002.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0002/');
+-> http://rs.tdwg.org/dwc/terms/taxon:             Total: 162
+-> http://rs.tdwg.org/dwc/terms/measurementorfact: Total: 165
 
 // May 17 Mon - 1st repo
-$input = array('filename' => 'SCtZ-0018.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0018/');
+// $input = array('filename' => 'SCtZ-0018.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0018/');
 //-> a list-type with genus in one line and species in 2nd line BUT no traits detected by Pensoft AND ALSO has good species sections
+// -> 38 scinames
 
 
     // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_6943/scb-0003/scb-0003.txt
 
+---------------------------------- */
 
 $pdf_id = pathinfo($input['filename'], PATHINFO_FILENAME);
 $input['lines_before_and_after_sciname'] = 2; //default
-if(in_array($pdf_id, array('SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613', 'scb-0002'))) $input['lines_before_and_after_sciname'] = 1;
+if(in_array($pdf_id, array('SCtZ-0007', 'SCtZ-0025', 'SCtZ-0020', 'SCtZ-0019', 'SCtZ-0011', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613',
+    'scb-0001', 'scb-0002', 'scb-0003', 'scb-0006', 'scb-0004', 'scb-0007'))) $input['lines_before_and_after_sciname'] = 1;
 
 if(Functions::is_production()) $input['epub_output_txts_dir'] = str_replace("/Volumes/AKiTiO4/other_files/Smithsonian/", "/extra/other_files/Smithsonian/", $input['epub_output_txts_dir']);
-// ---------------------------------- */
+
+// /*
+$folder = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/$pdf_id/";
+$folder = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/$pdf_id/";
+$postfix = array("_tagged.txt", "_tagged_LT.txt", "_edited.txt", "_edited_LT.txt", "_descriptions_LT.txt");
+foreach($postfix as $post) {
+    $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."$post";
+    $txt_filename = $folder."/".$txt_filename;
+    echo "\n$txt_filename - ";
+    if(file_exists($txt_filename)) if(unlink($txt_filename)) echo " deleted OK\n";
+    else                                                     echo " does not exist\n";
+}
+// exit("\n-end for now-\n");
+// */
 
 $func->parse_pdftotext_result($input);
 

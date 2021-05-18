@@ -79,7 +79,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(in_array($pdf_id, $this->PDFs_that_are_lists)) {
             echo "- IS A LIST, NOT SPECIES-DESCRIPTION-TYPE 02\n";
             $this->parse_list_type_pdf($input);
-            if(in_array($pdf_id, array('SCtZ-0437', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0609'))) return; //many lists have bad species sections
+            if(in_array($pdf_id, array('SCtZ-0437', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0609', 'scb-0002'))) return; //many lists have bad species sections
             elseif(in_array($pdf_id, array('SCtZ-0613'))) {} //lists with good species sections
             // 
             // return; //should be commented coz some list-type docs have species sections as well
@@ -151,14 +151,25 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             $row = trim($row);
             
             // /*
-            if(stripos($row, "fig.") !== false) continue; //string is found
-            if(stripos($row, "incertae sedis") !== false) continue; //string is found
-            if(stripos($row, "cf.") !== false) continue; //string is found
+            if(stripos($row, "fig.") !== false) {$rows = array(); continue;} //string is found
+            if(stripos($row, "incertae sedis") !== false) {$rows = array(); continue;} //string is found
+            if(stripos($row, "cf.") !== false) {$rows = array(); continue;} //string is found
+            if(stripos($row, "Figure") !== false) {$rows = array(); continue;} //string is found
+            if(stripos($row, " and ") !== false) {$rows = array(); continue;} //string is found
+            if(stripos($row, " cm ") !== false) {$rows = array(); continue;} //string is found
+            if(stripos($row, " p. ") !== false) {$rows = array(); continue;} //string is found
+            if(stripos($row, " pp.") !== false) {$rows = array(); continue;} //string is found
+            if(stripos($row, " pages") !== false) {$rows = array(); continue;} //string is found
+            if(stripos($row, " less ") !== false) {$rows = array(); continue;} //string is found
+            if(stripos($row, "series ") !== false) {$rows = array(); continue;} //string is found
             // */
             
             // /* customize
-            if($pdf_id == 'SCtZ-0604') { //exit("\nelix na\n");
+            if($pdf_id == 'SCtZ-0604') {
                 if($row == "Ahl, E.") break; //so no more running GNRD for later part of the document
+            }
+            elseif($pdf_id == 'scb-0001') {
+                if($row == "Alderwerelt van Rosenburgh, C. R. W. K. van") break; //so no more running GNRD for later part of the document
             }
             // */
 
@@ -180,29 +191,24 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                 $words = explode(" ", $row);
                 if(ctype_upper($words[0]) && strlen($words[0]) > 1) {
                     // print_r($words); //exit;
-                    $rows = array();
-                    continue;
+                    $rows = array(); continue;
                 }
                 //another
                 if(@$words[1] == "species") { //2nd word is 'species'
-                    $rows = array();
-                    continue;
+                    $rows = array(); continue;
                 }
                 //another
                 if(is_numeric(substr(@$words[1],0,1))) { //2nd word starts with a number
-                    $rows = array();
-                    continue;
+                    $rows = array(); continue;
                 }
                 //another: "Propontocypris (Propontocypris), 27"
                 if(substr(@$words[1],0,1) == "(") { //2nd word starts with "("
                     if($third = @$words[2]) { //has a 3rd word
                         if(is_numeric(substr($third,0,1))) { //3rd word starts with a number
-                            $rows = array();
-                            continue;
+                            $rows = array(); continue;
                         }
                         if($third == 'species') { // "Propontocypris (Schedopontocypris) species 2"
-                            $rows = array();
-                            continue;
+                            $rows = array(); continue;
                         }
                     }
                 }

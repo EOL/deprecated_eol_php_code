@@ -74,6 +74,8 @@ class ParseListTypeAPI
                         $rek['verbatim'] = $sciname_line;
                         
                         if(stripos($sciname_line, "...") !== false) continue; //string is found
+                        if(stripos($sciname_line, " and ") !== false) continue; //string is found
+                        
                         
                         /* divide it by period (.), then get the first array element
                         $a = explode(".", $sciname_line);
