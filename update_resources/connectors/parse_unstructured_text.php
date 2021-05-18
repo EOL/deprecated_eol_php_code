@@ -111,6 +111,9 @@ fixed list-type of repo 2:
 new stable for now:
 10088_5097	Mon 2021-05-17 10:14:02 AM	{"association.tab":365, "media_resource.tab":13063, "occurrence.tab":418, "taxon.tab":12547, "time_elapsed":{"sec":755.75, "min":12.6, "hr":0.21}}
 10088_5097_ENV	Mon 2021-05-17 10:30:33 AM	{"association.tab":365, "measurement_or_fact_specific.tab":47859, "media_resource.tab":11535, "occurrence_specific.tab":48277, "taxon.tab":12547, "time_elapsed":{"sec":982.78, "min":16.38, "hr":0.27}}
+further decreased:
+10088_5097	Tue 2021-05-18 08:10:09 AM	{"association.tab":365, "media_resource.tab":12698, "occurrence.tab":418, "taxon.tab":12187, "time_elapsed":{"sec":1363.06, "min":22.72, "hr":0.38}}
+10088_5097_ENV	Tue 2021-05-18 08:19:00 AM	{"association.tab":365, "measurement_or_fact_specific.tab":47768, "media_resource.tab":11453, "occurrence_specific.tab":48186, "taxon.tab":12187, "time_elapsed":{"sec":521.58, "min":8.69, "hr":0.14}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -233,19 +236,19 @@ $input = array('filename' => 'SCtZ-0061.txt', 'lines_before_and_after_sciname' =
 
 
 // May 6, 2021 Thu - 2nd repo
-$input = array('filename' => 'scb-0001.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0001/');
+// $input = array('filename' => 'scb-0001.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0001/');
 // http://rs.tdwg.org/dwc/terms/taxon: Total: 43
 // http://purl.org/dc/dcmitype/Text: 52
 // http://rs.tdwg.org/dwc/terms/measurementorfact: Total: 174
 
 // May 10, 2021 - 2nd repo
-$input = array('filename' => 'scb-0003.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0003/');
+// $input = array('filename' => 'scb-0003.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0003/');
 // -> Jen considered as list but not really. Better to acquire is as regular species-sections type
 // http://rs.tdwg.org/dwc/terms/taxon: Total: 98
 // http://purl.org/dc/dcmitype/Text: 98
 // http://rs.tdwg.org/dwc/terms/measurementorfact: Total: 99
 
-$input = array('filename' => 'scb-0004.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0004/');
+// $input = array('filename' => 'scb-0004.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0004/');
 // http://rs.tdwg.org/dwc/terms/taxon: Total: 23
 // http://purl.org/dc/dcmitype/Text: 23
 // http://rs.tdwg.org/dwc/terms/measurementorfact: Total: 152
@@ -268,29 +271,28 @@ $input = array('filename' => 'scb-0004.txt', 'lines_before_and_after_sciname' =>
 // http://rs.tdwg.org/dwc/terms/measurementorfact: Total: 28
 
 
-/*
+
 // May 17 Mon
 $input = array('filename' => 'SCtZ-0032.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0032/');
 // -> 7 scinames
 $input = array('filename' => 'SCtZ-0034.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0034/');
 // -> 103 scinames
-$input = array('filename' => 'SCtZ-0062.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0062/');
+// $input = array('filename' => 'SCtZ-0062.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0062/');
 // -> 10 scinames
-$input = array('filename' => 'SCtZ-0067.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0067/');
+// $input = array('filename' => 'SCtZ-0067.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0067/');
 // -> 16 scinames
-$input = array('filename' => 'SCtZ-0063.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0063/');
+// $input = array('filename' => 'SCtZ-0063.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0063/');
 // -> 11 scinames
-$input = array('filename' => 'SCtZ-0113.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0113/');
+// $input = array('filename' => 'SCtZ-0113.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0113/');
 // -> 91 scinames
-$input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/');
+// $input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/');
 // -> 19 scinames
-$input = array('filename' => 'SCTZ-0275.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0275/');
+// $input = array('filename' => 'SCTZ-0275.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0275/');
 // -> 4 scinames
-$input = array('filename' => 'SCTZ-0469.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0469/');
+// $input = array('filename' => 'SCTZ-0469.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0469/');
 // -> 23 scinames
-$input = array('filename' => 'SCtZ-0006.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0006/');
+// $input = array('filename' => 'SCtZ-0006.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0006/');
 // -> 6 scinames
-*/
 
 // $input = array('filename' => 'SCtZ-0614.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/');
 //-> has associations (57), species sections (9), no lists
@@ -298,9 +300,13 @@ $input = array('filename' => 'SCtZ-0006.txt', 'lines_before_and_after_sciname' =
 // resources/SCtZ-0614/media_resource.tab] :: total: [9]
 // resources/SCtZ-0614/occurrence.tab]     :: total: [57]
 // resources/SCtZ-0614/taxon.tab]          :: total: [53]
-    
 
-// wget https://editors.eol.org/other_files/Smithsonian/epub_10088_5097/SCTZ-0469/SCTZ-0469.txt
+// New - May 18 Tue    
+// $input = array('filename' => 'scb-0013.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0013/');
+// $input = array('filename' => 'scb-0027.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0027/');
+// $input = array('filename' => 'scb-0094.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0094/');
+
+// wget https://editors.eol.org/other_files/Smithsonian/epub_10088_6943/scb-0094/scb-0094.txt
     
 
 /* ---------------------------------- List-type here:

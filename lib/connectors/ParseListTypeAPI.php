@@ -679,5 +679,49 @@ class ParseListTypeAPI
         $a = explode(" ", $title);
         return trim(implode(" ", array($a[0], $a[1], $a[2], @$a[3], @$a[4], @$a[5], @$a[6], @$a[7])));
     }
+    function one_word_and_higher_taxon($row)
+    {
+        if(stripos($row, "taxon>") !== false) return false; //string is found
+        $words = explode(" ", $row); //print_r($words);
+        if(count($words) == 1) {
+            if(is_numeric($row)) return false;
+            if(stripos($row, ",") !== false) return false; //string is found
+            if(stripos($row, ":") !== false) return false; //string is found
+            if(ctype_lower(substr($row,0,1))) return false;
+            if(self::is_a_sciname($row)) {
+                echo "\none_word_and_higher_taxon: [$row]\n";
+                return true;
+            }
+        }
+        return false;
+    }
+    private function is_a_sciname($str)
+    {
+        if($obj = self::run_GNRD($str)) {
+            if(strtolower($str) == strtolower(@$obj->names[0]->scientificName)) return true;
+        }
+        return false;
+    }
+    function two_words_rank_and_sciname_combo($row)
+    {
+        if(stripos($row, "taxon>") !== false) return false; //string is found
+        $ranks = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder');
+        $words = explode(" ", $row); //print_r($words);
+        if(count($words) == 2) {
+            if(stripos($row, ",") !== false) return false; //string is found
+            if(stripos($row, ":") !== false) return false; //string is found
+            if(ctype_lower(substr($words[0],0,1))) return false;
+            if(ctype_lower(substr($words[1],0,1))) return false;
+            
+            if(is_numeric($words[0])) return false;
+            if(is_numeric($words[1])) return false;
+            
+            
+            if(in_array($words[0], $ranks) && self::is_a_sciname($words[1])) {
+                echo "\ntwo_words_rank_and_sciname_combo: [$row]\n";
+                return true;
+            }
+        }
+    }
 }
 ?>

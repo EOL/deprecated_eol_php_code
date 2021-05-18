@@ -610,7 +610,6 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             elseif($row == "Appendix Tables") $row = "</taxon>$row";
             elseif($row == "Intermediates") $row = "</taxon>$row";          //scb-0007.txt
 
-            elseif(self::N_words_or_less_beginning_with_Key($row, 12)) $row = "</taxon>$row";   //scb-0001.txt -> from spreadsheet
             elseif($row == "Dubious Binomials") $row = "</taxon>$row";                          //scb-0001.txt
             elseif($row == "Excluded Species") $row = "</taxon>$row";                           //scb-0001.txt
 
@@ -618,6 +617,27 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             elseif($row == "Aulonemia Goudot") $row = "</taxon>$row";                           //scb-0009.txt
             elseif($row == "MUSEUM D’HISTOIRE NATURELLE DE PARIS") $row = "</taxon>$row";       //scb-0009.txt
             elseif($row == "Arthrostylidium Ruprecht") $row = "</taxon>$row";                   //scb-0009.txt
+            elseif($row == "POLYTRICHACEAE") $row = "</taxon>$row";                             //scb-0027.txt
+            elseif($row == "Acknowledgments") $row = "</taxon>$row";                            //scb-0094.txt
+            
+            // if($filename == "scb-0094.txt") { --> can be for all
+                if(self::one_word_and_higher_taxon($row)) $row = "</taxon>$row";                //scb-0094.txt
+            // }
+
+            if(self::two_words_rank_and_sciname_combo($row)) $row = "</taxon>$row";                //for all
+            // Tribe Beckerinini newline
+            // Genus Oligotrichum newline
+            
+
+            if($filename != "scb-0013.txt") {
+                if(self::N_words_or_less_beginning_with_Key($row, 12)) $row = "</taxon>$row";   //scb-0001.txt
+            }
+
+            // newline
+            // [any combination of rank name and/or taxon name w/rank above species] newline
+            // eg: 
+            // newline
+            // Dasycladophyceae newline"
             
             // if($count_of_blank_rows >= 5) $row = "</taxon>";       //scb-0009.txt --- NOT A GOOD IDEA
             
