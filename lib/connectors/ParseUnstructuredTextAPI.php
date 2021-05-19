@@ -624,23 +624,20 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
                 if(self::one_word_and_higher_taxon($row)) $row = "</taxon>$row";                //scb-0094.txt
             // }
 
-            if(self::two_words_rank_and_sciname_combo($row)) $row = "</taxon>$row";                //for all
+            if(self::two_words_rank_and_sciname_combo($row)) $row = "</taxon>$row";             //for all
             // Tribe Beckerinini newline
-            // Genus Oligotrichum newline
-            
 
             if($filename != "scb-0013.txt") {
                 if(self::N_words_or_less_beginning_with_Key($row, 12)) $row = "</taxon>$row";   //scb-0001.txt
             }
 
-            // newline
-            // [any combination of rank name and/or taxon name w/rank above species] newline
-            // eg: 
-            // newline
-            // Dasycladophyceae newline"
+            if(self::sciname_then_specific_words($row, "Excluded Taxa")) $row = "</taxon>$row"; //for all
+            // e.g. "Isopterygium Excluded Taxa"
+
+            if(self::numbered_then_sciname($row)) $row = "</taxon>$row"; //for all
+            // e.g. "2. Elmeriobryum Broth."
             
             // if($count_of_blank_rows >= 5) $row = "</taxon>";       //scb-0009.txt --- NOT A GOOD IDEA
-            
             // */
 
             // /* New: per Jen: https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65856&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65856

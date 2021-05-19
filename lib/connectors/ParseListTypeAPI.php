@@ -698,6 +698,10 @@ class ParseListTypeAPI
     }
     private function is_a_sciname($str)
     {
+        if(strlen($str) == 1) return false;                 //must be longer than 1 char
+        if(!ctype_alpha(substr($str,0,1))) return false;    //must be all letters
+        if(ctype_lower(substr($str,0,1))) return false;     //must be capitalized
+        
         if($obj = self::run_GNRD($str)) {
             if(strtolower($str) == strtolower(@$obj->names[0]->scientificName)) return true;
         }
@@ -723,6 +727,38 @@ class ParseListTypeAPI
                 return true;
             }
         }
+    }
+    function sciname_then_specific_words($row, $phrase)
+    {   // e.g. "Isopterygium Excluded Taxa"
+        if(stripos($row, $phrase) !== false) {  //string is found
+            $words = explode(" ", $row); //print_r($words);
+            if(self::is_a_sciname($words[0])) {
+                if($GLOBALS["ENV_DEBUG"]) echo "\nsciname_then_specific_words: [".$row."]\n";
+                return true;
+            }
+        }
+        return false;
+    }
+    function numbered_then_sciname($row)
+    {   // e.g. "2. Elmeriobryum Broth."
+        $words = explode(" ", $row);
+        if(count($words) > 15) return false;
+        if(is_numeric($words[0])) {             //1st word is numeric
+            if($third_word = @$words[2]) {      //if there is a 3rd word
+                if(!self::is_capitalized($third_word)) return false;  //if there is a 3rd word, it must be capitalized
+            }
+            if(self::is_a_sciname(@$words[1])) { //echo "\n-[$row]-\n";
+                if($GLOBALS["ENV_DEBUG"]) echo "\nnumbered_then_sciname: [".$row."]\n"; //2nd word is a sciname
+                return true;
+            }
+        }
+        return false;
+    }
+    private function is_capitalized($str)
+    {
+        $first_char = substr($str,0,1);
+        if(ctype_upper($first_char)) return true;
+        return false;
     }
 }
 ?>
