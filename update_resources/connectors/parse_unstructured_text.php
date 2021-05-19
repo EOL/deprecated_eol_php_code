@@ -287,7 +287,7 @@ $input = array('filename' => 'SCtZ-0061.txt', 'lines_before_and_after_sciname' =
 // -> 91 scinames
 // $input = array('filename' => 'SCtZ-0007.txt', 'lines_before_and_after_sciname' => 1, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/');
 // -> 19 scinames
-// $input = array('filename' => 'SCTZ-0275.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0275/');
+$input = array('filename' => 'SCTZ-0275.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0275/');
 // -> 4 scinames
 // $input = array('filename' => 'SCTZ-0469.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0469/');
 // -> 23 scinames
@@ -308,10 +308,18 @@ $input = array('filename' => 'SCtZ-0061.txt', 'lines_before_and_after_sciname' =
 // -> 131 scinames
 // $input = array('filename' => 'scb-0094.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0094/');
 // -> 116 scinames
-// wget https://editors.eol.org/other_files/Smithsonian/epub_10088_6943/scb-0094/scb-0094.txt
-    
 
-// /* ---------------------------------- List-type here:
+// May 19 Wed
+// $input = array('filename' => 'SCtZ-0031.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0031/');
+// -> none
+
+// $input = array('filename' => 'scb-0093.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0093/');
+// -> 34 scinames
+
+// wget https://editors.eol.org/other_files/Smithsonian/epub_10088_6943/scb-0093/scb-0093.txt
+
+
+/* ---------------------------------- List-type here:
 // variable lines_before_and_after_sciname is important. It is the lines before and after the "list header".
 
 $input = array('filename' => 'SCtZ-0011.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/');
@@ -343,7 +351,7 @@ $input = array('filename' => 'scb-0002.txt', 'type' => 'list', 'epub_output_txts
 
     // wget https://editors.eol.org/other_files/Smithsonian/epub_10088_6943/scb-0003/scb-0003.txt
 
-// ---------------------------------- */
+---------------------------------- */
 
 $pdf_id = pathinfo($input['filename'], PATHINFO_FILENAME);
 $input['lines_before_and_after_sciname'] = 2; //default
