@@ -685,6 +685,7 @@ class ParseListTypeAPI
         $words = explode(" ", $row); //print_r($words);
         if(count($words) == 1) {
             if(is_numeric($row)) return false;
+            if(!ctype_alpha($row)) return false;
             if(stripos($row, ".—") !== false) return false; //string is found
             if(stripos($row, ",") !== false) return false; //string is found
             if(stripos($row, ":") !== false) return false; //string is found
@@ -699,7 +700,7 @@ class ParseListTypeAPI
     private function is_a_sciname($str)
     {
         if(strlen($str) == 1) return false;                 //must be longer than 1 char
-        if(!ctype_alpha(substr($str,0,1))) return false;    //must be all letters
+        if(!ctype_alpha($str)) return false;                //must be all letters
         if(ctype_lower(substr($str,0,1))) return false;     //must be capitalized
         
         if($obj = self::run_GNRD($str)) {

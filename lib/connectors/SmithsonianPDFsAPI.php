@@ -31,7 +31,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         // SCtZ-0004 - not a list-type
         // SCtZ-0604 - I considered not a list-type but a regular species section type
 
-        $this->PDFs_not_a_monograph = array('SCtZ-0009'); //exclude; not a species nor a list type.
+        $this->PDFs_not_a_monograph = array('SCtZ-0009', 'SCtZ-0107'); //exclude; not a species nor a list type.
         $this->overwrite_tagged_files = true; //orig false means don't overwrite tagged files.
         
         $this->with_epub_count = 0;
