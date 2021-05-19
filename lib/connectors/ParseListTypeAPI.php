@@ -711,7 +711,8 @@ class ParseListTypeAPI
     function two_words_rank_and_sciname_combo($row)
     {
         if(stripos($row, "taxon>") !== false) return false; //string is found
-        $ranks = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 'Subphylum', 'Subclass');
+        $ranks = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
+        'Subphylum', 'Subclass', 'Superfamily');
         $words = explode(" ", $row); //print_r($words);
         if(count($words) == 2) {
             if(stripos($row, ",") !== false) return false; //string is found

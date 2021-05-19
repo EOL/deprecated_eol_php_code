@@ -140,7 +140,8 @@ $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0
 // $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0013/scb-0013_descriptions_LT.txt";  $pdf_id = "scb-0013";
 // $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0027/scb-0027_descriptions_LT.txt";  $pdf_id = "scb-0027";
 // $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0094/scb-0094_descriptions_LT.txt";  $pdf_id = "scb-0094";
-
+// May 19 Wed
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0093/scb-0093_descriptions_LT.txt";  $pdf_id = "scb-0093";
 
 $resource_id = $pdf_id;
 require_library('connectors/ParseListTypeAPI');

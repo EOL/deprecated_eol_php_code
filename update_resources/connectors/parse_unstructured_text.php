@@ -114,6 +114,10 @@ new stable for now:
 further decreased:
 10088_5097	Tue 2021-05-18 08:10:09 AM	{"association.tab":365, "media_resource.tab":12698, "occurrence.tab":418, "taxon.tab":12187, "time_elapsed":{"sec":1363.06, "min":22.72, "hr":0.38}}
 10088_5097_ENV	Tue 2021-05-18 08:19:00 AM	{"association.tab":365, "measurement_or_fact_specific.tab":47768, "media_resource.tab":11453, "occurrence_specific.tab":48186, "taxon.tab":12187, "time_elapsed":{"sec":521.58, "min":8.69, "hr":0.14}}
+after putting more stop patterns from spreadsheet
+10088_5097	Wed 2021-05-19 09:55:52 AM	{"association.tab":365, "media_resource.tab":12677, "occurrence.tab":418, "taxon.tab":12176, "time_elapsed":{"sec":4284.89, "min":71.41, "hr":1.19}}
+10088_5097_ENV	Wed 2021-05-19 10:10:17 AM	{"association.tab":365, "measurement_or_fact_specific.tab":47207, "media_resource.tab":11434, "occurrence_specific.tab":47625, "taxon.tab":12176, "time_elapsed":{"sec":856.04, "min":14.27, "hr":0.24}}
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -313,10 +317,17 @@ $input = array('filename' => 'SCTZ-0275.txt', 'lines_before_and_after_sciname' =
 // $input = array('filename' => 'SCtZ-0031.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0031/');
 // -> none
 
-// $input = array('filename' => 'scb-0093.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0093/');
+// $input = array('filename' => 'scb-0092.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0092/');
+// -> none
+$input = array('filename' => 'scb-0093.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0093/');
 // -> 34 scinames
 
-// wget https://editors.eol.org/other_files/Smithsonian/epub_10088_6943/scb-0093/scb-0093.txt
+// $input = array('filename' => 'SCtZ-0084.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0084/');
+// -> 27 scinames
+
+// $input = array('filename' => 'SCtZ-0107.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0107/');
+
+// wget https://editors.eol.org/other_files/Smithsonian/epub_10088_6943/scb-0092/scb-0092.txt
 
 
 /* ---------------------------------- List-type here:
@@ -361,8 +372,10 @@ if(in_array($pdf_id, array('SCtZ-0007', 'SCtZ-0025', 'SCtZ-0020', 'SCtZ-0019', '
 if(Functions::is_production()) $input['epub_output_txts_dir'] = str_replace("/Volumes/AKiTiO4/other_files/Smithsonian/", "/extra/other_files/Smithsonian/", $input['epub_output_txts_dir']);
 
 // /*
-$folder = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/$pdf_id/";
-$folder = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/$pdf_id/";
+
+if(stripos($input['epub_output_txts_dir'], "epub_10088_5097") !== false) $folder = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/$pdf_id/";
+if(stripos($input['epub_output_txts_dir'], "epub_10088_6943") !== false) $folder = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/$pdf_id/";
+
 $postfix = array("_tagged.txt", "_tagged_LT.txt", "_edited.txt", "_edited_LT.txt", "_descriptions_LT.txt");
 foreach($postfix as $post) {
     $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."$post";

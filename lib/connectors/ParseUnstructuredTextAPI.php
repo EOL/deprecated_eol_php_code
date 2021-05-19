@@ -619,6 +619,15 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             elseif($row == "Arthrostylidium Ruprecht") $row = "</taxon>$row";                   //scb-0009.txt
             elseif($row == "POLYTRICHACEAE") $row = "</taxon>$row";                             //scb-0027.txt
             elseif($row == "Acknowledgments") $row = "</taxon>$row";                            //scb-0094.txt
+            elseif($row == "Descriptive Biogeography") $row = "</taxon>$row";                   //SCtZ-0608.txt
+
+            if($filename == "SCtZ-0612.txt") {
+                if($row == "Figures") $row = "</taxon>$row";                                   //SCtZ-0612.txt
+            }
+            
+            if($filename == "SCtZ-0606.txt") {
+                if(stripos($row, "species indeterminate") !== false) $row = "</taxon>$row";   //string is found
+            }
             
             // if($filename == "scb-0094.txt") { --> can be for all
                 if(self::one_word_and_higher_taxon($row)) $row = "</taxon>$row";                //scb-0094.txt

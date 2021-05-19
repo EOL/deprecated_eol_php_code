@@ -147,6 +147,8 @@ May 18 Tue
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Botany", "resource_id":"scb-0013", "subjects":"Uses|Description"}'
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Botany", "resource_id":"scb-0027", "subjects":"Uses|Description"}'
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Botany", "resource_id":"scb-0094", "subjects":"Uses|Description"}'
+May 19 Wed
+environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Botany", "resource_id":"scb-0093", "subjects":"Uses|Description"}'
 
 ---------------------------------------------------------------------------------------
 
