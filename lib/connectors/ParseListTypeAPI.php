@@ -690,7 +690,7 @@ class ParseListTypeAPI
             if(stripos($row, ":") !== false) return false; //string is found
             if(ctype_lower(substr($row,0,1))) return false;
             if(self::is_a_sciname($row)) {
-                echo "\none_word_and_higher_taxon: [$row]\n";
+                if($GLOBALS["ENV_DEBUG"]) echo "\none_word_and_higher_taxon: [$row]\n";
                 return true;
             }
         }
@@ -711,15 +711,15 @@ class ParseListTypeAPI
         if(count($words) == 2) {
             if(stripos($row, ",") !== false) return false; //string is found
             if(stripos($row, ":") !== false) return false; //string is found
+
             if(ctype_lower(substr($words[0],0,1))) return false;
             if(ctype_lower(substr($words[1],0,1))) return false;
             
             if(is_numeric($words[0])) return false;
             if(is_numeric($words[1])) return false;
             
-            
             if(in_array($words[0], $ranks) && self::is_a_sciname($words[1])) {
-                echo "\ntwo_words_rank_and_sciname_combo: [$row]\n";
+                if($GLOBALS["ENV_DEBUG"]) echo "\ntwo_words_rank_and_sciname_combo: [$row]\n";
                 return true;
             }
         }
