@@ -58,7 +58,8 @@ $params["uri_file"]      = "http://127.0.0.1/cp_new/GBIF_dwca/countries/Germany/
 
 // remote
 $params["citation_file"] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/Germany/Citation Mapping Germany.xlsx";
-$params["dwca_file"]     = "https://editors.eol.org/other_files/GBIF_DwCA/Germany_0010139-190918142434337.zip";
+$params["dwca_file"]     = "https://editors.eol.org/other_files/GBIF_DwCA/Germany_0010139-190918142434337.zip"; //old, constant zip file
+$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_occurrence/GBIF_Germany/GBIF_Germany_DwCA.zip"; //new, changing zip file
 $params["uri_file"]      = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/Germany/germany mappings.xlsx";
 
 $params["dataset"]      = "GBIF";

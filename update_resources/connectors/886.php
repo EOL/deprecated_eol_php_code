@@ -28,7 +28,8 @@ $params["uri_file"]      = "http://localhost/cp_new/GBIF_dwca/countries/France/f
 
 // remote
 $params["citation_file"] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/France/Citation Mapping France.xlsx";
-$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_DwCA/France_0010150-190918142434337.zip";
+$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_DwCA/France_0010150-190918142434337.zip"; //old, constant zip file
+$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_occurrence/GBIF_France/GBIF_France_DwCA.zip"; //new, changing zip file
 $params["uri_file"]      = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/France/french GBIF mapping.xlsx";
 
 $params["dataset"]      = "GBIF";

@@ -30,7 +30,8 @@ $params["uri_file"]     = "http://localhost/cp_new/GBIF_dwca/countries/Brazil/GB
 
 //remote
 $params["citation_file"] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/Brazil/Citation Mapping Brazil.xlsx";
-$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_DwCA/Brazil_0010183-190918142434337.zip";
+$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_DwCA/Brazil_0010183-190918142434337.zip"; //old, constant zip file
+$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_occurrence/GBIF_Brazil/GBIF_Brazil_DwCA.zip"; //new, changing zip file
 $params["uri_file"]     = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/Brazil/GBIF Brazil mapping.xlsx";
 
 $params["dataset"]      = "GBIF";

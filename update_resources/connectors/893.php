@@ -28,7 +28,8 @@ $params["uri_file"]     = "http://localhost/cp_new/GBIF_dwca/countries/Sweden/GB
 
 //remote
 $params["citation_file"] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/Sweden/Citation mapping Sweden.xlsx";
-$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_DwCA/Sweden.zip";
+$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_DwCA/Sweden.zip"; //old, constant zip file
+$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_occurrence/GBIF_Sweden/GBIF_Sweden_DwCA.zip"; //new, changing zip file
 $params["uri_file"]     = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/Sweden/GBIF Sweden mapping.xlsx";
 
 $params["dataset"]      = "GBIF";
