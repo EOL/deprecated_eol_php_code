@@ -118,6 +118,9 @@ after putting more stop patterns from spreadsheet
 10088_5097	Wed 2021-05-19 09:55:52 AM	{"association.tab":365, "media_resource.tab":12677, "occurrence.tab":418, "taxon.tab":12176, "time_elapsed":{"sec":4284.89, "min":71.41, "hr":1.19}}
 10088_5097_ENV	Wed 2021-05-19 10:10:17 AM	{"association.tab":365, "measurement_or_fact_specific.tab":47207, "media_resource.tab":11434, "occurrence_specific.tab":47625, "taxon.tab":12176, "time_elapsed":{"sec":856.04, "min":14.27, "hr":0.24}}
 
+Repo 2: Smithsonian Contributions to Botany
+10088_6943	Wed 2021-05-19 11:25:00 AM	{"media_resource.tab":1649, "taxon.tab":1549, "time_elapsed":{"sec":5000.82, "min":83.35, "hr":1.39}}
+10088_6943_ENV	Wed 2021-05-19 12:57:18 PM	{"measurement_or_fact_specific.tab":4854, "media_resource.tab":1487, "occurrence_specific.tab":4854, "taxon.tab":1549, "time_elapsed":{"sec":5532.33, "min":92.21, "hr":1.54}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
