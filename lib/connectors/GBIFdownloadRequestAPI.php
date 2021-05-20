@@ -1,7 +1,8 @@
 <?php
 namespace php_active_record;
 /* connector: 1st client: [gbif_download_request.php]
-              2nd client: [gbif_download_request_for_NMNH.php]  */
+              2nd client: [gbif_download_request_for_NMNH.php]  
+              3rd client: the 6 GBIF country type records -> e.g. Germany, Sweden, etc. */
 class GBIFdownloadRequestAPI
 {
     function __construct($resource_id)
@@ -26,8 +27,21 @@ class GBIFdownloadRequestAPI
         
         if($this->resource_id == 'GBIF_map_harvest') $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF';
         elseif($this->resource_id == 'NMNH_images')  $this->destination_path = DOC_ROOT.'update_resources/connectors/files/NMNH_images';
+        elseif($this->resource_id == 'GBIF_Netherlands')  $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF_Netherlands';
+        elseif($this->resource_id == 'GBIF_France')  $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF_France';
+        elseif($this->resource_id == 'GBIF_Germany')  $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF_Germany';
+        elseif($this->resource_id == 'GBIF_Brazil')  $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF_Brazil';
+        elseif($this->resource_id == 'GBIF_Sweden')  $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF_Sweden';
+        elseif($this->resource_id == 'GBIF_UnitedKingdom')  $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF_UnitedKingdom';
         else exit("\nresource_id not yet initialized\n");
         if(!is_dir($this->destination_path)) mkdir($this->destination_path);
+        
+        $this->abbreviation['GBIF_Netherlands'] = "NL";
+        $this->abbreviation['GBIF_France'] = "FR";
+        $this->abbreviation['GBIF_Germany'] = "DE";
+        $this->abbreviation['GBIF_Brazil'] = "BR";
+        $this->abbreviation['GBIF_Sweden'] = "SE";
+        $this->abbreviation['GBIF_UnitedKingdom'] = "GB";   //United Kingdom of Great Britain and Northern Ireland
     }
     function send_download_request($taxon_group) //this will overwrite any current download request. Run this once ONLY every harvest per taxon group.
     {
@@ -74,8 +88,14 @@ class GBIFdownloadRequestAPI
                 else echo "\n[$taxon_group] now ready OK :-) \n";
             }
         }
+        /* moved this below, together with the 6 GBIF countries
         elseif($this->resource_id == 'NMNH_images') {
             $taxon_group = 'NMNH_images';
+            if(!self::generate_sh_file($taxon_group)) return false;
+        }
+        */
+        else { //for NMNH_images and the 6 GBIF countries
+            $taxon_group = $this->resource_id;
             if(!self::generate_sh_file($taxon_group)) return false;
         }
         return true;
@@ -103,10 +123,12 @@ class GBIFdownloadRequestAPI
     {
         if($this->resource_id == 'GBIF_map_harvest') { //=====================================================================
             $taxon = $this->taxon;
+            
             if($taxon_group == 'Other7Groups')  $taxon_array = Array("type" => "in", "key" => "TAXON_KEY", "values" => Array(0 => $taxon['Fungi'],
                 1 => $taxon['Chromista'], 2 => $taxon['Bacteria'], 3 => $taxon['Protozoa'], 4 => $taxon['incertae sedis'], 5 => $taxon['Archaea'],
                 6 => $taxon['Viruses']));
             else $taxon_array = Array("type" => "equals", "key" => "TAXON_KEY", "value" => $taxon[$taxon_group]);
+            
             $param = Array( 'creator' => $this->gbif_username,
                             'notificationAddresses' => Array(0 => $this->gbif_email),
                             'sendNotification' => 1,
@@ -128,7 +150,9 @@ class GBIFdownloadRequestAPI
                                                                         )
                                                 )
                      );
+            return json_encode($param);
         } //end GBIF_map_harvest
+
         /*Filter used:
         {
           "and" : [
@@ -137,6 +161,7 @@ class GBIFdownloadRequestAPI
             "TaxonKey is Animalia"
           ]
         }*/
+
         //==================================================================================================================================
         if($this->resource_id == 'NMNH_images') {
             $predicate = Array(
@@ -179,18 +204,39 @@ class GBIFdownloadRequestAPI
                                             )
                 )
             );
-            $param = Array( 'creator' => $this->gbif_username,
-                            'notificationAddresses' => Array(0 => $this->gbif_email),
-                            'sendNotification' => 1,
-                            'format' => 'DWCA',
-                            'predicate' => $predicate
-                     );
         } //end NMNH_images
+        
         /* from its download DOI: https://doi.org/10.15468/dl.b5vdyg
         From the 2nd box. Click 'API' to get the json format of the request. Then in php run below, to get the array value.
         $arr = json_decode($json, true);
         */
+        
         //==================================================================================================================================
+        $gbif_countries = array("GBIF_Netherlands", "GBIF_France", "GBIF_Germany", "GBIF_Brazil", "GBIF_Sweden", "GBIF_UnitedKingdom");
+        if(in_array($this->resource_id, $gbif_countries)) {
+            $predicate = Array(
+                            'type' => 'and',
+                            'predicates' => Array(
+                                                0 => Array(
+                                                        'type' => 'isNotNull',
+                                                        'parameter' => 'TYPE_STATUS'
+                                                     ),
+                                                1 => Array(
+                                                        'type' => 'equals',
+                                                        'key' => 'PUBLISHING_COUNTRY',
+                                                        'value' => $this->abbreviation[$this->resource_id],
+                                                        'matchCase' => ''
+                                                     )
+                                            )
+                         );
+        } //end GBIF countries
+        //==================================================================================================================================
+        /* For all except $this->resource_id == 'GBIF_map_harvest' */
+        $param = Array( 'creator' => $this->gbif_username,
+                        'notificationAddresses' => Array(0 => $this->gbif_email),
+                        'sendNotification' => 1,
+                        'format' => 'DWCA',
+                        'predicate' => $predicate);
         return json_encode($param);
     }
     private function save_json_2file($json)

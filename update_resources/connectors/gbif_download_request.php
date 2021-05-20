@@ -6,21 +6,31 @@ require_library('connectors/GBIFdownloadRequestAPI');
 $timestart = time_elapsed();
 /*
 
-This will overwrite any current download request. Run this once ONLY every harvest per taxon group.
+01. This will overwrite any current download request. Run this once ONLY every harvest per taxon group.
 php update_resources/connectors/gbif_download_request.php _ '{"task":"send_download_request", "taxon":"Animalia"}'
 php update_resources/connectors/gbif_download_request.php _ '{"task":"send_download_request", "taxon":"Plantae"}'
 php update_resources/connectors/gbif_download_request.php _ '{"task":"send_download_request", "taxon":"Other7Groups"}'
 php update_resources/connectors/gbif_download_request.php _ '{"task":"send_download_request", "taxon":"Gadus ogac"}'
 
-This will generate the .sh file if download is ready. The .sh file is the curl command to download.
+//start of 6 GBIF countries:
+php update_resources/connectors/gbif_download_request.php _ '{"task":"send_download_request", "taxon":"GBIF_Brazil"}'
+
+02. This will generate the .sh file if download is ready. The .sh file is the curl command to download.
 php update_resources/connectors/gbif_download_request.php _ '{"task":"generate_sh_file", "taxon":"Animalia"}'
 php update_resources/connectors/gbif_download_request.php _ '{"task":"generate_sh_file", "taxon":"Plantae"}'
 php update_resources/connectors/gbif_download_request.php _ '{"task":"generate_sh_file", "taxon":"Other7Groups"}'
 php update_resources/connectors/gbif_download_request.php _ '{"task":"generate_sh_file", "taxon":"Gadus ogac"}'
 php update_resources/connectors/gbif_download_request.php _ '{"task":"generate_sh_file", "taxon":"Gadus morhua"}'
 
-This will check if all downloads are ready
+//start of 6 GBIF countries:
+php update_resources/connectors/gbif_download_request.php _ '{"task":"generate_sh_file", "taxon":"GBIF_Brazil"}'
+
+03. This will check if all downloads are ready
 php update_resources/connectors/gbif_download_request.php _ '{"task":"check_if_all_downloads_are_ready_YN"}'
+-> for GBIF_map_harvest
+
+//start of 6 GBIF countries:
+php update_resources/connectors/gbif_download_request.php _ '{"task":"check_if_all_downloads_are_ready_YN", "taxon":"GBIF_Brazil"}'
 
 
 Sample of .sh files:
@@ -55,8 +65,10 @@ $task = $fields['task'];
 $taxon = @$fields['taxon'];
 $download_key = @$fields['download_key'];
 
+if(substr($taxon,0,5) == "GBIF_") $resource_id = $taxon; //for the 6 GBIF countries
+else $resource_id = "GBIF_map_harvest"; //orig
+
 //############################################################ start main
-$resource_id = "GBIF_map_harvest";
 $func = new GBIFdownloadRequestAPI($resource_id);
 if($task == 'send_download_request') $func->send_download_request($taxon);
 if($task == 'generate_sh_file') $func->generate_sh_file($taxon);
