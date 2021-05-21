@@ -352,9 +352,10 @@ class Pensoft2EOLAPI
                     else continue;
                 }
                 
-                if(in_array($this->param['resource_id'], array("10088_5097_ENV", "10088_6943_ENV"))) $this->ontologies = "envo,eol-geonames";
+                if(in_array($this->param['resource_id'], array("10088_5097_ENV"))) $this->ontologies = "envo,eol-geonames";
+                elseif(in_array($this->param['resource_id'], array("10088_6943_ENV"))) $this->ontologies = "envo,eol-geonames,growth";
                 elseif(stripos($this->param['resource_id'], "SCtZ-") !== false)        $this->ontologies = "envo,eol-geonames"; //string is found
-                elseif(stripos($this->param['resource_id'], "scb-") !== false)         $this->ontologies = "envo,eol-geonames"; //string is found
+                elseif(stripos($this->param['resource_id'], "scb-") !== false)         $this->ontologies = "envo,eol-geonames,growth"; //string is found
                 elseif(stripos($this->param['resource_id'], "scz-") !== false)         $this->ontologies = "envo,eol-geonames"; //string is found
                 // ---------------------- end customize ----------------------*/
                 
