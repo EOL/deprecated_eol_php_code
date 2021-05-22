@@ -153,7 +153,7 @@ class Environments2EOLfinal
             elseif(@$arr[5] == "growth")       $mType = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
             else {
                 print_r($arr);
-                exit("\nERROR: Undefined ontology: [".@$arr[5]."]\n");
+                exit("\nERROR: Undefined ontology: [".@$arr[5]."]\nWill terminate now (1).\n");
             }
             
             $arr[0] = str_replace('.txt', '', $arr[0]);

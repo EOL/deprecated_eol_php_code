@@ -1000,12 +1000,12 @@ class Pensoft2EOLAPI
                     fclose($f);
                 }
             }
-            elseif($tmp[5] == "eol-geonames") {
+            elseif(in_array($tmp[5], array('eol-geonames', 'growth'))) {
                 $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "a");
                 fwrite($f, $row."\n");
                 fclose($f);
             }
-            else exit("\nUndefined ontology: [".$tmp[5]."]\n");
+            else exit("\nUndefined ontology: [".$tmp[5]."]\nWill terminate now (2).\n");
         }
         $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"); echo "\n eol_tags_noParentTerms.tsv.old ($out)\n";
         $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv");     echo "\n eol_tags_noParentTerms.tsv ($out)\n";
