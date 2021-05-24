@@ -467,7 +467,7 @@ class IUCNRedlistDataConnector
         else $m->parentMeasurementID = $parentMeasurementID;
         
         if($mtype)  $m->measurementType = $mtype;
-        else { //doesn't go here anymore
+        else { exit("\ndoesn't go here anymore\n");
             $m->measurementType = "http://iucn.org/". SparqlClient::to_underscore($label);
             echo "\n*Need to add URI for this [$label] [$value]\n";
         }
