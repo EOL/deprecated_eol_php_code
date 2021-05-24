@@ -2571,7 +2571,7 @@ class Functions
         $arr = $func->access_google_sheet($params);
         return $arr;
     }
-    public static function additional_mappings($mappings, $expire_seconds = 60*60*24*25) //additional mappings from other resources, used in other connectors
+    public static function additional_mappings($mappings, $expire_seconds = 60*60*24*1) //additional mappings from other resources, used in other connectors
     {
         // if(@$mappings['male'] == 'male') exit("\nditox 0\n"); //debug
         require_library('connectors/TropicosArchiveAPI');
