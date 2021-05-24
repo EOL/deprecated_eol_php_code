@@ -711,6 +711,8 @@ class GBIFCountryTypeRecordAPI
             elseif(                                        is_numeric(stripos($value, "F;")))           $value = "FEMALE";
         }
         if($val = @$this->uris[$value]) return $val;
+        elseif($val = @$this->uris[strtolower($value)]) return $val;
+        elseif($val = @$this->uris[strtoupper($value)]) return $val;
         else {
             if(in_array($field, array("TypeInformation"))) {
                 $value = strtolower($value);
