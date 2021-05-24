@@ -14,7 +14,9 @@ taxon                       50395   50395
 893	Monday 2018-03-12 03:06:53 AM	{"measurement_or_fact.tab":341938, "occurrence.tab":87627, "taxon.tab":50393}
 893	Tue 2021-01-19 10:18:36 AM	    {"measurement_or_fact.tab":341938, "occurrence.tab":87627, "taxon.tab":50393, "time_elapsed":{"sec":374.42, "min":6.24, "hr":0.1}}
 893	Fri 2021-02-19 11:18:12 AM	    {"measurement_or_fact.tab":517192, "occurrence.tab":87627, "taxon.tab":50393, "time_elapsed":{"sec":432.29, "min":7.2, "hr":0.12}}
+after automating API download request-then-refresh:
 893	Thu 2021-05-20 11:38:35 AM	    {"measurement_or_fact.tab":517192, "occurrence.tab":87627, "taxon.tab":50393, "time_elapsed":{"sec":434.71, "min":7.25, "hr":0.12}}
+893	Fri 2021-05-21 08:39:30 AM	    {"measurement_or_fact.tab":517192, "occurrence.tab":87627, "taxon.tab":50393, "time_elapsed":{"sec":460.9, "min":7.68, "hr":0.13}}
 
 classification resource:
 */

@@ -11,7 +11,10 @@ measurement_or_fact         [27223] 638236      837638
 occurrence                  [9075]  212746      212746
 taxon                       [4291]  95625       95625
 
-886	Monday 2018-03-12 03:21:31 AM	{"measurement_or_fact.tab":837637,"occurrence.tab":212745,"taxon.tab":95622}
+886	Monday 2018-03-12 03:21:31 AM	{"measurement_or_fact.tab":837637,  "occurrence.tab":212745, "taxon.tab":95622}
+after automating API download request-then-refresh:
+886	Thu 2021-05-20 01:28:57 PM	    {"measurement_or_fact.tab":1887119, "occurrence.tab":271039, "taxon.tab":137903, "time_elapsed":{"sec":1423.21, "min":23.72, "hr":0.4}}
+
 
 classification resource:
 */

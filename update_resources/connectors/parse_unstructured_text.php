@@ -121,6 +121,9 @@ after putting more stop patterns from spreadsheet
 Repo 2: Smithsonian Contributions to Botany
 10088_6943	Wed 2021-05-19 11:25:00 AM	{"media_resource.tab":1649, "taxon.tab":1549, "time_elapsed":{"sec":5000.82, "min":83.35, "hr":1.39}}
 10088_6943_ENV	Wed 2021-05-19 12:57:18 PM	{"measurement_or_fact_specific.tab":4854, "media_resource.tab":1487, "occurrence_specific.tab":4854, "taxon.tab":1549, "time_elapsed":{"sec":5532.33, "min":92.21, "hr":1.54}}
+With growth ontology:
+10088_6943	Sat 2021-05-22 04:24:44 AM	{"media_resource.tab":1649, "taxon.tab":1549, "time_elapsed":{"sec":89.38, "min":1.49, "hr":0.02}}
+10088_6943_ENV	Sat 2021-05-22 04:25:50 AM	{"measurement_or_fact_specific.tab":6300, "media_resource.tab":1487, "occurrence_specific.tab":6300, "taxon.tab":1549, "time_elapsed":{"sec":57.82, "min":0.96, "hr":0.02}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

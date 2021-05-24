@@ -23,6 +23,8 @@ classification resource:    33,377
 872	Tue 2021-01-19 08:54:17 AM	    {"measurement_or_fact.tab":1049247, "occurrence.tab":271867, "taxon.tab":151012, "time_elapsed":{"sec":1245.83, "min":20.76, "hr":0.35}}
 start of moving OCCURRENCE cols to MoF rows with mOfTaxon = false (DATA-1875):
 872	Tue 2021-01-19 09:15:26 PM	    {"measurement_or_fact.tab":1863513, "occurrence.tab":271867, "taxon.tab":151012, "time_elapsed":{"sec":1451.96, "min":24.2, "hr":0.4}}
+after automating API download request-then-refresh:
+872	Thu 2021-05-20 01:05:07 PM	    {"measurement_or_fact.tab":1863513, "occurrence.tab":271867, "taxon.tab":151012, "time_elapsed":{"sec":1434.46, "min":23.91, "hr":0.4}}
 
 for 1k taxa:
 measurement_or_fact.tab     [3655]

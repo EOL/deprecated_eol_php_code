@@ -10,9 +10,12 @@ measurement_or_fact         [29989] 418450  533799
 occurrence                  [9997]  139484  139484
 taxon                       [3214]  52763   52763
 
-887	Monday 2018-03-12 03:12:29 AM	{"measurement_or_fact.tab":533798,"occurrence.tab":139483,"taxon.tab":52758}
+887	Monday 2018-03-12 03:12:29 AM	{"measurement_or_fact.tab":533798, "occurrence.tab":139483,"taxon.tab":52758}
+after automating API download request-then-refresh:
+887	Thu 2021-05-20 01:35:59 PM	    {"measurement_or_fact.tab":202273, "occurrence.tab":31837, "taxon.tab":17599, "time_elapsed":{"sec":415.35, "min":6.92, "hr":0.12}}
+-> big decrease but it is what it is
 
-classification resource:
+classification resource: seems no record logged for this resource yet.
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

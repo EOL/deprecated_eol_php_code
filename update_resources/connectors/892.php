@@ -16,6 +16,8 @@ taxon                       12662   5954
 after applied latest mappings: https://eol-jira.bibalex.org/browse/DATA-1582?focusedCommentId=65633&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65633
 892	Fri 2021-02-19 11:10:52 AM	    {"measurement_or_fact.tab":527794, "occurrence.tab":75544, "taxon.tab":25667, "time_elapsed":{"sec":417.4, "min":6.96, "hr":0.12}}
 classification resource:
+after automating API download request-then-refresh:
+892	Thu 2021-05-20 01:43:13 PM	    {"measurement_or_fact.tab":527794, "occurrence.tab":75544, "taxon.tab":25667, "time_elapsed":{"sec":424.03, "min":7.07, "hr":0.12}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
