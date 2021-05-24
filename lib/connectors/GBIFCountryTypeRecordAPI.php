@@ -91,7 +91,7 @@ class GBIFCountryTypeRecordAPI
     private function initialize_mapping()
     {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
-        $this->uris1 = Functions::additional_mappings($mappings); //add more mappings used in the past
+        $this->uris1 = Functions::additional_mappings($mappings, 60*60*1); //add more mappings used in the past | 1 hour expires
         echo "\nURIs 1 total: ".count($this->uris1)."\n";
         // echo "\n".$this->uris['hapantotype'];
         // echo "\n".$this->uris['hypotype'];
