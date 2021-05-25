@@ -47,7 +47,7 @@ class IUCNRedlistAPI
         $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3); //expires in 3 months - orig value. NO sched yet in harvest frequency
         // $this->download_options['expire_seconds'] = false; //debug only
         
-        /* new May 25, 2021
+        // /* new May 25, 2021
         $token = "9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee";
         $this->api['taxon_details'] = "https://apiv3.iucnredlist.org/api/v3/species/id/SPECIES_ID?token=$token";
         $this->api['comnames'] = "https://apiv3.iucnredlist.org/api/v3/species/common_names/SPECIES_NAME?token=$token";
@@ -64,7 +64,7 @@ class IUCNRedlistAPI
         $this->code_value["LR/lc"] = "Lower Risk/least concern";
         $this->code_value["LR/nt"] = "Lower Risk/near threatened";
         $this->code_value["LR/cd"] = "Lower Risk/conservation dependent";
-        */
+        // */
     }
     public function get_taxon_xml($resource_file = null, $type = null)
     {
