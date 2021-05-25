@@ -95,12 +95,19 @@ class IUCNRedlistDataConnector
             )
             */
             if(in_array($rec->taxonid, $names_no_entry_from_partner)) continue; //will un-comment after generating dump file
+            /* obsolete - very old
             if($taxon = $func->get_taxa_for_species(null, $rec->taxonid)) {
+            */
+            if($ret = $func->get_taxa_for_species_V2($rec->taxonid)) { //print_r($taxon); exit("\n-eli-\n");
+                $taxon = $ret[0];
+                $species_info = $ret[1];
+                // print_r($species_info); exit("\n-eli-\n");
+                
                 $taxon->source = "http://apiv3.iucnredlist.org/api/v3/website/".str_replace(' ', '%20', $rec->scientific_name); //e.g. http://apiv3.iucnredlist.org/api/v3/website/Panthera%20leo
                 $taxon->source = "http://apiv3.iucnredlist.org/api/v3/taxonredirect/".$rec->taxonid; //seems better than above
                 $taxon = self::fix_sciname_and_add_locality_if_needed($taxon); //Jul 30, 2019 per Katja: https://eol-jira.bibalex.org/browse/DATA-1815?focusedCommentId=63645&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63645
                 $this->create_instances_from_taxon_object($taxon);
-                $this->process_profile_using_xml($taxon);
+                $this->process_profile_using_xml($taxon, $species_info);
                 // break; //debug only
             }
             else {
@@ -296,9 +303,36 @@ class IUCNRedlistDataConnector
         debug(" - " . $taxon->scientificName . " [$taxon->taxonID]");
         $this->archive_builder->write_object_to_file($taxon);
     }
-    private function process_profile_using_xml($record, $details = false)
+    private function process_profile_using_xml($record, $species_info)
     {
-        if(!$details) $details = self::get_details($record);
+        $details = self::get_details($record);
+        
+        // /* pop_trend
+        $details['pop_trend'] = $species_info['population_trend'];
+        // */
+        
+        // /* habitats
+        $habitats = array();
+        if($species_info['marine_system'] == 1) $habitats[] = 'marine';
+        if($species_info['freshwater_system'] == 1) $habitats[] = 'freshwater';
+        if($species_info['terrestrial_system'] == 1) $habitats[] = 'terrestrial';
+        $details['habitats'] = $habitats;
+        // */
+        
+        // /* texts
+        $r = array();
+        $r["red_list_criteria"] = $species_info['criteria'];
+        // $r["category_version"]  = $species_info['xxx']; to call another API call
+        $r["modified_year"]     = $species_info['published_year'];
+        $r["assessors"]         = $species_info['assessor'];
+        $r["reviewers"]         = $species_info['reviewer'];
+        // $r["contributors"]      = $species_info['xxx']; to be scraped given green light
+        $details['texts'] = $r;
+        // */
+        
+        // print_r($details); exit("\nsss\n");
+        
+        
         $rec = array();
         $rec["taxon_id"] = $record->identifier;
         $rec["source"] = $record->source;
@@ -353,7 +387,17 @@ class IUCNRedlistDataConnector
                 foreach($texts as $key => $value) {
                     if(!$value) continue;
                     $rec["catnum"] = "_rlc"; // these fields will appear under "Data about this record".
-                    self::add_string_types(NULL, $rec, $key, $value, $text[$key]["uri"], '', $parentMeasurementID);
+                    
+                    if(in_array($key, array('assessors', 'reviewers'))) {
+                        $names = self::separate_names($value);
+                        foreach($names as $value) {
+                            self::add_string_types(NULL, $rec, $key, $value, $text[$key]["uri"], '', $parentMeasurementID);
+                            $this->debug['names for Jen'][$value] = '';
+                        }
+                    }
+                    else { //orig, the rest
+                        self::add_string_types(NULL, $rec, $key, $value, $text[$key]["uri"], '', $parentMeasurementID);
+                    }
                 }
             }
 
@@ -376,7 +420,25 @@ class IUCNRedlistDataConnector
             self::add_string_types("true", $rec, "Population trend", $pop_trend, 'http://eol.org/schema/terms/population_trend');
         }
     }
-    
+    function separate_names($str)
+    {
+        // $str = "Rundell, R.J.";
+        //$str = "Barker, G., Cowie, R., Triantis, K., García, N. & Seddon, M.";
+        $names = array();
+        echo "\n[$str]\n";
+        $arr1 = explode("&", $str);
+        $arr1 = array_map('trim', $arr1);
+        foreach($arr1 as $a) {
+            $arr2 = explode("., ", $a);
+            $arr2 = array_map('trim', $arr2);
+            foreach($arr2 as $name) {
+                if(substr($name, -1) == ".") $names[] = "$name";
+                else                         $names[] = "$name.";
+            }
+        }
+        // print_r($names); exit("-test-");
+        return $names;
+    }
     private function get_remarks_for_old_designation($category)
     {
         switch($category) {
@@ -390,7 +452,7 @@ class IUCNRedlistDataConnector
     {
         switch($habitat) {
             case "marine":      return "http://purl.obolibrary.org/obo/ENVO_00000569";
-            case "terrestrial": return "http://purl.obolibrary.org/obo/ENVO_00002009";
+            case "terrestrial": return "http://purl.obolibrary.org/obo/ENVO_00000446"; //"http://purl.obolibrary.org/obo/ENVO_00002009";
             case "freshwater":  return "http://purl.obolibrary.org/obo/ENVO_00002037";
             default:            return false;
         }
@@ -414,6 +476,7 @@ class IUCNRedlistDataConnector
             case "Lower Risk/conservation dependent (LR/cd)":   return "http://eol.org/schema/terms/conservationDependent";
             default: $this->debug["category undefined"][$cat] = 1;
         }
+        exit("\nUn-mapped value [$cat]\n");
         return false;
     }
     private function get_details($taxon)
@@ -421,9 +484,11 @@ class IUCNRedlistDataConnector
         $rec = array();
         foreach($taxon->dataObjects as $o) {
             if($o->title == "IUCNConservationStatus")       $rec["RedListCategory"] = $o->description;
+            /* obsolete
             elseif($o->title == "IUCN Red List Assessment") $rec["texts"]           = self::parse_assessment_info($o->description);
             elseif($o->title == "Habitat and Ecology")      $rec["habitats"]        = self::parse_habitat_info($o->description);
-            elseif($o->title == "Population")               $rec["pop_trend"]       = self::parse_population_trend($o->description);
+            elseif($o->title == "Population")               $rec["pop_trend"]       = $o->description; //self::parse_population_trend($o->description);
+            */
         }
         $this->debug[@$rec["RedListCategory"]] = 1;
         return $rec;

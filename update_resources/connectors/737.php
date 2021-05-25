@@ -27,10 +27,10 @@ To be harvestd quarterly: https://jira.eol.org/browse/WEB-5427
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-// /*
+/*
 $GLOBALS['ENV_DEBUG'] = false;
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
-// */
+*/
 require_library('connectors/IUCNRedlistDataConnector');
 $timestart = time_elapsed();
 $resource_id = 737;

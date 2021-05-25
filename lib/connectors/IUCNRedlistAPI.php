@@ -28,14 +28,17 @@ Github issue: https://github.com/EOL/eol_php_code/issues/155
 class IUCNRedlistAPI
 {
     // http://www.assembla.com/wiki/show/sis/Red_List_API
+    /* obsolete
     const API_PREFIX = "http://api.iucnredlist.org/details/";    // http://api.iucnredlist.org/details/22823/0
     const SPECIES_LIST_API = "http://api.iucnredlist.org/index/all.json";
-
+    */
     function __construct()
     {
+        /* obsolete
         $this->export_basename = "export-74550"; //previously "export-47427"
         // $this->species_list_export = "http://localhost/cp_new/IUCN/" . $this->export_basename . ".csv.zip";
         $this->species_list_export = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/IUCN/" . $this->export_basename . ".csv.zip";
+        */
         
         /* direct download from IUCN server does not work:
         $this->species_list_export = "http://www.iucnredlist.org/search/download/59026.csv"; -- this doesn't work
@@ -43,6 +46,25 @@ class IUCNRedlistAPI
         
         $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3); //expires in 3 months - orig value. NO sched yet in harvest frequency
         // $this->download_options['expire_seconds'] = false; //debug only
+        
+        /* new May 25, 2021
+        $token = "9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee";
+        $this->api['taxon_details'] = "https://apiv3.iucnredlist.org/api/v3/species/id/SPECIES_ID?token=$token";
+        $this->api['comnames'] = "https://apiv3.iucnredlist.org/api/v3/species/common_names/SPECIES_NAME?token=$token";
+        $this->api['citations'] = "https://apiv3.iucnredlist.org/api/v3/species/citation/id/SPECIES_ID?token=$token";
+        $this->api['narrative'] = "https://apiv3.iucnredlist.org/api/v3/species/narrative/id/SPECIES_ID?token=$token";
+        $this->code_value["DD"] = "Data Deficient";
+        $this->code_value["LC"] = "Least Concern";
+        $this->code_value["NT"] = "Near Threatened";
+        $this->code_value["VU"] = "Vulnerable";
+        $this->code_value["EN"] = "Endangered";
+        $this->code_value["CR"] = "Critically Endangered";
+        $this->code_value["EW"] = "Extinct in the Wild";
+        $this->code_value["EX"] = "Extinct";
+        $this->code_value["LR/lc"] = "Lower Risk/least concern";
+        $this->code_value["LR/nt"] = "Lower Risk/near threatened";
+        $this->code_value["LR/cd"] = "Lower Risk/conservation dependent";
+        */
     }
     public function get_taxon_xml($resource_file = null, $type = null)
     {
@@ -450,6 +472,216 @@ class IUCNRedlistAPI
         elseif(isset($GLOBALS['birdlife_names'][1][$taxon_name])) {
             return "http://www.birdlife.org/datazone/speciesfactsheet.php?id=" . $GLOBALS['birdlife_names'][1][$taxon_name];
         }
+    }
+    
+    /* as of May 24, 2021 - using all API V3 */
+    public function get_taxa_for_species_V2($species_id)
+    {
+        $download_options = $this->download_options;
+        $url = str_ireplace("SPECIES_ID", $species_id, $this->api['taxon_details']);
+        echo "\n taxon_details API call: $url\n";
+        $json = Functions::lookup_with_cache($url, $download_options);
+        if(!$json) return array();
+        
+        $arr = json_decode($json, true); //https://apiv3.iucnredlist.org/api/v3/species/id/181008073?token=9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee
+        $rec = $arr['result'][0]; print_r($rec); //exit;
+        /*Array(
+            [name] => 3
+            [result] => Array(
+                    [0] => Array(
+                            [taxonid] => 3
+                            [scientific_name] => Aaadonta angaurana
+                            [kingdom] => ANIMALIA
+                            [phylum] => MOLLUSCA
+                            [class] => GASTROPODA
+                            [order] => STYLOMMATOPHORA
+                            [family] => ENDODONTIDAE
+                            [genus] => Aaadonta
+                            [main_common_name] => 
+                            [authority] => Solem, 1976
+                            [published_year] => 2012
+                            [assessment_date] => 2011-08-22
+                            [category] => CR
+                            [criteria] => B1ab(iii)+2ab(iii)
+                            [population_trend] => Unknown
+                            [marine_system] => 
+                            [freshwater_system] => 
+                            [terrestrial_system] => 1
+                            [assessor] => Rundell, R.J.
+                            [reviewer] => Barker, G., Cowie, R., Triantis, K., García, N. & Seddon, M.
+                            [aoo_km2] => 0-8
+                            [eoo_km2] => 0-8
+                            [elevation_upper] => 200
+                            [elevation_lower] => 1
+                            [depth_upper] => 
+                            [depth_lower] => 
+                            [errata_flag] => 
+                            [errata_reason] => 
+                            [amended_flag] => 
+                            [amended_reason] => 
+                        )
+                )
+        )*/
+        if($rec['contributor']) exit("\nmay contributor. investigate pls.\n");
+        if($rec['contributors']) exit("\nmay contributors. investigate pls.\n");
+        $redlist_category_code = $rec['category'];
+        $scientific_name = $rec['scientific_name'];
+        $source = "http://apiv3.iucnredlist.org/api/v3/website/".str_replace(' ', '%20', $scientific_name); //e.g. http://apiv3.iucnredlist.org/api/v3/website/Panthera%20leo
+        $source = "http://apiv3.iucnredlist.org/api/v3/taxonredirect/".$species_id; //seems better than above
+        $taxon_parameters = array();
+        $taxon_parameters['identifier'] = $species_id;
+        $taxon_parameters['kingdom'] = ucfirst(strtolower($rec['kingdom']));
+        $taxon_parameters['phylum'] = ucfirst(strtolower($rec['phylum']));
+        $taxon_parameters['class'] = ucfirst(strtolower($rec['class']));
+        $taxon_parameters['order'] = ucfirst(strtolower($rec['order']));
+        $taxon_parameters['family'] = ucfirst(strtolower($rec['family']));
+        $taxon_parameters['source'] = $source;
+        $species_authority = $rec['authority'];
+        $taxon_parameters['scientificName'] = htmlspecialchars_decode(trim($scientific_name ." ". $species_authority));
+        
+        $taxon_parameters['commonNames'] = array();
+        $url = str_ireplace("SPECIES_NAME", urlencode($scientific_name), $this->api['comnames']);
+        echo "\n comnames API call: $url\n";
+        $json = Functions::lookup_with_cache($url, $download_options);
+        $arr = json_decode($json, true);
+        if($comnames = $arr['result']) {
+            print_r($comnames); exit;
+        }
+        
+        /*
+        foreach($common_name_languages as $language_list) {
+            foreach($language_names as $language_name) {
+                $common_name = @ucfirst(strtolower(trim($language_name->nodeValue)));
+                $common_name = utf8_encode($common_name);
+                $common_name = utf8_decode($common_name);
+                if(Functions::is_utf8($common_name)) $taxon_parameters['commonNames'][] = new \SchemaCommonName(array('name' => $common_name, 'language' => $language));
+            }
+        }
+        */
+        
+        /*
+        $taxon_parameters['synonyms'] = array();
+        $synonyms = $xpath->query("//ul[@id='synonyms']//li[@class='synonym']");
+        foreach($synonyms as $synonym_node) {
+            $synonym = trim($synonym_node->nodeValue);
+            $taxon_parameters['synonyms'][] = new \SchemaSynonym(array('synonym' => $synonym, 'relationship' => 'synonym'));
+        }
+        */
+        
+        $url = str_ireplace("SPECIES_ID", $species_id, $this->api['citations']);
+        echo "\n citations API call: $url\n";
+        $json = Functions::lookup_with_cache($url, $download_options);
+        $arr = json_decode($json, true); // print_r($arr); exit;
+        $citations = $arr['result'];
+        foreach($citations as $c) {
+            $reference_parameters = array();
+            $reference_parameters['fullReference'] = $c['citation'];
+            $citation = $c['citation'];
+            $taxon_parameters['references'][] = new \SchemaReference($reference_parameters);
+        }
+        
+        // /*
+        $agents = self::get_agents_and_citation_V2($rec['assessor'], $rec['reviewer'], $citation);
+        // */
+        echo "\n[$citation]\n";
+        print_r($agents); //exit;
+
+        $url = str_ireplace("SPECIES_ID", $species_id, $this->api['narrative']);
+        echo "\n narrative API call: $url\n";
+        $json = Functions::lookup_with_cache($url, $download_options);
+        $arr = json_decode($json, true); //print_r($arr); exit;
+        $texts = $arr['result'][0]; //print_r($texts); exit;
+        
+        $taxon_parameters['dataObjects'] = array();
+        
+        $section = self::get_redlist_status_V2($species_id, $redlist_category_code, $source);
+        // print_r($section); exit;
+        if($section) $taxon_parameters['dataObjects'][] = $section;
+        
+        $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation', $agents, $citation, 'IUCN Red List Assessment', $texts['rationale']);
+        if($section) $taxon_parameters['dataObjects'][] = $section;
+        // print_r($section); exit;
+        
+        $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution', $agents, $citation, 'Range Description', $texts['geographicrange']);
+        if($section) $taxon_parameters['dataObjects'][] = $section;
+        
+        $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Trends', $agents, $citation, 'Population', $texts['population']);
+        if($section) $taxon_parameters['dataObjects'][] = $section;
+        
+        $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat', $agents, $citation, 'Habitat and Ecology', $texts['habitat']);
+        if($section) $taxon_parameters['dataObjects'][] = $section;
+        
+        $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Threats', $agents, $citation, 'Threats', $texts['threats']);
+        if($section) $taxon_parameters['dataObjects'][] = $section;
+        
+        $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Management', $agents, $citation, 'Conservation Actions', $texts['conservationmeasures']);
+        if($section) $taxon_parameters['dataObjects'][] = $section;
+        
+        $taxon = new \SchemaTaxon($taxon_parameters);
+        // echo $taxon->__toXML();
+        // return $taxon;
+        return array($taxon, $rec);
+    }
+    function get_agents_and_citation_V2($assessor, $reviewer, $citation)
+    {
+        $agents = array();
+        if(preg_match("/^(.*?) [0-9]{4}\. +<i>/", $citation, $arr)) {
+            $all_authors = $arr[1];
+            $agents[] = new \SchemaAgent(array('fullName' => $all_authors, 'role' => 'author'));
+        }
+        
+        // $element = $xpath->query("//div[@id='assessors']");
+        $assessors = trim($assessor);
+        $agents[] = new \SchemaAgent(array('fullName' => $assessors, 'role' => 'compiler'));
+        
+        return $agents;
+    }
+    function get_redlist_status_V2($species_id, $redlist_category_code, $source)
+    {
+        if($redlist_category = $this->code_value[$redlist_category_code]) {}
+        else exit("\n No code yet: [$redlist_category_code]\n");
+        $section_text = $redlist_category;
+        if($redlist_category_code) $section_text .= " ($redlist_category_code)";
+        $identifier = $species_id ."/red_list_category";
+        $object_parameters = array();
+        $object_parameters['identifier'] = $identifier;
+        $object_parameters['description'] = $section_text;
+        $object_parameters['dataType'] = "http://purl.org/dc/dcmitype/Text";
+        $object_parameters['mimeType'] = "text/html";
+        $object_parameters['language'] = "en";
+        $object_parameters['title'] = "IUCNConservationStatus";
+        $object_parameters['license'] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        $object_parameters['rights'] = "© International Union for Conservation of Nature and Natural Resources";
+        $object_parameters['rightsHolder'] = "International Union for Conservation of Nature and Natural Resources";
+        $object_parameters['source'] = $source;
+        $object_parameters['subjects'] = array(new \SchemaSubject(array('label' => 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus')));
+        return new \SchemaDataObject($object_parameters);
+    }
+    function get_text_section_V2($species_id, $subject, $agents, $citation, $title, $text)
+    {
+        $section_title = $title;
+        $section_html = $text;
+        if($section_html) {
+            $identifier = $species_id ."/". str_replace(" ", "_", $title);
+            $object_parameters = array();
+            $object_parameters['identifier'] = $identifier;
+            $object_parameters['title'] = $section_title;
+            $object_parameters['description'] = htmlspecialchars_decode($section_html);
+            $object_parameters['dataType'] = "http://purl.org/dc/dcmitype/Text";
+            $object_parameters['mimeType'] = "text/html";
+            $object_parameters['language'] = "en";
+            $object_parameters['license'] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+            $object_parameters['rights'] = "© International Union for Conservation of Nature and Natural Resources";
+            $object_parameters['source'] = "http://www.iucnredlist.org/apps/redlist/details/" . $species_id;
+            $object_parameters['subjects'] = array(new \SchemaSubject(array('label' => $subject)));
+            $object_parameters['agents'] = $agents;
+            $object_parameters['bibliographicCitation'] = $citation;
+            
+            // echo "$div_id :: $title :: ".htmlspecialchars_decode($section_html)."\n\n";
+            
+            return new \SchemaDataObject($object_parameters);
+        }
+        return null;
     }
 }
 
