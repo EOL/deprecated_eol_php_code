@@ -587,7 +587,7 @@ class IUCNRedlistAPI
         // /*
         $agents = self::get_agents_and_citation_V2($rec['assessor'], $rec['reviewer'], $citation);
         // */
-        echo "\n[$citation]\n";
+        // echo "\n[$citation]\n";
         if($GLOBALS['ENV_DEBUG']) print_r($agents); //exit;
 
         $url = str_ireplace("SPECIES_ID", $species_id, $this->api['narrative']);
