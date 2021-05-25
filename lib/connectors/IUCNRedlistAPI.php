@@ -479,6 +479,7 @@ class IUCNRedlistAPI
     function get_taxa_for_species_V2($species_id)
     {
         $download_options = $this->download_options;
+        $download_options['expire_seconds'] = false;
         $url = str_ireplace("SPECIES_ID", $species_id, $this->api['taxon_details']);
         // echo "\n taxon_details API call: $url\n";
         $json = Functions::lookup_with_cache($url, $download_options);
