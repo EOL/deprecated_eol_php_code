@@ -307,7 +307,10 @@ class NatlChecklistReplacementAPI
                 [0] => Royal Botanic Gardens, Kew - Economic Botany Collection Specimens
                 [1] => 1d31211e-350e-492a-a597-34d24bbc1769
             )*/
+            /* orig
             $final[] = $tmp[0] . " | " . $this->dataset_page.$tmp[1];
+            */
+            $final[] = $this->dataset_page.$tmp[1]; //only the URI for dataset will remain: DATA-1881
         }
         if($final) return implode(";", $final);
     }
