@@ -425,7 +425,7 @@ class IUCNRedlistDataConnector
         // $str = "Rundell, R.J.";
         //$str = "Barker, G., Cowie, R., Triantis, K., García, N. & Seddon, M.";
         $names = array();
-        echo "\n[$str]\n";
+        // echo "\n[$str]\n";
         $arr1 = explode("&", $str);
         $arr1 = array_map('trim', $arr1);
         foreach($arr1 as $a) {

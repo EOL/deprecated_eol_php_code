@@ -480,7 +480,7 @@ class IUCNRedlistAPI
     {
         $download_options = $this->download_options;
         $url = str_ireplace("SPECIES_ID", $species_id, $this->api['taxon_details']);
-        echo "\n taxon_details API call: $url\n";
+        // echo "\n taxon_details API call: $url\n";
         $json = Functions::lookup_with_cache($url, $download_options);
         if(!$json) return array();
         
@@ -543,7 +543,7 @@ class IUCNRedlistAPI
         
         $taxon_parameters['commonNames'] = array();
         $url = str_ireplace("SPECIES_NAME", urlencode($scientific_name), $this->api['comnames']);
-        echo "\n comnames API call: $url\n";
+        // echo "\n comnames API call: $url\n";
         $json = Functions::lookup_with_cache($url, $download_options);
         $arr = json_decode($json, true);
         if($comnames = $arr['result']) {
@@ -573,7 +573,7 @@ class IUCNRedlistAPI
         */
         
         $url = str_ireplace("SPECIES_ID", $species_id, $this->api['citations']);
-        echo "\n citations API call: $url\n";
+        // echo "\n citations API call: $url\n";
         $json = Functions::lookup_with_cache($url, $download_options);
         $arr = json_decode($json, true); // print_r($arr); exit;
         $citations = $arr['result'];
@@ -591,7 +591,7 @@ class IUCNRedlistAPI
         if($GLOBALS['ENV_DEBUG']) print_r($agents); //exit;
 
         $url = str_ireplace("SPECIES_ID", $species_id, $this->api['narrative']);
-        echo "\n narrative API call: $url\n";
+        // echo "\n narrative API call: $url\n";
         $json = Functions::lookup_with_cache($url, $download_options);
         $arr = json_decode($json, true); //print_r($arr); exit;
         $texts = $arr['result'][0]; //print_r($texts); exit;
