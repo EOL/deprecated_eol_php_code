@@ -76,6 +76,7 @@ class IUCNRedlistAPI
     private function get_all_taxa_v2($resource_file = null) // this is using the IUCN CSV export
     {
         $names_no_entry_from_partner = self::get_names_no_entry_from_partner();
+        $names_no_entry_from_partner = array();
         
         $basename = $this->export_basename;
         $download_options = $this->download_options;
@@ -475,7 +476,7 @@ class IUCNRedlistAPI
     }
     
     /* as of May 24, 2021 - using all API V3 */
-    public function get_taxa_for_species_V2($species_id)
+    function get_taxa_for_species_V2($species_id)
     {
         $download_options = $this->download_options;
         $url = str_ireplace("SPECIES_ID", $species_id, $this->api['taxon_details']);

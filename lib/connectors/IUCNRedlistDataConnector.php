@@ -40,12 +40,12 @@ class IUCNRedlistDataConnector
                                   "LR/cd" => "Lower Risk/conservation dependent (LR/cd)");
         $this->iucn_taxon_page = "http://www.iucnredlist.org/apps/redlist/details/";
 
-        /*
+        // /*
         // stats only. Also use to generate names_no_entry_from_partner.txt, which happens maybe twice a year.
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
         $WRITE = Functions::file_open($this->names_no_entry_from_partner_dump_file, "w"); fclose($WRITE); //initialize
-        */
+        // */
         
         /* Below here is used to replace the CSV export file. Using API now
         https://eol-jira.bibalex.org/browse/DATA-1813
@@ -313,9 +313,9 @@ class IUCNRedlistDataConnector
         
         // /* habitats
         $habitats = array();
-        if($species_info['marine_system'] == 1) $habitats[] = 'marine';
-        if($species_info['freshwater_system'] == 1) $habitats[] = 'freshwater';
-        if($species_info['terrestrial_system'] == 1) $habitats[] = 'terrestrial';
+        if(in_array($species_info['marine_system'], array('true', 1, '1'))) $habitats[] = 'marine';
+        if(in_array($species_info['freshwater_system'], array('true', 1, '1'))) $habitats[] = 'freshwater';
+        if(in_array($species_info['terrestrial_system'], array('true', 1, '1'))) $habitats[] = 'terrestrial';
         $details['habitats'] = $habitats;
         // */
         
