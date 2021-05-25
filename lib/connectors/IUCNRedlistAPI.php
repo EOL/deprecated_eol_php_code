@@ -485,7 +485,8 @@ class IUCNRedlistAPI
         if(!$json) return array();
         
         $arr = json_decode($json, true); //https://apiv3.iucnredlist.org/api/v3/species/id/181008073?token=9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee
-        $rec = $arr['result'][0]; print_r($rec); //exit;
+        $rec = $arr['result'][0]; 
+        if($GLOBALS['ENV_DEBUG']) print_r($rec); //exit;
         /*Array(
             [name] => 3
             [result] => Array(
@@ -523,8 +524,8 @@ class IUCNRedlistAPI
                         )
                 )
         )*/
-        if($rec['contributor']) exit("\nmay contributor. investigate pls.\n");
-        if($rec['contributors']) exit("\nmay contributors. investigate pls.\n");
+        if(@$rec['contributor']) exit("\nmay contributor. investigate pls.\n");
+        if(@$rec['contributors']) exit("\nmay contributors. investigate pls.\n");
         $redlist_category_code = $rec['category'];
         $scientific_name = $rec['scientific_name'];
         $source = "http://apiv3.iucnredlist.org/api/v3/website/".str_replace(' ', '%20', $scientific_name); //e.g. http://apiv3.iucnredlist.org/api/v3/website/Panthera%20leo
@@ -546,7 +547,9 @@ class IUCNRedlistAPI
         $json = Functions::lookup_with_cache($url, $download_options);
         $arr = json_decode($json, true);
         if($comnames = $arr['result']) {
-            print_r($comnames); exit;
+            if($GLOBALS['ENV_DEBUG']) {
+                print_r($comnames); exit('\nmay comnames\n');
+            }
         }
         
         /*
@@ -585,7 +588,7 @@ class IUCNRedlistAPI
         $agents = self::get_agents_and_citation_V2($rec['assessor'], $rec['reviewer'], $citation);
         // */
         echo "\n[$citation]\n";
-        print_r($agents); //exit;
+        if($GLOBALS['ENV_DEBUG']) print_r($agents); //exit;
 
         $url = str_ireplace("SPECIES_ID", $species_id, $this->api['narrative']);
         echo "\n narrative API call: $url\n";
