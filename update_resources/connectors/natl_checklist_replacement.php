@@ -16,10 +16,20 @@ Mozambique
 https://www.gbif.org/occurrence/search?country=MZ
 https://www.geonames.org/1036973
 
-
 c_BH	Wednesday 2019-10-23 09:13:04 PM	{"measurement_or_fact_specific.tab":2274, "occurrence_specific.tab":1137, "taxon.tab":1137,"time_elapsed":{"sec":151.29,"min":2.52,"hr":0.04}}
 c_BH	Thursday 2019-10-24 04:24:57 AM	    {"measurement_or_fact_specific.tab":2274, "occurrence_specific.tab":1137, "reference.tab":87, "taxon.tab":1137,"time_elapsed":{"sec":15.91,"min":0.27,"hr":0}}
 c_BH	Tue 2021-05-25 10:42:59 AM	        {"measurement_or_fact_specific.tab":2274, "occurrence_specific.tab":1137, "reference.tab":87, "taxon.tab":1137, "time_elapsed":{"sec":15.67, "min":0.26, "hr":0}}
+
+c_AI	Wednesday 2019-10-23 09:14:03 PM	{"measurement_or_fact_specific.tab":3744,"occurrence_specific.tab":1872,"taxon.tab":1872,"time_elapsed":{"sec":134.29,"min":2.24,"hr":0.04}}
+c_AI	Thursday 2019-10-24 04:25:14 AM	    {"measurement_or_fact_specific.tab":3744,"occurrence_specific.tab":1872,"reference.tab":102,"taxon.tab":1872,"time_elapsed":{"sec":35.02,"min":0.58,"hr":0.01}}
+c_AI	Tue 2021-05-25 10:55:37 AM	        {"measurement_or_fact_specific.tab":3744, "occurrence_specific.tab":1872, "reference.tab":102, "taxon.tab":1872, "time_elapsed":{"sec":37.3, "min":0.62, "hr":0.01}}
+
+c_AW	Wednesday 2019-10-23 09:15:39 PM	{"measurement_or_fact_specific.tab":4458,"occurrence_specific.tab":2229,"taxon.tab":2229,"time_elapsed":{"sec":178.03,"min":2.97,"hr":0.05}}
+c_AW	Thursday 2019-10-24 04:26:29 AM	    {"measurement_or_fact_specific.tab":4458,"occurrence_specific.tab":2229,"reference.tab":110,"taxon.tab":2229,"time_elapsed":{"sec":112.79,"min":1.88,"hr":0.03}}
+c_AW	Tue 2021-05-25 10:56:48 AM	        {"measurement_or_fact_specific.tab":4458, "occurrence_specific.tab":2229, "reference.tab":110, "taxon.tab":2229, "time_elapsed":{"sec":113.91, "min":1.9, "hr":0.03}}
+
+c_MZ	Wed 2020-09-09 01:48:15 PM	{"measurement_or_fact_specific.tab":47760, "occurrence_specific.tab":23880, "reference.tab":587, "taxon.tab":23880, "time_elapsed":{"sec":1367.41, "min":22.79, "hr":0.38}}
+c_MZ	Tue 2021-05-25 11:06:58 AM	{"measurement_or_fact_specific.tab":47760, "occurrence_specific.tab":23880, "reference.tab":587, "taxon.tab":23880, "time_elapsed":{"sec":707.81, "min":11.8, "hr":0.2}}
 */
 
 /* Original resources based on Anne's query use "SC_" and when replaced by the GBIF occurrence the convention is now "c_".

@@ -260,7 +260,12 @@ class NatlChecklistReplacementAPI
         // $save['occur']['occurrenceRemarks'] = @$rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks']; copied template
         $save['bibliographicCitation'] = $this->c_citation[$this->resource_id];
         $save['source'] = $this->c_source[$this->resource_id];
+        
+        /* will be saved as child in MoF, see below. Not a column in MoF
         $save['contributor'] = self::format_contributor($this->info['dataset_names'][$taxon_id]);
+        */
+        $contributors = self::format_contributor($this->info['dataset_names'][$taxon_id]);
+        
         $save['referenceID'] = self::format_referenceID($this->info['references'][$taxon_id]);
         if($mValue && $mType) $ret = $this->func->add_string_types($save, $mValue, $mType, "true");
         
@@ -272,6 +277,17 @@ class NatlChecklistReplacementAPI
         $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
         $save['parentMeasurementID'] = $ret['measurementID'];
         if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "child");
+        
+        //for child http://purl.org/dc/terms/contributor
+        $save = array();
+        $mType = 'http://purl.org/dc/terms/contributor';
+        $arr = explode(";", $contributors);
+        foreach($arr as $mValue) {
+            $save['taxon_id'] = $taxon_id;
+            $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+            $save['parentMeasurementID'] = $ret['measurementID'];
+            if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "child");
+        }
     }
     private function format_referenceID($arr)
     {   $reference_ids = array();
