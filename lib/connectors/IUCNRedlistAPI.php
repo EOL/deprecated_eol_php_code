@@ -554,7 +554,7 @@ class IUCNRedlistAPI
         }
         */
         
-        /*
+        /* from copied template
         foreach($common_name_languages as $language_list) {
             foreach($language_names as $language_name) {
                 $common_name = @ucfirst(strtolower(trim($language_name->nodeValue)));
@@ -565,7 +565,7 @@ class IUCNRedlistAPI
         }
         */
         
-        /*
+        /* from copied template
         $taxon_parameters['synonyms'] = array();
         $synonyms = $xpath->query("//ul[@id='synonyms']//li[@class='synonym']");
         foreach($synonyms as $synonym_node) {
@@ -574,8 +574,8 @@ class IUCNRedlistAPI
         }
         */
         
-        $url = str_ireplace("SPECIES_ID", $species_id, $this->api['citations']);
-        // echo "\n citations API call: $url\n";
+        /* working OK but not needed ATM.
+        $url = str_ireplace("SPECIES_ID", $species_id, $this->api['citations']); // echo "\n citations API call: $url\n";
         $json = Functions::lookup_with_cache($url, $download_options);
         $arr = json_decode($json, true); // print_r($arr); exit;
         $citations = $arr['result'];
@@ -585,28 +585,26 @@ class IUCNRedlistAPI
             $citation = $c['citation'];
             $taxon_parameters['references'][] = new \SchemaReference($reference_parameters);
         }
+        */
         
-        // /*
+        /* working OK but not needed ATM.
         $agents = self::get_agents_and_citation_V2($rec['assessor'], $rec['reviewer'], $citation);
-        // */
-        // echo "\n[$citation]\n";
         if($GLOBALS['ENV_DEBUG']) print_r($agents); //exit;
+        */
 
-        $url = str_ireplace("SPECIES_ID", $species_id, $this->api['narrative']);
-        // echo "\n narrative API call: $url\n";
+        $taxon_parameters['dataObjects'] = array();
+
+        $section = self::get_redlist_status_V2($species_id, $redlist_category_code, $source);
+        if($section) $taxon_parameters['dataObjects'][] = $section;
+
+        /* working OK but not needed ATM.
+        $url = str_ireplace("SPECIES_ID", $species_id, $this->api['narrative']); // echo "\n narrative API call: $url\n";
         $json = Functions::lookup_with_cache($url, $download_options);
         $arr = json_decode($json, true); //print_r($arr); exit;
         $texts = $arr['result'][0]; //print_r($texts); exit;
         
-        $taxon_parameters['dataObjects'] = array();
-        
-        $section = self::get_redlist_status_V2($species_id, $redlist_category_code, $source);
-        // print_r($section); exit;
-        if($section) $taxon_parameters['dataObjects'][] = $section;
-        
         $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation', $agents, $citation, 'IUCN Red List Assessment', $texts['rationale']);
         if($section) $taxon_parameters['dataObjects'][] = $section;
-        // print_r($section); exit;
         
         $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution', $agents, $citation, 'Range Description', $texts['geographicrange']);
         if($section) $taxon_parameters['dataObjects'][] = $section;
@@ -622,10 +620,10 @@ class IUCNRedlistAPI
         
         $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Management', $agents, $citation, 'Conservation Actions', $texts['conservationmeasures']);
         if($section) $taxon_parameters['dataObjects'][] = $section;
+        */
         
         $taxon = new \SchemaTaxon($taxon_parameters);
         // echo $taxon->__toXML();
-        // return $taxon;
         return array($taxon, $rec);
     }
     function get_agents_and_citation_V2($assessor, $reviewer, $citation)
