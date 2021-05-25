@@ -542,6 +542,7 @@ class IUCNRedlistAPI
         $taxon_parameters['scientificName'] = htmlspecialchars_decode(trim($scientific_name ." ". $species_authority));
         
         $taxon_parameters['commonNames'] = array();
+        /* working but not needed so far - until I get my own token.
         $url = str_ireplace("SPECIES_NAME", urlencode($scientific_name), $this->api['comnames']);
         // echo "\n comnames API call: $url\n";
         $json = Functions::lookup_with_cache($url, $download_options);
@@ -551,6 +552,7 @@ class IUCNRedlistAPI
                 print_r($comnames); exit('\nmay comnames\n');
             }
         }
+        */
         
         /*
         foreach($common_name_languages as $language_list) {
