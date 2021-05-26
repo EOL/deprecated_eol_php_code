@@ -68,11 +68,11 @@ class Environments2EOLfinal extends ContributorsMapAPI
     {   echo "\nresource_id is [$this->resource_id]\n";
         if(in_array($this->resource_id, array('21_ENV'))) {
             $this->contributor_mappings = $this->get_contributor_mappings($this->resource_id);
-            print_r($this->contributor_mappings);
+            // print_r($this->contributor_mappings);
             echo "\n contributor_mappings: ".count($this->contributor_mappings)."\n";
-            exit("oks [$this->resource_id]");
+            // exit("oks [$this->resource_id]");
         }
-        exit("\nhindi ok [$this->resource_id]\n");
+        // exit("\nhindi ok [$this->resource_id]\n");
         require_library('connectors/TraitGeneric'); 
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         /* START DATA-1841 terms remapping -> not needed here
