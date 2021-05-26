@@ -13,7 +13,7 @@ class ContributorsMapAPI
     function get_contributor_mappings($resource_id = false)
     {
         if(!$resource_id) $resource_id = $this->resource_id;
-        if($url = $this->mappings_url[$resource_id]) {}
+        if($url = self::mappings_url[$resource_id]) {}
         else exit("\nUndefined contributor mapping [$resource_id]\n");
         $local = Functions::save_remote_file_to_local($url, $this->download_options);
         $i = 0;
