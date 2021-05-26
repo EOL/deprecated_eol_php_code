@@ -7,13 +7,17 @@ class ContributorsMapAPI
     {
         $this->resource_id = $resource_id;
         $this->download_options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 60*60*1);
+    }
+    private function initialize()
+    {
         $this->mappings_url['21_ENV'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/contributor_map/AmphibiaWeb-tab.tsv';
         $this->mappings_url['Polytraits'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/contributor_map/Polytraits_contributors.txt';
     }
     function get_contributor_mappings($resource_id = false)
     {
+        self::initialize();
         if(!$resource_id) $resource_id = $this->resource_id;
-        if($url = self::mappings_url[$resource_id]) {}
+        if($url = $this->mappings_url[$resource_id]) {}
         else exit("\nUndefined contributor mapping [$resource_id]\n");
         $local = Functions::save_remote_file_to_local($url, $this->download_options);
         $i = 0;
