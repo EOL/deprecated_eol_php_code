@@ -210,16 +210,70 @@ class Environments2EOLfinal
                     }
                 }
                 if($val = @$rek['bibliographicCitation']) $rec['bibliographicCitation'] = $val;
-                if($val = @$rek['contributor']) $rec['contributor'] = $val;
                 if($val = @$rek['referenceID']) $rec['referenceID'] = $val;
+                // /* old
+                if($val = @$rek['contributor']) $rec['contributor'] = $val;
                 if($val = @$rek['agentID'])     $rec['contributor'] = self::format_contributor_using_agentIDs($val);
-
+                // */
+                // /* new
+                $contributor_names = "";
+                if($val = @$rek['contributor']) $contributor_names = $val;
+                if($val = @$rek['agentID']) {
+                    if($contributor_names) $contributor_names .= "; ".self::get_names_from_agentIDs($val);
+                    else                   $contributor_names = self::get_names_from_agentIDs($val);
+                }
+                // */
+                
                 // /* from legacy filters: EnvironmentsEOLDataConnector.php
                 $rec['measurementValue'] = $string_uri;
-                if($rec = $old_func->adjustments($rec)) $this->func->add_string_types($rec, $rec['measurementValue'], $rec['measurementType'], "true");
+                if($rec = $old_func->adjustments($rec)) {
+                    $ret = $this->func->add_string_types($rec, $rec['measurementValue'], $rec['measurementType'], "true");
+                    $parentID = $ret['measurementID'];
+                    
+                    // /* start adding child records - contributor
+                    if($contributor_names) {
+                        $rex = array();
+                        $rex['parentMeasurementID'] = $parentID;
+                        $arr = explode(";", $contributor_names);
+                        $arr = array_map('trim', $arr);
+                        foreach($arr as $contributor) {
+                            $this->func->add_string_types($rex, $contributor, 'http://purl.org/dc/terms/contributor', "child");
+                        }
+                    }
+                    // */
+                    
+                }
                 // */
             }
         }
+    }
+    private function get_names_from_agentIDs($agendIDs) //assumed agendIDs are semi-colon separated values
+    {
+        $final = array();
+        $ids = explode(";", trim($agendIDs));
+        $ids = array_map('trim', $ids);
+        foreach($ids as $id) {
+            $arr = self::retrieve_json('agent_'.$id);
+            if(!@$arr) continue;
+            $arr = array_map('trim', $arr);
+            if(!@$arr['term_name']) continue;
+            /* Array(
+                [identifier] => e4caf6a093328770804c83ba12c4e52c
+                [term_name] => Albertina P. Lima
+                [agentRole] => author
+                [term_homepage] => http://eol.org
+            )*/
+            // print_r($arr); exit("\neli 100\n");
+            unset($arr['identifier']);
+            if($val = $arr['term_name']) {
+                $final[$val] = '';
+            }
+            /* copied template
+            if($val = @$arr['agentRole']) $final .= " ($val).";
+            */
+        }
+        $final = array_keys($final);
+        return implode(";", $final);
     }
     private function format_contributor_using_agentIDs($agendIDs) //assumed agendIDs are semi-colon separated values
     {

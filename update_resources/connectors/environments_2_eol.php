@@ -191,6 +191,9 @@ with the new "terms_to_remove" list (Unlike AntWeb, AmphibiaWeb is not affected.
 removed 'sea' - expected decrease in MoF
 21	Mon 2021-03-08 01:21:31 AM	    {"agent.tab":834,                 "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":14.44, "min":0.24, "hr":0}}
 21_ENV	Mon 2021-03-08 01:22:27 AM	{"agent.tab":834, "MoF.tab":2094, "media_resource.tab":8454, "occurrence.tab":2094, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":55.83, "min":0.93, "hr":0.02}}
+separated agents - names by ";" "and" "," etc.
+21	Wed 2021-05-26 12:24:44 AM	    {"agent.tab":782,                 "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":11.78, "min":0.2, "hr":0}}
+21_ENV	Wed 2021-05-26 12:31:38 AM	{"agent.tab":782, "MoF.tab":2094, "media_resource.tab":8454, "occurrence.tab":2094, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":33.85, "min":0.56, "hr":0.01}}
 ===================================================================================================================== WoRMS
 HOW TO RUN:
 php5.6 26.php jenkins

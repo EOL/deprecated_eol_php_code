@@ -145,6 +145,7 @@ function start($resource_id)
                     $arr = array_map('trim', $arr);
                     foreach($arr as $name) {
                         if(strlen($name) <= 2) continue;
+                        if(substr($name,0,8) == 'revised ') continue;
                         $agentParameters = array();
                         $agentParameters["role"] = "author";
                         $agentParameters["fullName"] = $name;
