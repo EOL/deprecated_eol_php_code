@@ -233,6 +233,8 @@ class Environments2EOLfinal
                     // /* start adding child records - contributor
                     if($contributor_names) {
                         $rex = array();
+                        $rex["taxon_id"] = $rec["taxon_id"];
+                        $rex["catnum"] = $rec["catnum"];
                         $rex['parentMeasurementID'] = $parentID;
                         $arr = explode(";", $contributor_names);
                         $arr = array_map('trim', $arr);
