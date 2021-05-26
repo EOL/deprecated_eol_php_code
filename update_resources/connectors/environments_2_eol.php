@@ -194,6 +194,9 @@ removed 'sea' - expected decrease in MoF
 separated agents - names by ";" "and" "," etc.
 21	Wed 2021-05-26 12:24:44 AM	    {"agent.tab":782,                 "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":11.78, "min":0.2, "hr":0}}
 21_ENV	Wed 2021-05-26 12:31:38 AM	{"agent.tab":782, "MoF.tab":2094, "media_resource.tab":8454, "occurrence.tab":2094, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":33.85, "min":0.56, "hr":0.01}}
+more adjustments:
+21	Wed 2021-05-26 05:54:13 AM	    {"agent.tab":777,                 "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":11.43, "min":0.19, "hr":0}}
+21_ENV	Wed 2021-05-26 05:54:40 AM	{"agent.tab":777, "MoF.tab":5115, "media_resource.tab":8454, "occurrence.tab":2094, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":27.2, "min":0.45, "hr":0.01}}
 ===================================================================================================================== WoRMS
 HOW TO RUN:
 php5.6 26.php jenkins
