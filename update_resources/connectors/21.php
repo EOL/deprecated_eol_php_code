@@ -14,6 +14,15 @@ environments_2_eol.php  -> generates 21_ENV.tar.gz  (CURRENT OK - Pensoft Annota
 
 $timestart = microtime(1);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+
+/* test only
+require_library('connectors/ContributorsMapAPI');
+$func = new ContributorsMapAPI('21_ENV');
+$map = $func->get_contributor_mappings();
+print_r($map);
+exit("\n-end-\n");
+*/
+
 $resource_id = 21;
 start($resource_id); // this generates the 21.xml in CONTENT_RESOURCE_LOCAL_PATH
 

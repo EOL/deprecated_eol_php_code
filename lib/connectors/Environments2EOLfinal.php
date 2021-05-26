@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector: [called from DwCA_Utility.php, which is called from Environments2EOLAPI.php; from environments_2_eol.php for DATA-1851] */
-class Environments2EOLfinal
+class Environments2EOLfinal extends ContributorsMapAPI
 {
     function __construct($archive_builder, $resource_id)
     {
@@ -65,7 +65,14 @@ class Environments2EOLfinal
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
-    {   
+    {   echo "\nresource_id is [$this->resource_id]\n";
+        if(in_array($this->resource_id, array('21_ENV'))) {
+            $this->contributor_mappings = $this->get_contributor_mappings($this->resource_id);
+            print_r($this->contributor_mappings);
+            echo "\n contributor_mappings: ".count($this->contributor_mappings)."\n";
+            exit("oks [$this->resource_id]");
+        }
+        exit("\nhindi ok [$this->resource_id]\n");
         require_library('connectors/TraitGeneric'); 
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         /* START DATA-1841 terms remapping -> not needed here
@@ -239,7 +246,12 @@ class Environments2EOLfinal
                         $arr = explode(";", $contributor_names);
                         $arr = array_map('trim', $arr);
                         foreach($arr as $contributor) {
-                            $this->func->add_string_types($rex, $contributor, 'http://purl.org/dc/terms/contributor', "child");
+                            if($uri = @$this->contributor_mappings[$contributor])
+                            else { //no mapping yet for this contributor
+                                $this->debug['undefined contributor'][$contributor] = '';
+                                $uri = $contributor;
+                            }
+                            $this->func->add_string_types($rex, $uri, 'http://purl.org/dc/terms/contributor', "child");
                         }
                     }
                     // */

@@ -297,6 +297,7 @@ class DwCA_Utility
         
         if(in_array($this->resource_id, array("21_ENV", "617_ENV", "26_ENV", "10088_5097_ENV", "10088_6943_ENV")) || $annotateYes) { //first 2 clients: Amphibiaweb, Wikipedia EN
             echo "\nGoes here really: [$this->resource_id]\n";
+            require_library('connectors/ContributorsMapAPI');
             require_library('connectors/Environments2EOLfinal');
             $func = new Environments2EOLfinal($this->archive_builder, $this->resource_id);
             $func->start($info);
