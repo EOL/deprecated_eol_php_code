@@ -2,6 +2,20 @@
 namespace php_active_record;
 /* connector: [737] http://eol.org/content_partners/10/resources/737 
 Also see connector [211], related IUCNRedlistAPI().
+
+As of May 26, 2010:
+    [Critically Endangered (CR)] => 1
+    [Endangered (EN)] => 1
+    [Data Deficient (DD)] => 1
+    [Extinct (EX)] => 1
+    [Lower Risk/near threatened (LR/nt)] => 1
+    [Vulnerable (VU)] => 1
+    [Near Threatened (NT)] => 1
+    [Least Concern (LC)] => 1
+    [Lower Risk/least concern (LR/lc)] => 1
+    [Lower Risk/conservation dependent (LR/cd)] => 1
+    [Extinct in the Wild (EW)] => 1
+
 */
 class IUCNRedlistDataConnector
 {
@@ -550,7 +564,10 @@ class IUCNRedlistDataConnector
         
         // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
-        $this->archive_builder->write_object_to_file($m);
+        if(!isset($this->measurementIDs[$m->measurementID])) {
+            $this->archive_builder->write_object_to_file($m);
+            $this->measurementIDs[$m->measurementID] = '';
+        }
         return $m->measurementID;
     }
     private function add_occurrence($taxon_id, $catnum, $locality)
