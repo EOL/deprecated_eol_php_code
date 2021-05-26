@@ -16,6 +16,7 @@ class ContributorsMapAPI
     {
         $this->mappings_url['21_ENV'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/contributor_map/AmphibiaWeb-tab.tsv';
         $this->mappings_url['Polytraits'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/contributor_map/Polytraits_contributors.txt';
+        $this->mappings_url['FishBsae'] = 'https://editors.eol.org/other_files/contributor_mappings/FishBase_contributors.tsv';
     }
     function get_contributor_mappings($resource_id = false)
     {
@@ -43,8 +44,7 @@ class ContributorsMapAPI
                 $final[$rec['Label']] = $rec['URI'];
             }
         }
-        unlink($local);
-        // print_r($final);
+        unlink($local); // print_r($final);
         return $final;
     }
     function get_collab_name_and_ID_from_FishBase()
@@ -52,18 +52,14 @@ class ContributorsMapAPI
         $options = $this->download_options;
         $options['expire_seconds'] = 60*60*24*30; //1 month
         $html = Functions::lookup_with_cache($this->FishBase_collaborators, $options);
-        // echo "\n$html\n";
         /* <a href="/collaborators/CollaboratorSummary.php?id=1713">Aarud, Thomas</a></td> */
-        
         if(Functions::is_production()) $path = "/extra/other_files/contributor_mappings/";
         else                           $path = "/Volumes/AKiTiO4/other_files/contributor_mappings/";
         if(!is_dir($path)) mkdir($path);
         $file = $path.'FishBase_contributors.tsv';
-        
         $handle = fopen($file, "w");
         fwrite($handle, implode("\t", array('Label','URI')) . "\n");
-        if(preg_match_all("/CollaboratorSummary.php\?id\=(.*?)<\/a>/ims", $html, $a)) {
-            // print_r($a[1]);
+        if(preg_match_all("/CollaboratorSummary.php\?id\=(.*?)<\/a>/ims", $html, $a)) { // print_r($a[1]);
             foreach($a[1] as $tmp) { //2290">Chae, Byung-Soo
                 $arr = explode('">', $tmp);
                 $id = $arr[0];
