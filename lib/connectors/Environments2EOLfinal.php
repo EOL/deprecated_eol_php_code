@@ -218,10 +218,10 @@ class Environments2EOLfinal extends ContributorsMapAPI
                 }
                 if($val = @$rek['bibliographicCitation']) $rec['bibliographicCitation'] = $val;
                 if($val = @$rek['referenceID']) $rec['referenceID'] = $val;
-                // /* old
+                /* old -- commented so no more 'contributor' column in MoF. Only the child record contributors will exist.
                 if($val = @$rek['contributor']) $rec['contributor'] = $val;
                 if($val = @$rek['agentID'])     $rec['contributor'] = self::format_contributor_using_agentIDs($val);
-                // */
+                */
                 // /* new
                 $contributor_names = "";
                 if($val = @$rek['contributor']) $contributor_names = $val;

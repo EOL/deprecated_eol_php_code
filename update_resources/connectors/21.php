@@ -129,6 +129,9 @@ function start($resource_id)
                 $submittedBy = trim(preg_replace('/\s*\([^)]*\)/', '', $submittedBy)); //remove parenthesis OK
                 $submittedBy = str_ireplace(", and ", ", ", $submittedBy);
                 $submittedBy = str_ireplace("; and ", "; ", $submittedBy);
+                $submittedBy = Functions::remove_whitespace(trim($submittedBy));
+                if(substr($submittedBy, -1) == ",") $submittedBy = trim(substr($submittedBy,0,strlen($submittedBy)-1));
+                // M.S.Khan, (updated by Michelle Koo)
                 $parts = preg_split("/(, | and | and | & )/",$submittedBy);
                 // */
                 while(list($key,$val)=each($parts)) {
