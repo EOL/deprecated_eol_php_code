@@ -644,7 +644,10 @@ class IUCNRedlistAPI
     function get_redlist_status_V2($species_id, $redlist_category_code, $source)
     {
         if($redlist_category = $this->code_value[$redlist_category_code]) {}
-        else exit("\n No code yet: [$redlist_category_code]\n");
+        else {
+            echo "\n No code yet: [$redlist_category_code]\n";
+            return false;
+        }
         $section_text = $redlist_category;
         if($redlist_category_code) $section_text .= " ($redlist_category_code)";
         $identifier = $species_id ."/red_list_category";
