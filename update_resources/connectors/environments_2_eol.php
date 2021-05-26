@@ -27,6 +27,8 @@ sshpass -f "/home/eagbayani/.pwd_file" scp EOL_FreshData_connectors.txt eagbayan
 Implementation: Jenkins - Pensoft: we can run 3 connectors in eol-archive simultaneously.
 
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
+php5.6                    environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
+
 -> generates 21_ENV.tar.gz
 --------------------------------------------------------------------------------------------------------------------
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'

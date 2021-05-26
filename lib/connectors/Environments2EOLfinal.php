@@ -161,7 +161,14 @@ class Environments2EOLfinal
             $taxonID = @$a[0];
             $identifier = @$a[1];
             $rek = self::retrieve_json($taxonID."_".$identifier);
-            print_r($rek); exit("\n-end 1-\n");
+            // print_r($rek); exit("\n-end 1-\n");
+            /* sample for 21_ENV
+            Array(
+                [source] => http://amphibiaweb.org/cgi/amphib_query?where-genus=Abavorana&where-species=nazgul&account=amphibiaweb
+                [referenceID] => d08a99802fc760abbbfc178a391f9336; 8d5b9dee4f523c6243387c962196b8e0; 4d496c9853b52d6d4ee443b4a6103cca
+                [agentID] => 40dafcb8c613187d62bc1033004b43b9
+            )
+            */
             /*Array( this saved in json in Pensoft2EOLAPI.php
                 [source] => http://dx.doi.org/10.5479/si.00810282.7
                 [bibliographicCitation] => Maddocks, Rosalie F. 1969. "Recent ostracodes of the family Pontocyprididae chiefly from the Indian Ocean." Smithsonian Contributions to Zoology. 1-56. https://doi.org/10.5479/si.00810282.7
