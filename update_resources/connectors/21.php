@@ -139,6 +139,7 @@ function start($resource_id)
                     $val = str_ireplace("additions by", "", $val);
                     $val = str_ireplace("Initial authorship by", "", $val);
                     $val = str_ireplace("updates by", "", $val);
+                    $val = str_ireplace("et al.", "", $val);
                     $val = Functions::remove_whitespace($val);
                     // */
                     $val = trim($val);
