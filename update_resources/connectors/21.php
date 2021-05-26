@@ -113,14 +113,44 @@ function start($resource_id)
             if(!$submittedBy) continue;
             $agents = array();
             if($submittedBy) {
+                /* old
                 $parts = preg_split("/(,| and )/",$submittedBy);
+                */
+                // /* new
+                $submittedBy = trim(preg_replace('/\s*\([^)]*\)/', '', $submittedBy)); //remove parenthesis OK
+                $submittedBy = str_ireplace(", and ", ", ", $submittedBy);
+                $submittedBy = str_ireplace("; and ", "; ", $submittedBy);
+                $parts = preg_split("/(, | and | and | & )/",$submittedBy);
+                // */
                 while(list($key,$val)=each($parts)) {
+                    // /* new
+                    $val = str_ireplace("modified by", "", $val);
+                    $val = str_ireplace("updated by", "", $val);
+                    $val = str_ireplace("updated ", "", $val);
+                    $val = str_ireplace("additions by", "", $val);
+                    $val = str_ireplace("Initial authorship by", "", $val);
+                    $val = str_ireplace("updates by", "", $val);
+                    $val = Functions::remove_whitespace($val);
+                    // */
                     $val = trim($val);
                     if(!$val) continue;
+                    /* orig
                     $agentParameters = array();
                     $agentParameters["role"] = "author";
                     $agentParameters["fullName"] = $val;
                     $agents[] = new \SchemaAgent($agentParameters);
+                    */
+                    // /* new
+                    $arr = explode(";", $val);
+                    $arr = array_map('trim', $arr);
+                    foreach($arr as $name) {
+                        if(strlen($name) <= 2) continue;
+                        $agentParameters = array();
+                        $agentParameters["role"] = "author";
+                        $agentParameters["fullName"] = $name;
+                        $agents[] = new \SchemaAgent($agentParameters);
+                    }
+                    // */
                 }
             }
             $nameString = trim($genus." ".$speciesName);
