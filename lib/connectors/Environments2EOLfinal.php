@@ -246,7 +246,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
                         $arr = explode(";", $contributor_names);
                         $arr = array_map('trim', $arr);
                         foreach($arr as $contributor) {
-                            if($uri = @$this->contributor_mappings[$contributor])
+                            if($uri = @$this->contributor_mappings[$contributor]) {}
                             else { //no mapping yet for this contributor
                                 $this->debug['undefined contributor'][$contributor] = '';
                                 $uri = $contributor;
