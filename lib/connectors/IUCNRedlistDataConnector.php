@@ -483,13 +483,14 @@ class IUCNRedlistDataConnector
             //$parts = preg_split("/(, | and | and | & )/",$name); //copied template, not used here.
             $parts = explode(" and ", $name);
             foreach($parts as $part) {
-                if($part == "Rasoloariniaina, R, Ravelomanana, T.") $part = "Rasoloariniaina, R and Ravelomanana, T.";
+                if($part == "Rasoloariniaina, R, Ravelomanana, T.") $part = "Rasoloariniaina, R. and Ravelomanana, T.";
+                if($part == "Duarte, J.M.B, Varela, D.") $part = "Duarte, J.M.B. and Varela, D.";
+                if($part == "Lowe, C.G, Marshall, A.") $part = "Lowe, C.G. and Marshall, A.";
+                if($part == "McCabe, G, Rovero, F.") $part = "McCabe, G. and Rovero, F.";
+
                 if($part == "Racey, P.A. (Chiroptera Red List Authority), Chanson, J.") $part = "Racey, P.A. (Chiroptera Red List Authority) and Chanson, J.";
                 if($part == "Skejo, J. Skejo, Szovenyi, G.") $part = "Skejo, J. and Szovenyi, G.";
-                if($part == "Duarte, J.M.B, Varela, D.") $part = "Duarte, J.M.B and Varela, D.";
                 if($part == "Snoeks, J. Staissny, M.") $part = "Snoeks, J. and Staissny, M.";
-                if($part == "Lowe, C.G, Marshall, A.") $part = "Lowe, C.G and Marshall, A.";
-                if($part == "McCabe, G, Rovero, F.") $part = "McCabe, G and Rovero, F.";
                 if($part == "Kadarusman, Unmack, P.") $part = "Kadarusman and Unmack, P.";
                 if($part == "Djikstra, K. D, Kipping, J.") $part = "Djikstra, K. D. and Kipping, J.";
                 if($part == "NatureServe, Daniels, A.") $part = "NatureServe and Daniels, A.";
@@ -743,6 +744,15 @@ class IUCNRedlistDataConnector
                 if($part == 'Edwards, C.T.T, Balfour, D.') $part = 'Edwards, C.T.T. and Balfour, D.';
                 if($part == 'Amaro, R, Martinelli, G.') $part = 'Amaro, R. and Martinelli, G.';
                 if($part == "WWF-Malaysia, Roberton, S.") $part = "WWF-Malaysia and Roberton, S.";
+
+                if($part == 'WS), Down, T.') $part = 'Down, T.';
+                if($part == 'Barkhuizen, L.M,') $part = 'Barkhuizen, L.M.';
+                if($part == 'de, McCord, M.E.') $part = 'de McCord, M.E.';
+                if($part == 'Matusin, Dg Ku Rozianah, M.') $part = 'Matusin, Dg Ku Rozianah';
+                
+                // if($part == 'Jackson, III, J.J.') $part = 'Jackson, III, J.J.';] => 
+                // if($part == 'Driggers, III, W.B.') $part = 'Driggers, III, W.B.';] => 
+                
                 $arr2 = explode(" and ", $part);
                 foreach($arr2 as $item) $final2[$item] = '';
             }
