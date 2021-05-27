@@ -35,6 +35,15 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except noti
 require_library('connectors/IUCNRedlistDataConnector');
 
 /*
+$final2 = array();
+$part = 'Matusin, Dg Ku Rozianah';
+$arr2 = explode(" and ", $part);
+foreach($arr2 as $item) $final2[$item] = '';
+print_r(array_keys($final2));
+exit("\n-end-\n");
+*/
+
+/*
 $str = "eli is and the & best , right";
 $parts = preg_split("/(, | and | and | & )/",$str);
 print_r($parts);

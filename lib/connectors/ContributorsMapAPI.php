@@ -16,11 +16,12 @@ class ContributorsMapAPI
     {
         $this->mappings_url['21_ENV'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/contributor_map/AmphibiaWeb-tab.tsv';
         $this->mappings_url['Polytraits'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/contributor_map/Polytraits_contributors.txt';
-        $this->mappings_url['FishBsae'] = 'https://editors.eol.org/other_files/contributor_mappings/FishBase_contributors.tsv';
+        $this->mappings_url['42'] = 'https://editors.eol.org/other_files/contributor_mappings/FishBase_contributors.tsv';
     }
     function get_contributor_mappings($resource_id = false, $download_options = array())
     {
         if(!$download_options) $download_options = $this->download_options;
+        // $download_options['expire_seconds'] = 0;
         self::initialize();
         if(!$resource_id) $resource_id = $this->resource_id;
         if($url = $this->mappings_url[$resource_id]) {}
@@ -68,6 +69,7 @@ class ContributorsMapAPI
                 $tmp = explode(",", $label);
                 $tmp = array_map('trim', $tmp);
                 $label = trim(@$tmp[1]." ".$tmp[0]); //to make it "Eli E. Agbayani"
+                $label = Functions::remove_whitespace($label);
                 $uri = "https://www.fishbase.de/collaborators/CollaboratorSummary.php?id=$id";
                 if(!isset($final[$label])) {
                     fwrite($handle, implode("\t", array($label,$uri)) . "\n");
