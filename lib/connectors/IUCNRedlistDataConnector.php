@@ -483,10 +483,292 @@ class IUCNRedlistDataConnector
             //$parts = preg_split("/(, | and | and | & )/",$name);
             $parts = explode(" and ", $name);
             foreach($parts as $part) {
-                $final[$part] = '';
+                if($part == "Rasoloariniaina, R, Ravelomanana, T.") $part = "Rasoloariniaina, R and Ravelomanana, T.";
+                if($part == "Racey, P.A. (Chiroptera Red List Authority), Chanson, J.") $part = "Racey, P.A. (Chiroptera Red List Authority) and Chanson, J.";
+                if($part == "Skejo, J. Skejo, Szovenyi, G.") $part = "Skejo, J. and Szovenyi, G.";
+                if($part == "Duarte, J.M.B, Varela, D.") $part = "Duarte, J.M.B and Varela, D.";
+                if($part == "Snoeks, J. Staissny, M.") $part = "Snoeks, J. and Staissny, M.";
+                if($part == "Lowe, C.G, Marshall, A.") $part = "Lowe, C.G and Marshall, A.";
+                if($part == "McCabe, G, Rovero, F.") $part = "McCabe, G and Rovero, F.";
+                if($part == "Kadarusman, Unmack, P.") $part = "Kadarusman and Unmack, P.";
+                if($part == "Djikstra, K. D, Kipping, J.") $part = "Djikstra, K. D. and Kipping, J.";
+                if($part == "NatureServe, Daniels, A.") $part = "NatureServe and Daniels, A.";
+                if($part == "Francis, C, Bates, P.") $part = "Francis, C. and Bates, P.";
+                if($part == "Davidson, ZD, Kebede, F.") $part = "Davidson, ZD and Kebede, F.";
+                if($part == "West, D, Franklin, P.") $part = "West, D. and Franklin, P.";
+                if($part == "Allibone, R, Crow, S.") $part = "Allibone, R. and Crow, S.";
+                if($part == "West, D, David, B.") $part = "West, D. and David, B.";
+                if($part == "West, D, Ling, N.") $part = "West, D. and Ling, N.";
+                if($part == "Lang, J, Chowfin, S.") $part = "Lang, J. and Chowfin, S.";
+                if($part == "Allibone, R, Closs, G.") $part = "Allibone, R. and Closs, G.";
+                if($part == "Ransom, C, Robinson, P.T.") $part = "Ransom, C. and Robinson, P.T.";
+                if($part == "Helgen, Bates, P.") $part = "Helgen and Bates, P.";
+                if($part == "Weksler, M. Queirolo, D.") $part = "Weksler, M. and Queirolo, D.";
+                if($part == "Brockelman, W, Roos, C.") $part = "Brockelman, W. and Roos, C.";
+                if($part == "Brockelman, W, Geissmann, T.") $part = "Brockelman, W. and Geissmann, T.";
+                if($part == "Darwall, W. (IUCN Freshwater Biodiversity Assessment Unit), Pollock, C.M. (IUCN Red List Unit)") $part = "Darwall, W. (IUCN Freshwater Biodiversity Assessment Unit) and Pollock, C.M. (IUCN Red List Unit)";
+                if($part == "Kadarusman, Allen, G.R.") $part = "Kadarusman and Allen, G.R.";
+                if($part == "Menzies, Wright, D.") $part = "Menzies and Wright, D.";
+                if($part == "Kefelioglu, H. Yigit, N.") $part = "Kefelioglu, H. and Yigit, N.";
+                if($part == "Lee, B.P.Y-H, Maryanto, I.") $part = "Lee, B.P.Y-H and Maryanto, I.";
+                if($part == "West, D, Crow, S.") $part = "West, D. and Crow, S.";
+                if($part == "Vivar, E. , Jayat, J.P.") $part = "Vivar, E. and Jayat, J.P.";
+                // if($part == "Jackson, III, J.J.") $part = "Jackson, III, J.J."; //no change
+                if($part == "Ram, M. (Sampled Red List Index Coordinating Team), Cox, N.") $part = "Ram, M. (Sampled Red List Index Coordinating Team) and Cox, N.";
+                if($part == "Wang, J.Y. , Wells, R.S.") $part = "Wang, J.Y. and Wells, R.S.";
+                if($part == "James, D.,Lumsden, L.") $part = "James, D. and Lumsden, L.";
+                if($part == "Silva-Rodríguez, E, Pastore, H.") $part = "Silva-Rodríguez, E. and Pastore, H.";
+                if($part == "Economou, N, Pollom, R.") $part = "Economou, N. and Pollom, R.";
+                if($part == "Mitchell, N.M, Woinarski, J.C.Z.") $part = "Mitchell, N.M. and Woinarski, J.C.Z.";
+                if($part == "Quinten, M, Setiawan, A.") $part = "Quinten, M. and Setiawan, A.";
+                if($part == "Duarte, J.M.B, Vogliotti, A.") $part = "Duarte, J.M.B. and Vogliotti, A.";
+                if($part == "Haxhiu, I,, Sterijovski, B.") $part = "Haxhiu, I. and Sterijovski, B.";
+                if($part == "Stevens, D, Fennane, M, Gardner, M.") $part = "Stevens, D. and Fennane, M. and Gardner, M.";
+                if($part == "Rumeu Ruiz, B, de Sequeira, M, Elliot, M.") $part = "Rumeu Ruiz, B. and de Sequeira, M. and Elliot, M.";
+                if($part == "Marrero-Rodríguez, Á, Medina Hijazo, F.") $part = "Marrero-Rodríguez, Á. and Medina Hijazo, F.";
+
+                if($part == "Zhang, D, Katsuki, T.") $part = "Zhang, D. and Katsuki, T.";
+                if($part == "Zhang, D, Li, N.") $part = "Zhang, D. and Li, N.";
+                if($part == "Zhang, D, Rushforth, K.") $part = "Zhang, D. and Rushforth, K.";
+                if($part == "Mouaxayvaneng, A,, Muangyen, N.") $part = "Mouaxayvaneng, A. and Muangyen, N.";
+                if($part == "Zhang, D, Luscombe, D, Liao, W.") $part = "Zhang, D. and Luscombe, D. and Liao, W.";
+
+                
+                if($part == "Purwaningsih, Khoo, E.") $part = "Purwaningsih and Khoo, E.";
+                if($part == "Purwaningsih, Kalima, T.") $part = "Purwaningsih and Kalima, T.";
+                if($part == "Cuban Plant Specialist Group, Wheeler, L.") $part = "Cuban Plant Specialist Group and Wheeler, L.";
+                if($part == "Letsara, R, Rabarison, H.") $part = "Letsara, R. and Rabarison, H.";
+                if($part == "Morey, G, Barker, J.") $part = "Morey, G. and Barker, J.";
+
+                if($part == "Blanco-Parra, MP, Briones Bell-lloch, A.") $part = "Blanco-Parra, MP. and Briones Bell-lloch, A.";
+                if($part == "Fahmi, Bin Ali, A.") $part = "Fahmi and Bin Ali, A.";
+                if($part == "Chapman, D, Simpfendorfer, C.") $part = "Chapman, D. and Simpfendorfer, C.";
+                if($part == "Nekaris, K.A.I. , Shekelle, M, Wirdateti, Rode-Margono, E.J.") $part = "Nekaris, K.A.I. and Shekelle, M. and Wirdateti and Rode-Margono, E.J.";
+                if($part == "Quinten, M, Cheyne, S.") $part = "Quinten, M. and Cheyne, S.";
+
+                if($part == "Brockelman, W, Molur, S.") $part = "Brockelman, W. and Molur, S.";
+                if($part == "Francis, C, Görföl, T.") $part = "Francis, C. and Görföl, T.";
+                if($part == "Fitz Maurice, B, Guadalupe Martínez, J.") $part = "Fitz Maurice, B. and Guadalupe Martínez, J.";
+                if($part == "Fitz Maurice, B, Fitz Maurice, W.A.") $part = "Fitz Maurice, B. and Fitz Maurice, W.A.";
+                if($part == "Fitz Maurice, B, Gómez-Hinostrosa, C.") $part = "Fitz Maurice, B. and Gómez-Hinostrosa, C.";
+                if($part == "Fitz Maurice, B, Sotomayor, M.") $part = "Fitz Maurice, B. and Sotomayor, M.";
+                if($part == "Mumpuni, Hero, J.") $part = "Mumpuni and Hero, J.";
+                if($part == "Han, K.H, Duckworth, J.W.") $part = "Han, K.H. and Duckworth, J.W.";
+                if($part == "Silva-Rodríguez, E, Farias, A.") $part = "Silva-Rodríguez, E. and Farias, A.";
+                
+                /*
+                if($part == "Ebert, D, Musick, J.A.") $part = "";
+                if($part == "Beisiegel, B. de Mello, Holland, J.") $part = "";
+                if($part == "Giman, B, Lynam, A.") $part = "";
+                if($part == "Fahmi, Fernando, D.") $part = "";
+                if($part == "Dharmadi, Fahmi, Ho, H.") $part = "";
+                if($part == "Roth, B. (Mollusc RLA), Haaker, P.") $part = "";
+                if($part == "Donaldson, J.S.; Bösenberg, J.D.") $part = "";
+                if($part == "Vovides, A. Chemnick, J.") $part = "";
+                if($part == "Zhang, D, Christian, T.") $part = "";
+                if($part == "Zhang, D, Farjon, A.") $part = "";
+                if($part == "Luscombe, D, Carter, G.") $part = "";
+                if($part == "Rasoloariniaina, R, Randrianizahaisa, H.") $part = "";
+                if($part == "Nzabi, T. Onana, J.M.") $part = "";
+                if($part == "Members of the IUCN SSC Madagascar Plant Specialist Group, Faranirina, L.") $part = "";
+                if($part == "Caramaschi, U, Mijares, A.") $part = "";
+                if($part == "Lu Shunqing, Yang Datong, Ohler, A.") $part = "";
+                if($part == "Yang Datong, Ohler, A.") $part = "";
+
+[Lu Shunqing, Dutta, S.] => 
+[Yuan Zhigang, Zhao Ermi, Shi Haitao, Diesmos, A.] => 
+[Leong Tzi Ming, Yodchaiy Chuaynkern, Kumthorn Thirakhupt, Das, I.] => 
+[Solofoniaina, A, Razafindranaivo, V.] => 
+[Clausnitzer, V.Clausnitzer, V.] => 
+[Clausnitzer, V.Suhling, F.] => 
+[Dharmadi, Finucci, B.] => 
+[Dharmadi, Fahmi, Fernando, D.] => 
+[Dudley, S.F.J, Kyne, P.M.] => 
+[Blanco-Parra, MP, Derrick, D.] => 
+[Lowe, C.G, Smith, W.D.] => 
+[Augerot, X, Whorisky, F.] => 
+[Notarbartolo di Sciara, G. Serena, F.] => 
+[Ojeda Land, E,, Bañares Baudet, A.] => 
+[Marrero-Rodríguez, Á, Naranjo-Suárez, J.] => 
+[Mora Vicente, S,. Urdiales Perales, N.] => 
+[NatureServe, Lambarri Martínez, C.] => 
+[Driggers, III, W.B.] => 
+[Blanco-Parra, MP, Chartrain, E.] => 
+[Clausnitzer, V. Suhling, F.] => 
+[Barkhuizen, L.M, Swartz, E.R.] => 
+[Hoffman, A. , Bills, R.] => 
+[Hoffman, A. , Roux, F.] => 
+[Hoffman, A. , Engelbrecht, J.] => 
+[Curtis, B. Stensgaard, A-S.] => 
+[Brad Hollingsworth, Santos-Barrera, G.] => 
+[Fenner, D, Richards, Z.] => 
+[Söderström, L. (IUCN SSC Bryophyte Red List Authority), Raimondo, D.] => 
+[Pollock, C.M. (IUCN Red List Unit), Ng, P.] => 
+[Sidibé, A, Sylla, M.] => 
+[Shekelle, M, Salim, M.] => 
+[Hamilton, S, Helgen, K.] => 
+[Sunarto, Sanderson, J.] => 
+[Brockelman, W, Das, J.] => 
+[Fitz Maurice, B, Sánchez , E.] => 
+[Collen, B. Richman, N.] => 
+[Rustamov, A, Sattorov, T.] => 
+[, Tezcan, S.] => 
+[Serena, F.,Ungaro, N.] => 
+[Coelho, R. Blasdale, T.] => 
+[Dharmadi, Pacoureau, N.] => 
+[Guallart, J.,Coelho, R.] => 
+[Cavanagh, R.D, Valenti, S.V, Dudley, S.] => 
+[Bertozzi, M.,Ungaro. N.] => 
+[Fahmi, Ishihara, H.] => 
+[Chiquillo, K.L.C, Crow, K.D.] => 
+[Blanco-Parra, MP, Cardenosa, D.] => 
+[Dharmadi, Elhassan, I.] => 
+[Bown, RMK, Cheok, J.] => 
+[Dharmadi, Fahmi, Finucci, B.] => 
+[Huveneers, C. Stehmann, M.] => 
+[Dharmadi, Fahmi, Tanay, D.] => 
+[Blanco-Parra, MP, Charvet, P.] => 
+[Fahmi, Haque, A.B.] => 
+[de Carvalho, R, McCord, M.] => 
+[Carvalho, M.R. de, McCord, M.E.] => 
+[Bradai, N. Serena, F.] => 
+[Marrero-Rodríguez, Á, Peraza Zurita, M.D.] => 
+[Rogers, Alex, Bohm, M.] => 
+[Zeineb Ghrabi, Rhazi, L.] => 
+[Imtinene Ben Haj Jilani, de Bélair, G.] => 
+[Fennane, M, García, N.] => 
+[Zeineb Ghrabi, Limam-Ben Saad, S.] => 
+[Temple, H. (IUCN Species Programme), Rhazi, L.] => 
+[Rustamov, A, Munkhbayar, K.] => 
+[Papenfuss, T. Shafiei Bafti, S.] => 
+[Rustamov, A, Nuridjanov, D.] => 
+[Varol Tok, Ugurtas, I.] => 
+[Kar, D, Rema Devi, K.R.] => 
+[Kar, D, Juffe Bignoli, D.] => 
+[Reizl Jose, Juan Carlos Gonzales, Rico, E.] => 
+[Amaro, R, Negrão, R.] => 
+[Amaro, R, Guimarães, E.F.] => 
+[Members of the IUCN SSC Madagascar Plant Specialist Group, Rabarimanarivo, M.] => 
+[Ram, M. (Sampled Red List Index Coordinating Team), Tognelli, M.F.] => 
+[Cechin, C.T.Z, da Costa, T.B.G.] => 
+[Murphy, J. Zug, G.R.] => 
+[Sanders, K. Lobo, A.] => 
+[Dominici-Arosemena, A.,Bussing, W.] => 
+[Smith-Vaniz, B, Robertson, R.] => 
+[Macdonald, S.M, Shea, G.] => 
+[O. Jin Eong, Wan-Hong Yong, J.] => 
+[Toral-Granda, M.V, Benavides, M.] => 
+[Toral-Granda, M.V, Paola Ortiz, E.] => 
+[NatureServe, Sparks, J.S.] => 
+[van der Heiden, Lea, B.] => 
+[Rivera, R.,Edgar, G.] => 
+[Dominici-Arosemena, A.,, Bussing, W.] => 
+[Ghamizi, M.,Van Damme, D.] => 
+[Williams, J. Craig, M.] => 
+[Quintana, Y,, McMahan, C.] => 
+[Walker, KF, Klunzinger, M.] => 
+[Massuti, E, Palmeri, A.] => 
+[NatureServe, Hendrickson, D.] => 
+[Mouaxayvaneng, A,, Myint, W.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, Strijk, J.S.] => 
+[Sidibé, A, Nunoo, F.] => 
+[Sidibé, A, Quartey, R.] => 
+[Sidibé, A, Djiman, R.] => 
+[Allibone, R, Ling, N.] => 
+[Sidibé, A, de Morais, L.] => 
+[Allibone, R, West, D, Closs, G.] => 
+[Allibone, R, West, D, Franklin, P.] => 
+[West, D, Allibone, R, Franklin, P.] => 
+[Allibone, R, Hitchmough, R.] => 
+[Allibone, R, Franklin, P.] => 
+[West, D, Closs, G.] => 
+[Allibone, R, David, B.] => 
+[West, D, Hitchmough, R.] => 
+[Sidibé, A, Mbye, E.] => 
+[Vural, M.,Duman, H.] => 
+[Nakhutsrishvili, Kikodze, D.] => 
+[Sebsebe Demissew, Kelbessa, E.] => 
+[Bassos-Hull, K, Blanco-Parra, MP, Chartrain, E.] => 
+[Skejo, J. Skejo, Fontana, P.] => 
+[Smith-Vaniz, W.F, Hastings, P.A.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, de Santiago, J.] => 
+[Quintana, Y,, Elias, D.] => 
+[Quintana, Y,, Fuentes, C.] => 
+[Geethakumary, M.P, Pandurangan, A.G, Haridasan, K.] => 
+[Walker, KF, Jones, H. A.] => 
+[Rakotoarimanana, S, Rakotonirina, N.] => 
+[Andry My Aina, A.A.A, Letsara, R.] => 
+[Andry My Aina, A.A.A, Randrianasolo, V.] => 
+[Letsara, LRK, Rajaonary, F.] => 
+[Skejo, J. Skejo, Pushkar, T.] => 
+[Andry My Aina, A.A.A, Razafindrahaja, V.] => 
+[Andry My Aina, A.A.A, Rakotonirina, N.] => 
+[Rakotoarimanana, S, Andriamanohera, A.M.] => 
+[Rakotoarimanana, S, Rabehevitra, A.D.] => 
+[Hallingbäck, T, Hedenäs, L.] => 
+[Hallingbäck, T, Ignatov, M.] => 
+[Yulintine, Ho, J.K.I.] => 
+[Dharmadi, Gutteridge, A.N.] => 
+[Dharmadi, Grant, I.] => 
+[Blanco-Parra, MP, Espinoza, E.] => 
+[Nurainas , Docot, R.V.A.] => 
+[Thinh Van Ngoc, Roos, C.] => 
+[Hoang Minh Duc, Nijman, V.] => 
+[Fahmi, Finucci, B.] => 
+[Mouaxayvaneng, A,, Soulinnaphou, S.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, González-Espinosa, M.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, Cornejo-Tenorio, G.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, Ibarra-Manríquez, G.] => 
+[Kromer, TK, Fuentes Claros, A.] => 
+[Kromer, TK, Mercado Ustariz, J.] => 
+[Kromer, TK, Meneses, R.] => 
+[Mohd Hairul, MA, Imin, K, Kiew, R.] => 
+[Matusin, Dg Ku Rozianah, M.] => 
+[Mohd Yusof, Nur Adillah, M.Y.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, Meave, J.A.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, Ramírez-Marcial, N.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, Valencia-Ávalos, S.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, González-Espinosa, M, Sánchez-Velázquez, L.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, Martínez-Gordilllo, J.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, González-Espinosa, M, Pineda-López, M.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, González-Espinosa, M, Calónico-Soto, J.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, Luna Vega, I.] => 
+[Rakotoarimanana, S, Rakotoarinivo, M.] => 
+[Andry My Aina, A.A.A, Ravololomanana, N.] => 
+[Andry My Aina, A.A.A, Razafiniary, V.] => 
+[Andrianarivelo Fanantenana, S.A.F, Rajaonarivelo, P.] => 
+[Trillium Working Group 2019, Farmer, S.B.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, Foden, W.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, von Staden, L.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, Archer, R.] => 
+[Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, Schutte-Vlok, A.L.] => 
+[IUCN SSC Global Tree Specialist Group, Botanic Gardens Conservation International (BGCI), Qin, H.N.] => 
+[Kadarusman, Ralph, G.] => 
+[Guino-o, R.S. II, Leander, N.J.S.] => 
+[Guino-o, R.S. II, Cecilio, M.A.F.] => 
+[Dharmadi, Dulvy, N.K.] => 
+[Márquez-Corro, J.I, Allen, D.J.] => 
+[Edwards, C.T.T, Maisels, F.] => 
+[Edwards, C.T.T, Balfour, D.] => 
+[Amaro, R, Martinelli, G.] => 
+
+
+                */
+                
+                // if($part == "") $part = "";
+                // if($part == "") $part = "";
+                // if($part == "") $part = "";
+                // if($part == "") $part = "";
+                // if($part == "") $part = "";
+                
+                if($part == "WWF-Malaysia, Roberton, S.") $part = "WWF-Malaysia and Roberton, S.";
+
+                $arr2 = explode(" and ", $part);
+                foreach($arr2 as $item) $final2[$item] = '';
+                
             }
         }
-        return array_keys($final);
+        return array_keys($final2);
     }
     private function get_remarks_for_old_designation($category)
     {
