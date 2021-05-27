@@ -465,7 +465,7 @@ class IUCNRedlistDataConnector
         // print_r($names); exit("-test-");
         // return $names;
         /* start another round */
-        $final = array();
+        $final = array(); $final2 = array();
         foreach($names as $name) {
             if($name == "Global Amphibian Assessment Coordinating Team (Simon Stuart, Janice Chanson, Neil Cox and Bruce Young)") {
                 $name = "Global Amphibian Assessment Coordinating Team and Simon Stuart and Janice Chanson and Neil Cox and Bruce Young";
