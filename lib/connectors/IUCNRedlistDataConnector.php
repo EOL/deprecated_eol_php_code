@@ -407,6 +407,7 @@ class IUCNRedlistDataConnector
                         foreach($names as $value) {
                             self::add_string_types(NULL, $rec, $key, $value, $text[$key]["uri"], '', $parentMeasurementID);
                             $this->debug['names for Jen'][$value] = '';
+                            if(substr_count($value, ',') > 1) $this->debug['Eli investigates'][$value] = '';
                         }
                     }
                     else { //orig, the rest
