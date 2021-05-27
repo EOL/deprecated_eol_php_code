@@ -34,6 +34,13 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except noti
 */
 require_library('connectors/IUCNRedlistDataConnector');
 
+/*
+$str = "eli is and the & best , right";
+$parts = preg_split("/(, | and | and | & )/",$str);
+print_r($parts);
+exit("\n-end-\n");
+*/
+
 /* test only
 $str = "1234 6";
 $len = strlen($str);

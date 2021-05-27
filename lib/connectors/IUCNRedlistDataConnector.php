@@ -452,17 +452,40 @@ class IUCNRedlistDataConnector
             $arr2 = explode("., ", $a);
             $arr2 = array_map('trim', $arr2);
             foreach($arr2 as $name) {
-                if(substr($name, -1) == ".") $names[] = "$name";
+                $last_char = substr($name, -1);
+                if($last_char == ".") $names[] = "$name";
                 else {
                     $second_to_last_char = self::get_2nd_to_last_char($name);
-                    if($second_to_last_char == " ")     $names[] = "$name.";
-                    elseif($second_to_last_char == ".") $names[] = "$name.";
+                    if($second_to_last_char == " ")     if(ctype_alpha($last_char)) $names[] = "$name.";
+                    elseif($second_to_last_char == ".") if(ctype_alpha($last_char)) $names[] = "$name.";
                     else                                $names[] = "$name";
                 }
             }
         }
         // print_r($names); exit("-test-");
-        return $names;
+        // return $names;
+        /* start another round */
+        foreach($names as $name) {
+            if($name == "Global Amphibian Assessment Coordinating Team (Simon Stuart, Janice Chanson, Neil Cox and Bruce Young)") {
+                $name = "Global Amphibian Assessment Coordinating Team and Simon Stuart and Janice Chanson and Neil Cox and Bruce Young";
+            }
+            if($name == "Global Amphibian Assessment Coordinating Team (Simon Stuart, Janice Chanson, Neil Cox and Bruce Young) and Ariadne Angulo") {
+                $name = "Global Amphibian Assessment Coordinating Team and Simon Stuart and Janice Chanson and Neil Cox and Bruce Young and Ariadne Angulo";
+            }
+            if($name == "Daniels, S.R. (University of Stellenbosch), Darwall, W. (Freshwater Biodiversity Assessment Unit) and McIvor, A.") {
+                $name = "Daniels, S.R. (University of Stellenbosch) and Darwall, W. (Freshwater Biodiversity Assessment Unit) and McIvor, A.";
+            }
+            if($name == "Ng, P. Yeo, D. and McIvor, A.") {
+                $name = "Ng, P. and Yeo, D. and McIvor, A.";
+            }
+            
+            //$parts = preg_split("/(, | and | and | & )/",$name);
+            $parts = explode(" and ", $name);
+            foreach($parts as $part) {
+                $final[$part] = '';
+            }
+        }
+        return array_keys($final);
     }
     private function get_remarks_for_old_designation($category)
     {
