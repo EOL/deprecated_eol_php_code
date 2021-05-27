@@ -455,8 +455,9 @@ class IUCNRedlistDataConnector
                 if(substr($name, -1) == ".") $names[] = "$name";
                 else {
                     $second_to_last_char = self::get_2nd_to_last_char($name);
-                    if($second_to_last_char == " ") $names[] = "$name.";
-                    else                            $names[] = "$name";
+                    if($second_to_last_char == " ")     $names[] = "$name.";
+                    elseif($second_to_last_char == ".") $names[] = "$name.";
+                    else                                $names[] = "$name";
                 }
             }
         }
