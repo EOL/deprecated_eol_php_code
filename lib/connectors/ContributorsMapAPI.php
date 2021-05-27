@@ -18,13 +18,14 @@ class ContributorsMapAPI
         $this->mappings_url['Polytraits'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/contributor_map/Polytraits_contributors.txt';
         $this->mappings_url['FishBsae'] = 'https://editors.eol.org/other_files/contributor_mappings/FishBase_contributors.tsv';
     }
-    function get_contributor_mappings($resource_id = false)
+    function get_contributor_mappings($resource_id = false, $download_options = array())
     {
+        if(!$download_options) $download_options = $this->download_options;
         self::initialize();
         if(!$resource_id) $resource_id = $this->resource_id;
         if($url = $this->mappings_url[$resource_id]) {}
         else exit("\nUndefined contributor mapping [$resource_id]\n");
-        $local = Functions::save_remote_file_to_local($url, $this->download_options);
+        $local = Functions::save_remote_file_to_local($url, $download_options);
         $i = 0;
         foreach(new FileIterator($local) as $line_number => $line) {
             $line = explode("\t", $line); $i++; if(($i % 200000) == 0) echo "\n".number_format($i);

@@ -67,7 +67,8 @@ class Environments2EOLfinal extends ContributorsMapAPI
     function start($info)
     {   echo "\nresource_id is [$this->resource_id]\n";
         if(in_array($this->resource_id, array('21_ENV'))) {
-            $this->contributor_mappings = $this->get_contributor_mappings($this->resource_id);
+            $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 60*60*1);
+            $this->contributor_mappings = $this->get_contributor_mappings($this->resource_id, $options);
             // print_r($this->contributor_mappings);
             echo "\n contributor_mappings: ".count($this->contributor_mappings)."\n";
             // exit("oks [$this->resource_id]");
