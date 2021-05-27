@@ -435,6 +435,11 @@ class IUCNRedlistDataConnector
             self::add_string_types("true", $rec, "Population trend", $pop_trend, 'http://eol.org/schema/terms/population_trend');
         }
     }
+    private function get_2nd_to_last_char($str)
+    {
+        $len = strlen($str);
+        return substr($str,$len-2,1);
+    }
     function separate_names($str)
     {
         // $str = "Rundell, R.J.";
@@ -448,7 +453,11 @@ class IUCNRedlistDataConnector
             $arr2 = array_map('trim', $arr2);
             foreach($arr2 as $name) {
                 if(substr($name, -1) == ".") $names[] = "$name";
-                else                         $names[] = "$name.";
+                else {
+                    $second_to_last_char = self::get_2nd_to_last_char($name);
+                    if($second_to_last_char == " ") $names[] = "$name.";
+                    else                            $names[] = "$name";
+                }
             }
         }
         // print_r($names); exit("-test-");

@@ -33,6 +33,15 @@ $GLOBALS['ENV_DEBUG'] = false;
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
 */
 require_library('connectors/IUCNRedlistDataConnector');
+
+/* test only
+$str = "1234 6";
+$len = strlen($str);
+$char = substr($str,$len-2,1);
+echo "\n[$char]\n";
+exit("\n-end-\n");
+*/
+
 $timestart = time_elapsed();
 $resource_id = 737;
 // if(!Functions::can_this_connector_run($resource_id)) return; //obsolete

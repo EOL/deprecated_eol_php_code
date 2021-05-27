@@ -480,6 +480,8 @@ class IUCNRedlistAPI
     {
         $download_options = $this->download_options;
         $download_options['expire_seconds'] = false;
+        // $download_options['download_wait_time'] = 1000000; //just temporary until I get my own token
+        
         $url = str_ireplace("SPECIES_ID", $species_id, $this->api['taxon_details']);
         // echo "\n taxon_details API call: $url\n";
         $json = Functions::lookup_with_cache($url, $download_options);
