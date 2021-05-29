@@ -17,6 +17,7 @@ class ContributorsMapAPI
         $this->mappings_url['21_ENV'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/contributor_map/AmphibiaWeb-tab.tsv';
         $this->mappings_url['Polytraits'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/contributor_map/Polytraits_contributors.txt';
         $this->mappings_url['42'] = 'https://editors.eol.org/other_files/contributor_mappings/FishBase_contributors.tsv';
+        $this->mappings_url['737'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/contributor_map/IUCN_mapping.tsv';
     }
     function get_contributor_mappings($resource_id = false, $download_options = array())
     {

@@ -17,7 +17,7 @@ As of May 26, 2010:
     [Extinct in the Wild (EW)] => 1
 
 */
-class IUCNRedlistDataConnector
+class IUCNRedlistDataConnector extends ContributorsMapAPI
 {
     const IUCN_DOMAIN = "http://www.iucnredlist.org";
     const IUCN_EXPORT_DOWNLOAD_PAGE = "/search/saved?id=47427";
@@ -187,6 +187,13 @@ class IUCNRedlistDataConnector
         echo "\n temporary directory removed: " . $parts["dirname"];
         print_r($this->debug);
         */
+
+        // /* contributor map
+        $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 60*60*1);
+        $this->contributor_mappings = $this->get_contributor_mappings($this->resource_id, $options);
+        // print_r($this->contributor_mappings); exit;
+        echo "\n contributor_mappings: ".count($this->contributor_mappings)."\n";
+        // */
 
         /* new using API */
         self::main();
@@ -404,10 +411,15 @@ class IUCNRedlistDataConnector
                     
                     if(in_array($key, array('assessors', 'reviewers'))) {
                         $names = self::separate_names($value);
-                        foreach($names as $value) {
-                            self::add_string_types(NULL, $rec, $key, $value, $text[$key]["uri"], '', $parentMeasurementID);
-                            $this->debug['names for Jen'][$value] = '';
-                            if(substr_count($value, ',') > 1) $this->debug['Eli investigates']["if(part == '$value') part = '$value';"] = '';
+                        foreach($names as $contributor) {
+                            if($uri = @$this->contributor_mappings[$contributor]) {
+                                if(substr($uri,0,4) == 'http') self::add_string_types(NULL, $rec, $key, $uri, $text[$key]["uri"], '', $parentMeasurementID);
+                            }
+                            else { //no mapping yet for this contributor
+                                $this->debug['undefined contributor'][$contributor] = '';
+                                // $this->debug['names for Jen'][$contributor] = ''; //redundant
+                            }
+                            if(substr_count($contributor, ',') > 1) $this->debug['Eli investigates']["if(part == '$contributor') part = '$contributor';"] = '';
                         }
                     }
                     else { //orig, the rest
