@@ -197,7 +197,8 @@ class IUCNRedlistDataConnector extends ContributorsMapAPI
 
         /* new using API */
         self::main();
-        $this->archive_builder->finalize(TRUE);
+        $this->archive_builder->finalize(TRUE); //part of main operation
+        // exit("\n-end caching-\n"); //only when caching
         print_r($this->debug);
     }
     /* abandoned CSV export
@@ -766,7 +767,7 @@ class IUCNRedlistDataConnector extends ContributorsMapAPI
                 // if($part == 'Driggers, III, W.B.') $part = 'Driggers, III, W.B.';] => 
                 
                 $arr2 = explode(" and ", $part);
-                foreach($arr2 as $item) $final2[$item] = '';
+                foreach($arr2 as $item) $final2[trim($item)] = '';
             }
         }
         return array_keys($final2);
