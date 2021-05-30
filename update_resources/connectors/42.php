@@ -30,6 +30,7 @@ Start: expected increase in trait (addt'l mappings from Jen) and expected decrea
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+require_library('connectors/ContributorsMapAPI');
 require_library('connectors/FishBaseArchiveAPI');
 $timestart = time_elapsed();
 $resource_id = 42;

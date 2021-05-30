@@ -7,7 +7,7 @@ They then zip these files and host it in their server.
 The connector in this page then reads this zip file, extracts, assembles the information and generate the EOL DWCA.
 FishBase contacts are: Skit Barile <j.barile@fin.ph> and Emily Capuli <e.capuli@fin.ph>
 */
-class FishBaseArchiveAPI
+class FishBaseArchiveAPI extends ContributorsMapAPI 
 {
     public function __construct($test_run = false, $folder)
     {
@@ -39,6 +39,14 @@ class FishBaseArchiveAPI
 
     function get_all_taxa($resource_id)
     {
+        // /* contributor map
+        $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 60);
+        $this->contributor_mappings = $this->get_contributor_mappings($resource_id, $options);
+        // print_r($this->contributor_mappings);
+        echo "\n contributor_mappings: ".count($this->contributor_mappings)."\n";
+        // exit("oks [$resource_id]");
+        // */
+        
         $this->uris = self::get_uris();
         $this->bibliographic_citation = self::get_fishbase_remote_citation();
         
@@ -394,7 +402,12 @@ class FishBaseArchiveAPI
                 $orig_catnum = $o['dc_identifier'];
                 if(substr($o['dc_source'],0,4) == "http")                          $rec["source"]      = $o['dc_source'];
                 if($reference_ids = @$this->object_reference_ids[$o['int_do_id']]) $rec["referenceID"] = implode("; ", $reference_ids);
+                /* old
                 if($agent_ids = @$this->object_agent_ids[$o['int_do_id']])         $rec["contributor"] = self::convert_agent_ids_with_names($agent_ids);
+                */
+                // /* new
+                if($agent_ids = @$this->object_agent_ids[$o['int_do_id']])         $contributor_names = self::convert_agent_ids_with_names($agent_ids);
+                // */
                 
                 if($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size" || $o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat") {
                     if($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size") {
@@ -477,7 +490,10 @@ class FishBaseArchiveAPI
                         if(!isset($this->unique_measurements[$var])) {
                             $this->unique_measurements[$var] = '';
                             $rec = self::assign_adult_2_specific_mtypes($item['measurement'], $rec);
-                            $this->func->pre_add_string_types($rec, $item['value'], $item['measurement'], "true"); //1
+                            $ret = $this->func->pre_add_string_types($rec, $item['value'], $item['measurement'], "true"); //1
+                            // /* start adding child records - contributor
+                            self::add_contributor_child_records($contributor_names, $rec, $ret);
+                            // */
                         }
                         //end special -------------------------------------------------------------
                         
@@ -501,14 +517,17 @@ class FishBaseArchiveAPI
                         }
                         $rec["measurementRemarks"] = $text['desc'];
                         if($location_strings = self::parse_location_strings($text['desc'])) { // per Jen: https://eol-jira.bibalex.org/browse/DATA-1639?focusedCommentId=63426&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63426
-                            self::create_trait($location_strings, $rec);
+                            self::create_trait($location_strings, $rec, $contributor_names);
                         }
                         else {
                             //start special -------------------------------------------------------------
                             $var = md5('http://eol.org/schema/terms/Present' . $text['desc'] . $taxon_id);
                             if(!isset($this->unique_measurements[$var])) {
                                 $this->unique_measurements[$var] = '';
-                                $this->func->pre_add_string_types($rec, $text['desc'], "http://eol.org/schema/terms/Present", "true"); //2
+                                $ret = $this->func->pre_add_string_types($rec, $text['desc'], "http://eol.org/schema/terms/Present", "true"); //2
+                                // /* start adding child records - contributor
+                                self::add_contributor_child_records($contributor_names, $rec, $ret);
+                                // */
                             }
                             //end special -------------------------------------------------------------
                         }
@@ -547,6 +566,26 @@ class FishBaseArchiveAPI
             // if($k > 10) break; //debug
         }
     }
+    private function add_contributor_child_records($contributor_names, $rec, $ret)
+    {
+        $parentID = $ret['measurementID'];
+        if($contributor_names) {
+            $rex = array();
+            $rex["taxon_id"] = $rec["taxon_id"];
+            $rex["catnum"] = $rec["catnum"];
+            $rex['parentMeasurementID'] = $parentID;
+            $arr = explode(";", $contributor_names);
+            $arr = array_map('trim', $arr);
+            foreach($arr as $contributor) {
+                if($uri = @$this->contributor_mappings[$contributor]) {}
+                else { //no mapping yet for this contributor
+                    $this->debug['undefined contributor'][$contributor] = '';
+                    $uri = $contributor;
+                }
+                $this->func->add_string_types($rex, $uri, 'http://purl.org/dc/terms/contributor', "child");
+            }
+        }
+    }
     private function assign_adult_2_specific_mtypes($mtype, $rec)
     {
         /*I've been reviewing the smallest size records in this resource and based on the text descriptions I think all the size measures we are harvesting should be treated as adult sizes. 
@@ -563,7 +602,7 @@ class FishBaseArchiveAPI
         if(in_array($mtype, $mtypes)) $rec['lifeStage'] = 'http://www.ebi.ac.uk/efo/EFO_0001272';
         return $rec;
     }
-    private function create_trait($location_strings, $rec)
+    private function create_trait($location_strings, $rec, $contributor_names)
     {
         $mtype = "http://eol.org/schema/terms/Present";
         foreach($location_strings as $string_val) {
@@ -571,7 +610,11 @@ class FishBaseArchiveAPI
                 $string_val = Functions::conv_to_utf8($string_val);
                 $rec["catnum"] .= "-".str_replace(" ","_",$string_val).$rec['taxon_id'];
                 if($string_uri = self::get_string_uri($string_val)) {
-                    $this->func->pre_add_string_types($rec, $string_uri, $mtype, "true"); //3
+                    $ret = $this->func->pre_add_string_types($rec, $string_uri, $mtype, "true"); //3
+                    
+                    // /* start adding child records - contributor
+                    self::add_contributor_child_records($contributor_names, $rec, $ret);
+                    // */
                 }
                 // elseif($val = @$this->addtl_mappings[strtoupper(str_replace('"', "", $string_val))]) {
                 //     $rec['measurementRemarks'] = $string_val;
@@ -1021,7 +1064,7 @@ class FishBaseArchiveAPI
     {
         $arr = array();
         foreach($agent_ids as $agent_id) {
-            if($val = @$this->agent_ids[$agent_id]) $arr[$val] = '';
+            if($name = @$this->agent_ids[$agent_id]) $arr[$name] = '';
         }
         $arr = array_keys($arr);
         return implode(";", $arr);
