@@ -488,7 +488,7 @@ class IUCNRedlistAPI
         if(!$json) return array();
         
         $arr = json_decode($json, true); //https://apiv3.iucnredlist.org/api/v3/species/id/181008073?token=9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee
-        $rec = $arr['result'][0]; 
+        $rec = @$arr['result'][0]; 
         if($GLOBALS['ENV_DEBUG']) print_r($rec); //exit;
         /*Array(
             [name] => 3
@@ -550,7 +550,7 @@ class IUCNRedlistAPI
         // echo "\n comnames API call: $url\n";
         $json = Functions::lookup_with_cache($url, $download_options);
         $arr = json_decode($json, true);
-        if($comnames = $arr['result']) {
+        if($comnames = @$arr['result']) {
             if($GLOBALS['ENV_DEBUG']) {
                 print_r($comnames); exit('\nmay comnames\n');
             }
@@ -581,7 +581,7 @@ class IUCNRedlistAPI
         $url = str_ireplace("SPECIES_ID", $species_id, $this->api['citations']); // echo "\n citations API call: $url\n";
         $json = Functions::lookup_with_cache($url, $download_options);
         $arr = json_decode($json, true); // print_r($arr); exit;
-        $citations = $arr['result'];
+        $citations = @$arr['result'];
         foreach($citations as $c) {
             $reference_parameters = array();
             $reference_parameters['fullReference'] = $c['citation'];
