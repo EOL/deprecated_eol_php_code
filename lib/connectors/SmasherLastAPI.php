@@ -57,7 +57,7 @@ class SmasherLastAPI
             else {
                 $rek = array(); $k = 0;
                 foreach($fields as $fld) {
-                    if($fld) $rek[$fld] = $rec[$k];
+                    if($fld) $rek[$fld] = @$rec[$k];
                     $k++;
                 }
                 $rek = array_map('trim', $rek);
@@ -97,8 +97,27 @@ class SmasherLastAPI
         // */
         $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
+    }
+    function
+    {   /*
+        keep_uid	keep_name	            merge_uid	merge_name
+        -937508	    Megachirella	        -873321	    Megachirella
+        -2143159	Chacodelphys formosa	-2143193	Gracilinanus formosus
         
-        // step2
+        Sheet2: Merge DH2 taxa:
+        These are synonyms that failed to merge during the smasher run, so we need to merge them manually.
+        1. For the taxa whose uid matches a value in the merge_uid column, delete the merge_uid taxon 
+        and change the parent_uid of each of its children to the keep_uid.
+        2. Add the sourceinfo value from the merge_uid taxon to the sourceinfo value of the keep_uid taxon.
+
+        Eli: 
+        first loop  => all parent_uid that = to merge_uid, replace parent_uid to keep_uid
+                    => $merge_uid_sourceinfo[$merge_uid] = xxx
+                    => $uid_will_update_sourceinfo[$keep_uid] = merge_uid
+        2nd loop    => delete all rows where uid is = to merge_uid
+                    => if found uid_will_update_sourceinfo then append merge_uid sourceinfo to current sourceinfo
+        */
+        
         
     }
     /*

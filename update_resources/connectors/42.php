@@ -30,8 +30,11 @@ started abbreviating to see all:
 42	Monday 2020-01-27 10:18:01 AM	{"agent.tab":146, "MoF.tab":177712, "media.tab":135702, "occur.tab":161031, "reference.tab":32237, "taxon.tab":95593, "vernacular_name.tab":157469, "time_elapsed":{"sec":7116.05,"min":118.6,"hr":1.98}}
 stable run:
 42	Sun 2021-05-30 11:28:38 AM	    {"agent.tab":152, "MoF.tab":335337, "media.tab":104849, "occur.tab":153496, "reference.tab":34778, "taxon.tab":97029, "vernacular_name.tab":184304, "time_elapsed":{"sec":9169.030000000001, "min":152.82, "hr":2.55}}
+42_meta_recoded                     {"agent.tab":152, "MoF.tab":335337, "media.tab":104849, "occur.tab":153496, "reference.tab":34778, "taxon.tab":97029, "vernacular_name.tab":184304, "time_elapsed":{"sec":359.03, "min":5.98, "hr":0.1}}
 
-42_meta_recoded	Sun 2021-05-30 11:34:40 AM	{"agent.tab":152, "measurement_or_fact_specific.tab":335337, "media_resource.tab":104849, "occurrence_specific.tab":153496, "reference.tab":34778, "taxon.tab":97029, "vernacular_name.tab":184304, "time_elapsed":{"sec":359.03, "min":5.98, "hr":0.1}}
+42	Mon 2021-05-31 04:13:41 AM	    {"agent.tab":152, "MoF.tab":335337, "media.tab":104849, "occur.tab":153496, "reference.tab":34786, "taxon.tab":97029, "vernacular_name.tab":183680, "time_elapsed":{"sec":1472.52, "min":24.54, "hr":0.41}}
+42_meta_recoded	Mon 2021-05-31 04:19{"agent.tab":152, "MoF.tab":335337, "media.tab":104849, "occur.tab":153496, "reference.tab":34786, "taxon.tab":97029, "vernacular_name.tab":183680, "time_elapsed":{"sec":356.24, "min":5.94, "hr":0.1}}
+
 
 */
 
