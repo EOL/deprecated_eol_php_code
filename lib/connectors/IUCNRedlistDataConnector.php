@@ -600,7 +600,7 @@ class IUCNRedlistDataConnector extends ContributorsMapAPI
                 if($part == 'Driggers, III, W.B.') $part = 'Driggers, III, W.B.';
                 if($part == 'Blanco-Parra, MP, Chartrain, E.') $part = 'Blanco-Parra, MP and Chartrain, E.';
                 if($part == 'Clausnitzer, V. Suhling, F.') $part = 'Clausnitzer, V. and Suhling, F.';
-                if($part == 'Barkhuizen, L.M, Swartz, E.R.') $part = 'Barkhuizen, L.M, and Swartz, E.R.';
+                if($part == 'Barkhuizen, L.M, Swartz, E.R.') $part = 'Barkhuizen, L.M. and Swartz, E.R.';
                 if($part == 'Hoffman, A. , Bills, R.') $part = 'Hoffman, A. and Bills, R.';
                 if($part == 'Hoffman, A. , Roux, F.') $part = 'Hoffman, A. and Roux, F.';
                 if($part == 'Hoffman, A. , Engelbrecht, J.') $part = 'Hoffman, A. and Engelbrecht, J.';
@@ -635,7 +635,7 @@ class IUCNRedlistDataConnector extends ContributorsMapAPI
                 if($part == 'Blanco-Parra, MP, Charvet, P.') $part = 'Blanco-Parra, MP and Charvet, P.';
                 if($part == 'Fahmi, Haque, A.B.') $part = 'Fahmi and Haque, A.B.';
                 if($part == 'de Carvalho, R, McCord, M.') $part = 'de Carvalho, R. and McCord, M.';
-                if($part == 'Carvalho, M.R. de, McCord, M.E.') $part = 'Carvalho, M.R. and de, McCord, M.E.';
+                if($part == 'Carvalho, M.R. de, McCord, M.E.') $part = 'Carvalho, M.R. and de McCord, M.E.';
                 if($part == 'Bradai, N. Serena, F.') $part = 'Bradai, N. and Serena, F.';
                 if($part == 'Marrero-Rodríguez, Á, Peraza Zurita, M.D.') $part = 'Marrero-Rodríguez, Á. and Peraza Zurita, M.D.';
                 if($part == 'Rogers, Alex, Bohm, M.') $part = 'Rogers, Alex and Bohm, M.';
@@ -728,7 +728,7 @@ class IUCNRedlistDataConnector extends ContributorsMapAPI
                 if($part == 'Kromer, TK, Mercado Ustariz, J.') $part = 'Kromer, TK and Mercado Ustariz, J.';
                 if($part == 'Kromer, TK, Meneses, R.') $part = 'Kromer, TK and Meneses, R.';
                 if($part == 'Mohd Hairul, MA, Imin, K, Kiew, R.') $part = 'Mohd Hairul, MA and Imin, K. and Kiew, R.';
-                if($part == 'Matusin, Dg Ku Rozianah, M.') $part = 'Matusin, Dg Ku Rozianah, M.';
+                if($part == 'Matusin, Dg Ku Rozianah, M.') $part = 'Matusin, Dg Ku Rozianah';
                 if($part == 'Mohd Yusof, Nur Adillah, M.Y.') $part = 'Mohd Yusof and Nur Adillah, M.Y.';
                 if($part == 'Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, Meave, J.A.') $part = 'Botanic Gardens Conservation International (BGCI) and IUCN SSC Global Tree Specialist Group and Meave, J.A.';
                 if($part == 'Botanic Gardens Conservation International (BGCI), IUCN SSC Global Tree Specialist Group, Ramírez-Marcial, N.') $part = 'Botanic Gardens Conservation International (BGCI) and IUCN SSC Global Tree Specialist Group and Ramírez-Marcial, N.';
