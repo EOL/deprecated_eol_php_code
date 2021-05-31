@@ -698,10 +698,11 @@ class FishBaseArchiveAPI extends ContributorsMapAPI
                 if(stripos($name['commonName'], "?") !== false) continue; //exclude comname if with '?' //string is found
                 if(!$name['xml_lang']) continue;
                 $v = new \eol_schema\VernacularName();
-                $v->taxonID         = $this->taxa_ids[$taxon_id];
-                $v->vernacularName  = $name['commonName'];
-                $v->language        = $name['xml_lang'];
-                $this->archive_builder->write_object_to_file($v);
+                if($v->taxonID = @$this->taxa_ids[$taxon_id]) {
+                    $v->vernacularName  = $name['commonName'];
+                    $v->language        = $name['xml_lang'];
+                    $this->archive_builder->write_object_to_file($v);
+                }
             }
         }
     }
