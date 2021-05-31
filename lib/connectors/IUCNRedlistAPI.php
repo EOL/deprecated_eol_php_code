@@ -604,25 +604,27 @@ class IUCNRedlistAPI
         $url = str_ireplace("SPECIES_ID", $species_id, $this->api['narrative']); // echo "\n narrative API call: $url\n";
         $json = Functions::lookup_with_cache($url, $download_options);
         $arr = json_decode($json, true); //print_r($arr); exit;
-        $texts = $arr['result'][0]; //print_r($texts); exit;
         
-        $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation', $agents, $citation, 'IUCN Red List Assessment', $texts['rationale']);
-        if($section) $taxon_parameters['dataObjects'][] = $section;
-        
-        $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution', $agents, $citation, 'Range Description', $texts['geographicrange']);
-        if($section) $taxon_parameters['dataObjects'][] = $section;
-        
-        $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Trends', $agents, $citation, 'Population', $texts['population']);
-        if($section) $taxon_parameters['dataObjects'][] = $section;
-        
-        $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat', $agents, $citation, 'Habitat and Ecology', $texts['habitat']);
-        if($section) $taxon_parameters['dataObjects'][] = $section;
-        
-        $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Threats', $agents, $citation, 'Threats', $texts['threats']);
-        if($section) $taxon_parameters['dataObjects'][] = $section;
-        
-        $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Management', $agents, $citation, 'Conservation Actions', $texts['conservationmeasures']);
-        if($section) $taxon_parameters['dataObjects'][] = $section;
+        if($texts = @$arr['result'][0]) {
+            //print_r($texts); exit;
+            $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Conservation', $agents, $citation, 'IUCN Red List Assessment', $texts['rationale']);
+            if($section) $taxon_parameters['dataObjects'][] = $section;
+
+            $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution', $agents, $citation, 'Range Description', $texts['geographicrange']);
+            if($section) $taxon_parameters['dataObjects'][] = $section;
+
+            $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Trends', $agents, $citation, 'Population', $texts['population']);
+            if($section) $taxon_parameters['dataObjects'][] = $section;
+
+            $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat', $agents, $citation, 'Habitat and Ecology', $texts['habitat']);
+            if($section) $taxon_parameters['dataObjects'][] = $section;
+
+            $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Threats', $agents, $citation, 'Threats', $texts['threats']);
+            if($section) $taxon_parameters['dataObjects'][] = $section;
+
+            $section = self::get_text_section_V2($species_id, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Management', $agents, $citation, 'Conservation Actions', $texts['conservationmeasures']);
+            if($section) $taxon_parameters['dataObjects'][] = $section;
+        }
         // */
         
         $taxon = new \SchemaTaxon($taxon_parameters);
