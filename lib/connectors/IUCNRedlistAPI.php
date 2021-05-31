@@ -527,8 +527,8 @@ class IUCNRedlistAPI
                         )
                 )
         )*/
-        if(@$rec['contributor']) exit("\nmay contributor. investigate pls.\n");
-        if(@$rec['contributors']) exit("\nmay contributors. investigate pls.\n");
+        if(@$rec['contributor']) exit("\n They've now added [contributor] to their API. investigate pls.\n");
+        if(@$rec['contributors']) exit("\n They've now added [contributors] to their API. investigate pls.\n");
         $redlist_category_code = $rec['category'];
         $scientific_name = $rec['scientific_name'];
         $source = "http://apiv3.iucnredlist.org/api/v3/website/".str_replace(' ', '%20', $scientific_name); //e.g. http://apiv3.iucnredlist.org/api/v3/website/Panthera%20leo
