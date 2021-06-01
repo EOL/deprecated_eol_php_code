@@ -31,11 +31,11 @@ started abbreviating to see all:
 stable run:
 42	Sun 2021-05-30 11:28:38 AM	    {"agent.tab":152, "MoF.tab":335337, "media.tab":104849, "occur.tab":153496, "reference.tab":34778, "taxon.tab":97029, "vernacular_name.tab":184304, "time_elapsed":{"sec":9169.030000000001, "min":152.82, "hr":2.55}}
 42_meta_recoded                     {"agent.tab":152, "MoF.tab":335337, "media.tab":104849, "occur.tab":153496, "reference.tab":34778, "taxon.tab":97029, "vernacular_name.tab":184304, "time_elapsed":{"sec":359.03, "min":5.98, "hr":0.1}}
-
 42	Mon 2021-05-31 04:13:41 AM	    {"agent.tab":152, "MoF.tab":335337, "media.tab":104849, "occur.tab":153496, "reference.tab":34786, "taxon.tab":97029, "vernacular_name.tab":183680, "time_elapsed":{"sec":1472.52, "min":24.54, "hr":0.41}}
 42_meta_recoded	Mon 2021-05-31 04:19{"agent.tab":152, "MoF.tab":335337, "media.tab":104849, "occur.tab":153496, "reference.tab":34786, "taxon.tab":97029, "vernacular_name.tab":183680, "time_elapsed":{"sec":356.24, "min":5.94, "hr":0.1}}
-
-
+back contributors as column in MoF
+42	Mon 2021-05-31 08:28:25 PM	    {"agent.tab":152, "MoF.tab":167652, "media.tab":104849, "occur.tab":153496, "reference.tab":34786, "taxon.tab":97029, "vernacular_name.tab":183680, "time_elapsed":{"sec":729.67, "min":12.16, "hr":0.2}}
+42_meta_recoded	Mon 2021-05-31 08:33{"agent.tab":152, "MoF.tab":167652, "media.tab":104849, "occur.tab":153496, "reference.tab":34786, "taxon.tab":97029, "vernacular_name.tab":183680, "time_elapsed":{"sec":283.66, "min":4.73, "hr":0.08}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

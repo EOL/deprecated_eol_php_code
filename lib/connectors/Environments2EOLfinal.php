@@ -229,6 +229,21 @@ class Environments2EOLfinal extends ContributorsMapAPI
                 if($val = @$rek['agentID']) {
                     if($contributor_names) $contributor_names .= "; ".self::get_names_from_agentIDs($val);
                     else                   $contributor_names = self::get_names_from_agentIDs($val);
+                    
+                    // start converting names to URLs
+                    $arr = explode(";", $contributor_names);
+                    $arr = array_map('trim', $arr);
+                    $uris = array();
+                    foreach($arr as $contributor) {
+                        if($uri = @$this->contributor_mappings[$contributor]) {}
+                        else { //no mapping yet for this contributor
+                            $this->debug['undefined contributor'][$contributor] = '';
+                            $uri = $contributor;
+                        }
+                        $uris[$uri] = '';
+                    }
+                    $uris = array_keys($uris);
+                    $rec["contributor"] = implode(";", $uris);
                 }
                 // */
                 
@@ -238,7 +253,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
                     $ret = $this->func->add_string_types($rec, $rec['measurementValue'], $rec['measurementType'], "true");
                     $parentID = $ret['measurementID'];
                     
-                    // /* start adding child records - contributor
+                    /* start adding child records - contributor -- working but a mistake since contributors must be columns in MoF, not child.
                     if($contributor_names) {
                         $rex = array();
                         $rex["taxon_id"] = $rec["taxon_id"];
@@ -255,7 +270,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
                             $this->func->add_string_types($rex, $uri, 'http://purl.org/dc/terms/contributor', "child");
                         }
                     }
-                    // */
+                    */
                     
                 }
                 // */
