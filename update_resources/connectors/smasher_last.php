@@ -11,7 +11,9 @@ $timestart = time_elapsed();
 $func = new SmasherLastAPI();
 
 // $func->sheet1_Move_DH2_taxa_to_new_parent();    echo "\n-end sheet1_Move_DH2_taxa_to_new_parent-\n";
-$func->sheet2_Merge_DH2_taxa();                 echo "\n-end sheet2_Merge_DH2_taxa-\n";
+// $func->sheet2_Merge_DH2_taxa();                 echo "\n-end sheet2_Merge_DH2_taxa-\n";
+$func->sheet3_Split_DH2_taxa();                 echo "\n-end sheet3_Split_DH2_taxa-\n";
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

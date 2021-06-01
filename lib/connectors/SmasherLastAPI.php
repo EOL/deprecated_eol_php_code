@@ -236,6 +236,97 @@ class SmasherLastAPI
         fclose($WRITE);
         /* end 2nd loop */
     }
+    function sheet3_Split_DH2_taxa()
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1D-AYca8hk3WCgAoslL15DvrJD4XD7NXT0d_tPdKxxVQ';
+        $params['range']         = 'Split DH2 taxa!A1:L9'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        //start massage array
+        $i = 0;
+        foreach($arr as $item) { $i++;
+            // $rec = array('keep_uid' => $item[0], 'keep_name' => $item[1], 'merge_uid' => $item[2], 'merge_name' => $item[3]);
+            // print_r($rec); exit("\nend4\n");
+            // print_r($item);
+            if($i == 1) $fields = $item;
+            else {
+                $rek = array(); $k = 0;
+                foreach($fields as $fld) {
+                    if($fld) $rek[$fld] = @$item[$k];
+                    $k++;
+                }
+                $rek = array_map('trim', $rek);
+                // print_r($rek); exit;
+                /*Array(
+                    [uid] => -2069538
+                    [parent_uid] => -1985654
+                    [name] => Jubula
+                    [rank] => genus
+                    [sourceinfo] => IOC:3b16d65785cdea776b5dcc4fb59ad9c6,ITIS:15232
+                    [uniqname] => 
+                    [flags] => 
+                    [higherClassification] => Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuterostomia|Chordata|Vertebrata|Gnathostomata|Osteichthyes|Sarcopterygii|Tetrapoda|Amniota|Reptilia|Aves|Ornithurae|Neornithes|Neognathae|Neoaves|landbirds|Strigiformes|Strigidae|
+                    [new_taxon] => ITIS:15232
+                    [new_parent] => -491283
+                    [new_higherClassification] => Life|Cellular Organisms|Eukaryota|Archaeplastida|Chloroplastida|Streptophyta|Embryophytes|Marchantiophyta|Jungermanniopsida|Porellales|Jubulineae|Jubulaceae
+                    [move_children] => -2107775,-2107773,-2136797,-2136798,-2107774,-2107776,-2136799,-2136801,-2136802,-2136800,-2136804,-2136805,-2136803,-2107777
+                )*/
+                $info[$rek['uid']] = $rek;
+            }
+        }
+        // print_r($info); exit;
+        $source      = "/Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy_2.tsv";
+        $destination = "/Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy_3.tsv";
+        $WRITE = Functions::file_open($destination, "w");
+        $i = 0;
+        foreach(new FileIterator($source) as $line => $row) { $i++;
+            $rec = explode("\t", $row);
+            if($i == 1) {
+                $fields = $rec;
+                fwrite($WRITE, implode("\t", $fields) . "\n");
+                continue;
+            }
+            else {
+                $rek = array(); $k = 0;
+                foreach($fields as $fld) {
+                    if($fld) $rek[$fld] = @$rec[$k];
+                    $k++;
+                }
+                $rek = array_map('trim', $rek);
+            }
+            // print_r($rek); exit("\nend4\n");
+            /*Array(
+                [uid] => 4038af35-41da-469e-8806-40e60241bb58
+                [parent_uid] => 
+                [name] => Life
+                [rank] => no rank
+                [sourceinfo] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
+                [uniqname] => 
+                [flags] => 
+            )
+            Sheet3: Split DH2 taxa
+            These are taxa that should not have merged during the smasher run, so we need to split them into separate taxa. Luckily, this is a pretty short list.
+            1. For each uid, remove the value from the new_taxon column from the sourceinfo value of the original taxon.
+            2, Then create a new taxon (you can just make up a new uid, we’ll change the taxonIDs later anyway) for the source taxon listed in the new_taxon column
+            3. The new taxon should have the name & rank from the source file and the value from the new_taxon column in the sourceinfo column.
+            4. Put the value from the new_parent column in the parent_uid column of the new taxon.
+            5. Check the higherClassification of the new taxon to make sure it corresponds to the path in the new_higherClassification column. Let me know if anything doesn't check out.
+            6. The move_children column has a list of children of the original taxon which need to be moved to the new taxon: For each uid listed here, change their parent_uid to the uid of the newly created taxon.
+            */
+            $uid = $rek['uid'];
+            if($val = @$info[$uid]) {
+                /*1. For each uid, remove the value from the new_taxon column from the sourceinfo value of the original taxon.*/
+                
+            }
+            
+            //saving
+            fwrite($WRITE, implode("\t", $rek) . "\n");
+        }
+        fclose($WRITE);
+    }
+
+
     /*
     function get_contributor_mappings($resource_id = false, $download_options = array())
     {
