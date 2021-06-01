@@ -9,7 +9,10 @@ $cmdline_params['what']             = @$argv[2]; //useful here
 require_library('connectors/SmasherLastAPI');
 $timestart = time_elapsed();
 $func = new SmasherLastAPI();
-$func->sheet1_Move_DH2_taxa_to_new_parent(); exit("\n-end sheet1_Move_DH2_taxa_to_new_parent-\n");
+
+// $func->sheet1_Move_DH2_taxa_to_new_parent();    echo "\n-end sheet1_Move_DH2_taxa_to_new_parent-\n";
+$func->sheet2_Merge_DH2_taxa();                 echo "\n-end sheet2_Merge_DH2_taxa-\n";
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";

@@ -27,7 +27,7 @@ class SmasherLastAPI
         $arr = $func->access_google_sheet($params);
         //start massage array
         foreach($arr as $item) $info[$item[0]] = array('parent_uid' => $item[1], 'name' => $item[2], 'rank' => $item[3], 'sourceinfo' => $item[4]
-        , 'uniqname' => $item[5], 'flags' => $item[6], 'new_parent_uid' => $item[7], 'new_parent_name' => $item[8], 'new_higherClassification' => $item[9], );
+        , 'uniqname' => $item[5], 'flags' => $item[6], 'new_parent_uid' => $item[7], 'new_parent_name' => $item[8], 'new_higherClassification' => $item[9]);
         // print_r($info); exit;
         // */
         /* sample $info [-159303] => Array(
@@ -98,7 +98,7 @@ class SmasherLastAPI
         $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
     }
-    function
+    function sheet2_Merge_DH2_taxa()
     {   /*
         keep_uid	keep_name	            merge_uid	merge_name
         -937508	    Megachirella	        -873321	    Megachirella
@@ -118,7 +118,123 @@ class SmasherLastAPI
                     => if found uid_will_update_sourceinfo then append merge_uid sourceinfo to current sourceinfo
         */
         
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1D-AYca8hk3WCgAoslL15DvrJD4XD7NXT0d_tPdKxxVQ';
+        $params['range']         = 'Merge DH2 taxa!A1:D2200'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        //start massage array
+        foreach($arr as $item) {
+            $rec = array('keep_uid' => $item[0], 'keep_name' => $item[1], 'merge_uid' => $item[2], 'merge_name' => $item[3]);
+            // print_r($rec); exit("\nend3\n");
+            /*Array(
+                [keep_uid] => -838980
+                [keep_name] => Xenellidae
+                [merge_uid] => -726732
+                [merge_name] => Xennellidae
+            )*/
+            $all_merge_uids[$rec['merge_uid']] = $rec;
+            $uid_will_update_sourceinfo[$rec['keep_uid']] = $rec['merge_uid'];
+            $all_keep_uids[$rec['keep_uid']] = $rec;
+        }
         
+        /* first loop */
+        $source = "/Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy.tsv";
+        $i = 0;
+        foreach(new FileIterator($source) as $line => $row) { $i++;
+            $rec = explode("\t", $row);
+            if($i == 1) {
+                $fields = $rec;
+                continue;
+            }
+            else {
+                $rek = array(); $k = 0;
+                foreach($fields as $fld) {
+                    if($fld) $rek[$fld] = @$rec[$k];
+                    $k++;
+                }
+                $rek = array_map('trim', $rek);
+            }
+            // print_r($rek); exit("\nend1\n");
+            /*Array(
+                [uid] => 4038af35-41da-469e-8806-40e60241bb58
+                [parent_uid] => 
+                [name] => Life
+                [rank] => no rank
+                [sourceinfo] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
+                [uniqname] => 
+                [flags] => 
+            )
+            Eli: 
+            first loop  => all parent_uid that = to merge_uid, replace parent_uid to keep_uid
+                        => $merge_uid_sourceinfo[$merge_uid] = xxx
+                        => $uid_will_update_sourceinfo[$keep_uid] = merge_uid
+            2nd loop    => delete all rows where uid is = to merge_uid
+                        => if found uid_will_update_sourceinfo then append merge_uid sourceinfo to current sourceinfo
+            */
+            /* has berring below, not here.
+            $parent_uid = $rek['parent_uid'];
+            if($val = @$all_merge_uids[$parent_uid]) $rek['parent_uid'] = $val['keep_uid'];
+            */
+            
+            $uid = $rek['uid'];
+            if($val = @$all_merge_uids[$uid]) $merge_uid_sourceinfo[$uid] = $rek['sourceinfo'];
+            if($val = @$all_keep_uids[$uid]) $uid_will_update_sourceinfo[$uid] = $val['merge_uid'];
+        }
+        /* end first loop */
+        /* 2nd loop */
+        $source      = "/Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy.tsv";
+        $destination = "/Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy_2.tsv";
+        $WRITE = Functions::file_open($destination, "w");
+        $i = 0;
+        foreach(new FileIterator($source) as $line => $row) { $i++;
+            $rec = explode("\t", $row);
+            if($i == 1) {
+                $fields = $rec;
+                fwrite($WRITE, implode("\t", $fields) . "\n");
+                continue;
+            }
+            else {
+                $rek = array(); $k = 0;
+                foreach($fields as $fld) {
+                    if($fld) $rek[$fld] = @$rec[$k];
+                    $k++;
+                }
+                $rek = array_map('trim', $rek);
+            }
+            // print_r($rek); exit("\nend4\n");
+            /*Array(
+                [uid] => 4038af35-41da-469e-8806-40e60241bb58
+                [parent_uid] => 
+                [name] => Life
+                [rank] => no rank
+                [sourceinfo] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
+                [uniqname] => 
+                [flags] => 
+            )
+            Eli: 
+            first loop  => all parent_uid that = to merge_uid, replace parent_uid to keep_uid
+                        => $merge_uid_sourceinfo[$merge_uid] = xxx
+                        => $uid_will_update_sourceinfo[$keep_uid] = merge_uid
+            2nd loop    => delete all rows where uid is = to merge_uid
+                        => if found uid_will_update_sourceinfo then append merge_uid sourceinfo to current sourceinfo
+            */
+            
+            $parent_uid = $rek['parent_uid'];
+            if($val = @$all_merge_uids[$parent_uid]) $rek['parent_uid'] = $val['keep_uid'];
+            
+            $uid = $rek['uid'];
+            if($val = @$all_merge_uids[$uid]) continue;
+            
+            if($merge_uid = @$uid_will_update_sourceinfo[$uid]) {
+                $rek['sourceinfo'] .= ",".$merge_uid_sourceinfo[$merge_uid];
+            }
+            
+            //saving
+            fwrite($WRITE, implode("\t", $rek) . "\n");
+        }
+        fclose($WRITE);
+        /* end 2nd loop */
     }
     /*
     function get_contributor_mappings($resource_id = false, $download_options = array())

@@ -124,6 +124,9 @@ Repo 2: Smithsonian Contributions to Botany
 With growth ontology:
 10088_6943	Sat 2021-05-22 04:24:44 AM	{"media_resource.tab":1649, "taxon.tab":1549, "time_elapsed":{"sec":89.38, "min":1.49, "hr":0.02}}
 10088_6943_ENV	Sat 2021-05-22 04:25:50 AM	{"measurement_or_fact_specific.tab":6300, "media_resource.tab":1487, "occurrence_specific.tab":6300, "taxon.tab":1549, "time_elapsed":{"sec":57.82, "min":0.96, "hr":0.02}}
+excluded 1 growth uri
+10088_6943	Tue 2021-06-01 01:22:50 AM	{"media_resource.tab":1649, "taxon.tab":1549, "time_elapsed":{"sec":104.04, "min":1.73, "hr":0.03}}
+10088_6943_ENV	Tue 2021-06-01 01:23:38 AM	{"measurement_or_fact_specific.tab":6234, "media_resource.tab":1487, "occurrence_specific.tab":6234, "taxon.tab":1549, "time_elapsed":{"sec":38.39, "min":0.64, "hr":0.01}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
