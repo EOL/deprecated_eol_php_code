@@ -200,6 +200,9 @@ more adjustments:
 stable run:
 21	Thu 2021-05-27 01:20:43 AM	    {"agent.tab":777,                 "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":12.92, "min":0.22, "hr":0}}
 21_ENV	Thu 2021-05-27 01:21:12 AM	{"agent.tab":777, "MoF.tab":5115, "media_resource.tab":8454, "occurrence.tab":2094, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":29.05, "min":0.48, "hr":0.01}}
+contributor back as column in MoF
+21	Mon 2021-05-31 08:50:52 PM	    {"agent.tab":777,                 "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":13.01, "min":0.22, "hr":0}}
+21_ENV	Mon 2021-05-31 08:51:43 PM	{"agent.tab":777, "MoF.tab":2094, "media_resource.tab":8454, "occurrence.tab":2094, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":50.28, "min":0.84, "hr":0.01}}
 ===================================================================================================================== WoRMS
 HOW TO RUN:
 php5.6 26.php jenkins
