@@ -628,6 +628,12 @@ class Pensoft2EOLAPI
             }
             // */
             
+            // /*
+            if($rek['ontology'] == "growth") {
+                if(in_array($rek['id'], array('https://www.wikidata.org/entity/Q16868813'))) continue; //https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=66125&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66125
+            }
+            // */
+            
             // /* customize
             // exit("\n".$this->param['resource_id']."\n");
             if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text
