@@ -235,6 +235,8 @@ class SmasherLastAPI
         }
         fclose($WRITE);
         /* end 2nd loop */
+        $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
+        $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
     }
     function sheet3_Split_DH2_taxa()
     {
@@ -256,6 +258,8 @@ class SmasherLastAPI
                     if($fld) $rek[$fld] = @$item[$k];
                     $k++;
                 }
+                @$ctr++;
+                $rek['new_uid'] = "NEW_".$ctr;
                 $rek = array_map('trim', $rek);
                 // print_r($rek); exit;
                 /*Array(
@@ -273,6 +277,11 @@ class SmasherLastAPI
                     [move_children] => -2107775,-2107773,-2136797,-2136798,-2107774,-2107776,-2136799,-2136801,-2136802,-2136800,-2136804,-2136805,-2136803,-2107777
                 )*/
                 $info[$rek['uid']] = $rek;
+                
+                if($val = $rek['move_children']) {
+                    $arr = explode(",", $val);
+                    foreach($arr as $uid) $uids_with_new_parent[$uid] = $rek['new_uid'];
+                }
             }
         }
         // print_r($info); exit;
@@ -296,6 +305,7 @@ class SmasherLastAPI
                 $rek = array_map('trim', $rek);
             }
             // print_r($rek); exit("\nend4\n");
+            $orig = $rek;
             /*Array(
                 [uid] => 4038af35-41da-469e-8806-40e60241bb58
                 [parent_uid] => 
@@ -308,22 +318,74 @@ class SmasherLastAPI
             Sheet3: Split DH2 taxa
             These are taxa that should not have merged during the smasher run, so we need to split them into separate taxa. Luckily, this is a pretty short list.
             1. For each uid, remove the value from the new_taxon column from the sourceinfo value of the original taxon.
-            2, Then create a new taxon (you can just make up a new uid, we’ll change the taxonIDs later anyway) for the source taxon listed in the new_taxon column
+            2. Then create a new taxon (you can just make up a new uid, we’ll change the taxonIDs later anyway) 
+                for the source taxon listed in the new_taxon column
             3. The new taxon should have the name & rank from the source file and the value from the new_taxon column in the sourceinfo column.
             4. Put the value from the new_parent column in the parent_uid column of the new taxon.
-            5. Check the higherClassification of the new taxon to make sure it corresponds to the path in the new_higherClassification column. Let me know if anything doesn't check out.
-            6. The move_children column has a list of children of the original taxon which need to be moved to the new taxon: For each uid listed here, change their parent_uid to the uid of the newly created taxon.
+            5. Check the higherClassification of the new taxon to make sure it corresponds to the path in the new_higherClassification column. 
+                Let me know if anything doesn't check out.
+            6. The move_children column has a list of children of the original taxon which need to be moved to the new taxon: 
+                For each uid listed here, change their parent_uid to the uid of the newly created taxon.
             */
             $uid = $rek['uid'];
-            if($val = @$info[$uid]) {
-                /*1. For each uid, remove the value from the new_taxon column from the sourceinfo value of the original taxon.*/
-                
+            
+            if($new_parent = @$uids_with_new_parent[$uid]) $rek['parent_uid'] = $new_parent; //#6 Sheet3
+            
+            if($sheet = @$info[$uid]) {
+                // print_r($sheet); exit("\nend5\n");
+                /*Array(
+                    [uid] => 4e8d582b-61f3-4888-83f5-73746fd58e15
+                    [parent_uid] => 0237d3e4-a0f9-4ac3-8c14-56bc8be94e42
+                    [name] => Cepolidae
+                    [rank] => family
+                    [sourceinfo] => trunk:4e8d582b-61f3-4888-83f5-73746fd58e15,MOL:Cepolidae,COL:9972b706c30f9a91c6f70bd65abfce04
+                    [uniqname] => 
+                    [flags] => 
+                    [higherClassification] => Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuterostomia|Chordata|Vertebrata|Gnathostomata|Osteichthyes|Actinopterygii|Neopterygii|Teleostei|Euteleostei|Neoteleostei|Acanthopterygii|Priacanthiformes|
+                    [new_taxon] => MOL:Cepolidae
+                    [new_parent] => -517402
+                    [new_higherClassification] => Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Protostomia|Spiralia|Mollusca|Gastropoda|Heterobranchia|Stylommatophora
+                    [move_children] => -1142283,-1142284,-1142285
+                    [new_uid] => NEW_1
+                )*/
+                // /*1. For each uid, remove the value from the new_taxon column from the sourceinfo value of the original taxon.
+                $sourceinfo = $sheet['sourceinfo'];
+                if($sourceinfo != $rek['sourceinfo']) exit("\nInvestigate 001\n");
+                $sourceinfo_arr = explode(",", $sourceinfo); //print_r($sourceinfo_arr);
+                $sourceinfo_arr = array_diff($sourceinfo_arr, array($sheet['new_taxon'])); //print_r($sourceinfo_arr);
+                // exit("\n".$sheet['new_taxon']."\n");
+                $rek['sourceinfo'] = implode(",", $sourceinfo_arr);
+                fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
+                // */
+                /*
+                2. Then create a new taxon (you can just make up a new uid, we’ll change the taxonIDs later anyway) 
+                    for the source taxon listed in the new_taxon column
+                3. The new taxon should have the name & rank from the source file and the value from the new_taxon column in the sourceinfo column.
+                4. Put the value from the new_parent column in the parent_uid column of the new taxon.
+                5. Check the higherClassification of the new taxon to make sure it corresponds to the path in the new_higherClassification column.
+                    Let me know if anything doesn't check out.
+                6. The move_children column has a list of children of the original taxon which need to be moved to the new taxon: 
+                    For each uid listed here, change their parent_uid to the uid of the newly created taxon.
+                */
+                $rek = array();
+                $rek = Array(
+                    "uid" => $sheet['new_uid'],
+                    "parent_uid" => $sheet['new_parent'],
+                    "name" => $orig['name'],
+                    "rank" => $orig['rank'],
+                    "sourceinfo" => $sheet['new_taxon'],
+                    "uniqname" => '',
+                    "flags" => '');
+                fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
+            }
+            else {
+                fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
             }
             
-            //saving
-            fwrite($WRITE, implode("\t", $rek) . "\n");
         }
         fclose($WRITE);
+        $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
+        $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
     }
 
 
