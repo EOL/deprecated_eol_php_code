@@ -402,12 +402,30 @@ class FishBaseArchiveAPI extends ContributorsMapAPI
                 $orig_catnum = $o['dc_identifier'];
                 if(substr($o['dc_source'],0,4) == "http")                          $rec["source"]      = $o['dc_source'];
                 if($reference_ids = @$this->object_reference_ids[$o['int_do_id']]) $rec["referenceID"] = implode("; ", $reference_ids);
-                /* old
-                if($agent_ids = @$this->object_agent_ids[$o['int_do_id']])         $rec["contributor"] = self::convert_agent_ids_with_names($agent_ids);
-                */
-                // /* new
-                if($agent_ids = @$this->object_agent_ids[$o['int_do_id']])         $contributor_names = self::convert_agent_ids_with_names($agent_ids);
+                
+                $contributor_names = "";
+                // /* old - contributor as columns
+                if($agent_ids = @$this->object_agent_ids[$o['int_do_id']]) {
+                    $contributor_names = self::convert_agent_ids_with_names($agent_ids);
+                    // start converting names to collaborators URLs
+                    $arr = explode(";", $contributor_names);
+                    $arr = array_map('trim', $arr);
+                    $uris = array();
+                    foreach($arr as $contributor) {
+                        if($uri = @$this->contributor_mappings[$contributor]) {}
+                        else { //no mapping yet for this contributor
+                            $this->debug['undefined contributor'][$contributor] = '';
+                            $uri = $contributor;
+                        }
+                        $uris[$uri] = '';
+                    }
+                    $uris = array_keys($uris);
+                    $rec["contributor"] = implode(";", $uris);
+                }
                 // */
+                /* new contributor as child MoF
+                if($agent_ids = @$this->object_agent_ids[$o['int_do_id']])         $contributor_names = self::convert_agent_ids_with_names($agent_ids);
+                */
                 
                 if($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size" || $o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat") {
                     if($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size") {
@@ -491,9 +509,9 @@ class FishBaseArchiveAPI extends ContributorsMapAPI
                             $this->unique_measurements[$var] = '';
                             $rec = self::assign_adult_2_specific_mtypes($item['measurement'], $rec);
                             $ret = $this->func->pre_add_string_types($rec, $item['value'], $item['measurement'], "true"); //1
-                            // /* start adding child records - contributor
+                            /* start adding child records - contributor
                             self::add_contributor_child_records($contributor_names, $rec, $ret);
-                            // */
+                            */
                         }
                         //end special -------------------------------------------------------------
                         
@@ -525,9 +543,9 @@ class FishBaseArchiveAPI extends ContributorsMapAPI
                             if(!isset($this->unique_measurements[$var])) {
                                 $this->unique_measurements[$var] = '';
                                 $ret = $this->func->pre_add_string_types($rec, $text['desc'], "http://eol.org/schema/terms/Present", "true"); //2
-                                // /* start adding child records - contributor
+                                /* start adding child records - contributor
                                 self::add_contributor_child_records($contributor_names, $rec, $ret);
-                                // */
+                                */
                             }
                             //end special -------------------------------------------------------------
                         }
@@ -566,6 +584,7 @@ class FishBaseArchiveAPI extends ContributorsMapAPI
             // if($k > 10) break; //debug
         }
     }
+    /* working but kinda mistake - contributors should be as columns and not child MoF
     private function add_contributor_child_records($contributor_names, $rec, $ret)
     {
         $parentID = $ret['measurementID'];
@@ -586,6 +605,7 @@ class FishBaseArchiveAPI extends ContributorsMapAPI
             }
         }
     }
+    */
     private function assign_adult_2_specific_mtypes($mtype, $rec)
     {
         /*I've been reviewing the smallest size records in this resource and based on the text descriptions I think all the size measures we are harvesting should be treated as adult sizes. 
@@ -612,9 +632,9 @@ class FishBaseArchiveAPI extends ContributorsMapAPI
                 if($string_uri = self::get_string_uri($string_val)) {
                     $ret = $this->func->pre_add_string_types($rec, $string_uri, $mtype, "true"); //3
                     
-                    // /* start adding child records - contributor
+                    /* start adding child records - contributor
                     self::add_contributor_child_records($contributor_names, $rec, $ret);
-                    // */
+                    */
                 }
                 // elseif($val = @$this->addtl_mappings[strtoupper(str_replace('"', "", $string_val))]) {
                 //     $rec['measurementRemarks'] = $string_val;
