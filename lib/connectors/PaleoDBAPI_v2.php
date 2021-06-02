@@ -901,8 +901,12 @@ class PaleoDBAPI_v2
         
         return $descendant_ids;
     }
-    private function get_all_descendants_of_these_parents($parent_ids)
+    function get_all_descendants_of_these_parents($parent_ids, $parentID_taxonID = array())
     {
+        // /* new: added to make this func be called from other scripts. e.g. SmasherLastAPI.php
+        if($parentID_taxonID) $this->parentID_taxonID = $parentID_taxonID;
+        // */
+        
         echo "\ncount parent_ids to process = ".count($parent_ids)."\n";
         echo "\ncount parentID_taxonID info list = ".count($this->parentID_taxonID)."\n";
         
@@ -914,7 +918,7 @@ class PaleoDBAPI_v2
         }
         return array_unique($final);
     }
-    private function get_descendants_of_this_parent($parent_id)
+    function get_descendants_of_this_parent($parent_id)
     {
         $final = array();
         if($arr = @$this->parentID_taxonID[$parent_id]) {

@@ -387,7 +387,57 @@ class SmasherLastAPI
         $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
     }
-
+    function sheet4_Delete_DH2_taxa()
+    {
+        /* Sheet4: Delete DH2 taxa: These are mostly duplicates and other things that snuck in that I should have caught earlier.
+        Please delete all of these taxa and their children. Some of the children got moved to a new parent.
+        To avoid deleting these, please delete taxa only after completing the previous modifications.
+        */
+        $source      = "/Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy_3.tsv";
+        $destination = "/Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy_4.tsv"; //final version
+        
+        $parent_ids = array('-941485'); //this will come from the sheet4
+        $this->parentID_taxonID = self::get_ids($source);
+        
+        require_library('connectors/PaleoDBAPI_v2');
+        $func = new PaleoDBAPI_v2("");
+        $descendant_ids = $func->get_all_descendants_of_these_parents($parent_ids, $this->parentID_taxonID);
+        print_r($descendant_ids); exit("\n-end-\n");
+        
+    }
+    private function get_ids($source)
+    {
+        $i = 0;
+        foreach(new FileIterator($source) as $line => $row) { $i++;
+            $rec = explode("\t", $row);
+            if($i == 1) {
+                $fields = $rec;
+                continue;
+            }
+            else {
+                $rek = array(); $k = 0;
+                foreach($fields as $fld) {
+                    if($fld) $rek[$fld] = @$rec[$k];
+                    $k++;
+                }
+                $rek = array_map('trim', $rek);
+            }
+            // print_r($rek); exit("\nend5\n");
+            /*Array(
+                [uid] => 4038af35-41da-469e-8806-40e60241bb58
+                [parent_uid] => 
+                [name] => Life
+                [rank] => no rank
+                [sourceinfo] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
+                [uniqname] => 
+                [flags] => 
+            )*/
+            $parent_id = @$rek["parent_uid"];
+            $taxon_id = @$rek["uid"];
+            if($parent_id && $taxon_id) $final[$parent_id][] = $taxon_id;
+        }
+        return $final;
+    }
 
     /*
     function get_contributor_mappings($resource_id = false, $download_options = array())
