@@ -395,15 +395,71 @@ class SmasherLastAPI
         */
         $source      = "/Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy_3.tsv";
         $destination = "/Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy_4.tsv"; //final version
+
+        $parent_ids = self::get_uids_from_sheet4();
+        // $parent_ids = array('-941485'); //this will come from the sheet4     //-992881           forced value
+        // $parent_ids = array('-1596984'); //this will come from the sheet4    //has 2 children    forced value
         
-        $parent_ids = array('-941485'); //this will come from the sheet4
         $this->parentID_taxonID = self::get_ids($source);
         
         require_library('connectors/PaleoDBAPI_v2');
         $func = new PaleoDBAPI_v2("");
         $descendant_ids = $func->get_all_descendants_of_these_parents($parent_ids, $this->parentID_taxonID);
-        print_r($descendant_ids); exit("\n-end-\n");
+        print_r($descendant_ids); 
+        $exclude_uids = array_merge($parent_ids, $descendant_ids);
+        echo "\nparent_ids: ".count($parent_ids)."\n";
+        echo "\ndescendant_ids: ".count($descendant_ids)."\n";
+        echo "\nexclude_uids: ".count($exclude_uids)."\n";
         
+        /* start final deletion */
+        $WRITE = Functions::file_open($destination, "w");
+        $i = 0;
+        foreach(new FileIterator($source) as $line => $row) { $i++;
+            $rec = explode("\t", $row);
+            if($i == 1) {
+                $fields = $rec;
+                fwrite($WRITE, implode("\t", $fields) . "\n");
+                continue;
+            }
+            else {
+                $rek = array(); $k = 0;
+                foreach($fields as $fld) {
+                    if($fld) $rek[$fld] = @$rec[$k];
+                    $k++;
+                }
+                $rek = array_map('trim', $rek);
+            }
+            // print_r($rek); exit("\nend4\n");
+            /*Array(
+                [uid] => 4038af35-41da-469e-8806-40e60241bb58
+                [parent_uid] => 
+                [name] => Life
+                [rank] => no rank
+                [sourceinfo] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
+                [uniqname] => 
+                [flags] => 
+            )*/
+            if(in_array($rek['uid'], $exclude_uids)) continue;
+            fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
+        }
+        fclose($WRITE);
+        $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
+        $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
+    }
+    private function get_uids_from_sheet4()
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1D-AYca8hk3WCgAoslL15DvrJD4XD7NXT0d_tPdKxxVQ';
+        $params['range']         = 'Delete DH2 taxa!A1:I131'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        //start massage array
+        $i = 0;
+        foreach($arr as $item) { $i++;
+            if($i > 1) $final[$item[0]] = '';
+        }
+        // print_r($final); echo "\n".count($final)."\n";
+        return array_keys($final);
     }
     private function get_ids($source)
     {

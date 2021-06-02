@@ -913,7 +913,7 @@ class PaleoDBAPI_v2
         $final = array();
         foreach($parent_ids as $parent_id) {
             $ids = self::get_descendants_of_this_parent($parent_id);
-            debug("\ndescendants of [$parent_id]: ".count($ids));
+            // debug("\ndescendants of [$parent_id]: ".count($ids));
             if($ids) $final = array_merge($final, $ids);
         }
         return array_unique($final);
