@@ -188,12 +188,12 @@ class IUCNRedlistDataConnector extends ContributorsMapAPI
         print_r($this->debug);
         */
 
-        // /* contributor map
+        /* contributor map --> working but removed. Original text strings are shown instead of URI mapping.
         $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 60*60*1);
         $this->contributor_mappings = $this->get_contributor_mappings($this->resource_id, $options);
         // print_r($this->contributor_mappings); exit;
         echo "\n contributor_mappings: ".count($this->contributor_mappings)."\n";
-        // */
+        */
 
         /* new using API */
         self::main();
@@ -413,6 +413,7 @@ class IUCNRedlistDataConnector extends ContributorsMapAPI
                     if(in_array($key, array('assessors', 'reviewers'))) {
                         $names = self::separate_names($value);
                         foreach($names as $contributor) {
+                            /* works OK but removed: https://eol-jira.bibalex.org/browse/DATA-1881?focusedCommentId=66133&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66133
                             if($uri = @$this->contributor_mappings[$contributor]) {
                                 if(substr($uri,0,4) == 'http') self::add_string_types(NULL, $rec, $key, $uri, $text[$key]["uri"], '', $parentMeasurementID);
                             }
@@ -420,7 +421,13 @@ class IUCNRedlistDataConnector extends ContributorsMapAPI
                                 $this->debug['undefined contributor'][$contributor] = '';
                                 // $this->debug['names for Jen'][$contributor] = ''; //redundant
                             }
+                            // for stats/report
                             if(substr_count($contributor, ',') > 1) $this->debug['Eli investigates']["if(part == '$contributor') part = '$contributor';"] = '';
+                            */
+                            
+                            // /* goes back to using original text strings for names
+                            self::add_string_types(NULL, $rec, $key, $contributor, $text[$key]["uri"], '', $parentMeasurementID);
+                            // */
                         }
                     }
                     else { //orig, the rest
