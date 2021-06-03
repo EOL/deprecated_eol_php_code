@@ -280,7 +280,7 @@ class USAendangeredSpeciesAPI
             $rec['occur']['locality'] = $rek['locality'];
             $rec['occur']['institutionCode'] = $rek['institutionCode'];
             $rec['source'] = $this->page['taxon'].$rek['taxon_id'];
-            $rec['contributor'] = $this->agent['name'];
+            // $rec['contributor'] = $this->agent['name']; //removed DATA-1881
             if($ref_ids = @$rek['ref_ids']) $rec['referenceID'] = implode("; ", $ref_ids);
             $this->func->add_string_types($rec, $mValue, $mType, "true");
         }
