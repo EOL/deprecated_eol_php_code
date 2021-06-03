@@ -204,8 +204,8 @@ contributor back as column in MoF
 21	Mon 2021-05-31 08:50:52 PM	    {"agent.tab":777,                 "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":13.01, "min":0.22, "hr":0}}
 21_ENV	Mon 2021-05-31 08:51:43 PM	{"agent.tab":777, "MoF.tab":2094, "media_resource.tab":8454, "occurrence.tab":2094, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":50.28, "min":0.84, "hr":0.01}}
 first contributor is a column, the rest go as child MoF.
-21	Thu 2021-06-03 02:19:07 AM	    {"agent.tab":777,                 "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":12.34, "min":0.21, "hr":0}}
-21_ENV	Thu 2021-06-03 02:20:22 AM	{"agent.tab":777, "MoF.tab":3021, "media_resource.tab":8454, "occurrence.tab":2094, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":74.78, "min":1.25, "hr":0.02}}
+21	Thu 2021-06-03 09:26:37 AM	    {"agent.tab":777,                 "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":14.37, "min":0.24, "hr":0}}
+21_ENV	Thu 2021-06-03 09:27:57 AM	{"agent.tab":777, "MoF.tab":3021, "media_resource.tab":8454, "occurrence.tab":2094, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":80.21, "min":1.34, "hr":0.02}}
 ===================================================================================================================== WoRMS
 HOW TO RUN:
 php5.6 26.php jenkins

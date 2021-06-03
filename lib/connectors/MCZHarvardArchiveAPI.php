@@ -222,7 +222,7 @@ class MCZHarvardArchiveAPI
         if($measurementRemarks) { // so that measurementRemarks (and source, contributor) appears only once in the [measurement_or_fact.tab]
             $m->measurementRemarks = $measurementRemarks;
             $m->source = $this->page_by_guid . $rec["http://rs.tdwg.org/dwc/terms/occurrenceID"];
-            $m->contributor = 'Museum of Comparative Zoology, Harvard';
+            // $m->contributor = 'Museum of Comparative Zoology, Harvard'; //removed DATA-1881
         }
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         if(!isset($this->measurement_ids[$m->measurementID])) {
