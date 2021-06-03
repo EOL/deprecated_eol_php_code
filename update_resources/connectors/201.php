@@ -18,6 +18,9 @@ estimated execution time: 55 minutes for:
 201	Wednesday 2018-03-21 12:48:40 AM{"measurement_or_fact.tab":128349, "media_resource.tab":181033, "occurrence.tab":31733,"taxon.tab":25494} with measurementID and unique at that.
 201	Mon 2020-09-14 02:15:07 PM	    {"measurement_or_fact.tab":195703, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":487.16, "min":8.119999999999999, "hr":0.14}}
 201	Wed 2020-10-14 02:15:39 PM	    {"measurement_or_fact.tab":195703, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":518.17, "min":8.640000000000001, "hr":0.14}}
+201	Thu 2021-06-03 10:05:20 AM	    {"measurement_or_fact.tab":195703, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":493.95, "min":8.23, "hr":0.14}}
+201_meta_recoded	Thu 2021-06-03 10:08:51 AM	{"measurement_or_fact_specific.tab":148096, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":210.55, "min":3.51, "hr":0.06}}
+201_meta_recoded_2	Thu 2021-06-03 10:12:23 AM	{"agent.tab":29, "measurement_or_fact.tab":290917, "media_resource.tab":204028, "occurrence_specific.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":212.65, "min":3.54, "hr":0.06}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
