@@ -231,6 +231,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
                     else                   $contributor_names = self::get_names_from_agentIDs($val);
                     
                     // start converting names to URLs
+                    /* working but commented as strategy changed once again. No problem as long as script is well documented. Easy to change.
                     $arr = explode(";", $contributor_names);
                     $arr = array_map('trim', $arr);
                     $uris = array();
@@ -244,6 +245,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
                     }
                     $uris = array_keys($uris);
                     $rec["contributor"] = implode(";", $uris);
+                    */
                 }
                 // */
                 
@@ -253,7 +255,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
                     $ret = $this->func->add_string_types($rec, $rec['measurementValue'], $rec['measurementType'], "true");
                     $parentID = $ret['measurementID'];
                     
-                    /* start adding child records - contributor -- working but a mistake since contributors must be columns in MoF, not child.
+                    // /* start adding child records - contributor -- working but a mistake since contributors must be columns in MoF, not child.
                     if($contributor_names) {
                         $rex = array();
                         $rex["taxon_id"] = $rec["taxon_id"];
@@ -261,16 +263,19 @@ class Environments2EOLfinal extends ContributorsMapAPI
                         $rex['parentMeasurementID'] = $parentID;
                         $arr = explode(";", $contributor_names);
                         $arr = array_map('trim', $arr);
-                        foreach($arr as $contributor) {
+                        $cnt = 0;
+                        foreach($arr as $contributor) { $cnt++;
                             if($uri = @$this->contributor_mappings[$contributor]) {}
                             else { //no mapping yet for this contributor
                                 $this->debug['undefined contributor'][$contributor] = '';
                                 $uri = $contributor;
                             }
-                            $this->func->add_string_types($rex, $uri, 'http://purl.org/dc/terms/contributor', "child");
+                            /* first contributor is a column, the rest goes as child MoF. First client AmphibiaWeb text (21_ENV). I guess goes for all resources */
+                            if($cnt == 1) $rec["contributor"] = $uri;
+                            else $this->func->add_string_types($rex, $uri, 'http://purl.org/dc/terms/contributor', "child");
                         }
                     }
-                    */
+                    // */
                     
                 }
                 // */
