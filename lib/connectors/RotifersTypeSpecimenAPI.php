@@ -471,7 +471,7 @@ class RotifersTypeSpecimenAPI
             $m->measurementRemarks = $measurementRemarks;
             if($label == "TSR") $m->source = $this->specimen_page_by_guid . $rec["lngSpecimen_ID"];
             elseif($label == "Habitat") $m->source = $this->species_page_by_guid . $rec["lngSpecies_ID"];
-            $m->contributor = 'Rotifer World Catalog';
+            // $m->contributor = 'Rotifer World Catalog'; //removed DATA-1881
         }
         else { //child records
             $m->occurrenceID = '';
