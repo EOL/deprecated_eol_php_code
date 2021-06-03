@@ -252,6 +252,20 @@ class Environments2EOLfinal extends ContributorsMapAPI
                 // /* from legacy filters: EnvironmentsEOLDataConnector.php
                 $rec['measurementValue'] = $string_uri;
                 if($rec = $old_func->adjustments($rec)) {
+                    
+                    // /* get first contributor - should be a contributor column
+                    $arr = explode(";", $contributor_names);
+                    $arr = array_map('trim', $arr);
+                    $first = $arr[0];
+                    if($uri = @$this->contributor_mappings[$first]) {}
+                    else { //no mapping yet for this contributor
+                        $this->debug['undefined contributor'][$first] = '';
+                        $uri = $first;
+                    }
+                    // first contributor is a column, the rest goes as child MoF. First client AmphibiaWeb text (21_ENV). I guess goes for all resources
+                    $rec["contributor"] = $uri;
+                    // */
+                    
                     $ret = $this->func->add_string_types($rec, $rec['measurementValue'], $rec['measurementType'], "true");
                     $parentID = $ret['measurementID'];
                     
@@ -271,7 +285,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
                                 $uri = $contributor;
                             }
                             /* first contributor is a column, the rest goes as child MoF. First client AmphibiaWeb text (21_ENV). I guess goes for all resources */
-                            if($cnt == 1) $rec["contributor"] = $uri;
+                            if($cnt == 1) {}
                             else $this->func->add_string_types($rex, $uri, 'http://purl.org/dc/terms/contributor', "child");
                         }
                     }
