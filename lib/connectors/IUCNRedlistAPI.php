@@ -578,6 +578,7 @@ class IUCNRedlistAPI
         */
         
         // /* working OK but not needed ATM.
+        $citation = '';
         $url = str_ireplace("SPECIES_ID", $species_id, $this->api['citations']); // echo "\n citations API call: $url\n";
         $json = Functions::lookup_with_cache($url, $download_options);
         $arr = json_decode($json, true); // print_r($arr); exit;
