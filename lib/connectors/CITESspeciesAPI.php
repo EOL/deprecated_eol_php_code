@@ -199,7 +199,7 @@ class CITESspeciesAPI
                 $rec["catnum"] = $taxon_id.$d->id;
 
                 $rec['measurementDeterminedDate'] = $d->effective_at;
-                $rec['measurementDeterminedBy'] = $d->party;
+                // $rec['measurementDeterminedBy'] = $d->party; //removed DATA-1881
                 $rec['measurementRemarks'] = $d->annotation;
                 $rec['source'] = "https://www.speciesplus.net/#/taxon_concepts/$taxon_id/legal";
                 
