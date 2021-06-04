@@ -116,7 +116,7 @@ class DwCA_Utility
         else                                                    $annotateYes = false;
         // */
         
-        if(in_array($this->resource_id, array("170_final", "BF"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24*30)); //1 month expire
+        if(in_array($this->resource_id, array("170_final", "BF", "cites_taxa"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24*30)); //1 month expire
         elseif(in_array($this->resource_id, array("wikimedia_comnames", "71_new", "368_removed_aves", "itis_2019-08-28", "itis_2020-07-28", "itis_2020-12-01", "368_final"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array("wiki_en_report"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array("globi_associations"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24)); //expires in a day
@@ -753,6 +753,18 @@ class DwCA_Utility
                 //#################### end some validations ----------------------------  #########################################################################
 
                 $c->$field = $rec[$key];
+                
+                // /* ----------------- customized: start to remove specific fields here -----------------
+                
+                // /* remove in MoF 'determinedBy' -> https://eol-jira.bibalex.org/browse/DATA-1881?focusedCommentId=65624&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65624
+                if($this->resource_id == "cites_taxa") {
+                    if($class == "measurementorfact") {
+                        if(isset($c->measurementDeterminedBy)) unset($c->measurementDeterminedBy);
+                    }
+                }
+                // */
+                
+                // ----------------- end ----------------- */
 
                 // if($field == "taxonID") $c->$field = self::get_worms_taxon_id($c->$field); //not used here, only in WoRMS connector
             }//end loop foreach()
