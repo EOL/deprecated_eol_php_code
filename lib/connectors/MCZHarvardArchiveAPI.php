@@ -73,7 +73,7 @@ class MCZHarvardArchiveAPI
             $taxon->family          = (string) $rec["http://rs.tdwg.org/dwc/terms/family"];
             $taxon->genus           = (string) $rec["http://rs.tdwg.org/dwc/terms/genus"];
             $taxon->subgenus        = (string) $rec["http://rs.tdwg.org/dwc/terms/subgenus"];
-            $taxon->rightsHolder    = (string) $rec["http://purl.org/dc/terms/rightsHolder"];
+            // $taxon->rightsHolder    = (string) $rec["http://purl.org/dc/terms/rightsHolder"]; //removed from: https://eol-jira.bibalex.org/browse/DATA-1881?focusedCommentId=66146&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66146
             $this->archive_builder->write_object_to_file($taxon);
         }
     }
