@@ -98,6 +98,7 @@ class Pensoft2EOLAPI
         $this->ontologies = "envo";
         /* from DATA-1853 - exclude ranks */
         $this->excluded_ranks = array('class', 'infraclass', 'infrakingdom', 'infraorder', 'infraphylum', 'kingdom', 'order', 'phylum', 'subclass', 'subkingdom', 'suborder', 'subphylum', 'subtribe', 'superclass', 'superfamily', 'superkingdom', 'superorder', 'superphylum', 'division', 'domain', 'grandorder', 'parvorder', 'realm', 'subdivision', 'tribe');
+        $this->pensoft_service = "http://api.pensoft.net/annotator?text=MY_DESC&ontologies=MY_ONTOLOGIES";
     }
     public function initialize_remaps_deletions_adjustments()
     {
@@ -114,7 +115,11 @@ class Pensoft2EOLAPI
         */
     }
     function generate_eol_tags_pensoft($resource, $timestart = '', $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
-    {   // /* ------------------------- customize -------------------------
+    {   
+        if(!self::test_is_passed()) exit("\nTest failed. Needed service is not available\n");
+        else echo "\nTest passed OK\n";
+        
+        // /* ------------------------- customize -------------------------
         if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text: entire resource was processed.
             $this->descendants_of_saline_water = self::get_descendants_of_habitat_group('saline water'); //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
         }
@@ -688,8 +693,13 @@ class Pensoft2EOLAPI
         // */
         
         $this->pensoft_run_cnt++;
-        // $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies=envo"'; //orig
-        $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies='.$this->ontologies.'"'; //new
+        $uri = str_replace("MY_DESC", urlencode($desc), $this->pensoft_service);
+        $uri = str_replace("MY_ONTOLOGIES", $this->ontologies, $uri);
+        /* worked for the longest time. Just refactored for cleaner script.
+        $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies='.$this->ontologies.'"';
+        */
+        $cmd = 'curl -s GET "'.$uri.'"';
+        
         $cmd .= " 2>&1";
         // sleep(2); //temporary
         $json = shell_exec($cmd);
@@ -1369,6 +1379,25 @@ class Pensoft2EOLAPI
         foreach($arr as $uri) $final[$uri] = '';
         // print_r($final); exit("\n\n");
         return $final;
+    }
+    private function test_is_passed()
+    {
+        $desc = "I live in a valley in Northern Philippines";
+        $ontology = "envo";
+        $uri = str_replace("MY_DESC", urlencode($desc), $this->pensoft_service);
+        $uri = str_replace("MY_ONTOLOGIES", $ontology, $uri);
+        $json = Functions::lookup_with_cache($uri, array('expire_seconds' => 60));
+        $arr = json_decode($json, true); //print_r($arr); exit;
+        /*Array(
+            [data] => Array(
+                    [0] => Array(
+                            [id] => http://purl.obolibrary.org/obo/ENVO_00000100
+                            [lbl] => valley
+                            [context] => I live in a <b>valley</b> in Northern Philippines
+                            ...
+        */
+        if($arr['data'][0]['id'] == 'http://purl.obolibrary.org/obo/ENVO_00000100' && $arr['data'][0]['lbl'] == 'valley') return true;
+        return false;
     }
 }
 ?>
