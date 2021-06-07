@@ -23,7 +23,7 @@ class PolytraitsAPI extends ContributorsMapAPI
         
         $tables = $info['harvester']->tables;
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
-        // self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
+        if($this->debug) print_r($this->debug);
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
@@ -40,6 +40,7 @@ class PolytraitsAPI extends ContributorsMapAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
+            $rec = array_map('trim', $rec);
             // print_r($rec); exit;
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/measurementID] => 1
