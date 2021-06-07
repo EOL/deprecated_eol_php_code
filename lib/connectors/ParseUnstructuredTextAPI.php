@@ -10,6 +10,8 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         /* START epub series */
         // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
+        $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
+        // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
         
         // http://gnrd.globalnames.org/name_finder.json?text=Stilbosis lonchocarpella Busck, 1934, p. 157.
         // https://parser.globalnames.org/api/v1/Creagrutus mucipu, USNM 350449, 1, 41.4 mm, paratype; Brazil, Goiás, Município de Minaçu/Colinas do Sul, Rio Tocantins.
@@ -45,9 +47,6 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // SCtZ-0004 - not a list-type
         // SCtZ-0604 - I considered not a list-type but a regular species section type
         // */
-        
-        $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
-        // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
         
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
     }
