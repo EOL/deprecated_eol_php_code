@@ -50,6 +50,7 @@ class IUCNRedlistAPI
         // /* new May 25, 2021
         $token = "9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee";
         $this->api['taxon_details'] = "https://apiv3.iucnredlist.org/api/v3/species/id/SPECIES_ID?token=$token";
+        // https://apiv3.iucnredlist.org/api/v3/species/id/55948714?token=9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee
         $this->api['comnames'] = "https://apiv3.iucnredlist.org/api/v3/species/common_names/SPECIES_NAME?token=$token";
         $this->api['citations'] = "https://apiv3.iucnredlist.org/api/v3/species/citation/id/SPECIES_ID?token=$token";
         $this->api['narrative'] = "https://apiv3.iucnredlist.org/api/v3/species/narrative/id/SPECIES_ID?token=$token";
@@ -489,7 +490,13 @@ class IUCNRedlistAPI
         
         $arr = json_decode($json, true); //https://apiv3.iucnredlist.org/api/v3/species/id/181008073?token=9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee
         $rec = @$arr['result'][0]; 
-        if($GLOBALS['ENV_DEBUG']) print_r($rec); //exit;
+        if($GLOBALS['ENV_DEBUG']) print_r($rec);
+        
+        if($species_id == 55948714) {
+            print_r($rec);
+            exit("\nstop muna\n");
+        }
+        
         /*Array(
             [name] => 3
             [result] => Array(
