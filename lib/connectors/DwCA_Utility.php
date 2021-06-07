@@ -309,6 +309,14 @@ class DwCA_Utility
             $func->start($info);
         }
         */
+
+        if(in_array($this->resource_id, array("Polytraits"))) {
+            require_library('connectors/ContributorsMapAPI');
+            require_library('connectors/PolytraitsAPI');
+            $func = new PolytraitsAPI($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+
         if(in_array($this->resource_id, array("708", "21_final", "617_final"))) {
             require_library('connectors/New_EnvironmentsEOLDataConnector');
             $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
@@ -568,7 +576,7 @@ class DwCA_Utility
     }
 
     private function process_fields($records, $class, $generateArchive = true)
-    {
+    {   //echo "\nProcessing: $class [".count($records)."]...\n"; //good debug - check if some extensions have records
         //start used in validation
         $do_ids = array();
         $taxon_ids = array();
@@ -587,6 +595,7 @@ class DwCA_Utility
             elseif($class == "occurrence")  $c = new \eol_schema\Occurrence();
             elseif($class == "occurrence_specific")  $c = new \eol_schema\Occurrence_specific(); //1st client is 10088_5097_ENV
             elseif($class == "measurementorfact")   $c = new \eol_schema\MeasurementOrFact();
+            else exit("\nUndefined class [$class]. Will terminate.\n");
             
             if($this->resource_id == 'parent_basal_values_Carnivora') { //this actually works. But only goes here during dev. if needed, since MoF is customized in /lib/SDRreportLib.php in real operation
                 if($class == "measurementorfact") $c = new \eol_schema\MeasurementOrFact_specific();

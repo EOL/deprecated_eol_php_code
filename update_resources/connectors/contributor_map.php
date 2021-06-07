@@ -13,12 +13,11 @@ $map = $func->get_contributor_mappings();
 print_r($map);
 */
 
-// /* get FishBase collaborators list
+/* get FishBase collaborators list - Worked OK but run once only, since a manual cleaning of the file is needed after run.
 $func = new ContributorsMapAPI('21_ENV');
 $map = $func->get_collab_name_and_ID_from_FishBase();
 // print_r($map);
-
-// */
+*/
 
 exit("\n-end-\n");
 ?>
