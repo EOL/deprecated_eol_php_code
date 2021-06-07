@@ -482,6 +482,8 @@ class IUCNRedlistAPI
         $download_options = $this->download_options;
         $download_options['expire_seconds'] = false;
         $download_options['download_wait_time'] = 500000; //just temporary until I get my own token
+
+        if($species_id == 55948714) $download_options['expire_seconds'] = 0;
         
         $url = str_ireplace("SPECIES_ID", $species_id, $this->api['taxon_details']);
         // echo "\n taxon_details API call: $url\n";
@@ -494,7 +496,7 @@ class IUCNRedlistAPI
         
         if($species_id == 55948714) {
             print_r($rec);
-            exit("\nstop muna\n");
+            exit("\nstop muna [$species_id]\n");
         }
         
         /*Array(
