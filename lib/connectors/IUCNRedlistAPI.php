@@ -543,6 +543,7 @@ class IUCNRedlistAPI
         if(@$rec['contributors']) exit("\n They've now added [contributors] to their API. investigate pls.\n");
         $redlist_category_code = $rec['category'];
         $scientific_name = $rec['scientific_name'];
+        if(!$rec['scientific_name']) echo "\nERROR: No sciname [$species_id]\n";
         $source = "http://apiv3.iucnredlist.org/api/v3/website/".str_replace(' ', '%20', $scientific_name); //e.g. http://apiv3.iucnredlist.org/api/v3/website/Panthera%20leo
         $source = "http://apiv3.iucnredlist.org/api/v3/taxonredirect/".$species_id; //seems better than above
         $taxon_parameters = array();

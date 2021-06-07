@@ -29,6 +29,7 @@ stable run:
 737	Sun 2021-05-30 09:02:22 AM	    {"measurement_or_fact.tab":921035,  "occurrence.tab":359364, "taxon.tab":118716, "time_elapsed":false}
 back to orig strings, not URIs for /Assessors, /Reviewers
 737	Wed 2021-06-02 02:46:44 AM	    {"measurement_or_fact.tab":921174, "occurrence.tab":359364, "taxon.tab":118716, "time_elapsed":false}
+737	Mon 2021-06-07 11:06:32 AM	    {"measurement_or_fact.tab":921181, "occurrence.tab":359367, "taxon.tab":118716, "time_elapsed":false}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
