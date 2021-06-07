@@ -1467,10 +1467,13 @@ class WormsArchiveAPI
         http://eol.org/schema/terms/Absent --- lists locations
         If this condition is met:   occurrenceStatus=excluded
         */
+        /* New: Jun 7, 2021: And let's remove all records with predicate=http://eol.org/schema/terms/Absent
+        https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66144&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66144
         if($occurrenceStatus == "excluded") {
             $rec["catnum"] .= "_ex";
             self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/Absent");
         }
+        */
         
         /*
         http://eol.org/schema/terms/NativeRange --- lists locations
@@ -1480,7 +1483,10 @@ class WormsArchiveAPI
         */
         if(in_array($establishmentMeans, array("Native", "Native - Endemic", "Native - Non-endemic"))) {
             $rec["catnum"] .= "_nr";
-            self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/NativeRange");
+            // /* New: Jun 7, 2021
+            $location_uri = self::get_uri_from_value($location, 'mValue', 'NativeRange');
+            // */
+            self::add_string_types($rec, "true", $location_uri, "http://eol.org/schema/terms/NativeRange");
             if($establishmentMeans == "Native - Endemic")         self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Endemic", "http://rs.tdwg.org/dwc/terms/measurementRemarks");
             // elseif($establishmentMeans == "Native - Non-endemic") //no metadata -> https://jira.eol.org/browse/DATA-1522?focusedCommentId=59715&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-59715
         }
@@ -1495,7 +1501,10 @@ class WormsArchiveAPI
         */
         if((in_array($occurrenceStatus, array("present", "doubtful", ""))) && $establishmentMeans == "Alien") {
             $rec["catnum"] .= "_ir";
-            self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/IntroducedRange");
+            // /* New: Jun 7, 2021
+            $location_uri = self::get_uri_from_value($location, 'mValue', 'IntroducedRange');
+            // */
+            self::add_string_types($rec, "true", $location_uri, "http://eol.org/schema/terms/IntroducedRange");
             /* removed Feb 11, 2020 per: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=64538&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64538
             if($occurrenceStatus == "doubtful") self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable", "http://rs.tdwg.org/dwc/terms/measurementAccuracy");
             */
