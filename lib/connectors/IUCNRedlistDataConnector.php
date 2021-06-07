@@ -197,8 +197,8 @@ class IUCNRedlistDataConnector extends ContributorsMapAPI
 
         /* new using API */
         self::main();
-        // $this->archive_builder->finalize(TRUE); //part of main operation
-        exit("\n-end caching-\n"); //only when caching
+        $this->archive_builder->finalize(TRUE); //part of main operation
+        // exit("\n-end caching-\n"); //only when caching
         print_r($this->debug);
     }
     /* abandoned CSV export
