@@ -125,8 +125,9 @@ class WormsArchiveAPI
         $last_rec = end($taxa);
         return $last_rec['parent_id'];
     }
-    private function contributor_id_name_info()
+    private function get_contributor_id_name_info()
     {
+        $final = array();
         $url = "http://www.marinespecies.org/imis.php?module=person&show=search&fulllist=1";
         $options = $this->download_options;
         $options['expire_seconds'] = 60*60*24*365; //a year to expire
@@ -137,11 +138,19 @@ class WormsArchiveAPI
                 /* [961] => 15938">Zeidler, Wolfgang
                    [962] => 31719">Zhan, Aibin */
                 foreach($arr[1] as $str) {
-                    
+                    if(preg_match("/xxx(.*?)\"/ims", 'xxx'.$str, $arr2)) {
+                        $persid = trim($arr2[1]);
+                        if(preg_match("/\>(.*?)xxx/ims", $str.'xxx', $arr3)) {
+                            $name = trim($arr3[1]);
+                            $final[$name] = "http://www.marinespecies.org/imis.php?module=person&persid=".$persid;
+                        }
+                    }
                 }
             }
-            
         }
+        // print_r($final);
+        echo("\nWoRMS contributors: ".count($final)."\n");
+        return $final; //http://www.marinespecies.org/imis.php?module=person&persid=19299
     }
     function get_all_taxa($what)
     {   /* tests
@@ -150,9 +159,10 @@ class WormsArchiveAPI
         /* tests
         self::initialize_mapping(); exit;
         */
-        /* New: Jun 7, 2021 - get contributor mapping list: http://www.marinespecies.org/imis.php?module=person&show=search
-        $this->contributor_id_name = self::contributor_id_name_info();
-        */
+        // /* New: Jun 7, 2021 - get contributor mapping list: http://www.marinespecies.org/imis.php?module=person&show=search
+        $this->contributor_id_name_info = self::get_contributor_id_name_info();
+        // print_r($this->contributor_id_name_info); exit;
+        // */
         
         $temp = CONTENT_RESOURCE_LOCAL_PATH . "26_files";
         if(!file_exists($temp)) mkdir($temp);
@@ -1137,6 +1147,12 @@ class WormsArchiveAPI
         $uris = Functions::additional_mappings($mappings, 0); //add more mappings used in the past. 2nd param is expire_seconds
         // print_r($uris); exit;
         echo "\nURIs total: ".count($uris)."\n";
+        
+        // /* exclusive mapping for WoRMS only
+        $url = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/WoRMS_native_intro_mapping.txt';
+        $uris = Functions::additional_mappings($uris, 0, $url); //add a single mapping. 2nd param is expire_seconds
+        // */
+        echo "\nURIs total: ".count($uris)."\n";
         return $uris;
     }
     private function tsv2array($url)
@@ -1547,8 +1563,15 @@ class WormsArchiveAPI
             }
             //additional fields per https://eol-jira.bibalex.org/browse/DATA-1767?focusedCommentId=62884&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62884
             $m->measurementDeterminedDate = $rec['http://ns.adobe.com/xap/1.0/CreateDate'];
-            $m->measurementDeterminedBy = $rec['http://purl.org/dc/terms/creator'];
-            $this->debug['DeterminedBy'][$m->measurementDeterminedBy] = '';
+            
+            // /* New: Jun 7, 2021
+            if($val = @$rec['http://purl.org/dc/terms/creator']) {
+                if($uri = @$this->contributor_id_name_info[$val])       $m->measurementDeterminedBy = $uri;
+                else {
+                    $this->debug['No URI: DeterminedBy'][$val] = '';    $m->measurementDeterminedBy = $val;
+                }
+            }
+            // */
         }
         $m->measurementType = $measurementType;
         $m->measurementValue = (string) $value;
