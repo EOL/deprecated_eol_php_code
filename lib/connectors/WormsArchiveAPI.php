@@ -152,6 +152,17 @@ class WormsArchiveAPI
         echo("\nWoRMS contributors: ".count($final)."\n");
         return $final; //http://www.marinespecies.org/imis.php?module=person&persid=19299
     }
+    private function format_remove_middle_initial($str)
+    {   /* given = "de Voogd, Nicole J." -> output is = "de Voogd, Nicole" */
+        $parts = explode(" ", $str);
+        $parts = array_map('trim', $parts);
+        $last_part = $parts[count($parts)-1]; //print_r($parts); //echo "\nlast_part = [$last_part]\n";
+        if(substr($last_part, -1) == "." && strlen($last_part) == 2) { //remove last part (middle initial)
+            array_pop($parts);
+            return implode(" ", $parts);
+        }
+        return $str;
+    }
     function get_all_taxa($what)
     {   /* tests
         $ids = self::get_branch_ids_to_prune(); print_r($ids); exit;
@@ -159,6 +170,9 @@ class WormsArchiveAPI
         /* tests
         $arr = self::initialize_mapping(); print_r($arr);
         echo "\nGalicia: ".$arr['Galicia']."\n"; exit;
+        */
+        /* tests
+        $ret = self::format_remove_middle_initial("de Voogd, Nicole J."); exit("\nfinal = [$ret]\n");
         */
         // /* New: Jun 7, 2021 - get contributor mapping list: http://www.marinespecies.org/imis.php?module=person&show=search
         $this->contributor_id_name_info = self::get_contributor_id_name_info();
@@ -1566,10 +1580,14 @@ class WormsArchiveAPI
             $m->measurementDeterminedDate = $rec['http://ns.adobe.com/xap/1.0/CreateDate'];
             
             // /* New: Jun 7, 2021
-            if($val = @$rec['http://purl.org/dc/terms/creator']) {
-                if($uri = @$this->contributor_id_name_info[$val])       $m->measurementDeterminedBy = $uri;
+            if($val = trim(@$rec['http://purl.org/dc/terms/creator'])) {
+                if($uri = @$this->contributor_id_name_info[$val])           $m->measurementDeterminedBy = $uri;
                 else {
-                    $this->debug['No URI: DeterminedBy'][$val] = '';    $m->measurementDeterminedBy = $val;
+                    $new_val = self::format_remove_middle_initial($val);
+                    if($uri = @$this->contributor_id_name_info[$new_val])   $m->measurementDeterminedBy = $uri;
+                    else {
+                        $this->debug['No URI: DeterminedBy'][$val] = '';    $m->measurementDeterminedBy = $val;
+                    }
                 }
             }
             // */
