@@ -785,7 +785,7 @@ class TropicosArchiveAPI
             while (($line = fgets($handle)) !== false) {
                 $line = str_replace("\n", "", $line);
                 $a = explode("\t", $line); $a = array_map('trim', $a);
-                $this->uri_values[$a[0]] = @$a[1];
+                if($val = @$a[1]) $this->uri_values[$a[0]] = $val;
                 /* not needed anymore
                 $this->ctrys_with_diff_name[] = $a[0]; //what goes here is e.g. 'Burma Rep.', if orig ctry name is 'Burma' and Tropicos calls it differently e.g. 'Burma Rep.'.
                 */

@@ -157,7 +157,8 @@ class WormsArchiveAPI
         $ids = self::get_branch_ids_to_prune(); print_r($ids); exit;
         */
         /* tests
-        $arr = self::initialize_mapping(); print_r($arr); exit;
+        $arr = self::initialize_mapping(); print_r($arr);
+        echo "\nGalicia: ".$arr['Galicia']."\n"; exit;
         */
         // /* New: Jun 7, 2021 - get contributor mapping list: http://www.marinespecies.org/imis.php?module=person&show=search
         $this->contributor_id_name_info = self::get_contributor_id_name_info();
