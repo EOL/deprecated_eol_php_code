@@ -157,7 +157,7 @@ class WormsArchiveAPI
         $ids = self::get_branch_ids_to_prune(); print_r($ids); exit;
         */
         /* tests
-        self::initialize_mapping(); exit;
+        $arr = self::initialize_mapping(); print_r($arr); exit;
         */
         // /* New: Jun 7, 2021 - get contributor mapping list: http://www.marinespecies.org/imis.php?module=person&show=search
         $this->contributor_id_name_info = self::get_contributor_id_name_info();
@@ -1146,13 +1146,13 @@ class WormsArchiveAPI
         if(@$mappings[1] == "http://marineregions.org/mrgid/18075") { print_r($mappings); exit("-huli ka dito pala-"); } */
         $uris = Functions::additional_mappings($mappings, 0); //add more mappings used in the past. 2nd param is expire_seconds
         // print_r($uris); exit;
-        echo "\nURIs total: ".count($uris)."\n";
+        echo "\nURIs total A: ".count($uris)."\n";
         
         // /* exclusive mapping for WoRMS only
         $url = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/WoRMS_native_intro_mapping.txt';
         $uris = Functions::additional_mappings($uris, 0, $url); //add a single mapping. 2nd param is expire_seconds
         // */
-        echo "\nURIs total: ".count($uris)."\n"; //print_r($uris);
+        echo "\nURIs total B: ".count($uris)."\n"; //print_r($uris);
         return $uris;
     }
     private function tsv2array($url)
@@ -1182,7 +1182,7 @@ class WormsArchiveAPI
         
         $additional_mappings = self::initialize_mapping();
         $final = $additional_mappings + $final;
-        echo "\nURIs total: ".count($final)."\n";
+        echo "\nURIs total C: ".count($final)."\n";
         print_r($final['Europe']);
         echo "\n-end test block-\n";
         /* if(@$final[1]) exit("\nCannot have 1 or any numeric value as index. Cause for investigation.\n"); */
