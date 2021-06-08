@@ -2571,11 +2571,20 @@ class Functions
         $arr = $func->access_google_sheet($params);
         return $arr;
     }
-    public static function additional_mappings($mappings, $expire_seconds = 60*60*24*1) //additional mappings from other resources, used in other connectors
+    public static function additional_mappings($mappings, $expire_seconds = 60*60*24*1, $single_TSV = false) //additional mappings from other resources, used in other connectors
     {
-        // if(@$mappings['male'] == 'male') exit("\nditox 0\n"); //debug
         require_library('connectors/TropicosArchiveAPI');
         $func = new TropicosArchiveAPI(NULL);
+
+        if($single_TSV) {
+            $url = $single_TSV;
+            $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds);
+            $mappings = self::add_two_arrays($mappings, $uri_values);
+            echo "\n".count($mappings)." - URIs were added from $single_TSV. \n";
+            return $mappings;
+        }
+
+        // if(@$mappings['male'] == 'male') exit("\nditox 0\n"); //debug
         $uri_values = $func->add_additional_mappings(true, false, $expire_seconds); //add country mappings used in Tropicos
         $mappings = self::add_two_arrays($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from Tropicos. \n";

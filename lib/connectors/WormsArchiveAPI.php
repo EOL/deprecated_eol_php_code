@@ -1152,7 +1152,7 @@ class WormsArchiveAPI
         $url = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/WoRMS_native_intro_mapping.txt';
         $uris = Functions::additional_mappings($uris, 0, $url); //add a single mapping. 2nd param is expire_seconds
         // */
-        echo "\nURIs total: ".count($uris)."\n";
+        echo "\nURIs total: ".count($uris)."\n"; //print_r($uris);
         return $uris;
     }
     private function tsv2array($url)
