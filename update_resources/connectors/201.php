@@ -25,7 +25,7 @@ estimated execution time: 55 minutes for:
 201	Fri 2021-06-04 03:06:12 AM	    {"measurement_or_fact.tab":195703, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":491.96, "min":8.199999999999999, "hr":0.14}}
 201_meta_recoded	Fri 2021-06-04 03:09:46 AM	{"measurement_or_fact_specific.tab":148096, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":212.97, "min":3.55, "hr":0.06}}
 201_meta_recoded_2	Fri 2021-06-04 03:13:18 AM	{"agent.tab":29, "measurement_or_fact.tab":290917, "media_resource.tab":204028, "occurrence_specific.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":211.77, "min":3.53, "hr":0.06}}
-
+201_meta_recoded_2	Tue 2021-06-08 06:18:58 AM	{"agent.tab":29, "measurement_or_fact.tab":290917, "media_resource.tab":204028, "occurrence_specific.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":220.44, "min":3.67, "hr":0.06}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

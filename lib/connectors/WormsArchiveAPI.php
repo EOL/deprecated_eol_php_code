@@ -149,7 +149,14 @@ class WormsArchiveAPI
             }
         }
         // print_r($final);
-        echo("\nWoRMS contributors: ".count($final)."\n");
+        echo("\nWoRMS contributors A: ".count($final)."\n");
+        
+        // /* additional contributors, manually looked-up
+        $url = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/addtl_contributors.txt';
+        $final = Functions::additional_mappings($final, 0, $url); //add a single mapping. 2nd param is expire_seconds
+        echo("\nWoRMS contributors B: ".count($final)."\n");
+        // */
+        
         return $final; //http://www.marinespecies.org/imis.php?module=person&persid=19299
     }
     private function format_remove_middle_initial($str)
