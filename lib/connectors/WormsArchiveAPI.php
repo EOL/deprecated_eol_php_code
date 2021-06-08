@@ -125,6 +125,24 @@ class WormsArchiveAPI
         $last_rec = end($taxa);
         return $last_rec['parent_id'];
     }
+    private function contributor_id_name_info()
+    {
+        $url = "http://www.marinespecies.org/imis.php?module=person&show=search&fulllist=1";
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24*365; //a year to expire
+        if($html = Functions::lookup_with_cache($url, $options)) {
+            /* <a href="imis.php?module=person&persid=19299">Abate, Nega Tassie</a> */
+            if(preg_match_all("/module\=person\&persid\=(.*?)<\/a>/ims", $html, $arr)) {
+                // print_r($arr[1]); exit;
+                /* [961] => 15938">Zeidler, Wolfgang
+                   [962] => 31719">Zhan, Aibin */
+                foreach($arr[1] as $str) {
+                    
+                }
+            }
+            
+        }
+    }
     function get_all_taxa($what)
     {   /* tests
         $ids = self::get_branch_ids_to_prune(); print_r($ids); exit;
@@ -132,6 +150,10 @@ class WormsArchiveAPI
         /* tests
         self::initialize_mapping(); exit;
         */
+        /* New: Jun 7, 2021 - get contributor mapping list: http://www.marinespecies.org/imis.php?module=person&show=search
+        $this->contributor_id_name = self::contributor_id_name_info();
+        */
+        
         $temp = CONTENT_RESOURCE_LOCAL_PATH . "26_files";
         if(!file_exists($temp)) mkdir($temp);
         $this->what = $what; //either 'taxonomy' or 'media_objects'
@@ -1526,6 +1548,7 @@ class WormsArchiveAPI
             //additional fields per https://eol-jira.bibalex.org/browse/DATA-1767?focusedCommentId=62884&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62884
             $m->measurementDeterminedDate = $rec['http://ns.adobe.com/xap/1.0/CreateDate'];
             $m->measurementDeterminedBy = $rec['http://purl.org/dc/terms/creator'];
+            $this->debug['DeterminedBy'][$m->measurementDeterminedBy] = '';
         }
         $m->measurementType = $measurementType;
         $m->measurementValue = (string) $value;
