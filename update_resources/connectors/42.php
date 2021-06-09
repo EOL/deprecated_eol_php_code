@@ -36,6 +36,8 @@ stable run:
 back contributors as column in MoF
 42	Mon 2021-05-31 08:28:25 PM	    {"agent.tab":152, "MoF.tab":167652, "media.tab":104849, "occur.tab":153496, "reference.tab":34786, "taxon.tab":97029, "vernacular_name.tab":183680, "time_elapsed":{"sec":729.67, "min":12.16, "hr":0.2}}
 42_meta_recoded	Mon 2021-05-31 08:33{"agent.tab":152, "MoF.tab":167652, "media.tab":104849, "occur.tab":153496, "reference.tab":34786, "taxon.tab":97029, "vernacular_name.tab":183680, "time_elapsed":{"sec":283.66, "min":4.73, "hr":0.08}}
+42	Wed 2021-06-09 02:39:00 AM	    {"agent.tab":152, "MoF.tab":167652, "media.tab":104849, "occur.tab":153496, "reference.tab":34786, "taxon.tab":97029, "vernacular_name.tab":183680, "time_elapsed":{"sec":606.58, "min":10.11, "hr":0.17}}
+42_meta_recoded	Wed 2021-06-09 02:43{"agent.tab":152, "MoF.tab":167652, "media.tab":104849, "occur.tab":153496, "reference.tab":34786, "taxon.tab":97029, "vernacular_name.tab":183680, "time_elapsed":{"sec":293.5, "min":4.89, "hr":0.08}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

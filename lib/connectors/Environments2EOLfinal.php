@@ -260,7 +260,10 @@ class Environments2EOLfinal extends ContributorsMapAPI
                     $first = $arr[0];
                     if($uri = @$this->contributor_mappings[$first]) {}
                     else { //no mapping yet for this contributor
-                        $this->debug['neglect uncooperative contributor 1'][$first] = '';
+
+                        // $this->debug['neglect uncooperative contributor 1'][$first] = '';
+                        if(!isset($this->contributor_mappings[$first])) $this->debug['neglect uncooperative contributor'][$first] = '';
+
                         /* neglect the most uncooperative strings in any resource for contributor, compiler or determinedBy: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66158&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66158
                         $uri = $first; */
                         $uri = '';
@@ -284,7 +287,10 @@ class Environments2EOLfinal extends ContributorsMapAPI
                         foreach($arr as $contributor) { $cnt++;
                             if($uri = @$this->contributor_mappings[$contributor]) {}
                             else { //no mapping yet for this contributor
-                                $this->debug['neglect uncooperative contributor 2'][$contributor] = '';
+                                
+                                // $this->debug['neglect uncooperative contributor 2'][$contributor] = '';
+                                if(!isset($this->contributor_mappings[$contributor])) $this->debug['neglect uncooperative contributor'][$contributor] = '';
+                                
                                 /* neglect the most uncooperative strings in any resource for contributor, compiler or determinedBy: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66158&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66158
                                 $uri = $contributor; */
                                 $uri = '';

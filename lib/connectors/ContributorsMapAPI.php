@@ -98,6 +98,12 @@ class ContributorsMapAPI
                         if(preg_match("/\>(.*?)xxx/ims", $str.'xxx', $arr3)) {
                             $name = trim($arr3[1]);
                             $final[$name] = "http://www.marinespecies.org/imis.php?module=person&persid=".$persid;
+                            // /* generate another name for some un-matched names used in WoRMS
+                            $new_name = self::format_remove_middle_initial($name);
+                            if($new_name != $name) {
+                                $final[$new_name] = "http://www.marinespecies.org/imis.php?module=person&persid=".$persid;
+                            }
+                            // */
                         }
                     }
                 }
@@ -113,6 +119,17 @@ class ContributorsMapAPI
         // */
         
         return $final; //http://www.marinespecies.org/imis.php?module=person&persid=19299
+    }
+    function format_remove_middle_initial($str)
+    {   /* given = "de Voogd, Nicole J." -> output is = "de Voogd, Nicole" */
+        $parts = explode(" ", $str);
+        $parts = array_map('trim', $parts);
+        $last_part = $parts[count($parts)-1]; //print_r($parts); //echo "\nlast_part = [$last_part]\n";
+        if(substr($last_part, -1) == "." && strlen($last_part) == 2) { //remove last part (middle initial)
+            array_pop($parts);
+            return implode(" ", $parts);
+        }
+        return $str;
     }
 }
 ?>

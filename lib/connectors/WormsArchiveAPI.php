@@ -125,17 +125,6 @@ class WormsArchiveAPI extends ContributorsMapAPI
         $last_rec = end($taxa);
         return $last_rec['parent_id'];
     }
-    private function format_remove_middle_initial($str)
-    {   /* given = "de Voogd, Nicole J." -> output is = "de Voogd, Nicole" */
-        $parts = explode(" ", $str);
-        $parts = array_map('trim', $parts);
-        $last_part = $parts[count($parts)-1]; //print_r($parts); //echo "\nlast_part = [$last_part]\n";
-        if(substr($last_part, -1) == "." && strlen($last_part) == 2) { //remove last part (middle initial)
-            array_pop($parts);
-            return implode(" ", $parts);
-        }
-        return $str;
-    }
     function get_all_taxa($what)
     {   /* tests
         $ids = self::get_branch_ids_to_prune(); print_r($ids); exit;
@@ -145,7 +134,7 @@ class WormsArchiveAPI extends ContributorsMapAPI
         echo "\nGalicia: ".$arr['Galicia']."\n"; exit;
         */
         /* tests
-        $ret = self::format_remove_middle_initial("de Voogd, Nicole J."); exit("\nfinal = [$ret]\n");
+        $ret = $this->format_remove_middle_initial("de Voogd, Nicole J."); exit("\nfinal = [$ret]\n");
         */
         // /* New: Jun 7, 2021 - get contributor mapping list: http://www.marinespecies.org/imis.php?module=person&show=search
         $this->contributor_id_name_info = $this->get_WoRMS_contributor_id_name_info(); //print_r($this->contributor_id_name_info); exit;
@@ -1555,7 +1544,7 @@ class WormsArchiveAPI extends ContributorsMapAPI
             if($val = trim(@$rec['http://purl.org/dc/terms/creator'])) {
                 if($uri = @$this->contributor_id_name_info[$val])           $m->measurementDeterminedBy = $uri;
                 else {
-                    $new_val = self::format_remove_middle_initial($val);
+                    $new_val = $this->format_remove_middle_initial($val);
                     if($uri = @$this->contributor_id_name_info[$new_val])   $m->measurementDeterminedBy = $uri;
                     else {
                         $this->debug['neglect uncooperative: DeterminedBy'][$val] = '';
