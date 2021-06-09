@@ -198,8 +198,13 @@ class Pensoft2EOLAPI
         if($this->param['resource_id'] == '26_ENV') $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence');
         // ---------------------- end customize ----------------------*/
         $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
-        Functions::finalize_dwca_resource($this->param['resource_id'], false, true, $timestart);
+        Functions::finalize_dwca_resource($this->param['resource_id'], false, false, $timestart); //3rd param false means don't delete folder
         // exit("\nstop muna - used in debugging\n");
+
+        // /* New: add testing for undefined childen in MoF
+        self::run_utility($this->param['resource_id']);
+        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH.$this->param['resource_id']."/"); //we can now delete folder after run_utility() - DWCADiagnoseAPI
+        // */
 
         /* 4th part */
         if(is_dir($this->json_temp_path['metadata'])) {
@@ -208,6 +213,17 @@ class Pensoft2EOLAPI
         }
         echo "\nHow many times Pensoft Annotator is run: [$this->pensoft_run_cnt]\n";
     }
+    private function run_utility($resource_id)
+    {
+        // /* utility ==========================
+        require_library('connectors/DWCADiagnoseAPI');
+        $func = new DWCADiagnoseAPI();
+
+        $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'parentMeasurementID', 'measurement_or_fact_specific.tab');
+        echo "\nTotal undefined parents MoF [$resource_id]: " . count($undefined_parents)."\n";
+        // ===================================== */
+    }
+    
     private function generate_difference_report()
     {
         // print_r($this->all_envo_terms); exit;
