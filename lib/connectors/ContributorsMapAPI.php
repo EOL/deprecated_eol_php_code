@@ -98,12 +98,22 @@ class ContributorsMapAPI
                         if(preg_match("/\>(.*?)xxx/ims", $str.'xxx', $arr3)) {
                             $name = trim($arr3[1]);
                             $final[$name] = "http://www.marinespecies.org/imis.php?module=person&persid=".$persid;
+                            
                             // /* generate another name for some un-matched names used in WoRMS
                             $new_name = self::format_remove_middle_initial($name);
-                            if($new_name != $name) {
-                                $final[$new_name] = "http://www.marinespecies.org/imis.php?module=person&persid=".$persid;
-                            }
+                            $final[$new_name] = "http://www.marinespecies.org/imis.php?module=person&persid=".$persid;
                             // */
+
+                            // /* generate another name: FROM: "de Voogd, Nicole" TO: "Nicole de Voogd"
+                            $new_name = self::interchange_firstName_first($new_name);
+                            $final[$new_name] = "http://www.marinespecies.org/imis.php?module=person&persid=".$persid;
+                            // */
+                            
+                            // /* generate another name: FROM: "Cuvelier, Daphne" TO: "Daphne Cuvelier"
+                            $new_name = self::interchange_firstName_first($name);
+                            $final[$new_name] = "http://www.marinespecies.org/imis.php?module=person&persid=".$persid;
+                            // */
+                            
                         }
                     }
                 }
@@ -120,8 +130,8 @@ class ContributorsMapAPI
         
         return $final; //http://www.marinespecies.org/imis.php?module=person&persid=19299
     }
-    function format_remove_middle_initial($str)
-    {   /* given = "de Voogd, Nicole J." -> output is = "de Voogd, Nicole" */
+    function format_remove_middle_initial($str) //FROM: "de Voogd, Nicole J." TO: "de Voogd, Nicole"
+    {
         $parts = explode(" ", $str);
         $parts = array_map('trim', $parts);
         $last_part = $parts[count($parts)-1]; //print_r($parts); //echo "\nlast_part = [$last_part]\n";
@@ -130,6 +140,23 @@ class ContributorsMapAPI
             return implode(" ", $parts);
         }
         return $str;
+    }
+    private function interchange_firstName_first($name) //FROM: "Cuvelier, Daphne" TO: "Daphne Cuvelier"
+    {                                                   //FROM: "de Voogd, Nicole" TO: "Nicole de Voogd"
+        if(substr_count($name, ",") == 1) {
+            $arr = explode(" ", $name);
+            if(count($arr) == 2) {
+                $new_name = $arr[1]." ".$arr[0];
+                $new_name = str_replace(",", "", $new_name);
+                return $new_name;
+            }
+            elseif(count($arr) == 3) {
+                $new_name = $arr[2]." ".$arr[0]." ".$arr[1];
+                $new_name = str_replace(",", "", $new_name);
+                return $new_name;
+            }
+        }
+        return $name;
     }
 }
 ?>
