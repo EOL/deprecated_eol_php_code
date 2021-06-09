@@ -1075,7 +1075,9 @@ class WormsArchiveAPI extends ContributorsMapAPI
         if($uri = @$this->value_uri_map[$val]) return $uri;
         elseif($uri = @$this->value_uri_map[$orig]) return $uri;
         else {
-            if(!is_numeric($orig)) $this->debug['no uri'][$what][$what2][$orig] = ''; //log only non-numeric values
+            if(!is_numeric($orig)) {
+                if(!isset($this->value_uri_map[$orig])) $this->debug['no uri'][$what][$what2][$orig] = ''; //log only non-numeric values
+            }
             return $orig;
         }
     }
