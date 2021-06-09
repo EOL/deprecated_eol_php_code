@@ -30,6 +30,16 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
     /* These 2 will be processed in MergeMoFrecordsAPI.php which will be called from DwCA_Utility.php */
     $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //'http://rs.tdwg.org/dwc/terms/occurrence'
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
-    Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+    Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param false means don't delete folder
+    
+    // /* New: check for orphan records in MoF
+    require_library('connectors/DWCADiagnoseAPI');
+    $func = new DWCADiagnoseAPI();
+
+    $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'parentMeasurementID', 'measurement_or_fact_specific.tab');
+    echo "\nTotal undefined parents MoF:" . count($undefined_parents)."\n";
+    
+    recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH."$resource_id/"); //we can now delete folder after DWCADiagnoseAPI()
+    // */
 }
 ?>
