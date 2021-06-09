@@ -789,7 +789,7 @@ class TropicosArchiveAPI
                 /* OK but changed in strategy...
                 if($val = @$a[1]) $this->uri_values[$a[0]] = $val;
                 */
-                if($this->uri_values[$a[0]]) {} //has a value already. Coz some mapping docs have double entries for a string and the last one is blank.
+                if(@$this->uri_values[$a[0]]) {} //has a value already. Coz some mapping docs have double entries for a string and the last one is blank.
                 else $this->uri_values[$a[0]] = @$a[1];
                 
                 /* not needed anymore
