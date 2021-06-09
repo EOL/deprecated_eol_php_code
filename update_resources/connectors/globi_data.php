@@ -284,6 +284,28 @@ $func = new DwCA_Utility($resource_id, $dwca);
 $preferred_rowtypes = array('http://eol.org/schema/reference/reference'); //was forced to lower case in DwCA_Utility.php
 
 $func->convert_archive($preferred_rowtypes);
-Functions::finalize_dwca_resource($resource_id, true, true, $timestart);
+Functions::finalize_dwca_resource($resource_id, true, false, $timestart); //3rd param false means don't delete folder
 // */
+
+run_utility($resource_id);
+recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH."$resource_id/"); //we can now delete folder after run_utility() - DWCADiagnoseAPI
+
+function run_utility($resource_id)
+{
+    // /* utility ==========================
+    require_library('connectors/DWCADiagnoseAPI');
+    $func = new DWCADiagnoseAPI();
+
+    $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true); //2nd param true means output will write to text file
+    echo "\nTotal undefined parents:" . count($undefined_parents)."\n"; unset($undefined_parents);
+
+    /* copied template
+    $without = $func->get_all_taxa_without_parent($resource_id, true); //true means output will write to text file
+    echo "\nTotal taxa without parents:" . count($without)."\n"; unset($without);
+    */
+    
+    $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'parentMeasurementID', 'measurement_or_fact_specific.tab');
+    echo "\nTotal undefined parents MoF:" . count($undefined_parents)."\n";
+    // ===================================== */
+}
 ?>
