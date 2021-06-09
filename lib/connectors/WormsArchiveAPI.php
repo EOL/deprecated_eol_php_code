@@ -1592,9 +1592,10 @@ class WormsArchiveAPI
                 else {
                     $new_val = self::format_remove_middle_initial($val);
                     if($uri = @$this->contributor_id_name_info[$new_val])   $m->measurementDeterminedBy = $uri;
+                    /* neglect the most uncooperative strings in any resource for contributor, compiler or determinedBy: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66158&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66158
                     else {
                         $this->debug['No URI: DeterminedBy'][$val] = '';    $m->measurementDeterminedBy = $val;
-                    }
+                    }*/
                 }
             }
             // */
