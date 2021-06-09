@@ -91,6 +91,7 @@ Steady increase OK
 26	Wed 2021-05-12 09:50:29 AM	{"agent.tab":1771, "measurement_or_fact_specific.tab":3402209, "media_resource.tab":92507, "occurrence_specific.tab":2214608, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":false}
 start removed all occurrences and trait records associated with specified taxa (WoRMS_mismapped_subgenera):
 26	Wed 2021-05-12 12:20:44 PM	{"agent.tab":1771, "measurement_or_fact_specific.tab":3402028, "media_resource.tab":92507, "occurrence_specific.tab":2214437, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":false}
+26	Wed 2021-06-09 09:37:13 AM	{"agent.tab":1776, "measurement_or_fact_specific.tab":3402495, "media_resource.tab":92746, "occurrence_specific.tab":2214727, "reference.tab":692231, "taxon.tab":374006, "vernacular_name.tab":85169, "time_elapsed":false}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
