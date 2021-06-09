@@ -789,7 +789,8 @@ class TropicosArchiveAPI
                 /* OK but changed in strategy...
                 if($val = @$a[1]) $this->uri_values[$a[0]] = $val;
                 */
-                $this->uri_values[$a[0]] = @$a[1];
+                if($this->uri_values[$a[0]]) {} //has a value already. Coz some mapping docs have double entries for a string and the last one is blank.
+                else $this->uri_values[$a[0]] = @$a[1];
                 
                 /* not needed anymore
                 $this->ctrys_with_diff_name[] = $a[0]; //what goes here is e.g. 'Burma Rep.', if orig ctry name is 'Burma' and Tropicos calls it differently e.g. 'Burma Rep.'.
