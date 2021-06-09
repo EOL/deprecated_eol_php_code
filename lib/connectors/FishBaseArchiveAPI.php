@@ -414,10 +414,10 @@ class FishBaseArchiveAPI extends ContributorsMapAPI
                     foreach($arr as $contributor) {
                         if($uri = @$this->contributor_mappings[$contributor]) {}
                         else { //no mapping yet for this contributor
-                            $this->debug['undefined contributor'][$contributor] = '';
-                            $uri = $contributor;
+                            $this->debug['neglect uncooperative contributor'][$contributor] = '';
+                            $uri = '';
                         }
-                        $uris[$uri] = '';
+                        if($uri) $uris[$uri] = '';
                     }
                     $uris = array_keys($uris);
                     $rec["contributor"] = implode(";", $uris);
