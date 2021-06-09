@@ -24,7 +24,7 @@ Connector downloads the archive file, extracts, reads it, assembles the data and
 http://www.marinespecies.org/rest/#/
 http://www.marinespecies.org/aphia.php?p=taxdetails&id=9
 */
-class WormsArchiveAPI
+class WormsArchiveAPI extends ContributorsMapAPI
 {
     function __construct($folder)
     {
@@ -125,40 +125,6 @@ class WormsArchiveAPI
         $last_rec = end($taxa);
         return $last_rec['parent_id'];
     }
-    private function get_contributor_id_name_info()
-    {
-        $final = array();
-        $url = "http://www.marinespecies.org/imis.php?module=person&show=search&fulllist=1";
-        $options = $this->download_options;
-        $options['expire_seconds'] = 60*60*24*365; //a year to expire
-        if($html = Functions::lookup_with_cache($url, $options)) {
-            /* <a href="imis.php?module=person&persid=19299">Abate, Nega Tassie</a> */
-            if(preg_match_all("/module\=person\&persid\=(.*?)<\/a>/ims", $html, $arr)) {
-                // print_r($arr[1]); exit;
-                /* [961] => 15938">Zeidler, Wolfgang
-                   [962] => 31719">Zhan, Aibin */
-                foreach($arr[1] as $str) {
-                    if(preg_match("/xxx(.*?)\"/ims", 'xxx'.$str, $arr2)) {
-                        $persid = trim($arr2[1]);
-                        if(preg_match("/\>(.*?)xxx/ims", $str.'xxx', $arr3)) {
-                            $name = trim($arr3[1]);
-                            $final[$name] = "http://www.marinespecies.org/imis.php?module=person&persid=".$persid;
-                        }
-                    }
-                }
-            }
-        }
-        // print_r($final);
-        echo("\nWoRMS contributors A: ".count($final)."\n");
-        
-        // /* additional contributors, manually looked-up
-        $url = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/addtl_contributors.txt';
-        $final = Functions::additional_mappings($final, 0, $url); //add a single mapping. 2nd param is expire_seconds
-        echo("\nWoRMS contributors B: ".count($final)."\n");
-        // */
-        
-        return $final; //http://www.marinespecies.org/imis.php?module=person&persid=19299
-    }
     private function format_remove_middle_initial($str)
     {   /* given = "de Voogd, Nicole J." -> output is = "de Voogd, Nicole" */
         $parts = explode(" ", $str);
@@ -182,8 +148,7 @@ class WormsArchiveAPI
         $ret = self::format_remove_middle_initial("de Voogd, Nicole J."); exit("\nfinal = [$ret]\n");
         */
         // /* New: Jun 7, 2021 - get contributor mapping list: http://www.marinespecies.org/imis.php?module=person&show=search
-        $this->contributor_id_name_info = self::get_contributor_id_name_info();
-        // print_r($this->contributor_id_name_info); exit;
+        $this->contributor_id_name_info = $this->get_WoRMS_contributor_id_name_info(); //print_r($this->contributor_id_name_info); exit;
         // */
         
         $temp = CONTENT_RESOURCE_LOCAL_PATH . "26_files";
@@ -1592,10 +1557,12 @@ class WormsArchiveAPI
                 else {
                     $new_val = self::format_remove_middle_initial($val);
                     if($uri = @$this->contributor_id_name_info[$new_val])   $m->measurementDeterminedBy = $uri;
-                    /* neglect the most uncooperative strings in any resource for contributor, compiler or determinedBy: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66158&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66158
                     else {
-                        $this->debug['No URI: DeterminedBy'][$val] = '';    $m->measurementDeterminedBy = $val;
-                    }*/
+                        $this->debug['neglect uncooperative: DeterminedBy'][$val] = '';
+                        /* neglect the most uncooperative strings in any resource for contributor, compiler or determinedBy: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66158&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66158
+                        $m->measurementDeterminedBy = $val;
+                        */
+                    }
                 }
             }
             // */

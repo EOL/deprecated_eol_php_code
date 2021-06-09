@@ -68,12 +68,13 @@ class Environments2EOLfinal extends ContributorsMapAPI
     {   echo "\nresource_id is [$this->resource_id]\n";
         if(in_array($this->resource_id, array('21_ENV'))) {
             $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 60*60*1);
-            $this->contributor_mappings = $this->get_contributor_mappings($this->resource_id, $options);
-            // print_r($this->contributor_mappings);
-            echo "\n contributor_mappings: ".count($this->contributor_mappings)."\n";
-            // exit("oks [$this->resource_id]");
+            $this->contributor_mappings = $this->get_contributor_mappings($this->resource_id, $options); // print_r($this->contributor_mappings);
+            echo "\n contributor_mappings: ".count($this->contributor_mappings)."\n"; //exit("\nstop munax\n");
         }
-        // exit("\nhindi ok [$this->resource_id]\n");
+        elseif($this->resource_id == '26_ENV') { //exclusive for WoRMS
+            $this->contributor_mappings = $this->get_WoRMS_contributor_id_name_info(); // print_r($this->contributor_mappings);
+            echo "\n contributor_mappings: ".count($this->contributor_mappings)."\n"; //exit("\nstop munax\n");
+        }
         require_library('connectors/TraitGeneric'); 
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         /* START DATA-1841 terms remapping -> not needed here
@@ -259,8 +260,10 @@ class Environments2EOLfinal extends ContributorsMapAPI
                     $first = $arr[0];
                     if($uri = @$this->contributor_mappings[$first]) {}
                     else { //no mapping yet for this contributor
-                        $this->debug['undefined contributor'][$first] = '';
-                        $uri = $first;
+                        $this->debug['neglect uncooperative contributor 1'][$first] = '';
+                        /* neglect the most uncooperative strings in any resource for contributor, compiler or determinedBy: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66158&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66158
+                        $uri = $first; */
+                        $uri = '';
                     }
                     // first contributor is a column, the rest goes as child MoF. First client AmphibiaWeb text (21_ENV). I guess goes for all resources
                     $rec["contributor"] = $uri;
@@ -281,12 +284,16 @@ class Environments2EOLfinal extends ContributorsMapAPI
                         foreach($arr as $contributor) { $cnt++;
                             if($uri = @$this->contributor_mappings[$contributor]) {}
                             else { //no mapping yet for this contributor
-                                $this->debug['undefined contributor'][$contributor] = '';
-                                $uri = $contributor;
+                                $this->debug['neglect uncooperative contributor 2'][$contributor] = '';
+                                /* neglect the most uncooperative strings in any resource for contributor, compiler or determinedBy: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66158&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66158
+                                $uri = $contributor; */
+                                $uri = '';
                             }
                             /* first contributor is a column, the rest goes as child MoF. First client AmphibiaWeb text (21_ENV). I guess goes for all resources */
                             if($cnt == 1) {}
-                            else $this->func->add_string_types($rex, $uri, 'http://purl.org/dc/terms/contributor', "child");
+                            else {
+                                if($uri) $this->func->add_string_types($rex, $uri, 'http://purl.org/dc/terms/contributor', "child");
+                            }
                         }
                     }
                     // */

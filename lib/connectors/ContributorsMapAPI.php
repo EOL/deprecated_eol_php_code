@@ -80,5 +80,39 @@ class ContributorsMapAPI
         }
         fclose($handle);
     }
+    function get_WoRMS_contributor_id_name_info()
+    {
+        $final = array();
+        $url = "http://www.marinespecies.org/imis.php?module=person&show=search&fulllist=1";
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24*30; //a month to expire
+        if($html = Functions::lookup_with_cache($url, $options)) {
+            /* <a href="imis.php?module=person&persid=19299">Abate, Nega Tassie</a> */
+            if(preg_match_all("/module\=person\&persid\=(.*?)<\/a>/ims", $html, $arr)) {
+                // print_r($arr[1]); exit;
+                /* [961] => 15938">Zeidler, Wolfgang
+                   [962] => 31719">Zhan, Aibin */
+                foreach($arr[1] as $str) {
+                    if(preg_match("/xxx(.*?)\"/ims", 'xxx'.$str, $arr2)) {
+                        $persid = trim($arr2[1]);
+                        if(preg_match("/\>(.*?)xxx/ims", $str.'xxx', $arr3)) {
+                            $name = trim($arr3[1]);
+                            $final[$name] = "http://www.marinespecies.org/imis.php?module=person&persid=".$persid;
+                        }
+                    }
+                }
+            }
+        }
+        // print_r($final);
+        echo("\nWoRMS contributors A: ".count($final)."\n");
+        
+        // /* additional contributors, manually looked-up
+        $url = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/addtl_contributors.txt';
+        $final = Functions::additional_mappings($final, 0, $url); //add a single mapping. 2nd param is expire_seconds
+        echo("\nWoRMS contributors B: ".count($final)."\n");
+        // */
+        
+        return $final; //http://www.marinespecies.org/imis.php?module=person&persid=19299
+    }
 }
 ?>

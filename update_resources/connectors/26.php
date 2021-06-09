@@ -123,6 +123,7 @@ exit;
 $cmdline_params['jenkins_or_cron']  = @$argv[1]; //irrelevant here
 $cmdline_params['what']             = @$argv[2]; //useful here
 
+require_library('connectors/ContributorsMapAPI');
 require_library('connectors/WormsArchiveAPI');
 $timestart = time_elapsed();
 ini_set('memory_limit','7096M'); //required
