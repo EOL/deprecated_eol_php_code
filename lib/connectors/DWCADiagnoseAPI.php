@@ -446,8 +446,11 @@ class DWCADiagnoseAPI
         else           echo "\nOK: All acceptedNameUsageID have entries.\n";
     }
     // /* ++++++++++++++++++++++++++++++++++++++ start Associations integrity check ++++++++++++++++++++++++++++++++++++++
-    function check_if_source_and_taxon_in_associations_exist($resource_id, $write_2text_file = false, $url = false, $tab_file)
+    function check_if_source_and_taxon_in_associations_exist($resource_id, $url = false, $tab_file)
     {
+        $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . "reports/" . $resource_id . "_source_target_NotInOccurrence.txt", "w");
+        fwrite($WRITE, 'occurrenceID'."\t"."SourceOrTarget"."\n");
+        
         /*step 1: loop Occurrence file and store all occurrenceIDs */
         if(!$url) $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/$tab_file";
         if(!file_exists($url)) {
@@ -509,12 +512,25 @@ class DWCADiagnoseAPI
             $targetOccurrenceID = @$rec['targetOccurrenceID'];
             
             if($occurrenceID && $targetOccurrenceID) {
-                if(!isset($OCCURRENCE_IDs[$occurrenceID])) $debug['undefined source occurrence'][$occurrenceID] = '';
-                if(!isset($OCCURRENCE_IDs[$targetOccurrenceID])) $debug['undefined target occurrence'][$targetOccurrenceID] = '';
+                if(!isset($OCCURRENCE_IDs[$occurrenceID])) {
+                    $debug['undefined source occurrence'][$occurrenceID] = '';
+                    if(!isset($written_source[$occurrenceID])) { //to make unique in txt file
+                        fwrite($WRITE, $occurrenceID ."\t"."source". "\n");
+                        $written_source[$occurrenceID] = '';
+                    }
+                }
+                if(!isset($OCCURRENCE_IDs[$targetOccurrenceID])) {
+                    $debug['undefined target occurrence'][$targetOccurrenceID] = '';
+                    if(!isset($written_target[$targetOccurrenceID])) { //to make unique in txt file
+                        fwrite($WRITE, $targetOccurrenceID ."\t"."target" . "\n");
+                        $written_target[$targetOccurrenceID] = '';
+                    }
+                }
             }
         }
+        fclose($WRITE);
         if(!$debug) echo "\nAssociations integrity check: OK\n";
-        else print_r($debug);
+        else        echo "\nAssociations integrity check: has issues (error)\n";
         return $debug;
     }
     // ++++++++++++++++++++++++++++++++++++++ end Associations integrity check ++++++++++++++++++++++++++++++++++++++*/

@@ -270,20 +270,50 @@ echo "\n[$kingdom]\n";
 exit("\n-end test-\n");
 */
 
-
-// /* //main operation
 require_library('connectors/DwCA_Utility');
 ini_set('memory_limit','9096M'); //required
-
 $resource_id = "globi_associations";
+
+// /* //main operation
 $dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 // $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 $func = new DwCA_Utility($resource_id, $dwca);
-
-/*reminder upper-case used in meta.xml e.g. 'http://rs.tdwg.org/dwc/terms/Taxon', 'http://eol.org/schema/reference/Reference' */
 $preferred_rowtypes = array('http://eol.org/schema/reference/reference'); //was forced to lower case in DwCA_Utility.php
-
 $func->convert_archive($preferred_rowtypes);
-Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //3rd param true means delete folder
+Functions::finalize_dwca_resource($resource_id, true, false, $timestart); //3rd param true means delete folder
+$func = false; //close memory
 // */
+
+// /*
+$ret = run_utility($resource_id); //exit('stopx goes here...');
+recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id."/"); //we can now delete folder after run_utility() - DWCADiagnoseAPI
+if($ret['undefined source occurrence'] || $ret['undefined target occurrence']) { echo "\nStart fixing Associations...\n";
+// */
+    $resource_id = "globi_associations_final"; //DwCA with fixed Associations tab
+    $dwca = "https://editors.eol.org/eol_php_code/applications/content_server/resources/globi_associations.tar.gz";
+    $func = new DwCA_Utility($resource_id, $dwca);
+    $preferred_rowtypes = array();
+    $excluded_rowtypes = array('http://eol.org/schema/association');
+    /* during dev
+    $excluded_rowtypes = array('http://eol.org/schema/association', 'http://eol.org/schema/reference/reference');
+    */
+    $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
+    Functions::finalize_dwca_resource($resource_id, true, false, $timestart); //3rd param true means delete folder
+    $ret = run_utility($resource_id); //check if Associations is finally fixed. Should be fixed at this point.
+    recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id."/"); //we can now delete folder after run_utility() - DWCADiagnoseAPI
+// /*
+}
+// */
+
+function run_utility($resource_id)
+{
+    // /* utility ==========================
+    require_library('connectors/DWCADiagnoseAPI');
+    $func = new DWCADiagnoseAPI();
+    $ret = $func->check_if_source_and_taxon_in_associations_exist($resource_id, false, 'occurrence_specific.tab');
+    echo "\nundefined source occurrence [$resource_id]:" . count($ret['undefined source occurrence'])."\n";
+    echo "\nundefined target occurrence [$resource_id]:" . count($ret['undefined target occurrence'])."\n";
+    return $ret;
+    // ===================================== */
+}
 ?>
