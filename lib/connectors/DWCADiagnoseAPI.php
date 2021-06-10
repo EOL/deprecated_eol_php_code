@@ -445,6 +445,78 @@ class DWCADiagnoseAPI
         if($undefined) echo "\nERROR: There is undefined acceptedNameUsageID(s): ".count($undefined)."\n";
         else           echo "\nOK: All acceptedNameUsageID have entries.\n";
     }
-
+    // /* ++++++++++++++++++++++++++++++++++++++ start Associations integrity check ++++++++++++++++++++++++++++++++++++++
+    function check_if_source_and_taxon_in_associations_exist($resource_id, $write_2text_file = false, $url = false, $tab_file)
+    {
+        /*step 1: loop Occurrence file and store all occurrenceIDs */
+        if(!$url) $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/$tab_file";
+        if(!file_exists($url)) {
+            echo "\nFile does not exist: [$url]\n";
+            return;
+        }
+        else echo "\nProcessing file ($url)\n";
+        $i = 0;
+        foreach(new FileIterator($url) as $line_number => $temp) { $i++;
+            $temp = explode("\t", $temp);
+            if($i == 1) {
+                $fields = $temp;
+                continue;
+            }
+            else {
+                $rec = array(); $k = 0;
+                if(!$temp) continue;
+                foreach($temp as $t) {
+                    $rec[$fields[$k]] = $t;
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec); //print_r($rec); exit;
+            if($val = @$rec['occurrenceID']) $OCCURRENCE_IDs[$val] = '';
+        }
+        
+        /*step 2: loop Associations file and see if all source and target occurrenceIDs exist */
+        $debug = array();
+        $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/association.tab";
+        if(!file_exists($url)) {
+            echo "\nFile does not exist: [$url]\n";
+            return;
+        }
+        else echo "\nProcessing file ($url)\n";
+        $i = 0;
+        foreach(new FileIterator($url) as $line_number => $temp) { $i++;
+            $temp = explode("\t", $temp);
+            if($i == 1) {
+                $fields = $temp;
+                continue;
+            }
+            else {
+                $rec = array(); $k = 0;
+                if(!$temp) continue;
+                foreach($temp as $t) {
+                    $rec[$fields[$k]] = $t;
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec); //print_r($rec); exit;
+            /*Array(
+                [associationID] => globi:assoc:2-ITIS:554049-ATE-ITIS:24773
+                [occurrenceID] => globi:occur:source:2-ITIS:554049-ATE
+                [associationType] => http://purl.obolibrary.org/obo/RO_0002470
+                [targetOccurrenceID] => globi:occur:target:2-ITIS:554049-ATE-ITIS:24773
+                ...
+            )*/
+            $occurrenceID = @$rec['occurrenceID'];
+            $targetOccurrenceID = @$rec['targetOccurrenceID'];
+            
+            if($occurrenceID && $targetOccurrenceID) {
+                if(!isset($OCCURRENCE_IDs[$occurrenceID])) $debug['undefined source occurrence'][$occurrenceID] = '';
+                if(!isset($OCCURRENCE_IDs[$targetOccurrenceID])) $debug['undefined target occurrence'][$targetOccurrenceID] = '';
+            }
+        }
+        if(!$debug) echo "\nAssociations integrity check: OK\n";
+        else print_r($debug);
+        return $debug;
+    }
+    // ++++++++++++++++++++++++++++++++++++++ end Associations integrity check ++++++++++++++++++++++++++++++++++++++*/
 }
 ?>

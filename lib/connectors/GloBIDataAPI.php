@@ -597,8 +597,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     @$this->debug['statsz']['should be no more of this type, otherwise report to Jen']++;
                 }
                 // if($i >= 10) break; //debug only
-            }
-        }
+            } //end main division: create ext. and build-up
+        } //end loop
     }
     private function process_occurrence($meta, $what)
     {   //print_r($meta);
