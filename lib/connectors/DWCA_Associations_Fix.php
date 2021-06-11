@@ -36,6 +36,10 @@ class DWCA_Associations_Fix
         /* step 2: loop to Association and remove those entries where source or target is found in $IDs */
         $tables = $info['harvester']->tables;
         self::process_association($tables['http://eol.org/schema/association'][0], $IDs);
+        // /* for Globi, these extensions are too big to be processed in DwCA_Utility. Memory issue. This just copies, carryover of the table.
+        self::process_extension($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'occurrence');
+        self::process_extension($tables['http://eol.org/schema/reference/reference'][0], 'reference');
+        // */
     }
     private function process_association($meta, $IDs)
     {   //print_r($meta);
@@ -73,6 +77,34 @@ class DWCA_Associations_Fix
             if(isset($IDs['target'][$targetOccurrenceID])) continue;
             //===========================================================================================================================================================
             $o = new \eol_schema\Association();
+            $uris = array_keys($rec);
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+        }
+    }
+    private function process_extension($meta, $class)
+    {   //print_r($meta);
+        echo "\nprocess_extension [$class]...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            } //print_r($rec); exit;
+            /**/
+            //===========================================================================================================================================================
+            //===========================================================================================================================================================
+            if($class == 'occurrence') $o = new \eol_schema\Occurrence();
+            if($class == 'reference') $o = new \eol_schema\Reference();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
