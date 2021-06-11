@@ -96,6 +96,11 @@ class DWCA_Associations_Fix
             $tmp = explode("\t", $row);
             $rec = array(); $k = 0;
             foreach($meta->fields as $field) {
+                // /* some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName"
+                $parts = explode("#", $field);
+                if($parts[0]) $field = $parts[0];
+                if(@$parts[1]) $field = $parts[1];
+                // */
                 if(!$field['term']) continue;
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
