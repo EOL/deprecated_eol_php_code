@@ -203,6 +203,14 @@ class WikipediaRegionalAPI
         While our ending range is now:  <div id='mw-data-after-content'> ---> Works OK
         Now 'eu' also is same with 'fr' case.
         */
+        
+        /* As of Jun 11, 2021, the starting range has changed to this: for en and fr so far as I've checked. Maybe more languages.
+        <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="en" dir="ltr">
+        <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
+        And just followed this ending range: <div id='mw-data-after-content'>
+        */
+        elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+        
         elseif(in_array($lang, array('fr', 'eu'))) {
             if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
         }
