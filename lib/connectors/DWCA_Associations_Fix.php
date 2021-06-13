@@ -104,15 +104,41 @@ class DWCA_Associations_Fix
                 if(!$field) continue;
                 $rec[$field] = $tmp[$k];
                 $k++;
-            } print_r($rec); //exit;
+            } //print_r($rec); //exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => globi:occur:source:2-ITIS:554049-ATE
+                [http://rs.tdwg.org/dwc/terms/taxonID] => ITIS:554049
+                [http://rs.tdwg.org/dwc/terms/institutionCode] => 
+                [http://rs.tdwg.org/dwc/terms/collectionCode] => 
+                [http://rs.tdwg.org/dwc/terms/catalogNumber] => 
+                [http://rs.tdwg.org/dwc/terms/sex] => 
+                [http://rs.tdwg.org/dwc/terms/lifeStage] => 
+                [http://rs.tdwg.org/dwc/terms/reproductiveCondition] => 
+                [http://rs.tdwg.org/dwc/terms/behavior] => 
+                [http://rs.tdwg.org/dwc/terms/establishmentMeans] => 
+                [http://rs.tdwg.org/dwc/terms/occurrenceRemarks] => 
+                [http://rs.tdwg.org/dwc/terms/individualCount] => 
+                [http://rs.tdwg.org/dwc/terms/preparations] => 
+                [http://rs.tdwg.org/dwc/terms/fieldNotes] => 
+                [http://rs.tdwg.org/dwc/terms/samplingProtocol] => 
+                [http://rs.tdwg.org/dwc/terms/samplingEffort] => 
+                [http://rs.tdwg.org/dwc/terms/identifiedBy] => 
+                [http://rs.tdwg.org/dwc/terms/dateIdentified] => 
+                [http://rs.tdwg.org/dwc/terms/eventDate] => 
+                [http://purl.org/dc/terms/modified] => 
+                [http://rs.tdwg.org/dwc/terms/locality] => 
+                [http://rs.tdwg.org/dwc/terms/decimalLatitude] => 
+                [http://rs.tdwg.org/dwc/terms/decimalLongitude] => 
+                [http://rs.tdwg.org/dwc/terms/verbatimLatitude] => 
+                [http://rs.tdwg.org/dwc/terms/verbatimLongitude] => 
+                [http://rs.tdwg.org/dwc/terms/verbatimElevation] => 
+                [http://rs.tdwg.org/dwc/terms/basisOfRecord] => 
+                [http://eol.org/schema/terms/physiologicalState] => 
+                [http://eol.org/schema/terms/bodyPart] => 
+            )*/
             //===========================================================================================================================================================
-            if($class == 'occurrence') { //for Globi
-                if(isset($rec['basisOfRecord']))        unset($rec['basisOfRecord']);
-                if(isset($rec['physiologicalState']))   unset($rec['physiologicalState']);
-                if(isset($rec['bodyPart']))             unset($rec['bodyPart']);
-            }
             //===========================================================================================================================================================
-            if($class == 'occurrence') $o = new \eol_schema\Occurrence();
+            if($class == 'occurrence') $o = new \eol_schema\Occurrence_specific();
             if($class == 'reference') $o = new \eol_schema\Reference();
             $uris = array_keys($rec); print_r($uris); exit("\ndito eli\n");
             foreach($uris as $uri) {
