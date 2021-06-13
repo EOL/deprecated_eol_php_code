@@ -306,8 +306,11 @@ if($ret['undefined source occurrence'] || $ret['undefined target occurrence']) {
 // */
 
 /*
-extract .tar.gz into a folder: works OK
+how to extract .tar.gz into a folder: works OK
+mkdir globi_associations
 tar -xzf globi_associations.tar.gz -C globi_associations
+chmod 775 globi_associations
+
 */
 
 function run_utility($resource_id)

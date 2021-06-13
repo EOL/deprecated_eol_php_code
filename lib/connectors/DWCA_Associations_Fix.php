@@ -140,7 +140,7 @@ class DWCA_Associations_Fix
             //===========================================================================================================================================================
             if($class == 'occurrence') $o = new \eol_schema\Occurrence_specific();
             if($class == 'reference') $o = new \eol_schema\Reference();
-            $uris = array_keys($rec); print_r($uris); exit("\ndito eli\n");
+            $uris = array_keys($rec); //print_r($uris); exit("\ndito eli\n");
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
