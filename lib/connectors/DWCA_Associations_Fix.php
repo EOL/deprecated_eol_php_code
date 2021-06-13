@@ -35,11 +35,11 @@ class DWCA_Associations_Fix
         unset($lines);
         /* step 2: loop to Association and remove those entries where source or target is found in $IDs */
         $tables = $info['harvester']->tables;
-        self::process_association($tables['http://eol.org/schema/association'][0], $IDs);
         // /* for Globi, these extensions are too big to be processed in DwCA_Utility. Memory issue. This just copies, carryover of the table.
         self::process_extension($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'occurrence');
         self::process_extension($tables['http://eol.org/schema/reference/reference'][0], 'reference');
         // */
+        self::process_association($tables['http://eol.org/schema/association'][0], $IDs); //main process here
     }
     private function process_association($meta, $IDs)
     {   //print_r($meta);
@@ -104,7 +104,7 @@ class DWCA_Associations_Fix
                 if(!$field) continue;
                 $rec[$field] = $tmp[$k];
                 $k++;
-            } //print_r($rec); exit;
+            } print_r($rec); //exit;
             //===========================================================================================================================================================
             if($class == 'occurrence') { //for Globi
                 if(isset($rec['basisOfRecord']))        unset($rec['basisOfRecord']);
@@ -114,7 +114,7 @@ class DWCA_Associations_Fix
             //===========================================================================================================================================================
             if($class == 'occurrence') $o = new \eol_schema\Occurrence();
             if($class == 'reference') $o = new \eol_schema\Reference();
-            $uris = array_keys($rec);
+            $uris = array_keys($rec); print_r($uris); exit("\ndito eli\n");
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
