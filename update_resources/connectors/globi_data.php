@@ -274,7 +274,7 @@ require_library('connectors/DwCA_Utility');
 ini_set('memory_limit','9096M'); //required
 $resource_id = "globi_associations";
 
-// /* //main operation
+/* //main operation
 $dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 // $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 $func = new DwCA_Utility($resource_id, $dwca);
@@ -282,7 +282,7 @@ $preferred_rowtypes = array('http://eol.org/schema/reference/reference'); //was 
 $func->convert_archive($preferred_rowtypes);
 Functions::finalize_dwca_resource($resource_id, true, false, $timestart); //3rd param true means delete folder
 $func = false; //close memory
-// */
+*/
 
 // /*
 $ret = run_utility($resource_id); //exit('stopx goes here...');
@@ -304,6 +304,11 @@ if($ret['undefined source occurrence'] || $ret['undefined target occurrence']) {
 // /*
 }
 // */
+
+/*
+extract .tar.gz into a folder: works OK
+tar -xzf globi_associations.tar.gz -C globi_associations
+*/
 
 function run_utility($resource_id)
 {
