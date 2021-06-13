@@ -97,16 +97,20 @@ class DWCA_Associations_Fix
             $rec = array(); $k = 0;
             foreach($meta->fields as $field) {
                 // /* some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName"
-                $parts = explode("#", $field);
+                $parts = explode("#", $field['term']);
                 if($parts[0]) $field = $parts[0];
                 if(@$parts[1]) $field = $parts[1];
                 // */
-                if(!$field['term']) continue;
-                $rec[$field['term']] = $tmp[$k];
+                if(!$field) continue;
+                $rec[$field] = $tmp[$k];
                 $k++;
             } //print_r($rec); exit;
-            /**/
             //===========================================================================================================================================================
+            if($class == 'occurrence') { //for Globi
+                if(isset($rec['basisOfRecord']))        unset($rec['basisOfRecord']);
+                if(isset($rec['physiologicalState']))   unset($rec['physiologicalState']);
+                if(isset($rec['bodyPart']))             unset($rec['bodyPart']);
+            }
             //===========================================================================================================================================================
             if($class == 'occurrence') $o = new \eol_schema\Occurrence();
             if($class == 'reference') $o = new \eol_schema\Reference();
