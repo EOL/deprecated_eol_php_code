@@ -274,7 +274,7 @@ require_library('connectors/DwCA_Utility');
 ini_set('memory_limit','9096M'); //required
 $resource_id = "globi_associations";
 
-// /* //main operation
+/* //main operation
 $dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 // $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 $func = new DwCA_Utility($resource_id, $dwca);
@@ -282,7 +282,7 @@ $preferred_rowtypes = array('http://eol.org/schema/reference/reference'); //was 
 $func->convert_archive($preferred_rowtypes);
 Functions::finalize_dwca_resource($resource_id, true, false, $timestart); //3rd param true means delete folder
 $func = false; //close memory
-// */
+*/
 
 // /*
 $ret = run_utility($resource_id); //exit('stopx goes here...');
@@ -303,6 +303,9 @@ if($ret['undefined source occurrence'] || $ret['undefined target occurrence']) {
     recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id."/"); //we can now delete folder after run_utility() - DWCADiagnoseAPI
 // /*
 }
+
+// globi_associations   Mon 2021-06-14 03:47:56 AM          {"association.tab":2372284, "occurrence_specific.tab":3863894, "reference.tab":1746832, "taxon.tab":320638, "time_elapsed":{"sec":5715.38, "min":95.26, "hr":1.59}}
+// globi_associations_final Mon 2021-06-14 04:59:55 AM  {"association.tab":2354206, "occurrence_specific.tab":3830488, "reference.tab":1730724, "taxon.tab":319496, "time_elapsed":{"sec":10034.44, "min":167.24, "hr":2.79}}
 // */
 
 /*
