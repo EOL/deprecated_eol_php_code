@@ -514,16 +514,16 @@ class DWCADiagnoseAPI
             if($occurrenceID && $targetOccurrenceID) {
                 if(!isset($OCCURRENCE_IDs[$occurrenceID])) {
                     $debug['undefined source occurrence'][$occurrenceID] = '';
-                    if(!isset($written_source[$occurrenceID])) { //to make unique in txt file
+                    if(!isset($written_source[$occurrenceID.'source'])) { //to make unique in txt file
                         fwrite($WRITE, $occurrenceID ."\t"."source". "\n");
-                        $written_source[$occurrenceID] = '';
+                        $written_source[$occurrenceID.'source'] = '';
                     }
                 }
                 if(!isset($OCCURRENCE_IDs[$targetOccurrenceID])) {
                     $debug['undefined target occurrence'][$targetOccurrenceID] = '';
-                    if(!isset($written_target[$targetOccurrenceID])) { //to make unique in txt file
+                    if(!isset($written_target[$targetOccurrenceID.'target'])) { //to make unique in txt file
                         fwrite($WRITE, $targetOccurrenceID ."\t"."target" . "\n");
-                        $written_target[$targetOccurrenceID] = '';
+                        $written_target[$targetOccurrenceID.'target'] = '';
                     }
                 }
             }
