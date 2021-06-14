@@ -34,7 +34,7 @@ class SpeciesChecklistAPI
             self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], $remapped);
         }
     }
-    private function process_taxon($meta)
+    private function process_taxon($meta) //for SC_unitedstates only
     {   //print_r($meta);
         echo "\nprocess_taxon...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -75,7 +75,7 @@ class SpeciesChecklistAPI
             $this->archive_builder->write_object_to_file($o);
         }
     }
-    private function process_occurrence($meta)
+    private function process_occurrence($meta) //for SC_unitedstates only
     {   //print_r($meta);
         echo "\nprocess_occurrence...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
