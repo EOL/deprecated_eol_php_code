@@ -48,6 +48,7 @@ globi_associations	Tue 2021-05-11 02:29:20 AM	{"association.tab":2121276, "occur
 -> hmmm taxa with specified ranks were mistakenly removed as well. They should remain.
 taxa now revived from prev mistake:
 globi_associations	Tue 2021-05-11 07:02:50 AM	{"association.tab":2157305, "occurrence_specific.tab":3414583, "reference.tab":1565465, "taxon.tab":318274, "time_elapsed":{"sec":5394.6, "min":89.91, "hr":1.5}}
+globi_associations_final	Mon 2021-06-14 08:04{"association.tab":2316688, "occurrence_specific.tab":3863894, "reference.tab":1746832, "taxon.tab":320638, "time_elapsed":{"sec":4964.02, "min":82.73, "hr":1.38}}
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020

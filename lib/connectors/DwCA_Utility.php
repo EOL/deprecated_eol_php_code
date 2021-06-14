@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_66310/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_66310/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_16119/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_16119/'
         );
         */
         
@@ -116,7 +116,7 @@ class DwCA_Utility
         if(in_array($this->resource_id, array("170_final", "BF", "cites_taxa"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24*30)); //1 month expire
         elseif(in_array($this->resource_id, array("wikimedia_comnames", "71_new", "368_removed_aves", "itis_2019-08-28", "itis_2020-07-28", "itis_2020-12-01", "368_final"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array("wiki_en_report"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
-        elseif(in_array($this->resource_id, array("globi_associations", "globi_associations_final"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
+        elseif(in_array($this->resource_id, array("globi_associations", "globi_associations_final", "final_SC_unitedstates"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array("gbif_classification", "gbif_classification_without_ancestry", "gbif_classification_final", 
                                                   "26", "368_removed_aves", "617_ENV", "wikipedia_en_traits_FTG", "10088_5097_ENV", "10088_6943_ENV"))) {
             if(Functions::is_production()) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
@@ -210,6 +210,12 @@ class DwCA_Utility
             $func = new DWCA_Associations_Fix($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+        if($this->resource_id == 'final_SC_unitedstates') {
+            require_library('connectors/DWCA_Measurements_Fix');
+            $func = new DWCA_Measurements_Fix($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+        
         
         /* this has been run already. Other connector(s) are created for further adjustments on DwCA's. e.g. DATA-1841
         if(substr($this->resource_id,0,3) == 'SC_') {
