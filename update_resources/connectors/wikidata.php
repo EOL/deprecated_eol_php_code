@@ -35,6 +35,9 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71	Fri 2021-02-12 07:37:48 PM	     {"agent.tab":380186, "media_resource.tab":1497199, "taxon.tab":145396, "vernacular_name.tab":880106, "time_elapsed":{"sec":138060.39, "min":2301.01, "hr":38.35, "day":1.6}}
 71	Sat 2021-04-10 05:26:37 AM	     {"agent.tab":350462, "media_resource.tab":1452540, "taxon.tab":147435, "vernacular_name.tab":893189, "time_elapsed":{"sec":147685.35, "min":2461.42, "hr":41.02, "day":1.71}}
 -> normal increase in taxa but strangely decrease in text object.
+71	Mon 2021-06-07 10:41:39 PM	     {"agent.tab":357556, "media_resource.tab":1467878, "taxon.tab":148596, "vernacular_name.tab":899297, "time_elapsed":{"sec":131012.16, "min":2183.54, "hr":36.39, "day":1.52}}
+-> steady increase OK
+
 
 *this one (71_new) eventually becomes 71.tar.gz
 71_new	Wednesday 2018-10-17 05:10:07 AM{"agent.tab": 22435,"media_resource.tab": 956972,"taxon.tab": 90844}
@@ -62,6 +65,8 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71_new	Fri 2021-02-12 08:04:22 PM	    {"agent.tab":380186, "media_resource.tab":1497199, "taxon.tab":145396, "time_elapsed":false}
 71_new	Sat 2021-04-10 05:54:03 AM	    {"agent.tab":350462, "media_resource.tab":1452540, "taxon.tab":147435, "time_elapsed":false}
 -> normal increase in taxa but strangely decrease in text object.
+71_new	Mon 2021-06-07 11:08:54 PM	    {"agent.tab":357556, "media_resource.tab":1467878, "taxon.tab":148596, "time_elapsed":false}
+-> steady increase OK
 
 when doing tests locally:
 php update_resources/connectors/wikidata.php _ generate_resource

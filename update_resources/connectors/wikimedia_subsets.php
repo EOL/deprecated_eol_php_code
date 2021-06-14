@@ -29,6 +29,7 @@ wikimedia_comnames	Thu 2020-10-08 07:41:37 PM	    {"taxon.tab":143231, "vernacul
 wikimedia_comnames	Tue 2020-12-08 11:33:38 PM	    {"taxon.tab":144044, "vernacular_name.tab":869681, "time_elapsed":false}
 wikimedia_comnames	Fri 2021-02-12 07:43:51 PM	    {"taxon.tab":145396, "vernacular_name.tab":880106, "time_elapsed":false} consistent OK
 wikimedia_comnames	Sat 2021-04-10 05:33:14 AM	    {"taxon.tab":147435, "vernacular_name.tab":893189, "time_elapsed":false} consistent OK
+wikimedia_comnames	Mon 2021-06-07 10:48:22 PM	    {"taxon.tab":148596, "vernacular_name.tab":899297, "time_elapsed":false}
 */
 
 // ini_set('error_reporting', E_ALL);
