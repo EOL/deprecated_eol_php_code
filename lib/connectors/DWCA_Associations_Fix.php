@@ -15,27 +15,6 @@ class DWCA_Associations_Fix
     }
     function start($info)
     {
-        /* step 1: get all occurrenceIDs stored in a txt file --- OBSOLETE --- DIDN'T WORK
-        $url = CONTENT_RESOURCE_LOCAL_PATH . "reports/" . "globi_associations" . "_source_target_NotInOccurrence.txt";
-        $lines = file($url);
-        $lines = array_map('trim', $lines);
-        // print_r($lines); echo "\n".count($lines)."\n"; exit;
-        foreach($lines as $line) {
-            $arr = explode("\t", $line); //print_r($arr);
-            $IDs[$arr[1]][$arr[0]] = '';
-        }
-        // print_r($IDs); echo "\n".count($IDs)."\n"; exit;
-        [source] => Array(
-                    [xx1] =>
-                    [xx2] =>
-                )
-            [target] => Array(
-                    [globi:occur:source:29847854-http://taxon-concept.plazi.org/id/Animalia/simplex_Topsent_1892-VISITS_FLOWERS_OF] => 
-                    [globi:occur:source:33893565-http://taxon-concept.plazi.org/id/Animalia/simplex_Topsent_1892-VISITS_FLOWERS_OF] => 
-                )
-        unset($lines);
-        */
-
         $tables = $info['harvester']->tables;
         /* step 1: get all existing occurrenceIDs from Occurrence file. Including write */
         self::process_extension($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'occurrence');

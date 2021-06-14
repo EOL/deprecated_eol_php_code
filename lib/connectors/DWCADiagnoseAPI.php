@@ -511,7 +511,7 @@ class DWCADiagnoseAPI
             $occurrenceID = @$rec['occurrenceID'];
             $targetOccurrenceID = @$rec['targetOccurrenceID'];
             
-            if($occurrenceID && $targetOccurrenceID) {
+            if($occurrenceID) {
                 if(!isset($OCCURRENCE_IDs[$occurrenceID])) {
                     $debug['undefined source occurrence'][$occurrenceID] = '';
                     if(!isset($written_source[$occurrenceID.'source'])) { //to make unique in txt file
@@ -519,6 +519,8 @@ class DWCADiagnoseAPI
                         $written_source[$occurrenceID.'source'] = '';
                     }
                 }
+
+            if($targetOccurrenceID) {
                 if(!isset($OCCURRENCE_IDs[$targetOccurrenceID])) {
                     $debug['undefined target occurrence'][$targetOccurrenceID] = '';
                     if(!isset($written_target[$targetOccurrenceID.'target'])) { //to make unique in txt file
