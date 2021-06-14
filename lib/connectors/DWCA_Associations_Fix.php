@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* connector: [called from DwCA_Utility.php, which is called from first client: globi_data.php for DATA-1886] */
+/* connector: [called from DwCA_Utility.php, which is called from first client: globi_data.php for DATA-1886] 
+Right now the fix means: remove the orphan child records in MoF
+*/
 class DWCA_Associations_Fix
 {
     function __construct($archive_builder, $resource_id)
@@ -43,7 +45,7 @@ class DWCA_Associations_Fix
     }
     private function process_association($meta, $IDs)
     {   //print_r($meta);
-        echo "\nprocess_association...\n"; $i = 0;
+        echo "\nprocess_association...DWCA_Associations_Fix...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -87,7 +89,7 @@ class DWCA_Associations_Fix
     }
     private function process_extension($meta, $class)
     {   //print_r($meta);
-        echo "\nprocess_extension [$class]...\n"; $i = 0;
+        echo "\nprocess_extension [$class]...DWCA_Associations_Fix...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
