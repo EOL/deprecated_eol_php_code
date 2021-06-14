@@ -15,7 +15,7 @@ class DWCA_Associations_Fix
     }
     function start($info)
     {
-        /* step 1: get all occurrenceIDs stored in a txt file */
+        /* step 1: get all occurrenceIDs stored in a txt file --- OBSOLETE --- DIDN'T WORK
         $url = CONTENT_RESOURCE_LOCAL_PATH . "reports/" . "globi_associations" . "_source_target_NotInOccurrence.txt";
         $lines = file($url);
         $lines = array_map('trim', $lines);
@@ -25,7 +25,7 @@ class DWCA_Associations_Fix
             $IDs[$arr[1]][$arr[0]] = '';
         }
         // print_r($IDs); echo "\n".count($IDs)."\n"; exit;
-        /*  [source] => Array(
+        [source] => Array(
                     [xx1] =>
                     [xx2] =>
                 )
@@ -33,17 +33,21 @@ class DWCA_Associations_Fix
                     [globi:occur:source:29847854-http://taxon-concept.plazi.org/id/Animalia/simplex_Topsent_1892-VISITS_FLOWERS_OF] => 
                     [globi:occur:source:33893565-http://taxon-concept.plazi.org/id/Animalia/simplex_Topsent_1892-VISITS_FLOWERS_OF] => 
                 )
-        */
         unset($lines);
-        /* step 2: loop to Association and remove those entries where source or target is found in $IDs */
+        */
+
         $tables = $info['harvester']->tables;
-        // /* for Globi, these extensions are too big to be processed in DwCA_Utility. Memory issue. This just copies, carryover of the table.
+        /* step 1: get all existing occurrenceIDs from Occurrence file. Including write */
         self::process_extension($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'occurrence');
+        
+        // /* for Globi, these extensions are too big to be processed in DwCA_Utility. Memory issue. This just copies, carryover of the table.
         self::process_extension($tables['http://eol.org/schema/reference/reference'][0], 'reference');
         // */
-        self::process_association($tables['http://eol.org/schema/association'][0], $IDs); //main process here
+
+        /* step 2: loop to Association and remove those entries not found in $this->occurrenceIDs */
+        self::process_association($tables['http://eol.org/schema/association'][0]); //main process here
     }
-    private function process_association($meta, $IDs)
+    private function process_association($meta)
     {   //print_r($meta);
         echo "\nprocess_association...DWCA_Associations_Fix...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -75,8 +79,8 @@ class DWCA_Associations_Fix
             //===========================================================================================================================================================
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             $targetOccurrenceID = $rec['http://eol.org/schema/targetOccurrenceID'];
-            if(isset($IDs['source'][$occurrenceID])) continue;
-            if(isset($IDs['target'][$targetOccurrenceID])) continue;
+            if(!isset($this->occurrenceIDs[$occurrenceID])) continue;
+            if(!isset($this->occurrenceIDs[$targetOccurrenceID])) continue;
             //===========================================================================================================================================================
             $o = new \eol_schema\Association();
             $uris = array_keys($rec);
@@ -140,7 +144,11 @@ class DWCA_Associations_Fix
             )*/
             //===========================================================================================================================================================
             //===========================================================================================================================================================
-            if($class == 'occurrence') $o = new \eol_schema\Occurrence_specific();
+            if($class == 'occurrence') {
+                $o = new \eol_schema\Occurrence_specific();
+                $this->occurrenceIDs[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
+            }
+            
             if($class == 'reference') $o = new \eol_schema\Reference();
             $uris = array_keys($rec); //print_r($uris); exit("\ndito eli\n");
             foreach($uris as $uri) {
