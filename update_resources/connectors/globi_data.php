@@ -49,6 +49,8 @@ globi_associations	Tue 2021-05-11 02:29:20 AM	{"association.tab":2121276, "occur
 taxa now revived from prev mistake:
 globi_associations	Tue 2021-05-11 07:02:50 AM	{"association.tab":2157305, "occurrence_specific.tab":3414583, "reference.tab":1565465, "taxon.tab":318274, "time_elapsed":{"sec":5394.6, "min":89.91, "hr":1.5}}
 globi_associations_final	Mon 2021-06-14 08:04{"association.tab":2316688, "occurrence_specific.tab":3863894, "reference.tab":1746832, "taxon.tab":320638, "time_elapsed":{"sec":4964.02, "min":82.73, "hr":1.38}}
+stable run:
+globi_associations	Mon 2021-06-14 10:12:55 AM	{"association.tab":2372284, "occurrence_specific.tab":3863894, "reference.tab":1746832, "taxon.tab":320638, "time_elapsed":{"sec":5904.94, "min":98.42, "hr":1.64}}
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020
@@ -229,6 +231,19 @@ as of Jan 11, 2021 -- initiated by Eli. Not asked by anyone.
 [7a. Records of organisms other than plants having flower visitors are probably errors] => 624
 [7c. Records of organisms other than plants having flower visitors are probably errors] => 1322
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+as of Jun 14,2021 - not submitted. As I was debugging the fix to clean Associations - integrity check
+[should be no more of this type, otherwise report to Jen] => 1846
+[change the associationType to pathogen_of] => 130
+[1. Records of non-carnivorous plants eating animals are likely to be errors] => 1042
+[2. Records of plants parasitizing animals are likely to be errors] => 1013
+[3. Records of plants having animals as hosts are likely to be errors] => 1660
+[4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors] => 1031
+[6a. Records of other organisms parasitizing or eating viruses are likely to be errors] => 6750
+[7c. Records of organisms other than plants having flower visitors are probably errors] => 1895
+[7a. Records of organisms other than plants having flower visitors are probably errors] => 1285
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -301,9 +316,6 @@ if($ret['undefined source occurrence'] || $ret['undefined target occurrence']) {
     recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id."/"); //we can now delete folder after run_utility() - DWCADiagnoseAPI
 // /*
 }
-
-// globi_associations   Mon 2021-06-14 03:47:56 AM          {"association.tab":2372284, "occurrence_specific.tab":3863894, "reference.tab":1746832, "taxon.tab":320638, "time_elapsed":{"sec":5715.38, "min":95.26, "hr":1.59}}
-// globi_associations_final Mon 2021-06-14 04:59:55 AM  {"association.tab":2354206, "occurrence_specific.tab":3830488, "reference.tab":1730724, "taxon.tab":319496, "time_elapsed":{"sec":10034.44, "min":167.24, "hr":2.79}}
 // */
 
 /*

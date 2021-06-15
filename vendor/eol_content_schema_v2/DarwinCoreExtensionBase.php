@@ -213,6 +213,10 @@ class DarwinCoreExtensionBase
         $this->accepted_properties_by_name['SampleSize'] = array('name' => 'SampleSize', 'namespace' => 'http://eol.org/schema/terms', 'uri' => 'http://eol.org/schema/terms/SampleSize');
         */
         
+        // /* New Jun 14, 2021: see also https://github.com/eliagbayani/EOL-connector-data-files/raw/master/ontology/measurement_extension_specific.xml
+        $this->accepted_properties_by_name['Q29514511'] = array('name' => 'compiler', 'namespace' => 'https://www.wikidata.org/entity', 'uri' => 'https://www.wikidata.org/entity/Q29514511');
+        // */
+        
         if($name == "extension_row_type")
         {
             $this->$name = $value;

@@ -64,6 +64,19 @@ class DWCA_Measurements_Fix
                     if($parentMeasurementID = @$rec['http://eol.org/schema/parentMeasurementID']) {
                         if(!isset($this->measurementIDs[$parentMeasurementID])) continue;
                     }
+                    
+                    // /* customize: In SC_unitedstates, please replace the MoF element http://purl.org/dc/terms/contributor 
+                    // with https://www.wikidata.org/entity/Q29514511 and the content, `Compiler: Anne E Thessen`, 
+                    // with https://orcid.org/0000-0002-2908-3327
+                    if($contributor = @$rec['http://purl.org/dc/terms/contributor']) {
+                        if($contributor == "Compiler: Anne E Thessen") {
+                            unset($rec['http://purl.org/dc/terms/contributor']);
+                            $rec['https://www.wikidata.org/entity/Q29514511'] = 'https://orcid.org/0000-0002-2908-3327';
+                        }
+                    }
+                    else unset($rec['http://purl.org/dc/terms/contributor']);
+                    // */
+                    
                 }
                 
                 if($class == 'MoF')             $o = new \eol_schema\MeasurementOrFact_specific();
