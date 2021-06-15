@@ -11,6 +11,10 @@ class ContributorsMapAPI
         $this->resource_id = $resource_id;
         $this->download_options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 60*60*1);
         $this->FishBase_collaborators = 'https://www.fishbase.de/Collaborators/CollaboratorsTopicList.php';
+        /*Reminder:
+        In SC_unitedstates, please replace the MoF element http://purl.org/dc/terms/contributor with https://www.wikidata.org/entity/Q29514511 
+        and the content, `Compiler: Anne E Thessen`, with https://orcid.org/0000-0002-2908-3327
+        */
     }
     private function initialize()
     {
