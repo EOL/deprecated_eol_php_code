@@ -1,9 +1,10 @@
 <?php
 namespace php_active_record;
 /* First client for DWCA_Measurements_Fix() is to clean SC_unitedstates.tar.gz
-Can be used as template for any resource. 
+Can be used as template for any resource.
 
 final_SC_unitedstates	Mon 2021-06-14 10:06:17 AM	{"measurement_or_fact_specific.tab":337634, "occurrence.tab":168817, "reference.tab":2, "taxon.tab":215560, "time_elapsed":{"sec":243.69, "min":4.06, "hr":0.07}}
+final_SC_unitedstates	Mon 2021-06-14 10:45:35 PM	{"measurement_or_fact_specific.tab":337634, "occurrence.tab":168817, "reference.tab":2, "taxon.tab":215560, "time_elapsed":{"sec":228.22, "min":3.8, "hr":0.06}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
