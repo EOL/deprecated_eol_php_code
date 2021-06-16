@@ -24,9 +24,7 @@ class DWCADiagnoseAPI
             $temp = explode("\t", $temp);
             $i++;
             if(($i % 300000) == 0) echo "\n count:[".number_format($i)."] ";
-            if($i == 1) {
-                $fields = $temp;
-            }
+            if($i == 1) $fields = $temp;
             else {
                 $rec = array();
                 $k = 0;
@@ -36,33 +34,61 @@ class DWCADiagnoseAPI
                     $k++;
                 }
                 $rec = array_map('trim', $rec);
-                // print_r($rec); //exit;
+                // print_r($rec); exit;
                 /* === START CUSTOMIZE INVESTIGATION HERE === WikiData 71 resource */
-                if($resource_id == 71) {                
+                if($resource_id == 71) {
                     /* if(@$rec['subtype'] == 'map') print_r($rec); */
-
                     /*
                     if(stripos($rec['accessURI'], "/Ladybird.jpg") !== false) { //string is found
                         print_r($rec);
                     }
                     */
-
                     /* DATA-1798 */
                     /*
                     if(stripos($rec['agentID'], "67c0dfecb59b013950f6f712da39eb00") !== false) { //string is found
                         print_r($rec);
                     }
                     */
-                    
-                    // /* investigate agent.tab
+                    /* investigate agent.tab
                     if(stripos($rec['identifier'], "ed3ef7203b7002c3022fbfe0ac9ed0d9") !== false) { //string is found
                         print_r($rec);
                     }
-                    // */
-                    
-                    
-                    
+                    */
                 }
+                /* === END CUSTOMIZE INVESTIGATION HERE === */
+
+                /* === START CUSTOMIZE INVESTIGATION HERE === */
+                if(in_array($resource_id, array('globi_associations', 'globi_associations_final'))) {
+                    /*Array(
+                        [associationID] => globi:assoc:2-ITIS:554049-ATE-ITIS:24773
+                        [occurrenceID] => globi:occur:source:2-ITIS:554049-ATE
+                        [associationType] => http://purl.obolibrary.org/obo/RO_0002470
+                        [targetOccurrenceID] => globi:occur:target:2-ITIS:554049-ATE-ITIS:24773
+                        [measurementDeterminedDate] => 
+                        [measurementDeterminedBy] => 
+                        [measurementMethod] => 
+                        [measurementRemarks] => 
+                        [source] => Groom, Q.J., Maarten De Groot, M. & Marčiulynienė, D. (2020) Species interation data manually extracted from literature for species .
+                        [bibliographicCitation] => 
+                        [contributor] => 
+                        [referenceID] => globi:ref:2
+                    )*/
+                    
+                    $occurrenceID = $rec['occurrenceID'];
+                    $targetOccurrenceID = $rec['targetOccurrenceID'];
+                    $needle = 'globi:occur:source:29004813-INAT_TAXON:174458-ATE';
+                    $needle = 'globi:occur:source:11010079-INAT_TAXON:174458-ATE';
+                    $needle = 'ATE-INAT_TAXON:174458';
+                    if(stripos($occurrenceID, $needle) !== false) { //string is found
+                        print_r($rec); echo "source";
+                    }
+                    if(stripos($targetOccurrenceID, $needle) !== false) { //string is found
+                        print_r($rec); echo "target";
+                    }
+                }
+                /* === END CUSTOMIZE INVESTIGATION HERE === */
+
+                /* === START CUSTOMIZE INVESTIGATION HERE === */
                 /* === END CUSTOMIZE INVESTIGATION HERE === */
 
                 /* === START CUSTOMIZE INVESTIGATION HERE === */
