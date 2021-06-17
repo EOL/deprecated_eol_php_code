@@ -132,8 +132,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $row = trim($row);
             
             $this->letter_case_err = array('albidopictus', 'antennatus', 'attractus', 'auratus', 'cordoviensis', 'coccinifera', 'coloradensis', 
-            'cuttus', 'latus', 'lineatus', 'linitus', 'magUS', 'multicinctUS');
+            'cuttus', 'latus', 'lineatus', 'linitus', 'magUS', 'multicinctUS', 'OCCidentalis');
             
+            pinus-rigida (Lophyrus) Norton
+            14-punctatus (Tenthredo) Norton, 
             
             foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
             
@@ -544,6 +546,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $tmp = str_replace(array(" ",".",","), "", $row);
             if(ctype_upper($tmp)) $row = "</taxon>$row";  //entire row is upper case //e.g. "EZRA TOWNSEND CRESSON" or "MEM. AM. ENT. SOC, V."
             
+            implement this:
+            EZRA TOWNSEND CRESSON 5
             
             
             
