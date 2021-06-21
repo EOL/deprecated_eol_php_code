@@ -14,6 +14,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
         
         // http://gnrd.globalnames.org/name_finder.json?text=Selandria caryae Norton
+        // http://gnrd.globalnames.org/name_finder.json?text=Euura salicicola E. A. Smith
+        
         
         // https://parser.globalnames.org/api/v1/Creagrutus mucipu, USNM 350449, 1, 41.4 mm, paratype; Brazil, Goiás, Município de Minaçu/Colinas do Sul, Rio Tocantins.
 
@@ -132,8 +134,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $row = trim(preg_replace('/\s*\[[^)]*\]/', '', $row)); //remove brackets
             $row = trim($row);
             
+            // /* manual: floridanus ((Fcenus ) Bradley, Trans. Am. Ent. Soc, xxxiv, 112.
+            $row = str_replace("((Fcenus", "(Fcenus", $row);
+            // */
+            
             $this->letter_case_err = array('albidopictus', 'antennatus', 'attractus', 'auratus', 'cordoviensis', 'coccinifera', 'coloradensis', 
-            'cuttus', 'latus', 'lineatus', 'linitus', 'magus', 'multicinctus', 'occidentalis', 'excavatUS', 'foveatUS');
+            'cuttus', 'latus', 'lineatus', 'linitus', 'magus', 'multicinctus', 'occidentalis', 'excavatUS', 'foveatUS', 'albopictus', 'elongatus', 
+            'stigmatalis', 'subalbatus', 'sulphurea', 'sumichrasti', 'trivittatus', 'zonatus', 'albopictus', 'constrictus', 'cubensis', 'extricatus', 
+            'fasciatus', 'convexus', 'cookii', 'costatus', 'coxatus', 'cressoni', 'cultriformis', 'cultus', 'curvator', 'curvineura', 'elongatus',
+            'cc-nvergens', 'cinctus');
             
             // pinus-rigida (Lophyrus) Norton
             // 14-punctatus (Tenthredo) Norton, 
@@ -158,6 +167,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             */
             
             // caryae (Selandria) Norton, Packard's Guide to Study of Ins., 1869, p. 224. 
+            /*
+            salicicola (Euura) E. A. Smith, N. Am. Entom., i, 41.
+            */
+
+            
+            
             
             if(stripos($row, "caryae (") !== false) echo "\nsearch 2\n";   //string is found
             
@@ -301,7 +316,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // print("\n$string\n");
         /* wootonae (Perdita) Cockerell, Ent. News, ix, 215. */
         // $string = "cseruleum (Hedychrum) Norton, Trans. Am. Ent. Soc, vii, 239.";
+        // $string = "feria (Otlophorus innumerabilis) Davis, Trans. Am. Ent. Soc, xxiv, 276.";
         $str = trim($string);
+        
+        // /* if > 1 word inside parenthesis e.g. "(Otlophorus innumerabilis)", then convert to "(Otlophorus_innumerabilis)"
+        if(preg_match("/\((.*?)\)/ims", $str, $ret)) {
+            $inside_parenthesis = $ret[1];
+            $new_inside_parenthesis = str_replace(" ", "_", $inside_parenthesis);
+            $str = str_replace("($inside_parenthesis)", "($new_inside_parenthesis)", $str);
+        }
+        // */
+        
         $arr = explode(" ", $str); //print_r($arr); //exit;
         /*cseruleum (Hedychrum) Norton, Trans. Am. Ent. Soc, vii, 239.
         Array(
@@ -323,7 +348,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // */
         if(@$arr[1][0] != "(") return false;                //2nd word starts with "("
         if(substr($arr[2],-1) != ",") return false;         //3rd ends with "," comma
-        if(preg_match("/\((.*?)\)/ims", $arr[1], $ret)) $second = $ret[1];
+        if(preg_match("/\((.*?)\)/ims", $arr[1], $ret)) {
+            $second = trim($ret[1]);
+            $second = str_replace("_", " ", $second);
+        }
         else return false;
         $third = substr($arr[2], 0, -1);
         $sciname = $second." ".$arr[0]." ".$third;
@@ -534,6 +562,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $i = 0; $count_of_blank_rows = 0;
         foreach(new FileIterator($edited_file) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
             $row = trim($row);
+
+            // /* manual: floridanus ((Fcenus ) Bradley, Trans. Am. Ent. Soc, xxxiv, 112.
+            $row = str_replace("((Fcenus", "(Fcenus", $row);
+            // */
 
             foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
 
