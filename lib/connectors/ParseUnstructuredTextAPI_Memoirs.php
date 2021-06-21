@@ -144,13 +144,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             'sulcus', 'ocellatus', 'corrugatus', 'rugosus', 'inordinatus', 'distinctus', 'suffusus', 'punctatus', 'chalcifrons', 'subfrigidus', 
             'subtilis', 'solani', 'striatus', 'ephippiatus', 'dentatus', 'confertus', 'asperatus', 'u-scripta','usitata');
 
-            // pinus-rigida (Lophyrus) Norton
-            // 14-punctatus (Tenthredo) Norton, 
-            
             foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
             
             if(stripos($row, "salicicola (") !== false) echo "\nsearch 1\n";   //string is found
-            
             
             /* NOT FOR MEMOIRS
             if(stripos($row, "fig.") !== false) {$rows = array(); continue;} //string is found
