@@ -508,6 +508,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
         }
         $pdf_meta_obj = array();
         // SPECIES SECTIONS
+        echo "\nworking dir: [".$this->path['working_dir']."]\n";
         foreach(glob($this->path['working_dir'] . "*") as $folder) { //exit("\n[$folder]\n");
             $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."_tagged.txt";
             $txt_filename = $folder."/".$txt_filename;
