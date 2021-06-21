@@ -43,20 +43,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         /* END epub series */
         
         // /* copied from SmithsonianPDFsAPI
-        $list_type_from_google_sheet = array('SCtZ-0033', 'SCtZ-0011', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613', 'SCtZ-0609', 'SCtZ-0018',
-        'scb-0002');
+        $list_type_from_google_sheet = array('SCtZ-0033', 'SCtZ-0011', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613', 'SCtZ-0609', 'SCtZ-0018', 'scb-0002');
         $this->PDFs_that_are_lists = array_merge(array('SCtZ-0437'), $list_type_from_google_sheet);
-        // SCtZ-0018 - Nearctic Walshiidae: notes and new taxa (Lepidoptera: Gelechioidea). Both list-type and species-sections type
-        // SCtZ-0004 - not a list-type
-        // SCtZ-0604 - I considered not a list-type but a regular species section type
         // */
         
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
     }
-    /* Special chard mentioned by Dima, why GNRD stops running.
-    str_replace("")
-    str_replace("")
-    */
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
     {
