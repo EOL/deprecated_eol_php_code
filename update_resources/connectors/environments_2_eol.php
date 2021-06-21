@@ -88,6 +88,9 @@ wikipedia_en_traits	Wed 2021-06-16 06:16:20 AM	    {"MoF.tab":147964, "occurrenc
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
 
+
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Memoirs of the American Entomological Society", "resource_id":"118935", "subjects":"Description|Uses"}'
+
 --------------------------------------------------------------------------------------- PDF repository 10088_5097
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"10088_5097", "subjects":"Uses|Description"}'
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"10088_6943", "subjects":"Uses|Description"}'
