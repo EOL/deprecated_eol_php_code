@@ -136,20 +136,46 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             
             // /* manual: floridanus ((Fcenus ) Bradley, Trans. Am. Ent. Soc, xxxiv, 112.
             $row = str_replace("((Fcenus", "(Fcenus", $row);
+            //infrarubens (Nomada vicinalis; Cockerell, Bull. 94, Colo. Exp. Sta., 84.
+            $row = str_replace("(Nomada vicinalis;", "(Nomada vicinalis)", $row);
+            //others:
+            $row = str_replace("((Nomada)", "(Nomada)", $row);
             // */
             
             $this->letter_case_err = array('albidopictus', 'antennatus', 'attractus', 'auratus', 'cordoviensis', 'coccinifera', 'coloradensis', 
-            'cuttus', 'latus', 'lineatus', 'linitus', 'magus', 'multicinctus', 'occidentalis', 'excavatUS', 'foveatUS', 'albopictus', 'elongatus', 
+            'cuttus', 'latus', 'lineatus', 'linitus', 'magus', 'multicinctus', 'occidentalis', 'excavatus', 'foveatus', 'albopictus', 'elongatus', 
             'stigmatalis', 'subalbatus', 'sulphurea', 'sumichrasti', 'trivittatus', 'zonatus', 'albopictus', 'constrictus', 'cubensis', 'extricatus', 
             'fasciatus', 'convexus', 'cookii', 'costatus', 'coxatus', 'cressoni', 'cultriformis', 'cultus', 'curvator', 'curvineura', 'elongatus',
-            'cc-nvergens', 'cinctus');
+            'cc-nvergens', 'cinctus', 'corvallisensis', 'colorata', 'consultus', 'clarkii', 'carolina', 'azygos', 'w-scripta', 'subdistans', 
+            'scurra', 'delodontus', 'confederata', 'clypeopororia', 'coactipostica', 'cockerelli', 'columbiana', 'carolina', 'scelesta', 'virgatus',
+            'sulcus', 'ocellatus', 'corrugatus', 'rugosus');
+            inordinatUS
+            distinctUS
+            SUffusus
+            punctatUS
+            Chalcifrons
+            SUbfrigidus
+            SUbtilis
+            SOlani
+            StriatUS
+            ephippiatUS
+            dentatUS
+            COnfertUS
+            asperatUS
+            
+            
+            U-SCripta (Bembex) Fox, Proc. Acad. Nat. Sci. Phil., 1895, 362.
+            USitata (Monedula) Fox, Proc. Acad. Nat. Sci. Phil., 1895, 371.
+            villosa (Monedula( Fox, Proc. Acad. Nat. Sci. Phil., 1895, 370.
+            
+            
             
             // pinus-rigida (Lophyrus) Norton
             // 14-punctatus (Tenthredo) Norton, 
             
             foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
             
-            if(stripos($row, "caryae (") !== false) echo "\nsearch 1\n";   //string is found
+            if(stripos($row, "salicicola (") !== false) echo "\nsearch 1\n";   //string is found
             
             
             /* NOT FOR MEMOIRS
@@ -166,15 +192,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(stripos($row, "series ") !== false) {$rows = array(); continue;} //string is found
             */
             
-            // caryae (Selandria) Norton, Packard's Guide to Study of Ins., 1869, p. 224. 
+            // caryae (Selandria) Norton, Packard's Guide to Study of Ins., 1869, p. 224.       // has "p."
             /*
-            salicicola (Euura) E. A. Smith, N. Am. Entom., i, 41.
+            salicicola (Euura) E. A. Smith, N. Am. Entom., i, 41.                               //multiple word for the 3rd word
+            infrarubens (Nomada vicinalis; Cockerell, Bull. 94, Colo. Exp. Sta., 84.
             */
 
-            
-            
-            
-            if(stripos($row, "caryae (") !== false) echo "\nsearch 2\n";   //string is found
+            if(stripos($row, "salicicola (") !== false) echo "\nsearch 2\n";   //string is found
             
             $cont = true;
             
@@ -208,7 +232,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             // */
 
-            if(stripos($row, "caryae (") !== false) echo "\nsearch 3\n";   //string is found
+            if(stripos($row, "salicicola (") !== false) echo "\nsearch 3\n";   //string is found
             
 
             /* good debug
@@ -231,7 +255,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(!$cont) continue;
             */
 
-            if(stripos($row, "caryae (") !== false) echo "\nsearch 4\n";   //string is found
+            if(stripos($row, "salicicola (") !== false) echo "\nsearch 4\n";   //string is found
             
             //for weird names, from Jen
             $row = str_replace(array("“", "”"), "", $row); // “Clania” licheniphilus Koehler --> 0188.epub
@@ -294,11 +318,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                                 $this->lines_to_tag[$ctr-1] = '';
                                 // */
                             }
+                            /* good debug
                             else {
-                                if(stripos($rows[1], "caryae (") !== false) {   //string is found
+                                if(stripos($rows[1], "salicicola (") !== false) {   //string is found
                                     exit("\nxxx2[$rows[1]]\n");
                                 }
                             }
+                            */
                         }
                     }
                 }
@@ -317,6 +343,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         /* wootonae (Perdita) Cockerell, Ent. News, ix, 215. */
         // $string = "cseruleum (Hedychrum) Norton, Trans. Am. Ent. Soc, vii, 239.";
         // $string = "feria (Otlophorus innumerabilis) Davis, Trans. Am. Ent. Soc, xxiv, 276.";
+        // $string = "salicicola (Euura) E. A. Smith, N. Am. Entom., i, 41.";
         $str = trim($string);
         
         // /* if > 1 word inside parenthesis e.g. "(Otlophorus innumerabilis)", then convert to "(Otlophorus_innumerabilis)"
@@ -326,6 +353,16 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $str = str_replace("($inside_parenthesis)", "($new_inside_parenthesis)", $str);
         }
         // */
+        
+        // /* if > 1 word for the supposedly 3rd word e.g. "salicicola (Euura) E. A. Smith, N. Am. Entom., i, 41."
+        if(preg_match("/\)(.*?)\,/ims", $str, $ret)) {
+            $inside_thirdword = trim($ret[1]);
+            $new_inside_thirdword = str_replace(" ", "_", $inside_thirdword);
+            $str = str_replace(") $inside_thirdword,", ") $new_inside_thirdword,", $str);
+            // exit("\nstr = [$str]\n");
+        }
+        // */
+        
         
         $arr = explode(" ", $str); //print_r($arr); //exit;
         /*cseruleum (Hedychrum) Norton, Trans. Am. Ent. Soc, vii, 239.
@@ -354,16 +391,22 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         }
         else return false;
         $third = substr($arr[2], 0, -1);
+        $third = str_replace("_", " ", $third);
+        
         $sciname = $second." ".$arr[0]." ".$third;
-        // exit("\n$sciname\n-elix-\n"); 
+        // exit("\nsciname: $sciname\n-elix-\n");
         return $sciname;
     }
     function is_sciname($string, $doc_type = 'species_type') //for initial scinames list
     {
+        if(stripos($string, "salicicola (") !== false) echo "\nhanap 0 [$string]\n"; //string is found
+        
         //exit("\nElix 100\n");
         if(self::is_sciname_in_memoirs($string)) return true;
         else return false;
         /* ----- end Memoirs ----- */
+
+        if(stripos($string, "salicicola (") !== false) echo "\nhanap 1 [$string]\n"; //string is found
         
         $string = self::remove_if_first_chars_are("* ", $string, 2); //e.g. "* Enteromorpha clathrata (Roth) J. Agardh"
         
@@ -372,6 +415,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(substr($string,0,strlen($exc)) == $exc) return false;
         }
         
+        if(stripos($string, "salicicola (") !== false) echo "\nhanap 2 [$string]\n"; //string is found
         
         // /* e.g. "16a. Cerceris bougainvillensis solomonis, new subspecies" --- remove "16a."
         $string = self::remove_first_word_if_it_has_number($string);
@@ -389,6 +433,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $words = explode(" ", $string);
         if(count($words) == 1) return false;
         // */
+
+        if(stripos($string, "salicicola (") !== false) echo "\nhanap 3 [$string]\n"; //string is found
 
         // echo "\nreach 3\n";
         // [Thespesia howii Hu, Fl. China, Fam. 153:69, T.22, F.3, 1955.]
@@ -408,6 +454,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // */
         
         // echo "\nreach 4\n";
+        
+        if(stripos($string, "salicicola (") !== false) echo "\nhanap 4 [$string]\n"; //string is found
+        
         
         if($doc_type == 'species_type') {
             if(self::is_sciname_using_GNRD($string)) return true;
@@ -565,6 +614,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
             // /* manual: floridanus ((Fcenus ) Bradley, Trans. Am. Ent. Soc, xxxiv, 112.
             $row = str_replace("((Fcenus", "(Fcenus", $row);
+            //infrarubens (Nomada vicinalis; Cockerell, Bull. 94, Colo. Exp. Sta., 84.
+            $row = str_replace("(Nomada vicinalis;", "(Nomada vicinalis)", $row);
+            //others:
+            $row = str_replace("((Nomada)", "(Nomada)", $row);
             // */
 
             foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
@@ -597,7 +650,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             /* good debug
             else {
-                if(stripos($row, "caryae") !== false) {   //string is found
+                if(stripos($row, "salicicola") !== false) {   //string is found
                     exit("\nxxx1[$row]\n");
                 }
             }
