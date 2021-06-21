@@ -587,6 +587,7 @@ class ParseListTypeAPI_Memoirs
             if(!@$rek['scientificName_author_cleaned']) $rek['scientificName_author_cleaned'] = $rek['sciname GNRD']; //reconcile gnparser vs GNRD
             */
         }
+        else exit("\nNot sciname says GNRD: [$sciname_line]\n");
         // ------------- end ------------- */
         if($ret = @$rek['scientificName_author_cleaned']) {
             $ret = str_replace(" ,", ",", $ret);

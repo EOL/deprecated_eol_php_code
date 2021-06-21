@@ -13,7 +13,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
         
-        // http://gnrd.globalnames.org/name_finder.json?text=Stilbosis lonchocarpella Busck, 1934, p. 157.
+        // http://gnrd.globalnames.org/name_finder.json?text=Selandria caryae Norton
+        
         // https://parser.globalnames.org/api/v1/Creagrutus mucipu, USNM 350449, 1, 41.4 mm, paratype; Brazil, Goiás, Município de Minaçu/Colinas do Sul, Rio Tocantins.
 
         /*
@@ -95,6 +96,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $lines_before_and_after_sciname = $input['lines_before_and_after_sciname'];
         $this->magic_no = $this->no_of_rows_per_block[$lines_before_and_after_sciname];
         self::get_main_scinames($filename); // print_r($this->lines_to_tag); 
+        // print_r($this->scinames); exit;
         echo "\n lines_to_tag: ".count($this->lines_to_tag)."\n"; //exit("\n-end-\n");
         $edited_file = self::add_taxon_tags_to_text_file_v3($filename);
         self::remove_some_rows($edited_file);
@@ -102,7 +104,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // print_r($this->scinames); 
         echo "\nRaw scinames count: ".count($this->scinames)."\n";
     }
-    //else           $row = "</taxon><taxon sciname='$sciname'> ".$row;
     private function get_main_scinames($filename)
     {
         $local = $this->path['epub_output_txts_dir'].$filename;
@@ -132,15 +133,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $row = trim($row);
             
             $this->letter_case_err = array('albidopictus', 'antennatus', 'attractus', 'auratus', 'cordoviensis', 'coccinifera', 'coloradensis', 
-            'cuttus', 'latus', 'lineatus', 'linitus', 'magUS', 'multicinctUS', 'OCCidentalis');
+            'cuttus', 'latus', 'lineatus', 'linitus', 'magus', 'multicinctus', 'occidentalis', 'excavatUS', 'foveatUS');
             
-            pinus-rigida (Lophyrus) Norton
-            14-punctatus (Tenthredo) Norton, 
+            // pinus-rigida (Lophyrus) Norton
+            // 14-punctatus (Tenthredo) Norton, 
             
             foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
             
+            if(stripos($row, "caryae (") !== false) echo "\nsearch 1\n";   //string is found
             
-            // /*
+            
+            /* NOT FOR MEMOIRS
             if(stripos($row, "fig.") !== false) {$rows = array(); continue;} //string is found
             if(stripos($row, "incertae sedis") !== false) {$rows = array(); continue;} //string is found
             if(stripos($row, "cf.") !== false) {$rows = array(); continue;} //string is found
@@ -152,9 +155,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(stripos($row, " pages") !== false) {$rows = array(); continue;} //string is found
             if(stripos($row, " less ") !== false) {$rows = array(); continue;} //string is found
             if(stripos($row, "series ") !== false) {$rows = array(); continue;} //string is found
-            // */
+            */
             
-
+            // caryae (Selandria) Norton, Packard's Guide to Study of Ins., 1869, p. 224. 
+            
+            if(stripos($row, "caryae (") !== false) echo "\nsearch 2\n";   //string is found
+            
             $cont = true;
             
             // /* criteria 2: if first word is all caps e.g. ABSTRACT
@@ -187,6 +193,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             // */
 
+            if(stripos($row, "caryae (") !== false) echo "\nsearch 3\n";   //string is found
+            
+
             /* good debug
             //Capitophorus ohioensis Smith, 1940:141
             //Capitophorus ohioensis Smith, 1940:141 [type: apt.v.f., Columbus, Ohio, 15–X–1938, CFS, on Helianthus; in USNM].
@@ -194,7 +203,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             */
             
             $cont = true;
-            // /* criteria 3: any occurrence of these strings in any part of the row
+            /* NOT FOR MEMOIRS
+            // criteria 3: any occurrence of these strings in any part of the row
             $exclude2 = array(" of ", " in ", " the ", " this ", " with ", "Three ", "There ", " are ", "…", " for ", " dos ", " on ");
             $exclude2 = array_merge($exclude2, array('order', 'family', 'subgenus', 'tribe')); //is valid "Anoplodactylus lagenus"
             foreach($exclude2 as $exc) {
@@ -204,8 +214,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
             if(!$cont) continue;
-            // */
+            */
 
+            if(stripos($row, "caryae (") !== false) echo "\nsearch 4\n";   //string is found
+            
             //for weird names, from Jen
             $row = str_replace(array("“", "”"), "", $row); // “Clania” licheniphilus Koehler --> 0188.epub
             
@@ -267,6 +279,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                                 $this->lines_to_tag[$ctr-1] = '';
                                 // */
                             }
+                            else {
+                                if(stripos($rows[1], "caryae (") !== false) {   //string is found
+                                    exit("\nxxx2[$rows[1]]\n");
+                                }
+                            }
                         }
                     }
                 }
@@ -298,8 +315,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             [7] => vii,
             [8] => 239.
         )*/
-        if(!ctype_lower($arr[0])) return false;             //1st word is all small letter
-        if(@$arr[1][0] != "(") return false;                 //2nd word starts with "("
+        // /*
+        $tmp = $arr[0]; //e.g. cseruleum | pinus-rigida
+        $tmp = str_replace(array(",", ".", " ", "-"), "", $tmp);
+        $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
+        if(!ctype_lower($tmp)) return false;                //1st word is all small letter
+        // */
+        if(@$arr[1][0] != "(") return false;                //2nd word starts with "("
         if(substr($arr[2],-1) != ",") return false;         //3rd ends with "," comma
         if(preg_match("/\((.*?)\)/ims", $arr[1], $ret)) $second = $ret[1];
         else return false;
@@ -541,14 +563,23 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     
                 }
             }
-            // else echo "\n[$row]\n";
-            if($row == "INDEX")                         $row = "</taxon>$row";
+            /* good debug
+            else {
+                if(stripos($row, "caryae") !== false) {   //string is found
+                    exit("\nxxx1[$row]\n");
+                }
+            }
+            */
+            //start terminal criteria
+            if($row == "INDEX")   $row = "</taxon>$row";
+
+            // /*
             $tmp = str_replace(array(" ",".",","), "", $row);
+            // $tmp = preg_replace('/[0-9]+/', '', $row); //remove For Western Arabic numbers (0-9):
+            // $tmp = trim($tmp);
             if(ctype_upper($tmp)) $row = "</taxon>$row";  //entire row is upper case //e.g. "EZRA TOWNSEND CRESSON" or "MEM. AM. ENT. SOC, V."
-            
-            implement this:
-            EZRA TOWNSEND CRESSON 5
-            
+                                                          //EZRA TOWNSEND CRESSON 5 -> entire row is uppercase with numeric
+            // */
             
             
             /* to close tag the last block

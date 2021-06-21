@@ -19,6 +19,12 @@ $func = new ParseUnstructuredTextAPI_Memoirs();
 // else echo "\nlower\n";
 // exit;
 
+/*
+$tmp = "pinusrigida";
+if(ctype_lower($tmp)) exit("\nall chars small\n");
+else exit("\nnot all chars is small\n");
+*/
+
 // exit("\n".ctype_upper("EZRATOWNSENDCRESSON")."\n");
 
 /* Start epub series: process our first file from the ticket */
