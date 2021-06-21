@@ -140,6 +140,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $row = str_replace("(Nomada vicinalis;", "(Nomada vicinalis)", $row);
             //others:
             $row = str_replace("((Nomada)", "(Nomada)", $row);
+            $row = str_replace("(Monedula(", "(Monedula)", $row);
             // */
             
             $this->letter_case_err = array('albidopictus', 'antennatus', 'attractus', 'auratus', 'cordoviensis', 'coccinifera', 'coloradensis', 
@@ -148,28 +149,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             'fasciatus', 'convexus', 'cookii', 'costatus', 'coxatus', 'cressoni', 'cultriformis', 'cultus', 'curvator', 'curvineura', 'elongatus',
             'cc-nvergens', 'cinctus', 'corvallisensis', 'colorata', 'consultus', 'clarkii', 'carolina', 'azygos', 'w-scripta', 'subdistans', 
             'scurra', 'delodontus', 'confederata', 'clypeopororia', 'coactipostica', 'cockerelli', 'columbiana', 'carolina', 'scelesta', 'virgatus',
-            'sulcus', 'ocellatus', 'corrugatus', 'rugosus');
-            inordinatUS
-            distinctUS
-            SUffusus
-            punctatUS
-            Chalcifrons
-            SUbfrigidus
-            SUbtilis
-            SOlani
-            StriatUS
-            ephippiatUS
-            dentatUS
-            COnfertUS
-            asperatUS
-            
-            
-            U-SCripta (Bembex) Fox, Proc. Acad. Nat. Sci. Phil., 1895, 362.
-            USitata (Monedula) Fox, Proc. Acad. Nat. Sci. Phil., 1895, 371.
-            villosa (Monedula( Fox, Proc. Acad. Nat. Sci. Phil., 1895, 370.
-            
-            
-            
+            'sulcus', 'ocellatus', 'corrugatus', 'rugosus', 'inordinatus', 'distinctus', 'suffusus', 'punctatus', 'chalcifrons', 'subfrigidus', 
+            'subtilis', 'solani', 'striatus', 'ephippiatus', 'dentatus', 'confertus', 'asperatus', 'u-scripta','usitata');
+
             // pinus-rigida (Lophyrus) Norton
             // 14-punctatus (Tenthredo) Norton, 
             
@@ -618,6 +600,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $row = str_replace("(Nomada vicinalis;", "(Nomada vicinalis)", $row);
             //others:
             $row = str_replace("((Nomada)", "(Nomada)", $row);
+            $row = str_replace("(Monedula(", "(Monedula)", $row);
             // */
 
             foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
