@@ -45,6 +45,7 @@ if(Functions::is_production()) $input['epub_output_txts_dir'] = '/extra/other_fi
 else                           $input['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/Smithsonian/MoftheAES/'.$pdf_id.'/';
 // /*
 $folder = $input['epub_output_txts_dir'];
+if(!is_dir($folder)) mkdir($folder);
 $postfix = array("_tagged.txt", "_tagged_LT.txt", "_edited.txt", "_edited_LT.txt", "_descriptions_LT.txt");
 foreach($postfix as $post) {
     $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."$post";
