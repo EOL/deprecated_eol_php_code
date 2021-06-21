@@ -20,7 +20,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->web['PDFs per page']['10088_6943'] = "https://repository.si.edu/handle/10088/6943/browse?rpp=20&sort_by=2&type=dateissued&offset=NUM_OFFSET&etal=-1&order=ASC";
 
         $this->web['domain'] = 'https://repository.si.edu';
-        if(Functions::is_production()) $this->path['working_dir'] = '/extra/other_files/Smithsonian/epub_'.$this->resource_id.'/';
+        if(Functions::is_production()) $this->path['working_dir'] = '/extra/other_files/Smithsonian/MoftheAES/';
         else                           $this->path['working_dir'] = '/Volumes/AKiTiO4/other_files/Smithsonian/MoftheAES/';
         if(!is_dir($this->path['working_dir'])) mkdir($this->path['working_dir']);
 
