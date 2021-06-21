@@ -18,6 +18,7 @@ From local Mac mini: SCtZ-0614
 10088_5097_ENV  {"association.tab":56, "measurement_or_fact_specific.tab":150, "media_resource.tab":10, "occurrence_specific.tab":205, "taxon.tab":54, "time_elapsed":{"sec":18.34, "min":0.31, "hr":0.01}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+$GLOBALS["ENV_DEBUG"] = true;
 $timestart = time_elapsed();
 // print_r($argv);
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
