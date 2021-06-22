@@ -614,7 +614,10 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     [sciname] => Lysiosquilla capensis Hansen, 1895
                     [body] => Lysiosquilla capensis Hansen, 1895<br><br>Lysiosquilla capensis Hansen, 1895, p. 74.—Stebbing,...
                 )*/
-                if($rec['sciname'] && $rec['body']) self::write_archive($rec, $pdf_meta_obj);
+                
+                $CVterm = 'Description'; //default
+                if($this->resource_id == '118935') $CVterm = 'Uses'; //for list-type documents. A distinction so it can be removed in final DwCA
+                if($rec['sciname'] && $rec['body']) self::write_archive($rec, $pdf_meta_obj, $CVterm);
             }
         }
     }

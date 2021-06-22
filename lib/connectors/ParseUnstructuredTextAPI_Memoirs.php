@@ -51,8 +51,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
-    {
-        // print_r($input); print_r(pathinfo($input['filename'])); exit("\nelix 1\n");
+    {   // print_r($input); print_r(pathinfo($input['filename'])); exit("\nelix 1\n");
         /*Array(
             [filename] => SCtZ-0007.txt
             [lines_before_and_after_sciname] => 1
@@ -682,16 +681,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             // */
             
-            
-            remove this rows in the entire doc:
-
-            MEM. AMER. ENT. SOC, IO 
-
-            120 NORTH AMERICAN GENUS PEGOMYIA (DIPTERA: MUSCIDAE) 
-            
-            
-            
-            
             /* to close tag the last block
             if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293_convertio.txt
             elseif($row == "Literature Cited") $row = "</taxon>$row";       //SCtZ-0007.txt
@@ -842,11 +831,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(!$cont) continue;
             // */
             
-            // /* big customization:
-            // if($pdf_id == "scz-0630") {
-                if(stripos($row, "Abbreviations defined:") !== false) continue; //string is found
-            // }
-            // */
+            if($this->pdf_id == '120081') { //2nd doc
+                // /* remove if row is all caps
+                // MEM. AMER. ENT. SOC, IO 
+                // 120 NORTH AMERICAN GENUS PEGOMYIA (DIPTERA: MUSCIDAE) 
+                $tmp = $row;
+                $tmp = str_replace(array(",", ".", " ", "-", "'", ":", "(", ")"), "", $tmp);
+                $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
+                // echo " [$tmp]";
+                if(ctype_upper($tmp)) continue;
+                // */
+            }
             
             fwrite($WRITE, $row."\n");
         }//end loop text

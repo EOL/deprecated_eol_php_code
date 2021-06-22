@@ -62,7 +62,9 @@ $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/SCtZ-0614_descriptions_LT.txt";  $pdf_id = "SCtZ-0614";
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0093/scb-0093_descriptions_LT.txt";  $pdf_id = "scb-0093";
 
-$pdf_id = '118935';
+$pdf_id = '118935'; //1st doc
+$pdf_id = '120081'; //2nd doc
+
 $resource_id = $pdf_id;
 require_library('connectors/ParseListTypeAPI_Memoirs');
 require_library('connectors/SmithsonianPDFsAPI_Memoirs');

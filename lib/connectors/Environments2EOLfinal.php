@@ -106,13 +106,14 @@ class Environments2EOLfinal extends ContributorsMapAPI
             }
 
             if(!in_array($this->resource_id, array('118935_ENV'))) { //list-type resources don't have media objects
-                /* this will populate media_object less the subject#uses */
-                if($tbl = @$tables['http://eol.org/schema/media/document']) {
-                    $meta = $tbl[0];
-                    self::process_table($meta, 'create extension', 'document');
-                }
-                else exit("\nditox 100\n");
             }
+            
+            /* this will populate media_object less the subject#uses */
+            if($tbl = @$tables['http://eol.org/schema/media/document']) {
+                $meta = $tbl[0];
+                self::process_table($meta, 'create extension', 'document');
+            }
+            else exit("\nditox 100\n");
         }
         
         // */
