@@ -7,15 +7,6 @@ https://repository.si.edu/handle/10088/6943         2nd repo
 wget https://editors.eol.org/eol_php_code/applications/content_server/resources/10088_5097.tar.gz
 wget https://editors.eol.org/eol_php_code/applications/content_server/resources/10088_5097_ENV.tar.gz
 --------------------------------------------------
-*/
-include_once(dirname(__FILE__) . "/../../config/environment.php");
-$GLOBALS["ENV_DEBUG"] = true;
-$timestart = time_elapsed();
-// print_r($argv);
-$params['jenkins_or_cron'] = @$argv[1]; //not needed here
-$param                     = json_decode(@$argv[2], true);
-$resource_id = $param['resource_id'];
-/*
 php5.6 process_SI_pdfs_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 process_SI_pdfs_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
 php5.6 process_SI_pdfs_memoirs.php jenkins '{"resource_id": "MoftheAES", "resource_name":"all resources"}'
@@ -24,6 +15,13 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "118935", "resource_name":"1st do
 process_SI_pdfs_memoirs.php _ '{"resource_id": "120081", "resource_name":"2nd doc"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "MoftheAES", "resource_name":"all resources"}'
 */
+include_once(dirname(__FILE__) . "/../../config/environment.php");
+$GLOBALS["ENV_DEBUG"] = true;
+$timestart = time_elapsed();
+// print_r($argv);
+$params['jenkins_or_cron'] = @$argv[1]; //not needed here
+$param                     = json_decode(@$argv[2], true);
+$resource_id = $param['resource_id'];
 
 /* un-comment in real operation - main operation
 require_library('connectors/ParseListTypeAPI');
