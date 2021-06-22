@@ -23,19 +23,32 @@ if(ctype_upper($tmp)) echo "\nupper [$tmp]\n";  //entire row is upper case //EZR
 else echo "\nlower [$tmp]\n";
 exit;
 */
+/*
+$string = "Pegomyia palposa (Stein) (Figs. 1, 30, 54.)";
+$string = trim(preg_replace('/\s*\(Fig[^)]*\)/', '', $string)); //remove parenthesis OK
+[Pegomyia palposa (Stein)]
+echo "\n[$string]\n";
+exit("\n");
+*/
 
 /* Start epub series: process our first file from the ticket */
 $input = array('filename' => 'SCTZ-0156.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0156/');
 $input = array('filename' => '118935.txt', 'lines_before_and_after_sciname' => 1);
+/* stable stats:
+blocks: 1322
+Raw scinames count: 1322
+*/
+$input = array('filename' => '120081.txt', 'lines_before_and_after_sciname' => 2);
+/* stable stats:
+blocks: 98
+Raw scinames count: 98
+*/
 
 /* ---------------------------------- List-type here:
 // variable lines_before_and_after_sciname is important. It is the lines before and after the "list header".
 ---------------------------------- */
 
 $pdf_id = pathinfo($input['filename'], PATHINFO_FILENAME);
-$input['lines_before_and_after_sciname'] = 1; //default
-if(in_array($pdf_id, array('xxx'))) $input['lines_before_and_after_sciname'] = 1;
-
 if(Functions::is_production()) $input['epub_output_txts_dir'] = '/extra/other_files/Smithsonian/MoftheAES/'.$pdf_id.'/';
 else                           $input['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/Smithsonian/MoftheAES/'.$pdf_id.'/';
 // /*

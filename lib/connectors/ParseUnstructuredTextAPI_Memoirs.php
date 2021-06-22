@@ -70,6 +70,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         // /* this serves when script is called from parse_unstructured_text.php --- un-comment in real operation
         $pdf_id = pathinfo($input['filename'], PATHINFO_FILENAME);
+        $this->pdf_id = $pdf_id;
         if(in_array($pdf_id, $this->PDFs_that_are_lists)) {
             echo "- IS A LIST, NOT SPECIES-DESCRIPTION-TYPE 02\n";
             $this->parse_list_type_pdf($input);
@@ -307,6 +308,38 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     {
         if(preg_match_all('/\d+/', $str, $a)) return $a[0];
     }
+    private function is_sciname_in_120081($string)
+    {
+        // /* format first: e.g. "Pegomyia palposa (Stein) (Figs. 1, 30, 54.)"
+        $string = trim(preg_replace('/\s*\(Fig[^)]*\)/', '', $string)); //remove Figs. parenthesis OK
+        // */
+        
+        $str = trim($string); //Pegomyia atlanis Huckett
+        $words = explode(" ", $str);
+        if(count($words) > 6) return false;
+        if(count($words) < 2) return false;
+        if(ctype_lower($words[0][0])) return false; //first word must be capitalized
+        if(ctype_upper($words[1][0])) return false; //2nd word must be lower case
+        if(stripos($str, ":") !== false) return false; //doesn't have ":"
+        if(stripos($str, "—") !== false) return false; //doesn't have this char(s)
+        if(stripos($str, " p.") !== false) return false; //doesn't have this char(s)
+        if(stripos($str, " of ") !== false) return false; //doesn't have this char(s)
+        if(stripos($str, " to ") !== false) return false; //doesn't have this char(s)
+        if(stripos($str, "(see") !== false) return false; //doesn't have this char(s)
+        if($words[0] == 'Veins') return false; //Veins brownish, calyptrae whitish apicalis (Stein)
+        if($words[1] == 'largely') return false; //Palpi largely yellow anabnormis Huckett
+        if(self::get_numbers_from_string($words[0])) return false; //first word must not have a number
+        if(self::get_numbers_from_string($words[1])) return false; //2nd word must not have a number
+        if($words[0] == 'Number') return false; //"Number io"
+        if($words[0] == 'Paregle') return false; //Genus starts with "Pegomyia"
+        // /* last word must not be a number with < 4 digits => e.g. "Second antennal segment extensively blackish 22"
+        $last_word = end($words);
+        if(is_numeric($last_word)) {
+            if(strlen($last_word) < 4) return false;
+        }
+        // */
+        return $string;
+    }
     private function is_sciname_in_memoirs($string)
     {
         // print("\n$string\n");
@@ -370,10 +403,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     function is_sciname($string, $doc_type = 'species_type') //for initial scinames list
     {
         if(stripos($string, "salicicola (") !== false) echo "\nhanap 0 [$string]\n"; //string is found
-        
-        //exit("\nElix 100\n");
-        if(self::is_sciname_in_memoirs($string)) return true;
-        else return false;
+        // echo("\npdf_id: $this->pdf_id\n");
+        if($this->pdf_id == '118935') { //1st doc
+            if(self::is_sciname_in_memoirs($string)) return true;
+            else return false;
+        }
+        elseif($this->pdf_id == '120081') { //2nd doc
+            if(self::is_sciname_in_120081($string)) return true;
+            else return false;
+        }
         /* ----- end Memoirs ----- */
 
         if(stripos($string, "salicicola (") !== false) echo "\nhanap 1 [$string]\n"; //string is found
@@ -593,9 +631,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
             foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
 
-            if($ret = self::is_sciname_in_memoirs($row)) $row = $ret;
-            // else continue;
-            
+            if($this->pdf_id == '118935') { //1st doc
+                if($ret = self::is_sciname_in_memoirs($row)) $row = $ret;
+            }
+            elseif($this->pdf_id == '120081') { //2nd doc
+                if($ret = self::is_sciname_in_120081($row)) $row = $ret;
+            }
+
             if(!$row) $count_of_blank_rows++;
             else      $count_of_blank_rows = 0;
             
@@ -630,12 +672,16 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($row == "INDEX")   $row = "</taxon>$row";
 
             // /*
-            $tmp = str_replace(array("CRESSON 6l", ",", ".", " ", "-", "'"), "", $row);
-            $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
-            $tmp = trim($tmp);
-            if(ctype_upper($tmp)) $row = "</taxon>$row";  //entire row is upper case //e.g. "EZRA TOWNSEND CRESSON" or "MEM. AM. ENT. SOC, V."
-                                                          //EZRA TOWNSEND CRESSON 5 -> entire row is uppercase with numeric
-                                                          //EZRA TOWNSEND CRESSON 2J
+            if($this->pdf_id == '118935') {
+                $tmp = str_replace(array("CRESSON 6l", ",", ".", " ", "-", "'"), "", $row);
+                $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
+                $tmp = trim($tmp);
+                if(ctype_upper($tmp)) $row = "</taxon>$row";  //entire row is upper case //e.g. "EZRA TOWNSEND CRESSON" or "MEM. AM. ENT. SOC, V."
+                                                              //EZRA TOWNSEND CRESSON 5 -> entire row is uppercase with numeric
+            }
+            if($this->pdf_id == '120081') {
+            }
+            
             // */
             
             /* to close tag the last block
