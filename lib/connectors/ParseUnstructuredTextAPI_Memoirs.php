@@ -830,6 +830,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             if(!$cont) continue;
             // */
+
+            if($this->pdf_id == '118935') { //1st doc
+                $row = str_ireplace("[Antennae damaged; abdomen detached. |", "[Antennae damaged; abdomen detached.]", $row);
+            }
             
             if($this->pdf_id == '120081') { //2nd doc
                 // /* remove if row is all caps
