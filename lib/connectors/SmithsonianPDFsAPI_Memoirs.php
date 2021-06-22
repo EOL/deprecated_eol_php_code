@@ -518,6 +518,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
             */
             if(file_exists($txt_filename)) { echo " - OK\n";
                 $pdf_id = pathinfo($folder, PATHINFO_BASENAME);
+                $this->pdf_id = $pdf_id;
                 self::process_a_txt_file($txt_filename, $pdf_id, $pdf_meta_obj);
             }
             else echo " - tagged version not yet generated\n";
@@ -616,7 +617,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 )*/
                 
                 $CVterm = 'Description'; //default
-                if($this->resource_id == '118935') $CVterm = 'Uses'; //for list-type documents. A distinction so it can be removed in final DwCA
+                if($pdf_id == '118935') $CVterm = 'Uses'; //for list-type documents. A distinction so it can be removed in final DwCA
                 if($rec['sciname'] && $rec['body']) self::write_archive($rec, $pdf_meta_obj, $CVterm);
             }
         }
