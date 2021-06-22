@@ -349,7 +349,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         )*/
         // /*
         $tmp = $arr[0]; //e.g. cseruleum | pinus-rigida
-        $tmp = str_replace(array(",", ".", " ", "-"), "", $tmp);
+        $tmp = str_replace(array("CRESSON 6l", ",", ".", " ", "-", "'"), "", $tmp);
         $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
         if(!ctype_lower($tmp)) return false;                //1st word is all small letter
         // */
@@ -630,7 +630,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($row == "INDEX")   $row = "</taxon>$row";
 
             // /*
-            $tmp = str_replace(array(" ",".",","), "", $row);
+            $tmp = str_replace(array("CRESSON 6l", ",", ".", " ", "-", "'"), "", $row);
             $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
             $tmp = trim($tmp);
             if(ctype_upper($tmp)) $row = "</taxon>$row";  //entire row is upper case //e.g. "EZRA TOWNSEND CRESSON" or "MEM. AM. ENT. SOC, V."
