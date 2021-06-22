@@ -127,25 +127,26 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $row = trim(preg_replace('/\s*\[[^)]*\]/', '', $row)); //remove brackets
             $row = trim($row);
             
-            // /* manual: floridanus ((Fcenus ) Bradley, Trans. Am. Ent. Soc, xxxiv, 112.
-            $row = str_replace("((Fcenus", "(Fcenus", $row);
-            //infrarubens (Nomada vicinalis; Cockerell, Bull. 94, Colo. Exp. Sta., 84.
-            $row = str_replace("(Nomada vicinalis;", "(Nomada vicinalis)", $row);
-            //others:
-            $row = str_replace("((Nomada)", "(Nomada)", $row);
-            $row = str_replace("(Monedula(", "(Monedula)", $row);
-            // */
-            
-            $this->letter_case_err = array('albidopictus', 'antennatus', 'attractus', 'auratus', 'cordoviensis', 'coccinifera', 'coloradensis', 
-            'cuttus', 'latus', 'lineatus', 'linitus', 'magus', 'multicinctus', 'occidentalis', 'excavatus', 'foveatus', 'albopictus', 'elongatus', 
-            'stigmatalis', 'subalbatus', 'sulphurea', 'sumichrasti', 'trivittatus', 'zonatus', 'albopictus', 'constrictus', 'cubensis', 'extricatus', 
-            'fasciatus', 'convexus', 'cookii', 'costatus', 'coxatus', 'cressoni', 'cultriformis', 'cultus', 'curvator', 'curvineura', 'elongatus',
-            'cc-nvergens', 'cinctus', 'corvallisensis', 'colorata', 'consultus', 'clarkii', 'carolina', 'azygos', 'w-scripta', 'subdistans', 
-            'scurra', 'delodontus', 'confederata', 'clypeopororia', 'coactipostica', 'cockerelli', 'columbiana', 'carolina', 'scelesta', 'virgatus',
-            'sulcus', 'ocellatus', 'corrugatus', 'rugosus', 'inordinatus', 'distinctus', 'suffusus', 'punctatus', 'chalcifrons', 'subfrigidus', 
-            'subtilis', 'solani', 'striatus', 'ephippiatus', 'dentatus', 'confertus', 'asperatus', 'u-scripta','usitata');
-
-            foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
+            if($this->pdf_id == '118935') { //1st doc
+                // /* manual: floridanus ((Fcenus ) Bradley, Trans. Am. Ent. Soc, xxxiv, 112.
+                $row = str_replace("((Fcenus", "(Fcenus", $row);
+                //infrarubens (Nomada vicinalis; Cockerell, Bull. 94, Colo. Exp. Sta., 84.
+                $row = str_replace("(Nomada vicinalis;", "(Nomada vicinalis)", $row);
+                //others:
+                $row = str_replace("((Nomada)", "(Nomada)", $row);
+                $row = str_replace("(Monedula(", "(Monedula)", $row);
+                // */
+                
+                $this->letter_case_err = array('albidopictus', 'antennatus', 'attractus', 'auratus', 'cordoviensis', 'coccinifera', 'coloradensis', 
+                'cuttus', 'latus', 'lineatus', 'linitus', 'magus', 'multicinctus', 'occidentalis', 'excavatus', 'foveatus', 'albopictus', 'elongatus', 
+                'stigmatalis', 'subalbatus', 'sulphurea', 'sumichrasti', 'trivittatus', 'zonatus', 'albopictus', 'constrictus', 'cubensis', 'extricatus', 
+                'fasciatus', 'convexus', 'cookii', 'costatus', 'coxatus', 'cressoni', 'cultriformis', 'cultus', 'curvator', 'curvineura', 'elongatus',
+                'cc-nvergens', 'cinctus', 'corvallisensis', 'colorata', 'consultus', 'clarkii', 'carolina', 'azygos', 'w-scripta', 'subdistans', 
+                'scurra', 'delodontus', 'confederata', 'clypeopororia', 'coactipostica', 'cockerelli', 'columbiana', 'carolina', 'scelesta', 'virgatus',
+                'sulcus', 'ocellatus', 'corrugatus', 'rugosus', 'inordinatus', 'distinctus', 'suffusus', 'punctatus', 'chalcifrons', 'subfrigidus', 
+                'subtilis', 'solani', 'striatus', 'ephippiatus', 'dentatus', 'confertus', 'asperatus', 'u-scripta','usitata');
+                foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
+            }
             
             if(stripos($row, "salicicola (") !== false) echo "\nsearch 1\n";   //string is found
             
@@ -299,7 +300,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         }
                     }
                 }
-                array_shift($rows); //remove 1st element, once it reaches 5 rows.
+                array_shift($rows); //remove 1st element, once it reaches 3 rows.
             }
             return $rows;
         }
@@ -620,18 +621,16 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         foreach(new FileIterator($edited_file) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
             $row = trim($row);
 
-            // /* manual: floridanus ((Fcenus ) Bradley, Trans. Am. Ent. Soc, xxxiv, 112.
-            $row = str_replace("((Fcenus", "(Fcenus", $row);
-            //infrarubens (Nomada vicinalis; Cockerell, Bull. 94, Colo. Exp. Sta., 84.
-            $row = str_replace("(Nomada vicinalis;", "(Nomada vicinalis)", $row);
-            //others:
-            $row = str_replace("((Nomada)", "(Nomada)", $row);
-            $row = str_replace("(Monedula(", "(Monedula)", $row);
-            // */
-
-            foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
-
             if($this->pdf_id == '118935') { //1st doc
+                // /* manual: floridanus ((Fcenus ) Bradley, Trans. Am. Ent. Soc, xxxiv, 112.
+                $row = str_replace("((Fcenus", "(Fcenus", $row);
+                //infrarubens (Nomada vicinalis; Cockerell, Bull. 94, Colo. Exp. Sta., 84.
+                $row = str_replace("(Nomada vicinalis;", "(Nomada vicinalis)", $row);
+                //others:
+                $row = str_replace("((Nomada)", "(Nomada)", $row);
+                $row = str_replace("(Monedula(", "(Monedula)", $row);
+                // */
+                foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
                 if($ret = self::is_sciname_in_memoirs($row)) $row = $ret;
             }
             elseif($this->pdf_id == '120081') { //2nd doc
@@ -681,8 +680,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             if($this->pdf_id == '120081') {
             }
-            
             // */
+            
+            
+            remove this rows in the entire doc:
+
+            MEM. AMER. ENT. SOC, IO 
+
+            120 NORTH AMERICAN GENUS PEGOMYIA (DIPTERA: MUSCIDAE) 
+            
+            
+            
             
             /* to close tag the last block
             if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293_convertio.txt
