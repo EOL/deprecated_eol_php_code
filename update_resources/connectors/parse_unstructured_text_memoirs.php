@@ -1,10 +1,12 @@
 <?php
 namespace php_active_record;
 /* DATA-1877: textmining more unstructured text
-118935	Mon 2021-06-21 10:33:30 AM	    {                                         "media_resource.tab":1309,                                 "taxon.tab":1308, "time_elapsed":{"sec":3.64, "min":0.06, "hr":0}}
-118935_ENV	Mon 2021-06-21 10:42:29 AM	{"measurement_or_fact_specific.tab":1448, "media_resource.tab":1309, "occurrence_specific.tab":1448, "taxon.tab":1308, "time_elapsed":{"sec":490.28, "min":8.17, "hr":0.14}}
-118935	Tue 2021-06-22 12:37:41 AM	    {                                         "media_resource.tab":1309,                                 "taxon.tab":1308, "time_elapsed":{"sec":1.3, "min":0.02, "hr":0}}
-118935_ENV	Tue 2021-06-22 12:40:29 AM	{"measurement_or_fact_specific.tab":1448, "media_resource.tab":1309, "occurrence_specific.tab":1448, "taxon.tab":1308, "time_elapsed":{"sec":167.64, "min":2.79, "hr":0.05}}
+118935	Mon 2021-06-21 10:33:30 AM	    {                "media_resource.tab":1309,                   "taxon.tab":1308, "time_elapsed":{"sec":3.64, "min":0.06, "hr":0}}
+118935_ENV	Mon 2021-06-21 10:42:29 AM	{"MoF.tab":1448, "media_resource.tab":1309, "occur.tab":1448, "taxon.tab":1308, "time_elapsed":{"sec":490.28, "min":8.17, "hr":0.14}}
+118935	Tue 2021-06-22 12:37:41 AM	    {                "media_resource.tab":1309,                   "taxon.tab":1308, "time_elapsed":{"sec":1.3, "min":0.02, "hr":0}}
+118935_ENV	Tue 2021-06-22 12:40:29 AM	{"MoF.tab":1448, "media_resource.tab":1309, "occur.tab":1448, "taxon.tab":1308, "time_elapsed":{"sec":167.64, "min":2.79, "hr":0.05}}
+118935	Tue 2021-06-22 01:07:09 AM	    {                "media_resource.tab":1309,                   "taxon.tab":1308, "time_elapsed":{"sec":1.38, "min":0.02, "hr":0}}
+118935_ENV	Tue 2021-06-22 01:08:55 AM	{"MoF.tab":1447,                            "occur.tab":1447, "taxon.tab":1308, "time_elapsed":{"sec":105.96, "min":1.77, "hr":0.03}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
