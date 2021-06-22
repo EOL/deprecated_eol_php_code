@@ -631,12 +631,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
             // /*
             $tmp = str_replace(array(" ",".",","), "", $row);
-            // $tmp = preg_replace('/[0-9]+/', '', $row); //remove For Western Arabic numbers (0-9):
-            // $tmp = trim($tmp);
+            $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
+            $tmp = trim($tmp);
             if(ctype_upper($tmp)) $row = "</taxon>$row";  //entire row is upper case //e.g. "EZRA TOWNSEND CRESSON" or "MEM. AM. ENT. SOC, V."
                                                           //EZRA TOWNSEND CRESSON 5 -> entire row is uppercase with numeric
+                                                          //EZRA TOWNSEND CRESSON 2J
             // */
-            
             
             /* to close tag the last block
             if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293_convertio.txt

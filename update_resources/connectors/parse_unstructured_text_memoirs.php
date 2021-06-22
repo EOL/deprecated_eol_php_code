@@ -11,9 +11,12 @@ require_library('connectors/ParseUnstructuredTextAPI_Memoirs');
 $timestart = time_elapsed();
 $func = new ParseUnstructuredTextAPI_Memoirs();
 /*
-$row = "EZRA TOWNSEND CRESSON";
-if(ctype_upper(str_replace(" ", "", $row))) echo "\nupper\n";  //entire row is upper case //EZRA TOWNSEND CRESSON
-else echo "\nlower\n";
+$row = "EZRA TOWNSEND CRESSON 2J";
+$tmp = str_replace(array(" ",".",","), "", $row);
+$tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
+$tmp = trim($tmp);
+if(ctype_upper($tmp)) echo "\nupper [$tmp]\n";  //entire row is upper case //EZRA TOWNSEND CRESSON
+else echo "\nlower [$tmp]\n";
 exit;
 */
 
