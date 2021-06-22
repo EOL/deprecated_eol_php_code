@@ -62,7 +62,10 @@ else { //run individual documents
     // $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0605/SCtZ-0605_descriptions_LT.txt";  $pdf_id = "SCtZ-0605";
     // $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/SCtZ-0614_descriptions_LT.txt";  $pdf_id = "SCtZ-0614";
 
-    $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/MoftheAES/$resource_id/".$resource_id."_descriptions_LT.txt";  $pdf_id = $resource_id;
+    if(Functions::is_production()) $path = '/extra/other_files/Smithsonian/MoftheAES/'.$resource_id.'/';
+    else                           $path = '/Volumes/AKiTiO4/other_files/Smithsonian/MoftheAES/'.$resource_id.'/';
+    $txt_filename = $path . $resource_id."_descriptions_LT.txt";
+    $pdf_id = $resource_id;
 
     require_library('connectors/ParseListTypeAPI_Memoirs');
     require_library('connectors/SmithsonianPDFsAPI_Memoirs');
