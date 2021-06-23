@@ -9,9 +9,13 @@ namespace php_active_record;
 118935_ENV	Tue 2021-06-22 01:08:55 AM	{"MoF.tab":1447,                            "occur.tab":1447, "taxon.tab":1308, "time_elapsed":{"sec":105.96, "min":1.77, "hr":0.03}}
 118935	Tue 2021-06-22 12:32:41 PM	    {                "media_resource.tab":1309,                   "taxon.tab":1308, "time_elapsed":{"sec":1.11, "min":0.02, "hr":0}}
 118935_ENV	Tue 2021-06-22 12:32:57 PM	{"MoF.tab":1447,                            "occur.tab":1447, "taxon.tab":1308, "time_elapsed":{"sec":16.69, "min":0.28, "hr":0}}
+118935	Wed 2021-06-23 02:59:52 AM	    {                "media_resource.tab":1309,                   "taxon.tab":1308, "time_elapsed":{"sec":1.1, "min":0.02, "hr":0}}
+118935_ENV	Wed 2021-06-23 03:01:06 AM	{"MoF.tab":1447,                            "occur.tab":1447, "taxon.tab":1308, "time_elapsed":{"sec":13.62, "min":0.23, "hr":0}}
 
 120081	Tue 2021-06-22 12:43:28 PM	    {               "media_resource.tab":95,                  "taxon.tab":95, "time_elapsed":{"sec":0.92, "min":0.02, "hr":0}}
 120081_ENV	Tue 2021-06-22 12:48:10 PM	{"MoF.tab":519, "media_resource.tab":95, "occur.tab":519, "taxon.tab":95, "time_elapsed":{"sec":280.95, "min":4.68, "hr":0.08}}
+120081	Wed 2021-06-23 02:59:39 AM	    {               "media_resource.tab":95,                  "taxon.tab":95, "time_elapsed":{"sec":0.4, "min":0.01, "hr":0}}
+120081_ENV	Wed 2021-06-23 03:00:53 AM	{"MoF.tab":633, "media_resource.tab":95, "occur.tab":633, "taxon.tab":95, "time_elapsed":{"sec":14.16, "min":0.24, "hr":0}}
 ------------------------------------------------------------
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
