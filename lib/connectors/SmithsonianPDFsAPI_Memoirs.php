@@ -566,13 +566,28 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(preg_match("/\'(.*?)\'/ims", $str, $a2)) $rec['sciname'] = self::clean_sciname(trim($a2[1]));
                 if(preg_match("/>(.*?)elicha/ims", $str."elicha", $a2)) {
                     $tmp = Functions::remove_whitespace(trim($a2[1]));
+                    /* orig
                     $tmp = str_replace("\n\n\n\n", "\n\n", $tmp);
                     $tmp = str_replace("\n\n\n", "\n\n", $tmp);
                     $tmp = str_replace("\n\n\n", "\n\n", $tmp);
                     $tmp = str_replace("\n\n\n", "\n\n", $tmp);
                     $tmp = str_replace("\n\n\n", "\n\n", $tmp);
                     $tmp = str_replace("\n", "<br>", $tmp);
-                    // echo "\n$tmp\n";
+                    */
+                    /* New: if remove all breaks - https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66185&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66185
+                    $tmp = str_replace("<br>", " ", $tmp);
+                    $tmp = Functions::remove_whitespace($tmp);
+                    */
+                    // /* Eli's suggestion instead: strategically placed breaks <br>
+                    $tmp = str_replace("\n\n\n\n", "\n", $tmp);
+                    $tmp = str_replace("\n\n", " ", $tmp);
+                    // $tmp = str_replace("\n\n\n", "\n", $tmp);
+                    // $tmp = str_replace("\n\n\n", "\n", $tmp);
+                    // $tmp = str_replace("\n\n\n", "\n", $tmp);
+                    $tmp = str_replace("\n", "<br>", $tmp);
+                    $tmp = Functions::remove_whitespace($tmp);
+                    // */
+
                     $rec['body'] = $tmp;
                     
                     // /* associations block
