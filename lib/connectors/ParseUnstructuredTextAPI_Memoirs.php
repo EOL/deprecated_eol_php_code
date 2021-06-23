@@ -667,6 +667,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             */
             //start terminal criteria
+            if($row == "INDEX.")   $row = "</taxon>$row";
             if($row == "INDEX")   $row = "</taxon>$row";
 
             // /*
