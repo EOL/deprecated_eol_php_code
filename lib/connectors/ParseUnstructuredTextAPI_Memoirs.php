@@ -667,8 +667,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             */
             //start terminal criteria
-            if($row == "INDEX.")   $row = "</taxon>$row";
-            if($row == "INDEX")   $row = "</taxon>$row";
+            if($row == "INDEX.")            $row = "</taxon>$row";
+            if($row == "INDEX")             $row = "</taxon>$row";
+            if(substr($row,0,4) == "Key ")  $row = "</taxon>$row";
 
             // /*
             if($this->pdf_id == '118935') {
