@@ -678,6 +678,25 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                                                               //EZRA TOWNSEND CRESSON 5 -> entire row is uppercase with numeric
             }
             if($this->pdf_id == '120081') {
+                $row = str_replace("<taxon", "-elicha 1-", $row); //start ---
+                $row = str_replace("</taxon>", "-elicha 2-", $row); //start ---
+                $row = str_replace("'> ", "-elicha 3-", $row); //start ---
+
+                /* remove "<?" "<j" "<f" */
+                $str = $row;
+                $pos = strpos($str, "<");
+                if($pos !== false) { //string is found
+                    $substr = substr($str, $pos, 2);
+                    // echo "\n[$str]\n[$pos]\n[$substr]\n";
+                    $str = str_replace($substr, "", $str);
+                    $row = Functions::remove_whitespace($str);
+                }
+                /* remove ">" */
+                $row = str_replace(">", "", $row);
+
+                $row = str_replace("-elicha 1-", "<taxon", $row); //end ---
+                $row = str_replace("-elicha 2-", "</taxon>", $row); //end ---
+                $row = str_replace("-elicha 3-", "'> ", $row); //end ---
             }
             // */
             
