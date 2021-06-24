@@ -56,26 +56,14 @@ $string = trim(preg_replace('/\s*\(Fig[^)]*\)/', '', $string)); //remove parenth
 echo "\n[$string]\n";
 exit("\n");
 */
-/*
-$str = "the quick <k brown fox";
-$pos = strpos($str, "<");
-$substr = substr($str, $pos, 2);
-echo "\n[$str]\n[$pos]\n[$substr]\n";
-$str = str_replace($substr, "", $str);
-$str = Functions::remove_whitespace($str);
-echo "\n[$str]\n";
-exit("\n-end-\n");
-*/
+/*--------------------------------------------------------------------------------------------------------------*/
 $rec[118935] = array('filename' => '118935.txt', 'lines_before_and_after_sciname' => 1);
-    /* stable stats:
-    blocks: 1322
-    Raw scinames count: 1322
-    */
+    /* stable stats:    blocks: 1322    Raw scinames count: 1322 */
 $rec[120081] = array('filename' => '120081.txt', 'lines_before_and_after_sciname' => 2);
-    /* stable stats:
-    blocks: 97
-    Raw scinames count: 98
-    */
+    /* stable stats:    blocks: 97      Raw scinames count: 98 */
+$rec[120082] = array('filename' => '120082.txt', 'lines_before_and_after_sciname' => 2);
+    /* stable stats:    blocks: xx      Raw scinames count: xx */
+/*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;
 else exit("\nUndefined PDF ID\n");
 /* ---------------------------------- List-type here:

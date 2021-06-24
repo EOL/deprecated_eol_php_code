@@ -313,7 +313,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // /* format first: e.g. "Pegomyia palposa (Stein) (Figs. 1, 30, 54.)"
         $string = trim(preg_replace('/\s*\(Fig[^)]*\)/', '', $string)); //remove Figs. parenthesis OK
         // */
-        
         $str = trim($string); //Pegomyia atlanis Huckett
         $words = explode(" ", $str);
         if(count($words) > 6) return false;
@@ -340,7 +339,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // */
         return $string;
     }
-    private function is_sciname_in_memoirs($string)
+    private function is_sciname_in_memoirs($string) //for 1st doc only
     {
         // print("\n$string\n");
         /* wootonae (Perdita) Cockerell, Ent. News, ix, 215. */
@@ -365,7 +364,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // exit("\nstr = [$str]\n");
         }
         // */
-        
         
         $arr = explode(" ", $str); //print_r($arr); //exit;
         /*cseruleum (Hedychrum) Norton, Trans. Am. Ent. Soc, vii, 239.
@@ -410,6 +408,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         }
         elseif($this->pdf_id == '120081') { //2nd doc
             if(self::is_sciname_in_120081($string)) return true;
+            else return false;
+        }
+        elseif($this->pdf_id == '120082') { //4th doc
+            if(self::is_sciname_in_120082($string)) return true;
             else return false;
         }
         /* ----- end Memoirs ----- */
@@ -666,10 +668,26 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
             */
-            //start terminal criteria
+            //start terminal criteria => stop patterns
             if($row == "INDEX.")            $row = "</taxon>$row";
             if($row == "INDEX")             $row = "</taxon>$row";
             if(substr($row,0,4) == "Key ")  $row = "</taxon>$row";
+
+            if($this->pdf_id == '120082') {
+                $words = array('Table', 'Key', 'Remarks. —', 'Nomen inquirendum', 'Literature Cited');
+                foreach($words as $word) {
+                    $len = strlen($word);
+                    if(substr($row,0,$len) == $word)  $row = "</taxon>$row";
+                }
+                //-----------------------------------
+                // newline
+                // newline
+                // [any combination of rank name and/or taxon name w/rank above species] newline"
+                // /* copied template
+                if(self::one_word_and_higher_taxon($row)) $row = "</taxon>$row";                //scb-0094.txt
+                if(self::two_words_rank_and_sciname_combo($row)) $row = "</taxon>$row";         // Tribe Beckerinini newline
+                // */
+            }
 
             // /*
             if($this->pdf_id == '118935') {
@@ -714,18 +732,16 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($row == "Intermediates") $row = "</taxon>$row";          //scb-0007.txt
             elseif($row == "Glossary") $row = "</taxon>$row";                                   //scb-0009.txt
             elseif($row == "Acknowledgments") $row = "</taxon>$row";                            //scb-0094.txt
-
-            if(self::one_word_and_higher_taxon($row)) $row = "</taxon>$row";                //scb-0094.txt
-            if(self::two_words_rank_and_sciname_combo($row)) $row = "</taxon>$row";             //for all
-            // Tribe Beckerinini newline
-            if($filename != "scb-0013.txt") {
-                if(self::N_words_or_less_beginning_with_Key($row, 12)) $row = "</taxon>$row";   //scb-0001.txt
-            }
+            
             if(self::sciname_then_specific_words($row, "Excluded Taxa")) $row = "</taxon>$row"; //for all
             // e.g. "Isopterygium Excluded Taxa"
 
             if(self::numbered_then_sciname($row)) $row = "</taxon>$row"; //for all
             // e.g. "2. Elmeriobryum Broth."
+            
+            if($filename != "scb-0013.txt") {
+                if(self::N_words_or_less_beginning_with_Key($row, 12)) $row = "</taxon>$row";   //scb-0001.txt
+            }
             */
 
             /* New: per Jen: https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65856&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65856
