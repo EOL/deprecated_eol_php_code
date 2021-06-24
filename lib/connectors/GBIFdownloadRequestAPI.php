@@ -265,8 +265,11 @@ class GBIFdownloadRequestAPI
     private function create_bash_file($taxon_group, $downloadLink)
     {
         $row1 = "#!/bin/sh";
-        $row2 = "curl -L -o '".$taxon_group."_DwCA.zip' -C - $downloadLink";
-        
+        $row2 = "curl -L -o -s -S '".$taxon_group."_DwCA.zip' -C - $downloadLink";
+        /*
+        -s is silent
+        -S is show errors
+        */
         $file = $this->destination_path.'/run_'.$taxon_group.'.sh';
         $fhandle = Functions::file_open($file, "w");
         fwrite($fhandle, $row1."\n");
