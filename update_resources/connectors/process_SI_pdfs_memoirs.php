@@ -13,6 +13,8 @@ php5.6 process_SI_pdfs_memoirs.php jenkins '{"resource_id": "MoftheAES", "resour
 
 process_SI_pdfs_memoirs.php _ '{"resource_id": "118935", "resource_name":"1st doc"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "120081", "resource_name":"2nd doc"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "120082", "resource_name":"4th doc"}'
+
 process_SI_pdfs_memoirs.php _ '{"resource_id": "MoftheAES", "resource_name":"all resources"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

@@ -30,8 +30,10 @@ php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "r
 
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118935", "resource_name":"1st doc"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "120081", "resource_name":"2nd doc"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "120082", "resource_name":"4th doc"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+// $GLOBALS["ENV_DEBUG"] = false;
 require_library('connectors/ParseListTypeAPI_Memoirs');
 require_library('connectors/ParseUnstructuredTextAPI_Memoirs');
 $timestart = time_elapsed();

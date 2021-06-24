@@ -113,6 +113,7 @@ class ParseListTypeAPI_Memoirs
                         $sciname_line = trim(Functions::remove_whitespace($sciname_line));
                         // */
                         
+                        debug("\nrun_GNRD 3: [$sciname_line]\n");
                         if($obj = self::run_GNRD($sciname_line)) {
                             $sciname = @$obj->names[0]->scientificName; //echo "\n[$sciname]\n";
                             $rek['sciname GNRD'] = $sciname;
@@ -573,6 +574,7 @@ class ParseListTypeAPI_Memoirs
         $sciname_line = str_replace(";", " ; ", $sciname_line);
         $sciname_line = trim(Functions::remove_whitespace($sciname_line));
 
+        debug("\nrun_GNRD 1: [$sciname_line]\n");
         if($obj = self::run_GNRD($sciname_line)) {
             $sciname = @$obj->names[0]->scientificName; //echo "\n[$sciname]\n";
             $rek['sciname GNRD'] = $sciname;
@@ -694,6 +696,7 @@ class ParseListTypeAPI_Memoirs
         if(!ctype_alpha($str)) return false;                //must be all letters
         if(ctype_lower(substr($str,0,1))) return false;     //must be capitalized
         
+        debug("\nrun_GNRD 2: [$str]\n");
         if($obj = self::run_GNRD($str)) {
             if(strtolower($str) == strtolower(@$obj->names[0]->scientificName)) return true;
         }
@@ -752,6 +755,84 @@ class ParseListTypeAPI_Memoirs
         $first_char = substr($str,0,1);
         if(ctype_upper($first_char)) return true;
         return false;
+    }
+    function is_sciname_in_120082($string)
+    {   /*
+        Aztecolus pablillo Chamberlin Figures 96, 110-118
+        Spirobolus bungii Brandt Figures 4, 97, 127-131
+        Spirobolus grahami, new species Figures 99, 133, 139-141, 152-160, 162, 164
+        Spirobolus formosae, new species Figures 101, 135, 149-151, 163
+        */
+        
+        if(stripos($string, " of ") !== false) return false; //doesn't have this char(s) e.g. Explanation of Figures 139
+        if(stripos($string, "Hiltonius mimtis Chamberlin Ill") !== false) return false; //doesn't have this char(s)
+        
+        $left = 'Figures'; $right = '-eli_cha-';
+        $string = self::remove_all_in_between_inclusive($left, $right, $string."-eli_cha-", true);
+        $string = str_replace("-eli_cha-", "", $string);
+        
+        /* format first: e.g. "Pegomyia palposa (Stein) (Figs. 1, 30, 54.)"
+        $string = trim(preg_replace('/\s*\(Fig[^)]*\)/', '', $string)); //remove Figs. parenthesis OK
+        */
+        
+        $str = trim($string);
+        $words = explode(" ", $str);
+        if(count($words) > 6) return false;
+        if(count($words) < 2) return false;
+        if(ctype_lower($words[0][0])) return false; //first word must be capitalized
+        if(ctype_upper($words[1][0])) return false; //2nd word must be lower case
+        
+        if($words[0][0] == "(") return false; //must not start with this char(s) e.g. (Drawings by Frances A. McKittrick)
+        if($words[0][0] == "'") return false; //must not start with this char(s) e.g. '- ■• '■
+        if(@$words[0][1] == ".") return false; //2nd char must not be period (.) e.g. T. species?
+        if(strlen($words[0]) == 1) return false; //e.g. O iH CVJ
+        
+        if(stripos($str, ":") !== false) return false; //doesn't have ":"
+        if(stripos($str, "—") !== false) return false; //doesn't have this char(s)
+        if(stripos($str, " p.") !== false) return false; //doesn't have this char(s)
+        if(stripos($str, " pp.") !== false) return false; //doesn't have this char(s)
+        if(stripos($str, " ibid.") !== false) return false; //doesn't have this char(s)
+        if(stripos($str, " of ") !== false) return false; //doesn't have this char(s)
+        if(stripos($str, " and ") !== false) return false; //doesn't have this char(s)
+        if(stripos($str, " to ") !== false) return false; //doesn't have this char(s)
+        if(stripos($str, "(see") !== false) return false; //doesn't have this char(s)
+        if(stripos($str, "^") !== false) return false; //doesn't have this char(s)
+        if(stripos($str, "species?") !== false) return false; //doesn't have this char(s)
+        if(stripos($str, "inquirendum") !== false) return false; //doesn't have this char(s)
+
+        if($words[0] == 'Clypeal') return false;
+        if($words[0] == 'Anal') return false;
+        if($words[0] == 'Eyes') return false;
+        if($words[0] == 'Labium') return false;
+        
+        if($words[1] == 'largely') return false; //Palpi largely yellow anabnormis Huckett
+        if($this->get_numbers_from_string($words[0])) return false; //first word must not have a number
+        if($this->get_numbers_from_string($words[1])) return false; //2nd word must not have a number
+        if($words[0] == 'Number') return false; //"Number io"
+        if($words[0] == 'Paregle') return false; //Genus starts with "Pegomyia"
+        // /* last word must not be a number with < 4 digits => e.g. "Second antennal segment extensively blackish 22"
+        $last_word = end($words);
+        if(is_numeric($last_word)) {
+            if(strlen($last_word) < 4) return false;
+        }
+        // */
+        return $string;
+    }
+    public function remove_all_in_between_inclusive($left, $right, $html, $includeRight = true)
+    {
+        if(preg_match_all("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+            foreach($arr[1] as $str) {
+                if($includeRight) { //original
+                    $substr = $left.$str.$right;
+                    $html = str_ireplace($substr, '', $html);
+                }
+                else { //meaning exclude right
+                    $substr = $left.$str.$right;
+                    $html = str_ireplace($substr, $right, $html);
+                }
+            }
+        }
+        return $html;
     }
 }
 ?>

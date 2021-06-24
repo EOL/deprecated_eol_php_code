@@ -313,6 +313,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // /* format first: e.g. "Pegomyia palposa (Stein) (Figs. 1, 30, 54.)"
         $string = trim(preg_replace('/\s*\(Fig[^)]*\)/', '', $string)); //remove Figs. parenthesis OK
         // */
+        
         $str = trim($string); //Pegomyia atlanis Huckett
         $words = explode(" ", $str);
         if(count($words) > 6) return false;
@@ -467,7 +468,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         if(stripos($string, "salicicola (") !== false) echo "\nhanap 4 [$string]\n"; //string is found
         
-        
+        echo "\nrun it with GNRD: [$string]\n";
         if($doc_type == 'species_type') {
             if(self::is_sciname_using_GNRD($string)) return true;
             else return false;
@@ -637,6 +638,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '120081') { //2nd doc
                 if($ret = self::is_sciname_in_120081($row)) $row = $ret;
             }
+            elseif($this->pdf_id == '120082') { //4th doc
+                if($ret = self::is_sciname_in_120082($row)) $row = $ret;
+            }
 
             if(!$row) $count_of_blank_rows++;
             else      $count_of_blank_rows = 0;
@@ -684,9 +688,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // newline
                 // [any combination of rank name and/or taxon name w/rank above species] newline"
                 // /* copied template
-                if(self::one_word_and_higher_taxon($row)) $row = "</taxon>$row";                //scb-0094.txt
-                if(self::two_words_rank_and_sciname_combo($row)) $row = "</taxon>$row";         // Tribe Beckerinini newline
                 // */
+                $ranks = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 'Subphylum', 'Subclass', 'Superfamily');
+                $words = explode(" ", $row);
+                foreach($ranks as $rank) {
+                    if($words[0] == $rank && ctype_upper($words[1][0])) $row = "</taxon>$row"; //e.g. Genus Spirobolus Brandt
+                    //1st word is a rank name && 2nd word starts with a capital letter
+                }
             }
 
             // /*
@@ -742,6 +750,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($filename != "scb-0013.txt") {
                 if(self::N_words_or_less_beginning_with_Key($row, 12)) $row = "</taxon>$row";   //scb-0001.txt
             }
+            
+            if(self::one_word_and_higher_taxon($row)) $row = "</taxon>$row";                //scb-0094.txt
+            if(self::two_words_rank_and_sciname_combo($row)) $row = "</taxon>$row";         // Tribe Beckerinini newline
             */
 
             /* New: per Jen: https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65856&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65856
@@ -872,7 +883,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("[Antennae damaged; abdomen detached. |", "[Antennae damaged; abdomen detached.]", $row);
             }
             
-            if($this->pdf_id == '120081') { //2nd doc
+            if(in_array($this->pdf_id, array('120081', '120082'))) { //2nd and 4th docs
                 // /* remove if row is all caps
                 // MEM. AMER. ENT. SOC, IO 
                 // 120 NORTH AMERICAN GENUS PEGOMYIA (DIPTERA: MUSCIDAE) 
@@ -882,6 +893,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // echo " [$tmp]";
                 if(ctype_upper($tmp)) continue;
                 // */
+                
+                if(stripos($row, "WIIiLlAM") !== false) continue; //string is found
             }
             
             fwrite($WRITE, $row."\n");
