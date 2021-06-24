@@ -642,6 +642,7 @@ class Pensoft2EOLAPI
             if($rek['ontology'] == "eol-geonames") { //per https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65861&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65861
                 if(stripos($rek['id'], "ENVO_") !== false) continue; //string is found
                 if(in_array($rek['lbl'], array('jordan', 'guinea', 'washington'))) continue; //always remove
+                if(in_array($rek['id'], array('http://www.geonames.org/1327132'))) continue; //https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66190&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66190
             }
             // */
             
