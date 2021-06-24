@@ -30,7 +30,7 @@ echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
 
-if(are_all_indicator_files_deletedYN($rank)) echo "\nCan now go to next step...\n";
+if(are_all_indicator_files_deletedYN($rank)) echo "\nCan now go to next step**...\n";
 else {
     echo "\nCannot yet go to next step.\n";
     exit(1);
