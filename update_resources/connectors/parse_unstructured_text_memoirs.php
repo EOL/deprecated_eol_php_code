@@ -25,6 +25,10 @@ removed 'Chin' in eol-geonames
 120081	Thu 2021-06-24 12:31:23 AM	    {               "media_resource.tab":95,                  "taxon.tab":95, "time_elapsed":{"sec":0.52, "min":0.01, "hr":0}}
 120081_ENV	Thu 2021-06-24 12:32:56 AM	{"MoF.tab":632, "media_resource.tab":95, "occur.tab":632, "taxon.tab":95, "time_elapsed":{"sec":33.1, "min":0.55, "hr":0.01}}
 ------------------------------------------------------------
+120082	Thu 2021-06-24 11:27:32 AM	    {                                       "media_resource.tab":25,                               "taxon.tab":25, "time_elapsed":{"sec":0.37, "min":0.01, "hr":0}}
+120082_ENV	Thu 2021-06-24 11:31:27 AM	{"measurement_or_fact_specific.tab":92, "media_resource.tab":25, "occurrence_specific.tab":92, "taxon.tab":25, "time_elapsed":{"sec":175.03, "min":2.92, "hr":0.05}}
+------------------------------------------------------------
+
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
 
@@ -64,7 +68,7 @@ $rec[118935] = array('filename' => '118935.txt', 'lines_before_and_after_sciname
 $rec[120081] = array('filename' => '120081.txt', 'lines_before_and_after_sciname' => 2);
     /* stable stats:    blocks: 97      Raw scinames count: 98 */
 $rec[120082] = array('filename' => '120082.txt', 'lines_before_and_after_sciname' => 2);
-    /* stable stats:    blocks: xx      Raw scinames count: xx */
+    /* stable stats:    blocks: 25      Raw scinames count: 25 */
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;
 else exit("\nUndefined PDF ID\n");

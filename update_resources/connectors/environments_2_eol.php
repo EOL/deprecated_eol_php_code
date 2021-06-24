@@ -91,6 +91,7 @@ cd /html/eol_php_code/update_resources/connectors
 
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Memoirs of the American Entomological Society", "resource_id":"118935", "subjects":"Description|Uses"}'
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Memoirs of the American Entomological Society", "resource_id":"120081", "subjects":"Description|Uses"}'
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Memoirs of the American Entomological Society", "resource_id":"120082", "subjects":"Description|Uses"}'
 
 --------------------------------------------------------------------------------------- PDF repository 10088_5097
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"10088_5097", "subjects":"Uses|Description"}'
