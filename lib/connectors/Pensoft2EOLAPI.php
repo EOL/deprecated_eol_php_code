@@ -652,9 +652,11 @@ class Pensoft2EOLAPI
                 // /* exclude if context has certain strings that denote a literature reference
                 // vol. 8, p. 67. 1904.Tylobolus uncigerus, Brolemann, Ann. Soc. Ent. <b>France</b>, vol. 83, pp. 9, 22, fig.
                 $parts_of_lit_ref = array(' vol.', ' p.', ' pp.', ' fig.', ' figs.');
+                $cont = true;
                 foreach($parts_of_lit_ref as $part) {
-                    if(stripos($rek['context'], $part) !== false) continue; //string is found
+                    if(stripos($rek['context'], $part) !== false) $cont = false; //string is found
                 }
+                if(!$cont) continue;
                 // */
             }
             // */
