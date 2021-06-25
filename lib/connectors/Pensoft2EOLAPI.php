@@ -23,8 +23,7 @@ http://api.pensoft.net/annotator?text=The Nearctic author was Urban C.&ontologie
 http://api.pensoft.net/annotator?text=I like playing in the shrub&ontologies=growth
 -> no anotations from Pensoft
 
-http://api.pensoft.net/annotator?text=Tylobolus uncigerus, Cook, Harriman Alaska Exped., vol. 8, p. 67. 1904.
-Tylobolus uncigerus, Brolemann, Ann. Soc. Ent. France, vol. 83, pp. 9, 22, fig. 6.&ontologies=envo,eol-geonames
+http://api.pensoft.net/annotator?text=Tylobolus uncigerus, Brolemann, Ann. Soc. Ent. France, vol. 83, pp. 9, 22, fig. 6.&ontologies=envo,eol-geonames
 
 
 */
@@ -647,7 +646,8 @@ class Pensoft2EOLAPI
             if($rek['ontology'] == "eol-geonames") { //per https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65861&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65861
                 if(stripos($rek['id'], "ENVO_") !== false) continue; //string is found
                 if(in_array($rek['lbl'], array('jordan', 'guinea', 'washington'))) continue; //always remove
-                if(in_array($rek['id'], array('http://www.geonames.org/1327132'))) continue; //https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66190&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66190
+                if(in_array($rek['id'], array('http://www.geonames.org/1327132',                //https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66190&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66190
+                                              'https://www.geonames.org/3463504'))) continue;   //https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66197&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66197
                 
                 // /* exclude if context has certain strings that denote a literature reference
                 // vol. 8, p. 67. 1904.Tylobolus uncigerus, Brolemann, Ann. Soc. Ent. <b>France</b>, vol. 83, pp. 9, 22, fig.
