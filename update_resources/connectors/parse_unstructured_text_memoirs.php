@@ -24,9 +24,18 @@ removed 'Chin' in eol-geonames
 removed 'Chin' in eol-geonames
 120081	Thu 2021-06-24 12:31:23 AM	    {               "media_resource.tab":95,                  "taxon.tab":95, "time_elapsed":{"sec":0.52, "min":0.01, "hr":0}}
 120081_ENV	Thu 2021-06-24 12:32:56 AM	{"MoF.tab":632, "media_resource.tab":95, "occur.tab":632, "taxon.tab":95, "time_elapsed":{"sec":33.1, "min":0.55, "hr":0.01}}
+remove traits in eol-geonames if inside literature reference
+120081	Fri 2021-06-25 08:13:25 AM	    {               "media_resource.tab":95,                  "taxon.tab":95, "time_elapsed":{"sec":2.23, "min":0.04, "hr":0}}
+120081_ENV	Fri 2021-06-25 08:15:48 AM	{"MoF.tab":523, "media_resource.tab":95, "occur.tab":523, "taxon.tab":95, "time_elapsed":{"sec":81.53, "min":1.36, "hr":0.02}}
 ------------------------------------------------------------
 120082	Thu 2021-06-24 11:27:32 AM	    {                                       "media_resource.tab":25,                               "taxon.tab":25, "time_elapsed":{"sec":0.37, "min":0.01, "hr":0}}
 120082_ENV	Thu 2021-06-24 11:31:27 AM	{"measurement_or_fact_specific.tab":92, "media_resource.tab":25, "occurrence_specific.tab":92, "taxon.tab":25, "time_elapsed":{"sec":175.03, "min":2.92, "hr":0.05}}
+remove Distrito Federal,https://www.geonames.org/3463504
+120082	Fri 2021-06-25 07:37:02 AM	    {                                       "media_resource.tab":25,                               "taxon.tab":25, "time_elapsed":{"sec":3.79, "min":0.06, "hr":0}}
+120082_ENV	Fri 2021-06-25 07:38:51 AM	{"measurement_or_fact_specific.tab":91, "media_resource.tab":25, "occurrence_specific.tab":91, "taxon.tab":25, "time_elapsed":{"sec":48.61, "min":0.81, "hr":0.01}}
+remove traits in eol-geonames if inside literature reference
+120082	Fri 2021-06-25 07:59:19 AM	    {                                       "media_resource.tab":25,                               "taxon.tab":25, "time_elapsed":{"sec":1.44, "min":0.02, "hr":0}}
+120082_ENV	Fri 2021-06-25 08:00:49 AM	{"measurement_or_fact_specific.tab":61, "media_resource.tab":25, "occurrence_specific.tab":61, "taxon.tab":25, "time_elapsed":{"sec":28.45, "min":0.47, "hr":0.01}}
 ------------------------------------------------------------
 
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
