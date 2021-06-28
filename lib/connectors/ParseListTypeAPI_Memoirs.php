@@ -765,6 +765,27 @@ class ParseListTypeAPI_Memoirs
         Laccophilus fasciatus fasciatus Aube, new synonymy and new status
         Laccophilus fasciatus rufus Melsheimer, restored name and new status 
         */
+        if(stripos($string, " of ") !== false) return false; //doesn't have this char(s) e.g. Explanation of Figures 139
+        
+        /* format first: e.g. "Pegomyia palposa (Stein) (Figs. 1, 30, 54.)" --- copied template
+        $string = trim(preg_replace('/\s*\(Fig[^)]*\)/', '', $string)); //remove Figs. parenthesis OK
+        */
+        
+        $str = trim($string);
+        $words = explode(" ", $str);
+        // if(count($words) > 6) return false;
+        // /*
+        $ret = self::shared_120082_118986($words, $str);
+        if(!$ret) return false;
+        // */
+        if($words[0] == 'Clypeal') return false;
+        if($words[0] == 'Anal') return false;
+        if($words[0] == 'Eyes') return false;
+        if($words[0] == 'Labium') return false;
+        if($words[1] == 'largely') return false; //Palpi largely yellow anabnormis Huckett
+        if($words[0] == 'Number') return false; //"Number io"
+        if($words[0] == 'Paregle') return false; //Genus starts with "Pegomyia"
+        return $string;
         
     }
     function is_sciname_in_120082($string)
@@ -788,14 +809,48 @@ class ParseListTypeAPI_Memoirs
         $str = trim($string);
         $words = explode(" ", $str);
         if(count($words) > 6) return false;
+        // /*
+        $ret = self::shared_120082_118986($words, $str);
+        if(!$ret) return false;
+        // */
+        if($words[0] == 'Clypeal') return false;
+        if($words[0] == 'Anal') return false;
+        if($words[0] == 'Eyes') return false;
+        if($words[0] == 'Labium') return false;
+        if($words[1] == 'largely') return false; //Palpi largely yellow anabnormis Huckett
+        if($words[0] == 'Number') return false; //"Number io"
+        if($words[0] == 'Paregle') return false; //Genus starts with "Pegomyia"
+        return $string;
+    }
+    private function shared_120082_118986($words, $str)
+    {
+        if(strlen($str) <= 10) return false;
         if(count($words) < 2) return false;
         if(ctype_lower($words[0][0])) return false; //first word must be capitalized
         if(ctype_upper($words[1][0])) return false; //2nd word must be lower case
         if($words[0][0] == "(") return false; //must not start with this char(s) e.g. (Drawings by Frances A. McKittrick)
         if($words[0][0] == "'") return false; //must not start with this char(s) e.g. '- ■• '■
+        
+        $must_not_start_with_chars = array("«", "<", ">", "_", "-", ",", Functions::conv_to_utf8("©"));
+        foreach($must_not_start_with_chars as $char) {
+            if($words[0][0] == "$char") return false; //must not start with this char(s)
+        }
+        
+            //[2] => «OOt "OO
+            //© <-h O O © <-h
+        
+        
         if(@$words[0][1] == ".") return false; //2nd char must not be period (.) e.g. T. species?
+        if(@$words[0][1] == '"') return false; //2nd char must not be period (") e.g. C"> ro r<->
+        
+        
         if(strlen($words[0]) == 1) return false; //e.g. O iH CVJ
         if(stripos($str, ":") !== false) return false; //doesn't have ":"
+        if(stripos($str, "*") !== false) return false; //doesn't have "*"
+        if(stripos($str, "~") !== false) return false; //doesn't have "~"
+        if(stripos($str, "->") !== false) return false; //doesn't have "->"
+        if(stripos($str, "<-") !== false) return false; //doesn't have "<-"
+        
         if(stripos($str, "—") !== false) return false; //doesn't have this char(s)
         if(stripos($str, " p.") !== false) return false; //doesn't have this char(s)
         if(stripos($str, " pp.") !== false) return false; //doesn't have this char(s)
@@ -815,14 +870,7 @@ class ParseListTypeAPI_Memoirs
             if(strlen($last_word) < 4) return false;
         }
         // */
-        if($words[0] == 'Clypeal') return false;
-        if($words[0] == 'Anal') return false;
-        if($words[0] == 'Eyes') return false;
-        if($words[0] == 'Labium') return false;
-        if($words[1] == 'largely') return false; //Palpi largely yellow anabnormis Huckett
-        if($words[0] == 'Number') return false; //"Number io"
-        if($words[0] == 'Paregle') return false; //Genus starts with "Pegomyia"
-        return $string;
+        return true;
     }
     public function remove_all_in_between_inclusive($left, $right, $html, $includeRight = true)
     {
