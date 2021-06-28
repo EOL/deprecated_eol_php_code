@@ -649,7 +649,7 @@ class Pensoft2EOLAPI
                 if(in_array($rek['id'], array('http://www.geonames.org/1327132',                //https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66190&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66190
                                               'https://www.geonames.org/3463504'))) continue;   //https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66197&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66197
                 
-                // /* exclude if context has certain strings that denote a literature reference
+                // /* exclude if context has certain strings that denote a literature reference - FOR ALL RESOURCES
                 // vol. 8, p. 67. 1904.Tylobolus uncigerus, Brolemann, Ann. Soc. Ent. <b>France</b>, vol. 83, pp. 9, 22, fig.
                 $parts_of_lit_ref = array(' vol.', ' p.', ' pp.', ' fig.', ' figs.');
                 $cont = true;

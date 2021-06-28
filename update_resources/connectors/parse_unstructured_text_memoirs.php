@@ -36,6 +36,8 @@ remove Distrito Federal,https://www.geonames.org/3463504
 remove traits in eol-geonames if inside literature reference
 120082	Fri 2021-06-25 07:59:19 AM	    {                                       "media_resource.tab":25,                               "taxon.tab":25, "time_elapsed":{"sec":1.44, "min":0.02, "hr":0}}
 120082_ENV	Fri 2021-06-25 08:00:49 AM	{"measurement_or_fact_specific.tab":61, "media_resource.tab":25, "occurrence_specific.tab":61, "taxon.tab":25, "time_elapsed":{"sec":28.45, "min":0.47, "hr":0.01}}
+120082	Mon 2021-06-28 07:59:54 AM	    {                                       "media_resource.tab":25,                               "taxon.tab":25, "time_elapsed":{"sec":0.52, "min":0.01, "hr":0}}
+120082_ENV	Mon 2021-06-28 08:01:23 AM	{"measurement_or_fact_specific.tab":61, "media_resource.tab":25, "occurrence_specific.tab":61, "taxon.tab":25, "time_elapsed":{"sec":27.93, "min":0.47, "hr":0.01}}
 ------------------------------------------------------------
 
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
