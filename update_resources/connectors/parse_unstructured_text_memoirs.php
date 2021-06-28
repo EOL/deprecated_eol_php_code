@@ -46,6 +46,8 @@ php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "r
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118935", "resource_name":"1st doc"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "120081", "resource_name":"2nd doc"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "120082", "resource_name":"4th doc"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "118986", "resource_name":"5th doc"}'
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = false;
@@ -74,12 +76,10 @@ echo "\n[$string]\n";
 exit("\n");
 */
 /*--------------------------------------------------------------------------------------------------------------*/
-$rec[118935] = array('filename' => '118935.txt', 'lines_before_and_after_sciname' => 1);
-    /* stable stats:    blocks: 1322    Raw scinames count: 1322 */
-$rec[120081] = array('filename' => '120081.txt', 'lines_before_and_after_sciname' => 2);
-    /* stable stats:    blocks: 97      Raw scinames count: 98 */
-$rec[120082] = array('filename' => '120082.txt', 'lines_before_and_after_sciname' => 2);
-    /* stable stats:    blocks: 25      Raw scinames count: 25 */
+$rec[118935] = array('filename' => '118935.txt', 'lines_before_and_after_sciname' => 1); /* stable stats: blocks: 1322  Raw scinames count: 1322 */
+$rec[120081] = array('filename' => '120081.txt', 'lines_before_and_after_sciname' => 2); /* stable stats: blocks: 97    Raw scinames count: 98 */
+$rec[120082] = array('filename' => '120082.txt', 'lines_before_and_after_sciname' => 2); /* stable stats: blocks: 25    Raw scinames count: 25 */
+$rec[118986] = array('filename' => '118986.txt', 'lines_before_and_after_sciname' => 2); /* stable stats: blocks: xx    Raw scinames count: xx */
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;
 else exit("\nUndefined PDF ID\n");

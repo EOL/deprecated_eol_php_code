@@ -415,6 +415,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(self::is_sciname_in_120082($string)) return true;
             else return false;
         }
+        elseif($this->pdf_id == '118986') { //5th doc
+            if(self::is_sciname_in_118986($string)) return true;
+            else return false;
+        }
         /* ----- end Memoirs ----- */
 
         if(stripos($string, "salicicola (") !== false) echo "\nhanap 1 [$string]\n"; //string is found
@@ -640,6 +644,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             elseif($this->pdf_id == '120082') { //4th doc
                 if($ret = self::is_sciname_in_120082($row)) $row = $ret;
+            }
+            elseif($this->pdf_id == '118986') { //5th doc
+                if($ret = self::is_sciname_in_118986($row)) $row = $ret;
             }
 
             if(!$row) $count_of_blank_rows++;
