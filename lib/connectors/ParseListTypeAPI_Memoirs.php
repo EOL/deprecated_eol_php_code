@@ -802,7 +802,7 @@ class ParseListTypeAPI_Memoirs
         $string = self::remove_all_in_between_inclusive($left, $right, $string."-eli_cha-", true);
         $string = str_replace("-eli_cha-", "", $string);
         
-        /* format first: e.g. "Pegomyia palposa (Stein) (Figs. 1, 30, 54.)"
+        /* format first: e.g. "Gadus morhua (Figs. 1, 30, 54.)"
         $string = trim(preg_replace('/\s*\(Fig[^)]*\)/', '', $string)); //remove Figs. parenthesis OK
         */
         
@@ -831,37 +831,29 @@ class ParseListTypeAPI_Memoirs
         if($words[0][0] == "(") return false; //must not start with this char(s) e.g. (Drawings by Frances A. McKittrick)
         if($words[0][0] == "'") return false; //must not start with this char(s) e.g. '- ■• '■
         
-        $must_not_start_with_chars = array("«", "<", ">", "_", "-", ",", Functions::conv_to_utf8("©"));
+        // /*
+        $must_not_start_with_chars = array("<", ">", "_", "-", ",");
         foreach($must_not_start_with_chars as $char) {
             if($words[0][0] == "$char") return false; //must not start with this char(s)
         }
+        // */
         
-            //[2] => «OOt "OO
-            //© <-h O O © <-h
-        
+        $first_word_must_not_be_these = array('On', 'Oh', 'Nm', 'Ov', '\or-', 'Indies');
+        foreach($first_word_must_not_be_these as $char) {
+            if($words[0] == "$char") return false; //must not start with this char(s)
+        }
         
         if(@$words[0][1] == ".") return false; //2nd char must not be period (.) e.g. T. species?
         if(@$words[0][1] == '"') return false; //2nd char must not be period (") e.g. C"> ro r<->
         
-        
         if(strlen($words[0]) == 1) return false; //e.g. O iH CVJ
-        if(stripos($str, ":") !== false) return false; //doesn't have ":"
-        if(stripos($str, "*") !== false) return false; //doesn't have "*"
-        if(stripos($str, "~") !== false) return false; //doesn't have "~"
-        if(stripos($str, "->") !== false) return false; //doesn't have "->"
-        if(stripos($str, "<-") !== false) return false; //doesn't have "<-"
         
-        if(stripos($str, "—") !== false) return false; //doesn't have this char(s)
-        if(stripos($str, " p.") !== false) return false; //doesn't have this char(s)
-        if(stripos($str, " pp.") !== false) return false; //doesn't have this char(s)
-        if(stripos($str, " ibid.") !== false) return false; //doesn't have this char(s)
-        if(stripos($str, " of ") !== false) return false; //doesn't have this char(s)
-        if(stripos($str, " and ") !== false) return false; //doesn't have this char(s)
-        if(stripos($str, " to ") !== false) return false; //doesn't have this char(s)
-        if(stripos($str, "(see") !== false) return false; //doesn't have this char(s)
-        if(stripos($str, "^") !== false) return false; //doesn't have this char(s)
-        if(stripos($str, "species?") !== false) return false; //doesn't have this char(s)
-        if(stripos($str, "inquirendum") !== false) return false; //doesn't have this char(s)
+        $dont_have_these_chars_anywhere = array(":", "*", "~", "->", "<-", "«", "»", "©", " p.", " pp.", " ibid.", " of ", " and ", " to ", 
+        " is ", " in ", "(see", "^", "species?", "inquirendum", "—");
+        foreach($dont_have_these_chars_anywhere as $char) {
+            if(stripos($str, "$char") !== false) return false;
+        }
+
         if($this->get_numbers_from_string($words[0])) return false; //first word must not have a number
         if($this->get_numbers_from_string($words[1])) return false; //2nd word must not have a number
         // /* last word must not be a number with < 4 digits => e.g. "Second antennal segment extensively blackish 22"
@@ -887,6 +879,20 @@ class ParseListTypeAPI_Memoirs
             }
         }
         return $html;
+    }
+    function str_begins_with($str, $substr)
+    {
+        if(substr($str,0,strlen($substr)) == $substr) return true;
+        return false;
+    }
+    function row_where_all_words_have_max_three_chars($row)
+    {
+        $row = trim($row);
+        $words = explode(" ", $row);
+        foreach($words as $word) {
+            if(strlen($word) > 4) return false;
+        }
+        return true;
     }
 }
 ?>

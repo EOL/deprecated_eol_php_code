@@ -704,6 +704,18 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
 
+            if($this->pdf_id == '118986') {
+                // $words = array('Literature Cited', 'Map', 'Fig.', 'Figure');
+                $words = array('Literature Cited', 'Map', 'Figures ');
+                foreach($words as $word) {
+                    $len = strlen($word);
+                    if(substr($row,0,$len) == $word)  $row = "</taxon>$row";
+                }
+            }
+            // newline
+            // [paragraph beginning with ""Fig."" or ""Figure""]"
+
+
             // /*
             if($this->pdf_id == '118935') {
                 $tmp = str_replace(array("CRESSON 6l", ",", ".", " ", "-", "'"), "", $row);
@@ -890,7 +902,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("[Antennae damaged; abdomen detached. |", "[Antennae damaged; abdomen detached.]", $row);
             }
             
-            if(in_array($this->pdf_id, array('120081', '120082'))) { //2nd and 4th docs
+            if(in_array($this->pdf_id, array('120081', '120082', '118986'))) { //2nd, 4th, 5th docs
                 // /* remove if row is all caps
                 // MEM. AMER. ENT. SOC, IO 
                 // 120 NORTH AMERICAN GENUS PEGOMYIA (DIPTERA: MUSCIDAE) 
@@ -902,6 +914,30 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // */
                 
                 if(stripos($row, "WIIiLlAM") !== false) continue; //string is found
+            }
+
+            if($this->pdf_id == '118986') { //5th doc
+                if($this->str_begins_with($row, 'Figure ')) continue;
+                if($this->str_begins_with($row, 'Figure.')) continue;
+                if($this->str_begins_with($row, '(Figs.')) continue;
+                if(is_numeric($row)) continue;
+                if($row) {
+                    if($this->row_where_all_words_have_max_three_chars($row)) continue;
+                }
+                
+                // /*
+                $cont = true;
+                $dont_have_these_chars_anywhere = array("•", "■", "♦", "§", "»", "~", "*—", "-^", "«0", "«O", "jqL", "fNiri", "oooooooo", "^^", 
+                "vooo", ".£", "CAr<", "c4r", "-3-r", "i^o", "*^D", '-"<*', "r<^", "ONTf", "—'0", "c^r", "S.S3", "/ivi");
+                foreach($dont_have_these_chars_anywhere as $char) {
+                    if(stripos($row, $char) !== false) $cont = false; //found
+                }
+                if(!$cont) continue;
+                // */
+                
+                /*
+                */
+                
             }
             
             fwrite($WRITE, $row."\n");
