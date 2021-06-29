@@ -935,8 +935,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(!$cont) continue;
                 // */
                 
-                /*
-                */
+                // /* remove a row with just 1 or 2 words
+                if($row) {
+                    $words = explode(" ", $row);
+                    if(count($words) <= 2) continue;
+                }
+                // */
+                
+                if($row == "l st visible") continue;
                 
             }
             
