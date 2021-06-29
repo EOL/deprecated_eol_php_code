@@ -584,6 +584,12 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     // $tmp = str_replace("\n\n\n", "\n", $tmp);
                     // $tmp = str_replace("\n\n\n", "\n", $tmp);
                     // $tmp = str_replace("\n\n\n", "\n", $tmp);
+
+                    // /* Important
+                    $tmp = str_replace("<", "&lt;", $tmp);
+                    $tmp = str_replace(">", "&gt;", $tmp);
+                    // */
+
                     $tmp = str_replace("\n", "<br>", $tmp);
                     
                     // /* e.g. "<br>Map 2. — Spot map of distribution records for Narceus americanus reported in this paper.<br>"
