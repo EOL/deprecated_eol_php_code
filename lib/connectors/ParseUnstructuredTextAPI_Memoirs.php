@@ -746,6 +746,21 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_replace("-elicha 3-", "'> ", $row); //end ---
             }
             // */
+
+            /*
+            if($this->pdf_id == '118986') {
+                $row = str_replace("<taxon", "-elicha 1-", $row); //start ---
+                $row = str_replace("</taxon>", "-elicha 2-", $row); //start ---
+                $row = str_replace("'> ", "-elicha 3-", $row); //start ---
+
+                $row = str_replace("<", "&lt;", $row);
+                $row = str_replace(">", "&gt;", $row);
+
+                $row = str_replace("-elicha 1-", "<taxon", $row); //end ---
+                $row = str_replace("-elicha 2-", "</taxon>", $row); //end ---
+                $row = str_replace("-elicha 3-", "'> ", $row); //end ---
+            }
+            */
             
             /* to close tag the last block
             if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293_convertio.txt
@@ -927,20 +942,22 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 
                 // /*
                 $cont = true;
-                $dont_have_these_chars_anywhere = array("•", "■", "♦", "§", "»", "~", "*—", "-^", "«0", "«O", "jqL", "fNiri", "oooooooo", "^^", 
-                "vooo", ".£", "CAr<", "c4r", "-3-r", "i^o", "*^D", '-"<*', "r<^", "ONTf", "—'0", "c^r", "S.S3", "/ivi");
+                $dont_have_these_chars_anywhere = array("Tj", "•", "■", "♦", "§", "»", "~", "*—", "-^", "«0", "«O", "jqL", "fNiri", "oooooooo", "^^",
+                "vooo", ".£", "CAr<", "c4r", "-3-r", "i^o", "*^D", '-"<*', "r<^", "ONTf", "—'0", "c^r", "S.S3", "/ivi", "^h", "r^", "Otj", "©",
+                "1-H-H", ",^", "OOONO", "— r-", "—«", "V-)", "— st", "«/", "t«M", "0000", "i—l", "i—", "iip1", "oooo", "i^", "-oo", "m^",
+                "Tt—", "^n", ">n", "VI—", "^—^", "c^");
                 foreach($dont_have_these_chars_anywhere as $char) {
                     if(stripos($row, $char) !== false) $cont = false; //found
                 }
                 if(!$cont) continue;
                 // */
                 
-                // /* remove a row with just 1 or 2 words
+                /* remove a row with just 1 or 2 words => CANNOT do this, you'll remove many relavant rows.
                 if($row) {
                     $words = explode(" ", $row);
                     if(count($words) <= 2) continue;
                 }
-                // */
+                */
                 
                 if($row == "l st visible") continue;
                 
