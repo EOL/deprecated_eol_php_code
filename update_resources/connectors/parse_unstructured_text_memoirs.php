@@ -39,6 +39,11 @@ remove traits in eol-geonames if inside literature reference
 120082	Mon 2021-06-28 07:59:54 AM	    {                                       "media_resource.tab":25,                               "taxon.tab":25, "time_elapsed":{"sec":0.52, "min":0.01, "hr":0}}
 120082_ENV	Mon 2021-06-28 08:01:23 AM	{"measurement_or_fact_specific.tab":61, "media_resource.tab":25, "occurrence_specific.tab":61, "taxon.tab":25, "time_elapsed":{"sec":27.93, "min":0.47, "hr":0.01}}
 ------------------------------------------------------------
+118986	Tue 2021-06-29 11:36:55 PM	    {                                        "media_resource.tab":41,                                "taxon.tab":41, "time_elapsed":{"sec":0.4, "min":0.01, "hr":0}}
+118986_ENV	Tue 2021-06-29 11:48:52 PM	{"measurement_or_fact_specific.tab":512, "media_resource.tab":41, "occurrence_specific.tab":512, "taxon.tab":41, "time_elapsed":{"sec":657.64, "min":10.96, "hr":0.18}}
+118986	Wed 2021-06-30 01:32:52 AM	    {                                        "media_resource.tab":41,                                "taxon.tab":41, "time_elapsed":{"sec":1.88, "min":0.03, "hr":0}}
+118986_ENV	Wed 2021-06-30 01:36:21 AM	{"measurement_or_fact_specific.tab":512, "media_resource.tab":41, "occurrence_specific.tab":512, "taxon.tab":41, "time_elapsed":{"sec":148.16, "min":2.47, "hr":0.04}}
+------------------------------------------------------------
 
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
@@ -47,7 +52,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "118935", "resource_name"
 parse_unstructured_text_memoirs.php _ '{"resource_id": "120081", "resource_name":"2nd doc"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "120082", "resource_name":"4th doc"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118986", "resource_name":"5th doc"}'
-
+parse_unstructured_text_memoirs.php _ '{"resource_id": "118920", "resource_name":"6th doc"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS["ENV_DEBUG"] = true;
@@ -76,10 +81,13 @@ echo "\n[$string]\n";
 exit("\n");
 */
 /*--------------------------------------------------------------------------------------------------------------*/
-$rec[118935] = array('filename' => '118935.txt', 'lines_before_and_after_sciname' => 1); /* stable stats: blocks: 1322  Raw scinames count: 1322 */
-$rec[120081] = array('filename' => '120081.txt', 'lines_before_and_after_sciname' => 2); /* stable stats: blocks: 97    Raw scinames count: 98 */
-$rec[120082] = array('filename' => '120082.txt', 'lines_before_and_after_sciname' => 2); /* stable stats: blocks: 25    Raw scinames count: 25 */
-$rec[118986] = array('filename' => '118986.txt', 'lines_before_and_after_sciname' => 2); /* stable stats: blocks: 43    Raw scinames count: 43 */
+$rec[118935] = array('filename' => '118935.txt', 'lines_before_and_after_sciname' => 1); /*1 stable stats: blocks: 1322  Raw scinames count: 1322 */
+$rec[120081] = array('filename' => '120081.txt', 'lines_before_and_after_sciname' => 2); /*2 stable stats: blocks: 97    Raw scinames count: 98 */
+$rec[120082] = array('filename' => '120082.txt', 'lines_before_and_after_sciname' => 2); /*4 stable stats: blocks: 25    Raw scinames count: 25 */
+$rec[118986] = array('filename' => '118986.txt', 'lines_before_and_after_sciname' => 2); /*5 stable stats: blocks: 43    Raw scinames count: 43 */
+$rec[118920] = array('filename' => '118920.txt', 'lines_before_and_after_sciname' => 2); /*6 stable stats: blocks: xx    Raw scinames count: xx */
+
+
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;
 else exit("\nUndefined PDF ID\n");

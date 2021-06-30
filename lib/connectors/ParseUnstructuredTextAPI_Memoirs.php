@@ -419,6 +419,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(self::is_sciname_in_118986($string)) return true;
             else return false;
         }
+        elseif($this->pdf_id == '118920') { //6th doc
+            if(self::is_sciname_in_118920($string)) return true;
+            else return false;
+        }
         /* ----- end Memoirs ----- */
 
         if(stripos($string, "salicicola (") !== false) echo "\nhanap 1 [$string]\n"; //string is found
@@ -648,6 +652,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '118986') { //5th doc
                 if($ret = self::is_sciname_in_118986($row)) $row = $ret;
             }
+            elseif($this->pdf_id == '118920') { //6th doc
+                if($ret = self::is_sciname_in_118920($row)) $row = $ret;
+            }
 
             if(!$row) $count_of_blank_rows++;
             else      $count_of_blank_rows = 0;
@@ -684,7 +691,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($row == "INDEX")             $row = "</taxon>$row";
             if(substr($row,0,4) == "Key ")  $row = "</taxon>$row";
 
-            if($this->pdf_id == '120082') {
+            if($this->pdf_id == '120082') { //4th doc
                 $words = array('Table', 'Key', 'Remarks. —', 'Nomen inquirendum', 'Literature Cited');
                 foreach($words as $word) {
                     $len = strlen($word);
@@ -704,7 +711,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
 
-            if($this->pdf_id == '118986') {
+            if(in_array($this->pdf_id, array('118986', '118920'))) { //5th 6th doc
                 // $words = array('Literature Cited', 'Map', 'Fig.', 'Figure');
                 $words = array('Literature Cited', 'Map', 'Figures ');
                 foreach($words as $word) {
@@ -717,14 +724,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
 
             // /*
-            if($this->pdf_id == '118935') {
+            if($this->pdf_id == '118935') { //1st doc
                 $tmp = str_replace(array("CRESSON 6l", ",", ".", " ", "-", "'"), "", $row);
                 $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
                 $tmp = trim($tmp);
                 if(ctype_upper($tmp)) $row = "</taxon>$row";  //entire row is upper case //e.g. "EZRA TOWNSEND CRESSON" or "MEM. AM. ENT. SOC, V."
                                                               //EZRA TOWNSEND CRESSON 5 -> entire row is uppercase with numeric
             }
-            if($this->pdf_id == '120081') {
+            if($this->pdf_id == '120081') { //2nd doc
                 $row = str_replace("<taxon", "-elicha 1-", $row); //start ---
                 $row = str_replace("</taxon>", "-elicha 2-", $row); //start ---
                 $row = str_replace("'> ", "-elicha 3-", $row); //start ---
@@ -761,6 +768,19 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_replace("-elicha 3-", "'> ", $row); //end ---
             }
             */
+            
+            if($this->pdf_id == '118920') { //6th doc
+                $words = array('Ecology', 'Literature Cited', 'species group', 'SPECIES GROUP');
+                foreach($words as $word) {
+                    $len = strlen($word);
+                    if(substr($row,0,$len) == $word)  $row = "</taxon>$row";
+                }
+                
+                
+                
+            }
+            // newline
+            // [paragraph beginning with ""Fig."" or ""Figs.""]"
             
             /* to close tag the last block
             if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293_convertio.txt
@@ -917,12 +937,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("[Antennae damaged; abdomen detached. |", "[Antennae damaged; abdomen detached.]", $row);
             }
             
-            if(in_array($this->pdf_id, array('120081', '120082', '118986'))) { //2nd, 4th, 5th docs
+            if(in_array($this->pdf_id, array('120081', '120082', '118986', '118920'))) { //2nd, 4th, 5th 6th docs
                 // /* remove if row is all caps
                 // MEM. AMER. ENT. SOC, IO 
                 // 120 NORTH AMERICAN GENUS PEGOMYIA (DIPTERA: MUSCIDAE) 
                 $tmp = $row;
-                $tmp = str_replace(array(",", ".", " ", "-", "'", ":", "(", ")"), "", $tmp);
+                $tmp = str_replace(array(",", ".", " ", "-", "'", ":", "(", ")", "&"), "", $tmp);
                 $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
                 // echo " [$tmp]";
                 if(ctype_upper($tmp)) continue;
@@ -931,7 +951,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(stripos($row, "WIIiLlAM") !== false) continue; //string is found
             }
 
-            if($this->pdf_id == '118986') { //5th doc
+            if(in_array($this->pdf_id, array('118986', '118920'))) { //5th 6th doc
                 if($this->str_begins_with($row, 'Figure ')) continue;
                 if($this->str_begins_with($row, 'Figure.')) continue;
                 if($this->str_begins_with($row, '(Figs.')) continue;
@@ -951,6 +971,19 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
                 if(!$cont) continue;
                 // */
+
+                // /*
+                $cont = true;
+                $dont_have_these_chars_anywhere = array("i&Ttik", "ratio 65.2%");
+                foreach($dont_have_these_chars_anywhere as $char) {
+                    if(stripos($row, $char) !== false) $cont = false; //found
+                }
+                if(!$cont) continue;
+                // */
+                
+                
+                
+                
                 
                 /* remove a row with just 1 or 2 words => CANNOT do this, you'll remove many relavant rows.
                 if($row) {
@@ -961,14 +994,30 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
                 if($row == "l st visible") continue;
 
-                // /* these rows are from the vertical oriented pages of the PDF. The converted .txt file is garbage for this part.
-                $cont = true;
-                $remove_rows = array("antennol comb", "palettes", "profemorol setae", "mesofemoral setae", "metatibial spurs", "metatarsal lobes", "mesosternol epimeron", "melasternal epislernum", "prosternal process", "mesocoxa", "metosternal wing", "— epipleuron", "metacoxal file", "abdominal segment", "postcoxal process", "6th visible", "abdominal segment", "oval plate");
-                foreach($remove_rows as $r) {
-                    if($row == $r) $cont = false;
+                if($this->pdf_id == '118986') {
+                    // /* these rows are from the vertical oriented pages of the PDF. The converted .txt file is garbage for this part.
+                    $cont = true;
+                    $remove_rows = array("antennol comb", "palettes", "profemorol setae", "mesofemoral setae", "metatibial spurs", "metatarsal lobes", "mesosternol epimeron", "melasternal epislernum", "prosternal process", "mesocoxa", "metosternal wing", "— epipleuron", "metacoxal file", "abdominal segment", "postcoxal process", "6th visible", "abdominal segment", "oval plate");
+                    foreach($remove_rows as $r) {
+                        if($row == $r) $cont = false;
+                    }
+                    if(!$cont) continue;
+                    // */
                 }
-                if(!$cont) continue;
-                // */
+
+                if($this->pdf_id == '118920') {
+                    // /* these rows are from the garbage part of the PDF. The converted .txt file is garbage for this part.
+                    $cont = true;
+                    $remove_rows = array("collum", "2nd-3rd", "5th-7th", "8th-9th", "-11th", "13th- 14th", "llth-14th", "3rd-4th",
+                    "-10th", "-13th", "6th-7th", "5th-8th", "-14th");
+                    foreach($remove_rows as $r) {
+                        if($row == $r) $cont = false;
+                    }
+                    if(!$cont) continue;
+                    // */
+                }
+                
+                
             }
             fwrite($WRITE, $row."\n");
         }//end loop text

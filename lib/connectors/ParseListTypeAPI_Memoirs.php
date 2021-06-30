@@ -756,6 +756,35 @@ class ParseListTypeAPI_Memoirs
         if(ctype_upper($first_char)) return true;
         return false;
     }
+    function is_sciname_in_118920($string)
+    {   /*
+        Cascadoperla trictura (Hoppe)
+        */
+        $str = trim($string);
+        $words = explode(" ", $str);
+        if(count($words) > 6) return false;
+        
+        // /* e.g. Subgenital plate broadly rounded (17) => not a species
+        if(preg_match("/\((.*?)\)/ims", $string, $arr)) if(is_numeric($arr[1])) return false;
+        // */
+        
+        // /* anywhere in the string
+        $exclude = array("(mm)", "%", "z g", " their", " uF", "Clcni", ".ics", " these", " for ", " only", "Snowf i eld", "Glacier", "Wyomi",
+        "Co -", "Co.", " not ", " complex");
+        foreach($exclude as $x) {
+            if(stripos($string, $x) !== false) return false; //string is found
+        }
+        // */
+        
+        if($string == "An uregulai") return false;
+        if($string == "Cascadoperla trictura") return false;
+
+        
+        
+        
+        
+        return self::is_sciname_in_118986($string);
+    }
     function is_sciname_in_118986($string)
     {   /*
         Indies vacaensis 
