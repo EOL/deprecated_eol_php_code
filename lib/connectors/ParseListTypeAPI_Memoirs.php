@@ -863,6 +863,7 @@ class ParseListTypeAPI_Memoirs
         // /* Important: added for production. Not detected in local
         if(stripos($str, "•") !== false) return false; //string is found
         if(stripos($str, ">n") !== false) return false; //string is found
+        if(stripos($str, "■") !== false) return false; //string is found
         // */
         
         // /*
