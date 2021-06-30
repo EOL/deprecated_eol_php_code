@@ -53,7 +53,8 @@ $folder_date = "20200626";
 
 /* command-line syntax
 php update_resources/connectors/SDR_all.php _ '{"task":"download_extract_zip_file", "traits_zip_file":"traits_all_202006.zip"}'
-e.g. http://varela.csail.mit.edu/~jar/tmp/traits_all_202006.zip
+old source (remote): http://varela.csail.mit.edu/~jar/tmp/traits_all_202006.zip
+new source (is now a local file): e.g. /u/scripts/.plotter_workspace/prod/trait_dumps/traits_all_202106.zip
 -> run only once every harvest
 
 php update_resources/connectors/SDR_all.php _ '{"task":"build_MySQL_table_from_text"}'      //2.36 minutes
