@@ -958,11 +958,18 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     if(count($words) <= 2) continue;
                 }
                 */
-                
+
                 if($row == "l st visible") continue;
-                
+
+                // /* these rows are from the vertical oriented pages of the PDF. The converted .txt file is garbage for this part.
+                $cont = true;
+                $remove_rows = array("antennol comb", "palettes", "profemorol setae", "mesofemoral setae", "metatibial spurs", "metatarsal lobes", "mesosternol epimeron", "melasternal epislernum", "prosternal process", "mesocoxa", "metosternal wing", "— epipleuron", "metacoxal file", "abdominal segment", "postcoxal process", "6th visible", "abdominal segment", "oval plate");
+                foreach($remove_rows as $r) {
+                    if($row == $r) $cont = false;
+                }
+                if(!$cont) continue;
+                // */
             }
-            
             fwrite($WRITE, $row."\n");
         }//end loop text
         fclose($WRITE);

@@ -848,8 +848,9 @@ class ParseListTypeAPI_Memoirs
         
         if(strlen($words[0]) == 1) return false; //e.g. O iH CVJ
         
-        $dont_have_these_chars_anywhere = array(":", "*", "~", "->", "<-", "«", "»", "©", " p.", " pp.", " ibid.", " of ", " and ", " to ", 
+        $dont_have_these_chars_anywhere = array(":", "*", "~", "->", "<-", "«", "»", "©", " p.", " pp.", " ibid.", " of ", " to ", 
         " is ", " in ", "(see", "^", "species?", "inquirendum", "—");
+        if($this->pdf_id == '120082') $dont_have_these_chars_anywhere[] = " and "; //4th doc
         foreach($dont_have_these_chars_anywhere as $char) {
             if(stripos($str, "$char") !== false) return false;
         }
