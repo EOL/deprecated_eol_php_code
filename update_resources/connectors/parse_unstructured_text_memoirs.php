@@ -50,7 +50,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "118986", "resource_name"
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-// $GLOBALS["ENV_DEBUG"] = false;
+$GLOBALS["ENV_DEBUG"] = true;
 require_library('connectors/ParseListTypeAPI_Memoirs');
 require_library('connectors/ParseUnstructuredTextAPI_Memoirs');
 $timestart = time_elapsed();
