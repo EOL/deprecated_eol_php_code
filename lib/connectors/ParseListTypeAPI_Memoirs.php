@@ -830,8 +830,11 @@ class ParseListTypeAPI_Memoirs
         if(ctype_upper($words[1][0])) return false; //2nd word must be lower case
         if($words[0][0] == "(") return false; //must not start with this char(s) e.g. (Drawings by Frances A. McKittrick)
         if($words[0][0] == "'") return false; //must not start with this char(s) e.g. '- ■• '■
+
+        // /* Important: added for production. Not detected in local
         if(stripos($str, "•") !== false) return false; //string is found
         if(stripos($str, ">n") !== false) return false; //string is found
+        // */
         
         // /*
         $must_not_start_with_chars = array("<", ">", "_", "-", ",");
