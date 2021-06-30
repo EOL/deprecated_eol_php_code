@@ -191,7 +191,7 @@ class Pensoft2EOLAPI
         // /* -------------------- start customize --------------------
         if($this->param['resource_id'] == '617_ENV') $excluded_rowtypes = array('http://eol.org/schema/media/document'); //Wikipedia EN -> creates a new DwCA
         elseif($this->param['resource_id'] == '21_ENV') $excluded_rowtypes = array(); //AmphibiaWeb text -> doesn't create a new DwCA
-        if(in_array($this->param['resource_id'], array("10088_5097_ENV", "10088_6943_ENV", "118935_ENV", "120081_ENV", "120082_ENV", "118986_ENV"))) $excluded_rowtypes = array('http://eol.org/schema/media/document');
+        if(in_array($this->param['resource_id'], array("10088_5097_ENV", "10088_6943_ENV", "118935_ENV", "120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV"))) $excluded_rowtypes = array('http://eol.org/schema/media/document');
         if(stripos($this->param['resource_id'], "SCtZ-") !== false) $excluded_rowtypes = array('http://eol.org/schema/media/document'); //string is found
         elseif(stripos($this->param['resource_id'], "scb-") !== false)  $excluded_rowtypes = array('http://eol.org/schema/media/document'); //string is found
         elseif(stripos($this->param['resource_id'], "scz-") !== false)  $excluded_rowtypes = array('http://eol.org/schema/media/document'); //string is found
@@ -383,7 +383,7 @@ class Pensoft2EOLAPI
                 elseif(stripos($this->param['resource_id'], "scb-") !== false)         $this->ontologies = "envo,eol-geonames,growth"; //string is found
                 elseif(stripos($this->param['resource_id'], "scz-") !== false)         $this->ontologies = "envo,eol-geonames"; //string is found
                 elseif(in_array($this->param['resource_id'], array("118935_ENV")))     $this->ontologies = "eol-geonames";
-                if(in_array($this->param['resource_id'], array("120081_ENV", "120082_ENV", "118986_ENV"))) $this->ontologies = "envo,eol-geonames";
+                if(in_array($this->param['resource_id'], array("120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV"))) $this->ontologies = "envo,eol-geonames";
                 // ---------------------- end customize ----------------------*/
                 
                 // print_r($rec); exit("\n[2]\n");
