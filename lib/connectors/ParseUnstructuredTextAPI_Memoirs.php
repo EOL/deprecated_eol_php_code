@@ -945,7 +945,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $dont_have_these_chars_anywhere = array("Tj", "•", "■", "♦", "§", "»", "~", "*—", "-^", "«0", "«O", "jqL", "fNiri", "oooooooo", "^^",
                 "vooo", ".£", "CAr<", "c4r", "-3-r", "i^o", "*^D", '-"<*', "r<^", "ONTf", "—'0", "c^r", "S.S3", "/ivi", "^h", "r^", "Otj", "©",
                 "1-H-H", ",^", "OOONO", "— r-", "—«", "V-)", "— st", "«/", "t«M", "0000", "i—l", "i—", "iip1", "oooo", "i^", "-oo", "m^",
-                "Tt—", "^n", ">n", "VI—", "^—^", "c^");
+                "Tt—", "^n", ">n", "VI—", "^—^", "c^", ">n");
                 foreach($dont_have_these_chars_anywhere as $char) {
                     if(stripos($row, $char) !== false) $cont = false; //found
                 }
