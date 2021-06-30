@@ -59,11 +59,13 @@ class SummaryDataResourcesAllAPI
         if(Functions::is_production()) { 
             $this->main_dir = "/extra/other_files/summary_data_resources/"; //eol-archive - never run here yet.
             $this->main_dir = "/u/scripts/data_files/summary_data_resources/"; //eol-backend2
-            $this->traits_source = "/u/scripts/.plotter_workspace/";
+            $this->traits_source = "/u/scripts/.plotter_workspace/";                    //old
+            $this->traits_source = "/u/scripts/.plotter_workspace/prod/trait_dumps/";   //new
         }
         else {
             $this->main_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/"; //Mac Mini
-            $this->traits_source = "/Volumes/AKiTiO4/jenkins_scripts/.plotter_workspace/";
+            $this->traits_source = "/Volumes/AKiTiO4/jenkins_scripts/.plotter_workspace/";                  //old
+            $this->traits_source = "/Volumes/AKiTiO4/jenkins_scripts/.plotter_workspace/prod/trait_dumps/"; //new
             /*
             $this->working_dir = $this->main_dir."page_ids/";
             $this->working_dir = $this->main_dir."page_ids_20190613/";  //to pertain using 13Jun2019 All Trait Export. But still using old DH

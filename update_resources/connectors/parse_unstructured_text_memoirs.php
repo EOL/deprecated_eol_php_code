@@ -44,6 +44,9 @@ remove traits in eol-geonames if inside literature reference
 118986	Wed 2021-06-30 01:32:52 AM	    {                                        "media_resource.tab":41,                                "taxon.tab":41, "time_elapsed":{"sec":1.88, "min":0.03, "hr":0}}
 118986_ENV	Wed 2021-06-30 01:36:21 AM	{"measurement_or_fact_specific.tab":512, "media_resource.tab":41, "occurrence_specific.tab":512, "taxon.tab":41, "time_elapsed":{"sec":148.16, "min":2.47, "hr":0.04}}
 ------------------------------------------------------------
+118920	Wed 2021-06-30 07:48:29 AM	    {                                       "media_resource.tab":27,                               "taxon.tab":27, "time_elapsed":{"sec":0.36, "min":0.01, "hr":0}}
+118920_ENV	Wed 2021-06-30 07:52:50 AM	{"measurement_or_fact_specific.tab":74, "media_resource.tab":27, "occurrence_specific.tab":74, "taxon.tab":27, "time_elapsed":{"sec":200.19, "min":3.34, "hr":0.06}}
+------------------------------------------------------------
 
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
