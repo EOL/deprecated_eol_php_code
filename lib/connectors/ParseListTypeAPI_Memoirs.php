@@ -785,8 +785,8 @@ class ParseListTypeAPI_Memoirs
         if($words[1] == 'largely') return false; //Palpi largely yellow anabnormis Huckett
         if($words[0] == 'Number') return false; //"Number io"
         if($words[0] == 'Paregle') return false; //Genus starts with "Pegomyia"
+        if($words[0] == 'Materials') return false;
         return $string;
-        
     }
     function is_sciname_in_120082($string)
     {   /*

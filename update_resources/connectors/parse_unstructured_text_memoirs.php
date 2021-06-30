@@ -79,7 +79,7 @@ exit("\n");
 $rec[118935] = array('filename' => '118935.txt', 'lines_before_and_after_sciname' => 1); /* stable stats: blocks: 1322  Raw scinames count: 1322 */
 $rec[120081] = array('filename' => '120081.txt', 'lines_before_and_after_sciname' => 2); /* stable stats: blocks: 97    Raw scinames count: 98 */
 $rec[120082] = array('filename' => '120082.txt', 'lines_before_and_after_sciname' => 2); /* stable stats: blocks: 25    Raw scinames count: 25 */
-$rec[118986] = array('filename' => '118986.txt', 'lines_before_and_after_sciname' => 2); /* stable stats: blocks: 44    Raw scinames count: 44 */
+$rec[118986] = array('filename' => '118986.txt', 'lines_before_and_after_sciname' => 2); /* stable stats: blocks: 43    Raw scinames count: 43 */
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;
 else exit("\nUndefined PDF ID\n");
