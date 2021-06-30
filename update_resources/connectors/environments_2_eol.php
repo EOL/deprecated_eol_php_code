@@ -89,9 +89,10 @@ wikipedia_en_traits	Wed 2021-06-16 06:16:20 AM	    {"MoF.tab":147964, "occurrenc
 cd /html/eol_php_code/update_resources/connectors
 
 
-php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Memoirs of the American Entomological Society", "resource_id":"118935", "subjects":"Description|Uses"}'
-php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Memoirs of the American Entomological Society", "resource_id":"120081", "subjects":"Description|Uses"}'
-php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Memoirs of the American Entomological Society", "resource_id":"120082", "subjects":"Description|Uses"}'
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"MoftheAES 1st", "resource_id":"118935", "subjects":"Description|Uses"}'
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"MoftheAES 2nd", "resource_id":"120081", "subjects":"Description|Uses"}'
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"MoftheAES 4th", "resource_id":"120082", "subjects":"Description|Uses"}'
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"MoftheAES 5th", "resource_id":"118986", "subjects":"Description|Uses"}'
 
 --------------------------------------------------------------------------------------- PDF repository 10088_5097
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"10088_5097", "subjects":"Uses|Description"}'
