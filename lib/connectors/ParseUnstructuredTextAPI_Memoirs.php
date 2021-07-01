@@ -938,15 +938,22 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             
             if(in_array($this->pdf_id, array('120081', '120082', '118986', '118920'))) { //2nd, 4th, 5th 6th docs
-                // /* remove if row is all caps
-                // MEM. AMER. ENT. SOC, IO 
-                // 120 NORTH AMERICAN GENUS PEGOMYIA (DIPTERA: MUSCIDAE) 
-                $tmp = $row;
-                $tmp = str_replace(array(",", ".", " ", "-", "'", ":", "(", ")", "&"), "", $tmp);
-                $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
-                // echo " [$tmp]";
-                if(ctype_upper($tmp)) continue;
+                // /* 118986 5th doc
+                $ignore = array("MATERIAL EXAMINED", "GEOGRAPHICAL RANGE AND HABITAT PREFERENCES"); //ignore these even if all-caps
+                $cont = true;
+                foreach($ignore as $start_of_row) {
+                    $len = strlen($start_of_row);
+                    if(substr($row,0,$len) == $start_of_row) $cont = false;
+                }
                 // */
+                if($cont) {
+                    // /* remove if row is all-caps -> e.g. MEM. AMER. ENT. SOC, IO | e.g. 120 NORTH AMERICAN GENUS PEGOMYIA (DIPTERA: MUSCIDAE) 
+                    $tmp = $row;
+                    $tmp = str_replace(array(",", ".", " ", "-", "'", ":", "(", ")", "&"), "", $tmp);
+                    $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
+                    if(ctype_upper($tmp)) continue;
+                    // */
+                }
                 
                 if(stripos($row, "WIIiLlAM") !== false) continue; //string is found
             }
