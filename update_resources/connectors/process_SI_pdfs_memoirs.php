@@ -16,6 +16,7 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "120081", "resource_name":"2nd do
 process_SI_pdfs_memoirs.php _ '{"resource_id": "120082", "resource_name":"4th doc"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "118986", "resource_name":"5th doc"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "118920", "resource_name":"6th doc"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "120083", "resource_name":"7th doc"}'
 
 process_SI_pdfs_memoirs.php _ '{"resource_id": "MoftheAES", "resource_name":"all resources"}'
 */

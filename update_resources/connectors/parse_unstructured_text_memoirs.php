@@ -43,6 +43,8 @@ remove traits in eol-geonames if inside literature reference
 118986_ENV	Tue 2021-06-29 11:48:52 PM	{"measurement_or_fact_specific.tab":512, "media_resource.tab":41, "occurrence_specific.tab":512, "taxon.tab":41, "time_elapsed":{"sec":657.64, "min":10.96, "hr":0.18}}
 118986	Wed 2021-06-30 01:32:52 AM	    {                                        "media_resource.tab":41,                                "taxon.tab":41, "time_elapsed":{"sec":1.88, "min":0.03, "hr":0}}
 118986_ENV	Wed 2021-06-30 01:36:21 AM	{"measurement_or_fact_specific.tab":512, "media_resource.tab":41, "occurrence_specific.tab":512, "taxon.tab":41, "time_elapsed":{"sec":148.16, "min":2.47, "hr":0.04}}
+118986	Thu 2021-07-01 01:25:48 AM	    {                                        "media_resource.tab":41,                                "taxon.tab":41, "time_elapsed":{"sec":0.58, "min":0.01, "hr":0}}
+118986_ENV	Thu 2021-07-01 01:27:42 AM	{"measurement_or_fact_specific.tab":512, "media_resource.tab":41, "occurrence_specific.tab":512, "taxon.tab":41, "time_elapsed":{"sec":54.05, "min":0.9, "hr":0.02}}
 ------------------------------------------------------------
 118920	Wed 2021-06-30 07:48:29 AM	    {                                       "media_resource.tab":27,                               "taxon.tab":27, "time_elapsed":{"sec":0.36, "min":0.01, "hr":0}}
 118920_ENV	Wed 2021-06-30 07:52:50 AM	{"measurement_or_fact_specific.tab":74, "media_resource.tab":27, "occurrence_specific.tab":74, "taxon.tab":27, "time_elapsed":{"sec":200.19, "min":3.34, "hr":0.06}}
@@ -56,6 +58,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "120081", "resource_name"
 parse_unstructured_text_memoirs.php _ '{"resource_id": "120082", "resource_name":"4th doc"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118986", "resource_name":"5th doc"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118920", "resource_name":"6th doc"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "120083", "resource_name":"7th doc"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS["ENV_DEBUG"] = true;
@@ -88,7 +91,8 @@ $rec[118935] = array('filename' => '118935.txt', 'lines_before_and_after_sciname
 $rec[120081] = array('filename' => '120081.txt', 'lines_before_and_after_sciname' => 2); /*2 stable stats: blocks: 97    Raw scinames count: 98 */
 $rec[120082] = array('filename' => '120082.txt', 'lines_before_and_after_sciname' => 2); /*4 stable stats: blocks: 25    Raw scinames count: 25 */
 $rec[118986] = array('filename' => '118986.txt', 'lines_before_and_after_sciname' => 2); /*5 stable stats: blocks: 43    Raw scinames count: 43 */
-$rec[118920] = array('filename' => '118920.txt', 'lines_before_and_after_sciname' => 2); /*6 stable stats: blocks: xx    Raw scinames count: xx */
+$rec[118920] = array('filename' => '118920.txt', 'lines_before_and_after_sciname' => 2); /*6 stable stats: blocks: 27    Raw scinames count: 27 */
+$rec[120083] = array('filename' => '120083.txt', 'lines_before_and_after_sciname' => 2); /*7 stable stats: blocks: xx    Raw scinames count: xx */
 /* TO DO: 
 doc 5: didn't get a valid binomial: "Laccophilus spergatus Sharp (Figs. 98-105, 297)"
 */

@@ -43,8 +43,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         /* END epub series */
         
         // /* copied from SmithsonianPDFsAPI
-        $list_type_from_google_sheet = array('SCtZ-0033', 'SCtZ-0011', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613', 'SCtZ-0609', 'SCtZ-0018', 'scb-0002');
-        $this->PDFs_that_are_lists = array_merge(array('SCtZ-0437'), $list_type_from_google_sheet);
+        $this->PDFs_that_are_lists = array('120083');
         // */
         
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
@@ -73,7 +72,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(in_array($pdf_id, $this->PDFs_that_are_lists)) {
             echo "- IS A LIST, NOT SPECIES-DESCRIPTION-TYPE 02\n";
             $this->parse_list_type_pdf($input);
-            if(in_array($pdf_id, array('SCtZ-0437', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0609', 'scb-0002'))) return; //many lists have bad species sections
+            if(in_array($pdf_id, array('SCtZ-0437', '120083'))) return; //many lists have bad species sections
             elseif(in_array($pdf_id, array('SCtZ-0613'))) {} //lists with good species sections
             // 
             // return; //should be commented coz some list-type docs have species sections as well
