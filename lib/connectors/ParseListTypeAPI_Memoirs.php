@@ -49,7 +49,7 @@ class ParseListTypeAPI_Memoirs
         // */
     }
     private function get_scinames_per_list($tagged_file)
-    {   // exit("\n$tagged_file\n");
+    {   echo "\nget_scinames_per_list()... looping [$tagged_file] \n";
         ///Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/SCtZ-0437_tagged_LT.txt
         $destination = str_replace("_tagged_LT.txt", "_descriptions_LT.txt", $tagged_file);
         $WRITE = fopen($destination, "w"); //initialize
@@ -65,25 +65,51 @@ class ParseListTypeAPI_Memoirs
                 $rows = array_unique($rows); //make unique
                 $rows = array_values($rows); //reindex key
                 if($rows) {
+                    if($this->pdf_id == '120083') {
+                        if($list_header != "OZARK-OUACHITA PLECOPTERA SPECIES LIST") continue;
+                    }
                     echo "\n------------------------\n$list_header\n------------------------\n";
                     // print_r($rows); //continue; //exit; //good debug
                     echo "\n n = ".count($rows)."\n"; //continue; //exit;
                     $i = 0; $possible_genus = array();
                     $possible_genux = ''; //for those lists where the row starts with a species name e.g. "bicolor Guignot 57–36! (Brazil)"
                     foreach($rows as $sciname_line) { $rek = array(); $i++;
+                        if(substr($sciname_line,0,1) == " ") continue;
                         $rek['verbatim'] = $sciname_line;
+                        
                         
                         if(stripos($sciname_line, "...") !== false) continue; //string is found
                         if(stripos($sciname_line, " and ") !== false) continue; //string is found
-                        
-                        
-                        /* divide it by period (.), then get the first array element
-                        $a = explode(".", $sciname_line);
-                        $sciname_line = trim($a[0]);
-                        */
+                        if(stripos($sciname_line, ":") !== false) continue; //string is found
+                        if(stripos($sciname_line, "=") !== false) continue; //string is found
+                        if(stripos($sciname_line, '\\') !== false) continue; //string is found
+                        if(stripos($sciname_line, '/') !== false) continue; //string is found
+                        if(stripos($sciname_line, '%') !== false) continue; //string is found
+                        if(stripos($sciname_line, ' mil ') !== false) continue; //string is found
+                        if(stripos($sciname_line, '»') !== false) continue; //string is found
+                        if(stripos($sciname_line, 'p.') !== false) continue; //string is found
+                        if(stripos($sciname_line, '<') !== false) continue; //string is found
+                        if(stripos($sciname_line, '>') !== false) continue; //string is found
+                        if(stripos($sciname_line, '£') !== false) continue; //string is found
+
+                        // /*
+                        $cont = true;
+                        $dont_have_these_chars_anywhere = array("Tj", "•", "■", "♦", "§", "»", "~", "*—", "-^", "«0", "«O", "jqL", "fNiri", "oooooooo", "^^",
+                        "vooo", ".£", "CAr<", "c4r", "-3-r", "i^o", "*^D", '-"<*', "r<^", "ONTf", "—'0", "c^r", "S.S3", "/ivi", "^h", "r^", "Otj", "©",
+                        "1-H-H", ",^", "OOONO", "— r-", "—«", "V-)", "— st", "«/", "t«M", "0000", "i—l", "i—", "iip1", "oooo", "i^", "-oo", "m^",
+                        "Tt—", "^n", ">n", "VI—", "^—^", "c^", ">n", '^', "«", " are ", " from ", " to ", " in ", "river", "region");
+                        foreach($dont_have_these_chars_anywhere as $char) {
+                            if(stripos($sciname_line, $char) !== false) $cont = false; //found
+                        }
+                        if(!$cont) continue;
+                        // */
                         
                         if(substr($sciname_line,0,1) == "*") $sciname_line = trim(substr($sciname_line,1,strlen($sciname_line)));
                         if(substr($sciname_line,0,1) == "?") continue;
+                        if(substr($sciname_line,0,1) == "(") continue;
+                        if(substr($sciname_line,0,1) == ".") continue;
+                        
+                        
                         $sciname_line = str_ireplace("†","",$sciname_line); //special chars like this messes up GNRD and Gnparser
                         
                         $sciname_line = str_replace(".—", " .— ", $sciname_line);
@@ -98,6 +124,29 @@ class ParseListTypeAPI_Memoirs
                             $sciname_line = $possible_genux." ".$sciname_line;
                         }
                         // */
+                        if(strlen($words[0]) == 1) continue; //first word is just a single letter
+                        if(count($words) == 1) continue;
+                        if(count($words) > 6) continue;
+
+                        if(ctype_lower(substr($words[0],0,1))) continue; //1st word should be capital letter
+                        if(ctype_upper(substr($words[1],0,1))) continue; //2nd word should be small letter
+                        
+                        // /*
+                        $no_first_word_equal_to_these = array('Number', 'more', 'Union', 'Type', 'Figs.', 'Fig.', 'Type');
+                        $cont = true;
+                        foreach($no_first_word_equal_to_these as $first) {
+                            if($words[0] == $first) $cont = false;
+                        }
+                        if(!$cont) continue;
+                        // */
+                        
+                        if(self::is_a_rank_name($words[0])) continue;
+
+
+                        if(self::last_word_not_num_not_LT_4_digits($words)) {}
+                        else continue;
+
+                        if(self::row_where_all_words_have_max_three_chars($sciname_line)) continue;
                         
                         if($obj = self::run_gnparser($sciname_line)) {
                             $rek['normalized gnparser'] = @$obj[0]->normalized;
@@ -116,6 +165,7 @@ class ParseListTypeAPI_Memoirs
                         debug("\nrun_GNRD 3: [$sciname_line]\n");
                         if($obj = self::run_GNRD($sciname_line)) {
                             $sciname = @$obj->names[0]->scientificName; //echo "\n[$sciname]\n";
+                            if(!$sciname) continue; //new Jul 1, 2021
                             $rek['sciname GNRD'] = $sciname;
                             if($obj = self::run_gnparser($sciname_line)) {
                                 $authorship = @$obj[0]->authorship->verbatim;
@@ -162,6 +212,13 @@ class ParseListTypeAPI_Memoirs
                             $tmp = trim(Functions::remove_whitespace($tmp));
                             $rek['scientificName_author_cleaned'] = $tmp;
                             
+                            // /* good debug
+                            if($rek['verbatim'] == "White River, Winslow.") {
+                                print_r($rek); exit("\nstop muna\n");
+                            }
+                            // if(!$rek['sciname GNRD']) print_r($rek);
+                            // */
+                            
                             fwrite($WRITE, implode("\t", array($rek['scientificName_author_cleaned'], $rek['verbatim'], $list_header))."\n");
                             /*Array(
                                 [verbatim] => Miscophus heliophilus Pulawski. 1 ♀. Captured in Malaise trap. The species has been described recently (Pulawski, 1968) from this unique specimen.
@@ -189,6 +246,14 @@ class ParseListTypeAPI_Memoirs
         }
         // exit("\n$tagged_file\n");
         fclose($WRITE);
+    }
+    private function is_a_rank_name($word)
+    {
+        $ranks = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 'Subphylum', 'Subclass', 'Superfamily');
+        foreach($ranks as $rank) {
+            if($rank == $word) return true;
+        }
+        return false;
     }
     private function clean_sciname($sciname)
     {   //"Navia acaulis Martius ex Schultes f." --> don't remove period (.)
@@ -278,8 +343,9 @@ class ParseListTypeAPI_Memoirs
             $cont = true;
             // /* criteria 1, only for now
             if($row) {
+                // if(stripos($row, "species list") !== false) echo "\n========\n1 $row\n=============\n"; //good debug
                 
-                // /* force
+                // /* force include
                 if(stripos($row, "Checklist of Amphibians") !== false           ||  //--> SCtZ-0010
                    stripos($row, "Creagrutus and Piabina species") !== false    ||  //--> SCtZ-0613
                    stripos($row, "Material Examined") !== false                     //--> SCtZ-0609
@@ -293,17 +359,14 @@ class ParseListTypeAPI_Memoirs
                 if(stripos($row, "List of Participants") !== false) { $rows = array(); continue; } //string is found
                 
                 if(stripos($row, "list ") !== false) { //string is found
-                    if(stripos($row, "Appendix") !== false) { $rows = array(); continue; } //e.g. "Appendix A. List of specimen sightings and collections."
-                    elseif(stripos($row, "see page") !== false) { $rows = array(); continue; } //2nd repo - scb-0002
-                    else {} //proceeding OK...
+                    if(stripos($row, "Appendix") !== false)         { $rows = array(); continue; } //e.g. "Appendix A. List of specimen sightings and collections."
+                    elseif(stripos($row, "see page") !== false)     { $rows = array(); continue; } //2nd repo - scb-0002
+                    else                                            {} //proceeding OK...
                 }
-                // elseif(stripos($row, " list") !== false) {} //string is found //not good strategy
+                elseif(stripos($row, "species list") !== false) {} //string is found //120083
                 else { $rows = array(); continue; }
-                
-                // /* 2nd repo
-                
-                // */
-                
+
+                // if(stripos($row, "species list") !== false) echo "\n========\n2 $row\n=============\n"; //good debug
             }
             // */
             $rows[] = $row;
@@ -354,6 +417,7 @@ class ParseListTypeAPI_Memoirs
     }
     private function add_taxon_tags_to_text_file_LT($filename)
     {   //exit("\n[$filename]\n"); [SCtZ-0018.txt]
+        echo "\nadd_taxon_tags_to_text_file_LT()...\n";
         $pdf_id = pathinfo($filename, PATHINFO_FILENAME); // exit("\n[$pdf_id]\n"); e.g. SCtZ-0609
         
         $local = $this->path['epub_output_txts_dir'].$filename;
@@ -381,6 +445,7 @@ class ParseListTypeAPI_Memoirs
             elseif($row == "References") $row = "</taxon>$row";             //SCtZ-0008.txt
             elseif($row == "General Conclusions") $row = "</taxon>$row";    //SCtZ-0029.txt
             elseif($row == "Bibliography") $row = "</taxon>$row";           //SCtZ-0011.txt
+            elseif($row == "Key") $row = "</taxon>$row";                    //120083 7th doc
             
             if($pdf_id != 'SCtZ-0018') { //manual specific
                 if($row == "Literature Cited") $row = "</taxon>$row";       //SCtZ-0007.txt
@@ -405,6 +470,7 @@ class ParseListTypeAPI_Memoirs
         if(copy($temp_file, $edited_file)) unlink($temp_file);
         
         // print_r($this->lines_to_tag);
+        echo "\n-end-\n";
         return $edited_file;
     }
     private function format_row_to_ListHeader($row)
@@ -422,7 +488,7 @@ class ParseListTypeAPI_Memoirs
         return $row;
     }
     private function remove_some_rows_LT($edited_file)
-    {
+    {   echo "\nremove_some_rows_LT()...looping [$edited_file]\n";
         // exit("\nxxx[$edited_file]\n"); //e.g. /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0018/SCtZ-0018_edited_LT.txt
         $local = $edited_file;
         $temp_file = $local.".tmp";
@@ -437,8 +503,8 @@ class ParseListTypeAPI_Memoirs
         foreach(new FileIterator($local) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
             $row = trim($row);
             
+            /* criteria 1
             $cont = true;
-            // /* criteria 1
             $exclude = array_merge($exclude, array("(", "Order ", "Family ", "Genus "));
             foreach($exclude as $start_of_row) {
                 $len = strlen($start_of_row);
@@ -448,7 +514,7 @@ class ParseListTypeAPI_Memoirs
                 }
             }
             if(!$cont) continue;
-            // */
+            */
             
             // /* criteria 2: if first word is all caps e.g. ABSTRACT
             if($row) {
@@ -461,13 +527,6 @@ class ParseListTypeAPI_Memoirs
                 if(ctype_upper($words[0]) && strlen($words[0]) > 1) continue;
                 // */
                 
-                /* 2nd word must start with small letter --- COMMENT THIS - VERY WRONG TO PUT IT HERE
-                if($second_word = @$words[1]) {
-                    $first_letter_of_2nd_word = substr($second_word,0,1);
-                    if(ctype_upper($first_letter_of_2nd_word)) continue;
-                }
-                */
-                
                 // /* 0018
                 // Siskiwitia, new genus
                 // alticolans, new species
@@ -475,22 +534,10 @@ class ParseListTypeAPI_Memoirs
                 $row = str_ireplace(", new species", "", $row);
                 // */
                 
-                // /* 0018 - manual adjustment
-                // Perimede, Chambers, 1874a
-                $row = str_ireplace("Perimede, Chambers, 1874a", "Perimede Chambers, 1874a", $row); //remove "," comma between name and author
-                // */
-                
-                
-                //other filters:
-                if(ctype_upper(substr($words[0],0,2)) && strlen($words[0]) >= 2) continue; //e.g. RECORD, FIGURE, etc.
                 if(is_numeric($row)) continue;
                 if($row == "-") continue;
                 if(is_numeric(substr($words[0],0,1))) continue; //e.g. table of contents section
                 
-                /* New: May 6, 2021 - SEEMS A SCINAME CHECK IS NOT NEEDED HERE AFTER ALL
-                if(!$this->is_sciname(trim($words[0]." ".@$words[1]), 'list_type')) continue;
-                // if(!$this->is_sciname_LT(trim($words[0]." ".@$words[1]))) continue;
-                */
             }
             // */
             
@@ -498,6 +545,7 @@ class ParseListTypeAPI_Memoirs
         }//end loop text
         fclose($WRITE);
         if(copy($temp_file, $edited_file)) unlink($temp_file);
+        echo "\n-end-\n";
     }
     private function is_valid_list_header($row)
     {
@@ -763,6 +811,7 @@ class ParseListTypeAPI_Memoirs
         $str = trim($string);
         $words = explode(" ", $str);
         if(count($words) > 6) return false;
+        if(@$words[0][1] == ";") return false;
         
         // /* e.g. Subgenital plate broadly rounded (17) => not a species
         if(preg_match("/\((.*?)\)/ims", $string, $arr)) if(is_numeric($arr[1])) return false;
@@ -779,10 +828,6 @@ class ParseListTypeAPI_Memoirs
         if($string == "An uregulai") return false;
         if($string == "Cascadoperla trictura") return false;
 
-        
-        
-        
-        
         return self::is_sciname_in_118986($string);
     }
     function is_sciname_in_118986($string)
@@ -795,7 +840,7 @@ class ParseListTypeAPI_Memoirs
         Laccophilus fasciatus rufus Melsheimer, restored name and new status 
         */
         if(stripos($string, " of ") !== false) return false; //doesn't have this char(s) e.g. Explanation of Figures 139
-        
+
         /* format first: e.g. "Pegomyia palposa (Stein) (Figs. 1, 30, 54.)" --- copied template
         $string = trim(preg_replace('/\s*\(Fig[^)]*\)/', '', $string)); //remove Figs. parenthesis OK
         */
@@ -815,6 +860,14 @@ class ParseListTypeAPI_Memoirs
         if($words[0] == 'Number') return false; //"Number io"
         if($words[0] == 'Paregle') return false; //Genus starts with "Pegomyia"
         if($words[0] == 'Materials') return false;
+        
+        if($this->pdf_id == '120083') {
+            if(@$words[1][0] == "(") return false;
+            if(trim($string) == "Males and Females") return false;
+        }
+        
+        if(stripos($string, "Richland and") !== false) return false; //doesn't have this char(s) e.g. Richland and Bear Creeks
+        
         return $string;
     }
     function is_sciname_in_120082($string)
@@ -892,6 +945,14 @@ class ParseListTypeAPI_Memoirs
 
         if($this->get_numbers_from_string($words[0])) return false; //first word must not have a number
         if($this->get_numbers_from_string($words[1])) return false; //2nd word must not have a number
+
+        if(self::last_word_not_num_not_LT_4_digits($words)) {}
+        else return false;
+
+        return true;
+    }
+    public function last_word_not_num_not_LT_4_digits($words)
+    {
         // /* last word must not be a number with < 4 digits => e.g. "Second antennal segment extensively blackish 22"
         $last_word = end($words);
         if(is_numeric($last_word)) {

@@ -43,7 +43,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         /* END epub series */
         
         // /* copied from SmithsonianPDFsAPI
-        $this->PDFs_that_are_lists = array('120083');
+        $this->PDFs_that_are_lists = array('120083x');
         // */
         
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
@@ -72,8 +72,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(in_array($pdf_id, $this->PDFs_that_are_lists)) {
             echo "- IS A LIST, NOT SPECIES-DESCRIPTION-TYPE 02\n";
             $this->parse_list_type_pdf($input);
-            if(in_array($pdf_id, array('SCtZ-0437', '120083'))) return; //many lists have bad species sections
-            elseif(in_array($pdf_id, array('SCtZ-0613'))) {} //lists with good species sections
+            if(in_array($pdf_id, array('SCtZ-0437', '120083x'))) return; //many lists have bad species sections
+            elseif(in_array($pdf_id, array('120083'))) {} //lists with good species sections
             // 
             // return; //should be commented coz some list-type docs have species sections as well
         }
@@ -85,6 +85,18 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->scinames = array();
         
         $filename = $input['filename'];
+        
+        // /* new: cut-off the text file to its important portion e.g. 120083.txt
+        
+        delete start of text up to: 
+        "Emergence occurs from December to early March."
+        
+        
+        if($this->pdf_id == '120083') {
+            exit("\n$filename\n");
+        }
+        // */
+        
         $this->filename = $filename; //for referencing below
         $lines_before_and_after_sciname = $input['lines_before_and_after_sciname'];
         $this->magic_no = $this->no_of_rows_per_block[$lines_before_and_after_sciname];
@@ -418,7 +430,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(self::is_sciname_in_118986($string)) return true;
             else return false;
         }
-        elseif($this->pdf_id == '118920') { //6th doc
+        elseif(in_array($this->pdf_id, array('118920', '120083'))) { //6th 7th doc
             if(self::is_sciname_in_118920($string)) return true;
             else return false;
         }
@@ -540,6 +552,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     }
     private function is_valid_species($str)
     {   
+        if($this->pdf_id == '120083') {
+            if($str == ';al society') return false;
+        }
         // /*
         if(stripos($str, " species ") !== false) return false;  //string is found --- exclude "Synasterope species A" --- 0032
         if(substr($str, -8) == " species") return false;  //string is found --- 0034
@@ -651,7 +666,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '118986') { //5th doc
                 if($ret = self::is_sciname_in_118986($row)) $row = $ret;
             }
-            elseif($this->pdf_id == '118920') { //6th doc
+            elseif(in_array($this->pdf_id, array('118920', '120083'))) { //6th 7th doc
                 if($ret = self::is_sciname_in_118920($row)) $row = $ret;
             }
 
@@ -710,7 +725,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
 
-            if(in_array($this->pdf_id, array('118986', '118920'))) { //5th 6th doc
+            if(in_array($this->pdf_id, array('118986', '118920', '120083'))) { //5th 6th 7th doc
                 // $words = array('Literature Cited', 'Map', 'Fig.', 'Figure');
                 $words = array('Literature Cited', 'Map', 'Figures ');
                 foreach($words as $word) {
@@ -768,18 +783,25 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             */
             
-            if($this->pdf_id == '118920') { //6th doc
+            if(in_array($this->pdf_id, array('118920', '120083'))) { // 6th 7th doc
                 $words = array('Ecology', 'Literature Cited', 'species group', 'SPECIES GROUP');
                 foreach($words as $word) {
                     $len = strlen($word);
                     if(substr($row,0,$len) == $word)  $row = "</taxon>$row";
                 }
-                
-                
-                
             }
             // newline
             // [paragraph beginning with ""Fig."" or ""Figs.""]"
+            
+            if($this->pdf_id == '120083') { //7th doc
+                //Table 2. Ozark-Ouachita Plecoptera...
+                if($row) {
+                    $words = explode(" ", trim($row));
+                    if($words[0] == "Table" && is_numeric($words[1])) $row = "</taxon>$row";
+                    
+                    if(trim($row) == "Nymphs") $row = "</taxon>$row";
+                }
+            }
             
             /* to close tag the last block
             if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293_convertio.txt
@@ -936,7 +958,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("[Antennae damaged; abdomen detached. |", "[Antennae damaged; abdomen detached.]", $row);
             }
             
-            if(in_array($this->pdf_id, array('120081', '120082', '118986', '118920'))) { //2nd, 4th, 5th 6th docs
+            if(in_array($this->pdf_id, array('120081', '120082', '118986', '118920', '120083'))) { //2nd, 4th, 5th 6th 7th docs
                 // /* 118986 5th doc
                 $ignore = array("MATERIAL EXAMINED", "GEOGRAPHICAL RANGE AND HABITAT PREFERENCES"); //ignore these even if all-caps
                 $cont = true;
@@ -957,7 +979,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(stripos($row, "WIIiLlAM") !== false) continue; //string is found
             }
 
-            if(in_array($this->pdf_id, array('118986', '118920'))) { //5th 6th doc
+            if(in_array($this->pdf_id, array('118986', '118920' ,'120083'))) { //5th 6th 7th doc
                 if($this->str_begins_with($row, 'Figure ')) continue;
                 if($this->str_begins_with($row, 'Figure.')) continue;
                 if($this->str_begins_with($row, '(Figs.')) continue;
@@ -1022,7 +1044,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     if(!$cont) continue;
                     // */
                 }
-                
+
+                if($this->pdf_id == '120083') {
+                    // /* garbage part
+                    $cont = true;
+                    $remove_rows = array(";al society");
+                    foreach($remove_rows as $r) {
+                        if($row == $r) $cont = false;
+                    }
+                    if(!$cont) continue;
+                    // */
+                }
                 
             }
             fwrite($WRITE, $row."\n");
@@ -1047,7 +1079,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(true) {
                     $last_sections_2b_removed = array("REMARKS.—", "REMARK.—", "REMARKS. ",
                     "AFFINITIES.—", "AFFINITY.—",
-                    "DISCUSSIONS.—", "DISCUSSION.—",
+                    "DISCUSSIONS.—", "DISCUSSION.—", "Discussion. —",
                     "LIFE HISTORY NOTES.—", "LIFE HISTORY NOTE.—", "NOTES.—", "NOTE.—");
                     $block = self::remove_last_sections($last_sections_2b_removed, $block, $pdf_id);
                     
