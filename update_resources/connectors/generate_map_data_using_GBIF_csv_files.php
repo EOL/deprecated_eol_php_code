@@ -38,7 +38,7 @@ else {
 function are_all_indicator_files_deletedYN()
 {
     $filename = CONTENT_RESOURCE_LOCAL_PATH . "map_generate_"."COUNTER".".txt";
-    for($i = 1; $i <= 6; $i++) {
+    for($i = 1; $i <= 10; $i++) {
         $fn = str_replace('COUNTER', $i, $filename);
         if(file_exists($fn)) return false;
     }
