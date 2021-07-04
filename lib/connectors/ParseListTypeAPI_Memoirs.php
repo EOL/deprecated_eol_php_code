@@ -991,5 +991,21 @@ class ParseListTypeAPI_Memoirs
         }
         return true;
     }
+    function cutoff_source_text_file($filename, $end_str)
+    {
+        $new_filename = str_replace(".txt", "_cutoff.txt", $filename);
+        $WRITE = fopen($this->path['epub_output_txts_dir'].$new_filename, "w"); //initialize
+        $local = $this->path['epub_output_txts_dir'].$filename;
+        // /* loop text file
+        $i = 0; $saving = false;
+        foreach(new FileIterator($local) as $line => $row) { $i++;
+            if(($i % 5000) == 0) echo " $i";
+            if(trim($row) == $end_str) $saving = true; //start saving
+            if($saving) fwrite($WRITE, $row."\n");
+        }
+        // */
+        fclose($WRITE);
+        return $new_filename;
+    }
 }
 ?>

@@ -86,14 +86,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         $filename = $input['filename'];
         
-        // /* new: cut-off the text file to its important portion e.g. 120083.txt
-        
-        delete start of text up to: 
-        "Emergence occurs from December to early March."
-        
-        
+        // /* new: delete start of text up to certain point e.g. 120083.txt
         if($this->pdf_id == '120083') {
-            exit("\n$filename\n");
+            echo("\nfilename 1: $filename\n");
+            $filename = self::cutoff_source_text_file($filename, "Emergence occurs from December to early March.");
+            echo("\nfilename 2: $filename\n");
         }
         // */
         
@@ -798,8 +795,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if($row) {
                     $words = explode(" ", trim($row));
                     if($words[0] == "Table" && is_numeric($words[1])) $row = "</taxon>$row";
-                    
+                    //--------------
                     if(trim($row) == "Nymphs") $row = "</taxon>$row";
+                    //--------------
+                    $words = array('Key to');
+                    foreach($words as $word) {
+                        $len = strlen($word);
+                        if(substr($row,0,$len) == $word)  $row = "</taxon>$row";
+                    }
                 }
             }
             
@@ -941,9 +944,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $i = 0;
         foreach(new FileIterator($local) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
             $row = trim($row);
-            
-            $cont = true;
+
             // /* criteria 1
+            $cont = true;
             foreach($exclude as $start_of_row) {
                 $len = strlen($start_of_row);
                 if(substr($row,0,$len) == $start_of_row) {
