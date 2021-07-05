@@ -49,6 +49,9 @@ remove traits in eol-geonames if inside literature reference
 118920	Wed 2021-06-30 07:48:29 AM	    {                                       "media_resource.tab":27,                               "taxon.tab":27, "time_elapsed":{"sec":0.36, "min":0.01, "hr":0}}
 118920_ENV	Wed 2021-06-30 07:52:50 AM	{"measurement_or_fact_specific.tab":74, "media_resource.tab":27, "occurrence_specific.tab":74, "taxon.tab":27, "time_elapsed":{"sec":200.19, "min":3.34, "hr":0.06}}
 ------------------------------------------------------------
+120083	Mon 2021-07-05 06:48:23 AM	    {                                        "media_resource.tab":383,                                "taxon.tab":294, "time_elapsed":{"sec":4.32, "min":0.07, "hr":0}}
+120083_ENV	Mon 2021-07-05 07:02:36 AM	{"measurement_or_fact_specific.tab":752, "media_resource.tab":190, "occurrence_specific.tab":752, "taxon.tab":294, "time_elapsed":{"sec":793.29, "min":13.22, "hr":0.22}}
+------------------------------------------------------------
 
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
@@ -61,7 +64,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "118920", "resource_name"
 parse_unstructured_text_memoirs.php _ '{"resource_id": "120083", "resource_name":"7th doc"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-$GLOBALS["ENV_DEBUG"] = true;
+// $GLOBALS["ENV_DEBUG"] = true;
 require_library('connectors/ParseListTypeAPI_Memoirs');
 require_library('connectors/ParseUnstructuredTextAPI_Memoirs');
 $timestart = time_elapsed();

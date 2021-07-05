@@ -23,9 +23,7 @@ http://api.pensoft.net/annotator?text=The Nearctic author was Urban C.&ontologie
 http://api.pensoft.net/annotator?text=I like playing in the shrub&ontologies=growth
 -> no anotations from Pensoft
 
-http://api.pensoft.net/annotator?text=Tylobolus uncigerus, Brolemann, Ann. Soc. Ent. France, vol. 83, pp. 9, 22, fig. 6.&ontologies=envo,eol-geonames
-
-
+http://api.pensoft.net/annotator?text=OZARK-OUACHITA PLECOPTERA SPECIES LIST. Ozark Mountain forests.&ontologies=envo,eol-geonames
 */
 class Pensoft2EOLAPI
 {

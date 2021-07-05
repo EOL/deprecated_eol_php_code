@@ -21,7 +21,7 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "120083", "resource_name":"7th do
 process_SI_pdfs_memoirs.php _ '{"resource_id": "MoftheAES", "resource_name":"all resources"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-$GLOBALS["ENV_DEBUG"] = true;
+// $GLOBALS["ENV_DEBUG"] = true;
 $timestart = time_elapsed();
 // print_r($argv);
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
