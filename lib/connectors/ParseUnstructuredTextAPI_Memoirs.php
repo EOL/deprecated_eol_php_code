@@ -631,6 +631,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         $temp_file = $local.".tmp";
         $edited_file = str_replace(".txt", "_edited.txt", $orig_local);
+        // /* new
+        $edited_file = str_replace("_cutoff", "", $edited_file);
+        // */
         copy($local, $edited_file);
         // */
 
@@ -1082,6 +1085,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $pdf_id = str_replace("_edited", "", pathinfo($edited_file, PATHINFO_FILENAME)); //e.g. "scz-0630"
         
         $with_blocks_file = str_replace("_edited.txt", "_tagged.txt", $edited_file);
+        // /* new
+        $with_blocks_file = str_replace("_cutoff", "", $with_blocks_file);
+        // */
         $WRITE = fopen($with_blocks_file, "w"); //initialize
         $contents = file_get_contents($edited_file);
         if(preg_match_all("/<taxon (.*?)<\/taxon>/ims", $contents, $a)) {
