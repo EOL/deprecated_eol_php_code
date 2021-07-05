@@ -809,9 +809,11 @@ class ParseListTypeAPI_Memoirs
         Cascadoperla trictura (Hoppe)
         */
         $str = trim($string);
+        if($str == "Hosts and biology") return false;
         $words = explode(" ", $str);
         if(count($words) > 6) return false;
         if(@$words[0][1] == ";") return false;
+        if(substr(@$words[1], -1) == '.') return false; //Tenthredinidae incl.
         
         // /* e.g. Subgenital plate broadly rounded (17) => not a species
         if(preg_match("/\((.*?)\)/ims", $string, $arr)) if(is_numeric($arr[1])) return false;
@@ -819,7 +821,8 @@ class ParseListTypeAPI_Memoirs
         
         // /* anywhere in the string
         $exclude = array("(mm)", "%", "z g", " their", " uF", "Clcni", ".ics", " these", " for ", " only", "Snowf i eld", "Glacier", "Wyomi",
-        "Co -", "Co.", " not ", " complex");
+        "Co -", "Co.", " not ", " complex", "Tv. falayah", ".' /. szczytkoi Poulton", " page ", " mostly ", "annelides", " und ", " with ",
+        "Scutellum small");
         foreach($exclude as $x) {
             if(stripos($string, $x) !== false) return false; //string is found
         }

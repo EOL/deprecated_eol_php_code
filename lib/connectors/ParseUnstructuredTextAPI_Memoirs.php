@@ -800,7 +800,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     //--------------
                     if(trim($row) == "Nymphs") $row = "</taxon>$row";
                     //--------------
-                    $words = array('Key to', "Inside margin of mature wing pads", "Hind wing with anal lobe");
+                    $words = array('Key to', "Inside margin of mature wing pads", "Hind wing with anal lobe", "Brown pigment band across head wider");
                     foreach($words as $word) {
                         $len = strlen($word);
                         if(substr($row,0,$len) == $word)  $row = "</taxon>$row";
