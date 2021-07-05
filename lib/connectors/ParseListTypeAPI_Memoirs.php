@@ -66,7 +66,8 @@ class ParseListTypeAPI_Memoirs
                 $rows = array_values($rows); //reindex key
                 if($rows) {
                     if($this->pdf_id == '120083') {
-                        if($list_header != "OZARK-OUACHITA PLECOPTERA SPECIES LIST") continue;
+                        if($list_header != "OZARK-OUACHITA PLECOPTERA SPECIES LIST") continue; //only has 1 legitimate list
+                        else $list_header .= ". Ozark Mountain forests.";
                     }
                     echo "\n------------------------\n$list_header\n------------------------\n";
                     // print_r($rows); //continue; //exit; //good debug
