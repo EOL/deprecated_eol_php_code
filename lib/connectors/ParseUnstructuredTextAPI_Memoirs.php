@@ -677,7 +677,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     // if(stripos($row, "45,") !== false) {exit("\nxx[$row]xx\n");}   //string is found  //good debug
                     
                     $sciname = self::last_resort_to_clean_name($row);
-                    
                     $words = explode(" ", $sciname);
                     if(count($words) > 1) {
                         if($hits == 1)  $row = "<taxon sciname='$sciname'> ".$row;
@@ -798,7 +797,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     //--------------
                     if(trim($row) == "Nymphs") $row = "</taxon>$row";
                     //--------------
-                    $words = array('Key to');
+                    $words = array('Key to', "Inside margin of mature wing pads", "Hind wing with anal lobe");
                     foreach($words as $word) {
                         $len = strlen($word);
                         if(substr($row,0,$len) == $word)  $row = "</taxon>$row";
@@ -1057,6 +1056,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     }
                     if(!$cont) continue;
                     // */
+                    
+                    
+                    // /*
+                    $cont = true;
+                    $dont_have_these_chars_start = array("Figs.");
+                    foreach($dont_have_these_chars_start as $char) {
+                        if(substr($row,0,strlen($char)) == $char) $cont = false;
+                    }
+                    if(!$cont) continue;
+                    // */
+                    
                 }
                 
             }
