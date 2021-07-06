@@ -816,6 +816,38 @@ class ParseListTypeAPI_Memoirs
         if(ctype_upper($first_char)) return true;
         return false;
     }
+    function is_sciname_in_15423($string)
+    {   /*
+        1. Sphaerocarpos texanus Aust. Bull. Torrey Club 6: 158. 1877. 
+        */
+        $str = trim($string);
+        $words = explode(" ", $str);
+
+        // if(is_numeric($words[0])) {
+        //     array_shift($words); //remove first element
+        //     $str = trim(implode(" ", $words));
+        // }
+        
+        // if(count($words) > 6) return false;
+        if(@$words[0][1] == ";") return false;
+        if(substr(@$words[1], -1) == '.') return false; //Tenthredinidae incl.
+
+        // /* e.g. Subgenital plate broadly rounded (17) => not a species
+        if(preg_match("/\((.*?)\)/ims", $string, $arr)) if(is_numeric($arr[1])) return false;
+        // */
+
+        /* anywhere in the string - copied template
+        $exclude = array("(mm)", "%", "z g", " their", " uF", "Clcni", ".ics", " these", " for ", " only", "Snowf i eld", "Glacier", "Wyomi",
+        "Co -", "Co.", " not ", " complex", "Tv. falayah", ".' /. szczytkoi Poulton", " page ", " mostly ", "annelides", " und ", " with ",
+        "Scutellum small");
+        foreach($exclude as $x) {
+            if(stripos($string, $x) !== false) return false; //string is found
+        }
+        */
+        
+        return self::is_sciname_in_118986($string);
+    }
+    
     function is_sciname_in_118920($string)
     {   /*
         Cascadoperla trictura (Hoppe)
@@ -875,6 +907,8 @@ class ParseListTypeAPI_Memoirs
         if($words[0] == 'Number') return false; //"Number io"
         if($words[0] == 'Paregle') return false; //Genus starts with "Pegomyia"
         if($words[0] == 'Materials') return false;
+        if($words[0] == 'Type') return false;
+        
         
         if($this->pdf_id == '120083') {
             if(@$words[1][0] == "(") return false;
@@ -927,7 +961,7 @@ class ParseListTypeAPI_Memoirs
         if(ctype_upper($words[1][0])) return false; //2nd word must be lower case
         if($words[0][0] == "(") return false; //must not start with this char(s) e.g. (Drawings by Frances A. McKittrick)
         if($words[0][0] == "'") return false; //must not start with this char(s) e.g. '- ■• '■
-
+        
         // /* Important: added for production. Not detected in local
         if(stripos($str, "•") !== false) return false; //string is found
         if(stripos($str, ">n") !== false) return false; //string is found
@@ -951,13 +985,15 @@ class ParseListTypeAPI_Memoirs
         
         if(strlen($words[0]) == 1) return false; //e.g. O iH CVJ
         
-        $dont_have_these_chars_anywhere = array(":", "*", "~", "->", "<-", "«", "»", "©", " p.", " pp.", " ibid.", " of ", " to ", 
+        $dont_have_these_chars_anywhere = array("*", "~", "->", "<-", "«", "»", "©", " p.", " pp.", " ibid.", " of ", " to ", 
         " is ", " in ", "(see", "^", "species?", "inquirendum", "—");
         if($this->pdf_id == '120082') $dont_have_these_chars_anywhere[] = " and "; //4th doc
+        if($this->pdf_id != '15423') $dont_have_these_chars_anywhere[] = ":"; //1st BHL
+        
         foreach($dont_have_these_chars_anywhere as $char) {
             if(stripos($str, "$char") !== false) return false;
         }
-
+        
         if($this->get_numbers_from_string($words[0])) return false; //first word must not have a number
         if($this->get_numbers_from_string($words[1])) return false; //2nd word must not have a number
 
