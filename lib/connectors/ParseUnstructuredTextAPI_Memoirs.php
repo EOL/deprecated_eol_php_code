@@ -258,8 +258,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         // if(stripos($rows[2], "Capitophorus ohioensis") !== false) exit("\nok 2\n"); //string is found //good debug
                         
                         $words = explode(" ", $rows[2]);
-                        if(count($words) <= 9)  { //orig is 6
-                            
+                        $limit = 9; //orig limit is 6
+                        if($this->pdf_id == '15423') $limit = 15;
+                        if(count($words) <= $limit)  {
                             // if(stripos($rows[2], "Capitophorus ohioensis") !== false) exit("\nok 1\n".$rows[2]."\n"); //string is found //good debug
                             // echo "\n$rows[2] -- ";
                             if(self::is_sciname($rows[2])) {
@@ -431,6 +432,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(self::is_sciname_in_118920($string)) return true;
             else return false;
         }
+        elseif(in_array($this->pdf_id, array('15423'))) { //1st BHL
+            $string = self::remove_first_word_if_it_has_number($string);
+            if(self::is_sciname_in_15423($string)) return true;
+            else return false;
+        }
+        
         /* ----- end Memoirs ----- */
 
         if(stripos($string, "salicicola (") !== false) echo "\nhanap 1 [$string]\n"; //string is found
