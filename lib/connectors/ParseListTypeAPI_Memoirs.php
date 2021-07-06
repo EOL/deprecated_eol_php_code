@@ -818,23 +818,26 @@ class ParseListTypeAPI_Memoirs
     }
     function is_sciname_in_15423($string)
     {   /*
-        1. Sphaerocarpos texanus Aust. Bull. Torrey Club 6: 158. 1877. 
+        1. Sphaerocarpos texanus Aust. Bull. Torrey Club 6: 158. 1877.
+        7. Riccia Curtisii T. P, James; (Aust. Proc. Acad. Phila. 1869: 231, 
         */
+        
+        // /* manual adjustment
+        $string = str_ireplace("Riccia Frostii", "Riccia frostii", $string);
+        $string = str_ireplace("Sphaerocarpos Donnellii", "Sphaerocarpos donnellii", $string);
+        $string = str_ireplace("SuUivantii", "sullivantii", $string);
+        $string = str_ireplace("Dussiana", "dussiana", $string);
+        $string = str_ireplace("Lindenbergiana", "lindenbergiana", $string);
+        // */
+        
         $str = trim($string);
         $words = explode(" ", $str);
-
-        // if(is_numeric($words[0])) {
-        //     array_shift($words); //remove first element
-        //     $str = trim(implode(" ", $words));
-        // }
-        
         // if(count($words) > 6) return false;
-        if(@$words[0][1] == ";") return false;
-        if(substr(@$words[1], -1) == '.') return false; //Tenthredinidae incl.
-
-        // /* e.g. Subgenital plate broadly rounded (17) => not a species
+        if(@$words[0][1] == ";") return false; //starts with
+        
+        /* e.g. Subgenital plate broadly rounded (17) => not a species -- copied template
         if(preg_match("/\((.*?)\)/ims", $string, $arr)) if(is_numeric($arr[1])) return false;
-        // */
+        */
 
         /* anywhere in the string - copied template
         $exclude = array("(mm)", "%", "z g", " their", " uF", "Clcni", ".ics", " these", " for ", " only", "Snowf i eld", "Glacier", "Wyomi",
@@ -844,7 +847,6 @@ class ParseListTypeAPI_Memoirs
             if(stripos($string, $x) !== false) return false; //string is found
         }
         */
-        
         return self::is_sciname_in_118986($string);
     }
     
@@ -958,7 +960,9 @@ class ParseListTypeAPI_Memoirs
         if(strlen($str) <= 10) return false;
         if(count($words) < 2) return false;
         if(ctype_lower($words[0][0])) return false; //first word must be capitalized
-        if(ctype_upper($words[1][0])) return false; //2nd word must be lower case
+        if($this->pdf_id != '15423') {
+            if(ctype_upper($words[1][0])) return false; //2nd word must be lower case
+        }
         if($words[0][0] == "(") return false; //must not start with this char(s) e.g. (Drawings by Frances A. McKittrick)
         if($words[0][0] == "'") return false; //must not start with this char(s) e.g. '- ■• '■
         
