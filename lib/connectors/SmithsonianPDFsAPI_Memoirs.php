@@ -510,6 +510,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // SPECIES SECTIONS
         echo "\nworking dir: [".$this->path['working_dir']."]\n";
         foreach(glob($this->path['working_dir'] . "*") as $folder) { //exit("\n[$folder]\n");
+            if(stripos($folder, "z ") !== false) continue; //string is found
             $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."_tagged.txt";
             $txt_filename = $folder."/".$txt_filename;
             echo "\nfile: $txt_filename";
@@ -526,6 +527,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         // LIST-TYPE
         foreach(glob($this->path['working_dir'] . "*") as $folder) {
+            if(stripos($folder, "z ") !== false) continue; //string is found
             $txt_filename = pathinfo($folder, PATHINFO_BASENAME)."_descriptions_LT.txt";
             $txt_filename = $folder."/".$txt_filename;
             echo "\n$txt_filename";
