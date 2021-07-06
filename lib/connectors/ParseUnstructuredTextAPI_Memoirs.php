@@ -43,7 +43,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         /* END epub series */
         
         // /* copied from SmithsonianPDFsAPI
-        $this->PDFs_that_are_lists = array('120083');
+        $this->PDFs_that_are_lists = array('120083', '118237');
         // */
         
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
@@ -72,7 +72,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(in_array($pdf_id, $this->PDFs_that_are_lists)) {
             echo "- IS A LIST, NOT SPECIES-DESCRIPTION-TYPE 02\n";
             $this->parse_list_type_pdf($input);
-            if(in_array($pdf_id, array('SCtZ-0437'))) return; //many lists have bad species sections
+            if(in_array($pdf_id, array('SCtZ-0437', '118237'))) return; //many lists have bad species sections
             elseif(in_array($pdf_id, array('120083'))) {} //lists with good species sections
             // 
             // return; //should be commented coz some list-type docs have species sections as well

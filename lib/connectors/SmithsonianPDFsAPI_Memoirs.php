@@ -597,10 +597,19 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     $tmp = self::remove_all_in_between_inclusive($left, $right, $tmp, false);
                     // */
                     
-                    $tmp = Functions::remove_whitespace($tmp);
+                    $tmp = trim(Functions::remove_whitespace($tmp));
                     // */
 
+                    // /* New: exclude text with <= 6 words. Per https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66218&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66218
+                    $words = explode(" ", $tmp);
+                    if(count($words) <= 6) $tmp = ""; //blank means excluded.
+                    // */
+                    
                     $rec['body'] = $tmp;
+                    
+                    /* good debug
+                    if($rec['sciname'] == 'Perlesta baumanni') echo("\nPerlesta baumanni: [$tmp;]\n");
+                    */
                     
                     // /* associations block
                     

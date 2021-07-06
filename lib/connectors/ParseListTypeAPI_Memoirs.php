@@ -69,6 +69,11 @@ class ParseListTypeAPI_Memoirs
                         if($list_header != "OZARK-OUACHITA PLECOPTERA SPECIES LIST") continue; //only has 1 legitimate list
                         else $list_header .= ". Ozark Mountain forests.";
                     }
+                    elseif($this->pdf_id == '118237') { //skipped anyway
+                        if($list_header != "ADULT SYSTEMATIC TREATMENT") continue; //only has 1 legitimate list
+                        // else $list_header .= ". Ozark Mountain forests.";
+                    }
+                    
                     echo "\n------------------------\n$list_header\n------------------------\n";
                     // print_r($rows); //continue; //exit; //good debug
                     echo "\n n = ".count($rows)."\n"; //continue; //exit;
@@ -349,7 +354,8 @@ class ParseListTypeAPI_Memoirs
                 // /* force include
                 if(stripos($row, "Checklist of Amphibians") !== false           ||  //--> SCtZ-0010
                    stripos($row, "Creagrutus and Piabina species") !== false    ||  //--> SCtZ-0613
-                   stripos($row, "Material Examined") !== false                     //--> SCtZ-0609
+                   stripos($row, "Material Examined") !== false                 ||  //--> SCtZ-0609
+                   stripos($row, "ADULT SYSTEMATIC TREATMENT") !== false            //--> 118237 - skipped anyway
                   ) {
                     $rows[] = $row;
                     $rows = self::process_magic_no_v2($this->magic_no, $rows, $ctr);
@@ -460,7 +466,11 @@ class ParseListTypeAPI_Memoirs
             }
             
             if($pdf_id == 'SCtZ-0613') {
-                if($row == "ACKNOWLEDGMENTS") $row = "</taxon>$row";                //SCtZ-0613.txt
+                if($row == "ACKNOWLEDGMENTS") $row = "</taxon>$row";        //SCtZ-0613.txt
+            }
+
+            if($pdf_id == '118237') { //skipped anyway
+                if($row == "Spodoptera Guenee") $row = "</taxon>$row";        //118237.txt
             }
             
             // */
@@ -553,6 +563,7 @@ class ParseListTypeAPI_Memoirs
         if(stripos($row, "list") !== false) return true; //string is found
         elseif($row == "Creagrutus and Piabina species") return true;           //SCtZ-0613
         elseif($row == "Material Examined") return true;
+        elseif($row == "ADULT SYSTEMATIC TREATMENT") return true;    //118237 - skipped anyway
         else return false;
     }
     private function show_parsed_texts_for_mining_LT($edited_file)
