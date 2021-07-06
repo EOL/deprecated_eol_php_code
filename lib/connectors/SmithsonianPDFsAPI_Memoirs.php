@@ -603,8 +603,10 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     // */
 
                     // /* New: exclude text with <= 6 words. Per https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66218&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66218
-                    $words = explode(" ", $tmp);
-                    if(count($words) <= 6) $tmp = ""; //blank means excluded.
+                    if($pdf_id == '120083') { //7th doc
+                        $words = explode(" ", $tmp);
+                        if(count($words) <= 6) $tmp = ""; //blank means excluded.
+                    }
                     // */
                     
                     $rec['body'] = $tmp;
