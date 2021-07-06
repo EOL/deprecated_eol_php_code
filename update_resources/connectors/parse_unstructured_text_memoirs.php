@@ -65,7 +65,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "120083", "resource_name"
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118237", "resource_name":"8th doc"}' skipped
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-$GLOBALS["ENV_DEBUG"] = true;
+// $GLOBALS["ENV_DEBUG"] = true;
 require_library('connectors/ParseListTypeAPI_Memoirs');
 require_library('connectors/ParseUnstructuredTextAPI_Memoirs');
 $timestart = time_elapsed();
@@ -98,7 +98,7 @@ $rec[118986] = array('filename' => '118986.txt', 'lines_before_and_after_sciname
 $rec[118920] = array('filename' => '118920.txt', 'lines_before_and_after_sciname' => 2); /*6 stable stats: blocks: 27    Raw scinames count: 27 */
 $rec[120083] = array('filename' => '120083.txt', 'lines_before_and_after_sciname' => 2); /*7 stable stats: blocks: 193   Raw scinames count: 191 
                                                                                            wc -l -> 193 120083_descriptions_LT.txt */
-$rec[118237] = array('filename' => '118237.txt', 'lines_before_and_after_sciname' => 2); /*8 stable stats: blocks: xx    Raw scinames count: xx */                                                                                           
+$rec[118237] = array('filename' => '118237.txt', 'lines_before_and_after_sciname' => 2); /*8 list-type but skipped */                                                                                           
 /* TO DO: 
 doc 5: didn't get a valid binomial: "Laccophilus spergatus Sharp (Figs. 98-105, 297)"
 */
