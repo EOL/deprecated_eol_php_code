@@ -522,7 +522,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $this->pdf_id = $pdf_id;
                 self::process_a_txt_file($txt_filename, $pdf_id, $pdf_meta_obj);
             }
-            else echo " - tagged version not yet generated\n";
+            else echo " - tagged version not yet generated, or no tagged version at all\n";
         }
         
         // LIST-TYPE
@@ -539,7 +539,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $pdf_id = pathinfo($folder, PATHINFO_BASENAME);
                 self::process_a_txt_file_LT($txt_filename, $pdf_id, $pdf_meta_obj);
             }
-            else echo " - tagged version not yet generated\n";
+            else echo " - tagged version not yet generated, or no tagged version at all\n";
         }
         // exit("\nstop munax\n");
     }
