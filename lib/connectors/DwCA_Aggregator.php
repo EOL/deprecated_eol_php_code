@@ -54,6 +54,18 @@ class DwCA_Aggregator
         // $langs = array('mk'); //for testing
         return $langs;
     }
+    function combine_MoftheAES_DwCAs($resource_ids)
+    {
+        $preferred_rowtypes = false;
+        foreach($resource_ids as $resource_id) {
+            $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'_ENV.tar.gz';
+            if(file_exists($dwca_file)) {
+                self::convert_archive($preferred_rowtypes, $dwca_file);
+            }
+            else echo "\nDwCA file does not exist [$dwca_file]\n";
+        }
+        $this->archive_builder->finalize(TRUE);
+    }
     function combine_DwCAs($langs, $preferred_rowtypes = array())
     {
         foreach($langs as $this->lang) {
@@ -211,16 +223,18 @@ class DwCA_Aggregator
             )*/
 
             /* special case. Selected by openning media.tab using Numbers while set description = 'test'. Get taxonID for that row */
-            if($this->lang == 'el') {
+            // if($this->lang == 'el') {
                 // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 'Q18498') continue; 
-            }
-            if($this->lang == 'mk') {
+            // }
+            // if($this->lang == 'mk') {
                 // if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonID'], array('Q10876', 'Q5185', 'Q10892', 'Q152', 'Q10798', 'Q8314', 'Q15574019'))) continue;
-            }
+            // }
             
             $uris = array_keys($rec);
-            if($what == "taxon")           $o = new \eol_schema\Taxon();
-            elseif($what == "document")    $o = new \eol_schema\MediaResource();
+            if($what == "taxon")                    $o = new \eol_schema\Taxon();
+            elseif($what == "document")             $o = new \eol_schema\MediaResource();
+            elseif($what == "occurrence")           $o = new \eol_schema\Occurrence_specific();
+            elseif($what == "measurementorfact")    $o = new \eol_schema\MeasurementOrFact_specific();
             
             if($this->DwCA_Type == 'wikipedia') {
                 if($what == "taxon") {
@@ -252,7 +266,7 @@ class DwCA_Aggregator
                 else exit("\nNo license\n"); //continue;
             }
             */
-            
+            // print_r($uris);
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
