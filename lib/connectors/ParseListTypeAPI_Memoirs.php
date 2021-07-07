@@ -633,6 +633,8 @@ class ParseListTypeAPI_Memoirs
         $sciname_line = str_replace(";", " ; ", $sciname_line);
         $sciname_line = trim(Functions::remove_whitespace($sciname_line));
 
+        $sciname_line = str_replace('"', "&quot;", $sciname_line);
+
         debug("\nrun_GNRD 1: [$sciname_line]\n");
         if($obj = self::run_GNRD($sciname_line)) {
             $sciname = @$obj->names[0]->scientificName; //echo "\n[$sciname]\n";
@@ -820,19 +822,24 @@ class ParseListTypeAPI_Memoirs
         1. Sphaerocarpos texanus Aust. Bull. Torrey Club 6: 158. 1877.
         7. Riccia Curtisii T. P, James; (Aust. Proc. Acad. Phila. 1869: 231, 
         */
-        
         // /* manual adjustment
         $string = str_ireplace("Riccia Frostii", "Riccia frostii", $string);
         $string = str_ireplace("Sphaerocarpos Donnellii", "Sphaerocarpos donnellii", $string);
         $string = str_ireplace("SuUivantii", "sullivantii", $string);
         $string = str_ireplace("Dussiana", "dussiana", $string);
         $string = str_ireplace("Lindenbergiana", "lindenbergiana", $string);
+        $string = str_ireplace("Bolanderi", "bolanderi", $string);
+        $string = str_ireplace("Grimaldia calif omica", "Grimaldia californica", $string);
         // */
         
         $str = trim($string);
         $words = explode(" ", $str);
+        
         // if(count($words) > 6) return false;
-        if(@$words[0][1] == ";") return false; //starts with
+        if(@$words[0][1] == ";") return false; //2nd char is
+        if(@$words[0][1] == ",") return false; //2nd char is
+        
+        if(stripos($str, "NORTH AMERICAN FLORA [V") !== false) return false; //string is found
         
         /* e.g. Subgenital plate broadly rounded (17) => not a species -- copied template
         if(preg_match("/\((.*?)\)/ims", $string, $arr)) if(is_numeric($arr[1])) return false;

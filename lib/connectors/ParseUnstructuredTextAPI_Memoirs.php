@@ -13,7 +13,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
         
-        // http://gnrd.globalnames.org/name_finder.json?text=Selandria caryae Norton
+        // http://gnrd.globalnames.org/name_finder.json?text=Asterella bolanderi
+        // http://gnrd.globalnames.org/name_finder.json?text=Asterella Bolanderi
+
         // http://gnrd.globalnames.org/name_finder.json?text=Euura salicicola E. A. Smith
         
         
@@ -577,7 +579,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(count($words) == 2) { //493cff8f65ec17fe2c3a5974d8ac1803	Euborellia (Dohrn)
             $first_char_2nd_word = substr($words[1],0,1);
             if(is_numeric($first_char_2nd_word)) return false;
-            if(ctype_upper($first_char_2nd_word)) return false; //06a2940e6881040955101a68e88c1f9c  Careospina Especies de Careospina Peters
+            if($this->pdf_id != "15423") { //Plant names have capitalized species part.
+                if(ctype_upper($first_char_2nd_word)) return false; //06a2940e6881040955101a68e88c1f9c  Careospina Especies de Careospina Peters
+            }
             if($first_char_2nd_word == "(") return false;
         }
         // */
@@ -587,7 +591,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $second_word = @$words[1];
         if(!$second_word) return false; //No 2nd word
         else {
-            if(ctype_upper(substr($words[1],0,1))) return false; //2nd word is capitalized
+            if($this->pdf_id != "15423") { //Plant names have capitalized species part.
+                if(ctype_upper(substr($words[1],0,1))) return false; //2nd word is capitalized
+            }
         }
         // */
         
@@ -677,6 +683,20 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             elseif(in_array($this->pdf_id, array('118920', '120083'))) { //6th 7th doc
                 if($ret = self::is_sciname_in_118920($row)) $row = $ret;
+            }
+            elseif(in_array($this->pdf_id, array('15423'))) { //1st BHL
+                $words = explode(" ", trim($row));
+                if(is_numeric($words[0])) {
+                    $row = self::remove_first_word_if_it_has_number($row);
+                    $words = explode(" ", trim($row));
+                    // /* automatically set 2nd word as small caps
+                    if(@$words[1]) {
+                        $words[1] = strtolower($words[1]);
+                        $row = implode(" ", $words);
+                    }
+                    // */
+                }
+                if($ret = self::is_sciname_in_15423($row)) $row = $ret;
             }
 
             if(!$row) $count_of_blank_rows++;
@@ -976,6 +996,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->pdf_id == '118237') { //8th doc
                 $words = explode(" ", $row);
                 if(is_numeric($row) && count($words) == 1) continue; //entire row is numeric, mostly these are page numbers.
+            }
+
+            if($this->pdf_id == '15423') { //1st BHL
+                if(stripos($row, "NORTH AMERICAN FLORA [V") !== false) continue; //string is found
             }
             
             if(in_array($this->pdf_id, array('120081', '120082', '118986', '118920', '120083', '118237'))) { //2nd, 4th, 5th 6th 7th 8th docs

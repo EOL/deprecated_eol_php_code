@@ -18,8 +18,11 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "118986", "resource_name":"5th do
 process_SI_pdfs_memoirs.php _ '{"resource_id": "118920", "resource_name":"6th doc"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "120083", "resource_name":"7th doc"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "118237", "resource_name":"8th doc"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "MoftheAES", "resource_name":"all resources"}' --- NO LONGER USED, aggregate_MoftheAES.php IS USED INSTEAD.
 
-process_SI_pdfs_memoirs.php _ '{"resource_id": "MoftheAES", "resource_name":"all resources"}'
+
+process_SI_pdfs_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL", "doc": "BHL"}'
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
@@ -28,6 +31,7 @@ $timestart = time_elapsed();
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
 $param                     = json_decode(@$argv[2], true);
 $resource_id = $param['resource_id'];
+$doc = @$param['doc'];
 
 /* un-comment in real operation - main operation
 require_library('connectors/ParseListTypeAPI');
@@ -68,8 +72,9 @@ else { //run individual documents
     // $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0605/SCtZ-0605_descriptions_LT.txt";  $pdf_id = "SCtZ-0605";
     // $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/SCtZ-0614_descriptions_LT.txt";  $pdf_id = "SCtZ-0614";
 
-    if(Functions::is_production()) $path = '/extra/other_files/Smithsonian/MoftheAES/'.$resource_id.'/';
-    else                           $path = '/Volumes/AKiTiO4/other_files/Smithsonian/MoftheAES/'.$resource_id.'/';
+    if(!$doc) $doc = 'MoftheAES';
+    if(Functions::is_production()) $path = '/extra/other_files/Smithsonian/'.$doc.'/'.$resource_id.'/';
+    else                           $path = '/Volumes/AKiTiO4/other_files/Smithsonian/'.$doc.'/'.$resource_id.'/';
     $txt_filename = $path . $resource_id."_descriptions_LT.txt";
     $pdf_id = $resource_id;
 
@@ -85,10 +90,7 @@ else { //run individual documents
     $func->archive_builder_finalize();
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder
 }
-
-
 // ========================== end LIST-TYPE ==========================*/
-
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
