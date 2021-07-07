@@ -87,7 +87,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "120082", "resource_name"
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118986", "resource_name":"5th doc"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118920", "resource_name":"6th doc"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "120083", "resource_name":"7th doc"}'
-parse_unstructured_text_memoirs.php _ '{"resource_id": "118237", "resource_name":"8th doc"}' skipped
+parse_unstructured_text_memoirs.php _ '{"resource_id": "118237", "resource_name":"8th doc"}' species sections
 === START BHL RESOURCES ===
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st doc"}'
 

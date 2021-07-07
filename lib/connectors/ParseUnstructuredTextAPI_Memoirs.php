@@ -711,6 +711,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             //start terminal criteria => stop patterns
             if($row == "INDEX.")            $row = "</taxon>$row";
             if($row == "INDEX")             $row = "</taxon>$row";
+            if($row == "ACKNOWLEDGMENTS")   $row = "</taxon>$row"; //118237.txt
             if(substr($row,0,4) == "Key ")  $row = "</taxon>$row";
 
             if($this->pdf_id == '120082') { //4th doc
