@@ -579,7 +579,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(count($words) == 2) { //493cff8f65ec17fe2c3a5974d8ac1803	Euborellia (Dohrn)
             $first_char_2nd_word = substr($words[1],0,1);
             if(is_numeric($first_char_2nd_word)) return false;
-            if(in_array($this->pdf_id, array('15423', '91155'))) { //Plant names have capitalized species part.
+            if(!in_array($this->pdf_id, array('15423', '91155'))) { //Plant names have capitalized species part.
                 if(ctype_upper($first_char_2nd_word)) return false; //06a2940e6881040955101a68e88c1f9c  Careospina Especies de Careospina Peters
             }
             if($first_char_2nd_word == "(") return false;
@@ -591,7 +591,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $second_word = @$words[1];
         if(!$second_word) return false; //No 2nd word
         else {
-            if(in_array($this->pdf_id, array('15423', '91155'))) { //Plant names have capitalized species part.
+            if(!in_array($this->pdf_id, array('15423', '91155'))) { //Plant names have capitalized species part.
                 if(ctype_upper(substr($words[1],0,1))) return false; //2nd word is capitalized
             }
         }
