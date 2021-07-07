@@ -68,7 +68,7 @@ class ParseListTypeAPI_Memoirs
                         if($list_header != "OZARK-OUACHITA PLECOPTERA SPECIES LIST") continue; //only has 1 legitimate list
                         else $list_header .= ". Ozark Mountain forests.";
                     }
-                    elseif($this->pdf_id == '118237') { //skipped anyway
+                    elseif($this->pdf_id == '118237') { //skipped list-type anyway
                         if($list_header != "ADULT SYSTEMATIC TREATMENT") continue; //only has 1 legitimate list
                         // else $list_header .= ". Ozark Mountain forests.";
                     }
@@ -354,7 +354,7 @@ class ParseListTypeAPI_Memoirs
                 if(stripos($row, "Checklist of Amphibians") !== false           ||  //--> SCtZ-0010
                    stripos($row, "Creagrutus and Piabina species") !== false    ||  //--> SCtZ-0613
                    stripos($row, "Material Examined") !== false                 ||  //--> SCtZ-0609
-                   stripos($row, "ADULT SYSTEMATIC TREATMENT") !== false            //--> 118237 - skipped anyway
+                   stripos($row, "ADULT SYSTEMATIC TREATMENT") !== false            //--> 118237 - skipped list-type anyway
                   ) {
                     $rows[] = $row;
                     $rows = self::process_magic_no_v2($this->magic_no, $rows, $ctr);
@@ -468,7 +468,7 @@ class ParseListTypeAPI_Memoirs
                 if($row == "ACKNOWLEDGMENTS") $row = "</taxon>$row";        //SCtZ-0613.txt
             }
 
-            if($pdf_id == '118237') { //skipped anyway
+            if($pdf_id == '118237') { //skipped list-type anyway
                 if($row == "Spodoptera Guenee") $row = "</taxon>$row";        //118237.txt
             }
             
@@ -562,7 +562,7 @@ class ParseListTypeAPI_Memoirs
         if(stripos($row, "list") !== false) return true; //string is found
         elseif($row == "Creagrutus and Piabina species") return true;           //SCtZ-0613
         elseif($row == "Material Examined") return true;
-        elseif($row == "ADULT SYSTEMATIC TREATMENT") return true;    //118237 - skipped anyway
+        elseif($row == "ADULT SYSTEMATIC TREATMENT") return true;    //118237 - skipped list-type anyway
         else return false;
     }
     private function show_parsed_texts_for_mining_LT($edited_file)
@@ -858,6 +858,9 @@ class ParseListTypeAPI_Memoirs
         $words = explode(" ", $str);
         if(count($words) > 6) return false;
         if(@$words[0][1] == ";") return false;
+        if(@$words[1] == 'and') return false; //2nd word must not be this
+        if(@$words[1] == 'subtree') return false; //2nd word must not be this
+        if(end($words) == 'The') return false; //last word must not be this
         if(substr(@$words[1], -1) == '.') return false; //Tenthredinidae incl.
         
         // /* e.g. Subgenital plate broadly rounded (17) => not a species
@@ -867,7 +870,7 @@ class ParseListTypeAPI_Memoirs
         // /* anywhere in the string
         $exclude = array("(mm)", "%", "z g", " their", " uF", "Clcni", ".ics", " these", " for ", " only", "Snowf i eld", "Glacier", "Wyomi",
         "Co -", "Co.", " not ", " complex", "Tv. falayah", ".' /. szczytkoi Poulton", " page ", " mostly ", "annelides", " und ", " with ",
-        "Scutellum small");
+        "Scutellum small", "£");
         foreach($exclude as $x) {
             if(stripos($string, $x) !== false) return false; //string is found
         }

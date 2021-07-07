@@ -43,7 +43,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         /* END epub series */
         
         // /* copied from SmithsonianPDFsAPI
-        $this->PDFs_that_are_lists = array('120083', '118237');
+        $this->PDFs_that_are_lists = array('120083'); //118237 ignored list-type
         // */
         
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
@@ -72,7 +72,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(in_array($pdf_id, $this->PDFs_that_are_lists)) {
             echo "- IS A LIST, NOT SPECIES-DESCRIPTION-TYPE 02\n";
             $this->parse_list_type_pdf($input);
-            if(in_array($pdf_id, array('SCtZ-0437', '118237'))) return; //many lists have bad species sections
+            if(in_array($pdf_id, array('SCtZ-0437'))) return; //many lists have bad species sections
             elseif(in_array($pdf_id, array('120083'))) {} //lists with good species sections
             // 
             // return; //should be commented coz some list-type docs have species sections as well
@@ -428,7 +428,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(self::is_sciname_in_118986($string)) return true;
             else return false;
         }
-        elseif(in_array($this->pdf_id, array('118920', '120083'))) { //6th 7th doc
+        elseif(in_array($this->pdf_id, array('118920', '120083', '118237'))) { //6th 7th doc
             if(self::is_sciname_in_118920($string)) return true;
             else return false;
         }
@@ -972,15 +972,22 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->pdf_id == '118935') { //1st doc
                 $row = str_ireplace("[Antennae damaged; abdomen detached. |", "[Antennae damaged; abdomen detached.]", $row);
             }
+
+            if($this->pdf_id == '118237') { //8th doc
+                $words = explode(" ", $row);
+                if(is_numeric($row) && count($words) == 1) continue; //entire row is numeric, mostly these are page numbers.
+            }
             
-            if(in_array($this->pdf_id, array('120081', '120082', '118986', '118920', '120083'))) { //2nd, 4th, 5th 6th 7th docs
+            if(in_array($this->pdf_id, array('120081', '120082', '118986', '118920', '120083', '118237'))) { //2nd, 4th, 5th 6th 7th 8th docs
                 // /* 118986 5th doc
                 $ignore = array("MATERIAL EXAMINED", "GEOGRAPHICAL RANGE AND HABITAT PREFERENCES"); //ignore these even if all-caps
+                $ignore[] = "REVISION OF SPODOPTERA GUENEE"; //8th doc 118237
                 $cont = true;
                 foreach($ignore as $start_of_row) {
                     $len = strlen($start_of_row);
                     if(substr($row,0,$len) == $start_of_row) $cont = false;
                 }
+                if(!$cont) continue;
                 // */
                 if($cont) {
                     // /* remove if row is all-caps -> e.g. MEM. AMER. ENT. SOC, IO | e.g. 120 NORTH AMERICAN GENUS PEGOMYIA (DIPTERA: MUSCIDAE) 
@@ -1024,17 +1031,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(!$cont) continue;
                 // */
                 
-                
-                
-                
-                
-                /* remove a row with just 1 or 2 words => CANNOT do this, you'll remove many relavant rows.
-                if($row) {
-                    $words = explode(" ", $row);
-                    if(count($words) <= 2) continue;
-                }
-                */
-
                 if($row == "l st visible") continue;
 
                 if($this->pdf_id == '118986') {
@@ -1070,7 +1066,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     if(!$cont) continue;
                     // */
                     
-                    
                     // /*
                     $cont = true;
                     $dont_have_these_chars_start = array("Figs.");
@@ -1079,7 +1074,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     }
                     if(!$cont) continue;
                     // */
-                    
                 }
                 
             }
