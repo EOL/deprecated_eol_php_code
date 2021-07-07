@@ -22,6 +22,7 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "MoftheAES", "resource_name":"all
 
 
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL", "doc": "BHL"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "91155", "resource_name":"2nd BHL", "doc": "BHL"}'
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

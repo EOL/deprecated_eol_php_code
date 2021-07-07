@@ -261,7 +261,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         
                         $words = explode(" ", $rows[2]);
                         $limit = 9; //orig limit is 6
-                        if($this->pdf_id == '15423') $limit = 15;
+                        if(in_array($this->pdf_id, array('15423', '91155'))) $limit = 15;
                         if(count($words) <= $limit)  {
                             // if(stripos($rows[2], "Capitophorus ohioensis") !== false) exit("\nok 1\n".$rows[2]."\n"); //string is found //good debug
                             // echo "\n$rows[2] -- ";
@@ -434,7 +434,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(self::is_sciname_in_118920($string)) return true;
             else return false;
         }
-        elseif(in_array($this->pdf_id, array('15423'))) { //1st BHL
+        elseif(in_array($this->pdf_id, array('15423', '91155'))) { //1st BHL
             $words = explode(" ", trim($string));
             if(!is_numeric($words[0])) return false;
             $string = self::remove_first_word_if_it_has_number($string);
@@ -579,7 +579,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(count($words) == 2) { //493cff8f65ec17fe2c3a5974d8ac1803	Euborellia (Dohrn)
             $first_char_2nd_word = substr($words[1],0,1);
             if(is_numeric($first_char_2nd_word)) return false;
-            if($this->pdf_id != "15423") { //Plant names have capitalized species part.
+            if(in_array($this->pdf_id, array('15423', '91155'))) { //Plant names have capitalized species part.
                 if(ctype_upper($first_char_2nd_word)) return false; //06a2940e6881040955101a68e88c1f9c  Careospina Especies de Careospina Peters
             }
             if($first_char_2nd_word == "(") return false;
@@ -591,7 +591,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $second_word = @$words[1];
         if(!$second_word) return false; //No 2nd word
         else {
-            if($this->pdf_id != "15423") { //Plant names have capitalized species part.
+            if(in_array($this->pdf_id, array('15423', '91155'))) { //Plant names have capitalized species part.
                 if(ctype_upper(substr($words[1],0,1))) return false; //2nd word is capitalized
             }
         }
@@ -684,7 +684,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif(in_array($this->pdf_id, array('118920', '120083'))) { //6th 7th doc
                 if($ret = self::is_sciname_in_118920($row)) $row = $ret;
             }
-            elseif(in_array($this->pdf_id, array('15423'))) { //1st BHL
+            elseif(in_array($this->pdf_id, array('15423', '91155'))) { //1st BHL
                 $words = explode(" ", trim($row));
                 if(is_numeric($words[0])) {
                     $row = self::remove_first_word_if_it_has_number($row);
@@ -998,7 +998,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(is_numeric($row) && count($words) == 1) continue; //entire row is numeric, mostly these are page numbers.
             }
 
-            if($this->pdf_id == '15423') { //1st BHL
+            if(in_array($this->pdf_id, array('15423', '91155'))) { //1st BHL
                 if(stripos($row, "NORTH AMERICAN FLORA [V") !== false) continue; //string is found
             }
             
