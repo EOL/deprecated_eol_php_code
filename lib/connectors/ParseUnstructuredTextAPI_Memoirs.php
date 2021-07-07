@@ -1000,6 +1000,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
             if(in_array($this->pdf_id, array('15423', '91155'))) { //1st BHL
                 if(stripos($row, "NORTH AMERICAN FLORA [V") !== false) continue; //string is found
+                if($this->pdf_id == '91155') if(stripos($row, "SPHAGNACEAE") !== false) continue; //string is found
             }
             
             if(in_array($this->pdf_id, array('120081', '120082', '118986', '118920', '120083', '118237'))) { //2nd, 4th, 5th 6th 7th 8th docs

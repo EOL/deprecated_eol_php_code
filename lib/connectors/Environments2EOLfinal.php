@@ -92,7 +92,8 @@ class Environments2EOLfinal extends ContributorsMapAPI
             self::process_table($meta, 'create extension', 'occurrence_specific');
         }
 
-        if(in_array($this->resource_id, array('10088_5097_ENV', '10088_6943_ENV', '118935_ENV', '120081_ENV', '120082_ENV', '118986_ENV', '118920_ENV', '120083_ENV', '118237_ENV', 'MoftheAES_ENV', '15423_ENV'))
+        if(in_array($this->resource_id, array('10088_5097_ENV', '10088_6943_ENV', '118935_ENV', '120081_ENV', '120082_ENV', '118986_ENV', 
+            '118920_ENV', '120083_ENV', '118237_ENV', 'MoftheAES_ENV', '15423_ENV', '91155_ENV'))
                 || stripos($this->resource_id, "SCtZ-") !== false
                 || stripos($this->resource_id, "scb-") !== false
                 || stripos($this->resource_id, "scz-") !== false
@@ -442,7 +443,8 @@ class Environments2EOLfinal extends ContributorsMapAPI
                 // */
                 
                 // /*
-                if(in_array($this->resource_id, array('10088_5097_ENV', '10088_6943_ENV', '118935_ENV', '120081_ENV', '120082_ENV', '118986_ENV', '118920_ENV', '120083_ENV', '118237_ENV', 'MoftheAES_ENV', '15423_ENV'))
+                if(in_array($this->resource_id, array('10088_5097_ENV', '10088_6943_ENV', '118935_ENV', '120081_ENV', '120082_ENV', '118986_ENV', '118920_ENV', '120083_ENV', 
+                    '118237_ENV', 'MoftheAES_ENV', '15423_ENV', '91155_ENV'))
                         || stripos($this->resource_id, "SCtZ-") !== false
                         || stripos($this->resource_id, "scb-") !== false
                         || stripos($this->resource_id, "scz-") !== false
