@@ -609,6 +609,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     }
                     // */
                     
+                    $tmp = str_replace("- ", "", $tmp); //for all resources
                     $rec['body'] = $tmp;
                     
                     /* good debug
