@@ -838,6 +838,7 @@ class ParseListTypeAPI_Memoirs
         // if(count($words) > 6) return false;
         if(@$words[0][1] == ";") return false; //2nd char is
         if(@$words[0][1] == ",") return false; //2nd char is
+        if(@$words[0][0] == ".") return false; //2nd char is
         
         if(stripos($str, "NORTH AMERICAN FLORA [V") !== false) return false; //string is found
         
