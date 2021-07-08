@@ -421,7 +421,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(self::is_sciname_in_118986($string)) return true;
             else return false;
         }
-        elseif(in_array($this->pdf_id, array('118920', '120083', '118237'))) { //6th 7th doc
+        elseif(in_array($this->pdf_id, array('118920', '120083', '118237'))) { //6th 7th 8th doc
             if(self::is_sciname_in_118920($string)) return true;
             else return false;
         }

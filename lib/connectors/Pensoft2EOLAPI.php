@@ -681,6 +681,13 @@ class Pensoft2EOLAPI
             if(in_array($rek['id'], $this->remove_across_all_resources)) continue; //remove 'cloud', 'cut' for all resources
             // */
             
+            // /* customize: remove all records with measurementValue = http://purl.obolibrary.org/obo/ENVO_00000447
+            // for all resources of: Memoirs of the American Entomological Society
+            if(in_array($this->param['resource_id'], array("118935_ENV", "120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV", "120083_ENV", "118237_ENV"))) {
+                if($rek['id'] == 'http://purl.obolibrary.org/obo/ENVO_00000447') continue; //remove 'ocean' Per Jen: https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66228&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66228
+            }
+            // */
+            
             $validTraitYN = self::John_Hill_vs_hill_mountain($rek);
             if(!$validTraitYN) continue;
             
