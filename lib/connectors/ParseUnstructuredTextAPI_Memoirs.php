@@ -838,6 +838,19 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
             
+            if(in_array($this->pdf_id, array('15423', '91155'))) { //1st 2nd BHL
+                // at this point the numeric part is already removed
+                // /* The genus sections like below, are now stop patterns.
+                // 1. LUWULARIA (Micheli) Adans. Fam. PI. 2: 15. 1763.
+                // 2. CONOCEPHALUM* Weber; Wiggers, Prim. Fl. Holsat. 82. 1780.
+                // 1. SPHAEROCARPOS* (Micheli) Boehm.in Ludwig, 
+                // 2. GEOTHALLUS Campb. Bot. Gaz. 21: 13. 1896. 
+                $words = explode(" ", $row);
+                $first_word = str_ireplace("*", "", $words[0]);
+                if(ctype_upper($first_word)) $row = "</taxon>$row";
+                // */
+            }
+            
             /* to close tag the last block
             if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293_convertio.txt
             elseif($row == "Literature Cited") $row = "</taxon>$row";       //SCtZ-0007.txt
@@ -1001,6 +1014,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(in_array($this->pdf_id, array('15423', '91155'))) { //1st BHL
                 if(stripos($row, "NORTH AMERICAN FLORA [V") !== false) continue; //string is found
                 if($this->pdf_id == '91155') if(stripos($row, "SPHAGNACEAE") !== false) continue; //string is found
+                if(stripos($row, "Volume") !== false) continue; //string is found
+                if(stripos($row, "VoLUMB") !== false) continue; //string is found
+                if(stripos($row, "V01.UME") !== false) continue; //string is found
+                // /*
+                //Part 1, 1913] ANDREAEACEAE 37 -> first word case sensitive comparison == "Part"
+                $words = explode(" ", $row);
+                $var1 = $words[0];
+                $var2 = "Part";
+                if (strcmp($var1, $var2) == 0) continue;  //echo "\n$var1 is equal to $var2 in a case sensitive string comparison";
+                // else                                     echo "\n$var1 is not equal to $var2 in a case sensitive string comparison";
+                // */
             }
             
             if(in_array($this->pdf_id, array('120081', '120082', '118986', '118920', '120083', '118237'))) { //2nd, 4th, 5th 6th 7th 8th docs

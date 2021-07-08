@@ -129,6 +129,13 @@ $param                     = json_decode(@$argv[2], true);
 $pdf_id = $param['resource_id'];
 $func = new ParseUnstructuredTextAPI_Memoirs();
 /*
+$var1 = "paRt";
+$var2 = "part";
+if (strcmp($var1, $var2) == 0) echo "\n$var1 is equal to $var2 in a case sensitive string comparison";
+else                           echo "\n$var1 is not equal to $var2 in a case sensitive string comparison";
+exit("\n-test-\n");
+*/
+/*
 $str = "1. Geothallus tuberosus Campb. Bot. Gaz. 21: 13. 1896.";
 $words = explode(" ", $str); print_r($words);
 if(is_numeric($words[0])) {
