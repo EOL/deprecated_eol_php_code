@@ -104,6 +104,12 @@ MoftheAES_ENV	Tue 2021-07-06 07:31:46 {"MoF.tab":2915,"media.tab":374, "occur.ta
 OLD mof 3369    media 374   taxon 1790
 NEW mof 2904    media 374   taxon 1263
 ------------------------------------------------------------
+15423	Thu 2021-07-08 09:19:19 AM	{                                        "media_resource.tab":66,                                "taxon.tab":66, "time_elapsed":{"sec":1.79, "min":0.03, "hr":0}}
+15423_ENV	Thu 2021-07-08 09:22:29 {"measurement_or_fact_specific.tab":340, "media_resource.tab":66, "occurrence_specific.tab":340, "taxon.tab":66, "time_elapsed":{"sec":70.23, "min":1.17, "hr":0.02}}
+------------------------------------------------------------
+91155	Thu 2021-07-08 09:37:48 AM	{                                        "media_resource.tab":98,                                "taxon.tab":98, "time_elapsed":{"sec":0.79, "min":0.01, "hr":0}}
+91155_ENV	Thu 2021-07-08 09:40:38 {"measurement_or_fact_specific.tab":672, "media_resource.tab":98, "occurrence_specific.tab":672, "taxon.tab":98, "time_elapsed":{"sec":50.01, "min":0.83, "hr":0.01}}
+------------------------------------------------------------
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
 
