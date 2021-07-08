@@ -175,7 +175,7 @@ doc 5: didn't get a valid binomial: "Laccophilus spergatus Sharp (Figs. 98-105, 
 */
 // === START BHL RESOURCES ===
 $rec[15423] = array('filename' => '15423.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*1 blocks: 66    Raw scinames: 83 */
-$rec[91155] = array('filename' => '91155.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*2 blocks: xx    Raw scinames: xx */
+$rec[91155] = array('filename' => '91155.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*2 blocks: 98    Raw scinames: 115 */
 
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;

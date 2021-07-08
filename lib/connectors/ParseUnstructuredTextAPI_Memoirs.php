@@ -11,26 +11,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
-        // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
-        
-        // http://gnrd.globalnames.org/name_finder.json?text=Asterella bolanderi
-        // http://gnrd.globalnames.org/name_finder.json?text=Asterella Bolanderi
-
-        // http://gnrd.globalnames.org/name_finder.json?text=Euura salicicola E. A. Smith
-        
-        
-        // https://parser.globalnames.org/api/v1/Creagrutus mucipu, USNM 350449, 1, 41.4 mm, paratype; Brazil, Goiás, Município de Minaçu/Colinas do Sul, Rio Tocantins.
-
         /*
-        https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
-        https://parser.globalnames.org/?q=https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
-
-        http://gnrd.globalnames.org/name_finder.json?text=Tiphia paupi Allen and Krombein, 1961
-        http://gnrd.globalnames.org/name_finder.json?text=Tiphia (Tiphia) uruouma
-        http://gnrd.globalnames.org/name_finder.json?text=Eunice segregate (Chamberlin, 1919a) restricted
-
-
+        http://gnrd.globalnames.org/name_finder.json?text=Asterella bolanderi
+        http://gnrd.globalnames.org/name_finder.json?text=Asterella Bolanderi
+        
+        https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Thespesia banalo Blanco, Fl. Filip. ed. 2, 382, 1845
+
+        not used:
+        https://parser.globalnames.org/?q=https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx...
 
         %26 - &
         %2C - ,
@@ -49,6 +38,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // */
         
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
+        $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
+                              'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -618,8 +609,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // */
         
         /* criteria 2: any part of the row where rank value exists
-        $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
-        foreach($ranks as $rank) {
+        foreach($this->ranks as $rank) {
             found
         }
         */
@@ -685,8 +675,16 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if($ret = self::is_sciname_in_118920($row)) $row = $ret;
             }
             elseif(in_array($this->pdf_id, array('15423', '91155'))) { //1st BHL
+
+                /* good debug
+                if(stripos($row, "REBOULIA Raddi") !== false) {   //string is found
+                    print_r($words); echo "\n[$row]\n";
+                    exit("\n-end-\n");
+                }
+                */
+                
                 $words = explode(" ", trim($row));
-                if(is_numeric($words[0])) {
+                if(is_numeric(str_replace(",", "", $words[0]))) { //e.g. "4, REBOULIA Raddi, Opusc..." -> there is comma in first word
                     $row = self::remove_first_word_if_it_has_number($row);
                     $words = explode(" ", trim($row));
                     // /* automatically set 2nd word as small caps
@@ -746,9 +744,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // [any combination of rank name and/or taxon name w/rank above species] newline"
                 // /* copied template
                 // */
-                $ranks = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 'Subphylum', 'Subclass', 'Superfamily');
                 $words = explode(" ", $row);
-                foreach($ranks as $rank) {
+                foreach($this->ranks as $rank) {
                     if($words[0] == $rank && ctype_upper($words[1][0])) $row = "</taxon>$row"; //e.g. Genus Spirobolus Brandt
                     //1st word is a rank name && 2nd word starts with a capital letter
                 }
@@ -845,9 +842,40 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // 2. CONOCEPHALUM* Weber; Wiggers, Prim. Fl. Holsat. 82. 1780.
                 // 1. SPHAEROCARPOS* (Micheli) Boehm.in Ludwig, 
                 // 2. GEOTHALLUS Campb. Bot. Gaz. 21: 13. 1896. 
+                // 4, REBOULIA Raddi, Opusc. Sci. Bologna 2: 357. 1818. (Rebouillia.)
                 $words = explode(" ", $row);
                 $first_word = str_ireplace("*", "", $words[0]);
-                if(ctype_upper($first_word)) $row = "</taxon>$row";
+                if(ctype_upper($first_word)) {
+                    if(strlen($first_word) > 2) {
+                        if(in_array($first_word, array('LUWULARIA', 'SPHAGNUM', 'ANDREAEA'))) $row = "</taxon>$row";
+                        else {
+                            if(self::is_sciname_using_GNRD($first_word)) $row = "</taxon>$row";
+                            else echo "\nInvestigate 1: [$first_word] not sciname says GNRD\n";
+                        }
+                    }
+                }
+                // */
+                
+                // /* rank row must be stop pattern
+                // Order MARCHAWTIALES 
+                // Family 3 . TARGIONI ACEAE 
+                // Family 4. SAUTERIACEAE 
+                // Family 6. MARCHANTIACEAE 
+                // Family 1. SPHAERO CARP ACE AE 
+                // 1st word is a rank name && 2nd word starts with a capital letter, and 2nd word is taxon
+                $tmp_row = str_replace(array(".","*","-"), "", $row);
+                $tmp_row = preg_replace('/[0-9]+/', '', $tmp_row); //remove For Western Arabic numbers (0-9):
+                $tmp_row = trim(Functions::remove_whitespace($tmp_row));
+                $words = explode(" ", $tmp_row);
+                foreach($this->ranks as $rank) {
+                    if($words[0] == $rank && ctype_upper($words[1][0])) { //echo "\nChecking rank row...\n";
+                        if(in_array($words[1], array('MARCHAWTIALES', 'TARGIONI', 'SPHAERO', 'MUSCI', 'SELIGERLACEAE'))) $row = "</taxon>$row";
+                        else {
+                            if(self::is_sciname_using_GNRD($words[1])) $row = "</taxon>$row"; //e.g. Genus Spirobolus Brandt
+                            else echo "\nInvestigate 2: [$words[1]] not sciname says GNRD\n";
+                        }
+                    }
+                }
                 // */
             }
             
@@ -1287,8 +1315,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // */
         
         // /*
-        $ranks = array("Genus", "Family", "Order", "Suborder", "Subgenus", "Superfamily", "Subfamily", "? Subfamily");
-        foreach($ranks as $rank) {
+        foreach($this->ranks as $rank) {
             $len = strlen($rank);
             if(substr($sciname,0,$len) == $rank) return false;
         }
