@@ -606,6 +606,12 @@ class ParseListTypeAPI_Memoirs
         // /* manual adjustment
         if($sciname_line == "Megapodius molistructor") return $sciname_line;
         if(stripos($sciname_line, "Eunice segregate (Chamberlin, 1919a) restricted") !== false) return "Eunice segregate (Chamberlin, 1919a)";
+        
+        if($this->pdf_id == '91155') {
+            $sciname_line = str_ireplace("nitidulusSchimp", "nitidulus Schimp", $sciname_line);
+            $sciname_line = str_ireplace("tenellumPers", "tenellum Pers", $sciname_line);
+        }
+        
         // */
         
         // if(stripos($sciname_line, "segregate") !== false) exit("\n[$sciname_line]\n"); //good debug - to see what string passes here.
