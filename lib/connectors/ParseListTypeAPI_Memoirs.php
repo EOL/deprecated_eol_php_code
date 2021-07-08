@@ -639,16 +639,24 @@ class ParseListTypeAPI_Memoirs
         if($obj = self::run_GNRD($sciname_line)) {
             $sciname = @$obj->names[0]->scientificName; //echo "\n[$sciname]\n";
             $rek['sciname GNRD'] = $sciname;
-            $rek['scientificName_author_cleaned'] = $sciname;
-            /* might be overkill
-            if($obj = self::run_gnparser($sciname_line)) {
-                $authorship = @$obj[0]->authorship->verbatim;
-                $rek['authorship gnparser'] = $authorship;
-                $rek['scientificName_author'] = trim("$sciname $authorship");
-                $rek['scientificName_author_cleaned'] = self::clean_sciname($rek['scientificName_author']);
+            if(in_array($this->pdf_id, array('15423', '91155'))) { //BHL
+                /* might be overkill
+                if($obj = self::run_gnparser($sciname_line)) {
+                    $authorship = @$obj[0]->authorship->verbatim;
+                    $rek['authorship gnparser'] = $authorship;
+                    $rek['scientificName_author'] = trim("$sciname $authorship");
+                    $rek['scientificName_author_cleaned'] = self::clean_sciname($rek['scientificName_author']);
+                }
+                if(!@$rek['scientificName_author_cleaned']) $rek['scientificName_author_cleaned'] = $rek['sciname GNRD']; //reconcile gnparser vs GNRD
+                */
+                if($obj = self::run_gnparser($sciname_line)) {
+                    if($canonical = @$obj[0]->canonical->full) $rek['scientificName_author_cleaned'] = $canonical;
+                    else $rek['scientificName_author_cleaned'] = $rek['sciname GNRD'];
+                }
             }
-            if(!@$rek['scientificName_author_cleaned']) $rek['scientificName_author_cleaned'] = $rek['sciname GNRD']; //reconcile gnparser vs GNRD
-            */
+            else {
+                $rek['scientificName_author_cleaned'] = $sciname;
+            }
         }
         else exit("\nNot sciname says GNRD: [$sciname_line]\n");
         // ------------- end ------------- */
