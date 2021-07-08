@@ -671,7 +671,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '118986') { //5th doc
                 if($ret = self::is_sciname_in_118986($row)) $row = $ret;
             }
-            elseif(in_array($this->pdf_id, array('118920', '120083'))) { //6th 7th doc
+            elseif(in_array($this->pdf_id, array('118920', '120083', '118237'))) { //6th 7th doc
                 if($ret = self::is_sciname_in_118920($row)) $row = $ret;
             }
             elseif(in_array($this->pdf_id, array('15423', '91155'))) { //1st BHL
