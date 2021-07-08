@@ -611,7 +611,6 @@ class ParseListTypeAPI_Memoirs
             $sciname_line = str_ireplace("nitidulusSchimp", "nitidulus Schimp", $sciname_line);
             $sciname_line = str_ireplace("tenellumPers", "tenellum Pers", $sciname_line);
         }
-        
         // */
         
         // if(stripos($sciname_line, "segregate") !== false) exit("\n[$sciname_line]\n"); //good debug - to see what string passes here.
