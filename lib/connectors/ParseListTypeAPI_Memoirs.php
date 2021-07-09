@@ -847,11 +847,16 @@ class ParseListTypeAPI_Memoirs
         
         $str = trim($string);
         $words = explode(" ", $str);
+
+        /*
+        if(stripos($string, $this->in_question) !== false) { //string is found
+            echo "\n[$string]\n"; exit("\nreaches here 0\n");
+        } */
         
         // if(count($words) > 6) return false;
         if(@$words[0][1] == ";") return false; //2nd char is
         if(@$words[0][1] == ",") return false; //2nd char is
-        if(@$words[0][0] == ".") return false; //2nd char is
+        if(@$words[0][0] == ".") return false; //1st char is
         
         if(stripos($str, "NORTH AMERICAN FLORA [V") !== false) return false; //string is found
         
@@ -867,6 +872,8 @@ class ParseListTypeAPI_Memoirs
             if(stripos($string, $x) !== false) return false; //string is found
         }
         */
+        
+        // if(stripos($string, $this->in_question) !== false) exit("\nreaches here 1\n"); //string is found
         return self::is_sciname_in_118986($string);
     }
     
@@ -920,10 +927,15 @@ class ParseListTypeAPI_Memoirs
         $str = trim($string);
         $words = explode(" ", $str);
         // if(count($words) > 6) return false;
+        
+        // if(stripos($string, $this->in_question) !== false) exit("\nreaches here 2\n"); //string is found
         // /*
         $ret = self::shared_120082_118986($words, $str);
         if(!$ret) return false;
         // */
+        
+        // if(stripos($string, $this->in_question) !== false) exit("\nreaches here 3\n"); //string is found
+        
         if($words[0] == 'Clypeal') return false;
         if($words[0] == 'Anal') return false;
         if($words[0] == 'Eyes') return false;
@@ -933,7 +945,6 @@ class ParseListTypeAPI_Memoirs
         if($words[0] == 'Paregle') return false; //Genus starts with "Pegomyia"
         if($words[0] == 'Materials') return false;
         if($words[0] == 'Type') return false;
-        
         
         if($this->pdf_id == '120083') {
             if(@$words[1][0] == "(") return false;
@@ -980,6 +991,7 @@ class ParseListTypeAPI_Memoirs
     }
     private function shared_120082_118986($words, $str)
     {
+        // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 3a\n"); //string is found
         if(strlen($str) <= 10) return false;
         if(count($words) < 2) return false;
         if(ctype_lower($words[0][0])) return false; //first word must be capitalized
@@ -1002,6 +1014,7 @@ class ParseListTypeAPI_Memoirs
         }
         // */
         
+        // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 3\n"); //string is found
         $first_word_must_not_be_these = array('On', 'Oh', 'Nm', 'Ov', '\or-', 'Indies');
         foreach($first_word_must_not_be_these as $char) {
             if($words[0] == "$char") return false; //must not start with this char(s)
@@ -1011,16 +1024,28 @@ class ParseListTypeAPI_Memoirs
         if(@$words[0][1] == '"') return false; //2nd char must not be period (") e.g. C"> ro r<->
         
         if(strlen($words[0]) == 1) return false; //e.g. O iH CVJ
-        
-        $dont_have_these_chars_anywhere = array("*", "~", "->", "<-", "«", "»", "©", " p.", " pp.", " ibid.", " of ", " to ", 
-        " is ", " in ", "(see", "^", "species?", "inquirendum", "—");
+
+        // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 4a\n"); //string is found
+        $dont_have_these_chars_anywhere = array("—", "~", "->", "<-", "«", "»", "©", " pp.", " ibid.", " of ", " to ", 
+                                                " is ", "(see", "species?", "inquirendum");
         if($this->pdf_id == '120082') $dont_have_these_chars_anywhere[] = " and "; //4th doc
-        if($this->pdf_id != '15423' && $this->pdf_id != '91155') $dont_have_these_chars_anywhere[] = ":"; //1st BHL
+        if(!in_array($this->pdf_id, array('15423', '91155'))) { //1st 2nd BHL
+            $dont_have_these_chars_anywhere = array_merge($dont_have_these_chars_anywhere, array("*", "^", ":", " in ", " p."));
+        }
+        
+        // 38. Sphagnum tenerum Sull. & Lesq.; Sull. in A. Gray, 
+        // 39. Sphagnum tabulate Sull. Musci Allegh. i'*^-;. 1845.
+        // 6. Bruchia Ravenelii Wilson; SuU. in A. Gray, Man.               got in 
+        // 8. Bruchia brevifolia Sull. in A. Gray, Man. ed. 2. 617. 1856.   got in
+        //8. Ditrichum rufescens (Hampe) Broth, in E. & P. Nat. 
+        // 1 . Seligeria campylopoda Kindb.; Macoun, Cat. Can. 
+        
         
         foreach($dont_have_these_chars_anywhere as $char) {
             if(stripos($str, "$char") !== false) return false;
         }
         
+        // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 4\n"); //string is found
         if($this->get_numbers_from_string($words[0])) return false; //first word must not have a number
         if($this->get_numbers_from_string($words[1])) return false; //2nd word must not have a number
 

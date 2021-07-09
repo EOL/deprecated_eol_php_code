@@ -40,6 +40,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
+        $this->in_question = "Seligeria campylopoda"; //"Ditrichum rufescens"; //"Bruchia Ravenelii"; //"Sphagnum tabulate"; //"Sphagnum tenerum";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -403,6 +404,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     }
     function is_sciname($string, $doc_type = 'species_type') //for initial scinames list
     {
+        // /* manual - BHL
+        $string = str_ireplace("1 . Seligeria campylopoda", "1. Seligeria campylopoda", $string);
+        // */
         if(stripos($string, "salicicola (") !== false) echo "\nhanap 0 [$string]\n"; //string is found
         // echo("\npdf_id: $this->pdf_id\n");
         if($this->pdf_id == '118935') { //1st doc
@@ -649,6 +653,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $i = 0; $count_of_blank_rows = 0;
         foreach(new FileIterator($edited_file) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
             $row = trim($row);
+            // /* manual - BHL
+            $row = str_ireplace("1 . Seligeria campylopoda", "1. Seligeria campylopoda", $row);
+            // */
 
             if($this->pdf_id == '118935') { //1st doc
                 // /* manual: floridanus ((Fcenus ) Bradley, Trans. Am. Ent. Soc, xxxiv, 112.
@@ -843,6 +850,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // 1. SPHAEROCARPOS* (Micheli) Boehm.in Ludwig, 
                 // 2. GEOTHALLUS Campb. Bot. Gaz. 21: 13. 1896. 
                 // 4, REBOULIA Raddi, Opusc. Sci. Bologna 2: 357. 1818. (Rebouillia.)
+                // /* manual
+                $row = str_ireplace("SWARTZIAEhrh.;", "SWARTZIA Ehrh.;", $row);
+                // */
                 $words = explode(" ", $row);
                 $first_word = str_ireplace("*", "", $words[0]);
                 if(ctype_upper($first_word)) {
