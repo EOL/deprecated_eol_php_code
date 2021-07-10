@@ -430,6 +430,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             else return false;
         }
         elseif(in_array($this->pdf_id, array('15423', '91155', '15427'))) { //1st BHL
+            // /* manual
+            if(stripos($string, "Not seen") !== false) return false; //string is found
+            // */
+            
             $words = explode(" ", trim($string));
             if(!is_numeric($words[0])) return false;
             $string = self::remove_first_word_if_it_has_number($string);
