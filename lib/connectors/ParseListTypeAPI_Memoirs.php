@@ -644,7 +644,7 @@ class ParseListTypeAPI_Memoirs
         if($obj = self::run_GNRD($sciname_line)) {
             $sciname = @$obj->names[0]->scientificName; //echo "\n[$sciname]\n";
             $rek['sciname GNRD'] = $sciname;
-            if(in_array($this->pdf_id, array('15423', '91155'))) { //BHL
+            if(in_array($this->pdf_id, array('15423', '91155', '15427'))) { //BHL
                 /* might be overkill
                 if($obj = self::run_gnparser($sciname_line)) {
                     $authorship = @$obj[0]->authorship->verbatim;
@@ -995,7 +995,7 @@ class ParseListTypeAPI_Memoirs
         if(strlen($str) <= 10) return false;
         if(count($words) < 2) return false;
         if(ctype_lower($words[0][0])) return false; //first word must be capitalized
-        if(!in_array($this->pdf_id, array('15423', '91155'))) {
+        if(!in_array($this->pdf_id, array('15423', '91155', '15427'))) {
             if(ctype_upper($words[1][0])) return false; //2nd word must be lower case
         }
         if($words[0][0] == "(") return false; //must not start with this char(s) e.g. (Drawings by Frances A. McKittrick)
@@ -1029,7 +1029,7 @@ class ParseListTypeAPI_Memoirs
         $dont_have_these_chars_anywhere = array("—", "~", "->", "<-", "«", "»", "©", " pp.", " ibid.", " of ", " to ", 
                                                 " is ", "(see", "species?", "inquirendum");
         if($this->pdf_id == '120082') $dont_have_these_chars_anywhere[] = " and "; //4th doc
-        if(!in_array($this->pdf_id, array('15423', '91155'))) { //1st 2nd BHL
+        if(!in_array($this->pdf_id, array('15423', '91155', '15427'))) { //1st 2nd BHL
             $dont_have_these_chars_anywhere = array_merge($dont_have_these_chars_anywhere, array("*", "^", ":", " in ", " p."));
         }
         
