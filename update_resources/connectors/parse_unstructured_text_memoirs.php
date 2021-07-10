@@ -126,6 +126,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "30355", "resource_name":
 === START BHL RESOURCES ===
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "91155", "resource_name":"2nd BHL"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "15427", "resource_name":"3nd BHL"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
@@ -183,9 +184,9 @@ $rec[118237] = array('filename' => '118237.txt', 'lines_before_and_after_sciname
 doc 5: didn't get a valid binomial: "Laccophilus spergatus Sharp (Figs. 98-105, 297)"
 */
 // === START BHL RESOURCES ===
-$rec[15423] = array('filename' => '15423.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*1 blocks: 66    Raw scinames: 83 */
-$rec[91155] = array('filename' => '91155.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*2 blocks: 98    Raw scinames: 115 */
-
+$rec[15423] = array('filename' => '15423.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*1 blocks: 70|66    Raw scinames: 92|83 */
+$rec[91155] = array('filename' => '91155.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*2 blocks: 108|98   Raw scinames: 125|115 */
+$rec[15427] = array('filename' => '15427.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*3 blocks: xx   Raw scinames: xx */
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;
 else exit("\nUndefined PDF ID\n");

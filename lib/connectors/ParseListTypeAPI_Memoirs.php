@@ -995,7 +995,7 @@ class ParseListTypeAPI_Memoirs
         if(strlen($str) <= 10) return false;
         if(count($words) < 2) return false;
         if(ctype_lower($words[0][0])) return false; //first word must be capitalized
-        if($this->pdf_id != '15423' && $this->pdf_id != '91155') {
+        if(!in_array($this->pdf_id, array('15423', '91155'))) {
             if(ctype_upper($words[1][0])) return false; //2nd word must be lower case
         }
         if($words[0][0] == "(") return false; //must not start with this char(s) e.g. (Drawings by Frances A. McKittrick)
