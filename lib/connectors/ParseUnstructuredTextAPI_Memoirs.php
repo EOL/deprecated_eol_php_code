@@ -13,7 +13,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text=Asterella bolanderi
-        http://gnrd.globalnames.org/name_finder.json?text=Seligeria pusiua (Ehrh.) B.S.G. Bryol
+        http://gnrd.globalnames.org/name_finder.json?text=Osmunda cinnamomea
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -857,7 +857,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $first_word = str_ireplace("*", "", $words[0]);
                 if(ctype_upper($first_word)) {
                     if(strlen($first_word) > 2) {
-                        if(in_array($first_word, array('LUWULARIA', 'SPHAGNUM', 'ANDREAEA'))) $row = "</taxon>$row";
+                        if(in_array($first_word, array('LUWULARIA', 'SPHAGNUM', 'ANDREAEA', 'OSMUNDA', 'CYATHEACBAB'))) $row = "</taxon>$row";
                         else {
                             if(self::is_sciname_using_GNRD($first_word)) $row = "</taxon>$row";
                             else echo "\nInvestigate 1: [$first_word] not sciname says GNRD\n";
