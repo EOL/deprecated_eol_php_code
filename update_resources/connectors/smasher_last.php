@@ -9,10 +9,16 @@ require_library('connectors/SmasherLastAPI');
 $timestart = time_elapsed();
 $func = new SmasherLastAPI();
 
+/* ran already OK
 $func->sheet1_Move_DH2_taxa_to_new_parent();    echo "\n-end sheet1_Move_DH2_taxa_to_new_parent-\n";
 $func->sheet2_Merge_DH2_taxa();                 echo "\n-end sheet2_Merge_DH2_taxa-\n";
 $func->sheet3_Split_DH2_taxa();                 echo "\n-end sheet3_Split_DH2_taxa-\n";
 $func->sheet4_Delete_DH2_taxa();                echo "\n-end sheet4_Delete_DH2_taxa-\n";
+*/
+
+$func->July7_num_1_2(); echo("\n-end Jul7_num1-\n");
+$func->July7_num_2_delete(); echo("\n-end July7_num_2_delete-\n");
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
