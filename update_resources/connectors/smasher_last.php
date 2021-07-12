@@ -19,6 +19,10 @@ $func->sheet4_Delete_DH2_taxa();                echo "\n-end sheet4_Delete_DH2_t
 $func->July7_num_1_2(); echo("\n-end Jul7_num1-\n");
 $func->July7_num_2_delete(); echo("\n-end July7_num_2_delete-\n");
 
+/*
+source      :  2379530 /Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy_5.tsv
+destination :  2378798 /Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy_6.tsv
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
