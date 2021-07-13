@@ -96,7 +96,11 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"MoftheAES 6th", "resource_id":"118920", "subjects":"Description|Uses"}'
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"MoftheAES 7th", "resource_id":"120083", "subjects":"Description|Uses"}'
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"MoftheAES 8th", "resource_id":"118237", "subjects":"Description|Uses"}'
+WILL USE TO PROCESS THE CONSOLIDATED DwCA: MoftheAES.tar.gz | Will then be used to generate: MoftheAES_ENV.tar.gz
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"MoftheAES",  "resource_id":"MoftheAES", "subjects":"Description|Uses"}'
+
+OTHERS: used only during dev:
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"MoftheAES oth", "resource_id":"30355", "subjects":"Description|Uses"}'
 
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"BHL 1st", "resource_id":"15423", "subjects":"Description|Uses"}'
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"BHL 2nd", "resource_id":"91155", "subjects":"Description|Uses"}'
@@ -104,7 +108,6 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 --------------------------------------------------------------------------------------- PDF repository 10088_5097
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"10088_5097", "subjects":"Uses|Description"}'
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"10088_6943", "subjects":"Uses|Description"}'
-
 
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"10088_5097", "subjects":"Uses|Description"}'
 
