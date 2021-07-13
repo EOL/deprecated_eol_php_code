@@ -198,8 +198,8 @@ if($resource_name == 'MotAES') {
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1);
 
 // === START BHL RESOURCES ===
-$rec[15423] = array('filename' => '15423.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*1 blocks: 70|66    Raw scinames: 92|83 */
-$rec[91155] = array('filename' => '91155.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*2 blocks: 107|108   Raw scinames: 124|125 */
+$rec[15423] = array('filename' => '15423.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*1 blocks: 75|70    Raw scinames: 96|92 */
+$rec[91155] = array('filename' => '91155.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*2 blocks: 108|107   Raw scinames: 124|125 */
 $rec[15427] = array('filename' => '15427.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: xx   Raw scinames: xx */
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;

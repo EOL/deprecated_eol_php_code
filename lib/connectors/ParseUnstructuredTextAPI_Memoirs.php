@@ -138,16 +138,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_replace("((Nomada)", "(Nomada)", $row);
                 $row = str_replace("(Monedula(", "(Monedula)", $row);
                 // */
-                
-                $this->letter_case_err = array('albidopictus', 'antennatus', 'attractus', 'auratus', 'cordoviensis', 'coccinifera', 'coloradensis', 
-                'cuttus', 'latus', 'lineatus', 'linitus', 'magus', 'multicinctus', 'occidentalis', 'excavatus', 'foveatus', 'albopictus', 'elongatus', 
-                'stigmatalis', 'subalbatus', 'sulphurea', 'sumichrasti', 'trivittatus', 'zonatus', 'albopictus', 'constrictus', 'cubensis', 'extricatus', 
-                'fasciatus', 'convexus', 'cookii', 'costatus', 'coxatus', 'cressoni', 'cultriformis', 'cultus', 'curvator', 'curvineura', 'elongatus',
-                'cc-nvergens', 'cinctus', 'corvallisensis', 'colorata', 'consultus', 'clarkii', 'carolina', 'azygos', 'w-scripta', 'subdistans', 
-                'scurra', 'delodontus', 'confederata', 'clypeopororia', 'coactipostica', 'cockerelli', 'columbiana', 'carolina', 'scelesta', 'virgatus',
-                'sulcus', 'ocellatus', 'corrugatus', 'rugosus', 'inordinatus', 'distinctus', 'suffusus', 'punctatus', 'chalcifrons', 'subfrigidus', 
-                'subtilis', 'solani', 'striatus', 'ephippiatus', 'dentatus', 'confertus', 'asperatus', 'u-scripta','usitata');
-                foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
+                if($this->pdf_id == '118935') {
+                    $this->letter_case_err = array('albidopictus', 'antennatus', 'attractus', 'auratus', 'cordoviensis', 'coccinifera', 'coloradensis', 
+                    'cuttus', 'latus', 'lineatus', 'linitus', 'magus', 'multicinctus', 'occidentalis', 'excavatus', 'foveatus', 'albopictus', 'elongatus', 
+                    'stigmatalis', 'subalbatus', 'sulphurea', 'sumichrasti', 'trivittatus', 'zonatus', 'albopictus', 'constrictus', 'cubensis', 'extricatus', 
+                    'fasciatus', 'convexus', 'cookii', 'costatus', 'coxatus', 'cressoni', 'cultriformis', 'cultus', 'curvator', 'curvineura', 'elongatus',
+                    'cc-nvergens', 'cinctus', 'corvallisensis', 'colorata', 'consultus', 'clarkii', 'carolina', 'azygos', 'w-scripta', 'subdistans', 
+                    'scurra', 'delodontus', 'confederata', 'clypeopororia', 'coactipostica', 'cockerelli', 'columbiana', 'carolina', 'scelesta', 'virgatus',
+                    'sulcus', 'ocellatus', 'corrugatus', 'rugosus', 'inordinatus', 'distinctus', 'suffusus', 'punctatus', 'chalcifrons', 'subfrigidus', 
+                    'subtilis', 'solani', 'striatus', 'ephippiatus', 'dentatus', 'confertus', 'asperatus', 'u-scripta','usitata');
+                    foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
+                }
             }
             
             if(stripos($row, "salicicola (") !== false) echo "\nsearch 1\n";   //string is found
@@ -926,6 +927,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                             else echo "\nInvestigate 2: [$words[1]] not sciname says GNRD\n";
                         }
                     }
+                }
+                // */
+                
+                // /* two addtl stop patterns: https://eol-jira.bibalex.org/browse/DATA-1890?focusedCommentId=66240&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66240
+                $words = array('Illustration:', 'Illustrations:');
+                foreach($words as $word) {
+                    $len = strlen($word);
+                    if(substr($row,0,$len) == $word)  $row = "</taxon>$row";
                 }
                 // */
             }
