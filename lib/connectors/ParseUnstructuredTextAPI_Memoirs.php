@@ -931,10 +931,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // */
                 
                 // /* two addtl stop patterns: https://eol-jira.bibalex.org/browse/DATA-1890?focusedCommentId=66240&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66240
-                $words = array('Illustration:', 'Illustrations:');
+                // $words = array('Illustration:', 'Illustrations:');
+                $words = array('Exsicc', 'Exsioc:', 'Exstcc.', 'E.xsicc:', 'Kxsicc', 'FxsiccATAE', "^^' ^Exs'^iccataE");
                 foreach($words as $word) {
                     $len = strlen($word);
-                    if(substr($row,0,$len) == $word)  $row = "</taxon>$row";
+                    if(strtolower(substr($row,0,$len)) == strtolower($word)) {
+                        $row = "</taxon>$row";
+                        break;
+                    }
                 }
                 // */
             }
