@@ -707,7 +707,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_replace("((Nomada)", "(Nomada)", $row);
                 $row = str_replace("(Monedula(", "(Monedula)", $row);
                 // */
-                foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
+                if($this->pdf_id == '118935') {
+                    foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
+                }
                 if($ret = self::is_sciname_in_memoirs($row)) $row = $ret;
             }
             elseif($this->pdf_id == '120081') { //2nd doc
