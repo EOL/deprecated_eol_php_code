@@ -695,6 +695,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $row = trim($row);
             // /* manual - BHL
             $row = str_ireplace("1 . Seligeria campylopoda", "1. Seligeria campylopoda", $row);
+            $row = str_ireplace("(Mesoleptus,)", "(Mesoleptus),", $row);    //30355 doc
+            $row = str_ireplace("(Ichneumon,)", "(Ichneumon),", $row);      //30355 doc
+            $row = str_ireplace("( Nomad, 1),", "(Nomada),", $row);      //30355 doc
             // */
 
             // if($this->pdf_id == '118935') { //1st doc
