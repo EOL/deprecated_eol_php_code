@@ -109,12 +109,16 @@ NEW mof 2904    media 374   taxon 1263
 removed "ocean - ENVO_00000447":
 15423	Mon 2021-07-12 05:58:28 AM	{                                        "media_resource.tab":70,                                "taxon.tab":70, "time_elapsed":{"sec":0.8, "min":0.01, "hr":0}}
 15423_ENV	Mon 2021-07-12 06:04:35 {"measurement_or_fact_specific.tab":324, "media_resource.tab":70, "occurrence_specific.tab":324, "taxon.tab":70, "time_elapsed":{"sec":247.19, "min":4.12, "hr":0.07}}
+15423	Tue 2021-07-13 07:19:04 AM	{                                        "media_resource.tab":73,                                "taxon.tab":73, "time_elapsed":{"sec":0.38, "min":0.01, "hr":0}}
+15423_ENV	Tue 2021-07-13 07:23:01 {"measurement_or_fact_specific.tab":338, "media_resource.tab":73, "occurrence_specific.tab":338, "taxon.tab":73, "time_elapsed":{"sec":115.98, "min":1.93, "hr":0.03}}
 ------------------------------------------------------------
 91155	Thu 2021-07-08 09:37:48 AM	{                                        "media_resource.tab":98,                                 "taxon.tab":98, "time_elapsed":{"sec":0.79, "min":0.01, "hr":0}}
 91155_ENV	Thu 2021-07-08 09:40:38 {"measurement_or_fact_specific.tab":672, "media_resource.tab":98, "occurrence_specific.tab":672,  "taxon.tab":98, "time_elapsed":{"sec":50.01, "min":0.83, "hr":0.01}}
 removed "ocean - ENVO_00000447":
 91155	Mon 2021-07-12 06:08:04 AM	{                                        "media_resource.tab":107,                                "taxon.tab":107, "time_elapsed":{"sec":3.3, "min":0.06, "hr":0}}
 91155_ENV	Mon 2021-07-12 06:13:05 {"measurement_or_fact_specific.tab":663, "media_resource.tab":107, "occurrence_specific.tab":663, "taxon.tab":107, "time_elapsed":{"sec":180.47, "min":3.01, "hr":0.05}}
+91155	Tue 2021-07-13 07:23:11 AM	{                                        "media_resource.tab":107,                                "taxon.tab":107, "time_elapsed":{"sec":0.41, "min":0.01, "hr":0}}
+91155_ENV	Tue 2021-07-13 07:28:06 {"measurement_or_fact_specific.tab":665, "media_resource.tab":107, "occurrence_specific.tab":665, "taxon.tab":107, "time_elapsed":{"sec":174.68, "min":2.91, "hr":0.05}}
 ------------------------------------------------------------
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
