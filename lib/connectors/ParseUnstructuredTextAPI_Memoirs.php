@@ -3,8 +3,9 @@ namespace php_active_record;
 /* */
 class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 {
-    function __construct()
+    function __construct($resource_name)
     {
+        $this->resource_name = $resource_name;
         $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
 
         /* START epub series */
@@ -128,7 +129,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $row = trim(preg_replace('/\s*\[[^)]*\]/', '', $row)); //remove brackets
             $row = trim($row);
             
-            if($this->pdf_id == '118935') { //1st doc
+            if(in_array($this->pdf_id, array('118935', '30355'))) { //118935 1st doc
                 // /* manual: floridanus ((Fcenus ) Bradley, Trans. Am. Ent. Soc, xxxiv, 112.
                 $row = str_replace("((Fcenus", "(Fcenus", $row);
                 //infrarubens (Nomada vicinalis; Cockerell, Bull. 94, Colo. Exp. Sta., 84.
@@ -352,6 +353,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // $string = "salicicola (Euura) E. A. Smith, N. Am. Entom., i, 41.";
         $str = trim($string);
         
+        // if(stripos($string, "(Schizocerus)") !== false) exit("\n[11 $string]\n"); //string is found
+        
         // /* if > 1 word inside parenthesis e.g. "(Otlophorus innumerabilis)", then convert to "(Otlophorus_innumerabilis)"
         if(preg_match("/\((.*?)\)/ims", $str, $ret)) {
             $inside_parenthesis = $ret[1];
@@ -362,14 +365,24 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         // /* if > 1 word for the supposedly 3rd word e.g. "salicicola (Euura) E. A. Smith, N. Am. Entom., i, 41."
         if(preg_match("/\)(.*?)\,/ims", $str, $ret)) {
-            $inside_thirdword = trim($ret[1]);
-            $new_inside_thirdword = str_replace(" ", "_", $inside_thirdword);
-            $str = str_replace(") $inside_thirdword,", ") $new_inside_thirdword,", $str);
-            // exit("\nstr = [$str]\n");
+            // echo "\nstr1 = [$str]\n";
+            if($inside_thirdword = trim($ret[1])) {
+                // echo "\n inside_thirdword: [$inside_thirdword]\n";
+                $new_inside_thirdword = str_replace(" ", "_", $inside_thirdword);
+                $str = str_replace(") $inside_thirdword,", ") $new_inside_thirdword,", $str);
+            }
+            else { //abdominalis (Schizocerus), Proc. Ent. Soc. Phil., iv, 243, cf.
+                $words = explode(" ", $str);
+                $str = $words[0]." ".substr($words[1],0,strlen($words[1])-1); //remove "," comma -> e.g. "dimmockii (Nematus), Trans. Am. Ent. Soc, viii, 6, 9."
+            }
+            // exit("\nstr2 = [$str]\n");
         }
         // */
         
-        $arr = explode(" ", $str); //print_r($arr); //exit;
+        $arr = explode(" ", $str); 
+        
+        // if(stripos($str, "(Schizocerus)") !== false) {print_r($arr); exit;} //string is found
+        
         /*cseruleum (Hedychrum) Norton, Trans. Am. Ent. Soc, vii, 239.
         Array(
             [0] => cseruleum
@@ -388,28 +401,50 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
         if(!ctype_lower($tmp)) return false;                //1st word is all small letter
         // */
+        
+        /*
+        if(stripos($str, "(Schizocerus)") !== false) { //string is found
+            // print_r($arr);
+            // exit("\n[22 $str]\n");
+            Array(
+                [0] => abdominalis
+                [1] => (Schizocerus)
+            )
+        } */
+        
         if(@$arr[1][0] != "(") return false;                //2nd word starts with "("
-        if(substr($arr[2],-1) != ",") return false;         //3rd ends with "," comma
+        // if(stripos($str, "Schizocerus") !== false) exit("\n[22b $str]\n"); //string is found
+        
+        if(count($arr) >= 3) {
+            if(substr($arr[2],-1) != ",") return false;         //3rd should end with "," comma
+        }
+        // if(stripos($str, "Schizocerus") !== false) exit("\n[22d $str]\n"); //string is found
+        
         if(preg_match("/\((.*?)\)/ims", $arr[1], $ret)) {
             $second = trim($ret[1]);
             $second = str_replace("_", " ", $second);
+            // if(stripos($str, "(Schizocerus)") !== false) exit("\n2nd: [$second]\n"); //string is found
         }
         else return false;
-        $third = substr($arr[2], 0, -1);
+
+        // if(stripos($str, "Schizocerus") !== false) exit("\n[33 $str]\n"); //string is found
+
+        $third = substr(@$arr[2], 0, strlen(@$arr[2])-1);
         $third = str_replace("_", " ", $third);
-        
         $sciname = $second." ".$arr[0]." ".$third;
         // exit("\nsciname: $sciname\n-elix-\n");
-        return $sciname;
+        return trim($sciname);
     }
     function is_sciname($string, $doc_type = 'species_type') //for initial scinames list
     {
         // /* manual - BHL
         $string = str_ireplace("1 . Seligeria campylopoda", "1. Seligeria campylopoda", $string);
+        if(stripos($string, "canadensis (Smi") !== false) return false; //string is found -> 30355
         // */
         if(stripos($string, "salicicola (") !== false) echo "\nhanap 0 [$string]\n"; //string is found
         // echo("\npdf_id: $this->pdf_id\n");
-        if($this->pdf_id == '118935') { //1st doc
+        // if($this->pdf_id == '118935') { //1st doc
+        if(in_array($this->pdf_id, array('118935', '30355'))) {
             if(self::is_sciname_in_memoirs($string)) return true;
             else return false;
         }
@@ -425,7 +460,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(self::is_sciname_in_118986($string)) return true;
             else return false;
         }
-        elseif(in_array($this->pdf_id, array('118920', '120083', '118237'))) { //6th 7th 8th doc
+        elseif(in_array($this->pdf_id, array('118920', '120083', '118237')) || $this->resource_name == 'MotAES') { //6th 7th 8th doc
             if(self::is_sciname_in_118920($string)) return true;
             else return false;
         }
@@ -661,7 +696,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $row = str_ireplace("1 . Seligeria campylopoda", "1. Seligeria campylopoda", $row);
             // */
 
-            if($this->pdf_id == '118935') { //1st doc
+            // if($this->pdf_id == '118935') { //1st doc
+            if(in_array($this->pdf_id, array('118935', '30355'))) {
                 // /* manual: floridanus ((Fcenus ) Bradley, Trans. Am. Ent. Soc, xxxiv, 112.
                 $row = str_replace("((Fcenus", "(Fcenus", $row);
                 //infrarubens (Nomada vicinalis; Cockerell, Bull. 94, Colo. Exp. Sta., 84.
@@ -682,7 +718,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '118986') { //5th doc
                 if($ret = self::is_sciname_in_118986($row)) $row = $ret;
             }
-            elseif(in_array($this->pdf_id, array('118920', '120083', '118237'))) { //6th 7th doc
+            elseif(in_array($this->pdf_id, array('118920', '120083', '118237')) || $this->resource_name == 'MotAES') { //6th 7th 8th doc
                 if($ret = self::is_sciname_in_118920($row)) $row = $ret;
             }
             elseif(in_array($this->pdf_id, array('15423', '91155', '15427'))) { //1st BHL
@@ -775,7 +811,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
 
             // /*
-            if($this->pdf_id == '118935') { //1st doc
+            // if($this->pdf_id == '118935') { //1st doc
+            if(in_array($this->pdf_id, array('118935', '30355'))) {
                 $tmp = str_replace(array("CRESSON 6l", ",", ".", " ", "-", "'"), "", $row);
                 $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
                 $tmp = trim($tmp);
@@ -1044,11 +1081,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(!$cont) continue;
             // */
 
-            if($this->pdf_id == '118935') { //1st doc
+            // if($this->pdf_id == '118935') { //1st doc
+            if(in_array($this->pdf_id, array('118935', '30355'))) {
                 $row = str_ireplace("[Antennae damaged; abdomen detached. |", "[Antennae damaged; abdomen detached.]", $row);
             }
 
-            if($this->pdf_id == '118237') { //8th doc
+            if($this->pdf_id == '118237' || $this->resource_name == 'MotAES') { //8th doc
                 $words = explode(" ", $row);
                 if(is_numeric($row) && count($words) == 1) continue; //entire row is numeric, mostly these are page numbers.
             }
@@ -1069,7 +1107,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // */
             }
             
-            if(in_array($this->pdf_id, array('120081', '120082', '118986', '118920', '120083', '118237'))) { //2nd, 4th, 5th 6th 7th 8th docs
+            if(in_array($this->pdf_id, array('120081', '120082', '118986', '118920', '120083', '118237')) || 
+                $this->resource_name == 'MotAES') { //2nd, 4th, 5th 6th 7th 8th docs
                 // /* 118986 5th doc
                 $ignore = array("MATERIAL EXAMINED", "GEOGRAPHICAL RANGE AND HABITAT PREFERENCES"); //ignore these even if all-caps
                 $ignore[] = "REVISION OF SPODOPTERA GUENEE"; //8th doc 118237

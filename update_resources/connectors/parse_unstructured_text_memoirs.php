@@ -106,9 +106,15 @@ NEW mof 2904    media 374   taxon 1263
 ------------------------------------------------------------
 15423	Thu 2021-07-08 09:19:19 AM	{                                        "media_resource.tab":66,                                "taxon.tab":66, "time_elapsed":{"sec":1.79, "min":0.03, "hr":0}}
 15423_ENV	Thu 2021-07-08 09:22:29 {"measurement_or_fact_specific.tab":340, "media_resource.tab":66, "occurrence_specific.tab":340, "taxon.tab":66, "time_elapsed":{"sec":70.23, "min":1.17, "hr":0.02}}
+removed "ocean - ENVO_00000447":
+15423	Mon 2021-07-12 05:58:28 AM	{                                        "media_resource.tab":70,                                "taxon.tab":70, "time_elapsed":{"sec":0.8, "min":0.01, "hr":0}}
+15423_ENV	Mon 2021-07-12 06:04:35 {"measurement_or_fact_specific.tab":324, "media_resource.tab":70, "occurrence_specific.tab":324, "taxon.tab":70, "time_elapsed":{"sec":247.19, "min":4.12, "hr":0.07}}
 ------------------------------------------------------------
-91155	Thu 2021-07-08 09:37:48 AM	{                                        "media_resource.tab":98,                                "taxon.tab":98, "time_elapsed":{"sec":0.79, "min":0.01, "hr":0}}
-91155_ENV	Thu 2021-07-08 09:40:38 {"measurement_or_fact_specific.tab":672, "media_resource.tab":98, "occurrence_specific.tab":672, "taxon.tab":98, "time_elapsed":{"sec":50.01, "min":0.83, "hr":0.01}}
+91155	Thu 2021-07-08 09:37:48 AM	{                                        "media_resource.tab":98,                                 "taxon.tab":98, "time_elapsed":{"sec":0.79, "min":0.01, "hr":0}}
+91155_ENV	Thu 2021-07-08 09:40:38 {"measurement_or_fact_specific.tab":672, "media_resource.tab":98, "occurrence_specific.tab":672,  "taxon.tab":98, "time_elapsed":{"sec":50.01, "min":0.83, "hr":0.01}}
+removed "ocean - ENVO_00000447":
+91155	Mon 2021-07-12 06:08:04 AM	{                                        "media_resource.tab":107,                                "taxon.tab":107, "time_elapsed":{"sec":3.3, "min":0.06, "hr":0}}
+91155_ENV	Mon 2021-07-12 06:13:05 {"measurement_or_fact_specific.tab":663, "media_resource.tab":107, "occurrence_specific.tab":663, "taxon.tab":107, "time_elapsed":{"sec":180.47, "min":3.01, "hr":0.05}}
 ------------------------------------------------------------
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
@@ -121,7 +127,8 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "118920", "resource_name"
 parse_unstructured_text_memoirs.php _ '{"resource_id": "120083", "resource_name":"7th doc"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118237", "resource_name":"8th doc"}' species sections
 Other MoftheAES:
-parse_unstructured_text_memoirs.php _ '{"resource_id": "30355", "resource_name":"nth doc"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "30355", "resource_name":"others"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "xxx", "resource_name":"MotAES"}'
 
 === START BHL RESOURCES ===
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL"}'
@@ -137,7 +144,8 @@ $timestart = time_elapsed();
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
 $param                     = json_decode(@$argv[2], true);
 $pdf_id = $param['resource_id'];
-$func = new ParseUnstructuredTextAPI_Memoirs();
+$resource_name = $param['resource_name'];
+$func = new ParseUnstructuredTextAPI_Memoirs($resource_name);
 /*
 $var1 = "paRt";
 $var2 = "part";
@@ -183,9 +191,15 @@ $rec[118237] = array('filename' => '118237.txt', 'lines_before_and_after_sciname
 /* TO DO: 
 doc 5: didn't get a valid binomial: "Laccophilus spergatus Sharp (Figs. 98-105, 297)"
 */
+// === other MotAES ===
+if($resource_name == 'MotAES') {
+    $rec[$pdf_id] = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 2);
+}
+$rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1);
+
 // === START BHL RESOURCES ===
 $rec[15423] = array('filename' => '15423.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*1 blocks: 70|66    Raw scinames: 92|83 */
-$rec[91155] = array('filename' => '91155.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*2 blocks: 108|98   Raw scinames: 125|115 */
+$rec[91155] = array('filename' => '91155.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*2 blocks: 107|108   Raw scinames: 124|125 */
 $rec[15427] = array('filename' => '15427.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: xx   Raw scinames: xx */
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;
