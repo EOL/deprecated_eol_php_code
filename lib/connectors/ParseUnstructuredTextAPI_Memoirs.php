@@ -462,6 +462,19 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             else return false;
         }
         elseif(in_array($this->pdf_id, array('118920', '120083', '118237')) || $this->resource_name == 'MotAES') { //6th 7th 8th doc
+            // /* manual
+            if(stripos($string, "Measurement") !== false) return false; //string is found
+                // */
+            if($this->pdf_id == '27822') {
+                // /* anywhere in the string
+                $exclude = array("{", " i ", '"', ' body ', 'origin', 'tropic', 'The ', 'group', 'present', 'See ', ' and ', 'large', 
+                    'transparent', 'Distribution', "(in", 'more', ";", "]");
+                foreach($exclude as $x) {
+                    if(stripos($string, $x) !== false) return false; //string is found
+                }
+                // */
+            }
+            
             if(self::is_sciname_in_118920($string)) return true;
             else return false;
         }

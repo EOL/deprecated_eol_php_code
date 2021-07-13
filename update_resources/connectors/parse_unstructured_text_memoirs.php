@@ -103,7 +103,11 @@ MoftheAES	Tue 2021-07-06 07:28:58 AM	{                                        "m
 MoftheAES_ENV	Tue 2021-07-06 07:31:46 {"MoF.tab":2915,"media.tab":374, "occur.tab":2915, "taxon.tab":1263, "time_elapsed":{"sec":108.13, "min":1.8, "hr":0.03}}
 OLD mof 3369    media 374   taxon 1790
 NEW mof 2904    media 374   taxon 1263
-------------------------------------------------------------
+------------------------------------------------------------ others MotAES
+30355	Tue 2021-07-13 11:16:07 AM	{"media_resource.tab":2625,                                               "taxon.tab":2622, "time_elapsed":{"sec":1.99, "min":0.03, "hr":0}}
+30355_ENV	Tue 2021-07-13 11:44:07 {"measurement_or_fact_specific.tab":2566, "occurrence_specific.tab":2566, "taxon.tab":2622, "time_elapsed":{"sec":1559.58, "min":25.99, "hr":0.43}}
+
+------------------------------------------------------------ North American Flora (DATA-1890)
 15423	Thu 2021-07-08 09:19:19 AM	{                                        "media_resource.tab":66,                                "taxon.tab":66, "time_elapsed":{"sec":1.79, "min":0.03, "hr":0}}
 15423_ENV	Thu 2021-07-08 09:22:29 {"measurement_or_fact_specific.tab":340, "media_resource.tab":66, "occurrence_specific.tab":340, "taxon.tab":66, "time_elapsed":{"sec":70.23, "min":1.17, "hr":0.02}}
 removed "ocean - ENVO_00000447":
@@ -132,7 +136,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "120083", "resource_name"
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118237", "resource_name":"8th doc"}' species sections
 Other MoftheAES:
 parse_unstructured_text_memoirs.php _ '{"resource_id": "30355", "resource_name":"others"}'
-parse_unstructured_text_memoirs.php _ '{"resource_id": "xxx", "resource_name":"MotAES"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "27822", "resource_name":"MotAES"}'
 
 === START BHL RESOURCES ===
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL"}'
@@ -197,7 +201,7 @@ doc 5: didn't get a valid binomial: "Laccophilus spergatus Sharp (Figs. 98-105, 
 */
 // === other MotAES ===
 if($resource_name == 'MotAES') {
-    $rec[$pdf_id] = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 2);
+    $rec[$pdf_id] = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 1);
 }
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1);
 
