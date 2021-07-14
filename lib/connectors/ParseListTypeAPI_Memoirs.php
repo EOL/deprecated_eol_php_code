@@ -641,7 +641,9 @@ class ParseListTypeAPI_Memoirs
 
         debug("\nrun_GNRD 1: [$sciname_line]\n");
         $obj = self::run_GNRD($sciname_line);
-        if($sciname = @$obj->names[0]->scientificName) {
+        $sciname = @$obj->names[0]->scientificName;
+        // if($sciname && self::binomial_or_more($sciname)) { //strict GNRD
+        if($sciname) {
             $rek['sciname GNRD'] = $sciname;
             if(in_array($this->pdf_id, array('15423', '91155', '15427'))) { //BHL --- more strict path
                 /* might be overkill
@@ -1119,6 +1121,12 @@ class ParseListTypeAPI_Memoirs
         // */
         fclose($WRITE);
         return $new_filename;
+    }
+    function binomial_or_more($sciname)
+    {
+        $words = explode(" ", trim($sciname));
+        if(count($words) >= 2) return true;
+        else return false;
     }
 }
 ?>

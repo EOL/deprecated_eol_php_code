@@ -14,7 +14,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text=Asterella bolanderi
-        http://gnrd.globalnames.org/name_finder.json?text=Exotylus cultus Davis
+        http://gnrd.globalnames.org/name_finder.json?text=Baron de Selys created two legions, Platycnemis and Agrion, for
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -472,18 +472,38 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // /* manual
             if(stripos($string, "Measurement") !== false) return false; //string is found
             // */
-            if($this->pdf_id == '27822') { //not needed anymore, just made GNRD call more strict.
+            if($this->pdf_id == '27822') {
                 // /*
                 $words = explode(" ", $string);
                 if(count($words) <= 2) return false;
                 // */
             }
             // /* anywhere in the string
-            $exclude = array('The ', 'This ', 'These ');
+            $exclude = array('The ', 'This ', 'These ', 'Photograph');
             foreach($exclude as $x) {
                 if(stripos($string, $x) !== false) return false; //string is found
             }
             // */
+            
+            // /* start of the string
+            $cont = true;
+            $exclude = array_merge($exclude, array("From ", '"'));
+            foreach($exclude as $start_of_row) {
+                $len = strlen($start_of_row);
+                if(substr($string,0,$len) == $start_of_row) {
+                    $cont = false;
+                    break;
+                }
+            }
+            if(!$cont) return false;
+            // */
+            
+            // /*
+            $words = explode(" ", $string);
+            if(strlen(@$words[1]) == 1) return false; //2nd word is just 1 char long
+            if(substr($words[0], -1) == ",") return false; //1st word last char is a comma ","
+            // */
+            
             if(self::is_sciname_in_118920($string)) return true;
             else return false;
         }

@@ -137,6 +137,8 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "118237", "resource_name"
 Other MoftheAES:
 parse_unstructured_text_memoirs.php _ '{"resource_id": "30355", "resource_name":"others"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "27822", "resource_name":"MotAES"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "30353", "resource_name":"MotAES"}'
+
 
 === START BHL RESOURCES ===
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL"}'
