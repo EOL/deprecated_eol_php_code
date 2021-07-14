@@ -720,6 +720,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $row = str_ireplace("(Mesoleptus,)", "(Mesoleptus),", $row);    //30355 doc
             $row = str_ireplace("(Ichneumon,)", "(Ichneumon),", $row);      //30355 doc
             $row = str_ireplace("( Nomad, 1),", "(Nomada),", $row);      //30355 doc
+            $row = str_ireplace("Hlltonius", "Hiltonius", $row);    //120082
             // */
 
             // if($this->pdf_id == '118935') { //1st doc
@@ -1273,7 +1274,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $rows = explode("\n", $block);
                 // if(count($rows) >= 5) {
                 if(true) {
-                    $last_sections_2b_removed = array("REMARKS.—", "REMARK.—", "REMARKS. ",
+                    $last_sections_2b_removed = array("Diagnosis and Discussion. —", "REMARKS.—", "REMARK.—", "REMARKS. ",
                     "AFFINITIES.—", "AFFINITY.—",
                     "DISCUSSIONS.—", "DISCUSSION.—", "Discussion. —",
                     "LIFE HISTORY NOTES.—", "LIFE HISTORY NOTE.—", "NOTES.—", "NOTE.—");

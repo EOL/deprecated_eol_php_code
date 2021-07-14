@@ -188,27 +188,30 @@ echo "\n[$string]\n";
 exit("\n");
 */
 /*--------------------------------------------------------------------------------------------------------------*/
-$rec[118935] = array('filename' => '118935.txt', 'lines_before_and_after_sciname' => 1); /*1 stable stats: blocks: 1322  Raw scinames count: 1322 */
+$rec[118935] = array('filename' => '118935.txt', 'lines_before_and_after_sciname' => 1); /*1 stable stats: blocks: 1312  Raw scinames count: 1322 */
 $rec[120081] = array('filename' => '120081.txt', 'lines_before_and_after_sciname' => 2); /*2 stable stats: blocks: 97    Raw scinames count: 98 */
 $rec[120082] = array('filename' => '120082.txt', 'lines_before_and_after_sciname' => 2); /*4 stable stats: blocks: 25    Raw scinames count: 25 */
 $rec[118986] = array('filename' => '118986.txt', 'lines_before_and_after_sciname' => 2); /*5 stable stats: blocks: 43    Raw scinames count: 43 */
-$rec[118920] = array('filename' => '118920.txt', 'lines_before_and_after_sciname' => 2); /*6 stable stats: blocks: 27    Raw scinames count: 27 */
-$rec[120083] = array('filename' => '120083.txt', 'lines_before_and_after_sciname' => 2); /*7 stable stats: blocks: 193   Raw scinames count: 191 
+$rec[118920] = array('filename' => '118920.txt', 'lines_before_and_after_sciname' => 2); /*6 stable stats: blocks: 40|27    Raw scinames count: 44|27 */
+$rec[120083] = array('filename' => '120083.txt', 'lines_before_and_after_sciname' => 2); /*7 stable stats: blocks: 192|193   Raw scinames count: 200|191 
                                                                                            wc -l -> 193 120083_descriptions_LT.txt */
-$rec[118237] = array('filename' => '118237.txt', 'lines_before_and_after_sciname' => 2); /*8 stable stats: blocks: 46    Raw scinames count: 33 | list-type but skipped */                                                                                           
+$rec[118237] = array('filename' => '118237.txt', 'lines_before_and_after_sciname' => 2); /*8 stable stats: blocks: 46    Raw scinames count: 34|33 | list-type but skipped */
 /* TO DO: 
 doc 5: didn't get a valid binomial: "Laccophilus spergatus Sharp (Figs. 98-105, 297)"
 */
 // === other MotAES ===
 if($resource_name == 'MotAES') {
     $rec[$pdf_id] = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 1); //1st client here is 27822
+    /*
+    27822 --- blocks: 107   Raw scinames: 175 
+    */
 }
-$rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1);
+$rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1); /* blocks: 2610   Raw scinames: 2641 */
 
 // === START BHL RESOURCES ===
-$rec[15423] = array('filename' => '15423.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*1 blocks: 75|70    Raw scinames: 96|92 */
-$rec[91155] = array('filename' => '91155.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*2 blocks: 108|107   Raw scinames: 124|125 */
-$rec[15427] = array('filename' => '15427.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: xx   Raw scinames: xx */
+$rec[15423] = array('filename' => '15423.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*1 blocks: 73|75    Raw scinames: 96|96 */
+$rec[91155] = array('filename' => '91155.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*2 blocks: 105|108   Raw scinames: 124|124 */
+$rec[15427] = array('filename' => '15427.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: 158   Raw scinames: 173 */
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;
 else exit("\nUndefined PDF ID\n");
