@@ -101,6 +101,8 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 
 OTHERS: used only during dev:
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"MoftheAES oth", "resource_id":"30355", "subjects":"Description|Uses"}'
+27822
+30354
 
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"BHL 1st", "resource_id":"15423", "subjects":"Description|Uses"}'
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"BHL 2nd", "resource_id":"91155", "subjects":"Description|Uses"}'
