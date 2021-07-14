@@ -642,8 +642,9 @@ class ParseListTypeAPI_Memoirs
         debug("\nrun_GNRD 1: [$sciname_line]\n");
         $obj = self::run_GNRD($sciname_line);
         $sciname = @$obj->names[0]->scientificName;
-        // if($sciname && self::binomial_or_more($sciname)) { //strict GNRD
-        if($sciname) {
+        if(in_array($this->pdf_id, array("30353", "30354"))) $criteria = $sciname && self::binomial_or_more($sciname); //resources to be skipped more or less
+        else                                        $criteria = $sciname; //rest of the resources, default
+        if($criteria) {
             $rek['sciname GNRD'] = $sciname;
             if(in_array($this->pdf_id, array('15423', '91155', '15427'))) { //BHL --- more strict path
                 /* might be overkill
@@ -674,6 +675,10 @@ class ParseListTypeAPI_Memoirs
             $ret = str_replace(" :", ":", $ret);
             $ret = str_replace(" ;", ";", $ret);
             $ret = trim(Functions::remove_whitespace($ret));
+            // /*
+            $words = explode(" ", $ret);
+            if(substr($words[0],-1) == ".") return false; //first word, last char must not be period e.g. "G. morhua"
+            // */
             return $ret;
         }
         return $orig;

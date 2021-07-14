@@ -137,7 +137,8 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "118237", "resource_name"
 Other MoftheAES:
 parse_unstructured_text_memoirs.php _ '{"resource_id": "30355", "resource_name":"others"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "27822", "resource_name":"MotAES"}'
-parse_unstructured_text_memoirs.php _ '{"resource_id": "30353", "resource_name":"MotAES"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "30353", "resource_name":"MotAES"}' // to be skipped
+parse_unstructured_text_memoirs.php _ '{"resource_id": "30354", "resource_name":"MotAES"}'
 
 
 === START BHL RESOURCES ===
@@ -206,6 +207,7 @@ if($resource_name == 'MotAES') {
     $rec[$pdf_id] = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 1); //1st client here is 27822
     /*
     27822 --- blocks: 107   Raw scinames: 175 
+    30353 --- blocks: 2   Raw scinames: 26 (skipped)
     */
 }
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1); /* blocks: 2610   Raw scinames: 2641 */

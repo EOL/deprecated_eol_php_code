@@ -14,7 +14,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text=Asterella bolanderi
-        http://gnrd.globalnames.org/name_finder.json?text=Baron de Selys created two legions, Platycnemis and Agrion, for
+        http://gnrd.globalnames.org/name_finder.json?text=Xestoblatta immaculata
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -479,7 +479,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // */
             }
             // /* anywhere in the string
-            $exclude = array('The ', 'This ', 'These ', 'Photograph');
+            $exclude = array('The ', 'This ', 'These ', 'Photograph', ' after');
             foreach($exclude as $x) {
                 if(stripos($string, $x) !== false) return false; //string is found
             }
@@ -636,7 +636,18 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         return false;
     }
     private function is_valid_species($str)
-    {   
+    {
+        $orig = $str;
+        // /* "Xestoblatta immaculata new species (Plate IV, figure 16.)"
+        $phrases = array("new species", "new combination"); //remove 'new species' phrase and onwards
+        foreach($phrases as $phrase) {
+            if(preg_match("/".$phrase."(.*?)xxx/ims", $str."xxx", $a)) {
+                $str = trim(str_replace($phrase.$a[1], "", $str));
+            }
+        }
+        // */
+        // if(stripos($orig, "Xestoblatta immaculata") !== false) {exit("\nxx[$str]xx\n");}   //string is found  //good debug
+        
         if($this->pdf_id == '120083') {
             if($str == ';al society') return false;
         }
@@ -648,6 +659,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(stripos($str, "fig.") !== false) return false;
         if(strtolower(substr($str, -11)) == " subspecies") return false;  //string is found ---	Holophygdon melanesica Subspecies
         // */
+        
+        
         
         // /*
         $words = explode(" ", $str);
@@ -799,8 +812,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(isset($this->lines_to_tag[$i])) { $hits++;
                 $row = self::format_row_to_sciname_v2($row); //fix e.g. "Amastus aphraates Schaus, 1927, p. 74."
                 if(self::is_valid_species($row)) { //important last line
-                    
-                    // if(stripos($row, "45,") !== false) {exit("\nxx[$row]xx\n");}   //string is found  //good debug
+                    // if(stripos($row, "Xestoblatta immaculata") !== false) {exit("\nxx[$row]xx\n");}   //string is found  //good debug
 
                     // /*
                     if($sciname = self::last_resort_to_clean_name($row)) {
@@ -935,7 +947,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
             
-            if(in_array($this->pdf_id, array('15423', '91155', '15427'))) { //1st 2nd BHL
+            if(in_array($this->pdf_id, array('15423', '91155', '15427')) || $this->resource_name == 'MotAES') { //1st 2nd BHL
                 // at this point the numeric part is already removed
                 // /* The genus sections like below, are now stop patterns.
                 // 1. LUWULARIA (Micheli) Adans. Fam. PI. 2: 15. 1763.
@@ -1294,7 +1306,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $rows = explode("\n", $block);
                 // if(count($rows) >= 5) {
                 if(true) {
-                    $last_sections_2b_removed = array("Diagnosis and Discussion. —", "REMARKS.—", "REMARK.—", "REMARKS. ",
+                    $last_sections_2b_removed = array("Explanation of Plates", "Diagnosis and Discussion. —", "REMARKS.—", "REMARK.—", "REMARKS. ",
                     "AFFINITIES.—", "AFFINITY.—",
                     "DISCUSSIONS.—", "DISCUSSION.—", "Discussion. —",
                     "LIFE HISTORY NOTES.—", "LIFE HISTORY NOTE.—", "NOTES.—", "NOTE.—");

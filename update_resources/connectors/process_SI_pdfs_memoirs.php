@@ -24,6 +24,9 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "27822", "resource_name":"others"
 
 
 process_SI_pdfs_memoirs.php _ '{"resource_id": "30353", "resource_name":"others"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "30354", "resource_name":"others"}'
+
+
 
 
 
