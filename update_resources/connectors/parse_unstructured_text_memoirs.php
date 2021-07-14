@@ -201,7 +201,7 @@ doc 5: didn't get a valid binomial: "Laccophilus spergatus Sharp (Figs. 98-105, 
 */
 // === other MotAES ===
 if($resource_name == 'MotAES') {
-    $rec[$pdf_id] = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 1);
+    $rec[$pdf_id] = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 1); //1st client here is 27822
 }
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1);
 

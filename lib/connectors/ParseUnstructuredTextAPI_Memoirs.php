@@ -14,7 +14,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text=Asterella bolanderi
-        http://gnrd.globalnames.org/name_finder.json?text=Osmunda cinnamomea
+        http://gnrd.globalnames.org/name_finder.json?text=Exotylus cultus Davis
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -442,6 +442,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $string = str_ireplace("1 . Seligeria campylopoda", "1. Seligeria campylopoda", $string);
         if(stripos($string, "canadensis (Smi") !== false) return false; //string is found -> 30355
         // */
+        
+        // /* manual - MotAES
+        if(preg_match("/\(Plate(.*?)\)/ims", $string, $a)) { //remove parenthesis e.g. "Cariblatta lutea lutea (Saussure and Zehntner) (Plate II, figures i and 2.)"
+            $string = trim(str_ireplace("(Plate".$a[1].")", "", $string));
+        }
+        // */
+        
         if(stripos($string, "salicicola (") !== false) echo "\nhanap 0 [$string]\n"; //string is found
         // echo("\npdf_id: $this->pdf_id\n");
         // if($this->pdf_id == '118935') { //1st doc
@@ -464,17 +471,19 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         elseif(in_array($this->pdf_id, array('118920', '120083', '118237')) || $this->resource_name == 'MotAES') { //6th 7th 8th doc
             // /* manual
             if(stripos($string, "Measurement") !== false) return false; //string is found
-                // */
-            if($this->pdf_id == '27822') {
-                // /* anywhere in the string
-                $exclude = array("{", " i ", '"', ' body ', 'origin', 'tropic', 'The ', 'group', 'present', 'See ', ' and ', 'large', 
-                    'transparent', 'Distribution', "(in", 'more', ";", "]");
-                foreach($exclude as $x) {
-                    if(stripos($string, $x) !== false) return false; //string is found
-                }
+            // */
+            if($this->pdf_id == '27822') { //not needed anymore, just made GNRD call more strict.
+                // /*
+                $words = explode(" ", $string);
+                if(count($words) <= 2) return false;
                 // */
             }
-            
+            // /* anywhere in the string
+            $exclude = array('The ', 'This ', 'These ');
+            foreach($exclude as $x) {
+                if(stripos($string, $x) !== false) return false; //string is found
+            }
+            // */
             if(self::is_sciname_in_118920($string)) return true;
             else return false;
         }
@@ -771,18 +780,21 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(self::is_valid_species($row)) { //important last line
                     
                     // if(stripos($row, "45,") !== false) {exit("\nxx[$row]xx\n");}   //string is found  //good debug
-                    
-                    $sciname = self::last_resort_to_clean_name($row);
-                    $words = explode(" ", $sciname);
-                    if(count($words) > 1) {
-                        if($hits == 1)  $row = "<taxon sciname='$sciname'> ".$row;
-                        else            $row = "</taxon><taxon sciname='$sciname'> ".$row;
+
+                    // /*
+                    if($sciname = self::last_resort_to_clean_name($row)) {
+                        $words = explode(" ", $sciname);
+                        if(count($words) > 1) {
+                            if($hits == 1)  $row = "<taxon sciname='$sciname'> ".$row;
+                            else            $row = "</taxon><taxon sciname='$sciname'> ".$row;
+                        }
+                        else { //a valid else statement, needed statement for sure
+                            // exit("\nshould not go here at all...[$sciname]\n[$row]\n");
+                            if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
+                            else            $row = "</taxon><taxon sciname='$row'> ".$row;
+                        }
                     }
-                    else {
-                        if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
-                        else            $row = "</taxon><taxon sciname='$row'> ".$row;
-                    }
-                    
+                    // */
                 }
             }
             /* good debug
@@ -831,8 +843,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
             // /*
             // if($this->pdf_id == '118935') { //1st doc
-            if(in_array($this->pdf_id, array('118935', '30355'))) {
-                $tmp = str_replace(array("CRESSON 6l", ",", ".", " ", "-", "'"), "", $row);
+            if(in_array($this->pdf_id, array('118935', '30355')) || $this->resource_name == 'MotAES') {
+                $tmp = str_replace(array("CRESSON 6l", ",", ".", " ", "-", "'", "\\"), "", $row);   //MEM. .\M. ENT. SOC, 2.
                 $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
                 $tmp = trim($tmp);
                 if(ctype_upper($tmp)) $row = "</taxon>$row";  //entire row is upper case //e.g. "EZRA TOWNSEND CRESSON" or "MEM. AM. ENT. SOC, V."

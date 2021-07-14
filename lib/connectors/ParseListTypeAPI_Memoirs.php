@@ -300,7 +300,6 @@ class ParseListTypeAPI_Memoirs
     {
         if($string = self::clean_name($string)) {}
         else return false;
-        // echo "\n-- [$string]\n";
         $url = $this->service['GNRD text input'].$string;
         $options = $this->download_options;
         $options['expire_seconds'] = false;
@@ -641,10 +640,10 @@ class ParseListTypeAPI_Memoirs
         $sciname_line = str_replace('"', "&quot;", $sciname_line);
 
         debug("\nrun_GNRD 1: [$sciname_line]\n");
-        if($obj = self::run_GNRD($sciname_line)) {
-            $sciname = @$obj->names[0]->scientificName; //echo "\n[$sciname]\n";
+        $obj = self::run_GNRD($sciname_line);
+        if($sciname = @$obj->names[0]->scientificName) {
             $rek['sciname GNRD'] = $sciname;
-            if(in_array($this->pdf_id, array('15423', '91155', '15427'))) { //BHL
+            if(in_array($this->pdf_id, array('15423', '91155', '15427'))) { //BHL --- more strict path
                 /* might be overkill
                 if($obj = self::run_gnparser($sciname_line)) {
                     $authorship = @$obj[0]->authorship->verbatim;
@@ -656,14 +655,17 @@ class ParseListTypeAPI_Memoirs
                 */
                 if($obj = self::run_gnparser($sciname_line)) {
                     if($canonical = @$obj[0]->canonical->full) $rek['scientificName_author_cleaned'] = $canonical;
-                    else $rek['scientificName_author_cleaned'] = $rek['sciname GNRD'];
+                    else                                       $rek['scientificName_author_cleaned'] = $rek['sciname GNRD'];
                 }
             }
-            else {
+            else { // --- not strict at all
                 $rek['scientificName_author_cleaned'] = $sciname;
             }
         }
-        else exit("\nNot sciname says GNRD: [$sciname_line]\n");
+        else {
+            echo("\nNot sciname says GNRD 1: [$sciname_line]\n"); //e.g. "Exotylus cultus Davis" from 118935.txt
+            return false;
+        }
         // ------------- end ------------- */
         if($ret = @$rek['scientificName_author_cleaned']) {
             $ret = str_replace(" ,", ",", $ret);
@@ -884,7 +886,9 @@ class ParseListTypeAPI_Memoirs
         $str = trim($string);
         if($str == "Hosts and biology") return false;
         $words = explode(" ", $str);
-        if(count($words) > 6) return false;
+        // if(count($words) > 6) return false; //orig
+        if(count($words) > 15) return false; //new adapted when processing 27822.txt
+        
         if(@$words[0][1] == ";") return false;
         if(@$words[1] == 'and') return false; //2nd word must not be this
         if(@$words[1] == 'subtree') return false; //2nd word must not be this
@@ -903,6 +907,7 @@ class ParseListTypeAPI_Memoirs
             if(stripos($string, $x) !== false) return false; //string is found
         }
         // */
+
         
         if($string == "An uregulai") return false;
         if($string == "Cascadoperla trictura") return false;
@@ -928,12 +933,13 @@ class ParseListTypeAPI_Memoirs
         $words = explode(" ", $str);
         // if(count($words) > 6) return false;
         
+        
         // if(stripos($string, $this->in_question) !== false) exit("\nreaches here 2\n"); //string is found
         // /*
         $ret = self::shared_120082_118986($words, $str);
         if(!$ret) return false;
         // */
-        
+
         // if(stripos($string, $this->in_question) !== false) exit("\nreaches here 3\n"); //string is found
         
         if($words[0] == 'Clypeal') return false;
@@ -1019,7 +1025,7 @@ class ParseListTypeAPI_Memoirs
         foreach($first_word_must_not_be_these as $char) {
             if($words[0] == "$char") return false; //must not start with this char(s)
         }
-        
+
         if(@$words[0][1] == ".") return false; //2nd char must not be period (.) e.g. T. species?
         if(@$words[0][1] == '"') return false; //2nd char must not be period (") e.g. C"> ro r<->
         
@@ -1040,17 +1046,21 @@ class ParseListTypeAPI_Memoirs
         //8. Ditrichum rufescens (Hampe) Broth, in E. & P. Nat. 
         // 1 . Seligeria campylopoda Kindb.; Macoun, Cat. Can. 
         
+        // if(stripos($str, "(Plate X, figures 13 to 16.)") !== false) exit("\ngoes here2...\n"); //string is found
+        // Cryptocercus punctulatus Scudder (Plate X, figures 13 to 16.) 
         
         foreach($dont_have_these_chars_anywhere as $char) {
             if(stripos($str, "$char") !== false) return false;
         }
-        
+
         // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 4\n"); //string is found
         if($this->get_numbers_from_string($words[0])) return false; //first word must not have a number
         if($this->get_numbers_from_string($words[1])) return false; //2nd word must not have a number
 
         if(self::last_word_not_num_not_LT_4_digits($words)) {}
         else return false;
+
+        
 
         return true;
     }
