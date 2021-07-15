@@ -449,6 +449,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         }
         //'3" Compsodes mexicanus (Saussure) --- 27822.txt
         $string = str_replace("'3\"", "", $string);
+        $string = str_ireplace("Eurycotis bioUeyi Rehn", "Eurycotis biolleyi Rehn", $string); //30354
         // */
         
         if(stripos($string, "salicicola (") !== false) echo "\nhanap 0 [$string]\n"; //string is found

@@ -612,6 +612,7 @@ class ParseListTypeAPI_Memoirs
         }
 
         $sciname_line = str_ireplace("'i^", "", $sciname_line); //30354
+        $sciname_line = str_ireplace("Eurycotis bioUeyi Rehn", "Eurycotis biolleyi Rehn", $sciname_line); //30354
         // */
         
         // if(stripos($sciname_line, "segregate") !== false) exit("\n[$sciname_line]\n"); //good debug - to see what string passes here.
