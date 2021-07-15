@@ -14,7 +14,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text=Asterella bolanderi
-        http://gnrd.globalnames.org/name_finder.json?text=Euphyllodromia decastigmata 'i^ new species (Plate IV , figures 18 to 20.)
+        http://gnrd.globalnames.org/name_finder.json?text=Nyctihora laevigata and numerous Carihlatta insidaris
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -450,6 +450,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         //'3" Compsodes mexicanus (Saussure) --- 27822.txt
         $string = str_replace("'3\"", "", $string);
         $string = str_ireplace("Eurycotis bioUeyi Rehn", "Eurycotis biolleyi Rehn", $string); //30354
+        
+        if($this->pdf_id == '27822') { // Nyctihora laevigata and numerous Carihlatta insidaris --- GNRD didn't recognize that there are 2 binomials here
+            if(stripos($string, "Nyctihora laevigata and numerous Carihlatta") !== false) return false; //string is found
+        }
+        
         // */
         
         if(stripos($string, "salicicola (") !== false) echo "\nhanap 0 [$string]\n"; //string is found
