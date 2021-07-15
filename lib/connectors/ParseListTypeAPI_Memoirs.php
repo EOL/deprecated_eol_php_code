@@ -605,11 +605,13 @@ class ParseListTypeAPI_Memoirs
         // /* manual adjustment
         if($sciname_line == "Megapodius molistructor") return $sciname_line;
         if(stripos($sciname_line, "Eunice segregate (Chamberlin, 1919a) restricted") !== false) return "Eunice segregate (Chamberlin, 1919a)";
-        
+
         if($this->pdf_id == '91155') {
             $sciname_line = str_ireplace("nitidulusSchimp", "nitidulus Schimp", $sciname_line);
             $sciname_line = str_ireplace("tenellumPers", "tenellum Pers", $sciname_line);
         }
+
+        $sciname_line = str_ireplace("'i^", "", $sciname_line); //30354
         // */
         
         // if(stripos($sciname_line, "segregate") !== false) exit("\n[$sciname_line]\n"); //good debug - to see what string passes here.
@@ -641,6 +643,11 @@ class ParseListTypeAPI_Memoirs
 
         debug("\nrun_GNRD 1: [$sciname_line]\n");
         $obj = self::run_GNRD($sciname_line);
+        
+        if($this->resource_name == "MotAES") { //exclude rows with multiple binomials
+            if(count(@$obj->names) > 1) return false;
+        }
+        
         $sciname = @$obj->names[0]->scientificName;
         if(in_array($this->pdf_id, array("30353", "30354"))) $criteria = $sciname && self::binomial_or_more($sciname); //resources to be skipped more or less
         else                                        $criteria = $sciname; //rest of the resources, default
@@ -914,7 +921,6 @@ class ParseListTypeAPI_Memoirs
             if(stripos($string, $x) !== false) return false; //string is found
         }
         // */
-
         
         if($string == "An uregulai") return false;
         if($string == "Cascadoperla trictura") return false;
@@ -939,8 +945,7 @@ class ParseListTypeAPI_Memoirs
         $str = trim($string);
         $words = explode(" ", $str);
         // if(count($words) > 6) return false;
-        
-        
+
         // if(stripos($string, $this->in_question) !== false) exit("\nreaches here 2\n"); //string is found
         // /*
         $ret = self::shared_120082_118986($words, $str);
@@ -1042,10 +1047,11 @@ class ParseListTypeAPI_Memoirs
         $dont_have_these_chars_anywhere = array("—", "~", "->", "<-", "«", "»", "©", " pp.", " ibid.", " of ", " to ", 
                                                 " is ", "(see", "species?", "inquirendum");
         if($this->pdf_id == '120082') $dont_have_these_chars_anywhere[] = " and "; //4th doc
-        if(!in_array($this->pdf_id, array('15423', '91155', '15427'))) { //1st 2nd BHL
-            $dont_have_these_chars_anywhere = array_merge($dont_have_these_chars_anywhere, array("*", "^", ":", " in ", " p."));
+        if(!in_array($this->pdf_id, array('15423', '91155', '15427'))) { //1st 2nd, all BHL
+            if($this->resource_name != "MotAES") $dont_have_these_chars_anywhere[] = "^";
+            $dont_have_these_chars_anywhere = array_merge($dont_have_these_chars_anywhere, array("*", ":", " in ", " p."));
         }
-        
+
         // 38. Sphagnum tenerum Sull. & Lesq.; Sull. in A. Gray, 
         // 39. Sphagnum tabulate Sull. Musci Allegh. i'*^-;. 1845.
         // 6. Bruchia Ravenelii Wilson; SuU. in A. Gray, Man.               got in 
@@ -1055,10 +1061,13 @@ class ParseListTypeAPI_Memoirs
         
         // if(stripos($str, "(Plate X, figures 13 to 16.)") !== false) exit("\ngoes here2...\n"); //string is found
         // Cryptocercus punctulatus Scudder (Plate X, figures 13 to 16.) 
-        
+
         foreach($dont_have_these_chars_anywhere as $char) {
             if(stripos($str, "$char") !== false) return false;
         }
+
+        // if(stripos($str, $this->in_question) !== false) exit("\nreached here 4\n[$str]\n"); //string is found
+        // [Euphyllodromia decastigmata'i^ new species (Plate IV, figures 18 to 20.)]
 
         // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 4\n"); //string is found
         if($this->get_numbers_from_string($words[0])) return false; //first word must not have a number
@@ -1066,8 +1075,6 @@ class ParseListTypeAPI_Memoirs
 
         if(self::last_word_not_num_not_LT_4_digits($words)) {}
         else return false;
-
-        
 
         return true;
     }
@@ -1132,6 +1139,14 @@ class ParseListTypeAPI_Memoirs
         $words = explode(" ", trim($sciname));
         if(count($words) >= 2) return true;
         else return false;
+    }
+    function has_AA_BB_CC($contents)
+    {
+        $arr = array("AA.", "BB.", "CC.", "DD.", "EE.", "FF.", "GG.", "HH.", "II. Tegmina", "II. Size");
+        foreach($arr as $letters) {
+            if(strpos($contents, $letters) !== false) return true; //string is found
+        }
+        return false;
     }
 }
 ?>

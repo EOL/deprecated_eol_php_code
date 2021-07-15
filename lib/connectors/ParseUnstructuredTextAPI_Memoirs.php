@@ -14,7 +14,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text=Asterella bolanderi
-        http://gnrd.globalnames.org/name_finder.json?text=Xestoblatta immaculata
+        http://gnrd.globalnames.org/name_finder.json?text=Euphyllodromia decastigmata 'i^ new species (Plate IV , figures 18 to 20.)
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -41,7 +41,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Seligeria campylopoda"; //"Ditrichum rufescens"; //"Bruchia Ravenelii"; //"Sphagnum tabulate"; //"Sphagnum tenerum";
+        $this->in_question = "(Plate IV, figures 18 to 20.)"; //"Ditrichum rufescens"; //"Bruchia Ravenelii"; //"Sphagnum tabulate"; //"Sphagnum tenerum";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -440,13 +440,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     {
         // /* manual - BHL
         $string = str_ireplace("1 . Seligeria campylopoda", "1. Seligeria campylopoda", $string);
-        if(stripos($string, "canadensis (Smi") !== false) return false; //string is found -> 30355
+        if(stripos($string, "canadensis (Smi") !== false) return false; //string is found -> 30355.txt
         // */
         
         // /* manual - MotAES
         if(preg_match("/\(Plate(.*?)\)/ims", $string, $a)) { //remove parenthesis e.g. "Cariblatta lutea lutea (Saussure and Zehntner) (Plate II, figures i and 2.)"
             $string = trim(str_ireplace("(Plate".$a[1].")", "", $string));
         }
+        //'3" Compsodes mexicanus (Saussure) --- 27822.txt
+        $string = str_replace("'3\"", "", $string);
         // */
         
         if(stripos($string, "salicicola (") !== false) echo "\nhanap 0 [$string]\n"; //string is found
@@ -754,6 +756,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $row = str_ireplace("(Ichneumon,)", "(Ichneumon),", $row);      //30355 doc
             $row = str_ireplace("( Nomad, 1),", "(Nomada),", $row);      //30355 doc
             $row = str_ireplace("Hlltonius", "Hiltonius", $row);    //120082
+            $row = str_ireplace("Eurycotis^'' caraibea", "Eurycotis caraibea", $row);    //27822
             // */
 
             // if($this->pdf_id == '118935') { //1st doc
@@ -960,6 +963,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // */
                 $words = explode(" ", $row);
                 $first_word = str_ireplace("*", "", $words[0]);
+                $first_word = preg_replace('/[0-9]+/', '', $first_word); //remove For Western Arabic numbers (0-9):
                 if(ctype_upper($first_word)) {
                     if(strlen($first_word) > 2) {
                         if(in_array($first_word, array('LUWULARIA', 'SPHAGNUM', 'ANDREAEA', 'OSMUNDA', 'CYATHEACBAB'))) $row = "</taxon>$row";
@@ -1004,6 +1008,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     }
                 }
                 // */
+                
             }
             
             /* to close tag the last block
@@ -1303,6 +1308,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(preg_match_all("/<taxon (.*?)<\/taxon>/ims", $contents, $a)) {
             // print_r($a[1]);
             foreach($a[1] as $block) {
+                
+                if($this->resource_name == "MotAES") {
+                    if($this->has_AA_BB_CC($block)) continue; //worked OK --- remove species sections inside Keys section
+                }
+                
                 $rows = explode("\n", $block);
                 // if(count($rows) >= 5) {
                 if(true) {
