@@ -584,20 +584,18 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     private function if_needed_2cluster_orSave($final, $taxon_concept_id)
     {
         if($final['count'] > $this->limit_20k) {
-            echo " --- > 20K\n";
+            debug(" --- > 20K\n");
             self::process_revised_cluster($final, $taxon_concept_id, false, 'b'); //done after main demo using screenshots
         }
         elseif($final['count'] <= $this->limit_20k) {
-            echo " --- <= 20K\n";
+            debug(" --- <= 20K\n");
             $final['actual'] = $final['count'];
             self::save_json_file($taxon_concept_id, $final);
         }
     }
     private function create_map_data($sciname, $taxon_concept_id, $paths)
     {
-        if($usageKey = self::get_usage_key($sciname)) {
-            echo "\nOK GBIF key [$usageKey]\n";
-            
+        if($usageKey = self::get_usage_key($sciname)) { debug("\nOK GBIF key [$usageKey]\n");
             if(!$this->auto_refresh_mapYN) {
                 if(self::map_data_file_already_been_generated($taxon_concept_id)) return; //continue; //before 'continue' was used since it is inside the loop above
             }
@@ -607,7 +605,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 self::if_needed_2cluster_orSave($final, $taxon_concept_id);
             }
             else {
-                echo "\nCSV map data not available [$sciname][$taxon_concept_id]...";
+                debug("\nCSV map data not available [$sciname][$taxon_concept_id]...");
                 $this->debug['CSV map data not available']["[$sciname][$taxon_concept_id]"] = '';
                 self::gen_map_data_using_api($sciname, $taxon_concept_id);
             }
@@ -620,7 +618,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     private function gen_map_data_using_api($sciname, $taxon_concept_id) //NEW Aug 24, 2018
     {
         if($this->use_API_YN) {
-            echo "\nWill try to use API...";
+            debug("\nWill try to use API...");
             if($rec = self::get_initial_data($sciname)) {
                 // print_r($rec);
                 echo " -- usageKey: ".$rec['usageKey']." | count: ". $rec["count"];
@@ -645,7 +643,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 }
                 $recs = self::write_to_file($j);
                 $final['records'] = array_merge($final['records'], $recs);
-                echo " increments: " . count($recs) . "";
+                debug(" increments: " . count($recs) . "");
                 if($j->endOfRecords)                            $continue = false;
                 if(count($final['records']) > $this->rec_limit) $continue = false; //limit no. of markers in Google maps is 100K //working... uncomment if u want to limit to 100,000
             }
@@ -654,7 +652,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }
         $final['count']  = count($final['records']);
         $final['actual'] = count($final['records']);
-        echo "\n: " . $final['count'] . " -- ";
+        debug("\n: " . $final['count'] . " -- ");
         self::if_needed_2cluster_orSave($final, $taxon_concept_id);
     }
     private function process_revised_cluster($final, $basename, $early_cluster = false, $whoCalled) //4th param $whoCalled is just for debug.
@@ -713,7 +711,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     {
         if($rec['count'] > 0) {
             $filename = self::get_map_data_path($tc_id).$tc_id.".json";
-            echo " -> saving json... recs: ".$rec['count']. " [$filename]";
+            debug(" -> saving json... recs: ".$rec['count']. " [$filename]");
             $json = json_encode($rec, JSON_UNESCAPED_SLASHES);
             if(!($file = Functions::file_open($filename, "w"))) return;
             /* used for the longest time
@@ -803,7 +801,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 }
                 $final['count'] = count($final['records']);
             }
-            else echo "\n[$usageKey] NOT found in [$path]";
+            else debug("\n[$usageKey] NOT found in [$path]");
         }
         return $final;
     }
@@ -1185,12 +1183,12 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         if($usageKey = self::get_usage_key($sciname)) {
             $count = Functions::lookup_with_cache($this->gbif_record_count . $usageKey, $this->download_options);
             if($count > 0) {
-                echo "\nTotal:[$count]"; //total records; with or without lat long
+                debug("\nTotal:[$count]"); //total records; with or without lat long
                 $rec['usageKey'] = $usageKey;
                 $rec["count"] = $count;
                 return $rec;
             }
-            else echo("\nNo occurrence. ");
+            else debug("\nNo occurrence. ");
         }
         else {
             exit("\nCannot get usage_key for ($sciname)\n");

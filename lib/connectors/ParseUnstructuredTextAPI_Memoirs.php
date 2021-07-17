@@ -14,7 +14,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text=Asterella bolanderi
-        http://gnrd.globalnames.org/name_finder.json?text=Nyctihora laevigata and numerous Carihlatta insidaris
+        http://gnrd.globalnames.org/name_finder.json?text=Nyctihora laevigata and numerous Gadus morhua
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
