@@ -657,8 +657,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function process_revised_cluster($final, $basename, $early_cluster = false, $whoCalled) //4th param $whoCalled is just for debug.
     {
-        if($early_cluster) echo "\nStart of early cluster [$whoCalled]...";
-        else               echo "\nStart with revised cluster [$whoCalled]";
+        if($early_cluster) debug("\nStart of early cluster [$whoCalled]...");
+        else               debug("\nStart with revised cluster [$whoCalled]");
         $to_be_saved = array();
         $to_be_saved['records'] = array();
         $unique = array();
@@ -671,7 +671,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 else $unique["$lat,$lon"] = '';
                 $to_be_saved['records'][] = $r;
             }
-            echo "\n New total [$decimal_places]: " . count($unique) . "";
+            debug("\n New total [$decimal_places]: " . count($unique) . "");
             $limit_to_break = $this->limit_20k;
             if($basename == 281) $limit_to_break = 35000; //Plantae 34131
 
@@ -686,13 +686,13 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         
         //flag if after revised cluster is still unsuccessful
         if(count($unique) > $limit_to_break) {
-            echo "\ntaxon_concept_ID/gbifID [$basename] revised cluster unsuccessful [$early_cluster YN] [".count($unique)."]\n"; //gbifID is only for early clustering
+            debug("\ntaxon_concept_ID/gbifID [$basename] revised cluster unsuccessful [$early_cluster YN] [".count($unique)."]\n"); //gbifID is only for early clustering
             $fhandle = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "/revised_cluster_unsuccessful.txt", "a");
             fwrite($fhandle, "$basename" . "\t" . count($unique) ."\t". date('Y-m-d') . "\n"); fclose($fhandle);
             
             //start force-get only the first 20k records
             $to_be_saved = self::force_reduce_records($to_be_saved);
-            echo "\n Final total after force_reduce_records() [$decimal_places]: " . count($to_be_saved['records']) . "\n";
+            debug("\n Final total after force_reduce_records() [$decimal_places]: " . count($to_be_saved['records']) . "\n");
 
             $to_be_saved['count'] = count($to_be_saved['records']); //the smaller value; the bigger one is $to_be_saved['actual']
             $to_be_saved['actual'] = $final['count'];
@@ -700,7 +700,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             else return $to_be_saved['records'];
         }
         else {
-            echo "\n Final total [$decimal_places]: " . count($unique) . "\n";
+            debug("\n Final total [$decimal_places]: " . count($unique) . "\n");
             $to_be_saved['count'] = count($to_be_saved['records']); //the smaller value; the bigger one is $to_be_saved['actual']
             $to_be_saved['actual'] = $final['count'];
             if(!$early_cluster) self::save_json_file($basename, $to_be_saved);
@@ -735,7 +735,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $final_path = self::get_md5_path($path, $usageKey);
             $csv = $final_path . $usageKey . ".csv";
             if(file_exists($csv)) {
-                echo "\nusageKey = [$usageKey] found in [$csv]";
+                debug("\nusageKey = [$usageKey] found in [$csv]");
                 // $file_array = file($csv);
                 $gbif_ids = array(); $i = 0;
                 foreach(new FileIterator($csv) as $line => $rowx) { $line = $rowx;
