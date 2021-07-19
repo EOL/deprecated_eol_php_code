@@ -41,7 +41,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Chrysopilus velutinus"; //"Ditrichum rufescens"; //"Bruchia Ravenelii";
+        $this->in_question = "Episactus tristani"; //"Ditrichum rufescens"; //"Bruchia Ravenelii";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -255,7 +255,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         
                         $words = explode(" ", $rows[2]);
                         $limit = 9; //orig limit is 6
-                        if(in_array($this->pdf_id, array('15423', '91155', '15427'))) $limit = 15;
+                        if(in_array($this->pdf_id, array('15423', '91155', '15427', '118936'))) $limit = 15;
                         if(count($words) <= $limit)  {
                             // if(stripos($rows[2], "Capitophorus ohioensis") !== false) exit("\nok 1\n".$rows[2]."\n"); //string is found //good debug
                             // echo "\n$rows[2] -- ";
@@ -438,6 +438,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     }
     function is_sciname($string, $doc_type = 'species_type') //for initial scinames list
     {
+        // if(stripos($string, $this->in_question) !== false) {exit("\nxx[$string]xx 11\n");}   //string is found  //good debug
+        
         // /* manual - BHL
         $string = str_ireplace("1 . Seligeria campylopoda", "1. Seligeria campylopoda", $string);
         if(stripos($string, "canadensis (Smi") !== false) return false; //string is found -> 30355.txt
@@ -979,7 +981,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         if(in_array($first_word, array('LUWULARIA', 'SPHAGNUM', 'ANDREAEA', 'OSMUNDA', 'CYATHEACBAB'))) $row = "</taxon>$row";
                         else {
                             if(self::is_sciname_using_GNRD($first_word)) $row = "</taxon>$row";
-                            else echo "\nInvestigate 1: [$first_word] not sciname says GNRD\n";
+                            else {
+                                if(!isset($this->investigate_1[$first_word])) {
+                                    echo "\nInvestigate 1: [$first_word] not sciname says GNRD\n";
+                                    $this->investigate_1[$first_word] = '';
+                                }
+                            }
                         }
                     }
                 }
