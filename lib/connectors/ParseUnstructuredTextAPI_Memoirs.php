@@ -884,8 +884,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
 
             // /*
-            // if($this->pdf_id == '118935') { //1st doc
-            if(in_array($this->pdf_id, array('118935', '30355')) || $this->resource_name == 'MotAES') {
+            // if($this->pdf_id == '118935') { //1st doc or those similar with 1st doc e.g. 30355
+            if(in_array($this->pdf_id, array('118935', '30355'))) {
                 $tmp = str_replace(array("CRESSON 6l", ",", ".", " ", "-", "'", "\\"), "", $row);   //MEM. .\M. ENT. SOC, 2.
                 $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
                 $tmp = trim($tmp);
@@ -1016,6 +1016,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // */
                 
             }
+            
+            if($row == "Bibliography") $row = "</taxon>$row";
+            elseif($row == "CATALOGUES") $row = "</taxon>$row";
             
             /* to close tag the last block
             if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293_convertio.txt
@@ -1209,7 +1212,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if($cont) {
                     // /* remove if row is all-caps -> e.g. MEM. AMER. ENT. SOC, IO | e.g. 120 NORTH AMERICAN GENUS PEGOMYIA (DIPTERA: MUSCIDAE) 
                     $tmp = $row;
-                    $tmp = str_replace(array(",", ".", " ", "-", "'", ":", "(", ")", "&"), "", $tmp);
+                    $tmp = str_replace(array(",", ".", " ", "-", "'", ":", "(", ")", "&", '2"J', "6l"), "", $tmp);
                     $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
                     if(ctype_upper($tmp)) continue;
                     // */
