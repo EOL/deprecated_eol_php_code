@@ -154,7 +154,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "118946", "resource_name"
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118936", "resource_name":"MotAES"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118236", "resource_name":"MotAES"}' // no records
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118981", "resource_name":"MotAES"}' //ask Jen if we want to get articles here
-
+119050 --- bad source OCR
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118950", "resource_name":"BHL"}' //(1) Stephensia cunilae Braun (Figs. 11, 24, 33, 52, 52a, 102, 102a.) 
 
 
