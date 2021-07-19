@@ -26,6 +26,8 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "30353", "resource_name":"others"
 process_SI_pdfs_memoirs.php _ '{"resource_id": "30354", "resource_name":"others"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "119035", "resource_name":"others"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "118946", "resource_name":"others"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "118936", "resource_name":"others"}'
+
 
 === START BHL RESOURCES ===
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL", "doc": "BHL"}'

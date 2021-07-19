@@ -146,12 +146,17 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "118237", "resource_name"
 Other MoftheAES:
 parse_unstructured_text_memoirs.php _ '{"resource_id": "30355", "resource_name":"others"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "27822", "resource_name":"MotAES"}'
-parse_unstructured_text_memoirs.php _ '{"resource_id": "30353", "resource_name":"MotAES"}' // to be skipped
+parse_unstructured_text_memoirs.php _ '{"resource_id": "30353", "resource_name":"MotAES"}' // no records
 parse_unstructured_text_memoirs.php _ '{"resource_id": "30354", "resource_name":"MotAES"}'
 Jul 19, 2021 Mon
 parse_unstructured_text_memoirs.php _ '{"resource_id": "119035", "resource_name":"MotAES"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118946", "resource_name":"MotAES"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118936", "resource_name":"MotAES"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "118236", "resource_name":"MotAES"}' // no records
+parse_unstructured_text_memoirs.php _ '{"resource_id": "118981", "resource_name":"MotAES"}' //ask Jen if we want to get articles here
+
+parse_unstructured_text_memoirs.php _ '{"resource_id": "118950", "resource_name":"BHL"}' //(1) Stephensia cunilae Braun (Figs. 11, 24, 33, 52, 52a, 102, 102a.) 
+
 
 
 === START BHL RESOURCES ===
@@ -218,7 +223,7 @@ doc 5: didn't get a valid binomial: "Laccophilus spergatus Sharp (Figs. 98-105, 
 // === other MotAES ===
 if($resource_name == 'MotAES') {
     $arr = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 1); //1st client here is 27822
-    if(in_array($pdf_id, array('119035', '118946', '118936'))) $arr['lines_before_and_after_sciname'] = 2;
+    if(in_array($pdf_id, array('119035', '118946', '118936', '118236'))) $arr['lines_before_and_after_sciname'] = 2;
     $rec[$pdf_id] = $arr;
     /*
     27822 --- blocks: 127|124|107   Raw scinames: 171|159|175 
@@ -231,11 +236,13 @@ if($resource_name == 'MotAES') {
     */
 }
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1); /* blocks: 2611   Raw scinames: 2641 */
+$rec['118950'] = array('filename' => '118950.txt', 'lines_before_and_after_sciname' => 2); /* blocks: 56   Raw scinames: 56 */
 
 // === START BHL RESOURCES ===
-$rec[15423] = array('filename' => '15423.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*1 blocks: 73|75    Raw scinames: 96|96 */
-$rec[91155] = array('filename' => '91155.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*2 blocks: 105|108   Raw scinames: 124|124 */
-$rec[15427] = array('filename' => '15427.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: 158   Raw scinames: 173 */
+$rec['15423'] = array('filename' => '15423.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*1 blocks: 73|75    Raw scinames: 96|96 */
+$rec['91155'] = array('filename' => '91155.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*2 blocks: 105|108   Raw scinames: 124|124 */
+$rec['15427'] = array('filename' => '15427.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: 158   Raw scinames: 173 */
+
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;
 else exit("\nUndefined PDF ID\n");

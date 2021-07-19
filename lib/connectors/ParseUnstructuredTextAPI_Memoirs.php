@@ -41,7 +41,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Episactus tristani"; //"Ditrichum rufescens"; //"Bruchia Ravenelii";
+        $this->in_question = "Coelopoeta glutinosi Walsingham (F"; //"Ditrichum rufescens"; //"Bruchia Ravenelii";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -255,7 +255,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         
                         $words = explode(" ", $rows[2]);
                         $limit = 9; //orig limit is 6
-                        if(in_array($this->pdf_id, array('15423', '91155', '15427', '118936'))) $limit = 15;
+                        if(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
+                                                         '118936', '118950'))) $limit = 15;
                         if(count($words) <= $limit)  {
                             // if(stripos($rows[2], "Capitophorus ohioensis") !== false) exit("\nok 1\n".$rows[2]."\n"); //string is found //good debug
                             // echo "\n$rows[2] -- ";
@@ -517,14 +518,39 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(self::is_sciname_in_118920($string)) return true;
             else return false;
         }
-        elseif(in_array($this->pdf_id, array('15423', '91155', '15427'))) { //1st BHL
+        elseif(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
+                                             '118950'))) { //and BHL-like e.g. 118950
             // /* manual
             if(stripos($string, "Not seen") !== false) return false; //string is found
             // */
             
+            // if(stripos($string, $this->in_question) !== false) {exit("\nxx[$string]xx33\n");}   //string is found  //good debug
+            
             $words = explode(" ", trim($string));
+            
+            // /* e.g. "(1) Coelopoeta glutinosi Walsingham (Figs. 1, 2, 55, 55a, 55b, 101.)" 118950
+            if($this->pdf_id == '118950') { //BHL-like
+                $first = $words[0];
+                if(preg_match("/\((.*?)\)/ims", $first, $a)) {
+                    if(!is_numeric($a[1])) return false;
+                }
+                else return false;
+            }
+            // */
+            
+            $words[0] = str_replace(array("(", ")"), "", $words[0]);
             if(!is_numeric($words[0])) return false;
             $string = self::remove_first_word_if_it_has_number($string);
+
+            /* good debug
+            if(stripos($string, $this->in_question) !== false) {
+                if(self::is_sciname_in_15423($string)) echo "\nis sci OK\n";
+                else echo "\nnot sci\n";
+                exit("\n[$string]\n");
+            }
+            */
+
+
             if(self::is_sciname_in_15423($string)) return true;
             else return false;
         }
@@ -797,7 +823,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if($ret = self::is_sciname_in_118920($row)) $row = $ret;
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx\n");}   //string is found  //good debug
             }
-            elseif(in_array($this->pdf_id, array('15423', '91155', '15427'))) { //1st BHL
+            elseif(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
+                                                 '118950'))) { //and BHL-like
 
                 /* good debug
                 if(stripos($row, "REBOULIA Raddi") !== false) {   //string is found
@@ -962,7 +989,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
             
-            if(in_array($this->pdf_id, array('15423', '91155', '15427')) || $this->resource_name == 'MotAES') { //1st 2nd BHL
+            if(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
+                                             '118950')) || $this->resource_name == 'MotAES') {
+
+                if($row == "List of Genera and Species") $row = "</taxon>$row";
+                
                 // at this point the numeric part is already removed
                 // /* The genus sections like below, are now stop patterns.
                 // 1. LUWULARIA (Micheli) Adans. Fam. PI. 2: 15. 1763.
@@ -1192,7 +1223,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(is_numeric($row) && count($words) == 1) continue; //entire row is numeric, mostly these are page numbers.
             }
 
-            if(in_array($this->pdf_id, array('15423', '91155', '15427'))) { //1st BHL
+            if(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
+                                             '118950'))) { //BHL-like
                 if(stripos($row, "NORTH AMERICAN FLORA [V") !== false) continue; //string is found
                 if($this->pdf_id == '91155') if(stripos($row, "SPHAGNACEAE") !== false) continue; //string is found
                 if(stripos($row, "Volume") !== false) continue; //string is found
@@ -1209,7 +1241,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             
             if(in_array($this->pdf_id, array('120081', '120082', '118986', '118920', '120083', '118237')) || 
-                $this->resource_name == 'MotAES') { //2nd, 4th, 5th 6th 7th 8th docs
+                $this->resource_name == 'MotAES' || $this->resource_name == 'BHL') { //2nd, 4th, 5th 6th 7th 8th docs
                 // /* 118986 5th doc
                 $ignore = array("MATERIAL EXAMINED", "GEOGRAPHICAL RANGE AND HABITAT PREFERENCES"); //ignore these even if all-caps
                 $ignore[] = "REVISION OF SPODOPTERA GUENEE"; //8th doc 118237
@@ -1221,16 +1253,30 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(!$cont) continue;
                 // */
                 if($cont) {
-                    // /* remove if row is all-caps -> e.g. MEM. AMER. ENT. SOC, IO | e.g. 120 NORTH AMERICAN GENUS PEGOMYIA (DIPTERA: MUSCIDAE) 
+                    // /* remove if all row's letters are all-caps -> e.g. MEM. AMER. ENT. SOC, IO | e.g. 120 NORTH AMERICAN GENUS PEGOMYIA (DIPTERA: MUSCIDAE) 
                     $tmp = $row;
-                    $tmp = str_replace(array(",", ".", " ", "-", "'", ":", "(", ")", "&", '2"J', "6l", "/"), "", $tmp);
+                    $tmp = str_replace(array("(xj", ",", ".", " ", "-", "'", ":", "(", ")", "&", '2"J', "6l", "/"), "", $tmp);
                     $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
-                    if(ctype_upper($tmp)) continue;
+                    $new_word = array();
+                    if($tmp) {
+                        for($i = 0; $i <= strlen($tmp)-1; $i++) {
+                            $char = $tmp[$i];
+                            if(ctype_alpha($char)) $new_word[] = $char;
+                        }
+                        $new_word = implode("A", $new_word);
+                        if(ctype_upper($new_word)) continue;
+                    }
                     // */
                 }
                 
-                if(stripos($row, "WIIiLlAM") !== false) continue; //string is found
-                if(stripos($row, "MEM. AM.") !== false) continue; //string is found
+                // /* anywhere in the string, remove
+                $cont = true;
+                $dont_have_these_chars_anywhere = array("WIIiLlAM", "MEM. AM.", "NORTH AMERICAN ELACHISTIDAE", "ELACHIST1DAE", "ELACH1STIDAE");
+                foreach($dont_have_these_chars_anywhere as $char) {
+                    if(stripos($row, $char) !== false) $cont = false; //found
+                }
+                if(!$cont) continue;
+                // */
             }
 
             if(in_array($this->pdf_id, array('118986', '118920' ,'120083'))) { //5th 6th 7th doc

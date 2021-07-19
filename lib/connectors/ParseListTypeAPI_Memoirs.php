@@ -851,6 +851,8 @@ class ParseListTypeAPI_Memoirs
     {   /*
         1. Sphaerocarpos texanus Aust. Bull. Torrey Club 6: 158. 1877.
         7. Riccia Curtisii T. P, James; (Aust. Proc. Acad. Phila. 1869: 231, 
+        (1) Coelopoeta glutinosi Walsingham (Figs. 1, 2, 55, 55a, 55b, 101.) --- 118950
+        
         */
         // /* manual adjustment
         $string = str_ireplace("Riccia Frostii", "Riccia frostii", $string);
@@ -866,9 +868,10 @@ class ParseListTypeAPI_Memoirs
         $words = explode(" ", $str);
 
         /*
-        if(stripos($string, $this->in_question) !== false) { //string is found
-            echo "\n[$string]\n"; exit("\nreaches here 0\n");
-        } */
+        if(stripos($str, $this->in_question) !== false) { //string is found
+            echo "\n[$str]\n"; exit("\nreaches here 0\n[$str]\n");
+        } 
+        */
         
         // if(count($words) > 6) return false;
         if(@$words[0][1] == ";") return false; //2nd char is
@@ -936,6 +939,7 @@ class ParseListTypeAPI_Memoirs
         Laccophilus maculosus shermani Leech, new status 
         Laccophilus fasciatus fasciatus Aube, new synonymy and new status
         Laccophilus fasciatus rufus Melsheimer, restored name and new status 
+        Coelopoeta glutinosi Walsingham (Figs. 1, 2, 55, 55a, 55b, 101.) --- 118950
         */
         if(stripos($string, " of ") !== false) return false; //doesn't have this char(s) e.g. Explanation of Figures 139
 
@@ -947,7 +951,7 @@ class ParseListTypeAPI_Memoirs
         $words = explode(" ", $str);
         // if(count($words) > 6) return false;
 
-        // if(stripos($string, $this->in_question) !== false) exit("\nreaches here 2\n"); //string is found
+        // if(stripos($string, $this->in_question) !== false) exit("\nreaches here 2\n[$string]\n"); //string is found
         // /*
         $ret = self::shared_120082_118986($words, $str);
         if(!$ret) return false;
@@ -1009,14 +1013,20 @@ class ParseListTypeAPI_Memoirs
         return $string;
     }
     private function shared_120082_118986($words, $str)
-    {
-        // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 3a\n"); //string is found
+    {   //[(1) Coelopoeta glutinosi Walsingham (Figs. 1, 2, 55, 55a, 55b, 101.)] --- 118950
+        
+        // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 3a\n[$str]\n"); //string is found
+        
         if(strlen($str) <= 10) return false;
         if(count($words) < 2) return false;
         if(ctype_lower($words[0][0])) return false; //first word must be capitalized
         if(!in_array($this->pdf_id, array('15423', '91155', '15427'))) {
             if(ctype_upper($words[1][0])) return false; //2nd word must be lower case
         }
+        
+        // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 3\n[$str]\n"); //string is found
+        
+        
         if($words[0][0] == "(") return false; //must not start with this char(s) e.g. (Drawings by Frances A. McKittrick)
         if($words[0][0] == "'") return false; //must not start with this char(s) e.g. '- ■• '■
         
@@ -1033,7 +1043,8 @@ class ParseListTypeAPI_Memoirs
         }
         // */
         
-        // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 3\n"); //string is found
+        // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 3\n[$str]\n"); //string is found
+
         $first_word_must_not_be_these = array('On', 'Oh', 'Nm', 'Ov', '\or-', 'Indies');
         foreach($first_word_must_not_be_these as $char) {
             if($words[0] == "$char") return false; //must not start with this char(s)
@@ -1060,8 +1071,9 @@ class ParseListTypeAPI_Memoirs
         //8. Ditrichum rufescens (Hampe) Broth, in E. & P. Nat. 
         // 1 . Seligeria campylopoda Kindb.; Macoun, Cat. Can. 
         
-        // if(stripos($str, "(Plate X, figures 13 to 16.)") !== false) exit("\ngoes here2...\n"); //string is found
+        // if(stripos($str, $this->in_question) !== false) exit("\ngoes here2...\n[$str]\n"); //string is found
         // Cryptocercus punctulatus Scudder (Plate X, figures 13 to 16.) 
+        // Coelopoeta glutinosi Walsingham (Figs. 1, 2, 55, 55a, 55b, 101.) 
 
         foreach($dont_have_these_chars_anywhere as $char) {
             if(stripos($str, "$char") !== false) return false;
