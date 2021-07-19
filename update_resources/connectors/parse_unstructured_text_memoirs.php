@@ -148,8 +148,9 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "30355", "resource_name":
 parse_unstructured_text_memoirs.php _ '{"resource_id": "27822", "resource_name":"MotAES"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "30353", "resource_name":"MotAES"}' // to be skipped
 parse_unstructured_text_memoirs.php _ '{"resource_id": "30354", "resource_name":"MotAES"}'
-
+Jul 19, 2021 Mon
 parse_unstructured_text_memoirs.php _ '{"resource_id": "119035", "resource_name":"MotAES"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "118946", "resource_name":"MotAES"}'
 
 
 === START BHL RESOURCES ===
@@ -216,12 +217,14 @@ doc 5: didn't get a valid binomial: "Laccophilus spergatus Sharp (Figs. 98-105, 
 // === other MotAES ===
 if($resource_name == 'MotAES') {
     $arr = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 1); //1st client here is 27822
-    if($pdf_id == '119035') $arr['lines_before_and_after_sciname'] = 2;
+    if(in_array($pdf_id, array('119035', '118946'))) $arr['lines_before_and_after_sciname'] = 2;
     $rec[$pdf_id] = $arr;
     /*
     27822 --- blocks: 127|124|107   Raw scinames: 171|159|175 
     30353 --- blocks: 2   Raw scinames: 26 (skipped)
     30354 --- blocks: 89|81   Raw scinames: 174|165
+    119035 --- blocks: 48   Raw scinames: 57
+    118946 --- blocks: xx   Raw scinames: xx
     */
 }
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1); /* blocks: 2611   Raw scinames: 2641 */

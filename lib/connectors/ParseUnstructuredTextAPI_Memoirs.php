@@ -41,7 +41,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "(Plate IV, figures 18 to 20.)"; //"Ditrichum rufescens"; //"Bruchia Ravenelii"; //"Sphagnum tabulate"; //"Sphagnum tenerum";
+        $this->in_question = "Chrysopilus velutinus"; //"Ditrichum rufescens"; //"Bruchia Ravenelii";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -659,16 +659,18 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if($this->pdf_id == '120083') {
             if($str == ';al society') return false;
         }
+
+        // if(stripos($str, $this->in_question) !== false) {exit("\nxx[$str]xx33\n");}   //string is found  //good debug
+        // xx[Chrysopilus velutinus Loew (PI. Ill, fig. 27)]xx33
+
         // /*
         if(stripos($str, " species ") !== false) return false;  //string is found --- exclude "Synasterope species A" --- 0032
         if(substr($str, -8) == " species") return false;  //string is found --- 0034
         if(substr($str, -4) == " spp") return false;  //string is found --- 0067
         if(stripos($str, "Especies") !== false) return false;  //string is found --- exclude "Clave para las Especies de Farrodes Peters, nuevo género" --- 0062
-        if(stripos($str, "fig.") !== false) return false;
+        // if(stripos($str, "fig.") !== false) return false; // conflict with 118946, but not sure with prev. documents
         if(strtolower(substr($str, -11)) == " subspecies") return false;  //string is found ---	Holophygdon melanesica Subspecies
         // */
-        
-        
         
         // /*
         $words = explode(" ", $str);
@@ -791,6 +793,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             elseif(in_array($this->pdf_id, array('118920', '120083', '118237')) || $this->resource_name == 'MotAES') { //6th 7th 8th doc
                 if($ret = self::is_sciname_in_118920($row)) $row = $ret;
+                // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx\n");}   //string is found  //good debug
             }
             elseif(in_array($this->pdf_id, array('15423', '91155', '15427'))) { //1st BHL
 
@@ -820,8 +823,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             
             if(isset($this->lines_to_tag[$i])) { $hits++;
                 $row = self::format_row_to_sciname_v2($row); //fix e.g. "Amastus aphraates Schaus, 1927, p. 74."
+                // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx11\n");}   //string is found  //good debug
                 if(self::is_valid_species($row)) { //important last line
-                    // if(stripos($row, "Xestoblatta immaculata") !== false) {exit("\nxx[$row]xx\n");}   //string is found  //good debug
+                    // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx22\n");}   //string is found  //good debug
 
                     // /*
                     if($sciname = self::last_resort_to_clean_name($row)) {
@@ -1212,13 +1216,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if($cont) {
                     // /* remove if row is all-caps -> e.g. MEM. AMER. ENT. SOC, IO | e.g. 120 NORTH AMERICAN GENUS PEGOMYIA (DIPTERA: MUSCIDAE) 
                     $tmp = $row;
-                    $tmp = str_replace(array(",", ".", " ", "-", "'", ":", "(", ")", "&", '2"J', "6l"), "", $tmp);
+                    $tmp = str_replace(array(",", ".", " ", "-", "'", ":", "(", ")", "&", '2"J', "6l", "/"), "", $tmp);
                     $tmp = preg_replace('/[0-9]+/', '', $tmp); //remove For Western Arabic numbers (0-9):
                     if(ctype_upper($tmp)) continue;
                     // */
                 }
                 
                 if(stripos($row, "WIIiLlAM") !== false) continue; //string is found
+                if(stripos($row, "MEM. AM.") !== false) continue; //string is found
             }
 
             if(in_array($this->pdf_id, array('118986', '118920' ,'120083'))) { //5th 6th 7th doc

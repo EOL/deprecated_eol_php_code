@@ -22,11 +22,12 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "MoftheAES", "resource_name":"all
 process_SI_pdfs_memoirs.php _ '{"resource_id": "30355", "resource_name":"others"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "27822", "resource_name":"others"}'
 
-
 process_SI_pdfs_memoirs.php _ '{"resource_id": "30353", "resource_name":"others"}' // to be skipped
 process_SI_pdfs_memoirs.php _ '{"resource_id": "30354", "resource_name":"others"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "119035", "resource_name":"others"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "118946", "resource_name":"others"}'
 
-
+=== START BHL RESOURCES ===
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "91155", "resource_name":"2nd BHL", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15427", "resource_name":"3rd BHL", "doc": "BHL"}'
