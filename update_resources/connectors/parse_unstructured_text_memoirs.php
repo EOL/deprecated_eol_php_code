@@ -157,6 +157,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "118981", "resource_name"
 119050 --- bad source OCR
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118950", "resource_name":"BHL"}' //(1) Stephensia cunilae Braun (Figs. 11, 24, 33, 52, 52a, 102, 102a.) 
 
+"119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV"
 
 
 === START BHL RESOURCES ===

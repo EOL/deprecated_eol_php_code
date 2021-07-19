@@ -120,7 +120,7 @@ class DwCA_Utility
         elseif(in_array($this->resource_id, array("gbif_classification", "gbif_classification_without_ancestry", "gbif_classification_final", 
                                                   "26", "368_removed_aves", "617_ENV", "wikipedia_en_traits_FTG", "10088_5097_ENV", "10088_6943_ENV", 
                                                   "118935_ENV", "120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV", "120083_ENV", "118237_ENV",
-                                    "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV",
+                                    "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV",
                                     "15423_ENV", "91155_ENV"))) {
             if(Functions::is_production()) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
             else                           $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
@@ -177,7 +177,7 @@ class DwCA_Utility
                 
                 // /* customized
                 if(in_array($this->resource_id, array("10088_5097_ENV", "10088_6943_ENV", "118935_ENV", "120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV", "120083_ENV", 
-                    "118237_ENV", "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV",
+                    "118237_ENV", "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV",
                     "15423_ENV", "91155_ENV")) && $row_type == "http://rs.tdwg.org/dwc/terms/occurrence") {
                     self::process_fields($harvester->process_row_type($row_type), 'occurrence_specific');
                 }
@@ -309,7 +309,7 @@ class DwCA_Utility
         // else                                                    $annotateYes = false;
         
         if(in_array($this->resource_id, array("21_ENV", "617_ENV", "26_ENV", "10088_5097_ENV", "10088_6943_ENV", "118935_ENV", "120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV", "120083_ENV", 
-            "118237_ENV", "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", 
+            "118237_ENV", "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV",
             "15423_ENV", "91155_ENV")) || $annotateYes) { //first 2 clients: Amphibiaweb, Wikipedia EN
             echo "\nGoes here really: [$this->resource_id]\n";
             require_library('connectors/ContributorsMapAPI');
