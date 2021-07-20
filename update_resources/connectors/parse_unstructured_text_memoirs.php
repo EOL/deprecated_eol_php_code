@@ -227,7 +227,7 @@ exit("\n");
 */
 /*--------------------------------------------------------------------------------------------------------------*/
 if(in_array($pdf_id, array('30353', '118236', '118981'))) exit("\nThis document is ignored [$pdf_id]. Will terminate.\n");
-$rec[118935] = array('filename' => '118935.txt', 'lines_before_and_after_sciname' => 1); /*1 stable stats: blocks: 1312  Raw scinames count: 1322 */
+$rec[118935] = array('filename' => '118935.txt', 'lines_before_and_after_sciname' => 1); /*1 stable stats: blocks: 1267|1312  Raw scinames count: 1322 */
 $rec[120081] = array('filename' => '120081.txt', 'lines_before_and_after_sciname' => 2); /*2 stable stats: blocks: 97    Raw scinames count: 98 */
 $rec[120082] = array('filename' => '120082.txt', 'lines_before_and_after_sciname' => 2); /*4 stable stats: blocks: 25    Raw scinames count: 25 */
 $rec[118986] = array('filename' => '118986.txt', 'lines_before_and_after_sciname' => 2); /*5 stable stats: blocks: 43    Raw scinames count: 43 */
@@ -252,7 +252,7 @@ if($resource_name == 'MotAES') {
     30354 --- blocks: 89|81   Raw scinames: 174|165
     119035 --- blocks: 56|48   Raw scinames: 109|57
     118946 --- blocks: 102|92   Raw scinames: 172|105
-    118936 --- blocks: 15   Raw scinames: 19
+    118936 --- blocks: 14|15   Raw scinames: 19
     */
 }
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1); /* blocks: 2611   Raw scinames: 2641 */

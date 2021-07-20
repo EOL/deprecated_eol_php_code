@@ -22,11 +22,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         not used:
         https://parser.globalnames.org/?q=https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx...
 
-        %26 - &
-        %2C - ,
-        %28 - (
-        %29 - )
-        %3B - ;
+        %26 - &     %2C - ,     %28 - (     %29 - )     %3B - ;
         + - space
         */
         /* index key here is the lines_before_and_after_sciname */
@@ -58,9 +54,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             [epub_output_txts_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/
         )
         */
-        
         $this->debug['sciname cnt'] = 0;
-        
         // /* this serves when script is called from parse_unstructured_text.php --- un-comment in real operation
         $pdf_id = pathinfo($input['filename'], PATHINFO_FILENAME);
         $this->pdf_id = $pdf_id;
@@ -78,7 +72,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         $this->lines_to_tag = array();
         $this->scinames = array();
-        
         $filename = $input['filename'];
         
         // /* new: delete start of text up to certain point e.g. 120083.txt
@@ -207,8 +200,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             // */
 
-            if(stripos($row, "salicicola (") !== false) echo "\nsearch 3\n";   //string is found
-            
+            // if(stripos($row, $this->in_question) !== false) echo "\nsearch 3\n";   //string is found
 
             /* good debug
             //Capitophorus ohioensis Smith, 1940:141
@@ -380,11 +372,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // exit("\nstr2 = [$str]\n");
         }
         // */
-        
         $arr = explode(" ", $str); 
-        
         // if(stripos($str, "(Schizocerus)") !== false) {print_r($arr); exit;} //string is found
-        
         /*cseruleum (Hedychrum) Norton, Trans. Am. Ent. Soc, vii, 239.
         Array(
             [0] => cseruleum
@@ -428,9 +417,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // if(stripos($str, "(Schizocerus)") !== false) exit("\n2nd: [$second]\n"); //string is found
         }
         else return false;
-
+        
         // if(stripos($str, "Schizocerus") !== false) exit("\n[33 $str]\n"); //string is found
-
+        
         $third = substr(@$arr[2], 0, strlen(@$arr[2])-1);
         $third = str_replace("_", " ", $third);
         $sciname = $second." ".$arr[0]." ".$third;
@@ -547,11 +536,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             */
 
-
             if(self::is_sciname_in_15423($string)) return true;
             else return false;
         }
-        
         /* ----- end Memoirs ----- */
 
         if(stripos($string, "salicicola (") !== false) echo "\nhanap 1 [$string]\n"; //string is found
@@ -755,7 +742,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         /* cannot do it also
         if(stripos($str, "?") !== false) return false;  //string is found
         */
-        
         return true;
     }
     private function add_taxon_tags_to_text_file_v3($filename)
@@ -912,7 +898,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // newline
             // [paragraph beginning with ""Fig."" or ""Figure""]"
 
-
             // /*
             // if($this->pdf_id == '118935') { //1st doc or those similar with 1st doc e.g. 30355
             if(in_array($this->pdf_id, array('118935', '30355'))) {
@@ -1053,7 +1038,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     }
                 }
                 // */
-                
             }
             
             if($row == "Bibliography") $row = "</taxon>$row";
@@ -1114,7 +1098,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     private function format_row_to_sciname_v2($row) //Amastus aphraates Schaus, 1927, p. 74.
     {
         $row = self::remove_first_word_if_it_has_number($row);
-        
         $row = self::clean_sciname_here($row);
         if(stripos($row, " p. ") !== false) {   //string is found
             $obj = $this->run_gnparser($row);
@@ -1164,7 +1147,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $name = str_replace("?", "", $name);
         $name = trim(Functions::remove_whitespace($name));
         // */
-        
         return $name;
     }
     function clean_sciname_here2($name)
@@ -1180,7 +1162,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         // Caecidotea nodulus (Williams, 1970) (Maryland specimens)
         $name = trim(str_ireplace("(Maryland specimens)", "", $name));
-
         return $name;
     }
     private function remove_some_rows($edited_file)
@@ -1364,7 +1345,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         }//end loop text
         fclose($WRITE);
         if(copy($temp_file, $edited_file)) unlink($temp_file);
-        
     }
     /*#################################################################################################################################*/
     private function show_parsed_texts_for_mining($edited_file)
