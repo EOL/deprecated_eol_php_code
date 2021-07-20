@@ -169,7 +169,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "119035", "resource_name"
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118946", "resource_name":"MotAES"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118936", "resource_name":"MotAES"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118236", "resource_name":"MotAES"}' // no records
-parse_unstructured_text_memoirs.php _ '{"resource_id": "118981", "resource_name":"MotAES"}' //ask Jen if we want to get articles here
+parse_unstructured_text_memoirs.php _ '{"resource_id": "118981", "resource_name":"MotAES"}' // Jen confirms to ignore this doc.
 119050 --- bad source OCR
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118950", "resource_name":"BHL"}' //(1) Stephensia cunilae Braun (Figs. 11, 24, 33, 52, 52a, 102, 102a.) 
 
@@ -226,6 +226,7 @@ echo "\n[$string]\n";
 exit("\n");
 */
 /*--------------------------------------------------------------------------------------------------------------*/
+if(in_array($pdf_id, array('30353', '118236', '118981'))) exit("\nThis document is ignored [$pdf_id]. Will terminate.\n");
 $rec[118935] = array('filename' => '118935.txt', 'lines_before_and_after_sciname' => 1); /*1 stable stats: blocks: 1312  Raw scinames count: 1322 */
 $rec[120081] = array('filename' => '120081.txt', 'lines_before_and_after_sciname' => 2); /*2 stable stats: blocks: 97    Raw scinames count: 98 */
 $rec[120082] = array('filename' => '120082.txt', 'lines_before_and_after_sciname' => 2); /*4 stable stats: blocks: 25    Raw scinames count: 25 */
@@ -240,16 +241,18 @@ doc 5: didn't get a valid binomial: "Laccophilus spergatus Sharp (Figs. 98-105, 
 // === other MotAES ===
 if($resource_name == 'MotAES') {
     $arr = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 1); //1st client here is 27822
-    if(in_array($pdf_id, array('119035', '118946', '118936', '118236'))) $arr['lines_before_and_after_sciname'] = 2;
+    if(in_array($pdf_id, array('118936', '118236'))) $arr['lines_before_and_after_sciname'] = 2;
+    $rec[119035]['lines_before_and_after_sciname'] = 1;
+    $rec[118946]['lines_before_and_after_sciname'] = 1;
+    
     $rec[$pdf_id] = $arr;
     /*
     27822 --- blocks: 127|124|107   Raw scinames: 171|159|175 
     30353 --- blocks: 2   Raw scinames: 26 (skipped)
     30354 --- blocks: 89|81   Raw scinames: 174|165
-    119035 --- blocks: 48   Raw scinames: 57
-    118946 --- blocks: 92   Raw scinames: 105
+    119035 --- blocks: 56|48   Raw scinames: 109|57
+    118946 --- blocks: 102|92   Raw scinames: 172|105
     118936 --- blocks: 15   Raw scinames: 19
-    
     */
 }
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1); /* blocks: 2611   Raw scinames: 2641 */

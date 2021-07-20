@@ -648,8 +648,9 @@ class ParseListTypeAPI_Memoirs
         if($this->resource_name == "MotAES") { //exclude rows with multiple binomials
             if(count(@$obj->names) > 1) return false;
         }
-        
         $sciname = @$obj->names[0]->scientificName;
+        if(self::is_just_one_word($sciname)) return false; //exclude if sciname is just one word, it is implied that it should be a binomial
+        
         if(in_array($this->pdf_id, array("30353", "30354"))) $criteria = $sciname && self::binomial_or_more($sciname); //resources to be skipped more or less
         else                                        $criteria = $sciname; //rest of the resources, default
         if($criteria) {
@@ -1158,6 +1159,22 @@ class ParseListTypeAPI_Memoirs
         $arr = array("AA.", "BB.", "CC.", "DD.", "EE.", "FF.", "GG.", "HH.", "II. Tegmina", "II. Size");
         foreach($arr as $letters) {
             if(strpos($contents, $letters) !== false) return true; //string is found
+        }
+        return false;
+    }
+    private function is_just_one_word($phrase)
+    {
+        $words = explode(" ", trim($phrase));
+        if(count($words) == 1) return true;
+        return false;
+    }
+    function is_a_Group_stop_pattern($row)
+    {
+        $words = explode(" ", $row);
+        if($words[0] == 'Group') { //first word is 'Group'
+            if(count($words) <= 3) {
+                return true;
+            }
         }
         return false;
     }

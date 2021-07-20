@@ -663,9 +663,10 @@ class Pensoft2EOLAPI
             }
             // */
             
-            // /* https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65899&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65899
+            // /*
             if($rek['ontology'] == "envo") {
-                if(in_array($rek['lbl'], array('mesa', 'laguna'))) continue;
+                if(in_array($rek['lbl'], array('mesa', 'laguna'))) continue; //https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65899&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65899
+                if(in_array($rek['lbl'], array('rapids'))) continue; //118950_ENV https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66259&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66259
             }
             // */
             

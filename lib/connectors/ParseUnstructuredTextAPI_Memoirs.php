@@ -13,7 +13,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
-        http://gnrd.globalnames.org/name_finder.json?text=Asterella bolanderi
+        http://gnrd.globalnames.org/name_finder.json?text=Rhagio since an open anal cell has heretofore been considered a
         http://gnrd.globalnames.org/name_finder.json?text=Nyctihora laevigata and numerous Gadus morhua
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
@@ -41,7 +41,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Coelopoeta glutinosi Walsingham (F"; //"Ditrichum rufescens"; //"Bruchia Ravenelii";
+        $this->in_question = "Xylophagus lugens Loew (P"; //"Ditrichum rufescens";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -254,7 +254,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         // if(stripos($rows[2], "Capitophorus ohioensis") !== false) exit("\nok 2\n"); //string is found //good debug
                         
                         $words = explode(" ", $rows[2]);
-                        $limit = 9; //orig limit is 6
+                        $limit = 15; //9; //orig limit is 6
                         if(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
                                                          '118936', '118950'))) $limit = 15;
                         if(count($words) <= $limit)  {
@@ -457,13 +457,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if($this->pdf_id == '27822') { // Nyctihora laevigata and numerous Carihlatta insidaris --- GNRD didn't recognize that there are 2 binomials here
             if(stripos($string, "Nyctihora laevigata and numerous Carihlatta") !== false) return false; //string is found
         }
-        
         // */
         
-        if(stripos($string, "salicicola (") !== false) echo "\nhanap 0 [$string]\n"; //string is found
-        // echo("\npdf_id: $this->pdf_id\n");
-        // if($this->pdf_id == '118935') { //1st doc
-        if(in_array($this->pdf_id, array('118935', '30355'))) {
+        // if(stripos($string, $this->in_question) !== false) echo "\nhanap 0 [$string]\n"; //string is found
+        if(in_array($this->pdf_id, array('118935', '30355'))) { //118935 - 1st doc
             if(self::is_sciname_in_memoirs($string)) return true;
             else return false;
         }
@@ -1062,6 +1059,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($row == "Bibliography") $row = "</taxon>$row";
             elseif($row == "CATALOGUES") $row = "</taxon>$row";
             
+            if($this->is_a_Group_stop_pattern($row)) $row = "</taxon>$row"; //119035.txt
+            
             /* to close tag the last block
             if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293_convertio.txt
             elseif($row == "Literature Cited") $row = "</taxon>$row";       //SCtZ-0007.txt
@@ -1072,8 +1071,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($row == "Summary and Conclusions") $row = "</taxon>$row";
             elseif($row == "Appendix Tables") $row = "</taxon>$row";
             elseif($row == "Intermediates") $row = "</taxon>$row";          //scb-0007.txt
-            elseif($row == "Glossary") $row = "</taxon>$row";                                   //scb-0009.txt
-            elseif($row == "Acknowledgments") $row = "</taxon>$row";                            //scb-0094.txt
+            elseif($row == "Glossary") $row = "</taxon>$row";               //scb-0009.txt
+            elseif($row == "Acknowledgments") $row = "</taxon>$row";        //scb-0094.txt
             
             if(self::sciname_then_specific_words($row, "Excluded Taxa")) $row = "</taxon>$row"; //for all
             // e.g. "Isopterygium Excluded Taxa"
@@ -1099,6 +1098,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             */
             fwrite($WRITE, $row."\n");
+            
+            /* End of document --- ignore everything that follows from this point */
+            if($this->pdf_id == '118946') {
+                if($row == "</taxon>Bibliography") break; //exit("\n[$row]\n"); //break;
+            }
+            
         }//end loop text
         fclose($WRITE);
         if(copy($temp_file, $edited_file)) unlink($temp_file);
