@@ -755,12 +755,13 @@ class SmasherLastAPI
         $ret = self::get_uids_from_sheet4("containers!A1:G129", 'special'); 
         $parent_ids = array_keys($ret); //print_r($parent_ids);
         $parent_id_name = $ret;         //print_r($parent_id_name); exit; //e.g. Array([891fa241-de7e-419d-9272-fba02e073fb2] => Ascomycota)
+        echo "\nparents from sheet: ".count($parent_ids)."\n";
         // */
         /* during dev. only
-        $parent_ids = array('-159349', '374d5b3e-09c9-4ca0-a2fe-38f454c76d1f'); //forced value
+        // $parent_ids = array('-159349', '374d5b3e-09c9-4ca0-a2fe-38f454c76d1f'); //forced value
         $parent_ids = array('-159349'); //forced value
         $parent_id_name['-159349'] = 'Rhabdocoela';
-        $parent_id_name['374d5b3e-09c9-4ca0-a2fe-38f454c76d1f'] = 'Squamata';
+        // $parent_id_name['374d5b3e-09c9-4ca0-a2fe-38f454c76d1f'] = 'Squamata';
         */
         
         $this->parentID_taxonID = self::get_ids($source); //print_r($this->parentID_taxonID); exit; //used when getting children
@@ -834,6 +835,7 @@ class SmasherLastAPI
         $arr = explode(",", $flag);
         $arr = array_map('trim', $arr);
         if(in_array('incertae_sedis', $arr) && in_array('incertae_sedis_inherited', $arr)) return true;
+        if(in_array('incertae_sedis', $arr)) return true;
         return false;
     }
 }
