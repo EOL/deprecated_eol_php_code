@@ -661,5 +661,73 @@ class SmasherLastAPI
         $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
     }
+    /* ------------------------------ START TRAM-993 ------------------------------ */
+    function A_Clean_up_deadend_branches()
+    {
+        /* A. Clean up deadend branches
+        ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        There’s a new ‘Remove dead-end branches’ worksheet in the Fix DH2 smasher workbook: https://docs.google.com/spreadsheets/d/1D-AYca8hk3WCgAoslL15DvrJD4XD7NXT0d_tPdKxxVQ/edit#gid=798495355
+        Please remove all of these taxa from the taxonomy file. They are all childless. */
+        $source      = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_6.tsv";
+        $destination = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_7.tsv";
+        /*
+        $parent_ids = self::get_uids_from_sheet4("Remove dead-end branches!A1:H731"); // print_r($parent_ids); exit;
+        // $parent_ids = array('xxx');            forced value
+        $this->parentID_taxonID = self::get_ids($source); //print_r($this->parentID_taxonID); exit;
+        require_library('connectors/PaleoDBAPI_v2');
+        $func = new PaleoDBAPI_v2("");
+        $descendant_ids = $func->get_all_descendants_of_these_parents($parent_ids, $this->parentID_taxonID); // echo "\ndescendant_ids: "; print_r($descendant_ids);
+        $exclude_uids = array_merge($parent_ids, $descendant_ids);
+        echo "\nparent_ids: ".count($parent_ids)."\n";
+        echo "\ndescendant_ids: ".count($descendant_ids)."\n";
+        echo "\nexclude_uids: ".count($exclude_uids)."\n";
+        */
+        $parent_ids = array();
+        $descendant_ids = array();
+        $exclude_uids = array();
+        
+        /* start final deletion */
+        $WRITE = Functions::file_open($destination, "w");
+        $i = 0;
+        foreach(new FileIterator($source) as $line => $row) { $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
+            $rec = explode("\t", $row);
+            if($i == 1) {
+                $fields = $rec;
+                fwrite($WRITE, implode("\t", $fields) . "\n");
+                continue;
+            }
+            else {
+                $rek = array(); $k = 0;
+                foreach($fields as $fld) {
+                    if($fld) $rek[$fld] = @$rec[$k];
+                    $k++;
+                }
+                $rek = array_map('trim', $rek);
+            }
+            // print_r($rek); exit("\nend4\n");
+            /*Array(
+                [uid] => 4038af35-41da-469e-8806-40e60241bb58
+                [parent_uid] => 
+                [name] => Life
+                [rank] => no rank
+                [sourceinfo] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
+                [uniqname] => 
+                [flags] => 
+            )*/
+            if(in_array($rek['uid'], $exclude_uids)) continue;
+            
+            if(stripos($rek['flags'], "was_container") !== false) { //string is found
+                @$was_container++;
+                continue;
+            }
+            
+            fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
+        }
+        fclose($WRITE);
+        $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
+        $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
+        echo "\n was_container: [$was_container]\n";
+    }
+
 }
 ?>

@@ -15,14 +15,17 @@ $func->sheet2_Merge_DH2_taxa();                 echo "\n-end sheet2_Merge_DH2_ta
 $func->sheet3_Split_DH2_taxa();                 echo "\n-end sheet3_Split_DH2_taxa-\n";
 $func->sheet4_Delete_DH2_taxa();                echo "\n-end sheet4_Delete_DH2_taxa-\n";
 */
-
+/* ran already OK
 $func->July7_num_1_2(); echo("\n-end Jul7_num1-\n");
 $func->July7_num_2_delete(); echo("\n-end July7_num_2_delete-\n");
-
+*/
 /*
 source      :  2379530 /Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy_5.tsv
 destination :  2378798 /Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy_6.tsv
 */
+/* START TRAM-993 */
+$func->A_Clean_up_deadend_branches(); echo("\n---- end A_Clean_up_deadend_branches ----\n");
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
