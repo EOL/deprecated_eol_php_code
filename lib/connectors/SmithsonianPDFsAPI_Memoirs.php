@@ -608,6 +608,13 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         if(count($words) <= 6) $tmp = ""; //blank means excluded.
                     }
                     // */
+
+                    // /*
+                    if(!in_array($pdf_id, array('120602'))) {
+                        $words = explode(" ", $tmp);
+                        if(count($words) <= 15) $tmp = ""; //blank means excluded.
+                    }
+                    // */
                     
                     $tmp = str_replace("- ", "", $tmp); //for all resources
                     $rec['body'] = $tmp;
@@ -661,10 +668,11 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(in_array($pdf_id, array('118935', '30355'))) {
                     $CVterm = 'Uses'; //for list-type documents. A distinction so it can be removed in final DwCA
                 }
-                if(stripos($rec['body'], "<br>") !== false) { //string is found --- meaning multiple rows in text
+                
+                // if(stripos($rec['body'], "<br>") !== false) { //string is found --- meaning multiple rows in text --- DON'T DO IT, WRONG RESULTS
                     if($rec['sciname'] && $rec['body']) self::write_archive($rec, $pdf_meta_obj, $CVterm);
-                }
-                else {} //meaning just 1 row, name itself. Then just ignore it.
+                // }
+                // else {} //meaning just 1 row, name itself. Then just ignore it.
             }
         }
     }
