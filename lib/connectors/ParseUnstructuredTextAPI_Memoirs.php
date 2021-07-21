@@ -13,8 +13,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
-        http://gnrd.globalnames.org/name_finder.json?text=Rhagio since an open anal cell has heretofore been considered a
-        http://gnrd.globalnames.org/name_finder.json?text=Nyctihora laevigata and numerous Gadus morhua
+        http://gnrd.globalnames.org/name_finder.json?text=Hesperaeschna) californica (Hagen MS.)
+        http://gnrd.globalnames.org/name_finder.json?text=Coryphaeschna luteipennis peninsularis
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -37,7 +37,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Xylophagus lugens Loew (P"; //"Ditrichum rufescens";
+        $this->in_question = "Aeshna (Hesperaeschna) psilus PI"; //"Coryphaeschna luteipennis peninsularis Tab";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -93,6 +93,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         self::show_parsed_texts_for_mining($edited_file);
         // print_r($this->scinames); 
         echo "\nRaw scinames count: ".count($this->scinames)."\n";
+        
+        print_r($this->investigate2);
     }
     private function get_main_scinames($filename)
     {
@@ -448,7 +450,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         }
         // */
         
-        // if(stripos($string, $this->in_question) !== false) echo "\nhanap 0 [$string]\n"; //string is found
+        // if(stripos($string, $this->in_question) !== false) exit("\nhanap 0 [$string]\n"); //string is found
         if(in_array($this->pdf_id, array('118935', '30355'))) { //118935 - 1st doc
             if(self::is_sciname_in_memoirs($string)) return true;
             else return false;
@@ -476,7 +478,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // */
             }
             // /* anywhere in the string
-            $exclude = array('The ', 'This ', 'These ', 'Photograph', ' after');
+            $exclude = array('The ', 'This ', 'These ', 'Photograph', ' after'); //'<^>', '<OC'
             foreach($exclude as $x) {
                 if(stripos($string, $x) !== false) return false; //string is found
             }
@@ -484,7 +486,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             
             // /* start of the string
             $cont = true;
-            $exclude = array_merge($exclude, array("From ", '"'));
+            $exclude = array_merge($exclude, array("From ", '"')); //"WOittO", "G>", "H^l)", "Nfu-j", "XSr-"
             foreach($exclude as $start_of_row) {
                 $len = strlen($start_of_row);
                 if(substr($string,0,$len) == $start_of_row) {
@@ -500,6 +502,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(strlen(@$words[1]) == 1) return false; //2nd word is just 1 char long
             if(substr($words[0], -1) == ",") return false; //1st word last char is a comma ","
             // */
+            
+            // if(stripos($string, $this->in_question) !== false) exit("\nstopx 10 [$string]\n"); //string is found
+
+            /* good debug
+            if(stripos($string, $this->in_question) !== false) {
+                if(self::is_sciname_in_118920($string)) exit("\nelix true\n[$string]\n");
+                else exit("\nelix false\n[$string]\n");
+            }
+            */
             
             if(self::is_sciname_in_118920($string)) return true;
             else return false;
@@ -852,6 +863,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                             else            $row = "</taxon><taxon sciname='$row'> ".$row;
                         }
                     }
+                    else {
+                        // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx33\n");}   //string is found  //good debug
+                    }
                     // */
                 }
             }
@@ -866,7 +880,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($row == "INDEX.")            $row = "</taxon>$row";
             if($row == "INDEX")             $row = "</taxon>$row";
             if($row == "ACKNOWLEDGMENTS")   $row = "</taxon>$row"; //118237.txt
-            if(substr($row,0,4) == "Key ")  $row = "</taxon>$row";
+            if($row == "Pseudomopoid Complex")  $row = "</taxon>$row";
+            if(substr($row,0,4) == "Key ")      $row = "</taxon>$row";
 
             if($this->pdf_id == '120082') { //4th doc
                 $words = array('Table', 'Key', 'Remarks. —', 'Nomen inquirendum', 'Literature Cited');
@@ -988,7 +1003,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // */
                 $words = explode(" ", $row);
                 $first_word = str_ireplace("*", "", $words[0]);
-                $first_word = preg_replace('/[0-9]+/', '', $first_word); //remove For Western Arabic numbers (0-9):
+                $first_word = trim(preg_replace('/[0-9]+/', '', $first_word)); //remove For Western Arabic numbers (0-9):
+
+                if($this->pdf_id == '120602') { //exit("\nelix\n");
+                    if(in_array(strtoupper($first_word), array("OULOPTERYGIDAE", "DIPLOPTERIDAE", "PANESTHIDAE", "LATINDIINI", "POLYPHAGINI", "PANESTHIIDAE", "EUSTEGASTINI", "SCHNPTERINI", "BRACHYCOLINAE", "CEUTHOBIINAE", "PSEUDOMOPINAE", "NAUPHOETINI", "EPILAMPRINI", "CALOLAMPRINI", "THORACINI", "PARANAUPHOETINI", "ONISCOSOMINI", "LEUCOPHAEINI", "PANCHLORINI", "PHORASPIDINI", "PARATROPINI", "EUSTEGAST", "ISCHNOPTERINI"))) $row = "</taxon>$row";
+                }
+
                 if(ctype_upper($first_word)) {
                     if(strlen($first_word) > 2) {
                         if(in_array($first_word, array('LUWULARIA', 'SPHAGNUM', 'ANDREAEA', 'OSMUNDA', 'CYATHEACBAB'))) $row = "</taxon>$row";
@@ -1017,7 +1037,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $tmp_row = trim(Functions::remove_whitespace($tmp_row));
                 $words = explode(" ", $tmp_row);
                 foreach($this->ranks as $rank) {
-                    if($words[0] == $rank && ctype_upper($words[1][0])) { //echo "\nChecking rank row...\n";
+                    if($words[0] == $rank && ctype_upper(@$words[1][0])) { //echo "\nChecking rank row...\n";
                         if(in_array($words[1], array('MARCHAWTIALES', 'TARGIONI', 'SPHAERO', 'MUSCI', 'SELIGERLACEAE'))) $row = "</taxon>$row";
                         else {
                             if(self::is_sciname_using_GNRD($words[1])) $row = "</taxon>$row"; //e.g. Genus Spirobolus Brandt
@@ -1045,6 +1065,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             
             if($this->is_a_Group_stop_pattern($row)) $row = "</taxon>$row"; //119035.txt
             
+            if(in_array($this->pdf_id, array('120602'))) {
+                if(self::one_word_and_higher_taxon($row)) $row = "</taxon>$row";                //120602.txt e.g. "Corydiini"
+            }
+            if(self::two_words_rank_and_sciname_combo($row)) $row = "</taxon>$row";         // Tribe Beckerinini newline
+            
+            
             /* to close tag the last block
             if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293_convertio.txt
             elseif($row == "Literature Cited") $row = "</taxon>$row";       //SCtZ-0007.txt
@@ -1068,8 +1094,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(self::N_words_or_less_beginning_with_Key($row, 12)) $row = "</taxon>$row";   //scb-0001.txt
             }
             
-            if(self::one_word_and_higher_taxon($row)) $row = "</taxon>$row";                //scb-0094.txt
-            if(self::two_words_rank_and_sciname_combo($row)) $row = "</taxon>$row";         // Tribe Beckerinini newline
             */
 
             /* New: per Jen: https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65856&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65856
@@ -1087,6 +1111,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->pdf_id == '118946') {
                 if($row == "</taxon>Bibliography") break; //exit("\n[$row]\n"); //break;
             }
+            if($row == "Plate III. Bonariensis Rambur, Aeshna (Neureclipa)") break; //119187
+            
             
         }//end loop text
         fclose($WRITE);

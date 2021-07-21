@@ -615,16 +615,19 @@ class ParseListTypeAPI_Memoirs
         $sciname_line = str_ireplace("Eurycotis bioUeyi Rehn", "Eurycotis biolleyi Rehn", $sciname_line); //30354
         // */
         
-        // if(stripos($sciname_line, "segregate") !== false) exit("\n[$sciname_line]\n"); //good debug - to see what string passes here.
+        // if(stripos($sciname_line, $this->in_question) !== false) exit("\n[$sciname_line]\n"); //good debug - to see what string passes here.
         
-        $proceed = true;
+        /*
+        study this block further...
         if($numbers = $this->get_numbers_from_string($sciname_line)) { //if there is a single digit or 2-digit or 3-digit number in string then proceed to clean.
             foreach($numbers as $num) {
-                if(strlen($num) <= 3) {$cont = false; break; }
+                if(strlen($num) <= 3) {break;}
             }
         }
-        if($proceed) {}
-        else return $sciname_line; //no need to clean further
+        */
+        
+        // if(stripos($sciname_line, $this->in_question) !== false) exit("\n[$sciname_line]\n"); //good debug - to see what string passes here.
+
         
         // /* ------------- last name cleaning ------------- use both gnparser and GNRD
         $orig = $sciname_line;
@@ -646,7 +649,19 @@ class ParseListTypeAPI_Memoirs
         $obj = self::run_GNRD($sciname_line);
         
         if($this->resource_name == "MotAES") { //exclude rows with multiple binomials
-            if(count(@$obj->names) > 1) return false;
+            if(count(@$obj->names) > 1) {
+                $verbatim_1 = $obj->names[0]->verbatim;
+                $verbatim_2 = $obj->names[1]->verbatim;
+                if(stripos($verbatim_1, $verbatim_2) !== false) {
+                    //echo "\ncheck ditox: [$sciname_line]\n";
+                } //string is found //e.g. "Aeshna (Hesperaeschna) psilus"
+                else {
+                    echo "\nGNRD sees multiple names: [$sciname_line]\n";
+                    // print_r($obj->names); //good debug
+                    return false;
+                }
+                
+            }
         }
         $sciname = @$obj->names[0]->scientificName;
         if(self::is_just_one_word($sciname)) return false; //exclude if sciname is just one word, it is implied that it should be a binomial
@@ -791,6 +806,17 @@ class ParseListTypeAPI_Memoirs
         debug("\nrun_GNRD 2: [$str]\n");
         if($obj = self::run_GNRD($str)) {
             if(strtolower($str) == strtolower(@$obj->names[0]->scientificName)) return true;
+            else {
+
+                if($this->pdf_id == '120602') {
+                    if(in_array($str, array("Oulopteryginae", "Corydini", "Tiviini", "Euthyrrhaphini", "Compsodini", "Panesthiini", "Diplopterini", "Blattini", "Nyctiborini", "Megaloblattini", "Perisphaerini", "Litopeltiini", "Brachycolini", "Blaberini", "Parcoblattini", "Euphyllodromiini", "Euandroblattini", "Neoblattellini", "Pseudomopini", "Supellini", "Symplocini", "Baltini", "Ectobiini", "Chorisoneurini", "Anaplectini", "Ceuthobiini", "Oulopterygini", "Corydiini", "ElTTHYRRHAPHINAE", "Litopeltini", "Euphyllodromini", "Ectobhnae"))) return true;
+                }
+
+                if(!isset($this->investigate2[$str])) {
+                    echo "\nNot sciname says GNRD 2: [$str]\n";
+                    $this->investigate2[$str] = '';
+                }
+            }
         }
         return false;
     }
@@ -930,6 +956,8 @@ class ParseListTypeAPI_Memoirs
         if($string == "An uregulai") return false;
         if($string == "Cascadoperla trictura") return false;
 
+        // if(stripos($string, $this->in_question) !== false) exit("\nstopx 11 [$string]\n"); //string is found
+        
         return self::is_sciname_in_118986($string);
     }
     function is_sciname_in_118986($string)
@@ -1082,14 +1110,20 @@ class ParseListTypeAPI_Memoirs
 
         // if(stripos($str, $this->in_question) !== false) exit("\nreached here 4\n[$str]\n"); //string is found
         // [Euphyllodromia decastigmata'i^ new species (Plate IV, figures 18 to 20.)]
+        // Aeshna (Hesperaeschna) psilus PI. XL, fig. 531, PL XLI, figs. 539-554;
 
-        // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 4\n"); //string is found
         if($this->get_numbers_from_string($words[0])) return false; //first word must not have a number
         if($this->get_numbers_from_string($words[1])) return false; //2nd word must not have a number
 
-        if(self::last_word_not_num_not_LT_4_digits($words)) {}
-        else return false;
+        // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 4x\n[$str]\n"); //string is found
 
+        if(in_array($this->pdf_id, array('119187'))) {} //Coryphaeschna luteipennis peninsularis Tables 8, 11, 13, 18; Map 7.
+        else {
+            if(self::last_word_not_num_not_LT_4_digits($words)) {}
+            else return false;
+        }
+
+        // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 4y\n"); //string is found
         return true;
     }
     public function last_word_not_num_not_LT_4_digits($words)

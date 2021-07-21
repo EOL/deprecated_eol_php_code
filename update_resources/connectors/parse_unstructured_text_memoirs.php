@@ -120,19 +120,26 @@ NEW mof 2904    media 374   taxon 1263
 
 119035	Mon 2021-07-19 11:55:23 AM	{"media_resource.tab":48, "taxon.tab":48, "time_elapsed":{"sec":0.7, "min":0.01, "hr":0}}
 119035_ENV	Mon 2021-07-19 12:00:28 PM	{"measurement_or_fact_specific.tab":169, "media_resource.tab":48, "occurrence_specific.tab":169, "taxon.tab":48, "time_elapsed":{"sec":185.41, "min":3.09, "hr":0.05}}
+119035	Tue 2021-07-20 05:22:11 AM	{"media_resource.tab":56, "taxon.tab":56, "time_elapsed":{"sec":0.39, "min":0.01, "hr":0}}
+119035_ENV	Tue 2021-07-20 05:24:23 AM	{"measurement_or_fact_specific.tab":169, "media_resource.tab":56, "occurrence_specific.tab":169, "taxon.tab":56, "time_elapsed":{"sec":12.3, "min":0.21, "hr":0}}
 
 118936	Mon 2021-07-19 11:58:31 AM	{"media_resource.tab":14, "taxon.tab":14, "time_elapsed":{"sec":0.35, "min":0.01, "hr":0}}
 118936_ENV	Mon 2021-07-19 12:04:14 PM	{"measurement_or_fact_specific.tab":63, "media_resource.tab":14, "occurrence_specific.tab":63, "taxon.tab":14, "time_elapsed":{"sec":223.14, "min":3.72, "hr":0.06}}
+118936	Tue 2021-07-20 05:21:53 AM	{"media_resource.tab":14, "taxon.tab":14, "time_elapsed":{"sec":0.45, "min":0.01, "hr":0}}
+118936_ENV	Tue 2021-07-20 05:24:07 AM	{"measurement_or_fact_specific.tab":63, "media_resource.tab":14, "occurrence_specific.tab":63, "taxon.tab":14, "time_elapsed":{"sec":14.65, "min":0.24, "hr":0}}
 
 118946	Mon 2021-07-19 11:59:01 AM	{"media_resource.tab":92, "taxon.tab":91, "time_elapsed":{"sec":0.45, "min":0.01, "hr":0}}
 118946_ENV	Mon 2021-07-19 12:12:06 PM	{"measurement_or_fact_specific.tab":639, "media_resource.tab":92, "occurrence_specific.tab":639, "taxon.tab":91, "time_elapsed":{"sec":664.58, "min":11.08, "hr":0.18}}
+118946	Tue 2021-07-20 05:22:44 AM	{"media_resource.tab":102, "taxon.tab":101, "time_elapsed":{"sec":0.45, "min":0.01, "hr":0}}
+118946_ENV	Tue 2021-07-20 05:24:58 AM	{"measurement_or_fact_specific.tab":639, "media_resource.tab":102, "occurrence_specific.tab":639, "taxon.tab":101, "time_elapsed":{"sec":14.1, "min":0.24, "hr":0}}
 
-118950	Mon 2021-07-19 12:01:14 PM	{"media_resource.tab":55, "taxon.tab":55, "time_elapsed":{"sec":0.37, "min":0.01, "hr":0}}
-118950_ENV	Mon 2021-07-19 12:07:54 PM	{"measurement_or_fact_specific.tab":152, "media_resource.tab":55, "occurrence_specific.tab":152, "taxon.tab":55, "time_elapsed":{"sec":280.61, "min":4.68, "hr":0.08}}
+118950	Mon 2021-07-19 12:01:14 PM	{                                        "media_resource.tab":55,                                "taxon.tab":55, "time_elapsed":{"sec":0.37, "min":0.01, "hr":0}}
+118950_ENV	Mon 2021-07-19 12:07:54 {"measurement_or_fact_specific.tab":152, "media_resource.tab":55, "occurrence_specific.tab":152, "taxon.tab":55, "time_elapsed":{"sec":280.61, "min":4.68, "hr":0.08}}
+118950	Tue 2021-07-20 05:22:18 AM	{                                        "media_resource.tab":55,                                "taxon.tab":55, "time_elapsed":{"sec":0.4, "min":0.01, "hr":0}}
+118950_ENV	Tue 2021-07-20 05:24:31 {"measurement_or_fact_specific.tab":151, "media_resource.tab":55, "occurrence_specific.tab":151, "taxon.tab":55, "time_elapsed":{"sec":12.86, "min":0.21, "hr":0}}
 
 
-
------------------------------------------------------------- North American Flora (DATA-1890)
+------------------------------------------------------------ North American Flora (DATA-1890) --- BHL
 15423	Thu 2021-07-08 09:19:19 AM	{                                        "media_resource.tab":66,                                "taxon.tab":66, "time_elapsed":{"sec":1.79, "min":0.03, "hr":0}}
 15423_ENV	Thu 2021-07-08 09:22:29 {"measurement_or_fact_specific.tab":340, "media_resource.tab":66, "occurrence_specific.tab":340, "taxon.tab":66, "time_elapsed":{"sec":70.23, "min":1.17, "hr":0.02}}
 removed "ocean - ENVO_00000447":
@@ -172,9 +179,9 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "118236", "resource_name"
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118981", "resource_name":"MotAES"}' // Jen confirms to ignore this doc.
 119050 --- bad source OCR
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118950", "resource_name":"BHL"}' //(1) Stephensia cunilae Braun (Figs. 11, 24, 33, 52, 52a, 102, 102a.) 
-
-"119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV"
-
+Jul 20, 2021 Tue
+parse_unstructured_text_memoirs.php _ '{"resource_id": "120602", "resource_name":"MotAES"}' // with some TLC was able to get some 'Present' data.
+parse_unstructured_text_memoirs.php _ '{"resource_id": "119187", "resource_name":"MotAES"}'
 
 === START BHL RESOURCES ===
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL"}'
@@ -244,6 +251,8 @@ if($resource_name == 'MotAES') {
     if(in_array($pdf_id, array('118936', '118236'))) $arr['lines_before_and_after_sciname'] = 2;
     $rec[119035]['lines_before_and_after_sciname'] = 1;
     $rec[118946]['lines_before_and_after_sciname'] = 1;
+    $rec[119187]['lines_before_and_after_sciname'] = 1;
+    
     
     $rec[$pdf_id] = $arr;
     /*
@@ -253,6 +262,8 @@ if($resource_name == 'MotAES') {
     119035 --- blocks: 56|48   Raw scinames: 109|57
     118946 --- blocks: 102|92   Raw scinames: 172|105
     118936 --- blocks: 14|15   Raw scinames: 19
+    120602 --- blocks: 20   Raw scinames: 40
+    119187 --- blocks: xx   Raw scinames: xx
     */
 }
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1); /* blocks: 2611   Raw scinames: 2641 */

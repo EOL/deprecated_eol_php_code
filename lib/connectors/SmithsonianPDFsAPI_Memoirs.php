@@ -661,7 +661,10 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(in_array($pdf_id, array('118935', '30355'))) {
                     $CVterm = 'Uses'; //for list-type documents. A distinction so it can be removed in final DwCA
                 }
-                if($rec['sciname'] && $rec['body']) self::write_archive($rec, $pdf_meta_obj, $CVterm);
+                if(stripos($rec['body'], "<br>") !== false) { //string is found --- meaning multiple rows in text
+                    if($rec['sciname'] && $rec['body']) self::write_archive($rec, $pdf_meta_obj, $CVterm);
+                }
+                else {} //meaning just 1 row, name itself. Then just ignore it.
             }
         }
     }
