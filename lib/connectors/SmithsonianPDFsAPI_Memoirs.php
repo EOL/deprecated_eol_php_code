@@ -665,7 +665,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 )*/
                 
                 $CVterm = 'Description'; //default
-                if(in_array($pdf_id, array('118935', '30355'))) {
+                if(in_array($pdf_id, array('118935', '30355', '120602'))) {
                     $CVterm = 'Uses'; //for list-type documents. A distinction so it can be removed in final DwCA
                 }
                 

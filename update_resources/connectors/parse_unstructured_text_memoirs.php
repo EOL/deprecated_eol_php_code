@@ -183,6 +183,8 @@ Jul 20, 2021 Tue
 parse_unstructured_text_memoirs.php _ '{"resource_id": "120602", "resource_name":"MotAES"}' // with some TLC was able to get some 'Present' data.
 parse_unstructured_text_memoirs.php _ '{"resource_id": "119187", "resource_name":"MotAES"}'
 
+"120602_ENV", "119187_ENV"
+
 === START BHL RESOURCES ===
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "91155", "resource_name":"2nd BHL"}'

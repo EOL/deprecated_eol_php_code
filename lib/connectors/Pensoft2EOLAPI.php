@@ -191,6 +191,7 @@ class Pensoft2EOLAPI
         elseif($this->param['resource_id'] == '21_ENV') $excluded_rowtypes = array(); //AmphibiaWeb text -> doesn't create a new DwCA
         if(in_array($this->param['resource_id'], array("10088_5097_ENV", "10088_6943_ENV", "118935_ENV", "120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV", "120083_ENV", 
             "118237_ENV", "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV",
+            "120602_ENV", "119187_ENV",
             "15423_ENV", "91155_ENV"))) $excluded_rowtypes = array('http://eol.org/schema/media/document');
         if(stripos($this->param['resource_id'], "SCtZ-") !== false) $excluded_rowtypes = array('http://eol.org/schema/media/document'); //string is found
         elseif(stripos($this->param['resource_id'], "scb-") !== false)  $excluded_rowtypes = array('http://eol.org/schema/media/document'); //string is found
@@ -385,6 +386,7 @@ class Pensoft2EOLAPI
                 elseif(in_array($this->param['resource_id'], array("118935_ENV")))     $this->ontologies = "eol-geonames";
                 if(in_array($this->param['resource_id'], array("120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV", "120083_ENV", 
                     "118237_ENV", "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV",
+                    "120602_ENV", "119187_ENV",
                     "15423_ENV", "91155_ENV"))) $this->ontologies = "envo,eol-geonames";
                 // ---------------------- end customize ----------------------*/
                 
@@ -688,7 +690,8 @@ class Pensoft2EOLAPI
             // /* customize: remove all records with measurementValue = http://purl.obolibrary.org/obo/ENVO_00000447
             // for all resources of: Memoirs of the American Entomological Society
             if(in_array($this->param['resource_id'], array("118935_ENV", "120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV", 
-                    "120083_ENV", "118237_ENV", "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV"))) {
+                    "120083_ENV", "118237_ENV", "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV",
+                    "120602_ENV", "119187_ENV"))) {
                 if($rek['id'] == 'http://purl.obolibrary.org/obo/ENVO_00000447') continue; //remove 'ocean' Per Jen: https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66228&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66228
             }
             // */
