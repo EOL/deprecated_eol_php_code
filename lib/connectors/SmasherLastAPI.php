@@ -446,7 +446,7 @@ class SmasherLastAPI
         $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
     }
-    private function get_uids_from_sheet4($range)
+    private function get_uids_from_sheet4($range, $ret = 'normal')
     {
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
@@ -456,10 +456,11 @@ class SmasherLastAPI
         //start massage array
         $i = 0;
         foreach($arr as $item) { $i++;
-            if($i > 1) $final[$item[0]] = '';
+            if($i > 1) $final[$item[0]] = $item[2];
         }
         // print_r($final); echo "\n".count($final)."\n";
-        return array_keys($final);
+        if($ret == 'normal') return array_keys($final);
+        elseif($ret == 'special') return $final;
     }
     private function get_ids($source)
     {
@@ -670,7 +671,7 @@ class SmasherLastAPI
         Please remove all of these taxa from the taxonomy file. They are all childless. */
         $source      = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_6.tsv";
         $destination = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_7.tsv";
-        /*
+        // /* orig
         $parent_ids = self::get_uids_from_sheet4("Remove dead-end branches!A1:H731"); // print_r($parent_ids); exit;
         // $parent_ids = array('xxx');            forced value
         $this->parentID_taxonID = self::get_ids($source); //print_r($this->parentID_taxonID); exit;
@@ -681,11 +682,12 @@ class SmasherLastAPI
         echo "\nparent_ids: ".count($parent_ids)."\n";
         echo "\ndescendant_ids: ".count($descendant_ids)."\n";
         echo "\nexclude_uids: ".count($exclude_uids)."\n";
-        */
+        // */
+        /* debug
         $parent_ids = array();
         $descendant_ids = array();
         $exclude_uids = array();
-        
+        */
         /* start final deletion */
         $WRITE = Functions::file_open($destination, "w");
         $i = 0;
@@ -720,14 +722,89 @@ class SmasherLastAPI
                 @$was_container++;
                 continue;
             }
-            
-            fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
+            if($rek['uid']) fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
         }
         fclose($WRITE);
         $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
         echo "\n was_container: [$was_container]\n";
     }
+    function B2_Create_new_containers_for_incertae_sedis()
+    {   /*2. Create new containers for incertae_sedis taxa
+        There’s a new sheet called “containers” in the Fix DH2 smasher doc: 
+        For each of the taxa in this list, create a new child and call it "unclassified name-of-parent". 
+        Then find all the children of that parent (the original taxon from the list) and move all those children 
+        into the unclassified branch that have an incertae_sedis flag. Important: don’t move taxa that have only an incertae_sedis_inherited flag, 
+        but do move taxa that have both an incertae_sedis flag and an incertae_sedis_inherited flag.
+        Example:
+        taxon: -159349 ba6ce1ac-9f2d-4166-b536-a81c3f9e418d Rhabdocoela order COL:8860fcb2e22a083696e895c0ec08b306
+        Create a new child of -159349 and name it “unclassified Rhabdocoela.”
+        Rhabdocoela has 47 children (assuming -256639 was removed in the previous step). 
+        Of these 34 have the incertae_sedis_inherited flag only -> leave those alone. 
+        The other 13 have both flags: incertae_sedis,incertae_sedis_inherited. 
+        These taxa should have their parent changed to the “unclassified Rhabdocoela” node.
+        */
+        $source      = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_7.tsv";
+        $destination = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_8.tsv";
 
+        /* orig
+        $ret = self::get_uids_from_sheet4("containers!A1:G129", 'special'); 
+        $parent_ids = array_keys($ret); print_r($parent_ids);
+        $parent_id_name = $ret;         print_r($parent_id_name); exit; //e.g. Array([891fa241-de7e-419d-9272-fba02e073fb2] => Ascomycota)
+        */
+        // /* during dev. only
+        $parent_ids = array('-159349', '374d5b3e-09c9-4ca0-a2fe-38f454c76d1f'); //forced value
+        $parent_id_name['-159349'] = 'Rhabdocoela';
+        $parent_id_name['374d5b3e-09c9-4ca0-a2fe-38f454c76d1f'] = 'Squamata';
+        // */
+        
+        $this->parentID_taxonID = self::get_ids($source); //print_r($this->parentID_taxonID); exit; //used when getting children
+
+        
+        /* step 1: loop to parent_ids */
+        foreach($parent_ids as $parent_id) {
+            if($children = @$this->parentID_taxonID[$parent_id]) { // print_r($children);
+                echo "\n children of $parent_id: ".count($children)."\n";
+                foreach($children as $child) $all_children[$child] = $parent_id;
+            }
+        }
+        // print_r($all_children); exit("\n".count($all_children)."\n");
+
+        
+        /* step 2: loop taxonomy file */
+        $WRITE = Functions::file_open($destination, "w");
+        $i = 0;
+        foreach(new FileIterator($source) as $line => $row) { $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
+            $rec = explode("\t", $row);
+            if($i == 1) {
+                $fields = $rec;
+                fwrite($WRITE, implode("\t", $fields) . "\n");
+                continue;
+            }
+            else {
+                $rek = array(); $k = 0;
+                foreach($fields as $fld) {
+                    if($fld) $rek[$fld] = @$rec[$k];
+                    $k++;
+                }
+                $rek = array_map('trim', $rek);
+            }
+            // print_r($rek); exit("\nend4\n");
+            /*Array(
+                [uid] => 4038af35-41da-469e-8806-40e60241bb58
+                [parent_uid] => 
+                [name] => Life
+                [rank] => no rank
+                [sourceinfo] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
+                [uniqname] => 
+                [flags] => 
+            )*/
+            
+            if($rek['uid']) fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
+        }
+        fclose($WRITE);
+        $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
+        $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
+    }
 }
 ?>
