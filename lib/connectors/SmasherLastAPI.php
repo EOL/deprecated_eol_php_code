@@ -743,34 +743,38 @@ class SmasherLastAPI
         Of these 34 have the incertae_sedis_inherited flag only -> leave those alone. 
         The other 13 have both flags: incertae_sedis,incertae_sedis_inherited. 
         These taxa should have their parent changed to the “unclassified Rhabdocoela” node.
+        
+        Metadata for new container taxa (see below): Create a unique ID, we’ll change it later. 
+        The canonicalName value should be the same as scientificName, 
+        the taxonRank should be blank, the datasetID should be trunk.
         */
         $source      = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_7.tsv";
         $destination = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_8.tsv";
 
-        /* orig
+        // /* orig
         $ret = self::get_uids_from_sheet4("containers!A1:G129", 'special'); 
-        $parent_ids = array_keys($ret); print_r($parent_ids);
-        $parent_id_name = $ret;         print_r($parent_id_name); exit; //e.g. Array([891fa241-de7e-419d-9272-fba02e073fb2] => Ascomycota)
-        */
-        // /* during dev. only
+        $parent_ids = array_keys($ret); //print_r($parent_ids);
+        $parent_id_name = $ret;         //print_r($parent_id_name); exit; //e.g. Array([891fa241-de7e-419d-9272-fba02e073fb2] => Ascomycota)
+        // */
+        /* during dev. only
         $parent_ids = array('-159349', '374d5b3e-09c9-4ca0-a2fe-38f454c76d1f'); //forced value
+        $parent_ids = array('-159349'); //forced value
         $parent_id_name['-159349'] = 'Rhabdocoela';
         $parent_id_name['374d5b3e-09c9-4ca0-a2fe-38f454c76d1f'] = 'Squamata';
-        // */
+        */
         
         $this->parentID_taxonID = self::get_ids($source); //print_r($this->parentID_taxonID); exit; //used when getting children
 
-        
         /* step 1: loop to parent_ids */
-        foreach($parent_ids as $parent_id) {
+        // foreach($parent_ids as $parent_id) {
+        foreach($parent_id_name as $parent_id => $name) {
             if($children = @$this->parentID_taxonID[$parent_id]) { // print_r($children);
                 echo "\n children of $parent_id: ".count($children)."\n";
-                foreach($children as $child) $all_children[$child] = $parent_id;
+                foreach($children as $child) $all_children[$child] = $name; //$parent_id;
             }
         }
         // print_r($all_children); exit("\n".count($all_children)."\n");
 
-        
         /* step 2: loop taxonomy file */
         $WRITE = Functions::file_open($destination, "w");
         $i = 0;
@@ -799,12 +803,38 @@ class SmasherLastAPI
                 [uniqname] => 
                 [flags] => 
             )*/
+            $uid = $rek['uid'];
+            if($parent_name = @$all_children[$uid]) {
+                if(self::has_both_incertae_flags($rek['flags'])) $rek['parent_uid'] = "unclassified_".$parent_name;
+            }
             
             if($rek['uid']) fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
         }
+        
+        //add the new containers
+        foreach($parent_id_name as $parent_id => $name) {
+            $save = array();
+            $save = Array(
+                "uid" => 'unclassified_'.$name,
+                "parent_uid" => $parent_id,
+                "name" => "unclassified $name",
+                "rank" => '',
+                "sourceinfo" => '',
+                "uniqname" => '',
+                "flags" => '');
+            fwrite($WRITE, implode("\t", $save) . "\n"); //saving
+        }
+        
         fclose($WRITE);
         $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
+    }
+    private function has_both_incertae_flags($flag)
+    {   // incertae_sedis,incertae_sedis_inherited
+        $arr = explode(",", $flag);
+        $arr = array_map('trim', $arr);
+        if(in_array('incertae_sedis', $arr) && in_array('incertae_sedis_inherited', $arr)) return true;
+        return false;
     }
 }
 ?>
