@@ -895,18 +895,13 @@ class SmasherLastAPI
             )*/
             
             $ret = self::fetch_from_source('scientificName', $rek['sourceinfo']);
-            $rec['scientificName'] = $ret['scientificName'];
-            $rec['taxonRank'] = $ret['taxonRank'];
-            $rec['taxonRemarks'] = '';
-            if(in_array($ret_SI['source_name'], array('IOC', 'ODO', 'BOM', 'SPR', 'ITIS', 'WOR', 'COL'))) {
-                $rec['taxonRemarks'] = $ret['taxonRemarks'];
-            }
+            $rec['scientificName']  = $ret['scientificName'];
+            $rec['taxonRank']       = $ret['taxonRank'];
+            $rec['taxonRemarks']    = $ret['taxonRemarks'];
             $rec['taxonRemarks'] = self::format_taxonRemarks($rec['taxonRemarks'], $rek['flags']);
             /*
             http://rs.tdwg.org/dwc/terms/taxonRemarks
             Fetch the taxonRemarks value from the source file for those sources that have them: IOC, ODO, BOM, SPR, ITIS, WOR, COL.
-
-            
             Also, if smasher has flagged a taxon as incertae_sedis (but not incertae_sedis_inherited) 
                 please append “incertae sedis” to the taxonRemarks field. 
             If there is already content in that field (fetched from the source file), 
@@ -923,11 +918,45 @@ class SmasherLastAPI
             Use “accepted” as the value for all taxa in the smasher taxonomy.*/
             $rec['taxonomicStatus'] = 'accepted';
             
+            /*http://rs.tdwg.org/dwc/terms/datasetID
+            Use our data set acronyms (trunk, ictv, MAM, NCBI, etc.) 
+                for the following data sets: trunk,ictv, IOC, MAM, LIZ, ODO, BOM, ERE, COC, VSP, ONY, ITIS, NCBI, WOR, CRU, MOL
+
+            The following data sets have line by line dataset or datasetID values, please use those for the DH datasetID values: dino, ANN, MIP
+
+            For TRI, please use pbdb as the datasetID value
+
+            For COL & SPR, we want to use the datasetID value from the original COL data files. 
+                These are not in the SPR or COL for DH files, so you have to fetch them from the original COL export files. 
+                Also, please use COL- as a prescript for these IDs. For example, if the COL datasetID is 5, our datasetID would be COL-5. 
+                If the COL datasetID is Species 2000 or if there is no datasetID available, simply use COL as the datasetID for both COL 
+                    and SPR derived taxa.*/
+            if(in_array($ret_SI['source_name'], array("trunk", "ictv", "IOC", "MAM", "LIZ", "ODO", "BOM", "ERE", "COC", "VSP", "ONY", "ITIS", "NCBI", "WOR", "CRU", "MOL"))) {
+                $rec['datasetID'] = $ret_SI['source_name'];
+            }
+            elseif(in_array($ret_SI['source_name'], array("dino", "ANN", "MIP")))   $rec['datasetID'] = $ret['datasetID'];
+            elseif($ret_SI['source_name'] == 'TRI')                                 $rec['datasetID'] = 'pbdb';
             
+            /*http://purl.org/dc/terms/source
+            This should be the entire sourceinfo value from the smasher file.*/
+            $rec['source'] = $rek['sourceinfo'];
             
+            /*http://rs.tdwg.org/ac/terms/furtherInformationURL
+            Fetch the furtherInformationURL values from the source file 
+                for those sources that have this field: dino, ODO, BOM, ANN, TRI, ITIS, MIP, NCBI, WOR
+            Fetch the value from the “source” field and put it in the furtherInformationURL field of the DH file 
+                for the following sources: ictv, IOC */
+            $rec['furtherInformationURL'] = $ret['furtherInformationURL'];
+
+            /* To be added later
+            http://eol.org/schema/EOLid
+            http://eol.org/schema/EOLidAnnotations
+            http://eol.org/schema/Landmark */
+            $rec['EOLid'] = '';
+            $rec['EOLidAnnotations'] = '';
+            $rec['Landmark'] = '';
             
-            
-            print_r($rec); exit;
+            print_r($rec); //exit;
             /*
             $tax = new \eol_schema\Taxon();
             $tax->taxonID = $rec['taxonID'];
@@ -977,7 +1006,7 @@ class SmasherLastAPI
         $path['ITIS'] = '/Volumes/AKiTiO4/d_w_h/2021_02/itis_2020-12-01/taxon.tab';
 
         if(!isset($path[$source_name])) exit("\nsource_name not yet initialized [$source_name]\n");
-        return self::get_field_value_from_source($sought_field, $path[$source_name], $taxon_id);
+        return self::get_field_value_from_source($sought_field, $path[$source_name], $taxon_id, $source_name);
     }
     private function parse_sourceinfo($sourceinfo)
     {   // e.g. trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1 | ictv:ICTV:201902639
@@ -989,7 +1018,7 @@ class SmasherLastAPI
         $taxon_id = implode(":", $choice);
         return array('source_name' => $source_name, 'taxon_id' => $taxon_id);
     }
-    function get_field_value_from_source($sought_field, $txtfile, $taxon_id)
+    function get_field_value_from_source($sought_field, $txtfile, $taxon_id, $source_name)
     {   // echo "\nReading [$txtfile]...\n";
         $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
@@ -1023,9 +1052,31 @@ class SmasherLastAPI
             
             if($rec['taxonID'] == $taxon_id) {
                 $ret = array();
-                $ret['scientificName'] = $rec['scientificName'];
-                $ret['taxonRank'] = $rec['taxonRank'];
-                $ret['taxonRemarks'] = @$rec['taxonRemarks'];
+                $ret['scientificName']  = $rec['scientificName'];
+                $ret['taxonRank']       = $rec['taxonRank'];
+
+                $ret['taxonRemarks']    = '';
+                if(in_array($source_name, array('IOC', 'ODO', 'BOM', 'SPR', 'ITIS', 'WOR', 'COL'))) {
+                    $ret['taxonRemarks'] = $rec['taxonRemarks'];
+                }
+
+                $ret['datasetID'] = '';
+                if(in_array($source_name, array('ANN', 'MIP'))) {
+                    $ret['datasetID'] = $rec['dataSet'];
+                }
+                if(in_array($source_name, array('dino'))) {
+                    $ret['datasetID'] = $rec['datasetID'];
+                }
+
+                /* Fetch the furtherInformationURL values from the source file 
+                    for those sources that have this field: dino, ODO, BOM, ANN, TRI, ITIS, MIP, NCBI, WOR
+                Fetch the value from the “source” field and put it in the furtherInformationURL field of the DH file 
+                    for the following sources: ictv, IOC */
+                $ret['furtherInformationURL'] = '';
+                if(in_array($source_name, array('dino', 'ODO', 'BOM', 'ANN', 'TRI', 'ITIS', 'MIP', 'NCBI', 'WOR'))) {
+                                                                 $ret['furtherInformationURL'] = $rec['furtherInformationURL'];
+                }
+                if(in_array($source_name, array('ictv', 'IOC'))) $ret['furtherInformationURL'] = $rec['source'];
                 return $ret;
             }
             
