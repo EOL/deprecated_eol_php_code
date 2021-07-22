@@ -3,13 +3,13 @@ namespace php_active_record;
 /* */
 class SmasherLastAPI
 {
-    function __construct()
+    function __construct($folder)
     {
-        /* copied template
-        $this->resource_id = $resource_id;
-        $this->download_options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 60*60*1);
-        $this->FishBase_collaborators = 'https://www.fishbase.de/Collaborators/CollaboratorsTopicList.php';
-        */
+        if($folder) {
+            $this->resource_id = $folder;
+            $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
+            $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        }
     }
     function sheet1_Move_DH2_taxa_to_new_parent() //https://docs.google.com/spreadsheets/d/1D-AYca8hk3WCgAoslL15DvrJD4XD7NXT0d_tPdKxxVQ/edit#gid=0
     {   /* Sheet1: Move DH2 taxa to new parent:
@@ -837,6 +837,187 @@ class SmasherLastAPI
         if(in_array('incertae_sedis', $arr) && in_array('incertae_sedis_inherited', $arr)) return true;
         if(in_array('incertae_sedis', $arr)) return true;
         return false;
+    }
+    function C_Fetch_metadata()
+    {
+        self::parse_source_Smasher_file();
+        $this->archive_builder->finalize(true);
+    }
+    function parse_source_Smasher_file()
+    {
+        $source = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_8.tsv"; $i = 0;
+        foreach(new FileIterator($source) as $line => $row) { $i++; if(($i % 100) == 0) echo "\n".number_format($i);
+            $rec = explode("\t", $row);
+            if($i == 1) {
+                $fields = $rec;
+                continue;
+            }
+            else {
+                $rek = array(); $k = 0;
+                foreach($fields as $fld) {
+                    if($fld) $rek[$fld] = @$rec[$k];
+                    $k++;
+                }
+                $rek = array_map('trim', $rek);
+            }
+            // print_r($rek); exit("\nend4\n");
+            /*Array(
+                [uid] => 4038af35-41da-469e-8806-40e60241bb58
+                [parent_uid] => 
+                [name] => Life
+                [rank] => no rank
+                [sourceinfo] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
+                [uniqname] => 
+                [flags] => 
+            )*/
+            $rec = array();
+            /*http://rs.tdwg.org/dwc/terms/taxonID
+            For now, keep the smasher identifiers. We will turn those into real identifiers once DH 2.1 is fully assembled.*/
+            $rec['taxonID'] = $rek['uid'];
+            
+            /*http://rs.tdwg.org/dwc/terms/acceptedNameUsageID
+            Blank for taxa from the smasher taxonomy*/
+            $rec['acceptedNameUsageID'] = '';
+            
+            /*http://rs.tdwg.org/dwc/terms/parentNameUsageID
+            From the smasher file*/
+            $rec['parentNameUsageID'] = $rek['parent_uid'];
+            
+            /*
+            http://rs.tdwg.org/dwc/terms/scientificName --- Fetch the scientificName field from the source file
+            http://rs.tdwg.org/dwc/terms/taxonRank      --- Fetch the taxonRank value from the source file
+            */
+            $rec['scientificName'] = self::fetch_from_source('scientificName', $rek['sourceinfo']);
+            
+            
+            /*http://rs.gbif.org/terms/1.0/canonicalName
+            Please copy the value of the smasher name field into the canonicalName field of the DH file.*/
+            $rec['canonicalName'] = $rek['name'];
+            
+            /*http://rs.tdwg.org/dwc/terms/taxonomicStatus
+            Use “accepted” as the value for all taxa in the smasher taxonomy.*/
+            $rec['taxonomicStatus'] = 'accepted';
+            
+            
+            
+            
+            
+            // print_r($rec); //exit;
+            /*
+            $tax = new \eol_schema\Taxon();
+            $tax->taxonID = $rec['taxonID'];
+            $tax->scientificName = $rec['scientificName'];
+            $tax->canonicalName = $rec['canonicalName'];
+            $tax->parentNameUsageID = $rec['parentNameUsageID'];
+            $tax->acceptedNameUsageID = $rec['acceptedNameUsageID'];
+            $tax->taxonRank = $rec['taxonRank'];
+            $tax->taxonomicStatus = $rec['taxonomicStatus'];
+            $tax->source = $rec['source'];
+            $tax->furtherInformationURL = $rec['furtherInformationURL'];
+            $tax->taxonRemarks = $rec['taxonRemarks'];
+            $tax->datasetID = $rec['datasetID'];
+            $tax->EOLid = $rec['EOLid'];
+            $tax->EOLidAnnotations = $rec['EOLidAnnotations'];
+            $tax->higherClassification = $rec['higherClassification'];
+            $tax->Landmark = $rec['Landmark'];
+            $this->archive_builder->write_object_to_file($tax);
+            */
+            // if($i == 5) break;
+        }
+        exit("\nstop muna...\n");
+        $this->archive_builder->finalize(true);
+    }
+    private function fetch_from_source($sought_field, $sourceinfo)
+    {
+        $ret = self::parse_sourceinfo($sourceinfo); // print_r($ret); exit;
+        /*Array(
+            [source_name] => trunk
+            [taxon_id] => 4038af35-41da-469e-8806-40e60241bb58
+        )*/
+        $source_name = $ret['source_name'];
+        $taxon_id = $ret['taxon_id'];
+        
+        $path['trunk'] = '/Volumes/AKiTiO4/d_w_h/2021_02/dhtrunk/taxon.txt';
+        $path['ictv'] = '/Volumes/AKiTiO4/d_w_h/2021_02/ICTV-virus_taxonomy-with-higherClassification/taxon.tab';
+        $path['WOR'] = '/Volumes/AKiTiO4/d_w_h/2021_02/WoRMS_DH/taxon.tab';
+        $path['COL'] = '/Volumes/AKiTiO4/d_w_h/2021_02/Catalogue_of_Life_DH_2019/taxon.tab';
+        $path['ANN'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolannelidapatch/taxon.txt';
+        $path['MIP'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolmicrobespatch/taxa.txt';
+        
+        if(!isset($path[$source_name])) exit("\nsource_name not yet initialized [$source_name]\n");
+        return self::get_field_value_from_source($sought_field, $path[$source_name], $taxon_id);
+    }
+    private function parse_sourceinfo($sourceinfo)
+    {   // e.g. trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1 | ictv:ICTV:201902639
+        $arr = explode(",", $sourceinfo);
+        $choice = $arr[0];
+        $choice = explode(":", $choice);
+        $source_name = $choice[0];
+        array_shift($choice);
+        $taxon_id = implode(":", $choice);
+        return array('source_name' => $source_name, 'taxon_id' => $taxon_id);
+    }
+    function get_field_value_from_source($sought_field, $txtfile, $taxon_id)
+    {   // echo "\nReading [$txtfile]...\n";
+        $i = 0;
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec); //print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [taxonID] => 4038af35-41da-469e-8806-40e60241bb58
+                [taxonRank] => no rank
+                [canonicalName] => Life
+                [scientificNameAuthorship] => 
+                [scientificName] => Life
+                [taxonomicStatus] => accepted
+                [parentNameUsageID] => 
+                [acceptedNameUsageID] => 
+                [higherClassification] => 
+            )*/
+            
+            if($rec['taxonID'] == $taxon_id) return $rec[$sought_field];
+            
+            /*
+            if($rank = $rec['taxonRank']) {
+                if($rank == 'no rank') $rank = '';
+                elseif($rank == 'varietas') $rank = 'variety';
+                elseif($rank == 'forma.') $rank = 'form';
+            }
+            $tax = new \eol_schema\Taxon();
+            $tax->taxonID = $rec['taxonID'];
+            $tax->scientificName = $rec['scientificName'];
+            $tax->canonicalName = $rec['canonicalName'];
+            $tax->parentNameUsageID = $rec['parentNameUsageID'];
+            $tax->acceptedNameUsageID = $rec['acceptedNameUsageID'];
+            $tax->taxonRank = $rec['taxonRank'];
+            $tax->taxonomicStatus = $rec['taxonomicStatus'];
+            $tax->source = $rec['source'];
+            $tax->furtherInformationURL = $rec['furtherInformationURL'];
+            $tax->taxonRemarks = $rec['taxonRemarks'];
+            $tax->datasetID = $rec['datasetID'];
+            $tax->EOLid = $rec['EOLid'];
+            $tax->EOLidAnnotations = $rec['EOLidAnnotations'];
+            $tax->higherClassification = $rec['higherClassification'];
+            $tax->Landmark = $rec['Landmark'];
+            $this->archive_builder->write_object_to_file($tax);
+            // if($i == 5) break;
+            */
+        }
+        exit("\nDid not get anything: [$sought_field], [$txtfile], [$taxon_id]\n");
     }
 }
 ?>
