@@ -853,6 +853,7 @@ class SmasherLastAPI
                 continue;
             }
             else {
+                if($i < 10900) continue;
                 $rek = array(); $k = 0;
                 foreach($fields as $fld) {
                     if($fld) $rek[$fld] = @$rec[$k];
@@ -887,7 +888,31 @@ class SmasherLastAPI
             http://rs.tdwg.org/dwc/terms/scientificName --- Fetch the scientificName field from the source file
             http://rs.tdwg.org/dwc/terms/taxonRank      --- Fetch the taxonRank value from the source file
             */
-            $rec['scientificName'] = self::fetch_from_source('scientificName', $rek['sourceinfo']);
+            $ret_SI = self::parse_sourceinfo($rek['sourceinfo']); //print_r($ret_SI); exit;
+            /*Array(
+                [source_name] => MIP
+                [taxon_id] => Glaucocystis-duplex
+            )*/
+            
+            $ret = self::fetch_from_source('scientificName', $rek['sourceinfo']);
+            $rec['scientificName'] = $ret['scientificName'];
+            $rec['taxonRank'] = $ret['taxonRank'];
+            $rec['taxonRemarks'] = '';
+            if(in_array($ret_SI['source_name'], array('IOC', 'ODO', 'BOM', 'SPR', 'ITIS', 'WOR', 'COL'))) {
+                $rec['taxonRemarks'] = $ret['taxonRemarks'];
+            }
+            $rec['taxonRemarks'] = self::format_taxonRemarks($rec['taxonRemarks'], $rek['flags']);
+            /*
+            http://rs.tdwg.org/dwc/terms/taxonRemarks
+            Fetch the taxonRemarks value from the source file for those sources that have them: IOC, ODO, BOM, SPR, ITIS, WOR, COL.
+
+            
+            Also, if smasher has flagged a taxon as incertae_sedis (but not incertae_sedis_inherited) 
+                please append “incertae sedis” to the taxonRemarks field. 
+            If there is already content in that field (fetched from the source file), 
+                separate the “incertae sedis” entry from the other content with a semicolon 
+                unless that content already ends in a semicolon or a period.
+            */
             
             
             /*http://rs.gbif.org/terms/1.0/canonicalName
@@ -902,7 +927,7 @@ class SmasherLastAPI
             
             
             
-            // print_r($rec); //exit;
+            print_r($rec); exit;
             /*
             $tax = new \eol_schema\Taxon();
             $tax->taxonID = $rec['taxonID'];
@@ -922,7 +947,7 @@ class SmasherLastAPI
             $tax->Landmark = $rec['Landmark'];
             $this->archive_builder->write_object_to_file($tax);
             */
-            // if($i == 5) break;
+            if($i == 5) break;
         }
         exit("\nstop muna...\n");
         $this->archive_builder->finalize(true);
@@ -943,7 +968,14 @@ class SmasherLastAPI
         $path['COL'] = '/Volumes/AKiTiO4/d_w_h/2021_02/Catalogue_of_Life_DH_2019/taxon.tab';
         $path['ANN'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolannelidapatch/taxon.txt';
         $path['MIP'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolmicrobespatch/taxa.txt';
-        
+        $path['NCBI'] = '/Volumes/AKiTiO4/d_w_h/2021_02/NCBI_Taxonomy_Harvest_DH/taxon.tab';
+        $path['dino'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eoldinosauriapatch/taxa.txt';
+        $path['IOC'] = '/Volumes/AKiTiO4/d_w_h/2021_02/ioc-birdlist/taxon.tab';
+        $path['ODO'] = '/Volumes/AKiTiO4/d_w_h/2021_02/worldodonatalist/taxa.txt';
+        $path['BOM'] = '/Volumes/AKiTiO4/d_w_h/2021_02/kitchingetal2018/taxa.txt';
+        $path['SPR'] = '/Volumes/AKiTiO4/d_w_h/2021_02/Collembola_DH/taxon.tab';
+        $path['ITIS'] = '/Volumes/AKiTiO4/d_w_h/2021_02/itis_2020-12-01/taxon.tab';
+
         if(!isset($path[$source_name])) exit("\nsource_name not yet initialized [$source_name]\n");
         return self::get_field_value_from_source($sought_field, $path[$source_name], $taxon_id);
     }
@@ -989,7 +1021,13 @@ class SmasherLastAPI
                 [higherClassification] => 
             )*/
             
-            if($rec['taxonID'] == $taxon_id) return $rec[$sought_field];
+            if($rec['taxonID'] == $taxon_id) {
+                $ret = array();
+                $ret['scientificName'] = $rec['scientificName'];
+                $ret['taxonRank'] = $rec['taxonRank'];
+                $ret['taxonRemarks'] = @$rec['taxonRemarks'];
+                return $ret;
+            }
             
             /*
             if($rank = $rec['taxonRank']) {
@@ -1018,6 +1056,27 @@ class SmasherLastAPI
             */
         }
         exit("\nDid not get anything: [$sought_field], [$txtfile], [$taxon_id]\n");
+    }
+    private function format_taxonRemarks($rem, $flags)
+    {   /*  Also, if smasher has flagged a taxon as incertae_sedis (but not incertae_sedis_inherited) 
+                please append “incertae sedis” to the taxonRemarks field. 
+            If there is already content in that field (fetched from the source file), 
+                separate the “incertae sedis” entry from the other content with a semicolon 
+                unless that content already ends in a semicolon or a period. */
+        if(self::is_flag('incertae_sedis', $flags) && !self::is_flag('incertae_sedis_inherited', $flags)) {
+            if(substr($rem, -1) == ";" || substr($rem, -1) == ".") $rem .= " incertae sedis";
+            elseif($rem) $rem .= "; incertae sedis";
+            else $rem = "incertae sedis";
+        }
+        return $rem;
+    }
+    private function is_flag($needle, $flags)
+    {
+        $words = explode(",", $flags);
+        foreach($words as $word) {
+            if($word == $needle) return true;
+        }
+        return false;
     }
 }
 ?>
