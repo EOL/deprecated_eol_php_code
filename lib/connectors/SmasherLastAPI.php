@@ -932,10 +932,14 @@ class SmasherLastAPI
                 If the COL datasetID is Species 2000 or if there is no datasetID available, simply use COL as the datasetID for both COL 
                     and SPR derived taxa.*/
             if(in_array($ret_SI['source_name'], array("trunk", "ictv", "IOC", "MAM", "LIZ", "ODO", "BOM", "ERE", "COC", "VSP", "ONY", "ITIS", "NCBI", "WOR", "CRU", "MOL"))) {
-                $rec['datasetID'] = $ret_SI['source_name'];
+                                                                                    $rec['datasetID'] = $ret_SI['source_name'];
             }
             elseif(in_array($ret_SI['source_name'], array("dino", "ANN", "MIP")))   $rec['datasetID'] = $ret['datasetID'];
             elseif($ret_SI['source_name'] == 'TRI')                                 $rec['datasetID'] = 'pbdb';
+            
+            Catalogue_of_Life_DH_2019   --- /Volumes/AKiTiO4/web/cp/COL/2019-annual/taxa.txt 
+            Collembola_DH               --- /Volumes/AKiTiO4/web/cp/COL/2020-08-01-archive-complete/taxa.txt 
+            
             
             /*http://purl.org/dc/terms/source
             This should be the entire sourceinfo value from the smasher file.*/
