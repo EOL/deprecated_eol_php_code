@@ -915,6 +915,9 @@ class PaleoDBAPI_v2
             $ids = self::get_descendants_of_this_parent($parent_id);
             // debug("\ndescendants of [$parent_id]: ".count($ids));
             if($ids) $final = array_merge($final, $ids);
+            /* debug only, can comment during normal operation
+            if($ids) {echo "\n$parent_id descendants: "; print_r($ids);}
+            */
         }
         return array_unique($final);
     }
