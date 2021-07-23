@@ -673,6 +673,9 @@ class SmasherLastAPI
         $destination = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_7.tsv";
         // /* orig
         $parent_ids = self::get_uids_from_sheet4("Remove dead-end branches!A1:H731"); // print_r($parent_ids); exit;
+        $parent_ids2 = self::get_uids_from_sheet4("dead-end branches2!A1:H13"); //print_r($parent_ids2); exit;
+        $parent_ids = array_merge($parent_ids, $parent_ids2);
+        
         // $parent_ids = array('xxx');            forced value
         $this->parentID_taxonID = self::get_ids($source); //print_r($this->parentID_taxonID); exit;
         require_library('connectors/PaleoDBAPI_v2');
@@ -937,8 +940,8 @@ class SmasherLastAPI
             elseif(in_array($ret_SI['source_name'], array("dino", "ANN", "MIP")))   $rec['datasetID'] = $ret['datasetID'];
             elseif($ret_SI['source_name'] == 'TRI')                                 $rec['datasetID'] = 'pbdb';
             
-            Catalogue_of_Life_DH_2019   --- /Volumes/AKiTiO4/web/cp/COL/2019-annual/taxa.txt 
-            Collembola_DH               --- /Volumes/AKiTiO4/web/cp/COL/2020-08-01-archive-complete/taxa.txt 
+            // Catalogue_of_Life_DH_2019   --- /Volumes/AKiTiO4/web/cp/COL/2019-annual/taxa.txt 
+            // Collembola_DH               --- /Volumes/AKiTiO4/web/cp/COL/2020-08-01-archive-complete/taxa.txt 
             
             
             /*http://purl.org/dc/terms/source

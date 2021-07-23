@@ -24,17 +24,18 @@ source      :  2379530 /Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy_5
 destination :  2378798 /Volumes/AKiTiO4/d_w_h/last_smasher/test/final_taxonomy_6.tsv
 */
 /* START TRAM-993 */
-// $func->A_Clean_up_deadend_branches();                   echo("\n---- end A_Clean_up_deadend_branches ----\n");
+$func->A_Clean_up_deadend_branches();                   echo("\n---- end A_Clean_up_deadend_branches ----\n");
 /*
 source:  2378792 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_6.tsv
 destination:  2376204 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_7.tsv
 was_container: [2588]
 */
-// $func->B2_Create_new_containers_for_incertae_sedis();   echo("\n---- end B2_Create_new_containers_for_incertae_sedis ----\n");
+$func->B2_Create_new_containers_for_incertae_sedis();   echo("\n---- end B2_Create_new_containers_for_incertae_sedis ----\n");
 /*
 source:  2376204 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_7.tsv
 destination:  2,376,332 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_8.tsv
 */
+exit("\n--- end Jul 23 ---\n");
 
 $resource_id = "DH_2_1";
 require_library('connectors/SmasherLastAPI');
