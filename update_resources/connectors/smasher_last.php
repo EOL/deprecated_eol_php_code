@@ -40,12 +40,12 @@ destination:  2,376,332 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxon
 $resource_id = "DH_2_1";
 require_library('connectors/SmasherLastAPI');
 $func = new SmasherLastAPI($resource_id);
-/*
+// /*
 $func->C_Fetch_metadata();
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param true means to delete working resource folder
-*/
+// */
 
-$func->build_source_taxa_records(); //text only
+// $func->build_source_taxa_records(); //test only
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

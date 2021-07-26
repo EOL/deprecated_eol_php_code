@@ -865,6 +865,7 @@ class SmasherLastAPI
     }
     function C_Fetch_metadata()
     {
+        self::build_source_taxa_records();
         self::parse_source_Smasher_file();
         $this->archive_builder->finalize(true);
     }
@@ -896,6 +897,7 @@ class SmasherLastAPI
                 [uniqname] => 
                 [flags] => 
             )*/
+            
             $rec = array();
             /*http://rs.tdwg.org/dwc/terms/taxonID
             For now, keep the smasher identifiers. We will turn those into real identifiers once DH 2.1 is fully assembled.*/
@@ -913,12 +915,21 @@ class SmasherLastAPI
             http://rs.tdwg.org/dwc/terms/scientificName --- Fetch the scientificName field from the source file
             http://rs.tdwg.org/dwc/terms/taxonRank      --- Fetch the taxonRank value from the source file
             */
+            
+            // if(substr($rec['taxonID'],0,13) == 'unclassified_') {}
+            // else { //the rest
+            // }
+
             $ret_SI = self::parse_sourceinfo($rek['sourceinfo']); //print_r($ret_SI); exit;
             $source_name = $ret_SI['source_name'];
             /*Array(
                 [source_name] => MIP
                 [taxon_id] => Glaucocystis-duplex
             )*/
+            if($taxonID == '6f8a846c-9528-42dc-85e4-55527bf9b8d5') {
+                print_r($ret_SI); //exit("\n[$taxonID]\n");
+            }
+            
             /* during dev only
             $this->debug['first source'][$ret_SI['source_name']] = '';
             // continue;
@@ -927,7 +938,7 @@ class SmasherLastAPI
             /* obsolete, too long to process
             $ret = self::fetch_from_source('scientificName', $rek['sourceinfo']);
             */
-            if($ret = $this->recs[$source_nane][$taxonID]) {
+            if($ret = $this->recs[$source_name][$ret_SI['taxon_id']]) {
                 // = array($rec['scientificName'], $taxonRank, $taxonRemarks, $datasetID, $furtherInformationURL);
                 $scientificName = $ret[0];
                 $taxonRank = $ret[1];
@@ -935,7 +946,22 @@ class SmasherLastAPI
                 $datasetID = $ret[3];
                 $furtherInformationURL = $ret[4];
             }
-            else exit("\nrec not found: $taxonID \n");
+            else {
+                print_r($rek); print_r($ret_SI);
+                exit("\nrec not found\n");
+            }
+            
+            /*
+            Metadata for new container taxa (see below): 
+                Create a unique ID, we’ll change it later. 
+                The canonicalName value should be the same as scientificName, 
+                the taxonRank should be blank, 
+                the datasetID should be trunk.
+            */
+            // if(substr($var,0,13) == 'unclassified_') {
+            //     
+            // }
+            
             
             $rec['scientificName']  = $scientificName;
             $rec['taxonRank']       = $taxonRank;
@@ -1002,7 +1028,7 @@ class SmasherLastAPI
             $rec['EOLidAnnotations'] = '';
             $rec['Landmark'] = '';
             
-            print_r($rec); //exit;
+            // print_r($rec); //exit;
             /*
             $tax = new \eol_schema\Taxon();
             $tax->taxonID = $rec['taxonID'];
@@ -1022,10 +1048,10 @@ class SmasherLastAPI
             $tax->Landmark = $rec['Landmark'];
             $this->archive_builder->write_object_to_file($tax);
             */
-            if($i == 5) break;
+            if($i == 10) break;
         }
         // print_r($this->debug);
-        exit("\nstop muna...\n");
+        // exit("\nstop muna...\n");
         $this->archive_builder->finalize(true);
     }
     private function fetch_from_source($sought_field, $sourceinfo)
