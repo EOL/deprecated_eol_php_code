@@ -465,7 +465,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $json = $func->get_children_from_json_cache($taxon_concept_id, array(), false); //3rd param false means it will not generate children if it doesn't exist. Generation happens in DHConnLib.php
         $children = json_decode($json, true);
         // print_r($children);
-        echo "\nNo. of children: ".count($children)."\n";
+        debug("\nNo. of children: ".count($children)."\n");
         
         /* step 2: refresh map data of $taxon_concept_id. Important: since the current ver. is the cumulated-from-children version. */
         $this->auto_refresh_mapYN = true;
@@ -492,7 +492,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $final2['records'] = $final;
             $final2['count'] = count($final);
             $final2['actual'] = count($final);
-            echo "\nFinal [$taxon_concept_id] - ".count(@$final2['records'])."\n";
+            debug("\nFinal [$taxon_concept_id] - ".count(@$final2['records'])."\n");
             self::if_needed_2cluster_orSave($final2, $taxon_concept_id);
         }
         return;
@@ -521,7 +521,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         
         $paths = $this->csv_paths; 
         if($sciname && $tc_id) {
-            $eol_taxon_id_list[$sciname] = $tc_id; print_r($eol_taxon_id_list);
+            $eol_taxon_id_list[$sciname] = $tc_id; //print_r($eol_taxon_id_list);
             self::create_map_data($sciname, $tc_id, $paths); //result of refactoring
             return;
         }
@@ -601,7 +601,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             }
             
             if($final = self::prepare_csv_data($usageKey, $paths)) {
-                echo "\n Records from CSV: " . $final['count'] . "";
+                debug("\n Records from CSV: " . $final['count'] . "");
                 self::if_needed_2cluster_orSave($final, $taxon_concept_id);
             }
             else {
