@@ -14,7 +14,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text=Prothorax pale brown, pronotum darker. Pterothorax brown pink, vandyke
-        http://gnrd.globalnames.org/name_finder.json?text=Coryphaeschna luteipennis peninsularis
+        http://gnrd.globalnames.org/name_finder.json?text=Pterostigma brown ochre
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -490,6 +490,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->pdf_id == '119187') { //manual
                 $exclude[] = "Prothorax pale brown";
                 $exclude[] = 'Pterostigma brown ochre';
+                $exclude[] = 'Aeshna (Hesperaeschna) psilus 194';
             }
             
             foreach($exclude as $start_of_row) {
