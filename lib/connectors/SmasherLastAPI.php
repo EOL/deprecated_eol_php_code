@@ -926,9 +926,9 @@ class SmasherLastAPI
                 [source_name] => MIP
                 [taxon_id] => Glaucocystis-duplex
             )*/
-            if($taxonID == '6f8a846c-9528-42dc-85e4-55527bf9b8d5') {
-                print_r($ret_SI); //exit("\n[$taxonID]\n");
-            }
+            // if($taxonID == '6f8a846c-9528-42dc-85e4-55527bf9b8d5') {
+            //     print_r($ret_SI); //exit("\n[$taxonID]\n");
+            // }
             
             /* during dev only
             $this->debug['first source'][$ret_SI['source_name']] = '';
@@ -938,30 +938,38 @@ class SmasherLastAPI
             /* obsolete, too long to process
             $ret = self::fetch_from_source('scientificName', $rek['sourceinfo']);
             */
-            if($ret = $this->recs[$source_name][$ret_SI['taxon_id']]) {
-                // = array($rec['scientificName'], $taxonRank, $taxonRemarks, $datasetID, $furtherInformationURL);
-                $scientificName = $ret[0];
-                $taxonRank = $ret[1];
-                $taxonRemarks = $ret[2];
-                $datasetID = $ret[3];
-                $furtherInformationURL = $ret[4];
+            if($ret_SI['taxon_id']) {
+                if($ret = $this->recs[$source_name][$ret_SI['taxon_id']]) {
+                    // = array($rec['scientificName'], $taxonRank, $taxonRemarks, $datasetID, $furtherInformationURL);
+                    $scientificName = $ret[0];
+                    $taxonRank = $ret[1];
+                    $taxonRemarks = $ret[2];
+                    $datasetID = $ret[3];
+                    $furtherInformationURL = $ret[4];
+                }
+                else { //should not go here...
+                    print_r($rek); print_r($ret_SI);
+                    exit("\nrec not found A:\n");
+                }
             }
             else {
-                print_r($rek); print_r($ret_SI);
-                exit("\nrec not found\n");
+                /* Metadata for new container taxa (see below): 
+                    Create a unique ID, we’ll change it later. 
+                    The canonicalName value should be the same as scientificName, 
+                    the taxonRank should be blank, 
+                    the datasetID should be trunk. */
+                if(substr($rek['uid'],0,13) == 'unclassified_') {
+                    $scientificName = $rek['name'];
+                    $taxonRank = '';
+                    $taxonRemarks = '';
+                    $datasetID = 'trunk';
+                    $furtherInformationURL = '';
+                }
+                else {
+                    print_r($rek); print_r($ret_SI);
+                    exit("\nrec not found B:\n");
+                }
             }
-            
-            /*
-            Metadata for new container taxa (see below): 
-                Create a unique ID, we’ll change it later. 
-                The canonicalName value should be the same as scientificName, 
-                the taxonRank should be blank, 
-                the datasetID should be trunk.
-            */
-            // if(substr($var,0,13) == 'unclassified_') {
-            //     
-            // }
-            
             
             $rec['scientificName']  = $scientificName;
             $rec['taxonRank']       = $taxonRank;
@@ -1048,7 +1056,7 @@ class SmasherLastAPI
             $tax->Landmark = $rec['Landmark'];
             $this->archive_builder->write_object_to_file($tax);
             */
-            if($i == 10) break;
+            // if($i == 10) break;
         }
         // print_r($this->debug);
         // exit("\nstop muna...\n");
