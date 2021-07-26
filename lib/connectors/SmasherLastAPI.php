@@ -868,8 +868,8 @@ class SmasherLastAPI
     function C_Fetch_metadata()
     {
         self::build_source_taxa_records();
-        self::COL_SPR('COL_2');
-        self::COL_SPR('SPR_2');
+        self::build_source_taxa_records_COL_SPR('COL_2');
+        self::build_source_taxa_records_COL_SPR('SPR_2');
         self::parse_source_Smasher_file();
     }
     function parse_source_Smasher_file()
@@ -1020,7 +1020,7 @@ class SmasherLastAPI
             elseif(in_array($ret_SI['source_name'], array("dino", "ANN", "MIP")))   $rec['datasetID'] = $datasetID;
             elseif($ret_SI['source_name'] == 'TRI')                                 $rec['datasetID'] = 'pbdb';
             elseif(in_array($ret_SI['source_name'], array("COL", "SPR"))) {
-                if($val = $this->recs[$source_name][$ret_SI['taxon_id']]) $rec['datasetID'] = $val;
+                if($val = $this->recs[$source_name."_2"][$ret_SI['taxon_id']]) $rec['datasetID'] = $val;
                 else {
                     print_r($rek); print_r($ret_SI);
                     exit("\ncol spr wrong\n");
@@ -1263,7 +1263,7 @@ class SmasherLastAPI
     // Catalogue_of_Life_DH_2019   --- /Volumes/AKiTiO4/web/cp/COL/2019-annual/taxa.txt 
     // Collembola_DH               --- /Volumes/AKiTiO4/web/cp/COL/2020-08-01-archive-complete/taxa.txt 
     // COL & SPR
-    function COL_SPR($source_name)
+    function build_source_taxa_records_COL_SPR($source_name)
     {
         $path['COL_2'] = '/Volumes/AKiTiO4/web/cp/COL/2019-annual/';                  // Catalogue_of_Life_DH_2019
         $path['SPR_2'] = '/Volumes/AKiTiO4/web/cp/COL/2020-08-01-archive-complete/';  // Collembola_DH
@@ -1298,7 +1298,10 @@ class SmasherLastAPI
             $datasetID = (string) $rec['datasetID'];
             if($datasetID == 'Species 2000') $datasetID = 'COL';
             if(!$datasetID) $datasetID = 'COL';
-            else $datasetID = 'COL-'.$datasetID;
+            else {
+                if($datasetID == 'COL') {}
+                else $datasetID = 'COL-'.$datasetID;
+            }
             $this->recs[$source_name][$rec['identifier']] = $datasetID;
         }
     }
