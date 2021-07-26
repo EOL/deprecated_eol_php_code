@@ -1026,6 +1026,7 @@ class SmasherLastAPI
                     exit("\ncol spr wrong\n");
                 }
             }
+            else $rec['datasetID'] = '';
             
             // Catalogue_of_Life_DH_2019   --- /Volumes/AKiTiO4/web/cp/COL/2019-annual/taxa.txt 
             // Collembola_DH               --- /Volumes/AKiTiO4/web/cp/COL/2020-08-01-archive-complete/taxa.txt 
@@ -1051,7 +1052,7 @@ class SmasherLastAPI
             $rec['Landmark'] = '';
             
             // print_r($rec); //exit;
-            /*
+            // /*
             $tax = new \eol_schema\Taxon();
             $tax->taxonID = $rec['taxonID'];
             $tax->scientificName = $rec['scientificName'];
@@ -1066,14 +1067,14 @@ class SmasherLastAPI
             $tax->datasetID = $rec['datasetID'];
             $tax->EOLid = $rec['EOLid'];
             $tax->EOLidAnnotations = $rec['EOLidAnnotations'];
-            $tax->higherClassification = $rec['higherClassification'];
+            // $tax->higherClassification = $rec['higherClassification'];
             $tax->Landmark = $rec['Landmark'];
             $this->archive_builder->write_object_to_file($tax);
-            */
-            if($i == 10) break;
+            // */
+            if($i == 2000) break;
         }
         // print_r($this->debug);
-        exit("\nstop muna...\n");
+        // exit("\nstop muna...\n");
         $this->archive_builder->finalize(true);
     }
     private function fetch_from_source($sought_field, $sourceinfo)
