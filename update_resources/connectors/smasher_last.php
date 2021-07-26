@@ -46,6 +46,7 @@ Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd
 // */
 
 // $func->build_source_taxa_records(); //test only
+// $func->COL_SPR('COL_2'); //test only
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

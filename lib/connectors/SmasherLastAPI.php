@@ -32,6 +32,8 @@ class SmasherLastAPI
         $this->path['ERE'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eoldynamichierarchyerebidaepatch/taxon.txt';
         $this->path['COC'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolcoccinelloideapatch/taxa.txt';
         $this->path['CRU'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolcrustaceapatch/taxa.txt';
+        $this->path['COL_2'] = '/Volumes/AKiTiO4/web/cp/COL/2019-annual/taxa.txt';                  // Catalogue_of_Life_DH_2019
+        $this->path['SPR_2'] = '/Volumes/AKiTiO4/web/cp/COL/2020-08-01-archive-complete/taxa.txt';  // Collembola_DH
     }
     function sheet1_Move_DH2_taxa_to_new_parent() //https://docs.google.com/spreadsheets/d/1D-AYca8hk3WCgAoslL15DvrJD4XD7NXT0d_tPdKxxVQ/edit#gid=0
     {   /* Sheet1: Move DH2 taxa to new parent:
@@ -866,13 +868,15 @@ class SmasherLastAPI
     function C_Fetch_metadata()
     {
         self::build_source_taxa_records();
+        self::COL_SPR('COL_2');
+        self::COL_SPR('SPR_2');
         self::parse_source_Smasher_file();
         $this->archive_builder->finalize(true);
     }
     function parse_source_Smasher_file()
     {
         $source = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_8.tsv"; $i = 0;
-        foreach(new FileIterator($source) as $line => $row) { $i++; if(($i % 10000) == 0) echo "\n".number_format($i);
+        foreach(new FileIterator($source) as $line => $row) { $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
             $rec = explode("\t", $row);
             if($i == 1) {
                 $fields = $rec;
@@ -966,8 +970,11 @@ class SmasherLastAPI
                     $furtherInformationURL = '';
                 }
                 else {
-                    print_r($rek); print_r($ret_SI);
-                    exit("\nrec not found B:\n");
+                    if($rek['uid']) { //valid to investigate more...
+                        print_r($rek); print_r($ret_SI);
+                        exit("\nrec not found B:\n");
+                    }
+                    else continue; //ok to ignore
                 }
             }
             
@@ -984,7 +991,6 @@ class SmasherLastAPI
                 separate the “incertae sedis” entry from the other content with a semicolon 
                 unless that content already ends in a semicolon or a period.
             */
-            
             
             /*http://rs.gbif.org/terms/1.0/canonicalName
             Please copy the value of the smasher name field into the canonicalName field of the DH file.*/
@@ -1012,6 +1018,14 @@ class SmasherLastAPI
             }
             elseif(in_array($ret_SI['source_name'], array("dino", "ANN", "MIP")))   $rec['datasetID'] = $datasetID;
             elseif($ret_SI['source_name'] == 'TRI')                                 $rec['datasetID'] = 'pbdb';
+            
+            elseif(in_array($ret_SI['source_name'], array("COL", "SPR"))) {
+                if($val = $this->recs[$source_name][$ret_SI['taxon_id']]) $rec['datasetID'] = $val;
+                else {
+                    print_r($rek); print_r($ret_SI);
+                    exit("\ncol spr wrong\n");
+                }
+            }
             
             // Catalogue_of_Life_DH_2019   --- /Volumes/AKiTiO4/web/cp/COL/2019-annual/taxa.txt 
             // Collembola_DH               --- /Volumes/AKiTiO4/web/cp/COL/2020-08-01-archive-complete/taxa.txt 
@@ -1056,10 +1070,10 @@ class SmasherLastAPI
             $tax->Landmark = $rec['Landmark'];
             $this->archive_builder->write_object_to_file($tax);
             */
-            // if($i == 10) break;
+            if($i == 10) break;
         }
         // print_r($this->debug);
-        // exit("\nstop muna...\n");
+        exit("\nstop muna...\n");
         $this->archive_builder->finalize(true);
     }
     private function fetch_from_source($sought_field, $sourceinfo)
@@ -1225,8 +1239,7 @@ class SmasherLastAPI
                     $k++;
                 }
             }
-            $rec = array_map('trim', $rec); //print_r($rec); exit("\nstopx\n");
-            
+            $rec = array_map('trim', $rec); //print_r($rec); //exit("\nstopx\n");
             $taxonID = $rec['taxonID'];
             
             $taxonRank = '';
@@ -1235,14 +1248,57 @@ class SmasherLastAPI
             
             $taxonRemarks = '';
             if(in_array($source_name, array('IOC', 'ODO', 'BOM', 'SPR', 'ITIS', 'WOR', 'COL'))) $taxonRemarks = $rec['taxonRemarks'];
+            
             $datasetID = '';
             if(in_array($source_name, array('ANN', 'MIP'))) $datasetID = $rec['dataSet'];
             if(in_array($source_name, array('dino')))       $datasetID = $rec['datasetID'];
+            
             $furtherInformationURL = '';
             if(in_array($source_name, array('dino', 'ODO', 'BOM', 'ANN', 'TRI', 'ITIS', 'MIP', 'NCBI', 'WOR'))) $furtherInformationURL = $rec['furtherInformationURL'];
             if(in_array($source_name, array('ictv', 'IOC')))                                                    $furtherInformationURL = $rec['source'];
             
             $this->recs[$source_name][$taxonID] = array($rec['scientificName'], $taxonRank, $taxonRemarks, $datasetID, $furtherInformationURL);
+        }
+    }
+    // Catalogue_of_Life_DH_2019   --- /Volumes/AKiTiO4/web/cp/COL/2019-annual/taxa.txt 
+    // Collembola_DH               --- /Volumes/AKiTiO4/web/cp/COL/2020-08-01-archive-complete/taxa.txt 
+    // COL & SPR
+    function COL_SPR($source_name)
+    {
+        $path['COL_2'] = '/Volumes/AKiTiO4/web/cp/COL/2019-annual/';                  // Catalogue_of_Life_DH_2019
+        $path['SPR_2'] = '/Volumes/AKiTiO4/web/cp/COL/2020-08-01-archive-complete/';  // Collembola_DH
+        $path = $path[$source_name];
+
+        require_library('connectors/DHSourceHierarchiesAPI');
+        $func = new DHSourceHierarchiesAPI();        
+        $meta = $func->analyze_eol_meta_xml($path.'meta.xml', 'http://rs.tdwg.org/dwc/terms/Taxon'); //2nd param $row_type is rowType in meta.xml // print_r($meta);
+        echo "\nCaching $source_name...";
+        $final = array(); $i = 0;
+        foreach(new FileIterator($path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
+            $i++; if(($i % 500000) == 0) echo "\n count:[".number_format($i)."] ";
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            $rec = array_map('trim', $rec); // print_r($rec); exit("\nelix\n");
+            /*( [taxonID] => 1001
+                [identifier] => 40c1c4c8925fb02ce99db87c0221a6f6
+                [datasetID] => 18
+                
+            For COL & SPR, we want to use the datasetID value from the original COL data files. 
+                These are not in the SPR or COL for DH files, so you have to fetch them from the original COL export files. 
+                Also, please use COL- as a prescript for these IDs. For example, if the COL datasetID is 5, our datasetID would be COL-5. 
+                If the COL datasetID is Species 2000 or if there is no datasetID available, simply use COL as the datasetID for both COL 
+                    and SPR derived taxa.    
+            */
+            $datasetID = $rec['datasetID'];
+            if($datasetID == 'Species 2000') $datasetID = 'COL';
+            if(!$datasetID) $datasetID = 'COL';
+            $this->recs[$source_name][$rec['identifier']] = $datasetID;
         }
     }
 }
