@@ -13,7 +13,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
-        http://gnrd.globalnames.org/name_finder.json?text=Hesperaeschna) californica (Hagen MS.)
+        http://gnrd.globalnames.org/name_finder.json?text=Prothorax pale brown, pronotum darker. Pterothorax brown pink, vandyke
         http://gnrd.globalnames.org/name_finder.json?text=Coryphaeschna luteipennis peninsularis
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
@@ -94,7 +94,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // print_r($this->scinames); 
         echo "\nRaw scinames count: ".count($this->scinames)."\n";
         
-        print_r($this->investigate2);
+        if(isset($this->investigate2)) print_r($this->investigate2);
     }
     private function get_main_scinames($filename)
     {
@@ -483,10 +483,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(stripos($string, $x) !== false) return false; //string is found
             }
             // */
-            
             // /* start of the string
             $cont = true;
             $exclude = array_merge($exclude, array("From ", '"')); //"WOittO", "G>", "H^l)", "Nfu-j", "XSr-"
+            
+            if($this->pdf_id == '119187') $exclude[] = "Prothorax pale brown"; //manual
+            
             foreach($exclude as $start_of_row) {
                 $len = strlen($start_of_row);
                 if(substr($string,0,$len) == $start_of_row) {
