@@ -487,7 +487,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $cont = true;
             $exclude = array_merge($exclude, array("From ", '"')); //"WOittO", "G>", "H^l)", "Nfu-j", "XSr-"
             
-            if($this->pdf_id == '119187') $exclude[] = "Prothorax pale brown"; //manual
+            if($this->pdf_id == '119187') { //manual
+                $exclude[] = "Prothorax pale brown";
+                $exclude[] = 'Pterostigma brown ochre';
+            }
             
             foreach($exclude as $start_of_row) {
                 $len = strlen($start_of_row);

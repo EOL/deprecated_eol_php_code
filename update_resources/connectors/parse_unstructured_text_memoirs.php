@@ -141,9 +141,8 @@ NEW mof 2904    media 374   taxon 1263
 120602	Wed 2021-07-21 11:08:20 AM	{                                          "media_resource.tab":20, "taxon.tab":20, "time_elapsed":{"sec":0.33, "min":0.01, "hr":0}}
 120602_ENV	Wed 2021-07-21 11:10:48 {"measurement_or_fact_specific.tab":4, "occurrence_specific.tab":4, "taxon.tab":20, "time_elapsed":{"sec":28.63, "min":0.48, "hr":0.01}}
 
-119187	Wed 2021-07-21 11:08:25 AM	{                                        "media_resource.tab":41,                                "taxon.tab":32, "time_elapsed":{"sec":0.38, "min":0.01, "hr":0}}
-119187_ENV	Wed 2021-07-21 11:17:02 {"measurement_or_fact_specific.tab":156, "media_resource.tab":41, "occurrence_specific.tab":156, "taxon.tab":32, "time_elapsed":{"sec":397.24, "min":6.62, "hr":0.11}}
-
+119187	Mon 2021-07-26 10:01:01 AM	{                                        "media_resource.tab":40,                                "taxon.tab":31, "time_elapsed":{"sec":10.09, "min":0.17, "hr":0}}
+119187_ENV	Mon 2021-07-26 10:03:22 {"measurement_or_fact_specific.tab":156, "media_resource.tab":40, "occurrence_specific.tab":156, "taxon.tab":31, "time_elapsed":{"sec":21.59, "min":0.36, "hr":0.01}}
 ------------------------------------------------------------ North American Flora (DATA-1890) --- BHL
 15423	Thu 2021-07-08 09:19:19 AM	{                                        "media_resource.tab":66,                                "taxon.tab":66, "time_elapsed":{"sec":1.79, "min":0.03, "hr":0}}
 15423_ENV	Thu 2021-07-08 09:22:29 {"measurement_or_fact_specific.tab":340, "media_resource.tab":66, "occurrence_specific.tab":340, "taxon.tab":66, "time_elapsed":{"sec":70.23, "min":1.17, "hr":0.02}}
@@ -270,7 +269,7 @@ if($resource_name == 'MotAES') {
     118946 --- blocks: 102|92   Raw scinames: 172|105
     118936 --- blocks: 14|15   Raw scinames: 19
     120602 --- blocks: 20   Raw scinames: 40
-    119187 --- blocks: 73   Raw scinames: 242
+    119187 --- blocks: 72   Raw scinames: 241
     */
 }
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1); /* blocks: 2611   Raw scinames: 2641 */
