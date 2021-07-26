@@ -871,7 +871,6 @@ class SmasherLastAPI
         self::COL_SPR('COL_2');
         self::COL_SPR('SPR_2');
         self::parse_source_Smasher_file();
-        $this->archive_builder->finalize(true);
     }
     function parse_source_Smasher_file()
     {
@@ -1013,12 +1012,13 @@ class SmasherLastAPI
                 Also, please use COL- as a prescript for these IDs. For example, if the COL datasetID is 5, our datasetID would be COL-5. 
                 If the COL datasetID is Species 2000 or if there is no datasetID available, simply use COL as the datasetID for both COL 
                     and SPR derived taxa.*/
+
+            $rec['datasetID'] = $datasetID;
             if(in_array($ret_SI['source_name'], array("trunk", "ictv", "IOC", "MAM", "LIZ", "ODO", "BOM", "ERE", "COC", "VSP", "ONY", "ITIS", "NCBI", "WOR", "CRU", "MOL"))) {
                                                                                     $rec['datasetID'] = $ret_SI['source_name'];
             }
             elseif(in_array($ret_SI['source_name'], array("dino", "ANN", "MIP")))   $rec['datasetID'] = $datasetID;
             elseif($ret_SI['source_name'] == 'TRI')                                 $rec['datasetID'] = 'pbdb';
-            
             elseif(in_array($ret_SI['source_name'], array("COL", "SPR"))) {
                 if($val = $this->recs[$source_name][$ret_SI['taxon_id']]) $rec['datasetID'] = $val;
                 else {
@@ -1026,7 +1026,6 @@ class SmasherLastAPI
                     exit("\ncol spr wrong\n");
                 }
             }
-            else $rec['datasetID'] = '';
             
             // Catalogue_of_Life_DH_2019   --- /Volumes/AKiTiO4/web/cp/COL/2019-annual/taxa.txt 
             // Collembola_DH               --- /Volumes/AKiTiO4/web/cp/COL/2020-08-01-archive-complete/taxa.txt 
@@ -1071,7 +1070,7 @@ class SmasherLastAPI
             $tax->Landmark = $rec['Landmark'];
             $this->archive_builder->write_object_to_file($tax);
             // */
-            if($i == 2000) break;
+            // if($i == 2000) break;
         }
         // print_r($this->debug);
         // exit("\nstop muna...\n");
@@ -1296,9 +1295,10 @@ class SmasherLastAPI
                 If the COL datasetID is Species 2000 or if there is no datasetID available, simply use COL as the datasetID for both COL 
                     and SPR derived taxa.    
             */
-            $datasetID = $rec['datasetID'];
+            $datasetID = (string) $rec['datasetID'];
             if($datasetID == 'Species 2000') $datasetID = 'COL';
             if(!$datasetID) $datasetID = 'COL';
+            else $datasetID = 'COL-'.$datasetID;
             $this->recs[$source_name][$rec['identifier']] = $datasetID;
         }
     }
