@@ -10,6 +10,28 @@ class SmasherLastAPI
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
+        $this->path['trunk'] = '/Volumes/AKiTiO4/d_w_h/2021_02/dhtrunk/taxon.txt';
+        $this->path['ictv'] = '/Volumes/AKiTiO4/d_w_h/2021_02/ICTV-virus_taxonomy-with-higherClassification/taxon.tab';
+        $this->path['WOR'] = '/Volumes/AKiTiO4/d_w_h/2021_02/WoRMS_DH/taxon.tab';
+        $this->path['COL'] = '/Volumes/AKiTiO4/d_w_h/2021_02/Catalogue_of_Life_DH_2019/taxon.tab';
+        $this->path['ANN'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolannelidapatch/taxon.txt';
+        $this->path['MIP'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolmicrobespatch/taxa.txt';
+        $this->path['NCBI'] = '/Volumes/AKiTiO4/d_w_h/2021_02/NCBI_Taxonomy_Harvest_DH/taxon.tab';
+        $this->path['dino'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eoldinosauriapatch/taxa.txt';
+        $this->path['IOC'] = '/Volumes/AKiTiO4/d_w_h/2021_02/ioc-birdlist/taxon.tab';
+        $this->path['ODO'] = '/Volumes/AKiTiO4/d_w_h/2021_02/worldodonatalist/taxa.txt';
+        $this->path['BOM'] = '/Volumes/AKiTiO4/d_w_h/2021_02/kitchingetal2018/taxa.txt';
+        $this->path['SPR'] = '/Volumes/AKiTiO4/d_w_h/2021_02/Collembola_DH/taxon.tab';
+        $this->path['ITIS'] = '/Volumes/AKiTiO4/d_w_h/2021_02/itis_2020-12-01/taxon.tab';
+        $this->path['MOL'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolmolluscapatch/taxa.txt';
+        $this->path['LIZ'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eollizardspatch/EOLlizardPatch.txt';
+        $this->path['MAM'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolmammalpatch/taxa.txt';
+        $this->path['ONY'] = '/Volumes/AKiTiO4/d_w_h/2021_02/onychophora/taxa.txt';
+        $this->path['TRI'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eoltrilobitespatch/taxa.txt';
+        $this->path['VSP'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolvespoideapatch/taxa.txt';
+        $this->path['ERE'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eoldynamichierarchyerebidaepatch/taxon.txt';
+        $this->path['COC'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolcoccinelloideapatch/taxa.txt';
+        $this->path['CRU'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolcrustaceapatch/taxa.txt';
     }
     function sheet1_Move_DH2_taxa_to_new_parent() //https://docs.google.com/spreadsheets/d/1D-AYca8hk3WCgAoslL15DvrJD4XD7NXT0d_tPdKxxVQ/edit#gid=0
     {   /* Sheet1: Move DH2 taxa to new parent:
@@ -849,14 +871,14 @@ class SmasherLastAPI
     function parse_source_Smasher_file()
     {
         $source = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_8.tsv"; $i = 0;
-        foreach(new FileIterator($source) as $line => $row) { $i++; if(($i % 100) == 0) echo "\n".number_format($i);
+        foreach(new FileIterator($source) as $line => $row) { $i++; if(($i % 10000) == 0) echo "\n".number_format($i);
             $rec = explode("\t", $row);
             if($i == 1) {
                 $fields = $rec;
                 continue;
             }
             else {
-                if($i < 10900) continue;
+                // if($i < 10900) continue; //dev only
                 $rek = array(); $k = 0;
                 foreach($fields as $fld) {
                     if($fld) $rek[$fld] = @$rec[$k];
@@ -892,15 +914,32 @@ class SmasherLastAPI
             http://rs.tdwg.org/dwc/terms/taxonRank      --- Fetch the taxonRank value from the source file
             */
             $ret_SI = self::parse_sourceinfo($rek['sourceinfo']); //print_r($ret_SI); exit;
+            $source_name = $ret_SI['source_name'];
             /*Array(
                 [source_name] => MIP
                 [taxon_id] => Glaucocystis-duplex
             )*/
+            /* during dev only
+            $this->debug['first source'][$ret_SI['source_name']] = '';
+            // continue;
+            */
             
+            /* obsolete, too long to process
             $ret = self::fetch_from_source('scientificName', $rek['sourceinfo']);
-            $rec['scientificName']  = $ret['scientificName'];
-            $rec['taxonRank']       = $ret['taxonRank'];
-            $rec['taxonRemarks']    = $ret['taxonRemarks'];
+            */
+            if($ret = $this->recs[$source_nane][$taxonID]) {
+                // = array($rec['scientificName'], $taxonRank, $taxonRemarks, $datasetID, $furtherInformationURL);
+                $scientificName = $ret[0];
+                $taxonRank = $ret[1];
+                $taxonRemarks = $ret[2];
+                $datasetID = $ret[3];
+                $furtherInformationURL = $ret[4];
+            }
+            else exit("\nrec not found: $taxonID \n");
+            
+            $rec['scientificName']  = $scientificName;
+            $rec['taxonRank']       = $taxonRank;
+            $rec['taxonRemarks']    = $taxonRemarks;
             $rec['taxonRemarks'] = self::format_taxonRemarks($rec['taxonRemarks'], $rek['flags']);
             /*
             http://rs.tdwg.org/dwc/terms/taxonRemarks
@@ -937,7 +976,7 @@ class SmasherLastAPI
             if(in_array($ret_SI['source_name'], array("trunk", "ictv", "IOC", "MAM", "LIZ", "ODO", "BOM", "ERE", "COC", "VSP", "ONY", "ITIS", "NCBI", "WOR", "CRU", "MOL"))) {
                                                                                     $rec['datasetID'] = $ret_SI['source_name'];
             }
-            elseif(in_array($ret_SI['source_name'], array("dino", "ANN", "MIP")))   $rec['datasetID'] = $ret['datasetID'];
+            elseif(in_array($ret_SI['source_name'], array("dino", "ANN", "MIP")))   $rec['datasetID'] = $datasetID;
             elseif($ret_SI['source_name'] == 'TRI')                                 $rec['datasetID'] = 'pbdb';
             
             // Catalogue_of_Life_DH_2019   --- /Volumes/AKiTiO4/web/cp/COL/2019-annual/taxa.txt 
@@ -953,7 +992,7 @@ class SmasherLastAPI
                 for those sources that have this field: dino, ODO, BOM, ANN, TRI, ITIS, MIP, NCBI, WOR
             Fetch the value from the “source” field and put it in the furtherInformationURL field of the DH file 
                 for the following sources: ictv, IOC */
-            $rec['furtherInformationURL'] = $ret['furtherInformationURL'];
+            $rec['furtherInformationURL'] = $furtherInformationURL;
 
             /* To be added later
             http://eol.org/schema/EOLid
@@ -985,6 +1024,7 @@ class SmasherLastAPI
             */
             if($i == 5) break;
         }
+        // print_r($this->debug);
         exit("\nstop muna...\n");
         $this->archive_builder->finalize(true);
     }
@@ -998,22 +1038,10 @@ class SmasherLastAPI
         $source_name = $ret['source_name'];
         $taxon_id = $ret['taxon_id'];
         
-        $path['trunk'] = '/Volumes/AKiTiO4/d_w_h/2021_02/dhtrunk/taxon.txt';
-        $path['ictv'] = '/Volumes/AKiTiO4/d_w_h/2021_02/ICTV-virus_taxonomy-with-higherClassification/taxon.tab';
-        $path['WOR'] = '/Volumes/AKiTiO4/d_w_h/2021_02/WoRMS_DH/taxon.tab';
-        $path['COL'] = '/Volumes/AKiTiO4/d_w_h/2021_02/Catalogue_of_Life_DH_2019/taxon.tab';
-        $path['ANN'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolannelidapatch/taxon.txt';
-        $path['MIP'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eolmicrobespatch/taxa.txt';
-        $path['NCBI'] = '/Volumes/AKiTiO4/d_w_h/2021_02/NCBI_Taxonomy_Harvest_DH/taxon.tab';
-        $path['dino'] = '/Volumes/AKiTiO4/d_w_h/2021_02/eoldinosauriapatch/taxa.txt';
-        $path['IOC'] = '/Volumes/AKiTiO4/d_w_h/2021_02/ioc-birdlist/taxon.tab';
-        $path['ODO'] = '/Volumes/AKiTiO4/d_w_h/2021_02/worldodonatalist/taxa.txt';
-        $path['BOM'] = '/Volumes/AKiTiO4/d_w_h/2021_02/kitchingetal2018/taxa.txt';
-        $path['SPR'] = '/Volumes/AKiTiO4/d_w_h/2021_02/Collembola_DH/taxon.tab';
-        $path['ITIS'] = '/Volumes/AKiTiO4/d_w_h/2021_02/itis_2020-12-01/taxon.tab';
-
-        if(!isset($path[$source_name])) exit("\nsource_name not yet initialized [$source_name]\n");
-        return self::get_field_value_from_source($sought_field, $path[$source_name], $taxon_id, $source_name);
+        $dir_path_taxa_file = $this->path[$source_name];
+        
+        if(!isset($dir_path_taxa_file)) exit("\nsource_name not yet initialized [$source_name]\n");
+        return self::get_field_value_from_source($sought_field, $dir_path_taxa_file, $taxon_id, $source_name);
     }
     private function parse_sourceinfo($sourceinfo)
     {   // e.g. trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1 | ictv:ICTV:201902639
@@ -1135,6 +1163,53 @@ class SmasherLastAPI
             if($word == $needle) return true;
         }
         return false;
+    }
+    function build_source_taxa_records()
+    {   
+        $sources = array("trunk", "ictv", "MIP", "NCBI", "ITIS", "COL", "WOR", "MOL", "LIZ", "dino", "IOC", "MAM", "ONY", "TRI", "ODO", "VSP", "BOM", "ERE", "COC", "SPR", "CRU", "ANN");
+        foreach($sources as $source) { echo "\ncaching $source...\n";
+            self::save_taxa_records($source);
+        }
+    }
+    private function save_taxa_records($source_name)
+    {
+        $txtfile = $this->path[$source_name];
+        $i = 0;
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec); //print_r($rec); exit("\nstopx\n");
+            
+            $taxonID = $rec['taxonID'];
+            
+            $taxonRank = '';
+            if(in_array($source_name, array('dino', 'ONY')))   $taxonRank = $rec['rank'];
+            else                                        $taxonRank = $rec['taxonRank'];
+            
+            $taxonRemarks = '';
+            if(in_array($source_name, array('IOC', 'ODO', 'BOM', 'SPR', 'ITIS', 'WOR', 'COL'))) $taxonRemarks = $rec['taxonRemarks'];
+            $datasetID = '';
+            if(in_array($source_name, array('ANN', 'MIP'))) $datasetID = $rec['dataSet'];
+            if(in_array($source_name, array('dino')))       $datasetID = $rec['datasetID'];
+            $furtherInformationURL = '';
+            if(in_array($source_name, array('dino', 'ODO', 'BOM', 'ANN', 'TRI', 'ITIS', 'MIP', 'NCBI', 'WOR'))) $furtherInformationURL = $rec['furtherInformationURL'];
+            if(in_array($source_name, array('ictv', 'IOC')))                                                    $furtherInformationURL = $rec['source'];
+            
+            $this->recs[$source_name][$taxonID] = array($rec['scientificName'], $taxonRank, $taxonRemarks, $datasetID, $furtherInformationURL);
+        }
     }
 }
 ?>
