@@ -143,6 +143,13 @@ NEW mof 2904    media 374   taxon 1263
 
 119187	Mon 2021-07-26 10:01:01 AM	{                                        "media_resource.tab":40,                                "taxon.tab":31, "time_elapsed":{"sec":10.09, "min":0.17, "hr":0}}
 119187_ENV	Mon 2021-07-26 10:03:22 {"measurement_or_fact_specific.tab":156, "media_resource.tab":40, "occurrence_specific.tab":156, "taxon.tab":31, "time_elapsed":{"sec":21.59, "min":0.36, "hr":0.01}}
+
+118941	Tue 2021-07-27 10:30:58 AM	{"media_resource.tab":94, "taxon.tab":94, "time_elapsed":{"sec":0.49, "min":0.01, "hr":0}}
+118941_ENV	Tue 2021-07-27 10:43:12 AM	{"measurement_or_fact_specific.tab":351, "media_resource.tab":94, "occurrence_specific.tab":351, "taxon.tab":94, "time_elapsed":{"sec":614.26, "min":10.24, "hr":0.17}}
+
+118978	Tue 2021-07-27 10:54:30 AM	{"media_resource.tab":86, "taxon.tab":82, "time_elapsed":{"sec":0.42, "min":0.01, "hr":0}}
+118978_ENV	Tue 2021-07-27 10:56:44 AM	{"measurement_or_fact_specific.tab":616, "media_resource.tab":86, "occurrence_specific.tab":616, "taxon.tab":82, "time_elapsed":{"sec":14.12, "min":0.24, "hr":0}}
+
 ------------------------------------------------------------ North American Flora (DATA-1890) --- BHL
 15423	Thu 2021-07-08 09:19:19 AM	{                                        "media_resource.tab":66,                                "taxon.tab":66, "time_elapsed":{"sec":1.79, "min":0.03, "hr":0}}
 15423_ENV	Thu 2021-07-08 09:22:29 {"measurement_or_fact_specific.tab":340, "media_resource.tab":66, "occurrence_specific.tab":340, "taxon.tab":66, "time_elapsed":{"sec":70.23, "min":1.17, "hr":0.02}}
