@@ -283,7 +283,7 @@ if($resource_name == 'MotAES') {
     118936 --- blocks: 14|15   Raw scinames: 19
     120602 --- blocks: 20   Raw scinames: 40
     119187 --- blocks: 72   Raw scinames: 241
-    118978 --- blocks: 96   Raw scinames: 106
+    118978 --- blocks: 97   Raw scinames: 106
     */
 }
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1); /* blocks: 2611   Raw scinames: 2641 */
