@@ -191,7 +191,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "118978", "resource_name"
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118941", "resource_name":"BHL"}' //(1) Bucculatrix fusicola Braun (Figs. 3, 41, 58, 58a, 58b, 59, 59a.) 
 
 
-"120602_ENV", "119187_ENV"
+"118978_ENV", "118941_ENV"
 
 === START BHL RESOURCES ===
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL"}'
