@@ -37,7 +37,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Diplocheila latifrons darlingtoni"; //"Coryphaeschna luteipennis peninsularis Tab";
+        $this->in_question = "Bucculatrix domicola new species";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -146,7 +146,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
             
-            if(stripos($row, "salicicola (") !== false) echo "\nsearch 1\n";   //string is found
+            // if(stripos($row, $this->in_question) !== false) exit("\nsearch 1\n[$row]\n");   //string is found
             
             /* NOT FOR MEMOIRS
             if(stripos($row, "fig.") !== false) {$rows = array(); continue;} //string is found
@@ -168,7 +168,16 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             infrarubens (Nomada vicinalis; Cockerell, Bull. 94, Colo. Exp. Sta., 84.
             */
 
-            if(stripos($row, "salicicola (") !== false) echo "\nsearch 2\n";   //string is found
+            // if(stripos($row, $this->in_question) !== false) exit("\nsearch 1\n[$row]\n");   //string is found
+
+            // /* make "( 73 )" to "(73)" --- // ( 73 ) Bucculatrix domicola new species --- 118941
+            // if($this->pdf_id == '118941') {
+                if(preg_match("/\((.*?)\)/ims", $row, $ret)) { //trim what is inside the parenthesis
+                    $inside_parenthesis = $ret[1];
+                    $row = str_replace("($inside_parenthesis)", "(".trim($inside_parenthesis).")", $row);
+                }
+            // }
+            // */
             
             $cont = true;
             
@@ -202,7 +211,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             // */
 
-            // if(stripos($row, $this->in_question) !== false) echo "\nsearch 3\n";   //string is found
+            // if(stripos($row, $this->in_question) !== false) exit("\nsearch 2\n[$row]\n");   //string is found
 
             /* good debug
             //Capitophorus ohioensis Smith, 1940:141
@@ -245,15 +254,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(!$rows[0] && !$rows[1] && !$rows[3] && !$rows[4]) {
                     if($rows[2]) {
                         
-                        // if(stripos($rows[2], "Capitophorus ohioensis") !== false) exit("\nok 2\n"); //string is found //good debug
+                        // if(stripos($rows[2], $this->in_question) !== false) exit("\nok 2\n"); //string is found //good debug
                         
                         $words = explode(" ", $rows[2]);
                         $limit = 15; //9; //orig limit is 6
                         if(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
-                                                         '118936', '118950'))) $limit = 15;
+                                                         '118936', '118950', '118941'))) $limit = 15;
                         if(count($words) <= $limit)  {
-                            // if(stripos($rows[2], "Capitophorus ohioensis") !== false) exit("\nok 1\n".$rows[2]."\n"); //string is found //good debug
-                            // echo "\n$rows[2] -- ";
+                            // if(stripos($rows[2], $this->in_question) !== false) exit("\nok 1\n".$rows[2]."\n"); //string is found //good debug
                             if(self::is_sciname($rows[2])) {
                                 // /*
                                 // if(!self::has_species_string($rows[2])) {}
@@ -450,6 +458,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         }
         // */
         
+        if($this->pdf_id == '118941') $string = str_replace("Bucculatrix Columbiana", "Bucculatrix columbiana", $string);
+        
         // if(stripos($string, $this->in_question) !== false) exit("\nhanap 0 [$string]\n"); //string is found
         if(in_array($this->pdf_id, array('118935', '30355'))) { //118935 - 1st doc
             if(self::is_sciname_in_memoirs($string)) return true;
@@ -526,17 +536,24 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             else return false;
         }
         elseif(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
-                                             '118950'))) { //and BHL-like e.g. 118950
+                                             '118950', '118941'))) { //and BHL-like e.g. 118950
             // /* manual
             if(stripos($string, "Not seen") !== false) return false; //string is found
             // */
             
-            // if(stripos($string, $this->in_question) !== false) {exit("\nxx[$string]xx33\n");}   //string is found  //good debug
+            // if(stripos($string, $this->in_question) !== false) {exit("\nxx[$string]xx2\n");}   //string is found  //good debug
             
             $words = explode(" ", trim($string));
             
+            // 118941
+            // ( 73 ) Bucculatrix domicola new species 
+            // (59) Bucculatrix Columbiana new species (Figs. 162, 162a, 163, 163a.) 
+            // (91 ) Bucculatrix anaticula new species (Figs. 225, 225a, 226.) 
+            // ( 99 ) Bucculatrix thurberiella Busck 
+            
             // /* e.g. "(1) Coelopoeta glutinosi Walsingham (Figs. 1, 2, 55, 55a, 55b, 101.)" 118950
-            if($this->pdf_id == '118950') { //BHL-like
+
+            if(in_array($this->pdf_id, array('118950', '118941'))) { //BHL-like
                 $first = $words[0];
                 if(preg_match("/\((.*?)\)/ims", $first, $a)) {
                     if(!is_numeric($a[1])) return false;
@@ -544,6 +561,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 else return false;
             }
             // */
+            // if(stripos($string, $this->in_question) !== false) exit("\nxx[$string]xx4\n"); //string is found  //good debug
             
             $words[0] = str_replace(array("(", ")"), "", $words[0]);
             if(!is_numeric($words[0])) return false;
@@ -840,14 +858,16 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx\n");}   //string is found  //good debug
             }
             elseif(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
-                                                 '118950'))) { //and BHL-like
-
-                /* good debug
-                if(stripos($row, "REBOULIA Raddi") !== false) {   //string is found
-                    print_r($words); echo "\n[$row]\n";
-                    exit("\n-end-\n");
-                }
-                */
+                                                 '118950', '118941'))) { //and BHL-like
+                
+                if($this->pdf_id == '118941') $row = str_replace("Bucculatrix Columbiana", "Bucculatrix columbiana", $row);
+                
+                 // /* make "( 73 )" to "(73)" --- // ( 73 ) Bucculatrix domicola new species --- 118941
+                 if(preg_match("/\((.*?)\)/ims", $row, $ret)) {
+                     $inside_parenthesis = $ret[1];
+                     $row = str_replace("($inside_parenthesis)", "(".trim($inside_parenthesis).")", $row);
+                 }
+                 // */
                 
                 $words = explode(" ", trim($row));
                 if(is_numeric(str_replace(",", "", $words[0]))) { //e.g. "4, REBOULIA Raddi, Opusc..." -> there is comma in first word
@@ -905,7 +925,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($row == "Pseudomopoid Complex")  $row = "</taxon>$row";
             if(substr($row,0,4) == "Key ")      $row = "</taxon>$row";
             if(substr(strtoupper($row),0,6) == "TABLE ")    $row = "</taxon>$row";
-            
+
+            if($this->pdf_id == '118941') if($row == "List of the North America") $row = "</taxon>$row";
 
             if($this->pdf_id == '120082') { //4th doc
                 $words = array('Table', 'Key', 'Remarks. —', 'Nomen inquirendum', 'Literature Cited');
@@ -1017,7 +1038,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             
             if(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
-                                             '118950')) || $this->resource_name == 'MotAES') {
+                                             '118950', '118941')) || $this->resource_name == 'MotAES') {
 
                 if($row == "List of Genera and Species") $row = "</taxon>$row";
                 
@@ -1255,6 +1276,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(!$cont) continue;
             // */
 
+            if($this->pdf_id == '118941') {
+                if($this->str_begins_with($row, "(Figs.")) continue;
+            }
+
             // if($this->pdf_id == '118935') { //1st doc
             if(in_array($this->pdf_id, array('118935', '30355'))) {
                 $row = str_ireplace("[Antennae damaged; abdomen detached. |", "[Antennae damaged; abdomen detached.]", $row);
@@ -1266,7 +1291,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
 
             if(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
-                                             '118950'))) { //BHL-like
+                                             '118950', '118941'))) { //BHL-like
+                
+                if($this->pdf_id == '118941') if(stripos($row, "BUCCULATRIX in NORTH AMERICA") !== false) continue; //string is found
                 if(stripos($row, "NORTH AMERICAN FLORA [V") !== false) continue; //string is found
                 if($this->pdf_id == '91155') if(stripos($row, "SPHAGNACEAE") !== false) continue; //string is found
                 if(stripos($row, "Volume") !== false) continue; //string is found
@@ -1395,6 +1422,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     if(!$cont) continue;
                     // */
                 }
+                
                 
             }
             fwrite($WRITE, $row."\n");

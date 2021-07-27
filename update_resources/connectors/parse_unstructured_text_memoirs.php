@@ -187,7 +187,8 @@ Jul 20, 2021 Tue
 parse_unstructured_text_memoirs.php _ '{"resource_id": "120602", "resource_name":"MotAES"}' // with some TLC was able to get some 'Present' data.
 parse_unstructured_text_memoirs.php _ '{"resource_id": "119187", "resource_name":"MotAES"}'
 Jul 27, 2021 Tue
-parse_unstructured_text_memoirs.php _ '{"resource_id": "118978", "resource_name":"MotAES"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "118978", "resource_name":"MotAES"}' 
+parse_unstructured_text_memoirs.php _ '{"resource_id": "118941", "resource_name":"BHL"}' //(1) Bucculatrix fusicola Braun (Figs. 3, 41, 58, 58a, 58b, 59, 59a.) 
 
 
 "120602_ENV", "119187_ENV"
@@ -287,6 +288,7 @@ if($resource_name == 'MotAES') {
 }
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1); /* blocks: 2611   Raw scinames: 2641 */
 $rec['118950'] = array('filename' => '118950.txt', 'lines_before_and_after_sciname' => 2); /* blocks: 56   Raw scinames: 56 */
+$rec['118941'] = array('filename' => '118941.txt', 'lines_before_and_after_sciname' => 1); /* blocks: 99   Raw scinames: 101 */
 
 // === START BHL RESOURCES ===
 $rec['15423'] = array('filename' => '15423.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*1 blocks: 73|75    Raw scinames: 96|96 */

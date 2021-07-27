@@ -31,6 +31,11 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "118950", "resource_name":"others
 Jul 20 Mon
 process_SI_pdfs_memoirs.php _ '{"resource_id": "120602", "resource_name":"others"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "119187", "resource_name":"others"}'
+Jul 27 Tue
+process_SI_pdfs_memoirs.php _ '{"resource_id": "118978", "resource_name":"others"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "118941", "resource_name":"others"}'
+
+
 
 
 === START BHL RESOURCES ===
