@@ -853,6 +853,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = implode(" ", $words);
                 // */
                 
+                if($this->pdf_id == '118978') $row = str_replace("Diplocheila (Neorembusj latifrons Dejean", "Diplocheila (Neorembusj) latifrons Dejean", $row);
                 
                 if($ret = self::is_sciname_in_118920($row)) $row = $ret;
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx\n");}   //string is found  //good debug
