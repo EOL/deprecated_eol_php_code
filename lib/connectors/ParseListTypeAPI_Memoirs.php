@@ -1206,10 +1206,15 @@ class ParseListTypeAPI_Memoirs
     {
         $words = explode(" ", $row);
         if($words[0] == 'Group') { //first word is 'Group'
-            if(count($words) <= 3) {
-                return true;
-            }
+            if(count($words) <= 3) return true;
         }
+        
+        // /* e.g. "polita group" 118978.txt
+        if(count($words) == 2) {
+            if(in_array($words[1], array('Group', 'group'))) return true;
+        }
+        // */
+        
         return false;
     }
 }

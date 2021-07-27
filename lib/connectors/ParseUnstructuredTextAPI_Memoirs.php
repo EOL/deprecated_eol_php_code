@@ -6,7 +6,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     function __construct($resource_name)
     {
         $this->resource_name = $resource_name;
-        $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
 
         /* START epub series */
         // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
@@ -14,7 +14,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text=Prothorax pale brown, pronotum darker. Pterothorax brown pink, vandyke
-        http://gnrd.globalnames.org/name_finder.json?text=Pterostigma brown ochre
+        http://gnrd.globalnames.org/name_finder.json?text=Diplocheila latifrons darlingtoni, 3 new subspecies
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -37,7 +37,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Aeshna (Hesperaeschna) psilus PI"; //"Coryphaeschna luteipennis peninsularis Tab";
+        $this->in_question = "Diplocheila latifrons darlingtoni"; //"Coryphaeschna luteipennis peninsularis Tab";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -485,14 +485,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // */
             // /* start of the string
             $cont = true;
-            $exclude = array_merge($exclude, array("From ", '"')); //"WOittO", "G>", "H^l)", "Nfu-j", "XSr-"
-            
+            $exclude = array_merge($exclude, array("From ", '"', ".")); //"WOittO", "G>", "H^l)", "Nfu-j", "XSr-"
             if($this->pdf_id == '119187') { //manual
                 $exclude[] = "Prothorax pale brown";
                 $exclude[] = 'Pterostigma brown ochre';
                 $exclude[] = 'Aeshna (Hesperaeschna) psilus 194';
             }
-            
             foreach($exclude as $start_of_row) {
                 $len = strlen($start_of_row);
                 if(substr($string,0,$len) == $start_of_row) {
@@ -507,6 +505,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $words = explode(" ", $string);
             if(strlen(@$words[1]) == 1) return false; //2nd word is just 1 char long
             if(substr($words[0], -1) == ",") return false; //1st word last char is a comma ","
+            // */
+            
+            // /* 118978
+            if(@$words[1] == "(s.") unset($words[1]);
+            if(@$words[2] == "str.)") unset($words[2]);
+            $string = implode(" ", $words);
             // */
             
             // if(stripos($string, $this->in_question) !== false) exit("\nstopx 10 [$string]\n"); //string is found
@@ -676,20 +680,20 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     {
         $orig = $str;
         // /* "Xestoblatta immaculata new species (Plate IV, figure 16.)"
-        $phrases = array("new species", "new combination"); //remove 'new species' phrase and onwards
+        $phrases = array("new species", "new combination", "new subspecies"); //remove 'new species' phrase and onwards
         foreach($phrases as $phrase) {
             if(preg_match("/".$phrase."(.*?)xxx/ims", $str."xxx", $a)) {
                 $str = trim(str_replace($phrase.$a[1], "", $str));
             }
         }
         // */
-        // if(stripos($orig, "Xestoblatta immaculata") !== false) {exit("\nxx[$str]xx\n");}   //string is found  //good debug
+        // if(stripos($orig, $this->in_question) !== false) {exit("\nxx[$str]xx\n");}   //string is found  //good debug
         
         if($this->pdf_id == '120083') {
             if($str == ';al society') return false;
         }
 
-        // if(stripos($str, $this->in_question) !== false) {exit("\nxx[$str]xx33\n");}   //string is found  //good debug
+        // if(stripos($str, $this->in_question) !== false) {exit("\nxx[$str]xx2\n");}   //string is found  //good debug
         // xx[Chrysopilus velutinus Loew (PI. Ill, fig. 27)]xx33
 
         // /*
@@ -700,6 +704,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // if(stripos($str, "fig.") !== false) return false; // conflict with 118946, but not sure with prev. documents
         if(strtolower(substr($str, -11)) == " subspecies") return false;  //string is found ---	Holophygdon melanesica Subspecies
         // */
+        
+        // if(stripos($str, $this->in_question) !== false) {exit("\nxx[$str]xx3\n");}   //string is found  //good debug
+        //Diplocheila latifrons darlingtoni, 3 new subspecies
         
         // /*
         $words = explode(" ", $str);
@@ -820,6 +827,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if($ret = self::is_sciname_in_118986($row)) $row = $ret;
             }
             elseif(in_array($this->pdf_id, array('118920', '120083', '118237')) || $this->resource_name == 'MotAES') { //6th 7th 8th doc
+                
+                // /* 118978
+                $words = explode(" ", $row);
+                if(@$words[1] == "(s.") unset($words[1]);
+                if(@$words[2] == "str.)") unset($words[2]);
+                $row = implode(" ", $words);
+                // */
+                
+                
                 if($ret = self::is_sciname_in_118920($row)) $row = $ret;
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx\n");}   //string is found  //good debug
             }
@@ -888,6 +904,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($row == "ACKNOWLEDGMENTS")   $row = "</taxon>$row"; //118237.txt
             if($row == "Pseudomopoid Complex")  $row = "</taxon>$row";
             if(substr($row,0,4) == "Key ")      $row = "</taxon>$row";
+            if(substr(strtoupper($row),0,6) == "TABLE ")    $row = "</taxon>$row";
+            
 
             if($this->pdf_id == '120082') { //4th doc
                 $words = array('Table', 'Key', 'Remarks. —', 'Nomen inquirendum', 'Literature Cited');
@@ -908,9 +926,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
 
-            if(in_array($this->pdf_id, array('118986', '118920', '120083'))) { //5th 6th 7th doc
+            // TODO: add a way to remove portions of the txt file, start_text to end_text
+
+            if(in_array($this->pdf_id, array('118986', '118920', '120083', '118978'))) { //5th 6th 7th doc
                 // $words = array('Literature Cited', 'Map', 'Fig.', 'Figure');
                 $words = array('Literature Cited', 'Map', 'Figures ');
+                if($this->pdf_id == '118978') {
+                    $words[] = "Diplocheila polita group";
+                    // $words[] = 'Badister flavipes and transversus';
+                }
                 foreach($words as $word) {
                     $len = strlen($word);
                     if(substr($row,0,$len) == $word)  $row = "</taxon>$row";

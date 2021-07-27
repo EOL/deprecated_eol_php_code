@@ -186,6 +186,9 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "118950", "resource_name"
 Jul 20, 2021 Tue
 parse_unstructured_text_memoirs.php _ '{"resource_id": "120602", "resource_name":"MotAES"}' // with some TLC was able to get some 'Present' data.
 parse_unstructured_text_memoirs.php _ '{"resource_id": "119187", "resource_name":"MotAES"}'
+Jul 27, 2021 Tue
+parse_unstructured_text_memoirs.php _ '{"resource_id": "118978", "resource_name":"MotAES"}'
+
 
 "120602_ENV", "119187_ENV"
 
@@ -205,6 +208,15 @@ $param                     = json_decode(@$argv[2], true);
 $pdf_id = $param['resource_id'];
 $resource_name = $param['resource_name'];
 $func = new ParseUnstructuredTextAPI_Memoirs($resource_name);
+/*
+$str = "Diplocheila (s. str.) daldorfi Crotch";
+$words = explode(" ", $str);
+print_r($words);
+if($words[1] == "(s.") unset($words[1]);
+if($words[2] == "str.)") unset($words[2]);
+$str = implode(" ", $words);
+exit("\n[$str]\n");
+*/
 /*
 $var1 = "paRt";
 $var2 = "part";
@@ -254,7 +266,7 @@ doc 5: didn't get a valid binomial: "Laccophilus spergatus Sharp (Figs. 98-105, 
 // === other MotAES ===
 if($resource_name == 'MotAES') {
     $arr = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 1); //1st client here is 27822
-    if(in_array($pdf_id, array('118936', '118236'))) $arr['lines_before_and_after_sciname'] = 2;
+    if(in_array($pdf_id, array('118936', '118236', '118978'))) $arr['lines_before_and_after_sciname'] = 2;
     $rec[119035]['lines_before_and_after_sciname'] = 1;
     $rec[118946]['lines_before_and_after_sciname'] = 1;
     $rec[119187]['lines_before_and_after_sciname'] = 1;
@@ -270,6 +282,7 @@ if($resource_name == 'MotAES') {
     118936 --- blocks: 14|15   Raw scinames: 19
     120602 --- blocks: 20   Raw scinames: 40
     119187 --- blocks: 72   Raw scinames: 241
+    118978 --- blocks: 96   Raw scinames: 106
     */
 }
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1); /* blocks: 2611   Raw scinames: 2641 */
