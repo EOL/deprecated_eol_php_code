@@ -14,7 +14,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text="Aeshna (Hesperaeschna) psilus"
-        http://gnrd.globalnames.org/name_finder.json?text=Spialia ploetzi (Aurivillius) (Fig. 29 , $ genitalia)
+        http://gnrd.globalnames.org/name_finder.json?text=Iolaus (Epamera) moyambina Stempffer and Bennett
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
