@@ -596,6 +596,7 @@ class ParseListTypeAPI_Memoirs
         // /* manual 
         if($this->pdf_id == '119520') {
             if($sciname_line == 'Hypolimnas (Hypolimnas) salmicis (Drury)') return 'Hypolimnas salmicis'; //GNRD incorrectly outputs wrong name
+            $sciname_line = str_ireplace("Iolaus (Epamera moyambina Stempffer and Bennett", "Iolaus (Epamera) moyambina Stempffer and Bennett", $sciname_line);
         }
         if($this->pdf_id == '119188') {
             if($sciname_line == 'Anoplius (Anoplius) toluco (Cameron)') return 'Anoplius toluco'; //GNRD incorrectly outputs wrong name
