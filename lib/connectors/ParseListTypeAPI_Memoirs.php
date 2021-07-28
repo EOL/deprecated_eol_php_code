@@ -593,11 +593,20 @@ class ParseListTypeAPI_Memoirs
     }
     function last_resort_to_clean_name($sciname_line) //this started from a copied template
     {
+        // /* manual 
+        if($this->pdf_id == '119520') {
+            if($sciname_line == 'Hypolimnas (Hypolimnas) salmicis (Drury)') return 'Hypolimnas salmicis'; //GNRD incorrectly outputs wrong name
+        }
+        // */
+        
         // /* Tiphia (Tiphia) intermedia Malloch
         $words = explode(" ", $sciname_line);
         if(count($words) >= 3) {
             if($words[1] == "(".$words[0].")") {
-                if(ctype_lower(substr($words[2],0,1))) return $sciname_line;
+                if(in_array($this->pdf_id, array('119520', '119188'))) {}
+                else { //the rest goes here
+                    if(ctype_lower(substr($words[2],0,1))) return $sciname_line;
+                }
             }
         }
         // */

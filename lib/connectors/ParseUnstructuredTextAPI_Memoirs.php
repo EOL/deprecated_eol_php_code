@@ -13,8 +13,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
-        http://gnrd.globalnames.org/name_finder.json?text=Prothorax pale brown, pronotum darker. Pterothorax brown pink, vandyke
-        http://gnrd.globalnames.org/name_finder.json?text=Diplocheila latifrons darlingtoni, 3 new subspecies
+        http://gnrd.globalnames.org/name_finder.json?text=Iolaus (Iolaus) bolissus Hewitson (subspecies)
+        http://gnrd.globalnames.org/name_finder.json?text=Hypolimnas (Hypolimnas) salmicis (Drury)
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -37,7 +37,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Coeliades bixana Evans";
+        $this->in_question = "Hypolimnas (Hypolimnas) salmicis (Drury)";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series

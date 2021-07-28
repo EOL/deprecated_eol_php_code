@@ -34,6 +34,10 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "119187", "resource_name":"others
 Jul 27 Tue
 process_SI_pdfs_memoirs.php _ '{"resource_id": "118978", "resource_name":"others"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "118941", "resource_name":"others"}'
+Jul 28 Wed
+process_SI_pdfs_memoirs.php _ '{"resource_id": "119520", "resource_name":"others"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "119188", "resource_name":"others"}'
+
 
 
 
