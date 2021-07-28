@@ -665,11 +665,16 @@ class ParseListTypeAPI_Memoirs
                     //echo "\ncheck ditox: [$sciname_line]\n";
                 } //string is found //e.g. "Aeshna (Hesperaeschna) psilus"
                 else {
-                    echo "\nGNRD sees multiple names: [$sciname_line]\n";
-                    // print_r($obj->names); //good debug
-                    return false;
+                    $scientificName_1 = $obj->names[0]->scientificName;
+                    $scientificName_2 = $obj->names[1]->scientificName;
+                    //e.g. http://gnrd.globalnames.org/name_finder.json?text=Spialia ploetzi (Aurivillius)
+                    if(self::is_2or_more_words($scientificName_1) && self::is_just_one_word($scientificName_2)) {}
+                    else {
+                        echo "\nGNRD sees multiple names: [$sciname_line]\n";
+                        // print_r($obj->names); //good debug
+                        return false;
+                    }
                 }
-                
             }
         }
         $sciname = @$obj->names[0]->scientificName;
@@ -1209,6 +1214,12 @@ class ParseListTypeAPI_Memoirs
     {
         $words = explode(" ", trim($phrase));
         if(count($words) == 1) return true;
+        return false;
+    }
+    private function is_2or_more_words($phrase)
+    {
+        $words = explode(" ", trim($phrase));
+        if(count($words) >= 2) return true;
         return false;
     }
     function is_a_Group_stop_pattern($row)
