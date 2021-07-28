@@ -37,7 +37,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Bucculatrix domicola new species";
+        $this->in_question = "Coeliades bixana Evans";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -121,7 +121,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         foreach(new FileIterator($local) as $line => $row) { $ctr++;
             $i++; if(($i % 5000) == 0) echo " $i";
 
-            $row = trim(preg_replace('/\s*\[[^)]*\]/', '', $row)); //remove brackets
+            if($this->pdf_id == '119520') {} //accept brackets e.g. "[Coeliades bixana Evans]"
+            else $row = trim(preg_replace('/\s*\[[^)]*\]/', '', $row)); //remove brackets //the rest goes here
             $row = trim($row);
             
             if(in_array($this->pdf_id, array('118935', '30355'))) { //118935 1st doc
@@ -478,6 +479,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             else return false;
         }
         elseif(in_array($this->pdf_id, array('118920', '120083', '118237')) || $this->resource_name == 'MotAES') { //6th 7th 8th doc
+            
+            // if(stripos($string, $this->in_question) !== false) exit("\nstopx 09 [$string]\n"); //string is found
+            
             // /* manual
             if(stripos($string, "Measurement") !== false) return false; //string is found
             // */
@@ -820,6 +824,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $row = str_ireplace("Eurycotis^'' caraibea", "Eurycotis caraibea", $row);    //27822
             // */
 
+            if($this->pdf_id == '119520') $row = str_ireplace("Teniorhinus ignita (Mabille) (Fig. 52, <J genitalia)", "Teniorhinus ignita (Mabille)", $row);    //119520
+            
             // if($this->pdf_id == '118935') { //1st doc
             if(in_array($this->pdf_id, array('118935', '30355'))) {
                 // /* manual: floridanus ((Fcenus ) Bradley, Trans. Am. Ent. Soc, xxxiv, 112.
@@ -888,6 +894,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             else      $count_of_blank_rows = 0;
             
             if(isset($this->lines_to_tag[$i])) { $hits++;
+                // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx00\n");}   //string is found  //good debug
                 $row = self::format_row_to_sciname_v2($row); //fix e.g. "Amastus aphraates Schaus, 1927, p. 74."
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx11\n");}   //string is found  //good debug
                 if(self::is_valid_species($row)) { //important last line
@@ -895,6 +902,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
                     // /*
                     if($sciname = self::last_resort_to_clean_name($row)) {
+                        // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row][$sciname]xx33\n");}   //string is found  //good debug
+                        
                         $words = explode(" ", $sciname);
                         if(count($words) > 1) {
                             if($hits == 1)  $row = "<taxon sciname='$sciname'> ".$row;
@@ -928,7 +937,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(substr(strtoupper($row),0,6) == "TABLE ")    $row = "</taxon>$row";
 
             if($this->pdf_id == '118941') if($row == "List of the North America") $row = "</taxon>$row";
-
+            if($this->pdf_id == '119520') if($row == "404 butterflies of liberia") $row = "</taxon>$row";
+            
             if($this->pdf_id == '120082') { //4th doc
                 $words = array('Table', 'Key', 'Remarks. —', 'Nomen inquirendum', 'Literature Cited');
                 foreach($words as $word) {
@@ -1161,10 +1171,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             
             /* End of document --- ignore everything that follows from this point */
             if($this->pdf_id == '118946') {
-                if($row == "</taxon>Bibliography") break; //exit("\n[$row]\n"); //break;
+                if($row == "</taxon>Bibliography") break;  //has "</taxon>" bec. it is used as stop pattern above
             }
             if($row == "Plate III. Bonariensis Rambur, Aeshna (Neureclipa)") break; //119187
             
+             
+            if($this->pdf_id == '119188') {
+                if($row == "Valid names are printed in italics. Page numbers of new taxa are printed") break;
+            }
+            if($this->pdf_id == '119520') {
+                if($row == "</taxon>404 butterflies of liberia") break; //has "</taxon>" bec. it is used as stop pattern above
+            }
             
         }//end loop text
         fclose($WRITE);
@@ -1176,7 +1193,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     private function format_row_to_sciname_v2($row) //Amastus aphraates Schaus, 1927, p. 74.
     {
         $row = self::remove_first_word_if_it_has_number($row);
+        // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]aa00\n");}   //string is found  //good debug
         $row = self::clean_sciname_here($row);
+        // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]aa11\n");}   //string is found  //good debug
         if(stripos($row, " p. ") !== false) {   //string is found
             $obj = $this->run_gnparser($row);
             if($canonical = @$obj[0]->canonical->full) {}
@@ -1213,7 +1232,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // */
         
         // if(stripos($name, "Capitophorus ohioensis") !== false) exit("\nok 22\n[$name]\n"); //string is found //good debug
-        $name = trim(preg_replace('/\s*\[[^)]*\]/', '', $name)); //remove brackets
+        
+        if($this->pdf_id == '119520') {} //accept brackets e.g. "[Coeliades bixana Evans]"
+        else $name = trim(preg_replace('/\s*\[[^)]*\]/', '', $name)); //remove brackets //rest goes here
         // if(stripos($name, "Capitophorus ohioensis") !== false) exit("\nok 23\n[$name]\n"); //string is found //good debug
         
         // /* remove (.) period if last char
@@ -1277,9 +1298,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(!$cont) continue;
             // */
 
-            if($this->pdf_id == '118941') {
+            // if($this->pdf_id == '118941') {
                 if($this->str_begins_with($row, "(Figs.")) continue;
-            }
+                if($this->str_begins_with($row, "(Fig.")) continue;
+                
+            // }
 
             // if($this->pdf_id == '118935') { //1st doc
             if(in_array($this->pdf_id, array('118935', '30355'))) {

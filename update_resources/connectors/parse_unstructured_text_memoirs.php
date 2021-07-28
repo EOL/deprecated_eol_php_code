@@ -196,9 +196,11 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "119187", "resource_name"
 Jul 27, 2021 Tue
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118978", "resource_name":"MotAES"}' 
 parse_unstructured_text_memoirs.php _ '{"resource_id": "118941", "resource_name":"BHL"}' //(1) Bucculatrix fusicola Braun (Figs. 3, 41, 58, 58a, 58b, 59, 59a.) 
+Jul 28, 2021 Wed
+parse_unstructured_text_memoirs.php _ '{"resource_id": "119520", "resource_name":"MotAES"}' 
+parse_unstructured_text_memoirs.php _ '{"resource_id": "119188", "resource_name":"MotAES"}' 
 
-
-"118978_ENV", "118941_ENV"
+"119520_ENV", "119188_ENV"
 
 === START BHL RESOURCES ===
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL"}'
@@ -274,7 +276,7 @@ doc 5: didn't get a valid binomial: "Laccophilus spergatus Sharp (Figs. 98-105, 
 // === other MotAES ===
 if($resource_name == 'MotAES') {
     $arr = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 1); //1st client here is 27822
-    if(in_array($pdf_id, array('118936', '118236', '118978'))) $arr['lines_before_and_after_sciname'] = 2;
+    if(in_array($pdf_id, array('118936', '118236', '118978', '119520', '119188'))) $arr['lines_before_and_after_sciname'] = 2;
     $rec[119035]['lines_before_and_after_sciname'] = 1;
     $rec[118946]['lines_before_and_after_sciname'] = 1;
     $rec[119187]['lines_before_and_after_sciname'] = 1;
@@ -282,7 +284,7 @@ if($resource_name == 'MotAES') {
     
     $rec[$pdf_id] = $arr;
     /*
-    27822 --- blocks: 127|124|107   Raw scinames: 171|159|175 
+    27822 --- blocks: 123|127|124|107   Raw scinames: 171|159|175 
     30353 --- blocks: 2   Raw scinames: 26 (skipped)
     30354 --- blocks: 89|81   Raw scinames: 174|165
     119035 --- blocks: 56|48   Raw scinames: 109|57
