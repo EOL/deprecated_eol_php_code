@@ -156,6 +156,8 @@ NEW mof 2904    media 374   taxon 1263
 119520	Wed 2021-07-28 10:22:25 AM	{"media_resource.tab":675, "taxon.tab":675, "time_elapsed":{"sec":0.82, "min":0.01, "hr":0}}
 119520_ENV	Wed 2021-07-28 10:25:25 AM	{"measurement_or_fact_specific.tab":2301, "media_resource.tab":675, "occurrence_specific.tab":2301, "taxon.tab":675, "time_elapsed":{"sec":60.5, "min":1.01, "hr":0.02}}
 
+MoftheAES_resources	Thu 2021-07-29 09:06:03 AM	{"MoF.tab":12098, "media.tab":1889, "occurrence.tab":12098, "taxon.tab":5853, "time_elapsed":{"sec":118.6, "min":1.98, "hr":0.03}}
+
 ------------------------------------------------------------ North American Flora (DATA-1890) --- BHL
 15423	Thu 2021-07-08 09:19:19 AM	{                                        "media_resource.tab":66,                                "taxon.tab":66, "time_elapsed":{"sec":1.79, "min":0.03, "hr":0}}
 15423_ENV	Thu 2021-07-08 09:22:29 {"measurement_or_fact_specific.tab":340, "media_resource.tab":66, "occurrence_specific.tab":340, "taxon.tab":66, "time_elapsed":{"sec":70.23, "min":1.17, "hr":0.02}}
