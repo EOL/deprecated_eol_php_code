@@ -39,9 +39,6 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "119520", "resource_name":"others
 process_SI_pdfs_memoirs.php _ '{"resource_id": "119188", "resource_name":"others"}'
 
 
-
-
-
 === START BHL RESOURCES ===
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "91155", "resource_name":"2nd BHL", "doc": "BHL"}'
