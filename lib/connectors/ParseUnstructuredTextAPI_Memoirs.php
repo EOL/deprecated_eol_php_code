@@ -460,6 +460,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // */
         
         if($this->pdf_id == '118941') $string = str_replace("Bucculatrix Columbiana", "Bucculatrix columbiana", $string);
+        if($this->pdf_id == '119520') $string = str_replace("Epitola Ieonina Staudinger", "Epitola leonina Staudinger", $string);
+        
         
         // if(stripos($string, $this->in_question) !== false) exit("\nhanap 0 [$string]\n"); //string is found
         if(in_array($this->pdf_id, array('118935', '30355'))) { //118935 - 1st doc
@@ -825,6 +827,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // */
 
             if($this->pdf_id == '119520') $row = str_ireplace("Teniorhinus ignita (Mabille) (Fig. 52, <J genitalia)", "Teniorhinus ignita (Mabille)", $row);    //119520
+            if($this->pdf_id == '119520') $row = str_replace("Epitola Ieonina Staudinger", "Epitola leonina Staudinger", $row);
+            
             
             // if($this->pdf_id == '118935') { //1st doc
             if(in_array($this->pdf_id, array('118935', '30355'))) {

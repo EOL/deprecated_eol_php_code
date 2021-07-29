@@ -1261,7 +1261,7 @@ class ParseListTypeAPI_Memoirs
         // C. jurvus group.
         $row = str_replace(".", "", $row);
         $words = explode(" ", $row);
-        if(count($words) <= 3) {
+        if(count($words) <= 4) {
             $last_word = strtolower(end($words));
             if($last_word == 'group') return true;
         }
