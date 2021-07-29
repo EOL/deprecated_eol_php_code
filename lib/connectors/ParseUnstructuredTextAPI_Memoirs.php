@@ -37,7 +37,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Hypolimnas (Hypolimnas) salmicis (Drury)";
+        $this->in_question = "Carabus bipustidatus Fab";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -1297,7 +1297,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             if(!$cont) continue;
             // */
-
+            
+            if($this->pdf_id == '118978') if($row == 'Dicaehis ambigiuis Laferte') continue; //manual
+            
             // if($this->pdf_id == '118941') {
                 if($this->str_begins_with($row, "(Figs.")) continue;
                 if($this->str_begins_with($row, "(Fig.")) continue;

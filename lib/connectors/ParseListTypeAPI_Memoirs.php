@@ -629,7 +629,7 @@ class ParseListTypeAPI_Memoirs
         $sciname_line = str_ireplace("Eurycotis bioUeyi Rehn", "Eurycotis biolleyi Rehn", $sciname_line); //30354
         // */
         
-        // if(stripos($sciname_line, $this->in_question) !== false) exit("\n[$sciname_line]\n"); //good debug - to see what string passes here.
+        // if(stripos($sciname_line, $this->in_question) !== false) exit("\n[$sciname_line]xx1\n"); //good debug - to see what string passes here.
         
         /*
         study this block further...
@@ -640,8 +640,8 @@ class ParseListTypeAPI_Memoirs
         }
         */
         
-        // if(stripos($sciname_line, $this->in_question) !== false) exit("\n[$sciname_line]\n"); //good debug - to see what string passes here.
-
+        // if(stripos($sciname_line, $this->in_question) !== false) exit("\n[$sciname_line]xx2\n"); //good debug - to see what string passes here.
+        //Carabus bipustidatus Fab., Carabus crux-minor Oliv., and Carabus peltatus
         
         // /* ------------- last name cleaning ------------- use both gnparser and GNRD
         $orig = $sciname_line;
@@ -659,11 +659,26 @@ class ParseListTypeAPI_Memoirs
 
         $sciname_line = str_replace('"', "&quot;", $sciname_line);
 
+        // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname_line]xx3\n"); //good debug - to see what string passes here.
+
         debug("\nrun_GNRD 1: [$sciname_line]\n");
         $obj = self::run_GNRD($sciname_line);
         
         if($this->resource_name == "MotAES") { //exclude rows with multiple binomials
             if(count(@$obj->names) > 1) {
+                /* good debug
+                if(stripos($orig, $this->in_question) !== false) {
+                    print_r($obj->names);
+                    exit("\n[$sciname_line]\n");
+                }
+                */
+                
+                // /* first criteria to be false is that there is > 1 binomial
+                if(self::more_than_one_binomial($obj->names)) { echo "\nGNRD sees multiple binomials: [$sciname_line]\n"; //exit;
+                    return false;
+                }
+                // */
+                
                 $verbatim_1 = $obj->names[0]->verbatim;
                 $verbatim_2 = $obj->names[1]->verbatim;
                 if(stripos($verbatim_1, $verbatim_2) !== false) {
@@ -1236,10 +1251,46 @@ class ParseListTypeAPI_Memoirs
         
         // /* e.g. "polita group" 118978.txt
         if(count($words) == 2) {
-            if(in_array($words[1], array('Group', 'group'))) return true;
+            if(strtolower($words[1]) == 'group') return true; //2nd word is 'group'
         }
         // */
         
+        // /* 2-3 words, where last word is 'group'
+        // C. costatus group.
+        // Purpuratus group
+        // C. jurvus group.
+        $row = str_replace(".", "", $row);
+        $words = explode(" ", $row);
+        if(count($words) <= 3) {
+            $last_word = strtolower(end($words));
+            if($last_word == 'group') return true;
+        }
+        // */
+        return false;
+    }
+    private function more_than_one_binomial($gnrd_arr)
+    {   /*Array(
+        [0] => stdClass Object(
+                [verbatim] => Carabus bipustidatus
+                [scientificName] => Carabus bipustidatus
+                [offsetStart] => 0
+                [offsetEnd] => 20
+        [1] => stdClass Object(
+                [verbatim] => Carabus
+                [scientificName] => Carabus
+                [offsetStart] => 28
+                [offsetEnd] => 35
+        [2] => stdClass Object(
+                [verbatim] => Carabus peltatus
+                [scientificName] => Carabus peltatus
+                [offsetStart] => 59
+                [offsetEnd] => 75
+        )*/
+        $binomials = 0;
+        foreach($gnrd_arr as $obj) {
+            if(self::is_2or_more_words($obj->scientificName)) $binomials++;
+        }
+        if($binomials > 1) return true;
         return false;
     }
 }
