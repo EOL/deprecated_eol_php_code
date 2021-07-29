@@ -298,7 +298,7 @@ if($resource_name == 'MotAES') {
     118936 --- blocks: 14|15   Raw scinames: 19
     120602 --- blocks: 20   Raw scinames: 40
     119187 --- blocks: 72   Raw scinames: 241
-    118978 --- blocks: 97   Raw scinames: 106
+    118978 --- blocks: 96   Raw scinames: 106
     119520 --- blocks: 662   Raw scinames: 705
     119188 --- blocks: 185   Raw scinames: 197
     */

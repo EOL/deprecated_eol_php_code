@@ -935,6 +935,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($row == "Pseudomopoid Complex")  $row = "</taxon>$row";
             if(substr($row,0,4) == "Key ")      $row = "</taxon>$row";
             if(substr(strtoupper($row),0,6) == "TABLE ")    $row = "</taxon>$row";
+            
+            if($this->is_Section_stop_pattern($row)) $row = "</taxon>$row";
 
             if($this->pdf_id == '118941') if($row == "List of the North America") $row = "</taxon>$row";
             if($this->pdf_id == '119520') if($row == "404 butterflies of liberia") $row = "</taxon>$row";

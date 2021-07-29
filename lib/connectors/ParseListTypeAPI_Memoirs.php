@@ -1293,5 +1293,14 @@ class ParseListTypeAPI_Memoirs
         if($binomials > 1) return true;
         return false;
     }
+    function is_Section_stop_pattern($row) //Line of four words or less beginning "Section"
+    {
+        $words = explode(" ", $row);
+        if(count($words) <= 4) {
+            $first_word = strtolower($words[0]);
+            if($first_word == 'section') return true;
+        }
+        return false;
+    }
 }
 ?>
