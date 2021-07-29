@@ -14,7 +14,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text="Aeshna (Hesperaeschna) psilus"
-        http://gnrd.globalnames.org/name_finder.json?text=Iolaus (Epamera) moyambina Stempffer and Bennett
+        http://gnrd.globalnames.org/name_finder.json?text=Gerydinae
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -94,6 +94,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // print_r($this->scinames); 
         echo "\nRaw scinames count: ".count($this->scinames)."\n";
         
+        if(isset($this->investigate_1)) print_r($this->investigate_1);
         if(isset($this->investigate2)) print_r($this->investigate2);
     }
     private function get_main_scinames($filename)
@@ -941,6 +942,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(substr(strtoupper($row),0,6) == "TABLE ")    $row = "</taxon>$row";
             
             if($this->is_Section_stop_pattern($row)) $row = "</taxon>$row";
+            if($this->is_New_then_RankName_stop_pattern($row)) $row = "</taxon>$row";
 
             if($this->pdf_id == '118941') if($row == "List of the North America") $row = "</taxon>$row";
             if($this->pdf_id == '119520') if($row == "404 butterflies of liberia") $row = "</taxon>$row";

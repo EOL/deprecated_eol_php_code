@@ -256,7 +256,7 @@ class ParseListTypeAPI_Memoirs
     {
         $ranks = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 'Subphylum', 'Subclass', 'Superfamily');
         foreach($ranks as $rank) {
-            if($rank == $word) return true;
+            if(strtolower($rank) == strtolower($word)) return true;
         }
         return false;
     }
@@ -842,8 +842,11 @@ class ParseListTypeAPI_Memoirs
             if(strtolower($str) == strtolower(@$obj->names[0]->scientificName)) return true;
             else {
 
-                if($this->pdf_id == '120602') {
+                if($this->pdf_id == '120602') { //force GNRD to say its a name
                     if(in_array($str, array("Oulopteryginae", "Corydini", "Tiviini", "Euthyrrhaphini", "Compsodini", "Panesthiini", "Diplopterini", "Blattini", "Nyctiborini", "Megaloblattini", "Perisphaerini", "Litopeltiini", "Brachycolini", "Blaberini", "Parcoblattini", "Euphyllodromiini", "Euandroblattini", "Neoblattellini", "Pseudomopini", "Supellini", "Symplocini", "Baltini", "Ectobiini", "Chorisoneurini", "Anaplectini", "Ceuthobiini", "Oulopterygini", "Corydiini", "ElTTHYRRHAPHINAE", "Litopeltini", "Euphyllodromini", "Ectobhnae"))) return true;
+                }
+                if($this->pdf_id == '119520') { //force GNRD to say its a name
+                    if(in_array($str, array("Rhodocerini", "Acraeinae", "Limenitini", "Marpesini", "Eunicini", "Liptenidae", "Pentilinae", "Lipteninae", "Epitolini", "Liphyridae", "Liphyrinae", "Lachnocnemini", "Gerydinae", "Gerydini", "Plebejinae", "Lampidini", "Everini", "Plebejini", "Zizeerini"))) return true;
                 }
 
                 if(!isset($this->investigate2[$str])) {
@@ -1299,6 +1302,19 @@ class ParseListTypeAPI_Memoirs
         if(count($words) <= 4) {
             $first_word = strtolower($words[0]);
             if($first_word == 'section') return true;
+        }
+        return false;
+    }
+    function is_New_then_RankName_stop_pattern($row)
+    {   //e.g. "HYPOPHYTALA, new genus"
+        $words = explode(" ", $row);
+        if(count($words) <= 4) {
+            $last_word = strtolower(end($words));
+            if($this->is_a_rank_name($last_word)) {
+                $total = count($words);
+                $second_to_last_word = strtolower($words[$total-2]);
+                if($second_to_last_word == 'new') return true;
+            }
         }
         return false;
     }
