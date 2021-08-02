@@ -104,9 +104,10 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 27822
 30354
 
-php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"BHL 1st", "resource_id":"15423", "subjects":"Description|Uses"}'
-php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"BHL 2nd", "resource_id":"91155", "subjects":"Description|Uses"}'
-
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"15423", "subjects":"Description|Uses"}'
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"91155", "subjects":"Description|Uses"}'
+15427 15428 91144
+environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"91155", "subjects":"Description|Uses"}'
 --------------------------------------------------------------------------------------- PDF repository 10088_5097
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"10088_5097", "subjects":"Uses|Description"}'
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"10088_6943", "subjects":"Uses|Description"}'

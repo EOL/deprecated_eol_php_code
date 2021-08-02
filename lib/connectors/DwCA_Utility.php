@@ -14,7 +14,7 @@ class DwCA_Utility
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array("directory_path" => $this->path_to_archive_directory));
         }
-        $this->params = $params;
+        $this->params = $params; //print_r($params); exit;
         $this->dwca_file = $dwca_file;
         /* un-comment if it will cause probs to other connectors
         $this->download_options = array("download_wait_time" => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26);
@@ -113,6 +113,9 @@ class DwCA_Utility
         else                                                    $annotateYes = false;
         // */
         
+        if(Functions::is_production()) echo "\nProduction running...\n";
+        else                           echo "\nLocal running...\n";
+        
         if(in_array($this->resource_id, array("170_final", "BF", "cites_taxa"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24*30)); //1 month expire
         elseif(in_array($this->resource_id, array("wikimedia_comnames", "71_new", "368_removed_aves", "itis_2019-08-28", "itis_2020-07-28", "itis_2020-12-01", "368_final"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array("wiki_en_report"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
@@ -122,7 +125,7 @@ class DwCA_Utility
                                                   "118935_ENV", "120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV", "120083_ENV", "118237_ENV",
                                     "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV", "120602_ENV", 
                                     "119187_ENV", "118978_ENV", "118941_ENV", "119520_ENV", "119188_ENV",
-                                    "15423_ENV", "91155_ENV"))) {
+                                    "15423_ENV", "91155_ENV")) || $this->params['resource'] == 'all_BHL') {
             if(Functions::is_production()) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
             else                           $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
         }
@@ -180,7 +183,7 @@ class DwCA_Utility
                 if(in_array($this->resource_id, array("10088_5097_ENV", "10088_6943_ENV", "118935_ENV", "120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV", "120083_ENV", 
                     "118237_ENV", "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV", "120602_ENV", 
                     "119187_ENV", "118978_ENV", "118941_ENV", "119520_ENV", "119188_ENV",
-                    "15423_ENV", "91155_ENV")) && $row_type == "http://rs.tdwg.org/dwc/terms/occurrence") {
+                    "15423_ENV", "91155_ENV") || $this->params['resource'] == 'all_BHL') && $row_type == "http://rs.tdwg.org/dwc/terms/occurrence") {
                     self::process_fields($harvester->process_row_type($row_type), 'occurrence_specific');
                 }
                 elseif($annotateYes && $row_type == "http://rs.tdwg.org/dwc/terms/occurrence") {
@@ -313,11 +316,11 @@ class DwCA_Utility
         if(in_array($this->resource_id, array("21_ENV", "617_ENV", "26_ENV", "10088_5097_ENV", "10088_6943_ENV", "118935_ENV", "120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV", "120083_ENV", 
             "118237_ENV", "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV", "120602_ENV", 
             "119187_ENV", "118978_ENV", "118941_ENV", "119520_ENV", "119188_ENV",
-            "15423_ENV", "91155_ENV")) || $annotateYes) { //first 2 clients: Amphibiaweb, Wikipedia EN
+            "15423_ENV", "91155_ENV")) || $annotateYes || $this->params['resource'] == 'all_BHL') { //first 2 clients: Amphibiaweb, Wikipedia EN
             echo "\nGoes here really: [$this->resource_id]\n";
             require_library('connectors/ContributorsMapAPI');
             require_library('connectors/Environments2EOLfinal');
-            $func = new Environments2EOLfinal($this->archive_builder, $this->resource_id);
+            $func = new Environments2EOLfinal($this->archive_builder, $this->resource_id, $this->params);
             $func->start($info);
         }
         /*

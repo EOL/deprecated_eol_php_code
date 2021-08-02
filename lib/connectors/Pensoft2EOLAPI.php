@@ -117,7 +117,7 @@ class Pensoft2EOLAPI
         */
     }
     function generate_eol_tags_pensoft($resource, $timestart = '', $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
-    {   
+    {   //print_r($this->param); exit;
         if(!self::test_is_passed()) exit("\nTest failed. Needed service is not available\n");
         else echo "\nTest passed OK\n";
         
@@ -176,7 +176,7 @@ class Pensoft2EOLAPI
         /* ----- stat 3rd part ----- */ //adjust DwCA in question. Either add MoF or update MoF.
         $dwca_file = $this->DwCA_URLs[$resource];
         require_library('connectors/DwCA_Utility');
-        $func = new DwCA_Utility($this->param['resource_id'], $dwca_file);
+        $func = new DwCA_Utility($this->param['resource_id'], $dwca_file, $this->param);
         $preferred_rowtypes = array();
         /* These 2 will be processed in Environments2EOLfinal.php which will be called from DwCA_Utility.php
         http://rs.tdwg.org/dwc/terms/occurrence
@@ -186,6 +186,7 @@ class Pensoft2EOLAPI
         // $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //not used
         
         $excluded_rowtypes = array();
+        
         // /* -------------------- start customize --------------------
         if($this->param['resource_id'] == '617_ENV') $excluded_rowtypes = array('http://eol.org/schema/media/document'); //Wikipedia EN -> creates a new DwCA
         elseif($this->param['resource_id'] == '21_ENV') $excluded_rowtypes = array(); //AmphibiaWeb text -> doesn't create a new DwCA
@@ -193,6 +194,7 @@ class Pensoft2EOLAPI
             "118237_ENV", "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV",
             "120602_ENV", "119187_ENV", "118978_ENV", "118941_ENV", "119520_ENV", "119188_ENV",
             "15423_ENV", "91155_ENV"))) $excluded_rowtypes = array('http://eol.org/schema/media/document');
+        elseif($this->param['resource'] == 'all_BHL') $excluded_rowtypes = array('http://eol.org/schema/media/document');
         if(stripos($this->param['resource_id'], "SCtZ-") !== false) $excluded_rowtypes = array('http://eol.org/schema/media/document'); //string is found
         elseif(stripos($this->param['resource_id'], "scb-") !== false)  $excluded_rowtypes = array('http://eol.org/schema/media/document'); //string is found
         elseif(stripos($this->param['resource_id'], "scz-") !== false)  $excluded_rowtypes = array('http://eol.org/schema/media/document'); //string is found
@@ -388,6 +390,7 @@ class Pensoft2EOLAPI
                     "118237_ENV", "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV",
                     "120602_ENV", "119187_ENV", "118978_ENV", "118941_ENV", "119520_ENV", "119188_ENV",
                     "15423_ENV", "91155_ENV"))) $this->ontologies = "envo,eol-geonames";
+                elseif($this->param['resource'] == 'all_BHL') $this->ontologies = "envo,eol-geonames";
                 // ---------------------- end customize ----------------------*/
                 
                 // print_r($rec); exit("\n[2]\n");

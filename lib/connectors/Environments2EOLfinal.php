@@ -3,10 +3,11 @@ namespace php_active_record;
 /* connector: [called from DwCA_Utility.php, which is called from Environments2EOLAPI.php; from environments_2_eol.php for DATA-1851] */
 class Environments2EOLfinal extends ContributorsMapAPI
 {
-    function __construct($archive_builder, $resource_id)
+    function __construct($archive_builder, $resource_id, $params = array())
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
+        $this->params = $params; //print_r($params); exit("\nelix\n");
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->debug = array();
         /* OLD - Vangelis
@@ -96,6 +97,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
             '118920_ENV', '120083_ENV', '118237_ENV', 'MoftheAES_ENV', '30355_ENV', "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV", "120602_ENV", 
             "119187_ENV", "118978_ENV", "118941_ENV", "119520_ENV", "119188_ENV",
             '15423_ENV', '91155_ENV'))
+                || $this->params['resource'] == 'all_BHL'
                 || stripos($this->resource_id, "SCtZ-") !== false
                 || stripos($this->resource_id, "scb-") !== false
                 || stripos($this->resource_id, "scz-") !== false
@@ -449,6 +451,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
                     '118237_ENV', 'MoftheAES_ENV', '30355_ENV', "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV", "120602_ENV", 
                     "119187_ENV", "118978_ENV", "118941_ENV", "119520_ENV", "119188_ENV",
                     '15423_ENV', '91155_ENV'))
+                        || $this->params['resource'] == 'all_BHL'
                         || stripos($this->resource_id, "SCtZ-") !== false
                         || stripos($this->resource_id, "scb-") !== false
                         || stripos($this->resource_id, "scz-") !== false

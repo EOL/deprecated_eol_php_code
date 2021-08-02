@@ -46,7 +46,7 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "15427", "resource_name":"3rd BHL
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15428", "resource_name":"4th BHL", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "91144", "resource_name":"5th BHL", "doc": "BHL"}'
 
-15427 15428 91144
+'15427_ENV', '15428_ENV', '91144_ENV'
 
 
 */
