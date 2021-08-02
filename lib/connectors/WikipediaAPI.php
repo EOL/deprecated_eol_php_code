@@ -256,13 +256,13 @@ class WikipediaAPI extends WikiHTMLAPI
             $domain_name = $func_region->get_domain_name($url);
 
             $options = $this->download_options;
-            // if($rek['taxon_id'] == "Q5113") $options['expire_seconds'] = 0; //debug only force
+            // if($rek['taxon_id'] == "Q5113") $options['expire_seconds'] = 0; //debug only --- force
 
-            // /* making force refresh
+            /* making force refresh
             if($this->language_code == 'en') {
-                if($rek['taxon_id'] == "Q41407") $options['expire_seconds'] = 0; //debug only force --- sea otter, Enhydra lutris
+                if($rek['taxon_id'] == "Q41407") $options['expire_seconds'] = 0; //debug only --- force --- sea otter, Enhydra lutris
             }
-            // */
+            */
             
             if($html = Functions::lookup_with_cache($url, $options)) { //preferabley monthly expires
                 if(self::bot_inspired($html)) {
