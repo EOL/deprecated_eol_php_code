@@ -704,7 +704,7 @@ class ParseListTypeAPI_Memoirs
         else                                        $criteria = $sciname; //rest of the resources, default
         if($criteria) {
             $rek['sciname GNRD'] = $sciname;
-            if(in_array($this->pdf_id, array('15423', '91155', '15427'))) { //BHL --- more strict path
+            if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427'))) { //BHL --- more strict path
                 /* might be overkill
                 if($obj = self::run_gnparser($sciname_line)) {
                     $authorship = @$obj[0]->authorship->verbatim;
@@ -1086,7 +1086,8 @@ class ParseListTypeAPI_Memoirs
         if(strlen($str) <= 10) return false;
         if(count($words) < 2) return false;
         if(ctype_lower($words[0][0])) return false; //first word must be capitalized
-        if(!in_array($this->pdf_id, array('15423', '91155', '15427'))) {
+        if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427'))) {}
+        else {
             if(ctype_upper($words[1][0])) return false; //2nd word must be lower case
         }
         
@@ -1125,7 +1126,8 @@ class ParseListTypeAPI_Memoirs
         $dont_have_these_chars_anywhere = array("—", "~", "->", "<-", "«", "»", "©", " pp.", " ibid.", " of ", " to ", 
                                                 " is ", "(see", "species?", "inquirendum");
         if($this->pdf_id == '120082') $dont_have_these_chars_anywhere[] = " and "; //4th doc
-        if(!in_array($this->pdf_id, array('15423', '91155', '15427'))) { //1st 2nd, all BHL
+        if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427'))) {} //1st 2nd, all BHL
+        else {
             if($this->resource_name != "MotAES") $dont_have_these_chars_anywhere[] = "^";
             $dont_have_these_chars_anywhere = array_merge($dont_have_these_chars_anywhere, array("*", ":", " in ", " p."));
         }
@@ -1155,6 +1157,7 @@ class ParseListTypeAPI_Memoirs
         // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 4x\n[$str]\n"); //string is found
 
         if(in_array($this->pdf_id, array('119187'))) {} //Coryphaeschna luteipennis peninsularis Tables 8, 11, 13, 18; Map 7.
+        elseif($this->resource_name == 'all_BHL') {} //15428.txt //4. Naias conferta A. Br. Sitz.-ber. Ges. Nat. Freunde Berlin 1868 : 17.
         else {
             if(self::last_word_not_num_not_LT_4_digits($words)) {}
             else return false;

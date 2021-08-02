@@ -43,6 +43,11 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "119188", "resource_name":"others
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "91155", "resource_name":"2nd BHL", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15427", "resource_name":"3rd BHL", "doc": "BHL"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "15428", "resource_name":"4th BHL", "doc": "BHL"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "91144", "resource_name":"5th BHL", "doc": "BHL"}'
+
+15427 15428 91144
+
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

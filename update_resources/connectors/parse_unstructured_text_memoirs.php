@@ -211,9 +211,13 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "119188", "resource_name"
 "119520_ENV", "119188_ENV"
 
 === START BHL RESOURCES ===
-parse_unstructured_text_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL"}'
-parse_unstructured_text_memoirs.php _ '{"resource_id": "91155", "resource_name":"2nd BHL"}'
-parse_unstructured_text_memoirs.php _ '{"resource_id": "15427", "resource_name":"3nd BHL"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "15423", "resource_name":"all_BHL"}' //1
+parse_unstructured_text_memoirs.php _ '{"resource_id": "91155", "resource_name":"all_BHL"}' //2
+Aug 2 Mon
+parse_unstructured_text_memoirs.php _ '{"resource_id": "15427", "resource_name":"all_BHL"}' //3
+parse_unstructured_text_memoirs.php _ '{"resource_id": "15428", "resource_name":"all_BHL"}' //4
+parse_unstructured_text_memoirs.php _ '{"resource_id": "91144", "resource_name":"all_BHL"}' //5
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
@@ -311,8 +315,10 @@ $rec['118941'] = array('filename' => '118941.txt', 'lines_before_and_after_scina
 
 // === START BHL RESOURCES ===
 $rec['15423'] = array('filename' => '15423.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*1 blocks: 73|75    Raw scinames: 96|96 */
-$rec['91155'] = array('filename' => '91155.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*2 blocks: 105|108   Raw scinames: 124|124 */
-$rec['15427'] = array('filename' => '15427.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: 158   Raw scinames: 173 */
+$rec['91155'] = array('filename' => '91155.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*2 blocks: 101|105   Raw scinames: 125|124 */
+$rec['15427'] = array('filename' => '15427.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: 154|158   Raw scinames: 173 */
+$rec['15428'] = array('filename' => '15428.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: 194   Raw scinames: 243 */
+$rec['91144'] = array('filename' => '91144.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*3 blocks: 196   Raw scinames: 246 */
 
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;

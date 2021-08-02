@@ -37,7 +37,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Carabus bipustidatus Fab";
+        $this->in_question = "Naias conferta";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -260,8 +260,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         
                         $words = explode(" ", $rows[2]);
                         $limit = 15; //9; //orig limit is 6
+                        /*
                         if(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
-                                                         '118936', '118950', '118941'))) $limit = 15;
+                                                         '118936', '118950', '118941'))) $limit = 15; */
                         if(count($words) <= $limit)  {
                             // if(stripos($rows[2], $this->in_question) !== false) exit("\nok 1\n".$rows[2]."\n"); //string is found //good debug
                             if(self::is_sciname($rows[2])) {
@@ -445,6 +446,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // /* manual - BHL
         $string = str_ireplace("1 . Seligeria campylopoda", "1. Seligeria campylopoda", $string);
         if(stripos($string, "canadensis (Smi") !== false) return false; //string is found -> 30355.txt
+        if($this->pdf_id == '15428') {
+            $string = str_ireplace("1 Potamogeton Purshii", "? Potamogeton Purshii", $string);
+        }
         // */
         
         // /* manual - MotAES
@@ -542,7 +546,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(self::is_sciname_in_118920($string)) return true;
             else return false;
         }
-        elseif(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
+        elseif($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
                                              '118950', '118941'))) { //and BHL-like e.g. 118950
             // /* manual
             if(stripos($string, "Not seen") !== false) return false; //string is found
@@ -570,7 +574,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // */
             // if(stripos($string, $this->in_question) !== false) exit("\nxx[$string]xx4\n"); //string is found  //good debug
             
-            $words[0] = str_replace(array("(", ")"), "", $words[0]);
+            $words[0] = str_replace(array("(", ")", ","), "", $words[0]);
             if(!is_numeric($words[0])) return false;
             $string = self::remove_first_word_if_it_has_number($string);
 
@@ -740,7 +744,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(count($words) == 2) { //493cff8f65ec17fe2c3a5974d8ac1803	Euborellia (Dohrn)
             $first_char_2nd_word = substr($words[1],0,1);
             if(is_numeric($first_char_2nd_word)) return false;
-            if(!in_array($this->pdf_id, array('15423', '91155', '15427'))) { //Plant names have capitalized species part.
+            if(in_array($this->pdf_id, array('15423', '91155', '15427')) || $this->resource_name == 'all_BHL') {}
+            else { //Plant names have capitalized species part.
                 if(ctype_upper($first_char_2nd_word)) return false; //06a2940e6881040955101a68e88c1f9c  Careospina Especies de Careospina Peters
             }
             if($first_char_2nd_word == "(") return false;
@@ -752,7 +757,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $second_word = @$words[1];
         if(!$second_word) return false; //No 2nd word
         else {
-            if(!in_array($this->pdf_id, array('15423', '91155', '15427'))) { //Plant names have capitalized species part.
+            if(in_array($this->pdf_id, array('15423', '91155', '15427')) || $this->resource_name == 'all_BHL') {}
+            else { //Plant names have capitalized species part.
                 if(ctype_upper(substr($words[1],0,1))) return false; //2nd word is capitalized
             }
         }
@@ -829,7 +835,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
             if($this->pdf_id == '119520') $row = str_ireplace("Teniorhinus ignita (Mabille) (Fig. 52, <J genitalia)", "Teniorhinus ignita (Mabille)", $row);    //119520
             if($this->pdf_id == '119520') $row = str_replace("Epitola Ieonina Staudinger", "Epitola leonina Staudinger", $row);
-            
+            if($this->pdf_id == '15428') $row = str_ireplace("3. Sparga'nium californicum", "3. Sparganium californicum", $row);
             
             // if($this->pdf_id == '118935') { //1st doc
             if(in_array($this->pdf_id, array('118935', '30355'))) {
@@ -869,8 +875,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if($ret = self::is_sciname_in_118920($row)) $row = $ret;
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx\n");}   //string is found  //good debug
             }
-            elseif(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
-                                                 '118950', '118941'))) { //and BHL-like
+            elseif($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
+                                                                                         '118950', '118941'))) { //and BHL-like
                 
                 if($this->pdf_id == '118941') $row = str_replace("Bucculatrix Columbiana", "Bucculatrix columbiana", $row);
                 
@@ -1055,9 +1061,16 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     }
                 }
             }
+            if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427'))) { //BHL
+                $exclude = array('Illustrations: ', 'Illustrations :', 'Illustration: ', 'Illustration :', '[Illustration :');
+                foreach($exclude as $start_of_row) {
+                    $len = strlen($start_of_row);
+                    if(substr($row,0,$len) == $start_of_row) $row = "</taxon>$row";
+                }
+            }
             
-            if(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
-                                             '118950', '118941')) || $this->resource_name == 'MotAES') {
+            if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
+                                         '118950', '118941')) || $this->resource_name == 'MotAES') {
 
                 if($row == "List of Genera and Species") $row = "</taxon>$row";
                 
@@ -1324,8 +1337,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(is_numeric($row) && count($words) == 1) continue; //entire row is numeric, mostly these are page numbers.
             }
 
-            if(in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
-                                             '118950', '118941'))) { //BHL-like
+            if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
+                                                                                     '118950', '118941'))) { //BHL-like
                 
                 if($this->pdf_id == '118941') if(stripos($row, "BUCCULATRIX in NORTH AMERICA") !== false) continue; //string is found
                 if(stripos($row, "NORTH AMERICAN FLORA [V") !== false) continue; //string is found
