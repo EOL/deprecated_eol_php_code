@@ -466,6 +466,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         if($this->pdf_id == '118941') $string = str_replace("Bucculatrix Columbiana", "Bucculatrix columbiana", $string);
         if($this->pdf_id == '119520') $string = str_replace("Epitola Ieonina Staudinger", "Epitola leonina Staudinger", $string);
+        // if($this->pdf_id == '91144') $string = str_replace("COLEANTHUSvSeidel;", "COLEANTHUS Seidel;", $string);
         
         
         // if(stripos($string, $this->in_question) !== false) exit("\nhanap 0 [$string]\n"); //string is found
@@ -836,6 +837,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->pdf_id == '119520') $row = str_ireplace("Teniorhinus ignita (Mabille) (Fig. 52, <J genitalia)", "Teniorhinus ignita (Mabille)", $row);    //119520
             if($this->pdf_id == '119520') $row = str_replace("Epitola Ieonina Staudinger", "Epitola leonina Staudinger", $row);
             if($this->pdf_id == '15428') $row = str_ireplace("3. Sparga'nium californicum", "3. Sparganium californicum", $row);
+            if($this->pdf_id == '91144') $row = str_replace("COLEANTHUSvSeidel;", "COLEANTHUS Seidel;", $row);
+            
             
             // if($this->pdf_id == '118935') { //1st doc
             if(in_array($this->pdf_id, array('118935', '30355'))) {
@@ -1062,7 +1065,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
             if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427'))) { //BHL
-                $exclude = array('Illustrations: ', 'Illustrations :', 'Illustration: ', 'Illustration :', '[Illustration :');
+                $exclude = array('Illustrations: ', 'Illustrations :', 'Illustration: ', 'Illustration :', '[Illustration :', 'iLLLtsTRATioNs:',
+                'luuusTRATiON :', 'Illustration; ', "Ii.i.usTR.\TioNs:", 'NoTB: '); //NoTB: 91144
                 foreach($exclude as $start_of_row) {
                     $len = strlen($start_of_row);
                     if(substr($row,0,$len) == $start_of_row) $row = "</taxon>$row";

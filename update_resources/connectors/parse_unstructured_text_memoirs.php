@@ -167,13 +167,17 @@ removed "ocean - ENVO_00000447":
 15423	Tue 2021-07-13 07:19:04 AM	{                                        "media_resource.tab":73,                                "taxon.tab":73, "time_elapsed":{"sec":0.38, "min":0.01, "hr":0}}
 15423_ENV	Tue 2021-07-13 07:23:01 {"measurement_or_fact_specific.tab":338, "media_resource.tab":73, "occurrence_specific.tab":338, "taxon.tab":73, "time_elapsed":{"sec":115.98, "min":1.93, "hr":0.03}}
 ------------------------------------------------------------
-91155	Thu 2021-07-08 09:37:48 AM	{                                        "media_resource.tab":98,                                 "taxon.tab":98, "time_elapsed":{"sec":0.79, "min":0.01, "hr":0}}
-91155_ENV	Thu 2021-07-08 09:40:38 {"measurement_or_fact_specific.tab":672, "media_resource.tab":98, "occurrence_specific.tab":672,  "taxon.tab":98, "time_elapsed":{"sec":50.01, "min":0.83, "hr":0.01}}
-removed "ocean - ENVO_00000447":
-91155	Mon 2021-07-12 06:08:04 AM	{                                        "media_resource.tab":107,                                "taxon.tab":107, "time_elapsed":{"sec":3.3, "min":0.06, "hr":0}}
-91155_ENV	Mon 2021-07-12 06:13:05 {"measurement_or_fact_specific.tab":663, "media_resource.tab":107, "occurrence_specific.tab":663, "taxon.tab":107, "time_elapsed":{"sec":180.47, "min":3.01, "hr":0.05}}
 91155	Tue 2021-07-13 07:23:11 AM	{                                        "media_resource.tab":107,                                "taxon.tab":107, "time_elapsed":{"sec":0.41, "min":0.01, "hr":0}}
 91155_ENV	Tue 2021-07-13 07:28:06 {"measurement_or_fact_specific.tab":665, "media_resource.tab":107, "occurrence_specific.tab":665, "taxon.tab":107, "time_elapsed":{"sec":174.68, "min":2.91, "hr":0.05}}
+
+15427	Mon 2021-08-02 04:47:33 AM	{                                        "media_resource.tab":151,                                "taxon.tab":151, "time_elapsed":{"sec":0.45, "min":0.01, "hr":0}}
+15427_ENV	Mon 2021-08-02 04:56:05 {"measurement_or_fact_specific.tab":426, "media_resource.tab":151, "occurrence_specific.tab":426, "taxon.tab":151, "time_elapsed":{"sec":392.26, "min":6.54, "hr":0.11}}
+
+15428	Mon 2021-08-02 04:48:39 AM	{                                        "media_resource.tab":189,                                "taxon.tab":189, "time_elapsed":{"sec":0.46, "min":0.01, "hr":0}}
+15428_ENV	Mon 2021-08-02 04:56:22 {"measurement_or_fact_specific.tab":771, "media_resource.tab":189, "occurrence_specific.tab":771, "taxon.tab":189, "time_elapsed":{"sec":342.52, "min":5.71, "hr":0.1}}
+
+91144	Mon 2021-08-02 04:49:32 AM	{                                        "media_resource.tab":188,                                "taxon.tab":188, "time_elapsed":{"sec":0.47, "min":0.01, "hr":0}}
+91144_ENV	Mon 2021-08-02 04:59:15 {"measurement_or_fact_specific.tab":824, "media_resource.tab":188, "occurrence_specific.tab":824, "taxon.tab":188, "time_elapsed":{"sec":462.98, "min":7.72, "hr":0.13}}
 ------------------------------------------------------------
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
