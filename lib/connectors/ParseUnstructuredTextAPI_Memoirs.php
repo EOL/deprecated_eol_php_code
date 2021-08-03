@@ -840,6 +840,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->pdf_id == '91144') $row = str_replace("COLEANTHUSvSeidel;", "COLEANTHUS Seidel;", $row);
             if($this->pdf_id == '15427') $row = str_replace("MARATTIASw.", "MARATTIA Sw.", $row);
             if($this->pdf_id == '15427') $row = str_replace("ANEMIA' Sw.", "ANEMIA Sw.", $row);
+            if($this->pdf_id == '15427') $row = str_replace("Botrychium calif ornicum", "Botrychium californicum", $row);
+            
+            
 
             if($this->pdf_id == '15427') { //start of row
                 // $words = array("ANEMIA' sw.");

@@ -1323,12 +1323,18 @@ class ParseListTypeAPI_Memoirs
     }
     function if_Illustration_row($row)
     {   /* case 1 */
-        $exclude = array('Illustrations: ', 'Illustrations :', 'Illustration: ', 'Illustration :', '[Illustration :', 'iLLLtsTRATioNs:',
-        'luuusTRATiON :', 'Illustration; ', "Ii.i.usTR.\TioNs:", 'NoTB: '); //NoTB: 91144
-        foreach($exclude as $start_of_row) {
-            $len = strlen($start_of_row);
-            if(substr($row,0,$len) == $start_of_row) return true;;
+        $separators = array(":", ";");
+        foreach($separators as $separator) {
+            $exclude = array('Illustrations: ', 'Illustrations :', 'Illustration: ', 'Illustration :', '[Illustration :', 'iLLLtsTRATioNs:',
+            'luuusTRATiON :', "Ii.i.usTR.\TioNs:", 'NoTB: ', "iLLUSTR.'i.TiON :", "IllustratonS :", "Illusteation: ", "Illustr.\\tions: ",
+            "Illustr.^tions: ", "Illustr.itions: "); //NoTB: 91144
+            foreach($exclude as $start_of_row) {
+                $start_of_row = str_replace(":", $separator, $start_of_row);
+                $len = strlen($start_of_row);
+                if(substr($row,0,$len) == $start_of_row) return true;;
+            }
         }
+
         /* case 2 */ //e.g. "' Illustrations :"
         $words = explode(" ", $row);
         $terms = array("Illustrations", "Illustration");
