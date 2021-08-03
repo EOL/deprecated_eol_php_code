@@ -84,6 +84,7 @@ wikipedia_en_traits	Wed 2021-05-12 07:22:53 AM	    {"MoF.tab":145396, "occurrenc
 -> expected decrease in MoF
 wikipedia_en_traits_FTG	Wed 2021-06-16 06:14:13 AM	{"MoF.tab":147964, "occurrence.tab":147964, "taxon.tab":424566, "time_elapsed":{"sec":801.07, "min":13.35, "hr":0.22}}
 wikipedia_en_traits	Wed 2021-06-16 06:16:20 AM	    {"MoF.tab":147964, "occurrence.tab":147964, "taxon.tab":81677, "time_elapsed":false}
+wikipedia_en_traits	Tue 2021-08-03 07:38:06 AM	    {"MoF.tab":151048, "occurrence.tab":151048, "taxon.tab":83240, "time_elapsed":false}
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
