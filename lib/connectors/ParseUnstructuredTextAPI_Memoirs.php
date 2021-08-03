@@ -860,9 +860,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_replace("Agoseris hlrsuta", "Agoseris hirsuta", $row);
                 $row = str_replace("Abies ama bills", "Abies amabilis", $row);
                 $row = str_replace("Aegopogon ten el I us", "Aegopogon tenellus", $row);
+                $row = str_replace("Abutilon hlrtum", "Abutilon hirtum", $row);
             }
-            
-            
+
             if($this->pdf_id == '15427') { //start of row
                 // $words = array("ANEMIA' sw.");
                 // foreach($words as $word) {
@@ -1231,12 +1231,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             if($row == "Plate III. Bonariensis Rambur, Aeshna (Neureclipa)") break; //119187
             
-             
             if($this->pdf_id == '119188') {
                 if($row == "Valid names are printed in italics. Page numbers of new taxa are printed") break;
             }
             if($this->pdf_id == '119520') {
                 if($row == "</taxon>404 butterflies of liberia") break; //has "</taxon>" bec. it is used as stop pattern above
+            }
+
+            if($this->pdf_id == '91225') { //only during dev --- debug only
+                if($row == "Dicaeoma Rhamni, 313") break;
             }
             
         }//end loop text

@@ -46,6 +46,11 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "15427", "resource_name":"3rd BHL
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15428", "resource_name":"4th BHL", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "91144", "resource_name":"5th BHL", "doc": "BHL"}'
 
+process_SI_pdfs_memoirs.php _ '{"resource_id": "91225", "resource_name":"6th BHL", "doc": "others"}' //host-pathogen list pattern
+process_SI_pdfs_memoirs.php _ '{"resource_id": "91225", "resource_name":"others"}'
+
+
+
 '15427_ENV', '15428_ENV', '91144_ENV'
 
 
@@ -53,7 +58,7 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "91144", "resource_name":"5th BHL
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
 $timestart = time_elapsed();
-// print_r($argv);
+// print_r($argv); exit;
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
 $param                     = json_decode(@$argv[2], true);
 $resource_id = $param['resource_id'];

@@ -40,7 +40,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
     }
     
     // /* used during dev, from parse_unstructured_text.php when working on associations
-    function initialize() { require_library('connectors/ParseAssocTypeAPI'); $this->func_Assoc = new ParseAssocTypeAPI(); }
+    function initialize() { require_library('connectors/ParseAssocTypeAPI_Memoirs'); $this->func_Assoc = new ParseAssocTypeAPI_Memoirs(); }
     function archive_builder_finalize() { $this->archive_builder->finalize(true); }
     // */
     
@@ -562,7 +562,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // exit("\ntxt_filename: [$txt_filename]\npdf_id: [$pdf_id]\n");
         $contents = file_get_contents($txt_filename);
         if(preg_match_all("/<sciname=(.*?)<\/sciname>/ims", $contents, $a)) {
-            foreach($a[1] as $str) {
+            foreach($a[1] as $str) { //echo("\n[$str]\n");
                 $rec = array();
                 $rec['pdf_id'] = $pdf_id;
                 if(preg_match("/\'(.*?)\'/ims", $str, $a2)) $rec['sciname'] = self::clean_sciname(trim($a2[1]));
@@ -610,7 +610,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     // */
 
                     // /*
-                    if(!in_array($pdf_id, array('120602'))) {
+                    if(!in_array($pdf_id, array('120602', '91225'))) {
                         $words = explode(" ", $tmp);
                         if(count($words) <= 15) $tmp = ""; //blank means excluded.
                     }
@@ -636,6 +636,8 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         $assoc = $this->func_Assoc->parse_associations($rec['body'], $pdf_id);
                     }
                     */
+                    
+                    // exit("\n1---\n".$rec['body']."\n---\n");
                     // /* normal operation
                     $assoc = $this->func_Assoc->parse_associations($rec['body'], $pdf_id);
                     // */
