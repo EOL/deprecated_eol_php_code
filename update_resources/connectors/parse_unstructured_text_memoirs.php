@@ -141,6 +141,8 @@ Aug 2 Mon
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15427", "resource_name":"all_BHL"}' //3
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15428", "resource_name":"all_BHL"}' //4
 parse_unstructured_text_memoirs.php _ '{"resource_id": "91144", "resource_name":"all_BHL"}' //5
+Aug 3 Tue
+parse_unstructured_text_memoirs.php _ '{"resource_id": "91225", "resource_name":"MotAES"}' //6 --- host-pathogen list pattern
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -239,6 +241,8 @@ if($resource_name == 'MotAES') {
     118978 --- blocks: 96   Raw scinames: 106
     119520 --- blocks: 677|662   Raw scinames: 706|705
     119188 --- blocks: 185   Raw scinames: 197
+    91225 --- blocks: xx   Raw scinames: xx --- host-pathogen list pattern
+    
     */
 }
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1); /* blocks: 2611   Raw scinames: 2641 */

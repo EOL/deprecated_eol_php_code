@@ -37,7 +37,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Naias conferta";
+        $this->in_question = "Abutilon Abutilon";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -451,6 +451,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         }
         // */
         
+        if($this->pdf_id == '91225') {
+            if($numbers = self::get_numbers_from_string($string)) return false;
+            if(stripos($string, " see ") !== false) return false; //string is found
+        }
+        // if($this->pdf_id == '91225') { // host-pathogen list pattern
+        //     $string = str_ireplace("I'redinopsis Copelandi", "Uredinopsis Copelandi", $string);
+        //     $string = str_ireplace("l/redinopsis mirabilis", "Uredinopsis mirabilis", $string);
+        //     $string = str_ireplace("T'redinopsis Osmundae", "Uredinopsis Osmundae", $string);
+        // }
+        
+        
         // /* manual - MotAES
         if(preg_match("/\(Plate(.*?)\)/ims", $string, $a)) { //remove parenthesis e.g. "Cariblatta lutea lutea (Saussure and Zehntner) (Plate II, figures i and 2.)"
             $string = trim(str_ireplace("(Plate".$a[1].")", "", $string));
@@ -745,7 +756,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(count($words) == 2) { //493cff8f65ec17fe2c3a5974d8ac1803	Euborellia (Dohrn)
             $first_char_2nd_word = substr($words[1],0,1);
             if(is_numeric($first_char_2nd_word)) return false;
-            if(in_array($this->pdf_id, array('15423', '91155', '15427')) || $this->resource_name == 'all_BHL') {}
+            if(in_array($this->pdf_id, array('15423', '91155', '15427', '91225')) || $this->resource_name == 'all_BHL') {}
             else { //Plant names have capitalized species part.
                 if(ctype_upper($first_char_2nd_word)) return false; //06a2940e6881040955101a68e88c1f9c  Careospina Especies de Careospina Peters
             }
@@ -753,17 +764,20 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         }
         // */
         
+        // if(stripos($str, $this->in_question) !== false) {exit("\nxx[$str]xx4\n");}   //string is found  //good debug
+        
         // /* criteria 1
         $words = explode(" ", $str);
         $second_word = @$words[1];
         if(!$second_word) return false; //No 2nd word
         else {
-            if(in_array($this->pdf_id, array('15423', '91155', '15427')) || $this->resource_name == 'all_BHL') {}
+            if(in_array($this->pdf_id, array('15423', '91155', '15427', '91225')) || $this->resource_name == 'all_BHL') {}
             else { //Plant names have capitalized species part.
                 if(ctype_upper(substr($words[1],0,1))) return false; //2nd word is capitalized
             }
         }
         // */
+        // if(stripos($str, $this->in_question) !== false) {exit("\nxx[$str]xx5\n");}   //string is found  //good debug
         
         if(substr($str,0,1) == "(") return false;
         
@@ -841,9 +855,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->pdf_id == '15427') $row = str_replace("MARATTIASw.", "MARATTIA Sw.", $row);
             if($this->pdf_id == '15427') $row = str_replace("ANEMIA' Sw.", "ANEMIA Sw.", $row);
             if($this->pdf_id == '15427') $row = str_replace("Botrychium calif ornicum", "Botrychium californicum", $row);
-            
-            
 
+            if($this->pdf_id == '91225') {
+                $row = str_replace("Agoseris hlrsuta", "Agoseris hirsuta", $row);
+                $row = str_replace("Abies ama bills", "Abies amabilis", $row);
+                $row = str_replace("Aegopogon ten el I us", "Aegopogon tenellus", $row);
+            }
+            
+            
             if($this->pdf_id == '15427') { //start of row
                 // $words = array("ANEMIA' sw.");
                 // foreach($words as $word) {
@@ -852,8 +871,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // }
                 // if(strpos($row, "ANEMIA") !== false) {exit("\nxx[$row]xx00\n");}   //string is found  //good debug
             }
-            
-            
             
             // if($this->pdf_id == '118935') { //1st doc
             if(in_array($this->pdf_id, array('118935', '30355'))) {
@@ -970,7 +987,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
             if($this->pdf_id == '118941') if($row == "List of the North America") $row = "</taxon>$row";
             if($this->pdf_id == '119520') if($row == "404 butterflies of liberia") $row = "</taxon>$row";
-            
+
+            if($this->pdf_id == '91225') {
+                if(stripos($row, " see ") !== false) $row = "</taxon>$row"; //string is found
+            }
+
             if($this->pdf_id == '120082') { //4th doc
                 $words = array('Table', 'Key', 'Remarks. —', 'Nomen inquirendum', 'Literature Cited');
                 foreach($words as $word) {

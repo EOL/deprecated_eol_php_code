@@ -353,7 +353,8 @@ class ParseListTypeAPI_Memoirs
                 if(stripos($row, "Checklist of Amphibians") !== false           ||  //--> SCtZ-0010
                    stripos($row, "Creagrutus and Piabina species") !== false    ||  //--> SCtZ-0613
                    stripos($row, "Material Examined") !== false                 ||  //--> SCtZ-0609
-                   stripos($row, "ADULT SYSTEMATIC TREATMENT") !== false            //--> 118237 - skipped list-type anyway
+                   stripos($row, "ADULT SYSTEMATIC TREATMENT") !== false          //--> 118237 - skipped list-type anyway
+                   // stripos($row, "HOST-INDEX TO THE UREDINALES") !== false          //--> 91225 --- was never used at all
                   ) {
                     $rows[] = $row;
                     $rows = self::process_magic_no_v2($this->magic_no, $rows, $ctr);
@@ -446,6 +447,11 @@ class ParseListTypeAPI_Memoirs
             // else echo "\n[$row]\n";
 
             // /* to close tag the last block
+
+            // if($pdf_id == '91225') { //manual specific --- was never used at all
+            //     if($row == "New York Botanical Garden Libra") $row = "</taxon>$row";
+            // }
+            
             if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293.txt
             elseif($row == "References") $row = "</taxon>$row";             //SCtZ-0008.txt
             elseif($row == "General Conclusions") $row = "</taxon>$row";    //SCtZ-0029.txt
@@ -562,6 +568,7 @@ class ParseListTypeAPI_Memoirs
         elseif($row == "Creagrutus and Piabina species") return true;           //SCtZ-0613
         elseif($row == "Material Examined") return true;
         elseif($row == "ADULT SYSTEMATIC TREATMENT") return true;    //118237 - skipped list-type anyway
+        // elseif($row == "HOST-INDEX TO THE UREDINALES") return true; //91225 --- was never used at all
         else return false;
     }
     private function show_parsed_texts_for_mining_LT($edited_file)
@@ -661,6 +668,13 @@ class ParseListTypeAPI_Memoirs
 
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname_line]xx3\n"); //good debug - to see what string passes here.
 
+        if($this->pdf_id == '91225') {
+            // return $sciname_line; //SPECIAL CASE -> to avoid GNRD call --- host-pathogen list pattern
+            $words = explode(" ", $sciname_line);
+            $words[1] = strtolower($words[1]); //2nd word set to small caps
+            $sciname_line = implode(" ", $words);
+        }
+        
         debug("\nrun_GNRD 1: [$sciname_line]\n");
         $obj = self::run_GNRD($sciname_line);
         
@@ -697,7 +711,9 @@ class ParseListTypeAPI_Memoirs
                 }
             }
         }
-        $sciname = @$obj->names[0]->scientificName;
+        if($sciname = @$obj->names[0]->scientificName) {}
+        else echo "\nGNRD doesn't recognize [$sciname_line]\n";
+        
         if(self::is_just_one_word($sciname)) return false; //exclude if sciname is just one word, it is implied that it should be a binomial
         
         if(in_array($this->pdf_id, array("30353", "30354"))) $criteria = $sciname && self::binomial_or_more($sciname); //resources to be skipped more or less
@@ -1086,7 +1102,7 @@ class ParseListTypeAPI_Memoirs
         if(strlen($str) <= 10) return false;
         if(count($words) < 2) return false;
         if(ctype_lower($words[0][0])) return false; //first word must be capitalized
-        if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427'))) {}
+        if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', '91225'))) {}
         else {
             if(ctype_upper($words[1][0])) return false; //2nd word must be lower case
         }
