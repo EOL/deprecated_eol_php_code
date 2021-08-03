@@ -838,6 +838,18 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->pdf_id == '119520') $row = str_replace("Epitola Ieonina Staudinger", "Epitola leonina Staudinger", $row);
             if($this->pdf_id == '15428') $row = str_ireplace("3. Sparga'nium californicum", "3. Sparganium californicum", $row);
             if($this->pdf_id == '91144') $row = str_replace("COLEANTHUSvSeidel;", "COLEANTHUS Seidel;", $row);
+            if($this->pdf_id == '15427') $row = str_replace("MARATTIASw.", "MARATTIA Sw.", $row);
+            if($this->pdf_id == '15427') $row = str_replace("ANEMIA' Sw.", "ANEMIA Sw.", $row);
+
+            if($this->pdf_id == '15427') { //start of row
+                // $words = array("ANEMIA' sw.");
+                // foreach($words as $word) {
+                //     $len = strlen($word);
+                //     if(substr($row,0,$len) == $word) exit("\nelix 1\n");  //$row = "</taxon>$row";
+                // }
+                // if(strpos($row, "ANEMIA") !== false) {exit("\nxx[$row]xx00\n");}   //string is found  //good debug
+            }
+            
             
             
             // if($this->pdf_id == '118935') { //1st doc
@@ -1065,12 +1077,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
             if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427'))) { //BHL
-                $exclude = array('Illustrations: ', 'Illustrations :', 'Illustration: ', 'Illustration :', '[Illustration :', 'iLLLtsTRATioNs:',
-                'luuusTRATiON :', 'Illustration; ', "Ii.i.usTR.\TioNs:", 'NoTB: '); //NoTB: 91144
-                foreach($exclude as $start_of_row) {
-                    $len = strlen($start_of_row);
-                    if(substr($row,0,$len) == $start_of_row) $row = "</taxon>$row";
-                }
+                if($this->if_Illustration_row($row)) $row = "</taxon>$row";
             }
             
             if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
@@ -1098,7 +1105,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
                 if(ctype_upper($first_word)) {
                     if(strlen($first_word) > 2) {
-                        if(in_array($first_word, array('LUWULARIA', 'SPHAGNUM', 'ANDREAEA', 'OSMUNDA', 'CYATHEACBAB'))) $row = "</taxon>$row";
+                        if(in_array($first_word, array('LUWULARIA', 'SPHAGNUM', 'ANDREAEA', 'OSMUNDA', 'CYATHEACBAB', 'ANEMIA'))) $row = "</taxon>$row";
                         else {
                             if(self::is_sciname_using_GNRD($first_word)) $row = "</taxon>$row";
                             else {

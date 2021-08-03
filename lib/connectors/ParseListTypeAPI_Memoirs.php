@@ -1321,5 +1321,23 @@ class ParseListTypeAPI_Memoirs
         }
         return false;
     }
+    function if_Illustration_row($row)
+    {   /* case 1 */
+        $exclude = array('Illustrations: ', 'Illustrations :', 'Illustration: ', 'Illustration :', '[Illustration :', 'iLLLtsTRATioNs:',
+        'luuusTRATiON :', 'Illustration; ', "Ii.i.usTR.\TioNs:", 'NoTB: '); //NoTB: 91144
+        foreach($exclude as $start_of_row) {
+            $len = strlen($start_of_row);
+            if(substr($row,0,$len) == $start_of_row) return true;;
+        }
+        /* case 2 */ //e.g. "' Illustrations :"
+        $words = explode(" ", $row);
+        $terms = array("Illustrations", "Illustration");
+        foreach($terms as $term) {
+            if((@$words[1] == $term && $words[2] == ":") || (@$words[1] == $term.":")) {
+                if(strlen($words[0]) == 1) return true;
+            }
+        }
+        return false;
+    }
 }
 ?>
