@@ -97,7 +97,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
             '118920_ENV', '120083_ENV', '118237_ENV', 'MoftheAES_ENV', '30355_ENV', "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV", "120602_ENV", 
             "119187_ENV", "118978_ENV", "118941_ENV", "119520_ENV", "119188_ENV",
             '15423_ENV', '91155_ENV'))
-                || $this->params['resource'] == 'all_BHL'
+                || @$this->params['resource'] == 'all_BHL'
                 || stripos($this->resource_id, "SCtZ-") !== false
                 || stripos($this->resource_id, "scb-") !== false
                 || stripos($this->resource_id, "scz-") !== false
@@ -451,7 +451,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
                     '118237_ENV', 'MoftheAES_ENV', '30355_ENV', "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV", "120602_ENV", 
                     "119187_ENV", "118978_ENV", "118941_ENV", "119520_ENV", "119188_ENV",
                     '15423_ENV', '91155_ENV'))
-                        || $this->params['resource'] == 'all_BHL'
+                        || @$this->params['resource'] == 'all_BHL'
                         || stripos($this->resource_id, "SCtZ-") !== false
                         || stripos($this->resource_id, "scb-") !== false
                         || stripos($this->resource_id, "scz-") !== false
