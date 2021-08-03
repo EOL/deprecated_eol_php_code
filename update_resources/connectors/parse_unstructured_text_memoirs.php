@@ -157,23 +157,6 @@ $pdf_id = $param['resource_id'];
 $resource_name = $param['resource_name'];
 $func = new ParseUnstructuredTextAPI_Memoirs($resource_name);
 /*
-$str = "' Illustrations :";
-// $str = "' Illustrations:";
-$words = explode(" ", $str); print_r($words);
-if(($words[1] == "Illustrations" && $words[2] == ":") || ($words[1] == "Illustrations:")) {
-    if(strlen($words[0]) == 1) echo "\ngot it\n";
-}
-exit("\n-end-\n"); */
-/*
-$str = "Diplocheila (s. str.) daldorfi Crotch";
-$words = explode(" ", $str);
-print_r($words);
-if($words[1] == "(s.") unset($words[1]);
-if($words[2] == "str.)") unset($words[2]);
-$str = implode(" ", $words);
-exit("\n[$str]\n");
-*/
-/*
 $var1 = "paRt";
 $var2 = "part";
 if (strcmp($var1, $var2) == 0) echo "\n$var1 is equal to $var2 in a case sensitive string comparison";
