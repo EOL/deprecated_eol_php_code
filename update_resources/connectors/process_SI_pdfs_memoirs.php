@@ -46,8 +46,7 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "15427", "resource_name":"3rd BHL
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15428", "resource_name":"4th BHL", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "91144", "resource_name":"5th BHL", "doc": "BHL"}'
 
-process_SI_pdfs_memoirs.php _ '{"resource_id": "91225", "resource_name":"6th BHL", "doc": "others"}' //host-pathogen list pattern
-process_SI_pdfs_memoirs.php _ '{"resource_id": "91225", "resource_name":"others"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "91225", "resource_name":"6th BHL", "doc": ""}' //host-pathogen list pattern
 
 
 

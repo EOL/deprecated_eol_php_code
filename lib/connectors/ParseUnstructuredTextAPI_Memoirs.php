@@ -14,7 +14,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text="Aeshna (Hesperaeschna) psilus"
-        http://gnrd.globalnames.org/name_finder.json?text=Gerydinae
+        http://gnrd.globalnames.org/name_finder.json?text=I'redo maculans
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -455,12 +455,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($numbers = self::get_numbers_from_string($string)) return false;
             if(stripos($string, " see ") !== false) return false; //string is found
         }
-        // if($this->pdf_id == '91225') { // host-pathogen list pattern
-        //     $string = str_ireplace("I'redinopsis Copelandi", "Uredinopsis Copelandi", $string);
-        //     $string = str_ireplace("l/redinopsis mirabilis", "Uredinopsis mirabilis", $string);
-        //     $string = str_ireplace("T'redinopsis Osmundae", "Uredinopsis Osmundae", $string);
-        // }
-        
         
         // /* manual - MotAES
         if(preg_match("/\(Plate(.*?)\)/ims", $string, $a)) { //remove parenthesis e.g. "Cariblatta lutea lutea (Saussure and Zehntner) (Plate II, figures i and 2.)"
@@ -857,10 +851,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->pdf_id == '15427') $row = str_replace("Botrychium calif ornicum", "Botrychium californicum", $row);
 
             if($this->pdf_id == '91225') {
-                $row = str_replace("Agoseris hlrsuta", "Agoseris hirsuta", $row);
-                $row = str_replace("Abies ama bills", "Abies amabilis", $row);
-                $row = str_replace("Aegopogon ten el I us", "Aegopogon tenellus", $row);
-                $row = str_replace("Abutilon hlrtum", "Abutilon hirtum", $row);
+                $row = str_ireplace("Agoseris hlrsuta", "Agoseris hirsuta", $row);
+                $row = str_ireplace("Abies ama bills", "Abies amabilis", $row);
+                $row = str_ireplace("Aegopogon ten el I us", "Aegopogon tenellus", $row);
+                $row = str_ireplace("Abutilon hlrtum", "Abutilon hirtum", $row);
+                $row = str_ireplace("I'redinopsis", "Uredinopsis", $row);
+                $row = str_ireplace("l/redinopsis mirabilis", "Uredinopsis mirabilis", $row);
+                $row = str_ireplace("T'redinopsis Osmundae", "Uredinopsis Osmundae", $row);
+                $row = str_ireplace("miastnmi pustulatum", "Pucciniastrum pustulatum", $row);
+
+                
+                
             }
 
             if($this->pdf_id == '15427') { //start of row

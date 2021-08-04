@@ -156,6 +156,34 @@ $param                     = json_decode(@$argv[2], true);
 $pdf_id = $param['resource_id'];
 $resource_name = $param['resource_name'];
 $func = new ParseUnstructuredTextAPI_Memoirs($resource_name);
+
+/*
+$var = "Calyptospora columnaris, 682";
+// $var = "Melampsorella elatina. 681";
+// $var = "Melampsorella elatina. Ill, 681"; 
+// $var = "Ravenelia Thornberiana, 713";
+
+$var = trim(preg_replace('/[0-9]+/', '', $var)); //remove For Western Arabic numbers (0-9):
+$last_chars = array(",", ".");
+foreach($last_chars as $last_char) {
+    $last = substr($var, -1);
+    if($last == $last_char) $var = substr($var,0,strlen($var)-1);
+}
+
+$words = explode(" ", $var);
+$var = $words[0]." ".strtolower($words[1]);
+$var = Functions::canonical_form($var);
+
+exit("\n[$var]\n");
+*/
+
+// $var = "Melampsorella elatina. Ill, 681";
+// $var = "Hyalopsora Aspidiotus, 681";
+// exit("\n".Functions::canonical_form($var)."\n");
+// $var = "brown fox I'redinopsis the quick";
+// $var = str_ireplace("", "", $var);
+// exit("\n[$var]\n");
+
 /*
 $var1 = "paRt";
 $var2 = "part";

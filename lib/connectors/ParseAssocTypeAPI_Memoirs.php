@@ -5,10 +5,13 @@ class ParseAssocTypeAPI_Memoirs
 {
     function __construct()
     {
-        $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
-        $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
+        /*
+        http://gnrd.globalnames.org/name_finder.json?text=Ravenelia Acaeiae-pennatulae
+        */
+        $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
     }
     /*#################################################################################################################################*/
     function parse_associations($html, $pdf_id)
@@ -32,16 +35,57 @@ class ParseAssocTypeAPI_Memoirs
     {
         // print_r($rows);
         array_shift($rows);
-        print_r($rows); //exit;
-        $str = implode("\n", $rows);
-        $obj = self::run_GNRD_assoc($str);
-        print_r(@$obj->names); exit;
-        // foreach(@$obj->names as $name) {
-        //     $tmp = $name->scientificName;
-        // }
+        // print_r($rows); exit;
+        /*Array(
+            [0] => Calyptospora columnaris, 682
+            [1] => Melampsorella elatina. 681
+            [2] => Pucciniastrum pustulatum, 677
+            [3] => Uredinopsis macrosperma, 684
+            
+            Melampsorella elatina. Ill, 681 
+            
+        )*/
+        $scinames = array();
+        foreach($rows as $var) {
+            $orig = $var;
+            $var = trim(preg_replace('/[0-9]+/', '', $var)); //remove For Western Arabic numbers (0-9):
+            $last_chars = array(",", ".");
+            foreach($last_chars as $last_char) {
+                $last = substr($var, -1);
+                if($last == $last_char) $var = substr($var,0,strlen($var)-1);
+            }
+            $words = explode(" ", $var);
+            if(ctype_lower($words[0][0])) { //first word, first char is lower case
+                echo "\nInvestigate OCR [$orig]\n";
+                continue;
+            }
+            if(!ctype_upper($words[0][0])) { //first word, first char is lower case
+                echo "\nInvestigate OCR 2 [$orig]\n";
+                continue;
+            }
+            
+            $var = $words[0]." ".strtolower($words[1]);
+            $var = Functions::canonical_form($var);
+
+            // /*
+            $cont = true;
+            $special_chars = array("'");
+            foreach($special_chars as $special) {
+                if(stripos($var, $special) !== false) {
+                    echo "\nInvestigate OCR 3 [$orig]\n"; //string is found
+                    $cont = false;
+                }
+            }
+            if(!$cont) continue;
+            // */
+
+            if($obj = self::run_GNRD_assoc($var)) {
+                if($val = @$obj->names[0]->scientificName) $scinames[trim($var)] = ''; //take note that $var is taken, not $val
+            }
+            
+        }
         
-        // print_r($scinames); exit("\nexit muna\n");
-        return $scinames;
+        return array("RO_0002453" => $scinames);
     }
     private function run_GNRD_assoc($string)
     {
@@ -109,6 +153,7 @@ class ParseAssocTypeAPI_Memoirs
         
         // HOST(s)/HOST PLANT(s)   associationType=http://purl.obolibrary.org/obo/RO_0002454
         // PARASITOID(s)           associationType=http://purl.obolibrary.org/obo/RO_0002209
+        // http://purl.obolibrary.org/obo/RO_0002453
         
         foreach($rec as $assoc_type => $scinames) { if($assoc_type == 'pdf_id') continue;
             $scinames = array_keys($scinames);
@@ -172,6 +217,7 @@ class ParseAssocTypeAPI_Memoirs
         */
         if(stripos($assoc_type, "HOST") !== false) return "http://purl.obolibrary.org/obo/RO_0002454"; //string is found
         if(stripos($assoc_type, "PARASITOID") !== false) return "http://purl.obolibrary.org/obo/RO_0002209"; //string is found
+        if(stripos($assoc_type, "RO_0002453") !== false) return "http://purl.obolibrary.org/obo/RO_0002453"; //string is found
         return false;
     }
 }

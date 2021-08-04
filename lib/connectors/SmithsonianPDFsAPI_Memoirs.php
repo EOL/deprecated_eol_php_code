@@ -638,9 +638,12 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     */
                     
                     // exit("\n1---\n".$rec['body']."\n---\n");
-                    /* normal operation
-                    $assoc = $this->func_Assoc->parse_associations($rec['body'], $pdf_id);
-                    */
+                    // /* normal operation
+                    if($pdf_id == '91225') {
+                        $this->meta = array();
+                        $assoc = $this->func_Assoc->parse_associations($rec['body'], $pdf_id);
+                    }
+                    // */
                     
                     $assoc['sciname'] = $rec['sciname']; //just for debug for now
                     // good debug
@@ -653,9 +656,9 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     
                     if($val = @$assoc['assoc']) {
                         $rec['associations'] = $val;
-                        echo "\n---------\n";
-                        print_r($assoc); //good debug
-                        echo "\n---------\n";
+                        // echo "\n---------\n";
+                        // print_r($assoc); //good debug
+                        // echo "\n---------\n";
                     }
                     // */
                     
@@ -737,7 +740,8 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if($val = @$others['additionalInformation']) $mr->additionalInformation = $val;
         
         if(!isset($this->object_ids[$mr->identifier])) {
-            $this->archive_builder->write_object_to_file($mr);
+            if(in_array($rec['pdf_id'], array('91225'))) {}
+            else $this->archive_builder->write_object_to_file($mr); //the rest goes here
             $this->object_ids[$mr->identifier] = '';
         }
         // else exit("\nShould not go here. Same text object.\n"); //Eli to investigate soon...
