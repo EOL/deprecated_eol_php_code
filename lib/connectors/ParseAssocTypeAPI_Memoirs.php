@@ -71,7 +71,7 @@ class ParseAssocTypeAPI_Memoirs
 
             // /*
             $cont = true;
-            $special_chars = array("'", "&gt;", "&lt;", "»");
+            $special_chars = array("'", "&gt;", "&lt;", "&quot;", "-", ">", "<", "»", "»", "/");
             foreach($special_chars as $special) {
                 if(stripos($var, $special) !== false) {
                     // echo "\nInvestigate OCR 3 [$orig]\n"; //string is found

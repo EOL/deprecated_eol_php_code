@@ -453,12 +453,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         if($this->pdf_id == '91225') {
             if($numbers = self::get_numbers_from_string($string)) return false;
-            $chars = array(" see ", " , sec", ".see ", ", set-", " , KC ", ", set ", ", ice ", ", MC ", ", Bee ", ", ee ");
+            $chars = array(" see ", " , sec", ".see ", ", set-", " , KC ", ", set ", ", ice ", ", MC ", ", Bee ", ", ee ", 
+            "-", "'", ">", "<", "»", "»", "/");
             $chars[] = " [";
             foreach($chars as $char) {
                 if(stripos($string, $char) !== false) return false; //string is found
             }
         }
+        
         
         // /* manual - MotAES
         if(preg_match("/\(Plate(.*?)\)/ims", $string, $a)) { //remove parenthesis e.g. "Cariblatta lutea lutea (Saussure and Zehntner) (Plate II, figures i and 2.)"
