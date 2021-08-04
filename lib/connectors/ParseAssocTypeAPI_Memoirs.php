@@ -46,6 +46,7 @@ class ParseAssocTypeAPI_Memoirs
         )*/
         $scinames = array();
         foreach($rows as $var) {
+            // $var = "Dicaeoma Epilobii-tetragoni, 394"; //debug only
             $orig = $var;
             $var = trim(preg_replace('/\s*\[[^)]*\]/', '', $var)); //remove brackets including inside
             $var = trim(preg_replace('/[0-9]+/', '', $var)); //remove For Western Arabic numbers (0-9):
@@ -68,10 +69,11 @@ class ParseAssocTypeAPI_Memoirs
             
             $var = trim($words[0]." ".strtolower(@$words[1]));
             $var = Functions::canonical_form($var);
-
+            // echo "\nfinal var4: [$var]\n";
+            
             // /*
             $cont = true;
-            $special_chars = array("'", "&gt;", "&lt;", "&quot;", "-", ">", "<", "»", "»", "/");
+            $special_chars = array("'", "&gt;", "&lt;", "&quot;", ">", "<", "»", "»", "/");
             foreach($special_chars as $special) {
                 if(stripos($var, $special) !== false) {
                     // echo "\nInvestigate OCR 3 [$orig]\n"; //string is found
@@ -82,12 +84,13 @@ class ParseAssocTypeAPI_Memoirs
             if(!$cont) continue;
             // */
 
+            // echo "\nfinal var5: [$var]\n";
             if($obj = self::run_GNRD_assoc($var)) {
                 if($val = @$obj->names[0]->scientificName) $scinames[trim($var)] = ''; //take note that $var is taken, not $val
             }
             
         }
-        
+        // print_r($scinames); exit("\n-end-\n");
         return array("RO_0002453" => $scinames);
     }
     private function run_GNRD_assoc($string)
