@@ -42,13 +42,12 @@ class ParseAssocTypeAPI_Memoirs
             [1] => Melampsorella elatina. 681
             [2] => Pucciniastrum pustulatum, 677
             [3] => Uredinopsis macrosperma, 684
-            
             Melampsorella elatina. Ill, 681 
-            
         )*/
         $scinames = array();
         foreach($rows as $var) {
             $orig = $var;
+            $var = trim(preg_replace('/\s*\[[^)]*\]/', '', $var)); //remove brackets including inside
             $var = trim(preg_replace('/[0-9]+/', '', $var)); //remove For Western Arabic numbers (0-9):
             $last_chars = array(",", ".");
             foreach($last_chars as $last_char) {

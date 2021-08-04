@@ -453,7 +453,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         if($this->pdf_id == '91225') {
             if($numbers = self::get_numbers_from_string($string)) return false;
-            if(stripos($string, " see ") !== false) return false; //string is found
+            $chars = array(" see ", " , sec", ".see ", ", set-", " , KC ", ", set ", ", ice ", ", MC ", ", Bee ", ", ee ");
+            $chars[] = " [";
+            foreach($chars as $char) {
+                if(stripos($string, $char) !== false) return false; //string is found
+            }
         }
         
         // /* manual - MotAES
@@ -865,6 +869,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("T'redinopsis Osmundae", "Uredinopsis Osmundae", $row);
                 $row = str_ireplace("miastnmi pustulatum", "Pucciniastrum pustulatum", $row);
                 $row = str_ireplace("Uredinopaa Copelaod", "Uredinopsis Copelandi", $row);
+                $row = str_ireplace("Cerotelium desmiutn", "Cerotelium desmium", $row);
             }
 
             if($this->pdf_id == '15427') { //start of row
@@ -994,7 +999,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->pdf_id == '119520') if($row == "404 butterflies of liberia") $row = "</taxon>$row";
 
             if($this->pdf_id == '91225') {
-                if(stripos($row, " see ") !== false) $row = "</taxon>$row"; //string is found
+                $chars = array(" see ", " , sec", ".see ", ", set-", " , KC ", ", set ", ", ice ", ", MC ", ", Bee ", ", ee ");
+                foreach($chars as $char) {
+                    if(stripos($row, $char) !== false) {
+                        $row = "</taxon>$row"; //string is found
+                        break;
+                    }
+                }
             }
 
             if($this->pdf_id == '120082') { //4th doc
