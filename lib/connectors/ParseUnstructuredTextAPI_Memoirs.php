@@ -453,7 +453,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         if($this->pdf_id == '91225') {
             if($numbers = self::get_numbers_from_string($string)) return false;
-            $chars = array(" see ", " , sec", ".see ", ", set-", " , KC ", ", set ", ", ice ", ", MC ", ", Bee ", ", ee ", 
+            $chars = array(" see ", ", sec ", " , sec", ".see ", ", set-", " , KC ", ", set ", ", ice ", ", MC ", ", Bee ", ", ee ", 
             "-", "'", ">", "<", "»", "»", "/");
             $chars[] = " [";
             foreach($chars as $char) {
@@ -1008,7 +1008,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->pdf_id == '119520') if($row == "404 butterflies of liberia") $row = "</taxon>$row";
 
             if($this->pdf_id == '91225') {
-                $chars = array(" see ", " , sec", ".see ", ", set-", " , KC ", ", set ", ", ice ", ", MC ", ", Bee ", ", ee ");
+                $chars = array(" see ", ", sec ", " , sec", ".see ", ", set-", " , KC ", ", set ", ", ice ", ", MC ", ", Bee ", ", ee ");
                 foreach($chars as $char) {
                     if(stripos($row, $char) !== false) {
                         $row = "</taxon>$row"; //string is found
