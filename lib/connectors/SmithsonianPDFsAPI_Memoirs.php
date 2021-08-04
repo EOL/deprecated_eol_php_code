@@ -557,9 +557,15 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
     function process_a_txt_file($txt_filename, $pdf_id, $pdf_meta_obj)
     {   /*
         <sciname='Pontostratiotes scotti Brodskaya, 1959'> Pontostratiotes scotti Brodskaya, 1959
-        </sciname>
+        </sciname> */
+        /*
+        txt_filename: [/Volumes/AKiTiO4/other_files/Smithsonian/MoftheAES/91225/91225_tagged.txt]
+        pdf_id: [91225]
         */
         // exit("\ntxt_filename: [$txt_filename]\npdf_id: [$pdf_id]\n");
+        $investigate_file = str_replace("_tagged.txt", "_investigate.txt", $txt_filename);
+        $WRITE = fopen($investigate_file, "w"); //initialize
+        
         $contents = file_get_contents($txt_filename);
         if(preg_match_all("/<sciname=(.*?)<\/sciname>/ims", $contents, $a)) {
             foreach($a[1] as $str) { //echo("\n[$str]\n");
@@ -641,7 +647,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     // /* normal operation
                     if($pdf_id == '91225') {
                         $this->meta = array();
-                        $assoc = $this->func_Assoc->parse_associations($rec['body'], $pdf_id);
+                        $assoc = $this->func_Assoc->parse_associations($rec['body'], $pdf_id, $WRITE);
                     }
                     // */
                     
@@ -680,6 +686,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // else {} //meaning just 1 row, name itself. Then just ignore it.
             }
         }
+        fclose($WRITE);
     }
     function process_a_txt_file_LT($txt_filename, $pdf_id, $pdf_meta_obj)
     {   // exit("\ntxt_filename: [$txt_filename]\npdf_id: [$pdf_id]\n");

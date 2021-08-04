@@ -14,8 +14,9 @@ class ParseAssocTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
     }
     /*#################################################################################################################################*/
-    function parse_associations($html, $pdf_id)
+    function parse_associations($html, $pdf_id, $WRITE)
     {
+        $this->WRITE = $WRITE;
         $this->pdf_id = $pdf_id; //works but not being used atm.
         $arr = explode("<br>", $html); //print_r($arr); exit("\n[$html]\n");
         $arr = array_map('trim', $arr);
@@ -55,16 +56,18 @@ class ParseAssocTypeAPI_Memoirs
                 if($last == $last_char) $var = substr($var,0,strlen($var)-1);
             }
             $words = explode(" ", $var);
-            if(ctype_lower($words[0][0])) { //first word, first char is lower case
-                echo "\nInvestigate OCR [$orig]\n";
+            if(ctype_lower(@$words[0][0])) { //first word, first char is lower case
+                // echo "\nInvestigate OCR [$orig]\n";
+                fwrite($this->WRITE, "1\t".$orig."\n");
                 continue;
             }
-            if(!ctype_upper($words[0][0])) { //first word, first char is lower case
-                echo "\nInvestigate OCR 2 [$orig]\n";
+            if(!ctype_upper(@$words[0][0])) { //first word, first char is lower case
+                // echo "\nInvestigate OCR 2 [$orig]\n";
+                fwrite($this->WRITE, "2\t".$orig."\n");
                 continue;
             }
             
-            $var = $words[0]." ".strtolower($words[1]);
+            $var = trim($words[0]." ".strtolower(@$words[1]));
             $var = Functions::canonical_form($var);
 
             // /*
@@ -72,7 +75,8 @@ class ParseAssocTypeAPI_Memoirs
             $special_chars = array("'");
             foreach($special_chars as $special) {
                 if(stripos($var, $special) !== false) {
-                    echo "\nInvestigate OCR 3 [$orig]\n"; //string is found
+                    // echo "\nInvestigate OCR 3 [$orig]\n"; //string is found
+                    fwrite($this->WRITE, "3\t".$orig."\n");
                     $cont = false;
                 }
             }
