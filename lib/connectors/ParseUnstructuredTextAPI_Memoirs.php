@@ -829,6 +829,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $WRITE = fopen($temp_file, "w"); //initialize
         $hits = 0;
         
+        // /* host-pathogen list pattern:
+        $investigate_file = str_replace("_edited.txt", "_source_taxa.txt", $edited_file);
+        $WRITE_st = fopen($investigate_file, "w"); //initialize
+        // */
+        
         // /* loop text file
         $i = 0; $count_of_blank_rows = 0;
         foreach(new FileIterator($edited_file) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
@@ -859,9 +864,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("l/redinopsis mirabilis", "Uredinopsis mirabilis", $row);
                 $row = str_ireplace("T'redinopsis Osmundae", "Uredinopsis Osmundae", $row);
                 $row = str_ireplace("miastnmi pustulatum", "Pucciniastrum pustulatum", $row);
-
-                
-                
+                $row = str_ireplace("Uredinopaa Copelaod", "Uredinopsis Copelandi", $row);
             }
 
             if($this->pdf_id == '15427') { //start of row
@@ -948,7 +951,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx22\n");}   //string is found  //good debug
 
                     // /*
-                    if($sciname = self::last_resort_to_clean_name($row)) {
+                    if($sciname = self::last_resort_to_clean_name($row, $WRITE_st)) {
                         // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row][$sciname]xx33\n");}   //string is found  //good debug
                         
                         $words = explode(" ", $sciname);
@@ -964,6 +967,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     }
                     else {
                         // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx33\n");}   //string is found  //good debug
+                        if($this->pdf_id == '91225') $row = "</taxon>$row"; //IMPORTANT for 91225 
                     }
                     // */
                 }
@@ -1245,6 +1249,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             
         }//end loop text
         fclose($WRITE);
+        fclose($WRITE_st);
         if(copy($temp_file, $edited_file)) unlink($temp_file);
         
         // print_r($this->lines_to_tag);

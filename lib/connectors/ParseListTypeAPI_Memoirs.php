@@ -598,7 +598,7 @@ class ParseListTypeAPI_Memoirs
         echo "\nblocks: ".count($a[1])."\n";
         return $with_blocks_file;
     }
-    function last_resort_to_clean_name($sciname_line) //this started from a copied template
+    function last_resort_to_clean_name($sciname_line, $WRITE_st) //this started from a copied template
     {
         // /* manual 
         if($this->pdf_id == '119520') {
@@ -712,7 +712,11 @@ class ParseListTypeAPI_Memoirs
             }
         }
         if($sciname = @$obj->names[0]->scientificName) {}
-        else echo "\nGNRD doesn't recognize [$sciname_line]\n";
+        else {
+            if($this->pdf_id != '91225') echo "\nGNRD doesn't recognize [$sciname_line]xxx\n";
+            fwrite($WRITE_st, $sciname_line."\n");
+            return false;
+        }
         
         if(self::is_just_one_word($sciname)) return false; //exclude if sciname is just one word, it is implied that it should be a binomial
         
