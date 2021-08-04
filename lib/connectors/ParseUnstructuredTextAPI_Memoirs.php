@@ -1239,9 +1239,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if($row == "</taxon>404 butterflies of liberia") break; //has "</taxon>" bec. it is used as stop pattern above
             }
 
-            if($this->pdf_id == '91225') { //only during dev --- debug only
-                if($row == "Dicaeoma Rhamni, 313") break;
-            }
+            // if($this->pdf_id == '91225') { //only during dev --- debug only
+            //     if($row == "Dicaeoma Rhamni, 313") break;
+            // }
             
         }//end loop text
         fclose($WRITE);
