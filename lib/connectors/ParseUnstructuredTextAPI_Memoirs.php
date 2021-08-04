@@ -870,6 +870,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("miastnmi pustulatum", "Pucciniastrum pustulatum", $row);
                 $row = str_ireplace("Uredinopaa Copelaod", "Uredinopsis Copelandi", $row);
                 $row = str_ireplace("Cerotelium desmiutn", "Cerotelium desmium", $row);
+                $row = str_ireplace("Horr.ria parviflora", "Borreria parviflora", $row);
             }
 
             if($this->pdf_id == '15427') { //start of row
