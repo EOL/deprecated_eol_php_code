@@ -638,9 +638,9 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     */
                     
                     // exit("\n1---\n".$rec['body']."\n---\n");
-                    // /* normal operation
+                    /* normal operation
                     $assoc = $this->func_Assoc->parse_associations($rec['body'], $pdf_id);
-                    // */
+                    */
                     
                     $assoc['sciname'] = $rec['sciname']; //just for debug for now
                     // good debug
