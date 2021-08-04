@@ -14,7 +14,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text="Aeshna (Hesperaeschna) psilus"
-        http://gnrd.globalnames.org/name_finder.json?text=I'redo maculans
+        http://gnrd.globalnames.org/name_finder.json?text=Dicaeoma epilobii-tetragoni
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -873,6 +873,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("Uredinopaa Copelaod", "Uredinopsis Copelandi", $row);
                 $row = str_ireplace("Cerotelium desmiutn", "Cerotelium desmium", $row);
                 $row = str_ireplace("Horr.ria parviflora", "Borreria parviflora", $row);
+                $row = str_ireplace("■ircinia lateritia", "Micropuccinia lateritia", $row);
+                $row = str_ireplace("N'igredo", "Nigredo", $row);
+                $row = str_ireplace("mat rosperma, 684", "Uredinopsis macrosperma, 684", $row);
+                $row = str_ireplace("rio[i,i> macrosperma, 684", "Uredinopsis macrosperma, 684", $row);
+                $row = str_ireplace("I'rcdo ramonensis, 810", "Uredo ramonensis, 810", $row);
+                
             }
 
             if($this->pdf_id == '15427') { //start of row
@@ -1673,8 +1679,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // */
         
         @$this->debug['sciname cnt']++;
-        echo "\n[$sciname] ". $this->debug['sciname cnt'];
-        echo " - Word count: ".$word_count."\n";
+        debug("\n[$sciname] ". $this->debug['sciname cnt'] . " - Word count: ".$word_count."\n");
         return true;
     }
     private function get_number_of_words($contents)

@@ -50,7 +50,7 @@ class ParseAssocTypeAPI_Memoirs
             $orig = $var;
             $var = trim(preg_replace('/\s*\[[^)]*\]/', '', $var)); //remove brackets including inside
             $var = trim(preg_replace('/[0-9]+/', '', $var)); //remove For Western Arabic numbers (0-9):
-            $last_chars = array(",", ".");
+            $last_chars = array(",", ".", '"');
             foreach($last_chars as $last_char) {
                 $last = substr($var, -1);
                 if($last == $last_char) $var = substr($var,0,strlen($var)-1);
