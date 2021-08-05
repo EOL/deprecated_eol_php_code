@@ -307,8 +307,41 @@ class ParseListTypeAPI_Memoirs
             $obj = json_decode($json);
             return $obj;
         }
+        if(!in_array($this->pdf_id, array('91225', '91362'))) return false;
+        else { // per Jen: https://eol-jira.bibalex.org/browse/DATA-1890?focusedCommentId=66302&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66302
+            /*
+            llll => llii
+            lll => ill
+            lll => lli
+            */
+            if(stripos($string, "llll") !== false) { //string is found
+                $string = str_ireplace("llll", "llii", $string);
+                self::run_GNRD($string);
+            }
+            elseif(stripos($string, "lll") !== false) { //string is found
+                /* we have two tries here */
+                //1st option
+                $orig = $string;
+                $string = str_ireplace("lll", "ill", $string);
+                if($ret = self::test_GNRD($string)) return $ret;
+                //2nd option
+                $string = str_ireplace("lll", "lli", $orig);
+                if($ret = self::test_GNRD($string)) return $ret;
+            }
+        }
         return false;
     }
+    private function test_GNRD($string)
+    {
+        $url = $this->service['GNRD text input'].$string;
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $obj = json_decode($json);
+            return $obj;
+        }
+    }
+
     // /*
     function run_gnparser($string)
     {

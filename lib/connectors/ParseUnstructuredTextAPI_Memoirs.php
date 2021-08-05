@@ -898,6 +898,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("mat rosperma, 684", "Uredinopsis macrosperma, 684", $row);
                 $row = str_ireplace("rio[i,i> macrosperma, 684", "Uredinopsis macrosperma, 684", $row);
                 $row = str_ireplace("I'rcdo ramonensis, 810", "Uredo ramonensis, 810", $row);
+                $row = str_ireplace("Bullaria Hw-ra. n. J13", "Bullaria Hieracii, 513", $row);
+                $row = str_ireplace("Bullaria Mi»r.»cti, 513", "Bullaria Hieracii, 513", $row);
+                $row = str_ireplace("aOcropucchna Grindeliae, 576", "Micropuccinia Grindeliae, 576", $row);
+                $row = str_ireplace("Mkropuc oinia Grindeliae 576", "Micropuccinia Grindeliae, 576", $row);
+                $row = str_ireplace("Mir ropiir riuia Grindeliae, 576", "Micropuccinia Grindeliae, 576", $row);
+                $row = str_ireplace("- osporium Solidaginis, 655", "Coleosporium Solidaginis, 655", $row);
             }
             if($this->pdf_id == '91362') {
             }
