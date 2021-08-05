@@ -907,6 +907,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             if($this->pdf_id == '91362') {
                 $row = str_ireplace("Vlcia americana", "Vicia americana", $row);
+                $row = str_ireplace("L'stilago Tritici, 981", "Ustilago Tritici, 981", $row);
+                $row = str_ireplace("Muhlenber^a arenacea", "Muhlenbergia arenacea", $row);
+                $row = str_ireplace("Muhlenber^a filiformls", "Muhlenbergia filiformis", $row);
             }
             
             if($this->pdf_id == '15427') { //start of row

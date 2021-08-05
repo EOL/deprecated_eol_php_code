@@ -715,8 +715,8 @@ class ParseListTypeAPI_Memoirs
         if(in_array($this->pdf_id, array("91225", "91362"))) {
             // return $sciname_line; //SPECIAL CASE -> to avoid GNRD call --- host-pathogen list pattern
             $words = explode(" ", $sciname_line);
-            $words[1] = strtolower($words[1]); //2nd word set to small caps
-            $sciname_line = implode(" ", $words);
+            $words[1] = strtolower(@$words[1]); //2nd word set to small caps
+            $sciname_line = trim(implode(" ", $words));
         }
         
         debug("\nrun_GNRD 1: [$sciname_line]\n");
