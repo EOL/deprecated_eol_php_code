@@ -644,6 +644,17 @@ class ParseListTypeAPI_Memoirs
         }
         // */
         
+        if(in_array($this->pdf_id, array('91225', '91362'))) {
+            //1st case --- e.g. "Paspalum urvillel (P. velutinum)" or "Euchlaena mexlcana {E. luxurians)"
+            $sciname_line = str_replace("{", "(", $sciname_line);
+            $sciname_line = str_replace("}", ")", $sciname_line);
+            $parts = explode("(", $sciname_line);
+            $sciname_line = trim($parts[0]);
+            //2nd case --- e.g. "Vlcia americana ; V. carollniana ; V. orcgona ;"
+            $words = explode(";", $sciname_line);
+            $sciname_line = trim($words[0]);
+        }
+        
         // /* Tiphia (Tiphia) intermedia Malloch
         $words = explode(" ", $sciname_line);
         if(count($words) >= 3) {

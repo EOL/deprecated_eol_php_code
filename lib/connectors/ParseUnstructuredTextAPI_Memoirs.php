@@ -14,7 +14,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text="Aeshna (Hesperaeschna) psilus"
-        http://gnrd.globalnames.org/name_finder.json?text=Dicaeoma epilobii-tetragoni
+        http://gnrd.globalnames.org/name_finder.json?text=Alchemllla pratensls
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -906,6 +906,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("- osporium Solidaginis, 655", "Coleosporium Solidaginis, 655", $row);
             }
             if($this->pdf_id == '91362') {
+                $row = str_ireplace("Vlcia americana", "Vicia americana", $row);
             }
             
             if($this->pdf_id == '15427') { //start of row
