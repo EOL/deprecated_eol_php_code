@@ -507,7 +507,7 @@ class WikiDataAPI extends WikipediaAPI
         
         $k = 0;
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
-            $k++; if(($k % 1000) == 0) echo " ".number_format($k)." ";
+            $k++; if(($k % 5000) == 0) echo " ".number_format($k)." ";
             if(stripos($row, "Q16521") !== false) { //string is found -- "taxon"
                 /* remove the last char which is "," a comma */
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
@@ -526,7 +526,7 @@ class WikiDataAPI extends WikipediaAPI
         $actual = 0; $i = 0; $j = 0;
         $k = 0; $m = 250000; //only for breakdown when caching
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
-            $k++; if(($k % 1000) == 0) echo " ".number_format($k)." ";
+            $k++; if(($k % 5000) == 0) echo " ".number_format($k)." ";
             if(in_array($task, array("save_all_media_filenames", "generate_resource")) && $range_from && $range_to) {
                 $cont = false;
                 if($k >= $range_from && $k < $range_to) $cont = true;
