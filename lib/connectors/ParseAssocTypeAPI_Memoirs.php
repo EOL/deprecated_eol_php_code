@@ -85,6 +85,7 @@ class ParseAssocTypeAPI_Memoirs
             // */
 
             // echo "\nfinal var5: [$var]\n";
+            if(self::is_one_word($var)) continue;
             if($obj = self::run_GNRD_assoc($var)) {
                 if($val = @$obj->names[0]->scientificName) $scinames[trim($var)] = ''; //take note that $var is taken, not $val
             }
@@ -105,10 +106,10 @@ class ParseAssocTypeAPI_Memoirs
         }
         return false;
     }
-    private function is_one_word($str)
+    private function is_one_word($phrase)
     {
-        $arr = explode(" ", $str);
-        if(count($arr) == 1) return true;
+        $words = explode(" ", trim($phrase));
+        if(count($words) == 1) return true;
         return false;
     }
     /*
