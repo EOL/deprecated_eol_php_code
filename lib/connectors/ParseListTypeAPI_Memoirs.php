@@ -668,7 +668,7 @@ class ParseListTypeAPI_Memoirs
 
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname_line]xx3\n"); //good debug - to see what string passes here.
 
-        if($this->pdf_id == '91225') {
+        if(in_array($this->pdf_id, array("91225", "91362"))) {
             // return $sciname_line; //SPECIAL CASE -> to avoid GNRD call --- host-pathogen list pattern
             $words = explode(" ", $sciname_line);
             $words[1] = strtolower($words[1]); //2nd word set to small caps
@@ -713,7 +713,7 @@ class ParseListTypeAPI_Memoirs
         }
         if($sciname = @$obj->names[0]->scientificName) {}
         else {
-            if($this->pdf_id != '91225') echo "\nGNRD doesn't recognize [$sciname_line]xxx\n";
+            if(!in_array($this->pdf_id, array("91225", "91362"))) echo "\nGNRD doesn't recognize [$sciname_line]xxx\n";
             fwrite($WRITE_st, $sciname_line."\n");
             return false;
         }
@@ -1106,7 +1106,7 @@ class ParseListTypeAPI_Memoirs
         if(strlen($str) <= 10) return false;
         if(count($words) < 2) return false;
         if(ctype_lower($words[0][0])) return false; //first word must be capitalized
-        if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', '91225'))) {}
+        if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', '91225', '91362'))) {}
         else {
             if(ctype_upper($words[1][0])) return false; //2nd word must be lower case
         }

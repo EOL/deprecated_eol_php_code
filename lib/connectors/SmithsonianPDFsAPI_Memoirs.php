@@ -616,7 +616,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     // */
 
                     // /*
-                    if(!in_array($pdf_id, array('120602', '91225'))) {
+                    if(!in_array($pdf_id, array('120602', '91225', '91362'))) {
                         $words = explode(" ", $tmp);
                         if(count($words) <= 15) $tmp = ""; //blank means excluded.
                     }
@@ -645,7 +645,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     
                     // exit("\n1---\n".$rec['body']."\n---\n");
                     // /* normal operation
-                    if($pdf_id == '91225') {
+                    if(in_array($pdf_id, array('91225', '91362'))) {
                         $this->meta = array();
                         $assoc = $this->func_Assoc->parse_associations($rec['body'], $pdf_id, $WRITE);
                     }
@@ -747,7 +747,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if($val = @$others['additionalInformation']) $mr->additionalInformation = $val;
         
         if(!isset($this->object_ids[$mr->identifier])) {
-            if(in_array($rec['pdf_id'], array('91225'))) {}
+            if(in_array($rec['pdf_id'], array('91225', '91362'))) {}
             else $this->archive_builder->write_object_to_file($mr); //the rest goes here
             $this->object_ids[$mr->identifier] = '';
         }

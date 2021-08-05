@@ -150,6 +150,8 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "15428", "resource_name":
 parse_unstructured_text_memoirs.php _ '{"resource_id": "91144", "resource_name":"all_BHL"}' //5
 Aug 3 Tue
 parse_unstructured_text_memoirs.php _ '{"resource_id": "91225", "resource_name":"MotAES"}' //6 --- host-pathogen list pattern
+Aug 5 Thu
+parse_unstructured_text_memoirs.php _ '{"resource_id": "91362", "resource_name":"MotAES"}' //7 --- host-pathogen list pattern
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

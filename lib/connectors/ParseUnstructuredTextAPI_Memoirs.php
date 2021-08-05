@@ -38,6 +38,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
         $this->in_question = "Abutilon Abutilon";
+        $this->activeYN['91362'] = "waiting...";
+        $this->activeYN['91225'] = "waiting...";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -122,6 +124,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         foreach(new FileIterator($local) as $line => $row) { $ctr++;
             $i++; if(($i % 5000) == 0) echo " $i";
 
+            // /* New
+            if($this->pdf_id == '91362') {
+                if(stripos($row, "REVISED HOST-INDEX TO THE USTILAGINALES") !== false) $this->activeYN[$this->pdf_id] = "processing...";
+            }
+            elseif($this->pdf_id == '91225') {
+                if(stripos($row, "HOST-INDEX TO THE UREDINALES") !== false) $this->activeYN[$this->pdf_id] = "processing...";
+            }
+            // */
+            
             if($this->pdf_id == '119520') {} //accept brackets e.g. "[Coeliades bixana Evans]"
             else $row = trim(preg_replace('/\s*\[[^)]*\]/', '', $row)); //remove brackets //the rest goes here
             $row = trim($row);
@@ -443,6 +454,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     {
         // if(stripos($string, $this->in_question) !== false) {exit("\nxx[$string]xx 11\n");}   //string is found  //good debug
         
+        // /* NEW
+        if(!isset($this->activeYN[$this->pdf_id])) {} //just continue, un-initialized resource
+        else {
+            if($this->activeYN[$this->pdf_id] == "waiting...") return false;
+            elseif($this->activeYN[$this->pdf_id] == "processing...") {} //just continue
+        }
+        // */
+        
         // /* manual - BHL
         $string = str_ireplace("1 . Seligeria campylopoda", "1. Seligeria campylopoda", $string);
         if(stripos($string, "canadensis (Smi") !== false) return false; //string is found -> 30355.txt
@@ -451,7 +470,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         }
         // */
         
-        if($this->pdf_id == '91225') {
+        if(in_array($this->pdf_id, array("91225", "91362"))) {
             if($numbers = self::get_numbers_from_string($string)) return false;
             $chars = array(" see ", ", sec ", " , sec", ".see ", ", set-", " , KC ", ", set ", ", ice ", ", MC ", ", Bee ", ", ee ", 
             " sec ", " tee ",
@@ -757,7 +776,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(count($words) == 2) { //493cff8f65ec17fe2c3a5974d8ac1803	Euborellia (Dohrn)
             $first_char_2nd_word = substr($words[1],0,1);
             if(is_numeric($first_char_2nd_word)) return false;
-            if(in_array($this->pdf_id, array('15423', '91155', '15427', '91225')) || $this->resource_name == 'all_BHL') {}
+            if(in_array($this->pdf_id, array('15423', '91155', '15427', '91225', '91362')) || $this->resource_name == 'all_BHL') {}
             else { //Plant names have capitalized species part.
                 if(ctype_upper($first_char_2nd_word)) return false; //06a2940e6881040955101a68e88c1f9c  Careospina Especies de Careospina Peters
             }
@@ -772,7 +791,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $second_word = @$words[1];
         if(!$second_word) return false; //No 2nd word
         else {
-            if(in_array($this->pdf_id, array('15423', '91155', '15427', '91225')) || $this->resource_name == 'all_BHL') {}
+            if(in_array($this->pdf_id, array('15423', '91155', '15427', '91225', '91362')) || $this->resource_name == 'all_BHL') {}
             else { //Plant names have capitalized species part.
                 if(ctype_upper(substr($words[1],0,1))) return false; //2nd word is capitalized
             }
@@ -879,9 +898,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("mat rosperma, 684", "Uredinopsis macrosperma, 684", $row);
                 $row = str_ireplace("rio[i,i> macrosperma, 684", "Uredinopsis macrosperma, 684", $row);
                 $row = str_ireplace("I'rcdo ramonensis, 810", "Uredo ramonensis, 810", $row);
-                
             }
-
+            if($this->pdf_id == '91362') {
+            }
+            
             if($this->pdf_id == '15427') { //start of row
                 // $words = array("ANEMIA' sw.");
                 // foreach($words as $word) {
@@ -982,7 +1002,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     }
                     else {
                         // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx33\n");}   //string is found  //good debug
-                        if($this->pdf_id == '91225') $row = "</taxon>$row"; //IMPORTANT for 91225 
+                        if(in_array($this->pdf_id, array("91225", "91362"))) $row = "</taxon>$row"; //IMPORTANT for 91225 
                     }
                     // */
                 }
@@ -1008,7 +1028,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->pdf_id == '118941') if($row == "List of the North America") $row = "</taxon>$row";
             if($this->pdf_id == '119520') if($row == "404 butterflies of liberia") $row = "</taxon>$row";
 
-            if($this->pdf_id == '91225') {
+            if(in_array($this->pdf_id, array("91225", "91362"))) {
                 $chars = array(" see ", ", sec ", " , sec", ".see ", ", set-", " , KC ", ", set ", ", ice ", ", MC ", ", Bee ", ", ee ",
                 " sec ", " tee ");
                 foreach($chars as $char) {
@@ -1267,6 +1287,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
             // if($this->pdf_id == '91225') { //only during dev --- debug only
             //     if($row == "Dicaeoma Rhamni, 313") break;
+            // }
+            // if($this->pdf_id == '91362') { //only during dev --- debug only
+            //     if($row == "Sphacelotheca Seymouriana, 994") break;
             // }
             
         }//end loop text
