@@ -166,20 +166,12 @@ $pdf_id = $param['resource_id'];
 $resource_name = $param['resource_name'];
 $func = new ParseUnstructuredTextAPI_Memoirs($resource_name);
 
-// $sciname_line = "Carex vesicaria var. monlle {C. monile)";
-// $sciname_line = "Carex concolor (C. Bigelovii , C. rigida)";
-// $sciname_line = "Vlcia americana ; V. carollniana ; V. orcgona ;";
-// echo "\n[$sciname_line]\n";
-// //1st case
-// $sciname_line = str_replace("{", "(", $sciname_line);
-// $sciname_line = str_replace("}", ")", $sciname_line);
-// $parts = explode("(", $sciname_line);
-// $sciname_line = trim($parts[0]);
-// //2nd case
-// $words = explode(";", $sciname_line);
-// $sciname_line = trim($words[0]);
-// 
-// exit("\n[$sciname_line]\n");
+
+
+// $str = "the quick blk brown"; echo "\n[$str]\n";     $str = xlx_to_xix($str);
+// $str = "the quick rll brown"; echo "\n[$str]\n";     $str = xll_to_xil($str);
+// $str = "the quick llt brown"; echo "\n[$str]\n";     $str = llx_to_lix($str);
+// exit("\n[$str]\n");
 
 /*
 $var = "Calyptospora columnaris, 682";

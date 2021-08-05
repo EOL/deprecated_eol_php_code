@@ -328,6 +328,22 @@ class ParseListTypeAPI_Memoirs
                 $string = str_ireplace("lll", "lli", $orig);
                 if($ret = self::test_GNRD($string)) return $ret;
             }
+            /* and, where x is any consonant except l (letter el)
+            xlx => xix
+            xll => xil
+            llx => lix
+            */
+            $orig = $string;
+            $string = xlx_to_xix($string);
+            if($ret = self::test_GNRD($string)) return $ret;
+            
+            $string = $orig;
+            $string = xll_to_xil($string);
+            if($ret = self::test_GNRD($string)) return $ret;
+
+            $string = $orig;
+            $string = llx_to_lix($string);
+            if($ret = self::test_GNRD($string)) return $ret;
         }
         return false;
     }
@@ -1407,6 +1423,68 @@ class ParseListTypeAPI_Memoirs
                 if(strlen($words[0]) == 1) return true;
             }
         }
+        return false;
+    }
+
+    private function xlx_to_xix($str)
+    {   if(strpos($str, "l") !== false) { //string is found  //good debug
+            $pos = strpos($str, "l");
+            if ($pos === false) {} //not found
+            else { //found
+                // echo "\npos [$pos]\n";
+                $left = substr($str,$pos-1,1);
+                $right = substr($str,$pos+1,1);
+                // echo "\nleft [$left] | right [$right]\n";
+                if(is_a_consonant_but_not_el($left) && is_a_consonant_but_not_el($right)) {
+                    $from = $left."l".$right;
+                    $to = $left."i".$right;
+                    // echo "\nfrom [$from] | to [$to]\n";
+                    $str = str_replace($from, $to, $str);
+                }
+            }
+        }
+        return $str;
+    }
+    private function xll_to_xil($str)
+    {   if(strpos($str, "ll") !== false) { //string is found  //good debug
+            $pos = strpos($str, "l");
+            if ($pos === false) {} //not found
+            else { //found
+                // echo "\npos [$pos]\n";
+                $left = substr($str,$pos-1,1);
+                // echo "\nleft [$left]\n";
+                if(is_a_consonant_but_not_el($left)) {
+                    $from = $left."ll";
+                    $to = $left."il";
+                    // echo "\nfrom [$from] | to [$to]\n";
+                    $str = str_replace($from, $to, $str);
+                }
+            }
+        }
+        return $str;
+    }
+    private function llx_to_lix($str)
+    {   if(strpos($str, "l") !== false) { //string is found  //good debug
+            $pos = strpos($str, "l");
+            if ($pos === false) {} //not found
+            else { //found
+                // echo "\npos [$pos]\n";
+                $right = substr($str,$pos+2,1);
+                // echo "\nright [$right]\n";
+                if(is_a_consonant_but_not_el($right)) {
+                    $from = "ll".$right;
+                    $to = "li".$right;
+                    // echo "\nfrom [$from] | to [$to]\n";
+                    $str = str_replace($from, $to, $str);
+                }
+            }
+        }
+        return $str;
+    }
+    private function is_a_consonant_but_not_el($letter)
+    {
+        $consonants = array("b", "c", "d", "f", "g", "h", "j", "k", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z");
+        if(in_array(strtolower($letter), $consonants)) return true;
         return false;
     }
 }
