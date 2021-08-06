@@ -89,22 +89,17 @@ MoftheAES_resources	Thu 2021-07-29 09:06:03 AM	{"MoF.tab":12098, "media.tab":188
 91155	Tue 2021-07-13 07:23:11 AM	{                                        "media_resource.tab":107,                                "taxon.tab":107, "time_elapsed":{"sec":0.41, "min":0.01, "hr":0}}
 91155_ENV	Tue 2021-07-13 07:28:06 {"measurement_or_fact_specific.tab":665, "media_resource.tab":107, "occurrence_specific.tab":665, "taxon.tab":107, "time_elapsed":{"sec":174.68, "min":2.91, "hr":0.05}}
 
-15427	Mon 2021-08-02 08:30:05 AM	{                                        "media_resource.tab":151,                                "taxon.tab":151, "time_elapsed":{"sec":0.49, "min":0.01, "hr":0}}
-15427_ENV	Mon 2021-08-02 08:32:22 {"measurement_or_fact_specific.tab":426, "media_resource.tab":151, "occurrence_specific.tab":426, "taxon.tab":151, "time_elapsed":{"sec":16.97, "min":0.28, "hr":0}}
 15427	Tue 2021-08-03 10:10:02 PM	{                                        "media_resource.tab":152,                                "taxon.tab":152, "time_elapsed":{"sec":1.12, "min":0.02, "hr":0}}
 15427_ENV	Tue 2021-08-03 10:12:20 {"measurement_or_fact_specific.tab":426, "media_resource.tab":152, "occurrence_specific.tab":426, "taxon.tab":152, "time_elapsed":{"sec":18, "min":0.3, "hr":0.01}}
-+ 1
 
 15428	Tue 2021-08-03 10:12:35 PM	{                                        "media_resource.tab":190,                                "taxon.tab":190, "time_elapsed":{"sec":0.52, "min":0.01, "hr":0}}
 15428_ENV	Tue 2021-08-03 10:14:56 {"measurement_or_fact_specific.tab":759, "media_resource.tab":190, "occurrence_specific.tab":759, "taxon.tab":190, "time_elapsed":{"sec":20.34, "min":0.34, "hr":0.01}}
 
-91144	Mon 2021-08-02 08:30:03 AM	{                                        "media_resource.tab":192,                                "taxon.tab":192, "time_elapsed":{"sec":0.59, "min":0.01, "hr":0}}
-91144_ENV	Mon 2021-08-02 08:32:58 {"measurement_or_fact_specific.tab":829, "media_resource.tab":192, "occurrence_specific.tab":829, "taxon.tab":192, "time_elapsed":{"sec":54.47, "min":0.91, "hr":0.02}}
 91144	Tue 2021-08-03 10:15:15 PM	{                                        "media_resource.tab":192,                                "taxon.tab":192, "time_elapsed":{"sec":0.48, "min":0.01, "hr":0}}
 91144_ENV	Tue 2021-08-03 10:17:34 {"measurement_or_fact_specific.tab":829, "media_resource.tab":192, "occurrence_specific.tab":829, "taxon.tab":192, "time_elapsed":{"sec":18.66, "min":0.31, "hr":0.01}}
-same
 
-
+91225	Thu 2021-08-05 12:07:49 PM	{"association.tab":4275, "occurrence.tab":4693, "taxon.tab":4859, "time_elapsed":{"sec":6.39, "min":0.11, "hr":0}}
+91362	Thu 2021-08-05 12:07:53 PM	{"association.tab":486, "occurrence.tab":624, "taxon.tab":656, "time_elapsed":{"sec":1, "min":0.02, "hr":0}}
 ------------------------------------------------------------
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'

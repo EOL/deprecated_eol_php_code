@@ -14,7 +14,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
         http://gnrd.globalnames.org/name_finder.json?text="Aeshna (Hesperaeschna) psilus"
-        http://gnrd.globalnames.org/name_finder.json?text=Alchemllla pratensls
+        http://gnrd.globalnames.org/name_finder.json?text=Sclerla vertlclllata
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
@@ -170,9 +170,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(stripos($row, " cm ") !== false) {$rows = array(); continue;} //string is found
             if(stripos($row, " p. ") !== false) {$rows = array(); continue;} //string is found
             if(stripos($row, " pp.") !== false) {$rows = array(); continue;} //string is found
-            if(stripos($row, " pages") !== false) {$rows = array(); continue;} //string is found
-            if(stripos($row, " less ") !== false) {$rows = array(); continue;} //string is found
-            if(stripos($row, "series ") !== false) {$rows = array(); continue;} //string is found
             */
             
             // caryae (Selandria) Norton, Packard's Guide to Study of Ins., 1869, p. 224.       // has "p."
