@@ -55,7 +55,7 @@ class DwCA_Aggregator
     {
         if($val = self::get_attributions()) $this->attributions = $val;
         $preferred_rowtypes = false;
-        foreach($resource_ids as $resource_id) {
+        foreach($resource_ids as $resource_id) { $this->resource_id_current = $resource_id; echo "\nProcessing resource_id: [$resource_id]\n";
             if(in_array($resource_id, array("91362", "91362_resource"))) $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'.tar.gz';
             else                                                         $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'_ENV.tar.gz';
             if(file_exists($dwca_file)) {
@@ -257,8 +257,8 @@ class DwCA_Aggregator
             /* Attributions:    You can use the two output columns for bibliographicCitation and FurtherInformationURL in the media file, 
                                 and for bibliographicCitation and source in the MoF file. */
             if($this->attributions) {
-                $citation = $this->attributions[$this->resource_id]['citation'];
-                $source = $this->attributions[$this->resource_id]['source'];
+                $citation = $this->attributions[$this->resource_id_current]['citation'];
+                $source = $this->attributions[$this->resource_id_current]['source'];
                 if($what == "document") {
                     $rec['http://purl.org/dc/terms/bibliographicCitation'] = $citation;
                     $rec['http://rs.tdwg.org/ac/terms/furtherInformationURL'] = $source;
