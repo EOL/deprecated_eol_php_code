@@ -296,8 +296,8 @@ class DwCA_Aggregator
     private function get_attributions()
     {
         // $source["MoftheAES_resources"] = "http://localhost/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution.txt";
-        $source["MoftheAES_resources"] = "/Volumes/AKiTiO4/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution.txt";
-        $source["MoftheAES_resources"] = "/extra/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution.txt";
+        $source["MoftheAES_resources"] = "/Volumes/AKiTiO4/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution_plus_four.txt";
+        $source["MoftheAES_resources"] = "/extra/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution_plus_four.txt";
         $source["xxx"] = "yyy.txt";
         $i = 0;
         if($source = @$source[$this->resource_id]) {
