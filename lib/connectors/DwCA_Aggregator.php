@@ -31,11 +31,7 @@ class DwCA_Aggregator
                                   "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
                                   "http://eol.org/schema/reference/reference"       => "reference",
                                   "http://eol.org/schema/association"               => "association");
-        /* copied template
-        if(@$this->resource_id == 24) {
-            $this->taxon_ids = array();
-        }
-        */
+        $this->attributions = array();
     }
     function get_langs()
     {
@@ -57,6 +53,7 @@ class DwCA_Aggregator
     }
     function combine_MoftheAES_DwCAs($resource_ids)
     {
+        if($val = self::get_attributions()) $this->attributions = $val;
         $preferred_rowtypes = false;
         foreach($resource_ids as $resource_id) {
             if(in_array($resource_id, array("91362", "91362_resource"))) $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'.tar.gz';
@@ -255,6 +252,24 @@ class DwCA_Aggregator
                     else continue;
                 }
             }
+
+            //================== start attributions =================== https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66290&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66290
+            /* Attributions:    You can use the two output columns for bibliographicCitation and FurtherInformationURL in the media file, 
+                                and for bibliographicCitation and source in the MoF file. */
+            if($this->attributions) {
+                $citation = $this->attributions[$this->resource_id]['citation'];
+                $source = $this->attributions[$this->resource_id]['source'];
+                if($what == "document") {
+                    $rec['http://purl.org/dc/terms/bibliographicCitation'] = $citation;
+                    $rec['http://rs.tdwg.org/ac/terms/furtherInformationURL'] = $source;
+                }
+                elseif($what == "measurementorfact") {
+                    $rec['http://purl.org/dc/terms/bibliographicCitation'] = $citation;
+                    $rec['http://purl.org/dc/terms/source'] = $source;
+                }
+                $uris = array_keys($rec);
+            }
+            //================== end attributions ===================
             
             /* Good debug
             elseif($what == "document") {
@@ -277,6 +292,39 @@ class DwCA_Aggregator
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 2) break; //debug only
         }
+    }
+    private function get_attributions()
+    {
+        $source["MoftheAES_resources"] = "http://localhost/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution.txt";
+        $source["MoftheAES_resources"] = "/Volumes/AKiTiO4/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution.txt";
+        
+        $i = 0;
+        if($source = @$source[$this->resource_id]) {
+            foreach(new FileIterator($source) as $line => $row) { $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
+                $rec = explode("\t", $row);
+                if($i == 1) {
+                    $fields = $rec;
+                    continue;
+                }
+                else {
+                    $rek = array(); $k = 0;
+                    foreach($fields as $fld) {
+                        if($fld) $rek[$fld] = @$rec[$k];
+                        $k++;
+                    }
+                    $rek = array_map('trim', $rek);
+                }
+                // print_r($rek); exit("\n-end-\n");
+                /*Array(
+                    [document number] => 30355
+                    [citation] => Cresson, E.T. 1916. The Cresson Types of Hymenoptera. Memoirs of the American Entomological Society vol. 1. Philadelphia, USA
+                    [source] => https://www.biodiversitylibrary.org/item/30355
+                )*/
+                $ret[$rek['document number']] = array("citation" => $rek['citation'], "source" => $rek['source']);
+            }
+            return $ret;
+        }
+        else echo "\nNo attribution info yet [$this->resource_id]\n";
     }
 }
 ?>

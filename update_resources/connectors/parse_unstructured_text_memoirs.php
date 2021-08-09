@@ -104,6 +104,8 @@ MoftheAES_resources	Thu 2021-07-29 09:06:03 AM	{"MoF.tab":12098, "media.tab":188
 91362_species	Mon 2021-08-09 05:22:06 AM	    {                                "media_resource.tab":56,                                "taxon.tab":56, "time_elapsed":{"sec":0.36, "min":0.01, "hr":0}}
 91362_species_ENV	Mon 2021-08-09 05:24:21 AM	{                 "MoF.tab":182, "media_resource.tab":56, "occurrence_specific.tab":182, "taxon.tab":56, "time_elapsed":{"sec":14.46, "min":0.24, "hr":0}}
 91362_resource	Mon 2021-08-09 06:49:48 AM	    {"assoc.tab":486, "MoF.tab":182, "media_resource.tab":56, "occurrence_specific.tab":806, "taxon.tab":684, "time_elapsed":{"sec":11.54, "min":0.19, "hr":0}}
+
+NorthAmericanFlora	Mon 2021-08-09 08:23:18 AM	{"association.tab":486, "MoF.tab":3199, "media.tab":770, "occurrence.tab":3823, "taxon.tab":1376, "time_elapsed":{"sec":37.56, "min":0.63, "hr":0.01}}
 ------------------------------------------------------------
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
@@ -152,7 +154,6 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "91225", "resource_name":
 Aug 5 Thu
 parse_unstructured_text_memoirs.php _ '{"resource_id": "91362", "resource_name":"MotAES"}'          //7 --- host-pathogen list pattern
 parse_unstructured_text_memoirs.php _ '{"resource_id": "91362_species", "resource_name":"all_BHL"}' //7 --- "7a. Urocystis magica" --- same as 15428
-
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
