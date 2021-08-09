@@ -59,8 +59,8 @@ class DwCA_Aggregator
     {
         $preferred_rowtypes = false;
         foreach($resource_ids as $resource_id) {
-            if(in_array($resource_id, array("91362"))) $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'.tar.gz';
-            else                                       $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'_ENV.tar.gz';
+            if(in_array($resource_id, array("91362", "91362_resource"))) $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'.tar.gz';
+            else                                                         $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'_ENV.tar.gz';
             if(file_exists($dwca_file)) {
                 self::convert_archive($preferred_rowtypes, $dwca_file);
             }

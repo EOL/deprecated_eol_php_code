@@ -99,7 +99,11 @@ MoftheAES_resources	Thu 2021-07-29 09:06:03 AM	{"MoF.tab":12098, "media.tab":188
 91144_ENV	Tue 2021-08-03 10:17:34 {"measurement_or_fact_specific.tab":829, "media_resource.tab":192, "occurrence_specific.tab":829, "taxon.tab":192, "time_elapsed":{"sec":18.66, "min":0.31, "hr":0.01}}
 
 91225	Thu 2021-08-05 12:07:49 PM	{"association.tab":4275, "occurrence.tab":4693, "taxon.tab":4859, "time_elapsed":{"sec":6.39, "min":0.11, "hr":0}}
-91362	Thu 2021-08-05 12:07:53 PM	{"association.tab":486, "occurrence.tab":624, "taxon.tab":656, "time_elapsed":{"sec":1, "min":0.02, "hr":0}}
+
+91362	Mon 2021-08-09 05:21:21 AM	            {"assoc.tab":486,                                         "occurrence.tab":624,          "taxon.tab":656, "time_elapsed":{"sec":6.09, "min":0.1, "hr":0}}
+91362_species	Mon 2021-08-09 05:22:06 AM	    {                                "media_resource.tab":56,                                "taxon.tab":56, "time_elapsed":{"sec":0.36, "min":0.01, "hr":0}}
+91362_species_ENV	Mon 2021-08-09 05:24:21 AM	{                 "MoF.tab":182, "media_resource.tab":56, "occurrence_specific.tab":182, "taxon.tab":56, "time_elapsed":{"sec":14.46, "min":0.24, "hr":0}}
+91362_resource	Mon 2021-08-09 06:49:48 AM	    {"assoc.tab":486, "MoF.tab":182, "media_resource.tab":56, "occurrence_specific.tab":806, "taxon.tab":684, "time_elapsed":{"sec":11.54, "min":0.19, "hr":0}}
 ------------------------------------------------------------
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
