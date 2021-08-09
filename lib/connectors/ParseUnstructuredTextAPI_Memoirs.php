@@ -37,8 +37,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Abutilon Abutilon";
-        $this->activeYN['91362'] = "waiting...";
+        $this->in_question = "Ustilago Schroeteriana";
+        $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
     }
     /*#################################################################################################################################*/
@@ -467,6 +467,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         }
         // */
         
+        // /* manual 
+        if($this->pdf_id == '91362_species') {
+            $string = str_ireplace("6.?a. Ustilago Claytoniae", "63a. Ustilago Claytoniae", $string);
+        }
+        // */
+        
         if(in_array($this->pdf_id, array("91225", "91362"))) {
             if($numbers = self::get_numbers_from_string($string)) return false;
             $chars = array(" see ", ", sec ", " , sec", ".see ", ", set-", " , KC ", ", set ", ", ice ", ", MC ", ", Bee ", ", ee ", 
@@ -604,7 +610,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // if(stripos($string, $this->in_question) !== false) exit("\nxx[$string]xx4\n"); //string is found  //good debug
             
             $words[0] = str_replace(array("(", ")", ","), "", $words[0]);
-            if(!is_numeric($words[0])) return false;
+            if($this->pdf_id == "91362_species") {
+                if($this->has_letters($words[0]) && $this->has_numbers($words[0])) {} //  7a. Urocystis magica
+                else return false;
+            }
+            else { //the rest goes here
+                if(!is_numeric($words[0])) return false;
+            }
             $string = self::remove_first_word_if_it_has_number($string);
 
             /* good debug
@@ -861,6 +873,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $i = 0; $count_of_blank_rows = 0;
         foreach(new FileIterator($edited_file) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
             $row = trim($row);
+            $orig_row = $row;
             // /* manual - BHL
             $row = str_ireplace("1 . Seligeria campylopoda", "1. Seligeria campylopoda", $row);
             $row = str_ireplace("(Mesoleptus,)", "(Mesoleptus),", $row);    //30355 doc
@@ -907,6 +920,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("L'stilago Tritici, 981", "Ustilago Tritici, 981", $row);
                 $row = str_ireplace("Muhlenber^a arenacea", "Muhlenbergia arenacea", $row);
                 $row = str_ireplace("Muhlenber^a filiformls", "Muhlenbergia filiformis", $row);
+            }
+            elseif($this->pdf_id == '91362_species') {
+                $row = str_ireplace("MELANOPSICHITJM", "MELANOPSICHIUM", $row);
+                $row = str_ireplace("TESTICDLARIA", "TESTICULARIA", $row);
+                $row = str_ireplace("IJISTKIBUTion:", "Distribution:", $row);
+                $row = str_ireplace("TvPK ix^Cality;", "Type Locality:", $row);
             }
             
             if($this->pdf_id == '15427') { //start of row
@@ -968,6 +987,33 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                  }
                  // */
                 
+                 if($this->pdf_id == '91362_species') {
+                     $words = array('Notes:', 'Note:', 'Note;', 'Notes;', "Notb:");
+                     foreach($words as $word) {
+                         $len = strlen($word);
+                         if(substr($row,0,$len) == $word)  $row = "</taxon>$row";
+                     }
+                     /*another case:
+                     from: "15. Ustilago Zeae."
+                     This must now be a STOP pattern --- a binomial
+                     */
+                     // if($row == "15. Ustilago Zeae.") { //exit("\ngot it row [$row]\n"); //good debug
+                     //     exit("\ngot it row [$row]\n");
+                     // }
+                     $words = explode(" ", $row);
+                     if(count($words) == 3) {
+                         if($this->has_numbers($words[0])) { //echo "\nhere 111\n";
+                             if(ctype_upper($words[1][0])) { //1st word, 1st char should be capital
+                                 if(self::is_sciname_using_GNRD($row)) { //print_r($words); //echo "\nhere 222\n";
+                                     $row = "</taxon>$row";
+                                     echo "\nDetected as STOP pattern: [$orig_row] [$row]\n";
+                                 }
+                             }
+                         }
+                     }
+                 }
+                
+                
                 $words = explode(" ", trim($row));
                 if(is_numeric(str_replace(",", "", $words[0]))) { //e.g. "4, REBOULIA Raddi, Opusc..." -> there is comma in first word
                     $row = self::remove_first_word_if_it_has_number($row);
@@ -1008,7 +1054,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         }
                     }
                     else {
-                        // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx33\n");}   //string is found  //good debug
+                        // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx33a\n");}   //string is found  //good debug
                         if(in_array($this->pdf_id, array("91225", "91362"))) $row = "</taxon>$row"; //IMPORTANT for 91225 
                     }
                     // */
@@ -1045,6 +1091,27 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     }
                 }
             }
+            // if($this->pdf_id == '91362_species') {
+            //     $words = array('Notes:', 'Note:');
+            //     foreach($words as $word) {
+            //         $len = strlen($word);
+            //         if(substr($row,0,$len) == $word)  $row = "</taxon>$row";
+            //     }
+            //     /*another case:
+            //     from: "15. Ustilago Zeae."
+            //     now: "Ustilago zeae."
+            //     This must now be a STOP pattern --- a binomial
+            //     */
+            //     $words = explode(" ", $row);
+            //     if(count($words) == 2) {
+            //         if(ctype_upper($words[0][0]) && ctype_lower($words[1][0])) { //1st word, 1st char should be capital, 2nd word, 1st char lower case
+            //             if(self::is_sciname_using_GNRD($row)) {
+            //                 $row = "</taxon>$row";
+            //                 echo "\nDetected as STOP pattern: [$orig_row] [$row]\n";
+            //             }
+            //         }
+            //     }
+            // }
 
             if($this->pdf_id == '120082') { //4th doc
                 $words = array('Table', 'Key', 'Remarks. —', 'Nomen inquirendum', 'Literature Cited');
@@ -1298,6 +1365,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // if($this->pdf_id == '91362') { //only during dev --- debug only
             //     if($row == "Sphacelotheca Seymouriana, 994") break;
             // }
+
+
+            if($this->pdf_id == '91362_species') {
+                if($row == "REVISED HOST-INDEX TO THE USTILAGINALES") break; 
+            }
+            
             
         }//end loop text
         fclose($WRITE);

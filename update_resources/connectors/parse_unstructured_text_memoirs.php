@@ -146,7 +146,8 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "91144", "resource_name":
 Aug 3 Tue
 parse_unstructured_text_memoirs.php _ '{"resource_id": "91225", "resource_name":"MotAES"}' //6 --- host-pathogen list pattern
 Aug 5 Thu
-parse_unstructured_text_memoirs.php _ '{"resource_id": "91362", "resource_name":"MotAES"}' //7 --- host-pathogen list pattern
+parse_unstructured_text_memoirs.php _ '{"resource_id": "91362", "resource_name":"MotAES"}'          //7 --- host-pathogen list pattern
+parse_unstructured_text_memoirs.php _ '{"resource_id": "91362_species", "resource_name":"all_BHL"}' //7 --- "7a. Urocystis magica" --- same as 15428
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -161,7 +162,14 @@ $pdf_id = $param['resource_id'];
 $resource_name = $param['resource_name'];
 $func = new ParseUnstructuredTextAPI_Memoirs($resource_name);
 
-
+/*
+$s = "eli is 49 yrs old";
+$s = "1c.";
+echo "\n[$s]\n";
+// $result = preg_replace("/[^0-9]+/", "", $s);        //get only numbers
+$result = preg_replace("/[^a-zA-Z]+/", "", $s);  //get only letter
+exit("\n[$result]\n");
+*/
 
 // $str = "the quick blk brown"; echo "\n[$str]\n";     $str = xlx_to_xix($str);
 // $str = "the quick rll brown"; echo "\n[$str]\n";     $str = xll_to_xil($str);
@@ -259,7 +267,7 @@ if($resource_name == 'MotAES') {
     118946 --- blocks: 102|92   Raw scinames: 172|105
     118936 --- blocks: 14|15   Raw scinames: 19
     120602 --- blocks: 20   Raw scinames: 40
-    119187 --- blocks: 72   Raw scinames: 241
+    119187 --- blocks: 72   Raw scinames: 241 (71-239)
     118978 --- blocks: 96   Raw scinames: 106
     119520 --- blocks: 677|662   Raw scinames: 706|705
     119188 --- blocks: 185   Raw scinames: 197
@@ -277,6 +285,8 @@ $rec['91155'] = array('filename' => '91155.txt', 'lines_before_and_after_sciname
 $rec['15427'] = array('filename' => '15427.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: 155   Raw scinames: 183 */
 $rec['15428'] = array('filename' => '15428.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: 194   Raw scinames: 243 */
 $rec['91144'] = array('filename' => '91144.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*3 blocks: 196   Raw scinames: 246 */
+
+$rec['91362_species'] = array('filename' => '91362_species.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*3 blocks: 58 | Raw scinames: 62 */
 
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;

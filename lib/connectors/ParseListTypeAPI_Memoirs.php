@@ -728,7 +728,7 @@ class ParseListTypeAPI_Memoirs
 
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname_line]xx3\n"); //good debug - to see what string passes here.
 
-        if(in_array($this->pdf_id, array("91225", "91362"))) {
+        if(in_array($this->pdf_id, array("91225", "91362", "91362_species"))) { //host-pathogen list pattern
             // return $sciname_line; //SPECIAL CASE -> to avoid GNRD call --- host-pathogen list pattern
             $words = explode(" ", $sciname_line);
             $words[1] = strtolower(@$words[1]); //2nd word set to small caps
@@ -777,12 +777,16 @@ class ParseListTypeAPI_Memoirs
             fwrite($WRITE_st, $sciname_line."\n");
             return false;
         }
-        
+        // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4\n"); //good debug - to see what string passes here.
         if(self::is_just_one_word($sciname)) return false; //exclude if sciname is just one word, it is implied that it should be a binomial
+        // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4a\n"); //good debug - to see what string passes here.
+        
         
         if(in_array($this->pdf_id, array("30353", "30354"))) $criteria = $sciname && self::binomial_or_more($sciname); //resources to be skipped more or less
         else                                        $criteria = $sciname; //rest of the resources, default
         if($criteria) {
+            // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname_line]xx4b\n"); //good debug - to see what string passes here.
+            
             $rek['sciname GNRD'] = $sciname;
             if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427'))) { //BHL --- more strict path
                 /* might be overkill
@@ -808,6 +812,8 @@ class ParseListTypeAPI_Memoirs
             return false;
         }
         // ------------- end ------------- */
+        // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname_line]xx5\n"); //good debug - to see what string passes here.
+        
         if($ret = @$rek['scientificName_author_cleaned']) {
             $ret = str_replace(" ,", ",", $ret);
             $ret = str_replace(" :", ":", $ret);
@@ -1407,7 +1413,8 @@ class ParseListTypeAPI_Memoirs
         foreach($separators as $separator) {
             $exclude = array('Illustrations: ', 'Illustrations :', 'Illustration: ', 'Illustration :', '[Illustration :', 'iLLLtsTRATioNs:',
             'luuusTRATiON :', "Ii.i.usTR.\TioNs:", 'NoTB: ', "iLLUSTR.'i.TiON :", "IllustratonS :", "Illusteation: ", "Illustr.\\tions: ",
-            "Illustr.^tions: ", "Illustr.itions: "); //NoTB: 91144
+            "Illustr.^tions: ", "Illustr.itions: ", "IixustraTIOns:", "luLisTRATiONs:", "Iluustratio.s:", "Ilh-stkations:",
+            "Illustratio.ns:", "Ilui'stration:"); //NoTB: 91144 and 91362_species
             foreach($exclude as $start_of_row) {
                 $start_of_row = str_replace(":", $separator, $start_of_row);
                 $len = strlen($start_of_row);
@@ -1486,6 +1493,14 @@ class ParseListTypeAPI_Memoirs
         $consonants = array("b", "c", "d", "f", "g", "h", "j", "k", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z");
         if(in_array(strtolower($letter), $consonants)) return true;
         return false;
+    }
+    function has_numbers($s)
+    {
+        if($result = preg_replace("/[^0-9]+/", "", $s)) return true; //get only numbers
+    }
+    function has_letters($s)
+    {
+        if($result = preg_replace("/[^a-zA-Z]+/", "", $s)) return true; //get only letter
     }
 }
 ?>
