@@ -29,7 +29,8 @@ class DwCA_Aggregator
                                   //start of other row_types: check for NOTICES or WARNINGS, add here those undefined URIs
                                   "http://rs.gbif.org/terms/1.0/description"        => "document",
                                   "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
-                                  "http://eol.org/schema/reference/reference"       => "reference");
+                                  "http://eol.org/schema/reference/reference"       => "reference",
+                                  "http://eol.org/schema/association"               => "association");
         /* copied template
         if(@$this->resource_id == 24) {
             $this->taxon_ids = array();
@@ -236,6 +237,7 @@ class DwCA_Aggregator
             elseif($what == "document")             $o = new \eol_schema\MediaResource();
             elseif($what == "occurrence")           $o = new \eol_schema\Occurrence_specific();
             elseif($what == "measurementorfact")    $o = new \eol_schema\MeasurementOrFact_specific();
+            elseif($what == "association")          $o = new \eol_schema\Association();
             
             if($this->DwCA_Type == 'wikipedia') {
                 if($what == "taxon") {
