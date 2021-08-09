@@ -926,6 +926,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("TESTICDLARIA", "TESTICULARIA", $row);
                 $row = str_ireplace("IJISTKIBUTion:", "Distribution:", $row);
                 $row = str_ireplace("TvPK ix^Cality;", "Type Locality:", $row);
+                $row = str_ireplace("DiSTRiBUTIo.v;", "Distribution:", $row);
             }
             
             if($this->pdf_id == '15427') { //start of row
