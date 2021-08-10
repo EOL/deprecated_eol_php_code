@@ -154,6 +154,12 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "91225", "resource_name":
 Aug 5 Thu
 parse_unstructured_text_memoirs.php _ '{"resource_id": "91362", "resource_name":"MotAES"}'          //7 --- host-pathogen list pattern
 parse_unstructured_text_memoirs.php _ '{"resource_id": "91362_species", "resource_name":"all_BHL"}' //7 --- "7a. Urocystis magica" --- same as 15428
+
+FUNGI.txt
+parse_unstructured_text_memoirs.php _ '{"resource_id": "15404", "resource_name":"all_BHL"}' //F1
+parse_unstructured_text_memoirs.php _ '{"resource_id": "15405", "resource_name":"all_BHL"}' //F2
+
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
@@ -290,8 +296,11 @@ $rec['91155'] = array('filename' => '91155.txt', 'lines_before_and_after_sciname
 $rec['15427'] = array('filename' => '15427.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: 155   Raw scinames: 183 */
 $rec['15428'] = array('filename' => '15428.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: 194   Raw scinames: 243 */
 $rec['91144'] = array('filename' => '91144.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*3 blocks: 196   Raw scinames: 246 */
-
 $rec['91362_species'] = array('filename' => '91362_species.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*3 blocks: 58 | Raw scinames: 62 */
+
+// === FUNGI.txt ===
+$rec['15404'] = array('filename' => '15404.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: 292   Raw scinames: 343 */
+$rec['15405'] = array('filename' => '15405.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: xxx   Raw scinames: xxx */
 
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;

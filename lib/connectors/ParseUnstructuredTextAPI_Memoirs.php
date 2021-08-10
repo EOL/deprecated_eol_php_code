@@ -13,7 +13,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
-        http://gnrd.globalnames.org/name_finder.json?text="Aeshna (Hesperaeschna) psilus"
+        http://gnrd.globalnames.org/name_finder.json?text=Lycogala flavofuscum* (Ehrenb.) Rost; Puckel, Jahrb. Nass.
         http://gnrd.globalnames.org/name_finder.json?text=Sclerla vertlclllata
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
@@ -37,13 +37,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Ustilago Schroeteriana";
+        $this->in_question = "Lycogala flavofuscum";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
-    {   // print_r($input); print_r(pathinfo($input['filename'])); exit("\nelix 1\n");
+    {   //print_r($input); print_r(pathinfo($input['filename'])); exit("\nelix 1\n");
+        $this->initialize_files_and_folders($input);
         /*Array(
             [filename] => SCtZ-0007.txt
             [lines_before_and_after_sciname] => 1
@@ -726,7 +727,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(stripos($row, " Subspecies") !== false) return true;  //string is found
         if(stripos($row, " sp.") !== false) return true;  //string is found
         if(stripos($row, " sp ") !== false) return true;  //string is found
-        if(stripos($row, " sp") !== false) return true;  //string is found
+        // if(stripos($row, " sp") !== false) return true;  //string is found --- cannot use this: e.g. "Ceratiomyxa sphaerosperma"
         if(stripos($row, " spp") !== false) return true;  //string is found
         if(stripos($row, " species") !== false) {  //string is found
             if(stripos($row, "new species") !== false) {}  //string is found
@@ -987,13 +988,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                      $row = str_replace("($inside_parenthesis)", "(".trim($inside_parenthesis).")", $row);
                  }
                  // */
+
+                 $words = array('Notes:', 'Note:', 'Note;', 'Notes;', "Notb:", "Notb :");
+                 foreach($words as $word) {
+                     $len = strlen($word);
+                     if(substr($row,0,$len) == $word)  $row = "</taxon>$row";
+                 }
+
                 
                  if($this->pdf_id == '91362_species') {
-                     $words = array('Notes:', 'Note:', 'Note;', 'Notes;', "Notb:");
-                     foreach($words as $word) {
-                         $len = strlen($word);
-                         if(substr($row,0,$len) == $word)  $row = "</taxon>$row";
-                     }
                      /*another case:
                      from: "15. Ustilago Zeae."
                      This must now be a STOP pattern --- a binomial
@@ -1049,7 +1052,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                             else            $row = "</taxon><taxon sciname='$sciname'> ".$row;
                         }
                         else { //a valid else statement, needed statement for sure
-                            // exit("\nshould not go here at all...[$sciname]\n[$row]\n");
+                            exit("\nA sign to investigate: [$sciname]\n[$row]\n");
                             if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
                             else            $row = "</taxon><taxon sciname='$row'> ".$row;
                         }
@@ -1347,7 +1350,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             */
             fwrite($WRITE, $row."\n");
             
-            /* End of document --- ignore everything that follows from this point */
+            /* ===== End of document --- ignore everything that follows from this point ===== */
             if($this->pdf_id == '118946') {
                 if($row == "</taxon>Bibliography") break;  //has "</taxon>" bec. it is used as stop pattern above
             }
@@ -1367,11 +1370,19 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             //     if($row == "Sphacelotheca Seymouriana, 994") break;
             // }
 
-
             if($this->pdf_id == '91362_species') {
                 if($row == "REVISED HOST-INDEX TO THE USTILAGINALES") break; 
             }
+            /* ===== FUNGI.txt ===== */
+            // if($this->pdf_id == '15404') { //only during dev --- debug only
+            //     if($row == "Illustration: Univ. Iowa Stud. Nat. Hist. 16: 154.") break;
+            //     if($row == "</taxon>Illustration: Univ. Iowa Stud. Nat. Hist. 16: 154.") break;
+            // }
             
+            // if($this->pdf_id == '15405') { //only during dev --- debug only
+            //     if($row == "Order MONOBLEPHARIDALES") break;
+            //     if($row == "</taxon>Order MONOBLEPHARIDALES") break;
+            // }
             
         }//end loop text
         fclose($WRITE);
@@ -1659,7 +1670,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $WRITE = fopen($with_blocks_file, "w"); //initialize
         $contents = file_get_contents($edited_file);
         if(preg_match_all("/<taxon (.*?)<\/taxon>/ims", $contents, $a)) {
-            // print_r($a[1]);
+            // print_r($a[1]); exit;
             foreach($a[1] as $block) {
                 
                 if($this->resource_name == "MotAES") {
@@ -1683,7 +1694,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     if(self::is_valid_block("<$block</sciname>")) { // echo $show;
                         fwrite($WRITE, $show);
                     }
-                    // else echo " -- not valid block"; //just debug
+                    // else echo " -- not valid block -- \n-----\n$block\n-----\n"; //just debug
                 }
             }
         }
@@ -1744,9 +1755,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     {
         if(preg_match("/<sciname=\'(.*?)\'/ims", $block, $a)) {
             $sciname = $a[1];
-            
+            // if(stripos($sciname, $this->in_question) !== false) {exit("\nxx[$sciname]mm11\n");}   //string is found  //good debug
             if(!self::has_species_string($sciname)) {
+                // if(stripos($sciname, $this->in_question) !== false) {exit("\nxx[$sciname]mm22\n");}   //string is found  //good debug
+                
                 if(self::is_sciname_we_want($sciname)) {
+                    // if(stripos($sciname, $this->in_question) !== false) {exit("\nxx[$sciname]mm33\n");}   //string is found  //good debug
 
                     $contents = Functions::remove_whitespace(trim(strip_tags($block)));
                     $word_count = self::get_number_of_words($contents);

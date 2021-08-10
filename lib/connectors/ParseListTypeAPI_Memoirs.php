@@ -649,6 +649,7 @@ class ParseListTypeAPI_Memoirs
     }
     function last_resort_to_clean_name($sciname_line, $WRITE_st) //this started from a copied template
     {
+        $sciname_line = str_replace("*", "", $sciname_line);
         // /* manual 
         if($this->pdf_id == '119520') {
             if($sciname_line == 'Hypolimnas (Hypolimnas) salmicis (Drury)') return 'Hypolimnas salmicis'; //GNRD incorrectly outputs wrong name
@@ -802,6 +803,11 @@ class ParseListTypeAPI_Memoirs
                     if($canonical = @$obj[0]->canonical->full) $rek['scientificName_author_cleaned'] = $canonical;
                     else                                       $rek['scientificName_author_cleaned'] = $rek['sciname GNRD'];
                 }
+                /*
+                if(stripos($orig, $this->in_question) !== false) { //good debug - to see what string passes here.
+                    print_r($rek); exit("\n[$sciname][$sciname_line]xx4a\n");
+                }
+                */
             }
             else { // --- not strict at all
                 $rek['scientificName_author_cleaned'] = $sciname;
@@ -812,7 +818,7 @@ class ParseListTypeAPI_Memoirs
             return false;
         }
         // ------------- end ------------- */
-        // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname_line]xx5\n"); //good debug - to see what string passes here.
+        // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx5\n"); //good debug - to see what string passes here.
         
         if($ret = @$rek['scientificName_author_cleaned']) {
             $ret = str_replace(" ,", ",", $ret);
@@ -823,6 +829,7 @@ class ParseListTypeAPI_Memoirs
             $words = explode(" ", $ret);
             if(substr($words[0],-1) == ".") return false; //first word, last char must not be period e.g. "G. morhua"
             // */
+            // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$ret]xx6\n"); //good debug - to see what string passes here.
             return $ret;
         }
         return $orig;
@@ -1501,6 +1508,30 @@ class ParseListTypeAPI_Memoirs
     function has_letters($s)
     {
         if($result = preg_replace("/[^a-zA-Z]+/", "", $s)) return true; //get only letter
+    }
+    function initialize_files_and_folders($input)
+    {   //print_r($input); exit;
+        /*Array(
+            [filename] => 15405.txt
+            [lines_before_and_after_sciname] => 2
+            [doc] => BHL
+            [epub_output_txts_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/BHL/15405/
+        )*/
+        if(!is_dir($input['epub_output_txts_dir'])) mkdir($input['epub_output_txts_dir']);
+        $file = $input['epub_output_txts_dir'].$input['filename'];
+        if(!file_exists($file)) self::download_txt_file($file, $input);
+    }
+    private function download_txt_file($destination, $input)
+    {   //exit("\n[$destination]\n[$doc]\n");
+        $this->paths['BHL'] = "https://www.biodiversitylibrary.org/itemtext/";
+        $this->paths['xxx'] = "https://yyy/itemtext/";
+        $doc = $input['doc']; $filename = $input['filename']; 
+        $source = $this->paths[$doc].str_replace(".txt", "", $filename);
+        $cmd = "wget -nc ".$source." -O $destination"; $cmd .= " 2>&1";
+        echo "\nDownloading...[$cmd]\n";
+        $output = shell_exec($cmd);
+        if(file_exists($destination)) echo "\n".$destination." downloaded successfully from $doc.\n";
+        else                          exit("\nERROR: can not download ".$source."\n[$output]\n");
     }
 }
 ?>
