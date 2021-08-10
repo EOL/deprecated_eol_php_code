@@ -1082,6 +1082,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($row == "INDEX")             $row = "</taxon>$row";
             if($row == "ACKNOWLEDGMENTS")   $row = "</taxon>$row"; //118237.txt
             if($row == "Pseudomopoid Complex")  $row = "</taxon>$row";
+            if(strtolower($row) == "doubtful and excluded species")  $row = "</taxon>$row";
+            
             if(substr($row,0,4) == "Key ")      $row = "</taxon>$row";
             if(substr(strtoupper($row),0,6) == "TABLE ")    $row = "</taxon>$row";
             
