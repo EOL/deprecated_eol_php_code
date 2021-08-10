@@ -17,7 +17,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         http://gnrd.globalnames.org/name_finder.json?text=Sclerla vertlclllata
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
-        https://parser.globalnames.org/api/v1/Seligeria pusiua (Ehrh.) B.S.G. Bryol
+        https://parser.globalnames.org/api/v1/PODOSTROMA p. Karst. Hedwigia 31 : 294. 1892
         
         not used:
         https://parser.globalnames.org/?q=https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx...
@@ -1406,11 +1406,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]aa11\n");}   //string is found  //good debug
         if(stripos($row, " p. ") !== false) {   //string is found
             $obj = $this->run_gnparser($row);
-            if($canonical = @$obj[0]->canonical->full) {}
-            else {
-                print_r($obj); exit("\nShould not go here...\n$row\n");
+            if($canonical = @$obj[0]->canonical->full) {
+                $row = trim($canonical." ".@$obj[0]->authorship->normalized);
             }
-            $row = trim($canonical." ".@$obj[0]->authorship->normalized);
+            else {
+                print_r($obj); echo("\nShould not go here...Investigate:\n$row\n");
+            }
         }
         $row = self::clean_sciname_here2($row);
         return $row;
