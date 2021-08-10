@@ -1528,7 +1528,7 @@ class ParseListTypeAPI_Memoirs
         $doc = $input['doc']; $filename = $input['filename']; 
         $source = $this->paths[$doc].str_replace(".txt", "", $filename);
         $cmd = "wget -nc --no-check-certificate ".$source." -O $destination"; $cmd .= " 2>&1";
-        echo "\nDownloading...[$cmd]\n";
+        echo "\nDownloading...[$cmd]\n"; exit;
         $output = shell_exec($cmd); sleep(60);
         if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully from $doc.\n";
         else                                                    exit("\nERROR: can not download ".$source."\n[$output]\n");
