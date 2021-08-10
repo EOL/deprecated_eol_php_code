@@ -106,6 +106,13 @@ MoftheAES_resources	Mon 2021-08-09 11:10:28 AM	{"MoF.tab":12098, "media.tab":188
 91362_resource	Mon 2021-08-09 06:49:48 AM	    {"assoc.tab":486, "MoF.tab":182, "media_resource.tab":56, "occurrence_specific.tab":806, "taxon.tab":684, "time_elapsed":{"sec":11.54, "min":0.19, "hr":0}}
 
 NorthAmericanFlora	Mon 2021-08-09 08:23:18 AM	{"association.tab":486, "MoF.tab":3199, "media.tab":770, "occurrence.tab":3823, "taxon.tab":1376, "time_elapsed":{"sec":37.56, "min":0.63, "hr":0.01}}
+
+FUNGI list
+15404	Tue 2021-08-10 08:28:16 AM	    {                "media_resource.tab":295,                                 "taxon.tab":289, "time_elapsed":{"sec":0.53, "min":0.01, "hr":0}}
+15404_ENV	Tue 2021-08-10 08:30:34 AM	{"MoF.tab":1368, "media_resource.tab":295, "occurrence_specific.tab":1368, "taxon.tab":289, "time_elapsed":{"sec":18.79, "min":0.31, "hr":0.01}}
+15405	Tue 2021-08-10 08:30:46 AM	    {                "media_resource.tab":105,                                 "taxon.tab":105, "time_elapsed":{"sec":0.4, "min":0.01, "hr":0}}
+15405_ENV	Tue 2021-08-10 08:32:59 AM	{"MoF.tab":402,  "media_resource.tab":105, "occurrence_specific.tab":402,  "taxon.tab":105, "time_elapsed":{"sec":13.38, "min":0.22, "hr":0}}
+
 ------------------------------------------------------------
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
@@ -159,6 +166,7 @@ FUNGI.txt
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15404", "resource_name":"all_BHL"}' //F1
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15405", "resource_name":"all_BHL"}' //F2
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15406", "resource_name":"all_BHL"}' //F3
+parse_unstructured_text_memoirs.php _ '{"resource_id": "15407", "resource_name":"all_BHL", "group":"Fungi"}' //F3
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -171,6 +179,8 @@ $params['jenkins_or_cron'] = @$argv[1]; //not needed here
 $param                     = json_decode(@$argv[2], true);
 $pdf_id = $param['resource_id'];
 $resource_name = $param['resource_name'];
+$group = @$param['group'];
+
 $func = new ParseUnstructuredTextAPI_Memoirs($resource_name);
 
 /*
@@ -302,6 +312,9 @@ $rec['91362_species'] = array('filename' => '91362_species.txt', 'lines_before_a
 $rec['15404'] = array('filename' => '15404.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: 292   Raw scinames: 343 */
 $rec['15405'] = array('filename' => '15405.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: xxx   Raw scinames: xxx */
 $rec['15406'] = array('filename' => '15406.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: xxx   Raw scinames: xxx */
+if($group == 'Fungi') {
+    $rec[$pdf_id] = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL');
+}
 
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;
