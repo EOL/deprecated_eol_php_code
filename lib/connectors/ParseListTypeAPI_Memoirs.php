@@ -1524,16 +1524,28 @@ class ParseListTypeAPI_Memoirs
     }
     private function download_txt_file($destination, $input)
     {   //exit("\n[$destination]\n[$doc]\n");
-        $this->paths['BHL'] = "https://www.biodiversitylibrary.org/itemtext/";
-        $this->paths['xxx'] = "https://yyy/itemtext/";
+        $this->paths['BHL']['txt'] = "https://www.biodiversitylibrary.org/itemtext/";
+        $this->paths['BHL']['pdf'] = "https://www.biodiversitylibrary.org/itempdf/";
+
         $doc = $input['doc']; $filename = $input['filename']; 
-        $source = $this->paths[$doc].str_replace(".txt", "", $filename);
+        $source = $this->paths[$doc]['txt'].str_replace(".txt", "", $filename);
         // $cmd = "wget -nc --no-check-certificate ".$source." -O $destination"; $cmd .= " 2>&1"; --- no overwrite
         $cmd = "wget --no-check-certificate ".$source." -O $destination"; $cmd .= " 2>&1";
         echo "\nDownloading...[$cmd]\n";
-        $output = shell_exec($cmd); sleep(30);
+        $output = shell_exec($cmd); sleep(10);
         if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully from $doc.\n";
         else                                                    exit("\nERROR: can not download ".$source."\n[$output]\n");
+        
+        if(!Functions::is_production()) {
+            $destination = str_replace(".txt", ".pdf", $destination);
+            $source = $this->paths[$doc]['pdf'].str_replace(".txt", "", $filename);
+            // $cmd = "wget -nc --no-check-certificate ".$source." -O $destination"; $cmd .= " 2>&1"; --- no overwrite
+            $cmd = "wget --no-check-certificate ".$source." -O $destination"; $cmd .= " 2>&1";
+            echo "\nDownloading...[$cmd]\n";
+            $output = shell_exec($cmd); //sleep(30);
+        }
+        
+        
     }
 }
 ?>

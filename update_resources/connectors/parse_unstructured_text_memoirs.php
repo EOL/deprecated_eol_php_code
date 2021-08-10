@@ -158,7 +158,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "91362_species", "resourc
 FUNGI.txt
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15404", "resource_name":"all_BHL"}' //F1
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15405", "resource_name":"all_BHL"}' //F2
-
+parse_unstructured_text_memoirs.php _ '{"resource_id": "15406", "resource_name":"all_BHL"}' //F3
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -301,6 +301,7 @@ $rec['91362_species'] = array('filename' => '91362_species.txt', 'lines_before_a
 // === FUNGI.txt ===
 $rec['15404'] = array('filename' => '15404.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: 292   Raw scinames: 343 */
 $rec['15405'] = array('filename' => '15405.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: xxx   Raw scinames: xxx */
+$rec['15406'] = array('filename' => '15406.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: xxx   Raw scinames: xxx */
 
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;
