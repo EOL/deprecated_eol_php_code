@@ -1520,7 +1520,10 @@ class ParseListTypeAPI_Memoirs
         )*/
         if(!is_dir($input['epub_output_txts_dir'])) mkdir($input['epub_output_txts_dir']);
         $file = $input['epub_output_txts_dir'].$input['filename'];
-        if(!file_exists($file) && !filesize($file)) self::download_txt_file($file, $input);
+        if(!file_exists($file)) self::download_txt_file($file, $input);
+        else {
+            if(!filesize($file)) self::download_txt_file($file, $input);
+        }
     }
     private function download_txt_file($destination, $input)
     {   //exit("\n[$destination]\n[$doc]\n");
