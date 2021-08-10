@@ -1529,7 +1529,7 @@ class ParseListTypeAPI_Memoirs
         $source = $this->paths[$doc].str_replace(".txt", "", $filename);
         $cmd = "wget -nc ".$source." -O $destination"; $cmd .= " 2>&1";
         echo "\nDownloading...[$cmd]\n";
-        $output = shell_exec($cmd);
+        $output = shell_exec($cmd); sleep(10);
         if(file_exists($destination)) echo "\n".$destination." downloaded successfully from $doc.\n";
         else                          exit("\nERROR: can not download ".$source."\n[$output]\n");
     }
