@@ -1519,7 +1519,7 @@ class ParseListTypeAPI_Memoirs
         )*/
         if(!is_dir($input['epub_output_txts_dir'])) mkdir($input['epub_output_txts_dir']);
         $file = $input['epub_output_txts_dir'].$input['filename'];
-        if(!file_exists($file)) self::download_txt_file($file, $input);
+        if(!file_exists($file) && filesize($file)) self::download_txt_file($file, $input);
     }
     private function download_txt_file($destination, $input)
     {   //exit("\n[$destination]\n[$doc]\n");
@@ -1527,8 +1527,9 @@ class ParseListTypeAPI_Memoirs
         $this->paths['xxx'] = "https://yyy/itemtext/";
         $doc = $input['doc']; $filename = $input['filename']; 
         $source = $this->paths[$doc].str_replace(".txt", "", $filename);
-        $cmd = "wget -nc --no-check-certificate ".$source." -O $destination"; $cmd .= " 2>&1";
-        echo "\nDownloading...[$cmd]\n"; exit;
+        // $cmd = "wget -nc --no-check-certificate ".$source." -O $destination"; $cmd .= " 2>&1"; --- no overwrite
+        $cmd = "wget --no-check-certificate ".$source." -O $destination"; $cmd .= " 2>&1";
+        echo "\nDownloading...[$cmd]\n";
         $output = shell_exec($cmd); sleep(60);
         if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully from $doc.\n";
         else                                                    exit("\nERROR: can not download ".$source."\n[$output]\n");
