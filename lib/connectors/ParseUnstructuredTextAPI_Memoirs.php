@@ -892,6 +892,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->pdf_id == '15427') $row = str_replace("ANEMIA' Sw.", "ANEMIA Sw.", $row);
             if($this->pdf_id == '15427') $row = str_replace("Botrychium calif ornicum", "Botrychium californicum", $row);
 
+            if($this->pdf_id == '15404') {
+                $row = str_ireplace("Jtsrefeldia maxima", "Brefeldia maxima", $row);
+                $row = str_ireplace("Comatrieha rubens", "Comatricha rubens", $row);
+                $row = str_ireplace("Didymium listen", "Didymium Listeri", $row);
+            }
+            
             if($this->pdf_id == '91225') {
                 $row = str_ireplace("Agoseris hlrsuta", "Agoseris hirsuta", $row);
                 $row = str_ireplace("Abies ama bills", "Abies amabilis", $row);
