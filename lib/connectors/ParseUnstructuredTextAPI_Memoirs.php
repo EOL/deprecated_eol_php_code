@@ -1401,6 +1401,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             // */
             
+            // if($this->pdf_id == '15422') { //only during dev --- debug only
+            //     if($row == "Plate l.f.8.") break;
+            // }
+            
         }//end loop text
         fclose($WRITE);
         fclose($WRITE_st);

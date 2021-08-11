@@ -1425,7 +1425,8 @@ class ParseListTypeAPI_Memoirs
             'luuusTRATiON :', "Ii.i.usTR.\TioNs:", 'NoTB: ', "iLLUSTR.'i.TiON :", "IllustratonS :", "Illusteation: ", "Illustr.\\tions: ",
             "Illustr.^tions: ", "Illustr.itions: ", "IixustraTIOns:", "luLisTRATiONs:", "Iluustratio.s:", "Ilh-stkations:",
             "Illustratio.ns:", "Ilui'stration:", "Illustrations-", "M7 Illustrations:", "Illustr ations :", "US Illustrations:",
-            "Illustr ation :", "Ili^ustratxons :", "BxsiccATi:", "ILLXTSTRATION r", "Ii,i,ustrations:", "FllustIItions :"); //NoTB: 91144 and 91362_species
+            "Illustr ation :", "Ili^ustratxons :", "BxsiccATi:", "ILLXTSTRATION r", "Ii,i,ustrations:", "FllustIItions :",
+            "IivLUSTRATiONS"); //NoTB: 91144 and 91362_species
             foreach($exclude as $start_of_row) {
                 $start_of_row = str_replace(":", $separator, $start_of_row);
                 $len = strlen($start_of_row);
@@ -1550,6 +1551,7 @@ class ParseListTypeAPI_Memoirs
             $output = shell_exec($cmd); //sleep(30);
             if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully from $doc.\n";
             else                                                    exit("\nERROR: can not download ".$source."\n[$output]\n");
+            exit("\n-Enough here...-\n");
         }
     }
 }

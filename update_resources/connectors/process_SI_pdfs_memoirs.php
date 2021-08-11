@@ -50,8 +50,11 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "91225", "resource_name":"6th BHL
 process_SI_pdfs_memoirs.php _ '{"resource_id": "91362", "resource_name":"7th BHL", "doc": ""}' //host-pathogen list pattern
 process_SI_pdfs_memoirs.php _ '{"resource_id": "91362_species", "resource_name":"7th BHL", "doc": "BHL"}' //species sections for 91362
 
-process_SI_pdfs_memoirs.php _ '{"resource_id": "15404", "resource_name":"Fungi.txt", "doc": "BHL"}'
-
+BHL Fungi:
+process_SI_pdfs_memoirs.php _ '{"resource_id": "15404",          "resource_name":"nth BHL", "doc": "BHL"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "'$resource_ID'", "resource_name":"nth BHL", "doc": "BHL"}'
+BHL Plants:
+process_SI_pdfs_memoirs.php _ '{"resource_id": "15422",          "resource_name":"nth BHL", "doc": "BHL"}'
 
 
 
