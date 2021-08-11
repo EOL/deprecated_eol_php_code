@@ -1402,7 +1402,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         return $edited_file;
     }
     private function format_row_to_sciname_v2($row) //Amastus aphraates Schaus, 1927, p. 74.
-    {
+    {   $showYN = false;
         $row = self::remove_first_word_if_it_has_number($row);
         // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]aa00\n");}   //string is found  //good debug
         $row = self::clean_sciname_here($row);
@@ -1413,10 +1413,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = trim($canonical." ".@$obj[0]->authorship->normalized);
             }
             else {
-                print_r($obj); echo("\nShould not go here...Investigate:\n$row\n");
+                print_r($obj); echo("\n-----\nShould not go here...Investigate:\n$row\n"); $showYN = true;
             }
         }
         $row = self::clean_sciname_here2($row);
+        if($showYN) echo "\nEnds up with value: [$row]\n-----\n";
         return $row;
     }
     function clean_sciname_here($name)
