@@ -1443,7 +1443,6 @@ class ParseListTypeAPI_Memoirs
         }
         return false;
     }
-
     private function xlx_to_xix($str)
     {   if(strpos($str, "l") !== false) { //string is found  //good debug
             $pos = strpos($str, "l");

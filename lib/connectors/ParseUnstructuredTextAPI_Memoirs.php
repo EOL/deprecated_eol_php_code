@@ -1393,6 +1393,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             //     if($row == "</taxon>Order MONOBLEPHARIDALES") break;
             // }
             
+            // /* used in Fungi list
+            if($this->resource_name == 'all_BHL') {
+                if(strcmp($row, "CORRECTIONS") == 0) break; //$var1 is equal to $var2 in a case sensitive string comparison
+            }
+            // */
+            
         }//end loop text
         fclose($WRITE);
         fclose($WRITE_st);
