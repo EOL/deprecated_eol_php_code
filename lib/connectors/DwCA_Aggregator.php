@@ -253,7 +253,17 @@ class DwCA_Aggregator
                     else continue;
                 }
             }
-
+            
+            // /* Investigation only
+            if($what == "taxon") {
+                if($rec['http://rs.tdwg.org/dwc/terms/scientificName'] == "Plicatura faginea") {
+                    echo "\n--- START Investigate ---\n";
+                    print_r($rec); print_r($meta);
+                    echo "\n--- END Investigate ---\n";
+                }
+            }
+            // */
+            
             //================== start attributions =================== https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66290&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66290
             /* Attributions:    You can use the two output columns for bibliographicCitation and FurtherInformationURL in the media file, 
                                 and for bibliographicCitation and source in the MoF file. */
