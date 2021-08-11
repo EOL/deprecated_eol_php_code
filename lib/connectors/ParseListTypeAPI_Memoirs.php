@@ -800,8 +800,11 @@ class ParseListTypeAPI_Memoirs
                 if(!@$rek['scientificName_author_cleaned']) $rek['scientificName_author_cleaned'] = $rek['sciname GNRD']; //reconcile gnparser vs GNRD
                 */
                 if($obj = self::run_gnparser($sciname_line)) {
-                    if($canonical = @$obj[0]->canonical->full) $rek['scientificName_author_cleaned'] = $canonical;
-                    else                                       $rek['scientificName_author_cleaned'] = $rek['sciname GNRD'];
+                    $canonical = @$obj[0]->canonical->full;
+                    if($canonical && self::is_2or_more_words($canonical)) {
+                        $rek['scientificName_author_cleaned'] = $canonical;
+                    }
+                    else $rek['scientificName_author_cleaned'] = $rek['sciname GNRD'];
                 }
                 /*
                 if(stripos($orig, $this->in_question) !== false) { //good debug - to see what string passes here.
@@ -1546,9 +1549,9 @@ class ParseListTypeAPI_Memoirs
             $cmd = "wget --no-check-certificate ".$source." -O $destination"; $cmd .= " 2>&1";
             echo "\nDownloading...[$cmd]\n";
             $output = shell_exec($cmd); //sleep(30);
+            if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully from $doc.\n";
+            else                                                    exit("\nERROR: can not download ".$source."\n[$output]\n");
         }
-        
-        
     }
 }
 ?>

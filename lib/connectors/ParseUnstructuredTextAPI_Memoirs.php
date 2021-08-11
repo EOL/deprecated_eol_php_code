@@ -13,11 +13,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
-        http://gnrd.globalnames.org/name_finder.json?text=Lycogala flavofuscum* (Ehrenb.) Rost; Puckel, Jahrb. Nass.
-        http://gnrd.globalnames.org/name_finder.json?text=Sclerla vertlclllata
+        http://gnrd.globalnames.org/name_finder.json?text=Melanoleuca collybiiformis. Murrill, Mycologia 5 : 216. 1913
+        http://gnrd.globalnames.org/name_finder.json?text=Gadus
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
-        https://parser.globalnames.org/api/v1/PODOSTROMA p. Karst. Hedwigia 31 : 294. 1892
+        https://parser.globalnames.org/api/v1/Melanoleuca collybiiformis. Murrill, Mycologia 5 : 216. 1913
+        
         
         not used:
         https://parser.globalnames.org/?q=https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx...
@@ -1058,7 +1059,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                             else            $row = "</taxon><taxon sciname='$sciname'> ".$row;
                         }
                         else { //a valid else statement, needed statement for sure
-                            exit("\nA sign to investigate: [$sciname]\n[$row]\n");
+                            exit("\n-----\nA sign to investigate: [$sciname]\n[$row]\n-----\n");
                             if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
                             else            $row = "</taxon><taxon sciname='$row'> ".$row;
                         }

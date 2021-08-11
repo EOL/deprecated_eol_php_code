@@ -166,7 +166,7 @@ FUNGI.txt
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15404", "resource_name":"all_BHL"}' //F1
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15405", "resource_name":"all_BHL"}' //F2
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15406", "resource_name":"all_BHL"}' //F3
-parse_unstructured_text_memoirs.php _ '{"resource_id": "15407", "resource_name":"all_BHL", "group":"Fungi"}' //F3
+parse_unstructured_text_memoirs.php _ '{"resource_id": "15407", "resource_name":"all_BHL", "group":"Fungi"}'
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
