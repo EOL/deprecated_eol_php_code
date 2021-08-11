@@ -54,15 +54,16 @@ class DwCA_Aggregator
     function combine_MoftheAES_DwCAs($resource_ids)
     {
         if($val = self::get_attributions()) $this->attributions = $val;
-        $preferred_rowtypes = false;
+        $preferred_rowtypes = false; $ret = array();
         foreach($resource_ids as $resource_id) { $this->resource_id_current = $resource_id; echo "\nProcessing resource_id: [$resource_id]\n";
             if(in_array($resource_id, array("91362", "91362_resource"))) $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'.tar.gz';
             else                                                         $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'_ENV.tar.gz';
             if(file_exists($dwca_file)) {
                 self::convert_archive($preferred_rowtypes, $dwca_file);
             }
-            else echo "\nDwCA file does not exist [$dwca_file]\n";
+            else $ret['DwCA file does not exist'][$dwca_file] = '';
         }
+        if($ret) print_r($ret);
         $this->archive_builder->finalize(TRUE);
     }
     function combine_DwCAs($langs, $preferred_rowtypes = array())
