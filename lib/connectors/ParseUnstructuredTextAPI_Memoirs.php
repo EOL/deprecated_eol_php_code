@@ -1084,6 +1084,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($row == "ACKNOWLEDGMENTS")   $row = "</taxon>$row"; //118237.txt
             if($row == "Pseudomopoid Complex")  $row = "</taxon>$row";
             if(strtolower($row) == "doubtful and excluded species")  $row = "</taxon>$row";
+            if(strtolower($row) == "doubtful species")  $row = "</taxon>$row";
             if(strcmp($row, "CORRECTIONS") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
             if(substr($row,0,4) == "Key ")      $row = "</taxon>$row";
             if(substr(strtoupper($row),0,6) == "TABLE ")    $row = "</taxon>$row";
@@ -1396,6 +1397,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // /* used in Fungi list
             if($this->resource_name == 'all_BHL') {
                 if(strcmp($row, "CORRECTIONS") == 0) break; //$var1 is equal to $var2 in a case sensitive string comparison
+                if(strcmp($row, "</taxon>CORRECTIONS") == 0) break; //$var1 is equal to $var2 in a case sensitive string comparison
             }
             // */
             
