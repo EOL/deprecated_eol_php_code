@@ -317,6 +317,8 @@ $rec['15406'] = array('filename' => '15406.txt', 'lines_before_and_after_sciname
 if(in_array($group, array('Fungi', 'Plants'))) {
     $rec[$pdf_id] = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL');
 }
+$rec['15422'] = array('filename' => '15422.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*3 blocks: xxx   Raw scinames: xxx */
+
 
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;

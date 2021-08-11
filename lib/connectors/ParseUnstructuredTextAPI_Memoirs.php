@@ -1398,8 +1398,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->resource_name == 'all_BHL') {
                 if(strcmp($row, "CORRECTIONS") == 0) break; //$var1 is equal to $var2 in a case sensitive string comparison
                 if(strcmp($row, "</taxon>CORRECTIONS") == 0) break; //$var1 is equal to $var2 in a case sensitive string comparison
+                // ---- Plan list ----
+                if($row == "extra-limital species") break; //15422
             }
             // */
+
+            
             
             // if($this->pdf_id == '15422') { //only during dev --- debug only
             //     if($row == "Plate l.f.8.") break;
