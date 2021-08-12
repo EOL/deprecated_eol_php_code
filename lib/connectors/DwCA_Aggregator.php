@@ -336,7 +336,10 @@ class DwCA_Aggregator
                     [citation] => Cresson, E.T. 1916. The Cresson Types of Hymenoptera. Memoirs of the American Entomological Society vol. 1. Philadelphia, USA
                     [source] => https://www.biodiversitylibrary.org/item/30355
                 )*/
-                $ret[$rek['document number']] = array("citation" => $rek['citation'], "source" => $rek['source']);
+                if($val = @$rek['source']) $source = $val;
+                elseif($val = @$rek['URL']) $source = $val;
+                else exit("\nNo field for source or URL.\n");
+                $ret[$rek['document number']] = array("citation" => $rek['citation'], "source" => $source);
             }
             if($val = @$ret['91362']) $ret['91362_resource'] = $val;
             return $ret;
