@@ -391,7 +391,7 @@ class Pensoft2EOLAPI
                     "120602_ENV", "119187_ENV", "118978_ENV", "118941_ENV", "119520_ENV", "119188_ENV",
                     "15423_ENV", "91155_ENV"))) $this->ontologies = "envo,eol-geonames";
                 elseif($this->param['resource'] == 'all_BHL') $this->ontologies = "envo,eol-geonames";
-                if($this->param['group'] == 'BHL_plants') $this->ontologies = "envo,eol-geonames,growth"; //overwrites prev value
+                if(@$this->param['group'] == 'BHL_plants') $this->ontologies = "envo,eol-geonames,growth"; //overwrites prev value
                 // exit("\n[$this->ontologies]\n");
                 // ---------------------- end customize ----------------------*/
                 

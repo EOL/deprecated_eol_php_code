@@ -309,7 +309,11 @@ class DwCA_Aggregator
         // $source["MoftheAES_resources"] = "http://localhost/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution.txt";
         $source["MoftheAES_resources"] = "/Volumes/AKiTiO4/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution_plus_four.txt";
         $source["MoftheAES_resources"] = "/extra/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution_plus_four.txt";
-        $source["xxx"] = "yyy.txt";
+
+        $source["NorthAmericanFlora"] = "/extra/other_files/Smithsonian/BHL/from_Jen/FNA_attribution_mapping.txt";          //7 documents
+        $source["NorthAmericanFlora_Fungi"] = "/extra/other_files/Smithsonian/BHL/from_Jen/FNA_attribution_mapping.txt";    //Fungi list
+        $source["NorthAmericanFlora_Plants"] = "/extra/other_files/Smithsonian/BHL/from_Jen/FNA_attribution_mapping.txt";   //Plants list
+        
         $i = 0;
         if($source = @$source[$this->resource_id]) {
             foreach(new FileIterator($source) as $line => $row) { $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
