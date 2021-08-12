@@ -338,6 +338,7 @@ class DwCA_Aggregator
                 )*/
                 $ret[$rek['document number']] = array("citation" => $rek['citation'], "source" => $rek['source']);
             }
+            if($val = @$ret['91362']) $ret['91362_resource'] = $val;
             return $ret;
         }
         else echo "\nNo attribution info yet [$this->resource_id]\n";
