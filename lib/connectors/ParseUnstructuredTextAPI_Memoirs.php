@@ -270,8 +270,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     {
         $rows2 = array_map('trim', $rows2);
         if(!$rows2[0] && !$rows2[2] && !$rows2[3]) {
-            if(substr($rows2[1],0,13) == "Distribution:") {
-                print_r($rows2); exit;
+            if(substr($rows2[1],0,13) == "Distribution:") { // print_r($rows2); exit;
                 $this->Distribution_Stop_pattern[$ctr-1] = '';
             }
         }
