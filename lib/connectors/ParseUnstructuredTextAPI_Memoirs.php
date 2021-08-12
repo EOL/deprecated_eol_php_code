@@ -256,8 +256,27 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
             $rows[] = $row;
             $rows = self::process_magic_no($this->magic_no, $rows, $ctr);
+            
+            // /* new routine
+            if($this->resource_name == 'all_BHL') {
+                $rows2[] = $row;
+                if(count($rows2) == 4) $rows2 = self::possible_Distribution_Stop_pattern($rows2, $ctr);
+            }
+            // */
         }
         // */
+    }
+    private function possible_Distribution_Stop_pattern($rows2, $ctr)
+    {
+        $rows2 = array_map('trim', $rows2);
+        if(!$rows2[0] && !$rows2[2] && !$rows2[3]) {
+            if(substr($rows2[1],0,13) == "Distribution:") {
+                print_r($rows2); exit;
+                $this->Distribution_Stop_pattern[$ctr-1] = '';
+            }
+        }
+        array_shift($rows2); //remove 1st element, once it reaches 5 rows.
+        return $rows2;
     }
     private function process_magic_no($magic_no, $rows, $ctr)
     {
@@ -939,6 +958,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '15416') {
                 $row = str_ireplace("Plicatura -^ttad^lupensis", "Plicatura obliqua", $row);
             }
+            elseif($this->pdf_id == '15421') {
+                $row = str_ireplace("Cortinarius bnmneofulvus", "Cortinarius brunneofulvus", $row);
+                $row = str_ireplace("Cortinanus jubennus", "Cortinarius juberinus", $row);
+            }
+            
             
             if($this->pdf_id == '15427') { //start of row
                 // $words = array("ANEMIA' sw.");
@@ -1044,6 +1068,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
             if(!$row) $count_of_blank_rows++;
             else      $count_of_blank_rows = 0;
+            
+            if(isset($this->Distribution_Stop_pattern[$i])) $row = "</taxon>$row";
             
             if(isset($this->lines_to_tag[$i])) { $hits++;
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx00\n");}   //string is found  //good debug
