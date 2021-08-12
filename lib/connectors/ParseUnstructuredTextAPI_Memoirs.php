@@ -961,6 +961,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("Cortinarius bnmneofulvus", "Cortinarius brunneofulvus", $row);
                 $row = str_ireplace("Cortinanus jubennus", "Cortinarius juberinus", $row);
             }
+            elseif($this->pdf_id == '91357') {
+                $row = str_ireplace("StipapinetorumM. e. Jones", "Stipa pinetorum M. E. Jones", $row);
+            }
+            elseif($this->pdf_id == '15429') {
+                $row = str_ireplace('Paspalum cla"9yiliferuni', "Paspalum clavuliferum", $row);
+            }
             
             
             if($this->pdf_id == '15427') { //start of row
@@ -1573,6 +1579,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(is_numeric($row) && count($words) == 1) continue; //entire row is numeric, mostly these are page numbers.
             }
 
+            if($this->pdf_id == '15424') if(stripos($row, "DICRANAC") !== false) continue; //string is found
+            
             if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
                                                                                      '118950', '118941'))) { //BHL-like
                 
