@@ -115,6 +115,33 @@ FUNGI list
 
 NorthAmericanFlora_Fungi	Wed 2021-08-11 11:29:24 AM	{"MoF.tab":17250, "media_resource.tab":4498, "occurrence_specific.tab":17250, "taxon.tab":4491, "time_elapsed":{"sec":107.91, "min":1.8, "hr":0.03}}
 NorthAmericanFlora_Fungi	Thu 2021-08-12 05:42:52 AM	{"MoF.tab":17228, "media_resource.tab":4498, "occurrence_specific.tab":17228, "taxon.tab":4491, "time_elapsed":{"sec":108.91, "min":1.82, "hr":0.03}}
+
+Plant list:
+
+15422	Thu 2021-08-12 09:07:35 AM	{"media_resource.tab":280, "taxon.tab":279, "time_elapsed":{"sec":0.66, "min":0.01, "hr":0}}
+15422_ENV	Thu 2021-08-12 09:15:31 AM	{"measurement_or_fact_specific.tab":1131, "media_resource.tab":280, "occurrence_specific.tab":1131, "taxon.tab":279, "time_elapsed":{"sec":355.76, "min":5.93, "hr":0.1}}
+
+15424	Thu 2021-08-12 09:09:04 AM	{"media_resource.tab":150, "taxon.tab":150, "time_elapsed":{"sec":0.47, "min":0.01, "hr":0}}
+15424_ENV	Thu 2021-08-12 09:12:30 AM	{"measurement_or_fact_specific.tab":598, "media_resource.tab":150, "occurrence_specific.tab":598, "taxon.tab":150, "time_elapsed":{"sec":85.18, "min":1.42, "hr":0.02}}
+
+15421	Thu 2021-08-12 09:14:25 AM	{"media_resource.tab":187, "taxon.tab":187, "time_elapsed":{"sec":0.49, "min":0.01, "hr":0}}
+15421_ENV	Thu 2021-08-12 09:16:42 AM	{"measurement_or_fact_specific.tab":647, "media_resource.tab":187, "occurrence_specific.tab":647, "taxon.tab":187, "time_elapsed":{"sec":16.93, "min":0.28, "hr":0}}
+
+15425	Thu 2021-08-12 09:12:34 AM	{"media_resource.tab":59, "taxon.tab":59, "time_elapsed":{"sec":0.43, "min":0.01, "hr":0}}
+15425_ENV	Thu 2021-08-12 09:15:13 AM	{"measurement_or_fact_specific.tab":235, "media_resource.tab":59, "occurrence_specific.tab":235, "taxon.tab":59, "time_elapsed":{"sec":39.73, "min":0.66, "hr":0.01}}
+
+15426	Thu 2021-08-12 09:15:37 AM	{"media_resource.tab":101, "taxon.tab":101, "time_elapsed":{"sec":0.41, "min":0.01, "hr":0}}
+15426_ENV	Thu 2021-08-12 09:18:22 AM	{"measurement_or_fact_specific.tab":446, "media_resource.tab":101, "occurrence_specific.tab":446, "taxon.tab":101, "time_elapsed":{"sec":44.21, "min":0.74, "hr":0.01}}
+
+15430	Thu 2021-08-12 09:15:41 AM	{"media_resource.tab":204, "taxon.tab":204, "time_elapsed":{"sec":0.52, "min":0.01, "hr":0}}
+15430_ENV	Thu 2021-08-12 09:17:59 AM	{"measurement_or_fact_specific.tab":820, "media_resource.tab":204, "occurrence_specific.tab":820, "taxon.tab":204, "time_elapsed":{"sec":18.4, "min":0.31, "hr":0.01}}
+
+15429	Thu 2021-08-12 09:18:37 AM	{"media_resource.tab":250, "taxon.tab":250, "time_elapsed":{"sec":0.51, "min":0.01, "hr":0}}
+15429_ENV	Thu 2021-08-12 09:21:06 AM	{"measurement_or_fact_specific.tab":963, "media_resource.tab":250, "occurrence_specific.tab":963, "taxon.tab":250, "time_elapsed":{"sec":28.41, "min":0.47, "hr":0.01}}
+
+91357	Thu 2021-08-12 09:21:25 AM	{"media_resource.tab":88, "taxon.tab":88, "time_elapsed":{"sec":0.44, "min":0.01, "hr":0}}
+91357_ENV	Thu 2021-08-12 09:23:41 AM	{"measurement_or_fact_specific.tab":423, "media_resource.tab":88, "occurrence_specific.tab":423, "taxon.tab":88, "time_elapsed":{"sec":16.12, "min":0.27, "hr":0}}
+
 ------------------------------------------------------------
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "118935", "resource_name":"1st doc"}'
 php5.6 parse_unstructured_text_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
