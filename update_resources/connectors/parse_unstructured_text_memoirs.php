@@ -345,7 +345,7 @@ $rec['15404'] = array('filename' => '15404.txt', 'lines_before_and_after_sciname
 $rec['15405'] = array('filename' => '15405.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: xxx   Raw scinames: xxx */
 $rec['15406'] = array('filename' => '15406.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL'); /*3 blocks: xxx   Raw scinames: xxx */
 if(in_array($group, array('Fungi', 'Plants'))) {
-    $rec[$pdf_id] = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 2, 'doc' => 'BHL');
+    $rec[$pdf_id] = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL');
 }
 $rec['15422'] = array('filename' => '15422.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*3 blocks: xxx   Raw scinames: xxx */
 
