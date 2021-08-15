@@ -198,7 +198,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "15406", "resource_name":
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15407", "resource_name":"all_BHL", "group":"Fungi"}'
 PLANTS.txt
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15422", "resource_name":"all_BHL", "group":"Plants"}'
-91357
+91357 91461
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
