@@ -10,6 +10,7 @@ class SmasherLastAPI_TRAM_994
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
+        $this->debug = array();
     }
     function Transformations_for_all_taxa()
     {
@@ -197,7 +198,6 @@ class SmasherLastAPI_TRAM_994
     function Transformations_for_subgenera_in_Eukaryota()
     {
         /*4. Transformations for subgenera in Eukaryota
-
         genus: where taxonRank=subgenus
 
         The following instructions apply only to descendants of Eukaryota. Please ignore taxa that descend from Viruses, Bacteria, and Archaea.
@@ -269,18 +269,10 @@ class SmasherLastAPI_TRAM_994
             /*Array(
                 [taxonID] => 4038af35-41da-469e-8806-40e60241bb58
                 [source] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
-                [furtherInformationURL] => 
-                [acceptedNameUsageID] => 
                 [parentNameUsageID] => 
                 [scientificName] => Life
                 [taxonRank] => no rank
-                [taxonomicStatus] => accepted
-                [taxonRemarks] => 
-                [datasetID] => trunk
                 [canonicalName] => Life
-                [EOLid] => 
-                [EOLidAnnotations] => 
-                [Landmark] => 
             )*/
             if($rek['taxonRank'] == 'subgenus') {
                 if(isset($Eukaryota_descendants[$rek['taxonID']])) { // descendants of Eukaryota
@@ -311,6 +303,9 @@ class SmasherLastAPI_TRAM_994
                             $rek['canonicalName'] = $arr[0]. " subgen. " . $second;
                         }
                     }
+                    else {
+                        $this->debug['uninitialized source'][$source_name] = '';
+                    }
                     //=========================================================
                     //=========================================================
                     //=========================================================
@@ -319,6 +314,7 @@ class SmasherLastAPI_TRAM_994
             fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
         }
         fclose($WRITE);
+        print_r($this->debug);
         $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
     }
