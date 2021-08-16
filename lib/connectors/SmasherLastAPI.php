@@ -1091,7 +1091,7 @@ class SmasherLastAPI
         if(!isset($dir_path_taxa_file)) exit("\nsource_name not yet initialized [$source_name]\n");
         return self::get_field_value_from_source($sought_field, $dir_path_taxa_file, $taxon_id, $source_name);
     }
-    private function parse_sourceinfo($sourceinfo)
+    function parse_sourceinfo($sourceinfo)
     {   // e.g. trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1 | ictv:ICTV:201902639
         $arr = explode(",", $sourceinfo);
         $choice = $arr[0];

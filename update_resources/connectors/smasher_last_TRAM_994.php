@@ -9,16 +9,25 @@ require_library('connectors/SmasherLastAPI_TRAM_994');
 $timestart = time_elapsed();
 $func = new SmasherLastAPI_TRAM_994(false);
 
-// exit("\n-end test-\n");
+$var = "Coeloplana (Benthoplana) Fricke & Plante, 1971"; //Coeloplana (Benthoplana) Fricke & Plante, 1971 -> Coeloplana subgen. Benthoplana
+$arr = explode(" ", $var);
+$second = $arr[1];
+if($second[0] == "(" && substr($second, -1) == ")") {
+    $second = str_replace("(", "", $second);
+    $second = str_replace(")", "", $second);
+    $new = $arr[0]. " subgen. " . $second;
+    echo "\n[$new]\n";
+}
+exit("\n-end test-\n");
 
 /* START TRAM-994 */
 // $func->Transformations_for_all_taxa();                  echo("\n---- end Transformations_for_all_taxa ----\n");
 // source:          2376320 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/DH_2_1_Jul26/taxon.tab
 // destination:     2376321 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_1.tsv
 
-$func->Transformations_for_species_in_Eukaryota();      echo("\n---- end Transformations_for_species_in_Eukaryota ----\n");
+// $func->Transformations_for_species_in_Eukaryota();      echo("\n---- end Transformations_for_species_in_Eukaryota ----\n");
 
-// $func->Transformations_for_subgenera_in_Eukaryota();    echo("\n---- end Transformations_for_subgenera_in_Eukaryota ----\n");
+$func->Transformations_for_subgenera_in_Eukaryota();    echo("\n---- end Transformations_for_subgenera_in_Eukaryota ----\n");
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
