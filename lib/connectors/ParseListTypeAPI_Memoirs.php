@@ -736,9 +736,16 @@ class ParseListTypeAPI_Memoirs
             $sciname_line = trim(implode(" ", $words));
         }
         
+        // /* New Aug 15, 2021
+        $sciname_line = str_replace(".", " . ", $sciname_line);
+        $sciname_line = Functions::remove_whitespace($sciname_line);
+        // */
+        
         debug("\nrun_GNRD 1: [$sciname_line]\n");
         $obj = self::run_GNRD($sciname_line);
-        
+        // /* New Aug 15, 2021
+        $sciname_line = str_replace(" .", ".", $sciname_line);
+        // */
         if($this->resource_name == "MotAES") { //exclude rows with multiple binomials
             if(count(@$obj->names) > 1) {
                 /* good debug
