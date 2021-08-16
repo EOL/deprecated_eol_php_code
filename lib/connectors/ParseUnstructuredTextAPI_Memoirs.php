@@ -13,8 +13,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
-        http://gnrd.globalnames.org/name_finder.json?text=Scirpus cubensis Poepp. & Kunth in Kunth , Enum
-        http://gnrd.globalnames.org/name_finder.json?text=Scirpus polyphyllus Vahl , Enum. 2 : 274. 1805
+        http://gnrd.globalnames.org/name_finder.json?text=Scirpus schaffneri Bock . Bot . Jahrb . 7 : 275 . 1886
+        http://gnrd.globalnames.org/name_finder.json?text=Scirpus clintonii A. Gray , Am. Jour. Sci. II. 38 : 290. 1864
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Melanoleuca collybiiformis. Murrill, Mycologia 5 : 216. 1913

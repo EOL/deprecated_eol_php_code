@@ -104,15 +104,18 @@ class SmasherLastAPI_TRAM_994
 
         $parent_ids = array('04150770-bb1b-4b6b-a33a-f92668772064'); //Eukaryota
         $this->parentID_taxonID = self::get_ids($source);
+        echo "\nparentID_taxonID: [".count($this->parentID_taxonID)."]\n";
         
         require_library('connectors/PaleoDBAPI_v2');
         $func = new PaleoDBAPI_v2("");
         $descendant_ids = $func->get_all_descendants_of_these_parents($parent_ids, $this->parentID_taxonID);
+        echo "\ndescendant_ids: [".count($descendant_ids)."]\n";
+
         // /* ---------- re-orient $descendant_ids
         foreach($descendant_ids as $id) $Eukaryota_descendants[$id] = '';
         unset($descendant_ids);
         // ---------- */
-        echo "\nTotal descendants: [".count($Eukaryota_descendants)."]\n";
+        echo "\nEukaryota_descendants: [".count($Eukaryota_descendants)."]\n";
         
         /* start */
         $WRITE = Functions::file_open($destination, "w");
