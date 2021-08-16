@@ -1025,8 +1025,66 @@ foreach($arr25 as $parent_id26) {
                                                                 foreach($arr33 as $parent_id34) {
                                                                     if($arr34 = @$this->parentID_taxonID[$parent_id34]) {
                                                                         $final = array_merge($final, $arr34);
-                                                                        print_r($final); echo "\n[$parent_id34]\n";
-                                                                        exit("\nreached level 33\n");
+                                                                        foreach($arr34 as $parent_id35) {
+                                                                            if($arr35 = @$this->parentID_taxonID[$parent_id35]) {
+                                                                                $final = array_merge($final, $arr35);
+                                                                                foreach($arr35 as $parent_id36) {
+                                                                                    if($arr36 = @$this->parentID_taxonID[$parent_id36]) {
+                                                                                        $final = array_merge($final, $arr36);
+foreach($arr36 as $parent_id37) {
+    if($arr37 = @$this->parentID_taxonID[$parent_id37]) {
+        $final = array_merge($final, $arr37);
+        foreach($arr37 as $parent_id38) {
+            if($arr38 = @$this->parentID_taxonID[$parent_id38]) {
+                $final = array_merge($final, $arr38);
+                foreach($arr38 as $parent_id39) {
+                    if($arr39 = @$this->parentID_taxonID[$parent_id39]) {
+                        $final = array_merge($final, $arr39);
+                        foreach($arr39 as $parent_id40) {
+                            if($arr40 = @$this->parentID_taxonID[$parent_id40]) {
+                                $final = array_merge($final, $arr40);
+                                foreach($arr40 as $parent_id41) {
+                                    if($arr41 = @$this->parentID_taxonID[$parent_id41]) {
+                                        $final = array_merge($final, $arr41);
+                                        foreach($arr41 as $parent_id42) {
+                                            if($arr42 = @$this->parentID_taxonID[$parent_id42]) {
+                                                $final = array_merge($final, $arr42);
+                                                foreach($arr42 as $parent_id43) {
+                                                    if($arr43 = @$this->parentID_taxonID[$parent_id43]) {
+                                                        $final = array_merge($final, $arr43);
+                                                        foreach($arr43 as $parent_id44) {
+                                                            if($arr44 = @$this->parentID_taxonID[$parent_id44]) {
+                                                                $final = array_merge($final, $arr44);
+                                                                foreach($arr44 as $parent_id45) {
+                                                                    if($arr45 = @$this->parentID_taxonID[$parent_id45]) {
+                                                                        $final = array_merge($final, $arr45);
+                                                                        echo "\n-----\nfinal = [".count($final)."]\n";
+                                                                        echo "\n[$parent_id45]\n";
+                                                                        exit("\nreached level 45\n-----\n");
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
                                                                     }
                                                                 }
                                                             }
