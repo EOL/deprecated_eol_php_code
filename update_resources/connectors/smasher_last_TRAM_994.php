@@ -9,13 +9,14 @@ require_library('connectors/SmasherLastAPI_TRAM_994');
 $timestart = time_elapsed();
 $func = new SmasherLastAPI_TRAM_994(false);
 
+// exit("\n-end test-\n");
+
 /* START TRAM-994 */
-$func->Transformations_for_all_taxa();                   echo("\n---- end Transformations_for_all_taxa ----\n");
-/*
-source:  2378792 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_6.tsv
-destination:  2376204 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_993/final_taxonomy_7.tsv
-was_container: [2588]
-*/
+// $func->Transformations_for_all_taxa();                  echo("\n---- end Transformations_for_all_taxa ----\n");
+// source:          2376320 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/DH_2_1_Jul26/taxon.tab
+// destination:     2376321 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_1.tsv
+
+$func->Transformations_for_species_in_Eukaryota();      echo("\n---- end Transformations_for_species_in_Eukaryota ----\n");
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
