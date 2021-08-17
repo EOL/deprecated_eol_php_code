@@ -362,56 +362,15 @@ class SmasherLastAPI_TRAM_994
     {   
         /*B. Remove taxa with malformed canonicalName values
         The following instructions apply only to descendants of Eukaryota. Please ignore taxa that descend from Viruses, Bacteria, and Archaea.
-
-        Canonical names for species (taxonRank=species) should generally be of the form:
-        Aus bus – a capitalized genus name and a lower case epithet, with only plain letters and a couple of special characters and numbers allowed, 
-        see below.
-
-        Canonical names for infraspecifics (taxonRank=infraspecies|subspecies|variety|form|subvariety) should generally be of the form:
-        Aus bus cus – a capitalized genus name and two lower case epithets, with only plain letters and a couple of special characters 
-        and numbers allowed, see below.
-
-        Remove species and infraspecifics (and their children, if any) with canonicalName values that violate the basic patterns for the indicated rank, 
-        with the following qualifications/exceptions: 
         */
         $source      = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_3.tsv";
         $destination = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_4.tsv";
 
-        /* copied template
-        require_library('connectors/SmasherLastAPI');
-        $func2 = new SmasherLastAPI(false);
-        */
-        
-        $parent_ids = array('04150770-bb1b-4b6b-a33a-f92668772064'); //Eukaryota
-        $this->parentID_taxonID = self::get_ids($source);
-        echo "\nparentID_taxonID: [".count($this->parentID_taxonID)."]\n";
-
         //#####################################################################################################
-        $descendants_file = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/Eukaryota_descendants.txt";
-        if(file_exists($descendants_file)) {
-            $descendant_ids = file($descendants_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            $descendant_ids = array_map('trim', $descendant_ids);
-        }
-        else {
-            echo("\ndescendants_file does not exist [$descendants_file]\nCreating now...\n");
-            require_library('connectors/PaleoDBAPI_v2');
-            $func = new PaleoDBAPI_v2("");
-            $descendant_ids = $func->get_all_descendants_of_these_parents($parent_ids, $this->parentID_taxonID);
-            echo "\ndescendant_ids: [".count($descendant_ids)."]\n";
-            $SULAT = Functions::file_open($descendants_file, "w");
-            foreach($descendant_ids as $id) fwrite($SULAT, $id . "\n"); //saving
-            fclose($SULAT);
-            $out = shell_exec("wc -l ".$descendants_file); echo "\ndescendants_file rows: $out\n";
-            exit("\n-- END Write to text: Eukaryota_descendants --\n");
-        }
+        $non_eukaryote_descendants = self::get_non_eukaryote_descendants();
+        echo "\n non_eukaryote_descendants: [".count($non_eukaryote_descendants)."]\n";
         //#####################################################################################################
 
-        // /* ---------- re-orient $descendant_ids
-        foreach($descendant_ids as $id) $Eukaryota_descendants[$id] = '';
-        unset($descendant_ids);
-        // ---------- */
-        echo "\nEukaryota_descendants: [".count($Eukaryota_descendants)."]\n";
-        
         /* start */
         $WRITE = Functions::file_open($destination, "w");
         $i = 0;
@@ -440,7 +399,9 @@ class SmasherLastAPI_TRAM_994
                 [taxonRank] => no rank
                 [canonicalName] => Life
             )*/
-            /*1. Ignore names of hybrids, which are recognized by the following patterns:
+            /*
+            
+            1. Ignore names of hybrids, which are recognized by the following patterns:
 
             [ x ] (space followed by the letter x followed by a space) anywhere in the scientificName
             Example: Frustulia crassinervia x Frustulia saxonica
@@ -454,7 +415,8 @@ class SmasherLastAPI_TRAM_994
             3. The genus name can have 2 capitalized parts if separated by a hyphen.
             Example: Milne-Edwardsia carneata
 
-            4. Numbers are allowed in epithets, but only as the first character(s) of the epithet and only if separated from the rest of the epithet by a dash.
+            4. Numbers are allowed in epithets, but only as the first character(s) of the epithet and 
+                only if separated from the rest of the epithet by a dash.
             Examples of permitted canonicals:
             Batozonus 4-punctatus
             Cholus 23-maculatus
@@ -463,16 +425,11 @@ class SmasherLastAPI_TRAM_994
 
             Question marks, commas, underscores or brackets are not allowed in any part of the canonicalName:
 
-            Cossonus lacupros?
-            Catoptes interruptusfabricius,1781
-            Daphnia sarsi_2
-            [Peronospora] crispula
-            [Peronospora] iberidis
-            [Peronospora] sisymbrii-officinalis
-            [Peronospora] lepidii-sativi
-            [Peronospora] diplotaxidis
-            [Myrmecia] bisecta
-            [Kirchneriella] contorta elegans
+            Cossonus lacupros?                      Catoptes interruptusfabricius,1781
+            Daphnia sarsi_2                         [Peronospora] crispula
+            [Peronospora] iberidis                  [Peronospora] sisymbrii-officinalis
+            [Peronospora] lepidii-sativi            [Peronospora] diplotaxidis
+            [Myrmecia] bisecta                      [Kirchneriella] contorta elegans
             [Pediastrum] simplex pseudoglabrum
 
             Numbers are only allowed if they are the first characters of the epithet:
@@ -498,12 +455,33 @@ class SmasherLastAPI_TRAM_994
             Phyllophorus celer koehler          Anemonia milne edwardsii
 
             Please report removed taxa, so I can check to make sure we didn’t remove anything important. */
-            
-            
-            if($rek['taxonRank'] == 'subgenus') {
-                if(isset($Eukaryota_descendants[$rek['taxonID']])) { // descendants of Eukaryota
+
+            $canonical = $rek['canonicalName'];
+            $rank = $rek['taxonRank'];
+            if(!isset($non_eukaryote_descendants[$rek['taxonID']])) { // descendants of Eukaryota
+                
+                /*Canonical names for species (taxonRank=species) should generally be of the form:
+                Aus bus – a capitalized genus name and a lower case epithet, with only plain letters and a couple of special characters 
+                and numbers allowed, see below.
+
+                Canonical names for infraspecifics (taxonRank=infraspecies|subspecies|variety|form|subvariety) should generally be of the form:
+                Aus bus cus – a capitalized genus name and two lower case epithets, with only plain letters and a couple of special characters 
+                and numbers allowed, see below.
+
+                Remove species and infraspecifics (and their children, if any) with canonicalName values that violate the basic patterns 
+                for the indicated rank, with the following qualifications/exceptions: 
+                */
+                if(self::is_name_hybrid($canonical)) {}
+                $infraspecific_ranks = array("infraspecies", "subspecies", "variety", "form", "subvariety");
+                if($rank == 'species') {
                 }
+                elseif(in_array($rank, $infraspecific_ranks)) {
+                    
+                }
+                
             }
+            
+            
             //=====================================================================================
             fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
         }
@@ -512,5 +490,27 @@ class SmasherLastAPI_TRAM_994
         $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
     }
-    
+    private function is_name_hybrid($name)
+    {   /*
+        [ x ] (space followed by the letter x followed by a space) anywhere in the scientificName
+        Example: Frustulia crassinervia x Frustulia saxonica */
+        if(stripos($name, " x ") !== false) return true;
+
+        /* × special character at the beginning of an epithet:
+        Example: Melampsora ×columbiana */
+        $words = explode(" ", $name);
+        if(self::first_char_is_capital($words[0])) {
+            $second = $words[1];
+            if($second[0] == "×") return true;
+
+            $third = $words[2];
+            if($third[0] == "×") return true;
+        }
+        return false;
+    }
+    private function first_char_is_capital($str)
+    {
+        $str = trim($str);
+        if(ctype_upper($str[0])) return true;
+    }
 }
