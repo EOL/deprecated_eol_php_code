@@ -93,6 +93,61 @@ class SmasherLastAPI_TRAM_994
         $out = shell_exec("wc -l ".$source); echo "\nsource: $out";
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
     }
+    function generate_descendants_for_Viruses_Bacteria_Archaea()
+    {
+        $source      = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_1.tsv";
+        $this->parentID_taxonID = self::get_ids($source);
+        echo "\nparentID_taxonID: [".count($this->parentID_taxonID)."]\n";
+        
+        $groups['Viruses'] = array('taxonID' => "6f8a846c-9528-42dc-85e4-55527bf9b8d5");
+        $groups['Bacteria'] = array('taxonID' => "85e36b59-4fb5-4d65-a449-74c06bf75a86");
+        $groups['Archaea'] = array('taxonID' => "aa16d8f2-de4a-41bd-b1e2-893b2d2a9013");
+        foreach($groups as $group => $g) {
+            echo "\n-----\n[$group] [".$g['taxonID']."]\n";
+            //#####################################################################################################
+            $descendants_file = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/".$group."_descendants.txt";
+            if(file_exists($descendants_file)) {
+                $descendant_ids = file($descendants_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                $descendant_ids = array_map('trim', $descendant_ids);
+                echo "\n$group: [".count($descendant_ids)."]\n";
+            }
+            else {
+                $parent_ids = array($g['taxonID']);
+                echo("\ndescendants_file does not exist [$descendants_file]\nCreating now...\n");
+                require_library('connectors/PaleoDBAPI_v2');
+                $func = new PaleoDBAPI_v2("");
+                $descendant_ids = $func->get_all_descendants_of_these_parents($parent_ids, $this->parentID_taxonID);
+                echo "\ndescendant_ids: [".count($descendant_ids)."]\n";
+                $SULAT = Functions::file_open($descendants_file, "w");
+                foreach($descendant_ids as $id) fwrite($SULAT, $id . "\n"); //saving
+                fclose($SULAT);
+                $out = shell_exec("wc -l ".$descendants_file); echo "\ndescendants_file rows: $out\n";
+            }
+            //#####################################################################################################
+        }
+    }
+    private function get_non_eukaryote_descendants()
+    {   
+        $final = array();
+        $groups = array('Viruses', 'Bacteria', 'Archaea');
+        foreach($groups as $group) {
+            echo "\n-----\n[$group]\n";
+            //#####################################################################################################
+            $descendants_file = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/".$group."_descendants.txt";
+            if(file_exists($descendants_file)) {
+                $descendant_ids = file($descendants_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                $descendant_ids = array_map('trim', $descendant_ids);
+                echo "\n$group: [".count($descendant_ids)."]\n";
+                $final = array_merge($final, $descendant_ids);
+            }
+            else exit("\nERROR: descendants file not yet generated!\n");
+        }
+        // /* ---------- re-orient $descendant_ids
+        foreach($final as $id) $descendants[$id] = '';
+        // ---------- */
+        echo "\nnon_eukaryote_descendants: ".count($descendants)."\n";
+        return $descendants;
+    }
     function Transformations_for_species_in_Eukaryota()
     {
         /*3. Transformations for species in Eukaryota
@@ -103,20 +158,10 @@ class SmasherLastAPI_TRAM_994
         $source      = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_1.tsv";
         $destination = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_2.tsv";
 
-        $parent_ids = array('04150770-bb1b-4b6b-a33a-f92668772064'); //Eukaryota
-        $this->parentID_taxonID = self::get_ids($source);
-        echo "\nparentID_taxonID: [".count($this->parentID_taxonID)."]\n";
-        
-        require_library('connectors/PaleoDBAPI_v2');
-        $func = new PaleoDBAPI_v2("");
-        $descendant_ids = $func->get_all_descendants_of_these_parents($parent_ids, $this->parentID_taxonID);
-        echo "\ndescendant_ids: [".count($descendant_ids)."]\n";
-
-        // /* ---------- re-orient $descendant_ids
-        foreach($descendant_ids as $id) $Eukaryota_descendants[$id] = '';
-        unset($descendant_ids);
-        // ---------- */
-        echo "\nEukaryota_descendants: [".count($Eukaryota_descendants)."]\n";
+        //#####################################################################################################
+        $non_eukaryote_descendants = self::get_non_eukaryote_descendants();
+        echo "\n non_eukaryote_descendants: [".count($non_eukaryote_descendants)."]\n"; //exit("\nelix\n");
+        //#####################################################################################################
         
         /* start */
         $WRITE = Functions::file_open($destination, "w");
@@ -145,7 +190,7 @@ class SmasherLastAPI_TRAM_994
                 ...
             )*/
             if($rek['taxonRank'] == 'species') {
-                if(isset($Eukaryota_descendants[$rek['taxonID']])) {
+                if(!isset($non_eukaryote_descendants[$rek['taxonID']])) {
                     $var = $rek['canonicalName'];
                     $arr = explode(" ", $var);
                     $second = $arr[1];
@@ -232,10 +277,109 @@ class SmasherLastAPI_TRAM_994
         require_library('connectors/SmasherLastAPI');
         $func2 = new SmasherLastAPI(false);
 
+        //#####################################################################################################
+        $non_eukaryote_descendants = self::get_non_eukaryote_descendants();
+        echo "\n non_eukaryote_descendants: [".count($non_eukaryote_descendants)."]\n";
+        //#####################################################################################################
+        
+        /* start */
+        $WRITE = Functions::file_open($destination, "w");
+        $i = 0;
+        foreach(new FileIterator($source) as $line => $row) { $i++;
+            $rec = explode("\t", $row);
+            if($i == 1) {
+                $fields = $rec;
+                fwrite($WRITE, implode("\t", $fields) . "\n");
+                continue;
+            }
+            else {
+                $rek = array(); $k = 0;
+                foreach($fields as $fld) {
+                    if($fld) $rek[$fld] = @$rec[$k];
+                    $k++;
+                }
+                $rek = array_map('trim', $rek);
+            }
+            // print_r($rek); exit("\nend4\n");
+            /*Array(
+                [taxonID] => 4038af35-41da-469e-8806-40e60241bb58
+                [source] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
+                [parentNameUsageID] => 
+                [scientificName] => Life
+                [taxonRank] => no rank
+                [canonicalName] => Life
+            )*/
+            if($rek['taxonRank'] == 'subgenus') {
+                if(!isset($non_eukaryote_descendants[$rek['taxonID']])) { // descendants of Eukaryota
+                    $ret = $func2->parse_sourceinfo($sourceinfo); // print_r($ret); exit;
+                    /*Array(
+                        [source_name] => trunk
+                        [taxon_id] => 4038af35-41da-469e-8806-40e60241bb58
+                    )*/
+                    $source_name = $ret['source_name'];
+                    //========================================================= (subgenera from NCBI, ITIS & MAM)
+                    if(in_array($source_name, array("NCBI", "ITIS", "MAM"))) {
+                        $var = $rek['canonicalName']; //Acromastigum (Inaequilatera) (Schiffn.) Grolle -> Acromastigum subgen. Inaequilatera
+                        $arr = explode(" ", $var);
+                        $second = $arr[1];
+                        if($second[0] == "(" && substr($second, -1) == ")") {
+                            $second = str_replace("(", "", $second);
+                            $second = str_replace(")", "", $second);
+                            $rek['canonicalName'] = $arr[0]. " subgen. " . $second;
+                        }
+                    }
+                    elseif(in_array($source_name, array("WOR"))) { //same routine above, except source is scientificName instead of canonicalName
+                        $var = $rek['scientificName']; //Coeloplana (Benthoplana) Fricke & Plante, 1971 -> Coeloplana subgen. Benthoplana
+                        $arr = explode(" ", $var);
+                        $second = $arr[1];
+                        if($second[0] == "(" && substr($second, -1) == ")") {
+                            $second = str_replace("(", "", $second);
+                            $second = str_replace(")", "", $second);
+                            $rek['canonicalName'] = $arr[0]. " subgen. " . $second;
+                        }
+                    }
+                    else {
+                        $this->debug['uninitialized source'][$source_name] = '';
+                    }
+                    //=========================================================
+                    //=========================================================
+                    //=========================================================
+                }
+            }
+            fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
+        }
+        fclose($WRITE);
+        print_r($this->debug);
+        $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
+        $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
+    }
+    function Remove_taxa_with_malformed_canonicalName_values()
+    {   
+        /*B. Remove taxa with malformed canonicalName values
+        The following instructions apply only to descendants of Eukaryota. Please ignore taxa that descend from Viruses, Bacteria, and Archaea.
+
+        Canonical names for species (taxonRank=species) should generally be of the form:
+        Aus bus – a capitalized genus name and a lower case epithet, with only plain letters and a couple of special characters and numbers allowed, 
+        see below.
+
+        Canonical names for infraspecifics (taxonRank=infraspecies|subspecies|variety|form|subvariety) should generally be of the form:
+        Aus bus cus – a capitalized genus name and two lower case epithets, with only plain letters and a couple of special characters 
+        and numbers allowed, see below.
+
+        Remove species and infraspecifics (and their children, if any) with canonicalName values that violate the basic patterns for the indicated rank, 
+        with the following qualifications/exceptions: 
+        */
+        $source      = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_3.tsv";
+        $destination = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_4.tsv";
+
+        /* copied template
+        require_library('connectors/SmasherLastAPI');
+        $func2 = new SmasherLastAPI(false);
+        */
+        
         $parent_ids = array('04150770-bb1b-4b6b-a33a-f92668772064'); //Eukaryota
         $this->parentID_taxonID = self::get_ids($source);
         echo "\nparentID_taxonID: [".count($this->parentID_taxonID)."]\n";
-        
 
         //#####################################################################################################
         $descendants_file = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/Eukaryota_descendants.txt";
@@ -290,43 +434,71 @@ class SmasherLastAPI_TRAM_994
                 [taxonRank] => no rank
                 [canonicalName] => Life
             )*/
+            /*1. Ignore names of hybrids, which are recognized by the following patterns:
+
+            [ x ] (space followed by the letter x followed by a space) anywhere in the scientificName
+            Example: Frustulia crassinervia x Frustulia saxonica
+
+            × special character at the beginning of an epithet:
+            Example: Melampsora ×columbiana
+
+            2. Periods and dashes [-.] are allowed in both the genus name and the epithets.
+            Examples of permitted canonicals: Frustulia lacus-templi, Pseudo-nitzschia pungiformis, Macromitrium st.-johnii
+
+            3. The genus name can have 2 capitalized parts if separated by a hyphen.
+            Example: Milne-Edwardsia carneata
+
+            4. Numbers are allowed in epithets, but only as the first character(s) of the epithet and only if separated from the rest of the epithet by a dash.
+            Examples of permitted canonicals:
+            Batozonus 4-punctatus
+            Cholus 23-maculatus
+
+            Examples of malformed canonicals that should result in deletion of the taxon:
+
+            Question marks, commas, underscores or brackets are not allowed in any part of the canonicalName:
+
+            Cossonus lacupros?
+            Catoptes interruptusfabricius,1781
+            Daphnia sarsi_2
+            [Peronospora] crispula
+            [Peronospora] iberidis
+            [Peronospora] sisymbrii-officinalis
+            [Peronospora] lepidii-sativi
+            [Peronospora] diplotaxidis
+            [Myrmecia] bisecta
+            [Kirchneriella] contorta elegans
+            [Pediastrum] simplex pseudoglabrum
+
+            Numbers are only allowed if they are the first characters of the epithet:
+
+            Chaunacanthid 217               Brachinus marginipennis2
+            Harpalus bicolor2               Harpalus acuminatus2
+            Agonum ruficorne2               Agonum thoracicum2
+            Carabus croesus2                Omophron suturale2
+            Halimeda taenicola.2            Polysiphonia sertularioides-1
+            Polysiphonia sertularioides-3   Polysiphonia sertularioides-2
+
+            Species names must have no more than two words:
+
+            Pseudoceros latissimus type a           Pseudoceros maximus-type a
+            Ingolfiella kapuri coineau              Cleonus punctiventris tenebrosus
+            Psepholax mac leayi                 Arachnopus gutt lifer
+            Hilipus de geeri                    Balanobius crux minor
+            Rhynchaenus saltator alni           Rhynchaenus saltator salicis
+            Rhynchaenus saltator ulmi           Polydrosus van volxemi
+            Prodioctes de haani                 Nassophasis foveata gunturi
+            Spenophorus de haani                Anapygus de haani
+            Cyrtophora citricola obscura        Stolonodendrum parasiticum parasiticum
+            Phyllophorus celer koehler          Anemonia milne edwardsii
+
+            Please report removed taxa, so I can check to make sure we didn’t remove anything important. */
+            
+            
             if($rek['taxonRank'] == 'subgenus') {
                 if(isset($Eukaryota_descendants[$rek['taxonID']])) { // descendants of Eukaryota
-                    $ret = $func2->parse_sourceinfo($sourceinfo); // print_r($ret); exit;
-                    /*Array(
-                        [source_name] => trunk
-                        [taxon_id] => 4038af35-41da-469e-8806-40e60241bb58
-                    )*/
-                    $source_name = $ret['source_name'];
-                    //========================================================= (subgenera from NCBI, ITIS & MAM)
-                    if(in_array($source_name, array("NCBI", "ITIS", "MAM"))) {
-                        $var = $rek['canonicalName']; //Acromastigum (Inaequilatera) (Schiffn.) Grolle -> Acromastigum subgen. Inaequilatera
-                        $arr = explode(" ", $var);
-                        $second = $arr[1];
-                        if($second[0] == "(" && substr($second, -1) == ")") {
-                            $second = str_replace("(", "", $second);
-                            $second = str_replace(")", "", $second);
-                            $rek['canonicalName'] = $arr[0]. " subgen. " . $second;
-                        }
-                    }
-                    elseif(in_array($source_name, array("WOR"))) { //same routine above, except source is scientificName instead of canonicalName
-                        $var = $rek['scientificName']; //Coeloplana (Benthoplana) Fricke & Plante, 1971 -> Coeloplana subgen. Benthoplana
-                        $arr = explode(" ", $var);
-                        $second = $arr[1];
-                        if($second[0] == "(" && substr($second, -1) == ")") {
-                            $second = str_replace("(", "", $second);
-                            $second = str_replace(")", "", $second);
-                            $rek['canonicalName'] = $arr[0]. " subgen. " . $second;
-                        }
-                    }
-                    else {
-                        $this->debug['uninitialized source'][$source_name] = '';
-                    }
-                    //=========================================================
-                    //=========================================================
-                    //=========================================================
                 }
             }
+            //=====================================================================================
             fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
         }
         fclose($WRITE);
@@ -334,4 +506,5 @@ class SmasherLastAPI_TRAM_994
         $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
     }
+    
 }
