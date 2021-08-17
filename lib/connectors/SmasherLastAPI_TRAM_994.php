@@ -341,8 +341,10 @@ class SmasherLastAPI_TRAM_994
                         }
                     }
                     else {
+                        /* good debug; but these records now follow the format: "Name subgen. Name"
                         $this->debug['uninitialized source'][$source_name] = '';
                         $this->debug['uninitialized_source'][$source_name][$rek['canonicalName']] = '';
+                        */
                     }
                     //=========================================================
                     //=========================================================
@@ -352,7 +354,7 @@ class SmasherLastAPI_TRAM_994
             fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
         }
         fclose($WRITE);
-        print_r($this->debug);
+        if($this->debug) print_r($this->debug);
         $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
     }
