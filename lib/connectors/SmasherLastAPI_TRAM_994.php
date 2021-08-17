@@ -470,12 +470,14 @@ class SmasherLastAPI_TRAM_994
 
                 Please report removed taxa, so I can check to make sure we didn’t remove anything important. */
                 
-                if(self::is_name_hybrid($canonical)) {}
                 $infraspecific_ranks = array("infraspecies", "subspecies", "variety", "form", "subvariety");
                 if($rank == 'species') {
-                    // Species names must have no more than two words
-                    $words = explode(" ", $canonical);
-                    if(count($words) > 2) {self::save_rec($rek, "species with > 2 words"); continue;} //save rec
+                    if(self::is_name_hybrid($canonical)) {}
+                    else {
+                        // Species names must have no more than two words
+                        $words = explode(" ", $canonical);
+                        if(count($words) > 2) {self::save_rec($rek, "species with > 2 words"); continue;} //save rec
+                    }
                 }
                 
                 // /* Numbers are only allowed if they are the first characters of the epithet:
@@ -512,24 +514,23 @@ class SmasherLastAPI_TRAM_994
                     /*Canonical names for species (taxonRank=species) should generally be of the form:
                     Aus bus – a capitalized genus name and a lower case epithet, with only plain letters and a couple of special characters 
                     and numbers allowed, see below.*/
-                    if(self::get_numbers_from_string($canonical)) {}
+                    if(self::is_name_hybrid($canonical)) {}
                     else {
-                        if(self::is_name_hybrid($canonical)) {}
+                        if(self::get_numbers_from_string($canonical)) {}
                         else {
                             $words[1] = str_replace(array("-","."), "", $words[1]);
                             if(self::first_char_is_capital($words[0]) && ctype_lower($words[1])) {}
                             else {self::save_rec($rek, "species pattern"); continue;} //save rec
                         }
                     }
-                    
                 }
                 elseif(in_array($rank, $infraspecific_ranks)) {
                     /*Canonical names for infraspecifics (taxonRank=infraspecies|subspecies|variety|form|subvariety) should generally be of the form:
                     Aus bus cus – a capitalized genus name and two lower case epithets, with only plain letters and a couple of special characters 
                     and numbers allowed, see below.*/
-                    if(self::get_numbers_from_string($canonical)) {}
+                    if(self::is_name_hybrid($canonical)) {}
                     else {
-                        if(self::is_name_hybrid($canonical)) {}
+                        if(self::get_numbers_from_string($canonical)) {}
                         else {
                             $words[1] = str_replace(array("-","."), "", $words[1]);
                             $words[2] = str_replace(array("-","."), "", @$words[2]);
@@ -561,10 +562,10 @@ class SmasherLastAPI_TRAM_994
         $words = explode(" ", $name);
         if(self::first_char_is_capital($words[0])) {
             if($second = @$words[1]) {
-                if($second[0] == "×") return true;
+                if(substr($second,0,strlen("×")) == "×") return true;
             }
             if($third = @$words[2]) {
-                if($third[0] == "×") return true;
+                if(substr($third,0,strlen("×")) == "×") return true;
             }
         }
         return false;
