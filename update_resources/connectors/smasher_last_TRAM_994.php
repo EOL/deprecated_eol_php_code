@@ -9,6 +9,12 @@ require_library('connectors/SmasherLastAPI_TRAM_994');
 $timestart = time_elapsed();
 $func = new SmasherLastAPI_TRAM_994(false);
 
+// $str = "Chaunaca9nthid 5 1.7";
+// $str = "Halimeda taenicola.4";
+// $str = "Polysiphonia sertularioides-3";
+// $str = "Agonum ruficorne2";
+// if(preg_match_all('/\d+/', $str, $a)) print_r($a[0]);
+// exit("\n");
 
 /*
 $var = "Coeloplana (Benthoplana) Fricke & Plante, 1971"; //Coeloplana (Benthoplana) Fricke & Plante, 1971 -> Coeloplana subgen. Benthoplana

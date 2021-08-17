@@ -345,9 +345,6 @@ class SmasherLastAPI_TRAM_994
                         $this->debug['uninitialized_source'][$source_name][$rek['canonicalName']] = '';
                         */
                     }
-                    //=========================================================
-                    //=========================================================
-                    //=========================================================
                 }
             }
             fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
@@ -398,63 +395,6 @@ class SmasherLastAPI_TRAM_994
                 [taxonRank] => no rank
                 [canonicalName] => Life
             )*/
-            /*
-            
-            1. Ignore names of hybrids, which are recognized by the following patterns:
-
-            [ x ] (space followed by the letter x followed by a space) anywhere in the scientificName
-            Example: Frustulia crassinervia x Frustulia saxonica
-
-            × special character at the beginning of an epithet:
-            Example: Melampsora ×columbiana
-
-            2. Periods and dashes [-.] are allowed in both the genus name and the epithets.
-            Examples of permitted canonicals: Frustulia lacus-templi, Pseudo-nitzschia pungiformis, Macromitrium st.-johnii
-
-            3. The genus name can have 2 capitalized parts if separated by a hyphen.
-            Example: Milne-Edwardsia carneata
-
-            4. Numbers are allowed in epithets, but only as the first character(s) of the epithet and 
-                only if separated from the rest of the epithet by a dash.
-            Examples of permitted canonicals:
-            Batozonus 4-punctatus
-            Cholus 23-maculatus
-
-            Examples of malformed canonicals that should result in deletion of the taxon:
-
-            Question marks, commas, underscores or brackets are not allowed in any part of the canonicalName:
-
-            Cossonus lacupros?                      Catoptes interruptusfabricius,1781
-            Daphnia sarsi_2                         [Peronospora] crispula
-            [Peronospora] iberidis                  [Peronospora] sisymbrii-officinalis
-            [Peronospora] lepidii-sativi            [Peronospora] diplotaxidis
-            [Myrmecia] bisecta                      [Kirchneriella] contorta elegans
-            [Pediastrum] simplex pseudoglabrum
-
-            Numbers are only allowed if they are the first characters of the epithet:
-
-            Chaunacanthid 217               Brachinus marginipennis2
-            Harpalus bicolor2               Harpalus acuminatus2
-            Agonum ruficorne2               Agonum thoracicum2
-            Carabus croesus2                Omophron suturale2
-            Halimeda taenicola.2            Polysiphonia sertularioides-1
-            Polysiphonia sertularioides-3   Polysiphonia sertularioides-2
-
-            Species names must have no more than two words:
-
-            Pseudoceros latissimus type a           Pseudoceros maximus-type a
-            Ingolfiella kapuri coineau              Cleonus punctiventris tenebrosus
-            Psepholax mac leayi                 Arachnopus gutt lifer
-            Hilipus de geeri                    Balanobius crux minor
-            Rhynchaenus saltator alni           Rhynchaenus saltator salicis
-            Rhynchaenus saltator ulmi           Polydrosus van volxemi
-            Prodioctes de haani                 Nassophasis foveata gunturi
-            Spenophorus de haani                Anapygus de haani
-            Cyrtophora citricola obscura        Stolonodendrum parasiticum parasiticum
-            Phyllophorus celer koehler          Anemonia milne edwardsii
-
-            Please report removed taxa, so I can check to make sure we didn’t remove anything important. */
-
             $canonical = $rek['canonicalName'];
             $rank = $rek['taxonRank'];
             if(!isset($non_eukaryote_descendants[$rek['taxonID']])) {
@@ -468,15 +408,98 @@ class SmasherLastAPI_TRAM_994
                 and numbers allowed, see below.
 
                 Remove species and infraspecifics (and their children, if any) with canonicalName values that violate the basic patterns 
-                for the indicated rank, with the following qualifications/exceptions: 
-                */
+                for the indicated rank, with the following qualifications/exceptions:
+                
+                1. Ignore names of hybrids, which are recognized by the following patterns:
+
+                [ x ] (space followed by the letter x followed by a space) anywhere in the scientificName
+                Example: Frustulia crassinervia x Frustulia saxonica
+
+                × special character at the beginning of an epithet:
+                Example: Melampsora ×columbiana
+
+                2. Periods and dashes [-.] are allowed in both the genus name and the epithets.
+                Examples of permitted canonicals: Frustulia lacus-templi, Pseudo-nitzschia pungiformis, Macromitrium st.-johnii
+
+                3. The genus name can have 2 capitalized parts if separated by a hyphen.
+                Example: Milne-Edwardsia carneata
+
+                4. Numbers are allowed in epithets, but only as the first character(s) of the epithet and 
+                    only if separated from the rest of the epithet by a dash.
+                Examples of permitted canonicals:
+                Batozonus 4-punctatus
+                Cholus 23-maculatus
+
+                Examples of malformed canonicals that should result in deletion of the taxon:
+
+                ***Question marks, commas, underscores or brackets are not allowed in any part of the canonicalName:
+
+                Cossonus lacupros?                      Catoptes interruptusfabricius,1781
+                Daphnia sarsi_2                         [Peronospora] crispula
+                [Peronospora] iberidis                  [Peronospora] sisymbrii-officinalis
+                [Peronospora] lepidii-sativi            [Peronospora] diplotaxidis
+                [Myrmecia] bisecta                      [Kirchneriella] contorta elegans
+                [Pediastrum] simplex pseudoglabrum
+
+                ***Numbers are only allowed if they are the first characters of the epithet:
+
+                Chaunacanthid 217               Brachinus marginipennis2
+                Harpalus bicolor2               Harpalus acuminatus2
+                Agonum ruficorne2               Agonum thoracicum2
+                Carabus croesus2                Omophron suturale2
+                Halimeda taenicola.2            Polysiphonia sertularioides-1
+                Polysiphonia sertularioides-3   Polysiphonia sertularioides-2
+
+                ***Species names must have no more than two words:
+
+                Pseudoceros latissimus type a           Pseudoceros maximus-type a
+                Ingolfiella kapuri coineau              Cleonus punctiventris tenebrosus
+                Psepholax mac leayi                 Arachnopus gutt lifer
+                Hilipus de geeri                    Balanobius crux minor
+                Rhynchaenus saltator alni           Rhynchaenus saltator salicis
+                Rhynchaenus saltator ulmi           Polydrosus van volxemi
+                Prodioctes de haani                 Nassophasis foveata gunturi
+                Spenophorus de haani                Anapygus de haani
+                Cyrtophora citricola obscura        Stolonodendrum parasiticum parasiticum
+                Phyllophorus celer koehler          Anemonia milne edwardsii
+
+                Please report removed taxa, so I can check to make sure we didn’t remove anything important. */
                 if(self::is_name_hybrid($canonical)) {}
                 $infraspecific_ranks = array("infraspecies", "subspecies", "variety", "form", "subvariety");
                 if($rank == 'species') {
+                    // Species names must have no more than two words
+                    $words = explode(" ", $canonical);
+                    if(count($words) > 2) continue; //save rec
                 }
                 elseif(in_array($rank, $infraspecific_ranks)) {
                     
                 }
+                
+                // /* Numbers are only allowed if they are the first characters of the epithet:
+                $words = explode(" ", $canonical);
+                if(self::get_numbers_from_string($words[0])) continue; //save rec --- first word (genus) has a number
+
+                $second = $words[1];
+                if($numbers = self::get_numbers_from_string($second)) { //2nd word has number(s)
+                    if(count($numbers) > 1) continue; //save rec --- more than 1 number in string
+                    else {
+                        $needle = $numbers[0]."-";
+                        if(substr($second,0,strlen($needle)) == $needle) {} //ignore --- e.g. "Cholus 23-maculatus"
+                        else continue; //save rec --- e.g. "Harpalus bicolor2"
+                    }
+                }
+                // */
+                
+                
+                // /* ----------
+                // Question marks, commas, underscores or brackets are not allowed in any part of the canonicalName:
+                $remove = array("?", ",", "_", "[", "]");
+                $cont = true;
+                foreach($remove as $char) {
+                    if(stripos($canonical, $char) !== false) $cont = false; //string found
+                }
+                if(!$cont) continue; //save rec
+                // ---------- */
                 
             }
             
@@ -511,5 +534,9 @@ class SmasherLastAPI_TRAM_994
     {
         $str = trim($str);
         if(ctype_upper($str[0])) return true;
+    }
+    private function get_numbers_from_string($str)
+    {
+        if(preg_match_all('/\d+/', $str, $a)) return $a[0];
     }
 }
