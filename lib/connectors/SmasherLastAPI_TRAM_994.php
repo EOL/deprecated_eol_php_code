@@ -132,7 +132,6 @@ class SmasherLastAPI_TRAM_994
         $groups = array('Viruses', 'Bacteria', 'Archaea');
         foreach($groups as $group) {
             echo "\n-----\n[$group]\n";
-            //#####################################################################################################
             $descendants_file = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/".$group."_descendants.txt";
             if(file_exists($descendants_file)) {
                 $descendant_ids = file($descendants_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -312,7 +311,7 @@ class SmasherLastAPI_TRAM_994
                 [canonicalName] => Life
             )*/
             if($rek['taxonRank'] == 'subgenus') {
-                if(!isset($non_eukaryote_descendants[$rek['taxonID']])) { // descendants of Eukaryota
+                if(!isset($non_eukaryote_descendants[$rek['taxonID']])) {
                     $ret = $func2->parse_sourceinfo($rek['source']); //print_r($ret); exit;
                     /*Array(
                         [source_name] => trunk
@@ -458,7 +457,7 @@ class SmasherLastAPI_TRAM_994
 
             $canonical = $rek['canonicalName'];
             $rank = $rek['taxonRank'];
-            if(!isset($non_eukaryote_descendants[$rek['taxonID']])) { // descendants of Eukaryota
+            if(!isset($non_eukaryote_descendants[$rek['taxonID']])) {
                 
                 /*Canonical names for species (taxonRank=species) should generally be of the form:
                 Aus bus – a capitalized genus name and a lower case epithet, with only plain letters and a couple of special characters 
