@@ -9,6 +9,14 @@ require_library('connectors/SmasherLastAPI_TRAM_994');
 $timestart = time_elapsed();
 $func = new SmasherLastAPI_TRAM_994(false);
 
+// $str = "pecten-veneris";
+// $str = @$var[4];
+// $str = "discoidea.ip";
+// $str = str_replace(array("-","."), "", $str);
+// if(ctype_lower($str)) echo "\nall small\n";
+// else echo "\nnot all small\n";
+// exit;
+
 // $str = "Chaunaca9nthid 5 1.7";
 // $str = "Halimeda taenicola.4";
 // $str = "Polysiphonia sertularioides-3";

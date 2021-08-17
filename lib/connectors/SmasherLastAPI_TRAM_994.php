@@ -356,6 +356,10 @@ class SmasherLastAPI_TRAM_994
     }
     function Remove_taxa_with_malformed_canonicalName_values()
     {   
+        $this->REPORT = Functions::file_open("/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/removed_taxa.tsv", "w");
+        $headers = array('taxonID', 'scientificName', 'canonicalName', 'taxonRank', 'reason');
+        fwrite($this->REPORT, implode("\t", $headers) . "\n"); //saving
+        
         /*B. Remove taxa with malformed canonicalName values
         The following instructions apply only to descendants of Eukaryota. Please ignore taxa that descend from Viruses, Bacteria, and Archaea.
         */
@@ -399,7 +403,8 @@ class SmasherLastAPI_TRAM_994
             $rank = $rek['taxonRank'];
             if(!isset($non_eukaryote_descendants[$rek['taxonID']])) {
                 
-                /*Canonical names for species (taxonRank=species) should generally be of the form:
+                /*
+                Canonical names for species (taxonRank=species) should generally be of the form:
                 Aus bus – a capitalized genus name and a lower case epithet, with only plain letters and a couple of special characters 
                 and numbers allowed, see below.
 
@@ -464,28 +469,27 @@ class SmasherLastAPI_TRAM_994
                 Phyllophorus celer koehler          Anemonia milne edwardsii
 
                 Please report removed taxa, so I can check to make sure we didn’t remove anything important. */
+                
                 if(self::is_name_hybrid($canonical)) {}
                 $infraspecific_ranks = array("infraspecies", "subspecies", "variety", "form", "subvariety");
                 if($rank == 'species') {
                     // Species names must have no more than two words
                     $words = explode(" ", $canonical);
-                    if(count($words) > 2) continue; //save rec
-                }
-                elseif(in_array($rank, $infraspecific_ranks)) {
-                    
+                    if(count($words) > 2) {self::save_rec($rek, "species with > 2 words"); continue;} //save rec
                 }
                 
                 // /* Numbers are only allowed if they are the first characters of the epithet:
                 $words = explode(" ", $canonical);
-                if(self::get_numbers_from_string($words[0])) continue; //save rec --- first word (genus) has a number
+                if(self::get_numbers_from_string($words[0])) {self::save_rec($rek, "genus has a number"); continue;} //save rec --- first word (genus) has a number
 
-                $second = $words[1];
-                if($numbers = self::get_numbers_from_string($second)) { //2nd word has number(s)
-                    if(count($numbers) > 1) continue; //save rec --- more than 1 number in string
-                    else {
-                        $needle = $numbers[0]."-";
-                        if(substr($second,0,strlen($needle)) == $needle) {} //ignore --- e.g. "Cholus 23-maculatus"
-                        else continue; //save rec --- e.g. "Harpalus bicolor2"
+                if($second = @$words[1]) {
+                    if($numbers = self::get_numbers_from_string($second)) { //2nd word has number(s)
+                        if(count($numbers) > 1) {self::save_rec($rek, "many numbers in string"); continue;} //save rec --- more than 1 number in string
+                        else {
+                            $needle = $numbers[0]."-";
+                            if(substr($second,0,strlen($needle)) == $needle) {} //ignore --- e.g. "Cholus 23-maculatus"
+                            else {self::save_rec($rek, "with numbers"); continue;} //save rec --- e.g. "Harpalus bicolor2"
+                        }
                     }
                 }
                 // */
@@ -498,12 +502,45 @@ class SmasherLastAPI_TRAM_994
                 foreach($remove as $char) {
                     if(stripos($canonical, $char) !== false) $cont = false; //string found
                 }
-                if(!$cont) continue; //save rec
+                if(!$cont) {self::save_rec($rek, "? , _ [ ]"); continue;} //save rec
                 // ---------- */
                 
+                //=========================
+                $words = explode(" ", $canonical);
+                $infraspecific_ranks = array("infraspecies", "subspecies", "variety", "form", "subvariety");
+                if($rank == 'species') {
+                    /*Canonical names for species (taxonRank=species) should generally be of the form:
+                    Aus bus – a capitalized genus name and a lower case epithet, with only plain letters and a couple of special characters 
+                    and numbers allowed, see below.*/
+                    if(self::get_numbers_from_string($canonical)) {}
+                    else {
+                        if(self::is_name_hybrid($canonical)) {}
+                        else {
+                            $words[1] = str_replace(array("-","."), "", $words[1]);
+                            if(self::first_char_is_capital($words[0]) && ctype_lower($words[1])) {}
+                            else {self::save_rec($rek, "species pattern"); continue;} //save rec
+                        }
+                    }
+                    
+                }
+                elseif(in_array($rank, $infraspecific_ranks)) {
+                    /*Canonical names for infraspecifics (taxonRank=infraspecies|subspecies|variety|form|subvariety) should generally be of the form:
+                    Aus bus cus – a capitalized genus name and two lower case epithets, with only plain letters and a couple of special characters 
+                    and numbers allowed, see below.*/
+                    if(self::get_numbers_from_string($canonical)) {}
+                    else {
+                        if(self::is_name_hybrid($canonical)) {}
+                        else {
+                            $words[1] = str_replace(array("-","."), "", $words[1]);
+                            $words[2] = str_replace(array("-","."), "", @$words[2]);
+                            if(self::first_char_is_capital($words[0]) && ctype_lower($words[1]) && ctype_lower($words[2])) {}
+                            else {self::save_rec($rek, "infraspecifics pattern"); continue;} //save rec
+                        }
+                    }
+                }
+                //=========================
+                
             }
-            
-            
             //=====================================================================================
             fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
         }
@@ -511,6 +548,7 @@ class SmasherLastAPI_TRAM_994
         print_r($this->debug);
         $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
+        fclose($this->REPORT);
     }
     private function is_name_hybrid($name)
     {   /*
@@ -522,11 +560,12 @@ class SmasherLastAPI_TRAM_994
         Example: Melampsora ×columbiana */
         $words = explode(" ", $name);
         if(self::first_char_is_capital($words[0])) {
-            $second = $words[1];
-            if($second[0] == "×") return true;
-
-            $third = $words[2];
-            if($third[0] == "×") return true;
+            if($second = @$words[1]) {
+                if($second[0] == "×") return true;
+            }
+            if($third = @$words[2]) {
+                if($third[0] == "×") return true;
+            }
         }
         return false;
     }
@@ -538,5 +577,14 @@ class SmasherLastAPI_TRAM_994
     private function get_numbers_from_string($str)
     {
         if(preg_match_all('/\d+/', $str, $a)) return $a[0];
+    }
+    private function save_rec($rek, $reason)
+    {
+        $rec['taxonID'] = $rek['taxonID'];
+        $rec['scientificName'] = $rek['scientificName'];
+        $rec['canonicalName'] = $rek['canonicalName'];
+        $rec['taxonRank'] = $rek['taxonRank'];
+        $rec['reason'] = $reason;
+        fwrite($this->REPORT, implode("\t", $rec) . "\n"); //saving
     }
 }
