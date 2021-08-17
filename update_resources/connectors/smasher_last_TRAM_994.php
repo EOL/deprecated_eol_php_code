@@ -60,8 +60,15 @@ $func->Transformations_for_subgenera_in_Eukaryota();    echo("\n---- end Transfo
 source:       2376320 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_2.tsv
 destination:  2376320 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_3.tsv
 */
-
+/*
 $func->Remove_taxa_with_malformed_canonicalName_values();    echo("\n---- end Remove_taxa_with_malformed_canonicalName_values ----\n");
+source:  2376320 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_3.tsv
+destination:  2376225 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_4.tsv
+*/
+
+$func->Delete_descendants_of_taxa_from_report();    echo("\n---- end Delete_descendants_of_taxa_from_report ----\n");
+
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

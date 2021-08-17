@@ -557,6 +557,89 @@ class SmasherLastAPI_TRAM_994
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
         fclose($this->REPORT);
     }
+    
+    function Delete_descendants_of_taxa_from_report()
+    {
+        /* Delete descendants of taxa from removed_taxa.tsv */
+        $source      = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_4.tsv";
+        $destination = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_5.tsv";
+
+        $parent_ids = self::get_taxonIDs_from_report();
+        $this->parentID_taxonID = self::get_ids($source);
+        
+        require_library('connectors/PaleoDBAPI_v2');
+        $func = new PaleoDBAPI_v2("");
+        $descendant_ids = $func->get_all_descendants_of_these_parents($parent_ids, $this->parentID_taxonID);
+        // print_r($descendant_ids);
+        $exclude_uids = array_merge($parent_ids, $descendant_ids);
+        echo "\nparent_ids: ".count($parent_ids)."\n";
+        echo "\ndescendant_ids: ".count($descendant_ids)."\n";
+        echo "\nexclude_uids: ".count($exclude_uids)."\n";
+        
+        /* start final deletion */
+        $WRITE = Functions::file_open($destination, "w");
+        $i = 0;
+        foreach(new FileIterator($source) as $line => $row) { $i++;
+            $rec = explode("\t", $row);
+            if($i == 1) {
+                $fields = $rec;
+                fwrite($WRITE, implode("\t", $fields) . "\n");
+                continue;
+            }
+            else {
+                $rek = array(); $k = 0;
+                foreach($fields as $fld) {
+                    if($fld) $rek[$fld] = @$rec[$k];
+                    $k++;
+                }
+                $rek = array_map('trim', $rek);
+            }
+            // print_r($rek); exit("\nend4\n");
+            /*Array(
+                [taxonID] => 4038af35-41da-469e-8806-40e60241bb58
+                [source] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
+                ...
+            )*/
+            if(in_array($rek['taxonID'], $exclude_uids)) continue;
+            fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
+        }
+        fclose($WRITE);
+        $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
+        $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
+    }
+    private function get_taxonIDs_from_report()
+    {
+        $report = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/removed_taxa.tsv";
+        $i = 0;
+        foreach(new FileIterator($report) as $line => $row) { $i++;
+            if(!$row) continue;
+            $rec = explode("\t", $row);
+            if($i == 1) {
+                $fields = $rec;
+                continue;
+            }
+            else {
+                $rek = array(); $k = 0;
+                foreach($fields as $fld) {
+                    if($fld) $rek[$fld] = @$rec[$k];
+                    $k++;
+                }
+                $rek = array_map('trim', $rek);
+            }
+            // print_r($rek); exit("\nend eli\n");
+            /*Array(
+                [taxonID] => -239709
+                [scientificName] => Polysiphonia sertularioides-1
+                [canonicalName] => Polysiphonia sertularioides-1
+                [taxonRank] => species
+                [reason] => with numbers
+            )*/
+            $final[$rek['taxonID']] = '';
+        }
+        return array_keys($final);
+    }
+    
+    
     private function is_name_hybrid($name)
     {   /*
         [ x ] (space followed by the letter x followed by a space) anywhere in the scientificName
