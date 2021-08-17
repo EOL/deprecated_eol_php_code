@@ -236,10 +236,26 @@ class SmasherLastAPI_TRAM_994
         $this->parentID_taxonID = self::get_ids($source);
         echo "\nparentID_taxonID: [".count($this->parentID_taxonID)."]\n";
         
-        require_library('connectors/PaleoDBAPI_v2');
-        $func = new PaleoDBAPI_v2("");
-        $descendant_ids = $func->get_all_descendants_of_these_parents($parent_ids, $this->parentID_taxonID);
-        echo "\ndescendant_ids: [".count($descendant_ids)."]\n";
+
+        //#####################################################################################################
+        $descendants_file = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/Eukaryota_descendants.txt";
+        if(file_exists($descendants_file)) {
+            $descendant_ids = file($descendants_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            $descendant_ids = array_map('trim', $descendant_ids);
+        }
+        else {
+            echo("\ndescendants_file does not exist [$descendants_file]\nCreating now...\n");
+            require_library('connectors/PaleoDBAPI_v2');
+            $func = new PaleoDBAPI_v2("");
+            $descendant_ids = $func->get_all_descendants_of_these_parents($parent_ids, $this->parentID_taxonID);
+            echo "\ndescendant_ids: [".count($descendant_ids)."]\n";
+            $SULAT = Functions::file_open($descendants_file, "w");
+            foreach($descendant_ids as $id) fwrite($SULAT, $id . "\n"); //saving
+            fclose($SULAT);
+            $out = shell_exec("wc -l ".$descendants_file); echo "\ndescendants_file rows: $out\n";
+            exit("\n-- END Write to text: Eukaryota_descendants --\n");
+        }
+        //#####################################################################################################
 
         // /* ---------- re-orient $descendant_ids
         foreach($descendant_ids as $id) $Eukaryota_descendants[$id] = '';

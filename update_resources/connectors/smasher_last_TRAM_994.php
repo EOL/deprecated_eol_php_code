@@ -8,7 +8,7 @@ $cmdline_params['what']             = @$argv[2]; //useful here
 require_library('connectors/SmasherLastAPI_TRAM_994');
 $timestart = time_elapsed();
 $func = new SmasherLastAPI_TRAM_994(false);
-
+/*
 $var = "Coeloplana (Benthoplana) Fricke & Plante, 1971"; //Coeloplana (Benthoplana) Fricke & Plante, 1971 -> Coeloplana subgen. Benthoplana
 $arr = explode(" ", $var);
 $second = $arr[1];
@@ -19,6 +19,13 @@ if($second[0] == "(" && substr($second, -1) == ")") {
     echo "\n[$new]\n";
 }
 exit("\n-end test-\n");
+*/
+/*
+$arr = file('/Library/WebServer/Documents/eol_php_code/somewhat.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+print_r($arr);
+$arr = array_map('trim', $arr); print_r($arr);
+exit("\n-end test-\n");
+*/
 
 /* START TRAM-994 */
 // $func->Transformations_for_all_taxa();                  echo("\n---- end Transformations_for_all_taxa ----\n");
