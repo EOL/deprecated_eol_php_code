@@ -167,6 +167,7 @@ class SmasherLastAPI_TRAM_994
         $WRITE = Functions::file_open($destination, "w");
         $i = 0;
         foreach(new FileIterator($source) as $line => $row) { $i++;
+            if(!$row) continue;
             $rec = explode("\t", $row);
             if($i == 1) {
                 $fields = $rec;
@@ -197,7 +198,6 @@ class SmasherLastAPI_TRAM_994
                     if($second[0] == "(" && substr($second, -1) == ")") {
                         unset($arr[1]); //remove 2nd word
                         $rek['canonicalName'] = implode(" ", $arr);
-                        echo "\n[$new]\n";
                     }
                 }
             }
@@ -211,6 +211,7 @@ class SmasherLastAPI_TRAM_994
     {
         $i = 0;
         foreach(new FileIterator($source) as $line => $row) { $i++;
+            if(!$row) continue;
             $rec = explode("\t", $row);
             if($i == 1) {
                 $fields = $rec;
@@ -286,6 +287,7 @@ class SmasherLastAPI_TRAM_994
         $WRITE = Functions::file_open($destination, "w");
         $i = 0;
         foreach(new FileIterator($source) as $line => $row) { $i++;
+            if(!$row) continue;
             $rec = explode("\t", $row);
             if($i == 1) {
                 $fields = $rec;
@@ -311,7 +313,7 @@ class SmasherLastAPI_TRAM_994
             )*/
             if($rek['taxonRank'] == 'subgenus') {
                 if(!isset($non_eukaryote_descendants[$rek['taxonID']])) { // descendants of Eukaryota
-                    $ret = $func2->parse_sourceinfo($sourceinfo); // print_r($ret); exit;
+                    $ret = $func2->parse_sourceinfo($rek['source']); //print_r($ret); exit;
                     /*Array(
                         [source_name] => trunk
                         [taxon_id] => 4038af35-41da-469e-8806-40e60241bb58
@@ -340,6 +342,7 @@ class SmasherLastAPI_TRAM_994
                     }
                     else {
                         $this->debug['uninitialized source'][$source_name] = '';
+                        $this->debug['uninitialized_source'][$source_name][$rek['canonicalName']] = '';
                     }
                     //=========================================================
                     //=========================================================
@@ -411,6 +414,7 @@ class SmasherLastAPI_TRAM_994
         $WRITE = Functions::file_open($destination, "w");
         $i = 0;
         foreach(new FileIterator($source) as $line => $row) { $i++;
+            if(!$row) continue;
             $rec = explode("\t", $row);
             if($i == 1) {
                 $fields = $rec;

@@ -34,9 +34,11 @@ exit("\n-end test-\n");
 
 // $func->generate_descendants_for_Viruses_Bacteria_Archaea(); //run once only
 
-$func->Transformations_for_species_in_Eukaryota();      echo("\n---- end Transformations_for_species_in_Eukaryota ----\n");
+// $func->Transformations_for_species_in_Eukaryota();      echo("\n---- end Transformations_for_species_in_Eukaryota ----\n");
+// source:          2376321 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_1.tsv
+// destination:     2376322 /Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_2.tsv
 
-// $func->Transformations_for_subgenera_in_Eukaryota();    echo("\n---- end Transformations_for_subgenera_in_Eukaryota ----\n");
+$func->Transformations_for_subgenera_in_Eukaryota();    echo("\n---- end Transformations_for_subgenera_in_Eukaryota ----\n");
 
 // $func->Remove_taxa_with_malformed_canonicalName_values();    echo("\n---- end Remove_taxa_with_malformed_canonicalName_values ----\n");
 
