@@ -399,6 +399,12 @@ class SmasherLastAPI_TRAM_994
                 [taxonRank] => no rank
                 [canonicalName] => Life
             )*/
+
+            // /* manual OCR issue
+            $rek['canonicalName'] = str_ireplace("Nasoona indianа", "Nasoona indiana", $rek['canonicalName']);
+            $rek['canonicalName'] = str_ireplace("Carpelimus rougemoпti", "Carpelimus rougemonti", $rek['canonicalName']);
+            // */
+            
             $canonical = $rek['canonicalName'];
             $rank = $rek['taxonRank'];
             if(!isset($non_eukaryote_descendants[$rek['taxonID']])) {
