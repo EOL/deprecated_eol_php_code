@@ -309,7 +309,7 @@ class ParseListTypeAPI_Memoirs
         }
         
         // /* 2nd try
-        $string = str_replace(" ", "+", $string);
+        $string = str_replace(" ", "%20", $string);
         $url = $this->service['GNRD text input'].$string;
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
