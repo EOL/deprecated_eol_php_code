@@ -307,6 +307,16 @@ class ParseListTypeAPI_Memoirs
             $obj = json_decode($json);
             return $obj;
         }
+        
+        // /* 2nd try
+        $string = str_replace(" ", "+", $string);
+        $url = $this->service['GNRD text input'].$string;
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $obj = json_decode($json);
+            return $obj;
+        }
+        // */
+        
         if(!in_array($this->pdf_id, array('91225', '91362'))) return false;
         else { // per Jen: https://eol-jira.bibalex.org/browse/DATA-1890?focusedCommentId=66302&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66302
             /*
