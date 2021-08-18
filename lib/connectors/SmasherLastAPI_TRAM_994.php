@@ -502,7 +502,6 @@ class SmasherLastAPI_TRAM_994
                 }
                 // */
                 
-                
                 // /* ----------
                 // Question marks, commas, underscores or brackets are not allowed in any part of the canonicalName:
                 $remove = array("?", ",", "_", "[", "]");
@@ -510,7 +509,12 @@ class SmasherLastAPI_TRAM_994
                 foreach($remove as $char) {
                     if(stripos($canonical, $char) !== false) $cont = false; //string found
                 }
-                if(!$cont) {self::save_rec($rek, "? , _ [ ]"); continue;} //save rec
+                if(!$cont) {
+                    if($rek['taxonID'] == "329bdd10-4cd9-4deb-9ef4-19f068936f66") {}
+                    else {
+                        self::save_rec($rek, "? , _ [ ]"); continue;
+                    }
+                } //save rec
                 // ---------- */
                 
                 //=========================
@@ -552,7 +556,7 @@ class SmasherLastAPI_TRAM_994
             fwrite($WRITE, implode("\t", $rek) . "\n"); //saving
         }
         fclose($WRITE);
-        print_r($this->debug);
+        if($this->debug) print_r($this->debug);
         $out = shell_exec("wc -l ".$source); echo "\nsource: $out\n";
         $out = shell_exec("wc -l ".$destination); echo "\ndestination: $out\n";
         fclose($this->REPORT);
@@ -580,6 +584,7 @@ class SmasherLastAPI_TRAM_994
         $WRITE = Functions::file_open($destination, "w");
         $i = 0;
         foreach(new FileIterator($source) as $line => $row) { $i++;
+            if(!$row) continue;
             $rec = explode("\t", $row);
             if($i == 1) {
                 $fields = $rec;
@@ -638,8 +643,23 @@ class SmasherLastAPI_TRAM_994
         }
         return array_keys($final);
     }
-    
-    
+    function investigate_descendants_of_removed_taxa() //a utility
+    {
+        $source = "/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/taxonomy_4.tsv";
+        $parent_ids = self::get_taxonIDs_from_report();
+        echo "\nparent_ids: ".count($parent_ids)."\n";
+        $this->parentID_taxonID = self::get_ids($source);
+
+        $WRITE = Functions::file_open("/Volumes/AKiTiO4/d_w_h/last_smasher/TRAM_994/investigate_descendants.tsv", "w");
+        foreach($parent_ids as $parent_id) {
+            require_library('connectors/PaleoDBAPI_v2');
+            $func = new PaleoDBAPI_v2("");
+            $descendant_ids = $func->get_all_descendants_of_these_parents(array($parent_id), $this->parentID_taxonID);
+            fwrite($WRITE, "\n----------\n[$parent_id] descendant_ids: ".count($descendant_ids)."\n"); //saving
+            foreach($descendant_ids as $id) fwrite($WRITE, $id . "\n"); //saving
+        }
+        fclose($WRITE);
+    }
     private function is_name_hybrid($name)
     {   /*
         [ x ] (space followed by the letter x followed by a space) anywhere in the scientificName
