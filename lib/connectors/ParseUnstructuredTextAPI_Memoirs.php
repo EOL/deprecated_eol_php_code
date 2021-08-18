@@ -967,7 +967,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '15429') {
                 $row = str_ireplace('Paspalum cla"9yiliferuni', "Paspalum clavuliferum", $row);
             }
-            
+            elseif($this->pdf_id == '15424') {
+                $row = str_ireplace('Dicranella rubra (Huds.) Kindb. Eur. & N. Am. 9>£ ( f', "Dicranella rubra (Huds.)", $row);
+            }
             
             if($this->pdf_id == '15427') { //start of row
                 // $words = array("ANEMIA' sw.");
