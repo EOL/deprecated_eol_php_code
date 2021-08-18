@@ -11,9 +11,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         /* START epub series */
         // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
+        $this->service['GNRD text input XML'] = 'http://gnrd.globalnames.org/name_finder.xml?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
-        http://gnrd.globalnames.org/name_finder.json?text=Fuirena+robusta+Kunth+,+Enum.+Pl.+2+:+185.+1837
+        http://gnrd.globalnames.org/name_finder.json?text=Dicranella rubra (Huds.)
         http://gnrd.globalnames.org/name_finder.json?text=Fuirena%20robusta%20Kunth%20,%20Enum.%20Pl.%202%20:%20185.%201837
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...

@@ -296,6 +296,20 @@ class ParseListTypeAPI_Memoirs
         $string = str_replace("’", "'", $string);
         return $string;
     }
+    function run_GNRD_get_sciname_inXML($string)
+    {
+        $url = $this->service['GNRD text input XML'].$string;
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($xml_str = Functions::lookup_with_cache($url, $options)) { // echo "\n$xml_str\n";
+            $xml = simplexml_load_string($xml_str);
+            foreach($xml->names->name as $t) {
+                // print_r($t); //good debug
+                $t_dwc = $t->children("http://rs.tdwg.org/dwc/terms/");
+                if($val = @$t_dwc->scientificName) return $val;
+            }
+        }
+    }
     private function run_GNRD($string)
     {
         if($string = self::clean_name($string)) {}
@@ -784,9 +798,12 @@ class ParseListTypeAPI_Memoirs
         }
         if($sciname = @$obj->names[0]->scientificName) {}
         else {
-            if(!in_array($this->pdf_id, array("91225", "91362"))) echo "\nGNRD doesn't recognize [$sciname_line]xxx\n";
-            fwrite($WRITE_st, $sciname_line."\n");
-            return false;
+            if($sciname = $this->run_GNRD_get_sciname_inXML($sciname_line)) {}
+            else {
+                if(!in_array($this->pdf_id, array("91225", "91362"))) echo "\nGNRD doesn't recognize [$sciname_line]xxx\n";
+                fwrite($WRITE_st, $sciname_line."\n");
+                return false;
+            }
         }
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4\n"); //good debug - to see what string passes here.
         if(self::is_just_one_word($sciname)) return false; //exclude if sciname is just one word, it is implied that it should be a binomial

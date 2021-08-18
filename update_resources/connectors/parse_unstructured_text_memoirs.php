@@ -212,9 +212,12 @@ $param                     = json_decode(@$argv[2], true);
 $pdf_id = $param['resource_id'];
 $resource_name = $param['resource_name'];
 $group = @$param['group'];
-
 $func = new ParseUnstructuredTextAPI_Memoirs($resource_name);
 
+/*
+$val = $func->run_GNRD_get_sciname_inXML("Fuirena%20robusta%20Kunth%20,%20Enum.");
+exit("\nxx[$val]xx\n-end-\n");
+*/
 /*
 $s = "eli is 49 yrs old";
 $s = "1c.";
