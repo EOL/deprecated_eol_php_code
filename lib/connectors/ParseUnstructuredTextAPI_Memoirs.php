@@ -13,7 +13,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
-        http://gnrd.globalnames.org/name_finder.json?text=Fuirena robusta Kunth , Enum. Pl. 2 : 185. 1837
+        http://gnrd.globalnames.org/name_finder.json?text=Fuirena+robusta+Kunth+,+Enum.+Pl.+2+:+185.+1837
         http://gnrd.globalnames.org/name_finder.json?text=Fuirena%20robusta%20Kunth%20,%20Enum.%20Pl.%202%20:%20185.%201837
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
