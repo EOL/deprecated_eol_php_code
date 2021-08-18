@@ -306,7 +306,7 @@ class ParseListTypeAPI_Memoirs
             foreach($xml->names->name as $t) {
                 // print_r($t); //good debug
                 $t_dwc = $t->children("http://rs.tdwg.org/dwc/terms/");
-                if($val = @$t_dwc->scientificName) return $val;
+                if($val = @$t_dwc->scientificName) return $val; //deliberately just gets the 1st one
             }
         }
     }
