@@ -6,15 +6,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     function __construct($resource_name)
     {
         $this->resource_name = $resource_name;
-        $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 5000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
 
         /* START epub series */
         // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
-        http://gnrd.globalnames.org/name_finder.json?text=Scirpus schaffneri Bock . Bot . Jahrb . 7 : 275 . 1886
-        http://gnrd.globalnames.org/name_finder.json?text=Scirpus clintonii A. Gray , Am. Jour. Sci. II. 38 : 290. 1864
+        http://gnrd.globalnames.org/name_finder.json?text=Fuirena robusta Kunth , Enum. Pl. 2 : 185. 1837
+        http://gnrd.globalnames.org/name_finder.json?text=Fuirena%20robusta%20Kunth%20,%20Enum.%20Pl.%202%20:%20185.%201837
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Melanoleuca collybiiformis. Murrill, Mycologia 5 : 216. 1913
