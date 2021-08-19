@@ -6,7 +6,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     function __construct($resource_name)
     {
         $this->resource_name = $resource_name;
-        $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 2, 'delay_in_minutes' => 1);
+        $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 4000000, 'timeout' => 10800, 'download_attempts' => 2, 'delay_in_minutes' => 1);
 
         /* START epub series */
         // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
