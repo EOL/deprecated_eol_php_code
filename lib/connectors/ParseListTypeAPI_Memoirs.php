@@ -310,6 +310,7 @@ class ParseListTypeAPI_Memoirs
                 if($val = @$t_dwc->scientificName) return $val; //deliberately just gets the 1st one
             }
         }
+        if(stripos($string, "Sporobolus indicus") !== false) echo "\n-----\n[$string]\n-----\n"; //string is found
     }
     private function run_GNRD($string)
     {
