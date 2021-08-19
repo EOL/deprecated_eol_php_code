@@ -837,6 +837,7 @@ class ParseListTypeAPI_Memoirs
                     }
                     else $rek['scientificName_author_cleaned'] = $rek['sciname GNRD'];
                 }
+                else $rek['scientificName_author_cleaned'] = $rek['sciname GNRD'];
                 // /*
                 if(stripos($orig, $this->in_question) !== false) { //good debug - to see what string passes here.
                     print_r($rek); echo("\n[$sciname][$sciname_line]xx4a\n");
