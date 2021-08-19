@@ -298,6 +298,7 @@ class ParseListTypeAPI_Memoirs
     }
     function run_GNRD_get_sciname_inXML($string)
     {
+        $string = str_replace(array("%", ">", "<"), "", $string);
         $url = $this->service['GNRD text input XML'].$string;
         $options = $this->download_options;
         $options['expire_seconds'] = false;
