@@ -1461,7 +1461,7 @@ class ParseListTypeAPI_Memoirs
             "Illustr ation :", "Ili^ustratxons :", "BxsiccATi:", "ILLXTSTRATION r", "Ii,i,ustrations:", "FllustIItions :",
             "IivLUSTRATiONS", "Ili^ustration:", "I1.1.USTRAT10NS:", "Ii.i.usTR.\Tios:", "IllustraTio.v:", "ILLUSTR.^TION:",
             "Illustrations ■", "Ii^LusTRATiONS:", "Illustr.atio.s-:", "iLLUSTR.'iTiONs:", "Ii,i,i;sTRATio.Ns:", "Ili.i stations:",
-            "Illistratio.v:", "■ Illustrations:"); //NoTB: 91144 and 91362_species
+            "Illistratio.v:", "■ Illustrations:", "Ill- VTKATIom:"); //NoTB: 91144 and 91362_species
             foreach($exclude as $start_of_row) {
                 $start_of_row = str_replace(":", $separator, $start_of_row);
                 $len = strlen($start_of_row);
