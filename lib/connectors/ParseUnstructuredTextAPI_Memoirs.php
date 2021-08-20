@@ -14,12 +14,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNRD text input XML'] = 'http://gnrd.globalnames.org/name_finder.xml?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
-        http://gnrd.globalnames.org/name_finder.json?text=Sporobolus indicus (%.) R. Br. Prodr. 170. 1810
-        http://gnrd.globalnames.org/name_finder.xml?text=Sporobolus indicus (.) R. Br. Prodr. 170. 1810
+        http://gnrd.globalnames.org/name_finder.json?text=
+        http://gnrd.globalnames.org/name_finder.xml?text=
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Melanoleuca collybiiformis. Murrill, Mycologia 5 : 216. 1913
-        
         
         not used:
         https://parser.globalnames.org/?q=https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx...
@@ -39,7 +38,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Sporobolus indicus";
+        $this->in_question = "Virescentes Kunth";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
     }
@@ -895,6 +894,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         foreach(new FileIterator($edited_file) as $line => $row) { $i++; if(($i % 5000) == 0) echo " $i";
             $row = trim($row);
             $orig_row = $row;
+            // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]yy_1\n");}   //string is found  //good debug
+            
             // /* manual - BHL
             $row = str_ireplace("1 . Seligeria campylopoda", "1. Seligeria campylopoda", $row);
             $row = str_ireplace("(Mesoleptus,)", "(Mesoleptus),", $row);    //30355 doc
@@ -1090,19 +1091,25 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     if($sciname = self::last_resort_to_clean_name($row, $WRITE_st)) {
                         // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row][$sciname]xx33\n");}   //string is found  //good debug
                         
-                        $words = explode(" ", $sciname);
-                        if(count($words) > 1) {
-                            if($hits == 1)  $row = "<taxon sciname='$sciname'> ".$row;
-                            else            $row = "</taxon><taxon sciname='$sciname'> ".$row;
+                        if($sciname == "monomial") {
+                            $row = "</taxon>$row";
+                            // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row][$sciname]xx33x\n");}   //string is found  //good debug
                         }
-                        else { //a valid else statement, needed statement for sure
-                            exit("\n-----\nA sign to investigate: [$sciname]\n[$row]\n-----\n");
-                            if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
-                            else            $row = "</taxon><taxon sciname='$row'> ".$row;
+                        else { //orig block
+                            $words = explode(" ", $sciname);
+                            if(count($words) > 1) {
+                                if($hits == 1)  $row = "<taxon sciname='$sciname'> ".$row;
+                                else            $row = "</taxon><taxon sciname='$sciname'> ".$row;
+                            }
+                            else { //a valid else statement, needed statement for sure
+                                exit("\n-----\nA sign to investigate: [$sciname]\n[$row]\n-----\n");
+                                if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
+                                else            $row = "</taxon><taxon sciname='$row'> ".$row;
+                            }
                         }
                     }
                     else {
-                        // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx33a\n");}   //string is found  //good debug
+                        // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$sciname][$row]xx33a\n");}   //string is found  //good debug
                         if(in_array($this->pdf_id, array("91225", "91362"))) $row = "</taxon>$row"; //IMPORTANT for 91225 
                     }
                     // */
@@ -1128,6 +1135,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             
             if($this->is_Section_stop_pattern($row)) $row = "</taxon>$row";
             if($this->is_New_then_RankName_stop_pattern($row)) $row = "</taxon>$row";
+            
+            // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]stop_1\n");}   //string is found  //good debug
 
             if($this->pdf_id == '118941') if($row == "List of the North America") $row = "</taxon>$row";
             if($this->pdf_id == '119520') if($row == "404 butterflies of liberia") $row = "</taxon>$row";

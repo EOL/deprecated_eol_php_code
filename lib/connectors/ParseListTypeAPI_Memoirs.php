@@ -810,14 +810,14 @@ class ParseListTypeAPI_Memoirs
             }
         }
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4\n"); //good debug - to see what string passes here.
-        if(self::is_just_one_word($sciname)) return false; //exclude if sciname is just one word, it is implied that it should be a binomial
+        if(self::is_just_one_word($sciname)) return "monomial"; //false; //exclude if sciname is just one word, it is implied that it should be a binomial
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4a\n"); //good debug - to see what string passes here.
         
         
         if(in_array($this->pdf_id, array("30353", "30354"))) $criteria = $sciname && self::binomial_or_more($sciname); //resources to be skipped more or less
         else                                        $criteria = $sciname; //rest of the resources, default
         if($criteria) {
-            if(stripos($orig, $this->in_question) !== false) echo("\n[$sciname][$sciname_line]xx4b\n"); //good debug - to see what string passes here.
+            // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4b\n"); //good debug - to see what string passes here.
             
             $rek['sciname GNRD'] = $sciname;
             if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427'))) { //BHL --- more strict path
@@ -838,11 +838,11 @@ class ParseListTypeAPI_Memoirs
                     else $rek['scientificName_author_cleaned'] = $rek['sciname GNRD'];
                 }
                 else $rek['scientificName_author_cleaned'] = $rek['sciname GNRD'];
-                // /*
+                /*
                 if(stripos($orig, $this->in_question) !== false) { //good debug - to see what string passes here.
-                    print_r($rek); echo("\n[$sciname][$sciname_line]xx4a\n");
+                    print_r($rek); exit("\n[$sciname][$sciname_line]xx4a\n");
                 }
-                // */
+                */
             }
             else { // --- not strict at all
                 $rek['scientificName_author_cleaned'] = $sciname;
@@ -853,7 +853,7 @@ class ParseListTypeAPI_Memoirs
             return false;
         }
         // ------------- end ------------- */
-        if(stripos($orig, $this->in_question) !== false) echo("\n[$sciname][$sciname_line]xx5\n"); //good debug - to see what string passes here.
+        // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx5\n"); //good debug - to see what string passes here.
         
         if($ret = @$rek['scientificName_author_cleaned']) {
             $ret = str_replace(" ,", ",", $ret);
@@ -864,10 +864,10 @@ class ParseListTypeAPI_Memoirs
             $words = explode(" ", $ret);
             if(substr($words[0],-1) == ".") return false; //first word, last char must not be period e.g. "G. morhua"
             // */
-            if(stripos($orig, $this->in_question) !== false) echo("\n[$sciname][$ret]xx6\n"); //good debug - to see what string passes here.
+            // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$ret]xx6\n"); //good debug - to see what string passes here.
             return $ret;
         }
-        if(stripos($orig, $this->in_question) !== false) echo("\n[$sciname][$orig]xx7\n"); //good debug - to see what string passes here.
+        // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$orig]xx7\n"); //good debug - to see what string passes here.
         return $orig;
     }
     /*################################## Jen's utility ################################################################################*/
