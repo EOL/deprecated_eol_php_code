@@ -1095,6 +1095,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                             $row = "</taxon>$row";
                             // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row][$sciname]xx33x\n");}   //string is found  //good debug
                         }
+                        elseif($sciname == "GNRD does not recognize name") $row = $orig_row;
                         else { //orig block
                             $words = explode(" ", $sciname);
                             if(count($words) > 1) {

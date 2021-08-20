@@ -806,7 +806,7 @@ class ParseListTypeAPI_Memoirs
             else {
                 if(!in_array($this->pdf_id, array("91225", "91362"))) echo "\nGNRD doesn't recognize [$sciname_line]xxx\n";
                 fwrite($WRITE_st, $sciname_line."\n");
-                return false;
+                return "GNRD does not recognize name"; //false;
             }
         }
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4\n"); //good debug - to see what string passes here.
