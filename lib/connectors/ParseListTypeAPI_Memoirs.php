@@ -1220,7 +1220,7 @@ class ParseListTypeAPI_Memoirs
             if(ctype_upper($words[1][0])) return false; //2nd word must be lower case
         }
         
-        // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 3\n[$str]\n"); //string is found
+        // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 3\n[$str]aaa\n"); //string is found
         
         
         if($words[0][0] == "(") return false; //must not start with this char(s) e.g. (Drawings by Frances A. McKittrick)
@@ -1252,9 +1252,11 @@ class ParseListTypeAPI_Memoirs
         if(strlen($words[0]) == 1) return false; //e.g. O iH CVJ
 
         // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 4a\n"); //string is found
-        $dont_have_these_chars_anywhere = array("—", "~", "->", "<-", "«", "»", "©", " pp.", " ibid.", " of ", " to ", 
+        $dont_have_these_chars_anywhere = array("—", "~", "->", "<-", "«", "»", "©", " pp.", " ibid.", " of ", 
                                                 " is ", "(see", "species?", "inquirendum");
         if($this->pdf_id == '120082') $dont_have_these_chars_anywhere[] = " and "; //4th doc
+        if($this->pdf_id != '91365') $dont_have_these_chars_anywhere[] = " to ";
+        
         if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427'))) {} //1st 2nd, all BHL
         else {
             if($this->resource_name != "MotAES") $dont_have_these_chars_anywhere[] = "^";
@@ -1272,11 +1274,18 @@ class ParseListTypeAPI_Memoirs
         // Cryptocercus punctulatus Scudder (Plate X, figures 13 to 16.) 
         // Coelopoeta glutinosi Walsingham (Figs. 1, 2, 55, 55a, 55b, 101.) 
 
+        /*
+        if(stripos($str, $this->in_question) !== false) { //string is found
+            print_r($dont_have_these_chars_anywhere);
+            exit("\nreaches here 4b\n[$str]\n");
+        }
+        */
+
         foreach($dont_have_these_chars_anywhere as $char) {
             if(stripos($str, "$char") !== false) return false;
         }
 
-        // if(stripos($str, $this->in_question) !== false) exit("\nreached here 4\n[$str]\n"); //string is found
+        // if(stripos($str, $this->in_question) !== false) exit("\nreached here 4c\n[$str]\n"); //string is found
         // [Euphyllodromia decastigmata'i^ new species (Plate IV, figures 18 to 20.)]
         // Aeshna (Hesperaeschna) psilus PI. XL, fig. 531, PL XLI, figs. 539-554;
 

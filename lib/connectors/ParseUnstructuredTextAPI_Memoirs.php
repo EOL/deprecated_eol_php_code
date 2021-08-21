@@ -245,8 +245,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(!$cont) continue;
             */
 
-            if(stripos($row, "salicicola (") !== false) echo "\nsearch 4\n";   //string is found
-            
             //for weird names, from Jen
             $row = str_replace(array("“", "”"), "", $row); // “Clania” licheniphilus Koehler --> 0188.epub
             
@@ -1106,7 +1104,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                             $row = "</taxon>$row";
                             // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row][$sciname]xx33x\n");}   //string is found  //good debug
                         }
-                        elseif($sciname == "GNRD does not recognize name") $row = $orig_row;
+                        elseif($sciname == "GNRD does not recognize name") $row = "</taxon>$row"; //$row = $orig_row;
                         else { //orig block
                             $words = explode(" ", $sciname);
                             if(count($words) > 1) {
@@ -1127,13 +1125,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     // */
                 }
             }
-            /* good debug
             else {
-                if(stripos($row, "salicicola") !== false) {   //string is found
-                    exit("\nxxx1[$row]\n");
-                }
+                // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$sciname][$row]xx33b\n");}   //string is found  //good debug
             }
-            */
             //start terminal criteria => stop patterns
             if($row == "INDEX.")            $row = "</taxon>$row";
             if($row == "INDEX")             $row = "</taxon>$row";
@@ -1147,6 +1141,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             
             if($this->is_Section_stop_pattern($row)) $row = "</taxon>$row";
             if($this->is_New_then_RankName_stop_pattern($row)) $row = "</taxon>$row";
+            /* shouldn't be used... very expensive on API calls
+            if($this->is_HigherTaxa_stop_pattern($row)) $row = "</taxon>$row"; // e.g. "Chordorrhizeae fries, Summa Veg. Scand. 73, as to type species. 1845; Carey, in"
+            */
             
             // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]stop_1\n");}   //string is found  //good debug
 
@@ -1461,10 +1458,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             // */
 
-            
-            
-            // if($this->pdf_id == '15422') { //only during dev --- debug only
-            //     if($row == "Plate l.f.8.") break;
+            // if($this->pdf_id == '91365') { //only during dev --- debug only
+            //     if($row == "blades 0.75-1.5 mm. wide.") break;
             // }
             
         }//end loop text
