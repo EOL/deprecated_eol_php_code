@@ -3,13 +3,10 @@ namespace php_active_record;
 /* */
 class ParseListTypeAPI_Memoirs
 {
-    function __construct()
-    {
-    }
+    function __construct() {}
     /*#################################################################################################################################*/
     function parse_list_type_pdf($input)
-    {
-        /*
+    {   /*
         "newline
         Header [12 words or less, including ""List"", and at least one of taxon name, vernacular name, habitat term and/or geographic term] newline
         [lots of non-target text] newline
@@ -25,7 +22,6 @@ class ParseListTypeAPI_Memoirs
             [epub_output_txts_dir] => /Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0437/
             [lines_before_and_after_sciname] => 2
         )*/
-        
         // /* start as copied template
         if($val = $input['epub_output_txts_dir']) $this->path['epub_output_txts_dir'] = $val;
         $this->lines_to_tag = array();
@@ -54,8 +50,7 @@ class ParseListTypeAPI_Memoirs
         $WRITE = fopen($destination, "w"); //initialize
         
         $contents = file_get_contents($tagged_file);
-        if(preg_match_all("/<sciname=(.*?)<\/sciname>/ims", $contents, $a)) {
-            // print_r($a[1]); exit;
+        if(preg_match_all("/<sciname=(.*?)<\/sciname>/ims", $contents, $a)) { // print_r($a[1]); exit;
             foreach($a[1] as $block) {
                 $rows = explode("\n", $block);
                 if(preg_match("/\'(.*?)\'/ims", $rows[0], $a2)) $list_header = $a2[1];
@@ -72,7 +67,6 @@ class ParseListTypeAPI_Memoirs
                         if($list_header != "ADULT SYSTEMATIC TREATMENT") continue; //only has 1 legitimate list
                         // else $list_header .= ". Ozark Mountain forests.";
                     }
-                    
                     echo "\n------------------------\n$list_header\n------------------------\n";
                     // print_r($rows); //continue; //exit; //good debug
                     echo "\n n = ".count($rows)."\n"; //continue; //exit;
@@ -81,7 +75,6 @@ class ParseListTypeAPI_Memoirs
                     foreach($rows as $sciname_line) { $rek = array(); $i++;
                         if(substr($sciname_line,0,1) == " ") continue;
                         $rek['verbatim'] = $sciname_line;
-                        
                         
                         if(stripos($sciname_line, "...") !== false) continue; //string is found
                         if(stripos($sciname_line, " and ") !== false) continue; //string is found
@@ -114,9 +107,7 @@ class ParseListTypeAPI_Memoirs
                         if(substr($sciname_line,0,1) == "(") continue;
                         if(substr($sciname_line,0,1) == ".") continue;
                         
-                        
                         $sciname_line = str_ireplace("†","",$sciname_line); //special chars like this messes up GNRD and Gnparser
-                        
                         $sciname_line = str_replace(".—", " .— ", $sciname_line);
                         $sciname_line = Functions::remove_whitespace($sciname_line);
                         
@@ -146,7 +137,6 @@ class ParseListTypeAPI_Memoirs
                         // */
                         
                         if(self::is_a_rank_name($words[0])) continue;
-
 
                         if(self::last_word_not_num_not_LT_4_digits($words)) {}
                         else continue;
@@ -242,7 +232,6 @@ class ParseListTypeAPI_Memoirs
                                 [scientificName_author_cleaned] => Achirus fluviatilis Meek and Steindachner, 1928
                             )
                             */
-                            
                         }
                         // if($i >= 10) break; //debug only
                     }
@@ -274,23 +263,16 @@ class ParseListTypeAPI_Memoirs
         foreach($exclude as $exc) {
             if(substr($string,0,strlen($exc)) == $exc) return false;
         }
-        
         if(stripos($string, "...") !== false) return false; //string is found
-
         if(substr($string,0,3) == "s-*") $string = trim(substr($string,3,strlen($string)));
-
         if(substr($string,0,2) == "s-") $string = trim(substr($string,2,strlen($string)));
-        
         if(substr($string,0,1) == "*") $string = trim(substr($string,1,strlen($string)));
-        
         if(stripos($string, ", new species") !== false) {
             $string = trim(str_ireplace(", new species", "", $string));
         }
-
         if(stripos($string, ", new combination") !== false) {
             $string = trim(str_ireplace(", new combination", "", $string));
         }
-
         //for weird names, from Jen
         $string = str_replace("‘", "'", $string);
         $string = str_replace("’", "'", $string);
@@ -386,7 +368,6 @@ class ParseListTypeAPI_Memoirs
             return $obj;
         }
     }
-
     // /*
     function run_gnparser($string)
     {
@@ -449,7 +430,6 @@ class ParseListTypeAPI_Memoirs
                 }
                 elseif(stripos($row, "species list") !== false) {} //string is found //120083
                 else { $rows = array(); continue; }
-
                 // if(stripos($row, "species list") !== false) echo "\n========\n2 $row\n=============\n"; //good debug
             }
             // */
@@ -525,11 +505,9 @@ class ParseListTypeAPI_Memoirs
             // else echo "\n[$row]\n";
 
             // /* to close tag the last block
-
             // if($pdf_id == '91225') { //manual specific --- was never used at all
             //     if($row == "New York Botanical Garden Libra") $row = "</taxon>$row";
             // }
-            
             if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293.txt
             elseif($row == "References") $row = "</taxon>$row";             //SCtZ-0008.txt
             elseif($row == "General Conclusions") $row = "</taxon>$row";    //SCtZ-0029.txt
@@ -542,19 +520,15 @@ class ParseListTypeAPI_Memoirs
             else {
                 if($row == "Braun, Annette F.") $row = "</taxon>$row";      //SCtZ-0018.txt
             }
-            
             if($pdf_id == 'SCtZ-0609') {
                 if($row == "Figures") $row = "</taxon>$row";                //SCtZ-0609.txt
             }
-            
             if($pdf_id == 'SCtZ-0613') {
                 if($row == "ACKNOWLEDGMENTS") $row = "</taxon>$row";        //SCtZ-0613.txt
             }
-
             if($pdf_id == '118237') { //skipped list-type anyway
                 if($row == "Spodoptera Guenee") $row = "</taxon>$row";        //118237.txt
             }
-            
             // */
             // echo "\n$row";
             fwrite($WRITE, $row."\n");
@@ -630,10 +604,8 @@ class ParseListTypeAPI_Memoirs
                 if(is_numeric($row)) continue;
                 if($row == "-") continue;
                 if(is_numeric(substr($words[0],0,1))) continue; //e.g. table of contents section
-                
             }
             // */
-            
             fwrite($WRITE, $row."\n");
         }//end loop text
         fclose($WRITE);
@@ -646,7 +618,6 @@ class ParseListTypeAPI_Memoirs
         elseif($row == "Creagrutus and Piabina species") return true;           //SCtZ-0613
         elseif($row == "Material Examined") return true;
         elseif($row == "ADULT SYSTEMATIC TREATMENT") return true;    //118237 - skipped list-type anyway
-        // elseif($row == "HOST-INDEX TO THE UREDINALES") return true; //91225 --- was never used at all
         else return false;
     }
     private function show_parsed_texts_for_mining_LT($edited_file)
@@ -654,8 +625,7 @@ class ParseListTypeAPI_Memoirs
         $with_blocks_file = str_replace("_edited_LT.txt", "_tagged_LT.txt", $edited_file);
         $WRITE = fopen($with_blocks_file, "w"); //initialize
         $contents = file_get_contents($edited_file);
-        if(preg_match_all("/<taxon (.*?)<\/taxon>/ims", $contents, $a)) {
-            // print_r($a[1]);
+        if(preg_match_all("/<taxon (.*?)<\/taxon>/ims", $contents, $a)) { // print_r($a[1]);
             foreach($a[1] as $block) {
                 $rows = explode("\n", $block);
                 if(true) {
@@ -716,16 +686,13 @@ class ParseListTypeAPI_Memoirs
         // /* manual adjustment
         if($sciname_line == "Megapodius molistructor") return $sciname_line;
         if(stripos($sciname_line, "Eunice segregate (Chamberlin, 1919a) restricted") !== false) return "Eunice segregate (Chamberlin, 1919a)";
-
         if($this->pdf_id == '91155') {
             $sciname_line = str_ireplace("nitidulusSchimp", "nitidulus Schimp", $sciname_line);
             $sciname_line = str_ireplace("tenellumPers", "tenellum Pers", $sciname_line);
         }
-
         $sciname_line = str_ireplace("'i^", "", $sciname_line); //30354
         $sciname_line = str_ireplace("Eurycotis bioUeyi Rehn", "Eurycotis biolleyi Rehn", $sciname_line); //30354
         // */
-        
         // if(stripos($sciname_line, $this->in_question) !== false) exit("\n[$sciname_line]xx1\n"); //good debug - to see what string passes here.
         
         /*
@@ -753,11 +720,9 @@ class ParseListTypeAPI_Memoirs
         $sciname_line = str_replace(":", " : ", $sciname_line);
         $sciname_line = str_replace(";", " ; ", $sciname_line);
         $sciname_line = trim(Functions::remove_whitespace($sciname_line));
-
         $sciname_line = str_replace('"', "&quot;", $sciname_line);
 
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname_line]xx3\n"); //good debug - to see what string passes here.
-
         if(in_array($this->pdf_id, array("91225", "91362", "91362_species"))) { //host-pathogen list pattern
             // return $sciname_line; //SPECIAL CASE -> to avoid GNRD call --- host-pathogen list pattern
             $words = explode(" ", $sciname_line);
@@ -812,7 +777,6 @@ class ParseListTypeAPI_Memoirs
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4\n"); //good debug - to see what string passes here.
         if(self::is_just_one_word($sciname)) return "monomial"; //false; //exclude if sciname is just one word, it is implied that it should be a binomial
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4a\n"); //good debug - to see what string passes here.
-        
         
         if(in_array($this->pdf_id, array("30353", "30354"))) $criteria = $sciname && self::binomial_or_more($sciname); //resources to be skipped more or less
         else                                        $criteria = $sciname; //rest of the resources, default
@@ -925,8 +889,7 @@ class ParseListTypeAPI_Memoirs
         }
     }
     private function meet_case_1($repo, $epub)
-    {
-        // repo -> Revision of the clearwing moth genus Osminia (Lepidoptera, Sesiidae)
+    {   // repo -> Revision of the clearwing moth genus Osminia (Lepidoptera, Sesiidae)
         // epub -> Revision of the Clearwing Moth Genus Osminia (Lepidoptera: Sesiidae)
         if(preg_match("/\((.*?)\)/ims", $repo, $a1)) {
             if(preg_match("/\((.*?)\)/ims", $epub, $a2)) {
@@ -965,12 +928,10 @@ class ParseListTypeAPI_Memoirs
         if(strlen($str) == 1) return false;                 //must be longer than 1 char
         if(!ctype_alpha($str)) return false;                //must be all letters
         if(ctype_lower(substr($str,0,1))) return false;     //must be capitalized
-        
         debug("\nrun_GNRD 2: [$str]\n");
         if($obj = self::run_GNRD($str)) {
             if(strtolower($str) == strtolower(@$obj->names[0]->scientificName)) return true;
             else {
-
                 if($this->pdf_id == '120602') { //force GNRD to say its a name
                     if(in_array($str, array("Oulopteryginae", "Corydini", "Tiviini", "Euthyrrhaphini", "Compsodini", "Panesthiini", "Diplopterini", "Blattini", "Nyctiborini", "Megaloblattini", "Perisphaerini", "Litopeltiini", "Brachycolini", "Blaberini", "Parcoblattini", "Euphyllodromiini", "Euandroblattini", "Neoblattellini", "Pseudomopini", "Supellini", "Symplocini", "Baltini", "Ectobiini", "Chorisoneurini", "Anaplectini", "Ceuthobiini", "Oulopterygini", "Corydiini", "ElTTHYRRHAPHINAE", "Litopeltini", "Euphyllodromini", "Ectobhnae"))) return true;
                 }
@@ -1045,7 +1006,6 @@ class ParseListTypeAPI_Memoirs
         1. Sphaerocarpos texanus Aust. Bull. Torrey Club 6: 158. 1877.
         7. Riccia Curtisii T. P, James; (Aust. Proc. Acad. Phila. 1869: 231, 
         (1) Coelopoeta glutinosi Walsingham (Figs. 1, 2, 55, 55a, 55b, 101.) --- 118950
-        
         */
         // /* manual adjustment
         $string = str_ireplace("Riccia Frostii", "Riccia frostii", $string);
@@ -1089,11 +1049,8 @@ class ParseListTypeAPI_Memoirs
         // if(stripos($string, $this->in_question) !== false) exit("\nreaches here 1\n"); //string is found
         return self::is_sciname_in_118986($string);
     }
-    
     function is_sciname_in_118920($string)
-    {   /*
-        Cascadoperla trictura (Hoppe)
-        */
+    {
         $str = trim($string);
         if($str == "Hosts and biology") return false;
         $words = explode(" ", $str);
@@ -1121,9 +1078,7 @@ class ParseListTypeAPI_Memoirs
         
         if($string == "An uregulai") return false;
         if($string == "Cascadoperla trictura") return false;
-
         // if(stripos($string, $this->in_question) !== false) exit("\nstopx 11 [$string]\n"); //string is found
-        
         return self::is_sciname_in_118986($string);
     }
     function is_sciname_in_118986($string)
@@ -1153,7 +1108,6 @@ class ParseListTypeAPI_Memoirs
         // */
 
         // if(stripos($string, $this->in_question) !== false) exit("\nreaches here 3\n"); //string is found
-        
         if($words[0] == 'Clypeal') return false;
         if($words[0] == 'Anal') return false;
         if($words[0] == 'Eyes') return false;
@@ -1168,9 +1122,7 @@ class ParseListTypeAPI_Memoirs
             if(@$words[1][0] == "(") return false;
             if(trim($string) == "Males and Females") return false;
         }
-        
         if(stripos($string, "Richland and") !== false) return false; //doesn't have this char(s) e.g. Richland and Bear Creeks
-        
         return $string;
     }
     function is_sciname_in_120082($string)
@@ -1211,7 +1163,6 @@ class ParseListTypeAPI_Memoirs
     {   //[(1) Coelopoeta glutinosi Walsingham (Figs. 1, 2, 55, 55a, 55b, 101.)] --- 118950
         
         // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 3a\n[$str]\n"); //string is found
-        
         if(strlen($str) <= 10) return false;
         if(count($words) < 2) return false;
         if(ctype_lower($words[0][0])) return false; //first word must be capitalized
@@ -1221,8 +1172,6 @@ class ParseListTypeAPI_Memoirs
         }
         
         // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 3\n[$str]aaa\n"); //string is found
-        
-        
         if($words[0][0] == "(") return false; //must not start with this char(s) e.g. (Drawings by Frances A. McKittrick)
         if($words[0][0] == "'") return false; //must not start with this char(s) e.g. '- ■• '■
         
@@ -1238,7 +1187,6 @@ class ParseListTypeAPI_Memoirs
             if($words[0][0] == "$char") return false; //must not start with this char(s)
         }
         // */
-        
         // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 3\n[$str]\n"); //string is found
 
         $first_word_must_not_be_these = array('On', 'Oh', 'Nm', 'Ov', '\or-', 'Indies');
@@ -1252,8 +1200,8 @@ class ParseListTypeAPI_Memoirs
         if(strlen($words[0]) == 1) return false; //e.g. O iH CVJ
 
         // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 4a\n"); //string is found
-        $dont_have_these_chars_anywhere = array("—", "~", "->", "<-", "«", "»", "©", " pp.", " ibid.", " of ", 
-                                                " is ", "(see", "species?", "inquirendum");
+        $dont_have_these_chars_anywhere = array("—", "~", "->", "<-", "«", "»", "©", " pp.", " ibid.", " of ", " is ", "(see", "species?", 
+            "inquirendum");
         if($this->pdf_id == '120082') $dont_have_these_chars_anywhere[] = " and "; //4th doc
         if($this->pdf_id != '91365') $dont_have_these_chars_anywhere[] = " to ";
         
@@ -1267,7 +1215,7 @@ class ParseListTypeAPI_Memoirs
         // 39. Sphagnum tabulate Sull. Musci Allegh. i'*^-;. 1845.
         // 6. Bruchia Ravenelii Wilson; SuU. in A. Gray, Man.               got in 
         // 8. Bruchia brevifolia Sull. in A. Gray, Man. ed. 2. 617. 1856.   got in
-        //8. Ditrichum rufescens (Hampe) Broth, in E. & P. Nat. 
+        // 8. Ditrichum rufescens (Hampe) Broth, in E. & P. Nat. 
         // 1 . Seligeria campylopoda Kindb.; Macoun, Cat. Can. 
         
         // if(stripos($str, $this->in_question) !== false) exit("\ngoes here2...\n[$str]\n"); //string is found
@@ -1291,22 +1239,18 @@ class ParseListTypeAPI_Memoirs
 
         if($this->get_numbers_from_string($words[0])) return false; //first word must not have a number
         if($this->get_numbers_from_string($words[1])) return false; //2nd word must not have a number
-
         // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 4x\n[$str]\n"); //string is found
-
         if(in_array($this->pdf_id, array('119187'))) {} //Coryphaeschna luteipennis peninsularis Tables 8, 11, 13, 18; Map 7.
         elseif($this->resource_name == 'all_BHL') {} //15428.txt //4. Naias conferta A. Br. Sitz.-ber. Ges. Nat. Freunde Berlin 1868 : 17.
         else {
             if(self::last_word_not_num_not_LT_4_digits($words)) {}
             else return false;
         }
-
         // if(stripos($str, $this->in_question) !== false) exit("\nreaches here 4y\n"); //string is found
         return true;
     }
     public function last_word_not_num_not_LT_4_digits($words)
-    {
-        // /* last word must not be a number with < 4 digits => e.g. "Second antennal segment extensively blackish 22"
+    {   // /* last word must not be a number with < 4 digits => e.g. "Second antennal segment extensively blackish 22"
         $last_word = end($words);
         if(is_numeric($last_word)) {
             if(strlen($last_word) < 4) return false;
@@ -1470,14 +1414,13 @@ class ParseListTypeAPI_Memoirs
             "Illustr ation :", "Ili^ustratxons :", "BxsiccATi:", "ILLXTSTRATION r", "Ii,i,ustrations:", "FllustIItions :",
             "IivLUSTRATiONS", "Ili^ustration:", "I1.1.USTRAT10NS:", "Ii.i.usTR.\Tios:", "IllustraTio.v:", "ILLUSTR.^TION:",
             "Illustrations ■", "Ii^LusTRATiONS:", "Illustr.atio.s-:", "iLLUSTR.'iTiONs:", "Ii,i,i;sTRATio.Ns:", "Ili.i stations:",
-            "Illistratio.v:", "■ Illustrations:", "Ill- VTKATIom:", "Illustratio.vs:", "Illustratio.n:"); //NoTB: 91144 and 91362_species
+            "Illistratio.v:", "■ Illustrations:", "Ill- VTKATIom:", "Illustratio.vs:", "Illustratio.n:", "Illl'STR ATIONS"); //NoTB: 91144 and 91362_species
             foreach($exclude as $start_of_row) {
                 $start_of_row = str_replace(":", $separator, $start_of_row);
                 $len = strlen($start_of_row);
                 if(substr($row,0,$len) == $start_of_row) return true;;
             }
         }
-
         /* case 2 */ //e.g. "' Illustrations :"
         $words = explode(" ", $row);
         $terms = array("Illustrations", "Illustration");
@@ -1486,19 +1429,16 @@ class ParseListTypeAPI_Memoirs
                 if(strlen($words[0]) == 1) return true;
             }
         }
-        
         /* case 3 
-        "ILLISTRATIONS: "
-        "Illlstbations:"
-        "Illvstr.\tion:"
-        "Illvstr.^tions"
-        "Illlstrations"
-        */
+        "ILLISTRATIONS: "   "Illlstbations:"    "Illvstr.\tion:"
+        "Illvstr.^tions"    "Illlstrations"     "Illlstratio.ns:"   */
         $first3 = substr($words[0],0,3);
         $last4 = substr($words[0], -4);
+        $last3 = substr($words[0], -3);
         if(strtolower($first3) == "ill" && strtolower($last4 == "ons:")) return true;
         if(strtolower($first3) == "ill" && strtolower($last4 == "ion:")) return true;
         if(strtolower($first3) == "ill" && strtolower($last4 == "ions")) return true;
+        if(strtolower($first3) == "ill" && strtolower($last3 == "ns:")) return true;
         return false;
     }
     private function xlx_to_xix($str)
@@ -1506,14 +1446,11 @@ class ParseListTypeAPI_Memoirs
             $pos = strpos($str, "l");
             if ($pos === false) {} //not found
             else { //found
-                // echo "\npos [$pos]\n";
                 $left = substr($str,$pos-1,1);
-                $right = substr($str,$pos+1,1);
-                // echo "\nleft [$left] | right [$right]\n";
+                $right = substr($str,$pos+1,1); // echo "\nleft [$left] | right [$right]\n";
                 if(is_a_consonant_but_not_el($left) && is_a_consonant_but_not_el($right)) {
                     $from = $left."l".$right;
-                    $to = $left."i".$right;
-                    // echo "\nfrom [$from] | to [$to]\n";
+                    $to = $left."i".$right; // echo "\nfrom [$from] | to [$to]\n";
                     $str = str_replace($from, $to, $str);
                 }
             }
@@ -1525,13 +1462,10 @@ class ParseListTypeAPI_Memoirs
             $pos = strpos($str, "l");
             if ($pos === false) {} //not found
             else { //found
-                // echo "\npos [$pos]\n";
-                $left = substr($str,$pos-1,1);
-                // echo "\nleft [$left]\n";
+                $left = substr($str,$pos-1,1);  // echo "\nleft [$left]\n";
                 if(is_a_consonant_but_not_el($left)) {
                     $from = $left."ll";
-                    $to = $left."il";
-                    // echo "\nfrom [$from] | to [$to]\n";
+                    $to = $left."il";   // echo "\nfrom [$from] | to [$to]\n";
                     $str = str_replace($from, $to, $str);
                 }
             }
@@ -1543,13 +1477,10 @@ class ParseListTypeAPI_Memoirs
             $pos = strpos($str, "l");
             if ($pos === false) {} //not found
             else { //found
-                // echo "\npos [$pos]\n";
-                $right = substr($str,$pos+2,1);
-                // echo "\nright [$right]\n";
+                $right = substr($str,$pos+2,1); // echo "\nright [$right]\n";
                 if(is_a_consonant_but_not_el($right)) {
                     $from = "ll".$right;
-                    $to = "li".$right;
-                    // echo "\nfrom [$from] | to [$to]\n";
+                    $to = "li".$right;  // echo "\nfrom [$from] | to [$to]\n";
                     $str = str_replace($from, $to, $str);
                 }
             }
@@ -1598,7 +1529,6 @@ class ParseListTypeAPI_Memoirs
         $output = shell_exec($cmd); sleep(10);
         if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully from $doc.\n";
         else                                                    exit("\nERROR: can not download ".$source."\n[$output]\n");
-        
         if(!Functions::is_production()) {
             $destination = str_replace(".txt", ".pdf", $destination);
             $source = $this->paths[$doc]['pdf'].str_replace(".txt", "", $filename);
