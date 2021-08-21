@@ -1414,7 +1414,8 @@ class ParseListTypeAPI_Memoirs
             "Illustr ation :", "Ili^ustratxons :", "BxsiccATi:", "ILLXTSTRATION r", "Ii,i,ustrations:", "FllustIItions :",
             "IivLUSTRATiONS", "Ili^ustration:", "I1.1.USTRAT10NS:", "Ii.i.usTR.\Tios:", "IllustraTio.v:", "ILLUSTR.^TION:",
             "Illustrations ■", "Ii^LusTRATiONS:", "Illustr.atio.s-:", "iLLUSTR.'iTiONs:", "Ii,i,i;sTRATio.Ns:", "Ili.i stations:",
-            "Illistratio.v:", "■ Illustrations:", "Ill- VTKATIom:", "Illustratio.vs:", "Illustratio.n:", "Illl'STR ATIONS"); //NoTB: 91144 and 91362_species
+            "Illistratio.v:", "■ Illustrations:", "Ill- VTKATIom:", "Illustratio.vs:", "Illustratio.n:", "Illl'STR ATIONS",
+            "ILLISTRATIONS:"); //NoTB: 91144 and 91362_species
             foreach($exclude as $start_of_row) {
                 $start_of_row = str_replace(":", $separator, $start_of_row);
                 $len = strlen($start_of_row);
@@ -1432,6 +1433,7 @@ class ParseListTypeAPI_Memoirs
         /* case 3 
         "ILLISTRATIONS: "   "Illlstbations:"    "Illvstr.\tion:"
         "Illvstr.^tions"    "Illlstrations"     "Illlstratio.ns:"   */
+        $words[0] = str_ireplace(array("'"), "", $words[0]); // 'iLLi'STRATioNs:
         $first3 = substr($words[0],0,3);
         $last4 = substr($words[0], -4);
         $last3 = substr($words[0], -3);
@@ -1439,6 +1441,8 @@ class ParseListTypeAPI_Memoirs
         if(strtolower($first3) == "ill" && strtolower($last4 == "ion:")) return true;
         if(strtolower($first3) == "ill" && strtolower($last4 == "ions")) return true;
         if(strtolower($first3) == "ill" && strtolower($last3 == "ns:")) return true;
+        if(strtolower($first3) == "ilu" && strtolower($last4 == "ons:")) return true;   //"iLUisTRATiONs:"
+        if(strpos($words[0], "stra") !== false && strtolower($last3 == "ns:")) return true; // lM.t;sTRATio.NS:
         return false;
     }
     private function xlx_to_xix($str)
