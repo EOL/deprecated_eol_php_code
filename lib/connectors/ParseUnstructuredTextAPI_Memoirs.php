@@ -38,7 +38,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Virescentes Kunth";
+        $this->in_question = "Chordorrhizeae Fries, Summa Veg. Scand. 73, as";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
     }
@@ -638,6 +638,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(!is_numeric($words[0])) return false;
             }
             $string = self::remove_first_word_if_it_has_number($string);
+            // if(stripos($string, $this->in_question) !== false) exit("\nxx[$string]xx5\n"); //string is found  //good debug
+            
+            // /* e.g. "Fl. ed. 2. 1: 441. 1913."
+            $words = explode(" ", $string);
+            if(substr($words[0], -1) == ".") return false; //"Fl."
+            // */
+
+            // /* e.g. "KOBRESIA Willd. vSp. PI. 4: 205. 1805."
+            if(ctype_upper($words[0])) return false;
+            // */
+            // if(stripos($string, $this->in_question) !== false) exit("\nxx[$string]xx6\n"); //string is found  //good debug
 
             /* good debug
             if(stripos($string, $this->in_question) !== false) {
