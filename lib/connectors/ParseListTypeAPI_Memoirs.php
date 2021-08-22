@@ -1442,7 +1442,7 @@ class ParseListTypeAPI_Memoirs
         if(strtolower($first3) == "ill" && strtolower($last4 == "ions")) return true;
         if(strtolower($first3) == "ill" && strtolower($last3 == "ns:")) return true;
         if(strtolower($first3) == "ilu" && strtolower($last4 == "ons:")) return true;   //"iLUisTRATiONs:"
-        if(strpos($words[0], "stra") !== false && strtolower($last3 == "ns:")) return true; // lM.t;sTRATio.NS:
+        if(stripos($words[0], "stra") !== false && strtolower($last3 == "ns:")) return true; // lM.t;sTRATio.NS:
         return false;
     }
     private function xlx_to_xix($str)
