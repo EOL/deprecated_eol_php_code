@@ -955,6 +955,8 @@ wikipedia-no	Monday 2020-02-24 10:31:26 AM	{"media_resource.tab":64683,"taxon.ta
 wikipedia-no	Sunday 2020-04-26 03:31:40 AM	{"media_resource.tab":65140, "taxon.tab":39338, "time_elapsed":{"sec":49196.95, "min":819.95, "hr":13.67}}
 wikipedia-no	Sunday 2020-05-10 11:25:44 PM	  {"media_resource.tab":65459, "taxon.tab":39448, "time_elapsed":{"sec":6228.27, "min":103.8, "hr":1.73}} New
 wikipedia-no	Thursday 2020-08-13 11:43:36 AM	{"media_resource.tab":66429, "taxon.tab":39997, "time_elapsed":{"sec":47033.96, "min":783.9, "hr":13.06}} consistent OK
+wikipedia-no	Mon 2021-04-26 04:37:42 AM	    {"media_resource.tab":70802, "taxon.tab":42523, "time_elapsed":{"sec":52023.71, "min":867.06, "hr":14.45}}
+wikipedia-no	Sun 2021-08-22 04:04:44 AM	    {"media_resource.tab":72542, "taxon.tab":43440, "time_elapsed":{"sec":7520.47, "min":125.34, "hr":2.09}} consistent OK
 
 wikipedia-ro	Saturday 2019-04-27 02:09:48 PM	{"media_resource.tab":60752,"taxon.tab":34846}
 wikipedia-ro	Thursday 2019-08-15 07:49:25 AM	{"media_resource.tab":60891,"taxon.tab":34936} OK

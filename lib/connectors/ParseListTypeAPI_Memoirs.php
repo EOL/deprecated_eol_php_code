@@ -1437,12 +1437,12 @@ class ParseListTypeAPI_Memoirs
         $first3 = substr($words[0],0,3);
         $last4 = substr($words[0], -4);
         $last3 = substr($words[0], -3);
-        if(strtolower($first3) == "ill" && strtolower($last4 == "ons:")) return true;
-        if(strtolower($first3) == "ill" && strtolower($last4 == "ion:")) return true;
-        if(strtolower($first3) == "ill" && strtolower($last4 == "ions")) return true;
-        if(strtolower($first3) == "ill" && strtolower($last3 == "ns:")) return true;
-        if(strtolower($first3) == "ilu" && strtolower($last4 == "ons:")) return true;   //"iLUisTRATiONs:"
-        if(stripos($words[0], "stra") !== false && strtolower($last3 == "ns:")) return true; // lM.t;sTRATio.NS:
+        if(strtolower($first3) == "ill" && strtolower($last4) == "ons:") return true;
+        if(strtolower($first3) == "ill" && strtolower($last4) == "ion:") return true;
+        if(strtolower($first3) == "ill" && strtolower($last4) == "ions") return true;
+        if(strtolower($first3) == "ill" && strtolower($last3) == "ns:") return true;
+        if(strtolower($first3) == "ilu" && strtolower($last4) == "ons:") return true;   //"iLUisTRATiONs:"
+        if(stripos($words[0], "stra") !== false && strtolower($last3) == "ns:") return true; // lM.t;sTRATio.NS:
         return false;
     }
     private function xlx_to_xix($str)
