@@ -232,6 +232,7 @@ class WikipediaRegionalAPI
             }
             
             if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+            elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
             else {
                 // /* for future investigation. Initial finding is that the article is not worthy to publish
                 // echo "\n$html\n";
