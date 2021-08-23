@@ -915,7 +915,7 @@ class ParseListTypeAPI_Memoirs
             if(stripos($row, ".—") !== false) return false; //string is found
             if(stripos($row, ",") !== false) return false; //string is found
             if(stripos($row, ":") !== false) return false; //string is found
-            if(ctype_lower(substr($row,0,1))) return false;
+            if(ctype_lower(substr($row,0,1))) return false; //first char must be all-caps
             if(self::is_a_sciname($row)) {
                 if($GLOBALS["ENV_DEBUG"]) echo "\none_word_and_higher_taxon: [$row]\n";
                 return true;
@@ -1548,6 +1548,12 @@ class ParseListTypeAPI_Memoirs
             else                                                    exit("\nERROR: can not download ".$source."\n[$output]\n");
             exit("\n-Enough here...-\n");
         }
+    }
+    function first_word_is_numeric($str)
+    {
+        $words = explode(" ", trim($str));
+        if(is_numeric($words[0])) return true;
+        return false;
     }
 }
 ?>

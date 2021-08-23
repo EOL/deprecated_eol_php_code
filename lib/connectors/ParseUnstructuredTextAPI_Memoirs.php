@@ -14,8 +14,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNRD text input XML'] = 'http://gnrd.globalnames.org/name_finder.xml?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
-        http://gnrd.globalnames.org/name_finder.json?text=
-        http://gnrd.globalnames.org/name_finder.xml?text=
+        http://gnrd.globalnames.org/name_finder.json?text=Lithophragma
+        http://gnrd.globalnames.org/name_finder.xml?text=Lithophragma
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Melanoleuca collybiiformis. Murrill, Mycologia 5 : 216. 1913
@@ -276,6 +276,16 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(substr($rows2[1],0,14) == "Distribution :") { // print_r($rows2); exit;
                 $this->Distribution_Stop_pattern[$ctr-1] = '';
             }
+            
+            // /* Includes cases like these: "6. Lithophragma" --- must be a Stop pattern
+            $arr = $rows2;
+            if($this->first_word_is_numeric($arr[1])) { // print_r($arr); echo("\n[$arr[1]]elix1");
+                $arr[1] = self::remove_first_word_if_it_has_number($arr[1]); // echo("\n[$arr[1]]elix1");
+                if(self::one_word_and_higher_taxon($arr[1])) {
+                    $this->Distribution_Stop_pattern[$ctr-1] = ''; // exit("\nelix2\n");
+                }
+            }
+            // */
         }
         array_shift($rows2); //remove 1st element, once it reaches 5 rows.
         return $rows2;
