@@ -273,6 +273,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(substr($rows2[1],0,13) == "Distribution:") { // print_r($rows2); exit;
                 $this->Distribution_Stop_pattern[$ctr-1] = '';
             }
+            if(substr($rows2[1],0,14) == "Distribution :") { // print_r($rows2); exit;
+                $this->Distribution_Stop_pattern[$ctr-1] = '';
+            }
         }
         array_shift($rows2); //remove 1st element, once it reaches 5 rows.
         return $rows2;
@@ -1149,6 +1152,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             /* shouldn't be used... very expensive on API calls
             if($this->is_HigherTaxa_stop_pattern($row)) $row = "</taxon>$row"; // e.g. "Chordorrhizeae fries, Summa Veg. Scand. 73, as to type species. 1845; Carey, in"
             */
+            
+            if($this->resource_name == 'all_BHL') {
+                if(strtolower($row) == "uncertain species")  $row = "</taxon>$row";
+            }
             
             // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]stop_1\n");}   //string is found  //good debug
 
