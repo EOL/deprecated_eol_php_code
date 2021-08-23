@@ -983,7 +983,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '15424') {
                 $row = str_ireplace('Dicranella rubra (Huds.) Kindb. Eur. & N. Am. 9>£ ( f', "Dicranella rubra (Huds.)", $row);
             }
-            
+            elseif($this->pdf_id == '91343') {
+                $row = str_ireplace("Carex gi'gantea Rudge", "Carex gigantea Rudge", $row);
+            }
             if($this->pdf_id == '15427') { //start of row
                 // $words = array("ANEMIA' sw.");
                 // foreach($words as $word) {
@@ -1137,6 +1139,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($row == "Pseudomopoid Complex")  $row = "</taxon>$row";
             if(strtolower($row) == "doubtful and excluded species")  $row = "</taxon>$row";
             if(strtolower($row) == "doubtful species")  $row = "</taxon>$row";
+            if(strtolower($row) == "editorial appendix")  $row = "</taxon>$row";
             if(strcmp($row, "CORRECTIONS") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
             if(substr($row,0,4) == "Key ")      $row = "</taxon>$row";
             if(substr(strtoupper($row),0,6) == "TABLE ")    $row = "</taxon>$row";
