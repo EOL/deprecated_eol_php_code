@@ -1441,6 +1441,7 @@ class ParseListTypeAPI_Memoirs
             if(strtolower($first3) == $str && strtolower($last4) == "ons:") return true;
             if(strtolower($first3) == $str && strtolower($last4) == "ion:") return true;
             if(strtolower($first3) == $str && strtolower($last4) == "ions") return true;
+            if(strtolower($first3) == $str && strtolower($last4) == "on-:") return true; // Illustration-:
             if(strtolower($first3) == $str && strtolower($last3) == "ns:") return true;
         }
         // "iLUisTRATiONs:" --- lLLUSTR.\TioNS:
