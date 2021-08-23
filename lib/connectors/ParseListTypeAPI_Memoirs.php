@@ -1437,11 +1437,13 @@ class ParseListTypeAPI_Memoirs
         $first3 = substr($words[0],0,3);
         $last4 = substr($words[0], -4);
         $last3 = substr($words[0], -3);
-        if(strtolower($first3) == "ill" && strtolower($last4) == "ons:") return true;
-        if(strtolower($first3) == "ill" && strtolower($last4) == "ion:") return true;
-        if(strtolower($first3) == "ill" && strtolower($last4) == "ions") return true;
-        if(strtolower($first3) == "ill" && strtolower($last3) == "ns:") return true;
-        if(strtolower($first3) == "ilu" && strtolower($last4) == "ons:") return true;   //"iLUisTRATiONs:"
+        foreach(array("ill", "ilu", "lll") as $str) {
+            if(strtolower($first3) == $str && strtolower($last4) == "ons:") return true;
+            if(strtolower($first3) == $str && strtolower($last4) == "ion:") return true;
+            if(strtolower($first3) == $str && strtolower($last4) == "ions") return true;
+            if(strtolower($first3) == $str && strtolower($last3) == "ns:") return true;
+        }
+        // "iLUisTRATiONs:" --- lLLUSTR.\TioNS:
         if(stripos($words[0], "stra") !== false && strtolower($last3) == "ns:") return true; // lM.t;sTRATio.NS:
         return false;
     }
