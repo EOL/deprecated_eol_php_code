@@ -271,7 +271,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $rows2 = array_map('trim', $rows2);
         if(!$rows2[0] && !$rows2[2] && !$rows2[3]) {
             if(substr($rows2[1],0,13) == "Distribution:") { // print_r($rows2); exit;
-                $this->Distribution_Stop_pattern[$ctr-1] = '';
+                $this->Distribution_Stop_pattern[$ctr-1] = ''; //minus 1 bec. the row to be stopped is 1 row ahead
             }
             if(substr($rows2[1],0,14) == "Distribution :") { // print_r($rows2); exit;
                 $this->Distribution_Stop_pattern[$ctr-1] = '';
@@ -282,7 +282,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->first_word_is_numeric($arr[1])) { // print_r($arr); echo("\n[$arr[1]]elix1");
                 $arr[1] = self::remove_first_word_if_it_has_number($arr[1]); // echo("\n[$arr[1]]elix1");
                 if(self::one_word_and_higher_taxon($arr[1])) {
-                    $this->Distribution_Stop_pattern[$ctr-1] = ''; // exit("\nelix2\n");
+                    $this->Distribution_Stop_pattern[$ctr-2] = ''; // minus 2 bec. the actual row is to be Stopped
                 }
             }
             // */
