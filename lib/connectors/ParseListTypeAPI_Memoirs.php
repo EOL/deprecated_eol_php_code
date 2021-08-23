@@ -1445,6 +1445,7 @@ class ParseListTypeAPI_Memoirs
         }
         // "iLUisTRATiONs:" --- lLLUSTR.\TioNS:
         if(stripos($words[0], "stra") !== false && strtolower($last3) == "ns:") return true; // lM.t;sTRATio.NS:
+        if(stripos($words[0], "stra") !== false && strtolower($last4) == "n-s:") return true; // Iulustratio.n-s:
         return false;
     }
     private function xlx_to_xix($str)

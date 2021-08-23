@@ -38,7 +38,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Chordorrhizeae Fries, Summa Veg. Scand. 73, as";
+        $this->in_question = "Scabrellae Kukenth";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
     }
@@ -161,6 +161,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
             
+            if($this->resource_name == 'all_BHL') {
+                $row = str_ireplace(array("■"), "", $row);
+                $row = trim($row);
+            }
             // if(stripos($row, $this->in_question) !== false) exit("\nsearch 1\n[$row]\n");   //string is found
             
             /* NOT FOR MEMOIRS
@@ -248,9 +252,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             //for weird names, from Jen
             $row = str_replace(array("“", "”"), "", $row); // “Clania” licheniphilus Koehler --> 0188.epub
             
-            /* good debug
-            if(stripos($row, "Thespesia howii") !== false) print("\nok 4\n[$row]\n"); //string is found
-            */
+            // if(stripos($row, $this->in_question) !== false) exit("\nok 4\n[$row]\n"); //string is found
 
             $rows[] = $row;
             $rows = self::process_magic_no($this->magic_no, $rows, $ctr);
@@ -1458,8 +1460,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             // */
 
-            // if($this->pdf_id == '91365') { //only during dev --- debug only
-            //     if($row == "blades 0.75-1.5 mm. wide.") break;
+            // if($this->pdf_id == '91208') { //only during dev --- debug only
+            //     if($row == "Africa. Not known from Australasia.") break;
             // }
             
         }//end loop text
