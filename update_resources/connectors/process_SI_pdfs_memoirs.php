@@ -95,6 +95,7 @@ Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd 
 
 // /* ========================== during dev: processing LIST-TYPE ==========================
 if($resource_id == 'MoftheAES') {
+    require_library('connectors/Functions_Memoirs');
     require_library('connectors/ParseListTypeAPI_Memoirs');
     require_library('connectors/SmithsonianPDFsAPI_Memoirs');
     $func = new SmithsonianPDFsAPI_Memoirs($resource_id);
