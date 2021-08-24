@@ -113,7 +113,7 @@ else { //run individual documents
     else                           $path = '/Volumes/AKiTiO4/other_files/Smithsonian/'.$doc.'/'.$resource_id.'/';
     $txt_filename = $path . $resource_id."_descriptions_LT.txt";
     $pdf_id = $resource_id;
-
+    require_library('connectors/Functions_Memoirs');
     require_library('connectors/ParseListTypeAPI_Memoirs');
     require_library('connectors/SmithsonianPDFsAPI_Memoirs');
     $func = new SmithsonianPDFsAPI_Memoirs($resource_id);
