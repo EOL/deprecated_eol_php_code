@@ -37,8 +37,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
-                              'Subphylum', 'Subclass', 'Superfamily', "? Subfamily");
-        $this->in_question = "Scabrellae Kukenth";
+                              'Subphylum', 'Subclass', 'Superfamily', "? Subfamily", "SubfamUy");
+        $this->in_question = "Guzmania Harrisii";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
     }
@@ -261,6 +261,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->resource_name == 'all_BHL') {
                 $rows2[] = $row;
                 if(count($rows2) == 4) $rows2 = self::possible_Distribution_Stop_pattern($rows2, $ctr);
+
+                $rows3[] = $row;
+                if(count($rows3) == 7) $rows3 = self::possible_SingleWordTaxon_Stop_pattern($rows3, $ctr);
             }
             // */
         }
@@ -287,9 +290,24 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             // */
         }
-        array_shift($rows2); //remove 1st element, once it reaches 5 rows.
+        array_shift($rows2); //remove 1st element, once it reaches 4 rows.
         return $rows2;
     }
+    private function possible_SingleWordTaxon_Stop_pattern($rows3, $ctr)
+    {   // 0 1 2 [3] 4 5 6
+        $rows3 = array_map('trim', $rows3);
+        if(!$rows3[0] && !$rows3[1] && !$rows3[2] && !$rows3[4] && !$rows3[5] && !$rows3[6]) {
+            // /* Includes cases like these: "Amaranthus" --- must be a Stop pattern
+            $arr = $rows3;
+            if(self::one_word_and_higher_taxon($arr[3])) {
+                $this->Distribution_Stop_pattern[$ctr-3] = ''; // minus 3 bec. the actual row is to be Stopped
+            }
+            // */
+        }
+        array_shift($rows3); //remove 1st element, once it reaches 7 rows.
+        return $rows3;
+    }
+
     private function process_magic_no($magic_no, $rows, $ctr)
     {
         if($magic_no == 5) {
@@ -648,7 +666,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 else return false;
             }
             else { //the rest goes here
-                if(!is_numeric($words[0])) return false;
+                if(!is_numeric(str_replace(array(".", ","), "", $words[0]))) return false; // e.g. "1.5." should be just 15
             }
             $string = self::remove_first_word_if_it_has_number($string);
             // if(stripos($string, $this->in_question) !== false) exit("\nxx[$string]xx5\n"); //string is found  //good debug
@@ -656,6 +674,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // /* e.g. "Fl. ed. 2. 1: 441. 1913."
             $words = explode(" ", $string);
             if(substr($words[0], -1) == ".") return false; //"Fl."
+            if($words[0] == "Not") return false; //"1918. Not Eleocharis capitata R. Br." --- should not be a Start pattern
             // */
 
             // /* e.g. "KOBRESIA Willd. vSp. PI. 4: 205. 1805."
@@ -1377,6 +1396,23 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
                 // */
                 
+                // /* for typo "subfamily" e.g. "SubfamUy 2. TILLANDSIOIDEAE."
+                if(substr($words[0],0,6) == "Subfam") {
+                    if(is_numeric($words[1])) {
+                        if(@$words[2]) {
+                            if(self::is_sciname_using_GNRD($words[2])) $row = "</taxon>$row"; //e.g. "SubfamUy 2. TILLANDSIOIDEAE."
+                            else echo "\nInvestigate 3a: [$words[2]] not sciname says GNRD\n";
+                        }
+                    }
+                    else {
+                        if(@$words[1]) {
+                            if(self::is_sciname_using_GNRD($words[1])) $row = "</taxon>$row"; //e.g. "SubfamUy TILLANDSIOIDEAE."
+                            else echo "\nInvestigate 3b: [$words[1]] not sciname says GNRD\n";
+                        }
+                    }
+                }
+                // */
+                
                 // /* two addtl stop patterns: https://eol-jira.bibalex.org/browse/DATA-1890?focusedCommentId=66240&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66240
                 // $words = array('Illustration:', 'Illustrations:');
                 $words = array('Exsicc', 'Exsioc:', 'Exstcc.', 'E.xsicc:', 'Kxsicc', 'FxsiccATAE', "^^' ^Exs'^iccataE");
@@ -1482,8 +1518,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             // */
 
-            // if($this->pdf_id == '91208') { //only during dev --- debug only
-            //     if($row == "Africa. Not known from Australasia.") break;
+            // if($this->pdf_id == '15432') { //only during dev --- debug only
+            //     if($row == "Type locality: Santa Cruz, Sonora.") break;
             // }
             
         }//end loop text
