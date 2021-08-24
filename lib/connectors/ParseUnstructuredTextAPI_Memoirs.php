@@ -38,7 +38,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily", "SubfamUy");
-        $this->in_question = "Not Eleocharis capitata";
+        $this->in_question = "1918. Not Eleocharis capitata R. Br.";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
     }
@@ -1131,7 +1131,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                          }
                      }
                  }
-
+                 
+                
+                if(stripos($orig_row, $this->in_question) !== false) {echo("\n[$row]check_1\n");}   //string is found  //good debug
                 $orig_row2 = $row;
                 $words = explode(" ", trim($row));
                 if(is_numeric(str_replace(",", "", $words[0]))) { //e.g. "4, REBOULIA Raddi, Opusc..." -> there is comma in first word
@@ -1146,6 +1148,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
                 if($ret = self::is_sciname_in_15423($row)) $row = $ret;
                 else $row = $orig_row2;
+                if(stripos($orig_row, $this->in_question) !== false) {exit("\n[$row]check_2\n");}   //string is found  //good debug
             }
 
             if(!$row) $count_of_blank_rows++;
