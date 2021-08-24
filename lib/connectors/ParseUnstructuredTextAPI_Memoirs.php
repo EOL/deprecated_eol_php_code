@@ -1133,8 +1133,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                  }
                  
                 
-                if(stripos($orig_row, $this->in_question) !== false) {echo("\n[$row]check_1\n");}   //string is found  //good debug
-                $orig_row2 = $row;
+                // if(stripos($orig_row, $this->in_question) !== false) {echo("\n[$row]check_1\n");}   //string is found  //good debug
+                $orig_row2 = $row; //New Aug 24, 2021
                 $words = explode(" ", trim($row));
                 if(is_numeric(str_replace(",", "", $words[0]))) { //e.g. "4, REBOULIA Raddi, Opusc..." -> there is comma in first word
                     $row = self::remove_first_word_if_it_has_number($row);
@@ -1147,8 +1147,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     // */
                 }
                 if($ret = self::is_sciname_in_15423($row)) $row = $ret;
-                else $row = $orig_row2;
-                if(stripos($orig_row, $this->in_question) !== false) {exit("\n[$row]check_2\n");}   //string is found  //good debug
+                else $row = $orig_row2; //New Aug 24, 2021
+                // if(stripos($orig_row, $this->in_question) !== false) {exit("\n[$row]check_2\n");}   //string is found  //good debug
             }
 
             if(!$row) $count_of_blank_rows++;
@@ -1193,6 +1193,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
             else {
+                $row = $orig_row; //New Aug 24, 2021
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$sciname][$row]xx33b\n");}   //string is found  //good debug
             }
             //start terminal criteria => stop patterns
