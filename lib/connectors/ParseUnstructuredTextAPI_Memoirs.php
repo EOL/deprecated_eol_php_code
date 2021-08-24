@@ -1171,6 +1171,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($row == "Pseudomopoid Complex")  $row = "</taxon>$row";
             if(strtolower($row) == "doubtful and excluded species")  $row = "</taxon>$row";
             if(strtolower($row) == "doubtful species")  $row = "</taxon>$row";
+            if(strtolower($row) == "excluded species")  $row = "</taxon>$row";
             if(strtolower($row) == "editorial appendix")  $row = "</taxon>$row";
             if(strcmp($row, "CORRECTIONS") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
             if(substr($row,0,4) == "Key ")      $row = "</taxon>$row";
@@ -1178,6 +1179,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             
             if($this->is_Section_stop_pattern($row)) $row = "</taxon>$row";
             if($this->is_New_then_RankName_stop_pattern($row)) $row = "</taxon>$row";
+            if($this->is_DoubtfulSpecies_stop_pattern($row)) $row = "</taxon>$row";
+            
             /* shouldn't be used... very expensive on API calls
             if($this->is_HigherTaxa_stop_pattern($row)) $row = "</taxon>$row"; // e.g. "Chordorrhizeae fries, Summa Veg. Scand. 73, as to type species. 1845; Carey, in"
             */

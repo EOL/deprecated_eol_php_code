@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* */
-class ParseListTypeAPI_Memoirs
+class ParseListTypeAPI_Memoirs extends Functions_Memoirs
 {
     function __construct() {}
     /*#################################################################################################################################*/

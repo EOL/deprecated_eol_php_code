@@ -203,6 +203,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "15422", "resource_name":
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
+require_library('connectors/Functions_Memoirs');
 require_library('connectors/ParseListTypeAPI_Memoirs');
 require_library('connectors/ParseUnstructuredTextAPI_Memoirs');
 $timestart = time_elapsed();
@@ -214,6 +215,22 @@ $resource_name = $param['resource_name'];
 $group = @$param['group'];
 $func = new ParseUnstructuredTextAPI_Memoirs($resource_name);
 
+/*
+$row = "I )'. i lill'l'l, SPECIES boy";
+$words = explode(" ", strtolower($row));
+print_r($words);
+$matches = array_keys($words, 'species');
+print_r($matches);
+$i = -1;
+foreach($words as $word) { $i++;
+    if($i <= $matches[0]) {
+        echo "\n[$word]\n";
+        if(stripos($word, "l") !== false) return true; //string is found
+    }
+}
+echo "\n".strlen($row)."\n";
+exit("\n-end test\n");
+*/
 /*
 $val = $func->run_GNRD_get_sciname_inXML("Fuirena%20robusta%20Kunth%20,%20Enum.");
 exit("\nxx[$val]xx\n-end-\n");
