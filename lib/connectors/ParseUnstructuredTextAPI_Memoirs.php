@@ -38,7 +38,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily", "SubfamUy");
-        $this->in_question = "1918. Not Eleocharis capitata R. Br.";
+        $this->in_question = "Guzmania Harrisii Mez";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
     }
@@ -298,6 +298,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $arr[1] = self::remove_first_word_if_it_has_number($arr[1]); // echo("\n[$arr[1]]elix1");
                 if(self::one_word_and_higher_taxon($arr[1])) {
                     $this->Distribution_Stop_pattern[$ctr-2] = ''; // minus 2 bec. the actual row is to be Stopped
+                }
+                if($this->first_word_is_allcaps($arr[1])) {
+                    $this->Distribution_Stop_pattern[$ctr-2] = ''; // e.g. "2. LINDMANIA Mez, in DC. Monog. Phan. 9: 535. 1896."
                 }
             }
             // */
@@ -1554,8 +1557,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             // */
 
-            // if($this->pdf_id == '91297') { //only during dev --- debug only
-            //     if($row == "Eleocharis capitata var. borealis Svenson, Rhodora 34: 200. 1932. (Nova Scotia.)") break;
+            // if($this->pdf_id == '91228') { //only during dev --- debug only
+            //     if($row == "Distribution: Lesser Antilles.") break;
             // }
             
         }//end loop text

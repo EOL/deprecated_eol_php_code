@@ -24,5 +24,11 @@ class Functions_Memoirs
             }
         }
     }
+    function first_word_is_allcaps($row)
+    {
+        $words = explode(" ", $words);
+        if(ctype_upper($words[0])) return true;
+        return false;
+    }
 }
 ?>
