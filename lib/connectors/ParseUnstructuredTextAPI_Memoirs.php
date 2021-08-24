@@ -38,7 +38,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily", "SubfamUy");
-        $this->in_question = "Guzmania Harrisii";
+        $this->in_question = "";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
     }
@@ -125,6 +125,18 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $i = 0; $ctr = 0;
         foreach(new FileIterator($local) as $line => $row) { $ctr++;
             $i++; if(($i % 5000) == 0) echo " $i";
+
+            if($this->pdf_id == '91534') {
+                $row = str_ireplace("(,. Limnia bulbifera A. Gray) A.", "6. Limnia bulbifera (A. Gray) A.", $row);
+                $row = str_ireplace("S. Limnia arenicola (Henderson)", "8. Limnia arenicola (Henderson)", $row);
+                $row = str_ireplace("Limnia gypsophiloides (Fisch. & Mey.)", "30. Limnia gypsophiloides (Fisch. & Mey.)", $row);
+                $row = str_ireplace("\(>. Oreobroma minimum A. Nelson", "16. Oreobroma minimum A. Nelson", $row);
+                $row = str_ireplace("f>. Montia fontana 1.. Sp. PI. 87. 1753.*", "6. Montia fontana L. Sp. PI. 87. 1753.*", $row);
+            }
+            elseif($this->pdf_id == '15434') {
+                $row = str_ireplace("3^> Echeveria simulans Rose, sp. nov.", "38. Echeveria simulans Rose, sp. nov.", $row);
+            }
+            
 
             // /* New
             if($this->pdf_id == '91362') {
@@ -347,7 +359,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(!$rows[0] && !$rows[2]) {
                     if($rows[1]) {
                         $words = explode(" ", $rows[1]);
-                        if(count($words) <= 15)  { //orig is 6
+
+                        $limit = 15;
+                        if(in_array($this->pdf_id, array('15435'))) $limit = 20;
+
+                        if(count($words) <= $limit)  { //orig is 6
                             // echo("\ngoes here 1 [$rows[1]]...\n");
                             if(self::is_sciname($rows[1])) {
                                 // echo("\ngoes here 2 [$rows[1]]...\n");
@@ -666,7 +682,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 else return false;
             }
             else { //the rest goes here
-                if(!is_numeric(str_replace(array(".", ","), "", $words[0]))) return false; // e.g. "1.5." should be just 15
+                if(!is_numeric(str_replace(array(".", ",", ":"), "", $words[0]))) return false; // e.g. "1.5." should be just 15
             }
             $string = self::remove_first_word_if_it_has_number($string);
             // if(stripos($string, $this->in_question) !== false) exit("\nxx[$string]xx5\n"); //string is found  //good debug
@@ -1018,6 +1034,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '91343') {
                 $row = str_ireplace("Carex gi'gantea Rudge", "Carex gigantea Rudge", $row);
             }
+            elseif($this->pdf_id == '91534') {
+                $row = str_ireplace("(,. Limnia bulbifera A. Gray) A.", "6. Limnia bulbifera (A. Gray) A.", $row);
+                $row = str_ireplace("S. Limnia arenicola (Henderson)", "8. Limnia arenicola (Henderson)", $row);
+                $row = str_ireplace("Limnia gypsophiloides (Fisch. & Mey.)", "30. Limnia gypsophiloides (Fisch. & Mey.)", $row);
+                $row = str_ireplace("\(>. Oreobroma minimum A. Nelson", "16. Oreobroma minimum A. Nelson", $row);
+                $row = str_ireplace("f>. Montia fontana 1.. Sp. PI. 87. 1753.*", "6. Montia fontana L. Sp. PI. 87. 1753.*", $row);
+            }
+            elseif($this->pdf_id == '15434') {
+                $row = str_ireplace("3^> Echeveria simulans Rose, sp. nov.", "38. Echeveria simulans Rose, sp. nov.", $row);
+            }
+            
             if($this->pdf_id == '15427') { //start of row
                 // $words = array("ANEMIA' sw.");
                 // foreach($words as $word) {
@@ -1172,6 +1199,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(strtolower($row) == "doubtful and excluded species")  $row = "</taxon>$row";
             if(strtolower($row) == "doubtful species")  $row = "</taxon>$row";
             if(strtolower($row) == "excluded species")  $row = "</taxon>$row";
+            if(strtolower($row) == "uncertain and excluded species")  $row = "</taxon>$row";
             if(strtolower($row) == "editorial appendix")  $row = "</taxon>$row";
             if(strcmp($row, "CORRECTIONS") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
             if(substr($row,0,4) == "Key ")      $row = "</taxon>$row";

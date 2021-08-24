@@ -19,6 +19,7 @@ class Functions_Memoirs
             foreach($words as $word) { $i++;
                 if($i <= $matches[0]) { //echo "\n[$word]\n";
                     if(stripos($word, "l") !== false) return true; //string is found
+                    if(stripos($word, "doubt") !== false) return true; //string is found
                 }
             }
         }
