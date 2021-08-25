@@ -136,7 +136,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '15434') {
                 $row = str_ireplace("3^> Echeveria simulans Rose, sp. nov.", "38. Echeveria simulans Rose, sp. nov.", $row);
             }
-            
+            elseif($this->pdf_id == '91534') {
+                $row = str_ireplace("is. Oreobroma brachycalyx (Engelm.)", "18. Oreobroma brachycalyx (Engelm.)", $row);
+            }
 
             // /* New
             if($this->pdf_id == '91362') {
@@ -1046,6 +1048,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             elseif($this->pdf_id == '15434') {
                 $row = str_ireplace("3^> Echeveria simulans Rose, sp. nov.", "38. Echeveria simulans Rose, sp. nov.", $row);
+            }
+            elseif($this->pdf_id == '91534') {
+                $row = str_ireplace("is. Oreobroma brachycalyx (Engelm.)", "18. Oreobroma brachycalyx (Engelm.)", $row);
             }
             
             if($this->pdf_id == '15427') { //start of row
