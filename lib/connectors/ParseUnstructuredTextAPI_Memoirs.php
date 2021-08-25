@@ -1218,6 +1218,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(strtolower($row) == "doubtful and excluded species")  $row = "</taxon>$row";
             if(strtolower($row) == "doubtful species")  $row = "</taxon>$row";
             if(strtolower($row) == "excluded species")  $row = "</taxon>$row";
+            if(strtolower($row) == "excluded species.")  $row = "</taxon>$row";
             if(strtolower($row) == "uncertain and excluded species")  $row = "</taxon>$row";
             if(strtolower($row) == "editorial appendix")  $row = "</taxon>$row";
             if(strcmp($row, "CORRECTIONS") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
@@ -1570,10 +1571,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             // */
 
-            if($this->pdf_id == '91228') { //only during dev --- debug only
+            if($this->pdf_id == '91335') {
+                if($row == "HAMAMELIDACEAE") break;
+                if($row == "</taxon>HAMAMELIDACEAE") break;
+            }
+
+            // if($this->pdf_id == '91228') { //only during dev --- debug only
                 // if($row == "Type locality: Volcano of Izalco, Sonsonate, Salvador.") break;
                 // if($row == "Distribution: Lesser Antilles.") break;
-            }
+            // }
             
         }//end loop text
         fclose($WRITE);
