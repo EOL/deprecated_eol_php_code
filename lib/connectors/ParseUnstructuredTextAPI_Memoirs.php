@@ -1195,10 +1195,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             
             
-            $words = array("Notes:", "Note:", "Note;", "Notes;", "Notb:", "Notb :");
+            $words = array("Notes:", "Note:", "Note;", "Notes;", "Notes :", "Note :", "Note ;", "Notes ;", "Notb:", "Notb :");
             foreach($words as $word) {
                 $len = strlen($word);
-                if(strtolower(substr(trim($row),0,$len)) == strtolower($word))  $row = "</taxon>$row";
+                if(substr(trim($row),0,$len) == $word)  $row = "</taxon>$row";
             }
             
             
