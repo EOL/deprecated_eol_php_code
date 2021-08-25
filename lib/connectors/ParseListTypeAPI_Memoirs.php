@@ -1422,7 +1422,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             "IivLUSTRATiONS", "Ili^ustration:", "I1.1.USTRAT10NS:", "Ii.i.usTR.\Tios:", "IllustraTio.v:", "ILLUSTR.^TION:",
             "Illustrations ■", "Ii^LusTRATiONS:", "Illustr.atio.s-:", "iLLUSTR.'iTiONs:", "Ii,i,i;sTRATio.Ns:", "Ili.i stations:",
             "Illistratio.v:", "■ Illustrations:", "Ill- VTKATIom:", "Illustratio.vs:", "Illustratio.n:", "Illl'STR ATIONS",
-            "ILLISTRATIONS:", '" AJSTRATION :', "rRATlONs:"); //NoTB: 91144 and 91362_species
+            "ILLISTRATIONS:", '" AJSTRATION :', "rRATlONs:", "Iulustkatiom"); //NoTB: 91144 and 91362_species
             foreach($exclude as $start_of_row) {
                 $start_of_row = str_replace(":", $separator, $start_of_row);
                 $len = strlen($start_of_row);
