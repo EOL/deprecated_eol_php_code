@@ -1108,11 +1108,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                  }
                  // */
 
-                 $words = array("Notes:", "Note:", "Note;", "Notes;", "Notb:", "Notb :");
-                 foreach($words as $word) {
-                     $len = strlen($word);
-                     if(strtolower(substr(trim($row),0,$len)) == strtolower($word))  $row = "</taxon>$row";
-                 }
 
                 
                  if($this->pdf_id == '91362_species') {
@@ -1195,9 +1190,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
             else {
-                $row = $orig_row; //New Aug 24, 2021 --- THIS IS VERY WRONG!
+                $row = $orig_row; //New Aug 24, 2021 --- acceptable
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$sciname][$row]xx33b\n");}   //string is found  //good debug
             }
+            
+            
+            $words = array("Notes:", "Note:", "Note;", "Notes;", "Notb:", "Notb :");
+            foreach($words as $word) {
+                $len = strlen($word);
+                if(strtolower(substr(trim($row),0,$len)) == strtolower($word))  $row = "</taxon>$row";
+            }
+            
             
             // if($i == 299) exit("\n[$i][$row]\n");
             if(isset($this->Distribution_Stop_pattern[$i])) {
