@@ -1157,12 +1157,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(!$row) $count_of_blank_rows++;
             else      $count_of_blank_rows = 0;
             
-            // if($i == 299) exit("\n[$i][$row]\n");
-            if(isset($this->Distribution_Stop_pattern[$i])) {
-                $row = "</taxon>$row";
-                // exit("\nhuli ka: [$row][$i]\n");
-            }
-            
             if(isset($this->lines_to_tag[$i])) { $hits++;
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx00\n");}   //string is found  //good debug
                 $row = self::format_row_to_sciname_v2($row); //fix e.g. "Amastus aphraates Schaus, 1927, p. 74."
@@ -1200,8 +1194,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
             else {
-                // $row = $orig_row; //New Aug 24, 2021 --- THIS IS VERY WRONG!
+                $row = $orig_row; //New Aug 24, 2021 --- THIS IS VERY WRONG!
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$sciname][$row]xx33b\n");}   //string is found  //good debug
+            }
+            
+            // if($i == 299) exit("\n[$i][$row]\n");
+            if(isset($this->Distribution_Stop_pattern[$i])) {
+                $row = "</taxon>$row";
+                // exit("\nhuli ka: [$row][$i]\n");
             }
             
             // if($i == 299) exit("\nexit 1: [$row]\n");
