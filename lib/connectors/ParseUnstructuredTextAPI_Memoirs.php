@@ -14,8 +14,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNRD text input XML'] = 'http://gnrd.globalnames.org/name_finder.xml?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         /*
-        http://gnrd.globalnames.org/name_finder.json?text=Lithophragma
-        http://gnrd.globalnames.org/name_finder.xml?text=Lithophragma
+        http://gnrd.globalnames.org/name_finder.json?text=
+        http://gnrd.globalnames.org/name_finder.xml?text=
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
         https://parser.globalnames.org/api/v1/Melanoleuca collybiiformis. Murrill, Mycologia 5 : 216. 1913
@@ -38,7 +38,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily", "SubfamUy");
-        $this->in_question = "Guzmania Harrisii Mez";
+        $this->in_question = "";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
     }
@@ -98,8 +98,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // print_r($this->scinames); 
         echo "\nRaw scinames count: ".count($this->scinames)."\n";
         
-        if(isset($this->investigate_1)) print_r($this->investigate_1);
-        if(isset($this->investigate2)) print_r($this->investigate2);
+        if(isset($this->investigate_1)) { echo "\ninvestigate_1\n"; print_r($this->investigate_1); }
+        if(isset($this->investigate_2)) { echo "\ninvestigate_2\n"; print_r($this->investigate_2); }
     }
     private function get_main_scinames($filename)
     {
@@ -285,7 +285,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     {
         $rows2 = array_map('trim', $rows2);
         if(!$rows2[0] && !$rows2[2] && !$rows2[3]) {
-            if(substr($rows2[1],0,13) == "Distribution:") { // print_r($rows2); exit;
+            if(substr($rows2[1],0,13) == "Distribution:") { //print_r($rows2); exit("\n[$ctr]\n");
                 $this->Distribution_Stop_pattern[$ctr-1] = ''; //minus 1 bec. the row to be stopped is 1 row ahead
             }
             if(substr($rows2[1],0,14) == "Distribution :") { // print_r($rows2); exit;
@@ -1157,7 +1157,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(!$row) $count_of_blank_rows++;
             else      $count_of_blank_rows = 0;
             
-            if(isset($this->Distribution_Stop_pattern[$i])) $row = "</taxon>$row";
+            // if($i == 299) exit("\n[$i][$row]\n");
+            if(isset($this->Distribution_Stop_pattern[$i])) {
+                $row = "</taxon>$row";
+                // exit("\nhuli ka: [$row][$i]\n");
+            }
             
             if(isset($this->lines_to_tag[$i])) { $hits++;
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx00\n");}   //string is found  //good debug
@@ -1174,7 +1178,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                             $row = "</taxon>$row";
                             // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row][$sciname]xx33x\n");}   //string is found  //good debug
                         }
-                        elseif($sciname == "GNRD does not recognize name") $row = "</taxon>$row"; //$row = $orig_row;
+                        elseif($sciname == "GNRD does not recognize name") $row = "</taxon>$row";
                         else { //orig block
                             $words = explode(" ", $sciname);
                             if(count($words) > 1) {
@@ -1196,9 +1200,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
             else {
-                $row = $orig_row; //New Aug 24, 2021
+                // $row = $orig_row; //New Aug 24, 2021 --- THIS IS VERY WRONG!
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$sciname][$row]xx33b\n");}   //string is found  //good debug
             }
+            
+            // if($i == 299) exit("\nexit 1: [$row]\n");
+            
             //start terminal criteria => stop patterns
             if($row == "INDEX.")            $row = "</taxon>$row";
             if($row == "INDEX")             $row = "</taxon>$row";
@@ -1401,7 +1408,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     if(strlen($first_word) > 2) {
                         if(in_array($first_word, array('LUWULARIA', 'SPHAGNUM', 'ANDREAEA', 'OSMUNDA', 'CYATHEACBAB', 'ANEMIA'))) $row = "</taxon>$row";
                         else {
-                            if(self::is_sciname_using_GNRD($first_word)) $row = "</taxon>$row";
+                            if(ctype_upper($first_word) && strlen($first_word) >= 5)  $row = "</taxon>$row";
+                            elseif(self::is_sciname_using_GNRD($first_word)) $row = "</taxon>$row";
                             else {
                                 if(!isset($this->investigate_1[$first_word])) {
                                     echo "\nInvestigate 1: [$first_word] not sciname says GNRD\n";
@@ -1510,6 +1518,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
             */
+            // if($i == 299) exit("\nexit 2: [$row]\n");
             fwrite($WRITE, $row."\n");
             
             /* ===== End of document --- ignore everything that follows from this point ===== */
@@ -1557,9 +1566,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             // */
 
-            // if($this->pdf_id == '91228') { //only during dev --- debug only
-            //     if($row == "Distribution: Lesser Antilles.") break;
-            // }
+            if($this->pdf_id == '91228') { //only during dev --- debug only
+                // if($row == "Type locality: Volcano of Izalco, Sonsonate, Salvador.") break;
+                // if($row == "Distribution: Lesser Antilles.") break;
+            }
             
         }//end loop text
         fclose($WRITE);

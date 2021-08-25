@@ -274,6 +274,10 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             $string = trim(str_ireplace(", new combination", "", $string));
         }
         //for weird names, from Jen
+        
+        // Vriesia platynema Gaud. Bot. Voy. Bonite />/. (5(5. 1846
+        $string = str_ireplace(array("/", "<", ">", "!", "|", "{", "}"), "", $string);
+        $string = Functions::remove_whitespace($string);
         $string = str_replace("‘", "'", $string);
         $string = str_replace("’", "'", $string);
         return $string;
@@ -723,7 +727,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         $sciname_line = str_replace('"', "&quot;", $sciname_line);
 
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname_line]xx3\n"); //good debug - to see what string passes here.
-        if(in_array($this->pdf_id, array("91225", "91362", "91362_species"))) { //host-pathogen list pattern
+        if(in_array($this->pdf_id, array("91225", "91362", "91362_species")) || $this->resource_name == 'all_BHL' ) { //host-pathogen list pattern
             // return $sciname_line; //SPECIAL CASE -> to avoid GNRD call --- host-pathogen list pattern
             $words = explode(" ", $sciname_line);
             $words[1] = strtolower(@$words[1]); //2nd word set to small caps
@@ -775,7 +779,10 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             }
         }
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4\n"); //good debug - to see what string passes here.
-        if(self::is_just_one_word($sciname)) return "monomial"; //false; //exclude if sciname is just one word, it is implied that it should be a binomial
+        if(self::is_just_one_word($sciname)) {  //false; //exclude if sciname is just one word, it is implied that it should be a binomial
+            // exit("\n[$sciname] is a minomial\n");
+            return "monomial";
+        }
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4a\n"); //good debug - to see what string passes here.
         
         if(in_array($this->pdf_id, array("30353", "30354"))) $criteria = $sciname && self::binomial_or_more($sciname); //resources to be skipped more or less
@@ -939,9 +946,9 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
                     if(in_array($str, array("Rhodocerini", "Acraeinae", "Limenitini", "Marpesini", "Eunicini", "Liptenidae", "Pentilinae", "Lipteninae", "Epitolini", "Liphyridae", "Liphyrinae", "Lachnocnemini", "Gerydinae", "Gerydini", "Plebejinae", "Lampidini", "Everini", "Plebejini", "Zizeerini"))) return true;
                 }
 
-                if(!isset($this->investigate2[$str])) {
+                if(!isset($this->investigate_2[$str])) {
                     echo "\nNot sciname says GNRD 2: [$str]\n";
-                    $this->investigate2[$str] = '';
+                    $this->investigate_2[$str] = '';
                 }
             }
         }
