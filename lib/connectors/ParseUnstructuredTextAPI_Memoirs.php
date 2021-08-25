@@ -132,12 +132,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("Limnia gypsophiloides (Fisch. & Mey.)", "30. Limnia gypsophiloides (Fisch. & Mey.)", $row);
                 $row = str_ireplace("\(>. Oreobroma minimum A. Nelson", "16. Oreobroma minimum A. Nelson", $row);
                 $row = str_ireplace("f>. Montia fontana 1.. Sp. PI. 87. 1753.*", "6. Montia fontana L. Sp. PI. 87. 1753.*", $row);
+                $row = str_ireplace("is. Oreobroma brachycalyx (Engelm.)", "18. Oreobroma brachycalyx (Engelm.)", $row);
             }
             elseif($this->pdf_id == '15434') {
                 $row = str_ireplace("3^> Echeveria simulans Rose, sp. nov.", "38. Echeveria simulans Rose, sp. nov.", $row);
-            }
-            elseif($this->pdf_id == '91534') {
-                $row = str_ireplace("is. Oreobroma brachycalyx (Engelm.)", "18. Oreobroma brachycalyx (Engelm.)", $row);
             }
 
             // /* New
@@ -1045,12 +1043,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("Limnia gypsophiloides (Fisch. & Mey.)", "30. Limnia gypsophiloides (Fisch. & Mey.)", $row);
                 $row = str_ireplace("\(>. Oreobroma minimum A. Nelson", "16. Oreobroma minimum A. Nelson", $row);
                 $row = str_ireplace("f>. Montia fontana 1.. Sp. PI. 87. 1753.*", "6. Montia fontana L. Sp. PI. 87. 1753.*", $row);
+                $row = str_ireplace("is. Oreobroma brachycalyx (Engelm.)", "18. Oreobroma brachycalyx (Engelm.)", $row);
             }
             elseif($this->pdf_id == '15434') {
                 $row = str_ireplace("3^> Echeveria simulans Rose, sp. nov.", "38. Echeveria simulans Rose, sp. nov.", $row);
-            }
-            elseif($this->pdf_id == '91534') {
-                $row = str_ireplace("is. Oreobroma brachycalyx (Engelm.)", "18. Oreobroma brachycalyx (Engelm.)", $row);
             }
             
             if($this->pdf_id == '15427') { //start of row
