@@ -685,7 +685,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 else return false;
             }
             else { //the rest goes here
-                if(!is_numeric(str_replace(array(".", ",", ":"), "", $words[0]))) return false; // e.g. "1.5." should be just 15
+                if(!is_numeric(str_replace(array(".", ",", ":", "-", "*"), "", $words[0]))) return false; // e.g. "1.5." should be just 15
             }
             $string = self::remove_first_word_if_it_has_number($string);
             // if(stripos($string, $this->in_question) !== false) exit("\nxx[$string]xx5\n"); //string is found  //good debug
@@ -1135,7 +1135,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // if(stripos($orig_row, $this->in_question) !== false) {echo("\n[$row]check_1\n");}   //string is found  //good debug
                 $orig_row2 = $row; //New Aug 24, 2021
                 $words = explode(" ", trim($row));
-                if(is_numeric(str_replace(",", "", $words[0]))) { //e.g. "4, REBOULIA Raddi, Opusc..." -> there is comma in first word
+                if(is_numeric(str_replace(array(".", ",", ":", "-", "*"), "", $words[0]))) { //e.g. "4, REBOULIA Raddi, Opusc..." -> there is comma in first word
                     $row = self::remove_first_word_if_it_has_number($row);
                     $words = explode(" ", trim($row));
                     // /* automatically set 2nd word as small caps
