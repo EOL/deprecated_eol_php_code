@@ -685,7 +685,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 else return false;
             }
             else { //the rest goes here
-                if(!is_numeric(str_replace(array(".", ",", ":", "-", "*"), "", $words[0]))) return false; // e.g. "1.5." should be just 15
+                $tmp_first = str_replace(array(".", ",", ":", "-", "*"), "", $words[0]);
+                if(!is_numeric($tmp_first)) return false; // e.g. "1.5." should be just 15
+                if(strlen($tmp_first) > 3) return false; //1912. Apocynum densifiorum (15440.txt) -> number must be <= 3 digits only. 4 digits is like year already.
             }
             $string = self::remove_first_word_if_it_has_number($string);
             // if(stripos($string, $this->in_question) !== false) exit("\nxx[$string]xx5\n"); //string is found  //good debug
@@ -1235,6 +1237,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             
             if($this->resource_name == 'all_BHL') {
                 if(strtolower($row) == "uncertain species")  $row = "</taxon>$row";
+                if(strcmp($row, "COMPLETED VOLUME") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
+                if(strcmp($row, "PARTS OF VOLUMES PREVIOUSLY PUBLISHED") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
             }
             
             // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]stop_1\n");}   //string is found  //good debug
