@@ -1703,6 +1703,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(!$cont) continue;
             // */
             
+            if($this->pdf_id == '91344') $row = str_ireplace("|", "", $row);
+            
             if($this->pdf_id == '118978') if($row == 'Dicaehis ambigiuis Laferte') continue; //manual
             
             // if($this->pdf_id == '118941') {
