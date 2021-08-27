@@ -137,6 +137,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '15434') {
                 $row = str_ireplace("3^> Echeveria simulans Rose, sp. nov.", "38. Echeveria simulans Rose, sp. nov.", $row);
             }
+            elseif($this->pdf_id == '90479') {
+                $row = str_ireplace("M3rrmecodendron oaxacanum", "Myrmecodendron oaxacanum", $row);
+                // $row = str_ireplace("S. Casparea Jermyana Britton", "8. Casparea Jermyana Britton", $row);
+            }
+
 
             // /* New
             if($this->pdf_id == '91362') {
@@ -174,7 +179,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             
             if($this->resource_name == 'all_BHL') {
+                // /* cases e.g. "' 12. Larrea arida (Rose) Britton." --- 90479.txt
+                if(substr($row,0,2) == "' ") $row = trim(substr($row,2,strlen($row)));
+                // */
+
                 $row = str_ireplace(array("■"), "", $row);
+                $row = str_ireplace(" . ", ". ", $row); //"11 . Anneslia gracilis (Mart. & Gal.) Britton & Rose." --- 90479.txt
                 $row = trim($row);
             }
             // if(stripos($row, $this->in_question) !== false) exit("\nsearch 1\n[$row]\n");   //string is found
@@ -276,6 +286,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
                 $rows3[] = $row;
                 if(count($rows3) == 7) $rows3 = self::possible_SingleWordTaxon_Stop_pattern($rows3, $ctr);
+                
+                $rows4[] = $row;
+                if(count($rows4) == 3) $rows4 = $this->possible_Number_then_AllCapsTaxon_Stop_pattern($rows4, $ctr); //42. CAILLIEA Guill. & Perr. Fl. Seneg. 239. 1833.
             }
             // */
         }
@@ -686,6 +699,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             else { //the rest goes here
                 $tmp_first = str_replace(array(".", ",", ":", "-", "*"), "", $words[0]);
+                // /* NEW: Aug 27, 2021
+                $chars = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
+                $tmp_first = str_ireplace($chars, "3", $tmp_first); //e.g. "S. Casparea Jermyana Britton, sp. nov." --- 90479.txt
+                // */
                 if(!is_numeric($tmp_first)) return false; // e.g. "1.5." should be just 15
                 if(strlen($tmp_first) > 3) return false; //1912. Apocynum densifiorum (15440.txt) -> number must be <= 3 digits only. 4 digits is like year already.
             }
@@ -1050,6 +1067,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '15434') {
                 $row = str_ireplace("3^> Echeveria simulans Rose, sp. nov.", "38. Echeveria simulans Rose, sp. nov.", $row);
             }
+            elseif($this->pdf_id == '90479') {
+                $row = str_ireplace("M3rrmecodendron oaxacanum", "Myrmecodendron oaxacanum", $row);
+                // $row = str_ireplace("S. Casparea Jermyana Britton", "8. Casparea Jermyana Britton", $row);
+            }
             
             if($this->pdf_id == '15427') { //start of row
                 // $words = array("ANEMIA' sw.");
@@ -1213,6 +1234,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // if($i == 299) exit("\nexit 1: [$row]\n");
             
             //start terminal criteria => stop patterns
+            if($row == "APPENDIX.")         $row = "</taxon>$row";
+            if($row == "APPENDIX")          $row = "</taxon>$row";
             if($row == "INDEX.")            $row = "</taxon>$row";
             if($row == "INDEX")             $row = "</taxon>$row";
             if($row == "ACKNOWLEDGMENTS")   $row = "</taxon>$row"; //118237.txt
@@ -2037,6 +2060,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     function remove_first_word_if_it_has_number($string)
     {
         $words = explode(" ", $string); // print_r($words); exit;
+        // /* NEW: Aug 27, 2021
+        $chars = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
+        $words[0] = str_ireplace($chars, "3", $words[0]);
+        // */
         if(self::get_numbers_from_string($words[0])) { //first word has number(s)
             array_shift($words);
             $string = implode(" ", $words);
