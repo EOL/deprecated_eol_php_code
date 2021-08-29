@@ -525,6 +525,13 @@ class WikiDataAPI extends WikipediaAPI
         $exit_now = false; //only used during debug
         $actual = 0; $i = 0; $j = 0;
         $k = 0; $m = 250000; //only for breakdown when caching
+        
+        // /* New: Aug 29, 2021
+        $cmd = "wc -l ".$this->path['wiki_data_json'];
+        $out = shell_exec($cmd);
+        echo "\n-----\n[$out]\n-----\n";
+        // */
+        
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; if(($k % 5000) == 0) echo " ".number_format($k)." ";
             if(in_array($task, array("save_all_media_filenames", "generate_resource")) && $range_from && $range_to) {
