@@ -1274,6 +1274,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->resource_name == 'all_BHL') {
                 if(strtolower($row) == "uncertain species")  $row = "</taxon>$row";
                 if(strcmp($row, "COMPLETED VOLUME") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
+                if(strcmp($row, "</taxon>COMPLETED VOLUME") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
                 if(strcmp($row, "PARTS OF VOLUMES PREVIOUSLY PUBLISHED") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
             }
             
