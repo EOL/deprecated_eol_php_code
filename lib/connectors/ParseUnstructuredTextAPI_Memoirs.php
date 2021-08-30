@@ -1257,6 +1257,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(strtolower($row) == "excluded species")  $row = "</taxon>$row";
             if(strtolower($row) == "excluded species.")  $row = "</taxon>$row";
             
+            if(stripos($row, "completed volume") !== false) {echo("\nxx[$row]stop_1a\n");}   //string is found  //good debug
             if(strcmp($row, "</taxon>COMPLETED VOLUME") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
             
             if(strtolower($row) == "uncertain and excluded species")  $row = "</taxon>$row";
@@ -1269,6 +1270,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->is_New_then_RankName_stop_pattern($row)) $row = "</taxon>$row";
             if($this->is_DoubtfulSpecies_stop_pattern($row)) $row = "</taxon>$row";
             if($this->is_ExcludedSpecies_stop_pattern($row)) $row = "</taxon>$row";
+            
+            if(stripos($row, "completed volume") !== false) {echo("\nxx[$row]stop_1b\n");}   //string is found  //good debug
             
             /* shouldn't be used... very expensive on API calls
             if($this->is_HigherTaxa_stop_pattern($row)) $row = "</taxon>$row"; // e.g. "Chordorrhizeae fries, Summa Veg. Scand. 73, as to type species. 1845; Carey, in"
