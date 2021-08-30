@@ -139,7 +139,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             elseif($this->pdf_id == '90479') {
                 $row = str_ireplace("M3rrmecodendron oaxacanum", "Myrmecodendron oaxacanum", $row);
-                // $row = str_ireplace("S. Casparea Jermyana Britton", "8. Casparea Jermyana Britton", $row);
+                $row = str_ireplace("Mimosa trijuga Benth.", "1. Mimosa trijuga Benth.", $row);
             }
 
 
@@ -289,6 +289,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 
                 $rows4[] = $row;
                 if(count($rows4) == 3) $rows4 = $this->possible_Number_then_AllCapsTaxon_Stop_pattern($rows4, $ctr); //42. CAILLIEA Guill. & Perr. Fl. Seneg. 239. 1833.
+                
+                $rows5[] = $row;
+                if(count($rows5) == 3) $rows5 = $this->possible_RomanNumeral_then_AllCapsTaxon_Stop_pattern($rows5, $ctr);
             }
             // */
         }
@@ -1071,7 +1074,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             elseif($this->pdf_id == '90479') {
                 $row = str_ireplace("M3rrmecodendron oaxacanum", "Myrmecodendron oaxacanum", $row);
-                // $row = str_ireplace("S. Casparea Jermyana Britton", "8. Casparea Jermyana Britton", $row);
+                $row = str_ireplace("Mimosa trijuga Benth.", "1. Mimosa trijuga Benth.", $row);
             }
             
             if($this->pdf_id == '15427') { //start of row
