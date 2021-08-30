@@ -38,7 +38,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily", "SubfamUy");
-        $this->in_question = "Anneslia gracilis";
+        $this->in_question = "ACACIEAE";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
     }
@@ -290,7 +290,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $rows4[] = $row;
                 if(count($rows4) == 3) $rows4 = $this->possible_Number_then_AllCapsTaxon_Stop_pattern($rows4, $ctr); //42. CAILLIEA Guill. & Perr. Fl. Seneg. 239. 1833.
                 
-                $rows5[] = $row;
+                $rows5[] = $row; //echo "\n[$ctr][$ctr]\n";
                 if(count($rows5) == 3) $rows5 = $this->possible_RomanNumeral_then_AllCapsTaxon_Stop_pattern($rows5, $ctr);
             }
             // */

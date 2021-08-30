@@ -68,12 +68,27 @@ class Functions_Memoirs
             in. MIMOSEAE.
             VlU. CAESALPINLEAE. */
             $arr = $rows2;
+            
+            // if(stripos($arr[1], $this->in_question) !== false) { //string is found
+            //     print_r($rows2); exit("\n-end elix 01-\n");
+            // }
+            
             if($this->first_word_is_RomanNumeral($arr[1])) { // print_r($arr); echo("\n[$arr[1]]elix1");
+                // if(stripos($arr[1], $this->in_question) !== false) { //string is found
+                //     print_r($rows2); exit("\n-end elix 02-\n");
+                // }
                 $words = explode(" ", trim($arr[1]));
                 if($second = @$words[1]) {
+                    $second = str_replace(array("."), "", $second);
+                    // if(stripos($arr[1], $this->in_question) !== false) { //string is found
+                    //     print_r($rows2); exit("\n[$second]\n-end elix 03-\n");
+                    // }
                     if(ctype_upper($second)) {
+                        // echo "\n[$ctr][$ctr]\n";
                         $this->Distribution_Stop_pattern[$ctr-1] = '';
-                        // print_r($rows2); exit("\n".$arr[1]."\nxxx\n");
+                        // if(stripos($rows2[1], $this->in_question) !== false) { //string is found
+                        //     print_r($rows2); exit("\n[$second]\n-end elix 04-\n");
+                        // }
                     }
                 }
             }
