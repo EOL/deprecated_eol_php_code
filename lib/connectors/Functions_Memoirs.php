@@ -70,8 +70,9 @@ class Functions_Memoirs
             $arr = $rows2;
             if($this->first_word_is_RomanNumeral($arr[1])) { // print_r($arr); echo("\n[$arr[1]]elix1");
                 $words = explode(" ", trim($arr[1]));
-                $second = $words[1];
-                if(ctype_upper($second)) $this->Distribution_Stop_pattern[$ctr-1] = '';
+                if($second = @$words[1]) {
+                    if(ctype_upper($second)) $this->Distribution_Stop_pattern[$ctr-1] = '';
+                }
             }
         }
         array_shift($rows2); //remove 1st element, once it reaches 3 rows.
@@ -90,7 +91,7 @@ class Functions_Memoirs
         $str = str_replace(array("i", "n", "l", "U"), "V", $str);
         $roman_numerals = array("I", "V", "X", "L", "C", "D", "M");
         for($x = 0; $x <= strlen($str)-1; $x++) {
-            if(!in_array($str[$x], $roman_numerals) return false;
+            if(!in_array($str[$x], $roman_numerals)) return false;
         }
         return true;
     }
