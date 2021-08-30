@@ -128,9 +128,12 @@ class Functions_Memoirs
                             if($this->run_GNRD_get_sciname_inXML($second)) {
                                 $this->Distribution_Stop_pattern[$ctr-1] = '';
                             }
+                            /* can be commented coz you just need to motivate GNRD API to work all the time AND not accept that you'll need to retry
+                            several times to get their output
                             elseif($this->is_sciname_using_GNRD($second)) {
                                 $this->Distribution_Stop_pattern[$ctr-1] = '';
                             }
+                            */
                         }
                     }
                 }
@@ -170,7 +173,7 @@ class Functions_Memoirs
             array_shift($words); //remove 2nd element
             $words[0] = "3.";
             $row = implode(" ", $words);
-            exit("\n[$orig_row] -> [$row]\nelix 173\n");
+            echo("\norig_row: [$orig_row] -> new row: [$row]\n"); //good debug
         }
         return $row;
     }
