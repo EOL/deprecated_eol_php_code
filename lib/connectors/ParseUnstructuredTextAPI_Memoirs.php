@@ -1256,11 +1256,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(strtolower($row) == "doubtful species")  $row = "</taxon>$row";
             if(strtolower($row) == "excluded species")  $row = "</taxon>$row";
             if(strtolower($row) == "excluded species.")  $row = "</taxon>$row";
-            if(strtolower($row) == "completed volume")  $row = "</taxon>$row";
             
-            if(stripos($row, "completed volume") !== false) {echo("\nxx[$row]stop_1a\n");}   //string is found  //good debug
-            
-            
+            if(strcmp($row, "</taxon>COMPLETED VOLUME") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
             
             if(strtolower($row) == "uncertain and excluded species")  $row = "</taxon>$row";
             if(strtolower($row) == "editorial appendix")  $row = "</taxon>$row";
@@ -1280,7 +1277,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->resource_name == 'all_BHL') {
                 if(strtolower($row) == "uncertain species")  $row = "</taxon>$row";
                 if(strcmp($row, "COMPLETED VOLUME") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
-                if(strcmp($row, "</taxon>COMPLETED VOLUME") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
                 if(strcmp($row, "PARTS OF VOLUMES PREVIOUSLY PUBLISHED") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
             }
             
