@@ -181,10 +181,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->resource_name == 'all_BHL') {
                 // /* cases e.g. "' 12. Larrea arida (Rose) Britton." --- 90479.txt
                 if(substr($row,0,2) == "' ") $row = trim(substr($row,2,strlen($row)));
+                $row = str_ireplace(" . ", ". ", $row); //"11 . Anneslia gracilis (Mart. & Gal.) Britton & Rose." --- 90479.txt
                 // */
 
                 $row = str_ireplace(array("■"), "", $row);
-                $row = str_ireplace(" . ", ". ", $row); //"11 . Anneslia gracilis (Mart. & Gal.) Britton & Rose." --- 90479.txt
                 $row = trim($row);
             }
             // if(stripos($row, $this->in_question) !== false) exit("\nsearch 1\n[$row]\n");   //string is found
@@ -1080,7 +1080,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 //     $len = strlen($word);
                 //     if(substr($row,0,$len) == $word) exit("\nelix 1\n");  //$row = "</taxon>$row";
                 // }
-                // if(strpos($row, "ANEMIA") !== false) {exit("\nxx[$row]xx00\n");}   //string is found  //good debug
+                // if(strpos($row, "ANEMIA") !== false) {exit("\n[$row]\n");}   //string is found  //good debug
             }
             
             // if($this->pdf_id == '118935') { //1st doc
@@ -1122,7 +1122,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx\n");}   //string is found  //good debug
             }
             elseif($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
-                                                                                         '118950', '118941'))) { //and BHL-like
+                '118950', '118941'))) { //and BHL-like
+                
+                // /* cases e.g. "' 12. Larrea arida (Rose) Britton." --- 90479.txt
+                if(substr($row,0,2) == "' ") $row = trim(substr($row,2,strlen($row)));
+                $row = str_ireplace(" . ", ". ", $row); //"11 . Anneslia gracilis (Mart. & Gal.) Britton & Rose." --- 90479.txt
+                // */
                 
                 if($this->pdf_id == '118941') $row = str_replace("Bucculatrix Columbiana", "Bucculatrix columbiana", $row);
                 
