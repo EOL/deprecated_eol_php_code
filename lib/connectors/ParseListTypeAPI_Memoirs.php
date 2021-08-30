@@ -1455,7 +1455,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         if(stripos($words[0], "stra") !== false && strtolower($last3) == "ns:") return true; // lM.t;sTRATio.NS:
         if(stripos($words[0], "stra") !== false && strtolower($last4) == "n-s:") return true; // Iulustratio.n-s:
         if(stripos($words[0], "usTR") !== false && strtolower($last3) == "ns:") return true; // Ii-i.usTR.xTio.Ns:
-        if(stripos($words[0], "usTR") !== false && strtolower($last4) == "ioN:") return true; // iLtusTRATioN:
+        if(stripos($words[0], "usTR") !== false && strtolower($last4) == "ion:") return true; // iLtusTRATioN:
         
         if(@$words[1] == ":") {
             foreach(array("ill", "ilu", "lll") as $str) {
