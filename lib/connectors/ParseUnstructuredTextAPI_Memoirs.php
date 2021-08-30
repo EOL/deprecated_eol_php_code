@@ -300,7 +300,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     private function possible_Distribution_Stop_pattern($rows2, $ctr)
     {
         $rows2 = array_map('trim', $rows2);
-        if(!$rows2[0] && !$rows2[2] && !$rows2[3]) {
+        if(!$rows2[0] && $rows2[1] && !$rows2[2] && !$rows2[3]) {
             if(substr($rows2[1],0,13) == "Distribution:") { //print_r($rows2); exit("\n[$ctr]\n");
                 $this->Distribution_Stop_pattern[$ctr-1] = ''; //minus 1 bec. the row to be stopped is 1 row ahead
             }
@@ -327,7 +327,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     private function possible_SingleWordTaxon_Stop_pattern($rows3, $ctr)
     {   // 0 1 2 [3] 4 5 6
         $rows3 = array_map('trim', $rows3);
-        if(!$rows3[0] && !$rows3[1] && !$rows3[2] && !$rows3[4] && !$rows3[5] && !$rows3[6]) {
+        if(!$rows3[0] && !$rows3[1] && !$rows3[2] && $rows3[3] && !$rows3[4] && !$rows3[5] && !$rows3[6]) {
             // /* Includes cases like these: "Amaranthus" --- must be a Stop pattern
             $arr = $rows3;
             if(self::one_word_and_higher_taxon($arr[3])) {

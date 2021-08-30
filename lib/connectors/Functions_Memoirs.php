@@ -33,7 +33,7 @@ class Functions_Memoirs
     function possible_Number_then_AllCapsTaxon_Stop_pattern($rows2, $ctr) //42. CAILLIEA Guill. & Perr. Fl. Seneg. 239. 1833.
     {
         $rows2 = array_map('trim', $rows2);
-        if(!$rows2[0] && !$rows2[2]) {
+        if(!$rows2[0] && $rows2[1] && !$rows2[2]) {
             // /* Includes cases like these: "42. CAILLIEA Guill. & Perr. Fl. Seneg. 239. 1833." --- must be a Stop pattern
             $arr = $rows2;
             if($this->first_word_is_numeric($arr[1])) { // print_r($arr); echo("\n[$arr[1]]elix1");
@@ -62,7 +62,7 @@ class Functions_Memoirs
     function possible_RomanNumeral_then_AllCapsTaxon_Stop_pattern($rows2, $ctr)
     {
         $rows2 = array_map('trim', $rows2);
-        if(!$rows2[0] && !$rows2[2]) {
+        if(!$rows2[0] && $rows2[1] && !$rows2[2]) {
             /* Includes cases like these: --- must be a Stop pattern
             II. ACACIEAE.
             in. MIMOSEAE.
@@ -71,7 +71,10 @@ class Functions_Memoirs
             if($this->first_word_is_RomanNumeral($arr[1])) { // print_r($arr); echo("\n[$arr[1]]elix1");
                 $words = explode(" ", trim($arr[1]));
                 if($second = @$words[1]) {
-                    if(ctype_upper($second)) $this->Distribution_Stop_pattern[$ctr-1] = '';
+                    if(ctype_upper($second)) {
+                        $this->Distribution_Stop_pattern[$ctr-1] = '';
+                        // print_r($rows2); exit("\n".$arr[1]."\nxxx\n");
+                    }
                 }
             }
         }
