@@ -38,7 +38,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily", "SubfamUy");
-        $this->in_question = "";
+        $this->in_question = "Anneslia gracilis";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
     }
@@ -700,8 +700,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             else { //the rest goes here
                 $tmp_first = str_replace(array(".", ",", ":", "-", "*"), "", $words[0]);
                 // /* NEW: Aug 27, 2021
-                $chars = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
-                $tmp_first = str_ireplace($chars, "3", $tmp_first); //e.g. "S. Casparea Jermyana Britton, sp. nov." --- 90479.txt
+                if(substr($words[0], -1) == ".") {
+                    $chars = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
+                    $tmp_first = str_ireplace($chars, "3", $tmp_first); //e.g. "S. Casparea Jermyana Britton, sp. nov." --- 90479.txt
+                }
                 // */
                 if(!is_numeric($tmp_first)) return false; // e.g. "1.5." should be just 15
                 if(strlen($tmp_first) > 3) return false; //1912. Apocynum densifiorum (15440.txt) -> number must be <= 3 digits only. 4 digits is like year already.
@@ -2061,8 +2063,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     {
         $words = explode(" ", $string); // print_r($words); exit;
         // /* NEW: Aug 27, 2021
-        $chars = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
-        $words[0] = str_ireplace($chars, "3", $words[0]);
+        if(substr($words[0], -1) == ".") {
+            $chars = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
+            $words[0] = str_ireplace($chars, "3", $words[0]);
+        }
         // */
         if(self::get_numbers_from_string($words[0])) { //first word has number(s)
             array_shift($words);

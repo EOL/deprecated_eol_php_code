@@ -44,7 +44,8 @@ class Functions_Memoirs
                 }
                 */
                 if($this->first_word_is_allcaps($arr[1])) {
-                    $this->Distribution_Stop_pattern[$ctr-2] = ''; // e.g. "2. LINDMANIA Mez, in DC. Monog. Phan. 9: 535. 1896."
+                    $this->Distribution_Stop_pattern[$ctr-1] = ''; // e.g. "2. LINDMANIA Mez, in DC. Monog. Phan. 9: 535. 1896."
+                    // echo "\n-----\n"; print_r($rows2); echo "\n-----\n";
                 }
             }
             // */
