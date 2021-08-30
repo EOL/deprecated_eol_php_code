@@ -104,6 +104,9 @@ class Functions_Memoirs
                         //     print_r($rows2); exit("\n[$second]\n-end elix 04-\n");
                         // }
                     }
+                    elseif($this->is_sciname($second)) {
+                        $this->Distribution_Stop_pattern[$ctr-1] = '';
+                    }
                 }
             }
         }
