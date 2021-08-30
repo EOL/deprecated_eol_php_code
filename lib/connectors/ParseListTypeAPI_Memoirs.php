@@ -1444,7 +1444,6 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         $first3 = substr($words[0],0,3);
         $last4 = substr($words[0], -4);
         $last3 = substr($words[0], -3);
-        $last5 = substr($words[0], -5);
         foreach(array("ill", "ilu", "lll") as $str) {
             if(strtolower($first3) == $str && strtolower($last4) == "ons:") return true;
             if(strtolower($first3) == $str && strtolower($last4) == "ion:") return true;
@@ -1456,8 +1455,15 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         if(stripos($words[0], "stra") !== false && strtolower($last3) == "ns:") return true; // lM.t;sTRATio.NS:
         if(stripos($words[0], "stra") !== false && strtolower($last4) == "n-s:") return true; // Iulustratio.n-s:
         if(stripos($words[0], "usTR") !== false && strtolower($last3) == "ns:") return true; // Ii-i.usTR.xTio.Ns:
-        if(stripos($words[0], "lust") !== false && strtolower($last5) == "ion :") return true; // Illustr.ition :
         if(stripos($words[0], "usTR") !== false && strtolower($last4) == "ioN:") return true; // iLtusTRATioN:
+        
+        if($words[1] == ":") {
+            foreach(array("ill", "ilu", "lll") as $str) {
+                if(strtolower($first3) == $str && strtolower($last4) == "tion") return true; //        Illustr.\tion :
+                if(strtolower($first3) == $str && strtolower($last4) == "io.N") return true; //        lLLUsrR.\Tio.N :
+                if(strtolower($first3) == $str && strtolower($last4) == "tion") return true; //        Illustr.ition :
+            }
+        }
         return false;
     }
     private function xlx_to_xix($str)
