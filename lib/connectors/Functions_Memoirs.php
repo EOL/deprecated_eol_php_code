@@ -90,7 +90,7 @@ class Functions_Memoirs
         $str = str_replace(array("i", "n", "l", "U"), "V", $str);
         $roman_numerals = array("I", "V", "X", "L", "C", "D", "M");
         for($x = 0; $x <= strlen($str)-1; $x++) {
-            if(!in_array($str[$x]), $roman_numerals) return false;
+            if(!in_array($str[$x], $roman_numerals) return false;
         }
         return true;
     }
