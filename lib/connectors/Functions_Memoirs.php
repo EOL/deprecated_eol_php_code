@@ -104,8 +104,12 @@ class Functions_Memoirs
                         //     print_r($rows2); exit("\n[$second]\n-end elix 04-\n");
                         // }
                     }
-                    elseif($this->run_GNRD_get_sciname_inXML($second)) {
-                        $this->Distribution_Stop_pattern[$ctr-1] = '';
+                    else {
+                        if(ctype_upper(substr($second,0,1))) { //1st letter is all caps
+                            if($this->run_GNRD_get_sciname_inXML($second)) {
+                                $this->Distribution_Stop_pattern[$ctr-1] = '';
+                            }
+                        }
                     }
                 }
             }
