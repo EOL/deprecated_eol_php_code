@@ -57,9 +57,21 @@ class Functions_Memoirs
                     $this->Distribution_Stop_pattern[$ctr-2] = ''; // minus 2 bec. the actual row is to be Stopped
                 }
                 */
+                $words = explode(" ", $arr[1]);
+                $possible_name = $words[0];
                 if($this->first_word_is_allcaps($arr[1])) {
                     $this->Distribution_Stop_pattern[$ctr-1] = ''; // e.g. "2. LINDMANIA Mez, in DC. Monog. Phan. 9: 535. 1896."
                     // echo "\n-----\n"; print_r($rows2); echo "\n-----\n";
+                }
+                elseif(strtolower(substr($possible_name, -2)) == "ae") {
+                    $this->Distribution_Stop_pattern[$ctr-1] = '';
+                }
+                else {
+                    if(ctype_upper(substr($possible_name,0,1))) { //1st letter is all caps
+                        if($this->run_GNRD_get_sciname_inXML($possible_name)) {
+                            $this->Distribution_Stop_pattern[$ctr-1] = '';
+                        }
+                    }
                 }
             }
             // */
