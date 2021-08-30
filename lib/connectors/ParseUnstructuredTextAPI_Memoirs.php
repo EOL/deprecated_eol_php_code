@@ -1256,6 +1256,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(strtolower($row) == "doubtful species")  $row = "</taxon>$row";
             if(strtolower($row) == "excluded species")  $row = "</taxon>$row";
             if(strtolower($row) == "excluded species.")  $row = "</taxon>$row";
+            if(strtolower($row) == "completed volume")  $row = "</taxon>$row";
             if(strtolower($row) == "uncertain and excluded species")  $row = "</taxon>$row";
             if(strtolower($row) == "editorial appendix")  $row = "</taxon>$row";
             if(strcmp($row, "CORRECTIONS") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
