@@ -104,7 +104,7 @@ class Functions_Memoirs
                         //     print_r($rows2); exit("\n[$second]\n-end elix 04-\n");
                         // }
                     }
-                    elseif($this->is_sciname($second)) {
+                    elseif($this->run_GNRD_get_sciname_inXML($second)) {
                         $this->Distribution_Stop_pattern[$ctr-1] = '';
                     }
                 }
