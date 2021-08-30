@@ -66,6 +66,7 @@ class Functions_Memoirs
                 elseif(strtolower(substr($possible_name, -2)) == "ae") {
                     $this->Distribution_Stop_pattern[$ctr-1] = '';
                 }
+                /* DON'T CHECK NAME VIA GNRD in this path. Check only GNRD if it came from get_main_scinames()
                 else {
                     if(ctype_upper(substr($possible_name,0,1))) { //1st letter is all caps
                         if($this->run_GNRD_get_sciname_inXML($possible_name)) {
@@ -73,6 +74,7 @@ class Functions_Memoirs
                         }
                     }
                 }
+                */
             }
             // */
         }
