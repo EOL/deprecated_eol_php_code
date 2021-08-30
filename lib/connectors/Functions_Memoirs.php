@@ -24,6 +24,20 @@ class Functions_Memoirs
             }
         }
     }
+    function is_ExcludedSpecies_stop_pattern($row) // "ExcLLTDED Species."
+    {
+        $words = explode(" ", $row);
+        $words = array_map('trim', $words);
+        if(count($words) == 2) {
+            $first = $words[0];
+            $second = $words[1];
+            if(strtolower(substr($second,0,7)) == "species") {
+                $first_3 = strtolower(substr($first,0,3));
+                $last_3 = strtolower(substr($first, -3));
+                if($first_3 == "exc" && $last_3 == "ded") return true;
+            }
+        }
+    }
     function first_word_is_allcaps($row)
     {
         $words = explode(" ", $row);
