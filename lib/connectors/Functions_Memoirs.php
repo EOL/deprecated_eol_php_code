@@ -128,6 +128,9 @@ class Functions_Memoirs
                             if($this->run_GNRD_get_sciname_inXML($second)) {
                                 $this->Distribution_Stop_pattern[$ctr-1] = '';
                             }
+                            elseif($this->is_sciname_using_GNRD($second)) {
+                                $this->Distribution_Stop_pattern[$ctr-1] = '';
+                            }
                         }
                     }
                 }
@@ -154,6 +157,22 @@ class Functions_Memoirs
             if(!in_array($str[$x], $roman_numerals)) return false;
         }
         return true;
+    }
+    function number_number_period($row) //"1 1 . Cracca leucosericea Rydberg, sp. nov."
+    {   $orig_row = $row;
+        $words = explode(" ", trim($row));
+        $words = array_map('trim', $words);
+        if($first = @$words[0]) {} else return $row;
+        if($second = @$words[1]) {} else return $row;
+        if($third = @$words[2]) {} else return $row;
+        if(is_numeric($first) && is_numeric($second) && $third == ".") {
+            array_shift($words); //remove 1st element
+            array_shift($words); //remove 2nd element
+            $words[0] = "3.";
+            $row = implode(" ", $words);
+            exit("\n[$orig_row] -> [$row]\nelix 173\n");
+        }
+        return $row;
     }
 }
 ?>

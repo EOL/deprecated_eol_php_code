@@ -142,6 +142,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("Mimosa trijuga Benth.", "1. Mimosa trijuga Benth.", $row);
             }
 
+            $row = $this->number_number_period($row); //"1 1 . Cracca leucosericea Rydberg, sp. nov."
 
             // /* New
             if($this->pdf_id == '91362') {
