@@ -121,6 +121,7 @@ class Functions_Memoirs
     {
         $words = explode(" ", trim($str));
         $first = $words[0];
+        if(substr($first, -1) != ".") return false;
         $first = str_replace(array(".", ","), "", $first);
         if($this->str_is_RomanNumeral($first)) return true;
         return false;
