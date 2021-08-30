@@ -203,7 +203,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "15422", "resource_name":
 NorthAmericanFlora_Plants	Thu 2021-08-26 08:27:21 AM	{"MoF.tab":44886, "media.tab":11382, "occurrence.tab":44886, "taxon.tab":11243, "time_elapsed":{"sec":267.87, "min":4.46, "hr":0.07}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-$GLOBALS["ENV_DEBUG"] = true;
+// $GLOBALS["ENV_DEBUG"] = true;
 require_library('connectors/Functions_Memoirs');
 require_library('connectors/ParseListTypeAPI_Memoirs');
 require_library('connectors/ParseUnstructuredTextAPI_Memoirs');
