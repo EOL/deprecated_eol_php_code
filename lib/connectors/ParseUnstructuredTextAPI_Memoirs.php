@@ -38,7 +38,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily", "SubfamUy");
-        $this->in_question = "ACACIEAE";
+        $this->in_question = "";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
     }
@@ -1226,7 +1226,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = $orig_row; //New Aug 24, 2021 --- acceptable
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$sciname][$row]xx33b\n");}   //string is found  //good debug
             }
-            
+
+            // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$sciname][$row]xx33c\n");}   //string is found  //good debug
             
             $words = array("Notes:", "Note:", "Note;", "Notes;", "Notes :", "Note :", "Note ;", "Notes ;", "Notb:", "Notb :", "NoTK:", "NoTK :");
             foreach($words as $word) {

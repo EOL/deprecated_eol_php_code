@@ -59,11 +59,12 @@ class Functions_Memoirs
                 */
                 $words = explode(" ", $arr[1]);
                 $possible_name = $words[0];
+                $possible_name = str_replace(array("."), "", $possible_name);
                 if($this->first_word_is_allcaps($arr[1])) {
                     $this->Distribution_Stop_pattern[$ctr-1] = ''; // e.g. "2. LINDMANIA Mez, in DC. Monog. Phan. 9: 535. 1896."
                     // echo "\n-----\n"; print_r($rows2); echo "\n-----\n";
                 }
-                elseif(strtolower(substr($possible_name, -2)) == "ae") {
+                elseif(strtolower(substr($possible_name, -2)) == "ae") { //18 Pubentissimae.
                     $this->Distribution_Stop_pattern[$ctr-1] = '';
                 }
                 /* DON'T CHECK NAME VIA GNRD in this path. Check only GNRD if it came from get_main_scinames()
