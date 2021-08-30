@@ -92,6 +92,7 @@ class Functions_Memoirs
                 //     print_r($rows2); exit("\n-end elix 02-\n");
                 // }
                 $words = explode(" ", trim($arr[1]));
+                $words = array_map('trim', $words);
                 if($second = @$words[1]) {
                     $second = str_replace(array("."), "", $second);
                     // if(stripos($arr[1], $this->in_question) !== false) { //string is found
@@ -120,10 +121,11 @@ class Functions_Memoirs
     function first_word_is_RomanNumeral($str)
     {
         $words = explode(" ", trim($str));
-        $first = $words[0];
-        if(substr($first, -1) != ".") return false;
-        $first = str_replace(array(".", ","), "", $first);
-        if($this->str_is_RomanNumeral($first)) return true;
+        if($first = $words[0]) {
+            if(substr($first, -1) != ".") return false;
+            $first = str_replace(array(".", ","), "", $first);
+            if($this->str_is_RomanNumeral($first)) return true;
+        }
         return false;
     }
     function str_is_RomanNumeral($str)
