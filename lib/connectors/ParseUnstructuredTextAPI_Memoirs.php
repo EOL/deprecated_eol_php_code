@@ -1782,11 +1782,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
             if($this->pdf_id == '15424') if(stripos($row, "DICRANAC") !== false) continue; //string is found
             
-            if($this->resource_name == 'all_BHL') {}
-            else {
-                if(stripos($row, "Volume") !== false) continue; //string is found
-            }
-            
             if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
                                                                                      '118950', '118941'))) { //BHL-like
                 if($this->pdf_id == '118941') if(stripos($row, "BUCCULATRIX in NORTH AMERICA") !== false) continue; //string is found
@@ -1794,6 +1789,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if($this->pdf_id == '91155') if(stripos($row, "SPHAGNACEAE") !== false) continue; //string is found
                 if(stripos($row, "VoLUMB") !== false) continue; //string is found
                 if(stripos($row, "V01.UME") !== false) continue; //string is found
+
+                if(stripos($row, "Completed Volume") !== false) {} //string is found
+                elseif(stripos($row, "Volume") !== false) continue; //string is found
+
                 // /*
                 //Part 1, 1913] ANDREAEACEAE 37 -> first word case sensitive comparison == "Part"
                 $words = explode(" ", $row);
