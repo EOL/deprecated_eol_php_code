@@ -144,6 +144,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '91116') {
                 $row = str_ireplace("%2>. Guettarda ocoana", "3. Guettarda ocoana", $row);
             }
+            elseif($this->pdf_id == '91527') {
+                $row = str_ireplace("LobeliaBoykiniiT.", "Lobelia Boykinii T.", $row);
+            }
+
             if($this->resource_name == 'all_BHL') $row = $this->number_number_period($row); //"1 1 . Cracca leucosericea Rydberg, sp. nov."
 
             // /* New
@@ -1081,6 +1085,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             elseif($this->pdf_id == '91116') {
                 $row = str_ireplace("%2>. Guettarda ocoana", "3. Guettarda ocoana", $row);
+            }
+            elseif($this->pdf_id == '91527') {
+                $row = str_ireplace("LobeliaBoykiniiT.", "Lobelia Boykinii T.", $row);
             }
             if($this->resource_name == 'all_BHL') $row = $this->number_number_period($row); //"1 1 . Cracca leucosericea Rydberg, sp. nov."
             
