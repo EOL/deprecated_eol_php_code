@@ -402,7 +402,8 @@ class ResourceUtility
             // print_r($this->source_mValue); exit;
             foreach($this->source_mValue as $source => $recs) {
                 // if($source == 'http://en.wikipedia.org/w/index.php?title=Sea_otter&oldid=1036094281') print_r($recs);
-                if(count($recs) > 1) {
+                if(in_array("http://purl.obolibrary.org/obo/ENVO_00000447", $recs) &&
+                   in_array("http://purl.obolibrary.org/obo/ENVO_00000873", $recs)) {
                     /* good debug
                     if($source == "http://en.wikipedia.org/w/index.php?title=Sea_otter&oldid=1036094281") {
                         echo "\n[$source]\n"; print_r($recs); exit("\n");
