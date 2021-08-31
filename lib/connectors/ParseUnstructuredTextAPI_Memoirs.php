@@ -141,6 +141,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("M3rrmecodendron oaxacanum", "Myrmecodendron oaxacanum", $row);
                 $row = str_ireplace("Mimosa trijuga Benth.", "1. Mimosa trijuga Benth.", $row);
             }
+            elseif($this->pdf_id == '91116') {
+                $row = str_ireplace("%2>. Guettarda ocoana", "3. Guettarda ocoana", $row);
+            }
             if($this->resource_name == 'all_BHL') $row = $this->number_number_period($row); //"1 1 . Cracca leucosericea Rydberg, sp. nov."
 
             // /* New
@@ -1075,6 +1078,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '90479') {
                 $row = str_ireplace("M3rrmecodendron oaxacanum", "Myrmecodendron oaxacanum", $row);
                 $row = str_ireplace("Mimosa trijuga Benth.", "1. Mimosa trijuga Benth.", $row);
+            }
+            elseif($this->pdf_id == '91116') {
+                $row = str_ireplace("%2>. Guettarda ocoana", "3. Guettarda ocoana", $row);
             }
             if($this->resource_name == 'all_BHL') $row = $this->number_number_period($row); //"1 1 . Cracca leucosericea Rydberg, sp. nov."
             
