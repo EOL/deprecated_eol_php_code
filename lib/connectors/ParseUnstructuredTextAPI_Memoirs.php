@@ -1262,8 +1262,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(strtolower($row) == "doubtful species")  $row = "</taxon>$row";
             if(strtolower($row) == "excluded species")  $row = "</taxon>$row";
             if(strtolower($row) == "excluded species.")  $row = "</taxon>$row";
-            
-            if($row == "COMPLETED VOLUME") $row = "</taxon>$row";
+            if(strtolower($row) == "completed volume")  $row = "</taxon>$row";
             
             if(stripos($row, "completed volume") !== false) {echo("\nxx[$row]stop_1a\n");}   //string is found  //good debug
             
