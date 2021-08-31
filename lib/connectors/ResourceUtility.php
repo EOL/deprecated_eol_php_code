@@ -338,6 +338,121 @@ class ResourceUtility
     }
     /*================================================== ENDS report_4_Wikipedia_EN_traits =================================================*/
 
+    /*=================================================== STARTS remove_contradicting_traits_fromMoF =======================================*/
+    function remove_contradicting_traits_fromMoF($info) //FuncX
+    {   
+        $tables = $info['harvester']->tables;
+        self::process_MoF_contradict($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], "step_1"); //generate $this->mIDs_2delete
+        self::process_MoF_contradict($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], "step_2"); //delete respective MoF AND 
+                                                                                                              //generate $this->oIDs_2delete
+        self::process_occurrence_contradict($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]); //delete respective occurrence
+    }
+    private function process_MoF_contradict($meta, $step)
+    {   //print_r($meta);
+        echo "\nResourceUtility...process_MoF_contradict...$step\n"; $i = 0;
+        $sought_mValues = array("http://purl.obolibrary.org/obo/ENVO_00000873", "http://purl.obolibrary.org/obo/ENVO_00000447");
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit("\ndebug...\n");
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/measurementID] => 246a627178d12a5fc0b9f5ea1b47a20b_617_ENV
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => 0f051e5376b5117e8defa1478892ac4f_617_ENV
+                [http://eol.org/schema/measurementOfTaxon] => true
+                [http://rs.tdwg.org/dwc/terms/measurementType] => http://purl.obolibrary.org/obo/RO_0002303
+                [http://rs.tdwg.org/dwc/terms/measurementValue] => http://purl.obolibrary.org/obo/ENVO_00000067
+                [http://rs.tdwg.org/dwc/terms/measurementRemarks] => source text: "cave"
+                [http://purl.org/dc/terms/source] => http://en.wikipedia.org/w/index.php?title=Lion&oldid=1034774842
+            )*/
+            $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
+            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            $source = $rec['http://purl.org/dc/terms/source'];
+            $measurementValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+            if($step == "step_1") {
+                if(in_array($measurementValue, $sought_mValues)) {
+                    $this->source_mValue[$source][$measurementID] = $measurementValue;
+                }
+            } //end step_1
+            if($step == "step_2") {
+                if(isset($this->mIDs_2delete[$measurementID])) { //delete MoF
+                    $this->oIDs_2delete[$occurrenceID] = '';
+                }
+                else { //start write
+                    $uris = array_keys($rec);
+                    $o = new \eol_schema\MeasurementOrFact();
+                    foreach($uris as $uri) {
+                        $field = pathinfo($uri, PATHINFO_BASENAME);
+                        $o->$field = $rec[$uri];
+                    }
+                    $this->archive_builder->write_object_to_file($o);
+                }
+            } //end step_2
+        } //end loop
+
+        if($step == "step_1") {
+            // print_r($this->source_mValue); exit;
+            foreach($this->source_mValue as $source => $recs) {
+                // if($source == 'http://en.wikipedia.org/w/index.php?title=Sea_otter&oldid=1036094281') print_r($recs);
+                if(count($recs) > 1) {
+                    /* good debug
+                    if($source == "http://en.wikipedia.org/w/index.php?title=Sea_otter&oldid=1036094281") {
+                        echo "\n[$source]\n"; print_r($recs); exit("\n");
+                        [http://en.wikipedia.org/w/index.php?title=Sea_otter&oldid=1036094281]
+                        Array(
+                            [d57481b8a295b8ab493b727cb8129fd9_617_ENV] => http://purl.obolibrary.org/obo/ENVO_00000447
+                            [60f23c55b97b6d18c3bf5fc52b461c45_617_ENV] => http://purl.obolibrary.org/obo/ENVO_00000447
+                            [01868074391f917e79b381c37ae8c1b3_617_ENV] => http://purl.obolibrary.org/obo/ENVO_00000873
+                            [07fbfadf8339c2cd64caf157479463e8_617_ENV] => http://purl.obolibrary.org/obo/ENVO_00000447
+                        )
+                    }
+                    */
+                    foreach($recs as $mID => $mValue) $this->mIDs_2delete[$mID] = '';
+                }
+            }
+            // print_r($this->mIDs_2delete); exit;
+        } //end step_1
+        
+    }
+    private function process_occurrence_contradict($meta)
+    {   //print_r($meta);
+        echo "\nResourceUtility...process_occurrence_contradict...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit("\ndebug...\n");
+            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            if(!isset($this->oIDs_2delete[$occurrenceID])) { //start write
+                $uris = array_keys($rec);
+                $o = new \eol_schema\Occurrence();
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $o->$field = $rec[$uri];
+                }
+                $this->archive_builder->write_object_to_file($o);
+            }
+        }
+    }
+    
+    /*=================================================== STARTS remove_contradicting_traits_fromMoF =======================================*/
+
     private function carry_over_extension($meta, $class)
     {   //print_r($meta);
         echo "\nResourceUtility...carry_over_extension ($class)...\n"; $i = 0;
@@ -356,13 +471,13 @@ class ResourceUtility
             // print_r($rec); exit("\ndebug1...\n");
             /**/
             $uris = array_keys($rec);
-            if    ($class == "vernacular")          $c = new \eol_schema\VernacularName();
-            elseif($class == "agent")               $c = new \eol_schema\Agent();
-            elseif($class == "reference")           $c = new \eol_schema\Reference();
-            elseif($class == "taxon")               $c = new \eol_schema\Taxon();
-            elseif($class == "document")            $c = new \eol_schema\MediaResource();
-            elseif($class == "occurrence")          $c = new \eol_schema\Occurrence();
-            elseif($class == "measurementorfact")   $c = new \eol_schema\MeasurementOrFact();
+            if    ($class == "vernacular")          $o = new \eol_schema\VernacularName();
+            elseif($class == "agent")               $o = new \eol_schema\Agent();
+            elseif($class == "reference")           $o = new \eol_schema\Reference();
+            elseif($class == "taxon")               $o = new \eol_schema\Taxon();
+            elseif($class == "document")            $o = new \eol_schema\MediaResource();
+            elseif($class == "occurrence")          $o = new \eol_schema\Occurrence();
+            elseif($class == "measurementorfact")   $o = new \eol_schema\MeasurementOrFact();
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];

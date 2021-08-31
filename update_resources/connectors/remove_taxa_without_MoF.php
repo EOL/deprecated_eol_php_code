@@ -5,6 +5,12 @@ first client: https://jenkins.eol.org/job/EOL%20Connectors/job/Environmental%20t
               environments_2_eol.php for Wikipedia EN 
 Used during Vangelis:   php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "617_final"}'
 Used during Pensoft:    php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "617_ENV"}'
+
+as of latest from Jenkins: OK!
+php5.6 remove_taxa_without_MoF.php jenkins '{"resource_id": "wikipedia_en_traits_FTG"}'
+       remove_taxa_without_MoF.php _ '{"resource_id": "wikipedia_en_traits_FTG"}'
+# OLD: generates wikipedia_en_traits.tar.gz
+# NEW: generates wikipedia_en_traits_tmp1.tar.gz
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -30,7 +36,7 @@ else                           $dwca_file = 'http://localhost/eol_php_code/appli
 if($resource_id == '617_final') $resource_id = "wikipedia_en_traits";
 */
     if($resource_id == '617_ENV')                 $resource_id = "wikipedia_en_traits"; //during Pensoft - OLD - OBSOLETE
-elseif($resource_id == 'wikipedia_en_traits_FTG') $resource_id = "wikipedia_en_traits"; //during Pensoft - NEW LATEST
+elseif($resource_id == 'wikipedia_en_traits_FTG') $resource_id = "wikipedia_en_traits_tmp1"; //during Pensoft - NEW LATEST
 else exit("\nERROR: resource_id not yet initialized. Will terminate.\n");
 // ----------------------------------------*/
 process_resource_url($dwca_file, $resource_id);

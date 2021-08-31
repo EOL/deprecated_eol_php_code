@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_16119/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_16119/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_34465/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_34465/'
         );
         */
         
@@ -121,7 +121,8 @@ class DwCA_Utility
         elseif(in_array($this->resource_id, array("wiki_en_report"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array("globi_associations", "globi_associations_final", "final_SC_unitedstates"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array("gbif_classification", "gbif_classification_without_ancestry", "gbif_classification_final", 
-                                                  "26", "368_removed_aves", "617_ENV", "wikipedia_en_traits_FTG", "10088_5097_ENV", "10088_6943_ENV", 
+                                                  "26", "368_removed_aves", "617_ENV", "wikipedia_en_traits_FTG", "wikipedia_en_traits_tmp1", "wikipedia_en_traits", 
+                                                  "10088_5097_ENV", "10088_6943_ENV", 
                                                   "118935_ENV", "120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV", "120083_ENV", "118237_ENV",
                                     "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV", 
                                     "120602_ENV", "119187_ENV", "118978_ENV", "118941_ENV", "119520_ENV", "119188_ENV",
@@ -351,10 +352,15 @@ class DwCA_Utility
             $func = new FilterTermGroupByTaxa($this->archive_builder, $this->resource_id, $this->params);
             $func->start($info);
         }
-        if(in_array($this->resource_id, array("wikipedia_en_traits"))) { //calls a generic utility
+        if(in_array($this->resource_id, array("wikipedia_en_traits_tmp1"))) { //calls a generic utility
             require_library('connectors/ResourceUtility');
             $func = new ResourceUtility($this->archive_builder, $this->resource_id);
             $func->remove_taxa_without_MoF($info);
+        }
+        if(in_array($this->resource_id, array("wikipedia_en_traits"))) { //calls another generic utility
+            require_library('connectors/ResourceUtility');
+            $func = new ResourceUtility($this->archive_builder, $this->resource_id);
+            $func->remove_contradicting_traits_fromMoF($info);
         }
         // -------------------- */
         if(in_array($this->resource_id, array("WoRMS2EoL_zip"))) { //calls a generic utility
