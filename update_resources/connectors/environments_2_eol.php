@@ -86,6 +86,10 @@ wikipedia_en_traits_FTG	Wed 2021-06-16 06:14:13 AM	{"MoF.tab":147964, "occurrenc
 wikipedia_en_traits	Wed 2021-06-16 06:16:20 AM	    {"MoF.tab":147964, "occurrence.tab":147964, "taxon.tab":81677, "time_elapsed":false}
 wikipedia_en_traits	Tue 2021-08-03 07:38:06 AM	    {"MoF.tab":151048, "occurrence.tab":151048, "taxon.tab":83240, "time_elapsed":false}
 
+wikipedia_en_traits_tmp1	Tue 2021-08-31 11:38:54 {"MoF.tab":151048, "occurrence.tab":151048, "taxon.tab":83240, "time_elapsed":false}
+wikipedia_en_traits	Tue 2021-08-31 11:40:53 AM	    {"MoF.tab":148894, "occurrence.tab":148894, "taxon.tab":83240, "time_elapsed":false} wrong!
+wikipedia_en_traits	Tue 2021-08-31 11:50:27 AM	    {"MoF.tab":149887, "occurrence.tab":149887, "taxon.tab":83240, "time_elapsed":false} correct OK
+
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
 
