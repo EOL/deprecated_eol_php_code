@@ -315,6 +315,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $this->Distribution_Stop_pattern[$ctr-1] = '';
             }
             
+            // /* Same as above but just generalized:
+            $possible = array("Distkibution:");
+            foreach($possible as $str) {
+                if(substr($rows2[1],0,strlen($str)) == $str) { // print_r($rows2); exit;
+                    $this->Distribution_Stop_pattern[$ctr-1] = '';
+                }
+            }
+            // */
+            
             // /* Includes cases like these: "6. Lithophragma" --- must be a Stop pattern
             $arr = $rows2;
             if($this->first_word_is_numeric($arr[1])) { // print_r($arr); echo("\n[$arr[1]]elix1");
