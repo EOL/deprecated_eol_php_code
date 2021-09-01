@@ -41,11 +41,12 @@ class TreatmentBankAPI
                 $string = $reader->readOuterXML();
                 if($xml = simplexml_load_string($string)) { $i++;
                     self::process_item($xml);
-                    sleep(5);
-                    // if($i == 50) break; //debug only
+                    // sleep(5);
+                    if($i == 3) break; //debug only
                 }
             }
         }
+        echo "\nmasterDocIds: ".count($this->stats['masterDocId'])."\n";
         exit("\n-stop muna-\n");
     }
     private function process_item($xml)
@@ -63,8 +64,9 @@ class TreatmentBankAPI
         $hash = simplexml_load_string($xml_string); // print_r($hash); 
         
         if($hash{"docType"} == "treatment" && $hash{"masterDocId"}) {
-            echo "\ndocType: [".$hash{"docType"}."]";
-            echo "\nmasterDocId: [".$hash{"masterDocId"}."]\n";
+            // echo "\ndocType: [".$hash{"docType"}."]";
+            // echo "\nmasterDocId: [".$hash{"masterDocId"}."]\n";
+            $this->stats['masterDocId'][(string) $hash{"masterDocId"}] = '';
             $source = str_replace("masterDocId", $hash{"masterDocId"}, $this->service['DwCA zip download']);
             $temp_path = $this->path['main']."DwCA/".substr($hash{"masterDocId"},0,2)."/";
             if(!is_dir($temp_path)) mkdir($temp_path);
@@ -89,11 +91,11 @@ class TreatmentBankAPI
             $cmd = "wget ".$source." -O $destination"; $cmd .= " 2>&1";
             echo "\nDownloading...[$cmd]\n";
             $output = shell_exec($cmd); sleep(5); //echo "\n----------\n$output\n----------\n"; //too many lines
-            if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully.\n";
+            if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully";
             else exit("\nERROR: Cannot download [$source].\n");
         }
         else {
-            echo "\nFile already exists: [$destination] - ".filesize($destination)."\n";
+            echo "\nFile already exists: [$destination] - ".filesize($destination)."";
         }
     }
     /* copied template
