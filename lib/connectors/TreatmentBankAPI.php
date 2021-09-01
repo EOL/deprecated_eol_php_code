@@ -92,7 +92,7 @@ class TreatmentBankAPI
             echo "\nDownloading...[$cmd]\n";
             $output = shell_exec($cmd); sleep(5); //echo "\n----------\n$output\n----------\n"; //too many lines
             if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully";
-            else exit("\nERROR: Cannot download [$source].\n");
+            else echo("\nERROR: Cannot download [$source].\n");
         }
         else {
             echo "\nFile already exists: [$destination] - ".filesize($destination)."";
