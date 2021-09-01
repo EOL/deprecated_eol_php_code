@@ -71,7 +71,7 @@ class TreatmentBankAPI
             self::run_wget_download($source, $destination);
         }
         else {
-            print_r($xml); exit("\nInvestigate, docType not a 'treatment'\n");
+            print_r($xml); echo("\nInvestigate, docType not a 'treatment'\n");
         }
         // exit("\n-exit hash-\n");
     }
