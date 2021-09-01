@@ -41,7 +41,8 @@ class TreatmentBankAPI
                 $string = $reader->readOuterXML();
                 if($xml = simplexml_load_string($string)) { $i++;
                     self::process_item($xml);
-                    if($i == 50) break; //debug only
+                    sleep(5);
+                    // if($i == 50) break; //debug only
                 }
             }
         }
@@ -71,7 +72,7 @@ class TreatmentBankAPI
             self::run_wget_download($source, $destination);
         }
         else {
-            print_r($xml); echo("\nInvestigate, docType not a 'treatment'\n");
+            // print_r($xml); echo("\nInvestigate, docType not a 'treatment'\n");
         }
         // exit("\n-exit hash-\n");
     }
