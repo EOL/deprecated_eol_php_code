@@ -42,7 +42,7 @@ class TreatmentBankAPI
                 if($xml = simplexml_load_string($string)) { $i++;
                     self::process_item($xml);
                     // sleep(5);
-                    if($i == 3) break; //debug only
+                    // if($i == 3) break; //debug only
                 }
             }
         }
