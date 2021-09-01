@@ -16,11 +16,14 @@ class TreatmentBankAPI
             'expire_seconds'     => false, //expires set to false for now
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->service['Plazi Treatments'] = "http://tb.plazi.org/GgServer/xml.rss.xml";
+        $this->service['DwCA zip download'] = "tb.plazi.org/GgServer/dwca/masterDocId.zip";
         if(Functions::is_production()) $this->path['main'] = '/extra/dumps/TreatmentBank/';
         else                           $this->path['main'] = '/Volumes/AKiTiO4/other_files/dumps/TreatmentBank/';
         $this->path['xml.rss'] = $this->path['main']."xml.rss.xml";
         // $this->path['xml.rss'] = $this->path['main']."xml.rss_OK.xml";
+        
         if(!is_dir($this->path['main'])) mkdir($this->path['main']);
+        if(!is_dir($this->path['main']."DwCA/")) mkdir($this->path['main']."DwCA/");
     }
     function start()
     {
@@ -58,21 +61,38 @@ class TreatmentBankAPI
         $xml_string = Functions::lookup_with_cache($url, $this->download_options);
         $hash = simplexml_load_string($xml_string); // print_r($hash); 
         
-        echo "\n[".$hash->{"docType"}."]\n";
-        exit("\n-exit hash-\n");
+        if($hash{"docType"} == "treatment" && $hash{"masterDocId"}) {
+            echo "\n[".$hash{"docType"}."]\n";
+            echo "\n[".$hash{"masterDocId"}."]\n";
+            $source = str_replace("masterDocId", $hash{"masterDocId"}, $this->service['DwCA zip download']);
+            $temp_path = $this->path['main']."DwCA/".substr($hash{"masterDocId"},0,2)."/";
+            if(!is_dir($temp_path)) mkdir($temp_path);
+            $destination = $temp_path.$hash{"masterDocId"}.".zip";
+            self::run_wget_download($source, $destination);
+        }
+        else {
+            print_r($xml); exit("\nInvestigate, docType not a 'treatment'\n");
+        }
+        // exit("\n-exit hash-\n");
     }
     private function download_XML_treatments_list()
     {
         $source = $this->service['Plazi Treatments'];
         $destination = $this->path['xml.rss'];
-        if(!file_exists($destination)) {
+        self::run_wget_download($source, $destination);
+    }
+    private function run_wget_download($source, $destination)
+    {
+        if(!file_exists($destination) || filesize($destination) == 0) {
             $cmd = "wget --no-check-certificate ".$source." -O $destination"; $cmd .= " 2>&1";
             echo "\nDownloading...[$cmd]\n";
-            $output = shell_exec($cmd); sleep(10); //echo "\n----------\n$output\n----------\n"; //too many lines
+            $output = shell_exec($cmd); sleep(5); //echo "\n----------\n$output\n----------\n"; //too many lines
             if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully.\n";
             else exit("\nERROR: Cannot download [$source].\n");
         }
-        else echo "\nTreatment list already exists: [$destination]\n";
+        else {
+            echo "\nFile already exists: [$destination] - ".filesize($destination)."\n";
+        }
     }
     /* copied template
     private function create_taxon($rec)
