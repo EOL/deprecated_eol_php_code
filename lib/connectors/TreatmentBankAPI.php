@@ -41,7 +41,7 @@ class TreatmentBankAPI
                 $string = $reader->readOuterXML();
                 if($xml = simplexml_load_string($string)) { $i++;
                     self::process_item($xml);
-                    if($i == 3) break; //debug only
+                    if($i == 50) break; //debug only
                 }
             }
         }
