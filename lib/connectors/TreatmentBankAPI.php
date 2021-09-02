@@ -89,13 +89,13 @@ class TreatmentBankAPI
         if(!file_exists($destination) || filesize($destination) == 0) {
             $cmd = "wget --no-check-certificate ".$source." -O $destination"; $cmd .= " 2>&1";
             $cmd = "wget ".$source." -O $destination"; $cmd .= " 2>&1";
-            echo "\nDownloading...[$cmd]\n";
+            debug("\nDownloading...[$cmd]\n");
             $output = shell_exec($cmd); sleep(5); //echo "\n----------\n$output\n----------\n"; //too many lines
             if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully";
             else echo("\nERROR: Cannot download [$source].\n");
         }
         else {
-            echo "\nFile already exists: [$destination] - ".filesize($destination)."\n";
+            debug("\nFile already exists: [$destination] - ".filesize($destination)."\n");
         }
     }
     /* copied template
