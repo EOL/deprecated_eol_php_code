@@ -108,7 +108,7 @@ class TreatmentBankAPI
             debug("\nFile already exists: [$destination] - ".filesize($destination)."\n");
         }
     }
-    function generate_combined_dwca() //main 2nd step
+    function build_up_dwca_list() //main 2nd step
     {
         $dwca_list_txt = CONTENT_RESOURCE_LOCAL_PATH."/reports/Plazi_DwCA_list.txt";
         $this->WRITE = fopen($dwca_list_txt, "w"); //initialize
@@ -127,12 +127,10 @@ class TreatmentBankAPI
         $url = $xml->link.".xml"; // debug("".$url."");
         $xml_string = Functions::lookup_with_cache($url, $this->download_options);
         $hash = simplexml_load_string($xml_string); // print_r($hash); 
-        
         if($hash{"docType"} == "treatment" && $hash{"masterDocId"}) {
             // echo "\ndocType: [".$hash{"docType"}."]";
             // echo "\nmasterDocId: [".$hash{"masterDocId"}."]\n";
             $masterDocId = (string) $hash{"masterDocId"};
-            
             $source = str_replace("masterDocId", $masterDocId, $this->service['DwCA zip download']);
             $temp_path = $this->path['main']."DwCA/".substr($hash{"masterDocId"},0,2)."/";
             if(!is_dir($temp_path)) mkdir($temp_path);

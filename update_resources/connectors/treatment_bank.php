@@ -5,7 +5,7 @@ as of Sep 1, 2021 = 611,618 items
 
 php update_resources/connectors/treatment_bank.php _ '{"range_from": "1", "range_to":"100000"}'
 php update_resources/connectors/treatment_bank.php _ '{"range_from": "100000", "range_to":"200000"}'
-php update_resources/connectors/treatment_bank.php _ '{"task": "generate_combined_dwca"}'
+php update_resources/connectors/treatment_bank.php _ '{"task": "build_up_dwca_list"}'
 
 php5.6 treatment_bank.php jenkins '{"range_from": "1", "range_to":"100000"}'
 php5.6 treatment_bank.php jenkins '{"range_from": "100000", "range_to":"200000"}'
@@ -35,10 +35,10 @@ if($from && $to) {
     $func = new TreatmentBankAPI();
     $func->start($from, $to); //initial operation - downloads all Plazi DwCA's locally
 }
-elseif($task == "generate_combined_dwca") {
+elseif($task == "build_up_dwca_list") {
     $resource_id = "TreatmentBank_4Pensoft";
     $func = new TreatmentBankAPI($resource_id);
-    $func->generate_combined_dwca();
+    $func->build_up_dwca_list();
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
 ?>
