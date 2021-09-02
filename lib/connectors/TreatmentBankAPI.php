@@ -41,7 +41,7 @@ class TreatmentBankAPI
                 $string = $reader->readOuterXML();
                 if($xml = simplexml_load_string($string)) { $i++; echo "\n[$i] ";
                     self::process_item($xml);
-                    sleep(3);
+                    // sleep(3); //no need since sleep() already exists in wget line
                     // if($i == 3) break; //debug only
                 }
             }
