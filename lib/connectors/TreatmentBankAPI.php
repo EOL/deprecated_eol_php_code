@@ -25,12 +25,12 @@ class TreatmentBankAPI
         if(!is_dir($this->path['main'])) mkdir($this->path['main']);
         if(!is_dir($this->path['main']."DwCA/")) mkdir($this->path['main']."DwCA/");
     }
-    function start()
-    {
+    function start($from, $to)
+    {   //exit("\n[$from] [$to]\n");
         self::download_XML_treatments_list();
-        self::read_xml_rss();
+        self::read_xml_rss($from, $to);
     }
-    private function read_xml_rss()
+    private function read_xml_rss($from, $to)
     {
         $local = $this->path['xml.rss'];
         $reader = new \XMLReader();
@@ -39,14 +39,17 @@ class TreatmentBankAPI
         while(@$reader->read()) {
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "item") {
                 $string = $reader->readOuterXML();
-                if($xml = simplexml_load_string($string)) { $i++; echo "\n[$i] ";
-                    self::process_item($xml);
-                    // sleep(3); //no need since sleep() already exists in wget line
-                    // if($i == 3) break; //debug only
+                if($xml = simplexml_load_string($string)) { $i++;
+                    if($i >= $from && $i <= $to) {
+                        if(($i % 1000) == 0) echo "\n[$i] ";
+                        self::process_item($xml);
+                        // if($i == 6) break; //debug only
+                    }
+                    else continue;
                 }
             }
         }
-        echo "\nmasterDocIds: ".count($this->stats['masterDocId'])."\n";
+        echo "\nmasterDocIds: ".count(@$this->stats['masterDocId'])."\n";
         exit("\n-stop muna-\n");
     }
     private function process_item($xml)
@@ -59,7 +62,7 @@ class TreatmentBankAPI
             [guid] => 03FA87C50911FFB0FC2DFC79FB4AD551.xml
         )*/
         $url = $xml->link.".xml";
-        echo "".$url."";
+        debug("".$url."");
         $xml_string = Functions::lookup_with_cache($url, $this->download_options);
         $hash = simplexml_load_string($xml_string); // print_r($hash); 
         
