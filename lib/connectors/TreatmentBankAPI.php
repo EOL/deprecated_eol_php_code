@@ -30,7 +30,7 @@ class TreatmentBankAPI
         self::download_XML_treatments_list();
         self::read_xml_rss($from, $to);
     }
-    private function read_xml_rss($from, $to)
+    private function read_xml_rss($from, $to, $purpose = "download all dwca")
     {
         $local = $this->path['xml.rss'];
         $reader = new \XMLReader();
@@ -40,12 +40,19 @@ class TreatmentBankAPI
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "item") {
                 $string = $reader->readOuterXML();
                 if($xml = simplexml_load_string($string)) { $i++;
-                    if($i >= $from && $i <= $to) {
-                        if(($i % 1000) == 0) echo "\n[$i] ";
-                        self::process_item($xml);
-                        // if($i == 6) break; //debug only
+                    
+                    if($purpose == "download all dwca") {
+                        if($i >= $from && $i <= $to) {
+                            if(($i % 1000) == 0) echo "\n[$i] ";
+                            self::process_item($xml);
+                            // if($i == 6) break; //debug only
+                        }
+                        else continue;
                     }
-                    else continue;
+                    elseif($purpose == "build-up local dwca list") {
+                        self::process_item_buildup_list($xml);
+                        if($i == 6) break; //debug only
+                    }
                 }
             }
         }
@@ -101,6 +108,44 @@ class TreatmentBankAPI
             debug("\nFile already exists: [$destination] - ".filesize($destination)."\n");
         }
     }
+    function generate_combined_dwca() //main 2nd step
+    {
+        $dwca_list_txt = CONTENT_RESOURCE_LOCAL_PATH."/reports/Plazi_DwCA_list.txt";
+        $this->WRITE = fopen($dwca_list_txt, "w"); //initialize
+        self::read_xml_rss(false, false, "build-up local dwca list");
+        fclose($this->WRITE);
+    }
+    private function process_item_buildup_list($xml)
+    {   // print_r($xml); //exit;
+        /*SimpleXMLElement Object(
+            [title] => Cyrtodactylus majulah Grismer & Wood & Jr & Lim 2012, new species
+            [description] => Cyrtodactylus majulah Grismer & Wood & Jr & Lim 2012, new species (pages 490-496) in Grismer, L. Lee, Wood, Perry L., Jr & Lim, Kelvin K. P. 2012, Cyrtodactylus Majulah, A New Species Of Bent-Toed Gecko (Reptilia: Squamata: Gekkonidae) From Singapore And The Riau Archipelago, Raffles Bulletin of Zoology 60 (2), pages 487-499
+            [link] => http://tb.plazi.org/GgServer/xml/03FA87C50911FFB0FC2DFC79FB4AD551
+            [pubDate] => 2021-08-29T02:36:49-02:00
+            [guid] => 03FA87C50911FFB0FC2DFC79FB4AD551.xml
+        )*/
+        $url = $xml->link.".xml"; // debug("".$url."");
+        $xml_string = Functions::lookup_with_cache($url, $this->download_options);
+        $hash = simplexml_load_string($xml_string); // print_r($hash); 
+        
+        if($hash{"docType"} == "treatment" && $hash{"masterDocId"}) {
+            // echo "\ndocType: [".$hash{"docType"}."]";
+            // echo "\nmasterDocId: [".$hash{"masterDocId"}."]\n";
+            $masterDocId = (string) $hash{"masterDocId"};
+            
+            $source = str_replace("masterDocId", $masterDocId, $this->service['DwCA zip download']);
+            $temp_path = $this->path['main']."DwCA/".substr($hash{"masterDocId"},0,2)."/";
+            if(!is_dir($temp_path)) mkdir($temp_path);
+            $destination = $temp_path.$masterDocId.".zip";
+            if(file_exists($destination) && filesize($destination) && !isset($this->stats['masterDocId'][$masterDocId])) {
+                $this->stats['masterDocId'][$masterDocId] = '';
+                echo("\n$destination -- [".filesize($destination)."]");
+                fwrite($this->WRITE, $destination."\n");
+            }
+        }
+        // else { print_r($xml); echo("\nInvestigate, docType not a 'treatment'\n"); }
+    }
+    
     /* copied template
     private function create_taxon($rec)
     {
