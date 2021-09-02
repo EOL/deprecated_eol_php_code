@@ -39,9 +39,9 @@ class TreatmentBankAPI
         while(@$reader->read()) {
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "item") {
                 $string = $reader->readOuterXML();
-                if($xml = simplexml_load_string($string)) { $i++;
+                if($xml = simplexml_load_string($string)) { $i++; echo "\n[$i] ";
                     self::process_item($xml);
-                    // sleep(5);
+                    sleep(3);
                     // if($i == 3) break; //debug only
                 }
             }
@@ -58,8 +58,8 @@ class TreatmentBankAPI
             [pubDate] => 2021-08-29T02:36:49-02:00
             [guid] => 03FA87C50911FFB0FC2DFC79FB4AD551.xml
         )*/
-        echo "\n".$xml->link."\n";
         $url = $xml->link.".xml";
+        echo "".$url."";
         $xml_string = Functions::lookup_with_cache($url, $this->download_options);
         $hash = simplexml_load_string($xml_string); // print_r($hash); 
         
@@ -95,7 +95,7 @@ class TreatmentBankAPI
             else echo("\nERROR: Cannot download [$source].\n");
         }
         else {
-            echo "\nFile already exists: [$destination] - ".filesize($destination)."";
+            echo "\nFile already exists: [$destination] - ".filesize($destination)."\n";
         }
     }
     /* copied template
