@@ -74,7 +74,7 @@ class TreatmentBankAPI
             $temp_path = $this->path['main']."DwCA/".substr($hash{"masterDocId"},0,2)."/";
             if(!is_dir($temp_path)) mkdir($temp_path);
             $destination = $temp_path.$hash{"masterDocId"}.".zip";
-            self::run_wget_download($source, $destination);
+            self::run_wget_download($source, $destination, $url);
         }
         else {
             // print_r($xml); echo("\nInvestigate, docType not a 'treatment'\n");
@@ -87,7 +87,7 @@ class TreatmentBankAPI
         $destination = $this->path['xml.rss'];
         self::run_wget_download($source, $destination);
     }
-    private function run_wget_download($source, $destination)
+    private function run_wget_download($source, $destination, $url = '')
     {
         if(!file_exists($destination) || filesize($destination) == 0) {
             $cmd = "wget --no-check-certificate ".$source." -O $destination"; $cmd .= " 2>&1";
@@ -95,7 +95,7 @@ class TreatmentBankAPI
             debug("\nDownloading...[$cmd]\n");
             $output = shell_exec($cmd); sleep(5); //echo "\n----------\n$output\n----------\n"; //too many lines
             if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully";
-            else echo("\nERROR: Cannot download [$source].\n");
+            else echo("\n[$url]\nERROR: Cannot download [$source].\n");
         }
         else {
             debug("\nFile already exists: [$destination] - ".filesize($destination)."\n");
