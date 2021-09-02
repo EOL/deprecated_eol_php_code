@@ -51,7 +51,7 @@ class TreatmentBankAPI
                     }
                     elseif($purpose == "build-up local dwca list") {
                         self::process_item_buildup_list($xml);
-                        if($i == 6) break; //debug only
+                        if($i == 10) break; //debug only
                     }
                 }
             }

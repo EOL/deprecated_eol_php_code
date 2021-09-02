@@ -91,6 +91,22 @@ class DwCA_Aggregator
         }
         $this->archive_builder->finalize(TRUE);
     }
+    function combine_Plazi_Treatment_DwCAs()
+    {
+        $tsv = CONTENT_RESOURCE_LOCAL_PATH."reports/Plazi_DwCA_list.txt";
+        $DwCAs = file($tsv);
+        $DwCAs = array_map('trim', $DwCAs); //print_r($DwCAs); exit;
+        $preferred_rowtypes = array("http://rs.tdwg.org/dwc/terms/taxon", "http://eol.org/schema/media/document");
+        $ret = array();
+        foreach($DwCAs as $dwca_file) {
+            if(file_exists($dwca_file)) {
+                self::convert_archive($preferred_rowtypes, $dwca_file);
+            }
+            else $ret['DwCA file does not exist'][$dwca_file] = '';
+        }
+        if($ret) print_r($ret);
+        $this->archive_builder->finalize(TRUE);
+    }
     private function convert_archive($preferred_rowtypes = false, $dwca_file)
     {   /* param $preferred_rowtypes is the option to include-only those row_types you want on your final DwCA.*/
         echo "\nConverting archive to EOL DwCA...\n";
@@ -106,7 +122,7 @@ class DwCA_Aggregator
             [2] => http://rs.tdwg.org/dwc/terms/occurrence
             [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
         */
-        print_r($index); //exit; //good debug to see the all-lower case URIs
+        // print_r($index); //exit; //good debug to see the all-lower case URIs
         foreach($index as $row_type) {
             /* ----------customized start------------ */
             if($this->resource_id == 'wikipedia_combined_languages') break; //all extensions will be processed elsewhere.
@@ -206,10 +222,27 @@ class DwCA_Aggregator
             
             // if($column_count != count($tmp)) continue; //new line
             
+            // /* New: Sep 2, 2021 -> customization needed since some fields from partner's DwCA is not recognized by EOL
+            // print_r($meta->fields); exit;
+            $excluded_terms = array();
+            if($this->resource_id == "TreatmentBank_4Pensoft" && $what == 'taxon') {
+                $excluded_terms = array('http://plazi.org/terms/1.0/basionymAuthors', 'http://plazi.org/terms/1.0/basionymYear', 'http://plazi.org/terms/1.0/combinationAuthors', 'http://plazi.org/terms/1.0/combinationYear', 'http://plazi.org/terms/1.0/verbatimScientificName');
+            }
+            $replaced_terms = array();
+            if($this->resource_id == "TreatmentBank_4Pensoft" && $what == 'document') {
+                $replaced_terms["http://rs.tdwg.org/dwc/terms/additionalInformationURL"] = "http://rs.tdwg.org/ac/terms/furtherInformationURL";
+            }
+            // */
+
             $rec = array(); $k = 0;
             foreach($meta->fields as $field) {
-                if(!$field['term']) continue;
-                $rec[$field['term']] = $tmp[$k];
+                $term = $field['term'];
+                if(!$term) continue;
+                // /* New: Sep 2, 2021
+                if(in_array($term, $excluded_terms)) { $k++; continue; }
+                if($val = @$replaced_terms[$term]) $term = $val;
+                // */
+                $rec[$term] = $tmp[$k];
                 $k++;
             }
             // print_r($rec); exit("\ndebug...\n");
