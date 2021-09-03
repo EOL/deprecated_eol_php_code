@@ -101,7 +101,10 @@ class TreatmentBankAPI
             $cmd = "wget ".$source." -O $destination"; $cmd .= " 2>&1";
             debug("\nDownloading...[$cmd]\n");
             $output = shell_exec($cmd); sleep(2); //echo "\n----------\n$output\n----------\n"; //too many lines
-            if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully";
+            if(file_exists($destination) && filesize($destination)) {
+                debug("\n".$destination." downloaded successfully");
+                echo " OK ";
+            }
             else echo("\n[$url]\nERROR: Cannot download [$source].\n");
         }
         else {
