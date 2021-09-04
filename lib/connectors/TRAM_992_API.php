@@ -133,7 +133,7 @@ class TRAM_992_API
         $info = self::extract_dwca($dwca_url, $this->download_options);
         // print_r($info); exit("\nexit 1\n");
         $tables = $info['harvester']->tables;
-        print_r(array_keys($tables));
+        // print_r(array_keys($tables));
         $rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //normal operation
         // $rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //debug only
         foreach($rowtypes as $rowtype) self::process_table($tables[$rowtype][0]);
