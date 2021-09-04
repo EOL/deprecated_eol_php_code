@@ -13,7 +13,7 @@ class TRAM_992_API
         if(Functions::is_production()) $this->report_dir = "/extra/other_files/temp/";
         else                           $this->report_dir = "/Volumes/AKiTiO4/other_files/temp/";
         $this->filename = "TRAM-992.txt";           //original
-        $this->filename = "TRAM-992_2021Sep3.txt";  //latest 2021 Sep 3
+        $this->filename = "TRAM-992_2021Sep4.txt";  //latest 2021 Sep 4
     }
     function start()
     {
@@ -62,7 +62,7 @@ class TRAM_992_API
         asort($final);      echo "\n1 ".count($final)."\n";
         ksort($final);      echo "\n2 ".count($final)."\n";
         
-        $f = Functions::file_open($this->report_dir.'TRAM-992.txt', "w");
+        $f = Functions::file_open($this->report_dir.$this->filename, "w");
         fwrite($f, "TaxonID"."\t"."Datasets"."\n");
         foreach($final as $taxonID => $datasets) {
             fwrite($f, $taxonID."\t".implode(", ", $datasets)."\n");
