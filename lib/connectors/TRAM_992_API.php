@@ -1,10 +1,10 @@
 <?php
 namespace php_active_record;
-/* */
+/* tram_992.php */
 class TRAM_992_API
 {
     function __construct()
-    {
+    {   //60*60*24 orig expire_seconds
         $this->download_options = array('resource_id' => 'opendata', 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->opendata_api['tag taxonomic inference'] = 'https://opendata.eol.org/api/3/action/package_search?q=taxonomic+inference&start=0&rows=200&&sort=metadata_modified+desc';
         $this->opendata_page['package_id'] = 'https://opendata.eol.org/dataset/';
@@ -12,6 +12,8 @@ class TRAM_992_API
         // https://opendata.eol.org/dataset/mcdermott-1964
         if(Functions::is_production()) $this->report_dir = "/extra/other_files/temp/";
         else                           $this->report_dir = "/Volumes/AKiTiO4/other_files/temp/";
+        $this->filename = "TRAM-992.txt";           //original
+        $this->filename = "TRAM-992_2021Sep3.txt";  //latest 2021 Sep 3
     }
     function start()
     {
@@ -87,7 +89,7 @@ class TRAM_992_API
         
         // if(in_array($rec->name, array('mineralogy', 'marine-ecology-literature'))) {}
         // else {
-            if(count($rec->resources) > 1) { print_r($rec);
+            if(count($rec->resources) > 1) { //print_r($rec);
                 $this->debug['More than one resources'][$rec->name] = '';
                 // exit("\nMore than one resources?\n");
             }
@@ -183,7 +185,7 @@ class TRAM_992_API
             }
         }
     }
-    private function extract_dwca($dwca_file = false, $download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1)) //probably default expires in 1 day 60*60*24*1. Not false.
+    private function extract_dwca($dwca_file = false, $download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1)) //default expires in 1 day 60*60*24*1. Not false.
     {
         // /* un-comment in real operation
         require_library('connectors/INBioAPI');
