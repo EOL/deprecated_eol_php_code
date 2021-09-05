@@ -50,6 +50,7 @@ class TreatmentBankAPI
                         else continue;
                     }
                     elseif($purpose == "build-up local dwca list") {
+                        if(($i % 5000) == 0) echo "[$i] ";
                         self::process_item_buildup_list($xml);
                         // if($i == 10) break; //debug only
                     }
@@ -140,7 +141,7 @@ class TreatmentBankAPI
             $destination = $temp_path.$masterDocId.".zip";
             if(file_exists($destination) && filesize($destination) && !isset($this->stats['masterDocId'][$masterDocId])) {
                 $this->stats['masterDocId'][$masterDocId] = '';
-                echo("\n$destination -- [".filesize($destination)."]");
+                debug("\n$destination -- [".filesize($destination)."]");
                 fwrite($this->WRITE, $destination."\n");
             }
         }
