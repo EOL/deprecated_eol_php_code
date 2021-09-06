@@ -184,8 +184,7 @@ environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI C
 May 19 Wed
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Botany", "resource_id":"scb-0093", "subjects":"Uses|Description"}'
 
----------------------------------------------------------------------------------------
-
+---------------------------------------------------------------------------------------as of Sep 6, 2021
 #step 1
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
 #generates 617_ENV.tar.gz
@@ -201,11 +200,16 @@ php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wi
 #generates wikipedia_en_traits_FTG.tar.gz
 
 #step 3: final step
-## Wikipedia EN creates a new DwCA for its traits. Not like 'AmphibiaWeb text'.
-## Thus there is a new line for Wikipedia EN: it removes taxa without MoF
+# Wikipedia EN creates a new DwCA for its traits. Not like 'AmphibiaWeb text'.
+# Thus there is an extra step for Wikipedia EN: it removes taxa without MoF
 php5.6 remove_taxa_without_MoF.php jenkins '{"resource_id": "wikipedia_en_traits_FTG"}'
-#generates wikipedia_en_traits.tar.gz
+# OLD: generates wikipedia_en_traits.tar.gz
+# NEW: generates wikipedia_en_traits_tmp1.tar.gz
 
+#step 4: new step
+# remove contradicting traits in MoF
+php5.6 remove_contradicting_traits_from_MoF.php jenkins '{"resource_id": "wikipedia_en_traits_tmp1"}'
+#generates the final: wikipedia_en_traits.tar.gz
 ===================================================================================================================== AmphibiaWeb
 21_ENV	Wed 2020-12-02 07:01:55 PM	{"agent.tab":743, "MoF":2202, "media_resource.tab":8138, "occurrence.tab":2202, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
 START differentiate Wikipedia EN and other resources when treated by Pensoft. Expected increase in MoF

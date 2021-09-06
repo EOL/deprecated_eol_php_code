@@ -7,7 +7,8 @@ php update_resources/connectors/treatment_bank.php _ '{"range_from": "1", "range
 php update_resources/connectors/treatment_bank.php _ '{"range_from": "100000", "range_to":"200000"}'
 php update_resources/connectors/treatment_bank.php _ '{"task": "build_up_dwca_list"}'
 php update_resources/connectors/treatment_bank.php _ '{"task": "generate_single_dwca"}'
-
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"TreatmentBank", "resource_id":"TreatmentBank_4Pensoft", "subjects":"Description"}'
+#generates TreatmentBank_4Pensoft_ENV.tar.gz
 
 php5.6 treatment_bank.php jenkins '{"range_from": "1", "range_to":"100000"}'
 php5.6 treatment_bank.php jenkins '{"range_from": "100000", "range_to":"200000"}'
