@@ -328,6 +328,15 @@ class DwCA_Aggregator
                 else exit("\nNo license\n"); //continue;
             }
             */
+
+            // /* start customize
+            if($this->resource_id == "TreatmentBank_4Pensoft") {
+                if($what == "document") {
+                    $rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses";
+                }
+            }
+            // */
+            
             // print_r($uris);
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);

@@ -6,9 +6,13 @@ as of Sep 1, 2021 = 611,618 items
 php update_resources/connectors/treatment_bank.php _ '{"range_from": "1", "range_to":"100000"}'
 php update_resources/connectors/treatment_bank.php _ '{"range_from": "100000", "range_to":"200000"}'
 php update_resources/connectors/treatment_bank.php _ '{"task": "build_up_dwca_list"}'
+-> generates /resources/reports/Plazi_DwCA_list.txt
+
 php update_resources/connectors/treatment_bank.php _ '{"task": "generate_single_dwca"}'
-php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"TreatmentBank", "resource_id":"TreatmentBank_4Pensoft", "subjects":"Description"}'
-#generates TreatmentBank_4Pensoft_ENV.tar.gz
+-> generates TreatmentBank_4Pensoft.tar.gz
+
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank_4Pensoft", "subjects":"Uses"}'
+-> generates TreatmentBank_4Pensoft_ENV.tar.gz
 
 php5.6 treatment_bank.php jenkins '{"range_from": "1", "range_to":"100000"}'
 php5.6 treatment_bank.php jenkins '{"range_from": "100000", "range_to":"200000"}'
