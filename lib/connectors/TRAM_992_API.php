@@ -13,7 +13,7 @@ class TRAM_992_API
         if(Functions::is_production()) $this->report_dir = "/extra/other_files/temp/";
         else                           $this->report_dir = "/Volumes/AKiTiO4/other_files/temp/";
         $this->filename = "TRAM-992.txt";           //original
-        $this->filename = "TRAM-992_2021Sep4.txt";  //latest 2021 Sep 4
+        $this->filename = "TRAM-992_2021Sep6.txt";  //latest 2021 Sep 4
     }
     function start()
     {
@@ -21,6 +21,7 @@ class TRAM_992_API
             $obj = json_decode($json); //print_r($obj);
             $i = 0; $count = 0;
             foreach($obj->result->results as $rec) { //loop all resources with tags = 'taxonomic inference'
+                // print_r($rec); exit("\n001\n");
                 // print_r($rec->tags); exit;
                 if(@$rec->tags{0}->name == 'taxonomic inference') { $count++;
                     self::process_rec($rec, $count);
@@ -63,7 +64,7 @@ class TRAM_992_API
         ksort($final);      echo "\n2 ".count($final)."\n";
         
         $f = Functions::file_open($this->report_dir.$this->filename, "w");
-        fwrite($f, "TaxonID"."\t"."Datasets"."\n");
+        fwrite($f, "EOLid"."\t"."Datasets"."\n");
         foreach($final as $taxonID => $datasets) {
             fwrite($f, $taxonID."\t".implode(", ", $datasets)."\n");
         }
