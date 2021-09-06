@@ -200,8 +200,40 @@ class DwCA_Aggregator
         $return = Functions::is_utf8($v);
         return $return;
     }
+    private function adjust_meta_value($meta, $what)
+    {
+        /*stdClass Object(
+            [row_type] => http://eol.org/schema/media/Document
+            [location] => media.txt
+            [file_uri] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_86624//media.txt
+            [fields] => Array(
+                    [1] => Array(
+                            [term] => http://rs.tdwg.org/dwc/terms/taxonID
+                            [type] => 
+                            [default] => 
+                        )
+                    [0] => Array(
+                            [term] => http://purl.org/dc/terms/identifier
+                            [type] => 
+                            [default] => 
+                        )
+        */
+        if($this->resource_id == "TreatmentBank" && $what == 'document') { // print_r($meta->fields); exit;
+            if($meta->fields[1]['term'] == "http://rs.tdwg.org/dwc/terms/taxonID" ||
+               $meta->fields[0]['term'] == "http://purl.org/dc/terms/identifier") {
+                $taxonID = $meta->fields[1];
+                $identifier = $meta->fields[0];
+                $meta->fields = array_values($meta->fields); //important line
+                $meta->fields[0] = $identifier;
+                $meta->fields[1] = $taxonID;
+            }
+            // print_r($meta->fields); exit;
+        }
+        return $meta;
+    }
     private function process_table($meta, $what)
     {   //print_r($meta);
+        $meta = self::adjust_meta_value($meta, $what); //only client for now is resource "TreatmentBank" from treatment_bank.php
         echo "\nprocessing [$what]...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             // $row = Functions::conv_to_utf8($row); //new line
@@ -337,6 +369,7 @@ class DwCA_Aggregator
             }
             // */
             
+            $uris = array_keys($rec);
             // print_r($uris);
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);

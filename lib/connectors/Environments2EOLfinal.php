@@ -148,7 +148,14 @@ class Environments2EOLfinal extends ContributorsMapAPI
         echo "\nProcessing...Environments2EOLfinal...$this->resource_id\n";
         $old_func = self::borrow_data(); // print_r($this->excluded_uris); exit("\nexcluded uris\n");
         require_library('connectors/TraitGeneric');
-        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        
+        // /* New: customize identifiers
+        // exit("\n[".$this->resource_id."]\nxxx\n");
+        if($this->resource_id == "TreatmentBank_ENV") $resource_id = "TreatmentB";
+        else                                          $resource_id = $this->resource_id;
+        // */
+        
+        $this->func = new TraitGeneric($resource_id, $this->archive_builder);
         $tsv = $this->eol_tags_path.'eol_tags_noParentTerms.tsv';
         $i = 0;
         foreach(new FileIterator($tsv) as $line_number => $row) {
