@@ -225,11 +225,11 @@ class DwCA_Aggregator
             // /* New: Sep 2, 2021 -> customization needed since some fields from partner's DwCA is not recognized by EOL
             // print_r($meta->fields); exit;
             $excluded_terms = array();
-            if($this->resource_id == "TreatmentBank_4Pensoft" && $what == 'taxon') {
+            if($this->resource_id == "TreatmentBank" && $what == 'taxon') {
                 $excluded_terms = array('http://plazi.org/terms/1.0/basionymAuthors', 'http://plazi.org/terms/1.0/basionymYear', 'http://plazi.org/terms/1.0/combinationAuthors', 'http://plazi.org/terms/1.0/combinationYear', 'http://plazi.org/terms/1.0/verbatimScientificName');
             }
             $replaced_terms = array();
-            if($this->resource_id == "TreatmentBank_4Pensoft" && $what == 'document') {
+            if($this->resource_id == "TreatmentBank" && $what == 'document') {
                 $replaced_terms["http://rs.tdwg.org/dwc/terms/additionalInformationURL"] = "http://rs.tdwg.org/ac/terms/furtherInformationURL";
             }
             // */
@@ -330,7 +330,7 @@ class DwCA_Aggregator
             */
 
             // /* start customize
-            if($this->resource_id == "TreatmentBank_4Pensoft") {
+            if($this->resource_id == "TreatmentBank") {
                 if($what == "document") {
                     $rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses";
                 }

@@ -9,10 +9,10 @@ php update_resources/connectors/treatment_bank.php _ '{"task": "build_up_dwca_li
 -> generates /resources/reports/Plazi_DwCA_list.txt
 
 php update_resources/connectors/treatment_bank.php _ '{"task": "generate_single_dwca"}'
--> generates TreatmentBank_4Pensoft.tar.gz
+-> generates TreatmentBank.tar.gz
 
-php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank_4Pensoft", "subjects":"Uses"}'
--> generates TreatmentBank_4Pensoft_ENV.tar.gz
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank", "subjects":"Uses"}'
+-> generates TreatmentBank_ENV.tar.gz
 
 php5.6 treatment_bank.php jenkins '{"range_from": "1", "range_to":"100000"}'
 php5.6 treatment_bank.php jenkins '{"range_from": "100000", "range_to":"200000"}'
@@ -49,7 +49,7 @@ elseif($task == "build_up_dwca_list") {
 }
 elseif($task == "generate_single_dwca") {
     require_library('connectors/DwCA_Aggregator');
-    $resource_id = "TreatmentBank_4Pensoft";
+    $resource_id = "TreatmentBank";
     $func = new DwCA_Aggregator($resource_id, false, 'regular');
     $func->combine_Plazi_Treatment_DwCAs();
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
