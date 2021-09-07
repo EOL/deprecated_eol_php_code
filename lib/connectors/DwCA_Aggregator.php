@@ -96,21 +96,22 @@ class DwCA_Aggregator
         $tsv = CONTENT_RESOURCE_LOCAL_PATH."reports/Plazi_DwCA_list.txt";
         $DwCAs = file($tsv);
         $DwCAs = array_map('trim', $DwCAs); //print_r($DwCAs); exit;
+        $no_of_lines = count($DwCAs); 
         $preferred_rowtypes = array("http://rs.tdwg.org/dwc/terms/taxon", "http://eol.org/schema/media/document");
-        $ret = array();
-        foreach($DwCAs as $dwca_file) {
+        $ret = array(); $i = 0;
+        foreach($DwCAs as $dwca_file) { $i++; echo "\n$i of $no_of_lines";
             if(file_exists($dwca_file)) {
-                self::convert_archive($preferred_rowtypes, $dwca_file);
+                self::convert_archive($preferred_rowtypes, $dwca_file, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //30 days
             }
             else $ret['DwCA file does not exist'][$dwca_file] = '';
         }
         if($ret) print_r($ret);
         $this->archive_builder->finalize(TRUE);
     }
-    private function convert_archive($preferred_rowtypes = false, $dwca_file)
+    private function convert_archive($preferred_rowtypes = false, $dwca_file, $download_options = array('timeout' => 172800, 'expire_seconds' => 0))
     {   /* param $preferred_rowtypes is the option to include-only those row_types you want on your final DwCA.*/
         echo "\nConverting archive to EOL DwCA...\n";
-        $info = self::start($dwca_file, array('timeout' => 172800, 'expire_seconds' => 0)); //1 day expire -> 60*60*24*1
+        $info = self::start($dwca_file, $download_options); //1 day expire -> 60*60*24*1
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];
