@@ -109,7 +109,7 @@ class INBioAPI
             if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
             fwrite($TMP, $file_contents);
             fclose($TMP);
-            sleep(5);
+            sleep(1); //orig 5 secs.
 
             if($force_extension == 'zip') {
                 shell_exec("unzip -ad $temp_dir $temp_file_path");
