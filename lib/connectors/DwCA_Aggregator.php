@@ -99,7 +99,7 @@ class DwCA_Aggregator
         $no_of_lines = count($DwCAs); 
         $preferred_rowtypes = array("http://rs.tdwg.org/dwc/terms/taxon", "http://eol.org/schema/media/document");
         $ret = array(); $i = 0;
-        foreach($DwCAs as $dwca_file) { $i++; echo "\n$i of $no_of_lines";
+        foreach($DwCAs as $dwca_file) { $i++; echo "\n$i of $no_of_lines -> ".pathinfo($dwca_file, PATHINFO_BASENAME);
             if(file_exists($dwca_file)) {
                 self::convert_archive($preferred_rowtypes, $dwca_file, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //30 days
             }
