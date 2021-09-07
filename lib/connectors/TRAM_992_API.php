@@ -14,6 +14,10 @@ class TRAM_992_API
         else                           $this->report_dir = "/Volumes/AKiTiO4/other_files/temp/";
         $this->filename = "TRAM-992.txt";           //original
         $this->filename = "TRAM-992_2021Sep6.txt";  //latest 2021 Sep 4
+        // /* https://opendata.eol.org/dataset/marine-ecology-literature -> needs only 1 resource from this dataset
+        $this->exclude_resourced_IDs = array("8fd26874-96b9-42ff-abc8-534c931497ba", "b9951366-90e8-475e-927e-774b95faf7ed",
+            "678b3afb-ae66-4641-9b4c-cae1918714bc", "7d7422eb-114a-4972-b8a1-8e4ec9840a24", "87e24999-d19a-4dda-a880-b812d6135f0f");
+        // */
     }
     function start()
     {
@@ -87,7 +91,6 @@ class TRAM_992_API
         [name] => lewis-and-taylor-1965
         */
         
-        
         // if(in_array($rec->name, array('mineralogy', 'marine-ecology-literature'))) {}
         // else {
             if(count($rec->resources) > 1) { //print_r($rec);
@@ -108,6 +111,9 @@ class TRAM_992_API
             [url] => https://opendata.eol.org/dataset/10c26a35-e332-4c56-94fd-a5b39d245ff6/resource/98edf631-a461-4761-a25e-f36c6527dc46/download/archive.zip
             [id] => 98edf631-a461-4761-a25e-f36c6527dc46
         )*/
+        
+        if(in_array($res->id, $this->exclude_resourced_IDs)) return;
+        
         echo "\nProcessing [$count]. ".$dataset_name." -> ".$res->name."...\n";
         $this->batch = array();
         
