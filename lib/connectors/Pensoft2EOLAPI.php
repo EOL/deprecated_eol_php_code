@@ -380,6 +380,8 @@ class Pensoft2EOLAPI
                     else continue;
                 }
                 
+                // exit("\n[".$this->param['resource_id']."]\nelix\n"); //good debug
+                /* assign ontologies assign ontology */
                 if(in_array($this->param['resource_id'], array("10088_5097_ENV"))) $this->ontologies = "envo,eol-geonames";
                 elseif(in_array($this->param['resource_id'], array("10088_6943_ENV"))) $this->ontologies = "envo,eol-geonames,growth";
                 elseif(stripos($this->param['resource_id'], "SCtZ-") !== false)        $this->ontologies = "envo,eol-geonames"; //string is found
@@ -392,6 +394,7 @@ class Pensoft2EOLAPI
                     "15423_ENV", "91155_ENV"))) $this->ontologies = "envo,eol-geonames";
                 elseif($this->param['resource'] == 'all_BHL') $this->ontologies = "envo,eol-geonames";
                 if(@$this->param['group'] == 'BHL_plants') $this->ontologies = "envo,eol-geonames,growth"; //overwrites prev value
+                if($this->param['resource_id'] == "TreatmentBank_ENV") $this->ontologies = "envo,eol-geonames";
                 // exit("\n[$this->ontologies]\n");
                 // ---------------------- end customize ----------------------*/
                 
