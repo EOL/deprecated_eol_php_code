@@ -36,8 +36,8 @@ class Pensoft2EOLAPI
         else $this->includeOntologiesYN = true; //the rest
         // */
         
-        if($param['resource_id'] == '617_ENV') $this->modulo = 10000; //50000; //Wikipedia EN
-        else                                   $this->modulo = 1000;
+        if(in_array($param['resource_id'], array('617_ENV', 'TreatmentBank_ENV'))) $this->modulo = 10000; //50000; //Wikipedia EN
+        else                                                                       $this->modulo = 1000;
         /*-----------------------Resources-------------------*/
         // $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
         /*-----------------------Subjects-------------------*/
