@@ -362,13 +362,21 @@ class DwCA_Aggregator
             }
             */
 
-            // /* start customize
+            // /* ==================== start customize ====================
             if($this->resource_id == "TreatmentBank") {
                 if($what == "document") {
                     $rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses";
                 }
+                
+                // to have a unique media object identifier
+                if($what == "document") {
+                    // $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                    $do_identifier = $rec['http://purl.org/dc/terms/identifier'];
+                    if(isset($this->data_object_identifiers[$do_identifier])) continue;
+                    else $this->data_object_identifiers[$do_identifier] = '';
+                }
             }
-            // */
+            // ==================== end customize ==================== */
             
             $uris = array_keys($rec);
             // print_r($uris);

@@ -27,7 +27,10 @@ STEP 4:
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank", "subjects":"Uses"}'
 -> generates TreatmentBank_ENV.tar.gz
 -> last step
+================== STATS ==================
+TreatmentBank	Tue 2021-09-07 09:11:17 PM	{"media_resource.tab":596262, "taxon.tab":597054, "time_elapsed":{"sec":66817.52, "min":1113.63, "hr":18.56}}
 */
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/TreatmentBankAPI');
 // $GLOBALS["ENV_DEBUG"] = false;
