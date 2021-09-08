@@ -231,7 +231,7 @@ class Pensoft2EOLAPI
         // ===================================== */
     }
     
-    private function generate_difference_report()
+    private function generate_difference_report() //utility report only, not part of main operation of textmining
     {
         // print_r($this->all_envo_terms); exit;
         $old = $this->all_envo_terms;
@@ -331,7 +331,7 @@ class Pensoft2EOLAPI
         echo "\nRun Pensoft annotator...\n";
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % $this->modulo) == 0) echo "\n".number_format($i);
+            $i++; if(($i % $this->modulo) == 0) echo "\nxxx".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             $row = Functions::conv_to_utf8($row); //possibly to fix special chars
@@ -474,7 +474,7 @@ class Pensoft2EOLAPI
         echo "\nprocess_table_taxa() ".$meta->file_uri."...\n";
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % $this->modulo) == 0) echo "\n".number_format($i);
+            $i++; if(($i % $this->modulo) == 0) echo "\nyyy".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             $row = Functions::conv_to_utf8($row); //possibly to fix special chars
@@ -578,7 +578,9 @@ class Pensoft2EOLAPI
                 if($ret = self::apply_adjustments($uri, $rek['lbl'])) {
                     $uri = $ret['uri'];
                     $label = $ret['label'];
+                    /* for utility report only, not part of main operation
                     $this->all_envo_terms[$uri] = $label; //for stats only - report for Jen
+                    */
                 }
                 else continue;
                 
@@ -863,7 +865,7 @@ class Pensoft2EOLAPI
         $agent_ids = array();
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % $this->modulo) == 0) echo "\n".number_format($i);
+            $i++; if(($i % $this->modulo) == 0) echo "\nzzz".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             $row = Functions::conv_to_utf8($row); //possibly to fix special chars
