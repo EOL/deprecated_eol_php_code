@@ -613,13 +613,11 @@ class Pensoft2EOLAPI
             self::retrieve_partial($id, $str, $loop);
             $ctr = $ctr + 2000;
         }
-        // print_r($this->results);
-        // exit("\n[$loops]\n");
+        // print_r($this->results); exit("\n[$loops]\n");
         if(isset($this->results)) return $this->results; //the return value is used in AntWebAPI.php
     }
     private function retrieve_partial($id, $desc, $loop)
-    {
-        // echo "\n[$id]\n";
+    {   // echo "\n[$id]\n";
         if($arr = self::retrieve_json($id, 'partial', $desc)) {
             // if($loop == 29) { print_r($arr['data']); //exit; }
             self::select_envo($arr['data']);
@@ -757,7 +755,6 @@ class Pensoft2EOLAPI
         $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies='.$this->ontologies.'"';
         */
         $cmd = 'curl -s GET "'.$uri.'"';
-        
         $cmd .= " 2>&1";
         // sleep(2); //temporary
         $json = shell_exec($cmd);
