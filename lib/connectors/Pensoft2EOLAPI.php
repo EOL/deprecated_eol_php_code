@@ -634,7 +634,9 @@ class Pensoft2EOLAPI
                 }
                 else exit("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n");
             }
-            else exit("\n -- nothing to save...\n[$id]\n[$desc]\n[$loop]\n"); //doesn't go here
+            else {
+                echo("\n================\n -- nothing to save...\n[$id]\n[$desc]\n[$loop]\n================\n"); //doesn't go here. Previously exit()
+            }
         }
     }
     private function select_envo($arr)
