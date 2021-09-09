@@ -29,6 +29,7 @@ php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol
 -> last step
 ================== STATS ==================
 TreatmentBank	Tue 2021-09-07 09:11:17 PM	{"media_resource.tab":596262, "taxon.tab":597054, "time_elapsed":{"sec":66817.52, "min":1113.63, "hr":18.56}}
+TreatmentBank	Wed 2021-09-08 04:23:09 PM	{"media_resource.tab":596261, "taxon.tab":597054, "time_elapsed":{"sec":66673.13, "min":1111.22, "hr":18.52}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
