@@ -226,10 +226,13 @@ class Functions_Memoirs
                 /* start to add a blank line between all rows */
                 $source = $destination;
                 $destination = str_replace("_raw.txt", ".txt", $destination);
-                $rows = file($source);
-                $WRITE = Functions::file_open($destination, "w"); //initialize
-                foreach($rows as $row) fwrite($WRITE, $row."\n");
-                fclose($WRITE);
+                if(file_exists($destination) && filesize($destination)) echo "\n".$destination." txt already converted.\n";
+                else {
+                    $rows = file($source);
+                    $WRITE = Functions::file_open($destination, "w"); //initialize
+                    foreach($rows as $row) fwrite($WRITE, $row."\n");
+                    fclose($WRITE);
+                }
                 // break; //debug only
             }
         }
