@@ -177,5 +177,41 @@ class Functions_Memoirs
         }
         return $row;
     }
+    function download_Kubitzki_pdfs()
+    {
+        if(Functions::is_production()) $path = '/extra/other_files/Smithsonian/Kubitzki_et_al/';
+        else                           $path = '/Volumes/AKiTiO4/other_files/Smithsonian/Kubitzki_et_al/';
+        if(!is_dir($path)) mkdir($path);
+        // $url = "https://opendata.eol.org/api/3/action/package_show?id=kubitzki-source-files"; //private in OpenData
+        $url = "https://editors.eol.org//other_files/Smithsonian/Kubitzki_et_al/OpenData/Kubitzki_PDFs.json";
+        if($json = Functions::lookup_with_cache($url, array("expire_seconds" => false))) {
+            $obj = json_decode($json);
+            $resources = $obj->result->resources; // print_r($resources);
+            foreach($resources as $r) {
+                print_r(pathinfo($r->url)); //exit;
+                /*Array(
+                    [dirname] => https://opendata.eol.org/dataset/91d4f4d2-3ce1-400a-ab4a-fbde1ba3218a/resource/8d806e20-e421-4c88-a7ea-d8e18c11bde3/download
+                    [basename] => volii1993.pdf
+                    [extension] => pdf
+                    [filename] => volii1993
+                )*/
+                $pdf_id = pathinfo($r->url, PATHINFO_FILENAME);
+                $filename = pathinfo($r->url, PATHINFO_BASENAME);
+                $source = pathinfo($r->url, PATHINFO_DIRNAME);
+                $current_path = $path.$pdf_id."/";
+                if(!is_dir($current_path)) mkdir($current_path);
+                $destination = $current_path.$filename;
+                if(file_exists($destination) && filesize($destination)) echo "\n".$destination." already downloaded.\n";
+                else {
+                    // $cmd = "wget -nc --no-check-certificate ".$source." -O $destination"; $cmd .= " 2>&1"; --- no overwrite
+                    $cmd = "wget --no-check-certificate ".$source." -O $destination"; $cmd .= " 2>&1";
+                    echo "\nDownloading...[$cmd]\n";
+                    $output = shell_exec($cmd); //sleep(10);
+                    if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully.\n";
+                    else exit("\nCannot download [$source]\n");
+                }
+            }
+        }
+    }
 }
 ?>
