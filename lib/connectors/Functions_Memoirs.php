@@ -208,8 +208,29 @@ class Functions_Memoirs
                     echo "\nDownloading...[$cmd]\n";
                     $output = shell_exec($cmd); //sleep(10);
                     if(file_exists($destination) && filesize($destination)) echo "\n".$destination." downloaded successfully.\n";
-                    else exit("\nCannot download [$source]\n");
+                    else exit("\nERROR: Cannot download [$source]\n");
                 }
+            
+                /* start convert to txt file */
+                // /Volumes/AKiTiO4/other_files/Smithsonian/Kubitzki_et_al/volxiv2016/volxiv2016.pdf
+                $source = $destination;
+                $destination = str_replace(".pdf", "_raw.txt", $destination);
+                if(file_exists($destination) && filesize($destination)) echo "\n".$destination." already converted.\n";
+                else {
+                    $cmd = "pdftotext -raw $source $destination"; $cmd .= " 2>&1";
+                    echo "\nPDF to TXT...[$cmd]\n";
+                    $output = shell_exec($cmd);
+                    if(file_exists($destination) && filesize($destination)) echo "\n".$destination." converted successfully.\n";
+                    else exit("\nERROR: Cannot convert [$source]\n");
+                }
+                /* start to add a blank line between all rows */
+                $source = $destination;
+                $destination = str_replace("_raw.txt", ".txt", $destination);
+                $rows = file($source);
+                $WRITE = Functions::file_open($destination, "w"); //initialize
+                foreach($rows as $row) fwrite($WRITE, $row."\n");
+                fclose($WRITE);
+                // break; //debug only
             }
         }
     }
