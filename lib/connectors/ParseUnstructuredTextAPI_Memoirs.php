@@ -1113,7 +1113,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // if(strpos($row, "ANEMIA") !== false) {exit("\n[$row]\n");}   //string is found  //good debug
             }
             
-            // if($this->pdf_id == '118935') { //1st doc
             if(in_array($this->pdf_id, array('118935', '30355'))) {
                 // /* manual: floridanus ((Fcenus ) Bradley, Trans. Am. Ent. Soc, xxxiv, 112.
                 $row = str_replace("((Fcenus", "(Fcenus", $row);
@@ -1161,36 +1160,33 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 
                 if($this->pdf_id == '118941') $row = str_replace("Bucculatrix Columbiana", "Bucculatrix columbiana", $row);
                 
-                 // /* make "( 73 )" to "(73)" --- // ( 73 ) Bucculatrix domicola new species --- 118941
-                 if(preg_match("/\((.*?)\)/ims", $row, $ret)) {
-                     $inside_parenthesis = $ret[1];
-                     $row = str_replace("($inside_parenthesis)", "(".trim($inside_parenthesis).")", $row);
-                 }
-                 // */
+                // /* make "( 73 )" to "(73)" --- // ( 73 ) Bucculatrix domicola new species --- 118941
+                if(preg_match("/\((.*?)\)/ims", $row, $ret)) {
+                    $inside_parenthesis = $ret[1];
+                    $row = str_replace("($inside_parenthesis)", "(".trim($inside_parenthesis).")", $row);
+                }
+                // */
 
-
-                
-                 if($this->pdf_id == '91362_species') {
-                     /*another case:
-                     from: "15. Ustilago Zeae."
-                     This must now be a STOP pattern --- a binomial
-                     */
-                     // if($row == "15. Ustilago Zeae.") { //exit("\ngot it row [$row]\n"); //good debug
-                     //     exit("\ngot it row [$row]\n");
-                     // }
-                     $words = explode(" ", $row);
-                     if(count($words) == 3) {
-                         if($this->has_numbers($words[0])) { //echo "\nhere 111\n";
-                             if(ctype_upper($words[1][0])) { //1st word, 1st char should be capital
-                                 if(self::is_sciname_using_GNRD($row)) { //print_r($words); //echo "\nhere 222\n";
-                                     $row = "</taxon>$row";
-                                     echo "\nDetected as STOP pattern: [$orig_row] [$row]\n";
-                                 }
-                             }
-                         }
-                     }
-                 }
-                 
+                if($this->pdf_id == '91362_species') {
+                    /*another case:
+                    from: "15. Ustilago Zeae."
+                    This must now be a STOP pattern --- a binomial
+                    */
+                    // if($row == "15. Ustilago Zeae.") { //exit("\ngot it row [$row]\n"); //good debug
+                    //     exit("\ngot it row [$row]\n");
+                    // }
+                    $words = explode(" ", $row);
+                    if(count($words) == 3) {
+                        if($this->has_numbers($words[0])) { //echo "\nhere 111\n";
+                            if(ctype_upper($words[1][0])) { //1st word, 1st char should be capital
+                                if(self::is_sciname_using_GNRD($row)) { //print_r($words); //echo "\nhere 222\n";
+                                    $row = "</taxon>$row";
+                                    echo "\nDetected as STOP pattern: [$orig_row] [$row]\n";
+                                }
+                            }
+                        }
+                    }
+                }
                 
                 // if(stripos($orig_row, $this->in_question) !== false) {echo("\n[$row]check_1\n");}   //string is found  //good debug
                 $orig_row2 = $row; //New Aug 24, 2021
