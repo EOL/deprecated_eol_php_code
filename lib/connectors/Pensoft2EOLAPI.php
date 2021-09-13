@@ -356,7 +356,8 @@ class Pensoft2EOLAPI
             if($this->param['resource_id'] == "TreatmentBank_ENV") { //total 596261 objects in media tab
                 // if($i >= 1 && $i <= 400000) {}
                 // if($i >= 500000 && $i <= 600000) {} //1st cache
-                if($i >= 400000 && $i <= 500000) {} //2nd cache
+                // if($i >= 400000 && $i <= 500000) {} //2nd cache
+                if($i >= 110000 && $i <= 400000) {} //1st cache
                 else continue; 
             }
             // */
@@ -635,7 +636,10 @@ class Pensoft2EOLAPI
                     self::select_envo($arr['data']);
                     // echo("\nretrieved (newly created) partial OK\n"); //good debug
                 }
-                else exit("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n");
+                else {
+                    // exit("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n");
+                    echo("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n"); //should not go here. Previously exit().
+                }
             }
             else {
                 echo("\n================\n -- nothing to save...\n[$id]\n[$desc]\n[$loop]\n================\n"); //doesn't go here. Previously exit()
