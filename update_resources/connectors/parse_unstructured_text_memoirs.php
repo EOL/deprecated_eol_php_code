@@ -204,7 +204,7 @@ NorthAmericanFlora_Plants	Thu 2021-08-26 08:27:21 AM	{"MoF.tab":44886, "media.ta
 NorthAmericanFlora_Plants	Tue 2021-08-31 03:10:17 AM	{"MoF.tab":45013, "media.tab":11438, "occurrence.tab":45013, "taxon.tab":11299, "time_elapsed":{"sec":267.57, "min":4.46, "hr":0.07}}
 
 Kubitzki_et_al
-parse_unstructured_text_memoirs.php _ '{"resource_id": "volii1993", "resource_name":"all_BHL", "group":"Kubitzki"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "volii1993", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
@@ -219,7 +219,12 @@ $pdf_id = $param['resource_id'];
 $resource_name = $param['resource_name'];
 $group = @$param['group'];
 $func = new ParseUnstructuredTextAPI_Memoirs($resource_name);
-
+/*
+$str = "±";
+// $str = substr($str,0,1);
+if(ctype_upper($str)) exit("\nupper siya\n");
+else exit("\nnot upper\n");
+*/
 /*
 $row = "I )'. i lill'l'l, SPECIES boy";
 $words = explode(" ", strtolower($row));

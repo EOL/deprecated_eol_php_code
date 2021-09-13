@@ -237,5 +237,69 @@ class Functions_Memoirs
             }
         }
     }
+    function first_char_is_capital($str)
+    {
+        $first_char = substr($str,0,1);
+        if(ctype_upper($first_char)) return true;
+        return false;
+    }
+    function is_sciname_in_Kubitzki($string)
+    {
+        /* sample genus
+        1. Zippelia Blume Figs. 109 A, 110A, B
+        */
+        if(stripos($string, "±") !== false) return false; //string is found
+        // if(stripos($string, ":") !== false) return false; //string is found //CANNOT USE THIS: e.g. "9. Compsoneura Warb. Fig. 100 C, F Bicuiba de Wilde, Beitr. BioI. Pfl. 66: 119 (1992)."
+        
+        // /* manual
+        $string = str_replace("1. UlmusL.", "1. Ulmus L.", $string);
+        $string = str_replace("Bosea L., Sp. Pl.: 225 (1753).", "6. Bosea L., Sp. Pl.: 225 (1753).", $string); //weird, number is removed in OCR
+        // */
+        
+        // /* e.g. "(2). Wien: Fr. Beck, pp. 44-55."
+        if(substr($string,0,1) == "(") return false;
+        // */
+
+        // /* e.g. "7. Berlinianche (Harms) Vattimo" --- remove parenthesis
+        $string = str_replace(array("(", ")"), "", $string);
+        // */
+        
+        // /* e.g. "6.Pilostyles Guillemin"
+        $string = str_replace(".", ". ", $string);
+        $string = Functions::remove_whitespace($string);
+        // */
+        
+        $words = explode(" ", trim($string));
+        $first = @$words[0]; $second = @$words[1]; $third = @$words[2];
+        if($first && $second && $third) {
+            
+            /*
+            [1. Magnoliid Families] => 
+            [2. Hamamelid Families] => 
+            [2. Micromolecnlar Evidence. Among vascular plants,] => 
+            [3. Macromolecular Evidence. In a serological study,] => 
+            [5. Flower Characters. In the Centrospermae, differ-] => 
+            [8. Vegetative Characters. Stipules or stipule-like ap-] => 
+            [2. Teil, Bd.10. Berlin: Gebrtider Borntraeger. 364 pp.] => 
+            */
+            $not_in_third = array("Families", "Evidence.", "Characters.", "Group", "Tepals");
+            if(in_array($third, $not_in_third)) return false;
+
+            $not_in_second = array("Tepals", "Leyden:"); //e.g. "326. Leyden: Noordhoff."
+            if(in_array($second, $not_in_second)) return false;
+            
+            if(is_numeric($first) && $this->first_char_is_capital($second) && $this->first_char_is_capital($third)
+                                  && !in_array($second, $this->ranks)
+                                  && strlen($first) <= 4 //120.
+                                  && substr($first,-1) == "." // exclude e.g. "011 UrI Lui Frl GI"
+                                  && strlen($second) >= 2 && strlen($third) >= 1 // e.g. "2. Rafflesia R Br."
+                                  && substr($second,1,1) != "," // exclude e.g. "40 A, Oxford: Clarendon Press, pp.105-128."
+                                  && substr($second,-1) != "."  // exclude e.g. "3. Annuals. Carpels connate to various degrees"
+                                  && substr($second,-1) != ","  // exclude e.g. "2. Teil, Bd.10. Berlin: Gebrtider Borntraeger. 364 pp."
+                                  ) return true;
+            return false;
+        }
+        else return false;
+    }
 }
 ?>

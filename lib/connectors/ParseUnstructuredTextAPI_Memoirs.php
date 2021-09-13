@@ -683,6 +683,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(self::is_sciname_in_118920($string)) return true;
             else return false;
         }
+        elseif($this->resource_name == 'Kubitzki') {
+            if($this->is_sciname_in_Kubitzki($string)) return true;
+            else return false;
+        }
         elseif($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
                                              '118950', '118941'))) { //and BHL-like e.g. 118950
             // /* manual
