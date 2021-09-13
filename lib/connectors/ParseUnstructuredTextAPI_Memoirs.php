@@ -1258,7 +1258,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(strtolower(substr(trim($row),0,$len)) == strtolower($word))  $row = "</taxon>$row";
             }
             
-            
             // if($i == 299) exit("\n[$i][$row]\n");
             if(isset($this->Distribution_Stop_pattern[$i])) {
                 $row = "</taxon>$row";
@@ -1319,6 +1318,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     }
                 }
             }
+
             // if($this->pdf_id == '91362_species') {
             //     $words = array('Notes:', 'Note:');
             //     foreach($words as $word) {
@@ -1414,10 +1414,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_replace("<taxon", "-elicha 1-", $row); //start ---
                 $row = str_replace("</taxon>", "-elicha 2-", $row); //start ---
                 $row = str_replace("'> ", "-elicha 3-", $row); //start ---
-
                 $row = str_replace("<", "&lt;", $row);
                 $row = str_replace(">", "&gt;", $row);
-
                 $row = str_replace("-elicha 1-", "<taxon", $row); //end ---
                 $row = str_replace("-elicha 2-", "</taxon>", $row); //end ---
                 $row = str_replace("-elicha 3-", "'> ", $row); //end ---
@@ -1555,7 +1553,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             if(self::two_words_rank_and_sciname_combo($row)) $row = "</taxon>$row";         // Tribe Beckerinini newline
             
-            
             /* to close tag the last block
             if($row == "Appendix") $row = "</taxon>$row";                   //SCtZ-0293_convertio.txt
             elseif($row == "Literature Cited") $row = "</taxon>$row";       //SCtZ-0007.txt
@@ -1578,7 +1575,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($filename != "scb-0013.txt") {
                 if(self::N_words_or_less_beginning_with_Key($row, 12)) $row = "</taxon>$row";   //scb-0001.txt
             }
-            
             */
 
             /* New: per Jen: https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65856&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65856
