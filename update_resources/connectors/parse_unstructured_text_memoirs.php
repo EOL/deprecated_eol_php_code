@@ -202,6 +202,9 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "15422", "resource_name":
 
 NorthAmericanFlora_Plants	Thu 2021-08-26 08:27:21 AM	{"MoF.tab":44886, "media.tab":11382, "occurrence.tab":44886, "taxon.tab":11243, "time_elapsed":{"sec":267.87, "min":4.46, "hr":0.07}}
 NorthAmericanFlora_Plants	Tue 2021-08-31 03:10:17 AM	{"MoF.tab":45013, "media.tab":11438, "occurrence.tab":45013, "taxon.tab":11299, "time_elapsed":{"sec":267.57, "min":4.46, "hr":0.07}}
+
+Kubitzki_et_al
+parse_unstructured_text_memoirs.php _ '{"resource_id": "volii1993", "resource_name":"all_BHL", "group":"Kubitzki"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
@@ -347,7 +350,6 @@ if($resource_name == 'MotAES') {
     119520 --- blocks: 677|662   Raw scinames: 706|705
     119188 --- blocks: 185   Raw scinames: 197
     91225 --- blocks: xx   Raw scinames: xx --- host-pathogen list pattern
-    
     */
 }
 $rec['30355'] = array('filename' => '30355.txt', 'lines_before_and_after_sciname' => 1); /* blocks: 2611   Raw scinames: 2641 */
@@ -371,6 +373,11 @@ if(in_array($group, array('Fungi', 'Plants'))) {
 }
 $rec['15422'] = array('filename' => '15422.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*3 blocks: xxx   Raw scinames: xxx */
 
+// === Kubitzki_et_al ===
+$rec['volii1993'] = array('filename' => 'volii1993.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'Kubitzki_et_al'); /*blocks: xxx | Raw scinames: xxx */
+/* sample genus
+1. Zippelia Blume Figs. 109 A, 110A, B
+*/
 
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;
