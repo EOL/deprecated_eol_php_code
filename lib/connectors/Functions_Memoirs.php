@@ -279,10 +279,10 @@ class Functions_Memoirs
             [8. Vegetative Characters. Stipules or stipule-like ap-] => 
             [2. Teil, Bd.10. Berlin: Gebrtider Borntraeger. 364 pp.] => 
             */
-            $not_in_third = array("Families", "Evidence.", "Characters.", "Group", "Tepals");
+            $not_in_third = array("Families", "Evidence.", "Characters.", "Group", "Tepals", "I");
             if(in_array($third, $not_in_third)) return false;
 
-            $not_in_second = array("Tepals", "Leyden:"); //e.g. "326. Leyden: Noordhoff."
+            $not_in_second = array("Tepals", "Leyden:", "The"); //e.g. "326. Leyden: Noordhoff."
             if(in_array($second, $not_in_second)) return false;
             
             if(is_numeric($first) && $this->first_char_is_capital($second) && $this->first_char_is_capital($third)
@@ -304,20 +304,52 @@ class Functions_Memoirs
         }
         else return false;
     }
-    function considered_allcaps_tobe_removed($row)
+    // "1. The Annona group has to be united with the"
+    function considered_allcaps_tobe_removed($row) //designed for "Kubitzki" resource only
     {
+        if($row == "SUBDIVISION AND RELATIONSHIPS WITHIN THE FAMILY.") return false;
+        /* let us wait for Jen on this one:
+        if($this->first_part_of_string("INFORMAL GROUPS WITHIN THE ", $row)) return false; //"INFORMAL GROUPS WITHIN THE ANNONACEAE"
+        */
+        
         /*
         U.KUHN
         with substantial additions by V. BITTRICH,
         R. CAROLIN, H.FREITAG, I. C. HEDGE,
         P. UOTILA and P. G. WILSON
+        Wu CHENG-YIH and K.KUBITZKI
+        Wu CHENG-YIH AND K.KUBITZKI
+        Wu CHENG-YIH and K.KUBITZKI
         */
-        $tobe_removed = array(".", ",", 'with', 'substantial', 'additions', 'by', 'and', " ");
+        $orig = $row; //for debug only
+        $tobe_removed = array(".", ",", 'with', 'substantial', 'additions', 'by', 'and', "-", "Wu ");
+        $tobe_removed[] = " "; //should be the last char --- IMPORTANT
         $tmp = $row;
+        $tmp = trim(str_ireplace("K.KuBITZKI", "K.KUBITZKI", $tmp));
         foreach($tobe_removed as $r) $tmp = str_ireplace($r, "", $tmp);
         $tmp = Functions::remove_whitespace(trim($tmp));
+        /* good debug
+        if(stripos($orig, "CHENG-YIH") !== false) { //string is found
+            exit("\n-----\n[$tmp]\n-----\n");
+        }*/
         if($tmp && ctype_upper($tmp)) return true;
         return false;
+    }
+    function considered_OCR_garbage_tobe_removed($row)
+    {
+        $row = str_replace('"', "_", $row); //just for easy quoting...
+        $garbage = array("'.", "fi", "~ ,", "'Ii _ •", "..", "K '_", "\)", "'··'-", "_ _ ' 't... ,", "• f'", ";. '~..", ".~ :.", "~ . i", "'_, x~", "( ...•", "'~.;:_ .,", ". t' -:.", "''''.' .,.. _ , ·v.,.. .", "_, ': .", "(~ -", 
+            ",! ,~ - ~rh", ". . ,!~) c_\~ 0", "i\ 13 qy");
+        foreach($garbage as $r) {
+            if($row == $r) return true;
+        }
+        return false;
+    }
+    function first_part_of_string($needle, $row)
+    {
+        $len = strlen($needle);
+        if(substr($row,0,$len) == $needle) return true;
+        else return false;
     }
 }
 ?>

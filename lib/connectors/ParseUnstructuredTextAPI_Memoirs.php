@@ -189,13 +189,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
 
-            if($this->resource_name == 'Kubitzki') {
+            if($this->resource_name == 'Kubitzki') { //this block is present in 2 sections
                 // /* manual
                 $row = str_replace("1. UlmusL.", "1. Ulmus L.", $row);
                 $row = str_replace("Bosea L., Sp. Pl.: 225 (1753).", "6. Bosea L., Sp. Pl.: 225 (1753).", $row); //weird, number is removed in OCR
                 // manual e.g. "6.Pilostyles Guillemin"
                 $row = str_replace(".", ". ", $row);
                 $row = Functions::remove_whitespace($row);
+                // others:
+                $row = str_ireplace("~yrotha~naceae", "Myrothamnaceae", $row);
+                $row = str_ireplace("Myrothamnaeeae", "Myrothamnaceae", $row);
+                $row = str_ireplace("~yrothamnaceae", "Myrothamnaceae", $row);
                 // */
             }
             if($this->resource_name == 'all_BHL') {
@@ -1129,6 +1133,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // manual e.g. "6.Pilostyles Guillemin"
                 $row = str_replace(".", ". ", $row);
                 $row = Functions::remove_whitespace($row);
+                // others:
+                $row = str_replace("~yrotha~naceae", "Myrothamnaceae", $row);
+                $row = str_replace("Myrothamnaeeae", "Myrothamnaceae", $row);
+                $row = str_replace("~yrothamnaceae", "Myrothamnaceae", $row);
                 // */
             }
             if($this->resource_name == 'all_BHL') $row = $this->number_number_period($row); //"1 1 . Cracca leucosericea Rydberg, sp. nov."
@@ -1320,7 +1328,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(strtolower($row) == "editorial appendix")  $row = "</taxon>$row";
             if(strcmp($row, "CORRECTIONS") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
             if(substr($row,0,4) == "Key ")      $row = "</taxon>$row";
-            if(substr(strtoupper($row),0,6) == "TABLE ")    $row = "</taxon>$row";
+
+            if($this->resource_name != 'Kubitzki') {
+                if(substr(strtoupper($row),0,6) == "TABLE ")    $row = "</taxon>$row";
+            }
             
             if($this->resource_name == 'Kubitzki') {
                 if(strtolower($row) == "selected bibliography")  $row = "</taxon>$row";
@@ -1836,7 +1847,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
             if($this->pdf_id == '15424') if(stripos($row, "DICRANAC") !== false) continue; //string is found
             
-            if($this->resource_name == 'Kubitzki') {
+            if($this->resource_name == 'Kubitzki') { // lines to ignore - very important
                 $row = str_ireplace(array(""), "", $row); //VERY TRICKY PIECE OF CHAR --- PROBLEMATIC
                 // 38 Aizoaceae
                 // Aizoaceae 39
@@ -1854,6 +1865,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
                 //=============
                 if($this->considered_allcaps_tobe_removed($row)) continue;
+                if($this->considered_OCR_garbage_tobe_removed($row)) continue;
             }
 
             if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
@@ -2064,12 +2076,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         if($this->resource_name == 'Kubitzki') {
             // /* remove "AFFINITIES." but include sections after it e.g. "DISTRIBUTION AND HABITATS."
-            $begin = "SUBDIVISION AND AFFINITIES."; $end = "DISTRIBUTION AND HABITATS."; $block = self::species_section_append_pattern($begin, $end, $block);
+            $begin = "SUBDIVISION AND AFFINITIES.";               $end = "DISTRIBUTION AND HABITATS."; $block = self::species_section_append_pattern($begin, $end, $block);
+            $begin = "SUBDIVISION AND AFFINITIES OF THE FAMILY."; $end = "DISTRIBUTION AND HABITATS."; $block = self::species_section_append_pattern($begin, $end, $block);
             //---------------------------------
             $begin = "AFFINITIES.";
-            $ends = array("SUBDIVISION AND RELATIONSHIP WITHIN THE FAMILY.", "PARASITES.", "SYMBIONTS.", "DISTRIBUTION AND HOSTS.", 
+            $ends = array("DISTRIBUTION AND HABITATS.", 
+                "SUBDIVISION AND RELATIONSHIP WITHIN THE FAMILY.", "PARASITES.", "SYMBIONTS.", "DISTRIBUTION AND HOSTS.", 
                 "CONSERVATION.", "USES.", "FOSSIL HISTORY.", "PALAEOBOTANY.",  
-                "DISTRIBUTION AND HABITAT.", "DISTRIBUTION AND HABITATS.", "HABITATS.", "ECONOMIC IMPORTANCE.", "DISTRIBUTION AND ECOLOGY.", 
+                "DISTRIBUTION AND HABITAT.", "HABITATS.", "ECONOMIC IMPORTANCE.", "DISTRIBUTION AND ECOLOGY.", 
                 "ECOLOGY.", "SIZE, DISTRIBUTION AND HABITATS."); // "DISTRIBUTION AND Habitats."
             foreach($ends as $end) {
                 $block = self::species_section_append_pattern($begin, $end, $block);                

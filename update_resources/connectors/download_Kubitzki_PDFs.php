@@ -2,6 +2,8 @@
 namespace php_active_record;
 /* DATA-1894: Kubitzki et al
 a script that downloads all PDFs for this resource
+- then generates its .txt counter part ---> id_raw.txt
+- then massages it to add a blank row ---> id.txt
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/Functions_Memoirs');
