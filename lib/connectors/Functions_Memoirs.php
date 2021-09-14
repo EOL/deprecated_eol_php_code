@@ -251,10 +251,13 @@ class Functions_Memoirs
         if(stripos($string, "±") !== false) return false; //string is found
         // if(stripos($string, ":") !== false) return false; //string is found //CANNOT USE THIS: e.g. "9. Compsoneura Warb. Fig. 100 C, F Bicuiba de Wilde, Beitr. BioI. Pfl. 66: 119 (1992)."
         
-        // /* manual
+        /* manual --- transferred
         $string = str_replace("1. UlmusL.", "1. Ulmus L.", $string);
         $string = str_replace("Bosea L., Sp. Pl.: 225 (1753).", "6. Bosea L., Sp. Pl.: 225 (1753).", $string); //weird, number is removed in OCR
-        // */
+        // manual e.g. "6.Pilostyles Guillemin"
+        $string = str_replace(".", ". ", $string);
+        $string = Functions::remove_whitespace($string);
+        */
         
         // /* e.g. "(2). Wien: Fr. Beck, pp. 44-55."
         if(substr($string,0,1) == "(") return false;
@@ -264,15 +267,9 @@ class Functions_Memoirs
         $string = str_replace(array("(", ")"), "", $string);
         // */
         
-        // /* e.g. "6.Pilostyles Guillemin"
-        $string = str_replace(".", ". ", $string);
-        $string = Functions::remove_whitespace($string);
-        // */
-        
         $words = explode(" ", trim($string));
         $first = @$words[0]; $second = @$words[1]; $third = @$words[2];
         if($first && $second && $third) {
-            
             /*
             [1. Magnoliid Families] => 
             [2. Hamamelid Families] => 
@@ -299,7 +296,28 @@ class Functions_Memoirs
                                   ) return true;
             return false;
         }
+        elseif(count($words) == 1) { //2nd Start pattern --- e.g. "Berberidaceae"
+            if(substr($string, -3) == "eae" && $this->first_char_is_capital($string) && substr($string,0,1) != "?") {
+                return true;
+            }
+            else return false;
+        }
         else return false;
+    }
+    function considered_allcaps_tobe_removed($row)
+    {
+        /*
+        U.KUHN
+        with substantial additions by V. BITTRICH,
+        R. CAROLIN, H.FREITAG, I. C. HEDGE,
+        P. UOTILA and P. G. WILSON
+        */
+        $tobe_removed = array(".", ",", 'with', 'substantial', 'additions', 'by', 'and', " ");
+        $tmp = $row;
+        foreach($tobe_removed as $r) $tmp = str_ireplace($r, "", $tmp);
+        $tmp = Functions::remove_whitespace(trim($tmp));
+        if($tmp && ctype_upper($tmp)) return true;
+        return false;
     }
 }
 ?>

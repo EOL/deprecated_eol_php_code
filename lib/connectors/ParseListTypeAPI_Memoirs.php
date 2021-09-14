@@ -652,6 +652,11 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
     }
     function last_resort_to_clean_name($sciname_line, $WRITE_st) //this started from a copied template
     {
+        if($this->resource_name == 'Kubitzki') { // exit("\n[$sciname_line]\nelix\n");
+            $words = explode(" ", trim($sciname_line));
+            return $words[0];
+        }
+        
         $sciname_line = str_replace("*", "", $sciname_line);
         // /* manual 
         if($this->pdf_id == '119520') {

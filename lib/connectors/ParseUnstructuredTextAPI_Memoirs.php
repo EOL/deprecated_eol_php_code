@@ -41,6 +41,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->in_question = "";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
+        $this->activeYN['volii1993'] = "waiting...";
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -157,6 +158,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '91225') {
                 if(stripos($row, "HOST-INDEX TO THE UREDINALES") !== false) $this->activeYN[$this->pdf_id] = "processing...";
             }
+            elseif($this->pdf_id == 'volii1993') {
+                if($row == "Chemosystematics") $this->activeYN[$this->pdf_id] = "processing...";
+            }
             // */
             
             if($this->pdf_id == '119520') {} //accept brackets e.g. "[Coeliades bixana Evans]"
@@ -184,7 +188,16 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
                 }
             }
-            
+
+            if($this->resource_name == 'Kubitzki') {
+                // /* manual
+                $row = str_replace("1. UlmusL.", "1. Ulmus L.", $row);
+                $row = str_replace("Bosea L., Sp. Pl.: 225 (1753).", "6. Bosea L., Sp. Pl.: 225 (1753).", $row); //weird, number is removed in OCR
+                // manual e.g. "6.Pilostyles Guillemin"
+                $row = str_replace(".", ". ", $row);
+                $row = Functions::remove_whitespace($row);
+                // */
+            }
             if($this->resource_name == 'all_BHL') {
                 // /* cases e.g. "' 12. Larrea arida (Rose) Britton." --- 90479.txt
                 if(substr($row,0,2) == "' ") $row = trim(substr($row,2,strlen($row)));
@@ -874,6 +887,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     }
     private function is_valid_species($str)
     {
+        if($this->resource_name == 'Kubitzki') {
+            return true;
+            // if($this->is_valid_species_Kubitzki($str)) return true;
+            // else return false;
+        }
+        
         $orig = $str;
         // /* "Xestoblatta immaculata new species (Plate IV, figure 16.)"
         $phrases = array("new species", "new combination", "new subspecies"); //remove 'new species' phrase and onwards
@@ -1102,6 +1121,16 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '91527') {
                 $row = str_ireplace("LobeliaBoykiniiT.", "Lobelia Boykinii T.", $row);
             }
+            
+            if($this->resource_name == 'Kubitzki') {
+                // /* manual
+                $row = str_replace("1. UlmusL.", "1. Ulmus L.", $row);
+                $row = str_replace("Bosea L., Sp. Pl.: 225 (1753).", "6. Bosea L., Sp. Pl.: 225 (1753).", $row); //weird, number is removed in OCR
+                // manual e.g. "6.Pilostyles Guillemin"
+                $row = str_replace(".", ". ", $row);
+                $row = Functions::remove_whitespace($row);
+                // */
+            }
             if($this->resource_name == 'all_BHL') $row = $this->number_number_period($row); //"1 1 . Cracca leucosericea Rydberg, sp. nov."
             
             if($this->pdf_id == '15427') { //start of row
@@ -1232,9 +1261,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                                 else            $row = "</taxon><taxon sciname='$sciname'> ".$row;
                             }
                             else { //a valid else statement, needed statement for sure
-                                exit("\n-----\nA sign to investigate: [$sciname]\n[$row]\n-----\n");
-                                if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
-                                else            $row = "</taxon><taxon sciname='$row'> ".$row;
+                                if($this->resource_name == 'Kubitzki') {
+                                    if($hits == 1)  $row = "<taxon sciname='$sciname'> ".$row;
+                                    else            $row = "</taxon><taxon sciname='$sciname'> ".$row;
+                                }
+                                else { // orig --- the rest goes here
+                                    exit("\n-----\nA sign to investigate: [$sciname]\n[$row]\n-----\n");
+                                    if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
+                                    else            $row = "</taxon><taxon sciname='$row'> ".$row;
+                                }
                             }
                         }
                     }
@@ -1286,6 +1321,15 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(strcmp($row, "CORRECTIONS") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
             if(substr($row,0,4) == "Key ")      $row = "</taxon>$row";
             if(substr(strtoupper($row),0,6) == "TABLE ")    $row = "</taxon>$row";
+            
+            if($this->resource_name == 'Kubitzki') {
+                if(strtolower($row) == "selected bibliography")  $row = "</taxon>$row";
+                if(strtolower($row) == "selected bibliographie")  $row = "</taxon>$row";
+                if(substr($row,0,12) == "Introduction")  $row = "</taxon>$row";
+                if($row == "Contents")  $row = "</taxon>$row";
+                if($row == "General References")  $row = "</taxon>$row";
+                if($row == "References")  $row = "</taxon>$row";
+            }
             
             if($this->is_Section_stop_pattern($row)) $row = "</taxon>$row";
             if($this->is_New_then_RankName_stop_pattern($row)) $row = "</taxon>$row";
@@ -1451,7 +1495,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if($this->if_Illustration_row($row)) $row = "</taxon>$row";
             }
             
-            if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
+            if($this->resource_name == 'all_BHL' ||       // --- for Stop patterns
+                in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
                                          '118950', '118941')) || $this->resource_name == 'MotAES') {
 
                 if($row == "List of Genera and Species") $row = "</taxon>$row";
@@ -1625,6 +1670,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             //     if($row == "Order MONOBLEPHARIDALES") break;
             //     if($row == "</taxon>Order MONOBLEPHARIDALES") break;
             // }
+
+            if($this->resource_name == 'Kubitzki') { //valid main operation --- parsing ends at this point
+                if($row == "Index to Scientific Names") break; //worked
+            }
             
             // /* used in Fungi list
             if($this->resource_name == 'all_BHL') {
@@ -1769,11 +1818,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             
             if($this->pdf_id == '118978') if($row == 'Dicaehis ambigiuis Laferte') continue; //manual
             
-            // if($this->pdf_id == '118941') {
+            // if($this->pdf_id == '118941') { --- this was really commented, meaning applied to all resources.
+            if($this->resource_name != 'Kubitzki') { // --- but not to Kubitzki
                 if($this->str_begins_with($row, "(Figs.")) continue;
                 if($this->str_begins_with($row, "(Fig.")) continue;
-                
-            // }
+            }
 
             // if($this->pdf_id == '118935') { //1st doc
             if(in_array($this->pdf_id, array('118935', '30355'))) {
@@ -1787,6 +1836,26 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
             if($this->pdf_id == '15424') if(stripos($row, "DICRANAC") !== false) continue; //string is found
             
+            if($this->resource_name == 'Kubitzki') {
+                $row = str_ireplace(array(""), "", $row); //VERY TRICKY PIECE OF CHAR --- PROBLEMATIC
+                // 38 Aizoaceae
+                // Aizoaceae 39
+                $words = explode(" ", $row);
+                if(count($words) == 2) {
+                    $first = $words[0]; $second = $words[1];
+                    if(is_numeric($first) && substr($second, -3) == "eae" && $this->first_char_is_capital($second)) continue;
+                    if(is_numeric($second) && substr($first, -3) == "eae" && $this->first_char_is_capital($first)) continue;
+                    // if(is_numeric($second) && substr($first, -3) == "EAE" && $this->first_char_is_capital($first)) continue;
+                }
+                // B
+                // D
+                if(count($words) == 1) {
+                    if(strlen($row) == 1) continue;
+                }
+                //=============
+                if($this->considered_allcaps_tobe_removed($row)) continue;
+            }
+
             if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
                                                                                      '118950', '118941'))) { //BHL-like
                 if($this->pdf_id == '118941') if(stripos($row, "BUCCULATRIX in NORTH AMERICA") !== false) continue; //string is found
@@ -1955,6 +2024,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     "AFFINITIES.—", "AFFINITY.—",
                     "DISCUSSIONS.—", "DISCUSSION.—", "Discussion. —",
                     "LIFE HISTORY NOTES.—", "LIFE HISTORY NOTE.—", "NOTES.—", "NOTE.—");
+                    
+                    if($this->resource_name == 'Kubitzki') $last_sections_2b_removed[] = "AFFINITIES.";
+                    
                     $block = self::remove_last_sections($last_sections_2b_removed, $block, $pdf_id);
                     
                     $show = "\n-----------------------\n<$block</sciname>\n-----------------------\n"; // echo $show;
@@ -1989,6 +2061,21 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $begin = "AFFINITIES.—";    $end = "DISTRIBUTION.—"; //works also but better to use "\n". Or maybe case to case basis.
         $block = self::species_section_append_pattern($begin, $end, $block);
         // */
+        
+        if($this->resource_name == 'Kubitzki') {
+            // /* remove "AFFINITIES." but include sections after it e.g. "DISTRIBUTION AND HABITATS."
+            $begin = "SUBDIVISION AND AFFINITIES."; $end = "DISTRIBUTION AND HABITATS."; $block = self::species_section_append_pattern($begin, $end, $block);
+            //---------------------------------
+            $begin = "AFFINITIES.";
+            $ends = array("SUBDIVISION AND RELATIONSHIP WITHIN THE FAMILY.", "PARASITES.", "SYMBIONTS.", "DISTRIBUTION AND HOSTS.", 
+                "CONSERVATION.", "USES.", "FOSSIL HISTORY.", "PALAEOBOTANY.",  
+                "DISTRIBUTION AND HABITAT.", "DISTRIBUTION AND HABITATS.", "HABITATS.", "ECONOMIC IMPORTANCE.", "DISTRIBUTION AND ECOLOGY.", 
+                "ECOLOGY.", "SIZE, DISTRIBUTION AND HABITATS."); // "DISTRIBUTION AND Habitats."
+            foreach($ends as $end) {
+                $block = self::species_section_append_pattern($begin, $end, $block);                
+            }
+        }
+        
         // /* for SCtZ-0023 -> remove DISCUSSION.— but include sections after it e.g. VARIATION.—
         $begin = "DISCUSSION.—";    $end = "VARIATION.—"; //works also but better to use "\n". Or maybe case to case basis.
         $block = self::species_section_append_pattern($begin, $end, $block);
