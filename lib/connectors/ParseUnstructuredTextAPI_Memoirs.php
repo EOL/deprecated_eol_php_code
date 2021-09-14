@@ -200,6 +200,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("~yrotha~naceae", "Myrothamnaceae", $row);
                 $row = str_ireplace("Myrothamnaeeae", "Myrothamnaceae", $row);
                 $row = str_ireplace("~yrothamnaceae", "Myrothamnaceae", $row);
+                $row = str_ireplace("Tribc", "Tribe", $row);
+                $row = str_ireplace("Tetrapeta/um", "Tetrapetalum", $row);
+                $row = str_ireplace("Spergu/a", "Spergula", $row);
+                $row = str_ireplace("Spergu/aria", "Spergularia", $row);
+                $row = str_ireplace("Halopep/is", "Halopeplis", $row);
+                $row = str_ireplace("Jug/ans", "Juglans", $row);
+                $row = str_ireplace("Trip/aris", "Triplaris", $row);
                 // */
             }
             if($this->resource_name == 'all_BHL') {
@@ -1134,9 +1141,16 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_replace(".", ". ", $row);
                 $row = Functions::remove_whitespace($row);
                 // others:
-                $row = str_replace("~yrotha~naceae", "Myrothamnaceae", $row);
-                $row = str_replace("Myrothamnaeeae", "Myrothamnaceae", $row);
-                $row = str_replace("~yrothamnaceae", "Myrothamnaceae", $row);
+                $row = str_ireplace("~yrotha~naceae", "Myrothamnaceae", $row);
+                $row = str_ireplace("Myrothamnaeeae", "Myrothamnaceae", $row);
+                $row = str_ireplace("~yrothamnaceae", "Myrothamnaceae", $row);
+                $row = str_ireplace("Tribc", "Tribe", $row);
+                $row = str_ireplace("Tetrapeta/um", "Tetrapetalum", $row);
+                $row = str_ireplace("Spergu/a", "Spergula", $row);
+                $row = str_ireplace("Spergu/aria", "Spergularia", $row);
+                $row = str_ireplace("Halopep/is", "Halopeplis", $row);
+                $row = str_ireplace("Jug/ans", "Juglans", $row);
+                $row = str_ireplace("Trip/aris", "Triplaris", $row);
                 // */
             }
             if($this->resource_name == 'all_BHL') $row = $this->number_number_period($row); //"1 1 . Cracca leucosericea Rydberg, sp. nov."

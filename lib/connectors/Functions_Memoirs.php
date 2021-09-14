@@ -282,7 +282,7 @@ class Functions_Memoirs
             $not_in_third = array("Families", "Evidence.", "Characters.", "Group", "Tepals", "I");
             if(in_array($third, $not_in_third)) return false;
 
-            $not_in_second = array("Tepals", "Leyden:", "The"); //e.g. "326. Leyden: Noordhoff."
+            $not_in_second = array("Tepals", "Leyden:", "The", "Fruit"); //e.g. "326. Leyden: Noordhoff."
             if(in_array($second, $not_in_second)) return false;
             
             if(is_numeric($first) && $this->first_char_is_capital($second) && $this->first_char_is_capital($third)
