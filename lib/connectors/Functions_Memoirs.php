@@ -244,20 +244,12 @@ class Functions_Memoirs
         return false;
     }
     function is_sciname_in_Kubitzki($string)
-    {
-        /* sample genus
+    {   /* sample genus
         1. Zippelia Blume Figs. 109 A, 110A, B
         */
+        $string = trim($string); //new Sep 15
         if(stripos($string, "±") !== false) return false; //string is found
         // if(stripos($string, ":") !== false) return false; //string is found //CANNOT USE THIS: e.g. "9. Compsoneura Warb. Fig. 100 C, F Bicuiba de Wilde, Beitr. BioI. Pfl. 66: 119 (1992)."
-        
-        /* manual --- transferred
-        $string = str_replace("1. UlmusL.", "1. Ulmus L.", $string);
-        $string = str_replace("Bosea L., Sp. Pl.: 225 (1753).", "6. Bosea L., Sp. Pl.: 225 (1753).", $string); //weird, number is removed in OCR
-        // manual e.g. "6.Pilostyles Guillemin"
-        $string = str_replace(".", ". ", $string);
-        $string = Functions::remove_whitespace($string);
-        */
         
         // /* e.g. "(2). Wien: Fr. Beck, pp. 44-55."
         if(substr($string,0,1) == "(") return false;
@@ -267,16 +259,13 @@ class Functions_Memoirs
         $string = str_replace(array("(", ")"), "", $string);
         // */
         
-        $words = explode(" ", trim($string));
+        $words = explode(" ", $string);
         $first = @$words[0]; $second = @$words[1]; $third = @$words[2];
         if($first && $second && $third) {
             /*
             [1. Magnoliid Families] => 
-            [2. Hamamelid Families] => 
             [2. Micromolecnlar Evidence. Among vascular plants,] => 
-            [3. Macromolecular Evidence. In a serological study,] => 
             [5. Flower Characters. In the Centrospermae, differ-] => 
-            [8. Vegetative Characters. Stipules or stipule-like ap-] => 
             [2. Teil, Bd.10. Berlin: Gebrtider Borntraeger. 364 pp.] => 
             */
             $not_in_third = array("Families", "Evidence.", "Characters.", "Group", "Tepals", "I");
@@ -294,7 +283,8 @@ class Functions_Memoirs
                                   && substr($second,-1) != "."  // exclude e.g. "3. Annuals. Carpels connate to various degrees"
                                   && substr($second,-1) != ","  // exclude e.g. "2. Teil, Bd.10. Berlin: Gebrtider Borntraeger. 364 pp."
                                   ) return true;
-            return false;
+            elseif($sciname = self::get_name_from_intermediate_rank_pattern($string)) return $sciname;
+            else return false;
         }
         elseif(count($words) == 1) { //2nd Start pattern --- e.g. "Berberidaceae"
             if(substr($string, -3) == "eae" && $this->first_char_is_capital($string) && substr($string,0,1) != "?") {
@@ -303,6 +293,26 @@ class Functions_Memoirs
             else return false;
         }
         else return false;
+    }
+    function get_name_from_intermediate_rank_pattern($string)
+    {   /* 
+        2. Tribe Aristolochieae
+        I. Subfamily Amaranthoideae
+        II. Subfam. Gomphrenoideae
+        2a. Subtribe Isotrematinae --- ? wait on Jen's decision
+        */
+        $words = explode(" ", $string);
+        $first = @$words[0]; $second = @$words[1]; $third = @$words[2];
+        if($first && $second && $third) {
+            if(is_numeric($first) || self::first_word_is_RomanNumeral($string)) {
+                if(in_array($second, $this->Kubitzki_intermediate_ranks)) {
+                    if($this->first_char_is_capital($third)) {
+                        if(in_array(substr($third, -3), array("eae", "nae"))) return $third; //sciname ends with "eae" or "nae"
+                    }
+                }
+            }
+        }
+        return false;
     }
     // "1. The Annona group has to be united with the"
     function considered_allcaps_tobe_removed($row) //designed for "Kubitzki" resource only

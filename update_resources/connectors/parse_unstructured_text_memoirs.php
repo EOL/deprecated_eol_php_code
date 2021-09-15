@@ -383,9 +383,17 @@ if(in_array($group, array('Fungi', 'Plants'))) {
 $rec['15422'] = array('filename' => '15422.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'BHL'); /*3 blocks: xxx   Raw scinames: xxx */
 
 // === Kubitzki_et_al ===
-$rec['volii1993'] = array('filename' => 'volii1993.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'Kubitzki_et_al'); /*blocks: xxx | Raw scinames: xxx */
-/* sample genus
-1. Zippelia Blume Figs. 109 A, 110A, B
+$rec['volii1993'] = array('filename' => 'volii1993.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'Kubitzki_et_al');
+/* blocks: 1377 1581 | Raw scinames: 1374 1575
+sample genus:
+"1. Zippelia Blume Figs. 109 A, 110A, B"
+sample family:
+"Eucommiaceae"
+sample with intermediate ranks
+    2. Tribe Aristolochieae
+    I. Subfamily Amaranthoideae
+    II. Subfam. Gomphrenoideae
+    2a. Subtribe Isotrematinae
 */
 
 /*--------------------------------------------------------------------------------------------------------------*/

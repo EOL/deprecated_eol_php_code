@@ -4,10 +4,8 @@ namespace php_active_record;
 class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 {
     function __construct($resource_name)
-    {
-        $this->resource_name = $resource_name;
+    {   $this->resource_name = $resource_name;
         $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 2, 'delay_in_minutes' => 1);
-
         /* START epub series */
         // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
@@ -42,6 +40,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
         $this->activeYN['volii1993'] = "waiting...";
+        $this->Kubitzki_intermediate_ranks = array("Tribe", "Subfamily", "Subfam."); // might also get this type "2a. Subtribe Isotrematinae"
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -708,6 +707,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             else return false;
         }
         elseif($this->resource_name == 'Kubitzki') {
+            /* good debug
+            if(stripos($string, $this->in_question) !== false) { //string is found  //good debug
+                echo("\naa[$string]aa1\n");
+                if($this->is_sciname_in_Kubitzki($string)) exit("\nyes sciname\n");
+                else exit("\nnot sciname\n");
+            }
+            */
             if($this->is_sciname_in_Kubitzki($string)) return true;
             else return false;
         }
