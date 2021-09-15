@@ -255,12 +255,13 @@ class Functions_Memoirs
         if(substr($string,0,1) == "(") return false;
         // */
 
-        // /* e.g. "7. Berlinianche (Harms) Vattimo" --- remove parenthesis
-        $string = str_replace(array("(", ")"), "", $string);
-        // */
-        
         $words = explode(" ", $string);
         $first = @$words[0]; $second = @$words[1]; $third = @$words[2];
+
+        // /* e.g. "7. Berlinianche (Harms) Vattimo" --- remove parenthesis
+        $third = str_replace(array("(", ")"), "", $third);
+        // */
+
         if($first && $second && $third) {
             /*
             [1. Magnoliid Families] => 
@@ -274,6 +275,7 @@ class Functions_Memoirs
             $not_in_second = array("Tepals", "Leyden:", "The", "Fruit"); //e.g. "326. Leyden: Noordhoff."
             if(in_array($second, $not_in_second)) return false;
             
+            $second_word_first_char = substr($second,0,1);
             if(is_numeric($first) && $this->first_char_is_capital($second) && $this->first_char_is_capital($third)
                                   && !in_array($second, $this->ranks)
                                   && strlen($first) <= 4 //120.
@@ -282,6 +284,8 @@ class Functions_Memoirs
                                   && substr($second,1,1) != "," // exclude e.g. "40 A, Oxford: Clarendon Press, pp.105-128."
                                   && substr($second,-1) != "."  // exclude e.g. "3. Annuals. Carpels connate to various degrees"
                                   && substr($second,-1) != ","  // exclude e.g. "2. Teil, Bd.10. Berlin: Gebrtider Borntraeger. 364 pp."
+                                  && !in_array($second_word_first_char, array("(")) // exclude "405. (In Chinese with Engl. summ.)"
+                                  // && $this->is_sciname_in_GNRD($second)
                                   ) return true;
             elseif($sciname = self::get_name_from_intermediate_rank_pattern($string)) return $sciname;
             else return false;
@@ -294,12 +298,22 @@ class Functions_Memoirs
         }
         else return false;
     }
+    function is_sciname_in_GNRD($name)
+    {
+        if($obj = $this->run_GNRD($name)) {
+            if(count(@$obj->names) > 1) return true;
+        }
+        else {
+            if($name = $this->run_GNRD_get_sciname_inXML($name)) return true;
+        }
+    }
     function get_name_from_intermediate_rank_pattern($string)
     {   /* 
         2. Tribe Aristolochieae
         I. Subfamily Amaranthoideae
         II. Subfam. Gomphrenoideae
         2a. Subtribe Isotrematinae --- ? wait on Jen's decision
+        V. Subfam. Mollinedioideae Thorne (1974)
         */
         $words = explode(" ", $string);
         $first = @$words[0]; $second = @$words[1]; $third = @$words[2];
@@ -313,6 +327,15 @@ class Functions_Memoirs
             }
         }
         return false;
+    }
+    function remove_first_word_if_it_is_RomanNumeral($string)
+    {
+        if(self::first_word_is_RomanNumeral($string)) {
+            $words = explode(" ", $string);
+            array_shift($words);
+            $string = implode(" ", $words);
+        }
+        return $string;
     }
     function is_hybrid_number($string) //e.g. "2a"
     {

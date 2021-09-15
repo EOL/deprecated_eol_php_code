@@ -205,10 +205,11 @@ NorthAmericanFlora_Plants	Tue 2021-08-31 03:10:17 AM	{"MoF.tab":45013, "media.ta
 
 Kubitzki_et_al
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volii1993", "resource_name":"Kubitzki", "group":"Kubitzki"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "voliii1998", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 
 volii1993	Tue 2021-09-14 09:33:44 AM	{"media_resource.tab":1375, "taxon.tab":1359, "time_elapsed":{"sec":2.29, "min":0.04, "hr":0}} - Mac Mini
 volii1993	Tue 2021-09-14 10:14:37 AM	{"media_resource.tab":1371, "taxon.tab":1355, "time_elapsed":{"sec":1.56, "min":0.03, "hr":0}} - eol-archive
-
+volii1993	Wed 2021-09-15 11:08:10 AM	{"media_resource.tab":1512, "taxon.tab":1485, "time_elapsed":{"sec":1.63, "min":0.03, "hr":0}} - eol-archive
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
@@ -395,7 +396,9 @@ sample with intermediate ranks
     II. Subfam. Gomphrenoideae
     2a. Subtribe Isotrematinae
 */
-
+if($resource_name == 'Kubitzki') {
+    $rec[$pdf_id] = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'Kubitzki_et_al');
+}
 /*--------------------------------------------------------------------------------------------------------------*/
 if($val = @$rec[$pdf_id]) $input = $val;
 else exit("\nUndefined PDF ID\n");

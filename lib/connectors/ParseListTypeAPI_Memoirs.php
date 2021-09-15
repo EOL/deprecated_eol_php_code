@@ -300,7 +300,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         if(stripos($string, "Sporobolus indicus") !== false) echo "\n-----\n22[$string]\n-----\n"; //string is found
         return false;
     }
-    private function run_GNRD($string)
+    function run_GNRD($string)
     {
         if($string = self::clean_name($string)) {}
         else return false;
@@ -653,6 +653,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
     function last_resort_to_clean_name($sciname_line, $WRITE_st) //this started from a copied template
     {
         if($this->resource_name == 'Kubitzki') { // exit("\n[$sciname_line]\nelix\n");
+            // if(stripos($sciname_line, $this->in_question) !== false) exit("\n[$sciname_line]ee1\n"); //good debug - to see what string passes here.
             $words = explode(" ", trim($sciname_line)); //at this point value is "Euploca Nutt." OR "Tribe Aristolochieae". No more numeric/roman 1st part
             $first = $words[0];
             $second = @$words[1];

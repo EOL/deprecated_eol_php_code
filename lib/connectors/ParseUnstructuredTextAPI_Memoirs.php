@@ -36,7 +36,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily", "SubfamUy");
-        $this->in_question = "";
+        $this->in_question = "Subfam. Mollinedioideae";
+        // $this->in_question = "Subfamily Amaranthoideae";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
         $this->activeYN['volii1993'] = "waiting...";
@@ -206,6 +207,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("Halopep/is", "Halopeplis", $row);
                 $row = str_ireplace("Jug/ans", "Juglans", $row);
                 $row = str_ireplace("Trip/aris", "Triplaris", $row);
+                // start voliii1998
+                $row = str_ireplace("Xan~orrhoeaceae", "Xanthorrhoeaceae", $row);
                 // */
             }
             if($this->resource_name == 'all_BHL') {
@@ -1157,6 +1160,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("Halopep/is", "Halopeplis", $row);
                 $row = str_ireplace("Jug/ans", "Juglans", $row);
                 $row = str_ireplace("Trip/aris", "Triplaris", $row);
+                // start voliii1998
+                $row = str_ireplace("Xan~orrhoeaceae", "Xanthorrhoeaceae", $row);
                 // */
             }
             if($this->resource_name == 'all_BHL') $row = $this->number_number_period($row); //"1 1 . Cracca leucosericea Rydberg, sp. nov."
@@ -1738,6 +1743,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     private function format_row_to_sciname_v2($row) //Amastus aphraates Schaus, 1927, p. 74.
     {   $showYN = false;
         $row = self::remove_first_word_if_it_has_number($row);
+        if($this->resource_name == 'Kubitzki') {
+            $row = $this->remove_first_word_if_it_is_RomanNumeral($row); //e.g. "V. Subfam. Mollinedioideae Thorne (1974)"
+        }
         // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]aa00\n");}   //string is found  //good debug
         $row = self::clean_sciname_here($row);
         // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]aa11\n");}   //string is found  //good debug
