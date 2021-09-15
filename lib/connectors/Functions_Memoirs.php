@@ -304,7 +304,7 @@ class Functions_Memoirs
         $words = explode(" ", $string);
         $first = @$words[0]; $second = @$words[1]; $third = @$words[2];
         if($first && $second && $third) {
-            if(is_numeric($first) || self::first_word_is_RomanNumeral($string)) {
+            if(is_numeric($first) || self::first_word_is_RomanNumeral($string) || self::is_hybrid_number($first)) {
                 if(in_array($second, $this->Kubitzki_intermediate_ranks)) {
                     if($this->first_char_is_capital($third)) {
                         if(in_array(substr($third, -3), array("eae", "nae"))) return $third; //sciname ends with "eae" or "nae"
@@ -313,6 +313,10 @@ class Functions_Memoirs
             }
         }
         return false;
+    }
+    function is_hybrid_number($string) //e.g. "2a"
+    {
+        if($this->has_letters($string) && $this->has_numbers($string)) return true; // e.g. "7a."
     }
     // "1. The Annona group has to be united with the"
     function considered_allcaps_tobe_removed($row) //designed for "Kubitzki" resource only
