@@ -285,7 +285,7 @@ class Functions_Memoirs
                                   && substr($second,-1) != "."  // exclude e.g. "3. Annuals. Carpels connate to various degrees"
                                   && substr($second,-1) != ","  // exclude e.g. "2. Teil, Bd.10. Berlin: Gebrtider Borntraeger. 364 pp."
                                   && !in_array($second_word_first_char, array("(")) // exclude "405. (In Chinese with Engl. summ.)"
-                                  // && $this->is_sciname_in_GNRD($second)
+                                  && $this->is_sciname_in_GNRD($second)
                                   ) return true;
             elseif($sciname = self::get_name_from_intermediate_rank_pattern($string)) return $sciname;
             else return false;
@@ -301,7 +301,7 @@ class Functions_Memoirs
     function is_sciname_in_GNRD($name)
     {
         if($obj = $this->run_GNRD($name)) {
-            if(count(@$obj->names) > 1) return true;
+            if(count(@$obj->names) > 0) return true;
         }
         else {
             if($name = $this->run_GNRD_get_sciname_inXML($name)) return true;
