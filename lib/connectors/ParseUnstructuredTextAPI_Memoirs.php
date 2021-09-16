@@ -43,6 +43,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->activeYN['91225'] = "waiting...";
         $this->activeYN['volii1993'] = "waiting...";
         $this->activeYN['voliii1998'] = "waiting...";
+        $this->activeYN['volv2003'] = "waiting...";
         $this->Kubitzki_intermediate_ranks = array("Tribe", "Subfamily", "Subfam.", "Subtribe"); // might also get this type "2a. Subtribe Isotrematinae"
     }
     /*#################################################################################################################################*/
@@ -165,6 +166,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             elseif($this->pdf_id == 'voliii1998') {
                 if($row == "Conspectus of Families Treated in this Volume") $this->activeYN[$this->pdf_id] = "processing...";
+            }
+            elseif($this->pdf_id == 'volv2003') {
+                if($row == "General References") $this->activeYN[$this->pdf_id] = "processing...";
             }
             // */
             
