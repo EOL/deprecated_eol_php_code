@@ -37,8 +37,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         $this->ranks  = array('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Tribe', 'Subgenus', 'Subtribe', 'Subfamily', 'Suborder', 
                               'Subphylum', 'Subclass', 'Superfamily', "? Subfamily", "SubfamUy");
-        $this->in_question = "Subfam. Mollinedioideae";
-        // $this->in_question = "Subfamily Amaranthoideae";
+        $this->in_question = "";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
         $this->activeYN['volii1993'] = "waiting...";
@@ -165,7 +164,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if($row == "Chemosystematics") $this->activeYN[$this->pdf_id] = "processing...";
             }
             elseif($this->pdf_id == 'voliii1998') {
-                if($row == "Conspectus of Families Treated in this Volume") $this->activeYN[$this->pdf_id] = "processing...";
+                if($row == "Molecular Systematics") $this->activeYN[$this->pdf_id] = "processing...";
             }
             elseif($this->pdf_id == 'volv2003') {
                 if($row == "General References") $this->activeYN[$this->pdf_id] = "processing...";
@@ -1635,8 +1634,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             
             if($row == "Bibliography") $row = "</taxon>$row";
             elseif($row == "CATALOGUES") $row = "</taxon>$row";
-            
+
+            // if(stripos($orig_row, $this->in_question) !== false) {exit("\n[$row][$orig_row]eli_1\n");}   //string is found  //good debug
             if($this->is_a_Group_stop_pattern($row)) $row = "</taxon>$row"; //119035.txt
+            // if(stripos($orig_row, $this->in_question) !== false) {exit("\n[$row][$orig_row]eli_2\n");}   //string is found  //good debug
             
             if(in_array($this->pdf_id, array('120602'))) {
                 if(self::one_word_and_higher_taxon($row)) $row = "</taxon>$row";                //120602.txt e.g. "Corydiini"
@@ -1740,6 +1741,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // if($row == "Type locality: Volcano of Izalco, Sonsonate, Salvador.") break;
                 // if($row == "Distribution: Lesser Antilles.") break;
             // }
+            
+            
             
         }//end loop text
         fclose($WRITE);
@@ -2074,7 +2077,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     "DISCUSSIONS.—", "DISCUSSION.—", "Discussion. —",
                     "LIFE HISTORY NOTES.—", "LIFE HISTORY NOTE.—", "NOTES.—", "NOTE.—");
                     
-                    if($this->resource_name == 'Kubitzki') $last_sections_2b_removed[] = "AFFINITIES.";
+                    if($this->resource_name == 'Kubitzki') {
+                        $last_sections_2b_removed[] = "AFFINITIES.";
+                        $last_sections_2b_removed[] = "Afﬁnities.";
+                    }
                     
                     $block = self::remove_last_sections($last_sections_2b_removed, $block, $pdf_id);
                     
@@ -2096,7 +2102,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     private function species_section_append_pattern($begin, $end, $block)
     {
         if(preg_match("/".preg_quote($begin, '/')."(.*?)".preg_quote($end, '/')."/ims", $block, $a)) {
-            $block = str_replace($begin.$a[1], "", $block);
+            if($this->resource_name == 'Kubitzki') $block = str_ireplace($begin.$a[1], "", $block); //case-Insensitive
+            else                                   $block = str_replace($begin.$a[1], "", $block); //orig case-sensitive, rest goes here
         }
         return $block;
     }
@@ -2116,17 +2123,21 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $begin = "SUBDIVISION AND AFFINITIES.";               $end = "DISTRIBUTION AND HABITATS."; $block = self::species_section_append_pattern($begin, $end, $block);
             $begin = "SUBDIVISION AND AFFINITIES OF THE FAMILY."; $end = "DISTRIBUTION AND HABITATS."; $block = self::species_section_append_pattern($begin, $end, $block);
             //---------------------------------
-            $begin = "AFFINITIES.";
-            $ends = array("DISTRIBUTION AND HABITATS.", 
-                "SUBDIVISION AND RELATIONSHIP WITHIN THE FAMILY.", "PARASITES.", "SYMBIONTS.", "DISTRIBUTION AND HOSTS.", 
-                "CONSERVATION.", "USES.", "FOSSIL HISTORY.", "PALAEOBOTANY.",  
-                "DISTRIBUTION AND HABITAT.", "HABITATS.", "ECONOMIC IMPORTANCE.", "DISTRIBUTION AND ECOLOGY.", 
-                "ECOLOGY.", "SIZE, DISTRIBUTION AND HABITATS."); // "DISTRIBUTION AND Habitats."
-            foreach($ends as $end) {
-                $block = self::species_section_append_pattern($begin, $end, $block);                
+            $beginS = array("AFFINITIES.", "Afﬁnities.");
+            foreach($beginS as $begin) {
+                $ends = array("DISTRIBUTION AND HABITATS.", "Habitats and Distribution.", "Distribution and Habitats.", 
+                    "Conservation and Distribution.",
+                    "SUBDIVISION AND RELATIONSHIP WITHIN THE FAMILY.", "PARASITES.", "SYMBIONTS.", "DISTRIBUTION AND HOSTS.", 
+                    "CONSERVATION.", "USES.", "FOSSIL HISTORY.", "PALAEOBOTANY.",  
+                    "DISTRIBUTION AND HABITAT.", "HABITATS.", "ECONOMIC IMPORTANCE.", "DISTRIBUTION AND ECOLOGY.", 
+                    "ECOLOGY.", "SIZE, DISTRIBUTION AND HABITATS."); // "DISTRIBUTION AND Habitats."
+                foreach($ends as $end) {
+                    $block = self::species_section_append_pattern($begin, $end, $block);                
+                }
             }
             //---------------------------------
             $begin = "AFFINITIES OF THE "; $end = "DISTRIBUTION AND HABITATS."; $block = self::species_section_append_pattern($begin, $end, $block);
+            $sections[] = "AFFINITIES OF THE "; // $sections is to be fed below
         }
         
         // /* for SCtZ-0023 -> remove DISCUSSION.— but include sections after it e.g. VARIATION.—
@@ -2158,7 +2169,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
         foreach($sections as $section) {
             $str = "elicha".$block;
-            if(preg_match("/elicha(.*?)".preg_quote($section, '/')."/ims", $str, $a2)) $block = $a2[1];
+            if($this->resource_name == 'Kubitzki') { //VERY IMPORTANT DISTINCTION --- case sensitive
+                if(preg_match("/elicha(.*?)".preg_quote($section, '/')."/ms", $str, $a2)) $block = $a2[1];
+            }
+            else { //orig, rest goes here --- case insensitive
+                if(preg_match("/elicha(.*?)".preg_quote($section, '/')."/ims", $str, $a2)) $block = $a2[1];
+            }
         }
         return $block;
     }

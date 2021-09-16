@@ -1367,7 +1367,8 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         $words = explode(" ", $row);
         if(count($words) <= 4) {
             $last_word = strtolower(end($words));
-            if($last_word == 'group') return true;
+            $first_word = $words[0];
+            if($this->first_char_is_capital($first_word) && $last_word == 'group') return true;
         }
         // */
         return false;
