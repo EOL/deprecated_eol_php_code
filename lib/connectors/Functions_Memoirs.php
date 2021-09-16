@@ -272,20 +272,35 @@ class Functions_Memoirs
             $not_in_third = array("Families", "Evidence.", "Characters.", "Group", "Tepals", "I");
             if(in_array($third, $not_in_third)) return false;
 
-            $not_in_second = array("Tepals", "Leyden:", "The", "Fruit"); //e.g. "326. Leyden: Noordhoff."
+            $not_in_second = array("Tepals", "The", "Fruit", "Royal", "Leaf", "Special", "Ancestral", "Major", "Breeding", "Scape", 
+                "Zoophilic"); //e.g. "3. Zoophilic Pollination"
             if(in_array($second, $not_in_second)) return false;
+
+            // /*
+            if($this->first_part_of_string("Seed", $second)) return false;
+            // e.g. "4. Seedling Organization"
+            // e.g. "35. Seeds D-shaped, plants American 57. Chlidanthus"
+            // */
             
             $second_word_first_char = substr($second,0,1);
+            $second_word_last_char = substr($second, -1);
+            $third_word_last_char = substr($third, -1);
             if(is_numeric($first) && $this->first_char_is_capital($second) && $this->first_char_is_capital($third)
                                   && !in_array($second, $this->ranks)
                                   && strlen($first) <= 4 //120.
                                   && substr($first,-1) == "." // exclude e.g. "011 UrI Lui Frl GI"
                                   && strlen($second) >= 2 && strlen($third) >= 1 // e.g. "2. Rafflesia R Br."
-                                  && substr($second,1,1) != "," // exclude e.g. "40 A, Oxford: Clarendon Press, pp.105-128."
-                                  && substr($second,-1) != "."  // exclude e.g. "3. Annuals. Carpels connate to various degrees"
-                                  && substr($second,-1) != ","  // exclude e.g. "2. Teil, Bd.10. Berlin: Gebrtider Borntraeger. 364 pp."
+
+                                  && !in_array($second_word_last_char, array(".", ",", ":"))
+                                  // exclude e.g. "3. Annuals. Carpels connate to various degrees"
+                                  // exclude e.g. "2. Teil, Bd.10. Berlin: Gebrtider Borntraeger. 364 pp."
+                                  // exclude e.g. "5. Taipei: Epoch Publishing Co. , pp. 859-1137."
+
+                                  && !in_array($third_word_last_char, array(":"))
+                                  // exclude e.g. "2. Monocotyledonous Organization:"
+
                                   && !in_array($second_word_first_char, array("(")) // exclude "405. (In Chinese with Engl. summ.)"
-                                  && $this->is_sciname_in_GNRD($second)
+                                  // && $this->is_sciname_in_GNRD($second)
                                   ) return true;
             elseif($sciname = self::get_name_from_intermediate_rank_pattern($string)) return $sciname;
             else return false;

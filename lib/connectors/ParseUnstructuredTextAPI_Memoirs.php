@@ -42,6 +42,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
         $this->activeYN['volii1993'] = "waiting...";
+        $this->activeYN['voliii1998'] = "waiting...";
         $this->Kubitzki_intermediate_ranks = array("Tribe", "Subfamily", "Subfam.", "Subtribe"); // might also get this type "2a. Subtribe Isotrematinae"
     }
     /*#################################################################################################################################*/
@@ -161,6 +162,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             elseif($this->pdf_id == 'volii1993') {
                 if($row == "Chemosystematics") $this->activeYN[$this->pdf_id] = "processing...";
+            }
+            elseif($this->pdf_id == 'voliii1998') {
+                if($row == "Conspectus of Families Treated in this Volume") $this->activeYN[$this->pdf_id] = "processing...";
             }
             // */
             
@@ -2117,6 +2121,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             foreach($ends as $end) {
                 $block = self::species_section_append_pattern($begin, $end, $block);                
             }
+            //---------------------------------
+            $begin = "AFFINITIES OF THE "; $end = "DISTRIBUTION AND HABITATS."; $block = self::species_section_append_pattern($begin, $end, $block);
         }
         
         // /* for SCtZ-0023 -> remove DISCUSSION.— but include sections after it e.g. VARIATION.—
