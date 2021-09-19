@@ -213,6 +213,12 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "volv2003", "resource_nam
 volii1993	Tue 2021-09-14 09:33:44 AM	{"media_resource.tab":1375, "taxon.tab":1359, "time_elapsed":{"sec":2.29, "min":0.04, "hr":0}} - Mac Mini
 volii1993	Tue 2021-09-14 10:14:37 AM	{"media_resource.tab":1371, "taxon.tab":1355, "time_elapsed":{"sec":1.56, "min":0.03, "hr":0}} - eol-archive
 volii1993	Wed 2021-09-15 11:08:10 AM	{"media_resource.tab":1512, "taxon.tab":1485, "time_elapsed":{"sec":1.63, "min":0.03, "hr":0}} - eol-archive
+
+volii1993	Thu 2021-09-16 11:57:20 AM	{"media_resource.tab":1512, "taxon.tab":1488, "time_elapsed":{"sec":1.61, "min":0.03, "hr":0}}
+
+voliii1998	Thu 2021-09-16 11:57:28 AM	{"media_resource.tab":536, "taxon.tab":522, "time_elapsed":{"sec":0.82, "min":0.01, "hr":0}}
+
+volv2003	Thu 2021-09-16 11:57:52 AM	{"media_resource.tab":789, "taxon.tab":789, "time_elapsed":{"sec":0.91, "min":0.02, "hr":0}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
