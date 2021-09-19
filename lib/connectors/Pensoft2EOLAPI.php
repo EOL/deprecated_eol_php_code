@@ -331,7 +331,7 @@ class Pensoft2EOLAPI
         echo "\nRun Pensoft annotator...\n";
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % $this->modulo) == 0) echo "\nxxx".number_format($i);
+            $i++; if(($i % $this->modulo) == 0) echo "\nxyz".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             $row = Functions::conv_to_utf8($row); //possibly to fix special chars
@@ -357,7 +357,7 @@ class Pensoft2EOLAPI
                 // if($i >= 1 && $i <= 400000) {}
                 // if($i >= 500000 && $i <= 600000) {} //1st cache
                 // if($i >= 400000 && $i <= 500000) {} //2nd cache
-                if($i >= 110000 && $i <= 400000) {} //1st cache
+                if($i >= 270000 && $i <= 400000) {} //1st cache
                 else continue; 
             }
             // */
