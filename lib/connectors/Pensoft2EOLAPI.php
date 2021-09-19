@@ -355,9 +355,10 @@ class Pensoft2EOLAPI
             // /* debug only
             if($this->param['resource_id'] == "TreatmentBank_ENV") { //total 596261 objects in media tab
                 // if($i >= 1 && $i <= 400000) {}
-                // if($i >= 500000 && $i <= 600000) {} //1st cache
-                // if($i >= 400000 && $i <= 500000) {} //2nd cache
+                // if($i >= 500000 && $i <= 600000) {} //1st cache --- done
+
                 if($i >= 270000 && $i <= 400000) {} //1st cache
+                // if($i >= 460000 && $i <= 500000) {} //2nd cache
                 else continue; 
             }
             // */
