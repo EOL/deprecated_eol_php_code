@@ -47,7 +47,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->activeYN['voliii1998'] = "waiting...";
         $this->activeYN['volv2003'] = "waiting...";
         
-        $this->Kubitzki_intermediate_ranks = array("Tribe", "Subfamily", "Subfam.", "Subtribe"); // might also get this type "2a. Subtribe Isotrematinae"
+        $this->Kubitzki_intermediate_ranks = array("Tribe", "Subfamily", "Subfam.", "Subtribe", "Core"); // might also get this type "2a. Subtribe Isotrematinae"
         $this->chars_that_can_be_nos_but_became_letters_due2OCR = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
     }
     /*#################################################################################################################################*/
@@ -211,7 +211,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
 
             if($this->resource_name == 'Kubitzki') { //this block is present in 2 sections
-                $row = str_ireplace(array(""), "", $row); //VERY TRICKY PIECE OF CHAR --- PROBLEMATIC
+                $row = str_ireplace(array("", "·"), "", $row); //VERY TRICKY PIECE OF CHAR --- PROBLEMATIC // "13. ·Broussaisia Gaudich."
                 // /* manual
                 $row = str_replace("1. UlmusL.", "1. Ulmus L.", $row);
                 $row = str_replace("Bosea L., Sp. Pl.: 225 (1753).", "6. Bosea L., Sp. Pl.: 225 (1753).", $row); //weird, number is removed in OCR
@@ -237,6 +237,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("/ohnsonia", "Johnsonia", $row);
                 $row = str_ireplace("lxieae", "Ixieae", $row);
                 // volviii2007
+                $row = str_ireplace("Logﬁa", "Logfia", $row);
                 // */
             }
             if($this->resource_name == 'all_BHL') {
@@ -1172,7 +1173,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             
             if($this->resource_name == 'Kubitzki') {
-                $row = str_ireplace(array(""), "", $row); //VERY TRICKY PIECE OF CHAR --- PROBLEMATIC
+                $row = str_ireplace(array("", "·"), "", $row); //VERY TRICKY PIECE OF CHAR --- PROBLEMATIC // "13. ·Broussaisia Gaudich."
                 // /* manual
                 $row = str_replace("1. UlmusL.", "1. Ulmus L.", $row);
                 $row = str_replace("Bosea L., Sp. Pl.: 225 (1753).", "6. Bosea L., Sp. Pl.: 225 (1753).", $row); //weird, number is removed in OCR
@@ -1198,6 +1199,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("/ohnsonia", "Johnsonia", $row);
                 $row = str_ireplace("lxieae", "Ixieae", $row);
                 // volviii2007
+                $row = str_ireplace("Logﬁa", "Logfia", $row);
                 // */
             }
             if($this->resource_name == 'all_BHL') $row = $this->number_number_period($row); //"1 1 . Cracca leucosericea Rydberg, sp. nov."
@@ -1324,6 +1326,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         }
                         elseif($sciname == "GNRD does not recognize name") $row = "</taxon>$row";
                         else { //orig block
+                            if($this->resource_name == 'Kubitzki') $sciname = ucfirst(strtolower($sciname));
                             $words = explode(" ", $sciname);
                             if(count($words) > 1) {
                                 if($hits == 1)  $row = "<taxon sciname='$sciname'> ".$row;
@@ -1940,6 +1943,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     if(strlen($row) == 1) continue;
                 }
                 //=============
+                //if(stripos($row, "J. K√•rehed") !== false) continue;   //string is found --- did not work, will come back to this
                 if($this->considered_allcaps_tobe_removed($row)) continue;
                 if($this->considered_OCR_garbage_tobe_removed($row)) continue;
             }
