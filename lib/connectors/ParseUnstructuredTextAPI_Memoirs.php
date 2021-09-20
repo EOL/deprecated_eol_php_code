@@ -44,6 +44,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->activeYN['voliii1998'] = "waiting...";
         $this->activeYN['volv2003'] = "waiting...";
         $this->Kubitzki_intermediate_ranks = array("Tribe", "Subfamily", "Subfam.", "Subtribe"); // might also get this type "2a. Subtribe Isotrematinae"
+        $this->chars_that_can_be_nos_but_became_letters_due2OCR = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series
@@ -217,6 +218,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("Trip/aris", "Triplaris", $row);
                 // start voliii1998
                 $row = str_ireplace("Xan~orrhoeaceae", "Xanthorrhoeaceae", $row);
+                $row = str_ireplace("lridioideae", "Iridioideae", $row);
+                $row = str_ireplace("50. Tritoniopsis 1. Bolus", "50. Tritoniopsis L. Bolus", $row);
+                $row = str_ireplace("53. Gladiolus 1.", "53. Gladiolus L.", $row);
+                $row = str_ireplace("/ohnsonia", "Johnsonia", $row);
+                $row = str_ireplace("lxieae", "Ixieae", $row);
                 // */
             }
             if($this->resource_name == 'all_BHL') {
@@ -765,7 +771,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $tmp_first = str_replace(array(".", ",", ":", "-", "*"), "", $words[0]);
                 // /* NEW: Aug 27, 2021
                 if(substr($words[0], -1) == ".") {
-                    $chars = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
+                    $chars = $this->chars_that_can_be_nos_but_became_letters_due2OCR;
                     $tmp_first = str_ireplace($chars, "3", $tmp_first); //e.g. "S. Casparea Jermyana Britton, sp. nov." --- 90479.txt
                 }
                 // */
@@ -1170,6 +1176,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("Trip/aris", "Triplaris", $row);
                 // start voliii1998
                 $row = str_ireplace("Xan~orrhoeaceae", "Xanthorrhoeaceae", $row);
+                $row = str_ireplace("lridioideae", "Iridioideae", $row);
+                $row = str_ireplace("50. Tritoniopsis 1. Bolus", "50. Tritoniopsis L. Bolus", $row);
+                $row = str_ireplace("53. Gladiolus 1.", "53. Gladiolus L.", $row);
+                $row = str_ireplace("/ohnsonia", "Johnsonia", $row);
+                $row = str_ireplace("lxieae", "Ixieae", $row);
                 // */
             }
             if($this->resource_name == 'all_BHL') $row = $this->number_number_period($row); //"1 1 . Cracca leucosericea Rydberg, sp. nov."
@@ -1373,6 +1384,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if($row == "Contents")  $row = "</taxon>$row";
                 if($row == "General References")  $row = "</taxon>$row";
                 if($row == "References")  $row = "</taxon>$row";
+                if($this->first_part_of_string("Genera to be excluded from", $row)) $row = "</taxon>$row";
             }
             
             if($this->is_Section_stop_pattern($row)) $row = "</taxon>$row";
@@ -2259,7 +2271,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $words = explode(" ", $string); // print_r($words); exit;
         // /* NEW: Aug 27, 2021
         if(substr($words[0], -1) == ".") {
-            $chars = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
+            $chars = $this->chars_that_can_be_nos_but_became_letters_due2OCR;
             $words[0] = str_ireplace($chars, "3", $words[0]);
         }
         // */

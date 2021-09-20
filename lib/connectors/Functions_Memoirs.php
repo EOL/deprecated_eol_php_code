@@ -157,7 +157,7 @@ class Functions_Memoirs
         $str = (string) str_replace(array("i", "n", "l", "U"), "V", $str);
         $roman_numerals = array("I", "V", "X", "L", "C", "D", "M");
         for($x = 0; $x <= strlen($str)-1; $x++) {
-            if(!in_array($str[$x], $roman_numerals)) return false;
+            if(!in_array(strtoupper($str[$x]), $roman_numerals)) return false;
         }
         return true;
     }
@@ -257,6 +257,7 @@ class Functions_Memoirs
 
         $words = explode(" ", $string);
         $first = @$words[0]; $second = @$words[1]; $third = @$words[2];
+        $forth = @$words[3]; //e.g. "67. Duthieastrum de Vos" --- 4th word is "Vos"
 
         // /* e.g. "7. Berlinianche (Harms) Vattimo" --- remove parenthesis
         $third = str_replace(array("(", ")"), "", $third);
@@ -282,26 +283,38 @@ class Functions_Memoirs
             // e.g. "35. Seeds D-shaped, plants American 57. Chlidanthus"
             // */
             
+            /* sample genus
+                1. Zippelia Blume Figs. 109 A, 110A, B
+            reported by Jen:
+            voliii1998:
+            l3. Olsynium Raf. <--- misspelling, L for 1. Rats, I was hoping those wouldn't occur here       DONE
+            50. Tritoniopsis 1. Bolus           DONE
+            53. Gladiolus 1. Figs. 90C, 92      DONE
+            67. Duthieastrum de Vos             DONE
+            7. /ohnsonia R. Br. Fig.95A-D Lanariaceae. <--- extra weird. We needn't bend over backwards,    DONE
+                                                            since I'll be processing this resource manually downstream anyway
+            */
             $second_word_first_char = substr($second,0,1);
             $second_word_last_char = substr($second, -1);
             $third_word_last_char = substr($third, -1);
-            if(is_numeric($first) && $this->first_char_is_capital($second) && $this->first_char_is_capital($third)
-                                  && !in_array($second, $this->ranks)
-                                  && strlen($first) <= 4 //120.
-                                  && substr($first,-1) == "." // exclude e.g. "011 UrI Lui Frl GI"
-                                  && strlen($second) >= 2 && strlen($third) >= 1 // e.g. "2. Rafflesia R Br."
+            if(self::is_valid_numeric($first) && $this->first_char_is_capital($second) 
+                  && ( $this->first_char_is_capital($third) || ($third == "de" && $this->first_char_is_capital($forth)) ) // "67. Duthieastrum de Vos"
+                  && !in_array($second, $this->ranks)
+                  && strlen($first) <= 4 //120.
+                  && substr($first,-1) == "." // exclude e.g. "011 UrI Lui Frl GI"
+                  && strlen($second) >= 2 && strlen($third) >= 1 // e.g. "2. Rafflesia R Br."
 
-                                  && !in_array($second_word_last_char, array(".", ",", ":"))
-                                  // exclude e.g. "3. Annuals. Carpels connate to various degrees"
-                                  // exclude e.g. "2. Teil, Bd.10. Berlin: Gebrtider Borntraeger. 364 pp."
-                                  // exclude e.g. "5. Taipei: Epoch Publishing Co. , pp. 859-1137."
+                  && !in_array($second_word_last_char, array(".", ",", ":"))
+                  // exclude e.g. "3. Annuals. Carpels connate to various degrees"
+                  // exclude e.g. "2. Teil, Bd.10. Berlin: Gebrtider Borntraeger. 364 pp."
+                  // exclude e.g. "5. Taipei: Epoch Publishing Co. , pp. 859-1137."
 
-                                  && !in_array($third_word_last_char, array(":"))
-                                  // exclude e.g. "2. Monocotyledonous Organization:"
+                  && !in_array($third_word_last_char, array(":"))
+                  // exclude e.g. "2. Monocotyledonous Organization:"
 
-                                  && !in_array($second_word_first_char, array("(")) // exclude "405. (In Chinese with Engl. summ.)"
-                                  // && $this->is_sciname_in_GNRD($second)
-                                  ) return true;
+                  && !in_array($second_word_first_char, array("(")) // exclude "405. (In Chinese with Engl. summ.)"
+                  // && $this->is_sciname_in_GNRD($second)
+                  ) return true;
             elseif($sciname = self::get_name_from_intermediate_rank_pattern($string)) return $sciname;
             else return false;
         }
@@ -312,6 +325,14 @@ class Functions_Memoirs
             else return false;
         }
         else return false;
+    }
+    private function is_valid_numeric($str)
+    {
+        if(is_numeric($str)) return true;
+        // 2nd option
+        $chars = $this->chars_that_can_be_nos_but_became_letters_due2OCR;
+        $str = str_ireplace($chars, "3", $str); //l3. Olsynium Raf. <--- misspelling, L for 1. Rats, I was hoping those wouldn't occur here
+        if(is_numeric($str)) return true;
     }
     function is_sciname_in_GNRD($name)
     {
@@ -329,6 +350,14 @@ class Functions_Memoirs
         II. Subfam. Gomphrenoideae
         2a. Subtribe Isotrematinae --- ? wait on Jen's decision
         V. Subfam. Mollinedioideae Thorne (1974)
+        Reported by Jen: fixed
+        volii1993:
+        v. Subfam. Ruschioideae Schwantes in Ihlenf.,   DONE
+        I. Subfam. Mitrastemoidae                       DONE
+        voliii1998:
+        v. Subfam. Hyacinthoideae Link (1829).          DONE
+        III. Subfam. lridioideae Pax (1882).            DONE
+        3. Tribe lxieae Dumort (1822).                  
         */
         $words = explode(" ", $string);
         $first = @$words[0]; $second = @$words[1]; $third = @$words[2];
@@ -336,7 +365,7 @@ class Functions_Memoirs
             if(is_numeric($first) || self::first_word_is_RomanNumeral($string) || self::is_hybrid_number($first)) {
                 if(in_array($second, $this->Kubitzki_intermediate_ranks)) {
                     if($this->first_char_is_capital($third)) {
-                        if(in_array(substr($third, -3), array("eae", "nae"))) return $third; //sciname ends with "eae" or "nae"
+                        if(in_array(substr($third, -3), array("eae", "nae", "dae"))) return $third; //sciname ends with "eae" or "nae"
                     }
                 }
             }

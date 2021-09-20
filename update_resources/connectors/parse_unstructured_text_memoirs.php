@@ -203,21 +203,43 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "15422", "resource_name":
 NorthAmericanFlora_Plants	Thu 2021-08-26 08:27:21 AM	{"MoF.tab":44886, "media.tab":11382, "occurrence.tab":44886, "taxon.tab":11243, "time_elapsed":{"sec":267.87, "min":4.46, "hr":0.07}}
 NorthAmericanFlora_Plants	Tue 2021-08-31 03:10:17 AM	{"MoF.tab":45013, "media.tab":11438, "occurrence.tab":45013, "taxon.tab":11299, "time_elapsed":{"sec":267.57, "min":4.46, "hr":0.07}}
 
-Kubitzki_et_al
+===== Kubitzki_et_al =====
+START PATTERNS:
+sample genus:
+"1. Zippelia Blume Figs. 109 A, 110A, B"
+sample family:
+"Eucommiaceae"
+sample with intermediate ranks
+    2. Tribe Aristolochieae
+    I. Subfamily Amaranthoideae
+    II. Subfam. Gomphrenoideae
+    2a. Subtribe Isotrematinae
+ADDITIONAL PATTERNS:
+volii1993:
+v. Subfam. Ruschioideae Schwantes in Ihlenf.,
+I. Subfam. Mitrastemoidae
+
+voliii1998:
+v. Subfam. Hyacinthoideae Link (1829).
+III. Subfam. lridioideae Pax (1882).
+l3. Olsynium Raf. <--- misspelling, L for 1. Rats, I was hoping those wouldn't occur here
+3. Tribe lxieae Dumort (1822).
+50. Tritoniopsis 1. Bolus
+53. Gladiolus 1. Figs. 90C, 92
+67. Duthieastrum de Vos
+7. /ohnsonia R. Br. Fig.95A-D Lanariaceae.
+
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volii1993", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "voliii1998", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "voliv1998", "resource_name":"Kubitzki", "group":"Kubitzki"}' --- nothing, short PDF file
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volv2003", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 
-
-volii1993	Tue 2021-09-14 09:33:44 AM	{"media_resource.tab":1375, "taxon.tab":1359, "time_elapsed":{"sec":2.29, "min":0.04, "hr":0}} - Mac Mini
-volii1993	Tue 2021-09-14 10:14:37 AM	{"media_resource.tab":1371, "taxon.tab":1355, "time_elapsed":{"sec":1.56, "min":0.03, "hr":0}} - eol-archive
-volii1993	Wed 2021-09-15 11:08:10 AM	{"media_resource.tab":1512, "taxon.tab":1485, "time_elapsed":{"sec":1.63, "min":0.03, "hr":0}} - eol-archive
+volii1993   blocks: 1602    Raw scinames count: 1596
+voliii1998  blocks: 570     Raw scinames count: 570
+volv2003    blocks: 798     Raw scinames count: 798
 
 volii1993	Thu 2021-09-16 11:57:20 AM	{"media_resource.tab":1512, "taxon.tab":1488, "time_elapsed":{"sec":1.61, "min":0.03, "hr":0}}
-
 voliii1998	Thu 2021-09-16 11:57:28 AM	{"media_resource.tab":536, "taxon.tab":522, "time_elapsed":{"sec":0.82, "min":0.01, "hr":0}}
-
 volv2003	Thu 2021-09-16 11:57:52 AM	{"media_resource.tab":789, "taxon.tab":789, "time_elapsed":{"sec":0.91, "min":0.02, "hr":0}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -394,17 +416,6 @@ $rec['15422'] = array('filename' => '15422.txt', 'lines_before_and_after_sciname
 
 // === Kubitzki_et_al ===
 $rec['volii1993'] = array('filename' => 'volii1993.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'Kubitzki_et_al');
-/* blocks: 1377 1581 | Raw scinames: 1374 1575
-sample genus:
-"1. Zippelia Blume Figs. 109 A, 110A, B"
-sample family:
-"Eucommiaceae"
-sample with intermediate ranks
-    2. Tribe Aristolochieae
-    I. Subfamily Amaranthoideae
-    II. Subfam. Gomphrenoideae
-    2a. Subtribe Isotrematinae
-*/
 if($resource_name == 'Kubitzki') {
     $rec[$pdf_id] = array('filename' => $pdf_id.'.txt', 'lines_before_and_after_sciname' => 1, 'doc' => 'Kubitzki_et_al');
 }
