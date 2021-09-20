@@ -233,14 +233,24 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "volii1993", "resource_na
 parse_unstructured_text_memoirs.php _ '{"resource_id": "voliii1998", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "voliv1998", "resource_name":"Kubitzki", "group":"Kubitzki"}' --- nothing, short PDF file
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volv2003", "resource_name":"Kubitzki", "group":"Kubitzki"}'
+start Sep 20 Mon:
+parse_unstructured_text_memoirs.php _ '{"resource_id": "volvi2004", "resource_name":"Kubitzki", "group":"Kubitzki"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "volvii2004", "resource_name":"Kubitzki", "group":"Kubitzki"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "volviii2007", "resource_name":"Kubitzki", "group":"Kubitzki"}'
+
 
 volii1993   blocks: 1602    Raw scinames count: 1596
 voliii1998  blocks: 570     Raw scinames count: 570
 volv2003    blocks: 798     Raw scinames count: 798
 
 volii1993	Thu 2021-09-16 11:57:20 AM	{"media_resource.tab":1512, "taxon.tab":1488, "time_elapsed":{"sec":1.61, "min":0.03, "hr":0}}
+volii1993	Mon 2021-09-20 02:09:00 AM	{"media_resource.tab":1521, "taxon.tab":1497, "time_elapsed":{"sec":1.51, "min":0.03, "hr":0}}
+
 voliii1998	Thu 2021-09-16 11:57:28 AM	{"media_resource.tab":536, "taxon.tab":522, "time_elapsed":{"sec":0.82, "min":0.01, "hr":0}}
+voliii1998	Mon 2021-09-20 02:09:25 AM	{"media_resource.tab":546, "taxon.tab":530, "time_elapsed":{"sec":0.81, "min":0.01, "hr":0}}
+
 volv2003	Thu 2021-09-16 11:57:52 AM	{"media_resource.tab":789, "taxon.tab":789, "time_elapsed":{"sec":0.91, "min":0.02, "hr":0}}
+volv2003	Mon 2021-09-20 02:09:36 AM	{"media_resource.tab":791, "taxon.tab":791, "time_elapsed":{"sec":0.9, "min":0.02, "hr":0}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
@@ -254,7 +264,7 @@ $param                     = json_decode(@$argv[2], true);
 $pdf_id = $param['resource_id'];
 $resource_name = $param['resource_name'];
 $group = @$param['group'];
-$func = new ParseUnstructuredTextAPI_Memoirs($resource_name);
+$func = new ParseUnstructuredTextAPI_Memoirs($resource_name, $pdf_id);
 /*
 $str = "±";
 // $str = substr($str,0,1);

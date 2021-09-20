@@ -300,7 +300,7 @@ class Functions_Memoirs
             if(self::is_valid_numeric($first) && $this->first_char_is_capital($second) 
                   && ( $this->first_char_is_capital($third) || ($third == "de" && $this->first_char_is_capital($forth)) ) // "67. Duthieastrum de Vos"
                   && !in_array($second, $this->ranks)
-                  && strlen($first) <= 4 //120.
+                  && strlen($first) <= 5 //120. | "1047. Aaronsohnia Warb. & Eig"
                   && substr($first,-1) == "." // exclude e.g. "011 UrI Lui Frl GI"
                   && strlen($second) >= 2 && strlen($third) >= 1 // e.g. "2. Rafflesia R Br."
 
@@ -357,7 +357,7 @@ class Functions_Memoirs
         voliii1998:
         v. Subfam. Hyacinthoideae Link (1829).          DONE
         III. Subfam. lridioideae Pax (1882).            DONE
-        3. Tribe lxieae Dumort (1822).                  
+        3. Tribe lxieae Dumort (1822).                  DONE
         */
         $words = explode(" ", $string);
         $first = @$words[0]; $second = @$words[1]; $third = @$words[2];
@@ -431,6 +431,15 @@ class Functions_Memoirs
         $len = strlen($needle);
         if(substr($row,0,$len) == $needle) return true;
         else return false;
+    }
+    function numbered_Key_to_phrase($row)
+    {   /*
+        1. Key to the Major Systematic and
+        2. Key to Genera of Coronantheroid
+        13. Key to Didymocarpoid Gesneriaceae of
+        */
+        $words = explode(" ", trim($row));
+        if(is_numeric($words[0]) && @$words[1] == "Key" && @$words[2] == "to" && @$words[3]) return true;
     }
 }
 ?>

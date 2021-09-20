@@ -3,8 +3,9 @@ namespace php_active_record;
 /* */
 class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 {
-    function __construct($resource_name)
-    {   $this->resource_name = $resource_name;
+    function __construct($resource_name, $pdf_id = "")
+    {   //exit("\n[$pdf_id]\n");
+        $this->resource_name = $resource_name;
         $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 
             'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         /* START epub series */
@@ -40,9 +41,12 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->in_question = "";
         $this->activeYN['91362'] = "waiting..."; //1st sample where first part of doc is ignored. Up to a certain point.
         $this->activeYN['91225'] = "waiting...";
+
+        if($this->resource_name == 'Kubitzki') $this->activeYN[$pdf_id] = "waiting..."; //default
         $this->activeYN['volii1993'] = "waiting...";
         $this->activeYN['voliii1998'] = "waiting...";
         $this->activeYN['volv2003'] = "waiting...";
+        
         $this->Kubitzki_intermediate_ranks = array("Tribe", "Subfamily", "Subfam.", "Subtribe"); // might also get this type "2a. Subtribe Isotrematinae"
         $this->chars_that_can_be_nos_but_became_letters_due2OCR = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
     }
@@ -64,7 +68,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         */
         $this->debug['sciname cnt'] = 0;
         // /* this serves when script is called from parse_unstructured_text.php --- un-comment in real operation
-        $pdf_id = pathinfo($input['filename'], PATHINFO_FILENAME);
+        $pdf_id = pathinfo($input['filename'], PATHINFO_FILENAME); //exit("\n[$pdf_id]\naaa\n");
         $this->pdf_id = $pdf_id;
         if(in_array($pdf_id, $this->PDFs_that_are_lists)) {
             echo "- IS A LIST, NOT SPECIES-DESCRIPTION-TYPE 02\n";
@@ -129,7 +133,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $i = 0; $ctr = 0;
         foreach(new FileIterator($local) as $line => $row) { $ctr++;
             $i++; if(($i % 5000) == 0) echo " $i";
-
             if($this->pdf_id == '91534') {
                 $row = str_ireplace("(,. Limnia bulbifera A. Gray) A.", "6. Limnia bulbifera (A. Gray) A.", $row);
                 $row = str_ireplace("S. Limnia arenicola (Henderson)", "8. Limnia arenicola (Henderson)", $row);
@@ -161,14 +164,23 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == '91225') {
                 if(stripos($row, "HOST-INDEX TO THE UREDINALES") !== false) $this->activeYN[$this->pdf_id] = "processing...";
             }
-            elseif($this->pdf_id == 'volii1993') {
+            
+            if($this->pdf_id == 'volii1993') {
                 if($row == "Chemosystematics") $this->activeYN[$this->pdf_id] = "processing...";
             }
             elseif($this->pdf_id == 'voliii1998') {
                 if($row == "Molecular Systematics") $this->activeYN[$this->pdf_id] = "processing...";
             }
             elseif($this->pdf_id == 'volv2003') {
-                if($row == "General References") $this->activeYN[$this->pdf_id] = "processing...";
+                if($row == "General References") $this->activeYN[$this->pdf_id] = "processing..."; //default
+            }
+            elseif(in_array($this->pdf_id, array("volvii2004", "volviii2007"))) {
+                if($row == "References") $this->activeYN[$this->pdf_id] = "processing..."; //default
+            }
+            else { //un-initialied volume by default use "General References"
+                if($this->resource_name == 'Kubitzki') {
+                    if($row == "General References") $this->activeYN[$this->pdf_id] = "processing..."; //default
+                }
             }
             // */
             
@@ -199,6 +211,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
 
             if($this->resource_name == 'Kubitzki') { //this block is present in 2 sections
+                $row = str_ireplace(array(""), "", $row); //VERY TRICKY PIECE OF CHAR --- PROBLEMATIC
                 // /* manual
                 $row = str_replace("1. UlmusL.", "1. Ulmus L.", $row);
                 $row = str_replace("Bosea L., Sp. Pl.: 225 (1753).", "6. Bosea L., Sp. Pl.: 225 (1753).", $row); //weird, number is removed in OCR
@@ -223,6 +236,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("53. Gladiolus 1.", "53. Gladiolus L.", $row);
                 $row = str_ireplace("/ohnsonia", "Johnsonia", $row);
                 $row = str_ireplace("lxieae", "Ixieae", $row);
+                // volviii2007
                 // */
             }
             if($this->resource_name == 'all_BHL') {
@@ -726,6 +740,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         elseif($this->resource_name == 'Kubitzki') {
             /* good debug
             if(stripos($string, $this->in_question) !== false) { //string is found  //good debug
+            // if($string == $this->in_question) {
                 echo("\naa[$string]aa1\n");
                 if($this->is_sciname_in_Kubitzki($string)) exit("\nyes sciname\n");
                 else exit("\nnot sciname\n");
@@ -1157,6 +1172,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             
             if($this->resource_name == 'Kubitzki') {
+                $row = str_ireplace(array(""), "", $row); //VERY TRICKY PIECE OF CHAR --- PROBLEMATIC
                 // /* manual
                 $row = str_replace("1. UlmusL.", "1. Ulmus L.", $row);
                 $row = str_replace("Bosea L., Sp. Pl.: 225 (1753).", "6. Bosea L., Sp. Pl.: 225 (1753).", $row); //weird, number is removed in OCR
@@ -1181,6 +1197,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("53. Gladiolus 1.", "53. Gladiolus L.", $row);
                 $row = str_ireplace("/ohnsonia", "Johnsonia", $row);
                 $row = str_ireplace("lxieae", "Ixieae", $row);
+                // volviii2007
                 // */
             }
             if($this->resource_name == 'all_BHL') $row = $this->number_number_period($row); //"1 1 . Cracca leucosericea Rydberg, sp. nov."
@@ -1385,6 +1402,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if($row == "General References")  $row = "</taxon>$row";
                 if($row == "References")  $row = "</taxon>$row";
                 if($this->first_part_of_string("Genera to be excluded from", $row)) $row = "</taxon>$row";
+                if($this->first_part_of_string("KEY TO THE GENERA", $row)) $row = "</taxon>$row";
+                if($this->numbered_Key_to_phrase($row)) $row = "</taxon>$row";
             }
             
             if($this->is_Section_stop_pattern($row)) $row = "</taxon>$row";
@@ -1773,15 +1792,20 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]aa00\n");}   //string is found  //good debug
         $row = self::clean_sciname_here($row);
         // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]aa11\n");}   //string is found  //good debug
-        if(stripos($row, " p. ") !== false) {   //string is found
-            $obj = $this->run_gnparser($row);
-            if($canonical = @$obj[0]->canonical->full) {
-                $row = trim($canonical." ".@$obj[0]->authorship->normalized);
-            }
-            else {
-                print_r($obj); echo("\n-----\nShould not go here...Investigate:\n$row\n"); $showYN = true;
+
+        if($this->resource_name != 'Kubitzki') {
+            if(stripos($row, " p. ") !== false) {   //string is found
+                $obj = $this->run_gnparser($row);
+                if($canonical = @$obj[0]->canonical->full) {
+                    $row = trim($canonical." ".@$obj[0]->authorship->normalized);
+                }
+                else {
+                    print_r($obj); echo("\n-----\nShould not go here...Investigate:\n$row\n"); $showYN = true;
+                    exit("\nelix\n");
+                }
             }
         }
+
         $row = self::clean_sciname_here2($row);
         if($showYN) echo "\nEnds up with value: [$row]\n-----\n";
         return $row;
@@ -2135,7 +2159,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $begin = "SUBDIVISION AND AFFINITIES.";               $end = "DISTRIBUTION AND HABITATS."; $block = self::species_section_append_pattern($begin, $end, $block);
             $begin = "SUBDIVISION AND AFFINITIES OF THE FAMILY."; $end = "DISTRIBUTION AND HABITATS."; $block = self::species_section_append_pattern($begin, $end, $block);
             //---------------------------------
-            $beginS = array("AFFINITIES.", "Afﬁnities.");
+            $beginS = array("AFFINITIES AND PHYLOGENY.", "AFFINITIES.", "Afﬁnities.");
             foreach($beginS as $begin) {
                 $ends = array("DISTRIBUTION AND HABITATS.", "Habitats and Distribution.", "Distribution and Habitats.", 
                     "Conservation and Distribution.",

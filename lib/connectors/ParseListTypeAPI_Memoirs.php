@@ -657,7 +657,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             $words = explode(" ", trim($sciname_line)); //at this point value is "Euploca Nutt." OR "Tribe Aristolochieae". No more numeric/roman 1st part
             $first = $words[0];
             $second = @$words[1];
-            if(in_array($first, $this->Kubitzki_intermediate_ranks) && $second) return $second; //for start pattern e.g. "2. Tribe Aristolochieae"
+            if(in_array(ucfirst(strtolower($first)), $this->Kubitzki_intermediate_ranks) && $second) return $second; //for start pattern e.g. "2. Tribe Aristolochieae"
             return $words[0]; //for first 2 orig Start patterns: "3. Euploca Nutt." AND "Eucommiaceae"
         }
         
