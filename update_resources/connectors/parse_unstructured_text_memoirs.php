@@ -239,18 +239,18 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "volvii2004", "resource_n
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volviii2007", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 
 
-volii1993   blocks: 1602    Raw scinames count: 1596
-voliii1998  blocks: 570     Raw scinames count: 570
-volv2003    blocks: 798     Raw scinames count: 798
+volii1993   blocks: 1602|1603    Raw scinames count: 1596|1597
+voliii1998  blocks: 570|571     Raw scinames count: 570|571
+volv2003    blocks: 798|801     Raw scinames count: 798|800
 
-volii1993	Thu 2021-09-16 11:57:20 AM	{"media_resource.tab":1512, "taxon.tab":1488, "time_elapsed":{"sec":1.61, "min":0.03, "hr":0}}
 volii1993	Mon 2021-09-20 02:09:00 AM	{"media_resource.tab":1521, "taxon.tab":1497, "time_elapsed":{"sec":1.51, "min":0.03, "hr":0}}
+volii1993	Mon 2021-09-20 08:00:17 AM	{"media_resource.tab":1519, "taxon.tab":1496, "time_elapsed":{"sec":1.67, "min":0.03, "hr":0}}
 
 voliii1998	Thu 2021-09-16 11:57:28 AM	{"media_resource.tab":536, "taxon.tab":522, "time_elapsed":{"sec":0.82, "min":0.01, "hr":0}}
-voliii1998	Mon 2021-09-20 02:09:25 AM	{"media_resource.tab":546, "taxon.tab":530, "time_elapsed":{"sec":0.81, "min":0.01, "hr":0}}
+voliii1998	Mon 2021-09-20 08:00:35 AM	{"media_resource.tab":546, "taxon.tab":530, "time_elapsed":{"sec":0.8, "min":0.01, "hr":0}}
 
-volv2003	Thu 2021-09-16 11:57:52 AM	{"media_resource.tab":789, "taxon.tab":789, "time_elapsed":{"sec":0.91, "min":0.02, "hr":0}}
 volv2003	Mon 2021-09-20 02:09:36 AM	{"media_resource.tab":791, "taxon.tab":791, "time_elapsed":{"sec":0.9, "min":0.02, "hr":0}}
+volv2003	Mon 2021-09-20 08:01:07 AM	{"media_resource.tab":794, "taxon.tab":793, "time_elapsed":{"sec":0.92, "min":0.02, "hr":0}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
