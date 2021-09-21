@@ -248,6 +248,9 @@ class Functions_Memoirs
         1. Zippelia Blume Figs. 109 A, 110A, B
         */
         $string = trim($string); //new Sep 15
+        
+        // if(stripos($string, $this->in_question) !== false) exit("\n[$string][]\nelix a0\n"); //string is found
+        
         if(stripos($string, "±") !== false) return false; //string is found
         // if(stripos($string, ":") !== false) return false; //string is found //CANNOT USE THIS: e.g. "9. Compsoneura Warb. Fig. 100 C, F Bicuiba de Wilde, Beitr. BioI. Pfl. 66: 119 (1992)."
         
@@ -297,6 +300,9 @@ class Functions_Memoirs
             $second_word_first_char = substr($second,0,1);
             $second_word_last_char = substr($second, -1);
             $third_word_last_char = substr($third, -1);
+            
+            // if(stripos($string, $this->in_question) !== false) exit("\n[$string][$first]\nelix a1\n"); //string is found
+            
             if(self::is_valid_numeric($first) && $this->first_char_is_capital($second) 
                   && ( $this->first_char_is_capital($third) || ($third == "de" && $this->first_char_is_capital($forth)) ) // "67. Duthieastrum de Vos"
                   && !in_array($second, $this->ranks)
@@ -358,13 +364,22 @@ class Functions_Memoirs
         v. Subfam. Hyacinthoideae Link (1829).          DONE
         III. Subfam. lridioideae Pax (1882).            DONE
         3. Tribe lxieae Dumort (1822).                  DONE
+        VI.5. Subtribe Centratherinae H. Rob.,          DONE
         */
         $words = explode(" ", $string);
         $first = @$words[0]; $second = @$words[1]; $third = @$words[2];
         if($first && $second && $third) {
-            if(is_numeric($first) || self::first_word_is_RomanNumeral($string) || self::is_hybrid_number($first)) {
+            // if(stripos($string, $this->in_question) !== false) exit("\n[$string][$first]\ncha 00\n"); //string is found
+            // [VI5. Subtribe Centratherinae H. Rob. ,][VI5.]
+            if(is_numeric($first) || self::first_word_is_RomanNumeral($string) || self::is_hybrid_number($first, $string)) {
                 if(in_array($second, $this->Kubitzki_intermediate_ranks)) {
                     if($this->first_char_is_capital($third)) {
+                        /* good debug
+                        if(stripos($string, $this->in_question) !== false) exit("\n[$string][$first]\ncha 01\n"); //string is found
+                        if(in_array(substr($third, -3), array("eae", "nae", "dae"))) {
+                            if(stripos($string, $this->in_question) !== false) exit("\n[$string][$first][$third]\ncha 02\n"); //string is found
+                        }
+                        */
                         if(in_array(substr($third, -3), array("eae", "nae", "dae"))) return $third; //sciname ends with "eae" or "nae"
                     }
                 }
@@ -381,8 +396,8 @@ class Functions_Memoirs
         }
         return $string;
     }
-    function is_hybrid_number($string) //e.g. "2a"
-    {
+    function is_hybrid_number($string, $row = "") //e.g. "2a"
+    {   // if(stripos($row, $this->in_question) !== false) exit("\n[$row][$string]\nelix 01\n"); //string is found
         if($this->has_letters($string) && $this->has_numbers($string)) return true; // e.g. "7a."
     }
     // "1. The Annona group has to be united with the"
@@ -440,6 +455,19 @@ class Functions_Memoirs
         */
         $words = explode(" ", trim($row));
         if(is_numeric($words[0]) && @$words[1] == "Key" && @$words[2] == "to" && @$words[3]) return true;
+    }
+    function adjust_hybrid_bullet_pt($row)
+    {   // e.g. "VI.5. Subtribe Centratherinae H. Rob.,"
+        $words = explode(" ", trim($row));
+        if($first = @$words[0]) {
+            if(self::is_hybrid_number($first) && substr($first, -1) == ".") {
+                $first = str_replace(".", "", $first);
+                $first .= ".";
+                $words[0] = $first;
+                $row = implode(" ", $words);
+            }
+        }
+        return $row;
     }
 }
 ?>

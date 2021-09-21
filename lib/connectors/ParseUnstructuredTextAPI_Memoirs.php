@@ -215,9 +215,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // /* manual
                 $row = str_replace("1. UlmusL.", "1. Ulmus L.", $row);
                 $row = str_replace("Bosea L., Sp. Pl.: 225 (1753).", "6. Bosea L., Sp. Pl.: 225 (1753).", $row); //weird, number is removed in OCR
-                // manual e.g. "6.Pilostyles Guillemin"
+
+                // /* e.g. adjust FROM: "VI.5. Subtribe Centratherinae H. Rob.,"
+                $row = $this->adjust_hybrid_bullet_pt($row); // TO: "VI5. Subtribe Centratherinae H. Rob.,"
+                // if(stripos($row, $this->in_question) !== false) exit("\nsearch 1\n[$row]\n");   //string is found
+                // */
+                
+                // /* manual e.g. "6.Pilostyles Guillemin"
                 $row = str_replace(".", ". ", $row);
                 $row = Functions::remove_whitespace($row);
+                // */
+                
                 // others:
                 $row = str_ireplace("~yrotha~naceae", "Myrothamnaceae", $row);
                 $row = str_ireplace("Myrothamnaeeae", "Myrothamnaceae", $row);
@@ -607,7 +615,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     function is_sciname($string, $doc_type = 'species_type') //for initial scinames list
     {
         // if(stripos($string, $this->in_question) !== false) {exit("\nxx[$string]xx 11\n");}   //string is found  //good debug
-        
         // /* NEW
         if(!isset($this->activeYN[$this->pdf_id])) {} //just continue, un-initialized resource
         else {
@@ -1177,9 +1184,17 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // /* manual
                 $row = str_replace("1. UlmusL.", "1. Ulmus L.", $row);
                 $row = str_replace("Bosea L., Sp. Pl.: 225 (1753).", "6. Bosea L., Sp. Pl.: 225 (1753).", $row); //weird, number is removed in OCR
-                // manual e.g. "6.Pilostyles Guillemin"
+
+                // /* e.g. adjust FROM: "VI.5. Subtribe Centratherinae H. Rob.,"
+                $row = $this->adjust_hybrid_bullet_pt($row); // TO: "VI5. Subtribe Centratherinae H. Rob.,"
+                // if(stripos($row, $this->in_question) !== false) exit("\nsearch 1\n[$row]\n");   //string is found
+                // */
+                
+                // /* manual e.g. "6.Pilostyles Guillemin"
                 $row = str_replace(".", ". ", $row);
                 $row = Functions::remove_whitespace($row);
+                // */
+
                 // others:
                 $row = str_ireplace("~yrotha~naceae", "Myrothamnaceae", $row);
                 $row = str_ireplace("Myrothamnaeeae", "Myrothamnaceae", $row);
