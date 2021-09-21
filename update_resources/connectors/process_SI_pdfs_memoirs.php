@@ -64,7 +64,10 @@ Sep 20 Monday
 process_SI_pdfs_memoirs.php _ '{"resource_id": "volvi2004",    "resource_name":"Kubitzki", "doc": "Kubitzki_et_al"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "volvii2004",    "resource_name":"Kubitzki", "doc": "Kubitzki_et_al"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "volviii2007",    "resource_name":"Kubitzki", "doc": "Kubitzki_et_al"}'
-
+Sep 21 Tuesday
+process_SI_pdfs_memoirs.php _ '{"resource_id": "volix2007",    "resource_name":"Kubitzki", "doc": "Kubitzki_et_al"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "volx2011",    "resource_name":"Kubitzki", "doc": "Kubitzki_et_al"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "volxi2014",    "resource_name":"Kubitzki", "doc": "Kubitzki_et_al"}'
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

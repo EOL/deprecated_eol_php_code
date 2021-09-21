@@ -233,13 +233,18 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "volii1993", "resource_na
 parse_unstructured_text_memoirs.php _ '{"resource_id": "voliii1998", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "voliv1998", "resource_name":"Kubitzki", "group":"Kubitzki"}' --- nothing, short PDF file
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volv2003", "resource_name":"Kubitzki", "group":"Kubitzki"}'
-start Sep 20 Mon:
+Sep 20 Mon:
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volvi2004", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volvii2004", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volviii2007", "resource_name":"Kubitzki", "group":"Kubitzki"}'
+Sep 21 Tue:
+parse_unstructured_text_memoirs.php _ '{"resource_id": "volix2007", "resource_name":"Kubitzki", "group":"Kubitzki"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "volx2011", "resource_name":"Kubitzki", "group":"Kubitzki"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "volxi2014", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 
+volix2007   blocks: 597         Raw scinames count: 596
 
-volii1993   blocks: 1602|1603    Raw scinames count: 1596|1597
+volii1993   blocks: 1602|1603   Raw scinames count: 1596|1597
 voliii1998  blocks: 570|571     Raw scinames count: 570|571
 volv2003    blocks: 798|801     Raw scinames count: 798|800
 

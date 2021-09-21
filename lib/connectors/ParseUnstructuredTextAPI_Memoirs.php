@@ -46,6 +46,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->activeYN['volii1993'] = "waiting...";
         $this->activeYN['voliii1998'] = "waiting...";
         $this->activeYN['volv2003'] = "waiting...";
+        $this->activeYN['volix2007'] = "waiting...";
+        
         
         $this->Kubitzki_intermediate_ranks = array("Tribe", "Subfamily", "Subfam.", "Subtribe", "Core"); // might also get this type "2a. Subtribe Isotrematinae"
         $this->chars_that_can_be_nos_but_became_letters_due2OCR = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
@@ -98,7 +100,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $lines_before_and_after_sciname = $input['lines_before_and_after_sciname'];
         $this->magic_no = $this->no_of_rows_per_block[$lines_before_and_after_sciname];
         self::get_main_scinames($filename); // print_r($this->lines_to_tag); 
-        // print_r($this->scinames); exit;
+        // print_r($this->scinames); exit("\n-debug only-\n");
         echo "\n lines_to_tag: ".count($this->lines_to_tag)."\n"; //exit("\n-end-\n");
         $edited_file = self::add_taxon_tags_to_text_file_v3($filename);
         self::remove_some_rows($edited_file);
@@ -171,11 +173,21 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == 'voliii1998') {
                 if($row == "Molecular Systematics") $this->activeYN[$this->pdf_id] = "processing...";
             }
-            elseif($this->pdf_id == 'volv2003') {
+            // elseif($this->pdf_id == 'volv2003') {
+            elseif(in_array($this->pdf_id, array("volv2003"))) {
                 if($row == "General References") $this->activeYN[$this->pdf_id] = "processing..."; //default
             }
             elseif(in_array($this->pdf_id, array("volvii2004", "volviii2007"))) {
                 if($row == "References") $this->activeYN[$this->pdf_id] = "processing..."; //default
+            }
+            elseif($this->pdf_id == 'volix2007') {
+                if($row == "Molecular Systematics") $this->activeYN[$this->pdf_id] = "processing...";
+            }
+            elseif($this->pdf_id == 'volx2011') {
+                if($row == "evolution. Mol. Phylogen. Evol. 39: 305–322.") $this->activeYN[$this->pdf_id] = "processing...";
+            }
+            elseif($this->pdf_id == 'volxi2014') {
+                if($row == "tion onto another generation because it still") $this->activeYN[$this->pdf_id] = "processing...";
             }
             else { //un-initialied volume by default use "General References"
                 if($this->resource_name == 'Kubitzki') {
@@ -1327,7 +1339,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(isset($this->lines_to_tag[$i])) { $hits++;
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx00\n");}   //string is found  //good debug
                 $row = self::format_row_to_sciname_v2($row); //fix e.g. "Amastus aphraates Schaus, 1927, p. 74."
+                
                 // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx11\n");}   //string is found  //good debug
+                // if(stripos($row, "Aextoxicaceae") !== false) {exit("\nxx[$row]xx11\n");}   //string is found  //good debug
+                
                 if(self::is_valid_species($row)) { //important last line
                     // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]xx22\n");}   //string is found  //good debug
 
@@ -1803,6 +1818,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
     }
     private function format_row_to_sciname_v2($row) //Amastus aphraates Schaus, 1927, p. 74.
     {   $showYN = false;
+        
+        // /* e.g. "Aextoxicaceae1" to: "Aextoxicaceae"
+        if($this->resource_name == 'Kubitzki') {
+            $row = $this->adjust_family_name_special_case($row);
+        }
+        // */
+        
         $row = self::remove_first_word_if_it_has_number($row);
         if($this->resource_name == 'Kubitzki') {
             $row = $this->remove_first_word_if_it_is_RomanNumeral($row); //e.g. "V. Subfam. Mollinedioideae Thorne (1974)"
@@ -2177,6 +2199,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // /* remove "AFFINITIES." but include sections after it e.g. "DISTRIBUTION AND HABITATS."
             $begin = "SUBDIVISION AND AFFINITIES.";               $end = "DISTRIBUTION AND HABITATS."; $block = self::species_section_append_pattern($begin, $end, $block);
             $begin = "SUBDIVISION AND AFFINITIES OF THE FAMILY."; $end = "DISTRIBUTION AND HABITATS."; $block = self::species_section_append_pattern($begin, $end, $block);
+            $begin = "AFFINITIES AND SUBDIVISION.";               $end = "PHYTOCHEMISTRY AND USES"; $block = self::species_section_append_pattern($begin, $end, $block);
             //---------------------------------
             $beginS = array("AFFINITIES AND PHYLOGENY.", "AFFINITIES.", "Afﬁnities.");
             foreach($beginS as $begin) {

@@ -249,6 +249,10 @@ class Functions_Memoirs
         */
         $string = trim($string); //new Sep 15
         
+        /* possible exclude row --- return false --- if these strings exist in the $row
+        " from" " taxa"
+        */
+        
         // if(stripos($string, $this->in_question) !== false) exit("\n[$string][]\nelix a0\n"); //string is found
         
         if(stripos($string, "±") !== false) return false; //string is found
@@ -277,7 +281,7 @@ class Functions_Memoirs
             if(in_array($third, $not_in_third)) return false;
 
             $not_in_second = array("Tepals", "The", "Fruit", "Royal", "Leaf", "Special", "Ancestral", "Major", "Breeding", "Scape", 
-                "Zoophilic", "Leaves", "In", "Novel", "New", "South", "Northern", "Plants"); //e.g. "3. Zoophilic Pollination" OR "10. Leaves V-shaped in cross-section 8. Kniphofia"
+                "Zoophilic", "Leaves", "In", "Novel", "New", "South", "Northern", "Plants", "Berlin", "Old", "Some", "Many", "Kew"); //e.g. "3. Zoophilic Pollination" OR "10. Leaves V-shaped in cross-section 8. Kniphofia"
             if(in_array($second, $not_in_second)) return false;
 
             // /*
@@ -325,7 +329,9 @@ class Functions_Memoirs
             else return false;
         }
         elseif(count($words) == 1) { //2nd Start pattern --- e.g. "Berberidaceae"
-            if(substr($string, -3) == "eae" && $this->first_char_is_capital($string) && substr($string,0,1) != "?") {
+            if( //substr($string, -3) == "eae" 
+                in_array(substr($string, -3), array("eae", "ae1"))
+                && $this->first_char_is_capital($string) && substr($string,0,1) != "?") {
                 return true;
             }
             else return false;
@@ -466,6 +472,15 @@ class Functions_Memoirs
                 $words[0] = $first;
                 $row = implode(" ", $words);
             }
+        }
+        return $row;
+    }
+    function adjust_family_name_special_case($row)
+    {   // /* e.g. "Aextoxicaceae1" to: "Aextoxicaceae"
+        $words = explode(" ", trim($row));
+        $first = @$words[0];
+        if(count($words) == 1) {
+            if(substr($first, -4) == "eae1") return substr($first,0,strlen($first)-1);
         }
         return $row;
     }
