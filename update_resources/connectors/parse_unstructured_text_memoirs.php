@@ -247,31 +247,19 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "volxiii2015", "resource_
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volxiv2016", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volxv2018", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 
-volix2007   blocks: 597         Raw scinames count: 596
-
-volii1993   blocks: 1602|1603   Raw scinames count: 1596|1597
-voliii1998  blocks: 570|571     Raw scinames count: 570|571
-volv2003    blocks: 798|801     Raw scinames count: 798|800
-
-volii1993	Mon 2021-09-20 02:09:00 AM	{"media_resource.tab":1521, "taxon.tab":1497, "time_elapsed":{"sec":1.51, "min":0.03, "hr":0}}
-volii1993	Mon 2021-09-20 08:00:17 AM	{"media_resource.tab":1519, "taxon.tab":1496, "time_elapsed":{"sec":1.67, "min":0.03, "hr":0}}
-
-voliii1998	Thu 2021-09-16 11:57:28 AM	{"media_resource.tab":536, "taxon.tab":522, "time_elapsed":{"sec":0.82, "min":0.01, "hr":0}}
-voliii1998	Mon 2021-09-20 08:00:35 AM	{"media_resource.tab":546, "taxon.tab":530, "time_elapsed":{"sec":0.8, "min":0.01, "hr":0}}
-
-volv2003	Mon 2021-09-20 02:09:36 AM	{"media_resource.tab":791, "taxon.tab":791, "time_elapsed":{"sec":0.9, "min":0.02, "hr":0}}
-volv2003	Mon 2021-09-20 08:01:07 AM	{"media_resource.tab":794, "taxon.tab":793, "time_elapsed":{"sec":0.92, "min":0.02, "hr":0}}
-
-
-volvi2004	Mon 2021-09-20 09:36:31 AM	{"media_resource.tab":809, "taxon.tab":801, "time_elapsed":{"sec":1.05, "min":0.02, "hr":0}}
-volvii2004	Mon 2021-09-20 09:36:44 AM	{"media_resource.tab":1028, "taxon.tab":1005, "time_elapsed":{"sec":1.08, "min":0.02, "hr":0}}
-volviii2007	Mon 2021-09-20 09:37:02 AM	{"media_resource.tab":1808, "taxon.tab":1800, "time_elapsed":{"sec":1.62, "min":0.03, "hr":0}}
-volviii2007	Tue 2021-09-21 10:50:16 AM	{"media_resource.tab":1934, "taxon.tab":1920, "time_elapsed":{"sec":1.72, "min":0.03, "hr":0}}
-
-volix2007	Tue 2021-09-21 10:49:04 AM	{"media_resource.tab":568, "taxon.tab":562, "time_elapsed":{"sec":1.02, "min":0.02, "hr":0}}
-volx2011	Tue 2021-09-21 10:49:17 AM	{"media_resource.tab":774, "taxon.tab":759, "time_elapsed":{"sec":0.95, "min":0.02, "hr":0}}
-volxi2014	Tue 2021-09-21 10:49:26 AM	{"media_resource.tab":517, "taxon.tab":517, "time_elapsed":{"sec":0.76, "min":0.01, "hr":0}}
-
+volii1993	Wed 2021-09-22 04:43:04 AM	{"media_resource.tab":1519, "taxon.tab":1496, "time_elapsed":{"sec":1.5, "min":0.03, "hr":0}}
+voliii1998	Wed 2021-09-22 04:43:30 AM	{"media_resource.tab":545, "taxon.tab":529, "time_elapsed":{"sec":0.8, "min":0.01, "hr":0}}
+volv2003	Wed 2021-09-22 04:43:42 AM	{"media_resource.tab":792, "taxon.tab":792, "time_elapsed":{"sec":0.92, "min":0.02, "hr":0}}
+volvi2004	Wed 2021-09-22 04:49:16 AM	{"media_resource.tab":809, "taxon.tab":801, "time_elapsed":{"sec":1.01, "min":0.02, "hr":0}}
+volvii2004	Wed 2021-09-22 04:49:32 AM	{"media_resource.tab":1046, "taxon.tab":1020, "time_elapsed":{"sec":1.11, "min":0.02, "hr":0}}
+volviii2007	Wed 2021-09-22 04:49:53 AM	{"media_resource.tab":1934, "taxon.tab":1920, "time_elapsed":{"sec":1.74, "min":0.03, "hr":0}}
+volix2007	Wed 2021-09-22 04:54:16 AM	{"media_resource.tab":568, "taxon.tab":562, "time_elapsed":{"sec":0.86, "min":0.01, "hr":0}}
+volx2011	Wed 2021-09-22 04:54:31 AM	{"media_resource.tab":774, "taxon.tab":759, "time_elapsed":{"sec":0.95, "min":0.02, "hr":0}}
+volxi2014	Wed 2021-09-22 04:54:41 AM	{"media_resource.tab":518, "taxon.tab":518, "time_elapsed":{"sec":0.76, "min":0.01, "hr":0}}
+volxii2015	Wed 2021-09-22 04:56:48 AM	{"media_resource.tab":191, "taxon.tab":186, "time_elapsed":{"sec":0.48, "min":0.01, "hr":0}}
+volxiii2015	Wed 2021-09-22 04:57:05 AM	{"media_resource.tab":719, "taxon.tab":715, "time_elapsed":{"sec":0.83, "min":0.01, "hr":0}}
+volxiv2016	Wed 2021-09-22 04:57:19 AM	{"media_resource.tab":391, "taxon.tab":386, "time_elapsed":{"sec":0.69, "min":0.01, "hr":0}}
+volxv2018	Wed 2021-09-22 04:57:37 AM	{"media_resource.tab":1141, "taxon.tab":1099, "time_elapsed":{"sec":1.22, "min":0.02, "hr":0}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;

@@ -56,8 +56,9 @@ class DwCA_Aggregator
         if($val = self::get_attributions()) $this->attributions = $val;
         $preferred_rowtypes = false; $ret = array();
         foreach($resource_ids as $resource_id) { $this->resource_id_current = $resource_id; echo "\nProcessing resource_id: [$resource_id]\n";
-            if(in_array($resource_id, array("91225", "91362", "91362_resource"))) $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'.tar.gz';
-            else                                                                  $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'_ENV.tar.gz';
+            if(in_array($resource_id, array("91225", "91362", "91362_resource")) || $this->resource_id == "Kubitzki"
+              )  $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'.tar.gz';
+            else $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.'_ENV.tar.gz';
             if(file_exists($dwca_file)) {
                 self::convert_archive($preferred_rowtypes, $dwca_file);
             }
