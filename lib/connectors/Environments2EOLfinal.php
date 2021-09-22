@@ -449,6 +449,12 @@ class Environments2EOLfinal extends ContributorsMapAPI
                     }
                     elseif($class == "occurrence_specific") {
                         if(isset($this->occurrenceIDs_to_delete[$occurrenceID])) continue;
+                        
+                        // /* this is manual removal, an additional manual fix from: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66382&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66382
+                        if($lifeStage = @$rec['http://rs.tdwg.org/dwc/terms/lifeStage']) {
+                            if($lifeStage == 'stage') $rec['http://rs.tdwg.org/dwc/terms/lifeStage'] = "";
+                        }
+                        // */
                     }
                 }
                 // */
