@@ -680,8 +680,13 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     $CVterm = 'Uses'; //for list-type documents. A distinction so it can be removed in final DwCA
                 }
                 
+                // /* new: requested Sep 21, 2021 by Jen for Kubitzki resources
+                $other_params = array();
+                $other_params['additionalInformation'] = $rec['sciname'];
+                // */
+                
                 // if(stripos($rec['body'], "<br>") !== false) { //string is found --- meaning multiple rows in text --- DON'T DO IT, WRONG RESULTS
-                    if($rec['sciname'] && $rec['body']) self::write_archive($rec, $pdf_meta_obj, $CVterm);
+                    if($rec['sciname'] && $rec['body']) self::write_archive($rec, $pdf_meta_obj, $CVterm, $other_params);
                 // }
                 // else {} //meaning just 1 row, name itself. Then just ignore it.
             }
