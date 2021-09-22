@@ -241,6 +241,11 @@ Sep 21 Tue:
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volix2007", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volx2011", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volxi2014", "resource_name":"Kubitzki", "group":"Kubitzki"}'
+Sep 22 Wed:
+parse_unstructured_text_memoirs.php _ '{"resource_id": "volxii2015", "resource_name":"Kubitzki", "group":"Kubitzki"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "volxiii2015", "resource_name":"Kubitzki", "group":"Kubitzki"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "volxiv2016", "resource_name":"Kubitzki", "group":"Kubitzki"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "volxv2018", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 
 volix2007   blocks: 597         Raw scinames count: 596
 

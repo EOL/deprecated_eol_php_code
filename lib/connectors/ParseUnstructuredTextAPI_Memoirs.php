@@ -189,6 +189,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             elseif($this->pdf_id == 'volxi2014') {
                 if($row == "tion onto another generation because it still") $this->activeYN[$this->pdf_id] = "processing...";
             }
+            elseif($this->pdf_id == 'volxii2015') {
+                if($row == "58 Key to the Families of Santalales") $this->activeYN[$this->pdf_id] = "processing...";    }
+            elseif($this->pdf_id == 'volxiii2015') {
+                if($row == "130 Subdivision of the Family") $this->activeYN[$this->pdf_id] = "processing...";    }
+            elseif($this->pdf_id == 'volxiv2016') {
+                if($row == "18 V. Bittrich and J.W. Kadereit") $this->activeYN[$this->pdf_id] = "processing...";    }
+            elseif($this->pdf_id == 'volxv2018') {
+                if($row == "8 V. Bittrich and J.W. Kadereit") $this->activeYN[$this->pdf_id] = "processing...";    }
             else { //un-initialied volume by default use "General References"
                 if($this->resource_name == 'Kubitzki') {
                     if($row == "General References") $this->activeYN[$this->pdf_id] = "processing..."; //default
@@ -1426,16 +1434,19 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if($this->resource_name != 'Kubitzki') {
                 if(substr(strtoupper($row),0,6) == "TABLE ")    $row = "</taxon>$row";
             }
-            
             if($this->resource_name == 'Kubitzki') {
+                $row = str_ireplace(array("", "·"), "", $row); //VERY TRICKY PIECE OF CHAR --- PROBLEMATIC
                 if(strtolower($row) == "selected bibliography")  $row = "</taxon>$row";
-                if(strtolower($row) == "selected bibliographie")  $row = "</taxon>$row";
-                if(substr($row,0,12) == "Introduction")  $row = "</taxon>$row";
+                elseif(strtolower($row) == "selected bibliographie")  $row = "</taxon>$row";
+                
                 if($row == "Contents")  $row = "</taxon>$row";
-                if($row == "General References")  $row = "</taxon>$row";
-                if($row == "References")  $row = "</taxon>$row";
+                elseif($row == "General References")  $row = "</taxon>$row";
+                elseif($row == "References")  $row = "</taxon>$row";
+                
                 if($this->first_part_of_string("Genera to be excluded from", $row)) $row = "</taxon>$row";
-                if($this->first_part_of_string("KEY TO THE GENERA", $row)) $row = "</taxon>$row";
+                elseif($this->first_part_of_string("KEY TO THE GENERA", $row)) $row = "</taxon>$row";
+                elseif($this->first_part_of_string("Introduction", $row)) $row = "</taxon>$row";
+                
                 if($this->numbered_Key_to_phrase($row)) $row = "</taxon>$row";
             }
             
@@ -2201,7 +2212,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $begin = "SUBDIVISION AND AFFINITIES OF THE FAMILY."; $end = "DISTRIBUTION AND HABITATS."; $block = self::species_section_append_pattern($begin, $end, $block);
             $begin = "AFFINITIES AND SUBDIVISION.";               $end = "PHYTOCHEMISTRY AND USES"; $block = self::species_section_append_pattern($begin, $end, $block);
             //---------------------------------
-            $beginS = array("AFFINITIES AND PHYLOGENY.", "AFFINITIES.", "Afﬁnities.");
+            $beginS = array("AFFINITIES AND PHYLOGENY.", "AFFINITIES.", "Afﬁnities.", "AFFINITIES AND SUBDIVISIONS WITHIN THE FAMILY.", 
+                            "AFFINITIES AND INTRAFAMILIAL RELATIONSHIPS.");
             foreach($beginS as $begin) {
                 $ends = array("DISTRIBUTION AND HABITATS.", "Habitats and Distribution.", "Distribution and Habitats.", 
                     "Conservation and Distribution.",

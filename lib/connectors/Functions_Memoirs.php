@@ -281,7 +281,8 @@ class Functions_Memoirs
             if(in_array($third, $not_in_third)) return false;
 
             $not_in_second = array("Tepals", "The", "Fruit", "Royal", "Leaf", "Special", "Ancestral", "Major", "Breeding", "Scape", 
-                "Zoophilic", "Leaves", "In", "Novel", "New", "South", "Northern", "Plants", "Berlin", "Old", "Some", "Many", "Kew"); //e.g. "3. Zoophilic Pollination" OR "10. Leaves V-shaped in cross-section 8. Kniphofia"
+                "Zoophilic", "Leaves", "In", "Novel", "New", "South", "Northern", "Plants", "Berlin", "Old", "Some", "Many", "Kew",
+                "Not", "Late", "Eastern"); //e.g. "3. Zoophilic Pollination" OR "10. Leaves V-shaped in cross-section 8. Kniphofia"
             if(in_array($second, $not_in_second)) return false;
 
             // /*
