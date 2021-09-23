@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* This can be a generic connector that combines DwCA's. */
+/* This can be a generic connector that combines DwCA's.
+Kubitzki	Thu 2021-09-23 12:27:04 AM	{"media_resource.tab":10947, "taxon.tab":10780, "time_elapsed":{"sec":24.74, "min":0.41, "hr":0.01}}
+*/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();

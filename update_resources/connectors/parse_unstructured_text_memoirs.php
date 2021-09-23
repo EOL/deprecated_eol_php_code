@@ -247,19 +247,20 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "volxiii2015", "resource_
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volxiv2016", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volxv2018", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 
-volii1993	Wed 2021-09-22 04:43:04 AM	{"media_resource.tab":1519, "taxon.tab":1496, "time_elapsed":{"sec":1.5, "min":0.03, "hr":0}}
-voliii1998	Wed 2021-09-22 04:43:30 AM	{"media_resource.tab":545, "taxon.tab":529, "time_elapsed":{"sec":0.8, "min":0.01, "hr":0}}
-volv2003	Wed 2021-09-22 04:43:42 AM	{"media_resource.tab":792, "taxon.tab":792, "time_elapsed":{"sec":0.92, "min":0.02, "hr":0}}
-volvi2004	Wed 2021-09-22 04:49:16 AM	{"media_resource.tab":809, "taxon.tab":801, "time_elapsed":{"sec":1.01, "min":0.02, "hr":0}}
-volvii2004	Wed 2021-09-22 04:49:32 AM	{"media_resource.tab":1046, "taxon.tab":1020, "time_elapsed":{"sec":1.11, "min":0.02, "hr":0}}
-volviii2007	Wed 2021-09-22 04:49:53 AM	{"media_resource.tab":1934, "taxon.tab":1920, "time_elapsed":{"sec":1.74, "min":0.03, "hr":0}}
-volix2007	Wed 2021-09-22 04:54:16 AM	{"media_resource.tab":568, "taxon.tab":562, "time_elapsed":{"sec":0.86, "min":0.01, "hr":0}}
-volx2011	Wed 2021-09-22 04:54:31 AM	{"media_resource.tab":774, "taxon.tab":759, "time_elapsed":{"sec":0.95, "min":0.02, "hr":0}}
-volxi2014	Wed 2021-09-22 04:54:41 AM	{"media_resource.tab":518, "taxon.tab":518, "time_elapsed":{"sec":0.76, "min":0.01, "hr":0}}
-volxii2015	Wed 2021-09-22 04:56:48 AM	{"media_resource.tab":191, "taxon.tab":186, "time_elapsed":{"sec":0.48, "min":0.01, "hr":0}}
-volxiii2015	Wed 2021-09-22 04:57:05 AM	{"media_resource.tab":719, "taxon.tab":715, "time_elapsed":{"sec":0.83, "min":0.01, "hr":0}}
-volxiv2016	Wed 2021-09-22 04:57:19 AM	{"media_resource.tab":391, "taxon.tab":386, "time_elapsed":{"sec":0.69, "min":0.01, "hr":0}}
-volxv2018	Wed 2021-09-22 04:57:37 AM	{"media_resource.tab":1141, "taxon.tab":1099, "time_elapsed":{"sec":1.22, "min":0.02, "hr":0}}
+volii1993	Thu 2021-09-23 12:23:13 AM	{"media_resource.tab":1519, "taxon.tab":1496, "time_elapsed":{"sec":1.78, "min":0.03, "hr":0}}
+voliii1998	Thu 2021-09-23 12:23:44 AM	{"media_resource.tab":545, "taxon.tab":529, "time_elapsed":{"sec":0.84, "min":0.01, "hr":0}}
+volv2003	Thu 2021-09-23 12:23:57 AM	{"media_resource.tab":792, "taxon.tab":792, "time_elapsed":{"sec":0.94, "min":0.02, "hr":0}}
+volvi2004	Thu 2021-09-23 12:24:11 AM	{"media_resource.tab":809, "taxon.tab":801, "time_elapsed":{"sec":1.04, "min":0.02, "hr":0}}
+volvii2004	Thu 2021-09-23 12:24:26 AM	{"media_resource.tab":1046, "taxon.tab":1020, "time_elapsed":{"sec":1.11, "min":0.02, "hr":0}}
+volviii2007	Thu 2021-09-23 12:24:45 AM	{"media_resource.tab":1934, "taxon.tab":1920, "time_elapsed":{"sec":1.77, "min":0.03, "hr":0}}
+volix2007	Thu 2021-09-23 12:24:59 AM	{"media_resource.tab":568, "taxon.tab":562, "time_elapsed":{"sec":0.87, "min":0.01, "hr":0}}
+volx2011	Thu 2021-09-23 12:25:12 AM	{"media_resource.tab":774, "taxon.tab":759, "time_elapsed":{"sec":0.96, "min":0.02, "hr":0}}
+volxi2014	Thu 2021-09-23 12:25:30 AM	{"media_resource.tab":518, "taxon.tab":518, "time_elapsed":{"sec":9.02, "min":0.15, "hr":0}}
+volxii2015	Thu 2021-09-23 12:25:35 AM	{"media_resource.tab":191, "taxon.tab":186, "time_elapsed":{"sec":0.54, "min":0.01, "hr":0}}
+volxiii2015	Thu 2021-09-23 12:25:46 AM	{"media_resource.tab":719, "taxon.tab":715, "time_elapsed":{"sec":0.83, "min":0.01, "hr":0}}
+volxiv2016	Thu 2021-09-23 12:25:57 AM	{"media_resource.tab":391, "taxon.tab":386, "time_elapsed":{"sec":0.92, "min":0.02, "hr":0}}
+volxv2018	Thu 2021-09-23 12:26:14 AM	{"media_resource.tab":1141, "taxon.tab":1099, "time_elapsed":{"sec":1.21, "min":0.02, "hr":0}}
+Kubitzki	Thu 2021-09-23 12:27:04 AM	{"media_resource.tab":10947, "taxon.tab":10780, "time_elapsed":{"sec":24.74, "min":0.41, "hr":0.01}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
