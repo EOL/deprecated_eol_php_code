@@ -40,7 +40,12 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
     }
     
     // /* used during dev, from parse_unstructured_text.php when working on associations
-    function initialize() { require_library('connectors/ParseAssocTypeAPI_Memoirs'); $this->func_Assoc = new ParseAssocTypeAPI_Memoirs(); }
+    function initialize($resource_name = "")
+    {
+        $this->resource_name = $resource_name;
+        require_library('connectors/ParseAssocTypeAPI_Memoirs');
+        $this->func_Assoc = new ParseAssocTypeAPI_Memoirs(); 
+    }
     function archive_builder_finalize() { $this->archive_builder->finalize(true); }
     // */
     
@@ -682,7 +687,10 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 
                 // /* new: requested Sep 21, 2021 by Jen for Kubitzki resources
                 $other_params = array();
-                $other_params['additionalInformation'] = $rec['sciname'];
+                if($this->resource_name == "Kubitzki") {
+                    $other_params['additionalInformation'] = $rec['sciname'];
+                    $other_params['derivedFrom'] = $pdf_id; //"both are the same: [$pdf_id] and [$this->resource_id]";
+                }
                 // */
                 
                 // if(stripos($rec['body'], "<br>") !== false) { //string is found --- meaning multiple rows in text --- DON'T DO IT, WRONG RESULTS
@@ -750,6 +758,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
         // $mr->title          = $o['dc_title'];
         
         if($val = @$others['additionalInformation']) $mr->additionalInformation = $val;
+        if($val = @$others['derivedFrom']) $mr->derivedFrom = $val;
         
         if(!isset($this->object_ids[$mr->identifier])) {
             if(in_array($rec['pdf_id'], array('91225', '91362'))) {}

@@ -82,6 +82,7 @@ $timestart = time_elapsed();
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
 $param                     = json_decode(@$argv[2], true);
 $resource_id = $param['resource_id'];
+$resource_name = @$param['resource_name']; //right now used in Media -> derivedFrom column
 $doc = @$param['doc'];
 
 /* un-comment in real operation - main operation
@@ -133,7 +134,7 @@ else { //run individual documents
     require_library('connectors/ParseListTypeAPI_Memoirs');
     require_library('connectors/SmithsonianPDFsAPI_Memoirs');
     $func = new SmithsonianPDFsAPI_Memoirs($resource_id);
-    $func->initialize();
+    $func->initialize($resource_name); //$resource_name --- right now used in Media -> derivedFrom column
     // /* for single file, during dev for list-type
     if(file_exists($txt_filename)) $func->process_a_txt_file_LT($txt_filename, $pdf_id, array());
     $txt_filename = str_replace("_descriptions_LT", "_tagged", $txt_filename);

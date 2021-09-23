@@ -307,6 +307,8 @@ start removed all occurrences and trait records associated with specified taxa (
 26_ENV	Fri 2021-05-14 06:56:47 AM	{"agent.tab":1771, "measurement_or_fact_specific.tab":2458703, "media_resource.tab":92507, "occurrence_specific.tab":2091215, "reference.tab":689291, "taxon.tab":373164, "vernacular_name.tab":85152, "time_elapsed":{"sec":3263.46, "min":54.39, "hr":0.91}}
 26_ENV	Wed 2021-06-09 06:30:41 AM	{"agent.tab":1776, "measurement_or_fact_specific.tab":2458816, "media_resource.tab":92746, "occurrence_specific.tab":2091228, "reference.tab":692231, "taxon.tab":374006, "vernacular_name.tab":85169, "time_elapsed":{"sec":3257.8, "min":54.3, "hr":0.9}}
 26_ENV	Wed 2021-06-09 02:39:24 PM	{"agent.tab":1776, "measurement_or_fact_specific.tab":2458816, "media_resource.tab":92746, "occurrence_specific.tab":2091228, "reference.tab":692231, "taxon.tab":374006, "vernacular_name.tab":85169, "time_elapsed":{"sec":3397.34, "min":56.62, "hr":0.94}}
+26_ENV	Fri 2021-09-10 05:04:40 AM	{"agent.tab":1804, "measurement_or_fact_specific.tab":2500985, "media_resource.tab":93238, "occurrence_specific.tab":2129864, "reference.tab":700222, "taxon.tab":376056, "vernacular_name.tab":85681, "time_elapsed":{"sec":3676.25, "min":61.27, "hr":1.02}}
+26_ENV	Wed 2021-09-22 12:11:41 PM	{"agent.tab":1804, "measurement_or_fact_specific.tab":2500985, "media_resource.tab":93238, "occurrence_specific.tab":2129864, "reference.tab":700222, "taxon.tab":376056, "vernacular_name.tab":85681, "time_elapsed":{"sec":3387.77, "min":56.46, "hr":0.94}}
 ===================================================================================================================== WoRMS end
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
