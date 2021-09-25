@@ -352,16 +352,15 @@ class Pensoft2EOLAPI
             
             // if($taxonID != 'Q1000262') continue; //debug only
             
-            // /* debug only
+            /* debug only
             if($this->param['resource_id'] == "TreatmentBank_ENV") { //total 596261 objects in media tab
                 // if($i >= 1 && $i <= 400000) {}
                 // if($i >= 500000 && $i <= 600000) {} //1st cache --- done
-
-                if($i >= 385000 && $i <= 400000) {} //1st cache
-                // if($i >= 480000 && $i <= 500000) {} //2nd cache
+                // if($i >= 385000 && $i <= 400000) {} //1st cache
+                if($i >= 480000 && $i <= 500000) {} //2nd cache
                 else continue; 
             }
-            // */
+            */
             
             // print_r($this->allowed_subjects); exit;
             if(self::valid_record($rec)) {
