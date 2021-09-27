@@ -1483,7 +1483,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             else { //found
                 $left = substr($str,$pos-1,1);
                 $right = substr($str,$pos+1,1); // echo "\nleft [$left] | right [$right]\n";
-                if(is_a_consonant_but_not_el($left) && is_a_consonant_but_not_el($right)) {
+                if(self::is_a_consonant_but_not_el($left) && self::is_a_consonant_but_not_el($right)) {
                     $from = $left."l".$right;
                     $to = $left."i".$right; // echo "\nfrom [$from] | to [$to]\n";
                     $str = str_replace($from, $to, $str);
@@ -1498,7 +1498,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             if ($pos === false) {} //not found
             else { //found
                 $left = substr($str,$pos-1,1);  // echo "\nleft [$left]\n";
-                if(is_a_consonant_but_not_el($left)) {
+                if(self::is_a_consonant_but_not_el($left)) {
                     $from = $left."ll";
                     $to = $left."il";   // echo "\nfrom [$from] | to [$to]\n";
                     $str = str_replace($from, $to, $str);
@@ -1513,7 +1513,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             if ($pos === false) {} //not found
             else { //found
                 $right = substr($str,$pos+2,1); // echo "\nright [$right]\n";
-                if(is_a_consonant_but_not_el($right)) {
+                if(self::is_a_consonant_but_not_el($right)) {
                     $from = "ll".$right;
                     $to = "li".$right;  // echo "\nfrom [$from] | to [$to]\n";
                     $str = str_replace($from, $to, $str);

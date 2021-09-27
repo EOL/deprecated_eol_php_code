@@ -1,6 +1,14 @@
 <?php
 namespace php_active_record;
-/* DATA-1877: textmining more unstructured text
+/*
+https://eol-jira.bibalex.org/browse/DATA-1858: Apply environmental tagging to English Wikipedia
+https://eol-jira.bibalex.org/browse/DATA-1870: textmined habitat for additional resources
+https://eol-jira.bibalex.org/browse/DATA-1877: textmining more unstructured text
+https://eol-jira.bibalex.org/browse/DATA-1887: Memoirs of the American Entomological Society
+https://eol-jira.bibalex.org/browse/DATA-1890: North American Flora
+https://eol-jira.bibalex.org/browse/DATA-1891: new patterns for all textmined resources: generalized association data pattern
+
+DATA-1877: textmining more unstructured text
 118935	Wed 2021-07-07 01:38:44 AM	    {               "media.tab":1309,                             "taxon.tab":1308, "time_elapsed":{"sec":1.29, "min":0.02, "hr":0}}
 118935_ENV	Wed 2021-07-07 01:41:51 AM	{"MoF.tab":1479,                            "occur.tab":1479, "taxon.tab":1308, "time_elapsed":{"sec":66.67, "min":1.11, "hr":0.02}}
 ------------------------------------------------------------
@@ -99,6 +107,8 @@ MoftheAES_resources	Mon 2021-08-09 11:10:28 AM	{"MoF.tab":12098, "media.tab":188
 91144_ENV	Tue 2021-08-03 10:17:34 {"measurement_or_fact_specific.tab":829, "media_resource.tab":192, "occurrence_specific.tab":829, "taxon.tab":192, "time_elapsed":{"sec":18.66, "min":0.31, "hr":0.01}}
 
 91225	Thu 2021-08-05 12:07:49 PM	{"association.tab":4275, "occurrence.tab":4693, "taxon.tab":4859, "time_elapsed":{"sec":6.39, "min":0.11, "hr":0}}
+91225	Thu 2021-08-12 05:38:11 AM	{"association.tab":4343, "occurrence.tab":4762, "taxon.tab":4932, "time_elapsed":{"sec":124.63, "min":2.08, "hr":0.03}}
+
 
 91362	Mon 2021-08-09 05:21:21 AM	            {"assoc.tab":486,                                         "occurrence.tab":624,          "taxon.tab":656, "time_elapsed":{"sec":6.09, "min":0.1, "hr":0}}
 91362_species	Mon 2021-08-09 05:22:06 AM	    {                                "media_resource.tab":56,                                "taxon.tab":56, "time_elapsed":{"sec":0.36, "min":0.01, "hr":0}}
@@ -191,8 +201,15 @@ Aug 5 Thu
 parse_unstructured_text_memoirs.php _ '{"resource_id": "91362", "resource_name":"MotAES"}'          //7 --- host-pathogen list pattern
 parse_unstructured_text_memoirs.php _ '{"resource_id": "91362_species", "resource_name":"all_BHL"}' //7 --- "7a. Urocystis magica" --- same as 15428
 
+====================== North American Flora ======================
 FUNGI.txt
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15404", "resource_name":"all_BHL"}' //F1
+
+15404	Tue 2021-08-10 08:22:34 AM	    {                "media.tab":295,                        "taxon.tab":289, "time_elapsed":{"sec":0.53, "min":0.01, "hr":0}}
+15404_ENV	Tue 2021-08-10 08:24:58 AM	{"MoF.tab":1360, "media.tab":295, "occurrence.tab":1360, "taxon.tab":289, "time_elapsed":{"sec":24.55, "min":0.41, "hr":0.01}}
+15404	Tue 2021-08-10 08:28:16 AM	    {                "media.tab":295,                        "taxon.tab":289, "time_elapsed":{"sec":0.53, "min":0.01, "hr":0}}
+15404_ENV	Tue 2021-08-10 08:30:34 AM	{"MoF.tab":1368, "media.tab":295, "occurrence.tab":1368, "taxon.tab":289, "time_elapsed":{"sec":18.79, "min":0.31, "hr":0.01}}
+
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15405", "resource_name":"all_BHL"}' //F2
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15406", "resource_name":"all_BHL"}' //F3
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15407", "resource_name":"all_BHL", "group":"Fungi"}'
@@ -203,7 +220,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "15422", "resource_name":
 NorthAmericanFlora_Plants	Thu 2021-08-26 08:27:21 AM	{"MoF.tab":44886, "media.tab":11382, "occurrence.tab":44886, "taxon.tab":11243, "time_elapsed":{"sec":267.87, "min":4.46, "hr":0.07}}
 NorthAmericanFlora_Plants	Tue 2021-08-31 03:10:17 AM	{"MoF.tab":45013, "media.tab":11438, "occurrence.tab":45013, "taxon.tab":11299, "time_elapsed":{"sec":267.57, "min":4.46, "hr":0.07}}
 
-===== Kubitzki_et_al =====
+====================== Kubitzki_et_al ======================
 START PATTERNS:
 sample genus:
 "1. Zippelia Blume Figs. 109 A, 110A, B"
