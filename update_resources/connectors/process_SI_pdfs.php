@@ -127,8 +127,8 @@ $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0034/SCtZ-0034_descriptions_LT.txt";  $pdf_id = "SCtZ-0034";
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0113/SCtZ-0113_descriptions_LT.txt";  $pdf_id = "SCtZ-0113";
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0007/SCtZ-0007_descriptions_LT.txt";  $pdf_id = "SCtZ-0007";
-
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/SCtZ-0614_descriptions_LT.txt";  $pdf_id = "SCtZ-0614";
+
 // May 18 Tue
 // $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0001/scb-0001_descriptions_LT.txt";  $pdf_id = "scb-0001";
 // $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0002/scb-0002_descriptions_LT.txt";  $pdf_id = "scb-0002";

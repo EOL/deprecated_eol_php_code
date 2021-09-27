@@ -48,7 +48,6 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->activeYN['volv2003'] = "waiting...";
         $this->activeYN['volix2007'] = "waiting...";
         
-        
         $this->Kubitzki_intermediate_ranks = array("Tribe", "Subfamily", "Subfam.", "Subtribe", "Core"); // might also get this type "2a. Subtribe Isotrematinae"
         $this->chars_that_can_be_nos_but_became_letters_due2OCR = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
     }
