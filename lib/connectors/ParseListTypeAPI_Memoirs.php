@@ -349,15 +349,15 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             llx => lix
             */
             $orig = $string;
-            $string = xlx_to_xix($string);
+            $string = self::xlx_to_xix($string);
             if($ret = self::test_GNRD($string)) return $ret;
             
             $string = $orig;
-            $string = xll_to_xil($string);
+            $string = self::xll_to_xil($string);
             if($ret = self::test_GNRD($string)) return $ret;
 
             $string = $orig;
-            $string = llx_to_lix($string);
+            $string = self::llx_to_lix($string);
             if($ret = self::test_GNRD($string)) return $ret;
         }
         return false;
