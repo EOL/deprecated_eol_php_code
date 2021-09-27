@@ -205,10 +205,12 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "91362_species", "resourc
 FUNGI.txt
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15404", "resource_name":"all_BHL"}' //F1
 
-15404	Tue 2021-08-10 08:22:34 AM	    {                "media.tab":295,                        "taxon.tab":289, "time_elapsed":{"sec":0.53, "min":0.01, "hr":0}}
+15404	    Tue 2021-08-10 08:22:34 AM	{                "media.tab":295,                        "taxon.tab":289, "time_elapsed":{"sec":0.53, "min":0.01, "hr":0}}
 15404_ENV	Tue 2021-08-10 08:24:58 AM	{"MoF.tab":1360, "media.tab":295, "occurrence.tab":1360, "taxon.tab":289, "time_elapsed":{"sec":24.55, "min":0.41, "hr":0.01}}
-15404	Tue 2021-08-10 08:28:16 AM	    {                "media.tab":295,                        "taxon.tab":289, "time_elapsed":{"sec":0.53, "min":0.01, "hr":0}}
+15404	    Tue 2021-08-10 08:28:16 AM	{                "media.tab":295,                        "taxon.tab":289, "time_elapsed":{"sec":0.53, "min":0.01, "hr":0}}
 15404_ENV	Tue 2021-08-10 08:30:34 AM	{"MoF.tab":1368, "media.tab":295, "occurrence.tab":1368, "taxon.tab":289, "time_elapsed":{"sec":18.79, "min":0.31, "hr":0.01}}
+15404	    Mon 2021-09-27 10:15:20 AM	{                "media.tab":299,                        "taxon.tab":293, "time_elapsed":{"sec":0.62, "min":0.01, "hr":0}}
+15404_ENV	Mon 2021-09-27 10:18:51 AM	{"MoF.tab":1346, "media.tab":299, "occurrence.tab":1346, "taxon.tab":293, "time_elapsed":{"sec":90.39, "min":1.51, "hr":0.03}}
 
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15405", "resource_name":"all_BHL"}' //F2
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15406", "resource_name":"all_BHL"}' //F3
