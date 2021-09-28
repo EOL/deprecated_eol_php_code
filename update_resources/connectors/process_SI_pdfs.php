@@ -69,7 +69,7 @@ $func->initialize();
 $func->process_a_txt_file($txt_filename, $pdf_id, array());
 $func->archive_builder_finalize();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder
-========================== END ========================== */
+========================== END: processing associations ========================== */
 
 /* ========================== during dev: processing LIST-TYPE ==========================
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/SCtZ-0011_descriptions_LT.txt";  $pdf_id = "SCtZ-0011";
