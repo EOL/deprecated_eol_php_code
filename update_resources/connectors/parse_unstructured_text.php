@@ -135,34 +135,6 @@ require_library('connectors/ParseUnstructuredTextAPI');
 $timestart = time_elapsed();
 $func = new ParseUnstructuredTextAPI();
 
-// $str = "Cambarus (Lacunicambarus) acanthura";
-// // $str = "Cambarus Ruiz";
-// // $str = "Cambarus morhua Ruiz";
-// 
-// // is_valid_species()
-// $words = explode(" ", $str); 
-// if(!@$words[1]) echo "\nfalse"; //No 2nd word
-// else {
-//     if(ctype_upper(substr($words[1],0,1))) echo "\nfalse"; //2nd word is capitalized
-//     else echo("\ntrue");
-// }
-// exit("\n");
-
-/* test
-$str = "eli is 123 but cha is 23 and isaiah is 3";
-if(preg_match_all('/\d+/', $str, $a)) //print_r($a[0]);
-{
-    $arr = $a[0];
-    print_r($arr);
-    foreach($arr as $num) {
-
-        echo "\n$num is ".strlen($num)." digit(s)\n";
-        
-    }
-}
-exit("\n-end test-\n");
-*/
-
 /* parsing result of PdfParser
 $filename = 'pdf2text_output.txt';
 $func->parse_text_file($filename);
