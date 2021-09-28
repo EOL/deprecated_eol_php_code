@@ -230,7 +230,7 @@ class ParseListTypeAPI
         if($string = self::clean_name($string)) {}
         else return false;
         // echo "\n-- [$string]\n";
-        $url = $this->service['GNRD text input'].$string;
+        $url = $this->service['GNRD text input'].$string; debug("\nGNRD 2: [$url]\n");
         $options = $this->download_options;
         $options['expire_seconds'] = false;
         if($json = Functions::lookup_with_cache($url, $options)) {

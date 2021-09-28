@@ -416,7 +416,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $string = str_replace("‘", "'", $string);
         $string = str_replace("’", "'", $string);
 
-        $url = $this->service['GNRD text input'].$string;
+        $url = $this->service['GNRD text input'].$string; debug("\nGNRD 1: [$url]\n");
         $options = $this->download_options;
         $options['expire_seconds'] = false;
         if($json = Functions::lookup_with_cache($url, $options)) {

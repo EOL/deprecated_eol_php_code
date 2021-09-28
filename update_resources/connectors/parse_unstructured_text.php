@@ -22,7 +22,7 @@ excluded 1 growth uri
 10088_6943	    Tue 2021-06-01 01:22:50 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":104.04, "min":1.73, "hr":0.03}}
 10088_6943_ENV	Tue 2021-06-01 01:23:38 AM	{"MoF.tab":6234, "media.tab":1487, "occur_specific.tab":6234, "taxon.tab":1549, "time_elapsed":{"sec":38.39, "min":0.64, "hr":0.01}}
 after a couple of months: ACCEPTABLE --- SAME MEDIA AND TAXON
-10088_6943	Tue 2021-09-28 02:39:43 AM	    {                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":44.76, "min":0.75, "hr":0.01}}
+10088_6943	    Tue 2021-09-28 02:39:43 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":44.76, "min":0.75, "hr":0.01}}
 10088_6943_ENV	Tue 2021-09-28 02:40:18 AM	{"MoF.tab":6012, "media.tab":1487, "occur_specific.tab":6012, "taxon.tab":1549, "time_elapsed":{"sec":27.87, "min":0.46, "hr":0.01}}
 with NEW host patterns: DATA-1891
 */

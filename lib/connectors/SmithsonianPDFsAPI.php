@@ -683,7 +683,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
         //write associations
         if($val = @$rec['associations']) {
             $val['pdf_id'] = $rec['pdf_id'];
-            $taxon_ids = $this->func_Assoc->write_associations($val, $taxon, $this->archive_builder, $this->meta, $this->taxon_ids);
+            $taxon_ids = $this->func_Assoc->write_associations($val, $taxon, $this->archive_builder, @$this->meta, $this->taxon_ids);
             $this->taxon_ids = $taxon_ids;
         }
     }
