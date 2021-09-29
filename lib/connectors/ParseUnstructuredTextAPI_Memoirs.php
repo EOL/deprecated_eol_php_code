@@ -1375,7 +1375,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                             $row = "</taxon>$row";
                             // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row][$sciname]xx44\n");}   //string is found  //good debug
                         }
-                        elseif($sciname == "GNRD does not recognize name") $row = "</taxon>$row";
+                        elseif($sciname == "GNRD does not recognize name") {
+                            if(in_array($this->pdf_id, array("118936", "118946"))) {} //DATA-1891
+                            else $row = "</taxon>$row"; //rest goes here
+                        }
                         else { //orig block
                             if($this->resource_name == 'Kubitzki') $sciname = ucfirst(strtolower($sciname));
                             $words = explode(" ", $sciname);
