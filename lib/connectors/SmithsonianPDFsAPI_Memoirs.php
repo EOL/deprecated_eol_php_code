@@ -621,8 +621,8 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     }
                     // */
 
-                    // /* definitely include '118935' here. Resources where short desc is included.
-                    if(!in_array($pdf_id, array('120602', '91225', '91362', '118935'))) {
+                    // /* DEFINITELY include '118935' here. Resources where short desc is included.
+                    if(!in_array($pdf_id, array('120602', '91225', '91362', '118935', '118936'))) {
                         $words = explode(" ", $tmp);
                         if(count($words) <= 15) $tmp = ""; //blank means excluded.
                     }
