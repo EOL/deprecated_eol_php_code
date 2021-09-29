@@ -1072,6 +1072,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         /* cannot do it also
         if(stripos($str, "?") !== false) return false;  //string is found
         */
+        
+        // /* New: DATA-1891 --- always check/investigate file: "118936_source_taxa.txt"
+        if($this->first_part_of_string("Size ", $str)) return false; //118936
+        // */
         return true;
     }
     private function add_taxon_tags_to_text_file_v3($filename)
