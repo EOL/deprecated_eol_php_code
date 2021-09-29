@@ -784,13 +784,22 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             else {
                 if(!in_array($this->pdf_id, array("91225", "91362"))) echo "\nGNRD doesn't recognize [$sciname_line]xxx\n";
                 fwrite($WRITE_st, $sciname_line."\n");
-                return "GNRD does not recognize name"; //false;
+                // /* New: Sep 28, 2011 - when working on DATA-1891
+                if(in_array($this->pdf_id, array("118935"))) return $sciname_line; //customized - resource was INVESTIGATED and sciname_line is acceptable.
+                else return "GNRD does not recognize name"; //false; //rest goes here
+                // */
             }
         }
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4\n"); //good debug - to see what string passes here.
         if(self::is_just_one_word($sciname)) {  //false; //exclude if sciname is just one word, it is implied that it should be a binomial
             // exit("\n[$sciname] is a minomial\n");
-            return "monomial";
+            // /* New: Sep 28, 2011 - when working on DATA-1891
+            $this->debug['monomial'][$sciname_line][$sciname] = Functions::canonical_form($sciname_line); //good debug for 118935
+            $words = explode(" ", $sciname_line);
+            if(count($words) >= 6) $sciname_line = Functions::canonical_form($sciname_line);
+            if(in_array($this->pdf_id, array("118935"))) return $sciname_line; //customized - resource was INVESTIGATED and the monomials by GNRD can be accepted as binomials
+            else return "monomial"; //rest goes here
+            // */
         }
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4a\n"); //good debug - to see what string passes here.
         
