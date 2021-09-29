@@ -1651,8 +1651,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     if(strlen($first_word) > 2) {
                         if(in_array($first_word, array('LUWULARIA', 'SPHAGNUM', 'ANDREAEA', 'OSMUNDA', 'CYATHEACBAB', 'ANEMIA'))) $row = "</taxon>$row";
                         else {
-                            if(ctype_upper($first_word) && strlen($first_word) >= 5)  $row = "</taxon>$row";
-                            elseif(self::is_sciname_using_GNRD($first_word)) $row = "</taxon>$row";
+                            /* should not end the text section with this row: "JAMES A. G. REHN AND JOHN W. H. REHN II".
+                            This block was commented bec. it does end the text section.
+                            This was added before so to limit GNRD calls. But seems the calls are needed for quality purposes.
+                            if(ctype_upper($first_word) && strlen($first_word) >= 5) $row = "</taxon>$row";
+                            // if(stripos($row, "JAMES A. G. REHN AND") !== false) exit("\n[$row]\nhuli ka\n");   //string is found
+                            */
+                            if(self::is_sciname_using_GNRD($first_word)) $row = "</taxon>$row";
                             else {
                                 if(!isset($this->investigate_1[$first_word])) {
                                     echo "\nInvestigate 1: [$first_word] not sciname says GNRD\n";
