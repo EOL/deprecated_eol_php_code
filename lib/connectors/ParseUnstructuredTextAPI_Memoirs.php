@@ -1388,10 +1388,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                                     if($hits == 1)  $row = "<taxon sciname='$sciname'> ".$row;
                                     else            $row = "</taxon><taxon sciname='$sciname'> ".$row;
                                 }
-                                else { // orig --- the rest goes here
-                                    exit("\n-----\nA sign to investigate: [$sciname]\n[$row]\n-----\n");
-                                    if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
-                                    else            $row = "</taxon><taxon sciname='$row'> ".$row;
+                                else { // only Kubitzki is allowed to have monomials...
+                                    // exit("\n-----\nA sign to investigate: [$sciname]\n[$row]\n-----\n");
+                                    // if($hits == 1)  $row = "<taxon sciname='$row'> ".$row;
+                                    // else            $row = "</taxon><taxon sciname='$row'> ".$row;
                                 }
                             }
                         }
