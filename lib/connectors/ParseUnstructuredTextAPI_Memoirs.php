@@ -109,6 +109,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         if(isset($this->investigate_1)) { echo "\ninvestigate_1\n"; print_r($this->investigate_1); }
         if(isset($this->investigate_2)) { echo "\ninvestigate_2\n"; print_r($this->investigate_2); }
+        // if(isset($this->debug)) print_r($this->debug);
     }
     private function get_main_scinames($filename)
     {
@@ -224,7 +225,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     'cc-nvergens', 'cinctus', 'corvallisensis', 'colorata', 'consultus', 'clarkii', 'carolina', 'azygos', 'w-scripta', 'subdistans', 
                     'scurra', 'delodontus', 'confederata', 'clypeopororia', 'coactipostica', 'cockerelli', 'columbiana', 'carolina', 'scelesta', 'virgatus',
                     'sulcus', 'ocellatus', 'corrugatus', 'rugosus', 'inordinatus', 'distinctus', 'suffusus', 'punctatus', 'chalcifrons', 'subfrigidus', 
-                    'subtilis', 'solani', 'striatus', 'ephippiatus', 'dentatus', 'confertus', 'asperatus', 'u-scripta','usitata');
+                    'subtilis', 'solani', 'striatus', 'ephippiatus', 'dentatus', 'confertus', 'asperatus', 'u-scripta','usitata', 
+                    'subrestrictus', 'subumbratus', 'sanctsb-feae');
                     foreach($this->letter_case_err as $word) $row = str_ireplace($word, $word, $row);
                 }
             }
@@ -591,6 +593,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             [7] => vii,
             [8] => 239.
         )*/
+        
+        // /*
+        if($this->pdf_id == "118935") {
+            $arr[0] = str_ireplace("US", "us", $arr[0]); //many cases e.g. "pulchranotUS" should be "pulchranotus"
+            $arr[0] = str_ireplace("SB", "sb", $arr[0]);
+        }
+        // */
+        
         // /*
         $tmp = $arr[0]; //e.g. cseruleum | pinus-rigida
         $tmp = str_replace(array("CRESSON 6l", ",", ".", " ", "-", "'"), "", $tmp);
@@ -608,7 +618,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             )
         } */
         
-        if(@$arr[1][0] != "(") return false;                //2nd word starts with "("
+        if(@$arr[1][0] != "(") return false;                //2nd word should start with "("
         // if(stripos($str, "Schizocerus") !== false) exit("\n[22b $str]\n"); //string is found
         
         if(count($arr) >= 3) {
@@ -1355,11 +1365,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
                     // /*
                     if($sciname = self::last_resort_to_clean_name($row, $WRITE_st)) {
-                        // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row][$sciname]xx33\n");}   //string is found  //good debug
+                        // if(stripos($row, $this->in_question) !== false) {exit("\nxx\nrow = [$row]\nsciname = [$sciname]\nxx33\n");}   //string is found  //good debug
                         
                         if($sciname == "monomial") {
                             $row = "</taxon>$row";
-                            // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row][$sciname]xx33x\n");}   //string is found  //good debug
+                            // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row][$sciname]xx44\n");}   //string is found  //good debug
                         }
                         elseif($sciname == "GNRD does not recognize name") $row = "</taxon>$row";
                         else { //orig block
