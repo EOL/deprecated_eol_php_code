@@ -1376,7 +1376,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                             // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row][$sciname]xx44\n");}   //string is found  //good debug
                         }
                         elseif($sciname == "GNRD does not recognize name") {
-                            if(in_array($this->pdf_id, array("118936", "118946", "119187"))) {} //DATA-1891
+                            if(in_array($this->pdf_id, array("118936", "118946", "119187", "118978", "119520"))) {} //DATA-1891
                             else $row = "</taxon>$row"; //rest goes here
                         }
                         else { //orig block
