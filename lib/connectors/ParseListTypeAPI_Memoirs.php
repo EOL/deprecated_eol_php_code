@@ -1411,8 +1411,11 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
     {
         $words = explode(" ", $row);
         if(count($words) <= 4) {
+            $orig = $words[0];
             $first_word = strtolower($words[0]);
-            if($first_word == 'section') return true;
+            if($first_word == 'section') {
+                if(ctype_upper(substr($orig,0,1))) return true;
+            }
         }
         return false;
     }
