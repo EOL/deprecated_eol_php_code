@@ -1001,6 +1001,7 @@ class Pensoft2EOLAPI
         }
         // */
         
+        echo "\nresource_name is: [$resource_name]\n"; //exit;
         if($dwca_url = self::get_opendata_dwca_url($resource_name)) {
             /* based here:
             $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
