@@ -797,7 +797,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             $this->debug['monomial'][$sciname_line][$sciname] = Functions::canonical_form($sciname_line); //good debug for 118935
             $words = explode(" ", $sciname_line);
             if(count($words) >= 6) $sciname_line = Functions::canonical_form($sciname_line);
-            if(in_array($this->pdf_id, array("118935", "120083"))) return $sciname_line; //customized - resource was INVESTIGATED and the monomials by GNRD can be accepted as binomials
+            if(in_array($this->pdf_id, array("118935", "120083", "118237"))) return $sciname_line; //customized - resource was INVESTIGATED and the monomials by GNRD can be accepted as binomials
             else return "monomial"; //rest goes here
             // */
         }
