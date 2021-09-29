@@ -573,6 +573,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         $contents = file_get_contents($txt_filename);
         if(preg_match_all("/<sciname=(.*?)<\/sciname>/ims", $contents, $a)) {
+            // print_r($a[1]); exit;
             foreach($a[1] as $str) { //echo("\n[$str]\n");
                 $rec = array();
                 $rec['pdf_id'] = $pdf_id;
@@ -620,8 +621,8 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     }
                     // */
 
-                    // /*
-                    if(!in_array($pdf_id, array('120602', '91225', '91362'))) {
+                    // /* definitely include '118935' here. Resources where short desc is included.
+                    if(!in_array($pdf_id, array('120602', '91225', '91362', '118935'))) {
                         $words = explode(" ", $tmp);
                         if(count($words) <= 15) $tmp = ""; //blank means excluded.
                     }
@@ -692,6 +693,15 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     $other_params['derivedFrom'] = $pdf_id; //"both are the same: [$pdf_id] and [$this->resource_id]";
                 }
                 // */
+
+                /* just a debug
+                if(stripos($rec['sciname'], "Bombomelecta azygos") !== false) { //string is found
+                    print_r($rec); exit("\nelix 1\n");
+                }
+                if(stripos($rec['body'], "Bombomelecta azygos") !== false) { //string is found
+                    print_r($rec); exit("\nelix 2\n");
+                }
+                */
                 
                 // if(stripos($rec['body'], "<br>") !== false) { //string is found --- meaning multiple rows in text --- DON'T DO IT, WRONG RESULTS
                     if($rec['sciname'] && $rec['body']) self::write_archive($rec, $pdf_meta_obj, $CVterm, $other_params);
