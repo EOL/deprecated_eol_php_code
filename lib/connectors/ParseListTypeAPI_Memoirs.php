@@ -821,8 +821,8 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             else {
                 if(!in_array($this->pdf_id, array("91225", "91362"))) echo "\nGNRD doesn't recognize [$sciname_line]xxx\n";
                 fwrite($WRITE_st, $sciname_line."\n");
-                // /* New: Sep 28, 2011 - when working on DATA-1891
-                if(in_array($this->pdf_id, array("118935", "30355"))) return $sciname_line; //customized - resource was INVESTIGATED and sciname_line is acceptable.
+                // /* New: Sep 28, 2011 - DATA-1891: customized - resource was INVESTIGATED (xxx_source_taxa.txt) and sciname_line is acceptable.
+                if(in_array($this->pdf_id, array("118935", "30355"))) return $sciname_line;
                 else return "GNRD does not recognize name"; //false; //rest goes here
                 // */
             }
