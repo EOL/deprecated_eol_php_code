@@ -293,11 +293,20 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             foreach($xml->names->name as $t) {
                 // print_r($t); //good debug
                 $t_dwc = $t->children("http://rs.tdwg.org/dwc/terms/");
-                if(stripos($string, "Sporobolus indicus") !== false) echo "\n-----\n11[".@$t_dwc->scientificName."]\n-----\n"; //string is found
+                // if(stripos($string, "Sporobolus indicus") !== false) echo "\n-----\n11[".@$t_dwc->scientificName."]\n-----\n"; //string is found
                 if($val = @$t_dwc->scientificName) return $val; //deliberately just gets the 1st one
             }
         }
-        if(stripos($string, "Sporobolus indicus") !== false) echo "\n-----\n22[$string]\n-----\n"; //string is found
+        
+        /* 3rd try - was never implemented yet. We'll see...
+        $words = explode(" ", $string);
+        if(count($words) >= 6) {
+            $string = Functions::canonical_form($string);
+            if($val = self::run_GNRD_get_sciname_inXML($string)) return $val;
+        }
+        */
+        
+        // if(stripos($string, "Sporobolus indicus") !== false) echo "\n-----\n22[$string]\n-----\n"; //string is found
         return false;
     }
     function run_GNRD($string)
@@ -314,11 +323,22 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         
         // /* 2nd try
         $string = str_replace(" ", "%20", $string);
-        $url = $this->service['GNRD text input'].$string;
-        // exit("\ngoes here [$string]...\n");
+        $url = $this->service['GNRD text input'].$string; //exit("\ngoes here [$string]...\n");
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
             return $obj;
+        }
+        // */
+
+        // /* 3rd try - New Sep 30, 2021
+        $words = explode(" ", $string);
+        if(count($words) >= 6) {
+            $string2 = Functions::canonical_form($string);
+            $url = $this->service['GNRD text input'].$string2; //exit("\ngoes here [$string]...\n");
+            if($json = Functions::lookup_with_cache($url, $options)) {
+                $obj = json_decode($json);
+                return $obj;
+            }
         }
         // */
         
@@ -331,7 +351,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             */
             if(stripos($string, "llll") !== false) { //string is found
                 $string = str_ireplace("llll", "llii", $string);
-                self::run_GNRD($string);
+                if($ret = self::run_GNRD($string)) return $ret;
             }
             elseif(stripos($string, "lll") !== false) { //string is found
                 /* we have two tries here */
@@ -661,6 +681,23 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             return $words[0]; //for first 2 orig Start patterns: "3. Euploca Nutt." AND "Eucommiaceae"
         }
         
+        if($this->resource_name == 'all_BHL') {
+            // $words = explode(" ", $sciname_line);
+            // if(count($words) >= 6) $sciname_line = Functions::canonical_form($sciname_line);
+            
+            // Sphagnum angstromii Hartm. f. ; Hartm. Skand. Fl
+            // Sphagnum tabulate Sull. Musci Allegh. i'^- ; . 1845
+            
+            // Sphagnum angstromii Hartm. f. ; Hartm. Skand. Fl
+            // Sphagnum tabulate Sull. Musci Allegh. i'^- ; . 1845
+            
+            // if(stripos($sciname_line, $this->in_question) !== false) exit("\n[$sciname_line]xx1\n"); //good debug - to see what string passes here.
+            
+            // manual: from 91155_source_taxa.txt
+            if    (stripos($sciname_line, "Sphagnum angstromii Hartm. f.") !== false)         return Functions::canonical_form($sciname_line); //string is found
+            elseif(stripos($sciname_line, "Sphagnum tabulate Sull. Musci Allegh.") !== false) return Functions::canonical_form($sciname_line); //string is found
+        }
+        
         $sciname_line = str_replace("*", "", $sciname_line);
         // /* manual 
         if($this->pdf_id == '119520') {
@@ -797,8 +834,11 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             $this->debug['monomial'][$sciname_line][$sciname] = Functions::canonical_form($sciname_line); //good debug for 118935
             $words = explode(" ", $sciname_line);
             if(count($words) >= 6) $sciname_line = Functions::canonical_form($sciname_line);
-            if(in_array($this->pdf_id, array("118935", "120083", "118237", "30355"))) return $sciname_line; //customized - resource was INVESTIGATED and the monomials by GNRD can be accepted as binomials
+            //---start--- customized - resource was INVESTIGATED and the monomials by GNRD can be accepted as binomials
+            if(in_array($this->pdf_id, array("118935", "120083", "118237", "30355"))) return $sciname_line; //Memoirs of the American Entomological Society (DATA-1887)
+            elseif(in_array($this->pdf_id, array("91155"))) return $sciname_line;                           //North American Flora (DATA-1890) --- BHL
             else return "monomial"; //rest goes here
+            //---end---
             // */
         }
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4a\n"); //good debug - to see what string passes here.

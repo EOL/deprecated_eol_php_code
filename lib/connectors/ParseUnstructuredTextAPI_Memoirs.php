@@ -109,7 +109,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         if(isset($this->investigate_1)) { echo "\ninvestigate_1\n"; print_r($this->investigate_1); }
         if(isset($this->investigate_2)) { echo "\ninvestigate_2\n"; print_r($this->investigate_2); }
-        // if(isset($this->debug)) print_r($this->debug);
+        if(isset($this->debug['monomial'])) print_r($this->debug);
     }
     private function get_main_scinames($filename)
     {
@@ -1376,7 +1376,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                             // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row][$sciname]xx44\n");}   //string is found  //good debug
                         }
                         elseif($sciname == "GNRD does not recognize name") { //less in DATA-1891: 119520 119187
-                            if(in_array($this->pdf_id, array("118936", "118946", "119187", "118978", "119520", "119035"))) {} //DATA-1891
+                            if(in_array($this->pdf_id, array("118936", "118946", "119187", "118978", "119520", "119035"))) {} //Memoirs of the American Entomological Society (DATA-1887)
                             else $row = "</taxon>$row"; //rest goes here
                         }
                         else { //orig block
