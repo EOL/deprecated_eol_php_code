@@ -830,6 +830,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4\n"); //good debug - to see what string passes here.
         if(self::is_just_one_word($sciname)) {  //false; //exclude if sciname is just one word, it is implied that it should be a binomial
             // exit("\n[$sciname] is a minomial\n");
+            
             // /* New: Sep 28, 2011 - when working on DATA-1891
             $this->debug['monomial'][$sciname_line][$sciname] = Functions::canonical_form($sciname_line); //good debug for 118935
             $words = explode(" ", $sciname_line);

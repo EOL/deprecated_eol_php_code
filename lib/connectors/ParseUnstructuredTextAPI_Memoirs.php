@@ -1378,6 +1378,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         elseif($sciname == "GNRD does not recognize name") { //less in DATA-1891: 119520 119187
                             /* DO NOT CUT MEDIA TEXT DESC. */
                             if(in_array($this->pdf_id, array("118936", "118946", "119187", "118978", "119520", "119035"))) {} //Memoirs of the American Entomological Society (DATA-1887)
+                            // elseif(in_array($this->pdf_id, array("91155"))) {} //North American Flora (DATA-1890) --- BHL
+                            elseif($this->resource_name == 'all_BHL') {} //91155 included
                             else $row = "</taxon>$row"; //rest goes here
                         }
                         else { //orig block
