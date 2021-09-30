@@ -108,11 +108,13 @@ OTHERS: used only during dev:
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"MoftheAES oth", "resource_id":"30355", "subjects":"Description|Uses"}'
 27822
 30354
-
+------------------------------- 
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"15423", "subjects":"Description|Uses"}'
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"91155", "subjects":"Description|Uses"}'
+       environments_2_eol.php _       '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"91155", "subjects":"Description|Uses"}'
 15427 15428 91144
-environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"91155", "subjects":"Description|Uses"}'
+-------------------------------
+
 BHL Fungi:
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"'$resource_ID'", "subjects":"Description|Uses"}'
 BHL Plants:
