@@ -28,8 +28,9 @@ php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol
 -> generates TreatmentBank_ENV.tar.gz
 -> last step
 ================== STATS ==================
-TreatmentBank	Tue 2021-09-07 09:11:17 PM	{"media_resource.tab":596262, "taxon.tab":597054, "time_elapsed":{"sec":66817.52, "min":1113.63, "hr":18.56}}
-TreatmentBank	Wed 2021-09-08 04:23:09 PM	{"media_resource.tab":596261, "taxon.tab":597054, "time_elapsed":{"sec":66673.13, "min":1111.22, "hr":18.52}}
+TreatmentBank	    Tue 2021-09-07 09:11:17 PM	{"media_resource.tab":596262,                                                   "taxon.tab":597054, "time_elapsed":{"sec":66817.52, "min":1113.63, "hr":18.56}}
+TreatmentBank	    Wed 2021-09-08 04:23:09 PM	{"media_resource.tab":596261,                                                   "taxon.tab":597054, "time_elapsed":{"sec":66673.13, "min":1111.22, "hr":18.52}}
+TreatmentBank_ENV	Tue 2021-09-28 02:37:49 PM	{"measurement_or_fact_specific.tab":1554957, "occurrence_specific.tab":1554957, "taxon.tab":597054, "time_elapsed":{"sec":317931.33, "min":5298.86, "hr":88.31, "day":3.68}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
