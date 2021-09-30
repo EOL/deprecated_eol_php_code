@@ -330,7 +330,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         }
         // */
 
-        // /* 3rd try - New Sep 30, 2021
+        /* 3rd try - New Sep 30, 2021
         $words = explode(" ", $string);
         if(count($words) >= 6) {
             $string2 = Functions::canonical_form($string);
@@ -340,7 +340,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
                 return $obj;
             }
         }
-        // */
+        */
         
         if(!in_array($this->pdf_id, array('91225', '91362'))) return false;
         else { // per Jen: https://eol-jira.bibalex.org/browse/DATA-1890?focusedCommentId=66302&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66302
