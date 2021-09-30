@@ -330,7 +330,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         }
         // */
 
-        /* 3rd try - New Sep 30, 2021
+        // /* 3rd try - New Sep 30, 2021
         $words = explode(" ", $string);
         if(count($words) >= 6) {
             $string2 = Functions::canonical_form($string);
@@ -340,7 +340,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
                 return $obj;
             }
         }
-        */
+        // */
         
         if(!in_array($this->pdf_id, array('91225', '91362'))) return false;
         else { // per Jen: https://eol-jira.bibalex.org/browse/DATA-1890?focusedCommentId=66302&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66302
@@ -837,7 +837,8 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             if(count($words) >= 6) $sciname_line = Functions::canonical_form($sciname_line);
             //---start--- customized - resource was INVESTIGATED and the monomials by GNRD can be accepted as binomials
             if(in_array($this->pdf_id, array("118935", "120083", "118237", "30355"))) return $sciname_line; //Memoirs of the American Entomological Society (DATA-1887)
-            elseif(in_array($this->pdf_id, array("91155"))) return $sciname_line;                           //North American Flora (DATA-1890) --- BHL
+            elseif(in_array($this->pdf_id, array("15423", "91155", "15427", "91144", "91362_species"))) return $sciname_line; //North American Flora (DATA-1890) --- BHL
+                                                //excluded: 15428(not all) 91225(assoc type) 91362(assoc type)                           
             else return "monomial"; //rest goes here
             //---end---
             // */
