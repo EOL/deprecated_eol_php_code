@@ -394,9 +394,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(!$rows2[0] && $rows2[1] && !$rows2[2] && !$rows2[3]) {
             if(substr($rows2[1],0,13) == "Distribution:") { //print_r($rows2); exit("\n[$ctr]\n");
                 $this->Distribution_Stop_pattern[$ctr-1] = ''; //minus 1 bec. the row to be stopped is 1 row ahead
+                $this->track_Distribution_Stop_pattern[$ctr-1] = 'aaa';
             }
             if(substr($rows2[1],0,14) == "Distribution :") { // print_r($rows2); exit;
                 $this->Distribution_Stop_pattern[$ctr-1] = '';
+                $this->track_Distribution_Stop_pattern[$ctr-1] = 'bbb';
             }
             
             // /* Same as above but just generalized:
@@ -404,6 +406,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             foreach($possible as $str) {
                 if(substr($rows2[1],0,strlen($str)) == $str) { // print_r($rows2); exit;
                     $this->Distribution_Stop_pattern[$ctr-1] = '';
+                    $this->track_Distribution_Stop_pattern[$ctr-1] = 'ccc';
                 }
             }
             // */
@@ -414,9 +417,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $arr[1] = self::remove_first_word_if_it_has_number($arr[1]); // echo("\n[$arr[1]]elix1");
                 if(self::one_word_and_higher_taxon($arr[1])) {
                     $this->Distribution_Stop_pattern[$ctr-2] = ''; // minus 2 bec. the actual row is to be Stopped
+                    $this->track_Distribution_Stop_pattern[$ctr-2] = 'ddd';
                 }
-                if($this->first_word_is_allcaps($arr[1])) {
+                if($ret = $this->first_word_is_allcaps($arr[1]) && $this->first_word_more_than_one_char($arr[1])) {
                     $this->Distribution_Stop_pattern[$ctr-2] = ''; // e.g. "2. LINDMANIA Mez, in DC. Monog. Phan. 9: 535. 1896."
+                    $this->track_Distribution_Stop_pattern[$ctr-2] = $ret; //'eee';
                 }
             }
             // */
@@ -432,6 +437,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             $arr = $rows3;
             if(self::one_word_and_higher_taxon($arr[3])) {
                 $this->Distribution_Stop_pattern[$ctr-3] = ''; // minus 3 bec. the actual row is to be Stopped
+                $this->track_Distribution_Stop_pattern[$ctr-3] = 'fff';
             }
             // */
         }
@@ -1336,7 +1342,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     }
                 }
                 
-                // if(stripos($orig_row, $this->in_question) !== false) {echo("\n[$row]check_1\n");}   //string is found  //good debug
+                // if(stripos($orig_row, $this->in_question) !== false) {exit("\n[$row]check_1\n");}   //string is found  //good debug
+                
                 $orig_row2 = $row; //New Aug 24, 2021
                 $words = explode(" ", trim($row));
                 if(is_numeric(str_replace(array(".", ",", ":", "-", "*"), "", $words[0]))) { //e.g. "4, REBOULIA Raddi, Opusc..." -> there is comma in first word
@@ -1377,9 +1384,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         }
                         elseif($sciname == "GNRD does not recognize name") { //less in DATA-1891: 119520 119187
                             /* DO NOT CUT MEDIA TEXT DESC. */
+                            // exit("\n[$this->resource_name]\n");
                             if(in_array($this->pdf_id, array("118936", "118946", "119187", "118978", "119520", "119035"))) {} //Memoirs of the American Entomological Society (DATA-1887)
                             // elseif(in_array($this->pdf_id, array("91155"))) {} //North American Flora (DATA-1890) --- BHL
-                            elseif($this->resource_name == 'all_BHL') {} //91155 included
+                            elseif($this->resource_name == 'all_BHL') {} //91155 included (NAF 7 docs + fungi and plant list)
                             else $row = "</taxon>$row"; //rest goes here
                         }
                         else { //orig block
@@ -1421,12 +1429,20 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $len = strlen($word);
                 if(strtolower(substr(trim($row),0,$len)) == strtolower($word))  $row = "</taxon>$row";
             }
-            
+
+            // if(stripos($row, $this->in_question) !== false) {exit("\nxx\n[$row]\n[$orig_row]\nelix_1\n");}   //string is found  //good debug
             // if($i == 299) exit("\n[$i][$row]\n");
             if(isset($this->Distribution_Stop_pattern[$i])) {
                 $row = "</taxon>$row";
                 // exit("\nhuli ka: [$row][$i]\n");
+                /* good debug
+                if(stripos($row, $this->in_question) !== false) {
+                    echo "\n-----\n[".$this->track_Distribution_Stop_pattern[$i]."]\n-----\n";
+                    exit("\nxx\n[$row]\n[$orig_row]\nelix_2\n\n");
+                } //string is found
+                */
             }
+            // if(stripos($row, $this->in_question) !== false) {exit("\nxx\n[$row]\n[$orig_row]\nelix_3\n");}   //string is found  //good debug
             
             // if($i == 299) exit("\nexit 1: [$row]\n");
             
@@ -1485,7 +1501,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(strcmp($row, "PARTS OF VOLUMES PREVIOUSLY PUBLISHED") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
             }
             
-            // if(stripos($row, $this->in_question) !== false) {exit("\nxx[$row]stop_1\n");}   //string is found  //good debug
+            // if(stripos($row, $this->in_question) !== false)      {exit("\nxx\n[$row]\n[$orig_row]stop_1a1\n");}   //string is found  //good debug
+            // if(stripos($orig_row, $this->in_question) !== false) {exit("\nxx\n[$row]\n[$orig_row]stop_1a2\n");}   //string is found  //good debug
 
             if($this->pdf_id == '118941') if($row == "List of the North America") $row = "</taxon>$row";
             if($this->pdf_id == '119520') if($row == "404 butterflies of liberia") $row = "</taxon>$row";
@@ -1809,6 +1826,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // if($this->pdf_id == '15404') { //only during dev --- debug only
             //     if($row == "Illustration: Univ. Iowa Stud. Nat. Hist. 16: 154.") break;
             //     if($row == "</taxon>Illustration: Univ. Iowa Stud. Nat. Hist. 16: 154.") break;
+            // }
+
+            // if($this->pdf_id == '15418') { //only during dev --- debug only
+            //     if($row == "Leptonia aeruginosa Peck, Bull. Torrey Club 26: 65. 1899.") break;
             // }
             
             // if($this->pdf_id == '15405') { //only during dev --- debug only

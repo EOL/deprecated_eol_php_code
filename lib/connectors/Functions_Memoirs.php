@@ -41,7 +41,13 @@ class Functions_Memoirs
     function first_word_is_allcaps($row)
     {
         $words = explode(" ", $row);
-        if(ctype_upper($words[0])) return true;
+        if(ctype_upper($words[0])) return true; //use this: return $words[0]; --- if u want to debug
+        return false;
+    }
+    function first_word_more_than_one_char($row)
+    {
+        $words = explode(" ", $row);
+        if(strlen($words[0]) > 2) return true;
         return false;
     }
     function possible_Number_then_AllCapsTaxon_Stop_pattern($rows2, $ctr) //42. CAILLIEA Guill. & Perr. Fl. Seneg. 239. 1833.
@@ -60,7 +66,7 @@ class Functions_Memoirs
                 $words = explode(" ", $arr[1]);
                 $possible_name = $words[0];
                 $possible_name = str_replace(array("."), "", $possible_name);
-                if($this->first_word_is_allcaps($arr[1])) {
+                if($this->first_word_is_allcaps($arr[1]) && $this->first_word_more_than_one_char($arr[1])) {
                     $this->Distribution_Stop_pattern[$ctr-1] = ''; // e.g. "2. LINDMANIA Mez, in DC. Monog. Phan. 9: 535. 1896."
                     // echo "\n-----\n"; print_r($rows2); echo "\n-----\n";
                 }
