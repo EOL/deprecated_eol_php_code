@@ -102,6 +102,7 @@ class DwCA_Aggregator
         $ret = array(); $i = 0;
         foreach($DwCAs as $dwca_file) { $i++; echo "\n$i of $no_of_lines -> ".pathinfo($dwca_file, PATHINFO_BASENAME);
             if(file_exists($dwca_file)) {
+                $this->resource_id_current = $dwca_file;
                 self::convert_archive($preferred_rowtypes, $dwca_file, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //30 days
             }
             else $ret['DwCA file does not exist'][$dwca_file] = '';
@@ -376,6 +377,22 @@ class DwCA_Aggregator
                     if(isset($this->data_object_identifiers[$do_identifier])) continue;
                     else $this->data_object_identifiers[$do_identifier] = '';
                 }
+
+                // /* debug only: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=66418&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66418
+                if($what == "document") {
+                    if($bibliographicCitation = @$rec['http://purl.org/dc/terms/bibliographicCitation']) {
+                        //if(stripos($bibliographicCitation, "Hespenheide, Henry A. (2019): A Review of the Genus Laemosaccus Schönherr, 1826 (Coleoptera: Curculionidae: Mesoptiliinae) from Baja California and America North of Mexico: Diversity and Mimicry") !== false) { //string is found
+                        if(stripos($bibliographicCitation, "Grismer, L. Lee, Wood, Perry L., Jr, Lim, Kelvin K. P. (2012): Cyrtodactylus Majulah") !== false) { //string is found
+                            echo "\n===============================start\n";
+                            print_r($meta); echo "\nwhat: [$what]\n";
+                            print_r($rec); echo "\nresource_id: [$this->resource_id_current]\n";
+                            echo "\n===============================end\n";
+                            exit("\n");
+                        }
+                    }
+                }
+                // */
+                
             }
             // ==================== end customize ==================== */
             
