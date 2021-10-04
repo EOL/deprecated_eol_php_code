@@ -293,6 +293,7 @@ function delete_temp_files_and_others($language)
 }
 function aggregate_6partial_wikipedias($timestart, $resource_id)
 {
+    require_library('connectors/DwCA_Aggregator_Functions');
     require_library('connectors/DwCA_Aggregator');
     $langs = array();
     //wikipedia-nl_1of6... and so on

@@ -6,6 +6,7 @@ Kubitzki	Thu 2021-09-23 12:27:04 AM	{"media_resource.tab":10947, "taxon.tab":107
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
+require_library('connectors/DwCA_Aggregator_Functions');
 require_library('connectors/DwCA_Aggregator');
 $resource_id = 'Kubitzki'; //DATA-1894
 $func = new DwCA_Aggregator($resource_id, false, 'regular');

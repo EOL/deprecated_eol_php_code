@@ -4,6 +4,7 @@ namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
+require_library('connectors/DwCA_Aggregator_Functions');
 require_library('connectors/DwCA_Aggregator');
 $resource_id = 'NorthAmericanFlora'; //DATA-1890
 $func = new DwCA_Aggregator($resource_id, false, 'regular');

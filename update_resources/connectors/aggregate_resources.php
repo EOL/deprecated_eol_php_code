@@ -17,6 +17,7 @@ wget -c https://editors.eol.org/eol_php_code/applications/content_server/resourc
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
+require_library('connectors/DwCA_Aggregator_Functions');
 require_library('connectors/DwCA_Aggregator');
 
 for ($x = 1; $x <= 2; $x++) {

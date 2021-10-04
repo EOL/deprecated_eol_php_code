@@ -60,6 +60,7 @@ elseif($task == "build_up_dwca_list") {
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
 elseif($task == "generate_single_dwca") {
+    require_library('connectors/DwCA_Aggregator_Functions');
     require_library('connectors/DwCA_Aggregator');
     $resource_id = "TreatmentBank";
     $func = new DwCA_Aggregator($resource_id, false, 'regular');

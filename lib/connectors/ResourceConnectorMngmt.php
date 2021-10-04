@@ -113,6 +113,7 @@ class ResourceConnectorMngmt
     }
     function get_harvests_for_wikipedias($options = array(), $sought = array())
     {
+        require_library('connectors/DwCA_Aggregator_Functions');
         require_library('connectors/DwCA_Aggregator');
         $func = new DwCA_Aggregator('');
         $orig = array('80', '957', 'es', 'it', 'fr', 'ja', 'ko', 'pt', 'ru', 'zh', 'nl', 'pl', 'uk', 'hy', 'mrj', 'pms', 'ga');
