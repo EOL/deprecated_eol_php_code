@@ -5,7 +5,7 @@ This lib basically combined DwCA's (.tar.gz) resources.
 First client is combining several wikipedia languages -> combine_wikipedia_DwCAs(). Started with languages "ta", "el", "ceb".
 2nd client is /connectors/wikipedia_ver2.php
 */
-class DwCA_Aggregator
+class DwCA_Aggregator extends DwCA_Aggregator_Functions
 {
     function __construct($folder = NULL, $dwca_file = NULL, $DwCA_Type = 'wikipedia') //'wikipedia' is the first client of this lib.
     {
@@ -378,21 +378,24 @@ class DwCA_Aggregator
                     else $this->data_object_identifiers[$do_identifier] = '';
                 }
 
-                // /* debug only: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=66418&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66418
+                // /* shorten the bibliographicCitation: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=66418&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66418
                 if($what == "document") {
                     if($bibliographicCitation = @$rec['http://purl.org/dc/terms/bibliographicCitation']) {
-                        if(stripos($bibliographicCitation, "Hespenheide, Henry A. (2019): A Review of the Genus Laemosaccus Schönherr, 1826 (Coleoptera: Curculionidae: Mesoptiliinae) from Baja California and America North of Mexico: Diversity and Mimicry") !== false) { //string is found
-                        // if(stripos($bibliographicCitation, "Grismer, L. Lee, Wood, Perry L., Jr, Lim, Kelvin K. P. (2012): Cyrtodactylus Majulah") !== false) { //string is found
+                        $rec['http://purl.org/dc/terms/bibliographicCitation'] = $this->shorten_bibliographicCitation($meta, $bibliographicCitation);
+                        /* good debug
+                        if(true) {
+                        //if(stripos($bibliographicCitation, "Hespenheide, Henry A. (2019): A Review of the Genus Laemosaccus Schönherr, 1826 (Coleoptera: Curculionidae: Mesoptiliinae) from Baja California and America North of Mexico: Diversity and Mimicry") !== false) { //string is found
+                        //if(stripos($bibliographicCitation, "Grismer, L. Lee, Wood, Perry L., Jr, Lim, Kelvin K. P. (2012): Cyrtodactylus Majulah") !== false) { //string is found
                             echo "\n===============================start\n";
-                            print_r($meta); echo "\nwhat: [$what]\n";
-                            print_r($rec); echo "\nresource_id: [$this->resource_id_current]\n";
+                            // print_r($meta); echo "\nwhat: [$what]\n";
+                            print_r($rec); //echo "\nresource_id: [$this->resource_id_current]\n";
                             echo "\n===============================end\n";
-                            exit("\n");
+                            // exit("\n");
                         }
+                        */
                     }
                 }
                 // */
-                
             }
             // ==================== end customize ==================== */
             
