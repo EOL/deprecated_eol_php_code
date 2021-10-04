@@ -231,7 +231,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
 
-            if($this->resource_name == 'Kubitzki') { //this block is present in 2 sections
+            if($this->resource_name == 'all_BHL') {
+                // "TUlandsia rubra R. & P. FL Per. 3: 40. 1802"
+                // "Tillandsia rubra R. & P. FL Per. 3: 40. 1802"
+                $row = str_replace("TUlandsia", "Tillandsia", $row);
+            }
+            
+            if($this->resource_name == 'Kubitzki') { //this block is present in 2 sections (1 of 2)
                 $row = str_ireplace(array("", "·"), "", $row); //VERY TRICKY PIECE OF CHAR --- PROBLEMATIC // "13. ·Broussaisia Gaudich."
                 // /* manual
                 $row = str_replace("1. UlmusL.", "1. Ulmus L.", $row);
@@ -1218,7 +1224,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("LobeliaBoykiniiT.", "Lobelia Boykinii T.", $row);
             }
             
-            if($this->resource_name == 'Kubitzki') {
+            if($this->resource_name == 'all_BHL') {
+                // "TUlandsia rubra R. & P. FL Per. 3: 40. 1802"
+                // "Tillandsia rubra R. & P. FL Per. 3: 40. 1802"
+                $row = str_replace("TUlandsia", "Tillandsia", $row);
+            }
+            
+            if($this->resource_name == 'Kubitzki') { //this block is present in 2 sections (2 of 2)
                 $row = str_ireplace(array("", "·"), "", $row); //VERY TRICKY PIECE OF CHAR --- PROBLEMATIC // "13. ·Broussaisia Gaudich."
                 // /* manual
                 $row = str_replace("1. UlmusL.", "1. Ulmus L.", $row);
@@ -1897,7 +1909,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
                 else {
                     print_r($obj); echo("\n-----\nShould not go here...Investigate:\n$row\n"); $showYN = true;
-                    exit("\nelix\n");
+                    // "TUlandsia rubra R. & P. FL Per. 3: 40. 1802"
+                    // "Tillandsia rubra R. & P. FL Per. 3: 40. 1802"
+                    exit("\n=====\n ended, pls investigate \n=====\n");
                 }
             }
         }
