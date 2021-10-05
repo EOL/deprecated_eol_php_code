@@ -718,22 +718,12 @@ class Pensoft2EOLAPI
             
             if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN
                 if(ctype_lower(substr($rek['lbl'],0,1))) { //bec. references has a lot like 'Urban C.' which are authors.
-                    /* OLD
-                    $this->results[$rek['id']] = $rek['lbl'];
-                    */
-                    // /* NEW
                     $this->results[$rek['id']] = array("lbl" => $rek['lbl'], "ontology" => $rek['ontology']);
-                    // */
                     // $this->eli[$rek['id']][] = $rek['lbl']; //good debug
                 }
             }
             else { //rest of the resources --> Just be sure the citation, reference, biblio parts of text is not included as input to Pensoft
-                /* OLD
-                $this->results[$rek['id']] = $rek['lbl'];
-                */
-                // /* NEW
                 $this->results[$rek['id']] = array("lbl" => $rek['lbl'], "ontology" => $rek['ontology']);
-                // */
             }
         }
     }
