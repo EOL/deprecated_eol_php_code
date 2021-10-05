@@ -427,7 +427,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
                 if($ret = $this->first_word_is_allcaps($arr[1]) && $this->first_word_more_than_one_char($arr[1])) {
                     $this->Distribution_Stop_pattern[$ctr-2] = ''; // e.g. "2. LINDMANIA Mez, in DC. Monog. Phan. 9: 535. 1896."
-                    $this->track_Distribution_Stop_pattern[$ctr-2] = $ret; //'eee';
+                    $this->track_Distribution_Stop_pattern[$ctr-2] = 'eee'; //$ret; //'eee';
                 }
             }
             // */
@@ -1388,7 +1388,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
                     // /*
                     if($sciname = self::last_resort_to_clean_name($row, $WRITE_st)) {
-                        // if(stripos($row, $this->in_question) !== false) {exit("\nxx\nrow = [$row]\nsciname = [$sciname]\nxx33\n");}   //string is found  //good debug
+                        // if(stripos($row, $this->in_question) !== false) {exit("\nxx\nrow = [$row]\nsciname = [$sciname]\nxx33x\n");}   //string is found  //good debug
                         
                         if($sciname == "monomial") {
                             $row = "</taxon>$row";
@@ -1447,7 +1447,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             if(isset($this->Distribution_Stop_pattern[$i])) {
                 $row = "</taxon>$row";
                 // exit("\nhuli ka: [$row][$i]\n");
-                /* good debug
+                /* VERY VERY good debug
                 if(stripos($row, $this->in_question) !== false) {
                     echo "\n-----\n[".$this->track_Distribution_Stop_pattern[$i]."]\n-----\n";
                     exit("\nxx\n[$row]\n[$orig_row]\nelix_2\n\n");
@@ -1496,6 +1496,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 
                 if($this->numbered_Key_to_phrase($row)) $row = "</taxon>$row";
             }
+
+            // if(stripos($row, $this->in_question) !== false)      {exit("\nxx\n[$row]\n[$orig_row]\nstop_1a1\n");}   //string is found  //good debug
+            // if(stripos($orig_row, $this->in_question) !== false) {exit("\nxx\n[$row]\n[$orig_row]\nstop_1a2\n");}   //string is found  //good debug
             
             if($this->is_Section_stop_pattern($row)) $row = "</taxon>$row";
             if($this->is_New_then_RankName_stop_pattern($row)) $row = "</taxon>$row";
@@ -1513,8 +1516,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(strcmp($row, "PARTS OF VOLUMES PREVIOUSLY PUBLISHED") == 0) $row = "</taxon>$row"; //$var1 is equal to $var2 in a case sensitive string comparison
             }
             
-            // if(stripos($row, $this->in_question) !== false)      {exit("\nxx\n[$row]\n[$orig_row]stop_1a1\n");}   //string is found  //good debug
-            // if(stripos($orig_row, $this->in_question) !== false) {exit("\nxx\n[$row]\n[$orig_row]stop_1a2\n");}   //string is found  //good debug
+            // if(stripos($row, $this->in_question) !== false)      {exit("\nxx\n[$row]\n[$orig_row]\nstop_1b1\n");}   //string is found  //good debug
+            // if(stripos($orig_row, $this->in_question) !== false) {exit("\nxx\n[$row]\n[$orig_row]\nstop_1b2\n");}   //string is found  //good debug
 
             if($this->pdf_id == '118941') if($row == "List of the North America") $row = "</taxon>$row";
             if($this->pdf_id == '119520') if($row == "404 butterflies of liberia") $row = "</taxon>$row";
@@ -1847,6 +1850,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             // if($this->pdf_id == '15405') { //only during dev --- debug only
             //     if($row == "Order MONOBLEPHARIDALES") break;
             //     if($row == "</taxon>Order MONOBLEPHARIDALES") break;
+            // }
+            /* ===== PLANTS.txt ===== */
+            // if($this->pdf_id == '91345') { //only during dev --- debug only
+            //     if($row == "A caulescent cespitose perennial, with a thick") break;
             // }
 
             if($this->resource_name == 'Kubitzki') { //valid main operation --- parsing ends at this point

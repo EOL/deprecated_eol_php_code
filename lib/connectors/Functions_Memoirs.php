@@ -68,10 +68,12 @@ class Functions_Memoirs
                 $possible_name = str_replace(array("."), "", $possible_name);
                 if($this->first_word_is_allcaps($arr[1]) && $this->first_word_more_than_one_char($arr[1])) {
                     $this->Distribution_Stop_pattern[$ctr-1] = ''; // e.g. "2. LINDMANIA Mez, in DC. Monog. Phan. 9: 535. 1896."
+                    $this->track_Distribution_Stop_pattern[$ctr-1] = 'a1';
                     // echo "\n-----\n"; print_r($rows2); echo "\n-----\n";
                 }
                 elseif(strtolower(substr($possible_name, -2)) == "ae") { //18 Pubentissimae.
                     $this->Distribution_Stop_pattern[$ctr-1] = '';
+                    $this->track_Distribution_Stop_pattern[$ctr-1] = 'a2';
                 }
                 /* DON'T CHECK NAME VIA GNRD in this path. Check only GNRD if it came from get_main_scinames()
                 else {
@@ -119,20 +121,23 @@ class Functions_Memoirs
                     // if(stripos($arr[1], $this->in_question) !== false) { //string is found
                     //     print_r($rows2); exit("\n[$second]\n-end elix 03-\n");
                     // }
-                    if(ctype_upper($second)) {
+                    if(ctype_upper($second) && strlen($second) > 2) { //e.g. "U. S. Nat. Herb. 16: 192. 1913." 91345.txt BHL
                         // echo "\n[$ctr][$ctr]\n";
                         $this->Distribution_Stop_pattern[$ctr-1] = '';
+                        $this->track_Distribution_Stop_pattern[$ctr-1] = 'a3';
                         // if(stripos($rows2[1], $this->in_question) !== false) { //string is found
                         //     print_r($rows2); exit("\n[$second]\n-end elix 04-\n");
                         // }
                     }
                     elseif(strtolower(substr($second, -2)) == "ae") {
                         $this->Distribution_Stop_pattern[$ctr-1] = '';
+                        $this->track_Distribution_Stop_pattern[$ctr-1] = 'a4';
                     }
                     else {
                         if(ctype_upper(substr($second,0,1))) { //1st letter is all caps
                             if($this->run_GNRD_get_sciname_inXML($second)) {
                                 $this->Distribution_Stop_pattern[$ctr-1] = '';
+                                $this->track_Distribution_Stop_pattern[$ctr-1] = 'a5';
                             }
                             /* can be commented coz you just need to motivate GNRD API to work all the time AND not accept that you'll need to retry
                             several times to get their output
