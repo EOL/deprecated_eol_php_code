@@ -237,7 +237,8 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
     private function process_table($meta, $what)
     {   //print_r($meta);
         $meta = self::adjust_meta_value($meta, $what); //only client for now is resource "TreatmentBank" from treatment_bank.php
-        echo "\nprocessing [$what]...\n"; $i = 0;
+        // echo "\nprocessing [$what]...\n";
+        $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             // $row = Functions::conv_to_utf8($row); //new line
             
