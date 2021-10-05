@@ -593,6 +593,9 @@ class Pensoft2EOLAPI
                 }
                 else $arr = array($basename, '', '', $label, $uri, $rek['ontology']);
                 
+                /* DATA-1893
+                */
+                
                 fwrite($f, implode("\t", $arr)."\n");
             }
             // */
@@ -715,6 +718,10 @@ class Pensoft2EOLAPI
             
             $validTraitYN = self::John_Hill_vs_hill_mountain($rek);
             if(!$validTraitYN) continue;
+            
+            /* DATA-1893
+            
+            */
             
             if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN
                 if(ctype_lower(substr($rek['lbl'],0,1))) { //bec. references has a lot like 'Urban C.' which are authors.
