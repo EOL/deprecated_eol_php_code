@@ -2,6 +2,7 @@
 namespace php_active_record;
 /* connector: [called from DwCA_Utility.php, which is called from first client: globi_data.php for DATA-1886] 
 Right now the fix means: remove the orphan child records in MoF
+Another fix included here is to remove all occurrences and associations linked to taxon ID 'Life'. Task from: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=66179&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66179
 */
 class DWCA_Associations_Fix
 {
@@ -124,6 +125,11 @@ class DWCA_Associations_Fix
             //===========================================================================================================================================================
             //===========================================================================================================================================================
             if($class == 'occurrence') {
+                
+                // /* fix: remove 'Life' in occurrences and associations
+                if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == "INAT_TAXON:48460") continue;
+                // */
+                
                 $o = new \eol_schema\Occurrence_specific();
                 $this->occurrenceIDs[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
             }
