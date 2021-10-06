@@ -85,8 +85,8 @@ MoftheAES_resources	Wed 2021-07-07 07:02:49 AM	{"MoF.tab":3995, "media.tab":420,
 
 118950	    Tue 2021-07-20 05:22:18 AM	{               "media.tab":55,                     "taxon.tab":55, "time_elapsed":{"sec":0.4, "min":0.01, "hr":0}}
 118950_ENV	Tue 2021-07-20 05:24:31     {"MoF.tab":151, "media.tab":55, "occur.tab":151,    "taxon.tab":55, "time_elapsed":{"sec":12.86, "min":0.21, "hr":0}}
-118950	    Wed 2021-09-29 07:58:51 AM	{               "media.tab":56,                     "taxon.tab":56, "time_elapsed":{"sec":0.38, "min":0.01, "hr":0}}
-118950_ENV	Wed 2021-09-29 08:05:15 AM	{"MoF.tab":155, "media.tab":56, "occur.tab":155,    "taxon.tab":56, "time_elapsed":{"sec":264.57, "min":4.41, "hr":0.07}}
+118950	    Tue 2021-10-05 11:42:43 AM	{               "media.tab":56,                     "taxon.tab":56, "time_elapsed":{"sec":0.43, "min":0.01, "hr":0}}
+118950_ENV	Tue 2021-10-05 11:44:49 AM	{"MoF.tab":155, "media.tab":56, "occur.tab":155,    "taxon.tab":56, "time_elapsed":{"sec":6.14, "min":0.1, "hr":0}}
 
 120602	    Wed 2021-07-21 11:08:20 AM	{                           "media_resource.tab":20,    "taxon.tab":20, "time_elapsed":{"sec":0.33, "min":0.01, "hr":0}}
 120602_ENV	Wed 2021-07-21 11:10:48     {"MoF.tab":4, "occur.tab":4,                            "taxon.tab":20, "time_elapsed":{"sec":28.63, "min":0.48, "hr":0.01}}
@@ -228,7 +228,6 @@ The discrepancy is the improvement in capturing species sections.
 15421	    Sun 2021-10-03 03:29:25 AM	{               "media.tab":187,                                "taxon.tab":187, "time_elapsed":{"sec":0.47, "min":0.01, "hr":0}}
 15421_ENV	Sun 2021-10-03 03:31:35 AM	{"MoF.tab":625, "media.tab":187, "occurrence_specific.tab":625, "taxon.tab":187, "time_elapsed":{"sec":10.63, "min":0.18, "hr":0}}
 
-
 NorthAmericanFlora_Fungi	Wed 2021-08-11 11:29:24 AM	{"MoF.tab":17250, "media_resource.tab":4498, "occurrence_specific.tab":17250, "taxon.tab":4491, "time_elapsed":{"sec":107.91, "min":1.8, "hr":0.03}}
 NorthAmericanFlora_Fungi	Thu 2021-08-12 05:42:52 AM	{"MoF.tab":17228, "media_resource.tab":4498, "occurrence_specific.tab":17228, "taxon.tab":4491, "time_elapsed":{"sec":108.91, "min":1.82, "hr":0.03}}
 ---------- end FUNGI list: ----------
@@ -236,33 +235,36 @@ NorthAmericanFlora_Fungi	Thu 2021-08-12 05:42:52 AM	{"MoF.tab":17228, "media_res
 ---------- Plant list: ----------
 15422	    Fri 2021-08-13 02:06:15 AM	{                "media.tab":280,                            "taxon.tab":279, "time_elapsed":{"sec":0.55, "min":0.01, "hr":0}}
 15422_ENV	Fri 2021-08-13 02:08:32 AM	{"MoF.tab":1131, "media.tab":280, "occur_specific.tab":1131, "taxon.tab":279, "time_elapsed":{"sec":17.47, "min":0.29, "hr":0}}
-15422	    Sun 2021-10-03 03:55:39 AM	{                "media.tab":272,                            "taxon.tab":270, "time_elapsed":{"sec":2.07, "min":0.03, "hr":0}}
-15422_ENV	Sun 2021-10-03 03:56:58 AM	{"MoF.tab":1113, "media.tab":272, "occur_specific.tab":1113, "taxon.tab":270, "time_elapsed":{"sec":18.68, "min":0.31, "hr":0.01}}
+15422	    Tue 2021-10-05 10:42:44 AM	{                "media.tab":272,                            "taxon.tab":270, "time_elapsed":{"sec":0.55, "min":0.01, "hr":0}}
+15422_ENV	Tue 2021-10-05 10:44:55 AM	{"MoF.tab":1113, "media.tab":272, "occur_specific.tab":1113, "taxon.tab":270, "time_elapsed":{"sec":11.12, "min":0.19, "hr":0}}
 
 15424	    Wed 2021-08-18 11:33:44 AM	{               "media.tab":151,                            "taxon.tab":151, "time_elapsed":{"sec":1.8, "min":0.03, "hr":0}}
 15424_ENV	Wed 2021-08-18 11:35:59 AM	{"MoF.tab":598, "media.tab":151, "occur_specific.tab":598,  "taxon.tab":151, "time_elapsed":{"sec":14.63, "min":0.24, "hr":0}}
 15424	    Sun 2021-10-03 04:01:56 AM	{               "media.tab":151,                            "taxon.tab":151, "time_elapsed":{"sec":0.45, "min":0.01, "hr":0}}
 15424_ENV	Sun 2021-10-03 04:04:57 AM	{"MoF.tab":598, "media.tab":151, "occur_specific.tab":598,  "taxon.tab":151, "time_elapsed":{"sec":150.99, "min":2.52, "hr":0.04}}
 
-15421	    Thu 2021-08-12 09:14:25 AM	{               "media.tab":187,                            "taxon.tab":187, "time_elapsed":{"sec":0.49, "min":0.01, "hr":0}}
-15421_ENV	Thu 2021-08-12 09:16:42 AM	{"MoF.tab":647, "media.tab":187, "occur_specific.tab":647,  "taxon.tab":187, "time_elapsed":{"sec":16.93, "min":0.28, "hr":0}}
-
 15425	    Thu 2021-08-12 09:12:34 AM	{               "media.tab":59,                             "taxon.tab":59, "time_elapsed":{"sec":0.43, "min":0.01, "hr":0}}
 15425_ENV	Thu 2021-08-12 09:15:13 AM	{"MoF.tab":235, "media.tab":59, "occur_specific.tab":235,   "taxon.tab":59, "time_elapsed":{"sec":39.73, "min":0.66, "hr":0.01}}
+15425	    Tue 2021-10-05 10:40:24 AM	{               "media.tab":66,                             "taxon.tab":66, "time_elapsed":{"sec":0.38, "min":0.01, "hr":0}}
+15425_ENV	Tue 2021-10-05 10:42:33 AM	{"MoF.tab":276, "media.tab":66, "occur_specific.tab":276,   "taxon.tab":66, "time_elapsed":{"sec":9.41, "min":0.16, "hr":0}}
 
 15426	    Thu 2021-08-12 09:15:37 AM	{               "media.tab":101,                            "taxon.tab":101, "time_elapsed":{"sec":0.41, "min":0.01, "hr":0}}
 15426_ENV	Thu 2021-08-12 09:18:22 AM	{"MoF.tab":446, "media.tab":101, "occur_specific.tab":446,  "taxon.tab":101, "time_elapsed":{"sec":44.21, "min":0.74, "hr":0.01}}
+15426	    Tue 2021-10-05 10:41:29 AM	{               "media.tab":113,                            "taxon.tab":113, "time_elapsed":{"sec":0.45, "min":0.01, "hr":0}}
+15426_ENV	Tue 2021-10-05 10:42:11 AM	{"MoF.tab":491, "media.tab":113, "occur_specific.tab":491,  "taxon.tab":113, "time_elapsed":{"sec":12.05, "min":0.2, "hr":0}}
 
 15430	    Thu 2021-08-12 09:15:41 AM	{               "media.tab":204,                            "taxon.tab":204, "time_elapsed":{"sec":0.52, "min":0.01, "hr":0}}
 15430_ENV	Thu 2021-08-12 09:17:59 AM	{"MoF.tab":820, "media.tab":204, "occur_specific.tab":820,  "taxon.tab":204, "time_elapsed":{"sec":18.4, "min":0.31, "hr":0.01}}
+15430	    Tue 2021-10-05 10:38:08 AM	{               "media.tab":204,                            "taxon.tab":204, "time_elapsed":{"sec":0.49, "min":0.01, "hr":0}}
+15430_ENV	Tue 2021-10-05 10:40:20 AM	{"MoF.tab":833, "media.tab":204, "occur_specific.tab":833,  "taxon.tab":204, "time_elapsed":{"sec":12.53, "min":0.21, "hr":0}}
 
 15429	    Thu 2021-08-12 09:18:37 AM	{               "media.tab":250,                            "taxon.tab":250, "time_elapsed":{"sec":0.51, "min":0.01, "hr":0}}
 15429_ENV	Thu 2021-08-12 09:21:06 AM	{"MoF.tab":963, "media.tab":250, "occur_specific.tab":963,  "taxon.tab":250, "time_elapsed":{"sec":28.41, "min":0.47, "hr":0.01}}
 
 91208	    Mon 2021-08-23 01:38:23 AM	{               "media_resource.tab":83,                                "taxon.tab":83, "time_elapsed":{"sec":0.45, "min":0.01, "hr":0}}
 91208_ENV	Mon 2021-08-23 01:40:42 AM	{"MoF.tab":984, "media_resource.tab":83, "occurrence_specific.tab":984, "taxon.tab":83, "time_elapsed":{"sec":18.38, "min":0.31, "hr":0.01}}
-91208	    Sun 2021-10-03 11:41:22 AM	{               "media_resource.tab":83,                                "taxon.tab":83, "time_elapsed":{"sec":0.4, "min":0.01, "hr":0}}
-91208_ENV	Sun 2021-10-03 11:43:55 AM	{"MoF.tab":941, "media_resource.tab":83, "occurrence_specific.tab":941, "taxon.tab":83, "time_elapsed":{"sec":123.71, "min":2.06, "hr":0.03}}
+91208	    Tue 2021-10-05 09:49:41 AM	{               "media_resource.tab":83,                                "taxon.tab":83, "time_elapsed":{"sec":0.45, "min":0.01, "hr":0}}
+91208_ENV	Tue 2021-10-05 09:50:24 AM	{"MoF.tab":978, "media_resource.tab":83, "occurrence_specific.tab":978, "taxon.tab":83, "time_elapsed":{"sec":13.38, "min":0.22, "hr":0}}
 
 91357	    Wed 2021-08-18 08:57:46 AM	{               "media.tab":150,                            "taxon.tab":150, "time_elapsed":{"sec":0.7, "min":0.01, "hr":0}}
 91357_ENV	Wed 2021-08-18 09:02:38 AM	{"MoF.tab":659, "media.tab":150, "occur_specific.tab":659,  "taxon.tab":150, "time_elapsed":{"sec":172.1, "min":2.87, "hr":0.05}}
@@ -349,8 +351,8 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "91345", "resource_name":
 
 91334	    Wed 2021-08-25 09:11:17 AM	{               "media_resource.tab":117,                                   "taxon.tab":117, "time_elapsed":{"sec":0.4, "min":0.01, "hr":0}}
 91334_ENV	Wed 2021-08-25 09:12:32 AM	{"MoF.tab":393, "media_resource.tab":117, "occurrence_specific.tab":393,    "taxon.tab":117, "time_elapsed":{"sec":15.02, "min":0.25, "hr":0}}
-91334	    Sun 2021-10-03 12:14:26 PM	{               "media_resource.tab":117,                                   "taxon.tab":117, "time_elapsed":{"sec":0.41, "min":0.01, "hr":0}}
-91334_ENV	Sun 2021-10-03 12:15:07 PM	{"MoF.tab":392, "media_resource.tab":117, "occurrence_specific.tab":392,    "taxon.tab":117, "time_elapsed":{"sec":11.15, "min":0.19, "hr":0}}
+91334	    Tue 2021-10-05 09:46:46 AM	{               "media_resource.tab":118,                                   "taxon.tab":118, "time_elapsed":{"sec":0.44, "min":0.01, "hr":0}}
+91334_ENV	Tue 2021-10-05 09:47:23 AM	{"MoF.tab":394, "media_resource.tab":118, "occurrence_specific.tab":394,    "taxon.tab":118, "time_elapsed":{"sec":7.06, "min":0.12, "hr":0}}
 
 91228	    Wed 2021-08-25 09:12:49 AM	{               "media_resource.tab":373,                                "taxon.tab":373, "time_elapsed":{"sec":0.6, "min":0.01, "hr":0}}
 91228_ENV	Wed 2021-08-25 09:14:08 AM	{"MoF.tab":940, "media_resource.tab":373, "occurrence_specific.tab":940, "taxon.tab":373, "time_elapsed":{"sec":19.27, "min":0.32, "hr":0.01}}
