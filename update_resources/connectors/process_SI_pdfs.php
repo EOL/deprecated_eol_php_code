@@ -11,11 +11,42 @@ wget https://editors.eol.org/eol_php_code/applications/content_server/resources/
 wget https://editors.eol.org/eol_php_code/applications/content_server/resources/10088_6943_ENV.tar.gz
 --------------------------------------------------
 From local Mac mini: SCtZ-0614
-10088_5097      {"association.tab":56, "media_resource.tab":10, "occurrence.tab":55, "taxon.tab":54}
-10088_5097_ENV  {"association.tab":56, "measurement_or_fact_specific.tab":150, "media_resource.tab":10, "occurrence.tab":55, "occurrence_specific.tab":150, "taxon.tab":54}
+10088_5097      {"assoc.tab":56,                "media.tab":10, "occurrence.tab":55,                           "taxon.tab":54}
+10088_5097_ENV  {"assoc.tab":56, "MoF.tab":150, "media.tab":10, "occurrence.tab":55, "occur_specific.tab":150, "taxon.tab":54}
+10088_5097_ENV  {"assoc.tab":56, "MoF.tab":150, "media.tab":10, "occurrence.tab":55, "occur_specific.tab":150, "taxon.tab":54, "time_elapsed":{"sec":17.41, "min":0.29, "hr":0}}
+10088_5097_ENV  {"assoc.tab":56, "MoF.tab":150, "media.tab":10,                      "occur_specific.tab":205, "taxon.tab":54, "time_elapsed":{"sec":18.34, "min":0.31, "hr":0.01}}
 
-10088_5097_ENV  {"association.tab":56, "measurement_or_fact_specific.tab":150, "media_resource.tab":10, "occurrence.tab":55, "occurrence_specific.tab":150, "taxon.tab":54, "time_elapsed":{"sec":17.41, "min":0.29, "hr":0}}
-10088_5097_ENV  {"association.tab":56, "measurement_or_fact_specific.tab":150, "media_resource.tab":10, "occurrence_specific.tab":205, "taxon.tab":54, "time_elapsed":{"sec":18.34, "min":0.31, "hr":0.01}}
+From eol-archive:
+Repo 1:
+10088_5097	    Tue 2021-05-18 08:10:09 AM	{"association.tab":365,                  "media.tab":12698, "occur.tab":418,            "taxon.tab":12187, "time_elapsed":{"sec":1363.06, "min":22.72, "hr":0.38}}
+10088_5097_ENV	Tue 2021-05-18 08:19:00 AM	{"association.tab":365, "MoF.tab":47768, "media.tab":11453, "occur_specific.tab":48186, "taxon.tab":12187, "time_elapsed":{"sec":521.58, "min":8.69, "hr":0.14}}
+after putting more stop patterns from spreadsheet
+10088_5097	    Wed 2021-05-19 09:55:52 AM	{"association.tab":365,                  "media.tab":12677, "occur.tab":418,            "taxon.tab":12176, "time_elapsed":{"sec":4284.89, "min":71.41, "hr":1.19}}
+10088_5097_ENV	Wed 2021-05-19 10:10:17 AM	{"association.tab":365, "MoF.tab":47207, "media.tab":11434, "occur_specific.tab":47625, "taxon.tab":12176, "time_elapsed":{"sec":856.04, "min":14.27, "hr":0.24}}
+after a couple of months: ACCEPTABLE --- SAME MEDIA AND TAXON AND ASSOC
+10088_5097	    Tue 2021-09-28 01:49:58 AM	{"association.tab":365,                  "media.tab":12677, "occur.tab":418,            "taxon.tab":12176, "time_elapsed":{"sec":1363.19, "min":22.72, "hr":0.38}}
+10088_5097_ENV	Tue 2021-09-28 01:59:38 AM	{"association.tab":365, "MoF.tab":42655, "media.tab":11434, "occur_specific.tab":43073, "taxon.tab":12176, "time_elapsed":{"sec":573.31, "min":9.56, "hr":0.16}}
+after a couple of weeks: EXACT, STILL SAME MEDIA AND TAXON - EXCELLENT!
+10088_5097	    Wed 2021-10-06 04:52:20 AM	{"association.tab":365,                  "media.tab":12677, "occur.tab":418,            "taxon.tab":12176, "time_elapsed":{"sec":1310.6, "min":21.84, "hr":0.36}}
+10088_5097_ENV	Wed 2021-10-06 05:01:09 AM	{"association.tab":365, "MoF.tab":42655, "media.tab":11434, "occur_specific.tab":43073, "taxon.tab":12176, "time_elapsed":{"sec":520.83, "min":8.68, "hr":0.14}}
+with NEW host patterns: DATA-1891
+...
+
+Repo 2: Smithsonian Contributions to Botany
+With growth ontology:
+10088_6943	    Sat 2021-05-22 04:24:44 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":89.38, "min":1.49, "hr":0.02}}
+10088_6943_ENV	Sat 2021-05-22 04:25:50 AM	{"MoF.tab":6300, "media.tab":1487, "occur_specific.tab":6300, "taxon.tab":1549, "time_elapsed":{"sec":57.82, "min":0.96, "hr":0.02}}
+excluded 1 growth uri
+10088_6943	    Tue 2021-06-01 01:22:50 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":104.04, "min":1.73, "hr":0.03}}
+10088_6943_ENV	Tue 2021-06-01 01:23:38 AM	{"MoF.tab":6234, "media.tab":1487, "occur_specific.tab":6234, "taxon.tab":1549, "time_elapsed":{"sec":38.39, "min":0.64, "hr":0.01}}
+after a couple of months: ACCEPTABLE --- SAME MEDIA AND TAXON
+10088_6943	    Tue 2021-09-28 02:39:43 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":44.76, "min":0.75, "hr":0.01}}
+10088_6943_ENV	Tue 2021-09-28 02:40:18 AM	{"MoF.tab":6012, "media.tab":1487, "occur_specific.tab":6012, "taxon.tab":1549, "time_elapsed":{"sec":27.87, "min":0.46, "hr":0.01}}
+after a couple of weeks: EXACT, STILL SAME MEDIA AND TAXON - EXCELLENT!
+10088_6943	    Wed 2021-10-06 04:32:10 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":97.26, "min":1.62, "hr":0.03}}
+10088_6943_ENV	Wed 2021-10-06 04:33:20 AM	{"MoF.tab":6012, "media.tab":1487, "occur_specific.tab":6012, "taxon.tab":1549, "time_elapsed":{"sec":62.09, "min":1.03, "hr":0.02}}
+with NEW host patterns: DATA-1891
+...
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
@@ -46,19 +77,23 @@ echo "\n$string\n";
 exit("\n");
 */
 
-// /* un-comment in real operation - main operation
+// /* un-comment in real operation - MAIN OPERATION - this generates the whole repository. Processes many docs per repository.
 require_library('connectors/ParseListTypeAPI');
 require_library('connectors/SmithsonianPDFsAPI');
 $func = new SmithsonianPDFsAPI($resource_id);
 $func->start();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder
 // */
-
+/* BELOW HERE IS WHEN YOU WANT TO PROCESS ONE FILE AT A TIME. DURING DEV. 
+used during dev (one file at a time using param $txt_filename):
+php update_resources/connectors/process_SI_pdfs.php 
+-> runs after parse_unstructured_text.php is run.
+*/
 /* ========================== during dev: processing associations ==========================
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/SCtZ-0614_tagged.txt";  $pdf_id = "SCtZ-0614";
-$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0439/SCtZ-0439_tagged.txt";  $pdf_id = "SCtZ-0439";
-$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0156/SCTZ-0156_tagged.txt";  $pdf_id = "SCTZ-0156";
-$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0004/SCtZ-0004_tagged.txt";  $pdf_id = "SCtZ-0004";
+// $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0439/SCtZ-0439_tagged.txt";  $pdf_id = "SCtZ-0439";
+// $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0156/SCTZ-0156_tagged.txt";  $pdf_id = "SCTZ-0156";
+// $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0004/SCtZ-0004_tagged.txt";  $pdf_id = "SCtZ-0004";
 
 $resource_id = $pdf_id;
 require_library('connectors/ParseListTypeAPI');
@@ -141,7 +176,7 @@ $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0
 // $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0027/scb-0027_descriptions_LT.txt";  $pdf_id = "scb-0027";
 // $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0094/scb-0094_descriptions_LT.txt";  $pdf_id = "scb-0094";
 // May 19 Wed
-$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0093/scb-0093_descriptions_LT.txt";  $pdf_id = "scb-0093";
+// $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0093/scb-0093_descriptions_LT.txt";  $pdf_id = "scb-0093";
 
 $resource_id = $pdf_id;
 require_library('connectors/ParseListTypeAPI');

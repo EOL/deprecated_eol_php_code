@@ -31,8 +31,9 @@ $func->parse_pdf2htmlEX_result($filename);
 $filename = 'SCZ637_pdftotext.txt';
 $func->parse_pdftotext_result($filename);
 */
-
-/* Start epub series: process our first file from the ticket */
+/* Start epub series: process our first file from the ticket 
+used during dev (one file at a time using param $input): php update_resources/connectors/parse_unstructured_text.php
+*/
 $input = array('filename' => 'SCtZ-0293.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0293/');
 $input = array('filename' => 'SCtZ-0001.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0001/');
 $input = array('filename' => 'SCtZ-0008.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0008/');
