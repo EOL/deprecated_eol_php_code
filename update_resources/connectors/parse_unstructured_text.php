@@ -12,7 +12,11 @@ after putting more stop patterns from spreadsheet
 after a couple of months: ACCEPTABLE --- SAME MEDIA AND TAXON AND ASSOC
 10088_5097	    Tue 2021-09-28 01:49:58 AM	{"association.tab":365,                  "media.tab":12677, "occur.tab":418,            "taxon.tab":12176, "time_elapsed":{"sec":1363.19, "min":22.72, "hr":0.38}}
 10088_5097_ENV	Tue 2021-09-28 01:59:38 AM	{"association.tab":365, "MoF.tab":42655, "media.tab":11434, "occur_specific.tab":43073, "taxon.tab":12176, "time_elapsed":{"sec":573.31, "min":9.56, "hr":0.16}}
+after a couple of weeks: EXACT, STILL SAME MEDIA AND TAXON - EXCELLENT!
+10088_5097	    Wed 2021-10-06 04:52:20 AM	{"association.tab":365,                  "media.tab":12677, "occur.tab":418,            "taxon.tab":12176, "time_elapsed":{"sec":1310.6, "min":21.84, "hr":0.36}}
+10088_5097_ENV	Wed 2021-10-06 05:01:09 AM	{"association.tab":365, "MoF.tab":42655, "media.tab":11434, "occur_specific.tab":43073, "taxon.tab":12176, "time_elapsed":{"sec":520.83, "min":8.68, "hr":0.14}}
 with NEW host patterns: DATA-1891
+...
 
 Repo 2: Smithsonian Contributions to Botany
 With growth ontology:
@@ -24,7 +28,11 @@ excluded 1 growth uri
 after a couple of months: ACCEPTABLE --- SAME MEDIA AND TAXON
 10088_6943	    Tue 2021-09-28 02:39:43 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":44.76, "min":0.75, "hr":0.01}}
 10088_6943_ENV	Tue 2021-09-28 02:40:18 AM	{"MoF.tab":6012, "media.tab":1487, "occur_specific.tab":6012, "taxon.tab":1549, "time_elapsed":{"sec":27.87, "min":0.46, "hr":0.01}}
+after a couple of weeks: EXACT, STILL SAME MEDIA AND TAXON - EXCELLENT!
+10088_6943	    Wed 2021-10-06 04:32:10 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":97.26, "min":1.62, "hr":0.03}}
+10088_6943_ENV	Wed 2021-10-06 04:33:20 AM	{"MoF.tab":6012, "media.tab":1487, "occur_specific.tab":6012, "taxon.tab":1549, "time_elapsed":{"sec":62.09, "min":1.03, "hr":0.02}}
 with NEW host patterns: DATA-1891
+...
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
