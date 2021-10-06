@@ -3,36 +3,6 @@ namespace php_active_record;
 /* DATA-1877: textmining more unstructured text
 start of many iterations:
 
-Repo 1:
-10088_5097	    Tue 2021-05-18 08:10:09 AM	{"association.tab":365,                  "media.tab":12698, "occur.tab":418,            "taxon.tab":12187, "time_elapsed":{"sec":1363.06, "min":22.72, "hr":0.38}}
-10088_5097_ENV	Tue 2021-05-18 08:19:00 AM	{"association.tab":365, "MoF.tab":47768, "media.tab":11453, "occur_specific.tab":48186, "taxon.tab":12187, "time_elapsed":{"sec":521.58, "min":8.69, "hr":0.14}}
-after putting more stop patterns from spreadsheet
-10088_5097	    Wed 2021-05-19 09:55:52 AM	{"association.tab":365,                  "media.tab":12677, "occur.tab":418,            "taxon.tab":12176, "time_elapsed":{"sec":4284.89, "min":71.41, "hr":1.19}}
-10088_5097_ENV	Wed 2021-05-19 10:10:17 AM	{"association.tab":365, "MoF.tab":47207, "media.tab":11434, "occur_specific.tab":47625, "taxon.tab":12176, "time_elapsed":{"sec":856.04, "min":14.27, "hr":0.24}}
-after a couple of months: ACCEPTABLE --- SAME MEDIA AND TAXON AND ASSOC
-10088_5097	    Tue 2021-09-28 01:49:58 AM	{"association.tab":365,                  "media.tab":12677, "occur.tab":418,            "taxon.tab":12176, "time_elapsed":{"sec":1363.19, "min":22.72, "hr":0.38}}
-10088_5097_ENV	Tue 2021-09-28 01:59:38 AM	{"association.tab":365, "MoF.tab":42655, "media.tab":11434, "occur_specific.tab":43073, "taxon.tab":12176, "time_elapsed":{"sec":573.31, "min":9.56, "hr":0.16}}
-after a couple of weeks: EXACT, STILL SAME MEDIA AND TAXON - EXCELLENT!
-10088_5097	    Wed 2021-10-06 04:52:20 AM	{"association.tab":365,                  "media.tab":12677, "occur.tab":418,            "taxon.tab":12176, "time_elapsed":{"sec":1310.6, "min":21.84, "hr":0.36}}
-10088_5097_ENV	Wed 2021-10-06 05:01:09 AM	{"association.tab":365, "MoF.tab":42655, "media.tab":11434, "occur_specific.tab":43073, "taxon.tab":12176, "time_elapsed":{"sec":520.83, "min":8.68, "hr":0.14}}
-with NEW host patterns: DATA-1891
-...
-
-Repo 2: Smithsonian Contributions to Botany
-With growth ontology:
-10088_6943	    Sat 2021-05-22 04:24:44 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":89.38, "min":1.49, "hr":0.02}}
-10088_6943_ENV	Sat 2021-05-22 04:25:50 AM	{"MoF.tab":6300, "media.tab":1487, "occur_specific.tab":6300, "taxon.tab":1549, "time_elapsed":{"sec":57.82, "min":0.96, "hr":0.02}}
-excluded 1 growth uri
-10088_6943	    Tue 2021-06-01 01:22:50 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":104.04, "min":1.73, "hr":0.03}}
-10088_6943_ENV	Tue 2021-06-01 01:23:38 AM	{"MoF.tab":6234, "media.tab":1487, "occur_specific.tab":6234, "taxon.tab":1549, "time_elapsed":{"sec":38.39, "min":0.64, "hr":0.01}}
-after a couple of months: ACCEPTABLE --- SAME MEDIA AND TAXON
-10088_6943	    Tue 2021-09-28 02:39:43 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":44.76, "min":0.75, "hr":0.01}}
-10088_6943_ENV	Tue 2021-09-28 02:40:18 AM	{"MoF.tab":6012, "media.tab":1487, "occur_specific.tab":6012, "taxon.tab":1549, "time_elapsed":{"sec":27.87, "min":0.46, "hr":0.01}}
-after a couple of weeks: EXACT, STILL SAME MEDIA AND TAXON - EXCELLENT!
-10088_6943	    Wed 2021-10-06 04:32:10 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":97.26, "min":1.62, "hr":0.03}}
-10088_6943_ENV	Wed 2021-10-06 04:33:20 AM	{"MoF.tab":6012, "media.tab":1487, "occur_specific.tab":6012, "taxon.tab":1549, "time_elapsed":{"sec":62.09, "min":1.03, "hr":0.02}}
-with NEW host patterns: DATA-1891
-...
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -185,7 +155,7 @@ $input = array('filename' => 'SCTZ-0275.txt', 'lines_before_and_after_sciname' =
 // $input = array('filename' => 'SCtZ-0006.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0006/');
 // -> 6 scinames
 
-// $input = array('filename' => 'SCtZ-0614.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/');
+$input = array('filename' => 'SCtZ-0614.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/');
 //-> has associations (57), species sections (9), no lists
 // resources/SCtZ-0614/association.tab]    :: total: [57]
 // resources/SCtZ-0614/media_resource.tab] :: total: [9]
@@ -206,7 +176,7 @@ $input = array('filename' => 'SCTZ-0275.txt', 'lines_before_and_after_sciname' =
 
 // $input = array('filename' => 'scb-0092.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0092/');
 // -> none
-$input = array('filename' => 'scb-0093.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0093/');
+// $input = array('filename' => 'scb-0093.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0093/');
 // -> 34 scinames
 
 // $input = array('filename' => 'SCtZ-0084.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0084/');
