@@ -588,6 +588,7 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                     */
                     // /* normal operation
                     $assoc = $this->func_Assoc->parse_associations($rec['body'], $pdf_id);
+                    // print_r($assoc); exit("\n-SI Contributions-\n");
                     // */
                     
                     $assoc['sciname'] = $rec['sciname']; //just for debug for now

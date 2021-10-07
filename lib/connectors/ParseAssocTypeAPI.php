@@ -301,6 +301,7 @@ class ParseAssocTypeAPI
         */
         if(stripos($assoc_type, "HOST") !== false) return "http://purl.obolibrary.org/obo/RO_0002454"; //string is found
         if(stripos($assoc_type, "PARASITOID") !== false) return "http://purl.obolibrary.org/obo/RO_0002209"; //string is found
+        exit("\n-----\nUndefined association type (SI to Zoology Botany): [$assoc_type]\n-----\n");
         return false;
     }
 }
