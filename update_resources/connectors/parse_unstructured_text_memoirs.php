@@ -161,8 +161,9 @@ MoftheAES_resources	Wed 2021-09-29 09:56:19 PM	{"MoF.tab":12428, "media.tab":191
 
 91225	Thu 2021-08-05 12:07:49 PM	{"association.tab":4275, "occurrence.tab":4693, "taxon.tab":4859, "time_elapsed":{"sec":6.39, "min":0.11, "hr":0}}
 91225	Thu 2021-08-12 05:38:11 AM	{"association.tab":4343, "occurrence.tab":4762, "taxon.tab":4932, "time_elapsed":{"sec":124.63, "min":2.08, "hr":0.03}}
-91225	Mon 2021-09-27 01:12:13 PM	{"association.tab":4326, "occurrence.tab":4751, "taxon.tab":4931, "time_elapsed":{"sec":10.51, "min":0.18, "hr":0}}91225	Thu 2021-09-30 07:34:14 AM	{"association.tab":4330, "occurrence.tab":4755, "taxon.tab":4934, "time_elapsed":{"sec":14.97, "min":0.25, "hr":0}}
+91225	Mon 2021-09-27 01:12:13 PM	{"association.tab":4326, "occurrence.tab":4751, "taxon.tab":4931, "time_elapsed":{"sec":10.51, "min":0.18, "hr":0}}91225	
 91225	Thu 2021-09-30 09:28:56 AM	{"association.tab":4330, "occurrence.tab":4755, "taxon.tab":4934, "time_elapsed":{"sec":9.01, "min":0.15, "hr":0}}
+91225	Thu 2021-10-07 09:21:18 AM	{"association.tab":4330, "occurrence.tab":4755, "taxon.tab":4934, "time_elapsed":{"sec":17.77, "min":0.3, "hr":0}}
 
 91362	            Mon 2021-08-09 05:21:21 AM	{"assoc.tab":486,                                         "occur.tab":624,          "taxon.tab":656, "time_elapsed":{"sec":6.09, "min":0.1, "hr":0}}
 91362_species	    Mon 2021-08-09 05:22:06 AM	{                                "media_resource.tab":56,                           "taxon.tab":56, "time_elapsed":{"sec":0.36, "min":0.01, "hr":0}}
