@@ -659,7 +659,9 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     else {
                         // /* DATA-1891: newly added, kinda forgotten it after the SI repos. Or didn't occur to me that it will be used anymore.
                         if($assoc = $this->func_Assoc_orig->parse_associations($rec['body'], $pdf_id)) {
-                            print_r($assoc); echo("\n-reg assoc in Memoirs-\n");
+                            if(@$assoc['assoc']) {
+                                print_r($assoc); echo("\n-reg assoc in Memoirs-\n");
+                            }
                         }
                         // */
                     }
