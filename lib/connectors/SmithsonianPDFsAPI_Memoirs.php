@@ -43,8 +43,8 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
     function initialize($resource_name = "")
     {
         $this->resource_name = $resource_name;
-        require_library('connectors/ParseAssocTypeAPI_Memoirs');
-        $this->func_Assoc = new ParseAssocTypeAPI_Memoirs(); 
+        require_library('connectors/ParseAssocTypeAPI_Memoirs');    $this->func_Assoc      = new ParseAssocTypeAPI_Memoirs(); 
+        require_library('connectors/ParseAssocTypeAPI');            $this->func_Assoc_orig = new ParseAssocTypeAPI(); 
     }
     function archive_builder_finalize() { $this->archive_builder->finalize(true); }
     // */
@@ -635,7 +635,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     if($rec['sciname'] == 'Perlesta baumanni') echo("\nPerlesta baumanni: [$tmp;]\n");
                     */
                     
-                    // /* associations block
+                    // /* ========================================== associations block ==========================================
                     
                     // /* manual customization
                     if($pdf_id == "SCtZ-0439") { //typo
@@ -654,6 +654,14 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     if(in_array($pdf_id, array('91225', '91362'))) {
                         $this->meta = array();
                         $assoc = $this->func_Assoc->parse_associations($rec['body'], $pdf_id, $WRITE);
+                        // print_r($assoc); //echo("\n-new assoc in Memoirs-\n");
+                    }
+                    else {
+                        // /* DATA-1891: newly added, kinda forgotten it after the SI repos. Or didn't occur to me that it will be used anymore.
+                        if($assoc = $this->func_Assoc_orig->parse_associations($rec['body'], $pdf_id)) {
+                            print_r($assoc); echo("\n-reg assoc in Memoirs-\n");
+                        }
+                        // */
                     }
                     // */
                     
@@ -668,10 +676,11 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     
                     if($val = @$assoc['assoc']) {
                         $rec['associations'] = $val;
-                        // echo "\n---------\n";
-                        // print_r($assoc); //good debug
-                        // echo "\n---------\n";
+                        if($GLOBALS['ENV_DEBUG']) {
+                            echo "\n---------\n"; print_r($assoc); echo "\n---------\n";
+                        }
                     }
+
                     // */
                     
                 } //print_r($rec); exit;

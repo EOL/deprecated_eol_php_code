@@ -1880,9 +1880,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // if($row == "Type locality: Volcano of Izalco, Sonsonate, Salvador.") break;
                 // if($row == "Distribution: Lesser Antilles.") break;
             // }
-            
-            
-            
+
         }//end loop text
         fclose($WRITE);
         fclose($WRITE_st);

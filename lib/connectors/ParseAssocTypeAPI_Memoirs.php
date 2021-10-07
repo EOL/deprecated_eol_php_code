@@ -222,9 +222,10 @@ class ParseAssocTypeAPI_Memoirs
         HOST(s)/HOST PLANT(s)   associationType=http://purl.obolibrary.org/obo/RO_0002454
         PARASITOID(s)           associationType=http://purl.obolibrary.org/obo/RO_0002209
         */
-        if(stripos($assoc_type, "HOST") !== false) return "http://purl.obolibrary.org/obo/RO_0002454"; //string is found
-        if(stripos($assoc_type, "PARASITOID") !== false) return "http://purl.obolibrary.org/obo/RO_0002209"; //string is found
-        if(stripos($assoc_type, "RO_0002453") !== false) return "http://purl.obolibrary.org/obo/RO_0002453"; //string is found
+        if(stripos($assoc_type, "HOST") !== false)          return "http://purl.obolibrary.org/obo/RO_0002454"; //string is found
+        if(stripos($assoc_type, "PARASITOID") !== false)    return "http://purl.obolibrary.org/obo/RO_0002209"; //string is found
+        if(stripos($assoc_type, "RO_0002453") !== false)    return "http://purl.obolibrary.org/obo/RO_0002453"; //string is found
+        exit("\n-----\nUndefined association type (Memoirs): [$assoc_type]\n-----\n");
         return false;
     }
 }
