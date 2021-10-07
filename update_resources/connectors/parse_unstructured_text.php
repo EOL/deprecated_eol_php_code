@@ -2,10 +2,10 @@
 namespace php_active_record;
 /* DATA-1877: textmining more unstructured text
 start of many iterations:
-
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+// $GLOBALS['ENV_DEBUG'] = false;
 require_library('connectors/ParseListTypeAPI');
 require_library('connectors/ParseUnstructuredTextAPI');
 $timestart = time_elapsed();

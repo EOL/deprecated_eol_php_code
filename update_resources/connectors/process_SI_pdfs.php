@@ -49,6 +49,7 @@ with NEW host patterns: DATA-1891
 ...
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+// $GLOBALS['ENV_DEBUG'] = false;
 $timestart = time_elapsed();
 // print_r($argv);
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
@@ -84,6 +85,7 @@ $func = new SmithsonianPDFsAPI($resource_id);
 $func->start();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder
 // */
+
 /* BELOW HERE IS WHEN YOU WANT TO PROCESS ONE FILE AT A TIME. DURING DEV. 
 used during dev (one file at a time using param $txt_filename):
 php update_resources/connectors/process_SI_pdfs.php 

@@ -601,9 +601,9 @@ class SmithsonianPDFsAPI extends ParseListTypeAPI
                     
                     if($val = @$assoc['assoc']) {
                         $rec['associations'] = $val;
-                        echo "\n---------\n";
-                        print_r($assoc); //good debug
-                        echo "\n---------\n";
+                        if($GLOBALS['ENV_DEBUG']) {
+                            echo "\n---------\n"; print_r($assoc); echo "\n---------\n";
+                        }
                     }
                     // */
                     

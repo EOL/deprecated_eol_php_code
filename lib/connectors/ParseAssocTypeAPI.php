@@ -7,6 +7,10 @@ class ParseAssocTypeAPI
     {
         $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
+        // /* DATA-1891 --- this block is indeed needed.
+        $this->assoc_prefixes[] = "HOST PLANTS";
+        $this->assoc_prefixes[] = "HOST PLANT";
+        // */
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
     }
@@ -30,6 +34,10 @@ class ParseAssocTypeAPI
     {
         $scinames = array();
         foreach($rows as $prefix => $row) {
+            // /* DATA-1891
+            $row = str_replace(array("(", ")"), " ", $row);
+            $row = Functions::remove_whitespace($row);
+            // */
             $row = str_replace(":", ",", $row);
             $row = str_replace("—", ",", $row);
             $row = str_replace(";", ",", $row);
@@ -111,6 +119,13 @@ class ParseAssocTypeAPI
     }
     private function get_relevant_blocks($arr)
     {   //print_r($this->assoc_prefixes); exit;
+        /*
+        print_r($arr); exit;
+        [49] => 
+        [50] => PARASITOID (Table 2).(Chanos chanos).
+        [51] => 
+        [52] => HOST PLANT (Table 1) ;Mola mola,
+        */
         $final = array();
         foreach($arr as $string) {
             foreach($this->assoc_prefixes as $prefix) {
@@ -120,21 +135,32 @@ class ParseAssocTypeAPI
                 //a space
                 if(substr($string,0,strlen($prefix)+1) === "$prefix"." ") {
                     $string = trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis
-                    $final[$prefix] = $string;
+                    $final[$prefix] = $string; debug("\n[$string][$prefix]['space'][1]\n");
                     continue;
                 }
                 //a period (.)
                 if(substr($string,0,strlen($prefix)+1) === "$prefix".".") {
                     $string = trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis
-                    $final[$prefix] = $string;
+                    $final[$prefix] = $string; debug("\n[$string][$prefix]['period'][2]\n");
                     continue;
                 }
                 //a diff hyphen (—)
                 if(substr($string,0,strlen($prefix)+1) === "$prefix"."—") {
                     $string = trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis
-                    $final[$prefix] = $string;
+                    $final[$prefix] = $string; debug("\n[$string][$prefix]['diff hyphen'][3]\n");
                     continue;
                 }
+                
+                // /* DATA-1891: a list of punctuation, I'd say... short dash, long dash, comma, period, semicolon, colon, and open parenthesis.
+                $punctuations = array("-", "_", ",", ";", ":", "(");
+                foreach($punctuations as $punctuation) {
+                    if(substr($string,0,strlen($prefix)+1) === "$prefix".$punctuation) {
+                        // $string = trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis --- comment this to enable 'open parenthesis' punctuation
+                        $final[$prefix] = $string; // exit("\ngoes here...\n");
+                        break;
+                    }
+                }
+                // */
             }
         }
         // print_r($final); exit("\n-eli1-\n");
@@ -147,8 +173,9 @@ class ParseAssocTypeAPI
     }
     private function run_GNRD_assoc($string)
     {
+        if(!$string) return false;
         $string = trim($string);
-        $url = $this->service['GNRD text input'].$string;
+        $url = $this->service['GNRD text input'].$string; debug("\nGNRD 3: [$url]\n");
         $options = $this->download_options;
         $options['expire_seconds'] = false;
         if($json = Functions::lookup_with_cache($url, $options)) {
