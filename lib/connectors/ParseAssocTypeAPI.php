@@ -36,6 +36,8 @@ class ParseAssocTypeAPI
         */
         if($this->resource_name == "NAF") $ret = self::get_relevant_blocks_using_On_FoundOn($arr, $ret, $orig_tmp); //DATA-1891
         $assoc = self::get_associations($ret); //print_r($assoc); 
+        if($val = $assoc['On']) print_r($assoc);        //just can't wait to have a hit
+        if($val = $assoc['Found on']) print_r($assoc);  //just can't wait to have a hit
         /*Array(
             [HOSTS] => Array(
                     [Populus tremuloides] => 
