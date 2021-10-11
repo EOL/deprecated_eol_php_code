@@ -224,7 +224,7 @@ class ParseAssocTypeAPI
                         $words = explode(" ", $new_str);
                         $new_words = array();
                         $new_words[] = $words[0];
-                        $new_words[] = $words[1];
+                        $new_words[] = @$words[1];
                         // print_r($new_words); //exit("\nelix4\n");
                         $new_str = implode(" ", $new_words);
                         if($obj = self::run_GNRD_assoc($new_str)) { // print_r($obj);
