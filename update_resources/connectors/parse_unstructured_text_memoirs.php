@@ -186,7 +186,8 @@ MoftheAES_resources	Thu 2021-10-07 10:11:44 AM	{"MoF.tab":12428, "media.tab":191
 91362_species_ENV	Thu 2021-09-30 09:30:11 AM	{                 "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":267, "taxon.tab":61, "time_elapsed":{"sec":10.08, "min":0.17, "hr":0}}
 91362_resource	    Thu 2021-09-30 09:30:15 AM	{"assoc.tab":491, "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":897, "taxon.tab":694, "time_elapsed":{"sec":3.6, "min":0.06, "hr":0}}
 
-NorthAmericanFlora	Mon 2021-08-09 08:23:18 AM	{"assoc.tab":486, "MoF.tab":3199, "media.tab":770, "occurrence.tab":3823, "taxon.tab":1376, "time_elapsed":{"sec":37.56, "min":0.63, "hr":0.01}}
+NorthAmericanFlora	Thu 2021-08-12 05:42:08 AM	{"assoc.tab":4829, "MoF.tab":3199, "media.tab":770, "occurrence.tab":8585, "taxon.tab":6198, "time_elapsed":{"sec":43.78, "min":0.73, "hr":0.01}}
+NorthAmericanFlora	Mon 2021-10-11 10:23:50 AM	{"assoc.tab":4821, "MoF.tab":3339, "media.tab":794, "occurrence.tab":8724, "taxon.tab":6226, "time_elapsed":{"sec":17.61, "min":0.29, "hr":0}}
 
 ---------- start FUNGI list: ----------
 "15404", "15405", "15406", "15407", "15408", "15409", "15410", "15411", "15412", 
@@ -244,6 +245,8 @@ The discrepancy is the improvement in capturing species sections.
 
 NorthAmericanFlora_Fungi	Wed 2021-08-11 11:29:24 AM	{"MoF.tab":17250, "media_resource.tab":4498, "occurrence_specific.tab":17250, "taxon.tab":4491, "time_elapsed":{"sec":107.91, "min":1.8, "hr":0.03}}
 NorthAmericanFlora_Fungi	Thu 2021-08-12 05:42:52 AM	{"MoF.tab":17228, "media_resource.tab":4498, "occurrence_specific.tab":17228, "taxon.tab":4491, "time_elapsed":{"sec":108.91, "min":1.82, "hr":0.03}}
+NorthAmericanFlora_Fungi	Mon 2021-10-11 10:24:51 AM	{"association.tab":3, 
+                                                         "MoF.tab":17168, "media_resource.tab":4597, "occurrence_specific.tab":17174, "taxon.tab":4592, "time_elapsed":{"sec":38.07, "min":0.63, "hr":0.01}}
 ---------- end FUNGI list: ----------
 
 ---------- Plant list: ----------
@@ -405,6 +408,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "91345", "resource_name":
 
 NorthAmericanFlora_Plants	Thu 2021-08-26 08:27:21 AM	{"MoF.tab":44886, "media.tab":11382, "occurrence.tab":44886, "taxon.tab":11243, "time_elapsed":{"sec":267.87, "min":4.46, "hr":0.07}}
 NorthAmericanFlora_Plants	Tue 2021-08-31 03:10:17 AM	{"MoF.tab":45013, "media.tab":11438, "occurrence.tab":45013, "taxon.tab":11299, "time_elapsed":{"sec":267.57, "min":4.46, "hr":0.07}}
+NorthAmericanFlora_Plants	Mon 2021-10-11 10:25:59 AM	{"MoF.tab":45513, "media.tab":11476, "occurrence.tab":45513, "taxon.tab":11335, "time_elapsed":{"sec":94.02, "min":1.57, "hr":0.03}}
 
 ====================== Kubitzki_et_al ======================
 START PATTERNS:
