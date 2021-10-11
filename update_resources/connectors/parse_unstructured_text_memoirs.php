@@ -214,16 +214,23 @@ The discrepancy is the improvement in capturing species sections.
 15406_ENV	Tue 2021-08-10 11:28:58 AM	{"MoF.tab":601, "media.tab":235, "occurrence_specific.tab":601, "taxon.tab":235, "time_elapsed":{"sec":12.8, "min":0.21, "hr":0}}
 15406	    Thu 2021-09-30 11:19:35 AM	{               "media.tab":238,                                "taxon.tab":238, "time_elapsed":{"sec":0.56, "min":0.01, "hr":0}}
 15406_ENV	Thu 2021-09-30 11:23:25 AM	{"MoF.tab":577, "media.tab":238, "occurrence_specific.tab":577, "taxon.tab":238, "time_elapsed":{"sec":109.86, "min":1.83, "hr":0.03}}
+15406	    Mon 2021-10-11 08:26:56 AM	{"assoc.tab":3, "media.tab":238, "occurrence.tab":6,            "taxon.tab":241, "time_elapsed":{"sec":0.63, "min":0.01, "hr":0}}
+15406_ENV	Mon 2021-10-11 08:27:32 AM	{"assoc.tab":3, 
+                                         "MoF.tab":591, "media.tab":238, "occurrence_specific.tab":597, "taxon.tab":241, "time_elapsed":{"sec":6.15, "min":0.1, "hr":0}}
 
 15412	    Tue 2021-08-10 01:10:22 PM	{                "media.tab":99,                                  "taxon.tab":99, "time_elapsed":{"sec":0.4, "min":0.01, "hr":0}}
 15412_ENV	Tue 2021-08-10 01:12:37 PM	{"MoF.tab":1225, "media.tab":99,  "occurrence_specific.tab":1225, "taxon.tab":99, "time_elapsed":{"sec":14.39, "min":0.24, "hr":0}}
 15412	    Fri 2021-10-01 10:35:26 AM	{                "media.tab":108,                                 "taxon.tab":108, "time_elapsed":{"sec":0.7, "min":0.01, "hr":0}}
 15412_ENV	Fri 2021-10-01 10:43:16 AM	{"MoF.tab":1157, "media.tab":108, "occurrence_specific.tab":1157, "taxon.tab":108, "time_elapsed":{"sec":349.19, "min":5.82, "hr":0.1}}
+15412	    Mon 2021-10-11 06:34:09 AM	{                "media.tab":108,                                 "taxon.tab":108, "time_elapsed":{"sec":65.14, "min":1.09, "hr":0.02}}
+15412_ENV	Mon 2021-10-11 06:34:55 AM	{"MoF.tab":1202, "media.tab":108, "occurrence_specific.tab":1202, "taxon.tab":108, "time_elapsed":{"sec":15.31, "min":0.26, "hr":0}}
 
 15418	    Tue 2021-08-10 12:57:16 PM	{               "media.tab":266,                                "taxon.tab":265, "time_elapsed":{"sec":0.5, "min":0.01, "hr":0}}
 15418_ENV	Tue 2021-08-10 01:05:36 PM	{"MoF.tab":472, "media.tab":266, "occurrence_specific.tab":472, "taxon.tab":265, "time_elapsed":{"sec":380.14, "min":6.34, "hr":0.11}}
 15418	    Sun 2021-10-03 03:08:29 AM	{               "media.tab":270,                                "taxon.tab":269, "time_elapsed":{"sec":0.75, "min":0.01, "hr":0}}
 15418_ENV	Sun 2021-10-03 03:10:58 AM	{"MoF.tab":459, "media.tab":270, "occurrence_specific.tab":459, "taxon.tab":269, "time_elapsed":{"sec":27.53, "min":0.46, "hr":0.01}}
+15418	    Mon 2021-10-11 06:17:24 AM	{               "media.tab":270,                                "taxon.tab":269, "time_elapsed":{"sec":0.6, "min":0.01, "hr":0}}
+15418_ENV	Mon 2021-10-11 06:18:01 AM	{"MoF.tab":459, "media.tab":270, "occurrence_specific.tab":459, "taxon.tab":269, "time_elapsed":{"sec":6.76, "min":0.11, "hr":0}}
 
 15420	    Thu 2021-08-12 04:49:12 AM	{                "media.tab":143,                                 "taxon.tab":143, "time_elapsed":{"sec":0.42, "min":0.01, "hr":0}}
 15420_ENV	Thu 2021-08-12 04:51:26 AM	{"MoF.tab":456,  "media.tab":143, "occurrence_specific.tab":456,  "taxon.tab":143, "time_elapsed":{"sec":13.53, "min":0.23, "hr":0}}
