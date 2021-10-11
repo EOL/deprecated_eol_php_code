@@ -44,7 +44,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
     {
         $this->resource_name = $resource_name;
         require_library('connectors/ParseAssocTypeAPI_Memoirs');    $this->func_Assoc      = new ParseAssocTypeAPI_Memoirs(); 
-        require_library('connectors/ParseAssocTypeAPI');            $this->func_Assoc_orig = new ParseAssocTypeAPI(); 
+        require_library('connectors/ParseAssocTypeAPI');            $this->func_Assoc_orig = new ParseAssocTypeAPI($resource_name); 
     }
     function archive_builder_finalize() { $this->archive_builder->finalize(true); }
     // */
@@ -580,6 +580,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(preg_match("/\'(.*?)\'/ims", $str, $a2)) $rec['sciname'] = self::clean_sciname(trim($a2[1]));
                 if(preg_match("/>(.*?)elicha/ims", $str."elicha", $a2)) {
                     $tmp = Functions::remove_whitespace(trim($a2[1]));
+                    $orig_tmp = $tmp; //for DATA-1891
                     /* orig
                     $tmp = str_replace("\n\n\n\n", "\n\n", $tmp);
                     $tmp = str_replace("\n\n\n", "\n\n", $tmp);
@@ -632,7 +633,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     $rec['body'] = $tmp;
                     
                     /* good debug
-                    if($rec['sciname'] == 'Perlesta baumanni') echo("\nPerlesta baumanni: [$tmp;]\n");
+                    if($rec['sciname'] == 'Sphaerocarpos texanus') exit("\n".$rec['sciname'].": [$tmp;]\n");
                     */
                     
                     // /* ========================================== associations block ==========================================
@@ -651,6 +652,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     
                     // exit("\n1---\n".$rec['body']."\n---\n");
                     // /* normal operation
+                    $this->pdf_id = $pdf_id;
                     if(in_array($pdf_id, array('91225', '91362'))) {
                         $this->meta = array();
                         $assoc = $this->func_Assoc->parse_associations($rec['body'], $pdf_id, $WRITE);
@@ -658,10 +660,11 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     }
                     else {
                         // /* DATA-1891: newly added, kinda forgotten it after the SI repos. Or didn't occur to me that it will be used anymore.
-                        if($assoc = $this->func_Assoc_orig->parse_associations($rec['body'], $pdf_id)) {
+                        if($assoc = $this->func_Assoc_orig->parse_associations($rec['body'], $pdf_id, $orig_tmp)) {
+                            /* good debug
                             if(@$assoc['assoc']) {
                                 print_r($assoc); echo("\n-reg assoc in Memoirs-\n");
-                            }
+                            } */
                         }
                         // */
                     }
@@ -790,7 +793,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
         //write associations
         if($val = @$rec['associations']) {
             $val['pdf_id'] = $rec['pdf_id'];
-            $taxon_ids = $this->func_Assoc->write_associations($val, $taxon, $this->archive_builder, $this->meta, $this->taxon_ids);
+            $taxon_ids = $this->func_Assoc->write_associations($val, $taxon, $this->archive_builder, @$this->meta, $this->taxon_ids);
             $this->taxon_ids = $taxon_ids;
         }
     }

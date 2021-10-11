@@ -14,6 +14,10 @@ DATA-1877: textmining more unstructured text
 118935_ENV	Wed 2021-07-07 01:41:51 AM	{"MoF.tab":1479,                    "occur.tab":1479, "taxon.tab":1308, "time_elapsed":{"sec":66.67, "min":1.11, "hr":0.02}}
 118935	    Wed 2021-09-29 01:07:53 AM	{               "media.tab":1346,                     "taxon.tab":1345, "time_elapsed":{"sec":1.07, "min":0.02, "hr":0}}
 118935_ENV	Wed 2021-09-29 01:10:08 AM	{"MoF.tab":1489,                    "occur.tab":1489, "taxon.tab":1345, "time_elapsed":{"sec":75, "min":1.25, "hr":0.02}}
+DATA-1891:
+118935	    Thu 2021-10-07 09:28:43 AM	{"media_resource.tab":1346, "taxon.tab":1345, "time_elapsed":{"sec":1.2, "min":0.02, "hr":0}}
+118935_ENV	Thu 2021-10-07 09:30:17 AM	{"measurement_or_fact_specific.tab":1489, "occurrence_specific.tab":1489, "taxon.tab":1345, "time_elapsed":{"sec":33.8, "min":0.56, "hr":0.01}}
+
 ------------------------------------------------------------
 120081	    Tue 2021-07-13 09:14:50 AM	{               "media.tab":95,                  "taxon.tab":95, "time_elapsed":{"sec":0.39, "min":0.01, "hr":0}}
 120081_ENV	Tue 2021-07-13 09:17:10 AM	{"MoF.tab":526, "media.tab":95, "occur.tab":526, "taxon.tab":95, "time_elapsed":{"sec":20.07, "min":0.33, "hr":0.01}}
@@ -127,6 +131,8 @@ MoftheAES_resources	Wed 2021-07-07 07:02:49 AM	{"MoF.tab":3995, "media.tab":420,
 MoftheAES_resources	Thu 2021-07-29 09:06:03 AM	{"MoF.tab":12098, "media.tab":1889, "occurrence.tab":12098, "taxon.tab":5853, "time_elapsed":{"sec":118.6, "min":1.98, "hr":0.03}}
 MoftheAES_resources	Mon 2021-08-09 11:10:28 AM	{"MoF.tab":12098, "media.tab":1889, "occurrence.tab":12098, "taxon.tab":5853, "time_elapsed":{"sec":115.66, "min":1.93, "hr":0.03}}
 MoftheAES_resources	Wed 2021-09-29 09:56:19 PM	{"MoF.tab":12428, "media.tab":1919, "occurrence.tab":12428, "taxon.tab":5951, "time_elapsed":{"sec":47.55, "min":0.79, "hr":0.01}}
+MoftheAES_resources	Thu 2021-10-07 10:11:44 AM	{"MoF.tab":12428, "media.tab":1919, "occurrence.tab":12428, "taxon.tab":5951, "time_elapsed":{"sec":39.96, "min":0.67, "hr":0.01}}
+
 ------------------------------------------------------------ North American Flora (DATA-1890) --- BHL - 7 documents
 15423	    Tue 2021-07-13 07:19:04     {               "media_resource.tab":73,                   "taxon.tab":73, "time_elapsed":{"sec":0.38, "min":0.01, "hr":0}}
 15423_ENV	Tue 2021-07-13 07:23:01     {"MoF.tab":338, "media_resource.tab":73, "occur.tab":338,  "taxon.tab":73, "time_elapsed":{"sec":115.98, "min":1.93, "hr":0.03}}
@@ -539,10 +545,11 @@ exit("\n[$var]\n");
 // exit("\n[$var]\n");
 
 /*
-$var1 = "paRt";
-$var2 = "part";
+$var1 = "part";
+$var2 = "Part";
 if (strcmp($var1, $var2) == 0) echo "\n$var1 is equal to $var2 in a case sensitive string comparison";
 else                           echo "\n$var1 is not equal to $var2 in a case sensitive string comparison";
+echo "\n[".strlen("—")."]\n"; //diff hyphen
 exit("\n-test-\n");
 */
 /*

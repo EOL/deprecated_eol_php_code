@@ -145,6 +145,7 @@ class ParseAssocTypeAPI_Memoirs
     {
         $this->taxon_ids = $taxon_ids;
         $this->archive_builder = $archive_builder;
+        if($val = $rec['pdf_id']) $this->pdf_id = $val; // an after-adjustment made during DATA-1891 task
         // print_r($rec); exit("\n111\n");
         /*Array(
             [HOST] => Array(
@@ -225,6 +226,7 @@ class ParseAssocTypeAPI_Memoirs
         if(stripos($assoc_type, "HOST") !== false)          return "http://purl.obolibrary.org/obo/RO_0002454"; //string is found
         if(stripos($assoc_type, "PARASITOID") !== false)    return "http://purl.obolibrary.org/obo/RO_0002209"; //string is found
         if(stripos($assoc_type, "RO_0002453") !== false)    return "http://purl.obolibrary.org/obo/RO_0002453"; //string is found
+        if(in_array($assoc_type, array("On", "Found on"))) return "http://purl.obolibrary.org/obo/RO_0002454"; //DATA-1891
         exit("\n-----\nUndefined association type (Memoirs): [$assoc_type]\n-----\n");
         return false;
     }

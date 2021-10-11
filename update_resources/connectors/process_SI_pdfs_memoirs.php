@@ -41,6 +41,7 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "119188", "resource_name":"others
 
 === START BHL RESOURCES ===
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL", "doc": "BHL"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "15423", "resource_name":"NAF", "doc": "BHL"}'       --- changed to "NAF" for DATA-1891
 process_SI_pdfs_memoirs.php _ '{"resource_id": "91155", "resource_name":"2nd BHL", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15427", "resource_name":"3rd BHL", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15428", "resource_name":"4th BHL", "doc": "BHL"}'

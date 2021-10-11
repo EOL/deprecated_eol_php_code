@@ -3,8 +3,9 @@ namespace php_active_record;
 /* */
 class ParseAssocTypeAPI
 {
-    function __construct()
+    function __construct($resource_name = false)
     {
+        $this->resource_name = $resource_name;
         $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         // /* DATA-1891 --- this block is indeed needed.
@@ -15,18 +16,36 @@ class ParseAssocTypeAPI
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
     }
     /*#################################################################################################################################*/
-    function parse_associations($html, $pdf_id)
-    {
+    function parse_associations($html, $pdf_id, $orig_tmp = false)
+    {   //exit("\n[$this->resource_name]\n");
         $this->pdf_id = $pdf_id; //works but not being used atm.
-        $arr = explode("<br>", $html); // print_r($arr); exit;
+        $arr = explode("<br>", $html); //print_r($arr); exit("\nelix2\n");
         /*[35] => 
           [36] => HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
           [37] => 
           [38] => PARASITOIDS (Table 2).—Braconidae: Apanteles ornigus Weed, Apanteles sp., Pholetesor sp., probably salicifoliella (Mason); Eulophidae: Chrysocharis sp., Cirrospilus cinctithorax (Girault), Cirrospilus sp., Closterocerus tricinctus (Ashmead), Closterocerus sp., near trifasciatus, Horismenus fraternus (Fitch), Pediobius sp., Pnigalio flavipes (Ashmead), Pnigalio tischeriae (Ashmead) (regarded by some as a junior synonym of Pnigalio flavipes), Pnigalio near proximus (Ashmead), Pnigalio sp., Sympiesis conica (Provancher), Sympiesis sp., Tetrastichus sp.; Ichneumonidae: Alophosternum foliicola (Cushman), Diadeg-ma sp., stenosomus complex, Scambus decorus (Whalley); Pteromalidae: Pteromalus sp. (most records from Auerbach (1991), in which a few records may pertain only to Phyllonorycter nipigon).
         */
         $sciname = $arr[0]; //shouldn't be used bec it is uncleaned e.g. "Periploca orichalcella (Clemens), new combination"
-        $arr = self::get_relevant_blocks($arr); //print_r($arr); exit;
-        $assoc = self::get_associations($arr);
+        $ret = self::get_relevant_blocks($arr); //print_r($ret); exit("\nstop muna\n");
+        /*Array(
+            [HOSTS] => HOSTS.—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens J.E. Smith also being mined. Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
+            [HOST] => HOST(Table 173) (Mola mola). Gadus ogac.
+            [HOST PLANTS] => HOST PLANTS.—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens J.E. Smith also being mined. Gadus morhua L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
+            [PARASITOIDS] => PARASITOIDS.—Braconidae: Apanteles ornigus Weed, Apanteles sp., Pholetesor sp., probably salicifoliella; Eulophidae: Chrysocharis sp., Cirrospilus cinctithorax, Cirrospilus sp., Closterocerus tricinctus, Closterocerus sp., near trifasciatus, Horismenus fraternus, Pediobius sp., Pnigalio flavipes, Pnigalio tischeriae, Pnigalio near proximus, Pnigalio sp., Sympiesis conica, Sympiesis sp., Tetrastichus sp.; Ichneumonidae: Alophosternum foliicola, Diadeg-ma sp., stenosomus complex, Scambus decorus; Pteromalidae: Pteromalus sp., in which a few records may pertain only to Phyllonorycter nipigon).
+        )
+        */
+        if($this->resource_name == "NAF") $ret = self::get_relevant_blocks_using_On_FoundOn($arr, $ret, $orig_tmp); //DATA-1891
+        $assoc = self::get_associations($ret); //print_r($assoc); 
+        /*Array(
+            [HOSTS] => Array(
+                    [Populus tremuloides] => 
+                    [Populus grandidentata] => 
+                )
+            [HOST] => Array(
+                    [Mola mola] => 
+                    [Gadus ogac] => 
+                )
+        */
         // exit("\n[$sciname]\n-end assoc-\n");
         return array('assoc' => $assoc);
     }
@@ -145,7 +164,7 @@ class ParseAssocTypeAPI
                     continue;
                 }
                 //a diff hyphen (—)
-                if(substr($string,0,strlen($prefix)+1) === "$prefix"."—") {
+                if(substr($string,0,strlen($prefix)+3) === "$prefix"."—") { //take note +3 NOT +1
                     $string = trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis
                     $final[$prefix] = $string; debug("\n[$string][$prefix]['diff hyphen'][3]\n");
                     continue;
@@ -169,6 +188,57 @@ class ParseAssocTypeAPI
             [PARASITOIDS] => PARASITOIDS (Table 2).—Braconidae: Apanteles ornigus Weed, Apanteles sp., Pholetesor sp., probably salicifoliella (Mason); Eulophidae: Chrysocharis sp., Cirrospilus cinctithorax (Girault), Cirrospilus sp., Closterocerus tricinctus (Ashmead), Closterocerus sp., near trifasciatus, Horismenus fraternus (Fitch), Pediobius sp., Pnigalio flavipes (Ashmead), Pnigalio tischeriae (Ashmead) (regarded by some as a junior synonym of Pnigalio flavipes), Pnigalio near proximus (Ashmead), Pnigalio sp., Sympiesis conica (Provancher), Sympiesis sp., Tetrastichus sp.; Ichneumonidae: Alophosternum foliicola (Cushman), Diadeg-ma sp., stenosomus complex, Scambus decorus (Whalley); Pteromalidae: Pteromalus sp. (most records from Auerbach (1991), in which a few records may pertain only to Phyllonorycter nipigon).
         )
         */
+        return $final;
+    }
+    private function get_relevant_blocks_using_On_FoundOn($arr, $final, $orig_tmp)
+    {
+        $tmp = str_replace("\n", "<br>", $orig_tmp);
+        $arr = explode("<br>", $tmp);
+        $arr = array_filter($arr); //remove null arrays
+        $arr = array_unique($arr); //make unique
+        $arr = array_values($arr); //reindex key
+        // print_r($arr); exit("\nelix3\n");
+        /*Array(
+            [0] => Sphaerocarpos texanus Aust. Bull. Torrey Club 6: 158. 1877
+            [1] => Sphaerocarpos terrestris Bisch. Nova Acta Acad. Leop.-Carol. 13: 829, in part. 1827
+            [2] => Found on Oreochromis niloticus Elba.
+            [3] => sphaerocarpos cahfornicus Aust. Bull. Torrey Club 6- 305 1879
+        */
+        $assoc_prefixes = array("On", "Found on");
+        foreach($arr as $string) {
+            foreach($assoc_prefixes as $prefix) {
+                // //a space
+                // echo "\nprocess: [$string]\n".substr($string,0,strlen($prefix)+1)." === [$prefix ]"."\n"; //debug only
+                /* DATA-1891: a list of punctuation, I'd say... short dash, long dash, comma, period, semicolon, colon, and open parenthesis, etc.
+                newline
+                "On"/"Found on" [possible punctuation as above] [target text *beginning with* species names] newline */
+                $punctuations = array(" ", ".", "—", "-", "_", ",", ";", ":", "(");
+                foreach($punctuations as $punctuation) {
+                    $add = 1;
+                    if($punctuation == "—") $add = 3;
+                    $left = substr($string,0,strlen($prefix)+$add);
+                    $right = "$prefix".$punctuation;
+                    if(strcmp($left, $right) == 0) {
+                        $new_str = trim(substr($string, strlen($left), strlen($string)));
+                        debug("\n'$left' is equal to '$right' in a case sensitive string comparison.\n-----\n[$left]\n[$string][$new_str]\n-----\n");
+                        $words = explode(" ", $new_str);
+                        $new_words = array();
+                        $new_words[] = $words[0];
+                        $new_words[] = $words[1];
+                        // print_r($new_words); //exit("\nelix4\n");
+                        $new_str = implode(" ", $new_words);
+                        if($obj = self::run_GNRD_assoc($new_str)) { // print_r($obj);
+                            if($sciname = @$obj->names[0]->scientificName) { //exit("\n[$sciname]\nelix5\n");
+                                $final[$prefix] = $sciname; // exit("\ngoes here...\n");
+                            }
+                        }
+                    }
+                    // else echo "\n'$left' is not equal to '$right' in a case sensitive string comparison";
+                }
+                // */
+            }
+        }
+        // print_r($final); exit("\n-eli1-\n");
         return $final;
     }
     private function run_GNRD_assoc($string)
