@@ -58,7 +58,8 @@ class FilterTermGroupByTaxa
             fwrite($handle, implode("\t", $fields) . "\n");
             fclose($handle);
         }
-        
+
+        require_library('connectors/Functions_Pensoft');
         require_library('connectors/Pensoft2EOLAPI');
         $param['resource_id'] = 'nothing';
         $this->pensoft = new Pensoft2EOLAPI($param);
