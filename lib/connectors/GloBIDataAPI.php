@@ -71,16 +71,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
     }
     function start($info)
     {
-        /* just testing...
-        $url = 'https://editors.eol.org/eoearth/wiki/Main_Page';
-        $options = $this->download_options;
-        $options['download_attempts'] = 1;
-        if($html = Functions::lookup_with_cache($url, $options)) {
-            echo "\nstrlen: ".strlen($html)."\n";
-        }
-        exit("\n-end-\n");
-        */
-        /*
+        /* just a test:
         $x = self::lookup_gbif_ancestor_using_sciname('Acacia', array(), 'kingdom');
         exit("\n-end-[$x]\n");
         */
@@ -1030,7 +1021,6 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 
             }
         }
-
         return false;
     }
     function get_ancestor_from_gbif($gbif_id, $options = array(), $rank) //$rank e.g. 'kingdom'
@@ -1049,9 +1039,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
     private function get_ancestor_from_GBIF_using_scinames($scinames, $rank) //$rank e.g. 'kingdom'
     {
         foreach($scinames as $sciname) {
-
             $sciname = self::format_sciname($sciname); //manual cleaning
-
             if(!isset($this->not_found_in_GBIF[$sciname])) {
                 if($ancestor = self::lookup_gbif_ancestor_using_sciname($sciname, array(), $rank)) return $ancestor;
                 $this->not_found_in_GBIF[$sciname] = '';
@@ -1085,7 +1073,6 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     }
                 }
                 */
-
             }
         }
         
@@ -1102,8 +1089,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
         $canonical = Functions::canonical_form($sciname);
         if($sciname == $canonical) {
             //if sciname has space
-            if(stripos($sciname, " ") !== false) //string is found
-            {
+            if(stripos($sciname, " ") !== false) { //string is found
                 $names = explode(" ", $sciname);
                 $names = array_map('trim', $names);
                 $names = array_filter($names); //remove null arrays
@@ -1189,7 +1175,6 @@ class GloBIDataAPI extends Globi_Refuted_Records
     {
         $kingdom = strtolower($kingdom);
         if(in_array($kingdom, array('viruses', 'virus'))) return true;
-        
         /* per Katja: https://eol-jira.bibalex.org/browse/DATA-1872?focusedCommentId=65459&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65459
         It turns out that NCBI treats Viruses as a superkingdom and then has a bunch of viral kingdoms. 
         Can we please add these viral kingdoms in all of our filters that check for Viruses? Here's the list:
