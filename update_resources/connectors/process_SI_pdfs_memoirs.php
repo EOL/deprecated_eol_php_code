@@ -85,7 +85,7 @@ $resource_id = $param['resource_id'];
 $resource_name = @$param['resource_name']; //right now used in Media -> derivedFrom column
 $doc = @$param['doc'];
 
-/* un-comment in real operation - main operation
+/* un-comment in real operation - main operation --- WASN'T USED HERE IN Memoirs
 require_library('connectors/ParseListTypeAPI');
 require_library('connectors/SmithsonianPDFsAPI');
 $func = new SmithsonianPDFsAPI($resource_id);
@@ -93,7 +93,7 @@ $func->start();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder
 */
 
-/* ========================== during dev: processing associations ==========================
+/* ========================== during dev: processing associations ========================== --- WASN'T USED HERE IN Memoirs
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/SCtZ-0614_tagged.txt";  $pdf_id = "SCtZ-0614";
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0439/SCtZ-0439_tagged.txt";  $pdf_id = "SCtZ-0439";
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0156/SCTZ-0156_tagged.txt";  $pdf_id = "SCTZ-0156";
