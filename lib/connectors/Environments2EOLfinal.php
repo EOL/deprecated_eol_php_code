@@ -170,40 +170,18 @@ class Environments2EOLfinal extends ContributorsMapAPI
                 [3] => shrubs
                 [4] => ENVO:00000300
                 [5] => envo
+                [6] =>                      --- this is new, a placeholder for measurementType (DATA-1893)
             )*/
             // print_r($arr); exit("\n-stop muna-\n"); //DATA-1893
-            
-                if(@$arr[5] == "envo")         $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
+
+                if($val = @$arr[6])            $mType = $val; //DATA-1893
+            elseif(@$arr[5] == "envo")         $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
             elseif(@$arr[5] == "eol-geonames") $mType = 'http://eol.org/schema/terms/Present';
             elseif(@$arr[5] == "growth")       $mType = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
-            // elseif($val = @$arr[6])            $mType = $val; //DATA-1893
             else {
                 print_r($arr);
                 exit("\nERROR: Undefined ontology: [".@$arr[5]."]\nWill terminate now (1).\n");
             }
-            
-            /* DATA-1893: new patterns for all textmined resources: life history ontology
-            string          measurementType                                 measurementValue
-            evergreen	    http://purl.obolibrary.org/obo/FLOPO_0008548	http://purl.obolibrary.org/obo/PATO_0001733
-            deciduous	    http://purl.obolibrary.org/obo/FLOPO_0008548	http://purl.obolibrary.org/obo/PATO_0001731
-            monoecious	    http://eol.org/schema/terms/SexualSystem	    https://www.wikidata.org/entity/Q66368485
-            monoicous	    http://eol.org/schema/terms/SexualSystem	    https://eol.org/schema/terms/monoicous
-            dioecious	    http://eol.org/schema/terms/SexualSystem	    https://www.wikidata.org/entity/Q148681
-            dioicous	    http://eol.org/schema/terms/SexualSystem	    https://eol.org/schema/terms/dioicous
-            perennial	    http://purl.obolibrary.org/obo/FLOPO_0980073	http://purl.obolibrary.org/obo/FLOPO_0980073
-            biennial	    http://purl.obolibrary.org/obo/FLOPO_0980073	http://purl.obolibrary.org/obo/FLOPO_0980072
-            nocturnal	    http://purl.obolibrary.org/obo/VT_0001502	    http://www.wikidata.org/entity/Q309179
-            diurnal	        http://purl.obolibrary.org/obo/VT_0001502	    http://www.wikidata.org/entity/Q906470
-            crepuscular	    http://purl.obolibrary.org/obo/VT_0001502	    http://purl.obolibrary.org/obo/ECOCORE_00000078
-            iteroparous	    http://purl.obolibrary.org/obo/GO_0000003	    http://polytraits.lifewatchgreece.eu/terms/STRAT_ITER
-            oviparous	    http://purl.obolibrary.org/obo/GO_0000003	    http://www.marinespecies.org/traits/Oviparous
-            ovoviviparous	http://purl.obolibrary.org/obo/GO_0000003	    http://www.marinespecies.org/traits/Ovoviviparous
-            viviparous	    http://purl.obolibrary.org/obo/GO_0000003	    http://www.marinespecies.org/traits/Viviparous
-            precocial	    http://eol.org/schema/terms/DevelopmentalMode	http://eol.org/schema/terms/precocial
-            altricial       http://eol.org/schema/terms/DevelopmentalMode   http://eol.org/schema/terms/altricial
-            polyandrous	    http://eol.org/schema/terms/MatingSystem	    http://purl.obolibrary.org/obo/ECOCORE_00000064
-            polygynous      http://eol.org/schema/terms/MatingSystem        http://purl.obolibrary.org/obo/ECOCORE_00000065
-            */
             
             $arr[0] = str_replace('.txt', '', $arr[0]);
             $a = explode("_-_", $arr[0]);

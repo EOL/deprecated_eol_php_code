@@ -25,7 +25,7 @@ http://api.pensoft.net/annotator?text=I like playing in the shrub&ontologies=gro
 
 http://api.pensoft.net/annotator?text=OZARK-OUACHITA PLECOPTERA SPECIES LIST. Ozark Mountain forests.&ontologies=envo,eol-geonames
 */
-class Pensoft2EOLAPI
+class Pensoft2EOLAPI extends Functions_Pensoft
 {
     function __construct($param)
     {
@@ -101,6 +101,8 @@ class Pensoft2EOLAPI
         /* from DATA-1853 - exclude ranks */
         $this->excluded_ranks = array('class', 'infraclass', 'infrakingdom', 'infraorder', 'infraphylum', 'kingdom', 'order', 'phylum', 'subclass', 'subkingdom', 'suborder', 'subphylum', 'subtribe', 'superclass', 'superfamily', 'superkingdom', 'superorder', 'superphylum', 'division', 'domain', 'grandorder', 'parvorder', 'realm', 'subdivision', 'tribe');
         $this->pensoft_service = "http://api.pensoft.net/annotator?text=MY_DESC&ontologies=MY_ONTOLOGIES";
+        /* DATA-1893: new patterns for all textmined resources: life history ontology */
+        $this->new_patterns_4textmined_resources = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/life_history.txt";
     }
     public function initialize_remaps_deletions_adjustments()
     {
@@ -109,12 +111,14 @@ class Pensoft2EOLAPI
         self::initialize_delete_mRemarks();     //generates $this->delete_MoF_with_these_labels -> used in apply_adjustments()
         self::initialize_delete_uris();         //generates $this->delete_MoF_with_these_uris   -> used in apply_adjustments()
         /* to test if these 4 variables are populated.
-        echo("\n".count($this->remapped_terms)."\n");
-        echo("\n".count($this->mRemarks)."\n");
-        echo("\n".count($this->delete_MoF_with_these_labels)."\n");
-        echo("\n".count($this->delete_MoF_with_these_uris)."\n");
+        echo("\n remapped_terms: "              .count($this->remapped_terms)."\n");
+        echo("\n mRemarks: "                    .count($this->mRemarks)."\n");
+        echo("\n delete_MoF_with_these_labels: ".count($this->delete_MoF_with_these_labels)."\n");
+        echo("\n delete_MoF_with_these_uris: "  .count($this->delete_MoF_with_these_uris)."\n");
         exit("\nditox eli\n");
         */
+        $this->initialize_new_patterns();         //generates $this->new_patterns   -> used in xxx() --- DATA-1893
+        // echo("\n new_patterns: "  .count($this->new_patterns)."\n"); print_r($this->new_patterns); exit;
     }
     function generate_eol_tags_pensoft($resource, $timestart = '', $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
     {   //print_r($this->param); exit;
@@ -589,12 +593,15 @@ class Pensoft2EOLAPI
                 else continue;
                 
                 if(stripos($uri, "ENVO_") !== false) { //string is found
-                    $arr = array($basename, '', '', $label, pathinfo($uri, PATHINFO_FILENAME), $rek['ontology']);
+                    $arr = array($basename, '', '', $label, pathinfo($uri, PATHINFO_FILENAME), $rek['ontology'], ""); //7th param is mType
                 }
-                else $arr = array($basename, '', '', $label, $uri, $rek['ontology']);
+                else $arr = array($basename, '', '', $label, $uri, $rek['ontology'], ""); //7th param is mType
                 
-                /* DATA-1893
-                */
+                // /* DATA-1893 - a provision to assign measurementType as early as this stage
+                if($assignment = @$this->new_patterns[$label]) {
+                    $arr = array($basename, '', '', $label, $assignment['mValue'], $rek['ontology'], $assignment['mType']);
+                }
+                // */
                 
                 fwrite($f, implode("\t", $arr)."\n");
             }
@@ -720,7 +727,7 @@ class Pensoft2EOLAPI
             if(!$validTraitYN) continue;
             
             /* DATA-1893
-            
+            nothing to add here...
             */
             
             if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN
