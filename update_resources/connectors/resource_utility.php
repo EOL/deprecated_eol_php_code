@@ -8,6 +8,8 @@ first client: https://jenkins.eol.org/job/EOL%20Connectors/job/Environmental%20t
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "617_final", "task": "remove_taxa_without_MoF"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "wiki_en_report", "task": "report_4_Wikipedia_EN_traits"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "WoRMS2EoL_zip", "task": "add_canonical_in_taxa"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "26_ENV_final", "task": "change_measurementIDs"}'
+
  -------------------------- START of metadata_recoding  --------------------------
 task_123
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "692_meta_recoded", "task": "metadata_recoding"}'
@@ -225,6 +227,12 @@ elseif($task == 'add_canonical_in_taxa') {
     }
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
 }
+elseif($task == 'change_measurementIDs') {
+    if($resource_id == '26_ENV_final') {
+        if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/26_ENV.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26_ENV.tar.gz";
+    }
+}
 elseif($task == 'metadata_recoding') {
     if($resource_id == '692_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/692.tar.gz";
@@ -352,6 +360,13 @@ elseif($task == 'metadata_recoding') {
 else exit("\nERROR: task not yet initialized. Will terminate.\n");
 process_resource_url($dwca_file, $resource_id, $task, $timestart);
 
+// /* add testing for undefined childen in MoF - utility only
+if(in_array($resource_id, array('26_ENV_final'))) {
+    run_utility($resource_id);
+    recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id."/"); //we can now delete folder after run_utility() - DWCADiagnoseAPI
+}
+// */
+
 function process_resource_url($dwca_file, $resource_id, $task, $timestart)
 {
     require_library('connectors/DwCA_Utility');
@@ -363,6 +378,15 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
             $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
             /* These below will be processed in ResourceUtility.php which will be called from DwCA_Utility.php
             http://rs.tdwg.org/dwc/terms/taxon
+            */
+        }
+    }
+    elseif($task == 'change_measurementIDs') { //1st client is WoRMS: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66426&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66426
+        if(in_array($resource_id, array('26_ENV_final'))) {
+            $preferred_rowtypes = array();
+            $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact');
+            /* These below will be processed in Change_measurementIDs.php which will be called from DwCA_Utility.php
+            http://rs.tdwg.org/dwc/terms/measurementorfact
             */
         }
     }
@@ -418,6 +442,18 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
     }
     
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
-    Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+    if(in_array($resource_id, array('26_ENV_final'))) Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd row 'false' means not delete working dir
+    else                                              Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //rest goes here
 }
+function run_utility($resource_id)
+{
+    // /* utility ==========================
+    require_library('connectors/DWCADiagnoseAPI');
+    $func = new DWCADiagnoseAPI();
+
+    $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'parentMeasurementID', 'measurement_or_fact_specific.tab');
+    echo "\nTotal undefined parents MoF [$resource_id]: " . count($undefined_parents)."\n";
+    // ===================================== */
+}
+
 ?>

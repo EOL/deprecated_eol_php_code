@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_34465/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_34465/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_91555/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_91555/'
         );
         */
         
@@ -162,6 +162,7 @@ class DwCA_Utility
             // if(in_array($this->resource_id, array('parent_BV_consolid8', 'TS_consolid8'))) break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == 'globi_associations') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if(stripos($this->resource_id, "_meta_recoded") !== false) break; //all extensions will be processed elsewhere. debug only, during dev only
+            // if($this->resource_id == '26_ENV_final') break; //all extensions will be processed elsewhere. debug only, during dev only
             
             /* not used
             if($this->resource_id == 'globi_associations_refuted') break; //all extensions will be processed elsewhere IN real operation.
@@ -333,6 +334,11 @@ class DwCA_Utility
             $func->start($info);
         }
         */
+        if($this->resource_id == '26_ENV_final') {
+            require_library('connectors/Change_measurementIDs');
+            $func = new Change_measurementIDs($this->resource_id, $this->archive_builder);
+            $func->start($info);
+        }
 
         if(in_array($this->resource_id, array("Polytraits"))) {
             require_library('connectors/ContributorsMapAPI');
