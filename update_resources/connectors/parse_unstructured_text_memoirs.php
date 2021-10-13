@@ -188,6 +188,8 @@ MoftheAES_resources	Thu 2021-10-07 10:11:44 AM	{"MoF.tab":12428, "media.tab":191
 
 NorthAmericanFlora	Thu 2021-08-12 05:42:08 AM	{"assoc.tab":4829, "MoF.tab":3199, "media.tab":770, "occurrence.tab":8585, "taxon.tab":6198, "time_elapsed":{"sec":43.78, "min":0.73, "hr":0.01}}
 NorthAmericanFlora	Mon 2021-10-11 10:23:50 AM	{"assoc.tab":4821, "MoF.tab":3339, "media.tab":794, "occurrence.tab":8724, "taxon.tab":6226, "time_elapsed":{"sec":17.61, "min":0.29, "hr":0}}
+after DATA-1893
+NorthAmericanFlora	Wed 2021-10-13 10:54:47 AM	{"assoc.tab":4821, "MoF.tab":3339, "media.tab":794, "occurrence.tab":8724, "taxon.tab":6226, "time_elapsed":{"sec":16.21, "min":0.27, "hr":0}}
 
 ---------- start FUNGI list: ----------
 "15404", "15405", "15406", "15407", "15408", "15409", "15410", "15411", "15412", 
@@ -242,11 +244,17 @@ The discrepancy is the improvement in capturing species sections.
 15421_ENV	Thu 2021-08-12 09:16:42 AM	{"MoF.tab":647, "media.tab":187, "occurrence_specific.tab":647, "taxon.tab":187, "time_elapsed":{"sec":16.93, "min":0.28, "hr":0}}
 15421	    Sun 2021-10-03 03:29:25 AM	{               "media.tab":187,                                "taxon.tab":187, "time_elapsed":{"sec":0.47, "min":0.01, "hr":0}}
 15421_ENV	Sun 2021-10-03 03:31:35 AM	{"MoF.tab":625, "media.tab":187, "occurrence_specific.tab":625, "taxon.tab":187, "time_elapsed":{"sec":10.63, "min":0.18, "hr":0}}
+after DATA-1893:
+15421	    Wed 2021-10-13 09:40:23 AM	{               "media.tab":187,                                "taxon.tab":187, "time_elapsed":{"sec":0.5, "min":0.01, "hr":0}}
+15421_ENV	Wed 2021-10-13 09:41:04 AM	{"MoF.tab":625, "media.tab":187, "occurrence_specific.tab":625, "taxon.tab":187, "time_elapsed":{"sec":10.76, "min":0.18, "hr":0}}
 
 NorthAmericanFlora_Fungi	Wed 2021-08-11 11:29:24 AM	{"MoF.tab":17250, "media_resource.tab":4498, "occurrence_specific.tab":17250, "taxon.tab":4491, "time_elapsed":{"sec":107.91, "min":1.8, "hr":0.03}}
 NorthAmericanFlora_Fungi	Thu 2021-08-12 05:42:52 AM	{"MoF.tab":17228, "media_resource.tab":4498, "occurrence_specific.tab":17228, "taxon.tab":4491, "time_elapsed":{"sec":108.91, "min":1.82, "hr":0.03}}
 NorthAmericanFlora_Fungi	Mon 2021-10-11 10:24:51 AM	{"association.tab":3, 
                                                          "MoF.tab":17168, "media_resource.tab":4597, "occurrence_specific.tab":17174, "taxon.tab":4592, "time_elapsed":{"sec":38.07, "min":0.63, "hr":0.01}}
+after DATA-1893
+NorthAmericanFlora_Fungi	Wed 2021-10-13 10:55:10 AM	{"association.tab":3, 
+                                                         "MoF.tab":17168, "media_resource.tab":4597, "occurrence_specific.tab":17174, "taxon.tab":4592, "time_elapsed":{"sec":36.92, "min":0.62, "hr":0.01}}
 ---------- end FUNGI list: ----------
 
 ---------- Plant list: ----------
@@ -400,6 +408,9 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "91345", "resource_name":
 91529_ENV	Mon 2021-08-30 09:29:08 AM	{"MoF.tab":607, "media.tab":184, "occur_specific.tab":607,  "taxon.tab":184, "time_elapsed":{"sec":15.46, "min":0.26, "hr":0}}
 91529	    Tue 2021-10-05 03:49:04 AM	{               "media.tab":184,                            "taxon.tab":184, "time_elapsed":{"sec":0.48, "min":0.01, "hr":0}}
 91529_ENV	Tue 2021-10-05 03:49:45 AM	{"MoF.tab":617, "media.tab":184, "occur_specific.tab":617,  "taxon.tab":184, "time_elapsed":{"sec":10.88, "min":0.18, "hr":0}}
+after DATA-1893
+91529	    Wed 2021-10-13 10:47:24 AM	{               "media.tab":184,                            "taxon.tab":184, "time_elapsed":{"sec":0.51, "min":0.01, "hr":0}}
+91529_ENV	Wed 2021-10-13 10:48:03 AM	{"MoF.tab":617, "media.tab":184, "occur_specific.tab":617,  "taxon.tab":184, "time_elapsed":{"sec":8.71, "min":0.15, "hr":0}}
 
 91335	    Mon 2021-08-30 01:53:08 AM	{               "media_resource.tab":215,                                "taxon.tab":215, "time_elapsed":{"sec":0.52, "min":0.01, "hr":0}}
 91335_ENV	Mon 2021-08-30 01:54:31 AM	{"MoF.tab":593, "media_resource.tab":215, "occurrence_specific.tab":593, "taxon.tab":215, "time_elapsed":{"sec":22.66, "min":0.38, "hr":0.01}}
@@ -409,6 +420,9 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "91345", "resource_name":
 NorthAmericanFlora_Plants	Thu 2021-08-26 08:27:21 AM	{"MoF.tab":44886, "media.tab":11382, "occurrence.tab":44886, "taxon.tab":11243, "time_elapsed":{"sec":267.87, "min":4.46, "hr":0.07}}
 NorthAmericanFlora_Plants	Tue 2021-08-31 03:10:17 AM	{"MoF.tab":45013, "media.tab":11438, "occurrence.tab":45013, "taxon.tab":11299, "time_elapsed":{"sec":267.57, "min":4.46, "hr":0.07}}
 NorthAmericanFlora_Plants	Mon 2021-10-11 10:25:59 AM	{"MoF.tab":45513, "media.tab":11476, "occurrence.tab":45513, "taxon.tab":11335, "time_elapsed":{"sec":94.02, "min":1.57, "hr":0.03}}
+after DATA-1893:
+NorthAmericanFlora_Plants	Wed 2021-10-13 10:56:00 AM	{"MoF.tab":45513, "media.tab":11476, "occurrence.tab":45513, "taxon.tab":11335, "time_elapsed":{"sec":93.09, "min":1.55, "hr":0.03}}
+
 
 ====================== Kubitzki_et_al ======================
 START PATTERNS:
@@ -455,18 +469,26 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "volxiv2016", "resource_n
 parse_unstructured_text_memoirs.php _ '{"resource_id": "volxv2018", "resource_name":"Kubitzki", "group":"Kubitzki"}'
 
 volii1993	Thu 2021-09-23 12:23:13 AM	{"media_resource.tab":1519, "taxon.tab":1496, "time_elapsed":{"sec":1.78, "min":0.03, "hr":0}}
+volii1993	Wed 2021-10-13 06:09:25 AM	{"media_resource.tab":1523, "taxon.tab":1500, "time_elapsed":{"sec":2.9, "min":0.05, "hr":0}}
+
 voliii1998	Thu 2021-09-23 12:23:44 AM	{"media_resource.tab":545, "taxon.tab":529, "time_elapsed":{"sec":0.84, "min":0.01, "hr":0}}
 volv2003	Thu 2021-09-23 12:23:57 AM	{"media_resource.tab":792, "taxon.tab":792, "time_elapsed":{"sec":0.94, "min":0.02, "hr":0}}
 volvi2004	Thu 2021-09-23 12:24:11 AM	{"media_resource.tab":809, "taxon.tab":801, "time_elapsed":{"sec":1.04, "min":0.02, "hr":0}}
 volvii2004	Thu 2021-09-23 12:24:26 AM	{"media_resource.tab":1046, "taxon.tab":1020, "time_elapsed":{"sec":1.11, "min":0.02, "hr":0}}
+
 volviii2007	Thu 2021-09-23 12:24:45 AM	{"media_resource.tab":1934, "taxon.tab":1920, "time_elapsed":{"sec":1.77, "min":0.03, "hr":0}}
+volviii2007	Wed 2021-10-13 06:17:11 AM	{"media_resource.tab":1935, "taxon.tab":1921, "time_elapsed":{"sec":2.79, "min":0.05, "hr":0}}
+
 volix2007	Thu 2021-09-23 12:24:59 AM	{"media_resource.tab":568, "taxon.tab":562, "time_elapsed":{"sec":0.87, "min":0.01, "hr":0}}
 volx2011	Thu 2021-09-23 12:25:12 AM	{"media_resource.tab":774, "taxon.tab":759, "time_elapsed":{"sec":0.96, "min":0.02, "hr":0}}
 volxi2014	Thu 2021-09-23 12:25:30 AM	{"media_resource.tab":518, "taxon.tab":518, "time_elapsed":{"sec":9.02, "min":0.15, "hr":0}}
 volxii2015	Thu 2021-09-23 12:25:35 AM	{"media_resource.tab":191, "taxon.tab":186, "time_elapsed":{"sec":0.54, "min":0.01, "hr":0}}
 volxiii2015	Thu 2021-09-23 12:25:46 AM	{"media_resource.tab":719, "taxon.tab":715, "time_elapsed":{"sec":0.83, "min":0.01, "hr":0}}
 volxiv2016	Thu 2021-09-23 12:25:57 AM	{"media_resource.tab":391, "taxon.tab":386, "time_elapsed":{"sec":0.92, "min":0.02, "hr":0}}
+
 volxv2018	Thu 2021-09-23 12:26:14 AM	{"media_resource.tab":1141, "taxon.tab":1099, "time_elapsed":{"sec":1.21, "min":0.02, "hr":0}}
+volxv2018	Wed 2021-10-13 06:15:22 AM	{"media_resource.tab":1141, "taxon.tab":1099, "time_elapsed":{"sec":1.8, "min":0.03, "hr":0}}
+
 Kubitzki	Thu 2021-09-23 12:27:04 AM	{"media_resource.tab":10947, "taxon.tab":10780, "time_elapsed":{"sec":24.74, "min":0.41, "hr":0.01}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

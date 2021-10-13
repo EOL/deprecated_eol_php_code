@@ -89,6 +89,8 @@ wikipedia_en_traits	Tue 2021-08-03 07:38:06 AM	    {"MoF.tab":151048, "occurrenc
 wikipedia_en_traits_tmp1	Tue 2021-08-31 11:38:54 {"MoF.tab":151048, "occurrence.tab":151048, "taxon.tab":83240, "time_elapsed":false}
 wikipedia_en_traits	Tue 2021-08-31 11:40:53 AM	    {"MoF.tab":148894, "occurrence.tab":148894, "taxon.tab":83240, "time_elapsed":false} wrong!
 wikipedia_en_traits	Tue 2021-08-31 11:50:27 AM	    {"MoF.tab":149887, "occurrence.tab":149887, "taxon.tab":83240, "time_elapsed":false} correct OK
+after DATA-1893:
+wikipedia_en_traits	Wed 2021-10-13 09:32:56 AM	    {"MoF.tab":149887, "occurrence.tab":149887, "taxon.tab":83240, "time_elapsed":false}
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
@@ -247,6 +249,8 @@ first contributor is a column, the rest go as child MoF.
 21_ENV	Mon 2021-06-07 05:47:13 AM	{"agent.tab":777, "MoF.tab":3021, "media_resource.tab":8454, "occurrence.tab":2094, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":111.27, "min":1.85, "hr":0.03}}
 21	Wed 2021-06-09 02:15:43 AM	    {"agent.tab":777,                 "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":12.37, "min":0.21, "hr":0}}
 21_ENV	Wed 2021-06-09 02:17:14 AM	{"agent.tab":777, "MoF.tab":3021, "media_resource.tab":8454, "occurrence.tab":2094, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":90.63, "min":1.51, "hr":0.03}}
+after DATA-1893:
+21_ENV	Wed 2021-10-13 10:30:40 AM	{"agent.tab":777, "MoF.tab":3015, "media_resource.tab":8454, "occurrence.tab":2091, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":117.84, "min":1.96, "hr":0.03}}
 ===================================================================================================================== WoRMS
 HOW TO RUN:
 php5.6 26.php jenkins
@@ -310,7 +314,10 @@ start removed all occurrences and trait records associated with specified taxa (
 26_ENV	Wed 2021-06-09 06:30:41 AM	{"agent.tab":1776, "measurement_or_fact_specific.tab":2458816, "media_resource.tab":92746, "occurrence_specific.tab":2091228, "reference.tab":692231, "taxon.tab":374006, "vernacular_name.tab":85169, "time_elapsed":{"sec":3257.8, "min":54.3, "hr":0.9}}
 26_ENV	Wed 2021-06-09 02:39:24 PM	{"agent.tab":1776, "measurement_or_fact_specific.tab":2458816, "media_resource.tab":92746, "occurrence_specific.tab":2091228, "reference.tab":692231, "taxon.tab":374006, "vernacular_name.tab":85169, "time_elapsed":{"sec":3397.34, "min":56.62, "hr":0.94}}
 26_ENV	Fri 2021-09-10 05:04:40 AM	{"agent.tab":1804, "measurement_or_fact_specific.tab":2500985, "media_resource.tab":93238, "occurrence_specific.tab":2129864, "reference.tab":700222, "taxon.tab":376056, "vernacular_name.tab":85681, "time_elapsed":{"sec":3676.25, "min":61.27, "hr":1.02}}
-26_ENV	Wed 2021-09-22 12:11:41 PM	{"agent.tab":1804, "measurement_or_fact_specific.tab":2500985, "media_resource.tab":93238, "occurrence_specific.tab":2129864, "reference.tab":700222, "taxon.tab":376056, "vernacular_name.tab":85681, "time_elapsed":{"sec":3387.77, "min":56.46, "hr":0.94}}
+26_ENV	        Wed 2021-09-22 12:11:41 PM	{"agent.tab":1804, "measurement_or_fact_specific.tab":2500985, "media_resource.tab":93238, "occurrence_specific.tab":2129864, "reference.tab":700222, "taxon.tab":376056, "vernacular_name.tab":85681, "time_elapsed":{"sec":3387.77, "min":56.46, "hr":0.94}}
+after DATA-1893:
+26_ENV	        Wed 2021-10-13 07:20:25 AM	{"agent.tab":1813, "measurement_or_fact_specific.tab":2526290, "media_resource.tab":94660, "occurrence_specific.tab":2151130, "reference.tab":703450, "taxon.tab":377647, "vernacular_name.tab":85681, "time_elapsed":{"sec":3905.4, "min":65.09, "hr":1.08}}
+26_ENV_final	Wed 2021-10-13 08:14:18 AM	{"agent.tab":1813, "measurement_or_fact_specific.tab":2526290, "media_resource.tab":94660, "occurrence.tab":2151130,          "reference.tab":703450, "taxon.tab":377647, "vernacular_name.tab":85681, "time_elapsed":{"sec":3160.64, "min":52.68, "hr":0.88}}
 ===================================================================================================================== WoRMS end
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

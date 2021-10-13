@@ -30,10 +30,12 @@ after a couple of weeks: EXACT, STILL SAME MEDIA AND TAXON - EXCELLENT!
 10088_5097	    Wed 2021-10-06 04:52:20 AM	{"association.tab":365,                  "media.tab":12677, "occur.tab":418,            "taxon.tab":12176, "time_elapsed":{"sec":1310.6, "min":21.84, "hr":0.36}}
 10088_5097_ENV	Wed 2021-10-06 05:01:09 AM	{"association.tab":365, "MoF.tab":42655, "media.tab":11434, "occur_specific.tab":43073, "taxon.tab":12176, "time_elapsed":{"sec":520.83, "min":8.68, "hr":0.14}}
 
-with NEW host patterns: DATA-1891 --- with slight increase in associations n=3
+with NEW host patterns: DATA-1891 --- with slight increase in associations n=3+1
 10088_5097	    Thu 2021-10-07 02:28:35 AM	{"association.tab":368,                  "media.tab":12677, "occur.tab":423,            "taxon.tab":12179, "time_elapsed":{"sec":1186.61, "min":19.78, "hr":0.33}}
 10088_5097_ENV	Thu 2021-10-07 02:37:14 AM	{"association.tab":368, "MoF.tab":42655, "media.tab":11434, "occur_specific.tab":43078, "taxon.tab":12179, "time_elapsed":{"sec":511.09, "min":8.52, "hr":0.14}}
-
+after DATA-1893: new patterns:
+10088_5097	    Wed 2021-10-13 04:13:01 AM	{"association.tab":369,                  "media.tab":12677, "occur.tab":424,            "taxon.tab":12179, "time_elapsed":{"sec":2856.84, "min":47.61, "hr":0.79}}
+10088_5097_ENV	Wed 2021-10-13 04:36:34 AM	{"association.tab":369, "MoF.tab":42655, "media.tab":11434, "occur_specific.tab":43079, "taxon.tab":12179, "time_elapsed":{"sec":1403.87, "min":23.4, "hr":0.39}}
 
 Repo 2: Smithsonian Contributions to Botany
 With growth ontology:
@@ -52,6 +54,9 @@ after a couple of weeks: EXACT, STILL SAME MEDIA AND TAXON - EXCELLENT!
 with NEW host patterns: DATA-1891 --- NO CHANGE SO FAR
 10088_6943	    Thu 2021-10-07 02:11:08 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":90.06, "min":1.5, "hr":0.03}}
 10088_6943_ENV	Thu 2021-10-07 02:12:20 AM	{"MoF.tab":6012, "media.tab":1487, "occur_specific.tab":6012, "taxon.tab":1549, "time_elapsed":{"sec":62.6, "min":1.04, "hr":0.02}}
+after DATA-1893: new patterns:
+10088_6943	    Wed 2021-10-13 03:30:24 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":274.41, "min":4.57, "hr":0.08}}
+10088_6943_ENV	Wed 2021-10-13 03:31:53 AM	{"MoF.tab":6012, "media.tab":1487, "occur_specific.tab":6012, "taxon.tab":1549, "time_elapsed":{"sec":83.48, "min":1.39, "hr":0.02}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
