@@ -222,6 +222,11 @@ $input = array('filename' => 'scb-0002.txt', 'type' => 'list', 'epub_output_txts
 
 ---------------------------------- */
 
+// /* when testing copy desired $input here, then run: php update_resources/connectors/parse_unstructured_text.php
+$input = array('filename' => 'SCTZ-0156.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0156/');
+$input = array('filename' => 'SCtZ-0004.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0004/');
+// */
+
 $pdf_id = pathinfo($input['filename'], PATHINFO_FILENAME);
 $input['lines_before_and_after_sciname'] = 2; //default
 if(in_array($pdf_id, array('SCtZ-0007', 'SCtZ-0025', 'SCtZ-0020', 'SCtZ-0019', 'SCtZ-0011', 'SCtZ-0010', 'SCtZ-0611', 'SCtZ-0613',
