@@ -231,7 +231,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
 
-            if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array("91225"))) {
+            if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array("91225", "91362"))) {
                 $row = str_replace("TUlandsia", "Tillandsia", $row);
                 // this 4 rows was handled by: change_U_to_ll_caused_by_OCR()
                 // $row = str_replace("Riccia EUiottii", "Riccia Elliottii", $row); //15423 NAF
@@ -1264,7 +1264,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("LobeliaBoykiniiT.", "Lobelia Boykinii T.", $row);
             }
             
-            if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array("91225"))) {
+            if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array("91225", "91362"))) {
                 $row = str_replace("TUlandsia", "Tillandsia", $row);
                 // this 4 rows was handled by: change_U_to_ll_caused_by_OCR()
                 // $row = str_replace("Riccia EUiottii", "Riccia Elliottii", $row); //15423 NAF
