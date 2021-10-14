@@ -505,6 +505,29 @@ $resource_name = $param['resource_name'];
 $group = @$param['group'];
 $func = new ParseUnstructuredTextAPI_Memoirs($resource_name, $pdf_id);
 
+/* test
+
+$sci = "gracllens";
+// $sci = "hlrsuta";
+// $sci = "inclsa";
+
+echo "\n[$sci]\n";
+for($i = 0; $i <= strlen($sci)-1; $i++) {
+    $char = $sci[$i];
+    if($char == "l") {
+        $char_before = $sci[$i-1];
+        $char_after = $sci[$i+1];
+        echo "\nchar_before: [$char_before]\n";
+        echo "\nchar_after: [$char_after]\n";
+        if(!is_a_vowel($char_before) && !is_a_vowel($char_after)) $sci[$i] = "i";
+    }
+}
+
+// echo "\n[$sci]\n";
+
+exit("\n[$sci]\n-end-\n");
+*/
+
 // $test = "Sphagnum angstromii Hartm. f. ; Hartm. Skand. Fl";     echo "\n[".Functions::canonical_form($test)."]\n";
 // $test = "Sphagnum tabulate Sull. Musci Allegh. i'^- ; . 1845";  echo "\n[".Functions::canonical_form($test)."]\n";
 // $test = "gadus morhua Linn.";  echo "\n[".Functions::canonical_form($test)."]\n";

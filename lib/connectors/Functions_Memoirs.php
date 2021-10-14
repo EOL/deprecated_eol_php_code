@@ -496,5 +496,70 @@ class Functions_Memoirs
         }
         return $row;
     }
+    function change_U_to_ll_caused_by_OCR($sciname_line) //e.g. Bruchia longicoUis
+    {
+        $orig = $sciname_line;
+        $words = explode(" ", $sciname_line);
+        debug("\n----------\norig: [$sciname_line]\n");
+        if(count($words) >= 2) {
+            $second = $words[1];
+            $first_char = substr($second,0,1);
+            $second = substr($second,1,strlen($second)-1); debug("\nnew: [$second]\nfirst char: [$first_char]\n"); //remove first char
+            $pos = strpos($second, 'U');
+            debug("\npos: [$pos]\n");
+            
+            if($pos === false) {} //not found
+            else { //found OK
+                //loop each char in $second, and check for upper and lower cases
+                for($i = 0; $i <= strlen($second)-1; $i++) {
+                    $char = $second[$i];
+                    if(in_array($char, array(".", ",", ";", ":", "-", "(", ")", "*", "#", "!"))) continue;
+                    // echo " $char"; //good debug
+                    if(ctype_lower($char)) @$lower_case++;
+                    else                   @$upper_case++;
+                }
+                debug("\nlower: [$lower_case]\nupper: [$upper_case]");
+                if($lower_case >= 3 && $upper_case == 1) { //replace "U" to "ll"
+                     $second = str_replace("U", "ll", $second);
+                     $second = $first_char.$second;
+                     debug("\nnew second: [$second]\n");
+                     $words[1] = $second;
+                }
+                //end loop
+            }
+        }
+        $sciname_line = implode(" ", $words);
+        $sciname_line = str_replace("lll", "lli", $sciname_line);
+        if($orig != $sciname_line) echo "\nfinal: [$sciname_line]\n----------\n";
+        return $sciname_line;
+    }
+    function change_l_to_i_if_applicable($sci)
+    {   /* e.g.
+        $sci = "gracllens";
+        // $sci = "hlrsuta";
+        // $sci = "inclsa";
+        */
+        for($i = 0; $i <= strlen($sci)-1; $i++) {
+            $char = $sci[$i];
+            if($char == "l") {
+                $char_before = @$sci[$i-1];
+                $char_after = @$sci[$i+1];
+                // echo "\nchar_before: [$char_before]\n";
+                // echo "\nchar_after: [$char_after]\n";
+                if($char_before && $char_after) {
+                    if(!is_a_vowel($char_before) && !is_a_vowel($char_after)) $sci[$i] = "i";
+                }
+            }
+        }
+        return $sci;
+    }
+    function is_a_vowel($letter)
+    {
+        $vowels = array("a", "e", "i", "o", "u");
+        if(in_array(strtolower($letter), $vowels)) return true;
+        return false;
+    }
+    
+    
 }
 ?>

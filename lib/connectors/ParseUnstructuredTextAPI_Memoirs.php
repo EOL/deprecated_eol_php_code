@@ -231,10 +231,50 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 }
             }
 
-            if($this->resource_name == 'all_BHL') {
-                // "TUlandsia rubra R. & P. FL Per. 3: 40. 1802"
-                // "Tillandsia rubra R. & P. FL Per. 3: 40. 1802"
+            if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array("91225"))) {
                 $row = str_replace("TUlandsia", "Tillandsia", $row);
+                // this 4 rows was handled by: change_U_to_ll_caused_by_OCR()
+                // $row = str_replace("Riccia EUiottii", "Riccia Elliottii", $row); //15423 NAF
+                // $row = str_replace("Bruchia SuUivanti", "Bruchia Sullivanti", $row); //91155 NAF
+                // $row = str_replace("Bruchia longicoUis", "Bruchia longicollis", $row); //91155 NAF
+                // $row = str_replace("Pleuridium SuUivaatii", "Pleuridium Sullivantii", $row); //91155 NAF
+                $row = str_replace("Seligeria trif aria", "Seligeria trifaria", $row); //91155 NAF
+                $row = str_replace("Botrychium biter natum", "Botrychium biternatum", $row); //15427 NAF
+                $row = str_replace("Ophioglossum calif ornicum", "Ophioglossum californicum", $row); //15427 NAF
+                $row = str_replace("Lygodium mexicaaum", "Lygodium mexicanum", $row); //15427 NAF
+                $row = str_replace("Trachypogon Palmer i", "Trachypogon Palmeri", $row); //15428 NAF
+                $row = str_replace("Trisetum spicatam", "Trisetum spicatum", $row); //91144 NAF
+                $row = str_replace("Trisetum deyeuzioides", "Trisetum deyeuxioides", $row); //91144 NAF
+                
+                $row = str_replace("richard soni", "richardsoni", $row); //91225 NAF
+                $row = str_replace("pall ens", "pallens", $row); //91225 NAF
+                $row = str_replace("calif ornicus", "californicus", $row); //91225 NAF
+                $row = str_replace("rotund if olia", "rotundifolia", $row); //91225 NAF
+                $row = str_replace("virgin ica", "virginica", $row); //91225 NAF
+                $row = str_replace("lignif era", "lignifera", $row); //91225 NAF
+                $row = str_replace("bract eat", "bracteat", $row); //91225 NAF
+                $row = str_replace("martiunoflianinn li", "martiunoflianinnli", $row); //91225 NAF
+                $row = str_replace("zacatechlchi", "zacatechichi", $row); //91225 NAF
+                $row = str_replace("blcknellli", "bicknellii", $row); //91225 NAF
+                $row = str_replace("hirtif olia", "hirtifolia", $row); //91225 NAF
+                $row = str_replace("hough tonii", "houghtonii", $row); //91225 NAF
+                $row = str_replace("sartwellil", "sartwellii", $row); //91225 NAF
+                $row = str_replace("sprengelll", "sprengelii", $row); //91225 NAF
+                $row = str_replace("asp era", "aspera", $row); //91225 NAF
+                $row = str_replace("bract eatum", "bracteatum", $row); //91225 NAF
+                $row = str_replace("gran flora", "granflora", $row); //91225 NAF
+                $row = str_replace("gentian ae", "gentianae", $row); //91225 NAF
+                $row = str_replace("margin alis", "marginalis", $row); //91225 NAF
+                $row = str_replace("calif ornica", "californica", $row); //91225 NAF
+                $row = str_replace("tctranth hon", "tetrastichon", $row); //91225 NAF
+                $row = str_replace("si flora", "siflora", $row); //91225 NAF
+                $row = str_replace("nodi flora", "nodiflora", $row); //91225 NAF
+                $row = str_replace("balsam if era", "balsamifera", $row); //91225 NAF
+                $row = str_replace("am erica num", "americanum", $row); //91225 NAF
+                // $row = str_replace("gracllens", "gracilens", $row); //91225 NAF
+                // $row = str_replace("hlrsuta", "hirsuta", $row); //91225 NAF
+                // $row = str_replace("inclsa", "incisa", $row); //91225 NAF
+                $row = $this->change_l_to_i_if_applicable($row); //was created with many hits for 91225 BHL NAF
             }
             
             if($this->resource_name == 'Kubitzki') { //this block is present in 2 sections (1 of 2)
@@ -1224,10 +1264,50 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("LobeliaBoykiniiT.", "Lobelia Boykinii T.", $row);
             }
             
-            if($this->resource_name == 'all_BHL') {
-                // "TUlandsia rubra R. & P. FL Per. 3: 40. 1802"
-                // "Tillandsia rubra R. & P. FL Per. 3: 40. 1802"
+            if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array("91225"))) {
                 $row = str_replace("TUlandsia", "Tillandsia", $row);
+                // this 4 rows was handled by: change_U_to_ll_caused_by_OCR()
+                // $row = str_replace("Riccia EUiottii", "Riccia Elliottii", $row); //15423 NAF
+                // $row = str_replace("Bruchia SuUivanti", "Bruchia Sullivanti", $row); //91155 NAF
+                // $row = str_replace("Bruchia longicoUis", "Bruchia longicollis", $row); //91155 NAF
+                // $row = str_replace("Pleuridium SuUivaatii", "Pleuridium Sullivantii", $row); //91155 NAF
+                $row = str_replace("Seligeria trif aria", "Seligeria trifaria", $row); //91155 NAF
+                $row = str_replace("Botrychium biter natum", "Botrychium biternatum", $row); //15427 NAF
+                $row = str_replace("Ophioglossum calif ornicum", "Ophioglossum californicum", $row); //15427 NAF
+                $row = str_replace("Lygodium mexicaaum", "Lygodium mexicanum", $row); //15427 NAF
+                $row = str_replace("Trachypogon Palmer i", "Trachypogon Palmeri", $row); //15428 NAF
+                $row = str_replace("Trisetum spicatam", "Trisetum spicatum", $row); //91144 NAF
+                $row = str_replace("Trisetum deyeuzioides", "Trisetum deyeuxioides", $row); //91144 NAF
+                
+                $row = str_replace("richard soni", "richardsoni", $row); //91225 NAF
+                $row = str_replace("pall ens", "pallens", $row); //91225 NAF
+                $row = str_replace("calif ornicus", "californicus", $row); //91225 NAF
+                $row = str_replace("rotund if olia", "rotundifolia", $row); //91225 NAF
+                $row = str_replace("virgin ica", "virginica", $row); //91225 NAF
+                $row = str_replace("lignif era", "lignifera", $row); //91225 NAF
+                $row = str_replace("bract eat", "bracteat", $row); //91225 NAF
+                $row = str_replace("martiunoflianinn li", "martiunoflianinnli", $row); //91225 NAF
+                $row = str_replace("zacatechlchi", "zacatechichi", $row); //91225 NAF
+                $row = str_replace("blcknellli", "bicknellii", $row); //91225 NAF
+                $row = str_replace("hirtif olia", "hirtifolia", $row); //91225 NAF
+                $row = str_replace("hough tonii", "houghtonii", $row); //91225 NAF
+                $row = str_replace("sartwellil", "sartwellii", $row); //91225 NAF
+                $row = str_replace("sprengelll", "sprengelii", $row); //91225 NAF
+                $row = str_replace("asp era", "aspera", $row); //91225 NAF
+                $row = str_replace("bract eatum", "bracteatum", $row); //91225 NAF
+                $row = str_replace("gran flora", "granflora", $row); //91225 NAF
+                $row = str_replace("gentian ae", "gentianae", $row); //91225 NAF
+                $row = str_replace("margin alis", "marginalis", $row); //91225 NAF
+                $row = str_replace("calif ornica", "californica", $row); //91225 NAF
+                $row = str_replace("tctranth hon", "tetrastichon", $row); //91225 NAF
+                $row = str_replace("si flora", "siflora", $row); //91225 NAF
+                $row = str_replace("nodi flora", "nodiflora", $row); //91225 NAF
+                $row = str_replace("balsam if era", "balsamifera", $row); //91225 NAF
+                $row = str_replace("am erica num", "americanum", $row); //91225 NAF
+                // $row = str_replace("gracllens", "gracilens", $row); //91225 NAF
+                // $row = str_replace("hlrsuta", "hirsuta", $row); //91225 NAF
+                // $row = str_replace("inclsa", "incisa", $row); //91225 NAF
+                $row = $this->change_l_to_i_if_applicable($row); //was created with many hits for 91225 BHL NAF
             }
             
             if($this->resource_name == 'Kubitzki') { //this block is present in 2 sections (2 of 2)
@@ -1318,7 +1398,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             }
             elseif($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array('15423', '91155', '15427', //BHL
                 '118950', '118941'))) { //and BHL-like
-                
+
                 // /* cases e.g. "' 12. Larrea arida (Rose) Britton." --- 90479.txt
                 if(substr($row,0,2) == "' ") $row = trim(substr($row,2,strlen($row)));
                 $row = str_ireplace(" . ", ". ", $row); //"11 . Anneslia gracilis (Mart. & Gal.) Britton & Rose." --- 90479.txt
@@ -1360,6 +1440,13 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $words = explode(" ", trim($row));
                 if(is_numeric(str_replace(array(".", ",", ":", "-", "*"), "", $words[0]))) { //e.g. "4, REBOULIA Raddi, Opusc..." -> there is comma in first word
                     $row = self::remove_first_word_if_it_has_number($row);
+
+                    // /* new: Eli's initiative: https://eol-jira.bibalex.org/browse/DATA-1891?focusedCommentId=66440&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66440
+                    $old = $row;
+                    $row = $this->change_U_to_ll_caused_by_OCR($row);
+                    // if(stripos($old, $this->in_question) !== false) {exit("\nxx[$old]\n[$row]xxa\n");}   //string is found  //good debug
+                    // */
+                    
                     $words = explode(" ", trim($row));
                     // /* automatically set 2nd word as small caps
                     if(@$words[1]) {

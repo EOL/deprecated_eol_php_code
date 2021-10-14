@@ -815,7 +815,15 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
                 }
             }
         }
-        if($sciname = @$obj->names[0]->scientificName) {}
+        if($sciname = @$obj->names[0]->scientificName) {
+            /* new: to remedy those captured monomials - WON'T WORK HERE, SINCE STRTOLOWER() WAS ALREADY APPLIED TO 2ND WORD
+            WAS IMPLEMENTED CORRECTLY ELSEWHERE...
+            if(self::is_just_one_word($sciname)) {
+                $sciname_line = $this->change_U_to_ll_caused_by_OCR($orig); //e.g. Bruchia longicoUis
+                $obj = self::run_GNRD($sciname_line);
+                $sciname = @$obj->names[0]->scientificName;
+            }*/
+        }
         else {
             if($sciname = $this->run_GNRD_get_sciname_inXML($sciname_line)) {}
             else {
@@ -838,7 +846,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             //---start--- customized - resource was INVESTIGATED and the monomials by GNRD can be accepted as binomials
             if(in_array($this->pdf_id, array("118935", "120083", "118237", "30355"))) return $sciname_line; //Memoirs of the American Entomological Society (DATA-1887)
             elseif(in_array($this->pdf_id, array("15423", "91155", "15427", "91144", "91362_species"))) return $sciname_line; //North American Flora (DATA-1890) --- BHL
-                                                //excluded: 15428(not all) 91225(assoc type) 91362(assoc type)                           
+                                                //excluded: 15428(not all) 91225(assoc type) 91362(assoc type)
             else return "monomial"; //rest goes here
             //---end---
             // */
