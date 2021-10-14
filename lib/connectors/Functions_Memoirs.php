@@ -547,7 +547,7 @@ class Functions_Memoirs
                 // echo "\nchar_before: [$char_before]\n";
                 // echo "\nchar_after: [$char_after]\n";
                 if($char_before && $char_after) {
-                    if(!is_a_vowel($char_before) && !is_a_vowel($char_after)) $sci[$i] = "i";
+                    if(!self::is_a_vowel($char_before) && !self::is_a_vowel($char_after)) $sci[$i] = "i";
                 }
             }
         }
