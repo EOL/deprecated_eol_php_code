@@ -275,6 +275,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // $row = str_replace("hlrsuta", "hirsuta", $row); //91225 NAF
                 // $row = str_replace("inclsa", "incisa", $row); //91225 NAF
                 $row = $this->change_l_to_i_if_applicable($row); //was created with many hits for 91225 BHL NAF
+                $row = str_ireplace("vtiijckii", "vuijckii", $row); //91362_species NAF
+                $row = str_replace("clintoniantun", "clintonianun", $row); //91362_species NAF
+                $row = str_ireplace("Doassansia ftirva iJavis", "Doassanaia furva Javis", $row); //91362_species NAF
             }
             
             if($this->resource_name == 'Kubitzki') { //this block is present in 2 sections (1 of 2)
@@ -1308,6 +1311,9 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // $row = str_replace("hlrsuta", "hirsuta", $row); //91225 NAF
                 // $row = str_replace("inclsa", "incisa", $row); //91225 NAF
                 $row = $this->change_l_to_i_if_applicable($row); //was created with many hits for 91225 BHL NAF
+                $row = str_ireplace("vtiijckii", "vuijckii", $row); //91362_species NAF
+                $row = str_replace("clintoniantun", "clintonianun", $row); //91362_species NAF
+                $row = str_ireplace("Doassansia ftirva iJavis", "Doassanaia furva Javis", $row); //91362_species NAF
             }
             
             if($this->resource_name == 'Kubitzki') { //this block is present in 2 sections (2 of 2)
