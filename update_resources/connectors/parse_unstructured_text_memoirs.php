@@ -507,6 +507,7 @@ $func = new ParseUnstructuredTextAPI_Memoirs($resource_name, $pdf_id);
 
 /*
 $row = "Riccia dictyospora M. A. Howe, Bull. Torrey";
+$row = "Targionia hypophylla"; //Targionia hypophyila
 echo "\n[$row]\n";
 $new = $func->change_l_to_i_if_applicable($row);
 exit("\n[$new]\n");

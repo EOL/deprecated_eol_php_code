@@ -547,7 +547,7 @@ class Functions_Memoirs
                 // echo "\nchar_before: [$char_before]\n";
                 // echo "\nchar_after: [$char_after]\n";
                 if($char_before && $char_after) {
-                    if(self::is_a_consonant($char_before) && self::is_a_consonant($char_after)) $sci[$i] = "i";
+                    if(self::is_a_consonant_but_not_y($char_before) && self::is_a_consonant($char_after)) $sci[$i] = "i";
                 }
             }
         }
@@ -562,6 +562,12 @@ class Functions_Memoirs
     function is_a_consonant($letter)
     {
         $consonant = array("b", "c", "d", "f", "g", "h", "k", "j", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z");
+        if(in_array(strtolower($letter), $consonant)) return true;
+        return false;
+    }
+    function is_a_consonant_but_not_y($letter)
+    {
+        $consonant = array("b", "c", "d", "f", "g", "h", "k", "j", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "z");
         if(in_array(strtolower($letter), $consonant)) return true;
         return false;
     }
