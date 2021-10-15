@@ -496,7 +496,7 @@ class Functions_Memoirs
         }
         return $row;
     }
-    function change_U_to_ll_caused_by_OCR($sciname_line) //e.g. Bruchia longicoUis
+    function change_U_to_ll_caused_by_OCR($sciname_line) //e.g. Bruchia longicoUis [improvement series]
     {
         $orig = $sciname_line;
         $words = explode(" ", $sciname_line);
@@ -533,7 +533,7 @@ class Functions_Memoirs
         if($orig != $sciname_line) echo "\nfinal: [$sciname_line]\n----------\n";
         return $sciname_line;
     }
-    function change_l_to_i_if_applicable($sci)
+    function change_l_to_i_if_applicable($sci) //[improvement series]
     {   /* e.g.
         $sci = "gracllens";
         // $sci = "hlrsuta";
