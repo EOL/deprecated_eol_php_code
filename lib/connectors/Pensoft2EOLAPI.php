@@ -598,8 +598,10 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 else $arr = array($basename, '', '', $label, $uri, $rek['ontology'], ""); //7th param is mType
                 
                 // /* DATA-1893 - a provision to assign measurementType as early as this stage
-                if($assignment = @$this->new_patterns[$label]) {
-                    $arr = array($basename, '', '', $label, $assignment['mValue'], $rek['ontology'], $assignment['mType']);
+                if(!in_array($this->param['resource_id'], array('617_ENV'))) { //excluding Wikipedia EN for now
+                    if($assignment = @$this->new_patterns[$label]) {
+                        $arr = array($basename, '', '', $label, $assignment['mValue'], $rek['ontology'], $assignment['mType']);
+                    }
                 }
                 // */
                 
