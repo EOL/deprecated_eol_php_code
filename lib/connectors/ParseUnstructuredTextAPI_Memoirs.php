@@ -276,7 +276,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // $row = str_replace("inclsa", "incisa", $row); //91225 NAF
                 $row = $this->change_l_to_i_if_applicable($row); //was created with many hits for 91225 BHL NAF
                 $row = str_ireplace("vtiijckii", "vuijckii", $row); //91362_species NAF
-                $row = str_replace("clintoniantun", "clintonianun", $row); //91362_species NAF
+                $row = str_replace("clintoniantun", "clintonianum", $row); //91362_species NAF
                 $row = str_ireplace("Doassansia ftirva iJavis", "Doassanaia furva Javis", $row); //91362_species NAF
             }
             
@@ -1312,7 +1312,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 // $row = str_replace("inclsa", "incisa", $row); //91225 NAF
                 $row = $this->change_l_to_i_if_applicable($row); //was created with many hits for 91225 BHL NAF
                 $row = str_ireplace("vtiijckii", "vuijckii", $row); //91362_species NAF
-                $row = str_replace("clintoniantun", "clintonianun", $row); //91362_species NAF
+                $row = str_replace("clintoniantun", "clintonianum", $row); //91362_species NAF
                 $row = str_ireplace("Doassansia ftirva iJavis", "Doassanaia furva Javis", $row); //91362_species NAF
             }
             
