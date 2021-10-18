@@ -12,7 +12,7 @@ class ParseAssocTypeAPI
         $this->assoc_prefixes[] = "HOST PLANTS";
         $this->assoc_prefixes[] = "HOST PLANT";
         // */
-        $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
+        // $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/"; --- might never been used here...
         $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
     }
     /*#################################################################################################################################*/
@@ -263,33 +263,6 @@ class ParseAssocTypeAPI
         return false;
     }
     /*
-    private function run_gnparser_assoc($string)
-    {
-        $string = self::format_string_4gnparser($string);
-        $url = $this->service['GNParser'].$string;
-        $options = $this->download_options;
-        $options['expire_seconds'] = false;
-        if($json = Functions::lookup_with_cache($url, $options)) {
-            $obj = json_decode($json); // print_r($obj); //exit;
-            return $obj;
-        }
-    }
-    private function format_string_4gnparser($str)
-    {
-        // %26 - &
-        // %2C - ,
-        // %28 - (
-        // %29 - )
-        // %3B - ;
-        // + - space
-        $str = str_replace(",", "%2C", $str);
-        $str = str_replace("(", "%28", $str);
-        $str = str_replace(")", "%29", $str);
-        $str = str_replace(";", "%3B", $str);
-        $str = str_replace(" ", "+", $str);
-        $str = str_replace("&", "%26", $str);
-        return $str;
-    }
     */
     function write_associations($rec, $taxon, $archive_builder, $meta, $taxon_ids) //2nd param is source taxon object
     {
