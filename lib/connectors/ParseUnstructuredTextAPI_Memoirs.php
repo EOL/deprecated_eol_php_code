@@ -54,6 +54,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         
         $this->Kubitzki_intermediate_ranks = array("Tribe", "Subfamily", "Subfam.", "Subtribe", "Core"); // might also get this type "2a. Subtribe Isotrematinae"
         $this->chars_that_can_be_nos_but_became_letters_due2OCR = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
+        
+        // /* for gnfinder
+        if(Functions::is_production()) $this->json_path = '/html/gnfinder/';
+        else                           $this->json_path = '/Volumes/AKiTiO4/other_files/gnfinder/';
+        // */
     }
     /*#################################################################################################################################*/
     function parse_pdftotext_result($input) //Mar 25, 2021 - start epub series

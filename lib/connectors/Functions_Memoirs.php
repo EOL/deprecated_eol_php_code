@@ -571,5 +571,174 @@ class Functions_Memoirs
         if(in_array(strtolower($letter), $consonant)) return true;
         return false;
     }
+    /* not used, was tested for a while.
+    function run_gnparser_new($string)
+    {
+        $string = self::format_string_4gnparser($string);
+        $url = $this->service['GNParser'].$string;
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $obj = json_decode($json); // print_r($obj); //exit;
+            return $obj;
+        }
+    }
+    private function format_string_4gnparser($str)
+    {   Append a vertical line separated array of strings to your domain url. 
+        Make sure that '&' in the names are escaped as '%26', and spaces are escaped as '+'. 
+        // %26 - &
+        // %2C - ,
+        // %28 - (
+        // %29 - )
+        // %3B - ;
+        // + - space
+        // $str = str_replace(",", "%2C", $str);
+        // $str = str_replace("(", "%28", $str);
+        // $str = str_replace(")", "%29", $str);
+        // $str = str_replace(";", "%3B", $str);
+        // option 1
+        // $str = str_replace(" ", "+", $str);
+        // $str = str_replace("&", "%26", $str);
+        // option 2
+        $str = urlencode($str);
+        return $str;
+    }
+    */
+    /*================== START gnfinder =====================*/
+    function get_names_from_gnfinder($desc) //old name is "retrieve_partial()" //1st param $id, 2nd param $desc, 3rd param $loop - copied template
+    {   
+        $arr = self::gen_array_input(trim($desc)); //for id use
+        $id = md5(json_encode($arr));
+        if($arr = self::retrieve_json($id, 'partial', $desc)) {
+            echo "\n[111]\n";
+            return self::select_envo($arr);
+        }
+        else {
+            if($json = self::run_partial($desc)) {
+                self::save_json($id, $json, 'partial');
+                /* now start access newly created. */
+                if($arr = self::retrieve_json($id, 'partial', $desc)) {
+                    echo "\n[222]\n";
+                    return self::select_envo($arr);
+                }
+                else {
+                    exit("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n");
+                }
+            }
+            else {
+                exit("\n================\n -- nothing to save...\n[$id]\n[$desc]\n[$loop]\n================\n"); //doesn't go here. Previously exit()
+            }
+        }
+    }
+    private function select_envo($arr)
+    {   $final = array();
+        foreach($arr['names'] as $n) {
+            if($val = @$n['verification']['bestResult']['matchedCanonicalFull']) $final[] = $val;
+            elseif($val = @$n['verification']['preferredResults'][0]['matchedCanonicalFull']) $final[] = $val;
+            elseif($val = @$n['name']) $final[] = $val;
+        }
+        return $final;
+        /*Array(
+            [names] => Array(
+                    [0] => Array(
+                            [cardinality] => 1
+                            [verbatim] => Thalictroides,
+                            [name] => Thalictroides
+                            [oddsLog10] => 5.542387538236
+                            [start] => 0
+                            [end] => 14
+                            [annotationNomenType] => NO_ANNOT
+                        )
+                    [1] => Array(
+                            [cardinality] => 1
+                            [verbatim] => Calopogon,
+                            [name] => Calopogon
+                            [oddsLog10] => 3.9172974723412
+                            [start] => 52
+                            [end] => 62
+                            [annotationNomenType] => NO_ANNOT
+                            [verification] => Array(
+                                    [inputId] => 338886bc-417a-5b67-91d9-e2d609f38501
+                                    [input] => Calopogon
+                                    [matchType] => Exact
+                                    [bestResult] => Array(
+                                            [dataSourceId] => 1
+                                            [dataSourceTitleShort] => Catalogue of Life
+                                            [curation] => Curated
+                                            [recordId] => 3FWL
+                                            [entryDate] => 2021-06-21
+                                            [matchedName] => Calopogon
+                                            [matchedCardinality] => 1
+                                            [matchedCanonicalSimple] => Calopogon
+                                            [matchedCanonicalFull] => Calopogon
+                                        )
+                                    [preferredResults] => Array(
+                                            [0] => Array(
+                                                    [dataSourceId] => 1
+                                                    [dataSourceTitleShort] => Catalogue of Life
+                                                    [curation] => Curated
+                                                    [recordId] => 3FWL
+                                                    [entryDate] => 2021-06-21
+                                                    [matchedName] => Calopogon
+                                                    [matchedCardinality] => 1
+                                                    [matchedCanonicalSimple] => Calopogon
+                                                    [matchedCanonicalFull] => Calopogon
+                                                )
+        */
+    }
+    private function retrieve_json($id, $what, $desc)
+    {   $file = self::retrieve_path($id, $what);
+        if(is_file($file)) {
+            $json = file_get_contents($file); // echo "\nRetrieved OK [$id]";
+            return json_decode($json, true);
+        }
+    }
+    private function gen_array_input($text)
+    {
+        return array("text" => $text,
+        "noBayes"       => false,
+        "oddsDetails"   => false, //true adds more stats, not needed
+        "language"      => "eng",
+        "wordsAround"   => 0,
+        "verification"  => false, //default false
+        "sources"       => array(1,12,169) //orig array(1,12,169). Can also be just array()
+        );
+    }
+    private function run_partial($text)
+    {   
+        $arr = self::gen_array_input($text);
+        $json = json_encode($arr); // exit("\n$json\n");
+        $str = str_replace('"', '\"', $json); //exit("\n$str\n");
+        $cmd = 'curl -ksS "https://gnfinder.globalnames.org/api/v1/find" -H  "accept: application/json" -H  "Content-Type: application/json" -d "'.$str.'"';
+        $cmd .= " 2>&1";
+        $json = shell_exec($cmd);
+        return $json;
+    }
+    private function retrieve_path($id, $what) //$id is "$taxonID_$identifier"
+    {   $filename = "$id.json";
+        $md5 = md5($id); //seems twice md5() already at this point.
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        return $this->json_path . "$cache1/$cache2/$filename";
+    }
+    private function save_json($id, $json, $what)
+    {   $file = self::build_path($id, $what);
+        if($f = Functions::file_open($file, "w")) {
+            fwrite($f, $json);
+            fclose($f);
+        }
+        else exit("\nCannot write file\n");
+    }
+    private function build_path($id, $what) //$id is "$taxonID_$identifier"
+    {
+        $filename = "$id.json";
+        $md5 = md5($id);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($this->json_path . $cache1)) mkdir($this->json_path . $cache1);
+        if(!file_exists($this->json_path . "$cache1/$cache2")) mkdir($this->json_path . "$cache1/$cache2");
+        return $this->json_path . "$cache1/$cache2/$filename";
+    }
+    /*==================== END gnfinder =====================*/
 }
 ?>

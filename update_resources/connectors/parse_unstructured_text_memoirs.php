@@ -190,7 +190,9 @@ NorthAmericanFlora	Thu 2021-08-12 05:42:08 AM	{"assoc.tab":4829, "MoF.tab":3199,
 NorthAmericanFlora	Mon 2021-10-11 10:23:50 AM	{"assoc.tab":4821, "MoF.tab":3339, "media.tab":794, "occurrence.tab":8724, "taxon.tab":6226, "time_elapsed":{"sec":17.61, "min":0.29, "hr":0}}
 after DATA-1893
 NorthAmericanFlora	Wed 2021-10-13 10:54:47 AM	{"assoc.tab":4821, "MoF.tab":3339, "media.tab":794, "occurrence.tab":8724, "taxon.tab":6226, "time_elapsed":{"sec":16.21, "min":0.27, "hr":0}}
-
+here discovered GNRD is gone :-(
+NorthAmericanFlora	Thu 2021-10-14 10:06:44 PM	{"assoc.tab":5264, "MoF.tab":3336, "media.tab":794, "occurrence.tab":9172, "taxon.tab":6661, "time_elapsed":{"sec":49.85, "min":0.83, "hr":0.01}}
+NorthAmericanFlora	Sun 2021-10-17 11:09:29 AM	{"assoc.tab":5264, "MoF.tab":3336, "media.tab":794, "occurrence.tab":9172, "taxon.tab":6661, "time_elapsed":{"sec":19, "min":0.32, "hr":0.01}}
 ---------- start FUNGI list: ----------
 "15404", "15405", "15406", "15407", "15408", "15409", "15410", "15411", "15412", 
 "15413", "15414", "15415", "15416", "15417", "15418", "15419", "15420", "15421"
@@ -504,6 +506,40 @@ $pdf_id = $param['resource_id'];
 $resource_name = $param['resource_name'];
 $group = @$param['group'];
 $func = new ParseUnstructuredTextAPI_Memoirs($resource_name, $pdf_id);
+
+
+/*
+// $arr = array("text" => "Thalictroides, 18s per doz.\nvitifoiia, Is. 6d. each Gadus morhua\nCalopogon, or Cymbidium pul-\n\ncheilum, 1 5s. per doz.\nConostylis americana, 2i. 6d.\n",
+$arr = array("text" => "Thalictroides, 18s per doz.\nvitifoiia, Is. 6d. each\nCalopogon, or Cymbidium pul-\n\ncheilum, 1 5s. per doz.\nConostylis americana, 2i. 6d.\n",
+"noBayes" => false,
+"oddsDetails" => false, //true adds more stats, not needed
+"language" => "eng",
+"wordsAround" => 0,
+"verification" => false, //default false
+"sources" => array(1,12,169) //orig array(1,12,169). Can also be just array()
+);
+
+$json = json_encode($arr); // exit("\n$json\n");
+$str = str_replace('"', '\"', $json); //exit("\n$str\n");
+$cmd = 'curl -ksS "https://gnfinder.globalnames.org/api/v1/find" -H  "accept: application/json" -H  "Content-Type: application/json" -d "'.$str.'"';
+$json = shell_exec($cmd);
+$obj = json_decode($json, true);
+print_r($obj);
+exit("\n-end-\n");
+*/
+
+/* works OK - final test
+$text = "Thalictroides, 18s per doz.\nvitifoiia, Is. 6d. each Lates niloticus\nCalopogon, or Cymbidium pul-\n\ncheilum, 1 5s. per doz.\nConostylis americana, 2i. 6d.\n";
+$names = $func->get_names_from_gnfinder($text);
+print_r($names); exit("\n");
+*/
+
+/*
+$text = "Gadus morhua is here.";
+$text = "Thalictroides, 18s per doz.\nvitifoiia, Is. 6d. each\nCalopogon, or Cymbidium pul-\n\ncheilum, 1 5s. per doz.\nConostylis americana, 2i. 6d.\n";
+$obj = $func->run_gnparser_new($text);
+print_r($obj); exit("\n");
+*/
 
 /*
 $row = "Riccia dictyospora M. A. Howe, Bull. Torrey";
