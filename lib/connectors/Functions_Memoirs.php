@@ -613,7 +613,7 @@ class Functions_Memoirs
         $arr = self::gen_array_input(trim($desc)); //for id use
         $id = md5(json_encode($arr));
         if($arr = self::retrieve_json($id, 'partial', $desc)) {
-            echo "\n[111]\n";
+            // echo "\n[111]\n"; //retrieved, already created.
             return self::select_envo($arr);
             /*e.g. return value: Array(
                 [0] => Thalictroides
@@ -628,7 +628,7 @@ class Functions_Memoirs
                 self::save_json($id, $json, 'partial');
                 /* now start access newly created. */
                 if($arr = self::retrieve_json($id, 'partial', $desc)) {
-                    echo "\n[222]\n";
+                    // echo "\n[222]\n"; //newly created
                     return self::select_envo($arr);
                 }
                 else {
