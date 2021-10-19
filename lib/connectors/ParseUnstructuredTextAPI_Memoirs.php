@@ -17,18 +17,23 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         // */
 
+        // /*
+        $this->service['GNVerifier'] = "https://verifier.globalnames.org/api/v1/verifications/";
+        // https://verifier.globalnames.org/api/v1/verifications/Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935
+        // */
+
         /*
         http://gnrd.globalnames.org/name_finder.json?text=
         http://gnrd.globalnames.org/name_finder.xml?text=
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
-        https://parser.globalnames.org/api/v1/Oedogonium taftii Tiffany
+        https://parser.globalnames.org/api/v1/Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935
         https://parser.globalnames.org/api/v1/Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935
         https://parser.globalnames.org/api/v1/Oedogonium santurcense Tiff. Brittonia 2 : 168. 1936
         https://parser.globalnames.org/api/v1/Krameriaceae , caesalpiniaceae (pars). 23 5 : 269-349. Caesalpini-
         https://parser.globalnames.org/api/v1/Oedogonium tentoriale Nordst. & Hirn ; Him , Acta
         https://parser.globalnames.org/api/v1/Oedogonium fab ulosum Hirn , Acta Soc. Sci. Fenn. 27 : 114. 1900
-        https://parser.globalnames.org/api/v1/Uredinales : coleosporiaceae , Uredinaceae , Aecidiaceae
+        https://parser.globalnames.org/api/v1/Abies fixandu
         
         
         not used:

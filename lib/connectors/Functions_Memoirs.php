@@ -574,39 +574,44 @@ class Functions_Memoirs
         if(in_array(strtolower($letter), $consonant)) return true;
         return false;
     }
-    /* not used, was tested for a while.
-    function run_gnparser_new($string)
+    function run_gnverifier($string)
     {
         $string = self::format_string_4gnparser($string);
-        $url = $this->service['GNParser'].$string;
+        $url = $this->service['GNVerifier'].$string;
         $options = $this->download_options;
         $options['expire_seconds'] = false;
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json); // print_r($obj); //exit;
             return $obj;
         }
+        /*Array(
+            [0] => stdClass Object(
+                    [inputId] => 7f4b292e-e764-582b-bb64-989da231e28f
+                    [input] => Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935
+                    [matchType] => Exact
+                    [bestResult] => stdClass Object(
+                            ...
+                            [matchedName] => Bulbochaete cimarronea
+                            [matchedCardinality] => 2
+                            [matchedCanonicalSimple] => Bulbochaete cimarronea
+                            [matchedCanonicalFull] => Bulbochaete cimarronea
+        */
     }
     private function format_string_4gnparser($str)
-    {   Append a vertical line separated array of strings to your domain url. 
-        Make sure that '&' in the names are escaped as '%26', and spaces are escaped as '+'. 
-        // %26 - &
-        // %2C - ,
-        // %28 - (
-        // %29 - )
-        // %3B - ;
-        // + - space
+    {   //Append a vertical line separated array of strings to your domain url. 
+        //Make sure that '&' in the names are escaped as '%26', and spaces are escaped as '+'. 
+        // %26 - &          // %2C - ,
+        // %28 - (          // %29 - )
+        // %3B - ;          // + - space
         // $str = str_replace(",", "%2C", $str);
         // $str = str_replace("(", "%28", $str);
         // $str = str_replace(")", "%29", $str);
         // $str = str_replace(";", "%3B", $str);
         // option 1
-        // $str = str_replace(" ", "+", $str);
-        // $str = str_replace("&", "%26", $str);
-        // option 2
-        $str = urlencode($str);
+        $str = str_replace(" ", "+", $str);
+        $str = str_replace("&", "%26", $str);
         return $str;
     }
-    */
     /*================== START gnfinder =====================*/
     function get_names_from_gnfinder($desc) //old name is "retrieve_partial()" //1st param $id, 2nd param $desc, 3rd param $loop - copied template
     {
@@ -778,10 +783,19 @@ class Functions_Memoirs
         else return false;
     }
     function get_binomial_or_tri($sciname_line)
-    {
+    {   // option 1 - finds a real name
+        if($obj = $this->run_gnverifier($sciname_line)) {
+            if($val = @$obj[0]->bestResult->matchedCanonicalFull) {
+                if(self::more_than_one_word($val)) return $val;
+            }
+            if($val = @$obj[0]->bestResult->currentCanonicalFull) {
+                if(self::more_than_one_word($val)) return $val;
+            }
+        }
+        // option 2 - finds a possible name
         if($obj = $this->run_gnparser($sciname_line)) {
-            if($canonical = @$obj[0]->canonical->full) {
-                if(self::more_than_one_word($canonical)) return $canonical;
+            if($val = @$obj[0]->canonical->full) {
+                if(self::more_than_one_word($val)) return $val;
             }
         }
         return false;

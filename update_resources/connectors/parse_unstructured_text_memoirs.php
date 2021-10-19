@@ -28,6 +28,9 @@ DATA-1891:
 120082_ENV	Wed 2021-07-07 01:47:37 AM	{"MoF.tab":61, "media.tab":25, "occur.tab":61, "taxon.tab":25, "time_elapsed":{"sec":36.02, "min":0.6, "hr":0.01}}
 120082	    Wed 2021-09-29 01:23:45 AM	{              "media.tab":27,                 "taxon.tab":27, "time_elapsed":{"sec":0.35, "min":0.01, "hr":0}}
 120082_ENV	Wed 2021-09-29 01:26:20 AM	{"MoF.tab":67, "media.tab":27, "occur.tab":67, "taxon.tab":27, "time_elapsed":{"sec":34.31, "min":0.57, "hr":0.01}}
+Mac mini
+120082	    Tue 2021-10-19 02:47:01 AM	{              "media.tab":27,                 "taxon.tab":27, "time_elapsed":{"sec":0.7, "min":0.01, "hr":0}}
+
 ------------------------------------------------------------
 118986	    Wed 2021-07-07 01:48:10 AM	{               "media.tab":41,                  "taxon.tab":41, "time_elapsed":{"sec":2.33, "min":0.04, "hr":0}}
 118986_ENV	Wed 2021-07-07 01:50:39 AM	{"MoF.tab":511, "media.tab":41, "occur.tab":511, "taxon.tab":41, "time_elapsed":{"sec":28.31, "min":0.47, "hr":0.01}}
@@ -43,6 +46,8 @@ DATA-1891:
 120083_ENV	Wed 2021-07-07 01:56:33 AM	{"MoF.tab":752, "media.tab":186, "occur.tab":752, "taxon.tab":294, "time_elapsed":{"sec":31.82, "min":0.53, "hr":0.01}}
 120083	    Wed 2021-09-29 06:55:15 AM	{               "media.tab":381,                  "taxon.tab":295, "time_elapsed":{"sec":0.58, "min":0.01, "hr":0}}
 120083_ENV	Wed 2021-09-29 06:57:38 AM	{"MoF.tab":774, "media.tab":188, "occur.tab":774, "taxon.tab":295, "time_elapsed":{"sec":23.57, "min":0.39, "hr":0.01}}
+Mac mini
+120083	    Tue 2021-10-19 04:18:05 AM	{               "media.tab":381,                  "taxon.tab":293, "time_elapsed":{"sec":1.07, "min":0.02, "hr":0}}
 ------------------------------------------------------------
 118237	    Wed 2021-07-07 01:57:24 AM	{               "media.tab":46,                     "taxon.tab":33, "time_elapsed":{"sec":0.37, "min":0.01, "hr":0}}
 118237_ENV	Wed 2021-07-07 02:06:23 AM	{"MoF.tab":596, "media.tab":46, "occur.tab":596,    "taxon.tab":33, "time_elapsed":{"sec":418.59, "min":6.98, "hr":0.12}}
@@ -545,6 +550,14 @@ $text = "Riccia mcallisteri";
 $text = "Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935";
 $names = $func->get_names_from_gnfinder($text);
 print_r($names); exit("\n");
+*/
+
+/*
+$text = "Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935";
+$text = "Sinfitas do Brasil Central. I. Themos olfe rsi i (Klug) (Hym";
+$text = "Abies fixandu";
+$obj = $func->run_gnverifier($text);
+print_r($obj); exit("\nelix\n");
 */
 
 /*

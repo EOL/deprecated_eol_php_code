@@ -1556,7 +1556,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             $last_word = strtolower(end($words));
             if($this->is_a_rank_name($last_word)) {
                 $total = count($words);
-                $second_to_last_word = strtolower($words[$total-2]);
+                $second_to_last_word = strtolower(@$words[$total-2]);
                 if($second_to_last_word == 'new') return true;
             }
         }
