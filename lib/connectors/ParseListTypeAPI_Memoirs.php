@@ -838,28 +838,34 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         debug("\nrun_GNRD 1: [$sciname_line]\n");
         $obj = self::run_GNRD($sciname_line);
         if($this->resource_name == "MotAES") { //exclude rows with multiple binomials
-            if(count(@$obj->names) > 1) {
+            // if(count(@$obj->names) > 1) { //GNRD OBSOLETE
+            if(count($obj) > 1) {
                 /* good debug
                 if(stripos($orig, $this->in_question) !== false) {
-                    print_r($obj->names);
+                    print_r($obj); //GNRD OBSOLETE $obj->names
                     exit("\n[$sciname_line]\n");
                 }
                 */
                 
                 // /* first criteria to be false is that there is > 1 binomial
-                if(self::more_than_one_binomial($obj->names)) { echo "\nGNRD sees multiple binomials: [$sciname_line]\n"; //exit;
+                if(self::more_than_one_binomial($obj)) { //GNRD OBSOLETE $obj->names
+                    echo "\nGNRD sees multiple binomials: [$sciname_line]\n"; //exit;
                     return false;
                 }
                 // */
                 
-                $verbatim_1 = $obj->names[0]->verbatim;
-                $verbatim_2 = $obj->names[1]->verbatim;
+                // $verbatim_1 = $obj->names[0]->verbatim; //GNRD OBSOLETE
+                // $verbatim_2 = $obj->names[1]->verbatim; //GNRD OBSOLETE
+                $verbatim_1 = ''; //can't think of a counterpart in gnfinder
+                $verbatim_2 = ''; //can't think of a counterpart in gnfinder
                 if(stripos($verbatim_1, $verbatim_2) !== false) {
                     //echo "\ncheck ditox: [$sciname_line]\n";
                 } //string is found //e.g. "Aeshna (Hesperaeschna) psilus"
                 else {
-                    $scientificName_1 = $obj->names[0]->scientificName;
-                    $scientificName_2 = $obj->names[1]->scientificName;
+                    // $scientificName_1 = $obj->names[0]->scientificName; //GNRD OBSOLETE
+                    // $scientificName_2 = $obj->names[1]->scientificName; //GNRD OBSOLETE
+                    $scientificName_1 = $obj[0];
+                    $scientificName_2 = $obj[1];
                     //e.g. http://gnrd.globalnames.org/name_finder.json?text=Spialia ploetzi (Aurivillius)
                     if(self::is_2or_more_words($scientificName_1) && self::is_just_one_word($scientificName_2)) {}
                     else {
@@ -1065,7 +1071,8 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         if(ctype_lower(substr($str,0,1))) return false;     //must be capitalized
         debug("\nrun_GNRD 2: [$str]\n");
         if($obj = self::run_GNRD($str)) {
-            if(strtolower($str) == strtolower(@$obj->names[0]->scientificName)) return true;
+            // if(strtolower($str) == strtolower(@$obj->names[0]->scientificName)) return true; //GNRD OBSOLETE
+            if(strtolower($str) == strtolower(@$obj[0])) return true;
             else {
                 if($this->pdf_id == '120602') { //force GNRD to say its a name
                     if(in_array($str, array("Oulopteryginae", "Corydini", "Tiviini", "Euthyrrhaphini", "Compsodini", "Panesthiini", "Diplopterini", "Blattini", "Nyctiborini", "Megaloblattini", "Perisphaerini", "Litopeltiini", "Brachycolini", "Blaberini", "Parcoblattini", "Euphyllodromiini", "Euandroblattini", "Neoblattellini", "Pseudomopini", "Supellini", "Symplocini", "Baltini", "Ectobiini", "Chorisoneurini", "Anaplectini", "Ceuthobiini", "Oulopterygini", "Corydiini", "ElTTHYRRHAPHINAE", "Litopeltini", "Euphyllodromini", "Ectobhnae"))) return true;
@@ -1493,7 +1500,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         return false;
     }
     private function more_than_one_binomial($gnrd_arr)
-    {   /*Array(
+    {   /* GNRD OBSOLETE Array(
         [0] => stdClass Object(
                 [verbatim] => Carabus bipustidatus
                 [scientificName] => Carabus bipustidatus
@@ -1510,9 +1517,22 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
                 [offsetStart] => 59
                 [offsetEnd] => 75
         )*/
+        /* from gnfinder: Array(
+            [0] => Thalictroides
+            [1] => Lates niloticus
+            [2] => Calopogon
+            [3] => Cymbidium pulchellum
+            [4] => Conostylis americana
+        )*/
+        
         $binomials = 0;
+        /* GNRD OBSOLETE
         foreach($gnrd_arr as $obj) {
             if(self::is_2or_more_words($obj->scientificName)) $binomials++;
+        }
+        */
+        foreach($gnrd_arr as $sciname) {
+            if(self::is_2or_more_words($sciname)) $binomials++;
         }
         if($binomials > 1) return true;
         return false;

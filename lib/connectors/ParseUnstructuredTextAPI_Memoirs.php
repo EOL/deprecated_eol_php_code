@@ -998,19 +998,21 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         return true; //seems it doesn't go here anymore
     }
     function is_sciname_using_GNRD($string)
-    {   
+    {
+        // for weird names, form Jen
+        $string = str_replace("‘", "'", $string);
+        $string = str_replace("’", "'", $string);
+        
         $names = $this->get_names_from_gnfinder($string);
         if($names) return true;
         else return false;
         exit("\nstop using 001\n");
+        
         /* from GNRD
         http://gnrd.globalnames.org/name_finder.json?text=A+spider+named+Pardosa+moesta+Banks,+1892
         http://gnrd.globalnames.org/name_finder.json?text=boggianii Régimbart 00–526 (Paraguay)
         http://gnrd.globalnames.org/name_finder.json?text=Andrena columbiana
         */
-        // for weird names, form Jen
-        $string = str_replace("‘", "'", $string);
-        $string = str_replace("’", "'", $string);
 
         $url = $this->service['GNRD text input'].$string;
         $options = $this->download_options;
