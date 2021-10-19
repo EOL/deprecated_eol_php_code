@@ -15,14 +15,20 @@ DATA-1877: textmining more unstructured text
 118935	    Wed 2021-09-29 01:07:53 AM	{               "media.tab":1346,                     "taxon.tab":1345, "time_elapsed":{"sec":1.07, "min":0.02, "hr":0}}
 118935_ENV	Wed 2021-09-29 01:10:08 AM	{"MoF.tab":1489,                    "occur.tab":1489, "taxon.tab":1345, "time_elapsed":{"sec":75, "min":1.25, "hr":0.02}}
 DATA-1891:
-118935	    Thu 2021-10-07 09:28:43 AM	{"media_resource.tab":1346, "taxon.tab":1345, "time_elapsed":{"sec":1.2, "min":0.02, "hr":0}}
-118935_ENV	Thu 2021-10-07 09:30:17 AM	{"measurement_or_fact_specific.tab":1489, "occurrence_specific.tab":1489, "taxon.tab":1345, "time_elapsed":{"sec":33.8, "min":0.56, "hr":0.01}}
+118935	    Thu 2021-10-07 09:28:43 AM	{               "media.tab":1346,                     "taxon.tab":1345, "time_elapsed":{"sec":1.2, "min":0.02, "hr":0}}
+118935_ENV	Thu 2021-10-07 09:30:17 AM	{"MoF.tab":1489,                    "occur.tab":1489, "taxon.tab":1345, "time_elapsed":{"sec":33.8, "min":0.56, "hr":0.01}}
+gnfinder:
+118935	    Tue 2021-10-19 10:04:43 AM	{               "media.tab":1346,                     "taxon.tab":1342, "time_elapsed":{"sec":4.26, "min":0.07, "hr":0}}
+118935_ENV	Tue 2021-10-19 10:08:41 AM	{"MoF.tab":1489,                    "occur.tab":1489, "taxon.tab":1342, "time_elapsed":{"sec":177.77, "min":2.96, "hr":0.05}}
 
 ------------------------------------------------------------
 120081	    Tue 2021-07-13 09:14:50 AM	{               "media.tab":95,                  "taxon.tab":95, "time_elapsed":{"sec":0.39, "min":0.01, "hr":0}}
 120081_ENV	Tue 2021-07-13 09:17:10 AM	{"MoF.tab":526, "media.tab":95, "occur.tab":526, "taxon.tab":95, "time_elapsed":{"sec":20.07, "min":0.33, "hr":0.01}}
 120081	    Wed 2021-09-29 01:05:17 AM	{               "media.tab":97,                  "taxon.tab":97, "time_elapsed":{"sec":0.42, "min":0.01, "hr":0}}
 120081_ENV	Wed 2021-09-29 01:09:06 AM	{"MoF.tab":532, "media.tab":97, "occur.tab":532, "taxon.tab":97, "time_elapsed":{"sec":109.53, "min":1.83, "hr":0.03}}
+gnfinder:
+120081	    Tue 2021-10-19 10:10:42 AM	{               "media.tab":97,                  "taxon.tab":97, "time_elapsed":{"sec":0.63, "min":0.01, "hr":0}}
+120081_ENV	Tue 2021-10-19 10:13:21 AM	{"MoF.tab":532, "media.tab":97, "occur.tab":532, "taxon.tab":97, "time_elapsed":{"sec":38.85, "min":0.65, "hr":0.01}}
 ------------------------------------------------------------
 120082	    Wed 2021-07-07 01:45:01 AM	{              "media.tab":25,                 "taxon.tab":25, "time_elapsed":{"sec":0.34, "min":0.01, "hr":0}}
 120082_ENV	Wed 2021-07-07 01:47:37 AM	{"MoF.tab":61, "media.tab":25, "occur.tab":61, "taxon.tab":25, "time_elapsed":{"sec":36.02, "min":0.6, "hr":0.01}}
@@ -37,10 +43,11 @@ Mac mini
 118986	    Wed 2021-09-29 01:26:40 AM	{               "media.tab":44,                  "taxon.tab":44, "time_elapsed":{"sec":0.42, "min":0.01, "hr":0}}
 118986_ENV	Wed 2021-09-29 01:29:47 AM	{"MoF.tab":545, "media.tab":44, "occur.tab":545, "taxon.tab":44, "time_elapsed":{"sec":66.78, "min":1.11, "hr":0.02}}
 ------------------------------------------------------------
-118920	    Tue 2021-07-13 09:22:29 AM	{               "media.tab":27,                     "taxon.tab":27, "time_elapsed":{"sec":0.34, "min":0.01, "hr":0}}
-118920_ENV	Tue 2021-07-13 09:24:46 AM	{"MoF.tab":71,  "media.tab":27, "occur.tab":71,     "taxon.tab":27, "time_elapsed":{"sec":17.05, "min":0.28, "hr":0}}
 118920	    Wed 2021-09-29 01:32:51 AM	{               "media.tab":39,                     "taxon.tab":39, "time_elapsed":{"sec":0.38, "min":0.01, "hr":0}}
 118920_ENV	Wed 2021-09-29 01:36:35 AM	{"MoF.tab":85,  "media.tab":39, "occur.tab":85,     "taxon.tab":39, "time_elapsed":{"sec":164.69, "min":2.74, "hr":0.05}}
+gnfinder:
+118920	    Tue 2021-10-19 10:21:20 AM	{               "media.tab":39,                     "taxon.tab":39, "time_elapsed":{"sec":0.39, "min":0.01, "hr":0}}
+118920_ENV	Tue 2021-10-19 10:22:40 AM	{"MoF.tab":85,  "media.tab":39, "occur.tab":85,     "taxon.tab":39, "time_elapsed":{"sec":20.26, "min":0.34, "hr":0.01}}
 ------------------------------------------------------------
 120083	    Wed 2021-07-07 01:54:01 AM	{               "media.tab":379,                  "taxon.tab":294, "time_elapsed":{"sec":0.57, "min":0.01, "hr":0}}
 120083_ENV	Wed 2021-07-07 01:56:33 AM	{"MoF.tab":752, "media.tab":186, "occur.tab":752, "taxon.tab":294, "time_elapsed":{"sec":31.82, "min":0.53, "hr":0.01}}
@@ -171,6 +178,9 @@ Mac mini:
 91144_ENV	Thu 2021-09-30 07:31:19 AM	{"MoF.tab":842, "media_resource.tab":196, "occur.tab":842, "taxon.tab":196, "time_elapsed":{"sec":8.36, "min":0.14, "hr":0}}
 91144	    Thu 2021-09-30 09:27:28 AM	{               "media_resource.tab":198,                  "taxon.tab":198, "time_elapsed":{"sec":0.47, "min":0.01, "hr":0}}
 91144_ENV	Thu 2021-09-30 09:28:15 AM	{"MoF.tab":869, "media_resource.tab":198, "occur.tab":869, "taxon.tab":198, "time_elapsed":{"sec":17.5, "min":0.29, "hr":0}}
+start gnfinder
+91144	    Tue 2021-10-19 04:42:27 AM	{               "media_resource.tab":199,                  "taxon.tab":199, "time_elapsed":{"sec":0.62, "min":0.01, "hr":0}}
+91144_ENV	Tue 2021-10-19 04:43:51 AM	{"MoF.tab":871, "media_resource.tab":199, "occur.tab":871, "taxon.tab":199, "time_elapsed":{"sec":54.3, "min":0.91, "hr":0.02}}
 
 91225	Thu 2021-08-05 12:07:49 PM	{"association.tab":4275, "occurrence.tab":4693, "taxon.tab":4859, "time_elapsed":{"sec":6.39, "min":0.11, "hr":0}}
 91225	Thu 2021-08-12 05:38:11 AM	{"association.tab":4343, "occurrence.tab":4762, "taxon.tab":4932, "time_elapsed":{"sec":124.63, "min":2.08, "hr":0.03}}
@@ -219,9 +229,12 @@ NorthAmericanFlora	Tue 2021-10-19 07:44:12 AM	{"assoc.tab":5681, "MoF.tab":3336,
 15404_ENV	Mon 2021-09-27 10:18:51 AM	{"MoF.tab":1346, "media.tab":299, "occurrence.tab":1346, "taxon.tab":293, "time_elapsed":{"sec":90.39, "min":1.51, "hr":0.03}}
 15404	    Thu 2021-09-30 10:22:55 AM	{                "media.tab":299,                        "taxon.tab":293, "time_elapsed":{"sec":0.66, "min":0.01, "hr":0}}
 15404_ENV	Thu 2021-09-30 10:23:43 AM	{"MoF.tab":1346, "media.tab":299, "occurrence.tab":1346, "taxon.tab":293, "time_elapsed":{"sec":17.41, "min":0.29, "hr":0}}
-Mac mini:
+Mac mini: gnfinder
 15404	    Mon 2021-10-18 10:33:41 AM	{                "media.tab":300,                        "taxon.tab":294, "time_elapsed":{"sec":1.8, "min":0.03, "hr":0}}
 15404	    Tue 2021-10-19 02:14:26 AM	{                "media.tab":303,                        "taxon.tab":297, "time_elapsed":{"sec":1.24, "min":0.02, "hr":0}}
+eol-archive: gnfinder
+15404	    Tue 2021-10-19 10:07:22 AM	{                "media.tab":303,                        "taxon.tab":297, "time_elapsed":{"sec":2.2, "min":0.04, "hr":0}}
+15404_ENV	Tue 2021-10-19 10:09:02 AM	{"MoF.tab":1372, "media.tab":303, "occurrence.tab":1372, "taxon.tab":297, "time_elapsed":{"sec":69.13, "min":1.15, "hr":0.02}}
 
 15405	    Tue 2021-08-10 08:30:46 AM	{                "media_resource.tab":105,                   "taxon.tab":105, "time_elapsed":{"sec":0.4, "min":0.01, "hr":0}}
 15405_ENV	Tue 2021-08-10 08:32:59 AM	{"MoF.tab":402,  "media_resource.tab":105, "occur.tab":402,  "taxon.tab":105, "time_elapsed":{"sec":13.38, "min":0.22, "hr":0}}
