@@ -177,6 +177,7 @@ Mac mini:
 91225	Mon 2021-09-27 01:12:13 PM	{"association.tab":4326, "occurrence.tab":4751, "taxon.tab":4931, "time_elapsed":{"sec":10.51, "min":0.18, "hr":0}}91225	
 91225	Thu 2021-09-30 09:28:56 AM	{"association.tab":4330, "occurrence.tab":4755, "taxon.tab":4934, "time_elapsed":{"sec":9.01, "min":0.15, "hr":0}}
 91225	Thu 2021-10-07 09:21:18 AM	{"association.tab":4330, "occurrence.tab":4755, "taxon.tab":4934, "time_elapsed":{"sec":17.77, "min":0.3, "hr":0}}
+91225	Tue 2021-10-19 06:57:53 AM	{"association.tab":5094, "occurrence.tab":5503, "taxon.tab":5811, "time_elapsed":{"sec":2252.17, "min":37.54, "hr":0.63}}
 
 91362	            Mon 2021-08-09 05:21:21 AM	{"assoc.tab":486,                                         "occur.tab":624,          "taxon.tab":656, "time_elapsed":{"sec":6.09, "min":0.1, "hr":0}}
 91362_species	    Mon 2021-08-09 05:22:06 AM	{                                "media_resource.tab":56,                           "taxon.tab":56, "time_elapsed":{"sec":0.36, "min":0.01, "hr":0}}
@@ -192,6 +193,11 @@ Mac mini:
 91362_species	    Thu 2021-09-30 09:29:31 AM	{                                "media_resource.tab":61,                           "taxon.tab":61, "time_elapsed":{"sec":0.36, "min":0.01, "hr":0}}
 91362_species_ENV	Thu 2021-09-30 09:30:11 AM	{                 "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":267, "taxon.tab":61, "time_elapsed":{"sec":10.08, "min":0.17, "hr":0}}
 91362_resource	    Thu 2021-09-30 09:30:15 AM	{"assoc.tab":491, "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":897, "taxon.tab":694, "time_elapsed":{"sec":3.6, "min":0.06, "hr":0}}
+-------------
+91362	            Tue 2021-10-19 07:36:11 AM	{"assoc.tab":587,                                         "occur.tab":724,          "taxon.tab":782, "time_elapsed":{"sec":1565.71, "min":26.1, "hr":0.43}}
+91362_species	    Tue 2021-10-19 07:42:40 AM	{                                "media_resource.tab":61,                           "taxon.tab":61, "time_elapsed":{"sec":16.32, "min":0.27, "hr":0}}
+91362_species_ENV	Tue 2021-10-19 07:43:36 AM	{                 "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":267, "taxon.tab":61, "time_elapsed":{"sec":25.94, "min":0.43, "hr":0.01}}
+91362_resource	    Tue 2021-10-19 07:43:41 AM	{"assoc.tab":587, "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":991, "taxon.tab":810, "time_elapsed":{"sec":4.47, "min":0.07, "hr":0}}
 
 NorthAmericanFlora	Thu 2021-08-12 05:42:08 AM	{"assoc.tab":4829, "MoF.tab":3199, "media.tab":770, "occurrence.tab":8585, "taxon.tab":6198, "time_elapsed":{"sec":43.78, "min":0.73, "hr":0.01}}
 NorthAmericanFlora	Mon 2021-10-11 10:23:50 AM	{"assoc.tab":4821, "MoF.tab":3339, "media.tab":794, "occurrence.tab":8724, "taxon.tab":6226, "time_elapsed":{"sec":17.61, "min":0.29, "hr":0}}
@@ -200,6 +206,7 @@ NorthAmericanFlora	Wed 2021-10-13 10:54:47 AM	{"assoc.tab":4821, "MoF.tab":3339,
 here discovered GNRD is gone :-(
 NorthAmericanFlora	Thu 2021-10-14 10:06:44 PM	{"assoc.tab":5264, "MoF.tab":3336, "media.tab":794, "occurrence.tab":9172, "taxon.tab":6661, "time_elapsed":{"sec":49.85, "min":0.83, "hr":0.01}}
 NorthAmericanFlora	Sun 2021-10-17 11:09:29 AM	{"assoc.tab":5264, "MoF.tab":3336, "media.tab":794, "occurrence.tab":9172, "taxon.tab":6661, "time_elapsed":{"sec":19, "min":0.32, "hr":0.01}}
+NorthAmericanFlora	Tue 2021-10-19 07:44:12 AM	{"assoc.tab":5681, "MoF.tab":3336, "media.tab":794, "occurrence.tab":9563, "taxon.tab":7110, "time_elapsed":{"sec":20.89, "min":0.35, "hr":0.01}}
 ---------- start FUNGI list: ----------
 "15404", "15405", "15406", "15407", "15408", "15409", "15410", "15411", "15412", 
 "15413", "15414", "15415", "15416", "15417", "15418", "15419", "15420", "15421"
@@ -554,8 +561,8 @@ print_r($names); exit("\n");
 
 /*
 $text = "Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935";
-$text = "Sinfitas do Brasil Central. I. Themos olfe rsi i (Klug) (Hym";
-$text = "Abies fixandu";
+// $text = "Sinfitas do Brasil Central. I. Themos olfe rsi i (Klug) (Hym";
+// $text = "Gadus morhua is cool.";
 $obj = $func->run_gnverifier($text);
 print_r($obj); exit("\nelix\n");
 */

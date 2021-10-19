@@ -1462,7 +1462,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                             if(ctype_upper($words[1][0])) { //1st word, 1st char should be capital
                                 if(self::is_sciname_using_GNRD($row)) { //print_r($words); //echo "\nhere 222\n";
                                     $row = "</taxon>$row";
-                                    echo "\nDetected as STOP pattern: [$orig_row] [$row]\n";
+                                    // echo "\nDetected as STOP pattern: [$orig_row] [$row]\n"; //debug only
                                 }
                             }
                         }
