@@ -158,8 +158,9 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
                         // */
                         
                         debug("\nrun_GNRD 3: [$sciname_line]\n");
-                        if($obj = self::run_GNRD($sciname_line)) {
-                            $sciname = @$obj->names[0]->scientificName; //echo "\n[$sciname]\n";
+                        if($obj = self::run_GNRD($sciname_line)) { //GNRD OBSOLETE, this now uses gnfinder
+                            // $sciname = @$obj->names[0]->scientificName; //GNRD OBSOLETE
+                            $sciname = @$obj[0];
                             if(!$sciname) continue; //new Jul 1, 2021
                             $rek['sciname GNRD'] = $sciname;
                             if($obj = self::run_gnparser($sciname_line)) {
@@ -283,7 +284,8 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         return $string;
     }
     function run_GNRD_get_sciname_inXML($string)
-    {
+    {   return false;
+        exit("\n-----\n[$string]\nstop using 002\n");
         $string = str_replace(array("%", ">", "<"), "", $string);
         $url = $this->service['GNRD text input XML'].$string;
         $options = $this->download_options;
@@ -313,6 +315,59 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
     {
         if($string = self::clean_name($string)) {}
         else return false;
+        
+        //================================================================================================start gnfinder
+        if($names = $this->get_names_from_gnfinder($string)) return $names;
+        // 3rd try - New Sep 30, 2021
+        $words = explode(" ", $string);
+        if(count($words) >= 6) {
+            $string2 = Functions::canonical_form($string);
+            if($names = $this->get_names_from_gnfinder($string2)) return $names;
+        }
+        // another option - copied below when still using gnrd:
+        if(!in_array($this->pdf_id, array('91225', '91362'))) return false;
+        else { // per Jen: https://eol-jira.bibalex.org/browse/DATA-1890?focusedCommentId=66302&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66302
+            /*
+            llll => llii
+            lll => ill
+            lll => lli
+            */
+            if(stripos($string, "llll") !== false) { //string is found
+                $string = str_ireplace("llll", "llii", $string);
+                if($names = $this->get_names_from_gnfinder($string)) return $names;
+            }
+            elseif(stripos($string, "lll") !== false) { //string is found
+                /* we have two tries here */
+                //1st option
+                $orig = $string;
+                $string = str_ireplace("lll", "ill", $string);
+                if($names = $this->get_names_from_gnfinder($string)) return $names;
+                
+                //2nd option
+                $string = str_ireplace("lll", "lli", $orig);
+                if($names = $this->get_names_from_gnfinder($string)) return $names;
+            }
+            /* and, where x is any consonant except l (letter el)
+            xlx => xix
+            xll => xil
+            llx => lix
+            */
+            $orig = $string;
+            $string = self::xlx_to_xix($string);
+            if($names = $this->get_names_from_gnfinder($string)) return $names;
+            
+            $string = $orig;
+            $string = self::xll_to_xil($string);
+            if($names = $this->get_names_from_gnfinder($string)) return $names;
+
+            $string = $orig;
+            $string = self::llx_to_lix($string);
+            if($names = $this->get_names_from_gnfinder($string)) return $names;
+        }
+        return false;
+        exit("\nstop using 003\n");
+        //================================================================================================end gnfinder
+        
         $url = $this->service['GNRD text input'].$string;
         $options = $this->download_options;
         $options['expire_seconds'] = false;
@@ -383,7 +438,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         return false;
     }
     private function test_GNRD($string)
-    {
+    {   exit("\nstop using 004\n");
         $url = $this->service['GNRD text input'].$string;
         $options = $this->download_options;
         $options['expire_seconds'] = false;
@@ -815,7 +870,8 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
                 }
             }
         }
-        if($sciname = @$obj->names[0]->scientificName) {
+        // if($sciname = @$obj->names[0]->scientificName) { //GNRD OBSOLETE
+        if($sciname = @$obj[0]) {
             /* new: to remedy those captured monomials - WON'T WORK HERE, SINCE STRTOLOWER() WAS ALREADY APPLIED TO 2ND WORD
             WAS IMPLEMENTED CORRECTLY ELSEWHERE...
             if(self::is_just_one_word($sciname)) {
@@ -838,6 +894,10 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         // if(stripos($orig, $this->in_question) !== false) exit("\n[$sciname][$sciname_line]xx4\n"); //good debug - to see what string passes here.
         if(self::is_just_one_word($sciname)) {  //false; //exclude if sciname is just one word, it is implied that it should be a binomial
             // exit("\n[$sciname] is a minomial\n");
+            
+            // /* to remedy list of monomials generated by gnfinder even if there is a binomial in the string. e.g. 15422 BHL
+            if($val = $this->get_binomial_or_tri($sciname_line)) return $val;
+            // */
             
             // /* New: Sep 28, 2011 - when working on DATA-1891
             $this->debug['monomial'][$sciname_line][$sciname] = Functions::canonical_form($sciname_line); //good debug for 118935

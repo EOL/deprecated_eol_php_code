@@ -140,6 +140,8 @@ MoftheAES_resources	Thu 2021-10-07 10:11:44 AM	{"MoF.tab":12428, "media.tab":191
 15423_ENV	Tue 2021-09-28 05:07:48     {"MoF.tab":347, "media_resource.tab":75, "occur.tab":347,  "taxon.tab":75, "time_elapsed":{"sec":118.99, "min":1.98, "hr":0.03}}
 15423	    Thu 2021-09-30 09:23:55 AM	{               "media_resource.tab":75,                   "taxon.tab":75, "time_elapsed":{"sec":0.37, "min":0.01, "hr":0}}
 15423_ENV	Thu 2021-09-30 09:24:32 AM	{"MoF.tab":289, "media_resource.tab":75, "occur.tab":289,  "taxon.tab":75, "time_elapsed":{"sec":6.82, "min":0.11, "hr":0}}
+Mac mini:
+15423	    Mon 2021-10-18 11:01:18 PM	{               "media_resource.tab":76,                   "taxon.tab":77, "time_elapsed":{"sec":0.73, "min":0.01, "hr":0}}
 ------------------------------------------------------------
 91155	    Tue 2021-07-13 07:23:11     {               "media_resource.tab":107,                   "taxon.tab":107, "time_elapsed":{"sec":0.41, "min":0.01, "hr":0}}
 91155_ENV	Tue 2021-07-13 07:28:06     {"MoF.tab":665, "media_resource.tab":107, "occur.tab":665,  "taxon.tab":107, "time_elapsed":{"sec":174.68, "min":2.91, "hr":0.05}}
@@ -205,6 +207,9 @@ NorthAmericanFlora	Sun 2021-10-17 11:09:29 AM	{"assoc.tab":5264, "MoF.tab":3336,
 15404_ENV	Mon 2021-09-27 10:18:51 AM	{"MoF.tab":1346, "media.tab":299, "occurrence.tab":1346, "taxon.tab":293, "time_elapsed":{"sec":90.39, "min":1.51, "hr":0.03}}
 15404	    Thu 2021-09-30 10:22:55 AM	{                "media.tab":299,                        "taxon.tab":293, "time_elapsed":{"sec":0.66, "min":0.01, "hr":0}}
 15404_ENV	Thu 2021-09-30 10:23:43 AM	{"MoF.tab":1346, "media.tab":299, "occurrence.tab":1346, "taxon.tab":293, "time_elapsed":{"sec":17.41, "min":0.29, "hr":0}}
+Mac mini:
+15404	    Mon 2021-10-18 10:33:41 AM	{                "media.tab":300,                        "taxon.tab":294, "time_elapsed":{"sec":1.8, "min":0.03, "hr":0}}
+15404	    Tue 2021-10-19 12:52:37 AM	{                "media.tab":304,                        "taxon.tab":298, "time_elapsed":{"sec":1.35, "min":0.02, "hr":0}}
 
 15405	    Tue 2021-08-10 08:30:46 AM	{                "media_resource.tab":105,                   "taxon.tab":105, "time_elapsed":{"sec":0.4, "min":0.01, "hr":0}}
 15405_ENV	Tue 2021-08-10 08:32:59 AM	{"MoF.tab":402,  "media_resource.tab":105, "occur.tab":402,  "taxon.tab":105, "time_elapsed":{"sec":13.38, "min":0.22, "hr":0}}
@@ -264,6 +269,11 @@ NorthAmericanFlora_Fungi	Wed 2021-10-13 10:55:10 AM	{"association.tab":3,
 15422_ENV	Fri 2021-08-13 02:08:32 AM	{"MoF.tab":1131, "media.tab":280, "occur_specific.tab":1131, "taxon.tab":279, "time_elapsed":{"sec":17.47, "min":0.29, "hr":0}}
 15422	    Tue 2021-10-05 10:42:44 AM	{                "media.tab":272,                            "taxon.tab":270, "time_elapsed":{"sec":0.55, "min":0.01, "hr":0}}
 15422_ENV	Tue 2021-10-05 10:44:55 AM	{"MoF.tab":1113, "media.tab":272, "occur_specific.tab":1113, "taxon.tab":270, "time_elapsed":{"sec":11.12, "min":0.19, "hr":0}}
+Mac mini:
+15422	    Mon 2021-10-18 11:04:07 AM	{                "media.tab":262,                            "taxon.tab":260, "time_elapsed":{"sec":1.04, "min":0.02, "hr":0}}
+gnparser to the rescue: get_binomial_or_tri()
+15422	    Mon 2021-10-18 09:34:04 PM	{                "media.tab":280,                            "taxon.tab":278, "time_elapsed":{"sec":1.37, "min":0.02, "hr":0}}
+
 
 15424	    Wed 2021-08-18 11:33:44 AM	{               "media.tab":151,                            "taxon.tab":151, "time_elapsed":{"sec":1.8, "min":0.03, "hr":0}}
 15424_ENV	Wed 2021-08-18 11:35:59 AM	{"MoF.tab":598, "media.tab":151, "occur_specific.tab":598,  "taxon.tab":151, "time_elapsed":{"sec":14.63, "min":0.24, "hr":0}}
@@ -530,6 +540,12 @@ exit("\n-end-\n");
 
 /* works OK - final test
 $text = "Thalictroides, 18s per doz.\nvitifoiia, Is. 6d. each Lates niloticus\nCalopogon, or Cymbidium pul-\n\ncheilum, 1 5s. per doz.\nConostylis americana, 2i. 6d.\n";
+$text = "Coville,";
+$text = "Riccia dussiana Stephani , Symb. Ant. 3 : 275. 1902";
+$text = "Riccia mcauisteri M. A. Howe , Bryologist 20 : 35. 1917";
+$text = "Riccia mcallisteri";
+$text = "Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935";
+$text = "Bulbochaete cimarronea Taft";
 $names = $func->get_names_from_gnfinder($text);
 print_r($names); exit("\n");
 */

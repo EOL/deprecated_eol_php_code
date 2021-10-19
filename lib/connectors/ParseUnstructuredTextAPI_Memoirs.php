@@ -10,8 +10,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         /* START epub series */
         // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
-        $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
-        $this->service['GNRD text input XML'] = 'http://gnrd.globalnames.org/name_finder.xml?text=';
+        $this->service['GNRD text input'] = 'httpz1'; //'http://gnrd.globalnames.org/name_finder.json?text=';
+        $this->service['GNRD text input XML'] = 'httpz2'; //'http://gnrd.globalnames.org/name_finder.xml?text=';
         
         // /* Used in 2 locations: 1. ParseUnstructuredTextAPI_Memoirs.php      2. ParseListTypeAPI_Memoirs.php
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
@@ -22,7 +22,14 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         http://gnrd.globalnames.org/name_finder.xml?text=
         
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most...
-        https://parser.globalnames.org/api/v1/Melanoleuca collybiiformis. Murrill, Mycologia 5 : 216. 1913
+        https://parser.globalnames.org/api/v1/Oedogonium taftii Tiffany
+        https://parser.globalnames.org/api/v1/Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935
+        https://parser.globalnames.org/api/v1/Oedogonium santurcense Tiff. Brittonia 2 : 168. 1936
+        https://parser.globalnames.org/api/v1/Krameriaceae , caesalpiniaceae (pars). 23 5 : 269-349. Caesalpini-
+        https://parser.globalnames.org/api/v1/Oedogonium tentoriale Nordst. & Hirn ; Him , Acta
+        https://parser.globalnames.org/api/v1/Oedogonium fab ulosum Hirn , Acta Soc. Sci. Fenn. 27 : 114. 1900
+        https://parser.globalnames.org/api/v1/Uredinales : coleosporiaceae , Uredinaceae , Aecidiaceae
+        
         
         not used:
         https://parser.globalnames.org/?q=https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx...
@@ -242,6 +249,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
             if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array("91225", "91362"))) {
                 $row = str_replace("TUlandsia", "Tillandsia", $row);
+                $row = str_replace("califomica", "californica", $row); //15423 NAF
                 // this 4 rows was handled by: change_U_to_ll_caused_by_OCR()
                 // $row = str_replace("Riccia EUiottii", "Riccia Elliottii", $row); //15423 NAF
                 // $row = str_replace("Bruchia SuUivanti", "Bruchia Sullivanti", $row); //91155 NAF
@@ -990,7 +998,11 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         return true; //seems it doesn't go here anymore
     }
     function is_sciname_using_GNRD($string)
-    {
+    {   
+        $names = $this->get_names_from_gnfinder($string);
+        if($names) return true;
+        else return false;
+        exit("\nstop using 001\n");
         /* from GNRD
         http://gnrd.globalnames.org/name_finder.json?text=A+spider+named+Pardosa+moesta+Banks,+1892
         http://gnrd.globalnames.org/name_finder.json?text=boggianii Régimbart 00–526 (Paraguay)
@@ -1278,6 +1290,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             
             if($this->resource_name == 'all_BHL' || in_array($this->pdf_id, array("91225", "91362"))) {
                 $row = str_replace("TUlandsia", "Tillandsia", $row);
+                $row = str_replace("califomica", "californica", $row); //15423 NAF
                 // this 4 rows was handled by: change_U_to_ll_caused_by_OCR()
                 // $row = str_replace("Riccia EUiottii", "Riccia Elliottii", $row); //15423 NAF
                 // $row = str_replace("Bruchia SuUivanti", "Bruchia Sullivanti", $row); //91155 NAF
@@ -1967,7 +1980,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if(strcmp($row, "CORRECTIONS") == 0) break; //$var1 is equal to $var2 in a case sensitive string comparison
                 if(strcmp($row, "</taxon>CORRECTIONS") == 0) break; //$var1 is equal to $var2 in a case sensitive string comparison
                 // ---- Plant list ----
-                if($row == "extra-limital species") break; //15422
+                if($row == "</taxon>extra-limital species") break; //15422
                 if(strcmp($row, "Editorial Appendix") == 0) break; //$var1 is equal to $var2 in a case sensitive string comparison
                 if(strcmp($row, "</taxon>Editorial Appendix") == 0) break; //$var1 is equal to $var2 in a case sensitive string comparison
             }

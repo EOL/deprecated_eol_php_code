@@ -498,6 +498,7 @@ class Functions_Memoirs
     }
     function change_U_to_ll_caused_by_OCR($sciname_line) //e.g. Bruchia longicoUis [improvement series]
     {
+        // if(stripos($sciname_line, "mcauisteri") !== false) echo("\nfound: [$sciname_line]\n"); //string is found --- debug only
         $orig = $sciname_line;
         $words = explode(" ", $sciname_line);
         debug("\n----------\norig: [$sciname_line]\n");
@@ -519,7 +520,8 @@ class Functions_Memoirs
                     else                   @$upper_case++;
                 }
                 debug("\nlower: [$lower_case]\nupper: [$upper_case]");
-                if($lower_case >= 3 && $upper_case == 1) { //replace "U" to "ll"
+                if($lower_case >= 3 && ($upper_case == 1 || $upper_case == 2)) { //replace "U" to "ll" --- "Riccia McAUisteri" to "Riccia McAllisteri" -> $upper_case is 2
+                                                                                               // orig --- "Bruchia longicoUis" -> $upper_case is 1
                      $second = str_replace("U", "ll", $second);
                      $second = $first_char.$second;
                      debug("\nnew second: [$second]\n");
@@ -531,6 +533,7 @@ class Functions_Memoirs
         $sciname_line = implode(" ", $words);
         $sciname_line = str_replace("lll", "lli", $sciname_line);
         if($orig != $sciname_line) echo "\nfinal: [$sciname_line]\n----------\n";
+        // if(stripos($orig, "mcauisteri") !== false) exit("\nfound: [$sciname_line]\n"); //string is found --- debug only
         return $sciname_line;
     }
     function change_l_to_i_if_applicable($sci) //[improvement series]
@@ -606,12 +609,19 @@ class Functions_Memoirs
     */
     /*================== START gnfinder =====================*/
     function get_names_from_gnfinder($desc) //old name is "retrieve_partial()" //1st param $id, 2nd param $desc, 3rd param $loop - copied template
-    {   
+    {
         $arr = self::gen_array_input(trim($desc)); //for id use
         $id = md5(json_encode($arr));
         if($arr = self::retrieve_json($id, 'partial', $desc)) {
             echo "\n[111]\n";
             return self::select_envo($arr);
+            /*e.g. return value: Array(
+                [0] => Thalictroides
+                [1] => Lates niloticus
+                [2] => Calopogon
+                [3] => Cymbidium pulchellum
+                [4] => Conostylis americana
+            )*/
         }
         else {
             if($json = self::run_partial($desc)) {
@@ -631,11 +641,31 @@ class Functions_Memoirs
         }
     }
     private function select_envo($arr)
-    {   $final = array();
-        foreach($arr['names'] as $n) {
-            if($val = @$n['verification']['bestResult']['matchedCanonicalFull']) $final[] = $val;
-            elseif($val = @$n['verification']['preferredResults'][0]['matchedCanonicalFull']) $final[] = $val;
-            elseif($val = @$n['name']) $final[] = $val;
+    {   //print_r($arr['names']); exit;
+        $final = array();
+        if(@$arr['names']) {
+            foreach($arr['names'] as $n) {
+                // 1st try - at least 2 words
+                if($val = @$n['verification']['bestResult']['matchedCanonicalFull']) {
+                    if(self::more_than_one_word($val)) {
+                        $final[] = $val; continue;
+                    }
+                }
+                if($val = @$n['verification']['preferredResults'][0]['matchedCanonicalFull']) {
+                    if(self::more_than_one_word($val)) {
+                        $final[] = $val; continue;
+                    }
+                }
+                if($val = @$n['name']) {
+                    if(self::more_than_one_word($val)) {
+                        $final[] = $val; continue;
+                    }
+                }
+                // 2nd try any string
+                if($val = @$n['verification']['bestResult']['matchedCanonicalFull']) {$final[] = $val; continue;}
+                if($val = @$n['verification']['preferredResults'][0]['matchedCanonicalFull']) {$final[] = $val; continue;}
+                if($val = @$n['name']) {$final[] = $val; continue;}
+            } //end loop
         }
         return $final;
         /*Array(
@@ -711,6 +741,7 @@ class Functions_Memoirs
         $str = str_replace('"', '\"', $json); //exit("\n$str\n");
         $cmd = 'curl -ksS "https://gnfinder.globalnames.org/api/v1/find" -H  "accept: application/json" -H  "Content-Type: application/json" -d "'.$str.'"';
         $cmd .= " 2>&1";
+        sleep(1); //sleep for 1 second
         $json = shell_exec($cmd);
         return $json;
     }
@@ -740,5 +771,20 @@ class Functions_Memoirs
         return $this->json_path . "$cache1/$cache2/$filename";
     }
     /*==================== END gnfinder =====================*/
+    private function more_than_one_word($str)
+    {
+        $words = explode(" ", trim($str));
+        if(count($words) > 1) return true;
+        else return false;
+    }
+    function get_binomial_or_tri($sciname_line)
+    {
+        if($obj = $this->run_gnparser($sciname_line)) {
+            if($canonical = @$obj[0]->canonical->full) {
+                if(self::more_than_one_word($canonical)) return $canonical;
+            }
+        }
+        return false;
+    }
 }
 ?>

@@ -42,8 +42,8 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "119188", "resource_name":"others
 === START BHL RESOURCES ===
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15423", "resource_name":"1st BHL", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15423", "resource_name":"NAF", "doc": "BHL"}'       --- changed to "NAF" for DATA-1891
-process_SI_pdfs_memoirs.php _ '{"resource_id": "91155", "resource_name":"2nd BHL", "doc": "BHL"}'
-process_SI_pdfs_memoirs.php _ '{"resource_id": "15427", "resource_name":"3rd BHL", "doc": "BHL"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "91155", "resource_name":"NAF", "doc": "BHL"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "15427", "resource_name":"NAF", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15428", "resource_name":"4th BHL", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "91144", "resource_name":"5th BHL", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "91225", "resource_name":"6th BHL", "doc": ""}' //host-pathogen list pattern
@@ -51,7 +51,7 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "91362", "resource_name":"7th BHL
 process_SI_pdfs_memoirs.php _ '{"resource_id": "91362_species", "resource_name":"7th BHL", "doc": "BHL"}' //species sections for 91362
 
 BHL Fungi:
-process_SI_pdfs_memoirs.php _ '{"resource_id": "15404",          "resource_name":"nth BHL", "doc": "BHL"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "15404",          "resource_name":"NAF", "doc": "BHL"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "'$resource_ID'", "resource_name":"nth BHL", "doc": "BHL"}'
 BHL Plants:
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15422",          "resource_name":"nth BHL", "doc": "BHL"}'
