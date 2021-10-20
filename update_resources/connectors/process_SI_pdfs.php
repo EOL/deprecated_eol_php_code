@@ -192,6 +192,10 @@ $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0
 // May 19 Wed
 // $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0093/scb-0093_descriptions_LT.txt";  $pdf_id = "scb-0093";
 
+// ============== put in here the item you wish to run:
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0002/scb-0002_descriptions_LT.txt";  $pdf_id = "scb-0002";
+// ==============
+
 $resource_id = $pdf_id;
 require_library('connectors/Functions_Memoirs');
 require_library('connectors/ParseListTypeAPI');
