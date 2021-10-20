@@ -217,6 +217,9 @@ here discovered GNRD is gone :-(
 NorthAmericanFlora	Thu 2021-10-14 10:06:44 PM	{"assoc.tab":5264, "MoF.tab":3336, "media.tab":794, "occurrence.tab":9172, "taxon.tab":6661, "time_elapsed":{"sec":49.85, "min":0.83, "hr":0.01}}
 NorthAmericanFlora	Sun 2021-10-17 11:09:29 AM	{"assoc.tab":5264, "MoF.tab":3336, "media.tab":794, "occurrence.tab":9172, "taxon.tab":6661, "time_elapsed":{"sec":19, "min":0.32, "hr":0.01}}
 NorthAmericanFlora	Tue 2021-10-19 07:44:12 AM	{"assoc.tab":5681, "MoF.tab":3336, "media.tab":794, "occurrence.tab":9563, "taxon.tab":7110, "time_elapsed":{"sec":20.89, "min":0.35, "hr":0.01}}
+gnfinder
+NorthAmericanFlora	Wed 2021-10-20 09:46:50 AM	{"assoc.tab":5681, "MoF.tab":3336, "media.tab":794, "occurrence.tab":9563, "taxon.tab":7110, "time_elapsed":{"sec":21.7, "min":0.36, "hr":0.01}}
+
 ---------- start FUNGI list: ----------
 "15404", "15405", "15406", "15407", "15408", "15409", "15410", "15411", "15412", 
 "15413", "15414", "15415", "15416", "15417", "15418", "15419", "15420", "15421"
@@ -290,6 +293,9 @@ NorthAmericanFlora_Fungi	Mon 2021-10-11 10:24:51 AM	{"association.tab":3,
 after DATA-1893
 NorthAmericanFlora_Fungi	Wed 2021-10-13 10:55:10 AM	{"association.tab":3, 
                                                          "MoF.tab":17168, "media_resource.tab":4597, "occurrence_specific.tab":17174, "taxon.tab":4592, "time_elapsed":{"sec":36.92, "min":0.62, "hr":0.01}}
+gnfinder:
+NorthAmericanFlora_Fungi	Wed 2021-10-20 09:47:18 AM	{"association.tab":3, 
+                                                         "MoF.tab":17857, "media_resource.tab":5347, "occurrence_specific.tab":17863, "taxon.tab":4713, "time_elapsed":{"sec":45.07, "min":0.75, "hr":0.01}}
 ---------- end FUNGI list: ----------
 
 ---------- Plant list: ----------
@@ -397,6 +403,7 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "15405", "resource_name":
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15406", "resource_name":"all_BHL"}' //F3
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15407", "resource_name":"all_BHL", "group":"Fungi"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15418", "resource_name":"all_BHL", "group":"Fungi"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "15409", "resource_name":"all_BHL", "group":"Fungi"}'
 
 PLANTS.txt ---- upward up to: 15432 --- for DATA-1891
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15422", "resource_name":"all_BHL", "group":"Plants"}'
@@ -462,7 +469,8 @@ NorthAmericanFlora_Plants	Tue 2021-08-31 03:10:17 AM	{"MoF.tab":45013, "media.ta
 NorthAmericanFlora_Plants	Mon 2021-10-11 10:25:59 AM	{"MoF.tab":45513, "media.tab":11476, "occurrence.tab":45513, "taxon.tab":11335, "time_elapsed":{"sec":94.02, "min":1.57, "hr":0.03}}
 after DATA-1893:
 NorthAmericanFlora_Plants	Wed 2021-10-13 10:56:00 AM	{"MoF.tab":45513, "media.tab":11476, "occurrence.tab":45513, "taxon.tab":11335, "time_elapsed":{"sec":93.09, "min":1.55, "hr":0.03}}
-
+gnfinder:
+NorthAmericanFlora_Plants	Wed 2021-10-20 09:48:15 AM	{"MoF.tab":46185, "media.tab":11646, "occurrence.tab":46185, "taxon.tab":11501, "time_elapsed":{"sec":111.03, "min":1.85, "hr":0.03}}
 
 ====================== Kubitzki_et_al ======================
 START PATTERNS:
@@ -572,6 +580,7 @@ $text = "Carex breweri boott , 111. Carex 142. pi. 455. 1867";
 // $text = "Riccia mcallisteri L.";
 // $text = "Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935";
 $text = "Potosinae mackenzie. XerochlaenaE Holm , Am. Jour. .Sci. IV. 16 : 455 , in small";
+$text = "Telia unknown";
 $names = $func->get_names_from_gnfinder($text); // regular call
 // $names = $func->get_names_from_gnfinder($text, true); // 2nd param to force-refresh, set it to -> true
 print_r($names); exit("\n-end test-\n");
@@ -582,12 +591,14 @@ $text = "Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935";
 // $text = "Sinfitas do Brasil Central. I. Themos olfe rsi i (Klug) (Hym";
 // $text = "Gadus morhua is cool.";
 $text = "Potosinae mackenzie. XerochlaenaE Holm , Am. Jour. .Sci. IV. 16 : 455 , in small";
+$text = "Telia unknown";
+
 // $obj = $func->run_gnverifier($text, 1); //2nd param is expire_seconds
 // $obj = $func->run_gnverifier($text);
-// print_r($obj); 
+// print_r($obj); exit("\n");
 
 $ret = $func->get_binomial_or_tri($text);
-echo "\nret: [$ret]\n";
+echo "\n get_binomial_or_tri: [$ret]\n";
 exit("\n-end test-\n");
 */
 
@@ -595,6 +606,7 @@ exit("\n-end test-\n");
 $text = "Gadus morhua is here.";
 $text = "Thalictroides, 18s per doz.\nvitifoiia, Is. 6d. each\nCalopogon, or Cymbidium pul-\n\ncheilum, 1 5s. per doz.\nConostylis americana, 2i. 6d.\n";
 $text = "Potosinae mackenzie";
+$text = "Telia unknown";
 $obj = $func->run_gnparser($text);
 print_r($obj); exit("\n");
 */

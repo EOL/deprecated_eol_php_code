@@ -798,19 +798,28 @@ class Functions_Memoirs
     {   // option 1 - finds a real name
         if($obj = $this->run_gnverifier($sciname_line)) {
             if($val = @$obj[0]->bestResult->matchedCanonicalFull) {
+                $val = self::basic_format_for_names($val);
                 if(self::more_than_one_word($val)) return $val;
             }
             if($val = @$obj[0]->bestResult->currentCanonicalFull) {
+                $val = self::basic_format_for_names($val);
                 if(self::more_than_one_word($val)) return $val;
             }
         }
         // option 2 - finds a possible name
         if($obj = $this->run_gnparser($sciname_line)) {
             if($val = @$obj[0]->canonical->full) {
+                $val = self::basic_format_for_names($val);
                 if(self::more_than_one_word($val)) return $val;
             }
         }
         return false;
+    }
+    private function basic_format_for_names($str)
+    {
+        $str = str_ireplace(" unknown", "", $str);          //BHL 15409.txt "Telia unknown"
+        $str = Functions::remove_whitespace(trim($str));
+        return $str;
     }
 }
 ?>
