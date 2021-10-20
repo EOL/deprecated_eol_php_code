@@ -9,30 +9,19 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
 
         /* START epub series */
         // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
-        $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
+        $this->service['GNRD text input'] = 'httpz'; //'http://gnrd.globalnames.org/name_finder.json?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
-        // https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
-        
-        // http://gnrd.globalnames.org/name_finder.json?text=Stilbosis lonchocarpella Busck, 1934, p. 157.
-        // https://parser.globalnames.org/api/v1/Creagrutus mucipu, USNM 350449, 1, 41.4 mm, paratype; Brazil, Goiás, Município de Minaçu/Colinas do Sul, Rio Tocantins.
-
         /*
+        https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
+        https://parser.globalnames.org/api/v1/Thespesia banalo Blanco, Fl. Filip. ed. 2, 382, 1845
+
         https://parser.globalnames.org/?q=https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
 
         http://gnrd.globalnames.org/name_finder.json?text=Tiphia paupi Allen and Krombein, 1961
         http://gnrd.globalnames.org/name_finder.json?text=Tiphia (Tiphia) uruouma
         http://gnrd.globalnames.org/name_finder.json?text=Eunice segregate (Chamberlin, 1919a) restricted
-
-
-        https://parser.globalnames.org/api/v1/Thespesia banalo Blanco, Fl. Filip. ed. 2, 382, 1845
-
-        %26 - &
-        %2C - ,
-        %28 - (
-        %29 - )
-        %3B - ;
-        + - space
+        http://gnrd.globalnames.org/name_finder.json?text=Stilbosis lonchocarpella Busck, 1934, p. 157.
         */
         /* index key here is the lines_before_and_after_sciname */
         $this->no_of_rows_per_block[2] = 5; //orig, first sample epub (SCtZ-0293_convertio.txt)
