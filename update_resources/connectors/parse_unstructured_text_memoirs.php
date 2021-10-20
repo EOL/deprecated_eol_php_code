@@ -568,11 +568,12 @@ exit("\n-end-\n");
 
 /* works OK - final test
 $text = "Thalictroides, 18s per doz.\nvitifoiia, Is. 6d. each Lates niloticus\nCalopogon, or Cymbidium pul-\n\ncheilum, 1 5s. per doz.\nConostylis americana, 2i. 6d.\n";
-$text = "Riccia mcauisteri M. A. Howe , Bryologist 20 : 35. 1917";
-$text = "Riccia mcallisteri L.";
+$text = "Carex breweri boott , 111. Carex 142. pi. 455. 1867";
+// $text = "Riccia mcallisteri L.";
 // $text = "Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935";
-// $names = $func->get_names_from_gnfinder($text); // regular call
-$names = $func->get_names_from_gnfinder($text, true); // 2nd param to force-refresh, set it to -> true
+$text = "Potosinae mackenzie. XerochlaenaE Holm , Am. Jour. .Sci. IV. 16 : 455 , in small";
+$names = $func->get_names_from_gnfinder($text); // regular call
+// $names = $func->get_names_from_gnfinder($text, true); // 2nd param to force-refresh, set it to -> true
 print_r($names); exit("\n-end test-\n");
 */
 
@@ -580,17 +581,24 @@ print_r($names); exit("\n-end test-\n");
 $text = "Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935";
 // $text = "Sinfitas do Brasil Central. I. Themos olfe rsi i (Klug) (Hym";
 // $text = "Gadus morhua is cool.";
-$obj = $func->run_gnverifier($text, 1); //2nd param is expire_seconds
+$text = "Potosinae mackenzie. XerochlaenaE Holm , Am. Jour. .Sci. IV. 16 : 455 , in small";
+// $obj = $func->run_gnverifier($text, 1); //2nd param is expire_seconds
 // $obj = $func->run_gnverifier($text);
-print_r($obj); exit("\n-end test-\n");
+// print_r($obj); 
+
+$ret = $func->get_binomial_or_tri($text);
+echo "\nret: [$ret]\n";
+exit("\n-end test-\n");
 */
 
-/*
+// /*
 $text = "Gadus morhua is here.";
 $text = "Thalictroides, 18s per doz.\nvitifoiia, Is. 6d. each\nCalopogon, or Cymbidium pul-\n\ncheilum, 1 5s. per doz.\nConostylis americana, 2i. 6d.\n";
-$obj = $func->run_gnparser_new($text);
+$text = "Potosinae mackenzie";
+
+$obj = $func->run_gnparser($text);
 print_r($obj); exit("\n");
-*/
+// */
 
 /*
 $row = "Riccia dictyospora M. A. Howe, Bull. Torrey";
