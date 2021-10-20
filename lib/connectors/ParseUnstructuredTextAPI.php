@@ -921,8 +921,10 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // */
         
         @$this->debug['sciname cnt']++;
-        echo "\n[$sciname] ". $this->debug['sciname cnt'];
-        echo " - Word count: ".$word_count."\n";
+        if($GLOBALS['ENV_DEBUG']) {
+            echo "\n[$sciname] ". $this->debug['sciname cnt'];
+            echo " - Word count: ".$word_count."\n";
+        }
         return true;
     }
     private function get_number_of_words($contents)
