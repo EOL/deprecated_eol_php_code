@@ -591,14 +591,13 @@ echo "\nret: [$ret]\n";
 exit("\n-end test-\n");
 */
 
-// /*
+/*
 $text = "Gadus morhua is here.";
 $text = "Thalictroides, 18s per doz.\nvitifoiia, Is. 6d. each\nCalopogon, or Cymbidium pul-\n\ncheilum, 1 5s. per doz.\nConostylis americana, 2i. 6d.\n";
 $text = "Potosinae mackenzie";
-
 $obj = $func->run_gnparser($text);
 print_r($obj); exit("\n");
-// */
+*/
 
 /*
 $row = "Riccia dictyospora M. A. Howe, Bull. Torrey";
