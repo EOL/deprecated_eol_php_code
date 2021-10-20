@@ -574,12 +574,13 @@ class Functions_Memoirs
         if(in_array(strtolower($letter), $consonant)) return true;
         return false;
     }
-    function run_gnverifier($string)
+    function run_gnverifier($string, $expire_seconds = false)
     {
         $string = self::format_string_4gnparser($string);
         $url = $this->service['GNVerifier'].$string;
         $options = $this->download_options;
         $options['expire_seconds'] = false;
+        if($expire_seconds) $options['expire_seconds'] = $expire_seconds;
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json); // print_r($obj); //exit;
             return $obj;
@@ -613,10 +614,17 @@ class Functions_Memoirs
         return $str;
     }
     /*================== START gnfinder =====================*/
-    function get_names_from_gnfinder($desc) //old name is "retrieve_partial()" //1st param $id, 2nd param $desc, 3rd param $loop - copied template
+    function get_names_from_gnfinder($desc, $refresh = false) //old name is "retrieve_partial()" //1st param $id, 2nd param $desc, 3rd param $loop - copied template
     {
         $arr = self::gen_array_input(trim($desc)); //for id use
         $id = md5(json_encode($arr));
+        
+        // /* if you want to refresh call, meaning expire cache and save new cache ----------
+        if($refresh) { //this block is exactly copied from below
+            return self::do_run_partial($desc, $id);
+        }
+        // ---------- */
+        
         if($arr = self::retrieve_json($id, 'partial', $desc)) {
             // echo "\n[111]\n"; //retrieved, already created.
             return self::select_envo($arr);
@@ -629,20 +637,24 @@ class Functions_Memoirs
             )*/
         }
         else {
-            if($json = self::run_partial($desc)) {
-                self::save_json($id, $json, 'partial');
-                /* now start access newly created. */
-                if($arr = self::retrieve_json($id, 'partial', $desc)) {
-                    // echo "\n[222]\n"; //newly created
-                    return self::select_envo($arr);
-                }
-                else {
-                    exit("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n");
-                }
+            return self::do_run_partial($desc, $id);
+        }
+    }
+    private function do_run_partial($desc, $id)
+    {
+        if($json = self::run_partial($desc)) {
+            self::save_json($id, $json, 'partial');
+            /* now start access newly created. */
+            if($arr = self::retrieve_json($id, 'partial', $desc)) {
+                // echo "\n[222]\n"; //newly created
+                return self::select_envo($arr);
             }
             else {
-                exit("\n================\n -- nothing to save...\n[$id]\n[$desc]\n[$loop]\n================\n"); //doesn't go here. Previously exit()
+                exit("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n");
             }
+        }
+        else {
+            exit("\n================\n -- nothing to save...\n[$id]\n[$desc]\n[$loop]\n================\n"); //doesn't go here. Previously exit()
         }
     }
     private function select_envo($arr)

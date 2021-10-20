@@ -266,6 +266,9 @@ The discrepancy is the improvement in capturing species sections.
 15418_ENV	Sun 2021-10-03 03:10:58 AM	{"MoF.tab":459, "media.tab":270, "occurrence_specific.tab":459, "taxon.tab":269, "time_elapsed":{"sec":27.53, "min":0.46, "hr":0.01}}
 15418	    Mon 2021-10-11 06:17:24 AM	{               "media.tab":270,                                "taxon.tab":269, "time_elapsed":{"sec":0.6, "min":0.01, "hr":0}}
 15418_ENV	Mon 2021-10-11 06:18:01 AM	{"MoF.tab":459, "media.tab":270, "occurrence_specific.tab":459, "taxon.tab":269, "time_elapsed":{"sec":6.76, "min":0.11, "hr":0}}
+gnfinder:
+15418	    Tue 2021-10-19 11:23:17 PM	{               "media.tab":276,                                "taxon.tab":275, "time_elapsed":{"sec":0.86, "min":0.01, "hr":0}}
+15418_ENV	Tue 2021-10-19 11:25:01 PM	{"MoF.tab":475, "media.tab":276, "occurrence_specific.tab":475, "taxon.tab":275, "time_elapsed":{"sec":74.18, "min":1.24, "hr":0.02}}
 
 15420	    Thu 2021-08-12 04:49:12 AM	{                "media.tab":143,                                 "taxon.tab":143, "time_elapsed":{"sec":0.42, "min":0.01, "hr":0}}
 15420_ENV	Thu 2021-08-12 04:51:26 AM	{"MoF.tab":456,  "media.tab":143, "occurrence_specific.tab":456,  "taxon.tab":143, "time_elapsed":{"sec":13.53, "min":0.23, "hr":0}}
@@ -566,18 +569,20 @@ exit("\n-end-\n");
 /* works OK - final test
 $text = "Thalictroides, 18s per doz.\nvitifoiia, Is. 6d. each Lates niloticus\nCalopogon, or Cymbidium pul-\n\ncheilum, 1 5s. per doz.\nConostylis americana, 2i. 6d.\n";
 $text = "Riccia mcauisteri M. A. Howe , Bryologist 20 : 35. 1917";
-$text = "Riccia mcallisteri";
-$text = "Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935";
-$names = $func->get_names_from_gnfinder($text);
-print_r($names); exit("\n");
+$text = "Riccia mcallisteri L.";
+// $text = "Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935";
+// $names = $func->get_names_from_gnfinder($text); // regular call
+$names = $func->get_names_from_gnfinder($text, true); // 2nd param to force-refresh, set it to -> true
+print_r($names); exit("\n-end test-\n");
 */
 
-/*
+/* works OK
 $text = "Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935";
 // $text = "Sinfitas do Brasil Central. I. Themos olfe rsi i (Klug) (Hym";
 // $text = "Gadus morhua is cool.";
-$obj = $func->run_gnverifier($text);
-print_r($obj); exit("\nelix\n");
+$obj = $func->run_gnverifier($text, 1); //2nd param is expire_seconds
+// $obj = $func->run_gnverifier($text);
+print_r($obj); exit("\n-end test-\n");
 */
 
 /*
