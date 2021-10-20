@@ -38,6 +38,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // */
         
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
+        
+        // /* for gnfinder
+        if(Functions::is_production()) $this->json_path = '/html/gnfinder/';
+        else                           $this->json_path = '/Volumes/AKiTiO4/other_files/gnfinder/';
+        // */
     }
     /* Special chard mentioned by Dima, why GNRD stops running.
     str_replace("")
@@ -397,14 +402,19 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
     }
     function is_sciname_using_GNRD($string)
     {
-        /* from GNRD
-        http://gnrd.globalnames.org/name_finder.json?text=A+spider+named+Pardosa+moesta+Banks,+1892
-        http://gnrd.globalnames.org/name_finder.json?text=boggianii Régimbart 00–526 (Paraguay)
-        */
         // for weird names, form Jen
         $string = str_replace("‘", "'", $string);
         $string = str_replace("’", "'", $string);
 
+        $names = $this->get_names_from_gnfinder($string);
+        if($names) return true;
+        else return false;
+        exit("\nstop using 001\n");
+
+        /* from GNRD
+        http://gnrd.globalnames.org/name_finder.json?text=A+spider+named+Pardosa+moesta+Banks,+1892
+        http://gnrd.globalnames.org/name_finder.json?text=boggianii Régimbart 00–526 (Paraguay)
+        */
         $url = $this->service['GNRD text input'].$string; debug("\nGNRD 1: [$url]\n");
         $options = $this->download_options;
         $options['expire_seconds'] = false;

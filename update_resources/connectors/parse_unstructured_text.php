@@ -6,6 +6,7 @@ start of many iterations:
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
+require_library('connectors/Functions_Memoirs');
 require_library('connectors/ParseListTypeAPI');
 require_library('connectors/ParseUnstructuredTextAPI');
 $timestart = time_elapsed();
@@ -224,7 +225,8 @@ $input = array('filename' => 'scb-0002.txt', 'type' => 'list', 'epub_output_txts
 
 // /* when testing copy desired $input here, then run: php update_resources/connectors/parse_unstructured_text.php
 $input = array('filename' => 'SCTZ-0156.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0156/');
-$input = array('filename' => 'SCtZ-0004.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0004/');
+// $input = array('filename' => 'SCtZ-0004.txt', 'lines_before_and_after_sciname' => 2, 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0004/');
+$input = array('filename' => 'scb-0002.txt', 'type' => 'list', 'epub_output_txts_dir' => '/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0002/');
 // */
 
 $pdf_id = pathinfo($input['filename'], PATHINFO_FILENAME);

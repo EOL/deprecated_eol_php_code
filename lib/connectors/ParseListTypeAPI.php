@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* */
-class ParseListTypeAPI
+class ParseListTypeAPI extends Functions_Memoirs
 {
     function __construct()
     {
@@ -114,7 +114,8 @@ class ParseListTypeAPI
                         // */
                         
                         if($obj = self::run_GNRD($sciname_line)) {
-                            $sciname = @$obj->names[0]->scientificName; //echo "\n[$sciname]\n";
+                            // $sciname = @$obj->names[0]->scientificName; //GNRD OBSOLETE
+                            $sciname = @$obj[0];
                             $rek['sciname GNRD'] = $sciname;
                             if($obj = self::run_gnparser($sciname_line)) {
                                 $authorship = @$obj[0]->authorship->verbatim;
@@ -229,6 +230,12 @@ class ParseListTypeAPI
     {
         if($string = self::clean_name($string)) {}
         else return false;
+        
+        //================================================================================================start gnfinder
+        if($names = $this->get_names_from_gnfinder($string)) return $names;
+        return false;
+        //================================================================================================end gnfinder
+        
         // echo "\n-- [$string]\n";
         $url = $this->service['GNRD text input'].$string; debug("\nGNRD 2: [$url]\n");
         $options = $this->download_options;
@@ -587,7 +594,8 @@ class ParseListTypeAPI
         $sciname_line = trim(Functions::remove_whitespace($sciname_line));
         
         if($obj = self::run_GNRD($sciname_line)) {
-            $sciname = @$obj->names[0]->scientificName; //echo "\n[$sciname]\n";
+            // $sciname = @$obj->names[0]->scientificName; //GNRD OBSOLETE
+            $sciname = @$obj[0];
             $rek['sciname GNRD'] = $sciname;
             if($obj = self::run_gnparser($sciname_line)) {
                 $authorship = @$obj[0]->authorship->verbatim;
@@ -704,7 +712,8 @@ class ParseListTypeAPI
         if(ctype_lower(substr($str,0,1))) return false;     //must be capitalized
         
         if($obj = self::run_GNRD($str)) {
-            if(strtolower($str) == strtolower(@$obj->names[0]->scientificName)) return true;
+            // if(strtolower($str) == strtolower(@$obj->names[0]->scientificName)) return true; //GNRD OBSOLETE
+            if(strtolower($str) == strtolower(@$obj[0])) return true;
         }
         return false;
     }
