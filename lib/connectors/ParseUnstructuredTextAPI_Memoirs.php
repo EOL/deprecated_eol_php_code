@@ -300,6 +300,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("vtiijckii", "vuijckii", $row); //91362_species NAF
                 $row = str_replace("clintoniantun", "clintonianum", $row); //91362_species NAF
                 $row = str_ireplace("Doassansia ftirva iJavis", "Doassanaia furva Javis", $row); //91362_species NAF
+                $row = str_ireplace("CarexBreweri", "Carex breweri", $row); //91365 NAF
             }
             
             if($this->resource_name == 'Kubitzki') { //this block is present in 2 sections (1 of 2)
@@ -1343,6 +1344,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_ireplace("vtiijckii", "vuijckii", $row); //91362_species NAF
                 $row = str_replace("clintoniantun", "clintonianum", $row); //91362_species NAF
                 $row = str_ireplace("Doassansia ftirva iJavis", "Doassanaia furva Javis", $row); //91362_species NAF
+                $row = str_ireplace("CarexBreweri", "Carex breweri", $row); //91365 NAF
             }
             
             if($this->resource_name == 'Kubitzki') { //this block is present in 2 sections (2 of 2)
