@@ -143,8 +143,10 @@ class ParseListTypeAPI extends Functions_Memoirs
                             if(!@$rek['scientificName_author_cleaned']) $rek['scientificName_author_cleaned'] = $rek['sciname GNRD'];
                             // */
                             
-                            if($GLOBALS["ENV_DEBUG"]) print_r($rek);
-                            else echo "\nlist: [".$rek['scientificName_author_cleaned']."]\n";
+                            if($GLOBALS["ENV_DEBUG"]) {
+                                print_r($rek);
+                                echo "\nlist: [".$rek['scientificName_author_cleaned']."]\n";
+                            }
                             // exit; //good debug
                             
                             // /* another filter criteria
