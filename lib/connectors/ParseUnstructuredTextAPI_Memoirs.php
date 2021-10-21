@@ -1009,14 +1009,18 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $string = str_replace("‘", "'", $string);
         $string = str_replace("’", "'", $string);
         
+        $orig_string = $string;
         if(!$this->more_than_one_word($string)) $string = ucfirst(strtolower($string));
         
         $names = $this->get_names_from_gnfinder($string);
         if($names) return true;
         
         $obj = $this->run_gnverifier($string); // regular call
-        if(@$obj->bestResult->matchedCanonicalFull) return true;
-        if(@$obj->bestResult->currentCanonicalFull) return true;
+        if(@$obj[0]->bestResult->matchedCanonicalFull) return true;
+        if(@$obj[0]->bestResult->currentCanonicalFull) return true;
+        
+        $obj = $func->run_gnparser($orig_string);
+        if(@$obj[0]->canonical->simple) return true;
         
         return false;
         exit("\nstop using 001\n");
