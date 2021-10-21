@@ -614,8 +614,16 @@ class Functions_Memoirs
         return $str;
     }
     /*================== START gnfinder =====================*/
-    function get_names_from_gnfinder($desc, $refresh = false) //old name is "retrieve_partial()" //1st param $id, 2nd param $desc, 3rd param $loop - copied template
+    function get_names_from_gnfinder($desc, $params = array()) //old name is "retrieve_partial()" //1st param $id, 2nd param $desc, 3rd param $loop - copied template
     {
+        if(isset($params['refresh'])) $refresh = $params['refresh'];
+        else                          $refresh = false; //default
+        
+        /* not implemented
+        if($val = @$params['coverage']) $this->coverage = $val; // can be 'all' or 'binomial'
+        else                            $this->coverage = 'binomial'; //default. 'binomial' means bi or trinomial or more...
+        */
+        
         $arr = self::gen_array_input(trim($desc)); //for id use
         $id = md5(json_encode($arr));
         
@@ -694,12 +702,16 @@ class Functions_Memoirs
                 if($val = @$n['name']) {$final[] = $val; continue;}
                 */
 
+                /* this block is equal to what is below it:
                 if($val = @$n['name']) {
                     if(self::more_than_one_word($val)) {
                         $final[] = $val; continue;
                     }
                 }
                 if($val = @$n['name']) {$final[] = $val; continue;}
+                */
+                if($val = @$n['name']) {$final[] = $val; continue;}
+                
                 
             } //end loop
         }
@@ -807,7 +819,7 @@ class Functions_Memoirs
         return $this->json_path . "$cache1/$cache2/$filename";
     }
     /*==================== END gnfinder =====================*/
-    private function more_than_one_word($str)
+    function more_than_one_word($str)
     {
         $words = explode(" ", trim($str));
         if(count($words) > 1) return true;
