@@ -659,6 +659,7 @@ class Functions_Memoirs
     }
     private function select_envo($arr)
     {   //print_r($arr['names']); exit;
+        //print_r($arr); exit;
         $final = array();
         if(@$arr['names']) {
             foreach($arr['names'] as $n) {

@@ -849,7 +849,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
                 
                 // /* first criteria to be false is that there is > 1 binomial
                 if(self::more_than_one_binomial($obj)) { //GNRD OBSOLETE $obj->names
-                    echo "\nGNRD sees multiple binomials: [$sciname_line]\n"; //exit;
+                    echo "\nGNRD sees multiple binomials: [$sciname_line]\n"; print_r($obj); //exit;
                     return false;
                 }
                 // */
@@ -869,7 +869,7 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
                     //e.g. http://gnrd.globalnames.org/name_finder.json?text=Spialia ploetzi (Aurivillius)
                     if(self::is_2or_more_words($scientificName_1) && self::is_just_one_word($scientificName_2)) {}
                     else {
-                        echo "\nGNRD sees multiple names: [$sciname_line]\n";
+                        echo "\nGNRD sees multiple names: [$sciname_line][$scientificName_1][$scientificName_2]\n";
                         // print_r($obj->names); //good debug
                         return false;
                     }
@@ -1531,6 +1531,30 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
             if(self::is_2or_more_words($obj->scientificName)) $binomials++;
         }
         */
+        
+        /* exclusive only for gnfinder: e.g. "Micropentila adelgunda Staudinger" ==========================
+            Array(
+                [metadata] => Array(
+                        [nameFindingSec] => 0.00020186
+                        [nameVerifSec] => 0.026502997
+                        [totalSec] => 0.026704857
+                        [date] => 2021-10-21T04:03:40.801893807Z
+                        [gnfinderVersion] => v0.16.1
+                        [withBayes] => 1
+                        [WithBytesOffset] => 
+                        [withOddsAdjustment] => 
+                        [withVerification] => 1
+                        [wordsAround] => 0
+                        [language] => eng
+                        [detectLanguage] => 
+                        [totalWords] => 3
+                        [totalCandidates] => 2
+                        [totalNames] => 2
+                    )
+        */
+        if($obj['metadata']['totalWords'] <= 3) return false;
+        /* ========================== */
+        
         foreach($gnrd_arr as $sciname) {
             if(self::is_2or_more_words($sciname)) $binomials++;
         }
