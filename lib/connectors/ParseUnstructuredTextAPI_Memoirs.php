@@ -1019,10 +1019,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         if(@$obj[0]->bestResult->matchedCanonicalFull) return true;
         if(@$obj[0]->bestResult->currentCanonicalFull) return true;
         
-        // /* doing this is a little relax in filtering names
+        /* doing this is a little relax in filtering names --- DON'T DO THIS, BRINGS IN MANY NON-SCINAMES
         $obj = $this->run_gnparser($orig_string);
         if(@$obj[0]->canonical->simple) return true;
-        // */
+        */
         
         return false;
         exit("\nstop using 001\n");
