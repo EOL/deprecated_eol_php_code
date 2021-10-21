@@ -11,6 +11,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
         $this->service['GNRD text input'] = 'httpz'; //'http://gnrd.globalnames.org/name_finder.json?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
+        $this->service['GNVerifier'] = "https://verifier.globalnames.org/api/v1/verifications/";
         /*
         https://parser.globalnames.org/api/v1/Periploca+hortatrix%2C+new+species
         https://parser.globalnames.org/api/v1/HOSTS (Table 1).—In North America, Populus tremuloides Michx., is the most frequently encountered host, with P. grandidentata Michx., and P. canescens (Alt.) J.E. Smith also being mined (Braun, 1908a). Populus balsamifera L., P. deltoides Marsh., and Salix sp. serve as hosts much less frequently. In the Palearctic region, Populus alba L., P. nigra L., P. tremula L., and Salix species have been reported as foodplants.
