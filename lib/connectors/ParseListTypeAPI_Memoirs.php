@@ -1532,29 +1532,6 @@ class ParseListTypeAPI_Memoirs extends Functions_Memoirs
         }
         */
         
-        /* exclusive only for gnfinder: e.g. "Micropentila adelgunda Staudinger" ==========================
-            Array(
-                [metadata] => Array(
-                        [nameFindingSec] => 0.00020186
-                        [nameVerifSec] => 0.026502997
-                        [totalSec] => 0.026704857
-                        [date] => 2021-10-21T04:03:40.801893807Z
-                        [gnfinderVersion] => v0.16.1
-                        [withBayes] => 1
-                        [WithBytesOffset] => 
-                        [withOddsAdjustment] => 
-                        [withVerification] => 1
-                        [wordsAround] => 0
-                        [language] => eng
-                        [detectLanguage] => 
-                        [totalWords] => 3
-                        [totalCandidates] => 2
-                        [totalNames] => 2
-                    )
-        */
-        if($obj['metadata']['totalWords'] <= 3) return false;
-        /* ========================== */
-        
         foreach($gnrd_arr as $sciname) {
             if(self::is_2or_more_words($sciname)) $binomials++;
         }

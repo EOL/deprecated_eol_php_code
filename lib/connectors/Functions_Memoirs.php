@@ -660,9 +660,18 @@ class Functions_Memoirs
     private function select_envo($arr)
     {   //print_r($arr['names']); exit;
         //print_r($arr); exit;
+        
+        $totalWords = $arr['metadata']['totalWords']; //exit("\n$totalWords\n");
+        
         $final = array();
-        if(@$arr['names']) {
-            foreach($arr['names'] as $n) {
+        if(@$arr['names']) { $i = 0;
+            foreach($arr['names'] as $n) { $i++;
+                
+                // if($totalWords <= 3) { //just get 1 record
+                //     if($i > 1) break;
+                // }
+                
+                /* my first try
                 // 1st try - at least 2 words
                 if($val = @$n['verification']['bestResult']['matchedCanonicalFull']) {
                     if(self::more_than_one_word($val)) {
@@ -683,6 +692,15 @@ class Functions_Memoirs
                 if($val = @$n['verification']['bestResult']['matchedCanonicalFull']) {$final[] = $val; continue;}
                 if($val = @$n['verification']['preferredResults'][0]['matchedCanonicalFull']) {$final[] = $val; continue;}
                 if($val = @$n['name']) {$final[] = $val; continue;}
+                */
+
+                if($val = @$n['name']) {
+                    if(self::more_than_one_word($val)) {
+                        $final[] = $val; continue;
+                    }
+                }
+                if($val = @$n['name']) {$final[] = $val; continue;}
+                
             } //end loop
         }
         return $final;
