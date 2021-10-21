@@ -1009,7 +1009,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $string = str_replace("‘", "'", $string);
         $string = str_replace("’", "'", $string);
         
-        if(!$this->more_than_one_word($string)) $string = ucfirst(strtolower($string))
+        if(!$this->more_than_one_word($string)) $string = ucfirst(strtolower($string));
         
         $names = $this->get_names_from_gnfinder($string);
         if($names) return true;
