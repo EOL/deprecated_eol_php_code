@@ -91,6 +91,7 @@ wikipedia_en_traits	Tue 2021-08-31 11:40:53 AM	    {"MoF.tab":148894, "occurrenc
 wikipedia_en_traits	Tue 2021-08-31 11:50:27 AM	    {"MoF.tab":149887, "occurrence.tab":149887, "taxon.tab":83240, "time_elapsed":false} correct OK
 after DATA-1893:
 wikipedia_en_traits	Wed 2021-10-13 09:32:56 AM	    {"MoF.tab":149887, "occurrence.tab":149887, "taxon.tab":83240, "time_elapsed":false}
+wikipedia_en_traits	Wed 2021-10-20 08:15:56 PM	    {"MoF.tab":149887, "occurrence.tab":149887, "taxon.tab":83240, "time_elapsed":false}
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
