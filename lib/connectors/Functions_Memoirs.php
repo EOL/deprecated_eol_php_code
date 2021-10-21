@@ -635,7 +635,7 @@ class Functions_Memoirs
         
         if($arr = self::retrieve_json($id, 'partial', $desc)) {
             // echo "\n[111]\n"; //retrieved, already created.
-            return self::select_envo($arr);
+            return self::select_envo($arr, $desc);
             /*e.g. return value: Array(
                 [0] => Thalictroides
                 [1] => Lates niloticus
@@ -655,7 +655,7 @@ class Functions_Memoirs
             /* now start access newly created. */
             if($arr = self::retrieve_json($id, 'partial', $desc)) {
                 // echo "\n[222]\n"; //newly created
-                return self::select_envo($arr);
+                return self::select_envo($arr, $desc);
             }
             else {
                 exit("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n");
@@ -665,7 +665,7 @@ class Functions_Memoirs
             exit("\n================\n -- nothing to save...\n[$id]\n[$desc]\n[$loop]\n================\n"); //doesn't go here. Previously exit()
         }
     }
-    private function select_envo($arr)
+    private function select_envo($arr, $desc)
     {   //print_r($arr['names']); exit;
         //print_r($arr); exit;
         
@@ -681,12 +681,12 @@ class Functions_Memoirs
                 
                 /* my first try
                 // 1st try - at least 2 words
-                if($val = @$n['verification']['bestResult']['matchedCanonicalFull']) {
+                if($val = @$n['verification']['bestResult']['matchedCanonicalSimple']) {
                     if(self::more_than_one_word($val)) {
                         $final[] = $val; continue;
                     }
                 }
-                if($val = @$n['verification']['preferredResults'][0]['matchedCanonicalFull']) {
+                if($val = @$n['verification']['preferredResults'][0]['matchedCanonicalSimple']) {
                     if(self::more_than_one_word($val)) {
                         $final[] = $val; continue;
                     }
@@ -697,8 +697,8 @@ class Functions_Memoirs
                     }
                 }
                 // 2nd try any string
-                if($val = @$n['verification']['bestResult']['matchedCanonicalFull']) {$final[] = $val; continue;}
-                if($val = @$n['verification']['preferredResults'][0]['matchedCanonicalFull']) {$final[] = $val; continue;}
+                if($val = @$n['verification']['bestResult']['matchedCanonicalSimple']) {$final[] = $val; continue;}
+                if($val = @$n['verification']['preferredResults'][0]['matchedCanonicalSimple']) {$final[] = $val; continue;}
                 if($val = @$n['name']) {$final[] = $val; continue;}
                 */
 
@@ -715,7 +715,7 @@ class Functions_Memoirs
                 
             } //end loop
         }
-        return $final;
+        if($final) return $final;
         /*Array(
             [names] => Array(
                     [0] => Array(
@@ -763,6 +763,14 @@ class Functions_Memoirs
                                                     [matchedCanonicalFull] => Calopogon
                                                 )
         */
+        /* 2nd try */
+        // echo "\ngo to 2nd try...[$desc]\n";
+        $final = array();
+        $obj = $this->run_gnverifier($desc); // regular call
+        // print_r($obj);
+        if($val = @$obj[0]->bestResult->matchedCanonicalSimple) $final[] = $val;
+        elseif($val = @$obj[0]->bestResult->currentCanonicalSimple) $final[] = $val;
+        return $final;
     }
     private function retrieve_json($id, $what, $desc)
     {   $file = self::retrieve_path($id, $what);
@@ -828,11 +836,11 @@ class Functions_Memoirs
     function get_binomial_or_tri($sciname_line)
     {   // option 1 - finds a real name
         if($obj = $this->run_gnverifier($sciname_line)) {
-            if($val = @$obj[0]->bestResult->matchedCanonicalFull) {
+            if($val = @$obj[0]->bestResult->matchedCanonicalSimple) {
                 $val = self::basic_format_for_names($val);
                 if(self::more_than_one_word($val)) return $val;
             }
-            if($val = @$obj[0]->bestResult->currentCanonicalFull) {
+            if($val = @$obj[0]->bestResult->currentCanonicalSimple) {
                 $val = self::basic_format_for_names($val);
                 if(self::more_than_one_word($val)) return $val;
             }
