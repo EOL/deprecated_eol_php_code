@@ -845,6 +845,7 @@ class Functions_Memoirs
                 if(self::more_than_one_word($val)) return $val;
             }
         }
+        /*
         // option 2 - finds a possible name
         if($obj = $this->run_gnparser($sciname_line)) {
             if($val = @$obj[0]->canonical->full) {
@@ -852,6 +853,7 @@ class Functions_Memoirs
                 if(self::more_than_one_word($val)) return $val;
             }
         }
+        */
         return false;
     }
     private function basic_format_for_names($str)
