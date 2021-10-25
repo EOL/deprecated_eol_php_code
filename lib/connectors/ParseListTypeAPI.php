@@ -75,7 +75,10 @@ class ParseListTypeAPI extends Functions_Memoirs
                         
                         if(stripos($sciname_line, "...") !== false) continue; //string is found
                         if(stripos($sciname_line, " and ") !== false) continue; //string is found
-                        
+                        if(stripos($sciname_line, "Key to ") !== false) continue; //string is found --- e.g. "Key to Subspecies of Holophygdon melanesica"
+                        /* good debug
+                        if(stripos($sciname_line, "Holophygdon melanesica") !== false) exit("\n[$sciname_line]\nxxx\n");  //string is found
+                        */
                         
                         /* divide it by period (.), then get the first array element
                         $a = explode(".", $sciname_line);
@@ -556,6 +559,11 @@ class ParseListTypeAPI extends Functions_Memoirs
     }
     function last_resort_to_clean_name($sciname_line) //this started from a copied template
     {
+        /* intended to be removed: 10088_5097 --- wasn't fixed here SCtZ-0611
+        // "Holophygdon melanesica Subspecies"
+        if(strtolower(substr($sciname_line, -11)) == " subspecies") return false;
+        */
+        
         // /* Tiphia (Tiphia) intermedia Malloch
         $words = explode(" ", $sciname_line);
         if(count($words) >= 3) {

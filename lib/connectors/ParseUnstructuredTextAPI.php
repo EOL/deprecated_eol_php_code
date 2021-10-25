@@ -459,13 +459,11 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(substr($str, -4) == " spp") return false;  //string is found --- 0067
         if(stripos($str, "Especies") !== false) return false;  //string is found --- exclude "Clave para las Especies de Farrodes Peters, nuevo género" --- 0062
         if(stripos($str, "fig.") !== false) return false;
-        if(strtolower(substr($str, -11)) == " subspecies") return false;  //string is found ---	Holophygdon melanesica Subspecies
+        if(strtolower(substr($str, -11)) == " subspecies") return false;  //string is found ---	GENUS SPECIES Subspecies
         // */
 
         // /* intended to be removed: 10088_5097
-        // "Holophygdon melanesica Subspecies"
         // "Species unplaced to group"
-        if(substr($str, -11) == " Subspecies") return false;
         if(stripos($str, "unplaced") !== false) return false;  //string is found
         // */
         
@@ -502,9 +500,6 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
             if($first_char_2nd_word == "(") return false;
         }
         // */
-        
-        // 4e30fea9ba55c3c4c9b75edb72a64073 Holophygdon melanesica Subspecies
-        
         
         // /* criteria 1
         $words = explode(" ", $str);
