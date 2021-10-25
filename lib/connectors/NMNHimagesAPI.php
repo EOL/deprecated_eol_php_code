@@ -285,6 +285,19 @@ class NMNHimagesAPI
         if(!self::valid_record($rec['title'], $rec['description'], $rec['source'])) return false;
 
         @$this->debug['rec_type'][$rec['type']][$rec['format']]++; //= ''; //for stats
+        
+        /* less: blank StillImage value --- 101 recs below ==========
+        [rec_type] => Array(
+                    [StillImage] => Array(
+                            [image/jpeg] => 429345
+                            [] => 101
+                        )
+                )
+        */
+        if($rec['type'] == "StillImage" && $rec['format'] == "image/jpeg") {}
+        else return false;
+        /* end ========== */
+        
         @$this->debug['media type'][$rec['type']]++; //= ''; //for stats
         @$this->debug['references values'][$rec['references']]++; //= ''; //for stats
 
