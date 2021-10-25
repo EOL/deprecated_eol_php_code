@@ -11,6 +11,20 @@ nmnh_images	Fri 2021-01-15 02:09:47 PM	{"agent.tab":1265, "media_resource.tab":4
 after adding a new filter for title field: 'Label'
 nmnh_images	Sat 2021-01-30 09:04:23 PM	{"agent.tab":1240, "media_resource.tab":379156, "taxon.tab":73469, "time_elapsed":{"sec":909.76, "min":15.16, "hr":0.25}}
 nmnh_images	Thu 2021-07-29 05:38:12 AM	{"agent.tab":1266, "media_resource.tab":380607, "taxon.tab":68393, "time_elapsed":{"sec":1006.78, "min":16.78, "hr":0.28}}
+nmnh_images	Thu 2021-10-14 08:28:15 AM	{"agent.tab":1305, "media_resource.tab":383808, "taxon.tab":69660, "time_elapsed":{"sec":1687.74, "min":28.13, "hr":0.47}}
+nmnh_images	Sun 2021-10-24 10:34:21 PM	{"agent.tab":1305, "media_resource.tab":383808, "taxon.tab":69660, "time_elapsed":{"sec":1192.44, "min":19.87, "hr":0.33}}
+nmnh_images	Mon 2021-10-25 12:41:55 AM	{"agent.tab":1305, "media_resource.tab":383808, "taxon.tab":69660, "time_elapsed":{"sec":1211.35, "min":20.19, "hr":0.34}}
+
+less: with 'TAX CRT' or 'Taxa CRT' in description
+less: blank StillImage value --- 101 recs below
+[rec_type] => Array(
+            [StillImage] => Array(
+                    [image/jpeg] => 429345
+                    [] => 101
+                )
+        )
+nmnh_images	Mon 2021-10-25 01:45:07 AM	{"agent.tab":1297, "media_resource.tab":381102, "taxon.tab":68739, "time_elapsed":{"sec":1189.7, "min":19.83, "hr":0.33}}
+nmnh_images	Mon 2021-10-25 05:13:05 AM	{"agent.tab":1295, "media_resource.tab":380510, "taxon.tab":68462, "time_elapsed":{"sec":1175.73, "min":19.6, "hr":0.33}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NMNHimagesAPI');
