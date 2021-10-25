@@ -36,6 +36,17 @@ with NEW host patterns: DATA-1891 --- with slight increase in associations n=3+1
 after DATA-1893: new patterns:
 10088_5097	    Wed 2021-10-13 04:13:01 AM	{"association.tab":369,                  "media.tab":12677, "occur.tab":424,            "taxon.tab":12179, "time_elapsed":{"sec":2856.84, "min":47.61, "hr":0.79}}
 10088_5097_ENV	Wed 2021-10-13 04:36:34 AM	{"association.tab":369, "MoF.tab":42655, "media.tab":11434, "occur_specific.tab":43079, "taxon.tab":12179, "time_elapsed":{"sec":1403.87, "min":23.4, "hr":0.39}}
+gnfinder
+10088_5097	    Wed 2021-10-20 10:35:08 PM	{"association.tab":369,                  "media.tab":12683, "occur.tab":424,            "taxon.tab":12173, "time_elapsed":{"sec":45285.87, "min":754.76, "hr":12.58}}
+10088_5097_ENV	Wed 2021-10-20 11:23:16 PM	{"association.tab":369, "MoF.tab":42686, "media.tab":11440, "occur_specific.tab":43110, "taxon.tab":12173, "time_elapsed":{"sec":2879.71, "min":48, "hr":0.8}}
+relaxed name filter
+10088_5097	    Thu 2021-10-21 12:06:43 PM	{"association.tab":369,                  "media.tab":12706, "occur.tab":424,            "taxon.tab":12211, "time_elapsed":{"sec":11976.1, "min":199.6, "hr":3.33}}
+10088_5097_ENV	Thu 2021-10-21 12:32:33 PM	{"association.tab":369, "MoF.tab":42718, "media.tab":11462, "occur_specific.tab":43142, "taxon.tab":12211, "time_elapsed":{"sec":1540.46, "min":25.67, "hr":0.43}}
+not relaxed
+10088_5097	    Fri 2021-10-22 01:21:49 AM	{"association.tab":369,                  "media.tab":12706, "occur.tab":424,            "taxon.tab":12211, "time_elapsed":{"sec":2261.95, "min":37.7, "hr":0.63}}
+10088_5097_ENV	Fri 2021-10-22 01:36:04 AM	{"association.tab":369, "MoF.tab":42718, "media.tab":11462, "occur_specific.tab":43142, "taxon.tab":12211, "time_elapsed":{"sec":845.03, "min":14.08, "hr":0.23}}
+10088_5097	    Mon 2021-10-25 06:30:31 AM	{"association.tab":369,                  "media.tab":12705, "occur.tab":424,            "taxon.tab":12210, "time_elapsed":{"sec":2845.32, "min":47.42, "hr":0.79}}
+10088_5097_ENV	Mon 2021-10-25 06:48:53 AM	{"association.tab":369, "MoF.tab":42718, "media.tab":11461, "occur_specific.tab":43142, "taxon.tab":12210, "time_elapsed":{"sec":1093.98, "min":18.23, "hr":0.3}}
 
 Repo 2: Smithsonian Contributions to Botany
 With growth ontology:
@@ -57,6 +68,15 @@ with NEW host patterns: DATA-1891 --- NO CHANGE SO FAR
 after DATA-1893: new patterns:
 10088_6943	    Wed 2021-10-13 03:30:24 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":274.41, "min":4.57, "hr":0.08}}
 10088_6943_ENV	Wed 2021-10-13 03:31:53 AM	{"MoF.tab":6012, "media.tab":1487, "occur_specific.tab":6012, "taxon.tab":1549, "time_elapsed":{"sec":83.48, "min":1.39, "hr":0.02}}
+gnfinder
+10088_6943	    Thu 2021-10-21 12:42:09 AM	{                "media.tab":1664,                            "taxon.tab":1561, "time_elapsed":{"sec":4702.44, "min":78.37, "hr":1.31}}
+10088_6943_ENV	Thu 2021-10-21 12:45:23 AM	{"MoF.tab":6058, "media.tab":1501, "occur_specific.tab":6058, "taxon.tab":1561, "time_elapsed":{"sec":187.33, "min":3.12, "hr":0.05}}
+relaxed name filter
+10088_6943	    Thu 2021-10-21 12:51:49 PM	{                "media.tab":1667,                            "taxon.tab":1567, "time_elapsed":{"sec":1136.86, "min":18.95, "hr":0.32}}
+10088_6943_ENV	Thu 2021-10-21 12:56:08 PM	{"MoF.tab":6057, "media.tab":1505, "occur_specific.tab":6057, "taxon.tab":1567, "time_elapsed":{"sec":250.88, "min":4.18, "hr":0.07}}
+not relaxed
+10088_6943	    Fri 2021-10-22 01:38:11 AM	{                "media.tab":1667,                            "taxon.tab":1567, "time_elapsed":{"sec":116.61, "min":1.94, "hr":0.03}}
+10088_6943_ENV	Fri 2021-10-22 01:39:06 AM	{"MoF.tab":6057, "media.tab":1505, "occur_specific.tab":6057, "taxon.tab":1567, "time_elapsed":{"sec":47.33, "min":0.79, "hr":0.01}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
@@ -194,6 +214,7 @@ $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0
 
 // ============== put in here the item you wish to run:
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_6943/scb-0002/scb-0002_descriptions_LT.txt";  $pdf_id = "scb-0002";
+$txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0611/SCtZ-0611_descriptions_LT.txt";  $pdf_id = "SCtZ-0611";
 // ==============
 
 $resource_id = $pdf_id;
