@@ -78,13 +78,14 @@ class NMNHimagesAPI
                 }
                 */
                 
-                $this->debug['type'][$rec['type']] = ''; //stats only
+                @$this->debug['type'][$rec['type']]++; //= ''; //stats only
                 // $this->debug['mediatype'][$rec['mediatype']] = ''; //stats only
                 
                 // if($rec['type'] == 'Image') { @$this->occurrence_image_type_rows++;
                 if(stripos($rec['mediatype'], "StillImage") !== false ||
                    stripos($rec['mediatype'], "MovingImage") !== false ||
                    stripos($rec['mediatype'], "Sound") !== false) { //string is found
+                    @$this->debug['type taken'][$rec['type']]++; //= ''; //stats only
                     // print_r($rec); exit("\nstopx\n");
                     $rek = array();
                     // $rek['gbifid'] = $gbifid; //1456016777
@@ -102,7 +103,7 @@ class NMNHimagesAPI
                     // [acceptedscientificname] => Hemicaranx amblyrhynchus (Cuvier, 1833)
                     // [verbatimscientificname] => Hemicaranx amblyrhynchus
                     // [license] => CC0_1_0
-                    $this->debug['license'][$rec['license']] = '';
+                    @$this->debug['license'][$rec['license']]++; //= '';
                 }
             }
             elseif($what == 'multimedia') {
@@ -283,9 +284,9 @@ class NMNHimagesAPI
         
         if(!self::valid_record($rec['title'], $rec['description'], $rec['source'])) return false;
 
-        $this->debug[$rec['type']][$rec['format']] = ''; //for stats
-        $this->debug['media type'][$rec['type']] = ''; //for stats
-        $this->debug['references values'][$rec['references']] = ''; //for stats
+        @$this->debug['rec_type'][$rec['type']][$rec['format']]++; //= ''; //for stats
+        @$this->debug['media type'][$rec['type']]++; //= ''; //for stats
+        @$this->debug['references values'][$rec['references']]++; //= ''; //for stats
 
         if(!$rec['type'] || !$rec['format']) return false;
         
@@ -351,6 +352,7 @@ class NMNHimagesAPI
     private function valid_record($title, $description, $source)
     {
         $terms = array('Ledger', 'card', 'Barcode', 'documentation', 'Book', 'note', 'scanned paper', 'sheet', 'Label');
+        // $terms[] = 'TAX CRT'; //per https://eol-jira.bibalex.org/browse/DATA-1871?focusedCommentId=66454&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66454
         foreach($terms as $term) {
             if(stripos($description, $term) !== false) return false; //string is found
             if(stripos($title, $term) !== false) return false; //string is found
