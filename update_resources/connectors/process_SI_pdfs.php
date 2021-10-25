@@ -47,6 +47,8 @@ not relaxed
 10088_5097_ENV	Fri 2021-10-22 01:36:04 AM	{"association.tab":369, "MoF.tab":42718, "media.tab":11462, "occur_specific.tab":43142, "taxon.tab":12211, "time_elapsed":{"sec":845.03, "min":14.08, "hr":0.23}}
 10088_5097	    Mon 2021-10-25 06:30:31 AM	{"association.tab":369,                  "media.tab":12705, "occur.tab":424,            "taxon.tab":12210, "time_elapsed":{"sec":2845.32, "min":47.42, "hr":0.79}}
 10088_5097_ENV	Mon 2021-10-25 06:48:53 AM	{"association.tab":369, "MoF.tab":42718, "media.tab":11461, "occur_specific.tab":43142, "taxon.tab":12210, "time_elapsed":{"sec":1093.98, "min":18.23, "hr":0.3}}
+10088_5097	    Mon 2021-10-25 10:46:28 AM	{"association.tab":369,                  "media.tab":12704, "occur.tab":424,            "taxon.tab":12209, "time_elapsed":{"sec":2778.54, "min":46.31, "hr":0.77}}
+10088_5097_ENV	Mon 2021-10-25 11:09:52 AM	{"association.tab":369, "MoF.tab":42718, "media.tab":11461, "occur_specific.tab":43142, "taxon.tab":12209, "time_elapsed":{"sec":1398.33, "min":23.31, "hr":0.39}}
 
 Repo 2: Smithsonian Contributions to Botany
 With growth ontology:
@@ -77,6 +79,8 @@ relaxed name filter
 not relaxed
 10088_6943	    Fri 2021-10-22 01:38:11 AM	{                "media.tab":1667,                            "taxon.tab":1567, "time_elapsed":{"sec":116.61, "min":1.94, "hr":0.03}}
 10088_6943_ENV	Fri 2021-10-22 01:39:06 AM	{"MoF.tab":6057, "media.tab":1505, "occur_specific.tab":6057, "taxon.tab":1567, "time_elapsed":{"sec":47.33, "min":0.79, "hr":0.01}}
+10088_6943	    Mon 2021-10-25 11:13:22 AM	{                "media.tab":1667,                            "taxon.tab":1567, "time_elapsed":{"sec":197.31, "min":3.29, "hr":0.05}}
+10088_6943_ENV	Mon 2021-10-25 11:14:55 AM	{"MoF.tab":6057, "media.tab":1505, "occur_specific.tab":6057, "taxon.tab":1567, "time_elapsed":{"sec":85.96, "min":1.43, "hr":0.02}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
