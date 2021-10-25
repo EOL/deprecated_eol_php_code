@@ -461,6 +461,14 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         if(stripos($str, "fig.") !== false) return false;
         if(strtolower(substr($str, -11)) == " subspecies") return false;  //string is found ---	Holophygdon melanesica Subspecies
         // */
+
+        // /* intended to be removed: 10088_5097
+        // "Holophygdon melanesica Subspecies"
+        // "Species unplaced to group"
+        if(substr($str, -11) == " Subspecies") return false;
+        if(stripos($str, "unplaced") !== false) return false;  //string is found
+        // */
+        
         /*
         63af40db0f8a7678c68804077364d4da	Metachroma
 
