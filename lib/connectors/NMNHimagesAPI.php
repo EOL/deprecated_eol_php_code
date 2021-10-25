@@ -352,7 +352,7 @@ class NMNHimagesAPI
     private function valid_record($title, $description, $source)
     {
         $terms = array('Ledger', 'card', 'Barcode', 'documentation', 'Book', 'note', 'scanned paper', 'sheet', 'Label');
-        // $terms[] = 'TAX CRT'; //per https://eol-jira.bibalex.org/browse/DATA-1871?focusedCommentId=66454&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66454
+        $terms[] = 'TAX CRT'; //per https://eol-jira.bibalex.org/browse/DATA-1871?focusedCommentId=66454&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66454
         foreach($terms as $term) {
             if(stripos($description, $term) !== false) return false; //string is found
             if(stripos($title, $term) !== false) return false; //string is found
