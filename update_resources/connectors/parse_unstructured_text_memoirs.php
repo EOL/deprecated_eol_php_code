@@ -48,6 +48,9 @@ Mac mini
 gnfinder:
 118920	    Tue 2021-10-19 10:21:20 AM	{               "media.tab":39,                     "taxon.tab":39, "time_elapsed":{"sec":0.39, "min":0.01, "hr":0}}
 118920_ENV	Tue 2021-10-19 10:22:40 AM	{"MoF.tab":85,  "media.tab":39, "occur.tab":85,     "taxon.tab":39, "time_elapsed":{"sec":20.26, "min":0.34, "hr":0.01}}
+118920	    Thu 2021-10-21 08:58:59 AM	{               "media.tab":39,                     "taxon.tab":39, "time_elapsed":{"sec":0.4, "min":0.01, "hr":0}}
+118920_ENV	Thu 2021-10-21 09:00:08 AM	{"MoF.tab":85,  "media.tab":39, "occur.tab":85,     "taxon.tab":39, "time_elapsed":{"sec":8.83, "min":0.15, "hr":0}}
+
 ------------------------------------------------------------
 120083	    Wed 2021-07-07 01:54:01 AM	{               "media.tab":379,                  "taxon.tab":294, "time_elapsed":{"sec":0.57, "min":0.01, "hr":0}}
 120083_ENV	Wed 2021-07-07 01:56:33 AM	{"MoF.tab":752, "media.tab":186, "occur.tab":752, "taxon.tab":294, "time_elapsed":{"sec":31.82, "min":0.53, "hr":0.01}}
@@ -139,12 +142,22 @@ MoftheAES_resources	Wed 2021-07-07 07:02:49 AM	{"MoF.tab":3995, "media.tab":420,
 119520_ENV	Wed 2021-09-29 06:15:20 AM	{"MoF.tab":2266,    "media_resource.tab":677, "occur.tab":2266, "taxon.tab":677, "time_elapsed":{"sec":7.99, "min":0.13, "hr":0}}
 119520	    Wed 2021-09-29 10:55:02 AM	{                   "media_resource.tab":677,                   "taxon.tab":677, "time_elapsed":{"sec":0.81, "min":0.01, "hr":0}}
 119520_ENV	Wed 2021-09-29 10:57:13 AM	{"MoF.tab":2278,    "media_resource.tab":677, "occur.tab":2278, "taxon.tab":677, "time_elapsed":{"sec":10.82, "min":0.18, "hr":0}}
+gnfinder
+119520	    Wed 2021-10-20 11:49:29 AM	{                   "media_resource.tab":667,                   "taxon.tab":667, "time_elapsed":{"sec":0.99, "min":0.02, "hr":0}}
+119520_ENV	Wed 2021-10-20 11:52:10 AM	{"MoF.tab":2282,    "media_resource.tab":667, "occur.tab":2282, "taxon.tab":667, "time_elapsed":{"sec":40.88, "min":0.68, "hr":0.01}}
 
 MoftheAES_resources	Thu 2021-07-29 09:06:03 AM	{"MoF.tab":12098, "media.tab":1889, "occurrence.tab":12098, "taxon.tab":5853, "time_elapsed":{"sec":118.6, "min":1.98, "hr":0.03}}
 MoftheAES_resources	Mon 2021-08-09 11:10:28 AM	{"MoF.tab":12098, "media.tab":1889, "occurrence.tab":12098, "taxon.tab":5853, "time_elapsed":{"sec":115.66, "min":1.93, "hr":0.03}}
 MoftheAES_resources	Wed 2021-09-29 09:56:19 PM	{"MoF.tab":12428, "media.tab":1919, "occurrence.tab":12428, "taxon.tab":5951, "time_elapsed":{"sec":47.55, "min":0.79, "hr":0.01}}
 MoftheAES_resources	Thu 2021-10-07 10:11:44 AM	{"MoF.tab":12428, "media.tab":1919, "occurrence.tab":12428, "taxon.tab":5951, "time_elapsed":{"sec":39.96, "min":0.67, "hr":0.01}}
-
+gnfinder
+MoftheAES_resources	Wed 2021-10-20 11:09:38 AM	{"MoF.tab":12356, "media.tab":1884, "occurrence.tab":12356, "taxon.tab":5905, "time_elapsed":{"sec":50.32, "min":0.84, "hr":0.01}}
+MoftheAES_resources	Wed 2021-10-20 12:15:09 PM	{"MoF.tab":12356, "media.tab":1884, "occurrence.tab":12356, "taxon.tab":5905, "time_elapsed":{"sec":73.79, "min":1.23, "hr":0.02}}
+MoftheAES_resources	Thu 2021-10-21 08:19:16 AM	{"MoF.tab":12472, "media.tab":1983, "occurrence.tab":12472, "taxon.tab":6017, "time_elapsed":{"sec":42.03, "min":0.7, "hr":0.01}}
+MoftheAES_resources	Thu 2021-10-21 09:39:42 AM	{"MoF.tab":12483, "media.tab":1983, "occurrence.tab":12483, "taxon.tab":6017, "time_elapsed":{"sec":39.71, "min":0.66, "hr":0.01}}
+MoftheAES_resources	Fri 2021-10-22 12:15:53 AM	{"MoF.tab":12483, "media.tab":1983, "occurrence.tab":12483, "taxon.tab":6017, "time_elapsed":{"sec":42.2, "min":0.7, "hr":0.01}}
+not relaxed - is good
+MoftheAES_resources	Fri 2021-10-22 01:29:37 AM	{"MoF.tab":12363, "media.tab":1935, "occurrence.tab":12363, "taxon.tab":5967, "time_elapsed":{"sec":37.48, "min":0.62, "hr":0.01}}
 ------------------------------------------------------------ North American Flora (DATA-1890) --- BHL - 7 documents
 15423	    Tue 2021-07-13 07:19:04     {               "media_resource.tab":73,                   "taxon.tab":73, "time_elapsed":{"sec":0.38, "min":0.01, "hr":0}}
 15423_ENV	Tue 2021-07-13 07:23:01     {"MoF.tab":338, "media_resource.tab":73, "occur.tab":338,  "taxon.tab":73, "time_elapsed":{"sec":115.98, "min":1.93, "hr":0.03}}
@@ -219,6 +232,10 @@ NorthAmericanFlora	Sun 2021-10-17 11:09:29 AM	{"assoc.tab":5264, "MoF.tab":3336,
 NorthAmericanFlora	Tue 2021-10-19 07:44:12 AM	{"assoc.tab":5681, "MoF.tab":3336, "media.tab":794, "occurrence.tab":9563, "taxon.tab":7110, "time_elapsed":{"sec":20.89, "min":0.35, "hr":0.01}}
 gnfinder
 NorthAmericanFlora	Wed 2021-10-20 09:46:50 AM	{"assoc.tab":5681, "MoF.tab":3336, "media.tab":794, "occurrence.tab":9563, "taxon.tab":7110, "time_elapsed":{"sec":21.7, "min":0.36, "hr":0.01}}
+NorthAmericanFlora	Thu 2021-10-21 08:18:57 AM	{"assoc.tab":5865, "MoF.tab":3338, "media.tab":795, "occurrence.tab":9743, "taxon.tab":7362, "time_elapsed":{"sec":19.54, "min":0.33, "hr":0.01}}
+NorthAmericanFlora	Fri 2021-10-22 12:15:47 AM	{"assoc.tab":5865, "MoF.tab":3338, "media.tab":795, "occurrence.tab":9743, "taxon.tab":7362, "time_elapsed":{"sec":17.89, "min":0.3, "hr":0}}
+gnfinder not relaxed --- OK
+NorthAmericanFlora	Fri 2021-10-22 01:44:07 AM	{"assoc.tab":5648, "MoF.tab":3338, "media.tab":795, "occurrence.tab":9533, "taxon.tab":7069, "time_elapsed":{"sec":17.66, "min":0.29, "hr":0}}
 
 ---------- start FUNGI list: ----------
 "15404", "15405", "15406", "15407", "15408", "15409", "15410", "15411", "15412", 
@@ -286,7 +303,6 @@ after DATA-1893:
 15421	    Wed 2021-10-13 09:40:23 AM	{               "media.tab":187,                                "taxon.tab":187, "time_elapsed":{"sec":0.5, "min":0.01, "hr":0}}
 15421_ENV	Wed 2021-10-13 09:41:04 AM	{"MoF.tab":625, "media.tab":187, "occurrence_specific.tab":625, "taxon.tab":187, "time_elapsed":{"sec":10.76, "min":0.18, "hr":0}}
 
-NorthAmericanFlora_Fungi	Wed 2021-08-11 11:29:24 AM	{"MoF.tab":17250, "media_resource.tab":4498, "occurrence_specific.tab":17250, "taxon.tab":4491, "time_elapsed":{"sec":107.91, "min":1.8, "hr":0.03}}
 NorthAmericanFlora_Fungi	Thu 2021-08-12 05:42:52 AM	{"MoF.tab":17228, "media_resource.tab":4498, "occurrence_specific.tab":17228, "taxon.tab":4491, "time_elapsed":{"sec":108.91, "min":1.82, "hr":0.03}}
 NorthAmericanFlora_Fungi	Mon 2021-10-11 10:24:51 AM	{"association.tab":3, 
                                                          "MoF.tab":17168, "media_resource.tab":4597, "occurrence_specific.tab":17174, "taxon.tab":4592, "time_elapsed":{"sec":38.07, "min":0.63, "hr":0.01}}
@@ -295,7 +311,16 @@ NorthAmericanFlora_Fungi	Wed 2021-10-13 10:55:10 AM	{"association.tab":3,
                                                          "MoF.tab":17168, "media_resource.tab":4597, "occurrence_specific.tab":17174, "taxon.tab":4592, "time_elapsed":{"sec":36.92, "min":0.62, "hr":0.01}}
 gnfinder:
 NorthAmericanFlora_Fungi	Wed 2021-10-20 09:47:18 AM	{"association.tab":3, 
-                                                         "MoF.tab":17857, "media_resource.tab":5347, "occurrence_specific.tab":17863, "taxon.tab":4713, "time_elapsed":{"sec":45.07, "min":0.75, "hr":0.01}}
+                               seems too big             "MoF.tab":17857, "media_resource.tab":5347, "occurrence_specific.tab":17863, "taxon.tab":4713, "time_elapsed":{"sec":45.07, "min":0.75, "hr":0.01}}
+NorthAmericanFlora_Fungi	Wed 2021-10-20 10:56:17 AM	{"association.tab":3, 
+                                                         "MoF.tab":17801, "media_resource.tab":5332, "occurrence_specific.tab":17807, "taxon.tab":4713, "time_elapsed":{"sec":52.04, "min":0.87, "hr":0.01}}
+NorthAmericanFlora_Fungi	Fri 2021-10-22 12:15:24 AM	{"association.tab":3, 
+                                                         "MoF.tab":18296, "media_resource.tab":5705, "occurrence_specific.tab":18302, "taxon.tab":4744, "time_elapsed":{"sec":76.46, "min":1.27, "hr":0.02}}
+gnfinder not relaxed --- OK
+NorthAmericanFlora_Fungi	Sun 2021-10-24 07:49:09 AM	{"association.tab":3, 
+                                                         "MoF.tab":10991, "media_resource.tab":4624, "occurrence_specific.tab":10997, "taxon.tab":4618, "time_elapsed":{"sec":63.1, "min":1.05, "hr":0.02}}
+
+
 ---------- end FUNGI list: ----------
 
 ---------- Plant list: ----------
@@ -435,11 +460,17 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "91345", "resource_name":
 15436_ENV	Mon 2021-08-30 01:52:49 AM	{"MoF.tab":930, "media_resource.tab":241, "occurrence_specific.tab":930, "taxon.tab":241, "time_elapsed":{"sec":19.61, "min":0.33, "hr":0.01}}
 15436	    Tue 2021-10-05 09:56:15 AM	{               "media_resource.tab":242,                                "taxon.tab":242, "time_elapsed":{"sec":1.95, "min":0.03, "hr":0}}
 15436_ENV	Tue 2021-10-05 09:59:03 AM	{"MoF.tab":954, "media_resource.tab":242, "occurrence_specific.tab":954, "taxon.tab":242, "time_elapsed":{"sec":47.69, "min":0.79, "hr":0.01}}
+gnfinder not relaxed
+15436	    Sun 2021-10-24 09:51:17 PM	{               "media_resource.tab":244,                                "taxon.tab":244, "time_elapsed":{"sec":0.86, "min":0.01, "hr":0}}
+15436_ENV	Sun 2021-10-24 09:52:18 PM	{"MoF.tab":941, "media_resource.tab":244, "occurrence_specific.tab":941, "taxon.tab":244, "time_elapsed":{"sec":30.14, "min":0.5, "hr":0.01}}
 
 15434	    Wed 2021-08-25 09:18:09 AM	{               "media_resource.tab":288,                                   "taxon.tab":288, "time_elapsed":{"sec":0.53, "min":0.01, "hr":0}}
 15434_ENV	Wed 2021-08-25 09:19:25 AM	{"MoF.tab":617, "media_resource.tab":288, "occurrence_specific.tab":617,    "taxon.tab":288, "time_elapsed":{"sec":16.14, "min":0.27, "hr":0}}
 15434	    Sun 2021-10-03 11:58:35 PM	{               "media_resource.tab":290,                                   "taxon.tab":290, "time_elapsed":{"sec":0.5, "min":0.01, "hr":0}}
 15434_ENV	Sun 2021-10-03 11:59:17 PM	{"MoF.tab":622, "media_resource.tab":290, "occurrence_specific.tab":622,    "taxon.tab":290, "time_elapsed":{"sec":12.17, "min":0.2, "hr":0}}
+gnfinder
+15434	    Wed 2021-10-20 04:08:44 AM	{               "media_resource.tab":298,                                   "taxon.tab":298, "time_elapsed":{"sec":1.19, "min":0.02, "hr":0}}
+15434_ENV	Wed 2021-10-20 04:10:53 AM	{"MoF.tab":643, "media_resource.tab":298, "occurrence_specific.tab":643,    "taxon.tab":298, "time_elapsed":{"sec":98.9, "min":1.65, "hr":0.03}}
 
 91345	    Thu 2021-08-26 02:42:05 AM	{                "media_resource.tab":292,                                  "taxon.tab":292, "time_elapsed":{"sec":0.55, "min":0.01, "hr":0}}
 91345_ENV	Thu 2021-08-26 02:43:22 AM	{"MoF.tab":1009, "media_resource.tab":292, "occurrence_specific.tab":1009,  "taxon.tab":292, "time_elapsed":{"sec":17.13, "min":0.29, "hr":0}}
@@ -458,20 +489,26 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "91345", "resource_name":
 after DATA-1893
 91529	    Wed 2021-10-13 10:47:24 AM	{               "media.tab":184,                            "taxon.tab":184, "time_elapsed":{"sec":0.51, "min":0.01, "hr":0}}
 91529_ENV	Wed 2021-10-13 10:48:03 AM	{"MoF.tab":617, "media.tab":184, "occur_specific.tab":617,  "taxon.tab":184, "time_elapsed":{"sec":8.71, "min":0.15, "hr":0}}
+gnfinder not relaxed
+91529	    Sun 2021-10-24 10:49:20 PM	{               "media.tab":187,                            "taxon.tab":187, "time_elapsed":{"sec":0.52, "min":0.01, "hr":0}}
+91529_ENV	Sun 2021-10-24 10:50:04 PM	{"MoF.tab":630, "media.tab":187, "occur_specific.tab":630,  "taxon.tab":187, "time_elapsed":{"sec":13.08, "min":0.22, "hr":0}}
 
 91335	    Mon 2021-08-30 01:53:08 AM	{               "media_resource.tab":215,                                "taxon.tab":215, "time_elapsed":{"sec":0.52, "min":0.01, "hr":0}}
 91335_ENV	Mon 2021-08-30 01:54:31 AM	{"MoF.tab":593, "media_resource.tab":215, "occurrence_specific.tab":593, "taxon.tab":215, "time_elapsed":{"sec":22.66, "min":0.38, "hr":0.01}}
 91335	    Tue 2021-10-05 04:09:39 AM	{               "media_resource.tab":216,                                "taxon.tab":216, "time_elapsed":{"sec":0.47, "min":0.01, "hr":0}}
 91335_ENV	Tue 2021-10-05 04:11:50 AM	{"MoF.tab":593, "media_resource.tab":216, "occurrence_specific.tab":593, "taxon.tab":216, "time_elapsed":{"sec":10.4, "min":0.17, "hr":0}}
+gnfinder
+91335	    Wed 2021-10-20 05:03:33 AM	{               "media_resource.tab":220,                                "taxon.tab":220, "time_elapsed":{"sec":1.82, "min":0.03, "hr":0}}
+91335_ENV	Wed 2021-10-20 05:05:17 AM	{"MoF.tab":592, "media_resource.tab":220, "occurrence_specific.tab":592, "taxon.tab":220, "time_elapsed":{"sec":73.54, "min":1.23, "hr":0.02}}
 
-NorthAmericanFlora_Plants	Thu 2021-08-26 08:27:21 AM	{"MoF.tab":44886, "media.tab":11382, "occurrence.tab":44886, "taxon.tab":11243, "time_elapsed":{"sec":267.87, "min":4.46, "hr":0.07}}
 NorthAmericanFlora_Plants	Tue 2021-08-31 03:10:17 AM	{"MoF.tab":45013, "media.tab":11438, "occurrence.tab":45013, "taxon.tab":11299, "time_elapsed":{"sec":267.57, "min":4.46, "hr":0.07}}
 NorthAmericanFlora_Plants	Mon 2021-10-11 10:25:59 AM	{"MoF.tab":45513, "media.tab":11476, "occurrence.tab":45513, "taxon.tab":11335, "time_elapsed":{"sec":94.02, "min":1.57, "hr":0.03}}
 after DATA-1893:
 NorthAmericanFlora_Plants	Wed 2021-10-13 10:56:00 AM	{"MoF.tab":45513, "media.tab":11476, "occurrence.tab":45513, "taxon.tab":11335, "time_elapsed":{"sec":93.09, "min":1.55, "hr":0.03}}
-gnfinder:
+gnfinder: relaxed --- too relaxed I think
 NorthAmericanFlora_Plants	Wed 2021-10-20 09:48:15 AM	{"MoF.tab":46185, "media.tab":11646, "occurrence.tab":46185, "taxon.tab":11501, "time_elapsed":{"sec":111.03, "min":1.85, "hr":0.03}}
-
+gnfinder not relaxed --- OK
+NorthAmericanFlora_Plants	Mon 2021-10-25 12:58:48 AM	{"MoF.tab":45807, "media.tab":11574, "occurrence.tab":45807, "taxon.tab":11430, "time_elapsed":{"sec":113.66, "min":1.89, "hr":0.03}}
 ====================== Kubitzki_et_al ======================
 START PATTERNS:
 sample genus:
@@ -518,26 +555,53 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "volxv2018", "resource_na
 
 volii1993	Thu 2021-09-23 12:23:13 AM	{"media_resource.tab":1519, "taxon.tab":1496, "time_elapsed":{"sec":1.78, "min":0.03, "hr":0}}
 volii1993	Wed 2021-10-13 06:09:25 AM	{"media_resource.tab":1523, "taxon.tab":1500, "time_elapsed":{"sec":2.9, "min":0.05, "hr":0}}
+gnfinder not relaxed
+volii1993	Sun 2021-10-24 07:59:31 AM	{"media_resource.tab":1519, "taxon.tab":1496, "time_elapsed":{"sec":4.16, "min":0.07, "hr":0}}
 
 voliii1998	Thu 2021-09-23 12:23:44 AM	{"media_resource.tab":545, "taxon.tab":529, "time_elapsed":{"sec":0.84, "min":0.01, "hr":0}}
+gnfinder not relaxed
+voliii1998	Sun 2021-10-24 08:07:29 AM	{"media_resource.tab":545, "taxon.tab":529, "time_elapsed":{"sec":0.88, "min":0.01, "hr":0}}
+
 volv2003	Thu 2021-09-23 12:23:57 AM	{"media_resource.tab":792, "taxon.tab":792, "time_elapsed":{"sec":0.94, "min":0.02, "hr":0}}
+gnfinder not relaxed
+volv2003	Sun 2021-10-24 08:07:44 AM	{"media_resource.tab":792, "taxon.tab":792, "time_elapsed":{"sec":1.03, "min":0.02, "hr":0}}
+
+
 volvi2004	Thu 2021-09-23 12:24:11 AM	{"media_resource.tab":809, "taxon.tab":801, "time_elapsed":{"sec":1.04, "min":0.02, "hr":0}}
+volvi2004	Sun 2021-10-24 08:11:09 AM	{"media_resource.tab":809, "taxon.tab":801, "time_elapsed":{"sec":1.08, "min":0.02, "hr":0}}
+
 volvii2004	Thu 2021-09-23 12:24:26 AM	{"media_resource.tab":1046, "taxon.tab":1020, "time_elapsed":{"sec":1.11, "min":0.02, "hr":0}}
+volvii2004	Sun 2021-10-24 08:11:24 AM	{"media_resource.tab":1046, "taxon.tab":1020, "time_elapsed":{"sec":1.17, "min":0.02, "hr":0}}
 
 volviii2007	Thu 2021-09-23 12:24:45 AM	{"media_resource.tab":1934, "taxon.tab":1920, "time_elapsed":{"sec":1.77, "min":0.03, "hr":0}}
 volviii2007	Wed 2021-10-13 06:17:11 AM	{"media_resource.tab":1935, "taxon.tab":1921, "time_elapsed":{"sec":2.79, "min":0.05, "hr":0}}
+volviii2007	Sun 2021-10-24 08:11:47 AM	{"media_resource.tab":1934, "taxon.tab":1920, "time_elapsed":{"sec":1.97, "min":0.03, "hr":0}}
 
 volix2007	Thu 2021-09-23 12:24:59 AM	{"media_resource.tab":568, "taxon.tab":562, "time_elapsed":{"sec":0.87, "min":0.01, "hr":0}}
+volix2007	Sun 2021-10-24 08:12:01 AM	{"media_resource.tab":568, "taxon.tab":562, "time_elapsed":{"sec":1.28, "min":0.02, "hr":0}}
+
 volx2011	Thu 2021-09-23 12:25:12 AM	{"media_resource.tab":774, "taxon.tab":759, "time_elapsed":{"sec":0.96, "min":0.02, "hr":0}}
+volx2011	Sun 2021-10-24 08:12:14 AM	{"media_resource.tab":774, "taxon.tab":759, "time_elapsed":{"sec":1.02, "min":0.02, "hr":0}}
+
 volxi2014	Thu 2021-09-23 12:25:30 AM	{"media_resource.tab":518, "taxon.tab":518, "time_elapsed":{"sec":9.02, "min":0.15, "hr":0}}
+volxi2014	Sun 2021-10-24 08:12:25 AM	{"media_resource.tab":518, "taxon.tab":518, "time_elapsed":{"sec":0.81, "min":0.01, "hr":0}}
+
 volxii2015	Thu 2021-09-23 12:25:35 AM	{"media_resource.tab":191, "taxon.tab":186, "time_elapsed":{"sec":0.54, "min":0.01, "hr":0}}
+volxii2015	Sun 2021-10-24 08:12:31 AM	{"media_resource.tab":191, "taxon.tab":186, "time_elapsed":{"sec":0.53, "min":0.01, "hr":0}}
+
 volxiii2015	Thu 2021-09-23 12:25:46 AM	{"media_resource.tab":719, "taxon.tab":715, "time_elapsed":{"sec":0.83, "min":0.01, "hr":0}}
+volxiii2015	Sun 2021-10-24 08:12:43 AM	{"media_resource.tab":719, "taxon.tab":715, "time_elapsed":{"sec":0.92, "min":0.02, "hr":0}}
+
 volxiv2016	Thu 2021-09-23 12:25:57 AM	{"media_resource.tab":391, "taxon.tab":386, "time_elapsed":{"sec":0.92, "min":0.02, "hr":0}}
+volxiv2016	Sun 2021-10-24 08:12:55 AM	{"media_resource.tab":391, "taxon.tab":386, "time_elapsed":{"sec":0.71, "min":0.01, "hr":0}}
 
 volxv2018	Thu 2021-09-23 12:26:14 AM	{"media_resource.tab":1141, "taxon.tab":1099, "time_elapsed":{"sec":1.21, "min":0.02, "hr":0}}
 volxv2018	Wed 2021-10-13 06:15:22 AM	{"media_resource.tab":1141, "taxon.tab":1099, "time_elapsed":{"sec":1.8, "min":0.03, "hr":0}}
+volxv2018	Sun 2021-10-24 08:13:14 AM	{"media_resource.tab":1141, "taxon.tab":1099, "time_elapsed":{"sec":1.31, "min":0.02, "hr":0}}
 
 Kubitzki	Thu 2021-09-23 12:27:04 AM	{"media_resource.tab":10947, "taxon.tab":10780, "time_elapsed":{"sec":24.74, "min":0.41, "hr":0.01}}
+gnfinder not relaxed --- not sure ??? why exactly the same when using GNRD
+Kubitzki	Sun 2021-10-24 08:14:20 AM	{"media_resource.tab":10947, "taxon.tab":10780, "time_elapsed":{"sec":25.12, "min":0.42, "hr":0.01}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS["ENV_DEBUG"] = true;
@@ -576,13 +640,22 @@ exit("\n-end-\n");
 
 /* works OK - final test
 $text = "Thalictroides, 18s per doz.\nvitifoiia, Is. 6d. each Lates niloticus\nCalopogon, or Cymbidium pul-\n\ncheilum, 1 5s. per doz.\nConostylis americana, 2i. 6d.\n";
-$text = "Carex breweri boott , 111. Carex 142. pi. 455. 1867";
+$text = "Carex breweri boott , 111. Carex morhua 142. pi. 455. 1867";
 // $text = "Riccia mcallisteri L.";
 // $text = "Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935";
-$text = "Potosinae mackenzie. XerochlaenaE Holm , Am. Jour. .Sci. IV. 16 : 455 , in small";
-$text = "Telia unknown";
-$names = $func->get_names_from_gnfinder($text); // regular call
-// $names = $func->get_names_from_gnfinder($text, true); // 2nd param to force-refresh, set it to -> true
+// $text = "Potosinae mackenzie. XerochlaenaE Holm , Am. Jour. .Sci. IV. 16 : 455 , in small";
+// $text = "Telia unknown";
+// $text = "Charaxes aemelia aemelia Doumet";
+$text = "Micropentila adelgunda Staudinger Gadus";
+// $text = "Micropentila adelgunda S. lives with Gadus morhua L.";
+$text = "Leptocercini";
+$text = "Belonois calypso calypso (Drury)";
+// $text = "Exotylus cultus Davis";
+// $text = "Inga ink nil";
+$text = "Key to Subspecies of Holophygdon melanesica";
+
+// $names = $func->get_names_from_gnfinder($text);             // regular call
+$names = $func->get_names_from_gnfinder($text, array('refresh' => true));    // 2nd param to force-refresh, set it to -> true
 print_r($names); exit("\n-end test-\n");
 */
 
@@ -592,10 +665,16 @@ $text = "Bulbochaete cimarronea Taft , Bull. Torrey Club 62 : 282. 1935";
 // $text = "Gadus morhua is cool.";
 $text = "Potosinae mackenzie. XerochlaenaE Holm , Am. Jour. .Sci. IV. 16 : 455 , in small";
 $text = "Telia unknown";
+$text = "Charaxes aemelia aemelia Doumet";
+$text = "Leptocercini";
+$text = "Belonois calypso calypso (Drury)";
+// $text = "Exotylus cultus Davis";
+// $text = "Inga ink nil";
+$text = "Key to Subspecies of Holophygdon melanesica";
 
-// $obj = $func->run_gnverifier($text, 1); //2nd param is expire_seconds
-// $obj = $func->run_gnverifier($text);
-// print_r($obj); exit("\n");
+$obj = $func->run_gnverifier($text);        // regular call
+// $obj = $func->run_gnverifier($text, 1);  // 2nd param is expire_seconds
+print_r($obj); exit("\n");
 
 $ret = $func->get_binomial_or_tri($text);
 echo "\n get_binomial_or_tri: [$ret]\n";
@@ -603,10 +682,15 @@ exit("\n-end test-\n");
 */
 
 /*
-$text = "Gadus morhua is here.";
-$text = "Thalictroides, 18s per doz.\nvitifoiia, Is. 6d. each\nCalopogon, or Cymbidium pul-\n\ncheilum, 1 5s. per doz.\nConostylis americana, 2i. 6d.\n";
-$text = "Potosinae mackenzie";
-$text = "Telia unknown";
+$text = "Gadus morhua L.";
+// $text = "Thalictroides, 18s per doz.\nvitifoiia, Is. 6d. each\nCalopogon, or Cymbidium pul-\n\ncheilum, 1 5s. per doz.\nConostylis americana, 2i. 6d.\n";
+// $text = "Potosinae mackenzie";
+// $text = "Telia unknown";
+// $text = "Liphyridae";
+// $text = "LEPTOCERCINI";
+// $text = "Exotylus cultus Davis";
+$text = "Inga ink nil";
+$text = "Key to Subspecies of Holophygdon melanesica";
 $obj = $func->run_gnparser($text);
 print_r($obj); exit("\n");
 */
