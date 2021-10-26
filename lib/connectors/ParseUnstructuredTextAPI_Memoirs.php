@@ -301,6 +301,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_replace("clintoniantun", "clintonianum", $row); //91362_species NAF
                 $row = str_ireplace("Doassansia ftirva iJavis", "Doassanaia furva Javis", $row); //91362_species NAF
                 $row = str_ireplace("CarexBreweri", "Carex breweri", $row); //91365 NAF
+                $row = str_ireplace("1 Hy poxy Ion Galeottianum Kickx, Bull. Acad. Brux. %^ : 77. 1841.", "? Hypoxylon Galeottianum Kickx, Bull. Acad. Brux. 82 : 77. 1841.", $row); //15406 NAF
             }
             
             if($this->resource_name == 'Kubitzki') { //this block is present in 2 sections (1 of 2)
@@ -1358,6 +1359,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 $row = str_replace("clintoniantun", "clintonianum", $row); //91362_species NAF
                 $row = str_ireplace("Doassansia ftirva iJavis", "Doassanaia furva Javis", $row); //91362_species NAF
                 $row = str_ireplace("CarexBreweri", "Carex breweri", $row); //91365 NAF
+                $row = str_ireplace("1 Hy poxy Ion Galeottianum Kickx, Bull. Acad. Brux. %^ : 77. 1841.", "? Hypoxylon Galeottianum Kickx, Bull. Acad. Brux. 82 : 77. 1841.", $row); //15406 NAF
             }
             
             if($this->resource_name == 'Kubitzki') { //this block is present in 2 sections (2 of 2)
