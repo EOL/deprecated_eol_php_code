@@ -135,11 +135,11 @@ else { //run individual documents
     require_library('connectors/SmithsonianPDFsAPI_Memoirs');
     $func = new SmithsonianPDFsAPI_Memoirs($resource_id);
     $func->initialize($resource_name); //$resource_name --- right now used in Media -> derivedFrom column
-    // /* for single file, during dev for list-type
+    // for single file, during dev for list-type =====
     if(file_exists($txt_filename)) $func->process_a_txt_file_LT($txt_filename, $pdf_id, array());
     $txt_filename = str_replace("_descriptions_LT", "_tagged", $txt_filename);
     if(file_exists($txt_filename)) $func->process_a_txt_file($txt_filename, $pdf_id, array());
-    // */
+    // =====
     $func->archive_builder_finalize();
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder
 }
