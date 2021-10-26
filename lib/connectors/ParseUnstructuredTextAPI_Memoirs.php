@@ -10,8 +10,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
             'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         /* START epub series */
         // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
-        $this->service['GNRD text input'] = 'httpz1'; //'http://gnrd.globalnames.org/name_finder.json?text=';
-        $this->service['GNRD text input XML'] = 'httpz2'; //'http://gnrd.globalnames.org/name_finder.xml?text=';
+        // $this->service['GNRD text input'] = 'httpz1'; //'http://gnrd.globalnames.org/name_finder.json?text=';
+        // $this->service['GNRD text input XML'] = 'httpz2'; //'http://gnrd.globalnames.org/name_finder.xml?text=';
         
         // /* Used in 2 locations: 1. ParseUnstructuredTextAPI_Memoirs.php      2. ParseListTypeAPI_Memoirs.php
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
