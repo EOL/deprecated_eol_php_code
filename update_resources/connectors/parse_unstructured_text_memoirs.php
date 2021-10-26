@@ -197,7 +197,7 @@ start gnfinder
 
 91225	Thu 2021-08-05 12:07:49 PM	{"association.tab":4275, "occurrence.tab":4693, "taxon.tab":4859, "time_elapsed":{"sec":6.39, "min":0.11, "hr":0}}
 91225	Thu 2021-08-12 05:38:11 AM	{"association.tab":4343, "occurrence.tab":4762, "taxon.tab":4932, "time_elapsed":{"sec":124.63, "min":2.08, "hr":0.03}}
-91225	Mon 2021-09-27 01:12:13 PM	{"association.tab":4326, "occurrence.tab":4751, "taxon.tab":4931, "time_elapsed":{"sec":10.51, "min":0.18, "hr":0}}91225	
+91225	Mon 2021-09-27 01:12:13 PM	{"association.tab":4326, "occurrence.tab":4751, "taxon.tab":4931, "time_elapsed":{"sec":10.51, "min":0.18, "hr":0}}
 91225	Thu 2021-09-30 09:28:56 AM	{"association.tab":4330, "occurrence.tab":4755, "taxon.tab":4934, "time_elapsed":{"sec":9.01, "min":0.15, "hr":0}}
 91225	Thu 2021-10-07 09:21:18 AM	{"association.tab":4330, "occurrence.tab":4755, "taxon.tab":4934, "time_elapsed":{"sec":17.77, "min":0.3, "hr":0}}
 91225	Tue 2021-10-19 06:57:53 AM	{"association.tab":5094, "occurrence.tab":5503, "taxon.tab":5811, "time_elapsed":{"sec":2252.17, "min":37.54, "hr":0.63}}
@@ -221,6 +221,11 @@ start gnfinder
 91362_species	    Tue 2021-10-19 07:42:40 AM	{                                "media_resource.tab":61,                           "taxon.tab":61, "time_elapsed":{"sec":16.32, "min":0.27, "hr":0}}
 91362_species_ENV	Tue 2021-10-19 07:43:36 AM	{                 "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":267, "taxon.tab":61, "time_elapsed":{"sec":25.94, "min":0.43, "hr":0.01}}
 91362_resource	    Tue 2021-10-19 07:43:41 AM	{"assoc.tab":587, "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":991, "taxon.tab":810, "time_elapsed":{"sec":4.47, "min":0.07, "hr":0}}
+gnfinder not relaxed
+91362	            Fri 2021-10-22 01:42:43 AM	{"assoc.tab":586,                                         "occur.tab":723,          "taxon.tab":778, "time_elapsed":{"sec":1294.55, "min":21.58, "hr":0.36}}
+91362_species	    Fri 2021-10-22 01:43:01 AM	{                                "media_resource.tab":61,                           "taxon.tab":61, "time_elapsed":{"sec":1.28, "min":0.02, "hr":0}}
+91362_species_ENV	Fri 2021-10-22 01:43:38 AM	{                 "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":267, "taxon.tab":61, "time_elapsed":{"sec":7.7, "min":0.13, "hr":0}}
+91362_resource	    Fri 2021-10-22 01:43:42 AM	{"assoc.tab":586, "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":990, "taxon.tab":806, "time_elapsed":{"sec":3.71, "min":0.06, "hr":0}}
 
 NorthAmericanFlora	Thu 2021-08-12 05:42:08 AM	{"assoc.tab":4829, "MoF.tab":3199, "media.tab":770, "occurrence.tab":8585, "taxon.tab":6198, "time_elapsed":{"sec":43.78, "min":0.73, "hr":0.01}}
 NorthAmericanFlora	Mon 2021-10-11 10:23:50 AM	{"assoc.tab":4821, "MoF.tab":3339, "media.tab":794, "occurrence.tab":8724, "taxon.tab":6226, "time_elapsed":{"sec":17.61, "min":0.29, "hr":0}}
@@ -653,7 +658,7 @@ $text = "Belonois calypso calypso (Drury)";
 // $text = "Exotylus cultus Davis";
 // $text = "Inga ink nil";
 $text = "Key to Subspecies of Holophygdon melanesica";
-
+$text = "Polygonoides";
 // $names = $func->get_names_from_gnfinder($text);             // regular call
 $names = $func->get_names_from_gnfinder($text, array('refresh' => true));    // 2nd param to force-refresh, set it to -> true
 print_r($names); exit("\n-end test-\n");
