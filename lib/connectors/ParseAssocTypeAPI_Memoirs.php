@@ -7,15 +7,24 @@ class ParseAssocTypeAPI_Memoirs
     {
         $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
-        $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
-        /*
-        http://gnrd.globalnames.org/name_finder.json?text=Ravenelia Acaeiae-pennatulae
-        */
+        // $this->service['GNRD text input'] = 'httpz'; //'http://gnrd.globalnames.org/name_finder.json?text='; OBSOLETE GNRD
+                                                        // http://gnrd.globalnames.org/name_finder.json?text=Ravenelia Acaeiae-pennatulae
         // $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/"; --- might never been used here...
+        $this->service['GNVerifier'] = "https://verifier.globalnames.org/api/v1/verifications/";
     }
     /*#################################################################################################################################*/
-    function parse_associations($html, $pdf_id, $WRITE)
+    private function initialize()
     {
+        // /* for gnfinder
+        if(Functions::is_production()) $this->json_path = '/html/gnfinder/';
+        else                           $this->json_path = '/Volumes/AKiTiO4/other_files/gnfinder/';
+        // */
+        require_library('connectors/Functions_Memoirs');
+        $this->func = new Functions_Memoirs($this->json_path, $this->service, $this->download_options); 
+    }
+    function parse_associations($html, $pdf_id, $WRITE) //for the host-pathogen list pattern ONLY
+    {
+        self::initialize();
         $this->WRITE = $WRITE;
         $this->pdf_id = $pdf_id; //works but not being used atm.
         $arr = explode("<br>", $html); //print_r($arr); exit("\n[$html]\n");
@@ -86,8 +95,10 @@ class ParseAssocTypeAPI_Memoirs
 
             // echo "\nfinal var5: [$var]\n";
             if(self::is_one_word($var)) continue;
-            if($obj = self::run_GNRD_assoc($var)) {
-                if($val = @$obj->names[0]->scientificName) $scinames[trim($var)] = ''; //take note that $var is taken, not $val
+            // if($obj = self::run_GNRD_assoc($var)) { OBSOLETE GNRD
+            if($obj_names = self::run_GNRD_assoc($var)) {
+                // if($val = @$obj->names[0]->scientificName) $scinames[trim($var)] = ''; //take note that $var is taken, not $val --- OBSOLETE GNRD
+                if($val = @$obj_names[0]) $scinames[trim($var)] = ''; //take note that $var is taken, not $val
             }
             
         }
@@ -97,6 +108,11 @@ class ParseAssocTypeAPI_Memoirs
     private function run_GNRD_assoc($string)
     {
         $string = trim($string);
+        if(!$string) return false;
+        // /*
+        if($names = $this->func->get_names_from_gnfinder($string)) return $names;
+        return false;
+        // */
         $url = $this->service['GNRD text input'].$string;
         $options = $this->download_options;
         $options['expire_seconds'] = false;
@@ -115,26 +131,20 @@ class ParseAssocTypeAPI_Memoirs
     /*
     */
     function write_associations($rec, $taxon, $archive_builder, $meta, $taxon_ids) //2nd param is source taxon object
-    {
+    {   //exit("\ndito 1\n");
         $this->taxon_ids = $taxon_ids;
         $this->archive_builder = $archive_builder;
         if($val = $rec['pdf_id']) $this->pdf_id = $val; // an after-adjustment made during DATA-1891 task
-        // print_r($rec); exit("\n111\n");
+        // print_r($rec); print_r($taxon); exit;
+        // exit("\n111x\n[".$taxon->scientificName."]\n");
         /*Array(
-            [HOST] => Array(
-                    [Populus tremuloides] => 
-                    [Populus grandidentata] => 
+            [RO_0002453] => Array(
+                    [Ustilago rumicis] => 
                 )
-            [PARASITOID] => Array(
-                    [Cirrospilus cinctithorax] => 
-                    [Closterocerus tricinctus] => 
-                )
-            [pdf_id] => SCtZ-0614
-        )*/
-        
-        // HOST(s)/HOST PLANT(s)   associationType=http://purl.obolibrary.org/obo/RO_0002454
-        // PARASITOID(s)           associationType=http://purl.obolibrary.org/obo/RO_0002209
-        // http://purl.obolibrary.org/obo/RO_0002453
+            [pdf_id] => 91362
+        )
+        */
+        // host-pathogen list pattern --- associationType=http://purl.obolibrary.org/obo/RO_0002453
         
         foreach($rec as $assoc_type => $scinames) { if($assoc_type == 'pdf_id') continue;
             $scinames = array_keys($scinames);
@@ -149,6 +159,7 @@ class ParseAssocTypeAPI_Memoirs
                 $a->associationType = $associationType;
                 $a->targetOccurrenceID = $related_occurrence->occurrenceID;
                 $a->source = @$meta[$rec['pdf_id']]['dc.relation.url'];
+                $a->measurementRemarks = "$target_sciname 'host of' $taxon->scientificName (RO_0002453)";
                 if(!isset($this->association_ids[$a->associationID])) {
                     $this->archive_builder->write_object_to_file($a);
                     $this->association_ids[$a->associationID] = '';
@@ -196,10 +207,7 @@ class ParseAssocTypeAPI_Memoirs
         HOST(s)/HOST PLANT(s)   associationType=http://purl.obolibrary.org/obo/RO_0002454
         PARASITOID(s)           associationType=http://purl.obolibrary.org/obo/RO_0002209
         */
-        if(stripos($assoc_type, "HOST") !== false)          return "http://purl.obolibrary.org/obo/RO_0002454"; //string is found
-        if(stripos($assoc_type, "PARASITOID") !== false)    return "http://purl.obolibrary.org/obo/RO_0002209"; //string is found
         if(stripos($assoc_type, "RO_0002453") !== false)    return "http://purl.obolibrary.org/obo/RO_0002453"; //string is found
-        if(in_array($assoc_type, array("On", "Found on"))) return "http://purl.obolibrary.org/obo/RO_0002454"; //DATA-1891
         exit("\n-----\nUndefined association type (Memoirs): [$assoc_type]\n-----\n");
         return false;
     }

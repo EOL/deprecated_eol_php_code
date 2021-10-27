@@ -268,8 +268,8 @@ class ParseAssocTypeAPI
     }
     private function run_GNRD_assoc($string)
     {
-        if(!$string) return false;
         $string = trim($string);
+        if(!$string) return false;
         // echo "\nstring: [$string]\n";
         // /*
         if($names = $this->func->get_names_from_gnfinder($string)) return $names;
