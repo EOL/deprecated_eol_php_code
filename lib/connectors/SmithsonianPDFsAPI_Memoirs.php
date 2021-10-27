@@ -793,7 +793,12 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
         //write associations
         if($val = @$rec['associations']) {
             $val['pdf_id'] = $rec['pdf_id'];
-            $taxon_ids = $this->func_Assoc->write_associations($val, $taxon, $this->archive_builder, @$this->meta, $this->taxon_ids);
+            if(in_array($rec['pdf_id'], array('91225', '91362'))) {
+                $taxon_ids = $this->func_Assoc->write_associations($val, $taxon, $this->archive_builder, @$this->meta, $this->taxon_ids);
+            }
+            else {
+                $taxon_ids = $this->func_Assoc_orig->write_associations($val, $taxon, $this->archive_builder, @$this->meta, $this->taxon_ids);
+            }
             $this->taxon_ids = $taxon_ids;
         }
     }
