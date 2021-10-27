@@ -292,7 +292,7 @@ class ParseAssocTypeAPI
     }
     /*
     */
-    function write_associations($rec, $taxon, $archive_builder, $meta, $taxon_ids) //2nd param is source taxon object
+    function write_associations($rec, $taxon, $archive_builder, $meta, $taxon_ids, $bibliographicCitation) //2nd param is source taxon object
     {   //exit("\ndito 2\n");
         $this->taxon_ids = $taxon_ids;
         $this->archive_builder = $archive_builder;
@@ -327,6 +327,7 @@ class ParseAssocTypeAPI
                 $a->targetOccurrenceID = $related_occurrence->occurrenceID;
                 $a->source = @$meta[$rec['pdf_id']]['dc.relation.url'];
                 $a->measurementRemarks = $remarks[$target_sciname]; //this is the while block of text
+                $a->bibliographicCitation = $bibliographicCitation;
                 // print_r($a); exit("\n-cha-\n");
                 if(!isset($this->association_ids[$a->associationID])) {
                     $this->archive_builder->write_object_to_file($a);
