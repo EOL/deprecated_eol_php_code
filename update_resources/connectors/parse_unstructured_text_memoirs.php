@@ -535,6 +535,8 @@ gnfinder: relaxed --- too relaxed I think
 NorthAmericanFlora_Plants	Wed 2021-10-20 09:48:15 AM	{"MoF.tab":46185, "media.tab":11646, "occurrence.tab":46185, "taxon.tab":11501, "time_elapsed":{"sec":111.03, "min":1.85, "hr":0.03}}
 gnfinder not relaxed --- OK
 NorthAmericanFlora_Plants	Mon 2021-10-25 12:58:48 AM	{"MoF.tab":45807, "media.tab":11574, "occurrence.tab":45807, "taxon.tab":11430, "time_elapsed":{"sec":113.66, "min":1.89, "hr":0.03}}
+assoc true gnfinder
+NorthAmericanFlora_Plants	Wed 2021-10-27 06:00:07 AM	{"MoF.tab":45807, "media.tab":11574, "occurrence.tab":45807, "taxon.tab":11430, "time_elapsed":{"sec":94.86, "min":1.58, "hr":0.03}}
 ====================== Kubitzki_et_al ======================
 START PATTERNS:
 sample genus:
@@ -937,4 +939,31 @@ echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
+/*
+################################################################################## check for all association file types
+For BHL 15406 - NAF Fungi
+php update_resources/connectors/parse_unstructured_text_memoirs.php _ '{"resource_id": "15406", "resource_name":"all_BHL"}'
+php update_resources/connectors/process_SI_pdfs_memoirs.php _ '{"resource_id": "15406", "resource_name":"NAF", "doc": "BHL"}'
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"15406", "subjects":"Description|Uses"}'
+php update_resources/connectors/aggregate_NorthAF_Fungi.php 
+
+For BHL 91362 - NAF - 1st 7 docs (host-pathogen list pattern)
+php update_resources/connectors/parse_unstructured_text_memoirs.php _ '{"resource_id": "91362", "resource_name":"MotAES"}'
+php update_resources/connectors/process_SI_pdfs_memoirs.php _ '{"resource_id": "91362", "resource_name":"7th BHL", "doc": ""}'
+91362 doesn't have and _ENV version.
+php update_resources/connectors/aggregate_91362.php
+
+SCtZ-0614
+php update_resources/connectors/parse_unstructured_text.php
+php update_resources/connectors/process_SI_pdfs.php
+environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Zoology", "resource_id":"SCtZ-0614", "subjects":"Uses|Description"}'
+
+wget https://editors.eol.org/eol_php_code/applications/content_server/resources/10088_5097_ENV.tar.gz
+wget https://editors.eol.org/eol_php_code/applications/content_server/resources/10088_6943_ENV.tar.gz
+wget https://editors.eol.org/eol_php_code/applications/content_server/resources/MoftheAES_resources.tar.gz
+wget https://editors.eol.org/eol_php_code/applications/content_server/resources/NorthAmericanFlora.tar.gz
+wget https://editors.eol.org/eol_php_code/applications/content_server/resources/NorthAmericanFlora_Fungi.tar.gz
+wget https://editors.eol.org/eol_php_code/applications/content_server/resources/NorthAmericanFlora_Plants.tar.gz
+##################################################################################
+*/
 ?>

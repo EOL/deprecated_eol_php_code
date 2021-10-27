@@ -52,7 +52,8 @@ not relaxed
 assoc true gnfinder
 10088_5097	Tue 2021-10-26 11:15:57 PM	    {"association.tab":376,                  "media.tab":12705, "occur.tab":436,            "taxon.tab":12217, "time_elapsed":{"sec":4243.26, "min":70.72, "hr":1.18}}
 10088_5097_ENV	Tue 2021-10-26 11:44:59 PM	{"association.tab":376, "MoF.tab":42743, "media.tab":11462, "occur_specific.tab":43179, "taxon.tab":12217, "time_elapsed":{"sec":1736.11, "min":28.94, "hr":0.48}}
-
+10088_5097	    Wed 2021-10-27 06:45:21 AM	{"association.tab":376,                  "media.tab":12705, "occur.tab":436,            "taxon.tab":12217, "time_elapsed":{"sec":2879.81, "min":48, "hr":0.8}}
+10088_5097_ENV	Wed 2021-10-27 07:06:32 AM	{"association.tab":376, "MoF.tab":42743, "media.tab":11462, "occur_specific.tab":43179, "taxon.tab":12217, "time_elapsed":{"sec":1263.63, "min":21.06, "hr":0.35}}
 ========== Repo 2: Smithsonian Contributions to Botany ==========
 With growth ontology:
 10088_6943	    Sat 2021-05-22 04:24:44 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":89.38, "min":1.49, "hr":0.02}}
@@ -66,7 +67,6 @@ after a couple of months: ACCEPTABLE --- SAME MEDIA AND TAXON
 after a couple of weeks: EXACT, STILL SAME MEDIA AND TAXON - EXCELLENT!
 10088_6943	    Wed 2021-10-06 04:32:10 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":97.26, "min":1.62, "hr":0.03}}
 10088_6943_ENV	Wed 2021-10-06 04:33:20 AM	{"MoF.tab":6012, "media.tab":1487, "occur_specific.tab":6012, "taxon.tab":1549, "time_elapsed":{"sec":62.09, "min":1.03, "hr":0.02}}
-
 with NEW host patterns: DATA-1891 --- NO CHANGE SO FAR
 10088_6943	    Thu 2021-10-07 02:11:08 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":90.06, "min":1.5, "hr":0.03}}
 10088_6943_ENV	Thu 2021-10-07 02:12:20 AM	{"MoF.tab":6012, "media.tab":1487, "occur_specific.tab":6012, "taxon.tab":1549, "time_elapsed":{"sec":62.6, "min":1.04, "hr":0.02}}
