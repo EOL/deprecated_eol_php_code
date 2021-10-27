@@ -13,11 +13,23 @@ class ParseAssocTypeAPI
         $this->assoc_prefixes[] = "HOST PLANT";
         // */
         // $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/"; --- might never been used here...
-        $this->service['GNRD text input'] = 'http://gnrd.globalnames.org/name_finder.json?text=';
+        // $this->service['GNRD text input'] = 'httpz'; //'http://gnrd.globalnames.org/name_finder.json?text='; OBSOLETE GNRD
+        $this->service['GNVerifier'] = "https://verifier.globalnames.org/api/v1/verifications/";
     }
     /*#################################################################################################################################*/
-    function parse_associations($html, $pdf_id, $orig_tmp = false)
-    {   //exit("\n[$this->resource_name]\n");
+    private function initialize()
+    {
+        // /* for gnfinder
+        if(Functions::is_production()) $this->json_path = '/html/gnfinder/';
+        else                           $this->json_path = '/Volumes/AKiTiO4/other_files/gnfinder/';
+        // */
+        require_library('connectors/Functions_Memoirs');
+        $this->func = new Functions_Memoirs($this->json_path, $this->service, $this->download_options); 
+    }
+    function parse_associations($html, $pdf_id, $orig_tmp = false) //for "HOST" "HOST PLANT" "ON" "FOUND ON" etc.
+    {   
+        self::initialize();
+        //exit("\n[$this->resource_name]\n");
         $this->pdf_id = $pdf_id; //works but not being used atm.
         $arr = explode("<br>", $html); //print_r($arr); exit("\nelix2\n");
         /*[35] => 
@@ -55,6 +67,7 @@ class ParseAssocTypeAPI
     {
         $scinames = array();
         foreach($rows as $prefix => $row) {
+            $orig_row = trim(Functions::remove_whitespace($row));
             // /* DATA-1891
             $row = str_replace(array("(", ")"), " ", $row);
             $row = Functions::remove_whitespace($row);
@@ -89,10 +102,12 @@ class ParseAssocTypeAPI
                 // */
                 
                 $possible_genus = "";
-                $obj = self::run_GNRD_assoc($part); //echo "\nGNRD for: [$part]\n"; print_r($obj); //exit;
-                if(!$obj) continue;
-                foreach(@$obj->names as $name) {
-                    $tmp = $name->scientificName;
+                $obj_names = self::run_GNRD_assoc($part); //echo "\nGNRD for: [$part]\n"; print_r($obj); //exit;
+                if(!$obj_names) continue;
+                // foreach(@$obj->names as $name) { OBSOLETE GNRD
+                foreach(@$obj_names as $name) {
+                    // $tmp = $name->scientificName; //OBSOLETE GNRD
+                    $tmp = $name;
                     /*
                     Populus tremuloides
                     P. grandidentata
@@ -113,7 +128,7 @@ class ParseAssocTypeAPI
                     if(substr($tmp,1,2) == ". " && substr($tmp,0,1) === substr($possible_genus,0,1)) {
                         array_shift($words); //remove first element "P."
                         $new_sci = $possible_genus." ".implode(" ", $words);
-                        $scinames["$prefix"][$new_sci] = '';
+                        $scinames["$prefix"][$new_sci] = "('$prefix'). $orig_row";
                         // exit("\ngoes here...\n");
                     }
                     // /* New: good inclusion to complete genus names. Not perfect but better than nothing.
@@ -122,14 +137,14 @@ class ParseAssocTypeAPI
                             if(substr($tmp,0,1) === substr($pg,0,1)) {
                                 array_shift($words); //remove first element "P."
                                 $new_sci = $pg." ".implode(" ", $words);
-                                $scinames["$prefix"][$new_sci] = '';
+                                $scinames["$prefix"][$new_sci] = "('$prefix'). $orig_row";
                             }
                         }
                     }
                     // */
                     else {
                         if(self::is_one_word($tmp)) continue;
-                        $scinames[$prefix][$tmp] = '';
+                        $scinames[$prefix][$tmp] = "('$prefix'). $orig_row";
                     }
                     // */
                 } //end obj->names loop
@@ -222,15 +237,23 @@ class ParseAssocTypeAPI
                     $right = "$prefix".$punctuation;
                     if(strcmp($left, $right) == 0) {
                         $new_str = trim(substr($string, strlen($left), strlen($string)));
-                        debug("\n'$left' is equal to '$right' in a case sensitive string comparison.\n-----\n[$left]\n[$string][$new_str]\n-----\n");
+                        // debug("\n'$left' is equal to '$right' in a case sensitive string comparison.\n-----\n[$left]\n[$string][$new_str]\nelix1\n-----\n");
                         $words = explode(" ", $new_str);
                         $new_words = array();
                         $new_words[] = $words[0];
                         $new_words[] = @$words[1];
                         // print_r($new_words); //exit("\nelix4\n");
                         $new_str = implode(" ", $new_words);
-                        if($obj = self::run_GNRD_assoc($new_str)) { // print_r($obj);
-                            if($sciname = @$obj->names[0]->scientificName) { //exit("\n[$sciname]\nelix5\n");
+                        // if($obj = self::run_GNRD_assoc($new_str)) { OBSOLETE GNRD
+                        
+                        // /* cont. to search gnfinder if $new_str looks line a sciname. Works here bec. sciname must come directly after
+                        if(!ctype_upper(substr($new_str,0,1))) continue;
+                        // */
+                        
+                        // echo "\nsearch: [$new_str]\n"; //good debug --- for "On" AND "Found on" prefixes only
+                        if($obj_names = self::run_GNRD_assoc($new_str)) {
+                            // if($sciname = @$obj->names[0]->scientificName) { OBSOLETE GNRD
+                            if($sciname = @$obj_names[0]) {
                                 $final[$prefix] = $sciname; // exit("\ngoes here...\n");
                             }
                         }
@@ -247,6 +270,11 @@ class ParseAssocTypeAPI
     {
         if(!$string) return false;
         $string = trim($string);
+        // echo "\nstring: [$string]\n";
+        // /*
+        if($names = $this->func->get_names_from_gnfinder($string)) return $names;
+        return false;
+        // */
         $url = $this->service['GNRD text input'].$string; debug("\nGNRD 3: [$url]\n");
         $options = $this->download_options;
         $options['expire_seconds'] = false;
@@ -265,7 +293,7 @@ class ParseAssocTypeAPI
     /*
     */
     function write_associations($rec, $taxon, $archive_builder, $meta, $taxon_ids) //2nd param is source taxon object
-    {
+    {   //exit("\ndito 2\n");
         $this->taxon_ids = $taxon_ids;
         $this->archive_builder = $archive_builder;
         // print_r($rec); exit("\n111\n");
@@ -285,6 +313,7 @@ class ParseAssocTypeAPI
         // PARASITOID(s)           associationType=http://purl.obolibrary.org/obo/RO_0002209
         
         foreach($rec as $assoc_type => $scinames) { if($assoc_type == 'pdf_id') continue;
+            $remarks = $scinames;
             $scinames = array_keys($scinames);
             $associationType = self::get_assoc_type($assoc_type);
             foreach($scinames as $target_sciname) {
@@ -297,6 +326,8 @@ class ParseAssocTypeAPI
                 $a->associationType = $associationType;
                 $a->targetOccurrenceID = $related_occurrence->occurrenceID;
                 $a->source = @$meta[$rec['pdf_id']]['dc.relation.url'];
+                $a->measurementRemarks = $remarks[$target_sciname]; //this is the while block of text
+                // print_r($a); exit("\n-cha-\n");
                 if(!isset($this->association_ids[$a->associationID])) {
                     $this->archive_builder->write_object_to_file($a);
                     $this->association_ids[$a->associationID] = '';
@@ -344,14 +375,13 @@ class ParseAssocTypeAPI
         HOST(s)/HOST PLANT(s)   associationType=http://purl.obolibrary.org/obo/RO_0002454
         PARASITOID(s)           associationType=http://purl.obolibrary.org/obo/RO_0002209
         */
-        if(stripos($assoc_type, "HOST") !== false) return "http://purl.obolibrary.org/obo/RO_0002454"; //string is found
-        if(stripos($assoc_type, "PARASITOID") !== false) return "http://purl.obolibrary.org/obo/RO_0002209"; //string is found
-        
+        if(stripos($assoc_type, "HOST") !== false)          return "http://purl.obolibrary.org/obo/RO_0002454"; //string is found
+        if(stripos($assoc_type, "PARASITOID") !== false)    return "http://purl.obolibrary.org/obo/RO_0002209"; //string is found
+        if(in_array($assoc_type, array("On", "Found on")))  return "http://purl.obolibrary.org/obo/RO_0002454"; //DATA-1891
         /* for "North American Flora" only --- TODO
         if($assoc_type == "On")             return "http://purl.obolibrary.org/obo/RO_0002454";
         elseif($assoc_type == "Found on")   return "http://purl.obolibrary.org/obo/RO_0002454";
         */
-        
         exit("\n-----\nUndefined association type (SI to Zoology Botany): [$assoc_type]\n-----\n");
         return false;
     }

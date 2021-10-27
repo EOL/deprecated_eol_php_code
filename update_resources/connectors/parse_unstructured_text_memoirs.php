@@ -281,6 +281,9 @@ gnfinder not relaxed
 15406	    Fri 2021-10-22 12:49:35 AM	{"assoc.tab":3, "media.tab":243, "occurrence.tab":6,            "taxon.tab":246, "time_elapsed":{"sec":65.75, "min":1.1, "hr":0.02}}
 15406_ENV	Fri 2021-10-22 12:50:15 AM	{"assoc.tab":3, 
                                          "MoF.tab":585, "media.tab":243, "occurrence_specific.tab":591, "taxon.tab":246, "time_elapsed":{"sec":9.73, "min":0.16, "hr":0}}
+Mac mini
+15406	    Tue 2021-10-26 02:57:43 AM	{"assoc.tab":3, "media.tab":240, "occurrence.tab":6,            "taxon.tab":243, "time_elapsed":{"sec":0.97, "min":0.02, "hr":0}}
+
 
 15412	    Tue 2021-08-10 01:10:22 PM	{                "media.tab":99,                                  "taxon.tab":99, "time_elapsed":{"sec":0.4, "min":0.01, "hr":0}}
 15412_ENV	Tue 2021-08-10 01:12:37 PM	{"MoF.tab":1225, "media.tab":99,  "occurrence_specific.tab":1225, "taxon.tab":99, "time_elapsed":{"sec":14.39, "min":0.24, "hr":0}}
