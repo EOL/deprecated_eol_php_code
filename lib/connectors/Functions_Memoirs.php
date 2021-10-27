@@ -3,7 +3,15 @@ namespace php_active_record;
 /* */
 class Functions_Memoirs
 {
-    function __construct() {}
+    function __construct($json_path = false, $service = array(), $download_options = array())
+    {
+        if($json_path) $this->json_path = $json_path;
+        if($service) $this->service = $service;
+        if($download_options) $this->download_options = $download_options;
+        // print_r($this->service);
+        // print_r($this->download_options);
+        // exit("\n$this->json_path\n");
+    }
     function is_DoubtfulSpecies_stop_pattern($row)
     {   /*Array(
             [0] => <br>I
@@ -654,7 +662,7 @@ class Functions_Memoirs
             self::save_json($id, $json, 'partial');
             /* now start access newly created. */
             if($arr = self::retrieve_json($id, 'partial', $desc)) {
-                // echo "\n[222]\n"; //newly created
+                // echo "\n[222][$desc]\n"; //newly created
                 return self::select_envo($arr, $desc);
             }
             else {

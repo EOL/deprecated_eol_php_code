@@ -343,7 +343,7 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                     $rec['http://purl.org/dc/terms/bibliographicCitation'] = $citation;
                     $rec['http://rs.tdwg.org/ac/terms/furtherInformationURL'] = $source;
                 }
-                elseif($what == "measurementorfact") {
+                elseif(in_array($what, array("measurementorfact", "association"))) {
                     $rec['http://purl.org/dc/terms/bibliographicCitation'] = $citation;
                     $rec['http://purl.org/dc/terms/source'] = $source;
                 }
@@ -411,15 +411,21 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
         }
     }
     private function get_attributions()
-    {
-        // $source["MoftheAES_resources"] = "http://localhost/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution.txt";
-        $source["MoftheAES_resources"] = "/Volumes/AKiTiO4/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution_plus_four.txt";
-        $source["MoftheAES_resources"] = "/extra/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution_plus_four.txt";
-
-        $source["NorthAmericanFlora"] = "/extra/other_files/Smithsonian/BHL/from_Jen/FNA_attribution_mapping.txt";          //7 documents
-        $source["NorthAmericanFlora_Fungi"] = "/extra/other_files/Smithsonian/BHL/from_Jen/FNA_attribution_mapping.txt";    //Fungi list
-        $source["NorthAmericanFlora_Plants"] = "/extra/other_files/Smithsonian/BHL/from_Jen/FNA_attribution_mapping.txt";   //Plants list
-        
+    {   //exit("\nresource_id: [$this->resource_id]\n");
+        if(Functions::is_production()) {
+            $source["MoftheAES_resources"]       = "/extra/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution_plus_four.txt";
+            $source["NorthAmericanFlora"]        = "/extra/other_files/Smithsonian/BHL/from_Jen/FNA_attribution_mapping.txt";   //7 documents
+            $source["NorthAmericanFlora_Fungi"]  = "/extra/other_files/Smithsonian/BHL/from_Jen/FNA_attribution_mapping.txt";   //Fungi list
+            $source["NorthAmericanFlora_Plants"] = "/extra/other_files/Smithsonian/BHL/from_Jen/FNA_attribution_mapping.txt";   //Plants list
+            $source["91362_resource"]            = "/extra/other_files/Smithsonian/BHL/from_Jen/FNA_attribution_mapping.txt";   //7 documents
+        }
+        else {
+            $source["MoftheAES_resources"]       = "/Volumes/AKiTiO4/other_files/Smithsonian/MoftheAES/from_Jen/MoftheAES_attribution_plus_four.txt";
+            $source["NorthAmericanFlora"]        = "/Volumes/AKiTiO4/other_files/Smithsonian/BHL/from_Jen/FNA_attribution_mapping.txt";   //7 documents
+            $source["NorthAmericanFlora_Fungi"]  = "/Volumes/AKiTiO4/other_files/Smithsonian/BHL/from_Jen/FNA_attribution_mapping.txt";   //Fungi list
+            $source["NorthAmericanFlora_Plants"] = "/Volumes/AKiTiO4/other_files/Smithsonian/BHL/from_Jen/FNA_attribution_mapping.txt";   //Plants list
+            $source["91362_resource"]            = "/Volumes/AKiTiO4/other_files/Smithsonian/BHL/from_Jen/FNA_attribution_mapping.txt";   //7 documents
+        }
         $i = 0;
         if($source = @$source[$this->resource_id]) {
             foreach(new FileIterator($source) as $line => $row) { $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
@@ -450,7 +456,7 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
             if($val = @$ret['91362']) $ret['91362_resource'] = $val;
             return $ret;
         }
-        else echo "\nNo attribution info yet [$this->resource_id]\n";
+        else echo "\nNo attribution info yet for resource_id: [$this->resource_id]\n";
     }
 }
 ?>
