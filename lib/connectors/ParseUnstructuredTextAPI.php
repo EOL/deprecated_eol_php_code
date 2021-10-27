@@ -9,7 +9,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
 
         /* START epub series */
         // $this->path['epub_output_txts_dir'] = '/Volumes/AKiTiO4/other_files/epub/'; //dir for converted epubs to txts
-        $this->service['GNRD text input'] = 'httpz'; //'http://gnrd.globalnames.org/name_finder.json?text=';
+        // $this->service['GNRD text input'] = 'httpz'; //'http://gnrd.globalnames.org/name_finder.json?text=';
         $this->service['GNParser'] = "https://parser.globalnames.org/api/v1/";
         $this->service['GNVerifier'] = "https://verifier.globalnames.org/api/v1/verifications/";
         /*
