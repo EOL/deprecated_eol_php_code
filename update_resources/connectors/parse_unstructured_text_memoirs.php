@@ -158,6 +158,8 @@ MoftheAES_resources	Thu 2021-10-21 09:39:42 AM	{"MoF.tab":12483, "media.tab":198
 MoftheAES_resources	Fri 2021-10-22 12:15:53 AM	{"MoF.tab":12483, "media.tab":1983, "occurrence.tab":12483, "taxon.tab":6017, "time_elapsed":{"sec":42.2, "min":0.7, "hr":0.01}}
 not relaxed - is good
 MoftheAES_resources	Fri 2021-10-22 01:29:37 AM	{"MoF.tab":12363, "media.tab":1935, "occurrence.tab":12363, "taxon.tab":5967, "time_elapsed":{"sec":37.48, "min":0.62, "hr":0.01}}
+assoc true gnfinder
+MoftheAES_resources	Wed 2021-10-27 04:29:20 AM	{"MoF.tab":12363, "media.tab":1935, "occurrence.tab":12363, "taxon.tab":5967, "time_elapsed":{"sec":87.9, "min":1.47, "hr":0.02}}
 ------------------------------------------------------------ North American Flora (DATA-1890) --- BHL - 7 documents
 15423	    Tue 2021-07-13 07:19:04     {               "media_resource.tab":73,                   "taxon.tab":73, "time_elapsed":{"sec":0.38, "min":0.01, "hr":0}}
 15423_ENV	Tue 2021-07-13 07:23:01     {"MoF.tab":338, "media_resource.tab":73, "occur.tab":338,  "taxon.tab":73, "time_elapsed":{"sec":115.98, "min":1.93, "hr":0.03}}
@@ -226,7 +228,12 @@ gnfinder not relaxed
 91362_species	    Fri 2021-10-22 01:43:01 AM	{                                "media_resource.tab":61,                           "taxon.tab":61, "time_elapsed":{"sec":1.28, "min":0.02, "hr":0}}
 91362_species_ENV	Fri 2021-10-22 01:43:38 AM	{                 "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":267, "taxon.tab":61, "time_elapsed":{"sec":7.7, "min":0.13, "hr":0}}
 91362_resource	    Fri 2021-10-22 01:43:42 AM	{"assoc.tab":586, "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":990, "taxon.tab":806, "time_elapsed":{"sec":3.71, "min":0.06, "hr":0}}
-
+assoc true gnfinder
+91362	            Tue 2021-10-26 10:55:58 PM	{"assoc.tab":604,                                         "occur.tab":755,          "taxon.tab":796, "time_elapsed":{"sec":399.91, "min":6.67, "hr":0.11}}
+91362_species	    Tue 2021-10-26 10:57:14 PM	{                                "media_resource.tab":61,                           "taxon.tab":61, "time_elapsed":{"sec":52.6, "min":0.88, "hr":0.01}}
+91362_species_ENV	Tue 2021-10-26 10:57:56 PM	{                 "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":267, "taxon.tab":61, "time_elapsed":{"sec":11.13, "min":0.19, "hr":0}}
+91362_resource	    Tue 2021-10-26 10:57:59 PM	{"assoc.tab":604, "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":1022,"taxon.tab":821, "time_elapsed":{"sec":3.71, "min":0.06, "hr":0}}
+-------------
 NorthAmericanFlora	Thu 2021-08-12 05:42:08 AM	{"assoc.tab":4829, "MoF.tab":3199, "media.tab":770, "occurrence.tab":8585, "taxon.tab":6198, "time_elapsed":{"sec":43.78, "min":0.73, "hr":0.01}}
 NorthAmericanFlora	Mon 2021-10-11 10:23:50 AM	{"assoc.tab":4821, "MoF.tab":3339, "media.tab":794, "occurrence.tab":8724, "taxon.tab":6226, "time_elapsed":{"sec":17.61, "min":0.29, "hr":0}}
 after DATA-1893
@@ -241,6 +248,10 @@ NorthAmericanFlora	Thu 2021-10-21 08:18:57 AM	{"assoc.tab":5865, "MoF.tab":3338,
 NorthAmericanFlora	Fri 2021-10-22 12:15:47 AM	{"assoc.tab":5865, "MoF.tab":3338, "media.tab":795, "occurrence.tab":9743, "taxon.tab":7362, "time_elapsed":{"sec":17.89, "min":0.3, "hr":0}}
 gnfinder not relaxed --- OK
 NorthAmericanFlora	Fri 2021-10-22 01:44:07 AM	{"assoc.tab":5648, "MoF.tab":3338, "media.tab":795, "occurrence.tab":9533, "taxon.tab":7069, "time_elapsed":{"sec":17.66, "min":0.29, "hr":0}}
+assoc true gnfinder
+NorthAmericanFlora	Wed 2021-10-27 04:28:40 AM	{"assoc.tab":5695, "MoF.tab":3338, "media.tab":795, "occurrence.tab":9609, "taxon.tab":7111, "time_elapsed":{"sec":40.25, "min":0.67, "hr":0.01}}
+
+
 
 ---------- start FUNGI list: ----------
 "15404", "15405", "15406", "15407", "15408", "15409", "15410", "15411", "15412", 
@@ -331,6 +342,9 @@ NorthAmericanFlora_Fungi	Fri 2021-10-22 12:15:24 AM	{"association.tab":3,
 gnfinder not relaxed --- OK
 NorthAmericanFlora_Fungi	Sun 2021-10-24 07:49:09 AM	{"association.tab":3, 
                                                          "MoF.tab":10991, "media_resource.tab":4624, "occurrence_specific.tab":10997, "taxon.tab":4618, "time_elapsed":{"sec":63.1, "min":1.05, "hr":0.02}}
+assoc true gnfinder
+NorthAmericanFlora_Fungi	Wed 2021-10-27 04:28:54 AM	{"association.tab":3, 
+                                                         "MoF.tab":10991, "media_resource.tab":4624, "occurrence_specific.tab":10997, "taxon.tab":4618, "time_elapsed":{"sec":65.62, "min":1.09, "hr":0.02}}
 
 
 ---------- end FUNGI list: ----------

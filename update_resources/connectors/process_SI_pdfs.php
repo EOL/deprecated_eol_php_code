@@ -17,7 +17,7 @@ From local Mac mini: SCtZ-0614
 10088_5097_ENV  {"assoc.tab":56, "MoF.tab":150, "media.tab":10,                      "occur_specific.tab":205, "taxon.tab":54, "time_elapsed":{"sec":18.34, "min":0.31, "hr":0.01}}
 
 From eol-archive:
-Repo 1:
+ ========== Repo 1: Smithsonian Contributions to Zoology ==========
 10088_5097	    Tue 2021-05-18 08:10:09 AM	{"association.tab":365,                  "media.tab":12698, "occur.tab":418,            "taxon.tab":12187, "time_elapsed":{"sec":1363.06, "min":22.72, "hr":0.38}}
 10088_5097_ENV	Tue 2021-05-18 08:19:00 AM	{"association.tab":365, "MoF.tab":47768, "media.tab":11453, "occur_specific.tab":48186, "taxon.tab":12187, "time_elapsed":{"sec":521.58, "min":8.69, "hr":0.14}}
 after putting more stop patterns from spreadsheet
@@ -49,8 +49,11 @@ not relaxed
 10088_5097_ENV	Mon 2021-10-25 06:48:53 AM	{"association.tab":369, "MoF.tab":42718, "media.tab":11461, "occur_specific.tab":43142, "taxon.tab":12210, "time_elapsed":{"sec":1093.98, "min":18.23, "hr":0.3}}
 10088_5097	    Mon 2021-10-25 10:46:28 AM	{"association.tab":369,                  "media.tab":12704, "occur.tab":424,            "taxon.tab":12209, "time_elapsed":{"sec":2778.54, "min":46.31, "hr":0.77}}
 10088_5097_ENV	Mon 2021-10-25 11:09:52 AM	{"association.tab":369, "MoF.tab":42718, "media.tab":11461, "occur_specific.tab":43142, "taxon.tab":12209, "time_elapsed":{"sec":1398.33, "min":23.31, "hr":0.39}}
+assoc true gnfinder
+10088_5097	Tue 2021-10-26 11:15:57 PM	    {"association.tab":376,                  "media.tab":12705, "occur.tab":436,            "taxon.tab":12217, "time_elapsed":{"sec":4243.26, "min":70.72, "hr":1.18}}
+10088_5097_ENV	Tue 2021-10-26 11:44:59 PM	{"association.tab":376, "MoF.tab":42743, "media.tab":11462, "occur_specific.tab":43179, "taxon.tab":12217, "time_elapsed":{"sec":1736.11, "min":28.94, "hr":0.48}}
 
-Repo 2: Smithsonian Contributions to Botany
+========== Repo 2: Smithsonian Contributions to Botany ==========
 With growth ontology:
 10088_6943	    Sat 2021-05-22 04:24:44 AM	{                "media.tab":1649,                            "taxon.tab":1549, "time_elapsed":{"sec":89.38, "min":1.49, "hr":0.02}}
 10088_6943_ENV	Sat 2021-05-22 04:25:50 AM	{"MoF.tab":6300, "media.tab":1487, "occur_specific.tab":6300, "taxon.tab":1549, "time_elapsed":{"sec":57.82, "min":0.96, "hr":0.02}}
@@ -81,6 +84,10 @@ not relaxed
 10088_6943_ENV	Fri 2021-10-22 01:39:06 AM	{"MoF.tab":6057, "media.tab":1505, "occur_specific.tab":6057, "taxon.tab":1567, "time_elapsed":{"sec":47.33, "min":0.79, "hr":0.01}}
 10088_6943	    Mon 2021-10-25 11:13:22 AM	{                "media.tab":1667,                            "taxon.tab":1567, "time_elapsed":{"sec":197.31, "min":3.29, "hr":0.05}}
 10088_6943_ENV	Mon 2021-10-25 11:14:55 AM	{"MoF.tab":6057, "media.tab":1505, "occur_specific.tab":6057, "taxon.tab":1567, "time_elapsed":{"sec":85.96, "min":1.43, "hr":0.02}}
+assoc true gnfinder
+10088_6943	    Tue 2021-10-26 11:48:46 PM	{                "media.tab":1667,                            "taxon.tab":1567, "time_elapsed":{"sec":218.07, "min":3.63, "hr":0.06}}
+10088_6943_ENV	Tue 2021-10-26 11:50:15 PM	{"MoF.tab":6057, "media.tab":1505, "occur_specific.tab":6057, "taxon.tab":1567, "time_elapsed":{"sec":81.67, "min":1.36, "hr":0.02}}
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
