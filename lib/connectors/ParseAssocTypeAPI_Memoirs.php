@@ -159,7 +159,7 @@ class ParseAssocTypeAPI_Memoirs
                 $a->associationType = $associationType;
                 $a->targetOccurrenceID = $related_occurrence->occurrenceID;
                 $a->source = @$meta[$rec['pdf_id']]['dc.relation.url'];
-                $a->measurementRemarks = "$target_sciname 'host of' $taxon->scientificName (RO_0002453)";
+                $a->measurementRemarks = "$taxon->scientificName 'host of' $target_sciname (RO_0002453)";
                 if(!isset($this->association_ids[$a->associationID])) {
                     $this->archive_builder->write_object_to_file($a);
                     $this->association_ids[$a->associationID] = '';
