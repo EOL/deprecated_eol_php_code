@@ -22,6 +22,6 @@ $resource_ids[] = "NorthAmericanFlora_Fungi";
 $resource_ids[] = "NorthAmericanFlora_Plants";
 // */
 
-$func->combine_MoftheAES_DwCAs($resource_ids);
+$func->combine_DwCAs($resource_ids);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>
