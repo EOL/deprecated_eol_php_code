@@ -250,8 +250,7 @@ gnfinder not relaxed --- OK
 NorthAmericanFlora	Fri 2021-10-22 01:44:07 AM	{"assoc.tab":5648, "MoF.tab":3338, "media.tab":795, "occurrence.tab":9533, "taxon.tab":7069, "time_elapsed":{"sec":17.66, "min":0.29, "hr":0}}
 assoc true gnfinder
 NorthAmericanFlora	Wed 2021-10-27 04:28:40 AM	{"assoc.tab":5695, "MoF.tab":3338, "media.tab":795, "occurrence.tab":9609, "taxon.tab":7111, "time_elapsed":{"sec":40.25, "min":0.67, "hr":0.01}}
-
-
+NorthAmericanFlora	Wed 2021-10-27 10:11:37 PM	{"assoc.tab":5695, "MoF.tab":3338, "media.tab":795, "occurrence.tab":9609, "taxon.tab":7111, "time_elapsed":{"sec":17.14, "min":0.29, "hr":0}}
 
 ---------- start FUNGI list: ----------
 "15404", "15405", "15406", "15407", "15408", "15409", "15410", "15411", "15412", 
@@ -345,8 +344,6 @@ NorthAmericanFlora_Fungi	Sun 2021-10-24 07:49:09 AM	{"association.tab":3,
 assoc true gnfinder
 NorthAmericanFlora_Fungi	Wed 2021-10-27 04:28:54 AM	{"association.tab":3, 
                                                          "MoF.tab":10991, "media_resource.tab":4624, "occurrence_specific.tab":10997, "taxon.tab":4618, "time_elapsed":{"sec":65.62, "min":1.09, "hr":0.02}}
-
-
 ---------- end FUNGI list: ----------
 
 ---------- Plant list: ----------
@@ -537,6 +534,12 @@ gnfinder not relaxed --- OK
 NorthAmericanFlora_Plants	Mon 2021-10-25 12:58:48 AM	{"MoF.tab":45807, "media.tab":11574, "occurrence.tab":45807, "taxon.tab":11430, "time_elapsed":{"sec":113.66, "min":1.89, "hr":0.03}}
 assoc true gnfinder
 NorthAmericanFlora_Plants	Wed 2021-10-27 06:00:07 AM	{"MoF.tab":45807, "media.tab":11574, "occurrence.tab":45807, "taxon.tab":11430, "time_elapsed":{"sec":94.86, "min":1.58, "hr":0.03}}
+----------summary
+NorthAmericanFlora          {"assoc.tab":5695,  "MoF.tab":3338,  "media.tab":795,   "occur.tab":9609,  "taxon.tab":7111, "time_elapsed":{"sec":17.14, "min":0.29, "hr":0}}
+NorthAmericanFlora_Plants   {                   "MoF.tab":45807, "media.tab":11574, "occur.tab":45807, "taxon.tab":11430, "time_elapsed":{"sec":94.86, "min":1.58, "hr":0.03}}
+NorthAmericanFlora_Fungi    {"assoc.tab":3,     "MoF.tab":10991, "media.tab":4624,  "occur.tab":10997, "taxon.tab":4618, "time_elapsed":{"sec":65.62, "min":1.09, "hr":0.02}}
+NorthAmericanFlora_All      {"assoc.tab":5698, "MoF.tab":60136,  "media.tab":16993, "occur.tab":66413, "taxon.tab":21588, "time_elapsed":{"sec":59.07, "min":0.98, "hr":0.02}}
+
 ====================== Kubitzki_et_al ======================
 START PATTERNS:
 sample genus:
