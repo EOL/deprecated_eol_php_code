@@ -197,12 +197,12 @@ start gnfinder
 91144	    Tue 2021-10-19 04:42:27 AM	{               "media_resource.tab":199,                  "taxon.tab":199, "time_elapsed":{"sec":0.62, "min":0.01, "hr":0}}
 91144_ENV	Tue 2021-10-19 04:43:51 AM	{"MoF.tab":871, "media_resource.tab":199, "occur.tab":871, "taxon.tab":199, "time_elapsed":{"sec":54.3, "min":0.91, "hr":0.02}}
 
-91225	Thu 2021-08-05 12:07:49 PM	{"association.tab":4275, "occurrence.tab":4693, "taxon.tab":4859, "time_elapsed":{"sec":6.39, "min":0.11, "hr":0}}
-91225	Thu 2021-08-12 05:38:11 AM	{"association.tab":4343, "occurrence.tab":4762, "taxon.tab":4932, "time_elapsed":{"sec":124.63, "min":2.08, "hr":0.03}}
-91225	Mon 2021-09-27 01:12:13 PM	{"association.tab":4326, "occurrence.tab":4751, "taxon.tab":4931, "time_elapsed":{"sec":10.51, "min":0.18, "hr":0}}
-91225	Thu 2021-09-30 09:28:56 AM	{"association.tab":4330, "occurrence.tab":4755, "taxon.tab":4934, "time_elapsed":{"sec":9.01, "min":0.15, "hr":0}}
-91225	Thu 2021-10-07 09:21:18 AM	{"association.tab":4330, "occurrence.tab":4755, "taxon.tab":4934, "time_elapsed":{"sec":17.77, "min":0.3, "hr":0}}
-91225	Tue 2021-10-19 06:57:53 AM	{"association.tab":5094, "occurrence.tab":5503, "taxon.tab":5811, "time_elapsed":{"sec":2252.17, "min":37.54, "hr":0.63}}
+91225	Thu 2021-08-05 12:07:49 PM	{"assoc.tab":4275, "occurrence.tab":4693, "taxon.tab":4859, "time_elapsed":{"sec":6.39, "min":0.11, "hr":0}}
+91225	Thu 2021-08-12 05:38:11 AM	{"assoc.tab":4343, "occurrence.tab":4762, "taxon.tab":4932, "time_elapsed":{"sec":124.63, "min":2.08, "hr":0.03}}
+91225	Mon 2021-09-27 01:12:13 PM	{"assoc.tab":4326, "occurrence.tab":4751, "taxon.tab":4931, "time_elapsed":{"sec":10.51, "min":0.18, "hr":0}}
+91225	Thu 2021-09-30 09:28:56 AM	{"assoc.tab":4330, "occurrence.tab":4755, "taxon.tab":4934, "time_elapsed":{"sec":9.01, "min":0.15, "hr":0}}
+91225	Thu 2021-10-07 09:21:18 AM	{"assoc.tab":4330, "occurrence.tab":4755, "taxon.tab":4934, "time_elapsed":{"sec":17.77, "min":0.3, "hr":0}}
+91225	Tue 2021-10-19 06:57:53 AM	{"assoc.tab":5094, "occurrence.tab":5503, "taxon.tab":5811, "time_elapsed":{"sec":2252.17, "min":37.54, "hr":0.63}}
 
 91362	            Mon 2021-08-09 05:21:21 AM	{"assoc.tab":486,                                         "occur.tab":624,          "taxon.tab":656, "time_elapsed":{"sec":6.09, "min":0.1, "hr":0}}
 91362_species	    Mon 2021-08-09 05:22:06 AM	{                                "media_resource.tab":56,                           "taxon.tab":56, "time_elapsed":{"sec":0.36, "min":0.01, "hr":0}}
@@ -326,23 +326,23 @@ after DATA-1893:
 15421_ENV	Wed 2021-10-13 09:41:04 AM	{"MoF.tab":625, "media.tab":187, "occurrence_specific.tab":625, "taxon.tab":187, "time_elapsed":{"sec":10.76, "min":0.18, "hr":0}}
 
 NorthAmericanFlora_Fungi	Thu 2021-08-12 05:42:52 AM	{"MoF.tab":17228, "media_resource.tab":4498, "occurrence_specific.tab":17228, "taxon.tab":4491, "time_elapsed":{"sec":108.91, "min":1.82, "hr":0.03}}
-NorthAmericanFlora_Fungi	Mon 2021-10-11 10:24:51 AM	{"association.tab":3, 
+NorthAmericanFlora_Fungi	Mon 2021-10-11 10:24:51 AM	{"assoc.tab":3, 
                                                          "MoF.tab":17168, "media_resource.tab":4597, "occurrence_specific.tab":17174, "taxon.tab":4592, "time_elapsed":{"sec":38.07, "min":0.63, "hr":0.01}}
 after DATA-1893
-NorthAmericanFlora_Fungi	Wed 2021-10-13 10:55:10 AM	{"association.tab":3, 
+NorthAmericanFlora_Fungi	Wed 2021-10-13 10:55:10 AM	{"assoc.tab":3, 
                                                          "MoF.tab":17168, "media_resource.tab":4597, "occurrence_specific.tab":17174, "taxon.tab":4592, "time_elapsed":{"sec":36.92, "min":0.62, "hr":0.01}}
 gnfinder:
-NorthAmericanFlora_Fungi	Wed 2021-10-20 09:47:18 AM	{"association.tab":3, 
+NorthAmericanFlora_Fungi	Wed 2021-10-20 09:47:18 AM	{"assoc.tab":3, 
                                seems too big             "MoF.tab":17857, "media_resource.tab":5347, "occurrence_specific.tab":17863, "taxon.tab":4713, "time_elapsed":{"sec":45.07, "min":0.75, "hr":0.01}}
-NorthAmericanFlora_Fungi	Wed 2021-10-20 10:56:17 AM	{"association.tab":3, 
+NorthAmericanFlora_Fungi	Wed 2021-10-20 10:56:17 AM	{"assoc.tab":3, 
                                                          "MoF.tab":17801, "media_resource.tab":5332, "occurrence_specific.tab":17807, "taxon.tab":4713, "time_elapsed":{"sec":52.04, "min":0.87, "hr":0.01}}
-NorthAmericanFlora_Fungi	Fri 2021-10-22 12:15:24 AM	{"association.tab":3, 
+NorthAmericanFlora_Fungi	Fri 2021-10-22 12:15:24 AM	{"assoc.tab":3, 
                                                          "MoF.tab":18296, "media_resource.tab":5705, "occurrence_specific.tab":18302, "taxon.tab":4744, "time_elapsed":{"sec":76.46, "min":1.27, "hr":0.02}}
 gnfinder not relaxed --- OK
-NorthAmericanFlora_Fungi	Sun 2021-10-24 07:49:09 AM	{"association.tab":3, 
+NorthAmericanFlora_Fungi	Sun 2021-10-24 07:49:09 AM	{"assoc.tab":3, 
                                                          "MoF.tab":10991, "media_resource.tab":4624, "occurrence_specific.tab":10997, "taxon.tab":4618, "time_elapsed":{"sec":63.1, "min":1.05, "hr":0.02}}
 assoc true gnfinder
-NorthAmericanFlora_Fungi	Wed 2021-10-27 04:28:54 AM	{"association.tab":3, 
+NorthAmericanFlora_Fungi	Wed 2021-10-27 04:28:54 AM	{"assoc.tab":3, 
                                                          "MoF.tab":10991, "media_resource.tab":4624, "occurrence_specific.tab":10997, "taxon.tab":4618, "time_elapsed":{"sec":65.62, "min":1.09, "hr":0.02}}
 ---------- end FUNGI list: ----------
 
