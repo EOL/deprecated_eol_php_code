@@ -32,6 +32,7 @@ TreatmentBank	    Wed 2021-09-08 04:23:09 PM	{                                  
 TreatmentBank_ENV	Tue 2021-09-28 02:37:49 PM	{"MoF.tab":1554957, "occur_specific.tab":1554957,                       "taxon.tab":597054, "time_elapsed":{"sec":317931.33, "min":5298.86, "hr":88.31, "day":3.68}}
 TreatmentBank	    Tue 2021-10-05 04:07:26 AM	{                                                   "media.tab":596261, "taxon.tab":597054, "time_elapsed":{"sec":66569.05, "min":1109.48, "hr":18.49}}
 TreatmentBank_ENV	Tue 2021-10-05 05:38:14 AM	{"MoF.tab":1554958, "occur_specific.tab":1554958,                       "taxon.tab":597054, "time_elapsed":{"sec":5437.94, "min":90.63, "hr":1.51}}
+TreatmentBank_ENV	Thu 2021-10-28 03:16:53 AM	{"MoF.tab":1554958, "occur_specific.tab":1554958,                       "taxon.tab":597054, "time_elapsed":{"sec":12692.65, "min":211.54, "hr":3.53}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
