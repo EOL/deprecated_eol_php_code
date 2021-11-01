@@ -292,7 +292,7 @@ class ParseAssocTypeAPI
     }
     /*
     */
-    function write_associations($rec, $taxon, $archive_builder, $meta, $taxon_ids, $bibliographicCitation) //2nd param is source taxon object
+    function write_associations($rec, $taxon, $archive_builder, $meta, $taxon_ids, $bibliographicCitation = "") //2nd param is source taxon object
     {   //exit("\ndito 2\n");
         $this->taxon_ids = $taxon_ids;
         $this->archive_builder = $archive_builder;

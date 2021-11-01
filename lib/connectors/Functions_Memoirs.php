@@ -509,13 +509,14 @@ class Functions_Memoirs
         // if(stripos($sciname_line, "mcauisteri") !== false) echo("\nfound: [$sciname_line]\n"); //string is found --- debug only
         $orig = $sciname_line;
         $words = explode(" ", $sciname_line);
-        debug("\n----------\norig: [$sciname_line]\n");
+        // debug("\n----------\norig: [$sciname_line]\n");
         if(count($words) >= 2) {
             $second = $words[1];
             $first_char = substr($second,0,1);
-            $second = substr($second,1,strlen($second)-1); debug("\nnew: [$second]\nfirst char: [$first_char]\n"); //remove first char
+            $second = substr($second,1,strlen($second)-1); //remove first char
+            // debug("\nnew: [$second]\nfirst char: [$first_char]\n");
             $pos = strpos($second, 'U');
-            debug("\npos: [$pos]\n");
+            // debug("\npos: [$pos]\n");
             
             if($pos === false) {} //not found
             else { //found OK
@@ -527,12 +528,12 @@ class Functions_Memoirs
                     if(ctype_lower($char)) @$lower_case++;
                     else                   @$upper_case++;
                 }
-                debug("\nlower: [$lower_case]\nupper: [$upper_case]");
+                // debug("\nlower: [$lower_case]\nupper: [$upper_case]");
                 if($lower_case >= 3 && ($upper_case == 1 || $upper_case == 2)) { //replace "U" to "ll" --- "Riccia McAUisteri" to "Riccia McAllisteri" -> $upper_case is 2
                                                                                                // orig --- "Bruchia longicoUis" -> $upper_case is 1
                      $second = str_replace("U", "ll", $second);
                      $second = $first_char.$second;
-                     debug("\nnew second: [$second]\n");
+                     // debug("\nnew second: [$second]\n");
                      $words[1] = $second;
                 }
                 //end loop
