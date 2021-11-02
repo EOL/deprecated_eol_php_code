@@ -190,12 +190,6 @@ class ParseSizePatternsAPI
         $orig_row = $row;
         $row = str_ireplace("in diameter", "in_diameter", $row); //manual
 
-        // if($body_part = self::get_Body_Part_term($body_part, $row)) {
-        //     $main['Body_Part_term'] = $body_part;
-        //     print_r($main); //exit("\n111\n");
-        // }
-        // else return false;
-
         $row = str_replace(";", " ; ", $row); //manual
         $row = str_replace(",", " , ", $row); //manual
         $row = Functions::remove_whitespace($row);
@@ -257,6 +251,7 @@ class ParseSizePatternsAPI
             $x = array();
             $x['row'] = $main['row'];
             $x['pattern'] = $main['pattern'];
+            
             $x['Body_Part_term'] = $main['Body_Part_term'];
             $x['Body_Part_term_key'] = $main['Body_Part_term_key'];
             $x['Body_Part_term_option'] = $main['Body_Part_term_option'];
@@ -274,11 +269,6 @@ class ParseSizePatternsAPI
             return $x;
         }
     }
-    // private function get_Body_Part_term($body_part, $row)
-    // {
-    //     if(stripos($row, "$body_part ") !== false) return $body_part; //string is found
-    // }
-    
     
     private function get_Body_Part_term_v2($words, $number_key, $dimension_term)
     {   /* orig vers. --- just subtract once
