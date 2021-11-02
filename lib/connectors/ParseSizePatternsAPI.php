@@ -29,10 +29,10 @@ class ParseSizePatternsAPI
         $this->pdf_id = $pdf_id; //works but not being used atm.
         $arr = explode("<br>", $html); 
         
-        // /* during dev --- force assign
+        /* during dev --- force assign
         $arr[] = "orange head 0.5-1 mm. in diameter; conidia ellipsoid, hyaline, 5-6X 2/^; perithecia in";
         // print_r($arr); exit("\nelix2\n");
-        // */
+        */
         /*Array(
             [0] => Hyponectria cacti (Ellis & Ev.) Seaver, Mycologia 1 : 20. 1909
             [1] => Nectriella Cadi Ellis & Ev. Jour. Myc. 8 : 66. 1902.
@@ -161,7 +161,9 @@ class ParseSizePatternsAPI
             [Body Part term] [dimension term (noun form)] [up to three words and/or a colon and/or a dash] [number or number range] [units term]
             newline [number or number range] [units term] [dimension term]
             */
-            if($items = self::use_pattern_1($row)) exit("\npattern 1\n");
+            if($ret = self::use_pattern_1($row)) {
+                echo("\naaa\n"); //exit;
+            }
         }
         // print_r($final); exit("\n-eli1-\n");
         /*
@@ -176,48 +178,103 @@ class ParseSizePatternsAPI
         $body_parts = array_values($body_parts); //reindex key
         // print_r($body_parts); exit;
         foreach($body_parts as $body_part) {
-            self::parse_row($body_part, $row);
+            if($ret = self::parse_row($body_part, $row)) return $ret;
         }
     }
     private function parse_row($body_part, $row)
     {   $main = array();
+        $orig_row = $row;
         $row = str_ireplace("in diameter", "in_diameter", $row); //manual
-        if($body_part = self::get_Body_Part_term($body_part, $row))
-        {
-            $main['Body_Part_term'] = $body_part;
-            print_r($main); //exit("\n111\n");
-        }
-        else return false;
 
-        // if($val = self::get_number_or_number_range($row)) $arr['number_or_number_range'] = $val;
+        // if($body_part = self::get_Body_Part_term($body_part, $row)) {
+        //     $main['Body_Part_term'] = $body_part;
+        //     print_r($main); //exit("\n111\n");
+        // }
         // else return false;
 
         $row = str_replace(array(";", ","), "", $row); //manual
-        //step 1: get words with numbers
         $words = explode(" ", $row);
-        
-        if($key = self::get_units_term($words)) $main['units_term'] = $words[$key];
-        if($key = self::get_dimension_term($words, $body_part)) $main['dimension_term'] = $words[$key];
-        
-        
-        print_r($words);
-        print_r($main);
-        exit;
 
+        // /* 1st choice for body part
+        if($body_part_key = self::get_Body_Part_term($body_part, $words)) $main['Body_Part_term'] = $words[$body_part_key];
+        else return false;
+        // */
+        
+        /*
+        if($unit_key = self::get_units_term($words)) $main['units_term'] = $words[$unit_key];
+        else return false;
+        */
+        if($term_key = self::get_dimension_term($words, $body_part)) $main['dimension_term'] = $words[$term_key];
+        else return false;
 
-        // if($val = self::get_units_term($row)) $arr['units_term'] = $val;
-        // else return false;
-        // 
+        if($unit_key = self::get_units_term_v2($words, $term_key)) $main['units_term'] = $words[$unit_key];
+        else return false;
 
-        // print_r(@$arr); exit("\nstop muna\n");
+        if($number_key = self::get_number_or_number_range($words, $unit_key)) $main['number_or_number_range'] = $words[$number_key];
+        else return false;
+
+        // /* 2nd choice for body part
+        if($body_part_key = self::get_Body_Part_term_v2($words, $number_key, $main['dimension_term'])) $main['Body_Part_term'] = $words[$body_part_key];
+        else return false;
+        // */
+
+        /* [Body Part term] [up to 10 intervening words and no sentence break] [number or number range] [units term] [dimension term] */
+        if($body_part_key < $number_key && $number_key < $unit_key && $unit_key < $term_key) {
+            $main['pattern'] = 1;
+            $main['row'] = $orig_row;
+            // print_r($words); print_r($main); echo("\n$row\n"); //exit;
+            $x = array();
+            $x['row'] = $main['row'];
+            $x['pattern'] = $main['pattern'];
+            $x['Body_Part_term'] = $main['Body_Part_term'];
+            $x['number_or_number_range'] = $main['number_or_number_range'];
+            $x['units_term'] = $main['units_term'];
+            $x['dimension_term'] = $main['dimension_term'];
+            print_r($x);
+            return $x;
+        }
     }
-    private function get_Body_Part_term($body_part, $row)
+    // private function get_Body_Part_term($body_part, $row)
+    // {
+    //     if(stripos($row, "$body_part ") !== false) return $body_part; //string is found
+    // }
+    
+    
+    private function get_Body_Part_term_v2($words, $number_key, $dimension_term)
     {
-        if(stripos($row, "$body_part ") !== false) return $body_part; //string is found
+        $body_part_key = $number_key - 1;
+        if($body_part_str = $words[$body_part_key]) {
+            $arr = self::get_body_part_or_parts_for_a_term($dimension_term);
+            if(in_array($body_part_str, $arr)) return $body_part_key;
+        }
     }
-    private function get_number_or_number_range($row)
+    private function get_number_or_number_range($words, $unit_key)
     {
+        $number_key = $unit_key - 1;
+        if($number_str = $words[$number_key]) {
+            if(self::get_numbers_from_string($number_str)) return $number_key;
+        }
     }
+    private function get_units_term_v2($words, $term_key)
+    {
+        $unit_key = $term_key - 1;
+        if($unit_str = $words[$unit_key]) {
+            $arr = array_keys($this->unit_terms);
+            if(in_array($unit_str, $arr)) return $unit_key;
+        }
+    }
+    
+    
+
+
+    private function get_Body_Part_term($body_part, $words)
+    {   //print_r($this->size_mapping); print_r($words); exit("\n333\n");
+        // foreach(array_keys($this->size_mapping) as $body_part) {
+            $key = array_search($body_part, $words);
+            if($key !== false) return $key; //str found in array
+        // }
+    }
+
     private function get_units_term($words)
     {   //print_r($this->unit_terms); exit;
         foreach(array_keys($this->unit_terms) as $unit) {
@@ -227,14 +284,14 @@ class ParseSizePatternsAPI
     }
     private function get_dimension_term($words, $body_part)
     {   
-        $valid_dimension_terms = self::get_dimension_term_terms_for_body_part($body_part);
+        $valid_dimension_terms = self::get_dimension_term_or_terms_for_a_body_part($body_part);
         // print_r($valid_dimension_terms); exit;
         foreach($valid_dimension_terms as $term) {
             $key = array_search($term, $words);
             if($key !== false) return $key; //str found in array
         }
     }
-    private function get_dimension_term_terms_for_body_part($body_part)
+    private function get_dimension_term_or_terms_for_a_body_part($body_part)
     {
         // print_r($this->size_mapping); exit("\n222\n");
         /*[head] => Array(
@@ -262,6 +319,37 @@ class ParseSizePatternsAPI
         else exit("\nUndefined body part: [$body_part]\n");
         return $final;
     }
+
+    private function get_body_part_or_parts_for_a_term($term)
+    {
+        // print_r($this->size_mapping); exit("\n222\n");
+        /*[head] => Array(
+                   [0] => Array(
+                           [term] => wide
+                           [term_noun] => width
+                           [uri] => http://eol.org/schema/HeadWidth
+                       )
+                   [1] => Array(
+                           [term] => long
+                           [term_noun] => length
+                           [uri] => http://purl.obolibrary.org/obo/OBA_VT0000038
+                       )
+                   [2] => Array(
+                           [term] => in_diameter
+                           [term_noun] => diameter
+                           [uri] => http://eol.org/schema/HeadWidth
+                       )
+               )
+        */
+        $final = array();
+        foreach($this->size_mapping as $body_part => $recs) {
+            foreach($recs as $rec) {
+                if($rec['term'] == $term) $final[$body_part] = '';
+            }
+        }
+        return array_keys($final);
+    }
+
     private function get_numbers_from_string($str)
     {
         if(preg_match_all('/\d+/', $str, $a)) return $a[0];
