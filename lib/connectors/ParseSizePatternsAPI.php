@@ -180,22 +180,34 @@ class ParseSizePatternsAPI
         }
     }
     private function parse_row($body_part, $row)
-    {
-        if($val = self::get_Body_Part_term($body_part, $row))
+    {   $main = array();
+        $row = str_ireplace("in diameter", "in_diameter", $row); //manual
+        if($body_part = self::get_Body_Part_term($body_part, $row))
         {
-            $arr['Body_Part_term'] = $val;
-            print_r($arr); //exit("\n111\n");
+            $main['Body_Part_term'] = $body_part;
+            print_r($main); //exit("\n111\n");
         }
         else return false;
 
-        if($val = self::get_number_or_number_range($row)) $arr['number_or_number_range'] = $val;
-        else return false;
-        // 
+        // if($val = self::get_number_or_number_range($row)) $arr['number_or_number_range'] = $val;
+        // else return false;
+
+        $row = str_replace(array(";", ","), "", $row); //manual
+        //step 1: get words with numbers
+        $words = explode(" ", $row);
+        
+        if($key = self::get_units_term($words)) $main['units_term'] = $words[$key];
+        if($key = self::get_dimension_term($words, $body_part)) $main['dimension_term'] = $words[$key];
+        
+        
+        print_r($words);
+        print_r($main);
+        exit;
+
+
         // if($val = self::get_units_term($row)) $arr['units_term'] = $val;
         // else return false;
         // 
-        // if($val = self::get_dimension_term($row)) $arr['dimension_term'] = $val;
-        // else return false;
 
         // print_r(@$arr); exit("\nstop muna\n");
     }
@@ -205,14 +217,56 @@ class ParseSizePatternsAPI
     }
     private function get_number_or_number_range($row)
     {
-        //step 1: get words with numbers
-        $words = explode(" ", $row);
-        print_r($words); exit;
+    }
+    private function get_units_term($words)
+    {   //print_r($this->unit_terms); exit;
+        foreach(array_keys($this->unit_terms) as $unit) {
+            $key = array_search($unit, $words);
+            if($key !== false) return $key; //str found in array
+        }
+    }
+    private function get_dimension_term($words, $body_part)
+    {   
+        $valid_dimension_terms = self::get_dimension_term_terms_for_body_part($body_part);
+        // print_r($valid_dimension_terms); exit;
+        foreach($valid_dimension_terms as $term) {
+            $key = array_search($term, $words);
+            if($key !== false) return $key; //str found in array
+        }
+    }
+    private function get_dimension_term_terms_for_body_part($body_part)
+    {
+        // print_r($this->size_mapping); exit("\n222\n");
+        /*[head] => Array(
+                   [0] => Array(
+                           [term] => wide
+                           [term_noun] => width
+                           [uri] => http://eol.org/schema/HeadWidth
+                       )
+                   [1] => Array(
+                           [term] => long
+                           [term_noun] => length
+                           [uri] => http://purl.obolibrary.org/obo/OBA_VT0000038
+                       )
+                   [2] => Array(
+                           [term] => in_diameter
+                           [term_noun] => diameter
+                           [uri] => http://eol.org/schema/HeadWidth
+                       )
+               )
+        */
+        $final = array();
+        if($recs = $this->size_mapping[$body_part]) {
+            foreach($recs as $rec) $final[] = $rec['term'];
+        }
+        else exit("\nUndefined body part: [$body_part]\n");
+        return $final;
     }
     private function get_numbers_from_string($str)
     {
         if(preg_match_all('/\d+/', $str, $a)) return $a[0];
     }
+    
     function load_mappings()
     {   /* not used for now
         $map['body part string'] = array("plant", "body", "leaf", "lamina", "rhizome", "trunk", "stem", "carapace", "snout vent", "snout-vent", "head body", "head-body", "head");
@@ -221,11 +275,12 @@ class ParseSizePatternsAPI
         */
         $this->size_mapping = self::loop_tsv('part_and_dimension_mapping');
         $this->unit_terms = self::loop_tsv('unit_terms');
-        print_r($this->size_mapping); print_r($this->unit_terms); exit;
+        // print_r($this->size_mapping); print_r($this->unit_terms); exit("\n111\n");
     }
     private function loop_tsv($what)
     {
         $options = $this->download_options;
+        // $options['expire_seconds'] = 0; //debug only --- un-comment when source TSV files are updated
         $options['cache'] = 1;
         if($local_tsv = Functions::save_remote_file_to_local($this->tsv[$what], $options)) {
             $arr = file($local_tsv);
