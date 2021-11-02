@@ -161,8 +161,12 @@ class ParseSizePatternsAPI
             [Body Part term] [dimension term (noun form)] [up to three words and/or a colon and/or a dash] [number or number range] [units term]
             newline [number or number range] [units term] [dimension term]
             */
+            
+            // if(stripos($row, "1.5 cm. long") !== false) exit("\nuuuuuuuuuu\n[$row]\nuuuuuuuuuu\n"); //string is found
+            
+            
             if($ret = self::use_pattern_1($row)) {
-                echo("\naaa\n"); //exit;
+                // echo("\naaa\n"); //exit;
             }
         }
         // print_r($final); exit("\n-eli1-\n");
@@ -192,34 +196,61 @@ class ParseSizePatternsAPI
         // }
         // else return false;
 
-        $row = str_replace(array(";", ","), "", $row); //manual
+        $row = str_replace(";", " ; ", $row); //manual
+        $row = str_replace(",", " , ", $row); //manual
+        $row = Functions::remove_whitespace($row);
         $words = explode(" ", $row);
 
         // /* 1st choice for body part
-        if($body_part_key = self::get_Body_Part_term($body_part, $words)) $main['Body_Part_term'] = $words[$body_part_key];
+        if($body_part_key = self::get_Body_Part_term($body_part, $words)) {
+            $main['Body_Part_term'] = $words[$body_part_key];
+            $main['Body_Part_term_key'] = $body_part_key;
+            $main['Body_Part_term_option'] = '1st choice';
+        }
         else return false;
+        
+        
+        if(stripos($row, "1.5 cm. long") !== false)
+        {
+            // echo("\nwwwwwwwwww\n");
+            // print_r($main);
+            // exit("\nuuuuuuuuuu\n[$row]\nuuuuuuuuuu\n"); //string is found
+        }
         // */
         
         /*
         if($unit_key = self::get_units_term($words)) $main['units_term'] = $words[$unit_key];
         else return false;
         */
-        if($term_key = self::get_dimension_term($words, $body_part)) $main['dimension_term'] = $words[$term_key];
+        if($term_key = self::get_dimension_term($words, $body_part)) {
+            $main['dimension_term'] = $words[$term_key];
+            $main['dimension_term_key'] = $term_key;
+        }
         else return false;
 
-        if($unit_key = self::get_units_term_v2($words, $term_key)) $main['units_term'] = $words[$unit_key];
+        if($unit_key = self::get_units_term_v2($words, $term_key)) {
+            $main['units_term'] = $words[$unit_key];
+            $main['units_term_key'] = $unit_key;
+        }
         else return false;
 
-        if($number_key = self::get_number_or_number_range($words, $unit_key)) $main['number_or_number_range'] = $words[$number_key];
+        if($number_key = self::get_number_or_number_range($words, $unit_key)) {
+            $main['number_or_number_range'] = $words[$number_key];
+            $main['number_or_number_range_key'] = $number_key;
+        }
         else return false;
 
         // /* 2nd choice for body part
-        if($body_part_key = self::get_Body_Part_term_v2($words, $number_key, $main['dimension_term'])) $main['Body_Part_term'] = $words[$body_part_key];
-        else return false;
+        if($body_part_key = self::get_Body_Part_term_v2($words, $number_key, $main['dimension_term'])) {
+            $main['Body_Part_term'] = $words[$body_part_key];
+            $main['Body_Part_term_key'] = $body_part_key;
+            $main['Body_Part_term_option'] = '2nd choice';
+        }
+        // else return false;
         // */
 
         /* [Body Part term] [up to 10 intervening words and no sentence break] [number or number range] [units term] [dimension term] */
-        if($body_part_key < $number_key && $number_key < $unit_key && $unit_key < $term_key) {
+        if($main['Body_Part_term_key'] < $number_key && $number_key < $unit_key && $unit_key < $term_key) {
             $main['pattern'] = 1;
             $main['row'] = $orig_row;
             // print_r($words); print_r($main); echo("\n$row\n"); //exit;
@@ -227,9 +258,18 @@ class ParseSizePatternsAPI
             $x['row'] = $main['row'];
             $x['pattern'] = $main['pattern'];
             $x['Body_Part_term'] = $main['Body_Part_term'];
+            $x['Body_Part_term_key'] = $main['Body_Part_term_key'];
+            $x['Body_Part_term_option'] = $main['Body_Part_term_option'];
+            
             $x['number_or_number_range'] = $main['number_or_number_range'];
+            $x['number_or_number_range_key'] = $main['number_or_number_range_key'];
+            
             $x['units_term'] = $main['units_term'];
+            $x['units_term_key'] = $main['units_term_key'];
+            
             $x['dimension_term'] = $main['dimension_term'];
+            $x['dimension_term_key'] = $main['dimension_term_key'];
+            
             print_r($x);
             return $x;
         }
@@ -241,11 +281,21 @@ class ParseSizePatternsAPI
     
     
     private function get_Body_Part_term_v2($words, $number_key, $dimension_term)
-    {
+    {   /* orig vers. --- just subtract once
         $body_part_key = $number_key - 1;
         if($body_part_str = $words[$body_part_key]) {
             $arr = self::get_body_part_or_parts_for_a_term($dimension_term);
             if(in_array($body_part_str, $arr)) return $body_part_key;
+        }
+        */
+        for($i=1; $i <= 9; $i++) { //about 10 intervening words
+            $number_key--;
+            $body_part_key = $number_key;
+            if($body_part_str = @$words[$body_part_key]) {
+                $arr = self::get_body_part_or_parts_for_a_term($dimension_term);
+                if(in_array($body_part_str, $arr)) return $body_part_key;
+            }
+            else return false;
         }
     }
     private function get_number_or_number_range($words, $unit_key)
@@ -263,9 +313,6 @@ class ParseSizePatternsAPI
             if(in_array($unit_str, $arr)) return $unit_key;
         }
     }
-    
-    
-
 
     private function get_Body_Part_term($body_part, $words)
     {   //print_r($this->size_mapping); print_r($words); exit("\n333\n");
