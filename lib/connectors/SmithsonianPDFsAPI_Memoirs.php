@@ -43,8 +43,10 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
     function initialize($resource_name = "")
     {
         $this->resource_name = $resource_name;
-        require_library('connectors/ParseAssocTypeAPI_Memoirs');    $this->func_Assoc      = new ParseAssocTypeAPI_Memoirs(); 
-        require_library('connectors/ParseAssocTypeAPI');            $this->func_Assoc_orig = new ParseAssocTypeAPI($resource_name); 
+        require_library('connectors/ParseAssocTypeAPI_Memoirs');    $this->func_Assoc      = new ParseAssocTypeAPI_Memoirs();
+        require_library('connectors/ParseAssocTypeAPI');            $this->func_Assoc_orig = new ParseAssocTypeAPI($resource_name);
+        require_library('connectors/ParseSizePatternsAPI');         $this->func_Size       = new ParseSizePatternsAPI();
+        $this->func_Size->load_mappings();
     }
     function archive_builder_finalize() { $this->archive_builder->finalize(true); }
     // */
@@ -686,6 +688,11 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                         }
                     }
 
+                    // */
+
+                    // /* SizePatterns
+                    if($size_patterns = $this->func_Size->parse_size_patterns($rec['body'], $pdf_id, $orig_tmp)) {
+                    }
                     // */
                     
                 } //print_r($rec); exit;
