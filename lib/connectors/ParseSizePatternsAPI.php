@@ -46,23 +46,10 @@ class ParseSizePatternsAPI
         if($this->resource_name == "NAF") $ret = self::get_relevant_blocks_using_On_FoundOn($arr, $ret, $orig_tmp); //DATA-1891
         */
         
-        /*
-        $assoc = self::get_associations($ret); //print_r($assoc); 
-        if($val = @$assoc['On']) print_r($assoc);        //just can't wait to have a hit
-        if($val = @$assoc['Found on']) print_r($assoc);  //just can't wait to have a hit
-        Array(
-            [HOSTS] => Array(
-                    [Populus tremuloides] => 
-                    [Populus grandidentata] => 
-                )
-            [HOST] => Array(
-                    [Mola mola] => 
-                    [Gadus ogac] => 
-                )
-        */
         // exit("\n[$sciname]\n-end assoc-\n");
         // if($sizes) print_r($sizes);
-        return array('sizes' => $sizes);
+        // return array('sizes' => $sizes);
+        return $sizes;
     }
     private function get_size_patterns($arr)
     {   // print_r($arr); print_r($this->size_mapping); exit;
@@ -157,17 +144,17 @@ class ParseSizePatternsAPI
                 // $x['search body_part'] = $body_part;
 
                 $x['Body_Part_term'] = $main['Body_Part_term'];
-                $x['Body_Part_term_key'] = $main['Body_Part_term_key'];
-                $x['Body_Part_term_option'] = $main['Body_Part_term_option'];
+                // $x['Body_Part_term_key'] = $main['Body_Part_term_key']; //debug purposes only
+                // $x['Body_Part_term_option'] = $main['Body_Part_term_option']; //debug purposes only
 
                 $x['number_or_number_range'] = $main['number_or_number_range'];
-                $x['number_or_number_range_key'] = $main['number_or_number_range_key'];
+                // $x['number_or_number_range_key'] = $main['number_or_number_range_key']; //debug purposes only
 
                 $x['units_term'] = $main['units_term'];
-                $x['units_term_key'] = $main['units_term_key'];
+                // $x['units_term_key'] = $main['units_term_key']; //debug purposes only
 
                 $x['dimension_term'] = $main['dimension_term'];
-                $x['dimension_term_key'] = $main['dimension_term_key'];
+                // $x['dimension_term_key'] = $main['dimension_term_key']; //debug purposes only
 
                 // print_r($x);
                 // print_r($positions);
