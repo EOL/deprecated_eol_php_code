@@ -61,25 +61,43 @@ class ParseSizePatternsAPI
             newline [number or number range] [units term] [dimension term]
             */
             // if(stripos($row, "1.5 cm. long") !== false) exit("\nuuuuuuuuuu\n[$row]\nuuuuuuuuuu\n"); //string is found
-            if($ret = self::use_pattern_1($row)) {
-                // echo("\naaa\n"); //exit;
-                // print_r($ret); // hits per row
+            
+            /* un-comment in normal operation
+            if($ret = self::use_pattern_1($row)) {  // print_r($ret); // hits per row
                 $final = array_merge($final, $ret);
             }
+            */
+            if($ret = self::use_pattern_3($row)) {  // print_r($ret); // hits per row
+                $final = array_merge($final, $ret);
+            }
+            
         }
         // print_r($final); exit("\n-eli1-\n");
         return $final;
     }
     private function use_pattern_1($row)
-    {
+    {   /*
         $body_parts = array_keys($this->size_mapping);
         $body_parts = array_filter($body_parts); //remove null arrays
         $body_parts = array_unique($body_parts); //make unique
         $body_parts = array_values($body_parts); //reindex key
-        // print_r($body_parts); exit;
-        // foreach($body_parts as $body_part) { //THIS SHOULD BE LIST OF DIMENSION_TERMS NOT BODY_PARTS --- START HERE...
-            if($ret = self::parse_row_pattern_1($row)) return $ret;
-        // }
+        print_r($body_parts); exit;
+        */
+        if($ret = self::parse_row_pattern_1($row)) return $ret;
+    }
+    private function use_pattern_3($row)
+    {   
+        if($ret = self::parse_row_pattern_3($row)) return $ret;
+    }
+    private function format_row($row)
+    {
+        $row = str_ireplace("in diameter", "in_diameter", $row); //manual
+        $row = str_ireplace("snout vent", "snout_vent", $row); //manual
+        $row = str_ireplace("head body", "head_body", $row); //manual
+        $row = str_replace(";", " ; ", $row); //manual
+        $row = str_replace(",", " , ", $row); //manual
+        $row = Functions::remove_whitespace($row);
+        return $row;
     }
     private function parse_row_pattern_1($row)
     {   /*
@@ -89,11 +107,7 @@ class ParseSizePatternsAPI
         */
         $main = array();
         $orig_row = $row;
-        $row = str_ireplace("in diameter", "in_diameter", $row); //manual
-
-        $row = str_replace(";", " ; ", $row); //manual
-        $row = str_replace(",", " , ", $row); //manual
-        $row = Functions::remove_whitespace($row);
+        $row = self::format_row($row);
         $words = explode(" ", $row);
 
         if($positions = self::scan_word_get_dimension_term_positions($words, $row)) {}
@@ -124,11 +138,11 @@ class ParseSizePatternsAPI
             }
             else break;
 
-            // /* 2nd choice for body part
+            // /*
             if($body_part_key = self::get_Body_Part_term_v2($words, $number_key, $main['dimension_term'])) {
                 $main['Body_Part_term'] = $words[$body_part_key];
                 $main['Body_Part_term_key'] = $body_part_key;
-                $main['Body_Part_term_option'] = '2nd choice';
+                // $main['Body_Part_term_option'] = '2nd choice'; //debug only
             }
             else break;
             // */
@@ -167,9 +181,83 @@ class ParseSizePatternsAPI
         else return false;
         */
     }
-    private function scan_word_get_dimension_term_positions($words, $row) //2nd param $row is just for debug
+    
+    private function parse_row_pattern_3($row)
+    {   /* newline [number or number range] [units term] [dimension term] */
+        $main = array();
+        $orig_row = $row;
+        $row = self::format_row($row);
+        $words = explode(" ", $row);
+
+        if($positions = self::scan_word_get_dimension_term_positions($words, $row, '3')) {} //2nd param $row is just debug here. 3rd param is pattern No.
+        else return;
+        /*Array(  --- $positions
+            [0] => 16 - long
+            [1] => 18 - wide
+            [2] => 47 - thick
+        )*/
+        $final = array();
+        foreach($positions as $term_key) {
+            $main = array(); //initialize
+            // if($term_key = self::get_dimension_term($words, $body_part)) {
+                $main['dimension_term'] = $words[$term_key];
+                $main['dimension_term_key'] = $term_key;
+            // }
+            // else return false;
+
+            if($unit_key = self::get_units_term_v2($words, $term_key)) {
+                $main['units_term'] = $words[$unit_key];
+                $main['units_term_key'] = $unit_key;
+            }
+            else break;
+
+            if($number_key = self::get_number_or_number_range($words, $unit_key)) {
+                $main['number_or_number_range'] = $words[$number_key];
+                $main['number_or_number_range_key'] = $number_key;
+            }
+            else break;
+
+            if($body_part_key = self::get_Body_Part_term_v2($words, $number_key, $main['dimension_term'])) {} // what makes it a pattern 1
+            else { // what makes it a pattern 3
+                /* newline [number or number range] [units term] [dimension term] */
+                if($number_key < $unit_key && $unit_key < $term_key) {
+                    $main['pattern'] = 3;
+                    $main['row'] = $orig_row;
+                    // print_r($words); print_r($main); echo("\n$row\n"); //exit;
+                    $x = array();
+                    $x['row'] = $main['row'];
+                    $x['pattern'] = $main['pattern'];
+                    // $x['search body_part'] = $body_part;
+
+                    $x['number_or_number_range'] = $main['number_or_number_range'];
+                    // $x['number_or_number_range_key'] = $main['number_or_number_range_key']; //debug purposes only
+
+                    $x['units_term'] = $main['units_term'];
+                    // $x['units_term_key'] = $main['units_term_key']; //debug purposes only
+
+                    $x['dimension_term'] = $main['dimension_term'];
+                    // $x['dimension_term_key'] = $main['dimension_term_key']; //debug purposes only
+
+                    // print_r($x);
+                    // print_r($positions);
+                    $final[] = $x;
+                }
+            } // what makes it a pattern 3
+        } //================================================= end foreach()
+        if($final) return $final;
+        /*
+        if($unit_key = self::get_units_term($words)) $main['units_term'] = $words[$unit_key];
+        else return false;
+        */
+    }
+    
+    
+    
+    private function scan_word_get_dimension_term_positions($words, $row, $pattern_no = 1) //2nd param $row is just for debug
     {
-        $dimension_terms = array("high", "long", "wide", "in_diameter", "wingspan", "thick");
+        if($pattern_no == 1) $dimension_terms = array("high", "long", "wide", "in_diameter", "wingspan", "thick");
+        elseif($pattern_no == 3) $dimension_terms = array("high", "long", "wingspan");
+        else exit("\nUn-initialized pattern\n");
         $i = -1;
         $positions = array();
         foreach($words as $word) { $i++;
@@ -196,9 +284,6 @@ class ParseSizePatternsAPI
                 $arr = self::get_body_part_or_parts_for_a_term($dimension_term);
                 if(in_array($body_part_str, $arr)) return $body_part_key;
                 // */
-                /*
-                if($body_part_str == $sought_body_part) return $body_part_key;
-                */
             }
             else return false;
         }
