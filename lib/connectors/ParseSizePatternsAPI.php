@@ -269,21 +269,13 @@ class ParseSizePatternsAPI
         }
     }
     private function get_Body_Part_term_v2($words, $number_key, $dimension_term)
-    {   /* orig vers. --- just subtract once
-        $body_part_key = $number_key - 1;
-        if($body_part_str = $words[$body_part_key]) {
-            $arr = self::get_body_part_or_parts_for_a_term($dimension_term);
-            if(in_array($body_part_str, $arr)) return $body_part_key;
-        }
-        */
+    {
         for($i=1; $i <= 9; $i++) { //about 10 intervening words
             $number_key--;
             $body_part_key = $number_key;
             if($body_part_str = @$words[$body_part_key]) {
-                // /*
                 $arr = self::get_body_part_or_parts_for_a_term($dimension_term);
                 if(in_array($body_part_str, $arr)) return $body_part_key;
-                // */
             }
             else return false;
         }
