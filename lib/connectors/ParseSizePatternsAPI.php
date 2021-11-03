@@ -101,9 +101,9 @@ class ParseSizePatternsAPI
     }
     private function parse_row_pattern_1($row)
     {   /*
-        [Body Part term] [up to 10 intervening words and no sentence break] [number or number range] [units term] [dimension term]
-        [Body Part term] [dimension term (noun form)] [up to three words and/or a colon and/or a dash] [number or number range] [units term]
-        newline [number or number range] [units term] [dimension term]
+        1st: [Body Part term] [up to 10 intervening words and no sentence break] [number or number range] [units term] [dimension term]
+        2nd: [Body Part term] [dimension term (noun form)] [up to three words and/or a colon and/or a dash] [number or number range] [units term]
+        3rd: newline [number or number range] [units term] [dimension term]
         */
         $main = array();
         $orig_row = $row;
@@ -149,7 +149,7 @@ class ParseSizePatternsAPI
 
             /* [Body Part term] [up to 10 intervening words and no sentence break] [number or number range] [units term] [dimension term] */
             if($main['Body_Part_term_key'] < $number_key && $number_key < $unit_key && $unit_key < $term_key) {
-                $main['pattern'] = 1;
+                $main['pattern'] = '1st';
                 $main['row'] = $orig_row;
                 // print_r($words); print_r($main); echo("\n$row\n"); //exit;
                 $x = array();
@@ -221,7 +221,7 @@ class ParseSizePatternsAPI
             else { // what makes it a pattern 3
                 /* newline [number or number range] [units term] [dimension term] */
                 if($number_key < $unit_key && $unit_key < $term_key) {
-                    $main['pattern'] = 3;
+                    $main['pattern'] = '3rd';
                     $main['row'] = $orig_row;
                     // print_r($words); print_r($main); echo("\n$row\n"); //exit;
                     $x = array();
