@@ -41,14 +41,16 @@ class ParseSizePatternsAPI
             [6] => orange head 0.5-1 mm. in diameter; conidia ellipsoid, hyaline, 5-6X 2/^; perithecia in
         )*/
         $sciname = $arr[0]; //shouldn't be used bec it is uncleaned e.g. "Periploca orichalcella (Clemens), new combination"
-        $ret = self::get_relevant_blocks($arr); //print_r($ret); exit("\nstop muna\n");
+        $sizes = self::get_size_patterns($arr); //print_r($ret); exit("\nstop muna\n");
         /* copied template
         if($this->resource_name == "NAF") $ret = self::get_relevant_blocks_using_On_FoundOn($arr, $ret, $orig_tmp); //DATA-1891
         */
+        
+        /*
         $assoc = self::get_associations($ret); //print_r($assoc); 
         if($val = @$assoc['On']) print_r($assoc);        //just can't wait to have a hit
         if($val = @$assoc['Found on']) print_r($assoc);  //just can't wait to have a hit
-        /*Array(
+        Array(
             [HOSTS] => Array(
                     [Populus tremuloides] => 
                     [Populus grandidentata] => 
@@ -59,101 +61,11 @@ class ParseSizePatternsAPI
                 )
         */
         // exit("\n[$sciname]\n-end assoc-\n");
-        return array('assoc' => $assoc);
+        // if($sizes) print_r($sizes);
+        return array('sizes' => $sizes);
     }
-    private function get_associations($rows)
-    {
-        $scinames = array();
-        foreach($rows as $prefix => $row) {
-            $orig_row = trim(Functions::remove_whitespace($row));
-            // /* DATA-1891
-            $row = str_replace(array("(", ")"), " ", $row);
-            $row = Functions::remove_whitespace($row);
-            // */
-            $row = str_replace(":", ",", $row);
-            $row = str_replace("—", ",", $row);
-            $row = str_replace(";", ",", $row);
-            $row = trim(Functions::remove_whitespace($row));
-            $row = Functions::conv_to_utf8($row);
-            $parts = explode(",", $row); //exploded via a comma (","), since GNRD can't detect scinames from block of text sometimes.
-            
-            $possible_genuses = array();
-            
-            foreach($parts as $part) {
-
-                // /* remove period from end of string
-                //HOST.—Helian thus.  -> remove period
-                //Gadus morhua L.     -> don't remove period
-                if(substr($part, -1) == ".") {
-                    $len = strlen($part);
-                    if(substr($part,$len-3,1) != " ") $part = substr($part,0,$len-1); //"Helian thus." -> remove period
-                }
-                // */
-                
-                // /* manual: these names are not recordnized by GNRD. So we manually accept it. Alerted Dima (GNRD).
-                /* not supposed to be a real species name: https://verifier.globalnames.org/?capitalize=on&format=html&names=Helianthus
-                if($part == "Helian thus") {
-                    $scinames[$prefix][$part] = '';
-                    continue;
-                }
-                */
-                // */
-                
-                $possible_genus = "";
-                $obj_names = self::run_GNRD_assoc($part); //echo "\nGNRD for: [$part]\n"; print_r($obj); //exit;
-                if(!$obj_names) continue;
-                // foreach(@$obj->names as $name) { OBSOLETE GNRD
-                foreach(@$obj_names as $name) {
-                    // $tmp = $name->scientificName; //OBSOLETE GNRD
-                    $tmp = $name;
-                    /*
-                    Populus tremuloides
-                    P. grandidentata
-                    P. canescens
-                    Populus balsamifera
-                    P. deltoides
-                    Salix
-                    Populus alba
-                    P. nigra
-                    P. tremula
-                    */
-                    // /* possible genus
-                    $words = explode(" ", $tmp);
-                    if(substr($tmp,1,2) != ". ") {
-                        $possible_genus = trim($words[0]);
-                        $possible_genuses[] = trim($words[0]);
-                    }
-                    if(substr($tmp,1,2) == ". " && substr($tmp,0,1) === substr($possible_genus,0,1)) {
-                        array_shift($words); //remove first element "P."
-                        $new_sci = $possible_genus." ".implode(" ", $words);
-                        $scinames["$prefix"][$new_sci] = "('$prefix'). $orig_row";
-                        // exit("\ngoes here...\n");
-                    }
-                    // /* New: good inclusion to complete genus names. Not perfect but better than nothing.
-                    elseif(substr($tmp,1,2) == ". ") { //will use $possible_genuses here
-                        foreach($possible_genuses as $pg) {
-                            if(substr($tmp,0,1) === substr($pg,0,1)) {
-                                array_shift($words); //remove first element "P."
-                                $new_sci = $pg." ".implode(" ", $words);
-                                $scinames["$prefix"][$new_sci] = "('$prefix'). $orig_row";
-                            }
-                        }
-                    }
-                    // */
-                    else {
-                        if(self::is_one_word($tmp)) continue;
-                        $scinames[$prefix][$tmp] = "('$prefix'). $orig_row";
-                    }
-                    // */
-                } //end obj->names loop
-            }
-        }
-        // print_r($scinames); exit("\nexit muna\n");
-        return $scinames;
-    }
-    private function get_relevant_blocks($arr)
-    {
-        // print_r($arr); print_r($this->size_mapping); exit;
+    private function get_size_patterns($arr)
+    {   // print_r($arr); print_r($this->size_mapping); exit;
         $final = array();
         foreach($arr as $row) {
             /*
@@ -164,11 +76,11 @@ class ParseSizePatternsAPI
             // if(stripos($row, "1.5 cm. long") !== false) exit("\nuuuuuuuuuu\n[$row]\nuuuuuuuuuu\n"); //string is found
             if($ret = self::use_pattern_1($row)) {
                 // echo("\naaa\n"); //exit;
+                // print_r($ret); // hits per row
+                $final = array_merge($final, $ret);
             }
         }
         // print_r($final); exit("\n-eli1-\n");
-        /*
-        */
         return $final;
     }
     private function use_pattern_1($row)
@@ -179,7 +91,7 @@ class ParseSizePatternsAPI
         $body_parts = array_values($body_parts); //reindex key
         // print_r($body_parts); exit;
         // foreach($body_parts as $body_part) { //THIS SHOULD BE LIST OF DIMENSION_TERMS NOT BODY_PARTS --- START HERE...
-            if($ret = self::parse_row_pattern_1($row)) {}
+            if($ret = self::parse_row_pattern_1($row)) return $ret;
         // }
     }
     private function parse_row_pattern_1($row)
@@ -204,6 +116,7 @@ class ParseSizePatternsAPI
             [1] => 18 - wide
             [2] => 47 - thick
         )*/
+        $final = array();
         foreach($positions as $term_key) {
             $main = array(); //initialize
             // if($term_key = self::get_dimension_term($words, $body_part)) {
@@ -256,25 +169,12 @@ class ParseSizePatternsAPI
                 $x['dimension_term'] = $main['dimension_term'];
                 $x['dimension_term_key'] = $main['dimension_term_key'];
 
-                print_r($x);
-                print_r($positions);
+                // print_r($x);
+                // print_r($positions);
+                $final[] = $x;
             }
         } //================================================= end foreach()
-
-        
-        /* 1st choice for body part
-        if($body_part_key = self::get_Body_Part_term($body_part, $words)) {
-            // $main['Body_Part_term'] = $words[$body_part_key];
-            // $main['Body_Part_term_key'] = $body_part_key;
-            // $main['Body_Part_term_option'] = '1st choice';
-        }
-        else return false;
-        if(stripos($row, "1.5 cm. long") !== false) {
-            // echo("\nwwwwwwwwww\n");
-            // print_r($main);
-            // exit("\nuuuuuuuuuu\n[$row]\nuuuuuuuuuu\n"); //string is found
-        }
-        */
+        if($final) return $final;
         /*
         if($unit_key = self::get_units_term($words)) $main['units_term'] = $words[$unit_key];
         else return false;
@@ -289,8 +189,7 @@ class ParseSizePatternsAPI
             if(in_array($word, $dimension_terms)) $positions[] = $i; //$positions[] = $i." - $word";
         }
         if($positions) {
-            // print_r($positions);
-            // echo "\n[$row]\n"; //exit;
+            // print_r($positions); echo "\n[$row]\n"; //exit;
             return $positions;
         }
     }
@@ -332,7 +231,6 @@ class ParseSizePatternsAPI
             if(in_array($unit_str, $arr)) return $unit_key;
         }
     }
-
     private function get_Body_Part_term($body_part, $words)
     {   //print_r($this->size_mapping); print_r($words); exit("\n333\n");
         // foreach(array_keys($this->size_mapping) as $body_part) {
@@ -340,7 +238,6 @@ class ParseSizePatternsAPI
             if($key !== false) return $key; //str found in array
         // }
     }
-
     private function get_units_term($words)
     {   //print_r($this->unit_terms); exit;
         foreach(array_keys($this->unit_terms) as $unit) {
@@ -385,10 +282,8 @@ class ParseSizePatternsAPI
         else exit("\nUndefined body part: [$body_part]\n");
         return $final;
     }
-
     private function get_body_part_or_parts_for_a_term($term)
-    {
-        // print_r($this->size_mapping); exit("\n222\n");
+    {   // print_r($this->size_mapping); exit("\n222\n");
         /*[head] => Array(
                    [0] => Array(
                            [term] => wide
@@ -415,12 +310,10 @@ class ParseSizePatternsAPI
         }
         return array_keys($final);
     }
-
     private function get_numbers_from_string($str)
     {
         if(preg_match_all('/\d+/', $str, $a)) return $a[0];
     }
-    
     function load_mappings()
     {   /* not used for now
         $map['body part string'] = array("plant", "body", "leaf", "lamina", "rhizome", "trunk", "stem", "carapace", "snout vent", "snout-vent", "head body", "head-body", "head");
