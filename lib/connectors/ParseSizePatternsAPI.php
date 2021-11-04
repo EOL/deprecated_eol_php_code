@@ -47,7 +47,6 @@ class ParseSizePatternsAPI
         */
         
         // exit("\n[$sciname]\n-end assoc-\n");
-        // if($sizes) print_r($sizes);
         // return array('sizes' => $sizes);
         // if(isset($this->debug)) print_r($this->debug);
         return $sizes;
@@ -73,23 +72,24 @@ class ParseSizePatternsAPI
                 $final = array_merge($final, $ret);
             }
             // */
+            if($ret = self::use_pattern_2($row)) {  // print_r($ret); // hits per row
+                $final = array_merge($final, $ret);
+            }
         }
         // print_r($final); exit("\n-eli1-\n");
         return $final;
     }
     private function use_pattern_1($row)
-    {   /*
-        $body_parts = array_keys($this->size_mapping);
-        $body_parts = array_filter($body_parts); //remove null arrays
-        $body_parts = array_unique($body_parts); //make unique
-        $body_parts = array_values($body_parts); //reindex key
-        print_r($body_parts); exit;
-        */
+    {   
         if($ret = self::parse_row_pattern_1($row)) return $ret;
     }
     private function use_pattern_3($row)
     {   
         if($ret = self::parse_row_pattern_3($row)) return $ret;
+    }
+    private function use_pattern_2($row)
+    {   
+        if($ret = self::parse_row_pattern_2($row)) return $ret;
     }
     private function format_row($row)
     {
@@ -112,7 +112,7 @@ class ParseSizePatternsAPI
         $row = self::format_row($row);
         $words = explode(" ", $row);
 
-        if($positions = self::scan_word_get_dimension_term_positions($words, $row)) {}
+        if($positions = self::scan_words_get_dimension_term_positions($words, $row)) {}
         else return;
         /*Array(  --- $positions
             [0] => 16 - long
@@ -190,7 +190,7 @@ class ParseSizePatternsAPI
         $row = self::format_row($row);
         $words = explode(" ", $row);
 
-        if($positions = self::scan_word_get_dimension_term_positions($words, $row, '3')) {} //2nd param $row is just debug here. 3rd param is pattern No.
+        if($positions = self::scan_words_get_dimension_term_positions($words, $row, '3')) {} //2nd param $row is just debug here. 3rd param is pattern No.
         else return;
         /*Array(  --- $positions
             [0] => 16 - long
@@ -200,11 +200,9 @@ class ParseSizePatternsAPI
         $final = array();
         foreach($positions as $term_key) {
             $main = array(); //initialize
-            // if($term_key = self::get_dimension_term($words, $body_part)) {
-                $main['dimension_term'] = $words[$term_key];
-                $main['dimension_term_key'] = $term_key;
-            // }
-            // else return false;
+
+            $main['dimension_term'] = $words[$term_key];
+            $main['dimension_term_key'] = $term_key;
 
             if($unit_key = self::get_units_term_v2($words, $term_key)) {
                 $main['units_term'] = $words[$unit_key];
@@ -267,7 +265,7 @@ class ParseSizePatternsAPI
         }
         return $final;
     }
-    private function scan_word_get_dimension_term_positions($words, $row, $pattern_no = 1) //2nd param $row is just for debug
+    private function scan_words_get_dimension_term_positions($words, $row, $pattern_no = 1) //2nd param $row is just for debug
     {
         if($pattern_no == 1) $dimension_terms = array("high", "long", "wide", "in_diameter", "wingspan", "thick");
         elseif($pattern_no == 3) $dimension_terms = array("high", "long", "wingspan");
@@ -382,6 +380,133 @@ class ParseSizePatternsAPI
             }
         }
         return array_keys($final);
+    }
+    
+    private function parse_row_pattern_2($row)
+    {   /*
+        1st: [Body Part term] [up to 10 intervening words and no sentence break] [number or number range] [units term] [dimension term]
+        2nd: [Body Part term] [dimension term (noun form)] [up to three words and/or a colon and/or a dash] [number or number range] [units term]
+        3rd: newline [number or number range] [units term] [dimension term]
+        */
+        $main = array();
+        $orig_row = $row;
+        $row = self::format_row($row);
+        $words = explode(" ", $row);
+        if($positions = self::scan_words_get_body_part_positions($words, $row)) {}
+        else return;
+        /*Array( --- all body part items
+            [0] => plant
+            [1] => body
+            [2] => leaf
+            [3] => lamina
+            [4] => rhizome
+            [5] => trunk
+            [6] => stem
+            [7] => carapace
+            [8] => snout_vent
+            [9] => snout-vent
+            [10] => head_body
+            [11] => head-body
+            [12] => head
+            [13] => Newly added:
+            [14] => Eli added:
+        )
+        Array( --- $positions
+            [0] => 19
+        )*/
+        $final = array();
+        foreach($positions as $body_part_key) {
+            $main = array(); //initialize
+            /*[Body Part term] [dimension term (noun form)] [up to three words and/or a colon and/or a dash] [number or number range] [units term]*/
+
+            $main['Body_Part_term'] = $words[$body_part_key];
+            $main['Body_Part_term_key'] = $body_part_key;
+
+            if($term_key = self::get_dimension_term_noun($words, $body_part_key)) {
+                $main['dimension_term_noun'] = $words[$term_key];
+                $main['dimension_term_noun_key'] = $term_key;
+            }
+            else break;
+
+            if($number_key = self::get_number_or_number_range_onwards($words, $term_key)) {
+                $main['number_or_number_range'] = $words[$number_key];
+                $main['number_or_number_range_key'] = $number_key;
+            }
+            else break;
+
+            if($unit_key = self::get_units_term_onwards($words, $number_key)) {
+                $main['units_term'] = $words[$unit_key];
+                $main['units_term_key'] = $unit_key;
+            }
+            else break;
+
+
+            if($body_part_key < $term_key && $term_key < $number_key && $number_key < $unit_key) {
+                $main['pattern'] = '2nd';
+                $main['row'] = $orig_row;
+                // print_r($words); print_r($main); echo("\n$row\n"); //exit;
+                $x = array();
+                $x['row'] = $main['row'];
+                $x['pattern'] = $main['pattern'];
+
+                $x['Body_Part_term'] = $main['Body_Part_term'];
+                $x['dimension_term_noun'] = $main['dimension_term_noun'];
+                $x['number_or_number_range'] = $main['number_or_number_range'];
+                $x['units_term'] = $main['units_term'];
+
+                print_r($x); exit("\nfinally a hit\n");
+                @$this->debug['count'][$main['pattern']]++;
+                $final[] = $x;
+            }
+        } //================================================= end foreach()
+        if($final) return $final;
+    }
+    
+    private function get_dimension_term_noun($words, $body_part_key)
+    {
+        $term_nouns = array("height", "length", "width", "diameter", "in_diameter", "wingspan", "thickness");
+        $term_key = $body_part_key + 1;
+        if($term_noun = $words[$term_key]) {
+            if(in_array($term_noun, $term_nouns)) return $term_key;
+        }
+    }
+    /*[Body Part term] [dimension term (noun form)] [up to three words and/or a colon and/or a dash] [number or number range] [units term]*/
+    private function get_number_or_number_range_onwards($words, $term_key) //for pattern 2nd
+    {
+        $number_key = $term_key;
+        for($i=1; $i <= 5; $i++) { //about 3 words between the number_number_range
+            $number_key++;
+            if($number_str = @$words[$number_key]) {
+                if(self::get_numbers_from_string($number_str)) return $number_key;
+            }
+            else return false;
+        }
+    }
+    private function get_units_term_onwards($words, $number_key)
+    {
+        $unit_key = $number_key + 1;
+        if($unit_str = @$words[$unit_key]) {
+            $arr = array_keys($this->unit_terms);
+            if(in_array($unit_str, $arr)) return $unit_key;
+        }
+    }
+    private function scan_words_get_body_part_positions($words, $row) //2nd param $row is just for debug
+    {   // /*
+        $body_parts = array_keys($this->size_mapping);
+        $body_parts = array_filter($body_parts); //remove null arrays
+        $body_parts = array_unique($body_parts); //make unique
+        $body_parts = array_values($body_parts); //reindex key
+        // print_r($body_parts); exit;
+        // */
+        $i = -1;
+        $positions = array();
+        foreach($words as $word) { $i++;
+            if(in_array(strtolower($word), $body_parts)) $positions[] = $i; //$positions[] = $i." - $word";
+        }
+        if($positions) {
+            // print_r($positions); echo "\n[$row]\n"; //exit;
+            return $positions;
+        }
     }
     private function get_numbers_from_string($str)
     {
