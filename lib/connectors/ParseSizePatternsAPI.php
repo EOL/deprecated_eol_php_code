@@ -96,8 +96,24 @@ class ParseSizePatternsAPI
         $row = str_ireplace("in diameter", "in_diameter", $row); //manual
         $row = str_ireplace("snout vent", "snout_vent", $row); //manual
         $row = str_ireplace("head body", "head_body", $row); //manual
+        //Pluralized:
+        $row = str_ireplace("stems ", "stem ", $row); //manual
+        $row = str_ireplace("plants ", "plant ", $row); //manual
+        $row = str_ireplace("bodies ", "body ", $row); //manual
+        $row = str_ireplace("leaves ", "leaf ", $row); //manual
+        $row = str_ireplace("laminas ", "lamina ", $row); //manual
+        $row = str_ireplace("rhizomes ", "rhizome ", $row); //manual
+        $row = str_ireplace("trunks ", "trunk ", $row); //manual
+        $row = str_ireplace("carapaces ", "carapace ", $row); //manual
+        $row = str_ireplace("snout_vents ", "snout_vent ", $row); //manual
+        $row = str_ireplace("snout-vents ", "snout-vent ", $row); //manual
+        $row = str_ireplace("head_bodies ", "head_body ", $row); //manual
+        $row = str_ireplace("head-bodies ", "head-body ", $row); //manual
+        $row = str_ireplace("heads ", "head ", $row); //manual
+        //others
         $row = str_replace(";", " ; ", $row); //manual
         $row = str_replace(",", " , ", $row); //manual
+        $row = str_replace(":", " : ", $row); //manual
         $row = Functions::remove_whitespace($row);
         return $row;
     }
@@ -466,7 +482,7 @@ class ParseSizePatternsAPI
     {
         $term_nouns = array("height", "length", "width", "diameter", "in_diameter", "wingspan", "thickness");
         $term_key = $body_part_key + 1;
-        if($term_noun = $words[$term_key]) {
+        if($term_noun = @$words[$term_key]) {
             if(in_array($term_noun, $term_nouns)) return $term_key;
         }
     }
