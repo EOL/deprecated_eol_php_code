@@ -171,6 +171,7 @@ class ParseSizePatternsAPI
                 $main['row'] = $orig_row;
                 // print_r($words); print_r($main); echo("\n$row\n"); //exit;
                 $x = array();
+                $x['SOURCE'] = $this->resource_name . " - " . $this->pdf_id;
                 $x['row'] = $main['row'];
                 $x['pattern'] = $main['pattern'];
                 // $x['search body_part'] = $body_part;
@@ -263,6 +264,7 @@ class ParseSizePatternsAPI
             $main['row'] = $orig_row;
             // print_r($words); print_r($main); echo("\n$row\n"); //exit;
             $x = array();
+            $x['SOURCE'] = $this->resource_name . " - " . $this->pdf_id;
             $x['row'] = $main['row'];
             $x['pattern'] = $main['pattern'];
 
@@ -462,6 +464,7 @@ class ParseSizePatternsAPI
                 $main['row'] = $orig_row;
                 // print_r($words); print_r($main); echo("\n$row\n"); //exit;
                 $x = array();
+                $x['SOURCE'] = $this->resource_name . " - " . $this->pdf_id;
                 $x['row'] = $main['row'];
                 $x['pattern'] = $main['pattern'];
 
@@ -582,6 +585,27 @@ class ParseSizePatternsAPI
             }
         }
         return $final;
+    }
+    function write_input_output_report_for_Jen($size_patterns, $sciname)
+    {   /*Array(
+            [0] => Array(
+                    [SOURCE] => NAF - 15406
+                    [row] => Stromata consisting of a sterile stem and a subglobose fertile head; stem very slender, 2-8 cm. long, yellowish; head 5-8X4mm., gold en -yellow, darker with age, roughened, by the prominent necks ; perithecia ovoid, immersed or partially immersed ; asci cylindric, 6.5-7 /i thick; spores filiform, many-septate, hyaline, finally separating into segments 6-8 " long.
+                    [pattern] => 1st
+                    [Body_Part_term] => stem
+                    [number_or_number_range] => 2-8
+                    [units_term] => cm.
+                    [dimension_term] => long
+                )
+        )*/
+        // print_r($size_patterns); exit("\nx\n");
+        $filename = CONTENT_RESOURCE_LOCAL_PATH."reports/size_patterns_".date("Y_m_d").".txt";
+        $WRITE = fopen($filename, "a"); //initialize
+        foreach($size_patterns as $rek) {
+            foreach($rek as $key => $val) fwrite($WRITE, "[$key] => $val"."\n\n");
+            fwrite($WRITE, "------------------------------------------------------------------------------------------\n");
+        }
+        fclose($WRITE);
     }
     private function is_one_word($str)
     {

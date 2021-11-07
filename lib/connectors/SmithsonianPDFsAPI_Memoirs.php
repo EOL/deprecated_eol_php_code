@@ -45,7 +45,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->resource_name = $resource_name;
         require_library('connectors/ParseAssocTypeAPI_Memoirs');    $this->func_Assoc      = new ParseAssocTypeAPI_Memoirs();
         require_library('connectors/ParseAssocTypeAPI');            $this->func_Assoc_orig = new ParseAssocTypeAPI($resource_name);
-        require_library('connectors/ParseSizePatternsAPI');         $this->func_Size       = new ParseSizePatternsAPI();
+        require_library('connectors/ParseSizePatternsAPI');         $this->func_Size       = new ParseSizePatternsAPI($resource_name);
         $this->func_Size->load_mappings();
     }
     function archive_builder_finalize() { $this->archive_builder->finalize(true); }
@@ -692,11 +692,12 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
 
                     // /* SizePatterns
                     if($size_patterns = $this->func_Size->parse_size_patterns($rec['body'], $pdf_id, $orig_tmp)) {
+                        $this->func_Size->write_input_output_report_for_Jen($size_patterns, $rec['sciname']); //report utility only
                         $size_patterns['sciname'] = $rec['sciname']; //just for debug for now
                         $rec['size_patterns'] = $size_patterns;
-                        // if($GLOBALS['ENV_DEBUG']) {
+                        if($GLOBALS['ENV_DEBUG']) {
                             echo "\n---------\n"; print_r($size_patterns); echo "\n---------\n";
-                        // }
+                        }
                     }
                     // */
                     
