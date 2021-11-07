@@ -521,6 +521,7 @@ class Functions_Memoirs
             if($pos === false) {} //not found
             else { //found OK
                 //loop each char in $second, and check for upper and lower cases
+                $lower_case = 0; $upper_case = 0;
                 for($i = 0; $i <= strlen($second)-1; $i++) {
                     $char = $second[$i];
                     if(in_array($char, array(".", ",", ";", ":", "-", "(", ")", "*", "#", "!"))) continue;
