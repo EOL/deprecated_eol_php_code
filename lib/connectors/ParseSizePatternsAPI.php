@@ -632,99 +632,70 @@ class ParseSizePatternsAPI
         if(count($arr) == 1) return true;
         return false;
     }
-    function write_associations($rec, $taxon, $archive_builder, $meta, $taxon_ids, $bibliographicCitation = "") //2nd param is source taxon object
+    function write_MoF_size($rekords, $taxon, $archive_builder, $meta, $taxon_ids, $bibliographicCitation = "", $resource_id) //2nd param is source taxon object
     {   //exit("\ndito 2\n");
         $this->taxon_ids = $taxon_ids;
         $this->archive_builder = $archive_builder;
-        // print_r($rec); exit("\n111\n");
+        // print_r($rekords); //exit("\n111\n");
         /*Array(
-            [HOST] => Array(
-                    [Populus tremuloides] => 
-                    [Populus grandidentata] => 
+            [0] => Array(
+                    [SOURCE] => NAF - 15406
+                    [row] => Stromata with a slender stalk 1-2 mm. long and a globose or clavate red head ; conidia nearly ellipsoid, straight or a little curved, 3-5 X 2 m, granular within ; perithecia few, surrounding the base of the stalked stroma, sessile, globose, smooth, orange, finally partially collapsed ; asci clavate, about 80 X 13-16 /u ; spores 2-seriate, ovoid, 22-26 X 7 /«, filled with numerous oil-drops.
+                    [pattern] => 4th
+                    [number_or_number_range] => 1-2
+                    [units_term] => mm.
+                    [dimension_term] => long
                 )
-            [PARASITOID] => Array(
-                    [Cirrospilus cinctithorax] => 
-                    [Closterocerus tricinctus] => 
-                )
-            [pdf_id] => SCtZ-0614
+            [sciname] => Sphaerostilbe cinnabarina
+            [pdf_id] => 15406
         )*/
+        $sciname = $rekords['sciname']; unset($rekords['sciname']);
+        $pdf_id = $rekords['pdf_id']; unset($rekords['pdf_id']);
+        // print_r($rekords); exit("\n222\n");
         
-        // HOST(s)/HOST PLANT(s)   associationType=http://purl.obolibrary.org/obo/RO_0002454
-        // PARASITOID(s)           associationType=http://purl.obolibrary.org/obo/RO_0002209
-        
-        foreach($rec as $assoc_type => $scinames) { if($assoc_type == 'pdf_id') continue;
-            $remarks = $scinames;
-            $scinames = array_keys($scinames);
-            $associationType = self::get_assoc_type($assoc_type);
-            foreach($scinames as $target_sciname) {
-                $occurrence = $this->add_occurrence($taxon, "$taxon->scientificName $associationType");
-                $related_taxon = $this->add_taxon($target_sciname);
-                $related_occurrence = $this->add_occurrence($related_taxon, "$related_taxon->scientificName $associationType");
-                $a = new \eol_schema\Association();
-                $a->associationID = md5("$occurrence->occurrenceID $associationType $related_occurrence->occurrenceID");
-                $a->occurrenceID = $occurrence->occurrenceID;
-                $a->associationType = $associationType;
-                $a->targetOccurrenceID = $related_occurrence->occurrenceID;
-                $a->source = @$meta[$rec['pdf_id']]['dc.relation.url'];
-                $a->measurementRemarks = $remarks[$target_sciname]; //this is the while block of text
-                $a->bibliographicCitation = $bibliographicCitation;
-                // print_r($a); exit("\n-cha-\n");
-                if(!isset($this->association_ids[$a->associationID])) {
-                    $this->archive_builder->write_object_to_file($a);
-                    $this->association_ids[$a->associationID] = '';
-                }
-            }
+        // /*
+        foreach($rekords as $rek) {
+            $rec = array();
+            $rec["taxon_id"] = $taxon->taxonID;
+            $rec["catnum"] = md5(json_encode($rek));
+            $rec['measurementValue'] = $rek['number_or_number_range'];
+            $rec['measurementType'] = self::given_body_part_and_term_get_uri(@$rek['Body_Part_term'], $rek['dimension_term'], $rek); //3rd param $rek for debug only
+            if($val = $this->unit_terms[$rek['units_term']]) $rec['measurementUnit'] = $val;
+            else exit("\nUndefined unit: [".$rek['units_term']."]\n");
+            $rec['measurementRemarks'] = "$sciname. ".$rek['row'];
+            $rec['source'] = @$meta[$rec['pdf_id']]['dc.relation.url'];
+            $rec['bibliographicCitation'] = $bibliographicCitation;
+            $func = new TraitGeneric($resource_id, $archive_builder, false);
+            $func->add_string_types($rec, $rec['measurementValue'], $rec['measurementType'], "true");
+            // if($uri) $this->func->add_string_types($rex, $uri, 'http://purl.org/dc/terms/contributor', "child"); --- copied template
         }
-        return $this->taxon_ids;
+        // */
     }
-    private function add_occurrence($taxon, $identification_string)
-    {
-        $occurrence_id = md5($taxon->taxonID . $this->pdf_id . "assoc_occur" . $identification_string);
-        $o = new \eol_schema\Occurrence();
-        $o->occurrenceID = $occurrence_id;
-        $o->taxonID = $taxon->taxonID;
-        if(!isset($this->occurrence_ids[$occurrence_id])) {
-            $this->archive_builder->write_object_to_file($o);
-            $this->occurrence_ids[$occurrence_id] = '';
+    private function given_body_part_and_term_get_uri($body_part, $term, $rex) //$rex for debug only
+    {   // print_r($this->size_mapping); exit("\n222\n");
+        foreach($this->size_mapping[$body_part] as $rec) {
+            if($rec['term'] == $term) return $rec['uri'];
         }
-        return $o;
-    }
-    private function add_taxon($taxon_name)
-    {
-        /* copied template
-        $taxon_id = md5($taxon_name);
-        if(isset($this->taxon_ids[$taxon_id])) return $this->taxon_ids[$taxon_id];
-        $t = new \eol_schema\Taxon();
-        $t->taxonID = $taxon_id;
-        $t->scientificName = $taxon_name;
-        $t->order = $order;
-        $this->archive_builder->write_object_to_file($t);
-        $this->taxon_ids[$taxon_id] = $t;
-        return $t;
+        print_r($rex);
+        exit("\nInvestigate: undefined URI for body_part:[$body_part] | term:[$term]\n");
+        /*[head] => Array(
+                   [0] => Array(
+                           [term] => wide
+                           [term_noun] => width
+                           [uri] => http://eol.org/schema/HeadWidth
+                       )
+                   [1] => Array(
+                           [term] => long
+                           [term_noun] => length
+                           [uri] => http://purl.obolibrary.org/obo/OBA_VT0000038
+                       )
+                   [2] => Array(
+                           [term] => in_diameter
+                           [term_noun] => diameter
+                           [uri] => http://eol.org/schema/HeadWidth
+                       )
+               )
         */
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID         = md5($taxon_name);
-        $taxon->scientificName  = $taxon_name;
-        if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            $this->archive_builder->write_object_to_file($taxon);
-            $this->taxon_ids[$taxon->taxonID] = '';
-        }
-        return $taxon;
-    }
-    private function get_assoc_type($assoc_type)
-    {   /*
-        HOST(s)/HOST PLANT(s)   associationType=http://purl.obolibrary.org/obo/RO_0002454
-        PARASITOID(s)           associationType=http://purl.obolibrary.org/obo/RO_0002209
-        */
-        if(stripos($assoc_type, "HOST") !== false)          return "http://purl.obolibrary.org/obo/RO_0002454"; //string is found
-        if(stripos($assoc_type, "PARASITOID") !== false)    return "http://purl.obolibrary.org/obo/RO_0002209"; //string is found
-        if(in_array($assoc_type, array("On", "Found on")))  return "http://purl.obolibrary.org/obo/RO_0002454"; //DATA-1891
-        /* for "North American Flora" only --- TODO
-        if($assoc_type == "On")             return "http://purl.obolibrary.org/obo/RO_0002454";
-        elseif($assoc_type == "Found on")   return "http://purl.obolibrary.org/obo/RO_0002454";
-        */
-        exit("\n-----\nUndefined association type (SI to Zoology Botany): [$assoc_type]\n-----\n");
-        return false;
     }
 }
 ?>
