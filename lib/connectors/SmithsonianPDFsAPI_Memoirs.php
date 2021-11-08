@@ -699,6 +699,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                             echo "\n---------\n"; print_r($size_patterns); echo "\n---------\n";
                         }
                     }
+                    // else exit("\n[$this->resource_name] no size patterns\n");
                     // */
                     
                 } //print_r($rec); exit;

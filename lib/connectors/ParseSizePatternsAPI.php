@@ -614,7 +614,7 @@ class ParseSizePatternsAPI
                 )
         )*/
         // print_r($size_patterns); exit("\nx\n");
-        $filename = CONTENT_RESOURCE_LOCAL_PATH."reports/size_patterns_".$this->resource_name."_".date("Y_m_d").".txt";
+        $filename = CONTENT_RESOURCE_LOCAL_PATH."reports/size_patterns_".date("Y_m_d").".txt";
         $WRITE = fopen($filename, "a"); //initialize
         foreach($size_patterns as $rek) {
             foreach($rek as $key => $val) {
