@@ -414,7 +414,6 @@ class ParseSizePatternsAPI
         }
         return array_keys($final);
     }
-    
     private function parse_row_pattern_2($row)
     {   /*
         1st: [Body Part term] [up to 10 intervening words and no sentence break] [number or number range] [units term] [dimension term]
@@ -473,7 +472,6 @@ class ParseSizePatternsAPI
             }
             else break;
 
-
             if($body_part_key < $term_key && $term_key < $number_key && $number_key < $unit_key) {
                 $main['pattern'] = '2nd';
                 $main['row'] = $orig_row;
@@ -495,7 +493,6 @@ class ParseSizePatternsAPI
         } //================================================= end foreach()
         if($final) return $final;
     }
-    
     private function get_dimension_term_noun($words, $body_part_key)
     {
         $term_nouns = array("height", "length", "width", "diameter", "in_diameter", "wingspan", "thickness");
@@ -673,7 +670,7 @@ class ParseSizePatternsAPI
     }
     private function given_body_part_and_term_get_uri($body_part, $term, $rex) //$rex for debug only
     {   // print_r($this->size_mapping); exit("\n222\n");
-        foreach($this->size_mapping[$body_part] as $rec) {
+        foreach($this->size_mapping[strtolower($body_part)] as $rec) {
             if($rec['term'] == $term) return $rec['uri'];
         }
         print_r($rex);
