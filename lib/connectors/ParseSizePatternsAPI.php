@@ -660,7 +660,7 @@ class ParseSizePatternsAPI
             if($val = $this->unit_terms[$rek['units_term']]) $rec['measurementUnit'] = $val;
             else exit("\nUndefined unit: [".$rek['units_term']."]\n");
             $rec['measurementRemarks'] = "$sciname. ".$rek['row'];
-            $rec['source'] = @$meta[$rec['pdf_id']]['dc.relation.url'];
+            $rec['source'] = @$meta[$pdf_id]['dc.relation.url'];
             $rec['bibliographicCitation'] = $bibliographicCitation;
             $func = new TraitGeneric($resource_id, $archive_builder, false);
             $func->add_string_types($rec, $rec['measurementValue'], $rec['measurementType'], "true");
