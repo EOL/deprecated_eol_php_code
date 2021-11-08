@@ -119,6 +119,7 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 -------------------------------
 
 BHL Fungi:
+environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"15406", "subjects":"Description|Uses"}'
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"'$resource_ID'", "subjects":"Description|Uses"}'
 BHL Plants:
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"15422", "subjects":"Description|Uses", "group":"BHL_plants"}'

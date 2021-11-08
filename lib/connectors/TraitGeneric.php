@@ -20,10 +20,11 @@ minimum cols on a child record in MoF
 */
 class TraitGeneric
 {
-    function __construct($resource_id, $archive_builder)
+    function __construct($resource_id, $archive_builder, $is_long_type = true)
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
+        $this->is_long_type = $is_long_type;
     }
     public function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
@@ -59,7 +60,8 @@ class TraitGeneric
         }
         else $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
 
-        $m = new \eol_schema\MeasurementOrFact_specific();
+        if($this->is_long_type) $m = new \eol_schema\MeasurementOrFact_specific();
+        else                    $m = new \eol_schema\MeasurementOrFact();
         $m->occurrenceID       = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
         $m->measurementType    = $measurementType;
@@ -108,7 +110,8 @@ class TraitGeneric
     {
         if($val = @$rec['occur']['occurrenceID']) $occurrence_id = $val;
         else                                      $occurrence_id = md5($taxon_id . '_' . $catnum);
-        $o = new \eol_schema\Occurrence_specific();
+        if($this->is_long_type) $o = new \eol_schema\Occurrence_specific();
+        else                    $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
 

@@ -197,11 +197,19 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         if(in_array($this->param['resource_id'], array("10088_5097_ENV", "10088_6943_ENV", "118935_ENV", "120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV", "120083_ENV", 
             "118237_ENV", "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV",
             "120602_ENV", "119187_ENV", "118978_ENV", "118941_ENV", "119520_ENV", "119188_ENV",
-            "15423_ENV", "91155_ENV"))) $excluded_rowtypes = array('http://eol.org/schema/media/document');
-        elseif($this->param['resource'] == 'all_BHL') $excluded_rowtypes = array('http://eol.org/schema/media/document');
-        if(stripos($this->param['resource_id'], "SCtZ-") !== false) $excluded_rowtypes = array('http://eol.org/schema/media/document'); //string is found
-        elseif(stripos($this->param['resource_id'], "scb-") !== false)  $excluded_rowtypes = array('http://eol.org/schema/media/document'); //string is found
-        elseif(stripos($this->param['resource_id'], "scz-") !== false)  $excluded_rowtypes = array('http://eol.org/schema/media/document'); //string is found
+            "15423_ENV", "91155_ENV"))) {
+            $excluded_rowtypes = array('http://eol.org/schema/media/document');
+            $excluded_rowtypes[] = 'http://rs.tdwg.org/dwc/terms/measurementorfact'; //to exclude the MoF size patterns from xxx.tar.gz
+        }
+        elseif($this->param['resource'] == 'all_BHL') {
+            $excluded_rowtypes = array('http://eol.org/schema/media/document');
+            $excluded_rowtypes[] = 'http://rs.tdwg.org/dwc/terms/measurementorfact'; //to exclude the MoF size patterns from xxx.tar.gz
+        }
+        /* these 3 also to exclude the MoF size patterns from xxx.tar.gz --- if ever 
+           added 'http://rs.tdwg.org/dwc/terms/measurementorfact' */
+        if(stripos($this->param['resource_id'], "SCtZ-") !== false) $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //string is found
+        elseif(stripos($this->param['resource_id'], "scb-") !== false)  $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //string is found
+        elseif(stripos($this->param['resource_id'], "scz-") !== false)  $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //string is found
         
         
         // WoRMS -> doesn't create a new DwCA. But MoF is too big, memory issue.

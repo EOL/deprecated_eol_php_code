@@ -196,7 +196,7 @@ class DwCA_Utility
                 // */
                 
             }
-            else echo "\nun-processed: [$row_type]: ".@$this->extensions[$row_type]."\n";
+            else echo "\nun-processed:A [$row_type]: ".@$this->extensions[$row_type]."\n";
         }
         
         // /* ================================= start of customization =================================
@@ -440,7 +440,7 @@ class DwCA_Utility
                     
                     self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
                 }
-                else echo "\nun-processed: [$row_type]: ".@$this->extensions[$row_type]."\n";
+                else echo "\nun-processed:B [$row_type]: ".@$this->extensions[$row_type]."\n";
             }
             // remove temp dir
             recursive_rmdir($temp_dir); echo ("\n temporary directory removed: " . $temp_dir);

@@ -119,6 +119,13 @@ class Environments2EOLfinal extends ContributorsMapAPI
                 self::process_table($meta, 'create extension', 'document');
             }
             else exit("\nditox 100\n");
+            
+            // /* this will populate MoF xxx_ENV.tar.gz with MoF (size patterns) from xxx.tar.gz 
+            if($tbl = @$tables['http://rs.tdwg.org/dwc/terms/measurementorfact']) {
+                $meta = $tbl[0];
+                self::process_table($meta, 'create extension', 'measurementorfact_specific');
+            }
+            // */
         }
         
         // */
@@ -410,7 +417,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
     */
     private function process_table($meta, $what, $class) //a generic method to populate an extension.
     {   //print_r($meta);
-        echo "\nprocess_table [$what]\n";
+        echo "\nprocess_table [$what][$class] xyz\n";
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
