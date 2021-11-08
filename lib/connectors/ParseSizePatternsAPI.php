@@ -157,7 +157,8 @@ class ParseSizePatternsAPI
             else break;
 
             // /*
-            if($body_part_key = self::get_Body_Part_term_v2($words, $number_key, $main['dimension_term'])) {
+            $body_part_key = self::get_Body_Part_term_v2($words, $number_key, $main['dimension_term']);
+            if($body_part_key > 0 || $body_part_key === 0) { //makes it pattern 1
                 $main['Body_Part_term'] = $words[$body_part_key];
                 $main['Body_Part_term_key'] = $body_part_key;
                 // $main['Body_Part_term_option'] = '2nd choice'; //debug only
@@ -233,7 +234,8 @@ class ParseSizePatternsAPI
             }
             else break;
 
-            if($body_part_key = self::get_Body_Part_term_v2($words, $number_key, $main['dimension_term'])) {} // what makes it a pattern 1
+            $body_part_key = self::get_Body_Part_term_v2($words, $number_key, $main['dimension_term']);
+            if($body_part_key > 0 || $body_part_key === 0) {} // what makes it a pattern 1
             elseif($number_key == 0) { //what makes it a pattern 3 per Jen
                 /* 3rd: newline [number or number range] [units term] [dimension term] */
                 $main['pattern'] = '3rd';
@@ -305,9 +307,21 @@ class ParseSizePatternsAPI
             $number_key--;
             $body_part_key = $number_key;
             if($body_part_str = @$words[$body_part_key]) {
+                
                 if(in_array($body_part_str, $sentence_breaks)) return false;
                 $arr = self::get_body_part_or_parts_for_a_term($dimension_term);
-                if(in_array($body_part_str, $arr)) return $body_part_key;
+                
+                /*
+                if($body_part_str == "Plant") {
+                    print_r($words);
+                    print_r($arr);
+                    if(in_array(strtolower($body_part_str), $arr)) echo "\nfound naman[$body_part_key]\n";
+                    else echo "\nnot found\n";
+                    // exit;
+                }
+                */
+                
+                if(in_array(strtolower($body_part_str), $arr)) return $body_part_key;
             }
             else return false;
         }
@@ -324,6 +338,7 @@ class ParseSizePatternsAPI
         $unit_key = $term_key - 1;
         if($unit_str = @$words[$unit_key]) {
             $arr = array_keys($this->unit_terms);
+            // print_r($this->unit_terms); print_r($arr); exit;
             if(in_array($unit_str, $arr)) return $unit_key;
         }
     }
@@ -544,7 +559,7 @@ class ParseSizePatternsAPI
     private function loop_tsv($what)
     {
         $options = $this->download_options;
-        // $options['expire_seconds'] = 0; //debug only --- un-comment when source TSV files are updated
+        $options['expire_seconds'] = 60*60*12; //12 hrs //0; //debug only --- un-comment when source TSV files are updated
         $options['cache'] = 1;
         if($local_tsv = Functions::save_remote_file_to_local($this->tsv[$what], $options)) {
             $arr = file($local_tsv);
