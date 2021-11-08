@@ -339,7 +339,7 @@ class ParseSizePatternsAPI
         if($unit_str = @$words[$unit_key]) {
             $arr = array_keys($this->unit_terms);
             // print_r($this->unit_terms); print_r($arr); exit;
-            if(in_array($unit_str, $arr)) return $unit_key;
+            if(in_array(strtolower($unit_str), $arr)) return $unit_key;
         }
     }
     private function get_units_term($words)
@@ -501,7 +501,7 @@ class ParseSizePatternsAPI
         $term_nouns = array("height", "length", "width", "diameter", "in_diameter", "wingspan", "thickness");
         $term_key = $body_part_key + 1;
         if($term_noun = @$words[$term_key]) {
-            if(in_array($term_noun, $term_nouns)) return $term_key;
+            if(in_array(strtolower($term_noun), $term_nouns)) return $term_key;
         }
     }
     /*[Body Part term] [dimension term (noun form)] [up to three words and/or a colon and/or a dash] [number or number range] [units term]*/
@@ -521,7 +521,7 @@ class ParseSizePatternsAPI
         $unit_key = $number_key + 1;
         if($unit_str = @$words[$unit_key]) {
             $arr = array_keys($this->unit_terms);
-            if(in_array($unit_str, $arr)) return $unit_key;
+            if(in_array(strtolower($unit_str), $arr)) return $unit_key;
         }
     }
     private function scan_words_get_body_part_positions($words, $row) //2nd param $row is just for debug
