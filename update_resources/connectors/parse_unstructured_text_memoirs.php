@@ -245,6 +245,12 @@ assoc true gnfinder
 91362_species	    Tue 2021-10-26 10:57:14 PM	{                                "media_resource.tab":61,                           "taxon.tab":61, "time_elapsed":{"sec":52.6, "min":0.88, "hr":0.01}}
 91362_species_ENV	Tue 2021-10-26 10:57:56 PM	{                 "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":267, "taxon.tab":61, "time_elapsed":{"sec":11.13, "min":0.19, "hr":0}}
 91362_resource	    Tue 2021-10-26 10:57:59 PM	{"assoc.tab":604, "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":1022,"taxon.tab":821, "time_elapsed":{"sec":3.71, "min":0.06, "hr":0}}
+after size patterns:
+91362	            Tue 2021-11-09 05:46:23 AM	{"assoc.tab":604,                                         "occur.tab":755,           "taxon.tab":796, "time_elapsed":{"sec":3.88, "min":0.06, "hr":0}}
+91362_species	    Tue 2021-11-09 05:46:39 AM	{                                "media_resource.tab":61,                            "taxon.tab":61, "time_elapsed":{"sec":1.26, "min":0.02, "hr":0}}
+91362_species_ENV	Tue 2021-11-09 05:47:18 AM	{                 "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":267,  "taxon.tab":61, "time_elapsed":{"sec":8.71, "min":0.15, "hr":0}}
+91362_resource	    Tue 2021-11-09 05:47:22 AM	{"assoc.tab":604, "MoF.tab":267, "media_resource.tab":61, "occur_specific.tab":1022, "taxon.tab":821, "time_elapsed":{"sec":3.77, "min":0.06, "hr":0}}
+
 -------------
 NorthAmericanFlora	Thu 2021-08-12 05:42:08 AM	{"assoc.tab":4829, "MoF.tab":3199, "media.tab":770, "occurrence.tab":8585, "taxon.tab":6198, "time_elapsed":{"sec":43.78, "min":0.73, "hr":0.01}}
 NorthAmericanFlora	Mon 2021-10-11 10:23:50 AM	{"assoc.tab":4821, "MoF.tab":3339, "media.tab":794, "occurrence.tab":8724, "taxon.tab":6226, "time_elapsed":{"sec":17.61, "min":0.29, "hr":0}}
@@ -263,6 +269,8 @@ NorthAmericanFlora	Fri 2021-10-22 01:44:07 AM	{"assoc.tab":5648, "MoF.tab":3338,
 assoc true gnfinder
 NorthAmericanFlora	Wed 2021-10-27 04:28:40 AM	{"assoc.tab":5695, "MoF.tab":3338, "media.tab":795, "occurrence.tab":9609, "taxon.tab":7111, "time_elapsed":{"sec":40.25, "min":0.67, "hr":0.01}}
 NorthAmericanFlora	Wed 2021-10-27 10:11:37 PM	{"assoc.tab":5695, "MoF.tab":3338, "media.tab":795, "occurrence.tab":9609, "taxon.tab":7111, "time_elapsed":{"sec":17.14, "min":0.29, "hr":0}}
+after size patterns:
+NorthAmericanFlora	Tue 2021-11-09 05:47:47 AM	{"assoc.tab":5695, "MoF.tab":3674, "media.tab":795, "occurrence.tab":9945, "taxon.tab":7111, "time_elapsed":{"sec":17.34, "min":0.29, "hr":0}}
 
 ---------- start FUNGI list: ----------
 "15404", "15405", "15406", "15407", "15408", "15409", "15410", "15411", "15412", 
