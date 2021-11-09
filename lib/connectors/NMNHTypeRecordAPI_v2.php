@@ -492,9 +492,11 @@ class NMNHTypeRecordAPI_v2
             else self::add_string_types($rec, $typeStatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus");
             
             //new child measurements per Katja: https://eol-jira.bibalex.org/browse/DATA-1711?focusedCommentId=62350&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62350
-            if($val = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID']) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/occurrenceID");
             if($val = $rec['http://rs.tdwg.org/dwc/terms/institutionID']) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/institutionID");
+            /* removed per Jen: which is valid: https://eol-jira.bibalex.org/browse/DATA-1711?focusedCommentId=66175&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66175
+            if($val = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID']) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/occurrenceID");
             if($val = $rec['http://rs.tdwg.org/dwc/terms/collectionCode']) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/collectionCode");
+            */
             //end new child measurements ------------------------------
             
             if($val = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]) self::add_string_types($rec, self::get_uri($val, "collectionCode"), "http://rs.tdwg.org/dwc/terms/collectionID");
