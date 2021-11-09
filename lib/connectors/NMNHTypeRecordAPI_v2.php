@@ -467,8 +467,12 @@ class NMNHTypeRecordAPI_v2
             elseif(in_array($collectionCode, array_keys($coll2))) $rec["source"] = "http://collections.mnh.si.edu/search/" . $coll2[$collectionCode] . "/?qt=" . str_replace(" ", "+", $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
         }
         else {
+            /* commented Nov 9, 2021 by Eli
             print_r($rec);
             echo "\nundefined collectionCode [$collectionCode]\n"; exit;
+            */
+            if(substr($rec['http://rs.tdwg.org/dwc/terms/occurrenceID'],0,5) == 'http:') $rec["source"] = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            @$this->debug['source val taken from occurrenceID']++;
         }
         $institutionCode_uri = "http://biocol.org/urn:lsid:biocol.org:col:34871";
 
