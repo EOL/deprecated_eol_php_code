@@ -652,6 +652,7 @@ class ParseSizePatternsAPI
         
         // /*
         foreach($rekords as $rek) {
+            if($rek['pattern'] == '4th') continue; //exclude 4th pattern from resource. But include it in input-output report.
             $rec = array();
             $rec["taxon_id"] = $taxon->taxonID;
             $rec["catnum"] = md5(json_encode($rek));
