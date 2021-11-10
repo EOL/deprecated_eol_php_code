@@ -271,6 +271,8 @@ NorthAmericanFlora	Wed 2021-10-27 04:28:40 AM	{"assoc.tab":5695, "MoF.tab":3338,
 NorthAmericanFlora	Wed 2021-10-27 10:11:37 PM	{"assoc.tab":5695, "MoF.tab":3338, "media.tab":795, "occurrence.tab":9609, "taxon.tab":7111, "time_elapsed":{"sec":17.14, "min":0.29, "hr":0}}
 after size patterns:
 NorthAmericanFlora	Tue 2021-11-09 05:47:47 AM	{"assoc.tab":5695, "MoF.tab":3674, "media.tab":795, "occurrence.tab":9945, "taxon.tab":7111, "time_elapsed":{"sec":17.34, "min":0.29, "hr":0}}
+remove pattern 4th:
+NorthAmericanFlora	Tue 2021-11-09 08:47:44 PM	{"assoc.tab":5695, "MoF.tab":3599, "media.tab":795, "occurrence.tab":9870, "taxon.tab":7111, "time_elapsed":{"sec":17.39, "min":0.29, "hr":0}}
 
 ---------- start FUNGI list: ----------
 "15404", "15405", "15406", "15407", "15408", "15409", "15410", "15411", "15412", 

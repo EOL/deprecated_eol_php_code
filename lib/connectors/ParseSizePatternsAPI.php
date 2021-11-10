@@ -110,6 +110,13 @@ class ParseSizePatternsAPI
         $row = str_ireplace("head_bodies ", "head_body ", $row); //manual
         $row = str_ireplace("head-bodies ", "head-body ", $row); //manual
         $row = str_ireplace("heads ", "head ", $row); //manual
+        //Pluralized:
+        $row = str_ireplace("capsules ", "capsule ", $row);
+        $row = str_ireplace("fruits ", "fruit ", $row);
+        $row = str_ireplace("achenes ", "achene ", $row);
+        $row = str_ireplace("berries ", "berry ", $row);
+        $row = str_ireplace("drupes ", "drupe ", $row);
+        $row = str_ireplace("samaras ", "samara ", $row);
         //others
         $row = str_replace(";", " ; ", $row); //manual
         $row = str_replace(",", " , ", $row); //manual
