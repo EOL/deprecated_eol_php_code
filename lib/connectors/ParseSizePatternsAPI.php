@@ -50,6 +50,8 @@ class ParseSizePatternsAPI
         // exit("\n[$sciname]\n-end assoc-\n");
         // return array('sizes' => $sizes);
         // if(isset($this->debug)) print_r($this->debug);
+        
+        $sizes = self::make_unique($sizes);
         return $sizes;
     }
     private function get_size_patterns($arr)
@@ -768,6 +770,39 @@ class ParseSizePatternsAPI
                        )
                )
         */
+    }
+    private function make_unique($sizes)
+    {   //print_r($sizes); exit;
+        /*Array(
+            [0] => Array(
+                    [SOURCE] => NAF - 15425
+                    [row] => Plants 2-3 mm. high, pale green, hyaline; stems mostly simple; leaves 3-5 pairs, the upper much larger, 1-1.5 mm. long, very thin and soft, oblong-lanceolate, acute, entire, ecostate; leaf-cells oblong-hexagonal, about 30 X 45-60 m, very thin-walled, a single row at the margin narrow and elongated; dioicous; sporophyte terminal; seta 1-2 mm. long; capsule oblong-ovoid, erect and symmetric; calyptra cylindric-conic, covering the beak only; operculum about 1 mm. long, long-rostrate, a little shorter than the urn; peristome normal; spores 11-15 /x in diameter, in autumn.
+                    [pattern] => 1st
+                    [Body_Part_term] => plant
+                    [number_or_number_range] => 2-3
+                    [units_term] => mm.
+                    [dimension_term] => high
+                )
+            [1] => Array(
+                    [SOURCE] => NAF - 15425
+                    [row] => Plants 2-3 mm. high, pale green, hyaline; stems mostly simple; leaves 3-5 pairs, the upper much larger, 1-1.5 mm. long, very thin and soft, oblong-lanceolate, acute, entire, ecostate; leaf-cells oblong-hexagonal, about 30 X 45-60 m, very thin-walled, a single row at the margin narrow and elongated; dioicous; sporophyte terminal; seta 1-2 mm. long; capsule oblong-ovoid, erect and symmetric; calyptra cylindric-conic, covering the beak only; operculum about 1 mm. long, long-rostrate, a little shorter than the urn; peristome normal; spores 11-15 /x in diameter, in autumn.
+                    [pattern] => 1st
+                    [Body_Part_term] => leaf
+                    [number_or_number_range] => 1-1.5
+                    [units_term] => mm.
+                    [dimension_term] => long
+                )
+        )*/
+        $final = array();
+        foreach($sizes as $rec) {
+            $json = json_encode($rec);
+            $md5 = md5($json);
+            if(!isset($saved[$md5])) {
+                $final[] = $rec;
+                $saved[$md5] = '';
+            }
+        }
+        return $final;
     }
 }
 ?>
