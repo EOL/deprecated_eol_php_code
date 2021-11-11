@@ -23,7 +23,7 @@ class ParseSizePatternsAPI
         */
     }
     // function parse_associations($html, $pdf_id, $orig_tmp = false) //for "HOST" "HOST PLANT" "ON" "FOUND ON" etc.
-    function parse_size_patterns($html, $pdf_id, $orig_tmp = false)
+    function parse_size_patterns($html, $pdf_id, $orig_tmp = false, $sciname)
     {
         self::initialize();
         // exit("\n[$this->resource_name]\n");
@@ -41,7 +41,6 @@ class ParseSizePatternsAPI
             [5] => Distribution : Known only from the type locality. '
             [6] => orange head 0.5-1 mm. in diameter; conidia ellipsoid, hyaline, 5-6X 2/^; perithecia in
         )*/
-        $sciname = $arr[0]; //shouldn't be used bec it is uncleaned e.g. "Periploca orichalcella (Clemens), new combination"
         $sizes = self::get_size_patterns($arr); //print_r($ret); exit("\nstop muna\n");
         /* copied template
         if($this->resource_name == "NAF") $ret = self::get_relevant_blocks_using_On_FoundOn($arr, $ret, $orig_tmp); //DATA-1891
@@ -51,7 +50,7 @@ class ParseSizePatternsAPI
         // return array('sizes' => $sizes);
         // if(isset($this->debug)) print_r($this->debug);
         
-        $sizes = self::make_unique($sizes);
+        $sizes = self::make_unique($sizes, $sciname);
         return $sizes;
     }
     private function get_size_patterns($arr)
@@ -771,7 +770,7 @@ class ParseSizePatternsAPI
                )
         */
     }
-    private function make_unique($sizes)
+    private function make_unique($sizes, $sciname)
     {   //print_r($sizes); exit;
         /*Array(
             [0] => Array(
@@ -795,11 +794,12 @@ class ParseSizePatternsAPI
         )*/
         $final = array();
         foreach($sizes as $rec) {
+            $rec['SOURCE'] .= " - $sciname";
             $json = json_encode($rec);
             $md5 = md5($json);
-            if(!isset($saved[$md5])) {
+            if(!isset($this->saved[$md5])) {
                 $final[] = $rec;
-                $saved[$md5] = '';
+                $this->saved[$md5] = '';
             }
         }
         return $final;

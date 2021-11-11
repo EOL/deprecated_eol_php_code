@@ -692,7 +692,7 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     // */
 
                     // /* SizePatterns
-                    if($size_patterns = $this->func_Size->parse_size_patterns($rec['body'], $pdf_id, $orig_tmp)) {
+                    if($size_patterns = $this->func_Size->parse_size_patterns($rec['body'], $pdf_id, $orig_tmp, $rec['sciname'])) { //4th param needed for uniqueness
                         $this->func_Size->write_input_output_report_for_Jen($size_patterns, $rec['sciname']); //report utility only
                         $size_patterns['sciname'] = $rec['sciname']; //just for debug for now
                         $rec['size_patterns'] = $size_patterns;
