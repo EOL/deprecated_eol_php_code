@@ -97,6 +97,15 @@ class ParseSizePatternsAPI
         $row = str_ireplace("in diameter", "in_diameter", $row);
         $row = str_ireplace("snout vent", "snout_vent", $row);
         $row = str_ireplace("head body", "head_body", $row);
+        $row = str_ireplace("in greatest width", "in_greatest_width", $row);
+        
+        /*
+        [SOURCE] => NAF - 15423
+        [row] => Thallus bright-green, more or less phosphorescent in appearance, plane, mostly 0.5-1 cm. long and 2-3 mm. wide, 
+        the individual branches mostly 1-1,5 mm. wide;
+        */
+        $row = str_ireplace("individual b", "individual_b", $row); //so it can be excluded
+        
         // so it can be ignored:
         $row = str_ireplace("part of a ", "part_of_a_", $row);
         //Pluralized:
@@ -158,9 +167,9 @@ class ParseSizePatternsAPI
 
         $this->eli = false;
         /* debug only
-        if(substr($row,0,28) == "Shortly caulescent , 4-5 cm.") {
+        if(substr($row,0,27) == "Archegonial thallus cuneate") {
             print_r($words); print_r($positions);
-            // exit("\n$row\n");
+            exit("\n$row\n");
             $this->eli = true;
         }
         */
@@ -326,7 +335,7 @@ class ParseSizePatternsAPI
     }
     private function scan_words_get_dimension_term_positions($words, $row, $pattern_no = 1) //2nd param $row is just for debug
     {
-        if($pattern_no == 1) $dimension_terms = array("high", "long", "wide", "in_diameter", "wingspan", "thick");
+        if($pattern_no == 1) $dimension_terms = array("high", "long", "wide", "in_diameter", "wingspan", "thick", "in_greatest_width");
         elseif($pattern_no == 3) $dimension_terms = array("high", "long", "wingspan");
         else exit("\nUn-initialized pattern\n");
         $i = -1;
@@ -387,7 +396,7 @@ class ParseSizePatternsAPI
             else break; //meaning end of line
         }
         if(count($final) >= 2) {
-            // print_r($words); print_r($final); echo "-elix1-"; //exit; //debug only
+            // print_r($words); print_r($final); echo "-elix1-"; exit; //debug only
             return true;
         }
     }
