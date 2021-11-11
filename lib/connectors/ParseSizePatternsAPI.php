@@ -9,6 +9,7 @@ class ParseSizePatternsAPI
         $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->tsv['part_and_dimension_mapping'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/TextMining/part_and_dimension_mapping.txt";
         $this->tsv['unit_terms'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/TextMining/unit_terms.txt";
+        $this->sentence_breaks = array(";", ":", ".");
     }
     /*#################################################################################################################################*/
     private function initialize()
@@ -68,7 +69,7 @@ class ParseSizePatternsAPI
             }
             // */
             // /* un-comment in normal operation
-            if($ret = self::use_pattern_3($row)) {  // print_r($ret); // hits per row
+            if($ret = self::use_pattern_3_4($row)) {  // print_r($ret); // hits per row
                 $final = array_merge($final, $ret);
             }
             // */
@@ -83,9 +84,9 @@ class ParseSizePatternsAPI
     {   
         if($ret = self::parse_row_pattern_1($row)) return $ret;
     }
-    private function use_pattern_3($row)
+    private function use_pattern_3_4($row)
     {   
-        if($ret = self::parse_row_pattern_3($row)) return $ret;
+        if($ret = self::parse_row_pattern_3_4($row)) return $ret;
     }
     private function use_pattern_2($row)
     {   
@@ -93,23 +94,25 @@ class ParseSizePatternsAPI
     }
     private function format_row($row)
     {
-        $row = str_ireplace("in diameter", "in_diameter", $row); //manual
-        $row = str_ireplace("snout vent", "snout_vent", $row); //manual
-        $row = str_ireplace("head body", "head_body", $row); //manual
+        $row = str_ireplace("in diameter", "in_diameter", $row);
+        $row = str_ireplace("snout vent", "snout_vent", $row);
+        $row = str_ireplace("head body", "head_body", $row);
+        // so it can be ignored:
+        $row = str_ireplace("part of a ", "part_of_a_", $row);
         //Pluralized:
-        $row = str_ireplace("stems ", "stem ", $row); //manual
-        $row = str_ireplace("plants ", "plant ", $row); //manual
-        $row = str_ireplace("bodies ", "body ", $row); //manual
-        $row = str_ireplace("leaves ", "leaf ", $row); //manual
-        $row = str_ireplace("laminas ", "lamina ", $row); //manual
-        $row = str_ireplace("rhizomes ", "rhizome ", $row); //manual
-        $row = str_ireplace("trunks ", "trunk ", $row); //manual
-        $row = str_ireplace("carapaces ", "carapace ", $row); //manual
-        $row = str_ireplace("snout_vents ", "snout_vent ", $row); //manual
-        $row = str_ireplace("snout-vents ", "snout-vent ", $row); //manual
-        $row = str_ireplace("head_bodies ", "head_body ", $row); //manual
-        $row = str_ireplace("head-bodies ", "head-body ", $row); //manual
-        $row = str_ireplace("heads ", "head ", $row); //manual
+        $row = str_ireplace("stems ", "stem ", $row);
+        $row = str_ireplace("plants ", "plant ", $row);
+        // $row = str_ireplace("bodies ", "body ", $row);                   //ignored
+        $row = str_ireplace("leaves ", "leaf ", $row);
+        // $row = str_ireplace("laminas ", "lamina ", $row);                //ignored
+        $row = str_ireplace("rhizomes ", "rhizome ", $row);
+        $row = str_ireplace("trunks ", "trunk ", $row);
+        $row = str_ireplace("carapaces ", "carapace ", $row);
+        $row = str_ireplace("snout_vents ", "snout_vent ", $row);
+        $row = str_ireplace("snout-vents ", "snout-vent ", $row);
+        $row = str_ireplace("head_bodies ", "head_body ", $row);
+        $row = str_ireplace("head-bodies ", "head-body ", $row);
+        $row = str_ireplace("heads ", "head ", $row);
         //Pluralized:
         $row = str_ireplace("capsules ", "capsule ", $row);
         $row = str_ireplace("fruits ", "fruit ", $row);
@@ -117,10 +120,25 @@ class ParseSizePatternsAPI
         $row = str_ireplace("berries ", "berry ", $row);
         $row = str_ireplace("drupes ", "drupe ", $row);
         $row = str_ireplace("samaras ", "samara ", $row);
+        //Pluralized:
+        $row = str_ireplace("individuals ", "individual ", $row);
+        $row = str_ireplace("specimens ", "specimen ", $row);
         //others
-        $row = str_replace(";", " ; ", $row); //manual
-        $row = str_replace(",", " , ", $row); //manual
-        $row = str_replace(":", " : ", $row); //manual
+        $row = str_replace(";", " ; ", $row);
+        $row = str_replace(",", " , ", $row);
+        $row = str_replace(":", " : ", $row);
+        
+        // Plants 1-1.5 cm. high; stems short E.J. Phyle
+        /* don't use this
+        $row = str_ireplace(".", " . ", $row);
+        $row = str_ireplace(" mm .", " mm.", $row);
+        $row = str_ireplace(" cm .", " cm.", $row);
+        $row = str_ireplace(" m .", " m.", $row);
+        $row = str_ireplace(" in .", " in.", $row);
+        $row = str_ireplace(" ft .", " ft.", $row);
+        $row = str_ireplace(" dm .", " dm.", $row);
+        */
+        
         $row = Functions::remove_whitespace($row);
         return $row;
     }
@@ -137,6 +155,16 @@ class ParseSizePatternsAPI
 
         if($positions = self::scan_words_get_dimension_term_positions($words, $row)) {}
         else return;
+
+        $this->eli = false;
+        /* debug only
+        if(substr($row,0,28) == "Shortly caulescent , 4-5 cm.") {
+            print_r($words); print_r($positions);
+            // exit("\n$row\n");
+            $this->eli = true;
+        }
+        */
+
         /*Array(  --- $positions
             [0] => 16 - long
             [1] => 18 - wide
@@ -155,24 +183,28 @@ class ParseSizePatternsAPI
                 $main['units_term'] = $words[$unit_key];
                 $main['units_term_key'] = $unit_key;
             }
-            else break;
-
+            else continue;
+            if($this->eli) echo "\npass 100\n";
             if($number_key = self::get_number_or_number_range($words, $unit_key)) {
                 $main['number_or_number_range'] = $words[$number_key];
                 $main['number_or_number_range_key'] = $number_key;
             }
-            else break;
+            else continue;
+            if($this->eli) echo "\npass 200\n";
 
             // /*
-            $body_part_key = self::get_Body_Part_term_v2($words, $number_key, $main['dimension_term']);
+            $body_part_key = self::get_Body_Part_term_v2($words, $number_key, $main['dimension_term']); //1st pattern
+            if($this->eli) echo "\nbody_part_key: [$body_part_key][$term_key]\n";
+
             if($body_part_key > 0 || $body_part_key === 0) { //makes it pattern 1
                 $main['Body_Part_term'] = $words[$body_part_key];
                 $main['Body_Part_term_key'] = $body_part_key;
                 // $main['Body_Part_term_option'] = '2nd choice'; //debug only
             }
-            else break;
+            else continue;
             // */
-
+            if($this->eli) echo("\npass 300\n");
+            
             /* [Body Part term] [up to 10 intervening words and no sentence break] [number or number range] [units term] [dimension term] */
             if($main['Body_Part_term_key'] < $number_key && $number_key < $unit_key && $unit_key < $term_key) {
                 $main['pattern'] = '1st';
@@ -208,7 +240,7 @@ class ParseSizePatternsAPI
         else return false;
         */
     }
-    private function parse_row_pattern_3($row)
+    private function parse_row_pattern_3_4($row)
     {   /* newline [number or number range] [units term] [dimension term] */
         $main = array();
         $orig_row = $row;
@@ -233,15 +265,15 @@ class ParseSizePatternsAPI
                 $main['units_term'] = $words[$unit_key];
                 $main['units_term_key'] = $unit_key;
             }
-            else break;
+            else continue;
 
             if($number_key = self::get_number_or_number_range($words, $unit_key)) {
                 $main['number_or_number_range'] = $words[$number_key];
                 $main['number_or_number_range_key'] = $number_key;
             }
-            else break;
+            else continue;
 
-            $body_part_key = self::get_Body_Part_term_v2($words, $number_key, $main['dimension_term']);
+            $body_part_key = self::get_Body_Part_term_v2($words, $number_key, $main['dimension_term']); //3rd pattern
             if($body_part_key > 0 || $body_part_key === 0) {} // what makes it a pattern 1
             elseif($number_key == 0) { //what makes it a pattern 3 per Jen
                 /* 3rd: newline [number or number range] [units term] [dimension term] */
@@ -252,7 +284,7 @@ class ParseSizePatternsAPI
                 /* 4th: [zero to 5 (any) words] [number or number range] [units term] [dimension term] */
                 $main['pattern'] = '4th';
                 $fifth_word = @$words[$number_key-6];
-                if($fifth_word) break;
+                if($fifth_word) continue;
                 $final = self::proceed_pattern_3_filter_step($main, $number_key, $unit_key, $term_key, $orig_row, $final);
             }
             /* not used --- this doesn't care how many words before the number_or_number_range. It just assumes the number_or_number_range found is valid.
@@ -309,13 +341,16 @@ class ParseSizePatternsAPI
     }
     private function get_Body_Part_term_v2($words, $number_key, $dimension_term)
     {
-        $sentence_breaks = array(";");
-        for($i=1; $i <= 9; $i++) { //about 10 intervening words
+        // /* additional filter: if there is > 1 body part terms in the intervening 10-word, then ignore
+        if(self::has_more_than_1_bodypart_terms_in_intervening_words($words, $number_key, $dimension_term)) return false;
+        // */
+        
+        for($i=1; $i <= 15; $i++) { //about 10 intervening words
             $number_key--;
             $body_part_key = $number_key;
             if($body_part_str = @$words[$body_part_key]) {
                 
-                if(in_array($body_part_str, $sentence_breaks)) return false;
+                if(in_array($body_part_str, $this->sentence_breaks)) return false;
                 $arr = self::get_body_part_or_parts_for_a_term($dimension_term);
                 
                 /*
@@ -331,6 +366,29 @@ class ParseSizePatternsAPI
                 if(in_array(strtolower($body_part_str), $arr)) return $body_part_key;
             }
             else return false;
+        }
+    }
+    private function has_more_than_1_bodypart_terms_in_intervening_words($words, $number_key, $dimension_term)
+    {   /* debug only
+        print_r($words);
+        if($words[0] == 'plant' && $words[1] == 'densely' && $words[2] == 'gregarious') {
+            print_r($words); exit;
+        }
+        */
+        $body_part_key = $number_key;
+        $final = array();
+        for($i=1; $i <= 10; $i++) { //about 10 intervening words
+            $body_part_key--;
+            if($body_part_str = @$words[$body_part_key]) {
+                if(in_array($body_part_str, $this->sentence_breaks)) break;
+                $arr = self::get_body_part_or_parts_for_a_term($dimension_term);
+                if(in_array(strtolower($body_part_str), $arr)) $final[$body_part_str] = '';
+            }
+            else break; //meaning end of line
+        }
+        if(count($final) >= 2) {
+            // print_r($words); print_r($final); echo "-elix1-"; //exit; //debug only
+            return true;
         }
     }
     private function get_number_or_number_range($words, $unit_key)
@@ -465,19 +523,19 @@ class ParseSizePatternsAPI
                 $main['dimension_term_noun'] = $words[$term_key];
                 $main['dimension_term_noun_key'] = $term_key;
             }
-            else break;
+            else continue;
 
             if($number_key = self::get_number_or_number_range_onwards($words, $term_key)) {
                 $main['number_or_number_range'] = $words[$number_key];
                 $main['number_or_number_range_key'] = $number_key;
             }
-            else break;
+            else continue;
 
             if($unit_key = self::get_units_term_onwards($words, $number_key)) {
                 $main['units_term'] = $words[$unit_key];
                 $main['units_term_key'] = $unit_key;
             }
-            else break;
+            else continue;
 
             if($body_part_key < $term_key && $term_key < $number_key && $number_key < $unit_key) {
                 $main['pattern'] = '2nd';
@@ -493,7 +551,7 @@ class ParseSizePatternsAPI
                 $x['number_or_number_range'] = $main['number_or_number_range'];
                 $x['units_term'] = $main['units_term'];
 
-                print_r($x); exit("\nfinally a hit\n");
+                // print_r($x); exit("\nfinally a hit\n");
                 @$this->debug['count'][$main['pattern']]++;
                 $final[] = $x;
             }
