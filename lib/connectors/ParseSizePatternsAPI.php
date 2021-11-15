@@ -100,6 +100,13 @@ class ParseSizePatternsAPI
         $row = str_ireplace("head body", "head_body", $row);
         $row = str_ireplace("in greatest width", "in_greatest_width", $row);
         
+        // /*
+        $row = str_ireplace("archegonial thallus", "archegonial_thallus", $row);
+        $row = str_ireplace("antheridial thallus", "antheridial_thallus", $row);
+        // archegonial thallus => use mapping for thallus, but in occurrence, sex=male, http://purl.obolibrary.org/obo/PATO_0000384
+        // antheridial thallus => use mapping for thallus, but in occurrence, sex=female, http://purl.obolibrary.org/obo/PATO_0000383
+        // */
+        
         /*
         [SOURCE] => NAF - 15423
         [row] => Thallus bright-green, more or less phosphorescent in appearance, plane, mostly 0.5-1 cm. long and 2-3 mm. wide, 
@@ -109,6 +116,7 @@ class ParseSizePatternsAPI
         
         // so it can be ignored:
         $row = str_ireplace("part of a ", "part_of_a_", $row);
+        
         //Pluralized:
         $row = str_ireplace("stems ", "stem ", $row);
         $row = str_ireplace("plants ", "plant ", $row);
@@ -239,6 +247,7 @@ class ParseSizePatternsAPI
                 $x['dimension_term'] = $main['dimension_term'];
                 // $x['dimension_term_key'] = $main['dimension_term_key']; //debug purposes only
 
+                $x = self::assign_further_metadata($x);
                 // print_r($x); // print_r($positions);
                 @$this->debug['count'][$main['pattern']]++;
                 $final[] = $x;
@@ -249,6 +258,16 @@ class ParseSizePatternsAPI
         if($unit_key = self::get_units_term($words)) $main['units_term'] = $words[$unit_key];
         else return false;
         */
+    }
+    private function assign_further_metadata($x)
+    {
+        if($body_part = @$x['Body_Part_term']) {
+            // archegonial thallus => use mapping for thallus, but in occurrence, sex=male, http://purl.obolibrary.org/obo/PATO_0000384
+            // antheridial thallus => use mapping for thallus, but in occurrence, sex=female, http://purl.obolibrary.org/obo/PATO_0000383
+            if($body_part == 'archegonial_thallus') $x['occurrence_sex'] = 'http://purl.obolibrary.org/obo/PATO_0000384'; //male
+            elseif($body_part == 'antheridial_thallus') $x['occurrence_sex'] = 'http://purl.obolibrary.org/obo/PATO_0000383'; //female
+        }
+        return $x;
     }
     private function parse_row_pattern_3_4($row)
     {   /* newline [number or number range] [units term] [dimension term] */
@@ -328,6 +347,7 @@ class ParseSizePatternsAPI
             $x['dimension_term'] = $main['dimension_term'];
             // $x['dimension_term_key'] = $main['dimension_term_key']; //debug purposes only
 
+            $x = self::assign_further_metadata($x);
             // print_r($x); // print_r($positions);
             @$this->debug['count'][$main['pattern']]++;
             $final[] = $x;
@@ -561,6 +581,7 @@ class ParseSizePatternsAPI
                 $x['number_or_number_range'] = $main['number_or_number_range'];
                 $x['units_term'] = $main['units_term'];
 
+                $x = self::assign_further_metadata($x);
                 // print_r($x); exit("\nfinally a hit\n");
                 @$this->debug['count'][$main['pattern']]++;
                 $final[] = $x;
@@ -727,7 +748,10 @@ class ParseSizePatternsAPI
         
         // /*
         foreach($rekords as $rek) {
-            if($rek['pattern'] == '4th') continue; //exclude 4th pattern from resource. But include it in input-output report.
+            if($rek['pattern'] == '4th') {//exclude 4th pattern from resource. But include it in input-output report.
+                if($rek['dimension_term'] == 'high') {} //include
+                else continue;
+            }
             $rec = array();
             $rec["taxon_id"] = $taxon->taxonID;
             $rec["catnum"] = md5(json_encode($rek));
@@ -738,6 +762,7 @@ class ParseSizePatternsAPI
             $rec['measurementRemarks'] = "$sciname. ".$rek['row'];
             $rec['source'] = @$meta[$pdf_id]['dc.relation.url'];
             $rec['bibliographicCitation'] = $bibliographicCitation;
+            if($sex = @$rek['occurrence_sex']) $rec['occur']['sex'] = $sex;
             $func = new TraitGeneric($resource_id, $archive_builder, false);
             $func->add_string_types($rec, $rec['measurementValue'], $rec['measurementType'], "true");
             // if($uri) $this->func->add_string_types($rex, $uri, 'http://purl.org/dc/terms/contributor', "child"); --- copied template
