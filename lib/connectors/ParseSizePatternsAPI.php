@@ -107,6 +107,14 @@ class ParseSizePatternsAPI
         // antheridial thallus => use mapping for thallus, but in occurrence, sex=female, http://purl.obolibrary.org/obo/PATO_0000383
         // */
         
+        // /* dimension strings:
+        $strings = array("high", "long", "wide", "in_diameter", "wingspan", "thick", "in_greatest_width");
+        foreach($strings as $string) {
+            $row = str_ireplace(" $string.", " $string .", $row);
+        }
+        $row = Functions::remove_whitespace($row);
+        // */
+        
         /*
         [SOURCE] => NAF - 15423
         [row] => Thallus bright-green, more or less phosphorescent in appearance, plane, mostly 0.5-1 cm. long and 2-3 mm. wide, 
@@ -248,7 +256,7 @@ class ParseSizePatternsAPI
                 // $x['dimension_term_key'] = $main['dimension_term_key']; //debug purposes only
 
                 $x = self::assign_further_metadata($x);
-                // print_r($x); // print_r($positions);
+                // print_r($x); print_r($positions);
                 @$this->debug['count'][$main['pattern']]++;
                 $final[] = $x;
             }
@@ -276,7 +284,7 @@ class ParseSizePatternsAPI
         $row = self::format_row($row);
         $words = explode(" ", $row);
 
-        if($positions = self::scan_words_get_dimension_term_positions($words, $row, '3')) {} //2nd param $row is just debug here. 3rd param is pattern No.
+        if($positions = self::scan_words_get_dimension_term_positions($words, $row, 3)) {} //2nd param $row is just debug here. 3rd param is pattern No.
         else return;
         /*Array(  --- $positions
             [0] => 16 - long
@@ -361,6 +369,7 @@ class ParseSizePatternsAPI
         else exit("\nUn-initialized pattern\n");
         $i = -1;
         $positions = array();
+        // print_r($words);
         foreach($words as $word) { $i++;
             if(in_array($word, $dimension_terms)) $positions[] = $i; //$positions[] = $i." - $word";
         }
