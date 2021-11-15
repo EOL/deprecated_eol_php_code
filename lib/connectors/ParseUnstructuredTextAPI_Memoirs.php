@@ -2218,6 +2218,8 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                 if (strcmp($var1, $var2) == 0) continue;  //echo "\n$var1 is equal to $var2 in a case sensitive string comparison";
                 // else                                     echo "\n$var1 is not equal to $var2 in a case sensitive string comparison";
                 // */
+                
+                $row = str_replace("th^Uus", "thallus", $row); //15423 NAF
             }
             
             if(in_array($this->pdf_id, array('120081', '120082', '118986', '118920', '120083', '118237')) || 
