@@ -100,14 +100,15 @@ class ParseSizePatternsAPI
         $row = str_ireplace("snout vent", "snout_vent", $row);
         $row = str_ireplace("head body", "head_body", $row);
         $row = str_ireplace("in greatest width", "in_greatest_width", $row);
+        $row = str_ireplace("or more long", "or_more_long", $row);
+        $row = str_ireplace("in length", "in_length", $row);
+        $row = str_ireplace("or more in height", "or_more_in_height", $row);
         
         // /*
         $row = str_ireplace("archegonial thallus", "archegonial_thallus", $row);
         $row = str_ireplace("antheridial thallus", "antheridial_thallus", $row);
-
         $row = str_ireplace("archegonial thalli", "archegonial_thalli", $row);
         $row = str_ireplace("antheridial thalli", "antheridial_thalli", $row);
-
         // archegonial thallus => use mapping for thallus, but in occurrence, sex=male, http://purl.obolibrary.org/obo/PATO_0000384
         // antheridial thallus => use mapping for thallus, but in occurrence, sex=female, http://purl.obolibrary.org/obo/PATO_0000383
         // */
