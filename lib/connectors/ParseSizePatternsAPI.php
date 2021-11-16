@@ -104,6 +104,10 @@ class ParseSizePatternsAPI
         // /*
         $row = str_ireplace("archegonial thallus", "archegonial_thallus", $row);
         $row = str_ireplace("antheridial thallus", "antheridial_thallus", $row);
+
+        $row = str_ireplace("archegonial thalli", "archegonial_thalli", $row);
+        $row = str_ireplace("antheridial thalli", "antheridial_thalli", $row);
+
         // archegonial thallus => use mapping for thallus, but in occurrence, sex=male, http://purl.obolibrary.org/obo/PATO_0000384
         // antheridial thallus => use mapping for thallus, but in occurrence, sex=female, http://purl.obolibrary.org/obo/PATO_0000383
         // */
@@ -112,8 +116,14 @@ class ParseSizePatternsAPI
         $strings = array("high", "long", "wide", "in_diameter", "wingspan", "thick", "in_greatest_width");
         foreach($strings as $string) {
             $row = str_ireplace(" $string.", " $string .", $row);
+            $row = str_ireplace(" $string,", " $string ,", $row);
+            
         }
         $row = Functions::remove_whitespace($row);
+        // */
+        
+        // /* e.g. " Caudex erect, slender, 1-4 (or rarely 12) meters high,"
+        $row = self::or_rarely_phrase($row); //ignore or_rarely phrase
         // */
         
         /*
@@ -150,6 +160,14 @@ class ParseSizePatternsAPI
         //Pluralized:
         $row = str_ireplace("individuals ", "individual ", $row);
         $row = str_ireplace("specimens ", "specimen ", $row);
+        //Pluralized
+        $row = str_ireplace("caudexes ", "caudex ", $row);
+        $row = str_ireplace("fronds ", "frond ", $row);
+        $row = str_ireplace("sporophyls ", "sporophyl ", $row);
+        $row = str_ireplace("sporophylls ", "sporophyll ", $row);
+        $row = str_ireplace("phyllodias ", "phyllodia ", $row);
+        $row = str_ireplace("phyllodes ", "phyllode ", $row);
+        $row = str_ireplace("leaf-blades ", "leaf-blade ", $row);
         //others
         $row = str_replace(";", " ; ", $row);
         $row = str_replace(",", " , ", $row);
@@ -275,6 +293,8 @@ class ParseSizePatternsAPI
             // antheridial thallus => use mapping for thallus, but in occurrence, sex=female, http://purl.obolibrary.org/obo/PATO_0000383
             if($body_part == 'archegonial_thallus') $x['occurrence_sex'] = 'http://purl.obolibrary.org/obo/PATO_0000384'; //male
             elseif($body_part == 'antheridial_thallus') $x['occurrence_sex'] = 'http://purl.obolibrary.org/obo/PATO_0000383'; //female
+            elseif($body_part == 'archegonial_thalli') $x['occurrence_sex'] = 'http://purl.obolibrary.org/obo/PATO_0000384'; //male
+            elseif($body_part == 'antheridial_thalli') $x['occurrence_sex'] = 'http://purl.obolibrary.org/obo/PATO_0000383'; //female
         }
         return $x;
     }
@@ -662,7 +682,7 @@ class ParseSizePatternsAPI
     private function loop_tsv($what)
     {
         $options = $this->download_options;
-        $options['expire_seconds'] = 60*60*12; //12 hrs //0; //debug only --- un-comment when source TSV files are updated
+        $options['expire_seconds'] = 60*60*1; //1 hr //0; //debug only --- un-comment when source TSV files are updated
         $options['cache'] = 1;
         if($local_tsv = Functions::save_remote_file_to_local($this->tsv[$what], $options)) {
             $arr = file($local_tsv);
@@ -848,6 +868,20 @@ class ParseSizePatternsAPI
             }
         }
         return $final;
+    }
+    private function or_rarely_phrase($row) //ignore or_rarely phrase
+    {   // /* e.g. " Caudex erect, slender, 1-4 (or rarely 12) meters high," ---> pdf id = 15427
+        if(preg_match_all("/\(or rarely(.*?)\)/ims", $row, $a)) {
+            $hits = $a[1]; // print_r($hits); echo "elixyz";
+            foreach($hits as $hit) {
+                $orig = $hit;
+                $hit = trim($hit);
+                if(self::is_one_word($hit) && is_numeric($hit)) { //exit("\n[$hit]\nexit muna\n");
+                    $row = str_ireplace("(or rarely".$orig.")", "", $row);
+                }
+            }
+        }
+        return $row;
     }
 }
 ?>
