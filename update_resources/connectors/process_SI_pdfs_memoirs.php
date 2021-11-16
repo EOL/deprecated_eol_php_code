@@ -11,7 +11,7 @@ php5.6 process_SI_pdfs_memoirs.php jenkins '{"resource_id": "118935", "resource_
 php5.6 process_SI_pdfs_memoirs.php jenkins '{"resource_id": "120081", "resource_name":"2nd doc"}'
 php5.6 process_SI_pdfs_memoirs.php jenkins '{"resource_id": "MoftheAES", "resource_name":"all resources"}'
 
-process_SI_pdfs_memoirs.php _ '{"resource_id": "118935", "resource_name":"1st doc"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "118935", "resource_name":"1st doc", "IOReport": "NAF_first7"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "120081", "resource_name":"2nd doc"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "120082", "resource_name":"4th doc"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "118986", "resource_name":"5th doc"}'
@@ -19,7 +19,7 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "118920", "resource_name":"6th do
 process_SI_pdfs_memoirs.php _ '{"resource_id": "120083", "resource_name":"7th doc"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "118237", "resource_name":"8th doc"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "MoftheAES", "resource_name":"all resources"}' --- USED, another option is: aggregate_MoftheAES.php.
-process_SI_pdfs_memoirs.php _ '{"resource_id": "30355", "resource_name":"others"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "30355", "resource_name":"others", "IOReport":"MotAES"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "27822", "resource_name":"others"}'
 
 process_SI_pdfs_memoirs.php _ '{"resource_id": "30353", "resource_name":"others"}' // to be skipped
@@ -51,10 +51,10 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "91362", "resource_name":"7th BHL
 process_SI_pdfs_memoirs.php _ '{"resource_id": "91362_species", "resource_name":"7th BHL", "doc": "BHL"}' //species sections for 91362
 
 BHL Fungi:
-process_SI_pdfs_memoirs.php _ '{"resource_id": "15404",          "resource_name":"NAF", "doc": "BHL"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "15404",          "resource_name":"NAF", "doc": "BHL", "IOReport":"NAF_Fungi"}'
 process_SI_pdfs_memoirs.php _ '{"resource_id": "'$resource_ID'", "resource_name":"nth BHL", "doc": "BHL"}'
 BHL Plants:
-process_SI_pdfs_memoirs.php _ '{"resource_id": "15422",          "resource_name":"nth BHL", "doc": "BHL"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "15422",          "resource_name":"nth BHL", "doc": "BHL", "IOReport":"NAF_Plants"}'
 
 Kubitzki
 process_SI_pdfs_memoirs.php _ '{"resource_id": "volii1993",     "resource_name":"Kubitzki", "doc": "Kubitzki_et_al"}'
@@ -134,7 +134,7 @@ else { //run individual documents
     require_library('connectors/ParseListTypeAPI_Memoirs');
     require_library('connectors/SmithsonianPDFsAPI_Memoirs');
     $func = new SmithsonianPDFsAPI_Memoirs($resource_id);
-    $func->initialize($resource_name); //$resource_name --- right now used in Media -> derivedFrom column
+    $func->initialize($resource_name, $param); //$resource_name --- right now used in Media -> derivedFrom column
     // for single file, during dev for list-type =====
     if(file_exists($txt_filename)) $func->process_a_txt_file_LT($txt_filename, $pdf_id, array());
     $txt_filename = str_replace("_descriptions_LT", "_tagged", $txt_filename);

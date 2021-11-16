@@ -40,12 +40,12 @@ class SmithsonianPDFsAPI_Memoirs extends ParseListTypeAPI_Memoirs
     }
     
     // /* used during dev, from parse_unstructured_text.php when working on associations
-    function initialize($resource_name = "")
+    function initialize($resource_name = "", $param = array())
     {
         $this->resource_name = $resource_name;
         require_library('connectors/ParseAssocTypeAPI_Memoirs');    $this->func_Assoc      = new ParseAssocTypeAPI_Memoirs();
         require_library('connectors/ParseAssocTypeAPI');            $this->func_Assoc_orig = new ParseAssocTypeAPI($resource_name);
-        require_library('connectors/ParseSizePatternsAPI');         $this->func_Size       = new ParseSizePatternsAPI($resource_name);
+        require_library('connectors/ParseSizePatternsAPI');         $this->func_Size       = new ParseSizePatternsAPI($resource_name, $param);
         $this->func_Size->load_mappings();
         require_library('connectors/TraitGeneric');                 //$this->func_TraitGen   = new TraitGeneric($this->resource_id, $this->archive_builder, false); //for size_patterns
     }

@@ -3,9 +3,10 @@ namespace php_active_record;
 /* */
 class ParseSizePatternsAPI
 {
-    function __construct($resource_name = false)
+    function __construct($resource_name = false, $param = array())
     {
         $this->resource_name = $resource_name;
+        $this->param = $param;
         $this->download_options = array('resource_id' => 'unstructured_text', 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->tsv['part_and_dimension_mapping'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/TextMining/part_and_dimension_mapping.txt";
         $this->tsv['unit_terms'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/TextMining/unit_terms.txt";
@@ -716,12 +717,22 @@ class ParseSizePatternsAPI
                 )
         )*/
         // print_r($size_patterns); exit("\nx\n");
-        $filename = CONTENT_RESOURCE_LOCAL_PATH."reports/size_patterns_".date("Y_m_d").".txt";
+        // print_r($this->param); exit;
+        /*Array(
+            [resource_id] => 15423
+            [resource_name] => NAF
+            [doc] => BHL
+            [IOReport] => NAF_first7
+        )*/
+        $filename = CONTENT_RESOURCE_LOCAL_PATH."reports/".$this->param['IOReport']."_size_patterns_".date("Y_m_d").".txt";
         $WRITE = fopen($filename, "a"); //initialize
         foreach($size_patterns as $rek) {
             foreach($rek as $key => $val) {
+                /* no longer needed
                 if($key == 'SOURCE') $str = "[$key] => $val - $sciname";
                 else                 $str = "[$key] => $val";
+                */
+                $str = "[$key] => $val";
                 fwrite($WRITE, $str."\n\n");
             }
             fwrite($WRITE, "------------------------------------------------------------------------------------------\n");
