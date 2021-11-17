@@ -165,8 +165,9 @@ cotr	            Wed 2021-02-24 01:50:07 PM	{"MoF":56481, "occurrence_specific.t
 cotr_meta_recoded_1	Wed 2021-02-24 01:50:50 PM	{"MoF":56481, "occurrence_specific.tab":33335, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":42.93, "min":0.72, "hr":0.01}}
 cotr_meta_recoded	Wed 2021-02-24 01:51:33 PM	{"MoF":52131, "occurrence.tab":33335, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":43.32, "min":0.72, "hr":0.01}}
 cotr_meta_recoded	Wed 2021-11-10 06:44:25 AM	{"MoF":52131, "occurrence.tab":33335, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":37.41, "min":0.62, "hr":0.01}}
-Mac Mini - bunch of MoF cols moved as child rows in MoF
-cotr_meta_recoded_final	Wed 2021-11-17 02:54:23 {"MoF":54485, "occurrence.tab":33335, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":64.77, "min":1.08, "hr":0.02}}
+cotr_meta_recoded	Wed 2021-11-17 08:35:13 AM	{"MoF":52131, "occurrence.tab":33335, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":36.78, "min":0.61, "hr":0.01}}
+bunch of MoF cols moved as child rows in MoF
+cotr_meta_recoded_final	Wed 2021-11-17 08:35:48 {"MoF":54485, "occurrence.tab":33335, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":34.67, "min":0.58, "hr":0.01}}
 
 727	                Fri 2020-09-11 12:40:30 AM	{"agent.tab":1, "MoF":581778, "media_resource.tab":5, "occurrence_specific.tab":636468, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
 727_meta_recoded	Mon 2020-11-02 08:59:01 AM	{"agent.tab":1, "MoF":581778, "media_resource.tab":5, "occurrence_specific.tab":636468, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":{"sec":524.71, "min":8.75, "hr":0.15}}
