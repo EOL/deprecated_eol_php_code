@@ -921,12 +921,13 @@ class GBIFCountryTypeRecordAPI
             elseif($sex == "SHELL")                             $lifestage = "EMBRYO IN SHELL";
             elseif($sex == "META-YOUNG")                        $lifestage = "YOUNG";
             elseif(in_array($sex, array("JUVENILE", "JUV")))    $lifestage = "JUVENILE";
-            if($val = $lifestage)   $o->lifeStage = self::get_uri($val, "lifeStage");
+            if($val = $lifestage) {
+                $o->lifeStage = self::get_uri($val, "lifeStage");
+                // /* per https://eol-jira.bibalex.org/browse/DATA-1549?focusedCommentId=65758&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65758
+                if(strtolower($o->lifeStage) == 'copula') $o->lifeStage = 'http://www.ebi.ac.uk/efo/EFO_0001272'; //adult
+                // */
+            }
             else                    $o->sex       = self::get_uri($sex, "sex");
-            
-            // /* per https://eol-jira.bibalex.org/browse/DATA-1549?focusedCommentId=65758&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65758
-            if(strtolower($o->lifeStage) == 'copula') $o->lifeStage = 'http://www.ebi.ac.uk/efo/EFO_0001272'; //adult
-            // */
             
             $o->identifiedBy                = $rec["http://rs.tdwg.org/dwc/terms/identifiedBy"];
             $o->reproductiveCondition       = $rec["http://rs.tdwg.org/dwc/terms/reproductiveCondition"];
