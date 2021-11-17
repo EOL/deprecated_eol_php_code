@@ -42,6 +42,8 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "cotr_me
 -> fixes lifeStage
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "cotr_meta_recoded", "task": "metadata_recoding"}'
 -> fixes eventDate as row in MoF
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "cotr_meta_recoded_final", "task": "metadata_recoding"}'
+-> move a bunch of MoF columns as child rows in MoF (latest, as of Nov 17, 2021) --- https://eol-jira.bibalex.org/browse/DATA-1793?focusedCommentId=65808&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65808
 ----------end Coral traits
 
 ----------start WoRMS
@@ -162,6 +164,9 @@ cotr_meta_recoded	Tue 2020-12-01 10:00:30 PM	{"MoF":52298, "occurrence.tab":3347
 cotr	            Wed 2021-02-24 01:50:07 PM	{"MoF":56481, "occurrence_specific.tab":33335, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":72.63, "min":1.21, "hr":0.02}}
 cotr_meta_recoded_1	Wed 2021-02-24 01:50:50 PM	{"MoF":56481, "occurrence_specific.tab":33335, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":42.93, "min":0.72, "hr":0.01}}
 cotr_meta_recoded	Wed 2021-02-24 01:51:33 PM	{"MoF":52131, "occurrence.tab":33335, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":43.32, "min":0.72, "hr":0.01}}
+cotr_meta_recoded	Wed 2021-11-10 06:44:25 AM	{"MoF":52131, "occurrence.tab":33335, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":37.41, "min":0.62, "hr":0.01}}
+Mac Mini - bunch of MoF cols moved as child rows in MoF
+cotr_meta_recoded_final	Wed 2021-11-17 02:54:23 {"MoF":54485, "occurrence.tab":33335, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":64.77, "min":1.08, "hr":0.02}}
 
 727	                Fri 2020-09-11 12:40:30 AM	{"agent.tab":1, "MoF":581778, "media_resource.tab":5, "occurrence_specific.tab":636468, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
 727_meta_recoded	Mon 2020-11-02 08:59:01 AM	{"agent.tab":1, "MoF":581778, "media_resource.tab":5, "occurrence_specific.tab":636468, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":{"sec":524.71, "min":8.75, "hr":0.15}}
@@ -292,6 +297,10 @@ elseif($task == 'metadata_recoding') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/cotr_meta_recoded_1.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/cotr_meta_recoded_1.tar.gz";
     }
+    elseif($resource_id == 'cotr_meta_recoded_final') {
+        if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/cotr_meta_recoded.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/cotr_meta_recoded.tar.gz";
+    }
 
     elseif($resource_id == 'test_meta_recoded') { //task_45: no actual resource atm.
         $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/test_mUnit_sMethod.zip";
@@ -361,7 +370,7 @@ else exit("\nERROR: task not yet initialized. Will terminate.\n");
 process_resource_url($dwca_file, $resource_id, $task, $timestart);
 
 // /* add testing for undefined childen in MoF - utility only
-if(in_array($resource_id, array('26_ENV_final'))) {
+if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final'))) {
     run_utility($resource_id);
     recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id."/"); //we can now delete folder after run_utility() - DWCADiagnoseAPI
 }
@@ -406,7 +415,7 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
     elseif($task == 'metadata_recoding') {
         $preferred_rowtypes = array();
         if(in_array($resource_id, array('201_meta_recoded', '726_meta_recoded', 'cotr_meta_recoded', 'test2_meta_recoded',
-                                        '26_meta_recoded_1'))) {
+                                        '26_meta_recoded_1', 'cotr_meta_recoded_final'))) {
             $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //means occurrence tab is just carry-over
         }
 
@@ -442,8 +451,8 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
     }
     
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
-    if(in_array($resource_id, array('26_ENV_final'))) Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd row 'false' means not delete working dir
-    else                                              Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //rest goes here
+    if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final'))) Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd row 'false' means not delete working dir
+    else                                                                         Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //rest goes here
 }
 function run_utility($resource_id)
 {

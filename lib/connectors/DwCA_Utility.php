@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_91555/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_91555/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_55545/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_55545/'
         );
         */
         

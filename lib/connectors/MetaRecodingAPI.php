@@ -38,6 +38,10 @@ class MetaRecodingAPI
         */
         if(in_array($this->resource_id, array('201_meta_recoded', 'cotr_meta_recoded'))) self::task_eventDate_as_row_in_MoF($tables);
         
+        // /* task is to move MoF cols as MoF child rows
+        if(in_array($this->resource_id, array('cotr_meta_recoded_final'))) self::task_move_MoF_cols_2_MoF_children($tables);
+        // */
+        
         /* task 3: occurrenceRemarks
         http://rs.tdwg.org/dwc/terms/occurrenceRemarks - same sort of move, to a MoF column with uri http://rs.tdwg.org/dwc/terms/measurementRemarks
         */
@@ -106,6 +110,12 @@ class MetaRecodingAPI
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_eventDate_info');
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_eventDate');
     }
+
+    private function task_move_MoF_cols_2_MoF_children($tables)
+    {
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'move_cols_2child_rows');
+    }
+    
     private function task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false($tables) //for DATA-1875: recoding unrecognized fields
     {
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'task_occurrence2MoF');
@@ -228,6 +238,27 @@ class MetaRecodingAPI
                 [http://rs.tdwg.org/dwc/terms/measurementValue] => -14.8272
                 [http://rs.tdwg.org/dwc/terms/measurementUnit] => http://purl.obolibrary.org/obo/UO_0000185
                 [http://eol.org/schema/terms/statisticalMethod] => http://semanticscience.org/resource/SIO_001113
+            )
+            Array( for task_move_MoF_cols_2_MoF_children
+                [http://rs.tdwg.org/dwc/terms/measurementID] => 843cbe9ac346937d30067251e55e1e3f_cotr
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => 25
+                [http://eol.org/schema/measurementOfTaxon] => true
+                [http://eol.org/schema/parentMeasurementID] => 
+                [http://rs.tdwg.org/dwc/terms/measurementType] => http://eol.org/schema/terms/Present
+                [http://rs.tdwg.org/dwc/terms/measurementValue] => http://www.marineregions.org/mrgid/1903
+                [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+                [http://eol.org/schema/terms/statisticalMethod] => 
+                [http://rs.tdwg.org/dwc/terms/measurementMethod] => Derived from range map (expert_opinion)
+                [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
+                [http://purl.org/dc/terms/source] => https://coraltraits.org/species/968
+                [http://purl.org/dc/terms/bibliographicCitation] => Madin, Joshua (2016): Coral Trait Database 1.1.1. figshare. Dataset. https://doi.org/10.6084/m9.figshare.2067414.v1
+                [http://eol.org/schema/reference/referenceID] => 40; 48
+                [http://semanticscience.org/resource/SIO_000770] => 
+                [http://purl.obolibrary.org/obo/STATO_0000035] => 
+                [http://purl.obolibrary.org/obo/OBI_0000235] => 
+                [http://semanticscience.org/resource/SIO_000769] => 
+                [http://purl.obolibrary.org/obo/STATO_0000231] => 
+                [http://rs.tdwg.org/dwc/terms/measurementDeterminedDate] => 
             )*/
             $measurementID = @$rec['http://rs.tdwg.org/dwc/terms/measurementID'];
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
@@ -246,6 +277,43 @@ class MetaRecodingAPI
             // if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue; //debug only
             // if($occurrenceID != 'b33cb50b7899db1686454eb60113ca25_692') continue; //debug only - has both eventDate and occurrenceRemarks
             //===========================================================================================================================================================
+            if($what == 'move_cols_2child_rows') {
+                /*
+                child record in MoF:
+                    - doesn't have: occurrenceID | measurementOfTaxon
+                    - has parentMeasurementID
+                    - has also a unique measurementID, as expected.
+                minimum cols on a child record in MoF
+                    - measurementID
+                    - measurementType
+                    - measurementValue
+                    - parentMeasurementID
+                */
+                $child_flds = array('http://semanticscience.org/resource/SIO_000770', 'http://purl.obolibrary.org/obo/STATO_0000035', 'http://purl.obolibrary.org/obo/OBI_0000235', 'http://semanticscience.org/resource/SIO_000769', 'http://purl.obolibrary.org/obo/STATO_0000231');
+                foreach($child_flds as $mType) {
+                    if($mValue = @$rec[$mType]) { //create a new row (child row)
+                        $m2 = new \eol_schema\MeasurementOrFact_specific();
+                        $rek = array();
+                        $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$mType|$mValue|$measurementID");
+                        $rek['http://rs.tdwg.org/dwc/terms/measurementType'] = $mType;
+                        $rek['http://rs.tdwg.org/dwc/terms/measurementValue'] = $mValue;
+                        $rek['http://eol.org/schema/parentMeasurementID'] = $measurementID;
+                        $uris = array_keys($rek);
+                        foreach($uris as $uri) {
+                            $field = pathinfo($uri, PATHINFO_BASENAME);
+                            $m2->$field = $rek[$uri];
+                        }
+                        $this->archive_builder->write_object_to_file($m2);
+                    }
+                }
+                unset($rec['http://semanticscience.org/resource/SIO_000770']);
+                unset($rec['http://purl.obolibrary.org/obo/STATO_0000035']);
+                unset($rec['http://purl.obolibrary.org/obo/OBI_0000235']);
+                unset($rec['http://semanticscience.org/resource/SIO_000769']);
+                unset($rec['http://purl.obolibrary.org/obo/STATO_0000231']);
+                $m = self::write_MoF_rec($rec);
+            }
+
             // /*
             if($what == 'task_45_info_2') {
                 // /* statisticalMethod
