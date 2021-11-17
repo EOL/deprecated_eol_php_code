@@ -924,6 +924,10 @@ class GBIFCountryTypeRecordAPI
             if($val = $lifestage)   $o->lifeStage = self::get_uri($val, "lifeStage");
             else                    $o->sex       = self::get_uri($sex, "sex");
             
+            // /* per https://eol-jira.bibalex.org/browse/DATA-1549?focusedCommentId=65758&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65758
+            if(strtolower($o->lifeStage) == 'copula') $o->lifeStage = 'http://www.ebi.ac.uk/efo/EFO_0001272'; //adult
+            // */
+            
             $o->identifiedBy                = $rec["http://rs.tdwg.org/dwc/terms/identifiedBy"];
             $o->reproductiveCondition       = $rec["http://rs.tdwg.org/dwc/terms/reproductiveCondition"];
         }
