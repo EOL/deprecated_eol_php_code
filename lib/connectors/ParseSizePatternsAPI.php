@@ -402,10 +402,16 @@ class ParseSizePatternsAPI
     }
     private function get_Body_Part_term_v2($words, $number_key, $dimension_term)
     {
+        /* working but not used yet
+        $possible_dimension_terms = array("high", "long", "wide", "in_diameter", "in_length", "wingspan", "thick");
+        $possible_dimension_terms = array_diff($possible_dimension_terms, array($dimension_term));
+        $possible_dimension_terms = array_values($possible_dimension_terms); //reindex keys
+        // print_r($possible_dimension_terms); exit("\n[$dimension_term]\n");
+        */
+        
         // /* additional filter: if there is > 1 body part terms in the intervening 10-word, then ignore
         if(self::has_more_than_1_bodypart_terms_in_intervening_words($words, $number_key, $dimension_term)) return false;
         // */
-        
         for($i=1; $i <= 15; $i++) { //about 10 intervening words
             $number_key--;
             $body_part_key = $number_key;
@@ -423,6 +429,11 @@ class ParseSizePatternsAPI
                     // exit;
                 }
                 */
+                
+                // /* e.g. "sporophyl 3.5-8 cm. long, the stalk 2.5-5 cm. long,"
+                // 'sporophyl' should only get "3.5-8 cm. long". And not get "2.5-5 cm. long"
+                if($body_part_str == $dimension_term) return false;
+                // */
                 
                 if(in_array(strtolower($body_part_str), $arr)) return $body_part_key;
             }
