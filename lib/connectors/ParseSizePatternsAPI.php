@@ -425,13 +425,13 @@ class ParseSizePatternsAPI
             if($body_part_str = @$words[$body_part_key]) {
                 
                 if(in_array($body_part_str, $this->sentence_breaks)) return false;
-                $arr = self::get_body_part_or_parts_for_a_term($dimension_term);
+                $arr_body_parts = self::get_body_part_or_parts_for_a_term($dimension_term);
                 
                 /*
                 if($body_part_str == "Plant") {
                     print_r($words);
-                    print_r($arr);
-                    if(in_array(strtolower($body_part_str), $arr)) echo "\nfound naman[$body_part_key]\n";
+                    print_r($arr_body_parts);
+                    if(in_array(strtolower($body_part_str), $arr_body_parts)) echo "\nfound naman[$body_part_key]\n";
                     else echo "\nnot found\n";
                     // exit;
                 }
@@ -442,7 +442,7 @@ class ParseSizePatternsAPI
                 if($body_part_str == $dimension_term) return false;
                 // */
                 
-                if(in_array(strtolower($body_part_str), $arr)) return $body_part_key;
+                if(in_array(strtolower($body_part_str), $arr_body_parts)) return $body_part_key;
             }
             else return false;
         }
@@ -460,8 +460,8 @@ class ParseSizePatternsAPI
             $body_part_key--;
             if($body_part_str = @$words[$body_part_key]) {
                 if(in_array($body_part_str, $this->sentence_breaks)) break;
-                $arr = self::get_body_part_or_parts_for_a_term($dimension_term);
-                if(in_array(strtolower($body_part_str), $arr)) $final[$body_part_str] = '';
+                $arr_body_parts = self::get_body_part_or_parts_for_a_term($dimension_term);
+                if(in_array(strtolower($body_part_str), $arr_body_parts)) $final[$body_part_str] = '';
             }
             else break; //meaning end of line
         }
