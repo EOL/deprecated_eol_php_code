@@ -196,7 +196,13 @@ class ParseSizePatternsAPI
         */
         $main = array();
         $orig_row = $row;
+        // /* new step: "stalk 11,5-26.5 cm. long" replace "," with "." when appropriate. That is when comma is between numeric digits.
+        $row = self::replace_comma_with_point_when_appropriate($row);
+        // */
         $row = self::format_row($row);
+        // /* new step: replace space with point e.g. "2-2 5 mm. long,"
+        $row = self::replace_space_with_point_when_appropriate($row);
+        // */
         $words = explode(" ", $row);
 
         if($positions = self::scan_words_get_dimension_term_positions($words, $row)) {}
@@ -297,6 +303,7 @@ class ParseSizePatternsAPI
             elseif($body_part == 'archegonial_thalli') $x['occurrence_sex'] = 'http://purl.obolibrary.org/obo/PATO_0000384'; //male
             elseif($body_part == 'antheridial_thalli') $x['occurrence_sex'] = 'http://purl.obolibrary.org/obo/PATO_0000383'; //female
         }
+        if(stripos($x['number_or_number_range'], "^") !== false) $x['status'] = 'DISCARD THIS RECORD. Or manually fix it.'; //string is found
         return $x;
     }
     private function parse_row_pattern_3_4($row)
@@ -690,6 +697,9 @@ class ParseSizePatternsAPI
         $this->size_mapping = self::loop_tsv('part_and_dimension_mapping');
         $this->unit_terms = self::loop_tsv('unit_terms');
         // print_r($this->size_mapping); print_r($this->unit_terms); exit("\n111\n");
+        
+        $this->all_dimension_terms = self::get_all_dimension_terms(); //print_r($this->all_dimension_terms); echo("\nall_dimension_terms\n");
+        $this->all_mUnits = array_keys($this->unit_terms); //print_r($this->all_mUnits); //exit("\nall_mUnits\n");
     }
     private function loop_tsv($what)
     {
@@ -800,6 +810,7 @@ class ParseSizePatternsAPI
         
         // /*
         foreach($rekords as $rek) {
+            if(stripos(@$rek['status'], "DISCARD THIS RECORD") !== false) continue; //1st client here is those value with "^" a caret.
             if($rek['pattern'] == '4th') {//exclude 4th pattern from resource. But include it in input-output report.
                 if($rek['dimension_term'] == 'high') {} //include
                 else continue;
@@ -895,5 +906,92 @@ class ParseSizePatternsAPI
         }
         return $row;
     }
+    private function replace_space_with_point_when_appropriate($row) //new step: replace space with point e.g. "2-2 5 mm. long,"
+    {
+        $row = str_replace("—", "-", $row);
+        $words = explode(" ", $row);
+        $i = -1;
+        foreach($words as $word) { $i++;
+            $next_num = @$words[$i+1];
+            $mUnit = @$words[$i+2];
+            $dimension_term = @$words[$i+3];
+            if(self::get_numbers_from_string($word) && self::get_numbers_from_string($next_num)
+               && in_array($mUnit, $this->all_mUnits) && in_array($dimension_term, $this->all_dimension_terms)) {
+                // echo "\naaa: ".$word."\n"; echo "\nbbb: ".$next_num."\n"; echo "\nccc: ".$mUnit."\n"; echo "\nddd: ".$dimension_term."\n"; echo("\nsource: $row\n");
+                $source = "$word $next_num $mUnit $dimension_term";
+                $between = ".";
+                if(substr($word, -1) == "-" || $next_num[0] == "-") $between = "";
+                $target = "$word$between$next_num $mUnit $dimension_term";
+                $row = str_ireplace($source, $target, $row); // echo("\ntarget: $row\n");
+            }
+        }
+        $row = Functions::remove_whitespace($row);
+        return $row;
+    }
+    private function get_all_dimension_terms()
+    {   // print_r($this->size_mapping); exit("\n222\n");
+        /*[head] => Array(
+                   [0] => Array(
+                           [term] => wide
+                           [term_noun] => width
+                           [uri] => http://eol.org/schema/HeadWidth
+                       )
+                   [1] => Array(
+                           [term] => long
+                           [term_noun] => length
+                           [uri] => http://purl.obolibrary.org/obo/OBA_VT0000038
+                       )
+               )
+        */
+        $final = array();
+        foreach($this->size_mapping as $body_part => $recs) {
+            foreach($recs as $rec) $final[$rec['term']] = '';
+        }
+        $final = array_keys($final);
+        $final = array_filter($final); //remove null arrays
+        $final = array_unique($final); //make unique
+        $final = array_values($final); //reindex key
+        return $final;
+    }
+    private function replace_comma_with_point_when_appropriate($row)
+    {   //new step: "stalk 11,5-26.5 cm. long" replace "," with "." when appropriate. That is when comma is in between numerical digits.
+        $orig = $row;
+        for($i=0; $i <= strlen($orig)-1; $i++) {
+            $current_char = $row[$i];
+            $prev_char = @$row[$i-1];
+            $next_char = @$row[$i+1];
+            if($current_char == "," && is_numeric($prev_char) && is_numeric($next_char)) {
+                // $debug = "elix[$prev_char][$current_char][$next_char]"; //debug only
+                $source = "$prev_char$current_char$next_char";
+                $current_char = ".";
+                $destination = "$prev_char$current_char$next_char";
+                $row = str_replace($source, $destination, $row);
+                echo("\nelix:\n[$source] to [$destination]\n$row\n");
+            }
+        }
+        return $row;
+    }
+    /* never used
+    private function replace_caret_with_correctValue_when_appropriate($row)
+    {   sporophyl 15^0 cm. long
+        sporophyl 15-40 cm. long
+        these 3^.5 cm. long,
+        these 3-4.5 cm. long,
+        $orig = $row;
+        for($i=0; $i <= strlen($orig)-1; $i++) {
+            $current_char = $row[$i];
+            $prev_char = @$row[$i-1];
+            $next_char = @$row[$i+1];
+            if($current_char == "^" && is_numeric($prev_char) && (is_numeric($next_char) || $next_char == ".") ) {
+                // $debug = "elix[$prev_char][$current_char][$next_char]"; //debug only
+                $source = "$prev_char$current_char$next_char";
+                $current_char = "-4";
+                $destination = "$prev_char$current_char$next_char";
+                $row = str_replace($source, $destination, $row);
+                echo("\nelix:\n$source\n$destination\n$row\n");
+            }
+        }
+        return $row;
+    } */
 }
 ?>
