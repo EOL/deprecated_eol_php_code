@@ -419,7 +419,8 @@ class ParseSizePatternsAPI
         // /* additional filter: if there is > 1 body part terms in the intervening 10-word, then ignore
         if(self::has_more_than_1_bodypart_terms_in_intervening_words($words, $number_key, $dimension_term)) return false;
         // */
-        
+
+        $arr_body_parts = self::get_body_part_or_parts_for_a_term($dimension_term); //this can be moved outside of the for-loop
         $encountered = array(); $subtrahend = 0;
         for($i=1; $i <= 15; $i++) { //about 10 intervening words
             $number_key--;
@@ -432,7 +433,6 @@ class ParseSizePatternsAPI
                 if(in_array($body_part_str, $this->exclude_these_strings_when_counting_words)) $subtrahend++;
                 
                 if(in_array($body_part_str, $this->sentence_breaks)) return false;
-                $arr_body_parts = self::get_body_part_or_parts_for_a_term($dimension_term); //this can be moved outside of the for-loop
                 
                 /*
                 if($body_part_str == "Plant") {
@@ -481,13 +481,13 @@ class ParseSizePatternsAPI
             print_r($words); exit;
         }
         */
+        $arr_body_parts = self::get_body_part_or_parts_for_a_term($dimension_term);
         $body_part_key = $number_key;
         $final = array();
         for($i=1; $i <= 10; $i++) { //about 10 intervening words
             $body_part_key--;
             if($body_part_str = @$words[$body_part_key]) {
                 if(in_array($body_part_str, $this->sentence_breaks)) break;
-                $arr_body_parts = self::get_body_part_or_parts_for_a_term($dimension_term);
                 if(in_array(strtolower($body_part_str), $arr_body_parts)) $final[$body_part_str] = '';
             }
             else break; //meaning end of line
