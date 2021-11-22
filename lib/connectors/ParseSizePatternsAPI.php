@@ -419,13 +419,20 @@ class ParseSizePatternsAPI
         // /* additional filter: if there is > 1 body part terms in the intervening 10-word, then ignore
         if(self::has_more_than_1_bodypart_terms_in_intervening_words($words, $number_key, $dimension_term)) return false;
         // */
+        
+        $encountered = array(); $subtrahend = 0;
         for($i=1; $i <= 15; $i++) { //about 10 intervening words
             $number_key--;
             $body_part_key = $number_key;
             if($body_part_str = @$words[$body_part_key]) {
+                $body_part_str = strtolower($body_part_str);
+                
+                $encountered[] = $body_part_str;
+                // start counting here if string ($body_part_str) is a unit_term or numeric
+                if(in_array($body_part_str, $this->exclude_these_strings_when_counting_words)) $subtrahend++;
                 
                 if(in_array($body_part_str, $this->sentence_breaks)) return false;
-                $arr_body_parts = self::get_body_part_or_parts_for_a_term($dimension_term);
+                $arr_body_parts = self::get_body_part_or_parts_for_a_term($dimension_term); //this can be moved outside of the for-loop
                 
                 /*
                 if($body_part_str == "Plant") {
@@ -442,7 +449,27 @@ class ParseSizePatternsAPI
                 if($body_part_str == $dimension_term) return false;
                 // */
                 
-                if(in_array(strtolower($body_part_str), $arr_body_parts)) return $body_part_key;
+                /*
+                119187 - Coryphaeschna perrensi
+                Head 6.79 mm. long, 8.68 mm. wide,
+                -> must get 2 hits for Head - long and wide
+                */
+                
+                if(in_array($body_part_str, $arr_body_parts)) {
+                    // /* new
+                    if($this->param['IOReport'] == 'MotAES') { //Per Jen https://eol-jira.bibalex.org/browse/DATA-1892?focusedCommentId=66506&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66506
+                        if(in_array($body_part_str, array('head', 'heads'))) {
+                            if(($i-$subtrahend) <= 4 && !in_array('appendage', $encountered) && !in_array('margin', $encountered)) return $body_part_key;
+                            else {} //no return since 'head' is probably too far from the number_or_number_range.
+                        }
+                        else return $body_part_key;
+                    }
+                    else return $body_part_key; //the rest goes here
+                    // */
+                    /* old
+                    return $body_part_key;
+                    */
+                }
             }
             else return false;
         }
@@ -699,7 +726,9 @@ class ParseSizePatternsAPI
         // print_r($this->size_mapping); print_r($this->unit_terms); exit("\n111\n");
         
         $this->all_dimension_terms = self::get_all_dimension_terms(); //print_r($this->all_dimension_terms); echo("\nall_dimension_terms\n");
-        $this->all_mUnits = array_keys($this->unit_terms); //print_r($this->all_mUnits); //exit("\nall_mUnits\n");
+        $this->all_mUnits = array_keys($this->unit_terms); //print_r($this->all_mUnits); exit("\nall_mUnits\n");
+        $this->exclude_these_strings_when_counting_words = array_merge($this->all_dimension_terms, $this->all_mUnits, array(";", ":", ","));
+        // print_r($this->exclude_these_strings_when_counting_words); exit;
     }
     private function loop_tsv($what)
     {
