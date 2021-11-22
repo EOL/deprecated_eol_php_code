@@ -995,7 +995,7 @@ class ParseSizePatternsAPI
                 $current_char = ".";
                 $destination = "$prev_char$current_char$next_char";
                 $row = str_replace($source, $destination, $row);
-                echo("\nelix:\n[$source] to [$destination]\n$row\n");
+                if($GLOBALS["ENV_DEBUG"]) echo("\nelix:\n[$source] to [$destination]\n$row\n");
             }
         }
         return $row;

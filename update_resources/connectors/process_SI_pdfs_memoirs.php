@@ -76,7 +76,7 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "volxv2018",    "resource_name":"
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-// $GLOBALS["ENV_DEBUG"] = true;
+// $GLOBALS["ENV_DEBUG"] = false;
 $timestart = time_elapsed();
 // print_r($argv); exit;
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
