@@ -168,6 +168,9 @@ cotr_meta_recoded	Wed 2021-11-10 06:44:25 AM	{"MoF":52131, "occurrence.tab":3333
 cotr_meta_recoded	Wed 2021-11-17 08:35:13 AM	{"MoF":52131, "occurrence.tab":33335, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":36.78, "min":0.61, "hr":0.01}}
 bunch of MoF cols moved as child rows in MoF
 cotr_meta_recoded_final	Wed 2021-11-17 08:35:48 {"MoF":54485, "occurrence.tab":33335, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":34.67, "min":0.58, "hr":0.01}}
+HomeRange removed in MoF
+cotr_meta_recoded	Mon 2021-11-22 10:29:04 AM	{"MoF":50654, "occurrence.tab":31858, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":35.93, "min":0.6, "hr":0.01}}
+cotr_meta_recoded_final	Mon 2021-11-22 10:29:37 {"MoF":53008, "occurrence.tab":31858, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":33.47, "min":0.56, "hr":0.01}}
 
 727	                Fri 2020-09-11 12:40:30 AM	{"agent.tab":1, "MoF":581778, "media_resource.tab":5, "occurrence_specific.tab":636468, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
 727_meta_recoded	Mon 2020-11-02 08:59:01 AM	{"agent.tab":1, "MoF":581778, "media_resource.tab":5, "occurrence_specific.tab":636468, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":{"sec":524.71, "min":8.75, "hr":0.15}}
