@@ -461,10 +461,12 @@ class CoralTraitsAPI
         $rek = self::implement_addtl_mapping($rek);
         // */
 
-        $ret_MoT_true = $this->func->pre_add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon); //main add trait
-        $occurrenceID = $ret_MoT_true['occurrenceID'];
-        $measurementID = $ret_MoT_true['measurementID'];
-        $this->OM_ids[$occurrenceID][$measurementID] = '';
+        if($rek['measurementType'] != 'http://eol.org/schema/terms/HomeRange') {
+            $ret_MoT_true = $this->func->pre_add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon); //main add trait
+            $occurrenceID = $ret_MoT_true['occurrenceID'];
+            $measurementID = $ret_MoT_true['measurementID'];
+            $this->OM_ids[$occurrenceID][$measurementID] = '';
+        }
         
         //Special Case #3: add the other mValue
         if($rec['value'] == 'caespitose_corymbose') {
