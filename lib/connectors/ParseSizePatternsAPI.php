@@ -275,7 +275,7 @@ class ParseSizePatternsAPI
                 $x['number_or_number_range'] = $main['number_or_number_range'];
                 // $x['number_or_number_range_key'] = $main['number_or_number_range_key']; //debug purposes only
 
-                $x['units_term'] = $main['units_term'];
+                $x['units_term'] = strtolower($main['units_term']);
                 // $x['units_term_key'] = $main['units_term_key']; //debug purposes only
 
                 $x['dimension_term'] = $main['dimension_term'];
@@ -303,7 +303,7 @@ class ParseSizePatternsAPI
             elseif($body_part == 'archegonial_thalli') $x['occurrence_sex'] = 'http://purl.obolibrary.org/obo/PATO_0000384'; //male
             elseif($body_part == 'antheridial_thalli') $x['occurrence_sex'] = 'http://purl.obolibrary.org/obo/PATO_0000383'; //female
         }
-        if(stripos($x['number_or_number_range'], "^") !== false) $x['status'] = 'DISCARD THIS RECORD. Or manually fix it.'; //string is found
+        if(stripos($x['number_or_number_range'], "^") !== false) $x['status'] = 'DISCARD THIS RECORD. Or manually fix it. Check PDF for real value of caret (^)'; //string is found
         return $x;
     }
     private function parse_row_pattern_3_4($row)
@@ -378,7 +378,7 @@ class ParseSizePatternsAPI
             $x['number_or_number_range'] = $main['number_or_number_range'];
             // $x['number_or_number_range_key'] = $main['number_or_number_range_key']; //debug purposes only
 
-            $x['units_term'] = $main['units_term'];
+            $x['units_term'] = strtolower($main['units_term']);
             // $x['units_term_key'] = $main['units_term_key']; //debug purposes only
 
             $x['dimension_term'] = $main['dimension_term'];
@@ -655,7 +655,7 @@ class ParseSizePatternsAPI
                 $x['Body_Part_term'] = $main['Body_Part_term'];
                 $x['dimension_term_noun'] = $main['dimension_term_noun'];
                 $x['number_or_number_range'] = $main['number_or_number_range'];
-                $x['units_term'] = $main['units_term'];
+                $x['units_term'] = strtolower($main['units_term']);
 
                 $x = self::assign_further_metadata($x);
                 // print_r($x); exit("\nfinally a hit\n");
