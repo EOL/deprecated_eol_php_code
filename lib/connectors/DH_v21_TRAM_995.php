@@ -44,7 +44,7 @@ class DH_v21_TRAM_995
     {
         $this->DH2_canonicals = self::parse_tsv($this->main_path."/work_2.txt", 'get_canonicals');
         // print_r($this->DH2_canonicals);
-        self::parse_tsv($this->tsv['DH21'], 'tag_DH2_with_Homonyms_YN'); //generates work_3.txt
+        self::parse_tsv($this->main_path."/work_2.txt", 'tag_DH2_with_Homonyms_YN'); //generates work_3.txt
         // unset($this->DH1_canonicals);
         // self::parse_tsv($this->main_path."/work_1.txt", 'refresh_parentIDs'); //generates work_2.txt
         // unset($this->replaced_by);
