@@ -7,7 +7,11 @@ require_library('connectors/DH_v21_TRAM_995');
 // ini_set('memory_limit','6096M');
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
-
+/* test
+$pr_id = 24;
+$pr_id = sprintf("%011d", $pr_id);
+exit("\n$pr_id\n");
+*/
 //############################################################ start main
 $resource_id = "DH_v21";
 $func = new DH_v21_TRAM_995($resource_id);

@@ -32,13 +32,16 @@ class DH_v21_TRAM_995
         Create a new EOL-xxx style identifier for each of these taxa and update all relevant parentNameUsageID values. 
         Also, put “new” in the EOLidAnnotations column for each taxon.
         */
-        self::tag_NoCanonicalMatch_in_DH1(); //generates work_1.txt
+        self::tag_NoCanonicalMatch_in_DH1();
         exit("\n-stop muna-\n");
     }
     private function tag_NoCanonicalMatch_in_DH1()
     {
         $this->DH1_canonicals = self::parse_tsv($this->tsv['DH11'], 'get_canonicals');
-        self::parse_tsv($this->tsv['DH21'], 'tag_DH2_with_CanonicalMatchInDH1_YN');
+        self::parse_tsv($this->tsv['DH21'], 'tag_DH2_with_CanonicalMatchInDH1_YN'); //generates work_1.txt
+        unset($this->DH1_canonicals);
+        self::parse_tsv($this->main_path."/work_1.txt", 'refresh_parentIDs'); //generates work_2.txt
+        unset($this->replaced_by);
     }
     private function parse_tsv($txtfile, $task)
     {   $this->taxID_info = array(); $this->descendants = array(); //initialize global vars
@@ -56,15 +59,16 @@ class DH_v21_TRAM_995
                     $WRITE = fopen($this->main_path."/work_1.txt", "w");
                     fwrite($WRITE, implode("\t", $tmp_fields)."\n");
                 }
+                elseif($task == 'refresh_parentIDs') {
+                    $WRITE = fopen($this->main_path."/work_2.txt", "w");
+                    fwrite($WRITE, implode("\t", $fields)."\n");
+                }
                 continue;
             }
             else {
                 if(!@$row[0]) continue;
                 $k = 0; $rec = array();
-                foreach($fields as $fld) {
-                    $rec[$fld] = @$row[$k];
-                    $k++;
-                }
+                foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
             }
             $rec = array_map('trim', $rec);
             // print_r($rec); exit("\nstopx\n");
@@ -86,9 +90,36 @@ class DH_v21_TRAM_995
             )*/
             if($task == 'get_canonicals') $final[$rec['canonicalname']] = '';
             elseif($task == 'tag_DH2_with_CanonicalMatchInDH1_YN') {
+                /*Array(    print_r($rec); exit("\nstopx\n");
+                    [taxonid] => 4038af35-41da-469e-8806-40e60241bb58
+                    [source] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
+                    [furtherinformationurl] => 
+                    [acceptednameusageid] => 
+                    [parentnameusageid] => 
+                    [scientificname] => Life
+                    [taxonrank] => 
+                    [taxonomicstatus] => accepted
+                    [taxonremarks] => 
+                    [datasetid] => trunk
+                    [canonicalname] => Life
+                    [eolid] => 
+                    [eolidannotations] => 
+                    [landmark] => 
+                )*/
                 $canonicalname = $rec['canonicalname'];
                 if(isset($this->DH1_canonicals[$canonicalname])) $rec['zzz'] = 'Y';
-                else                                             $rec['zzz'] = 'N';
+                else { @$no_match++;
+                    $rec['zzz'] = 'N';
+                    $new_id = 'EOL-N' . sprintf("%011d", $no_match);
+                    $this->replaced_by[$rec['taxonid']] = $new_id;
+                    $rec['taxonid'] = $new_id;
+                    $rec['eolidannotations']= 'new';
+                }
+                fwrite($WRITE, implode("\t", $rec)."\n");
+            }
+            elseif($task == 'refresh_parentIDs') {
+                $parent_ID = $rec['parentnameusageid'];
+                if($val = $this->replaced_by[$parent_ID]) $rec['parentnameusageid'] = $val;
                 fwrite($WRITE, implode("\t", $rec)."\n");
             }
         }
@@ -99,9 +130,11 @@ class DH_v21_TRAM_995
             $total = self::get_total_rows($this->tsv['DH21']); echo "\n DH22 [$total]\n";
             $total = self::get_total_rows($this->main_path."/work_1.txt"); echo "\n work_1 [$total]\n";
         }
-        
-        
-        
+        elseif($task == 'refresh_parentIDs') {
+            fclose($WRITE);
+            $total = self::get_total_rows($this->main_path."/work_1.txt"); echo "\n work_1 [$total]\n";
+            $total = self::get_total_rows($this->main_path."/work_2.txt"); echo "\n work_2 [$total]\n";
+        }
     }
     private function get_taxID_nodes_info($txtfile = false)
     {   $this->taxID_info = array(); $this->descendants = array(); //initialize global vars
