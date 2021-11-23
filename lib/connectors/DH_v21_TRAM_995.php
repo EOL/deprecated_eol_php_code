@@ -22,14 +22,14 @@ class DH_v21_TRAM_995
     // ----------------------------------------------------------------- start TRAM-807 -----------------------------------------------------------------
     function start()
     {   
-        // /* works
+        /* works
         // self::get_taxID_nodes_info($this->tsv['DH21']); //un-comment in real operation
         self::get_taxID_nodes_info($this->main_path."/work_2.txt"); //un-comment in real operation
         $taxonID = 'EOL-N00000000002'; //'EOL-000000000001';
         $ancestry = self::get_ancestry_of_taxID($taxonID); print_r($ancestry); //exit; //working OK but not used yet
         $taxonID = 'EOL-N00000000002'; //'EOL-000000000005';
         $children = self::get_descendants_of_taxID($taxonID); print_r($children); exit("\n");
-        // */
+        */
         /* GROUP 1: DH2 taxa (homonyms or not) that have no canonical match in DH1, i.e., DH1canonicalName = DH2canonicalName is never true
         Create a new EOL-xxx style identifier for each of these taxa and update all relevant parentNameUsageID values. 
         Also, put “new” in the EOLidAnnotations column for each taxon.
@@ -44,6 +44,7 @@ class DH_v21_TRAM_995
         unset($this->DH1_canonicals);
         self::parse_tsv($this->main_path."/work_1.txt", 'refresh_parentIDs'); //generates work_2.txt
         unset($this->replaced_by);
+        echo "\n no_match: [$this->no_match]\n";
     }
     private function parse_tsv($txtfile, $task)
     {   $this->taxID_info = array(); $this->descendants = array(); //initialize global vars
@@ -101,9 +102,9 @@ class DH_v21_TRAM_995
                 )*/
                 $canonicalname = $rec['canonicalname'];
                 if(isset($this->DH1_canonicals[$canonicalname])) $rec['CanoMatchDH1_YN'] = 'Y';
-                else { @$no_match++;
+                else { @$this->no_match++;
                     $rec['CanoMatchDH1_YN'] = 'N';
-                    $new_id = 'EOL-N' . sprintf("%011d", $no_match);
+                    $new_id = 'EOL-NoDH1' . sprintf("%06d", $this->no_match);
                     $this->replaced_by[$rec['taxonid']] = $new_id;
                     $rec['taxonid'] = $new_id;
                     $rec['eolidannotations']= 'new';
