@@ -21,18 +21,20 @@ class DH_v21_TRAM_995
     }
     // ----------------------------------------------------------------- start TRAM-807 -----------------------------------------------------------------
     function start()
-    {   /* works
-        self::get_taxID_nodes_info($this->tsv['DH11']); //un-comment in real operation
-        $taxonID = 'EOL-000000000001';
+    {   
+        // /* works
+        // self::get_taxID_nodes_info($this->tsv['DH21']); //un-comment in real operation
+        self::get_taxID_nodes_info($this->main_path."/work_2.txt"); //un-comment in real operation
+        $taxonID = 'EOL-N00000000002'; //'EOL-000000000001';
         $ancestry = self::get_ancestry_of_taxID($taxonID); print_r($ancestry); //exit; //working OK but not used yet
-        $taxonID = 'EOL-000000000005';
-        $children = self::get_descendants_of_taxID($taxonID); print_r($children); //exit;
-        */
+        $taxonID = 'EOL-N00000000002'; //'EOL-000000000005';
+        $children = self::get_descendants_of_taxID($taxonID); print_r($children); exit("\n");
+        // */
         /* GROUP 1: DH2 taxa (homonyms or not) that have no canonical match in DH1, i.e., DH1canonicalName = DH2canonicalName is never true
         Create a new EOL-xxx style identifier for each of these taxa and update all relevant parentNameUsageID values. 
         Also, put “new” in the EOLidAnnotations column for each taxon.
         */
-        self::tag_NoCanonicalMatch_in_DH1();
+        // self::tag_NoCanonicalMatch_in_DH1();
         exit("\n-stop muna-\n");
     }
     private function tag_NoCanonicalMatch_in_DH1()
@@ -55,7 +57,7 @@ class DH_v21_TRAM_995
                 $fields = array_filter($fields); //print_r($fields);
                 if($task == 'tag_DH2_with_CanonicalMatchInDH1_YN') {
                     $tmp_fields = $fields;
-                    $tmp_fields[] = 'CanoMatchDH1';
+                    $tmp_fields[] = 'CanoMatchDH1_YN';
                     $WRITE = fopen($this->main_path."/work_1.txt", "w");
                     fwrite($WRITE, implode("\t", $tmp_fields)."\n");
                 }
@@ -74,15 +76,11 @@ class DH_v21_TRAM_995
             // print_r($rec); exit("\nstopx\n");
             /*Array(    DH1.1
                 [taxonid] => EOL-000000000001
-                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
-                [furtherinformationurl] => 
                 [acceptednameusageid] => 
                 [parentnameusageid] => 
                 [scientificname] => Life
                 [taxonrank] => clade
                 [taxonomicstatus] => valid
-                [taxonremarks] => 
-                [datasetid] => trunk
                 [canonicalname] => Life
                 [eolid] => 2913056
                 [eolidannotations] => 
@@ -93,23 +91,18 @@ class DH_v21_TRAM_995
                 /*Array(    print_r($rec); exit("\nstopx\n");
                     [taxonid] => 4038af35-41da-469e-8806-40e60241bb58
                     [source] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
-                    [furtherinformationurl] => 
                     [acceptednameusageid] => 
                     [parentnameusageid] => 
                     [scientificname] => Life
                     [taxonrank] => 
-                    [taxonomicstatus] => accepted
-                    [taxonremarks] => 
-                    [datasetid] => trunk
                     [canonicalname] => Life
                     [eolid] => 
                     [eolidannotations] => 
-                    [landmark] => 
                 )*/
                 $canonicalname = $rec['canonicalname'];
-                if(isset($this->DH1_canonicals[$canonicalname])) $rec['zzz'] = 'Y';
+                if(isset($this->DH1_canonicals[$canonicalname])) $rec['CanoMatchDH1_YN'] = 'Y';
                 else { @$no_match++;
-                    $rec['zzz'] = 'N';
+                    $rec['CanoMatchDH1_YN'] = 'N';
                     $new_id = 'EOL-N' . sprintf("%011d", $no_match);
                     $this->replaced_by[$rec['taxonid']] = $new_id;
                     $rec['taxonid'] = $new_id;
@@ -119,7 +112,13 @@ class DH_v21_TRAM_995
             }
             elseif($task == 'refresh_parentIDs') {
                 $parent_ID = $rec['parentnameusageid'];
-                if($val = $this->replaced_by[$parent_ID]) $rec['parentnameusageid'] = $val;
+                $accept_ID = $rec['acceptednameusageid'];
+                if($val = @$this->replaced_by[$parent_ID]) {
+                    $rec['parentnameusageid'] = $val;
+                }
+                if($val = @$this->replaced_by[$accept_ID]) {
+                    $rec['acceptednameusageid'] = $val;
+                }
                 fwrite($WRITE, implode("\t", $rec)."\n");
             }
         }
@@ -134,6 +133,7 @@ class DH_v21_TRAM_995
             fclose($WRITE);
             $total = self::get_total_rows($this->main_path."/work_1.txt"); echo "\n work_1 [$total]\n";
             $total = self::get_total_rows($this->main_path."/work_2.txt"); echo "\n work_2 [$total]\n";
+            print_r($has_children);
         }
     }
     private function get_taxID_nodes_info($txtfile = false)
