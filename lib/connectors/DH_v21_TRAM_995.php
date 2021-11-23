@@ -34,10 +34,24 @@ class DH_v21_TRAM_995
         Create a new EOL-xxx style identifier for each of these taxa and update all relevant parentNameUsageID values. 
         Also, put “new” in the EOLidAnnotations column for each taxon.
         */
-        // self::tag_NoCanonicalMatch_in_DH1();
+        /*
+        self::tag_DH2_with_NoCanonicalMatch_in_DH1(); //ends with work_2.txt
+        */
+        self::tag_DH2_with_Homonyms_YN();
         exit("\n-stop muna-\n");
     }
-    private function tag_NoCanonicalMatch_in_DH1()
+    private function tag_DH2_with_Homonyms_YN()
+    {
+        $this->DH2_canonicals = self::parse_tsv($this->main_path."/work_2.txt", 'get_canonicals');
+        // print_r($this->DH2_canonicals);
+        self::parse_tsv($this->tsv['DH21'], 'tag_DH2_with_Homonyms_YN'); //generates work_3.txt
+        // unset($this->DH1_canonicals);
+        // self::parse_tsv($this->main_path."/work_1.txt", 'refresh_parentIDs'); //generates work_2.txt
+        // unset($this->replaced_by);
+        // echo "\n no_match: [$this->no_match]\n";
+    }
+
+    private function tag_DH2_with_NoCanonicalMatch_in_DH1()
     {
         $this->DH1_canonicals = self::parse_tsv($this->tsv['DH11'], 'get_canonicals');
         self::parse_tsv($this->tsv['DH21'], 'tag_DH2_with_CanonicalMatchInDH1_YN'); //generates work_1.txt
@@ -66,6 +80,12 @@ class DH_v21_TRAM_995
                     $WRITE = fopen($this->main_path."/work_2.txt", "w");
                     fwrite($WRITE, implode("\t", $fields)."\n");
                 }
+                if($task == 'tag_DH2_with_Homonyms_YN') {
+                    $tmp_fields = $fields;
+                    $tmp_fields[] = 'Homonyms_YN';
+                    $WRITE = fopen($this->main_path."/work_3.txt", "w");
+                    fwrite($WRITE, implode("\t", $tmp_fields)."\n");
+                }
                 continue;
             }
             else {
@@ -87,7 +107,16 @@ class DH_v21_TRAM_995
                 [eolidannotations] => 
                 [landmark] => 3
             )*/
-            if($task == 'get_canonicals') $final[$rec['canonicalname']] = '';
+            
+            if($task == 'tag_DH2_with_Homonyms_YN') {
+                $canonicalname = $rec['canonicalname'];
+                if($this->DH2_canonicals[$canonicalname] > 1) $rec['Homonyms_YN'] = 'Y';
+                elseif($this->DH2_canonicals[$canonicalname] == 1) $rec['Homonyms_YN'] = 'N';
+                else { print_r($rec); exit("\nInvestigate 1\n"); }
+                fwrite($WRITE, implode("\t", $rec)."\n");
+            }
+            
+            if($task == 'get_canonicals') @$final[$rec['canonicalname']]++;//$final[$rec['canonicalname']] = '';
             elseif($task == 'tag_DH2_with_CanonicalMatchInDH1_YN') {
                 /*Array(    print_r($rec); exit("\nstopx\n");
                     [taxonid] => 4038af35-41da-469e-8806-40e60241bb58
@@ -122,6 +151,11 @@ class DH_v21_TRAM_995
                 }
                 fwrite($WRITE, implode("\t", $rec)."\n");
             }
+        }
+
+        if($task == 'tag_DH2_with_Homonyms_YN') {
+            fclose($WRITE);
+            $total = self::get_total_rows($this->main_path."/work_3.txt"); echo "\n work_3 [$total]\n";
         }
 
         if($task == 'get_canonicals') return $final;
