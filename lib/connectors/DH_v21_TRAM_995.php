@@ -38,7 +38,7 @@ class DH_v21_TRAM_995
     private function tag_NoCanonicalMatch_in_DH1()
     {
         $this->DH1_canonicals = self::parse_tsv($this->tsv['DH11'], 'get_canonicals');
-        self::parse_tsv($this->tsv['DH21'], 'tag_DH2_with_NoCanonicalMatch_in_DH1');
+        self::parse_tsv($this->tsv['DH21'], 'tag_DH2_with_CanonicalMatchInDH1_YN');
     }
     private function parse_tsv($txtfile, $task)
     {   $this->taxID_info = array(); $this->descendants = array(); //initialize global vars
@@ -50,9 +50,9 @@ class DH_v21_TRAM_995
             if($i == 1) {
                 $fields = $row;
                 $fields = array_filter($fields); //print_r($fields);
-                if($task == 'tag_DH2_with_NoCanonicalMatch_in_DH1') {
+                if($task == 'tag_DH2_with_CanonicalMatchInDH1_YN') {
                     $tmp_fields = $fields;
-                    $tmp_fields[] = 'NoCanoMatchDH1';
+                    $tmp_fields[] = 'CanoMatchDH1';
                     $WRITE = fopen($this->main_path."/work_1.txt", "w");
                     fwrite($WRITE, implode("\t", $tmp_fields)."\n");
                 }
@@ -85,7 +85,7 @@ class DH_v21_TRAM_995
                 [landmark] => 3
             )*/
             if($task == 'get_canonicals') $final[$rec['canonicalname']] = '';
-            elseif($task == 'tag_DH2_with_NoCanonicalMatch_in_DH1') {
+            elseif($task == 'tag_DH2_with_CanonicalMatchInDH1_YN') {
                 $canonicalname = $rec['canonicalname'];
                 if(isset($this->DH1_canonicals[$canonicalname])) $rec['zzz'] = 'Y';
                 else                                             $rec['zzz'] = 'N';
@@ -94,9 +94,9 @@ class DH_v21_TRAM_995
         }
 
         if($task == 'get_canonicals') return $final;
-        elseif($task == 'tag_DH2_with_NoCanonicalMatch_in_DH1') {
+        elseif($task == 'tag_DH2_with_CanonicalMatchInDH1_YN') {
             fclose($WRITE);
-            $total = self::get_total_rows($this->tsv['DH22']); echo "\n DH22 [$total]\n";
+            $total = self::get_total_rows($this->tsv['DH21']); echo "\n DH22 [$total]\n";
             $total = self::get_total_rows($this->main_path."/work_1.txt"); echo "\n work_1 [$total]\n";
         }
         
