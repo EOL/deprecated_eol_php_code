@@ -400,11 +400,14 @@ class CoralTraitsAPI
             $rek['GO_0007626']         = $trait_rec['http://purl.obolibrary.org/obo/GO_0007626'];
             $rek['NCIT_C70589']        = $trait_rec['http://purl.obolibrary.org/obo/NCIT_C70589'];
             /* debug only
-            if($rec['trait_name'] == "Depth upper") {
+            if($rec['trait_name'] == "Depth lower") {
                 print_r($trait_rec);
                 print_r($rec);
                 exit("\nelix1\n");
             }*/
+            // /* debug purposes only - useful
+            if($val = $rek['statisticalMethod']) $this->debug['trait_nameS with statMethod value'][$rec['trait_name']][$val] = '';
+            // */
         }
         // else return;
 
