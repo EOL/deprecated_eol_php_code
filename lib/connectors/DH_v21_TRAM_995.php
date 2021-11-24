@@ -34,11 +34,21 @@ class DH_v21_TRAM_995
         Create a new EOL-xxx style identifier for each of these taxa and update all relevant parentNameUsageID values. 
         Also, put “new” in the EOLidAnnotations column for each taxon.
         */
-        // /* Ok good
-        self::tag_DH2_with_NoCanonicalMatch_in_DH1(); //ends with work_2.txt
-        // */
-        self::tag_DH2_with_Homonyms_YN(); //ends with work_3.txt
+        /* Ok good
+        self::tag_DH2_with_NoCanonicalMatch_in_DH1();   //ends with work_2.txt
+        self::tag_DH2_with_Homonyms_YN();               //ends with work_3.txt
+        */
+        
+        // next is just make a stats to see if all categories are correctly covered...
+        self::run_stats_DH2();
         exit("\n-stop muna-\n");
+    }
+    private function run_stats_DH2()
+    {
+        $ret = self::parse_tsv($this->main_path."/work_3.txt", 'run_stats_DH2');
+        print_r($ret);
+        $total = $ret['Group_1'] + $ret['Group_2-1'] + $ret['Group_2-2'] + $ret['Group_3-1'] + $ret['Group_3-2'];
+        echo "\ntotal: [$total]\n";
     }
     private function tag_DH2_with_Homonyms_YN()
     {
@@ -108,6 +118,23 @@ class DH_v21_TRAM_995
                 [landmark] => 3
             )*/
             
+            if($task == 'run_stats_DH2') {
+                /*Array(    [canomatchdh1_yn] => 1
+                            [homonyms_yn] => N
+                )*/
+                $canoMatchDH1_YN = $rec['canomatchdh1_yn']; // 1 or >1 or N
+                $homonyms_YN = $rec['homonyms_yn'];         // Y or N
+                if($canoMatchDH1_YN == "N") @$stats['Group_1']++;
+                if($homonyms_YN == "N") { //are not homonyms
+                        if($canoMatchDH1_YN == 1) @$stats['Group_2-1']++;
+                    elseif($canoMatchDH1_YN > 1)  @$stats['Group_2-2']++;
+                }
+                else { //are homonyms
+                        if($canoMatchDH1_YN == 1) @$stats['Group_3-1']++;
+                    elseif($canoMatchDH1_YN > 1)  @$stats['Group_3-2']++;
+                }
+            }
+            
             if($task == 'tag_DH2_with_Homonyms_YN') {
                 $canonicalname = $rec['canonicalname'];
                 if($this->DH2_canonicals[$canonicalname] > 1) $rec['Homonyms_YN'] = 'Y';
@@ -156,6 +183,11 @@ class DH_v21_TRAM_995
             }
         }
 
+        if($task == 'run_stats_DH2') {
+            $total = self::get_total_rows($this->main_path."/work_3.txt"); echo "\n work_3 [$total]\n";
+            return $stats;
+        }
+        
         if($task == 'tag_DH2_with_Homonyms_YN') {
             fclose($WRITE);
             $total = self::get_total_rows($this->main_path."/work_3.txt"); echo "\n work_3 [$total]\n";
