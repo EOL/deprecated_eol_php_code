@@ -303,6 +303,12 @@ class CoralTraitsAPI
                     $mType                     = $trait_rec['http://rs.tdwg.org/dwc/terms/measurementType'];
                     $mValue                    = $trait_rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
                     $rek['statisticalMethod']  = $trait_rec['http://eol.org/schema/terms/statisticalMethod'];
+                    /* debug only
+                    if($rec['trait_name'] == "Depth lower") { //doesn't exist here, since this part only deals with child records
+                        print_r($trait_rec);
+                        print_r($rec);
+                        exit("\nelix2\n");
+                    }*/
                 }
                 if(!$mValue) $mValue = @$this->meta['value'][$rec['value']]['uri'];
                 if(!$mValue) $mValue = $rec['value']; //meaning get from source, not URI
@@ -393,6 +399,12 @@ class CoralTraitsAPI
             $rek['locality']           = $trait_rec['http://rs.tdwg.org/dwc/terms/locality'];
             $rek['GO_0007626']         = $trait_rec['http://purl.obolibrary.org/obo/GO_0007626'];
             $rek['NCIT_C70589']        = $trait_rec['http://purl.obolibrary.org/obo/NCIT_C70589'];
+            /* debug only
+            if($rec['trait_name'] == "Depth upper") {
+                print_r($trait_rec);
+                print_r($rec);
+                exit("\nelix1\n");
+            }*/
         }
         // else return;
 
@@ -419,7 +431,7 @@ class CoralTraitsAPI
 
         /* http://rs.tdwg.org/dwc/terms/measurementMethod will be concatenated as "methodology_name (value_type)" */
         $rek['measurementMethod'] = self::format_methodology($rec);
-        $rek['statisticalMethod'] = self::get_smethod($rec['value_type']);
+        $rek['statisticalMethod'] = self::get_smethod($rec['value_type'], @$rek['statisticalMethod']);
         
         $rek = self::implement_precision_cols($rec, $rek);
 
@@ -754,7 +766,7 @@ class CoralTraitsAPI
             return FALSE;
         }
     }
-    private function get_smethod($value_type)
+    private function get_smethod($value_type, $orig_value = '')
     {   /*value_type will get used again: http://eol.org/schema/terms/statisticalMethod
         mapping:
         raw_value: http://www.ebi.ac.uk/efo/EFO_0001444
@@ -774,6 +786,7 @@ class CoralTraitsAPI
         if($value_type == 'raw_value') return "http://www.ebi.ac.uk/efo/EFO_0001444";
         elseif($value_type == 'median') return "http://semanticscience.org/resource/SIO_001110";
         elseif($value_type == 'mean') return "http://semanticscience.org/resource/SIO_001109";
+        else return $orig_value;
     }
     private function clean_html($arr)
     {
