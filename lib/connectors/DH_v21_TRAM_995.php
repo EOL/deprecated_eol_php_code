@@ -34,10 +34,10 @@ class DH_v21_TRAM_995
         Create a new EOL-xxx style identifier for each of these taxa and update all relevant parentNameUsageID values. 
         Also, put “new” in the EOLidAnnotations column for each taxon.
         */
-        /*
+        // /* Ok good
         self::tag_DH2_with_NoCanonicalMatch_in_DH1(); //ends with work_2.txt
-        */
-        self::tag_DH2_with_Homonyms_YN();
+        // */
+        self::tag_DH2_with_Homonyms_YN(); //ends with work_3.txt
         exit("\n-stop muna-\n");
     }
     private function tag_DH2_with_Homonyms_YN()
@@ -45,7 +45,7 @@ class DH_v21_TRAM_995
         $this->DH2_canonicals = self::parse_tsv($this->main_path."/work_2.txt", 'get_canonicals');
         // print_r($this->DH2_canonicals);
         self::parse_tsv($this->main_path."/work_2.txt", 'tag_DH2_with_Homonyms_YN'); //generates work_3.txt
-        // unset($this->DH1_canonicals);
+        unset($this->DH2_canonicals);
         // self::parse_tsv($this->main_path."/work_1.txt", 'refresh_parentIDs'); //generates work_2.txt
         // unset($this->replaced_by);
         // echo "\n no_match: [$this->no_match]\n";
@@ -130,7 +130,10 @@ class DH_v21_TRAM_995
                     [eolidannotations] => 
                 )*/
                 $canonicalname = $rec['canonicalname'];
+                /* 1st ver
                 if(isset($this->DH1_canonicals[$canonicalname])) $rec['CanoMatchDH1_YN'] = 'Y';
+                */
+                if($val = @$this->DH1_canonicals[$canonicalname]) $rec['CanoMatchDH1_YN'] = $val; // value is either blank or 1 or >1
                 else { @$this->no_match++;
                     $rec['CanoMatchDH1_YN'] = 'N';
                     $new_id = 'EOL-NoDH1' . sprintf("%06d", $this->no_match);
@@ -168,7 +171,6 @@ class DH_v21_TRAM_995
             fclose($WRITE);
             $total = self::get_total_rows($this->main_path."/work_1.txt"); echo "\n work_1 [$total]\n";
             $total = self::get_total_rows($this->main_path."/work_2.txt"); echo "\n work_2 [$total]\n";
-            print_r($has_children);
         }
     }
     private function get_taxID_nodes_info($txtfile = false)
