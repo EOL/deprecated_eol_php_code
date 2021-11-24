@@ -96,6 +96,12 @@ class DH_v21_TRAM_995
                     $WRITE = fopen($this->main_path."/work_3.txt", "w");
                     fwrite($WRITE, implode("\t", $tmp_fields)."\n");
                 }
+                if($task == 'run_stats_DH2') {
+                    $tmp_fields = $fields;
+                    $tmp_fields[] = 'group';
+                    $WRITE = fopen($this->main_path."/work_4.txt", "w");
+                    fwrite($WRITE, implode("\t", $tmp_fields)."\n");
+                }
                 continue;
             }
             else {
@@ -124,15 +130,16 @@ class DH_v21_TRAM_995
                 )*/
                 $canoMatchDH1_YN = $rec['canomatchdh1_yn']; // 1 or >1 or N
                 $homonyms_YN = $rec['homonyms_yn'];         // Y or N
-                if($canoMatchDH1_YN == "N") @$stats['Group_1']++;
+                if($canoMatchDH1_YN == "N") {@$stats['Group_1']++; $rec['group'] = 'G1';}
                 if($homonyms_YN == "N") { //are not homonyms
-                        if($canoMatchDH1_YN == 1) @$stats['Group_2-1']++;
-                    elseif($canoMatchDH1_YN > 1)  @$stats['Group_2-2']++;
+                        if($canoMatchDH1_YN == 1) {@$stats['Group_2-1']++; $rec['group'] = 'G2_1';}
+                    elseif($canoMatchDH1_YN > 1)  {@$stats['Group_2-2']++; $rec['group'] = 'G2_2';}
                 }
                 else { //are homonyms
-                        if($canoMatchDH1_YN == 1) @$stats['Group_3-1']++;
-                    elseif($canoMatchDH1_YN > 1)  @$stats['Group_3-2']++;
+                        if($canoMatchDH1_YN == 1) {@$stats['Group_3-1']++; $rec['group'] = 'G3_1';}
+                    elseif($canoMatchDH1_YN > 1)  {@$stats['Group_3-2']++; $rec['group'] = 'G3_2';}
                 }
+                fwrite($WRITE, implode("\t", $rec)."\n");
             }
             
             if($task == 'tag_DH2_with_Homonyms_YN') {
@@ -184,15 +191,15 @@ class DH_v21_TRAM_995
         }
 
         if($task == 'run_stats_DH2') {
+            fclose($WRITE);
             $total = self::get_total_rows($this->main_path."/work_3.txt"); echo "\n work_3 [$total]\n";
+            $total = self::get_total_rows($this->main_path."/work_4.txt"); echo "\n work_4 [$total]\n";
             return $stats;
         }
-        
         if($task == 'tag_DH2_with_Homonyms_YN') {
             fclose($WRITE);
             $total = self::get_total_rows($this->main_path."/work_3.txt"); echo "\n work_3 [$total]\n";
         }
-
         if($task == 'get_canonicals') return $final;
         elseif($task == 'tag_DH2_with_CanonicalMatchInDH1_YN') {
             fclose($WRITE);
