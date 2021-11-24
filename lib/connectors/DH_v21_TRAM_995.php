@@ -37,13 +37,12 @@ class DH_v21_TRAM_995
         /* Ok good
         self::tag_DH2_with_NoCanonicalMatch_in_DH1();   //ends with work_2.txt
         self::tag_DH2_with_Homonyms_YN();               //ends with work_3.txt
+        self::tag_DH2_with_group();                     //ends with work_4.txt -> also generates stats to see if all categories are correctly covered...
         */
         
-        // next is just make a stats to see if all categories are correctly covered...
-        self::run_stats_DH2();
         exit("\n-stop muna-\n");
     }
-    private function run_stats_DH2()
+    private function tag_DH2_with_group()
     {
         $ret = self::parse_tsv($this->main_path."/work_3.txt", 'run_stats_DH2');
         print_r($ret);
@@ -52,15 +51,10 @@ class DH_v21_TRAM_995
     }
     private function tag_DH2_with_Homonyms_YN()
     {
-        $this->DH2_canonicals = self::parse_tsv($this->main_path."/work_2.txt", 'get_canonicals');
-        // print_r($this->DH2_canonicals);
+        $this->DH2_canonicals = self::parse_tsv($this->main_path."/work_2.txt", 'get_canonicals'); // print_r($this->DH2_canonicals);
         self::parse_tsv($this->main_path."/work_2.txt", 'tag_DH2_with_Homonyms_YN'); //generates work_3.txt
         unset($this->DH2_canonicals);
-        // self::parse_tsv($this->main_path."/work_1.txt", 'refresh_parentIDs'); //generates work_2.txt
-        // unset($this->replaced_by);
-        // echo "\n no_match: [$this->no_match]\n";
     }
-
     private function tag_DH2_with_NoCanonicalMatch_in_DH1()
     {
         $this->DH1_canonicals = self::parse_tsv($this->tsv['DH11'], 'get_canonicals');
