@@ -39,9 +39,139 @@ class DH_v21_TRAM_995
         self::tag_DH2_with_Homonyms_YN();               //ends with work_3.txt
         self::tag_DH2_with_group();                     //ends with work_4.txt -> also generates stats to see if all categories are correctly covered...
         */
-        
+        self::proc_Group_2_1();
         exit("\n-stop muna-\n");
     }
+    private function proc_Group_2_1()
+    {
+        $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info'); // print_r($this->DH1_canonicals);
+        $this->replaced_by = array();
+        self::parse_tsv2($this->main_path."/work_4.txt", 'group_2_1'); //generates work_5.txt
+        unset($this->DH1_canonicals);
+        
+        self::parse_tsv2($this->main_path."/work_5.txt", 'refresh_parentIDs_work_5'); //generates work_6.txt
+        unset($this->replaced_by);
+        
+    }
+    private function parse_tsv2($txtfile, $task)
+    {   $this->taxID_info = array(); $this->descendants = array(); //initialize global vars
+        $i = 0;
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." [$task]";
+            if($i == 1) $line = strtolower($line);
+            $row = explode("\t", $line); // print_r($row);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                if($task == 'group_2_1') {
+                    $tmp_fields = $fields;
+                    $WRITE = fopen($this->main_path."/work_5.txt", "w");
+                    fwrite($WRITE, implode("\t", $tmp_fields)."\n");
+                }
+                elseif($task == 'refresh_parentIDs_work_5') {
+                    $WRITE = fopen($this->main_path."/work_6.txt", "w");
+                    fwrite($WRITE, implode("\t", $fields)."\n");
+                }
+                
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
+            }
+            // $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nstopxy\n");
+            if($task == 'group_2_1') {
+                if($rec['group'] == 'G2_1') {$rec = self::main_G2_1($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
+            }
+            elseif($task == 'get_canonicals_and_info') {
+                /*Array(
+                    [taxonid] => EOL-000000000001
+                    [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                    [acceptednameusageid] => 
+                    [parentnameusageid] => 
+                    [scientificname] => Life
+                    [taxonrank] => clade
+                    [taxonomicstatus] => valid
+                    [canonicalname] => Life
+                    [eolid] => 2913056
+                )*/
+                $final[$rec['canonicalname']] = array('ID' => $rec['taxonid'], 'pID' => $rec['parentnameusageid'], 'r' => $rec['taxonrank']);
+            }
+            elseif($task == 'refresh_parentIDs_work_5') {
+                $parent_ID = $rec['parentnameusageid'];
+                $accept_ID = $rec['acceptednameusageid'];
+                if($val = @$this->replaced_by[$parent_ID]) $rec['parentnameusageid'] = $val;
+                if($val = @$this->replaced_by[$accept_ID]) $rec['acceptednameusageid'] = $val;
+                fwrite($WRITE, implode("\t", $rec)."\n");
+            }
+        }
+        if($task == 'get_canonicals_and_info') return $final;
+        elseif($task == 'group_2_1') {
+            fclose($WRITE);
+            $total = self::get_total_rows($this->main_path."/work_5.txt"); echo "\n work_5 [$total]\n";
+        }
+        elseif($task == 'refresh_parentIDs_work_5') {
+            fclose($WRITE);
+            $total = self::get_total_rows($this->main_path."/work_5.txt"); echo "\n work_5 [$total]\n";
+            $total = self::get_total_rows($this->main_path."/work_6.txt"); echo "\n work_6 [$total]\n";
+        }
+    }
+    private function main_G2_1($rec)
+    {   //print_r($rec); //exit;
+        /*Array(
+            [taxonid] => 4038af35-41da-469e-8806-40e60241bb58
+            [source] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
+            [furtherinformationurl] => 
+            [acceptednameusageid] => 
+            [parentnameusageid] => 
+            [scientificname] => Life
+            [taxonrank] => 
+            [taxonomicstatus] => accepted
+            [taxonremarks] => 
+            [datasetid] => trunk
+            [canonicalname] => Life
+            [eolid] => 
+            [eolidannotations] => 
+            [landmark] => 
+            [canomatchdh1_yn] => 1
+            [homonyms_yn] => N
+            [group] => G2_1
+        )*/
+        $canonicalname = $rec['canonicalname'];
+        $taxonrank = $rec['taxonrank'];
+        if($rek = $this->DH1_canonicals[$canonicalname]) {
+            /*Array(
+                [c] => Niastella hibisci --- removed to save on memory
+                [ID] => EOL-000000021986
+                [pID] => EOL-000000021982
+                [r] => species
+            )*/
+            // RANK TEST
+            if($taxonrank == $rek['r']) {
+                // If this is TRUE, the rank test passes, and we can transfer the DH1 taxonID: 
+                // Replace the current DH2 taxonID with the DH1 taxonID and update all relevant parentNameUsageID values.
+                $this->replaced_by[$rec['taxonid']] = $rek['ID'];
+                $rec['taxonid'] = $rek['ID'];
+            }
+            else {
+                // If this is FALSE, the rank test fails, and we won't transfer the DH1 taxonID. 
+                // Instead, create a new identifier for the DH2 taxon and update all relevant parentNameUsageID values. 
+                // Also, put "rankMismatch" in the EOLidAnnotations column for this taxon.
+                @$this->ctr_G21++;
+                $new_id = 'EOL-G21' . sprintf("%09d", $this->ctr_G21);
+                $this->replaced_by[$rec['taxonid']] = $new_id;
+                $rec['taxonid'] = $new_id;
+                $rec['eolidannotations'] = 'rankMismatch';
+            }
+        }
+        else exit("\nerror: should not go here 1.\n");
+        return $rec;
+    }
+    
+    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     private function tag_DH2_with_group()
     {
         $ret = self::parse_tsv($this->main_path."/work_3.txt", 'run_stats_DH2');
