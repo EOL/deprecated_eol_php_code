@@ -304,7 +304,8 @@ class CoralTraitsAPI
                     $mValue                    = $trait_rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
                     $rek['statisticalMethod']  = $trait_rec['http://eol.org/schema/terms/statisticalMethod'];
                     /* debug only
-                    if($rec['trait_name'] == "Depth lower") { //doesn't exist here, since this part only deals with child records
+                    // if($rec['trait_name'] == "Depth lower") { //doesn't exist here, since this part only deals with child records
+                    if($val = $rek['statisticalMethod']) { does not go here anyway...
                         print_r($trait_rec);
                         print_r($rec);
                         exit("\nelix2\n");
