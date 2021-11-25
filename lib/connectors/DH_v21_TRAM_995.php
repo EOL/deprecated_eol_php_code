@@ -38,12 +38,12 @@ class DH_v21_TRAM_995
         $children = self::get_descendants_of_taxID($taxonID); print_r($children); echo "children"; exit("\n-end test-\n");
         */
         
-        /* first step: run only once in lifetime - DONE
+        /* ######################################################## first step: run only once in lifetime - DONE 
         // new cols for DH1 and DH2 - need to build-up:
         // if genus or species => canonical_family_ancestor
         // else                => canonical_parent AND canonical_grandparent
         self::pre_build_up_DH(); exit("\n-end pre_build_up_DH-\n");
-        */
+        ######################################################## */
         
         
         /* GROUP 1: DH2 taxa (homonyms or not) that have no canonical match in DH1, i.e., DH1canonicalName = DH2canonicalName is never true
