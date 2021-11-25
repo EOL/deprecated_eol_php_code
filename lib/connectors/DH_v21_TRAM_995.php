@@ -207,7 +207,7 @@ class DH_v21_TRAM_995
             foreach($reks as $rek) {
                 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                 // RANK TEST
-                if($taxonrank == $rek['r']) $rank_test_success++;
+                if($taxonrank == $rek['r'] || !$taxonrank || !$rek['r']) $rank_test_success++;
                 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
             } //end foreach($reks)
 
@@ -237,7 +237,7 @@ class DH_v21_TRAM_995
                              $success = $rek;
                              //copied $rec['eolidannotations'] = 'ancestorMatch';
                         }
-                        else{} //copied $rec['eolidannotations'] = "ancestorMismatch: [$DH1_parent]-[$DH1_grandparent], [$DH2_parent]-[$DH2_grandparent]";
+                        else {} //copied $rec['eolidannotations'] = "ancestorMismatch: [$DH1_parent]-[$DH1_grandparent], [$DH2_parent]-[$DH2_grandparent]";
                     }
                     //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                 } //end foreach($reks)
@@ -321,7 +321,7 @@ class DH_v21_TRAM_995
             )*/
             $rek = $reks[0];
             // RANK TEST
-            if($taxonrank == $rek['r']) {
+            if($taxonrank == $rek['r'] || !$taxonrank || !$rek['r']) {
                 // If this is TRUE, the rank test passes, and we can transfer the DH1 taxonID: 
                 // Replace the current DH2 taxonID with the DH1 taxonID and update all relevant parentNameUsageID values.
                 $this->replaced_by[$rec['taxonid']] = $rek['ID'];
