@@ -30,8 +30,12 @@ mysql> CREATE TABLE minted_records_bak LIKE minted_records;
 mysql> INSERT minted_records_bak SELECT * FROM minted_records;
 */
 
+/* main operation
 $func->start($resource_id);
 unset($func);
+*/
+
+$func->generate_dwca();
 Functions::finalize_dwca_resource($resource_id, true, false);
 run_diagnostics($resource_id);
 
@@ -47,7 +51,6 @@ echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
-/* copied template
 Function run_diagnostics($resource_id) // utility - takes time for this resource but very helpful to catch if all parents have entries.
 {
     require_library('connectors/DWCADiagnoseAPI');
@@ -62,5 +65,4 @@ Function run_diagnostics($resource_id) // utility - takes time for this resource
     if($undefined) echo "\nERROR: There is undefined acceptedNameUsageID(s): ".count($undefined)."\n";
     else           echo "\nOK: All acceptedNameUsageID have entries.\n";
 }
-*/
 ?>

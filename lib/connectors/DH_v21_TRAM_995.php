@@ -698,6 +698,79 @@ class DH_v21_TRAM_995
         $total = trim($total);
         return $total;
     }
+    function generate_dwca()
+    {   $source = $this->main_path."/work_6.txt";
+        echo "\nReading [$source]...\n"; $i = 0;
+        foreach(new FileIterator($source) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." [generate_dwca]";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec); //print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [taxonid] => EOL-G21000000001
+                [source] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
+                [furtherinformationurl] => 
+                [acceptednameusageid] => 
+                [parentnameusageid] => 
+                [scientificname] => Life
+                [taxonrank] => 
+                [taxonomicstatus] => accepted
+                [taxonremarks] => 
+                [datasetid] => trunk
+                [canonicalname] => Life
+                [eolid] => 
+                [eolidannotations] => rankMismatch
+                [landmark] => 
+
+                [canonical_family_ancestor] => 
+                [canonical_parent] => 
+                [canonical_grandparent] => 
+                [canomatchdh1_yn] => 1
+                [homonyms_yn] => N
+                [group] => G2_1
+            )*/
+            
+            /* copied template
+            if($rank = $rec['taxonrank']) {
+                if($rank == 'no rank') $rank = '';
+                elseif($rank == 'varietas') $rank = 'variety';
+                elseif($rank == 'forma.') $rank = 'form';
+            }
+            */
+            
+            $tax = new \eol_schema\Taxon();
+            $tax->taxonID = $rec['taxonid'];
+            $tax->scientificName = $rec['scientificname'];
+            $tax->canonicalName = $rec['canonicalname'];
+            $tax->parentNameUsageID = $rec['parentnameusageid'];
+            $tax->acceptedNameUsageID = $rec['acceptednameusageid'];
+            $tax->taxonRank = $rec['taxonrank'];
+            $tax->taxonomicStatus = $rec['taxonomicstatus'];
+            $tax->source = $rec['source'];
+            $tax->furtherInformationURL = $rec['furtherinformationurl'];
+            $tax->taxonRemarks = $rec['taxonremarks'];
+            $tax->datasetID = $rec['datasetid'];
+            $tax->EOLid = $rec['eolid'];
+            $tax->EOLidAnnotations = $rec['eolidannotations'];
+            // $tax->higherClassification = $rec['higherclassification'];
+            $tax->Landmark = $rec['landmark'];
+            $this->archive_builder->write_object_to_file($tax);
+        }
+        $this->archive_builder->finalize(true);
+    }
+    /* not used anyway --- this was taken from another script
     private function get_descendants_of_taxID($uid, $direct_descendants_only_YN = false, $this_descendants = array())
     {
         if(!isset($this->descendants)) $this->descendants = $this_descendants;
@@ -913,6 +986,6 @@ if($val = @$this->descendants[$child17]) {
         // print_r($final); exit("\n-end here-\n");
         if($final) return array_keys($final);
         return array();
-    }
+    }*/
 }
 ?>
