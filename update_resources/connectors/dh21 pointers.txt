@@ -1,0 +1,117 @@
+2328980 DH1_1working.txt ($ wc -l)
+2404940 DH2_1working.txt ($ wc -l)  
+-------------------------------------------------
+ work_3 [2404940]
+Array
+(
+    [Group_2-1] => 2234609
+    [Group_3-2] => 3536
+    [Group_1] => 166059
+    [Group_2-2] => 321
+    [Group_3-1] => 414
+)
+
+total: [2404939]
+-------------------------------------------------ancestry
+Array(
+    [0] => EOL-000002321109
+    [1] => EOL-000002321107 --- the parent
+    [2] => EOL-000002321106 --- the grandparent
+    [3] => EOL-000002321105
+    [4] => EOL-000002321062
+    [5] => EOL-000002321061
+    [6] => EOL-000002321060
+    [7] => EOL-000002321059
+    [8] => EOL-000002321058
+    [9] => EOL-000002321033
+    [10] => EOL-000002321032
+    [11] => EOL-000000025791
+    [12] => EOL-000000000002
+    [13] => EOL-000000000001
+)
+-------------------------------------------------
+Array
+(
+    [pID] => EOL-000002321107
+    [r] => subspecies
+    [n] => Leishmania braziliensis guyanensis
+)
+Array
+(
+    [pID] => EOL-000002321106
+    [r] => species
+    [n] => Leishmania braziliensis
+)
+Array
+(
+    [pID] => EOL-000002321105
+    [r] => species group
+    [n] => Leishmania braziliensis species complex
+)
+Array
+(
+    [pID] => EOL-000002321062
+    [r] => subgenus
+    [n] => Leishmania subgen. Viannia
+)
+Array
+(
+    [pID] => EOL-000002321061
+    [r] => genus
+    [n] => Leishmania
+)
+Array
+(
+    [pID] => EOL-000002321060
+    [r] => subfamily
+    [n] => Leishmaniinae
+)
+Array
+(
+    [pID] => EOL-000002321059
+    [r] => family
+    [n] => Trypanosomatidae
+)
+Array
+(
+    [pID] => EOL-000002321058
+    [r] => order
+    [n] => Kinetoplastida
+)
+Array
+(
+    [pID] => EOL-000002321033
+    [r] => phylum
+    [n] => Euglenozoa
+)
+Array
+(
+    [pID] => EOL-000002321032
+    [r] => clade
+    [n] => Discoba
+)
+Array
+(
+    [pID] => EOL-000000025791
+    [r] => clade
+    [n] => Excavates
+)
+Array
+(
+    [pID] => EOL-000000000002
+    [r] => domain
+    [n] => Eukaryota
+)
+Array
+(
+    [pID] => EOL-000000000001
+    [r] => clade
+    [n] => Cellular Organisms
+)
+Array
+(
+    [pID] => 
+    [r] => clade
+    [n] => Life
+)
+-------------------------------------------------end

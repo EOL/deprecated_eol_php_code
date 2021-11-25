@@ -23,16 +23,30 @@ class DH_v21_TRAM_995
     function start()
     {   
         /* works
-        // self::get_taxID_nodes_info($this->tsv['DH21']); //un-comment in real operation
-        self::get_taxID_nodes_info($this->main_path."/work_2.txt"); //un-comment in real operation
-        $taxonID = 'EOL-N00000000002'; //'EOL-000000000001';
-        $ancestry = self::get_ancestry_of_taxID($taxonID); print_r($ancestry); //exit; //working OK but not used yet
-        $taxonID = 'EOL-N00000000002'; //'EOL-000000000005';
-        $children = self::get_descendants_of_taxID($taxonID); print_r($children); exit("\n");
+        self::get_taxID_nodes_info($this->tsv['DH11']); //un-comment in real operation
+        // self::get_taxID_nodes_info($this->main_path."/work_4.txt"); //un-comment in real operation
+        $taxonID = "EOL-000002321109"; //'-8365'; //'EOL-000002321109';
+        $ancestry = self::get_ancestry_of_taxID($taxonID); print_r($ancestry); echo "ancestry"; //exit; //working OK but not used yet
+        
+        foreach($ancestry as $id) {
+            if($rec = $this->taxID_info[$id]) print_r($rec);
+        }
+        
+        $taxonID = "EOL-000002321109";  //'-8365'; //'EOL-000002321109';
+        $children = self::get_descendants_of_taxID($taxonID); print_r($children); echo "children"; exit("\n-end test-\n");
         */
+        
+        /*
+        new cols for DH1 and DH2 - need to build-up:
+        if genus or species => canonical_family_ancestor
+        else                => canonical_parent AND canonical_grandparent
+        */
+        self::pre_build_up_DH(); exit("\n-end pre_build_up_DH-\n");
+        
+        
         /* GROUP 1: DH2 taxa (homonyms or not) that have no canonical match in DH1, i.e., DH1canonicalName = DH2canonicalName is never true
         Create a new EOL-xxx style identifier for each of these taxa and update all relevant parentNameUsageID values. 
-        Also, put “new” in the EOLidAnnotations column for each taxon.
+        Also, put "new" in the EOLidAnnotations column for each taxon.
         */
         /* Ok good
         self::tag_DH2_with_NoCanonicalMatch_in_DH1();   //ends with work_2.txt
@@ -41,6 +55,14 @@ class DH_v21_TRAM_995
         */
         self::proc_Group_2_1();
         exit("\n-stop muna-\n");
+    }
+    private function pre_build_up_DH()
+    {
+        self::get_taxID_nodes_info($this->tsv['DH11']);
+        self::parse_tsv2($this->tsv['DH11'], 'build_up_useful_cols_DH11'); //generates DH11_working_new.txt
+
+        self::get_taxID_nodes_info($this->tsv['DH21']);
+        self::parse_tsv2($this->tsv['DH21'], 'build_up_useful_cols_DH21'); //generates DH21_working_new.txt
     }
     private function proc_Group_2_1()
     {
@@ -54,8 +76,7 @@ class DH_v21_TRAM_995
         
     }
     private function parse_tsv2($txtfile, $task)
-    {   $this->taxID_info = array(); $this->descendants = array(); //initialize global vars
-        $i = 0;
+    {   $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." [$task]";
             if($i == 1) $line = strtolower($line);
@@ -72,7 +93,22 @@ class DH_v21_TRAM_995
                     $WRITE = fopen($this->main_path."/work_6.txt", "w");
                     fwrite($WRITE, implode("\t", $fields)."\n");
                 }
-                
+                //==========================================================================================
+                if(in_array($task, array('build_up_useful_cols_DH11', 'build_up_useful_cols_DH21'))) {
+                    $tmp_fields = $fields;
+                    $tmp_fields[] = 'canonical_family_ancestor';
+                    $tmp_fields[] = 'canonical_parent';
+                    $tmp_fields[] = 'canonical_grandparent';
+                }
+                if($task == 'build_up_useful_cols_DH11') {
+                    $WRITE = fopen($this->main_path."/DH11_working_new.txt", "w");
+                    fwrite($WRITE, implode("\t", $tmp_fields)."\n");
+                }
+                elseif($task == 'build_up_useful_cols_DH21') {
+                    $WRITE = fopen($this->main_path."/DH21_working_new.txt", "w");
+                    fwrite($WRITE, implode("\t", $tmp_fields)."\n");
+                }
+                //==========================================================================================
                 continue;
             }
             else {
@@ -82,6 +118,12 @@ class DH_v21_TRAM_995
             }
             // $rec = array_map('trim', $rec);
             // print_r($rec); exit("\nstopxy\n");
+            
+            if(in_array($task, array('build_up_useful_cols_DH11', 'build_up_useful_cols_DH21'))) {
+                $rec = self::main_build_up($rec); 
+                fwrite($WRITE, implode("\t", $rec)."\n");
+            }
+            
             if($task == 'group_2_1') {
                 if($rec['group'] == 'G2_1') {$rec = self::main_G2_1($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
@@ -117,6 +159,16 @@ class DH_v21_TRAM_995
             fclose($WRITE);
             $total = self::get_total_rows($this->main_path."/work_5.txt"); echo "\n work_5 [$total]\n";
             $total = self::get_total_rows($this->main_path."/work_6.txt"); echo "\n work_6 [$total]\n";
+        }
+        if($task == 'build_up_useful_cols_DH11') {
+            fclose($WRITE);
+            $total = self::get_total_rows($this->tsv['DH11']); echo "\n DH11 [$total]\n";
+            $total = self::get_total_rows($this->main_path."/DH11_working_new.txt"); echo "\n DH11_working_new [$total]\n";
+        }
+        elseif($task == 'build_up_useful_cols_DH21') {
+            fclose($WRITE);
+            $total = self::get_total_rows($this->tsv['DH21']); echo "\n DH21 [$total]\n";
+            $total = self::get_total_rows($this->main_path."/DH21_working_new.txt"); echo "\n DH21_working_new [$total]\n";
         }
     }
     private function main_G2_1($rec)
@@ -155,6 +207,36 @@ class DH_v21_TRAM_995
                 // Replace the current DH2 taxonID with the DH1 taxonID and update all relevant parentNameUsageID values.
                 $this->replaced_by[$rec['taxonid']] = $rek['ID'];
                 $rec['taxonid'] = $rek['ID'];
+                
+                /*
+                new cols for DH1 and DH2 - need to build-up:
+                if genus or species => canonical_family_ancestor
+                else                => canonical_parent AND canonical_grandparent
+                */
+                
+                /* ANCESTRY TEST
+                ANCESTRY TEST (do this for all DH2 non-homonyms that passed the rank test). How to conduct the test depends on the rank of the DH2 taxon.
+                DH2 TAXA WITH RANK GENUS OR SPECIES
+                Find the nearest ancestor where taxonRank=family for the DH2 and matching DH1 taxon. 
+                Check if the following is true: canonicalNameDH1 family = canonicalNameDH2 family. 
+                (If one of the taxa does not have an ancestor where taxonRank=family, do the TAXA OF OTHER RANKS test instead.)
+
+                If this is FALSE, put "ancestorMismatch: family1, family2" in the EOLidAnnotations column for this taxon. 
+                Where family1 is the canonicalName of the family in DH1 and family2 is the canonicalName of the family in DH2.
+
+                If this is TRUE, put "ancestorMatch" in the EOLidAnnotations column for this taxon.
+                
+                DH TAXA WITH OTHER RANKS
+                Check if either the parents or the grandparents of the DH1 and DH2 taxa are a canonical match, i.e., any one of these are true:
+                canonicalName of DH1parent = canonicalName of DH2parent OR 
+                canonicalName of DH1parent = canonicalName of DH2grandparent OR 
+                canonicalName of DH1grandparent = canonicalName of DH2parent OR 
+                canonicalName of DH1grandparent = canonicalName of DH2grandparent
+
+                If this is FALSE, put “ancestorMismatch: parent1-grandparent1, parent2-grandparent2” in the EOLidAnnotations column for this taxon.
+
+                If this is TRUE, put “ancestorMatch” in the EOLidAnnotations column for this taxon.
+                */
             }
             else {
                 // If this is FALSE, the rank test fails, and we won't transfer the DH1 taxonID. 
@@ -170,7 +252,83 @@ class DH_v21_TRAM_995
         else exit("\nerror: should not go here 1.\n");
         return $rec;
     }
-    
+    private function main_build_up($rec)
+    {   //print_r($rec); exit("\ncha\n");
+        /*Array( DH11
+            [taxonid] => EOL-000000000001
+            [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+            [furtherinformationurl] => 
+            [acceptednameusageid] => 
+            [parentnameusageid] => 
+            [scientificname] => Life
+            [taxonrank] => clade
+            [taxonomicstatus] => valid
+            [taxonremarks] => 
+            [datasetid] => trunk
+            [canonicalname] => Life
+            [eolid] => 2913056
+            [eolidannotations] => 
+            [landmark] => 3
+        )
+        Array( DH21
+            [taxonid] => 4038af35-41da-469e-8806-40e60241bb58
+            [source] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
+            [furtherinformationurl] => 
+            [acceptednameusageid] => 
+            [parentnameusageid] => 
+            [scientificname] => Life
+            [taxonrank] => 
+            [taxonomicstatus] => accepted
+            [taxonremarks] => 
+            [datasetid] => trunk
+            [canonicalname] => Life
+            [eolid] => 
+            [eolidannotations] => 
+            [landmark] => 
+        )*/
+        $taxonID = $rec['taxonid'];
+        $rank = $rec['taxonrank'];
+        $rec['canonical_family_ancestor'] = '';
+        $rec['canonical_parent'] = '';
+        $rec['canonical_grandparent'] = '';
+        /*
+        new cols for DH1 and DH2 - need to build-up:
+        if genus or species => canonical_family_ancestor
+        else                => canonical_parent AND canonical_grandparent
+        */
+        $ancestry = self::get_ancestry_of_taxID($taxonID); //print_r($ancestry); //first record is the taxon in question -> $rec['taxonid]
+        if(in_array($rank, array('genus', 'species'))) { //get canonical_family_ancestor
+            $i = -1;
+            foreach($ancestry as $id) { $i++;
+                if($i === 0) { /* $ancestry[0] is the taxon in question -> $rec['taxonid] */
+                    if($taxonID != $id) exit("\nInvestigate code 101\n");
+                }
+                if($rex = $this->taxID_info[$id]) { //print_r($rex)
+                    /*Array(
+                        [pID] => EOL-000002321107
+                        [r] => subspecies
+                        [n] => Leishmania braziliensis guyanensis
+                    )*/
+                    if($rex['r'] == 'family') $rec['canonical_family_ancestor'] = $rex['n'];
+                }
+            }
+        }
+        else { //get canonical_parent AND canonical_grandparent
+            if($ancestry) {
+                if($rec['parentnameusageid'] != @$ancestry[1]) exit("\nInvestigate code 100\n");
+            }
+            /* $ancestry[0] is the taxon in question -> $rec['taxonid] */
+            if($parent_id = @$ancestry[1]) {
+                $rex = $this->taxID_info[$parent_id];
+                $rec['canonical_parent'] = $rex['n'];
+            }
+            if($grandparent_id = @$ancestry[2]) {
+                $rex = $this->taxID_info[$grandparent_id];
+                $rec['canonical_grandparent'] = $rex['n'];
+            }
+        }
+        return $rec;
+    }
     //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     private function tag_DH2_with_group()
     {
@@ -195,8 +353,7 @@ class DH_v21_TRAM_995
         echo "\n no_match: [$this->no_match]\n";
     }
     private function parse_tsv($txtfile, $task)
-    {   $this->taxID_info = array(); $this->descendants = array(); //initialize global vars
-        $i = 0;
+    {   $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             if($i == 1) $line = strtolower($line);
@@ -340,7 +497,7 @@ class DH_v21_TRAM_995
     {   $this->taxID_info = array(); $this->descendants = array(); //initialize global vars
         $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
-            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." [get_taxID_nodes_info]";
             if($i == 1) $line = strtolower($line);
             $row = explode("\t", $line); // print_r($row);
             if($i == 1) {
