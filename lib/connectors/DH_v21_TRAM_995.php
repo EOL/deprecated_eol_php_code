@@ -16,8 +16,10 @@ class DH_v21_TRAM_995
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/TRAM-995/";
         }
-        $this->tsv['DH11'] = $this->main_path."/dh1_1/DH1_1working.txt";
-        $this->tsv['DH21'] = $this->main_path."/dh2_1/DH2_1working.txt";
+        $this->tsv['DH11_Jen'] = $this->main_path."/dh1_1/DH1_1working.txt";
+        $this->tsv['DH21_Jen'] = $this->main_path."/dh2_1/DH2_1working.txt";
+        $this->tsv['DH11'] = $this->main_path."/DH11_working_new.txt";
+        $this->tsv['DH21'] = $this->main_path."/DH21_working_new.txt";
     }
     // ----------------------------------------------------------------- start TRAM-807 -----------------------------------------------------------------
     function start()
@@ -36,12 +38,12 @@ class DH_v21_TRAM_995
         $children = self::get_descendants_of_taxID($taxonID); print_r($children); echo "children"; exit("\n-end test-\n");
         */
         
-        /*
-        new cols for DH1 and DH2 - need to build-up:
-        if genus or species => canonical_family_ancestor
-        else                => canonical_parent AND canonical_grandparent
-        */
+        /* first step: run only once in lifetime - DONE
+        // new cols for DH1 and DH2 - need to build-up:
+        // if genus or species => canonical_family_ancestor
+        // else                => canonical_parent AND canonical_grandparent
         self::pre_build_up_DH(); exit("\n-end pre_build_up_DH-\n");
+        */
         
         
         /* GROUP 1: DH2 taxa (homonyms or not) that have no canonical match in DH1, i.e., DH1canonicalName = DH2canonicalName is never true
@@ -58,11 +60,11 @@ class DH_v21_TRAM_995
     }
     private function pre_build_up_DH()
     {
-        self::get_taxID_nodes_info($this->tsv['DH11']);
-        self::parse_tsv2($this->tsv['DH11'], 'build_up_useful_cols_DH11'); //generates DH11_working_new.txt
+        self::get_taxID_nodes_info($this->tsv['DH11_Jen']);
+        self::parse_tsv2($this->tsv['DH11_Jen'], 'build_up_useful_cols_DH11'); //generates DH11_working_new.txt
 
-        self::get_taxID_nodes_info($this->tsv['DH21']);
-        self::parse_tsv2($this->tsv['DH21'], 'build_up_useful_cols_DH21'); //generates DH21_working_new.txt
+        self::get_taxID_nodes_info($this->tsv['DH21_Jen']);
+        self::parse_tsv2($this->tsv['DH21_Jen'], 'build_up_useful_cols_DH21'); //generates DH21_working_new.txt
     }
     private function proc_Group_2_1()
     {
@@ -162,12 +164,12 @@ class DH_v21_TRAM_995
         }
         if($task == 'build_up_useful_cols_DH11') {
             fclose($WRITE);
-            $total = self::get_total_rows($this->tsv['DH11']); echo "\n DH11 [$total]\n";
+            $total = self::get_total_rows($this->tsv['DH11_Jen']); echo "\n DH11 [$total]\n";
             $total = self::get_total_rows($this->main_path."/DH11_working_new.txt"); echo "\n DH11_working_new [$total]\n";
         }
         elseif($task == 'build_up_useful_cols_DH21') {
             fclose($WRITE);
-            $total = self::get_total_rows($this->tsv['DH21']); echo "\n DH21 [$total]\n";
+            $total = self::get_total_rows($this->tsv['DH21_Jen']); echo "\n DH21 [$total]\n";
             $total = self::get_total_rows($this->main_path."/DH21_working_new.txt"); echo "\n DH21_working_new [$total]\n";
         }
     }
