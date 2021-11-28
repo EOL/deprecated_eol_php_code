@@ -30,12 +30,12 @@ mysql> CREATE TABLE minted_records_bak LIKE minted_records;
 mysql> INSERT minted_records_bak SELECT * FROM minted_records;
 */
 
-/* main operation
+// /* main operation
 $func->start($resource_id);
 unset($func);
-*/
+// */
 
-$func->generate_dwca();
+// $func->generate_dwca(); //works OK - final step
 Functions::finalize_dwca_resource($resource_id, true, false);
 run_diagnostics($resource_id);
 

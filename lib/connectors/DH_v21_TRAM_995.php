@@ -168,6 +168,15 @@ class DH_v21_TRAM_995
             $total = self::get_total_rows($this->main_path."/DH21_working_new.txt"); echo "\n DH21_working_new [$total]\n";
         }
     }
+    private function RANK_TEST_yn($taxonrank, $rek)
+    {
+        if($taxonrank && $rek['r'] && $taxonrank != $rek['r']) return false;
+        else {
+            if($taxonrank == $rek['r'] || !$taxonrank || !$rek['r']) return true;
+            exit("\ninvestigate code 105\n");
+        }
+        exit("\ninvestigate code 104\n"); //will not go this line
+    }
     private function main_G2_2($rec)
     {   /*Array(
             [taxonid] => 4038af35-41da-469e-8806-40e60241bb58
@@ -207,7 +216,7 @@ class DH_v21_TRAM_995
             foreach($reks as $rek) {
                 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                 // RANK TEST
-                if($taxonrank == $rek['r'] || !$taxonrank || !$rek['r']) $rank_test_success++;
+                if(self::RANK_TEST_yn($taxonrank, $rek)) $rank_test_success++;
                 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
             } //end foreach($reks)
 
@@ -259,8 +268,8 @@ class DH_v21_TRAM_995
                 // "h-ancestorMismatch: family1, family2" or "h-ancestorMismatch: parent1-grandparent1, parent2-grandparent2"
                 // in the EOLidAnnotations column, depending on the rank of the DH2 taxon.
                 $rec['taxonid'] = $orig_taxonid;
-                if(in_array($taxonrank, array('genus', 'species'))) $rec['eolidannotations'] = "h-ancestorMismatch: family1, family2";
-                else $rec['eolidannotations'] = "h-ancestorMismatch: parent1-grandparent1, parent2-grandparent2";
+                if(in_array($taxonrank, array('genus', 'species'))) $rec['eolidannotations'] = "h-ancestorMismatch: multiple";
+                else $rec['eolidannotations'] = "h-ancestorMismatch: multiple";
             }
             if($rank_test_success == 1 && $ancestry_test_success == 1) {
                 // If there is only one DH1 candidate that passes both the rank test and the ancestry test, 
@@ -321,7 +330,7 @@ class DH_v21_TRAM_995
             )*/
             $rek = $reks[0];
             // RANK TEST
-            if($taxonrank == $rek['r'] || !$taxonrank || !$rek['r']) {
+            if(self::RANK_TEST_yn($taxonrank, $rek)) {
                 // If this is TRUE, the rank test passes, and we can transfer the DH1 taxonID: 
                 // Replace the current DH2 taxonID with the DH1 taxonID and update all relevant parentNameUsageID values.
                 $this->replaced_by[$rec['taxonid']] = $rek['ID'];
