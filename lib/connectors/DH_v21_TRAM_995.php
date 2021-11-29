@@ -311,8 +311,9 @@ class DH_v21_TRAM_995
             foreach($ancestry_test_success as $id)  $both[$id][] = 'ancestry test OK';
             $candidates_pass_both = 0; //no. of candidates that passe both rank and ancestry test
             foreach($both as $id => $tests) {
-                if(count($test) > 1) {
-                    $candidates_pass_both++; $id_dh2 = $id;
+                if(count($tests) > 1) {
+                    $candidates_pass_both++;
+                    $id_dh2 = $id;
                 }
             }
             if($candidates_pass_both == 1) {
