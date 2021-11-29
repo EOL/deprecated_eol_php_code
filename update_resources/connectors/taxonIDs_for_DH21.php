@@ -7,6 +7,57 @@ require_library('connectors/DH_v21_TRAM_995');
 // ini_set('memory_limit','6096M');
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
+
+// $DH1_id = 173;
+// $DH2_id = 300;
+// $both_DH1[$DH1_id][$DH2_id][] = 'rank test OK';
+// $DH2_id = 301;
+// $both_DH1[$DH1_id][$DH2_id][] = 'ancestry test OK';
+// $DH2_id = 300;
+// $both_DH1[$DH1_id][$DH2_id][] = 'ancestry test OK';
+// print_r($both_DH1);
+
+/*Array(
+    [173] => Array(
+            [300] => Array(
+                    [0] => rank test OK
+                    [1] => ancestry test OK
+                )
+            [301] => Array(
+                    [0] => ancestry test OK
+                )
+        )
+)
+----------------------
+[173] [300]
+Array(
+    [0] => rank test OK
+    [1] => ancestry test OK
+)
+
+[173] [301]
+Array(
+    [0] => ancestry test OK
+)
+
+Array(
+    [173] => 300
+)
+*/
+
+// foreach($both_DH1 as $dh1_id => $rekord) {
+//     foreach($rekord as $dh2_id => $tests) {
+//         echo "\n[$dh1_id] [$dh2_id]\n"; print_r($tests);
+//         if(count($tests) > 1) $DH1_passed_tests[$dh1_id] = $dh2_id;
+//     }
+// }
+// print_r($DH1_passed_tests);
+/*Array(
+    [173] => 300
+)*/
+// echo "\nDH1_passed_tests: ".count($DH1_passed_tests)."\n";
+// exit;
+
 /* test
 $pr_id = 24;
 $pr_id = sprintf("%011d", $pr_id);

@@ -127,6 +127,7 @@ class DH_v21_TRAM_995
                     if($rec['group'] == 'G2_1') {$rec = self::main_G2_1($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
                 elseif($rec['group'] == 'G2_2') {$rec = self::main_G2_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
                 elseif($rec['group'] == 'G3_1') {$rec = self::main_G3_1($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                elseif($rec['group'] == 'G3_2') {$rec = self::main_G3_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
             elseif($task == 'get_canonicals_and_info_DH1') { //print_r($rec); exit("\n172\n");
@@ -210,6 +211,179 @@ class DH_v21_TRAM_995
             exit("\ninvestigate code 105\n");
         }
         exit("\ninvestigate code 104\n"); //will not go this line
+    }
+    private function main_G3_2($rec)
+    {
+        $orig_taxonid = $rec['taxonid'];
+        $canonicalname = $rec['canonicalname'];
+        $orig_taxonrank = $rec['taxonrank'];
+        // RANK TEST as above for each DH1/DH2 pair
+        
+        $DH2_homonyms = $this->DH2_canonicals[$canonicalname];
+        if(count($DH2_homonyms) <= 1) exit("\nInvestigate code 401. It should always be > 1\n");
+        $reks = $this->DH1_canonicals[$canonicalname];
+        if(count($reks) <= 1) exit("\nInvestigate code 402. It should always be > 1\n");
+        /*Array( $reks or $DH2_homonyms
+            [0] => Array(
+                    [ID] => EOL-000000000001
+                    [pID] => 
+                    [r] => clade
+                    [can_fam_anc] => 
+                    [can_par] => 
+                    [can_gpa] => )
+        )*/
+        foreach($DH2_homonyms as $homonym_rec) {
+            $taxonrank_homonym = $homonym_rec['r'];
+            $rank_test_pass_YN = false;
+            foreach($reks as $rek) { //$reks here are always > 1
+                //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                // RANK TEST
+                if(self::RANK_TEST_yn($taxonrank_homonym, $rek)) { $rank_test_pass_YN = true; 
+                    $rank_test_success_DH2[$homonym_rec['ID']] = $rek['ID'];
+                    $rank_test_success_DH1[$rek['ID']] = $homonym_rec['ID'];
+                //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                    $ancestry_test_pass_YN = false;
+                    // For DH2 homonyms that pass the rank test with at least one DH1 candidate, 
+                    // do an ANCESTRY TEST (as above) for each of the passing candidates.
+                    foreach($reks as $rek2) {
+                        //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                        /* ANCESTRY TEST */
+                        $DH2_fam = $homonym_rec['can_fam_anc'];
+                        $DH1_fam = $rek2['can_fam_anc'];
+                        $taxonrank = $homonym_rec['r'];
+                        if(in_array($taxonrank, array('genus', 'species')) || !$DH2_fam || $DH1_fam) {
+                            /* DH2 TAXA WITH RANK GENUS OR SPECIES */
+                            if($DH1_fam == $DH2_fam) {
+                                $ancestry_test_pass_YN = true;
+                                //these next 2 rows function together
+                                $ancestry_test_success_DH2[$homonym_rec['ID']] = $rek2['ID'];
+                                $ancestry_test_success_DH1[$rek2['ID']] = $homonym_rec['ID'];
+                            }
+                        }
+                        else {
+                            /* DH TAXA WITH OTHER RANKS */
+                            $DH2_parent = $homonym_rec['can_par'];
+                            $DH2_grandparent = $homonym_rec['can_gpa'];
+                            $DH1_parent = $rek2['can_par'];
+                            $DH1_grandparent = $rek2['can_gpa'];
+                            if($DH1_parent == $DH2_parent || $DH1_parent == $DH2_grandparent || $DH1_grandparent == $DH2_parent || $DH1_grandparent == $DH2_grandparent) {
+                                $ancestry_test_pass_YN = true;
+                                //these next 2 rows function together
+                                $ancestry_test_success_DH2[$homonym_rec['ID']] = $rek2['ID'];
+                                $ancestry_test_success_DH1[$rek2['ID']] = $homonym_rec['ID'];
+                            }
+                        }
+                        //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                    } //end foreach($reks2)
+                    
+                    if($ancestry_test_pass_YN == false) {
+                        // If the ancestry tests fail for all of the DH1 candidates, 
+                        // leave the old DH2 taxonID and put "h-ancestorMismatch: family1, family2" 
+                        // or "h-ancestorMismatch: parent1-grandparent1, parent2-grandparent2" in the EOLidAnnotations column, 
+                        // depending on the rank of the DH2 taxon.
+                        if(in_array($taxonrank, array('genus', 'species'))) $rec['eolidannotations'] = "h-ancestorMismatch";
+                        else                                                $rec['eolidannotations'] = "h-ancestorMismatch";
+                    }
+                    
+                    
+                }
+            }
+            if($rank_test_pass_YN == false) {
+                // For DH2 homonyms that fail the rank test with all of the DH1 candidates, 
+                // leave the old DH2 taxonID and put "h-RankMismatch" in the EOLidAnnotations column for this taxon.
+                if($orig_taxonid == $homonym_rec['ID']) $rec['eolidannotations'] = 'h-RankMismatch';
+            }
+        } //end foreach($DH2_homonyms)
+
+        $both_DH1 = array();    $both_DH2 = array();
+        foreach($rank_test_success_DH1 as $DH1_id => $DH2_id)      $both_DH1[$DH1_id][$DH2_id][] = 'rank test OK';
+        foreach($rank_test_success_DH2 as $DH2_id => $DH1_id)      $both_DH2[$DH2_id][$DH1_id][] = 'rank test OK';
+        foreach($ancestry_test_success_DH1 as $DH1_id => $DH2_id)  $both_DH1[$DH1_id][$DH2_id][] = 'ancestry test OK';
+        foreach($ancestry_test_success_DH2 as $DH2_id => $DH1_id)  $both_DH2[$DH2_id][$DH1_id][] = 'ancestry test OK';
+        /*Array( print_r($both_DH1);
+            [173] => Array(
+                    [300] => Array(
+                            [0] => rank test OK
+                            [1] => ancestry test OK
+                        )
+                    [301] => Array(
+                            [0] => ancestry test OK
+                        )
+                )
+        )*/
+        $DH1_passed_tests = array();
+        foreach($both_DH1 as $dh1_id => $rekord) {  //FOR DH 1
+            foreach($rekord as $dh2_id => $tests) {
+                // echo "\n[$dh1_id] [$dh2_id]\n"; print_r($tests);
+                if(count($tests) > 1) $DH1_passed_tests[$dh1_id] = $dh2_id;
+            }
+        }
+        /* evaluating echo "\n[$dh1_id] [$dh2_id]\n"; print_r($tests);
+        [173] [300]
+        Array(
+            [0] => rank test OK
+            [1] => ancestry test OK
+        )
+        [173] [301]
+        Array(
+            [0] => ancestry test OK
+        )*/
+        
+        /*Array( print_r($DH1_passed_tests);
+            [173] => 300
+        )*/
+        // echo "\nDH1_passed_tests: ".count($DH1_passed_tests)."\n";
+        // DH1_passed_tests: 1
+
+        $DH2_passed_tests = array();
+        foreach($both_DH2 as $dh2_id => $rekord) {  //FOR DH 2
+            foreach($rekord as $dh1_id => $tests) {
+                // echo "\n[$dh2_id] [$dh1_id]\n"; print_r($tests);
+                if(count($tests) > 1) $DH2_passed_tests[$dh2_id] = $dh1_id;
+            }
+        }
+
+        if(count($DH1_passed_tests) == 1) {
+            //step 1: get the DH1 ID
+            $arr = array_keys($DH1_passed_tests);
+            $DH1_id = $arr[0];
+            //step 2: 
+            $DH2_IDs = self::get_DH2_homonyms_that_passed_tests_with_this_DH1_candidate($DH2_passed_tests, $DH1_id);
+            if(!$DH2_IDs) {
+                // If there is only one DH1 candidate that passes both the rank test and the ancestry test 
+                // AND there are no other DH2 homonyms that have passed the rank & ancestry tests with this DH1 candidate, 
+                // replace the current DH2 taxonID with the taxonID of the DH1 candidate and update all relevant parentNameUsageID values. 
+                // Also, put "h-ancestorMatch" in the EOLidAnnotations column for this taxon.
+                $this->replaced_by[$rec['taxonid']] = $DH1_id;
+                $rec['taxonid'] = $DH1_id;
+                $rec['eolidannotations'] = 'h-ancestorMatch';
+            }
+        }
+        elseif(count($DH1_passed_tests) > 1) {
+            // If there is more than one DH1 candidate that passes both the rank test and the ancestry test, leave the old DH2 taxonID, 
+            // and put "multipleMatches" in the EOLidAnnotations column for this taxon.
+            $rec['eolidannotations'] = 'multipleMatches';
+        }
+
+        if(count($DH2_passed_tests) > 1) {
+            // If there are multiple DH2 homonyms that pass both the rank test and the ancestry test with a given DH1 candidate, 
+            // leave the old taxonIDs for the DH2 homonyms, and put "multipleMatches" in the EOLidAnnotations column for these taxa.
+            $rec['eolidannotations'] = 'multipleMatches';
+        }
+        return $rec;
+        // The final result of this should be a file with most DH2 taxonID values replaced by DH1 taxonID values. 
+        // Each taxon should have a value in the EOLidAnnotations field, and each taxonID should be unique.
+    }
+    private function get_DH2_homonyms_that_passed_tests_with_this_DH1_candidate($DH2_passed_tests, $DH1_id)
+    {
+        /*Array( print_r($DH2_passed_tests);
+            [dh2 id] => dh1 id
+        )*/
+        $final = array();
+        foreach($DH2_passed_tests as $dh2_id => $dh1_id) {
+            if($dh1_id == $DH1_id) $final[] = $dh2_id;
+        }
+        return $final;
     }
     private function main_G3_1($rec)
     {
