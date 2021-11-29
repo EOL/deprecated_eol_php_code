@@ -86,7 +86,7 @@ $func->start($resource_id);
 unset($func);
 // */
 
-// $func->generate_dwca(); //works OK - final step
+$func->generate_dwca(); //works OK - final step
 Functions::finalize_dwca_resource($resource_id, true, false);
 run_diagnostics($resource_id);
 

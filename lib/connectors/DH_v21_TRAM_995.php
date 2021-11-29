@@ -232,6 +232,11 @@ class DH_v21_TRAM_995
                     [can_par] => 
                     [can_gpa] => )
         )*/
+        
+        $rank_test_success_DH1 = array();
+        $rank_test_success_DH2 = array();
+        $ancestry_test_success_DH1 = array();
+        $ancestry_test_success_DH2 = array();
         foreach($DH2_homonyms as $homonym_rec) {
             $taxonrank_homonym = $homonym_rec['r'];
             $rank_test_pass_YN = false;
