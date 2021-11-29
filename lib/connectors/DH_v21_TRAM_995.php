@@ -267,8 +267,7 @@ class DH_v21_TRAM_995
                             /* DH2 TAXA WITH RANK GENUS OR SPECIES */
                             if($DH1_fam == $DH2_fam) {
                                 $ancestry_test_success[] = $homonym_rec['ID'];
-                                $success = $rek;
-                                $success['DH2 candidate ID'] = $homonym_rec['ID'];
+                                $success[$homonym_rec['ID']] = $rek;
                             }
                             else {}
                         }
@@ -280,8 +279,7 @@ class DH_v21_TRAM_995
                             $DH1_grandparent = $rek['can_gpa'];
                             if($DH1_parent == $DH2_parent || $DH1_parent == $DH2_grandparent || $DH1_grandparent == $DH2_parent || $DH1_grandparent == $DH2_grandparent) {
                                 $ancestry_test_success[] = $homonym_rec['ID'];
-                                $success = $rek;
-                                $success['DH2 candidate ID'] = $homonym_rec['ID'];
+                                $success[$homonym_rec['ID']] = $rek;
                             }
                             else {}
                         }
@@ -295,6 +293,7 @@ class DH_v21_TRAM_995
                 // in the EOLidAnnotations column, depending on the rank of the DH2 taxon.
                 $rec['eolidannotations'] = 'h-ancestorMismatch';
             }
+            /* replaced by one below
             if(count($rank_test_success) == 1 && count($ancestry_test_success) == 1 && $rank_test_success == $ancestry_test_success) {
                 // If there is only one DH2 candidate that passes both the rank test and the ancestry test, 
                 // replace the current DH2 taxonID of that candidate with the taxonID of the DH1 taxon 
@@ -305,13 +304,29 @@ class DH_v21_TRAM_995
                     $rec['taxonid'] = $success['ID'];
                     $rec['eolidannotations'] = 'h-ancestorMatch';
                 }
-            }
+            }*/
             
             $both = array();
             foreach($rank_test_success as $id)      $both[$id][] = 'rank test OK';
             foreach($ancestry_test_success as $id)  $both[$id][] = 'ancestry test OK';
             $candidates_pass_both = 0; //no. of candidates that passe both rank and ancestry test
-            foreach($both as $id => $tests) if(count($test) > 1) $candidates_pass_both++;
+            foreach($both as $id => $tests) {
+                if(count($test) > 1) {
+                    $candidates_pass_both++; $id_dh2 = $id;
+                }
+            }
+            if($candidates_pass_both == 1) {
+                // If there is only one DH2 candidate that passes both the rank test and the ancestry test, 
+                // replace the current DH2 taxonID of that candidate with the taxonID of the DH1 taxon 
+                // and update all relevant parentNameUsageID values. 
+                // Also, put "h-ancestorMatch" in the EOLidAnnotations column for this taxon.
+                if($s = $success[$id_dh2]) {
+                    $this->replaced_by[$rec['taxonid']] = $s['ID'];
+                    $rec['taxonid'] = $s['ID'];
+                    $rec['eolidannotations'] = 'h-ancestorMatch';
+                }
+                else exit("\ninvestigate code 300\n");
+            }
             if($candidates_pass_both > 1) {
                 // If there is more than one DH2 candidate that passes both the rank test and the ancestry test, leave the old taxonIDs, 
                 // and put "multipleMatches" in the EOLidAnnotations column for these taxa.
