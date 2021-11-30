@@ -394,7 +394,7 @@ class ParseSizePatternsAPI
             $x['row'] = $main['row'];
             $x['pattern'] = $main['pattern'];
 
-            $x['number_or_number_range'] = $main['number_or_number_range'];
+            $x['number_or_number_range'] = self::format_number_or_number_range($main['number_or_number_range']);
             // $x['number_or_number_range_key'] = $main['number_or_number_range_key']; //debug purposes only
 
             $x['units_term'] = strtolower($main['units_term']);
@@ -673,7 +673,7 @@ class ParseSizePatternsAPI
 
                 $x['Body_Part_term'] = $main['Body_Part_term'];
                 $x['dimension_term_noun'] = $main['dimension_term_noun'];
-                $x['number_or_number_range'] = $main['number_or_number_range'];
+                $x['number_or_number_range'] = self::format_number_or_number_range($main['number_or_number_range']);
                 $x['units_term'] = strtolower($main['units_term']);
 
                 $x = self::assign_further_metadata($x);
