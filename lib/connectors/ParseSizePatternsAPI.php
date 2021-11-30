@@ -118,8 +118,8 @@ class ParseSizePatternsAPI
         foreach($strings as $string) {
             $row = str_ireplace(" $string.", " $string .", $row);
             $row = str_ireplace(" $string,", " $string ,", $row);
-            
         }
+        
         $row = Functions::remove_whitespace($row);
         // */
         
@@ -210,9 +210,10 @@ class ParseSizePatternsAPI
 
         $this->eli = false;
         /* debug only
-        if(substr($row,0,27) == "Archegonial thallus cuneate") {
-            print_r($words); print_r($positions);
-            exit("\n$row\n");
+        // https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/NAF_Plants_size_patterns_2021_11_22.txt
+        // https://editors.eol.org/other_files/Smithsonian/BHL/15436/15436_tagged.txt
+        if(substr($row,0,28) == "A much-branched shrub , 1 m.") {
+            print_r($words); print_r($positions); // exit("\n$row\n");
             $this->eli = true;
         }
         */
@@ -272,7 +273,7 @@ class ParseSizePatternsAPI
                 // $x['Body_Part_term_key'] = $main['Body_Part_term_key']; //debug purposes only
                 // $x['Body_Part_term_option'] = $main['Body_Part_term_option']; //debug purposes only
 
-                $x['number_or_number_range'] = $main['number_or_number_range'];
+                $x['number_or_number_range'] = self::format_number_or_number_range($main['number_or_number_range']);
                 // $x['number_or_number_range_key'] = $main['number_or_number_range_key']; //debug purposes only
 
                 $x['units_term'] = strtolower($main['units_term']);
@@ -292,6 +293,24 @@ class ParseSizePatternsAPI
         if($unit_key = self::get_units_term($words)) $main['units_term'] = $words[$unit_key];
         else return false;
         */
+    }
+    private function format_number_or_number_range($str)
+    {   //e.g. "4r-9" should be "4-9"
+        $str = trim($str);
+        $words = explode(" ", $str);
+        if(count($words) == 1) {
+            $words2 = explode("-", $str); //range separated by "-"
+            if(count($words2) == 2) {
+                if(!is_numeric($words2[0])) {   // print_r($words2); 
+                    if($numbers = self::get_numbers_from_string($words2[0])) $words2[0] = $numbers[0]; //print_r($numbers); //exit("\n[$str]\n");
+                }
+                if(!is_numeric($words2[1])) {
+                    if($numbers = self::get_numbers_from_string($words2[1])) $words2[1] = $numbers[0]; //print_r($numbers);
+                }
+                if($words2[0] < $words2[1]) return implode("-", $words2);
+            }
+        }
+        return $str;
     }
     private function assign_further_metadata($x)
     {
