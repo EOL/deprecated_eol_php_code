@@ -168,6 +168,8 @@ assoc true gnfinder
 MoftheAES_resources	Wed 2021-10-27 04:29:20 AM	{"MoF.tab":12363, "media.tab":1935, "occurrence.tab":12363, "taxon.tab":5967, "time_elapsed":{"sec":87.9, "min":1.47, "hr":0.02}}
 after first review: size patterns
 MoftheAES_resources	Thu 2021-11-11 08:19:53 AM	{"MoF.tab":12377, "media.tab":1935, "occurrence.tab":12377, "taxon.tab":5967, "time_elapsed":{"sec":38.67, "min":0.64, "hr":0.01}}
+MoftheAES_resources	Thu 2021-12-02 08:12:32 AM	{"MoF.tab":12381, "media.tab":1935, "occurrence.tab":12381, "taxon.tab":5967, "time_elapsed":{"sec":40.17, "min":0.67, "hr":0.01}}
+
 ------------------------------------------------------------ North American Flora (DATA-1890) --- BHL - 7 documents
 15423	    Tue 2021-07-13 07:19:04     {               "media_resource.tab":73,                   "taxon.tab":73, "time_elapsed":{"sec":0.38, "min":0.01, "hr":0}}
 15423_ENV	Tue 2021-07-13 07:23:01     {"MoF.tab":338, "media_resource.tab":73, "occur.tab":338,  "taxon.tab":73, "time_elapsed":{"sec":115.98, "min":1.93, "hr":0.03}}
@@ -277,6 +279,8 @@ remove pattern 4th:
 NorthAmericanFlora	Tue 2021-11-09 08:47:44 PM	{"assoc.tab":5695, "MoF.tab":3599, "media.tab":795, "occurrence.tab":9870, "taxon.tab":7111, "time_elapsed":{"sec":17.39, "min":0.29, "hr":0}}
 after first review: size patterns
 NorthAmericanFlora	Thu 2021-11-11 08:19:39 AM	{"assoc.tab":5695, "MoF.tab":3895, "media.tab":795, "occurrence.tab":10166,"taxon.tab":7111, "time_elapsed":{"sec":18.2, "min":0.3, "hr":0.01}}
+NorthAmericanFlora	Tue 2021-11-16 10:45:55 AM	{"assoc.tab":5695, "MoF.tab":4077, "media.tab":795, "occurrence.tab":10348,"taxon.tab":7111, "time_elapsed":{"sec":17.48, "min":0.29, "hr":0}}
+NorthAmericanFlora	Thu 2021-12-02 08:12:59 AM	{"assoc.tab":5695, "MoF.tab":4094, "media.tab":795, "occurrence.tab":10365,"taxon.tab":7111, "time_elapsed":{"sec":17.47, "min":0.29, "hr":0}}
 
 ---------- start FUNGI list: ----------
 "15404", "15405", "15406", "15407", "15408", "15409", "15410", "15411", "15412", 
@@ -378,6 +382,8 @@ NorthAmericanFlora_Fungi	Wed 2021-10-27 04:28:54 AM	{"assoc.tab":3,
 after first review: size patterns
 NorthAmericanFlora_Fungi	Thu 2021-11-11 08:19:58 AM	{"assoc.tab":3, 
                                                          "MoF.tab":11039, "media_resource.tab":4624, "occurrence_specific.tab":11045, "taxon.tab":4618, "time_elapsed":{"sec":34.23, "min":0.57, "hr":0.01}}
+NorthAmericanFlora_Fungi	Thu 2021-12-02 08:13:40 AM	{"assoc.tab":3, 
+                                                         "MoF.tab":11043, "media_resource.tab":4624, "occurrence_specific.tab":11049, "taxon.tab":4618, "time_elapsed":{"sec":33.45, "min":0.56, "hr":0.01}}
 ---------- end FUNGI list: ----------
 
 ---------- Plant list: ----------
@@ -572,11 +578,20 @@ assoc true gnfinder
 NorthAmericanFlora_Plants	Wed 2021-10-27 06:00:07 AM	{"MoF.tab":45807, "media.tab":11574, "occurrence.tab":45807, "taxon.tab":11430, "time_elapsed":{"sec":94.86, "min":1.58, "hr":0.03}}
 after first review: size patterns
 NorthAmericanFlora_Plants	Thu 2021-11-11 08:21:24 AM	{"MoF.tab":58940, "media.tab":11574, "occurrence.tab":58940, "taxon.tab":11430, "time_elapsed":{"sec":115.91, "min":1.93, "hr":0.03}}
+NorthAmericanFlora_Plants	Wed 2021-12-01 07:50:32 AM	{"MoF.tab":62949, "media.tab":11574, "occurrence.tab":62949, "taxon.tab":11430, "time_elapsed":{"sec":104.95, "min":1.75, "hr":0.03}}
+NorthAmericanFlora_Plants	Thu 2021-12-02 08:15:33 AM	{"MoF.tab":62873, "media.tab":11574, "occurrence.tab":62873, "taxon.tab":11430, "time_elapsed":{"sec":106.47, "min":1.77, "hr":0.03}}
+
 ----------summary
 NorthAmericanFlora          {"assoc.tab":5695,  "MoF.tab":3338,  "media.tab":795,   "occur.tab":9609,  "taxon.tab":7111, "time_elapsed":{"sec":17.14, "min":0.29, "hr":0}}
 NorthAmericanFlora_Plants   {                   "MoF.tab":45807, "media.tab":11574, "occur.tab":45807, "taxon.tab":11430, "time_elapsed":{"sec":94.86, "min":1.58, "hr":0.03}}
 NorthAmericanFlora_Fungi    {"assoc.tab":3,     "MoF.tab":10991, "media.tab":4624,  "occur.tab":10997, "taxon.tab":4618, "time_elapsed":{"sec":65.62, "min":1.09, "hr":0.02}}
 NorthAmericanFlora_All      {"assoc.tab":5698, "MoF.tab":60136,  "media.tab":16993, "occur.tab":66413, "taxon.tab":21588, "time_elapsed":{"sec":59.07, "min":0.98, "hr":0.02}}
+
+
+
+NorthAmericanFlora_All	Thu 2021-12-02 08:16:48 AM	{"association.tab":5698, "measurement_or_fact_specific.tab":78010, "media_resource.tab":16993, "occurrence_specific.tab":84287, "taxon.tab":21588, "time_elapsed":{"sec":65.91, "min":1.1, "hr":0.02}}
+
+
 ====================== Kubitzki_et_al ======================
 START PATTERNS:
 sample genus:
