@@ -95,7 +95,18 @@ class ParseSizePatternsAPI
         if($ret = self::parse_row_pattern_2($row)) return $ret;
     }
     private function format_row($row)
-    {
+    {   // /* manual fixes  // exit("\n$this->pdf_id\n");
+        if($this->pdf_id == '119187') {
+            $row = str_ireplace(".025-. 3", "0.025-0.3", $row);
+            $row = str_ireplace(".015-. 52", "0.015-0.52", $row);
+            $row = str_ireplace(".04-. 38", "0.04-0.38", $row);
+        }
+        // */
+        
+        $row = self::format_number_number_range($row);
+        // FROM:   with numerous setae .05 to .16 mm.
+        // TO:     with numerous setae .05-.16 mm.
+        
         $row = str_ireplace("in diameter", "in_diameter", $row);
         $row = str_ireplace("snout vent", "snout_vent", $row);
         $row = str_ireplace("head body", "head_body", $row);
@@ -520,8 +531,18 @@ class ParseSizePatternsAPI
     {
         $number_key = $unit_key - 1;
         if($number_str = $words[$number_key]) {
+            if(!self::valid_number($number_str)) return false;
             if(self::get_numbers_from_string($number_str)) return $number_key;
         }
+    }
+    private function valid_number($str) //if range, then left should be < right
+    {
+        $words = explode("-", $str);
+        if(count($words) == 2) { //it is a range
+            if($words[0] < $words[1]) return true;  //e.g. 1-2 mm long
+            else return false; //invalid range      //e.g. 2-1 mm long
+        }
+        else return true; //not a range. Just return true for now.
     }
     private function get_units_term_v2($words, $term_key)
     {
@@ -1018,6 +1039,24 @@ class ParseSizePatternsAPI
             }
         }
         return $row;
+    }
+    private function format_number_number_range($row)
+    {   // FROM:   with numerous setae .05 to .16 mm.
+        // TO:     with numerous setae .05-.16 mm.
+        $words = explode(" ", $row);
+        $i = -1;
+        foreach($words as $word) { $i++;
+            // if(strtolower($word) == "to") {
+            if(in_array(strtolower($word), array("to", "-"))) {
+                if(is_numeric(@$words[$i-1]) && is_numeric(@$words[$i+1])) {
+                    $words[$i] = $words[$i-1] . "-" . $words[$i+1];
+                    $words[$i-1] = '';
+                    $words[$i+1] = '';
+                }
+            }
+        }
+        $row = implode(" ", $words);
+        return Functions::remove_whitespace($row);
     }
     /* never used
     private function replace_caret_with_correctValue_when_appropriate($row)

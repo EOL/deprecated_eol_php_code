@@ -85,6 +85,17 @@ $resource_id = $param['resource_id'];
 $resource_name = @$param['resource_name']; //right now used in Media -> derivedFrom column
 $doc = @$param['doc'];
 
+/*
+// .05 to .16
+$row = "with numerous setae .05 to .16 mm."; echo "\n$row\n";
+$row = format_number_number_range($row); exit("\n$row\n");
+$str = ".05-.16";
+if(is_numeric($str)) echo "\n[$str] is numeric\n";
+else                 echo "\n[$str] is not numeric\n";
+exit("\n-end test-\n");
+*/
+
+
 /* un-comment in real operation - main operation --- WASN'T USED HERE IN Memoirs
 require_library('connectors/ParseListTypeAPI');
 require_library('connectors/SmithsonianPDFsAPI');
