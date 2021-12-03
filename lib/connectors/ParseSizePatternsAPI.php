@@ -103,7 +103,7 @@ class ParseSizePatternsAPI
         }
         // */
         
-        $row = self::format_number_number_range($row);
+        $row = self::fix_number_number_range($row);
         // FROM:   with numerous setae .05 to .16 mm.
         // TO:     with numerous setae .05-.16 mm.
         
@@ -1040,7 +1040,7 @@ class ParseSizePatternsAPI
         }
         return $row;
     }
-    private function format_number_number_range($row)
+    private function fix_number_number_range($row)
     {   // FROM:   with numerous setae .05 to .16 mm.
         // TO:     with numerous setae .05-.16 mm.
         $words = explode(" ", $row);
