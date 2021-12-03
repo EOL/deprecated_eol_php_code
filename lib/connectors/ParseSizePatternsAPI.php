@@ -124,6 +124,11 @@ class ParseSizePatternsAPI
         // antheridial thallus => use mapping for thallus, but in occurrence, sex=female, http://purl.obolibrary.org/obo/PATO_0000383
         // */
         
+        // /*
+        $row = str_ireplace("fertile frond", "fertile_frond", $row);
+        $row = str_ireplace("sterile frond", "sterile_frond", $row);
+        // */
+        
         // /* dimension strings:
         $strings = array("high", "long", "wide", "in_diameter", "wingspan", "thick", "in_greatest_width");
         foreach($strings as $string) {
@@ -332,6 +337,10 @@ class ParseSizePatternsAPI
             elseif($body_part == 'antheridial_thallus') $x['occurrence_sex'] = 'http://purl.obolibrary.org/obo/PATO_0000383'; //female
             elseif($body_part == 'archegonial_thalli') $x['occurrence_sex'] = 'http://purl.obolibrary.org/obo/PATO_0000384'; //male
             elseif($body_part == 'antheridial_thalli') $x['occurrence_sex'] = 'http://purl.obolibrary.org/obo/PATO_0000383'; //female
+
+            // http://rs.tdwg.org/dwc/terms/reproductiveCondition
+            if($body_part == 'fertile_frond') $x['occurrence_reproductiveCondition'] = 'http://purl.obolibrary.org/obo/PATO_0000955';
+            elseif($body_part == 'sterile_frond') $x['occurrence_reproductiveCondition'] = 'http://purl.obolibrary.org/obo/PATO_0000956';
         }
         if(stripos($x['number_or_number_range'], "^") !== false) $x['status'] = 'DISCARD THIS RECORD. Or manually fix it. Check PDF for real value of caret (^)'; //string is found
         return $x;
@@ -484,6 +493,16 @@ class ParseSizePatternsAPI
                 Head 6.79 mm. long, 8.68 mm. wide,
                 -> must get 2 hits for Head - long and wide
                 */
+                
+                // /* mindless filters:
+                // for North American Flora - Fungi, since we know it's fungi, not plants - please remove all records where [Body_Part_term] => leaf
+                // for North American Flora - Plants AND North American Flora - 1st 7 docs - please remove all records where [Body_Part_term] => head. 
+                //                            That's just too confusing for plant parts.
+                if($this->param['IOReport'] == 'NAF_Fungi' && $body_part_str == "leaf") return false;
+                if(in_array($this->param['IOReport'], array('NAF_Plants', 'NAF_first7'))) {
+                    if($body_part_str == "head") return false;
+                }
+                // */
                 
                 if(in_array($body_part_str, $arr_body_parts)) {
                     // /* new
@@ -894,7 +913,10 @@ class ParseSizePatternsAPI
             $rec['measurementRemarks'] = "$sciname. ".$rek['row'];
             $rec['source'] = @$meta[$pdf_id]['dc.relation.url'];
             $rec['bibliographicCitation'] = $bibliographicCitation;
-            if($sex = @$rek['occurrence_sex']) $rec['occur']['sex'] = $sex;
+            
+            if($val = @$rek['occurrence_sex'])                   $rec['occur']['sex'] = $val;
+            if($val = @$rek['occurrence_reproductiveCondition']) $rec['occur']['reproductiveCondition'] = $val;
+            
             $func = new TraitGeneric($resource_id, $archive_builder, false);
             $func->add_string_types($rec, $rec['measurementValue'], $rec['measurementType'], "true");
             // if($uri) $this->func->add_string_types($rex, $uri, 'http://purl.org/dc/terms/contributor', "child"); --- copied template
