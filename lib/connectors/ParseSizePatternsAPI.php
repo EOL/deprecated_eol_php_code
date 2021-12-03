@@ -103,7 +103,7 @@ class ParseSizePatternsAPI
         }
         // */
         
-        $row = self::fix_number_number_range($row);
+        $row = self::format_number_number_range_in_row($row);
         // FROM:   with numerous setae .05 to .16 mm.
         // TO:     with numerous setae .05-.16 mm.
         
@@ -284,7 +284,7 @@ class ParseSizePatternsAPI
                 // $x['Body_Part_term_key'] = $main['Body_Part_term_key']; //debug purposes only
                 // $x['Body_Part_term_option'] = $main['Body_Part_term_option']; //debug purposes only
 
-                $x['number_or_number_range'] = self::format_number_or_number_range($main['number_or_number_range']);
+                $x['number_or_number_range'] = self::format_number_or_number_range_value($main['number_or_number_range']);
                 // $x['number_or_number_range_key'] = $main['number_or_number_range_key']; //debug purposes only
 
                 $x['units_term'] = strtolower($main['units_term']);
@@ -305,7 +305,7 @@ class ParseSizePatternsAPI
         else return false;
         */
     }
-    private function format_number_or_number_range($str)
+    private function format_number_or_number_range_value($str)
     {   //e.g. "4r-9" should be "4-9"
         $str = trim($str);
         $words = explode(" ", $str);
@@ -405,7 +405,7 @@ class ParseSizePatternsAPI
             $x['row'] = $main['row'];
             $x['pattern'] = $main['pattern'];
 
-            $x['number_or_number_range'] = self::format_number_or_number_range($main['number_or_number_range']);
+            $x['number_or_number_range'] = self::format_number_or_number_range_value($main['number_or_number_range']);
             // $x['number_or_number_range_key'] = $main['number_or_number_range_key']; //debug purposes only
 
             $x['units_term'] = strtolower($main['units_term']);
@@ -694,7 +694,7 @@ class ParseSizePatternsAPI
 
                 $x['Body_Part_term'] = $main['Body_Part_term'];
                 $x['dimension_term_noun'] = $main['dimension_term_noun'];
-                $x['number_or_number_range'] = self::format_number_or_number_range($main['number_or_number_range']);
+                $x['number_or_number_range'] = self::format_number_or_number_range_value($main['number_or_number_range']);
                 $x['units_term'] = strtolower($main['units_term']);
 
                 $x = self::assign_further_metadata($x);
@@ -1040,7 +1040,7 @@ class ParseSizePatternsAPI
         }
         return $row;
     }
-    private function fix_number_number_range($row)
+    private function format_number_number_range_in_row($row)
     {   // FROM:   with numerous setae .05 to .16 mm.
         // TO:     with numerous setae .05-.16 mm.
         $words = explode(" ", $row);
