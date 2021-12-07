@@ -916,12 +916,35 @@ class ParseSizePatternsAPI
             
             if($val = @$rek['occurrence_sex'])                   $rec['occur']['sex'] = $val;
             if($val = @$rek['occurrence_reproductiveCondition']) $rec['occur']['reproductiveCondition'] = $val;
+
+            $rec['statisticalMethod'] = '';
+            $rec = self::format_range_values($rec);
             
             $func = new TraitGeneric($resource_id, $archive_builder, false);
             $func->add_string_types($rec, $rec['measurementValue'], $rec['measurementType'], "true");
+            
+            if($max = @$rec['max_value']) {
+                $rec["catnum"] .= '_max';
+                $rec['measurementValue'] = $max; //max value
+                $rec['statisticalMethod'] = 'http://semanticscience.org/resource/SIO_001114';
+                $func->add_string_types($rec, $rec['measurementValue'], $rec['measurementType'], "true");
+            }
             // if($uri) $this->func->add_string_types($rex, $uri, 'http://purl.org/dc/terms/contributor', "child"); --- copied template
         }
         // */
+    }
+    private function format_range_values($rec)
+    {
+        $arr = explode("-", $rec['measurementValue']);
+        if(count($arr) == 1) return $rec; //not a range value
+        else { //a range value
+            $arr = array_map('trim', $arr);
+            $rec["catnum"] .= '_min';
+            $rec['measurementValue'] = $arr[0]; //min value
+            $rec['statisticalMethod'] = 'http://semanticscience.org/resource/SIO_001113';
+            $rec['max_value'] = $arr[1];
+            return $rec;
+        }
     }
     private function given_body_part_and_term_get_uri($body_part, $term, $rex) //$rex for debug only
     {   // print_r($this->size_mapping); exit("\n222\n");
