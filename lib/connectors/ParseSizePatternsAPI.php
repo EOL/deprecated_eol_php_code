@@ -434,7 +434,7 @@ class ParseSizePatternsAPI
     {
         if($pattern_no == 1) $dimension_terms = array("high", "long", "wide", "in_diameter", "wingspan", "thick", "in_greatest_width");
         elseif($pattern_no == 3) $dimension_terms = array("high", "long", "wingspan");
-        else exit("\nUn-initialized pattern\n");
+        else exit("\nUn-initialized pattern\nWill terminate program\n");
         $i = -1;
         $positions = array();
         // print_r($words);
@@ -613,7 +613,7 @@ class ParseSizePatternsAPI
         if($recs = $this->size_mapping[$body_part]) {
             foreach($recs as $rec) $final[] = $rec['term'];
         }
-        else exit("\nUndefined body part: [$body_part]\n");
+        else exit("\nUndefined body part: [$body_part]\nWill terminate program.\n");
         return $final;
     }
     private function get_body_part_or_parts_for_a_term($term)
@@ -909,7 +909,7 @@ class ParseSizePatternsAPI
             $rec['measurementValue'] = $rek['number_or_number_range'];
             $rec['measurementType'] = self::given_body_part_and_term_get_uri(@$rek['Body_Part_term'], $rek['dimension_term'], $rek); //3rd param $rek for debug only
             if($val = $this->unit_terms[$rek['units_term']]) $rec['measurementUnit'] = $val;
-            else exit("\nUndefined unit: [".$rek['units_term']."]\n");
+            else exit("\nUndefined unit: [".$rek['units_term']."]\nWill terminate program.\n");
             $rec['measurementRemarks'] = "$sciname. ".$rek['row'];
             $rec['source'] = @$meta[$pdf_id]['dc.relation.url'];
             $rec['bibliographicCitation'] = $bibliographicCitation;
@@ -952,7 +952,7 @@ class ParseSizePatternsAPI
             if($rec['term'] == $term) return $rec['uri'];
         }
         print_r($rex);
-        exit("\nInvestigate: undefined URI for body_part:[$body_part] | term:[$term]\n");
+        exit("\nInvestigate: undefined URI for body_part:[$body_part] OR term:[$term]\nWill terminate program.\n");
         /*[head] => Array(
                    [0] => Array(
                            [term] => wide
