@@ -679,7 +679,7 @@ class Functions_Memoirs
     {   //print_r($arr['names']); exit;
         //print_r($arr); exit;
         
-        $totalWords = $arr['metadata']['totalWords']; //exit("\n$totalWords\n");
+        $totalWords = @$arr['metadata']['totalWords']; //exit("\n$totalWords\n"); --- seems not used anyway
         
         $final = array();
         if(@$arr['names']) { $i = 0;

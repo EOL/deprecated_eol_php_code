@@ -907,7 +907,7 @@ class ParseSizePatternsAPI
             $rec["taxon_id"] = $taxon->taxonID;
             $rec["catnum"] = md5(json_encode($rek));
             $rec['measurementValue'] = $rek['number_or_number_range'];
-            $rec['measurementType'] = self::given_body_part_and_term_get_uri(@$rek['Body_Part_term'], $rek['dimension_term'], $rek); //3rd param $rek for debug only
+            $rec['measurementType'] = self::given_body_part_and_term_get_uri(@$rek['Body_Part_term'], @$rek['dimension_term'], $rek); //3rd param $rek for debug only
             if($val = $this->unit_terms[$rek['units_term']]) $rec['measurementUnit'] = $val;
             else exit("\nUndefined unit: [".$rek['units_term']."]\nWill terminate program.\n");
             $rec['measurementRemarks'] = "$sciname. ".$rek['row'];
