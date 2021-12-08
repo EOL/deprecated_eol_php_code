@@ -30,6 +30,17 @@ taxon               716
 891	Wed 2021-04-14 09:04:32 AM	{"measurement_or_fact.tab":5619683, "occurrence.tab":358624, "taxon.tab":259334, "time_elapsed":false}
 891	Thu 2021-04-15 04:36:28 AM	{"measurement_or_fact.tab":5619683, "occurrence.tab":358624, "taxon.tab":259334, "time_elapsed":false}
 891	Tue 2021-11-09 10:46:41 AM	{"measurement_or_fact.tab":4997635, "occurrence.tab":359204, "taxon.tab":259657, "time_elapsed":false}
+
+Implement this: new task: https://eol-jira.bibalex.org/browse/DATA-1711?focusedCommentId=66523&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66523
+child record in MoF:
+    - doesn't have: occurrenceID | measurementOfTaxon
+    - has parentMeasurementID
+    - has also a unique measurementID, as expected.
+minimum cols on a child record in MoF
+    - measurementID
+    - measurementType
+    - measurementValue
+    - parentMeasurementID
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -88,10 +99,22 @@ print_r($params); //exit;
 
 $func->start($params); //renamed, it was $func->export_gbif_to_eol() before
 $func = null;
-Functions::finalize_dwca_resource($resource_id, false, true);
+Functions::finalize_dwca_resource($resource_id, false, false); //3rd row 'false' means not delete working dir
+
+run_utility($resource_id);
+recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id."/"); //we can now delete folder after run_utility() - DWCADiagnoseAPI
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
+function run_utility($resource_id)
+{   // /* utility ==========================
+    require_library('connectors/DWCADiagnoseAPI');
+    $func = new DWCADiagnoseAPI();
+    $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'parentMeasurementID', 'measurement_or_fact.tab');
+    echo "\nTotal undefined parents MoF [$resource_id]: " . count($undefined_parents)."\n";
+    // ===================================== */
+}
 ?>

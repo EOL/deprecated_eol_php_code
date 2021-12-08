@@ -766,6 +766,33 @@ class NMNHTypeRecordAPI_v2
         $m->measurementMethod = '';
         
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        
+        // ========= START new block to implement child records =========
+        if($m->measurementOfTaxon == "true") $this->oID_mID[$m->occurrenceID] = $m->measurementID;
+        else { //meaning should be child record
+            /*
+            child record in MoF:
+                - doesn't have: occurrenceID | measurementOfTaxon
+                - has parentMeasurementID
+                - has also a unique measurementID, as expected.
+            minimum cols on a child record in MoF
+                - measurementID
+                - measurementType
+                - measurementValue
+                - parentMeasurementID
+            */
+            //other fields can be just blanks:
+            $m->measurementMethod = '';
+            $m->measurementRemarks = '';
+            $m->source = '';
+            //----------------------------
+            $m->parentMeasurementID = $this->oID_mID[$m->occurrenceID];
+            $m->occurrenceID = '';
+            $m->measurementOfTaxon = '';
+            $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        }
+        // ========= END new block to implement child records =========
+        
         if(!isset($this->measurement_ids[$m->measurementID])) {
             $this->archive_builder->write_object_to_file($m);
             $this->measurement_ids[$m->measurementID] = '';
