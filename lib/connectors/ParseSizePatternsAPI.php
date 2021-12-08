@@ -946,12 +946,13 @@ class ParseSizePatternsAPI
             return $rec;
         }
     }
-    private function given_body_part_and_term_get_uri($body_part, $term, $rex) //$rex for debug only
+    private function given_body_part_and_term_get_uri($body_part, $term, $rex) //3rd param $rex for debug only before, but now it's integral
     {   // print_r($this->size_mapping); exit("\n222\n");
         foreach($this->size_mapping[strtolower($body_part)] as $rec) {
-            if($rec['term'] == $term) return $rec['uri'];
+            if($rec['term']      == $term)                        return $rec['uri'];
+            if($rec['term_noun'] == @$rex['dimension_term_noun']) return $rec['uri'];
         }
-        print_r($rex);
+        print_r($this->size_mapping); print_r($rex);
         exit("\nInvestigate: undefined URI for body_part:[$body_part] OR term:[$term]\nWill terminate program.\n");
         /*[head] => Array(
                    [0] => Array(
