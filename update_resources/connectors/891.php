@@ -30,7 +30,6 @@ taxon               716
 891	Wed 2021-04-14 09:04:32 AM	{"measurement_or_fact.tab":5619683, "occurrence.tab":358624, "taxon.tab":259334, "time_elapsed":false}
 891	Thu 2021-04-15 04:36:28 AM	{"measurement_or_fact.tab":5619683, "occurrence.tab":358624, "taxon.tab":259334, "time_elapsed":false}
 891	Tue 2021-11-09 10:46:41 AM	{"measurement_or_fact.tab":4997635, "occurrence.tab":359204, "taxon.tab":259657, "time_elapsed":false}
-
 Implement this: new task: https://eol-jira.bibalex.org/browse/DATA-1711?focusedCommentId=66523&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66523
 child record in MoF:
     - doesn't have: occurrenceID | measurementOfTaxon
@@ -41,6 +40,8 @@ minimum cols on a child record in MoF
     - measurementType
     - measurementValue
     - parentMeasurementID
+891	Wed 2021-12-08 11:20:39 AM	{"measurement_or_fact.tab":5005576, "occurrence.tab":359251, "taxon.tab":259695, "time_elapsed":false} - ok consistent
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
