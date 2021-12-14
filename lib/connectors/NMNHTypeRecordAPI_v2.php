@@ -744,6 +744,12 @@ class NMNHTypeRecordAPI_v2
     }
     private function create_measurement($taxon_id, $occurrence_id, $rec, $measurementOfTaxon, $measurementType, $value)
     {
+        // /* per: https://eol-jira.bibalex.org/browse/DATA-1711?focusedCommentId=66553&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66553
+        $remove_mTypes = "http://rs.tdwg.org/dwc/terms/verbatimCoordinateSystem|http://rs.tdwg.org/dwc/terms/georeferenceProtocol|http://rs.tdwg.org/dwc/terms/associatedMedia|http://rs.tdwg.org/dwc/terms/geodeticDatum|http://rs.tdwg.org/dwc/terms/coordinateUncertaintyInMeters|http://rs.tdwg.org/dwc/terms/institutionID";
+        $remove_mTypes = explode("|", $remove_mTypes);
+        if(in_array($measurementType, $remove_mTypes)) return;
+        // */
+        
         $m = new \eol_schema\MeasurementOrFact();
         $occurrence_id = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
         $m->occurrenceID = $occurrence_id;
