@@ -41,6 +41,8 @@ minimum cols on a child record in MoF
     - measurementValue
     - parentMeasurementID
 891	Wed 2021-12-08 11:20:39 AM	{"measurement_or_fact.tab":5005576, "occurrence.tab":359251, "taxon.tab":259695, "time_elapsed":false} - ok consistent
+891	Tue 2021-12-14 06:46:56 PM	{"measurement_or_fact.tab":4330055, "occurrence.tab":359251, "taxon.tab":259695, "time_elapsed":false}
+
 
 */
 
