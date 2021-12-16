@@ -780,8 +780,22 @@ class GBIFCountryTypeRecordAPI
         // =====================
         $m->measurementType = $measurementType;
         $m->measurementValue = Functions::import_decode($value);
-        if($measurementOfTaxon == 'child') $m->parentMeasurementID = $parent;
+        if($measurementOfTaxon == 'child') {
+            /*
+            Child record in MoF:
+                - doesn't have: occurrenceID | measurementOfTaxon
+                - has parentMeasurementID
+                - has also a unique measurementID, as expected.
+            Minimum columns on a child record in MoF:
+                - measurementID 		    - measurementType
+                - measurementValue		    - parentMeasurementID
+            */
+            $m->occurrenceID = "";
+            $m->measurementOfTaxon = "";
+            $m->parentMeasurementID = $parent;
+        }
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        $parent = $m->measurementID;
         $this->archive_builder->write_object_to_file($m);
         // return $m->measurementID; //moved below
         
@@ -801,19 +815,39 @@ class GBIFCountryTypeRecordAPI
         if($to_MoF) {
             foreach($to_MoF as $fld => $val) { //echo " -goes here 1- ";
                 if($val) { //echo " -goes here 2- ";
+                    
+                    /*
+                    Child record in MoF:
+                        - doesn't have: occurrenceID | measurementOfTaxon
+                        - has parentMeasurementID
+                        - has also a unique measurementID, as expected.
+                    Minimum columns on a child record in MoF:
+                        - measurementID 		    - measurementType
+                        - measurementValue		    - parentMeasurementID
+                    */
+
+                    /* initial eyeball saw these 3 predicates that should be child MoF records
+                    http://rs.tdwg.org/dwc/terms/catalogNumber
+                    http://rs.tdwg.org/dwc/terms/collectionCode
+                    http://rs.tdwg.org/dwc/terms/institutionCode
+                    */
                     $m2 = new \eol_schema\MeasurementOrFact();
                     $rek = array();
-                    $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$occurrence_id|$fld|$val");
-                    $rek['http://rs.tdwg.org/dwc/terms/occurrenceID'] = $occurrence_id;
+                    $rek['http://rs.tdwg.org/dwc/terms/occurrenceID'] = ''; //$occurrence_id;
+                    $rek['http://eol.org/schema/measurementOfTaxon'] = '';
+                    $rek['http://eol.org/schema/parentMeasurementID'] = $parent;
                     $rek['http://rs.tdwg.org/dwc/terms/measurementType'] = 'http://rs.tdwg.org/dwc/terms/'.pathinfo($fld, PATHINFO_BASENAME);
                     $rek['http://rs.tdwg.org/dwc/terms/measurementValue'] = $val;
-                    $rek['http://eol.org/schema/measurementOfTaxon'] = 'false';
+                    $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5(json_encode($rek)); //md5("$occurrence_id|$fld|$val");
                     $uris = array_keys($rek);
                     foreach($uris as $uri) { //echo " -goes here 3- ";
                         $field = pathinfo($uri, PATHINFO_BASENAME);
                         $m2->$field = $rek[$uri];
                     }
-                    $this->archive_builder->write_object_to_file($m2);
+                    if(!isset($this->mIDs[$m2->measurementID])) {
+                        $this->archive_builder->write_object_to_file($m2);
+                        $this->mIDs[$m2->measurementID] = '';
+                    }
                 }
             }
         }
@@ -898,7 +932,7 @@ class GBIFCountryTypeRecordAPI
             $o->collectionCode      = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"];
             $o->institutionCode     = $rec["http://rs.tdwg.org/dwc/terms/institutionCode"];
 
-            // /* move as rows in MoF with mOfTaxon = false
+            // /* move as child rows in MoF with mOfTaxon = "" {blank}
             $to_MoF['institutionCode'] = $o->institutionCode;
             $to_MoF['catalogNumber'] = $o->catalogNumber;
             $to_MoF['collectionCode'] = $o->collectionCode;
