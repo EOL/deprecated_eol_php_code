@@ -498,6 +498,9 @@ parse_unstructured_text_memoirs.php _ '{"resource_id": "15409", "resource_name":
 PLANTS.txt ---- upward up to: 15432 --- for DATA-1891
 parse_unstructured_text_memoirs.php _ '{"resource_id": "15422", "resource_name":"all_BHL", "group":"Plants"}'
 parse_unstructured_text_memoirs.php _ '{"resource_id": "91345", "resource_name":"all_BHL", "group":"Plants"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "91208", "resource_name":"all_BHL", "group":"Plants"}'
+parse_unstructured_text_memoirs.php _ '{"resource_id": "91209", "resource_name":"all_BHL", "group":"Plants"}'
+
 
 91357 91461 91336
 

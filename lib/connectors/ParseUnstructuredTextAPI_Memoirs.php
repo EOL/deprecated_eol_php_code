@@ -2383,6 +2383,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     </sciname>
                     */
                     if(self::is_valid_block("<$block</sciname>")) { // echo $show;
+                        
+                        $show = str_replace('\"', "", $show);
+                        $show = str_replace("\'", "", $show);
+                        
                         fwrite($WRITE, $show);
                     }
                     // else echo " -- not valid block -- \n-----\n$block\n-----\n"; //just debug

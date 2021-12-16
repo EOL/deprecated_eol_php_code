@@ -55,6 +55,7 @@ process_SI_pdfs_memoirs.php _ '{"resource_id": "15404",          "resource_name"
 process_SI_pdfs_memoirs.php _ '{"resource_id": "'$resource_ID'", "resource_name":"nth BHL", "doc": "BHL"}'
 BHL Plants:
 process_SI_pdfs_memoirs.php _ '{"resource_id": "15422",          "resource_name":"nth BHL", "doc": "BHL", "IOReport":"NAF_Plants"}'
+process_SI_pdfs_memoirs.php _ '{"resource_id": "91209",          "resource_name":"nth BHL", "doc": "BHL", "IOReport":"NAF_Plants"}'
 
 Kubitzki
 process_SI_pdfs_memoirs.php _ '{"resource_id": "volii1993",     "resource_name":"Kubitzki", "doc": "Kubitzki_et_al"}'
