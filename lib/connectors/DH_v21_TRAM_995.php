@@ -6,6 +6,7 @@ class DH_v21_TRAM_995
 {
     function __construct($folder)
     {
+        exit("\nB. Moved to ver. 2.\n");
         $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));

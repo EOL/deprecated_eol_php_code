@@ -6,7 +6,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DH_v21_TRAM_995');
 // ini_set('memory_limit','6096M');
 // $GLOBALS['ENV_DEBUG'] = true;
-$timestart = time_elapsed();
+$timestart = time_elapsed(); exit("\nA. Moved to ver. 2.\n");
 
 // $DH1_id = 173;
 // $DH2_id = 300;
