@@ -14,7 +14,7 @@ class DH_v21_TRAM_995_v2
         else {
             $this->download_options = array(
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
-            $this->main_path = "/Volumes/AKiTiO4/d_w_h/TRAM-995/";
+            $this->main_path = "/Volumes/AKiTiO4/d_w_h/TRAM-995_v2/";
         }
         $this->tsv['DH11_Jen'] = $this->main_path."/dh1_1/DH1_1working.txt";
         $this->tsv['DH21_Jen'] = $this->main_path."/dh2_1/DH2_1working.txt";
@@ -25,25 +25,32 @@ class DH_v21_TRAM_995_v2
     function start()
     {   
         /* works
-        self::get_taxID_nodes_info($this->tsv['DH11']); //un-comment in real operation
+        // self::get_taxID_nodes_info($this->tsv['DH11']); //un-comment in real operation
+        self::get_taxID_nodes_info($this->tsv['DH11_Jen']); //un-comment in real operation
+        self::get_taxID_nodes_info($this->tsv['DH21_Jen']); //un-comment in real operation
         // self::get_taxID_nodes_info($this->main_path."/work_4.txt"); //un-comment in real operation
         $taxonID = "EOL-000002321109"; //'-8365'; //'EOL-000002321109';
+        $taxonID = "EOL-000000095866";  // sciname = "Amoeba Bory de St. Vincent, 1822" //sample for DH21
+        $taxonID = "-58274";            // sciname = "Amoeba Bory de St. Vincent, 1822" //sample for DH11
         $ancestry = self::get_ancestry_of_taxID($taxonID); print_r($ancestry); echo "ancestry"; //exit; //working OK but not used yet
         
-        foreach($ancestry as $id) {
+        foreach($ancestry as $id) { echo "\n [$id]";
             if($rec = $this->taxID_info[$id]) print_r($rec);
         }
-        
+        exit("\n-end test-\n");
+        */
+
+        /* not used here anyway...
         $taxonID = "EOL-000002321109";  //'-8365'; //'EOL-000002321109';
         $children = self::get_descendants_of_taxID($taxonID); print_r($children); echo "children"; exit("\n-end test-\n");
         */
         
-        /* ######################################################## first step: run only once in lifetime - DONE 
+        // /* ######################################################## first step: run only once in lifetime - DONE 
         // new cols for DH1 and DH2 - need to build-up:
         // if genus or species => canonical_family_ancestor
         // else                => canonical_parent AND canonical_grandparent
         self::pre_build_up_DH(); exit("\n-end pre_build_up_DH-\n");
-        ######################################################## */
+        ####################################################### */
         
         
         /* GROUP 1: DH2 taxa (homonyms or not) that have no canonical match in DH1, i.e., DH1canonicalName = DH2canonicalName is never true
@@ -774,7 +781,7 @@ class DH_v21_TRAM_995_v2
         if(in_array($rank, array('genus', 'species'))) { //get canonical_family_ancestor
             $i = -1;
             foreach($ancestry as $id) { $i++;
-                if($i === 0) { /* $ancestry[0] is the taxon in question -> $rec['taxonid] */
+                if($i == 0) { /* $ancestry[0] is the taxon in question -> $rec['taxonid] */
                     if($taxonID != $id) exit("\nInvestigate code 101\n");
                 }
                 if($rex = $this->taxID_info[$id]) { //print_r($rex)
@@ -785,6 +792,16 @@ class DH_v21_TRAM_995_v2
                     )*/
                     if($rex['r'] == 'family') $rec['canonical_family_ancestor'] = $rex['n'];
                 }
+            }
+            //copied below: added in v2
+            /* $ancestry[0] is the taxon in question -> $rec['taxonid] */
+            if($parent_id = @$ancestry[1]) {
+                $rex = $this->taxID_info[$parent_id];
+                $rec['canonical_parent'] = $rex['n'];
+            }
+            if($grandparent_id = @$ancestry[2]) {
+                $rex = $this->taxID_info[$grandparent_id];
+                $rec['canonical_grandparent'] = $rex['n'];
             }
         }
         else { //get canonical_parent AND canonical_grandparent
