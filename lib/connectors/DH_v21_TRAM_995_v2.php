@@ -211,13 +211,29 @@ class DH_v21_TRAM_995_v2
         }
     }
     private function RANK_TEST_yn($taxonrank, $rek)
-    {
+    {   /* ver 1
         if($taxonrank && $rek['r'] && $taxonrank != $rek['r']) return false;
         else {
             if($taxonrank == $rek['r'] || !$taxonrank || !$rek['r']) return true;
             exit("\ninvestigate code 105\n");
         }
         exit("\ninvestigate code 104\n"); //will not go this line
+        */
+        // /* ver 2
+        // taxonRank DH1 = taxonRank DH2
+        // OR taxonRank DH1 is empty
+        // OR taxonRank DH2 is empty
+        // OR taxonRank DH1 is clade
+        // OR taxonRank DH1 is infraspecies AND taxonRank DH2 is (form OR subspecies OR subvariety OR variety)
+        // OR taxonRank DH2 is infraspecies AND taxonRank DH1 is (form OR subspecies OR subvariety OR variety)
+        $rank_DH1 = $rek['r'];
+        $rank_DH2 = $taxonrank;
+        if($rank_DH1 == $rank_DH2 || !$rank_DH1 || !$rank_DH2 || $rank_DH1 == 'clade'
+            || ($rank_DH1 == 'infraspecies' && in_array($rank_DH2, array("form", "subspecies", "subvariety", "variety")))
+            || ($rank_DH2 == 'infraspecies' && in_array($rank_DH1, array("form", "subspecies", "subvariety", "variety")))
+        ) return true;
+        else return false;
+        // */
     }
     private function main_G3_2($rec)
     {
@@ -263,7 +279,8 @@ class DH_v21_TRAM_995_v2
                         $DH2_fam = $homonym_rec['can_fam_anc'];
                         $DH1_fam = $rek2['can_fam_anc'];
                         $taxonrank = $homonym_rec['r'];
-                        if(in_array($taxonrank, array('genus', 'species')) || !$DH2_fam || $DH1_fam) {
+                        // if(in_array($taxonrank, array('genus', 'species')) || !$DH2_fam || $DH1_fam) { --- Eli misunderstood
+                        if(in_array($taxonrank, array('genus', 'species')) && $DH2_fam && $DH1_fam) {
                             /* DH2 TAXA WITH RANK GENUS OR SPECIES */
                             if($DH1_fam == $DH2_fam) {
                                 $ancestry_test_pass_YN = true;
@@ -449,7 +466,8 @@ class DH_v21_TRAM_995_v2
                         $DH2_fam = $homonym_rec['can_fam_anc'];
                         $DH1_fam = $rek['can_fam_anc'];
                         $taxonrank = $homonym_rec['r'];
-                        if(in_array($taxonrank, array('genus', 'species')) || !$DH2_fam || $DH1_fam) {
+                        // if(in_array($taxonrank, array('genus', 'species')) || !$DH2_fam || $DH1_fam) { --- Eli misunderstood
+                        if(in_array($taxonrank, array('genus', 'species')) && $DH2_fam && $DH1_fam) {
                             /* DH2 TAXA WITH RANK GENUS OR SPECIES */
                             if($DH1_fam == $DH2_fam) {
                                 $ancestry_test_success[] = $homonym_rec['ID'];
@@ -572,7 +590,8 @@ class DH_v21_TRAM_995_v2
                     /* ANCESTRY TEST */
                     $DH2_fam = $rec['canonical_family_ancestor'];
                     $DH1_fam = $rek['can_fam_anc'];
-                    if(in_array($taxonrank, array('genus', 'species')) || !$DH2_fam || $DH1_fam) {
+                    // if(in_array($taxonrank, array('genus', 'species')) || !$DH2_fam || $DH1_fam) { --- Eli misunderstood
+                    if(in_array($taxonrank, array('genus', 'species')) && $DH2_fam && $DH1_fam) {
                         /* DH2 TAXA WITH RANK GENUS OR SPECIES */
                         if($DH1_fam == $DH2_fam) {
                             $ancestry_test_success++;
@@ -687,7 +706,8 @@ class DH_v21_TRAM_995_v2
                 */
                 $DH2_fam = $rec['canonical_family_ancestor'];
                 $DH1_fam = $rek['can_fam_anc'];
-                if(in_array($taxonrank, array('genus', 'species')) || !$DH2_fam || $DH1_fam) {
+                // if(in_array($taxonrank, array('genus', 'species')) || !$DH2_fam || $DH1_fam) { --- Eli misunderstood this
+                if(in_array($taxonrank, array('genus', 'species')) && $DH2_fam && $DH1_fam) {
                     /* DH2 TAXA WITH RANK GENUS OR SPECIES
                     Find the nearest ancestor where taxonRank=family for the DH2 and matching DH1 taxon. 
                     Check if the following is true: canonicalNameDH1 family = canonicalNameDH2 family. 
