@@ -45,27 +45,26 @@ class DH_v21_TRAM_995_v2
         $children = self::get_descendants_of_taxID($taxonID); print_r($children); echo "children"; exit("\n-end test-\n");
         */
         
-        // /* ######################################################## first step: run only once in lifetime - DONE 
+        /* ######################################################## first step: run only once in lifetime - DONE 
         // new cols for DH1 and DH2 - need to build-up:
         // if genus or species => canonical_family_ancestor
         // else                => canonical_parent AND canonical_grandparent
         self::pre_build_up_DH(); exit("\n-end pre_build_up_DH-\n");
         ####################################################### */
         
-        
         /* GROUP 1: DH2 taxa (homonyms or not) that have no canonical match in DH1, i.e., DH1canonicalName = DH2canonicalName is never true
         Create a new EOL-xxx style identifier for each of these taxa and update all relevant parentNameUsageID values. 
         Also, put "new" in the EOLidAnnotations column for each taxon.
         */
-        /* ######################################################## Ok good
-        self::tag_DH2_with_NoCanonicalMatch_in_DH1();   //ends with work_2.txt
-        self::tag_DH2_with_Homonyms_YN();               //ends with work_3.txt
+        // /* ######################################################## Ok good
+        // self::tag_DH2_with_NoCanonicalMatch_in_DH1();   //ends with work_2.txt
+        // self::tag_DH2_with_Homonyms_YN();               //ends with work_3.txt
         self::tag_DH2_with_group();                     //ends with work_4.txt -> also generates stats to see if all categories are correctly covered...
         ######################################################## */
         
-        // /* worked OK
+        /* worked OK --- seems to be the last step
         self::proc_Group_2_1();     //ends with work_6.txt
-        // */
+        */
         exit("\n-stop muna-\n");
     }
     private function proc_Group_2_1()
@@ -446,7 +445,7 @@ class DH_v21_TRAM_995_v2
                         // If the rank test fails for any of the DH2 homonyms, create new identifiers,
                         // update all relevant parentNameUsageID values, and put "h-RankMismatch" in the EOLidAnnotations column.
                         @$this->ctr_G31++;
-                        $new_id = 'EOL-G31' . sprintf("%09d", $this->ctr_G31);
+                        $new_id = 'EOL-G31_' . sprintf("%08d", $this->ctr_G31);
                         $this->replaced_by[$rec['taxonid']] = $new_id;
                         $rec['taxonid'] = $new_id;
                         $rec['eolidannotations'] = 'h-RankMismatch';
@@ -621,7 +620,7 @@ class DH_v21_TRAM_995_v2
                 // If the rank test fails with all DH1 candidates, create a new identifier for the DH2 taxon, 
                 // update all relevant parentNameUsageID values, and put "h-RankMismatch" in the EOLidAnnotations column.
                 @$this->ctr_G22++;
-                $new_id = 'EOL-G22' . sprintf("%09d", $this->ctr_G22);
+                $new_id = 'EOL-G22_' . sprintf("%08d", $this->ctr_G22);
                 $this->replaced_by[$rec['taxonid']] = $new_id;
                 $rec['taxonid'] = $new_id;
                 $rec['eolidannotations'] = 'h-RankMismatch';
@@ -744,7 +743,7 @@ class DH_v21_TRAM_995_v2
                 // Instead, create a new identifier for the DH2 taxon and update all relevant parentNameUsageID values. 
                 // Also, put "rankMismatch" in the EOLidAnnotations column for this taxon.
                 @$this->ctr_G21++;
-                $new_id = 'EOL-G21' . sprintf("%09d", $this->ctr_G21);
+                $new_id = 'EOL-G21_' . sprintf("%08d", $this->ctr_G21);
                 $this->replaced_by[$rec['taxonid']] = $new_id;
                 $rec['taxonid'] = $new_id;
                 $rec['eolidannotations'] = 'rankMismatch';
@@ -969,7 +968,7 @@ class DH_v21_TRAM_995_v2
                 if($val = @$this->DH1_canonicals[$canonicalname]) $rec['CanoMatchDH1_YN'] = $val; // value is either blank or 1 or >1
                 else { @$this->no_match++;
                     $rec['CanoMatchDH1_YN'] = 'N';
-                    $new_id = 'EOL-NoDH1' . sprintf("%07d", $this->no_match);
+                    $new_id = 'EOL-NoDH' . sprintf("%08d", $this->no_match);
                     $this->replaced_by[$rec['taxonid']] = $new_id;
                     $rec['taxonid'] = $new_id;
                     $rec['eolidannotations']= 'new';
