@@ -121,8 +121,7 @@ class DH_v21_TRAM_995_v2
                 $k = 0; $rec = array();
                 foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
             }
-            // $rec = array_map('trim', $rec);
-            // print_r($rec); exit("\nstopxy\n");
+            $rec = array_map('trim', $rec); // print_r($rec); exit("\nstopxy\n");
             
             if(in_array($task, array('build_up_useful_cols_DH11', 'build_up_useful_cols_DH21'))) {
                 $rec = self::main_build_up($rec); 
@@ -654,7 +653,7 @@ class DH_v21_TRAM_995_v2
         else exit("\nerror: should not go here 1.\n");
         return $rec;
     } // end main_G2_2()
-    private function main_G2_1($rec)
+    private function main_G2_1($rec) //$rec is DH2
     {   //print_r($rec); exit;
         /*Array(
             [taxonid] => 4038af35-41da-469e-8806-40e60241bb58
@@ -681,7 +680,12 @@ class DH_v21_TRAM_995_v2
         $canonicalname = $rec['canonicalname'];
         $taxonrank = $rec['taxonrank'];
         if($reks = $this->DH1_canonicals[$canonicalname]) { //print_r($reks); exit("\nelix1\n");
-            if(count($reks) > 1) exit("\nInvestigate code 102\n");
+            /*
+            2-1 SINGLE CANONICAL MATCH IN DH1
+            There is only one DH1 taxon that’s a canonical match for the DH2 non-homonym taxon.
+            */
+            if(count($reks) == 1) {}
+            else exit("\nInvestigate code 102\n");
             /*Array( $reks
                 [0] => Array(
                         [ID] => EOL-000000000001
@@ -695,53 +699,46 @@ class DH_v21_TRAM_995_v2
             $rek = $reks[0];
             // RANK TEST
             if(self::RANK_TEST_yn($taxonrank, $rek)) {
-                // If this is TRUE, the rank test passes, and we can transfer the DH1 taxonID: 
-                // Replace the current DH2 taxonID with the DH1 taxonID and update all relevant parentNameUsageID values.
+                /* If this is TRUE, the rank test passes, and we can transfer the DH1 taxonID: 
+                Replace the current DH2 taxonID with the DH1 taxonID and update all relevant parentNameUsageID values. */
                 $this->replaced_by[$rec['taxonid']] = $rek['ID'];
                 $rec['taxonid'] = $rek['ID'];
                 
-                /* ANCESTRY TEST
-                ANCESTRY TEST (do this for all DH2 non-homonyms that passed the rank test). How to conduct the test depends on the rank of the DH2 taxon.
+                /* >>>>> ANCESTRY TEST (REVISED!): FAMILY TEST or PARENT/GRANDPARENT TEST <<<<<
+                Do this for all DH2 non-homonyms that passed the rank test.
+                
+                FAMILY TEST:
+                Do the FAMILY TEST for taxa of any rank, if both the DH2 taxon and the matching DH1 taxon have an ancestor where taxonRank=family. 
+                If one or both matching taxa do not have a family in their ancestry, do the rank-agnostic PARENT/GRANDPARENT TEST instead.
+                canonicalNameDH1 family = canonicalNameDH2 family
+                If this is FALSE, put “ancestorMismatch” in the EOLidAnnotations column for this taxon.
+                If this is TRUE, put “ancestorMatch” in the EOLidAnnotations column for this taxon.
                 */
                 $DH2_fam = $rec['canonical_family_ancestor'];
                 $DH1_fam = $rek['can_fam_anc'];
-                // if(in_array($taxonrank, array('genus', 'species')) || !$DH2_fam || $DH1_fam) { --- Eli misunderstood this
-                if(in_array($taxonrank, array('genus', 'species')) && $DH2_fam && $DH1_fam) {
-                    /* DH2 TAXA WITH RANK GENUS OR SPECIES
-                    Find the nearest ancestor where taxonRank=family for the DH2 and matching DH1 taxon. 
-                    Check if the following is true: canonicalNameDH1 family = canonicalNameDH2 family. 
-                    (If one of the taxa does not have an ancestor where taxonRank=family, do the TAXA OF OTHER RANKS test instead.)
-                    If this is FALSE, put "ancestorMismatch: family1, family2" in the EOLidAnnotations column for this taxon. 
-                        Where family1 is the canonicalName of the family in DH1 and family2 is the canonicalName of the family in DH2.
-                    If this is TRUE, put "ancestorMatch" in the EOLidAnnotations column for this taxon.
-                    */
-                    if($DH1_fam == $DH2_fam) $rec['eolidannotations'] = 'ancestorMatch';
+                if($DH2_fam && $DH1_fam) {
+                    if($DH1_fam == $DH2_fam) $rec['eolidannotations'] = "ancestorMatch: [$DH1_fam], [$DH2_fam]";
                     else                     $rec['eolidannotations'] = "ancestorMismatch: [$DH1_fam], [$DH2_fam]";
                 }
-                else {
-                    /* DH TAXA WITH OTHER RANKS
-                    Check if either the parents or the grandparents of the DH1 and DH2 taxa are a canonical match, i.e., any one of these are true:
+                else { /* PARENT/GRANDPARENT TEST:
                     canonicalName of DH1parent = canonicalName of DH2parent OR 
                     canonicalName of DH1parent = canonicalName of DH2grandparent OR 
                     canonicalName of DH1grandparent = canonicalName of DH2parent OR 
                     canonicalName of DH1grandparent = canonicalName of DH2grandparent
-                    If this is FALSE, put “ancestorMismatch: parent1-grandparent1, parent2-grandparent2” in the EOLidAnnotations column for this taxon.
-                    If this is TRUE, put “ancestorMatch” in the EOLidAnnotations column for this taxon.
-                    */
-                    $DH2_parent = $rec['canonical_parent'];
-                    $DH2_grandparent = $rec['canonical_grandparent'];
-                    $DH1_parent = $rek['can_par'];
-                    $DH1_grandparent = $rek['can_gpa'];
+                    If this is FALSE, put “ancestorMismatch” in the EOLidAnnotations column for this taxon.
+                    If this is TRUE, put “ancestorMatch” in the EOLidAnnotations column for this taxon. */
+                    $DH2_parent = $rec['canonical_parent']; $DH2_grandparent = $rec['canonical_grandparent'];
+                    $DH1_parent = $rek['can_par'];          $DH1_grandparent = $rek['can_gpa'];
                     if($DH1_parent == $DH2_parent || $DH1_parent == $DH2_grandparent || $DH1_grandparent == $DH2_parent || $DH1_grandparent == $DH2_grandparent) {
-                         $rec['eolidannotations'] = 'ancestorMatch';
+                         $rec['eolidannotations'] = "ancestorMatch: [$DH1_parent]-[$DH1_grandparent], [$DH2_parent]-[$DH2_grandparent]";
                     }
                     else $rec['eolidannotations'] = "ancestorMismatch: [$DH1_parent]-[$DH1_grandparent], [$DH2_parent]-[$DH2_grandparent]";
                 }
             }
             else {
-                // If this is FALSE, the rank test fails, and we won't transfer the DH1 taxonID. 
-                // Instead, create a new identifier for the DH2 taxon and update all relevant parentNameUsageID values. 
-                // Also, put "rankMismatch" in the EOLidAnnotations column for this taxon.
+                /* If this is FALSE, the rank test fails, and we won't transfer the DH1 taxonID. 
+                Instead, create a new identifier for the DH2 taxon and update all relevant parentNameUsageID values. 
+                Also, put “rankMismatch” in the EOLidAnnotations column for this taxon. */
                 @$this->ctr_G21++;
                 $new_id = 'EOL-G21_' . sprintf("%08d", $this->ctr_G21);
                 $this->replaced_by[$rec['taxonid']] = $new_id;
