@@ -56,15 +56,15 @@ class DH_v21_TRAM_995_v2
         Create a new EOL-xxx style identifier for each of these taxa and update all relevant parentNameUsageID values. 
         Also, put "new" in the EOLidAnnotations column for each taxon.
         */
-        // /* ######################################################## Ok good
-        // self::tag_DH2_with_NoCanonicalMatch_in_DH1();   //ends with work_2.txt
-        // self::tag_DH2_with_Homonyms_YN();               //ends with work_3.txt
+        /* ######################################################## Ok good --- run each of these three one at a time
+        self::tag_DH2_with_NoCanonicalMatch_in_DH1();   //ends with work_2.txt
+        self::tag_DH2_with_Homonyms_YN();               //ends with work_3.txt
         self::tag_DH2_with_group();                     //ends with work_4.txt -> also generates stats to see if all categories are correctly covered...
         ######################################################## */
         
-        /* worked OK --- seems to be the last step
+        // /* worked OK --- seems to be the last step
         self::proc_Group_2_1();     //ends with work_6.txt
-        */
+        // */
         exit("\n-stop muna-\n");
     }
     private function proc_Group_2_1()
@@ -131,9 +131,9 @@ class DH_v21_TRAM_995_v2
             
             if($task == 'group_2_1') {
                     if($rec['group'] == 'G2_1') {$rec = self::main_G2_1($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
-                elseif($rec['group'] == 'G2_2') {$rec = self::main_G2_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
-                elseif($rec['group'] == 'G3_1') {$rec = self::main_G3_1($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
-                elseif($rec['group'] == 'G3_2') {$rec = self::main_G3_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                // elseif($rec['group'] == 'G2_2') {$rec = self::main_G2_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                // elseif($rec['group'] == 'G3_1') {$rec = self::main_G3_1($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                // elseif($rec['group'] == 'G3_2') {$rec = self::main_G3_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
             elseif($task == 'get_canonicals_and_info_DH1') { //print_r($rec); exit("\n172\n");
