@@ -70,9 +70,9 @@ class DH_v21_TRAM_995_v2
     private function proc_Group_2_1()
     {
         $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1'); // print_r($this->DH1_canonicals);
-            // -> used in main_G2_1 and main_G2_2
+            // -> used in main_G2_1 main_G2_2 main_G3_1 main_G3_2
         $this->DH2_canonicals = self::parse_tsv2($this->main_path."/work_4.txt", 'get_canonicals_and_info_DH2'); // print_r($this->DH2_canonicals);
-            // -> used in main_G3_1 and main_G3_2
+            // -> used in main_G3_1 and main_G3_2 only
         $this->replaced_by = array();
         self::parse_tsv2($this->main_path."/work_4.txt", 'group_2_1'); //generates work_5.txt
         unset($this->DH1_canonicals);
