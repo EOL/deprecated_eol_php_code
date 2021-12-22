@@ -583,7 +583,7 @@ class DH_v21_TRAM_995_v2
         else exit("\nInvestigate code 201. There should always be a single record returned here.\n");
         return $rec;
     } //end main_G3_1()
-    private function main_G2_2($rec)
+    private function main_G2_2($rec) //$rec is DH2
     {   /*Array(
             [taxonid] => 4038af35-41da-469e-8806-40e60241bb58
             [source] => trunk:4038af35-41da-469e-8806-40e60241bb58,NCBI:1
@@ -603,10 +603,33 @@ class DH_v21_TRAM_995_v2
             [homonyms_yn] => N
             [group] => G2_1
         )*/
-        $orig_taxonid = $rec['taxonid'];
-        $canonicalname = $rec['canonicalname'];
-        $taxonrank = $rec['taxonrank'];
-        if($reks = $this->DH1_canonicals[$canonicalname]) { //print_r($reks); exit("\nelix1\n");
+        
+        2-2 MULTIPLE CANONICAL MATCHES IN DH1
+        If there are multiple canonical matches in DH1 for a given DH2 non-homonym, 
+        we need to figure out which of the DH1 homonyms should be matched to the DH2 taxon.
+
+        RANK TEST as above
+
+        If the rank test fails with all DH1 candidates, create a new identifier for the DH2 taxon, 
+        update all relevant parentNameUsageID values, and put “h-RankMismatch” in the EOLidAnnotations column.
+
+        If the rank test passes for at least one DH1 candidate, 
+        do an ANCESTRY TEST (as above) for each of the candidates that passed the rank test.
+
+        If the ancestry tests fail for all of the DH1 candidates, 
+        leave the old DH2 taxonIDs and put “h-ancestorMismatch” in the EOLidAnnotations column.
+
+        If there is only one DH1 candidate that passes both the rank test and the ancestry test, 
+        replace the current DH2 taxonID with the taxonID of the DH1 candidate and update all relevant parentNameUsageID values. 
+        Also, put “h-ancestorMatch” in the EOLidAnnotations column for this taxon.
+
+        If there is more than one DH1 candidate that passes both the rank test and the ancestry test, 
+        leave the old DH2 taxonID, and put “multipleMatches” in the EOLidAnnotations column for this taxon.
+        
+        $orig_taxonid = $rec['taxonid'];    $canonicalname = $rec['canonicalname'];     $taxonrank = $rec['taxonrank'];
+
+        /* === below ver 1 === */
+        if($reks = $this->DH1_canonicals[$canonicalname]) { //$reks is DH1
             if(count($reks) == 1) exit("\nInvestigate code 103. Should always be > 1\n");
             /*Array( $reks
                 [0] => Array(
