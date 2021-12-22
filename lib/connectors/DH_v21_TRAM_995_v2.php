@@ -687,7 +687,7 @@ class DH_v21_TRAM_995_v2
             $rec['eolidannotations'] = "multipleMatches";
         }
         
-        // /* good debug
+        /* good debug
         if($orig_taxonid == -236079) {
             print_r($reks);
             print_r($rec);
@@ -695,7 +695,7 @@ class DH_v21_TRAM_995_v2
             echo "\n ancestry_test_success: [$ancestry_test_success]\n";
             exit("\n\ninvestigate now...\n");
         }
-        // */
+        */
 
         if(isset($rec['pass_ANCESTRY_TEST'])) unset($rec['pass_ANCESTRY_TEST']);
         if(isset($rec['success_rek'])) unset($rec['success_rek']);
