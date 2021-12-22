@@ -64,12 +64,14 @@ class DH_v21_TRAM_995_v2
         
         // /* worked OK --- run one at a time
         // self::proc_Group_2_1();     //works with work_4.txt AND work_5.txt -> ends with work_6.txt
-        self::proc_Group_2_2();     //works with work_6.txt AND work_7.txt -> ends with work_8.txt
+        // self::proc_Group_2_2();     //works with work_6.txt AND work_7.txt -> ends with work_8.txt
+        self::proc_Group_3_1();     //works with work_8.txt AND work_9.txt -> ends with work_10.txt
+        // self::proc_Group_3_2();     //works with work_10.txt AND work_11.txt -> ends with work_12.txt
         // */
         exit("\n-stop muna-\n");
     }
     private function proc_Group_2_1()
-    {   $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1'); //-> for main_G2_1 main_G2_2 main_G3_1 main_G3_2
+    {   $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1'); //-> for G2_1 G2_2 G3_1 G3_2
         $this->replaced_by = array();
         self::parse_tsv2($this->main_path."/work_4.txt", 'group_2_1'); //generates work_5.txt
         unset($this->DH1_canonicals);
@@ -77,25 +79,31 @@ class DH_v21_TRAM_995_v2
         unset($this->replaced_by);
     }
     private function proc_Group_2_2()
-    {   $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1'); //-> for main_G2_1 main_G2_2 main_G3_1 main_G3_2
+    {   $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1'); //-> for G2_1 G2_2 G3_1 G3_2
         $this->replaced_by = array();
         self::parse_tsv2($this->main_path."/work_6.txt", 'group_2_2'); //generates work_7.txt
         unset($this->DH1_canonicals);
         self::parse_tsv2($this->main_path."/work_7.txt", 'refresh_parentIDs_work_7'); //generates work_8.txt
         unset($this->replaced_by);
     }
-
-    // private function proc_Group_3_1()
-    // {
-    //     $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1'); //-> for main_G2_1 main_G2_2 main_G3_1 main_G3_2
-    //     $this->DH2_canonicals = self::parse_tsv2($this->main_path."/work_4.txt", 'get_canonicals_and_info_DH2'); //-> form main_G3_1 and main_G3_2 only
-    //     $this->replaced_by = array();
-    //     self::parse_tsv2($this->main_path."/work_4.txt", 'group_2_1'); //generates work_5.txt
-    //     unset($this->DH1_canonicals);
-    //     unset($this->DH2_canonicals);
-    //     self::parse_tsv2($this->main_path."/work_5.txt", 'refresh_parentIDs_work_5'); //generates work_6.txt
-    //     unset($this->replaced_by);
-    // }
+    private function proc_Group_3_1()
+    {   $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1');              //-> for G2_1 G2_2 G3_1 G3_2
+        $this->DH2_canonicals = self::parse_tsv2($this->main_path."/work_8.txt", 'get_canonicals_and_info_DH2');  //-> for G3_1 and G3_2 only
+        $this->replaced_by = array();
+        self::parse_tsv2($this->main_path."/work_8.txt", 'group_3_1'); //generates work_9.txt
+        unset($this->DH1_canonicals); unset($this->DH2_canonicals);
+        self::parse_tsv2($this->main_path."/work_9.txt", 'refresh_parentIDs_work_9'); //generates work_10.txt
+        unset($this->replaced_by);
+    }
+    private function proc_Group_3_2()
+    {   $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1');              //-> for G2_1 G2_2 G3_1 G3_2
+        $this->DH2_canonicals = self::parse_tsv2($this->main_path."/work_10.txt", 'get_canonicals_and_info_DH2'); //-> for G3_1 and G3_2 only
+        $this->replaced_by = array();
+        self::parse_tsv2($this->main_path."/work_10.txt", 'group_3_2'); //generates work_11.txt
+        unset($this->DH1_canonicals); unset($this->DH2_canonicals);
+        self::parse_tsv2($this->main_path."/work_11.txt", 'refresh_parentIDs_work_11'); //generates work_12.txt
+        unset($this->replaced_by);
+    }
     private function parse_tsv2($txtfile, $task)
     {   $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
