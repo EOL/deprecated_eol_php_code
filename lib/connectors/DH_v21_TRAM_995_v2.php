@@ -148,7 +148,8 @@ class DH_v21_TRAM_995_v2
                     [eolid] => 2913056
                 )*/
                 $final[$rec['canonicalname']][] = array('ID' => $rec['taxonid'], 'pID' => $rec['parentnameusageid'], 'r' => $rec['taxonrank'],
-                'can_fam_anc' => $rec['canonical_family_ancestor'], 'can_par' => $rec['canonical_parent'], 'can_gpa' => $rec['canonical_grandparent']);
+                // 'can_fam_anc' => $rec['canonical_family_ancestor'], 'can_par' => $rec['canonical_parent'], 'can_gpa' => $rec['canonical_grandparent']);
+                'cf' => $rec['canonical_family_ancestor'], 'cp' => $rec['canonical_parent'], 'cg' => $rec['canonical_grandparent']);
             }
             elseif($task == 'get_canonicals_and_info_DH2') {    // print_r($rec); exit("\n173\n");
                 /*Array(
@@ -175,7 +176,7 @@ class DH_v21_TRAM_995_v2
                 )*/
                 if(in_array($rec['group'], array('G3_1', 'G3_2'))) {
                     $final[$rec['canonicalname']][] = array('ID' => $rec['taxonid'], 'pID' => $rec['parentnameusageid'], 'r' => $rec['taxonrank'],
-                    'can_fam_anc' => $rec['canonical_family_ancestor'], 'can_par' => $rec['canonical_parent'], 'can_gpa' => $rec['canonical_grandparent']);
+                    'cf' => $rec['canonical_family_ancestor'], 'cp' => $rec['canonical_parent'], 'cg' => $rec['canonical_grandparent']);
                 }
             }
             elseif($task == 'refresh_parentIDs_work_5') {
@@ -249,9 +250,9 @@ class DH_v21_TRAM_995_v2
                     [ID] => EOL-000000000001
                     [pID] => 
                     [r] => clade
-                    [can_fam_anc] => 
-                    [can_par] => 
-                    [can_gpa] => )
+                    [cf] => 
+                    [cp] => 
+                    [cg] => )
         )*/
         
         $rank_test_success_DH1 = array();
@@ -274,8 +275,8 @@ class DH_v21_TRAM_995_v2
                     foreach($reks as $rek2) {
                         //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                         /* ANCESTRY TEST */
-                        $DH2_fam = $homonym_rec['can_fam_anc'];
-                        $DH1_fam = $rek2['can_fam_anc'];
+                        $DH2_fam = $homonym_rec['cf'];
+                        $DH1_fam = $rek2['cf'];
                         $taxonrank = $homonym_rec['r'];
                         // if(in_array($taxonrank, array('genus', 'species')) || !$DH2_fam || $DH1_fam) { --- Eli misunderstood
                         if(in_array($taxonrank, array('genus', 'species')) && $DH2_fam && $DH1_fam) {
@@ -289,10 +290,10 @@ class DH_v21_TRAM_995_v2
                         }
                         else {
                             /* DH TAXA WITH OTHER RANKS */
-                            $DH2_parent = $homonym_rec['can_par'];
-                            $DH2_grandparent = $homonym_rec['can_gpa'];
-                            $DH1_parent = $rek2['can_par'];
-                            $DH1_grandparent = $rek2['can_gpa'];
+                            $DH2_parent = $homonym_rec['cp'];
+                            $DH2_grandparent = $homonym_rec['cg'];
+                            $DH1_parent = $rek2['cp'];
+                            $DH1_grandparent = $rek2['cg'];
                             if($DH1_parent == $DH2_parent || $DH1_parent == $DH2_grandparent || $DH1_grandparent == $DH2_parent || $DH1_grandparent == $DH2_grandparent) {
                                 $ancestry_test_pass_YN = true;
                                 //these next 2 rows function together
@@ -425,9 +426,9 @@ class DH_v21_TRAM_995_v2
                         [ID] => EOL-000000000001
                         [pID] => 
                         [r] => clade
-                        [can_fam_anc] => 
-                        [can_par] => 
-                        [can_gpa] => )
+                        [cf] => 
+                        [cp] => 
+                        [cg] => )
             )*/
             $DH2_homonyms = $this->DH2_canonicals[$canonicalname];
             if(count($DH2_homonyms) <= 1) exit("\nInvestigate code 201. It should always be > 1\n");
@@ -461,8 +462,8 @@ class DH_v21_TRAM_995_v2
                     foreach($DH2_homonyms as $homonym_rec) {
                         //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                         /* ANCESTRY TEST */
-                        $DH2_fam = $homonym_rec['can_fam_anc'];
-                        $DH1_fam = $rek['can_fam_anc'];
+                        $DH2_fam = $homonym_rec['cf'];
+                        $DH1_fam = $rek['cf'];
                         $taxonrank = $homonym_rec['r'];
                         // if(in_array($taxonrank, array('genus', 'species')) || !$DH2_fam || $DH1_fam) { --- Eli misunderstood
                         if(in_array($taxonrank, array('genus', 'species')) && $DH2_fam && $DH1_fam) {
@@ -475,10 +476,10 @@ class DH_v21_TRAM_995_v2
                         }
                         else {
                             /* DH TAXA WITH OTHER RANKS */
-                            $DH2_parent = $homonym_rec['can_par'];
-                            $DH2_grandparent = $homonym_rec['can_gpa'];
-                            $DH1_parent = $rek['can_par'];
-                            $DH1_grandparent = $rek['can_gpa'];
+                            $DH2_parent = $homonym_rec['cp'];
+                            $DH2_grandparent = $homonym_rec['cg'];
+                            $DH1_parent = $rek['cp'];
+                            $DH1_grandparent = $rek['cg'];
                             if($DH1_parent == $DH2_parent || $DH1_parent == $DH2_grandparent || $DH1_grandparent == $DH2_parent || $DH1_grandparent == $DH2_grandparent) {
                                 $ancestry_test_success[] = $homonym_rec['ID'];
                                 $success[$homonym_rec['ID']] = $rek;
@@ -569,9 +570,9 @@ class DH_v21_TRAM_995_v2
                         [ID] => EOL-000000000001
                         [pID] => 
                         [r] => clade
-                        [can_fam_anc] => 
-                        [can_par] => 
-                        [can_gpa] => )
+                        [cf] => 
+                        [cp] => 
+                        [cg] => )
             )*/
             $rank_test_success = 0;
             $ancestry_test_success = 0;
@@ -587,7 +588,7 @@ class DH_v21_TRAM_995_v2
                     //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                     /* ANCESTRY TEST */
                     $DH2_fam = $rec['canonical_family_ancestor'];
-                    $DH1_fam = $rek['can_fam_anc'];
+                    $DH1_fam = $rek['cf'];
                     // if(in_array($taxonrank, array('genus', 'species')) || !$DH2_fam || $DH1_fam) { --- Eli misunderstood
                     if(in_array($taxonrank, array('genus', 'species')) && $DH2_fam && $DH1_fam) {
                         /* DH2 TAXA WITH RANK GENUS OR SPECIES */
@@ -602,8 +603,8 @@ class DH_v21_TRAM_995_v2
                         /* DH TAXA WITH OTHER RANKS */
                         $DH2_parent = $rec['canonical_parent'];
                         $DH2_grandparent = $rec['canonical_grandparent'];
-                        $DH1_parent = $rek['can_par'];
-                        $DH1_grandparent = $rek['can_gpa'];
+                        $DH1_parent = $rek['cp'];
+                        $DH1_grandparent = $rek['cg'];
                         if($DH1_parent == $DH2_parent || $DH1_parent == $DH2_grandparent || $DH1_grandparent == $DH2_parent || $DH1_grandparent == $DH2_grandparent) {
                              $ancestry_test_success++;
                              $success = $rek;
@@ -691,9 +692,9 @@ class DH_v21_TRAM_995_v2
                         [ID] => EOL-000000000001
                         [pID] => 
                         [r] => clade
-                        [can_fam_anc] => 
-                        [can_par] => 
-                        [can_gpa] => 
+                        [cf] => 
+                        [cp] => 
+                        [cg] => 
                     )
             )*/
             $rek = $reks[0];
@@ -715,7 +716,7 @@ class DH_v21_TRAM_995_v2
                 If this is TRUE, put “ancestorMatch” in the EOLidAnnotations column for this taxon.
                 */
                 $DH2_fam = $rec['canonical_family_ancestor'];
-                $DH1_fam = $rek['can_fam_anc'];
+                $DH1_fam = $rek['cf'];
                 if($DH2_fam && $DH1_fam) {
                     if($DH1_fam == $DH2_fam) $rec['eolidannotations'] = "ancestorMatch: [$DH1_fam], [$DH2_fam]";
                     else                     $rec['eolidannotations'] = "ancestorMismatch: [$DH1_fam], [$DH2_fam]";
@@ -728,7 +729,7 @@ class DH_v21_TRAM_995_v2
                     If this is FALSE, put “ancestorMismatch” in the EOLidAnnotations column for this taxon.
                     If this is TRUE, put “ancestorMatch” in the EOLidAnnotations column for this taxon. */
                     $DH2_parent = $rec['canonical_parent']; $DH2_grandparent = $rec['canonical_grandparent'];
-                    $DH1_parent = $rek['can_par'];          $DH1_grandparent = $rek['can_gpa'];
+                    $DH1_parent = $rek['cp'];          $DH1_grandparent = $rek['cg'];
                     if($DH1_parent == $DH2_parent || $DH1_parent == $DH2_grandparent || $DH1_grandparent == $DH2_parent || $DH1_grandparent == $DH2_grandparent) {
                          $rec['eolidannotations'] = "ancestorMatch: [$DH1_parent]-[$DH1_grandparent], [$DH2_parent]-[$DH2_grandparent]";
                     }
