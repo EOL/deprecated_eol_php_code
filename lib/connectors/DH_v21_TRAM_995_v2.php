@@ -62,24 +62,40 @@ class DH_v21_TRAM_995_v2
         self::tag_DH2_with_group();                     //ends with work_4.txt -> also generates stats to see if all categories are correctly covered...
         ######################################################## */
         
-        // /* worked OK --- seems to be the last step
-        self::proc_Group_2_1();     //ends with work_6.txt
+        // /* worked OK --- run one at a time
+        self::proc_Group_2_1();     //works with work_4.txt AND work_5.txt -> ends with work_6.txt
+        self::proc_Group_2_2();     //works with work_6.txt AND work_7.txt -> ends with work_8.txt
         // */
         exit("\n-stop muna-\n");
     }
     private function proc_Group_2_1()
-    {
-        $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1'); // print_r($this->DH1_canonicals);
-            // -> used in main_G2_1 main_G2_2 main_G3_1 main_G3_2
-        $this->DH2_canonicals = self::parse_tsv2($this->main_path."/work_4.txt", 'get_canonicals_and_info_DH2'); // print_r($this->DH2_canonicals);
-            // -> used in main_G3_1 and main_G3_2 only
+    {   $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1'); //-> for main_G2_1 main_G2_2 main_G3_1 main_G3_2
         $this->replaced_by = array();
         self::parse_tsv2($this->main_path."/work_4.txt", 'group_2_1'); //generates work_5.txt
         unset($this->DH1_canonicals);
-        unset($this->DH2_canonicals);
         self::parse_tsv2($this->main_path."/work_5.txt", 'refresh_parentIDs_work_5'); //generates work_6.txt
         unset($this->replaced_by);
     }
+    private function proc_Group_2_2()
+    {   $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1'); //-> for main_G2_1 main_G2_2 main_G3_1 main_G3_2
+        $this->replaced_by = array();
+        self::parse_tsv2($this->main_path."/work_6.txt", 'group_2_2'); //generates work_7.txt
+        unset($this->DH1_canonicals);
+        self::parse_tsv2($this->main_path."/work_7.txt", 'refresh_parentIDs_work_7'); //generates work_8.txt
+        unset($this->replaced_by);
+    }
+
+    // private function proc_Group_3_1()
+    // {
+    //     $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1'); //-> for main_G2_1 main_G2_2 main_G3_1 main_G3_2
+    //     $this->DH2_canonicals = self::parse_tsv2($this->main_path."/work_4.txt", 'get_canonicals_and_info_DH2'); //-> form main_G3_1 and main_G3_2 only
+    //     $this->replaced_by = array();
+    //     self::parse_tsv2($this->main_path."/work_4.txt", 'group_2_1'); //generates work_5.txt
+    //     unset($this->DH1_canonicals);
+    //     unset($this->DH2_canonicals);
+    //     self::parse_tsv2($this->main_path."/work_5.txt", 'refresh_parentIDs_work_5'); //generates work_6.txt
+    //     unset($this->replaced_by);
+    // }
     private function parse_tsv2($txtfile, $task)
     {   $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
@@ -89,15 +105,21 @@ class DH_v21_TRAM_995_v2
             if($i == 1) {
                 $fields = $row;
                 $fields = array_filter($fields); //print_r($fields);
-                if($task == 'group_2_1') {
-                    $tmp_fields = $fields;
-                    $WRITE = fopen($this->main_path."/work_5.txt", "w");
-                    fwrite($WRITE, implode("\t", $tmp_fields)."\n");
+                //**************************************************************
+                if($task == 'group_2_1') { //works with 4 AND 5 -> ends with 6
+                    $tmp_fields = $fields;  $WRITE = fopen($this->main_path."/work_5.txt", "w"); fwrite($WRITE, implode("\t", $tmp_fields)."\n");
                 }
-                elseif($task == 'refresh_parentIDs_work_5') {
-                    $WRITE = fopen($this->main_path."/work_6.txt", "w");
-                    fwrite($WRITE, implode("\t", $fields)."\n");
+                if($task == 'refresh_parentIDs_work_5') {
+                    $WRITE = fopen($this->main_path."/work_6.txt", "w"); fwrite($WRITE, implode("\t", $fields)."\n");
                 }
+                //**************************************************************
+                if($task == 'group_2_2') { //works with 6 AND 7 -> ends with 8
+                    $tmp_fields = $fields;  $WRITE = fopen($this->main_path."/work_7.txt", "w"); fwrite($WRITE, implode("\t", $tmp_fields)."\n");
+                }
+                if($task == 'refresh_parentIDs_work_7') {
+                    $WRITE = fopen($this->main_path."/work_8.txt", "w"); fwrite($WRITE, implode("\t", $fields)."\n");
+                }
+                //**************************************************************
                 //==========================================================================================
                 if(in_array($task, array('build_up_useful_cols_DH11', 'build_up_useful_cols_DH21'))) {
                     $tmp_fields = $fields;
@@ -129,13 +151,23 @@ class DH_v21_TRAM_995_v2
             }
             
             if($task == 'group_2_1') {
-                    if($rec['group'] == 'G2_1') {$rec = self::main_G2_1($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
-                // elseif($rec['group'] == 'G2_2') {$rec = self::main_G2_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
-                // elseif($rec['group'] == 'G3_1') {$rec = self::main_G3_1($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
-                // elseif($rec['group'] == 'G3_2') {$rec = self::main_G3_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                if($rec['group'] == 'G2_1') {$rec = self::main_G2_1($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
-            elseif($task == 'get_canonicals_and_info_DH1') { //print_r($rec); exit("\n172\n");
+            if($task == 'group_2_2') {
+                if($rec['group'] == 'G2_2') {$rec = self::main_G2_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
+            }
+            if($task == 'group_3_1') {
+                if($rec['group'] == 'G3_1') {$rec = self::main_G3_1($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
+            }
+            if($task == 'group_3_2') {
+                if($rec['group'] == 'G3_2') {$rec = self::main_G3_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
+            }
+
+            if($task == 'get_canonicals_and_info_DH1') { //print_r($rec); exit("\n172\n");
                 /*Array(
                     [taxonid] => EOL-000000000001
                     [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
@@ -179,32 +211,43 @@ class DH_v21_TRAM_995_v2
                     'cf' => $rec['canonical_family_ancestor'], 'cp' => $rec['canonical_parent'], 'cg' => $rec['canonical_grandparent']);
                 }
             }
-            elseif($task == 'refresh_parentIDs_work_5') {
+            if(in_array($task, array('refresh_parentIDs_work_5', 'refresh_parentIDs_work_7', 'refresh_parentIDs_work_9', 'refresh_parentIDs_work_11'))) {
                 $parent_ID = $rec['parentnameusageid'];
                 $accept_ID = $rec['acceptednameusageid'];
                 if($val = @$this->replaced_by[$parent_ID]) $rec['parentnameusageid'] = $val;
                 if($val = @$this->replaced_by[$accept_ID]) $rec['acceptednameusageid'] = $val;
                 fwrite($WRITE, implode("\t", $rec)."\n");
             }
-        }
+        } //end foreach()
         if($task == 'get_canonicals_and_info_DH1') return $final;
         elseif($task == 'get_canonicals_and_info_DH2') return $final;
-        elseif($task == 'group_2_1') {
-            fclose($WRITE);
-            $total = self::get_total_rows($this->main_path."/work_5.txt"); echo "\n work_5 [$total]\n";
-        }
-        elseif($task == 'refresh_parentIDs_work_5') {
-            fclose($WRITE);
+        elseif($task == 'group_2_1') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_5.txt"); echo "\n work_5 [$total]\n";}
+        elseif($task == 'group_2_2') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_7.txt"); echo "\n work_7 [$total]\n";}
+        elseif($task == 'group_3_1') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_9.txt"); echo "\n work_9 [$total]\n";}
+        elseif($task == 'group_3_2') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_11.txt"); echo "\n work_11 [$total]\n";}
+        
+        elseif($task == 'refresh_parentIDs_work_5') { fclose($WRITE);
             $total = self::get_total_rows($this->main_path."/work_5.txt"); echo "\n work_5 [$total]\n";
             $total = self::get_total_rows($this->main_path."/work_6.txt"); echo "\n work_6 [$total]\n";
         }
-        if($task == 'build_up_useful_cols_DH11') {
-            fclose($WRITE);
+        elseif($task == 'refresh_parentIDs_work_7') { fclose($WRITE);
+            $total = self::get_total_rows($this->main_path."/work_7.txt"); echo "\n work_7 [$total]\n";
+            $total = self::get_total_rows($this->main_path."/work_8.txt"); echo "\n work_8 [$total]\n";
+        }
+        elseif($task == 'refresh_parentIDs_work_9') { fclose($WRITE);
+            $total = self::get_total_rows($this->main_path."/work_9.txt"); echo "\n work_9 [$total]\n";
+            $total = self::get_total_rows($this->main_path."/work_10.txt"); echo "\n work_10 [$total]\n";
+        }
+        elseif($task == 'refresh_parentIDs_work_11') { fclose($WRITE);
+            $total = self::get_total_rows($this->main_path."/work_11.txt"); echo "\n work_11 [$total]\n";
+            $total = self::get_total_rows($this->main_path."/work_12.txt"); echo "\n work_12 [$total]\n";
+        }
+        
+        if($task == 'build_up_useful_cols_DH11') { fclose($WRITE);
             $total = self::get_total_rows($this->tsv['DH11_Jen']); echo "\n DH11 [$total]\n";
             $total = self::get_total_rows($this->main_path."/DH11_working_new.txt"); echo "\n DH11_working_new [$total]\n";
         }
-        elseif($task == 'build_up_useful_cols_DH21') {
-            fclose($WRITE);
+        elseif($task == 'build_up_useful_cols_DH21') { fclose($WRITE);
             $total = self::get_total_rows($this->tsv['DH21_Jen']); echo "\n DH21 [$total]\n";
             $total = self::get_total_rows($this->main_path."/DH21_working_new.txt"); echo "\n DH21_working_new [$total]\n";
         }
