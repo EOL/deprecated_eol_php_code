@@ -2383,10 +2383,10 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
                     </sciname>
                     */
                     if(self::is_valid_block("<$block</sciname>")) { // echo $show;
-                        
+                        // /* from: https://eol-jira.bibalex.org/browse/DATA-1890?focusedCommentId=66561&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66561
                         $show = str_replace('\"', "", $show);
                         $show = str_replace("\'", "", $show);
-                        
+                        // */
                         fwrite($WRITE, $show);
                     }
                     // else echo " -- not valid block -- \n-----\n$block\n-----\n"; //just debug
