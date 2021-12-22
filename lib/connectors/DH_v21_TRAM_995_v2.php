@@ -117,16 +117,22 @@ class DH_v21_TRAM_995_v2
                 if($task == 'group_2_1') { //works with 4 AND 5 -> ends with 6
                     $tmp_fields = $fields;  $WRITE = fopen($this->main_path."/work_5.txt", "w"); fwrite($WRITE, implode("\t", $tmp_fields)."\n");
                 }
-                if($task == 'refresh_parentIDs_work_5') {
-                    $WRITE = fopen($this->main_path."/work_6.txt", "w"); fwrite($WRITE, implode("\t", $fields)."\n");
-                }
+                if($task == 'refresh_parentIDs_work_5') {$WRITE = fopen($this->main_path."/work_6.txt", "w"); fwrite($WRITE, implode("\t", $fields)."\n");}
                 //**************************************************************
                 if($task == 'group_2_2') { //works with 6 AND 7 -> ends with 8
                     $tmp_fields = $fields;  $WRITE = fopen($this->main_path."/work_7.txt", "w"); fwrite($WRITE, implode("\t", $tmp_fields)."\n");
                 }
-                if($task == 'refresh_parentIDs_work_7') {
-                    $WRITE = fopen($this->main_path."/work_8.txt", "w"); fwrite($WRITE, implode("\t", $fields)."\n");
+                if($task == 'refresh_parentIDs_work_7') {$WRITE = fopen($this->main_path."/work_8.txt", "w"); fwrite($WRITE, implode("\t", $fields)."\n");}
+                //**************************************************************
+                if($task == 'group_3_1') { //works with 8 AND 9 -> ends with 10
+                    $tmp_fields = $fields;  $WRITE = fopen($this->main_path."/work_9.txt", "w"); fwrite($WRITE, implode("\t", $tmp_fields)."\n");
                 }
+                if($task == 'refresh_parentIDs_work_9') {$WRITE = fopen($this->main_path."/work_10.txt", "w"); fwrite($WRITE, implode("\t", $fields)."\n");}
+                //**************************************************************
+                if($task == 'group_3_2') { //works with 10 AND 11 -> ends with 12
+                    $tmp_fields = $fields;  $WRITE = fopen($this->main_path."/work_11.txt", "w"); fwrite($WRITE, implode("\t", $tmp_fields)."\n");
+                }
+                if($task == 'refresh_parentIDs_work_11') {$WRITE = fopen($this->main_path."/work_12.txt", "w"); fwrite($WRITE, implode("\t", $fields)."\n");}
                 //**************************************************************
                 //==========================================================================================
                 if(in_array($task, array('build_up_useful_cols_DH11', 'build_up_useful_cols_DH21'))) {
