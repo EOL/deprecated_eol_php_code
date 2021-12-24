@@ -87,11 +87,21 @@ class DH_v21_TRAM_995_v2
         unset($this->replaced_by);
     }
     private function proc_Group_3_1()
-    {   $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1');              //-> for G2_1 G2_2 G3_1 G3_2
+    {
+        // /*
+        $WRITE = fopen($this->main_path."/json_3_1.txt", "w"); fclose($WRITE); //initialize json file
+        $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1');              //-> for G2_1 G2_2 G3_1 G3_2
         $this->DH2_canonicals = self::parse_tsv2($this->main_path."/work_8.txt", 'get_canonicals_and_info_DH2');  //-> for G3_1 and G3_2 only
         $this->replaced_by = array();
-        self::parse_tsv2($this->main_path."/work_8.txt", 'group_3_1'); //generates work_9.txt
+        self::parse_tsv2($this->main_path."/work_8.txt", 'group_3_1'); //does not generate any .txt file here
+        // exit("\nstop munax\n");
         unset($this->DH1_canonicals); unset($this->DH2_canonicals);
+        // */
+        // /* New: 
+        $this->json_info_3_1 = self::read_json_file($this->main_path."/json_3_1.txt");
+        $this->replaced_by = array();
+        self::parse_tsv2($this->main_path."/work_8.txt", 'group_3_1_post'); //generates work_9.txt
+        // */
         self::parse_tsv2($this->main_path."/work_9.txt", 'refresh_parentIDs_work_9'); //generates work_10.txt
         unset($this->replaced_by);
     }
@@ -103,6 +113,38 @@ class DH_v21_TRAM_995_v2
         unset($this->DH1_canonicals); unset($this->DH2_canonicals);
         self::parse_tsv2($this->main_path."/work_11.txt", 'refresh_parentIDs_work_11'); //generates work_12.txt
         unset($this->replaced_by);
+    }
+    private function read_json_file($txtfile)
+    {   
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $arr = json_decode($line, true); 
+            // if($arr['ID'] == '-41870') print_r($arr); //good debug
+            /* Array(
+                [ID] => -1237296
+                [pass_ANCESTRY_TEST] => Y
+                [transform_annote] => ancestorMatch: [Encyrtidae], [Encyrtidae]
+                [transform_DH1_rek] => Array(
+                        [ID] => EOL-000001006132
+                        [pID] => EOL-000001003897
+                        [r] => genus
+                        [cf] => Encyrtidae
+                        [cp] => Encyrtidae
+                        [cg] => Chalcidoidea
+                    )
+            $xxx['transform_new_id'] = $new_id;
+            $xxx['transform_annote'] = 'h-RankMismatch';
+            $yyy['transform_annote'] = 'h-ancestorMismatch';
+            $zzz['transform_annote'] = 'multipleMatches';
+            */
+            $flds = array('ID', 'transform_annote', 'transform_DH1_rek', 'transform_new_id');
+            $save = array();
+            foreach($flds as $fld) {
+                if($val = @$arr[$fld]) $save[$fld] = $val;
+            }
+            if($ID = $arr['ID']) $final[$ID] = $save;
+        }
+        // print_r($final); exit;
+        return $final;
     }
     private function parse_tsv2($txtfile, $task)
     {   $i = 0;
@@ -124,7 +166,7 @@ class DH_v21_TRAM_995_v2
                 }
                 if($task == 'refresh_parentIDs_work_7') {$WRITE = fopen($this->main_path."/work_8.txt", "w"); fwrite($WRITE, implode("\t", $fields)."\n");}
                 //**************************************************************
-                if($task == 'group_3_1') { //works with 8 AND 9 -> ends with 10
+                if($task == 'group_3_1_post') { //works with 8 AND 9 -> ends with 10
                     $tmp_fields = $fields;  $WRITE = fopen($this->main_path."/work_9.txt", "w"); fwrite($WRITE, implode("\t", $tmp_fields)."\n");
                 }
                 if($task == 'refresh_parentIDs_work_9') {$WRITE = fopen($this->main_path."/work_10.txt", "w"); fwrite($WRITE, implode("\t", $fields)."\n");}
@@ -172,10 +214,15 @@ class DH_v21_TRAM_995_v2
                 if($rec['group'] == 'G2_2') {$rec = self::main_G2_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
+
             if($task == 'group_3_1') {
-                if($rec['group'] == 'G3_1') {$rec = self::main_G3_1($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                if($rec['group'] == 'G3_1') self::main_G3_1($rec);
+            }
+            elseif($task == 'group_3_1_post') {
+                if($rec['group'] == 'G3_1') {$rec = self::main_G3_1_post($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
+
             if($task == 'group_3_2') {
                 if($rec['group'] == 'G3_2') {$rec = self::main_G3_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
@@ -237,8 +284,8 @@ class DH_v21_TRAM_995_v2
         elseif($task == 'get_canonicals_and_info_DH2') return $final;
         elseif($task == 'group_2_1') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_5.txt"); echo "\n work_5 [$total]\n";}
         elseif($task == 'group_2_2') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_7.txt"); echo "\n work_7 [$total]\n";}
-        elseif($task == 'group_3_1') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_9.txt"); echo "\n work_9 [$total]\n";}
-        elseif($task == 'group_3_2') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_11.txt"); echo "\n work_11 [$total]\n";}
+        elseif($task == 'group_3_1_post') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_9.txt"); echo "\n work_9 [$total]\n";}
+        elseif($task == 'group_3_2_post') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_11.txt"); echo "\n work_11 [$total]\n";}
         
         elseif($task == 'refresh_parentIDs_work_5') { fclose($WRITE);
             $total = self::get_total_rows($this->main_path."/work_5.txt"); echo "\n work_5 [$total]\n";
@@ -471,132 +518,216 @@ class DH_v21_TRAM_995_v2
         return $final;
     }
     private function main_G3_1($rec)
-    {
-        $orig_taxonid = $rec['taxonid'];
+    {   /*
+        3-1 SINGLE CANONICAL MATCH IN DH1
+        If there is a single canonical match in DH1, but the DH2 taxon is a homonym, 
+        we need to figure out which of the DH2 homonyms should be matched to the DH1 taxon.
+        RANK TEST as above
+        ANCESTRY TEST (as above)
+        */
+        
         $canonicalname = $rec['canonicalname'];
-        $orig_taxonrank = $rec['taxonrank'];
-        if($reks = $this->DH1_canonicals[$canonicalname]) { //print_r($reks); exit("\nelix1\n");
-            if(count($reks) > 1) exit("\nInvestigate code 200. Should always be eq to 1 aaa\n");
-            if(count($reks) < 1) exit("\nInvestigate code 200. Should always be eq to 1 bbb\n");
-            /*Array( $reks
-                [0] => Array(
-                        [ID] => EOL-000000000001
-                        [pID] => 
-                        [r] => clade
-                        [cf] => 
-                        [cp] => 
-                        [cg] => )
-            )*/
-            $DH2_homonyms = $this->DH2_canonicals[$canonicalname];
-            if(count($DH2_homonyms) <= 1) exit("\nInvestigate code 201. It should always be > 1\n");
+        $DH2_homonyms = $this->DH2_canonicals[$canonicalname];
+        if(count($DH2_homonyms) <= 1) exit("\nInvestigate code 201. DH2 here should always be > 1\n");
+        
+        // if($rec['taxonid'] == '-41870') {
+        //     print_r($rec);
+        //     print_r($DH2_homonyms); //exit;
+        // }
+        
+        if($canonicalname == "Lagena") print_r($DH2_homonyms);
+        
+        /*Array(    [0] => Array(
+                            [ID] => -13980
+                            [pID] => EOL-000000003677
+                            [r] => genus
+                            [cf] => Bifidobacteriaceae
+                            [cp] => Bifidobacteriaceae
+                            [cg] => Bifidobacteriales
+                    [1] => Array(
+                            [ID] => -1138255
+                            [pID] => EOL-NoDH00125928
+                            [r] => genus
+                            [cf] => Lucinidae
+                            [cp] => Myrteinae
+                            [cg] => Lucinidae
+        )*/
+        $ancestry_test_success = 0;
+        foreach($DH2_homonyms as $DH2_rec) { //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            $orig_taxonid = $DH2_rec['ID'];
+            $taxonrank    = $DH2_rec['r'];
 
-            $rank_test_success = array(); $ancestry_test_success = array();
-            foreach($reks as $rek) { //but we know that there is only 1 rec from DH1
-                foreach($DH2_homonyms as $homonym_rec) {
-                    $taxonrank_homonym = $homonym_rec['r'];
-                    //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-                    // RANK TEST
-                    if(self::RANK_TEST_yn($taxonrank_homonym, $rek)) $rank_test_success[] = $homonym_rec['ID']; //$rank_test_success++;
+            if($reks = $this->DH1_canonicals[$canonicalname]) { //$reks is DH1
+                if(count($reks) > 1) exit("\nInvestigate code 200. DH1 here should always be eq to 1 aaa\n");
+                if(count($reks) < 1) exit("\nInvestigate code 200. DH1 here should always be eq to 1 bbb\n");
+            }
+            else exit("\nerror: should not go here 1.\n");
+            /* debug
+            if($orig_taxonid == -236079) {
+                print_r($reks); //exit("\ninvestigate now...\n");
+            }
+            */
+            // $rank_test_success = 0;
+            foreach($reks as $rek) { //$rek is DH1
+                if(self::RANK_TEST_yn($taxonrank, $rek)) { //$rank_test_success++;
+                    /* If the rank test passes for at least one DH2 candidate, 
+                    do an ANCESTRY TEST for each of the DH2 candidates that passed the rank test. */
+                    $DH2_rec['pass_ANCESTRY_TEST'] = 'N';
+                    $DH2_rec = self::do_ANCESTRY_TEST($DH2_rec, $rek, 2); //3rd param $rec_type = 2
+                    if($DH2_rec['pass_ANCESTRY_TEST'] == 'Y') { $ancestry_test_success++;
+                        $DH2_pass_ancestry_rec = array();
+                        $DH2_pass_ancestry_rec = $DH2_rec;
+                        $DH2_pass_ancestry_rec['transform_annote'] = $DH2_rec['eolidannotations'];
+                        $DH2_pass_ancestry_rec['transform_DH1_rek'] = $rek;
+                        unset($DH2_pass_ancestry_rec['success_rek']); //to lessen those to save to json
+                        self::to_json($DH2_pass_ancestry_rec);
+                        // if($canonicalname == "Lagena") { echo "\n111"; print_r($DH2_pass_ancestry_rec); } //debug only
+                    }
                     else {
-                        // RANK TEST as above
-                        // If the rank test fails for any of the DH2 homonyms, create new identifiers,
-                        // update all relevant parentNameUsageID values, and put "h-RankMismatch" in the EOLidAnnotations column.
-                        @$this->ctr_G31++;
-                        $new_id = 'EOL-G31_' . sprintf("%08d", $this->ctr_G31);
-                        $this->replaced_by[$rec['taxonid']] = $new_id;
-                        $rec['taxonid'] = $new_id;
-                        $rec['eolidannotations'] = 'h-RankMismatch';
-                        return $rec;
-                    }
-                    //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-                } //end foreach($DH2_homonyms)
-            } //end foreach($reks)
-            
-            if(count($rank_test_success) >= 1) {
-                // ANCESTRY TEST
-                // If the rank test passes for at least one DH2 candidate, do an ANCESTRY TEST (as above) for each of the DH2 candidates.
-                foreach($reks as $rek) { //but we know that there is only 1 rec from DH1
-                    foreach($DH2_homonyms as $homonym_rec) {
-                        //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-                        /* ANCESTRY TEST */
-                        $DH2_fam = $homonym_rec['cf'];
-                        $DH1_fam = $rek['cf'];
-                        $taxonrank = $homonym_rec['r'];
-                        // if(in_array($taxonrank, array('genus', 'species')) || !$DH2_fam || $DH1_fam) { --- Eli misunderstood
-                        if(in_array($taxonrank, array('genus', 'species')) && $DH2_fam && $DH1_fam) {
-                            /* DH2 TAXA WITH RANK GENUS OR SPECIES */
-                            if($DH1_fam == $DH2_fam) {
-                                $ancestry_test_success[] = $homonym_rec['ID'];
-                                $success[$homonym_rec['ID']] = $rek;
-                            }
-                            else {}
-                        }
-                        else {
-                            /* DH TAXA WITH OTHER RANKS */
-                            $DH2_parent = $homonym_rec['cp'];
-                            $DH2_grandparent = $homonym_rec['cg'];
-                            $DH1_parent = $rek['cp'];
-                            $DH1_grandparent = $rek['cg'];
-                            if($DH1_parent == $DH2_parent || $DH1_parent == $DH2_grandparent || $DH1_grandparent == $DH2_parent || $DH1_grandparent == $DH2_grandparent) {
-                                $ancestry_test_success[] = $homonym_rec['ID'];
-                                $success[$homonym_rec['ID']] = $rek;
-                            }
-                            else {}
-                        }
-                        //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                        $DH2_rec['transform_annote'] = 'h-ancestorMismatch';
+                        self::to_json($DH2_rec);
                     }
                 }
-            }
-            if(count($ancestry_test_success) == 0) {
-                // If the ancestry tests fail for all of the DH2 candidates, leave the old taxonID, 
-                // and put "h-ancestorMismatch: family1, family2" or "h-ancestorMismatch: parent1-grandparent1, parent2-grandparent2" 
-                // in the EOLidAnnotations column, depending on the rank of the DH2 taxon.
-                $rec['eolidannotations'] = 'h-ancestorMismatch';
-            }
-            /* replaced by one below
-            if(count($rank_test_success) == 1 && count($ancestry_test_success) == 1 && $rank_test_success == $ancestry_test_success) {
-                // If there is only one DH2 candidate that passes both the rank test and the ancestry test, 
-                // replace the current DH2 taxonID of that candidate with the taxonID of the DH1 taxon 
-                // and update all relevant parentNameUsageID values. 
-                // Also, put "h-ancestorMatch" in the EOLidAnnotations column for this taxon.
-                if($success['DH2 candidate ID'] == $orig_taxonid) {
-                    $this->replaced_by[$rec['taxonid']] = $success['ID'];
-                    $rec['taxonid'] = $success['ID'];
-                    $rec['eolidannotations'] = 'h-ancestorMatch';
+                else {
+                    /* If the rank test fails for any of the DH2 homonyms, 
+                    create new identifiers for those homonyms, 
+                    update all relevant parentNameUsageID values, 
+                    and put “h-RankMismatch” in the EOLidAnnotations column. */
+                    @$this->ctr_G31++;
+                    $new_id = 'EOL-G31_' . sprintf("%08d", $this->ctr_G31);
+
+                    // $this->replaced_by[$DH2_rec['taxonid']] = $new_id;
+                    // $DH2_rec['taxonid'] = $new_id;
+                    // $DH2_rec['eolidannotations'] = 'h-RankMismatch';
+                    
+                    $DH2_rec['transform_new_id'] = $new_id;
+                    $DH2_rec['transform_annote'] = 'h-RankMismatch';
+                    self::to_json($DH2_rec);
+                    // if($canonicalname == "Lagena") { echo "\n222"; print_r($DH2_rec); } //debug only
                 }
-            }*/
-            
-            $both = array();
-            foreach($rank_test_success as $id)      $both[$id][] = 'rank test OK';
-            foreach($ancestry_test_success as $id)  $both[$id][] = 'ancestry test OK';
-            $candidates_pass_both = 0; //no. of candidates that passe both rank and ancestry test
-            foreach($both as $id => $tests) {
-                if(count($tests) > 1) {
-                    $candidates_pass_both++;
-                    $id_dh2 = $id;
-                }
-            }
-            if($candidates_pass_both == 1) {
-                // If there is only one DH2 candidate that passes both the rank test and the ancestry test, 
-                // replace the current DH2 taxonID of that candidate with the taxonID of the DH1 taxon 
-                // and update all relevant parentNameUsageID values. 
-                // Also, put "h-ancestorMatch" in the EOLidAnnotations column for this taxon.
-                if($s = $success[$id_dh2]) {
-                    $this->replaced_by[$rec['taxonid']] = $s['ID'];
-                    $rec['taxonid'] = $s['ID'];
-                    $rec['eolidannotations'] = 'h-ancestorMatch';
-                }
-                else exit("\ninvestigate code 300\n");
-            }
-            if($candidates_pass_both > 1) {
-                // If there is more than one DH2 candidate that passes both the rank test and the ancestry test, leave the old taxonIDs, 
-                // and put "multipleMatches" in the EOLidAnnotations column for these taxa.
-                $rec['eolidannotations'] = 'multipleMatches';
+            } //end foreach() $reks
+        } //end foreach() $DH2_homonyms @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+        /* Symptom */
+
+        if($ancestry_test_success == 0) {
+            /* If the ancestry tests fail for all of the DH2 candidates, leave the old taxonIDs, 
+            and put “h-ancestorMismatch” in the EOLidAnnotations column. */
+            foreach($DH2_homonyms as $DH2_rec) {
+                $DH2_rec['transform_annote'] = 'h-ancestorMismatch';
+                self::to_json($DH2_rec);
             }
         }
-        else exit("\nInvestigate code 201. There should always be a single record returned here.\n");
-        return $rec;
+
+        /* If there is only one DH2 candidate that passes both the rank test and the ancestry test, 
+        replace the current DH2 taxonID of that candidate with the taxonID of the DH1 taxon 
+        and update all relevant parentNameUsageID values. 
+        Also, put “h-ancestorMatch” in the EOLidAnnotations column for this taxon. */
+        if($ancestry_test_success == 1) {
+            $DH2_pass_ancestry_rec['transform_annote'] = 'h-ancestorMatch';
+        }
+        
+        /* If there is more than one DH2 candidate that passes both the rank test and the ancestry test, 
+        leave the old taxonIDs, and put “multipleMatches” in the EOLidAnnotations column for these taxa. */
+        if($ancestry_test_success > 1) {
+            foreach($DH2_homonyms as $DH2_rec) {
+                $DH2_rec['transform_annote'] = 'multipleMatches';
+                self::to_json($DH2_rec);
+            }
+        }
+
+        // no 'return' at this point
+        // if(isset($rec['pass_ANCESTRY_TEST'])) unset($rec['pass_ANCESTRY_TEST']);
+        // if(isset($rec['success_rek'])) unset($rec['success_rek']);
+        // return $rec;
+
     } //end main_G3_1()
+    private function main_G3_1_post($rec) //$rec is DH2
+    {   //print_r($rec); exit("\n111\n");
+        /*Array(
+            [taxonid] => -13980
+            [source] => NCBI:2701
+            [furtherinformationurl] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=2701
+            [acceptednameusageid] => 
+            [parentnameusageid] => EOL-000000003677
+            [scientificname] => Gardnerella
+            [taxonrank] => genus
+            [taxonomicstatus] => accepted
+            [taxonremarks] => 
+            [datasetid] => NCBI
+            [canonicalname] => Gardnerella
+            [eolid] => 
+            [eolidannotations] => 
+            [landmark] => 
+            [canonical_family_ancestor] => Bifidobacteriaceae
+            [canonical_parent] => Bifidobacteriaceae
+            [canonical_grandparent] => Bifidobacteriales
+            [canomatchdh1_yn] => 1
+            [homonyms_yn] => Y
+            [group] => G3_1
+        )*/
+        
+        /* sample json lookup
+        [-845649] => Array(
+                    [ID] => -845649
+                    [transform_annote] => h-RankMismatch
+                    [transform_new_id] => EOL-G31_00000027
+                )
+        -------------------------------
+        [-151544] => Array(
+                [ID] => -151544
+                [transform_annote] => h-ancestorMismatch
+            )
+        -------------------------------
+        [-41870] => Array(
+                [ID] => -41870
+                [transform_annote] => ancestorMatch: [Lagenaceae], [Lagenaceae]
+                [transform_DH1_rek] => Array(
+                        [ID] => EOL-000000094987
+                        [pID] => EOL-000000094986
+                        [r] => genus
+                        [cf] => Lagenaceae
+                        [cp] => Lagenaceae
+                        [cg] => Gyrista
+                    )
+            )
+        -------------------------------
+        $zzz['transform_annote'] = 'multipleMatches'; ---> this one is for G3.2 multiple matches in DH1
+        -------------------------------
+        */
+        $taxonid = $rec['taxonid'];
+        if($arr = @$this->json_info_3_1[$taxonid]) {
+            if($rek = @$arr['transform_DH1_rek']) {
+                $new_id = $rek['ID'];
+                $this->replaced_by[$taxonid] = $new_id;
+                $rec['taxonid'] = $new_id;
+                $rec['eolidannotations'] = $arr['transform_annote'];
+            }
+            elseif($new_id = @$arr['transform_new_id']) {
+                $this->replaced_by[$taxonid] = $new_id;
+                $rec['taxonid'] = $new_id;
+                $rec['eolidannotations'] = $arr['transform_annote'];
+            }
+            elseif(stripos($arr['transform_annote'], "ancestorMismatch") !== false) { //string is found
+                $rec['eolidannotations'] = $arr['transform_annote'];
+            }
+        }
+        return $rec;
+    } //end main_G3_1_post()
+    
+    private function to_json($rec)
+    {
+        // echo "\n-----------------\n"; print_r($rec);
+        
+        $ID = $rec['ID'];
+        if(!isset($this->saved[$ID])) {
+            $json = json_encode($rec);
+            $WRITE = fopen($this->main_path."/json_3_1.txt", "a");
+            fwrite($WRITE, $json."\n");
+            fclose($WRITE);
+        }
+        $this->saved[$ID] = '';
+    }
     private function main_G2_2($rec) //$rec is DH2
     {   /*Array(
             [taxonid] => 4038af35-41da-469e-8806-40e60241bb58
@@ -781,7 +912,7 @@ class DH_v21_TRAM_995_v2
         else exit("\nerror: should not go here 1.\n");
         return $rec;
     } //end main_G2_1()
-    private function do_ANCESTRY_TEST($rec, $rek)
+    private function do_ANCESTRY_TEST($rec, $rek, $rec_type = 1)
     {
         /* >>>>> ANCESTRY TEST (REVISED!): FAMILY TEST or PARENT/GRANDPARENT TEST <<<<<
         Do this for all DH2 non-homonyms that passed the rank test.
@@ -793,7 +924,9 @@ class DH_v21_TRAM_995_v2
         If this is FALSE, put “ancestorMismatch” in the EOLidAnnotations column for this taxon.
         If this is TRUE, put “ancestorMatch” in the EOLidAnnotations column for this taxon.
         */
-        $DH2_fam = $rec['canonical_family_ancestor'];
+        // $DH2_fam = $rec['canonical_family_ancestor'];
+        $DH2_fam = ($rec_type == 1) ? $rec['canonical_family_ancestor'] : $rec['cf'];
+        
         $DH1_fam = $rek['cf'];
         if($DH2_fam && $DH1_fam) {
             if($DH1_fam == $DH2_fam) {
@@ -818,8 +951,12 @@ class DH_v21_TRAM_995_v2
             canonicalName of DH1grandparent = canonicalName of DH2grandparent
             If this is FALSE, put “ancestorMismatch” in the EOLidAnnotations column for this taxon.
             If this is TRUE, put “ancestorMatch” in the EOLidAnnotations column for this taxon. */
-            $DH2_parent = $rec['canonical_parent']; $DH2_grandparent = $rec['canonical_grandparent'];
-            $DH1_parent = $rek['cp'];               $DH1_grandparent = $rek['cg'];
+            // $DH2_parent = $rec['canonical_parent'];
+            $DH2_parent = ($rec_type == 1) ? $rec['canonical_parent'] : $rec['cp'];
+            // $DH2_grandparent = $rec['canonical_grandparent'];
+            $DH2_grandparent = ($rec_type == 1) ? $rec['canonical_grandparent'] : $rec['cg'];
+            $DH1_parent = $rek['cp'];               
+            $DH1_grandparent = $rek['cg'];
             if($DH1_parent == $DH2_parent || $DH1_parent == $DH2_grandparent || $DH1_grandparent == $DH2_parent || $DH1_grandparent == $DH2_grandparent) {
                  $rec['eolidannotations'] = "ancestorMatch: [$DH1_parent]-[$DH1_grandparent], [$DH2_parent]-[$DH2_grandparent]";
                  // /* used in G2_2
