@@ -106,11 +106,29 @@ class DH_v21_TRAM_995_v2
         unset($this->replaced_by);
     }
     private function proc_Group_3_2()
-    {   $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1');              //-> for G2_1 G2_2 G3_1 G3_2
+    {   /*
+        $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1');              //-> for G2_1 G2_2 G3_1 G3_2
         $this->DH2_canonicals = self::parse_tsv2($this->main_path."/work_10.txt", 'get_canonicals_and_info_DH2'); //-> for G3_1 and G3_2 only
         $this->replaced_by = array();
         self::parse_tsv2($this->main_path."/work_10.txt", 'group_3_2'); //generates work_11.txt
         unset($this->DH1_canonicals); unset($this->DH2_canonicals);
+        self::parse_tsv2($this->main_path."/work_11.txt", 'refresh_parentIDs_work_11'); //generates work_12.txt
+        unset($this->replaced_by);
+        */
+        // /*
+        $WRITE = fopen($this->main_path."/json_3_2.txt", "w"); fclose($WRITE); //initialize json file
+        $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1');              //-> for G2_1 G2_2 G3_1 G3_2
+        $this->DH2_canonicals = self::parse_tsv2($this->main_path."/work_10.txt", 'get_canonicals_and_info_DH2');  //-> for G3_1 and G3_2 only
+        $this->replaced_by = array();
+        self::parse_tsv2($this->main_path."/work_10.txt", 'group_3_2'); //does not generate any .txt file here
+        // exit("\nstop munax\n");
+        unset($this->DH1_canonicals); unset($this->DH2_canonicals);
+        // */
+        // /* New: 
+        $this->json_info_3_2 = self::read_json_file($this->main_path."/json_3_2.txt");
+        $this->replaced_by = array();
+        self::parse_tsv2($this->main_path."/work_10.txt", 'group_3_2_post'); //generates work_11.txt
+        // */
         self::parse_tsv2($this->main_path."/work_11.txt", 'refresh_parentIDs_work_11'); //generates work_12.txt
         unset($this->replaced_by);
     }
