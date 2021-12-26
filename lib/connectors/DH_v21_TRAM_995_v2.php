@@ -65,8 +65,8 @@ class DH_v21_TRAM_995_v2
         // /* worked OK --- run one at a time
         // self::proc_Group_2_1();     //works with work_4.txt AND work_5.txt -> ends with work_6.txt
         // self::proc_Group_2_2();     //works with work_6.txt AND work_7.txt -> ends with work_8.txt
-        self::proc_Group_3_1();     //works with work_8.txt AND work_9.txt -> ends with work_10.txt
-        // self::proc_Group_3_2();     //works with work_10.txt AND work_11.txt -> ends with work_12.txt
+        // self::proc_Group_3_1();     //works with work_8.txt AND work_9.txt -> ends with work_10.txt
+        self::proc_Group_3_2();     //works with work_10.txt AND work_11.txt -> ends with work_12.txt
         // */
         exit("\n-stop muna-\n");
     }
@@ -121,7 +121,7 @@ class DH_v21_TRAM_995_v2
         $this->DH2_canonicals = self::parse_tsv2($this->main_path."/work_10.txt", 'get_canonicals_and_info_DH2');  //-> for G3_1 and G3_2 only
         $this->replaced_by = array();
         self::parse_tsv2($this->main_path."/work_10.txt", 'group_3_2'); //does not generate any .txt file here
-        // exit("\nstop munax\n");
+        exit("\nstop munax\n");
         unset($this->DH1_canonicals); unset($this->DH2_canonicals);
         // */
         // /* New: 
@@ -189,7 +189,7 @@ class DH_v21_TRAM_995_v2
                 }
                 if($task == 'refresh_parentIDs_work_9') {$WRITE = fopen($this->main_path."/work_10.txt", "w"); fwrite($WRITE, implode("\t", $fields)."\n");}
                 //**************************************************************
-                if($task == 'group_3_2') { //works with 10 AND 11 -> ends with 12
+                if($task == 'group_3_2_post') { //works with 10 AND 11 -> ends with 12
                     $tmp_fields = $fields;  $WRITE = fopen($this->main_path."/work_11.txt", "w"); fwrite($WRITE, implode("\t", $tmp_fields)."\n");
                 }
                 if($task == 'refresh_parentIDs_work_11') {$WRITE = fopen($this->main_path."/work_12.txt", "w"); fwrite($WRITE, implode("\t", $fields)."\n");}
@@ -240,12 +240,20 @@ class DH_v21_TRAM_995_v2
                 if($rec['group'] == 'G3_1') {$rec = self::main_G3_1_post($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
-
+            /* old
             if($task == 'group_3_2') {
                 if($rec['group'] == 'G3_2') {$rec = self::main_G3_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
-
+            */
+            if($task == 'group_3_2') {
+                if($rec['group'] == 'G3_2') self::main_G3_2($rec);
+            }
+            elseif($task == 'group_3_2_post') {
+                if($rec['group'] == 'G3_2') {$rec = self::main_G3_2_post($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
+            }
+            
             if($task == 'get_canonicals_and_info_DH1') { //print_r($rec); exit("\n172\n");
                 /*Array(
                     [taxonid] => EOL-000000000001
