@@ -63,8 +63,8 @@ class DH_v21_TRAM_995_v2
         ####################################################### */
         
         // /* worked OK --- run one at a time
-        self::proc_Group_2_1();     //works with work_4.txt AND work_5.txt -> ends with work_6.txt
-        // self::proc_Group_2_2();     //works with work_6.txt AND work_7.txt -> ends with work_8.txt
+        // self::proc_Group_2_1();     //works with work_4.txt AND work_5.txt -> ends with work_6.txt
+        self::proc_Group_2_2();     //works with work_6.txt AND work_7.txt -> ends with work_8.txt
         // self::proc_Group_3_1();     //works with work_8.txt AND work_9.txt -> ends with work_10.txt
         // self::proc_Group_3_2();     //works with work_10.txt AND work_11.txt -> ends with work_12.txt
         // */
@@ -232,6 +232,7 @@ class DH_v21_TRAM_995_v2
                 if($rec['group'] == 'G3_1') {$rec = self::main_G3_1and2_post($rec); $rec = self::revive_fields($rec, $tmp_fields); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
+            
             if($task == 'group_3_2') {
                 if($rec['group'] == 'G3_2') self::main_G3_2($rec);
             }
@@ -290,7 +291,9 @@ class DH_v21_TRAM_995_v2
                 if($val = @$this->replaced_by[$parent_ID]) $rec['parentnameusageid'] = $val;
                 if($val = @$this->replaced_by[$accept_ID]) $rec['acceptednameusageid'] = $val;
                 // /*
-                if($rec['taxonid'] == $rec['OLD_taxonid']) $rec['OLD_taxonid'] = '';
+                if(isset($rec['OLD_taxonid'])) {
+                    if($rec['taxonid'] == $rec['OLD_taxonid']) $rec['OLD_taxonid'] = '';
+                }
                 // */
                 fwrite($WRITE, implode("\t", $rec)."\n");
             }
