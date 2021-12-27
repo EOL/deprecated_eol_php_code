@@ -56,17 +56,17 @@ class DH_v21_TRAM_995_v2
         Create a new EOL-xxx style identifier for each of these taxa and update all relevant parentNameUsageID values. 
         Also, put "new" in the EOLidAnnotations column for each taxon.
         */
-        /* ######################################################## Ok good --- run each of these three one at a time
+        // /* ######################################################## Ok good --- run each of these three one at a time
         self::tag_DH2_with_NoCanonicalMatch_in_DH1();   //ends with work_2.txt
-        self::tag_DH2_with_Homonyms_YN();               //ends with work_3.txt
-        self::tag_DH2_with_group();                     //ends with work_4.txt -> also generates stats to see if all categories are correctly covered...
-        ######################################################## */
+        // self::tag_DH2_with_Homonyms_YN();               //ends with work_3.txt
+        // self::tag_DH2_with_group();                     //ends with work_4.txt -> also generates stats to see if all categories are correctly covered...
+        ####################################################### */
         
         // /* worked OK --- run one at a time
         // self::proc_Group_2_1();     //works with work_4.txt AND work_5.txt -> ends with work_6.txt
         // self::proc_Group_2_2();     //works with work_6.txt AND work_7.txt -> ends with work_8.txt
         // self::proc_Group_3_1();     //works with work_8.txt AND work_9.txt -> ends with work_10.txt
-        self::proc_Group_3_2();     //works with work_10.txt AND work_11.txt -> ends with work_12.txt
+        // self::proc_Group_3_2();     //works with work_10.txt AND work_11.txt -> ends with work_12.txt
         // */
         exit("\n-stop muna-\n");
     }
@@ -1097,6 +1097,7 @@ class DH_v21_TRAM_995_v2
                 if($task == 'run_stats_DH2') {
                     $tmp_fields = $fields;
                     $tmp_fields[] = 'group';
+                    $tmp_fields[] = 'OLD_taxonid';
                     $WRITE = fopen($this->main_path."/work_4.txt", "w");
                     fwrite($WRITE, implode("\t", $tmp_fields)."\n");
                 }
@@ -1137,6 +1138,7 @@ class DH_v21_TRAM_995_v2
                         if($canoMatchDH1_YN == 1) {@$stats['Group_3-1']++; $rec['group'] = 'G3_1';}
                     elseif($canoMatchDH1_YN > 1)  {@$stats['Group_3-2']++; $rec['group'] = 'G3_2';}
                 }
+                $rec['OLD_taxonid'] = $rec['taxonid'];
                 fwrite($WRITE, implode("\t", $rec)."\n");
             }
             
