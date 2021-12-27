@@ -333,7 +333,7 @@ class DH_v21_TRAM_995_v2
     private function revive_fields($rec, $tmp_fields)
     {   // print_r($rec); print_r($tmp_fields); echo "\n-------------\n";
         foreach($tmp_fields as $fld) $final[$fld] = $rec[$fld];
-        return $rec;
+        return $final;
     }
     private function RANK_TEST_yn($taxonrank, $rek)
     {   /* ver 1
