@@ -217,13 +217,11 @@ class DH_v21_TRAM_995_v2
             }
             
             if($task == 'group_2_1') {
-                if($rec['group'] == 'G2_1') {$rec = self::main_G2_1($rec); 
-                    $rec = self::revive_fields($rec, $tmp_fields);
-                    fwrite($WRITE, implode("\t", $rec)."\n");}
+                if($rec['group'] == 'G2_1') {$rec = self::main_G2_1($rec); $rec = self::revive_fields($rec, $tmp_fields); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
             if($task == 'group_2_2') {
-                if($rec['group'] == 'G2_2') {$rec = self::main_G2_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                if($rec['group'] == 'G2_2') {$rec = self::main_G2_2($rec); $rec = self::revive_fields($rec, $tmp_fields); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
 
@@ -231,14 +229,14 @@ class DH_v21_TRAM_995_v2
                 if($rec['group'] == 'G3_1') self::main_G3_1($rec);
             }
             elseif($task == 'group_3_1_post') {
-                if($rec['group'] == 'G3_1') {$rec = self::main_G3_1and2_post($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                if($rec['group'] == 'G3_1') {$rec = self::main_G3_1and2_post($rec); $rec = self::revive_fields($rec, $tmp_fields); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
             if($task == 'group_3_2') {
                 if($rec['group'] == 'G3_2') self::main_G3_2($rec);
             }
             elseif($task == 'group_3_2_post') {
-                if($rec['group'] == 'G3_2') {$rec = self::main_G3_1and2_post($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                if($rec['group'] == 'G3_2') {$rec = self::main_G3_1and2_post($rec); $rec = self::revive_fields($rec, $tmp_fields); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
             
