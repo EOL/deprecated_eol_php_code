@@ -106,15 +106,7 @@ class DH_v21_TRAM_995_v2
         unset($this->replaced_by);
     }
     private function proc_Group_3_2()
-    {   /*
-        $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1');              //-> for G2_1 G2_2 G3_1 G3_2
-        $this->DH2_canonicals = self::parse_tsv2($this->main_path."/work_10.txt", 'get_canonicals_and_info_DH2'); //-> for G3_1 and G3_2 only
-        $this->replaced_by = array();
-        self::parse_tsv2($this->main_path."/work_10.txt", 'group_3_2'); //generates work_11.txt
-        unset($this->DH1_canonicals); unset($this->DH2_canonicals);
-        self::parse_tsv2($this->main_path."/work_11.txt", 'refresh_parentIDs_work_11'); //generates work_12.txt
-        unset($this->replaced_by);
-        */
+    {
         // /*
         $WRITE = fopen($this->main_path."/json_3_2.txt", "w"); fclose($WRITE); //initialize json file
         $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1');              //-> for G2_1 G2_2 G3_1 G3_2
@@ -502,6 +494,7 @@ class DH_v21_TRAM_995_v2
     } //end main_G3_1()
     private function main_G3_2($rec)
     {
+        /*
         3-2 MULTIPLE CANONICAL MATCHES IN DH1
         If both DH1 and DH2 taxa of a canonical match pair are homonyms, 
         we need to perform RANK and ANCESTRY TESTS on all possible pairs. 
@@ -509,39 +502,8 @@ class DH_v21_TRAM_995_v2
         Make sure you use the ancestry data from the original DH1 & DH2 files.
 
         RANK TEST as above for each DH1/DH2 pair
-
-        For DH2 homonyms that fail the rank test with all of the DH1 candidates, 
-        leave the old DH2 taxonID and put “h-RankMismatch” in the EOLidAnnotations column for this taxon.
-
-        For DH2 homonyms that pass the rank test with at least one DH1 candidate, 
-        do an ANCESTRY TEST for each of the passing candidates.
-
         ANCESTRY TEST (as above)
-
-        If the ancestry tests fail for all of the DH1 candidates, 
-        leave the old DH2 taxonID and put “h-ancestorMismatch” in the EOLidAnnotations column.
-
-        If there is only one DH1 candidate that passes both the rank test and the ancestry test 
-        AND there are no other DH2 homonyms that pass the rank & ancestry tests with this DH1 candidate, 
-        replace the current DH2 taxonID with the taxonID of the DH1 candidate 
-        and update all relevant parentNameUsageID values. 
-        Also, put “h-ancestorMatch” in the EOLidAnnotations column for this taxon.
-
-        If there is more than one DH1 candidate that passes both the rank test and the ancestry test, 
-        leave the old DH2 taxonID, and put “multipleMatches” in the EOLidAnnotations column for this taxon.
-
-        If there are multiple DH2 homonyms that pass both the rank test and the ancestry test with a given DH1 candidate, 
-        leave the old taxonIDs for the DH2 homonyms, 
-        and put “multipleMatches” in the EOLidAnnotations column for these taxa.
-        
-        /*
-        // 3-1 SINGLE CANONICAL MATCH IN DH1
-        // If there is a single canonical match in DH1, but the DH2 taxon is a homonym, 
-        // we need to figure out which of the DH2 homonyms should be matched to the DH1 taxon.
-        // RANK TEST as above
-        // ANCESTRY TEST (as above)
         */
-
         $canonicalname = $rec['canonicalname'];
         $DH2_homonyms = $this->DH2_canonicals[$canonicalname];
         if(count($DH2_homonyms) <= 1) exit("\nInvestigate code 201. DH2 here should always be > 1\n");
@@ -568,7 +530,8 @@ class DH_v21_TRAM_995_v2
                             [cp] => Myrteinae
                             [cg] => Lucinidae
         )*/
-        $ancestry_test_success = 0;
+        $DH1_passed_both_rank_and_ancestry_test = array();
+        $DH1_passes_both = array();
         foreach($DH2_homonyms as $DH2_rec) { //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
             $orig_taxonid = $DH2_rec['ID'];
             $taxonrank    = $DH2_rec['r'];
@@ -582,80 +545,87 @@ class DH_v21_TRAM_995_v2
                 print_r($reks); //exit("\ninvestigate now...\n");
             }
             */
-            // $rank_test_success = 0;
+            $rank_test_success = 0;     //monitor per DH2 record
+            $ancestry_test_success = 0; //monitor per DH2 record
             foreach($reks as $rek) { //$rek is DH1
-                if(self::RANK_TEST_yn($taxonrank, $rek)) { //$rank_test_success++;
+                if(self::RANK_TEST_yn($taxonrank, $rek)) { $rank_test_success++;
                     /*
-                    // If the rank test passes for at least one DH2 candidate, 
-                    // do an ANCESTRY TEST for each of the DH2 candidates that passed the rank test.
+                    For DH2 homonyms that pass the rank test with at least one DH1 candidate, 
+                    do an ANCESTRY TEST for each of the passing candidates.
                     */
                     $DH2_rec['pass_ANCESTRY_TEST'] = 'N';
                     $DH2_rec = self::do_ANCESTRY_TEST($DH2_rec, $rek, 2); //3rd param $rec_type = 2
                     if($DH2_rec['pass_ANCESTRY_TEST'] == 'Y') { $ancestry_test_success++;
-                        $DH2_pass_ancestry_rec = array();
-                        $DH2_pass_ancestry_rec = $DH2_rec;
-                        $DH2_pass_ancestry_rec['transform_annote'] = $DH2_rec['eolidannotations'];
-                        $DH2_pass_ancestry_rec['transform_DH1_rek'] = $rek;
-                        unset($DH2_pass_ancestry_rec['success_rek']); //to lessen those to save to json
-                        self::to_json($DH2_pass_ancestry_rec);
-                        // if($canonicalname == "Lagena") { echo "\n111"; print_r($DH2_pass_ancestry_rec); } //debug only
+                        $rek['DH2 in question'] = $DH2_rec;
+                        $DH1_passed_both_rank_and_ancestry_test[] = $rek;
+                        
+                        $DH1_passes_both[$rek['ID']][] = $DH2_rec; //to be used below
                     }
-                    else {
-                        $DH2_rec['transform_annote'] = 'h-ancestorMismatch';
-                        self::to_json($DH2_rec);
-                    }
+                    else {} //wala na lang
                 }
-                else {
-                    /* 
-                    // If the rank test fails for any of the DH2 homonyms, 
-                    // create new identifiers for those homonyms, 
-                    // update all relevant parentNameUsageID values, 
-                    // and put "h-RankMismatch" in the EOLidAnnotations column. 
-                    */
-                    @$this->ctr_G31++;
-                    $new_id = 'EOL-G31_' . sprintf("%08d", $this->ctr_G31);
-                    $DH2_rec['transform_new_id'] = $new_id;
-                    $DH2_rec['transform_annote'] = 'h-RankMismatch';
-                    self::to_json($DH2_rec);
-                    // if($canonicalname == "Lagena") { echo "\n222"; print_r($DH2_rec); } //debug only
-                }
+                else {} //wala na lang
             } //end foreach() $reks
+
+            if($rank_test_success == 0) {
+                /*
+                For DH2 homonyms that fail the rank test with all of the DH1 candidates, 
+                leave the old DH2 taxonID and put “h-RankMismatch” in the EOLidAnnotations column for this taxon.
+                */
+                // @$this->ctr_G32++;
+                // $new_id = 'EOL-G32_' . sprintf("%08d", $this->ctr_G32);
+                // $DH2_rec['transform_new_id'] = $new_id;
+                $DH2_rec['transform_annote'] = 'h-RankMismatch';
+                self::to_json($DH2_rec, "json_3_2.txt");
+                continue; //important here
+            }
+            if($ancestry_test_success == 0) {
+                /*
+                If the ancestry tests fail for all of the DH1 candidates, 
+                leave the old DH2 taxonID and put “h-ancestorMismatch” in the EOLidAnnotations column.
+                */
+                $DH2_rec['transform_annote'] = 'h-ancestorMismatch';
+                self::to_json($DH2_rec, "json_3_2.txt");
+            }
+            
+            
         } //end foreach() $DH2_homonyms @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-        /* Symptom */
-
-        if($ancestry_test_success == 0) {
-            /*
-            // If the ancestry tests fail for all of the DH2 candidates, leave the old taxonIDs, 
-            // and put "h-ancestorMismatch" in the EOLidAnnotations column.
-            */
-            foreach($DH2_homonyms as $DH2_rec) {
-                $DH2_rec['transform_annote'] = 'h-ancestorMismatch';
-                self::to_json($DH2_rec);
-            }
+        /* If there is only one DH1 candidate that passes both the rank test and the ancestry test 
+        AND there are no other DH2 homonyms that pass the rank & ancestry tests with this DH1 candidate, 
+        replace the current DH2 taxonID with the taxonID of the DH1 candidate 
+        and update all relevant parentNameUsageID values. 
+        Also, put “h-ancestorMatch” in the EOLidAnnotations column for this taxon. */
+        if(count($DH1_passed_both_rank_and_ancestry_test) == 1) {
+            $rek = $DH1_passed_both_rank_and_ancestry_test
+            $DH2 = array();
+            $DH2 = $rek['DH2 in question'];
+            $DH2['transform_annote'] = 'h-ancestorMatch';
+            unset($rek['DH2 in question']); //to lessen those to save to json
+            $DH2['transform_DH1_rek'] = $rek;
+            self::to_json($DH2, "json_3_2.txt");
         }
 
-        /*
-        // If there is only one DH2 candidate that passes both the rank test and the ancestry test, 
-        // replace the current DH2 taxonID of that candidate with the taxonID of the DH1 taxon 
-        // and update all relevant parentNameUsageID values. 
-        // Also, put "h-ancestorMatch" in the EOLidAnnotations column for this taxon.
-        */
-        if($ancestry_test_success == 1) {
-            $DH2_pass_ancestry_rec['transform_annote'] = 'h-ancestorMatch';
-        }
-
-        /* 
-        // If there is more than one DH2 candidate that passes both the rank test and the ancestry test, 
-        // leave the old taxonIDs, and put "multipleMatches" in the EOLidAnnotations column for these taxa.
-        */
-        if($ancestry_test_success > 1) {
+        /* If there is more than one DH1 candidate that passes both the rank test and the ancestry test, 
+        leave the old DH2 taxonID, and put “multipleMatches” in the EOLidAnnotations column for this taxon. */
+        if(count($DH1_passed_both_rank_and_ancestry_test) > 1) {
             foreach($DH2_homonyms as $DH2_rec) {
                 $DH2_rec['transform_annote'] = 'multipleMatches';
-                self::to_json($DH2_rec);
+                self::to_json($DH2_rec, "json_3_2.txt");
             }
         }
-        
+
+        /* If there are multiple DH2 homonyms that pass both the rank test and the ancestry test with a given DH1 candidate, 
+        leave the old taxonIDs for the DH2 homonyms, 
+        and put “multipleMatches” in the EOLidAnnotations column for these taxa. */
+        foreach($DH1_passes_both as $rek_ID => $DH2_recs) {
+            if(count($DH2_recs) > 1) {
+                foreach($DH2_recs as $DH2_rec) {
+                    $DH2_rec['transform_annote'] = 'multipleMatches';
+                    self::to_json($DH2_rec, "json_3_2.txt");
+                }
+            }
+        }
+        /* Symptom */
     } //end main_G3_2()
     private function main_G3_1_post($rec) //$rec is DH2
     {   //print_r($rec); exit("\n111\n");
@@ -730,14 +700,12 @@ class DH_v21_TRAM_995_v2
         return $rec;
     } //end main_G3_1_post()
     
-    private function to_json($rec)
-    {
-        // echo "\n-----------------\n"; print_r($rec);
-        
+    private function to_json($rec, $filename = 'json_3_1.txt')
+    {   // echo "\n-----------------\n"; print_r($rec);
         $ID = $rec['ID'];
         if(!isset($this->saved[$ID])) {
             $json = json_encode($rec);
-            $WRITE = fopen($this->main_path."/json_3_1.txt", "a");
+            $WRITE = fopen($this->main_path."/$filename", "a");
             fwrite($WRITE, $json."\n");
             fclose($WRITE);
         }
