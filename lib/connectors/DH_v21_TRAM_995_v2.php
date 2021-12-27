@@ -291,8 +291,8 @@ class DH_v21_TRAM_995_v2
                 if($val = @$this->replaced_by[$parent_ID]) $rec['parentnameusageid'] = $val;
                 if($val = @$this->replaced_by[$accept_ID]) $rec['acceptednameusageid'] = $val;
                 // /*
-                if(isset($rec['OLD_taxonid'])) {
-                    if($rec['taxonid'] == $rec['OLD_taxonid']) $rec['OLD_taxonid'] = '';
+                if(isset($rec['old_taxonid'])) {
+                    if($rec['taxonid'] == $rec['old_taxonid']) $rec['old_taxonid'] = '';
                 }
                 // */
                 fwrite($WRITE, implode("\t", $rec)."\n");
@@ -1108,7 +1108,7 @@ class DH_v21_TRAM_995_v2
                 if($task == 'run_stats_DH2') {
                     $tmp_fields = $fields;
                     $tmp_fields[] = 'group';
-                    $tmp_fields[] = 'OLD_taxonid';
+                    $tmp_fields[] = 'old_taxonid';
                     $WRITE = fopen($this->main_path."/work_4.txt", "w");
                     fwrite($WRITE, implode("\t", $tmp_fields)."\n");
                 }
@@ -1149,7 +1149,7 @@ class DH_v21_TRAM_995_v2
                         if($canoMatchDH1_YN == 1) {@$stats['Group_3-1']++; $rec['group'] = 'G3_1';}
                     elseif($canoMatchDH1_YN > 1)  {@$stats['Group_3-2']++; $rec['group'] = 'G3_2';}
                 }
-                $rec['OLD_taxonid'] = $rec['taxonid'];
+                $rec['old_taxonid'] = $rec['taxonid'];
                 fwrite($WRITE, implode("\t", $rec)."\n");
             }
             
