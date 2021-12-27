@@ -57,13 +57,13 @@ class DH_v21_TRAM_995_v2
         Also, put "new" in the EOLidAnnotations column for each taxon.
         */
         // /* ######################################################## Ok good --- run each of these three one at a time
-        self::tag_DH2_with_NoCanonicalMatch_in_DH1();   //ends with work_2.txt
+        // self::tag_DH2_with_NoCanonicalMatch_in_DH1();   //ends with work_2.txt
         // self::tag_DH2_with_Homonyms_YN();               //ends with work_3.txt
         // self::tag_DH2_with_group();                     //ends with work_4.txt -> also generates stats to see if all categories are correctly covered...
         ####################################################### */
         
         // /* worked OK --- run one at a time
-        // self::proc_Group_2_1();     //works with work_4.txt AND work_5.txt -> ends with work_6.txt
+        self::proc_Group_2_1();     //works with work_4.txt AND work_5.txt -> ends with work_6.txt
         // self::proc_Group_2_2();     //works with work_6.txt AND work_7.txt -> ends with work_8.txt
         // self::proc_Group_3_1();     //works with work_8.txt AND work_9.txt -> ends with work_10.txt
         // self::proc_Group_3_2();     //works with work_10.txt AND work_11.txt -> ends with work_12.txt
@@ -217,7 +217,9 @@ class DH_v21_TRAM_995_v2
             }
             
             if($task == 'group_2_1') {
-                if($rec['group'] == 'G2_1') {$rec = self::main_G2_1($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                if($rec['group'] == 'G2_1') {$rec = self::main_G2_1($rec); 
+                    $rec = self::revive_fields($rec, $tmp_fields);
+                    fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
             if($task == 'group_2_2') {
@@ -327,6 +329,11 @@ class DH_v21_TRAM_995_v2
             $total = self::get_total_rows($this->tsv['DH21_Jen']); echo "\n DH21 [$total]\n";
             $total = self::get_total_rows($this->main_path."/DH21_working_new.txt"); echo "\n DH21_working_new [$total]\n";
         }
+    }
+    private function revive_fields($rec, $tmp_fields)
+    {   // print_r($rec); print_r($tmp_fields); echo "\n-------------\n";
+        foreach($tmp_fields as $fld) $final[$fld] = $rec[$fld];
+        return $rec;
     }
     private function RANK_TEST_yn($taxonrank, $rek)
     {   /* ver 1
