@@ -98,7 +98,7 @@ class DH_v21_TRAM_995_v2
         unset($this->DH1_canonicals); unset($this->DH2_canonicals);
         // */
         // /* New: 
-        $this->json_info_3_1 = self::read_json_file($this->main_path."/json_3_1.txt");
+        $this->json_info = self::read_json_file($this->main_path."/json_3_1.txt");
         $this->replaced_by = array();
         self::parse_tsv2($this->main_path."/work_8.txt", 'group_3_1_post'); //generates work_9.txt
         // */
@@ -117,7 +117,7 @@ class DH_v21_TRAM_995_v2
         unset($this->DH1_canonicals); unset($this->DH2_canonicals);
         // */
         // /* New: 
-        $this->json_info_3_2 = self::read_json_file($this->main_path."/json_3_2.txt");
+        $this->json_info = self::read_json_file($this->main_path."/json_3_2.txt");
         $this->replaced_by = array();
         self::parse_tsv2($this->main_path."/work_10.txt", 'group_3_2_post'); //generates work_11.txt
         // */
@@ -229,20 +229,14 @@ class DH_v21_TRAM_995_v2
                 if($rec['group'] == 'G3_1') self::main_G3_1($rec);
             }
             elseif($task == 'group_3_1_post') {
-                if($rec['group'] == 'G3_1') {$rec = self::main_G3_1_post($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                if($rec['group'] == 'G3_1') {$rec = self::main_G3_1and2_post($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
-            /* old
-            if($task == 'group_3_2') {
-                if($rec['group'] == 'G3_2') {$rec = self::main_G3_2($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
-                else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
-            }
-            */
             if($task == 'group_3_2') {
                 if($rec['group'] == 'G3_2') self::main_G3_2($rec);
             }
             elseif($task == 'group_3_2_post') {
-                if($rec['group'] == 'G3_2') {$rec = self::main_G3_2_post($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
+                if($rec['group'] == 'G3_2') {$rec = self::main_G3_1and2_post($rec); fwrite($WRITE, implode("\t", $rec)."\n");}
                 else fwrite($WRITE, implode("\t", $rec)."\n"); //carryover the rest
             }
             
@@ -627,7 +621,7 @@ class DH_v21_TRAM_995_v2
         }
         /* Symptom */
     } //end main_G3_2()
-    private function main_G3_1_post($rec) //$rec is DH2
+    private function main_G3_1and2_post($rec) //$rec is DH2
     {   //print_r($rec); exit("\n111\n");
         /*Array(
             [taxonid] => -13980
@@ -681,7 +675,7 @@ class DH_v21_TRAM_995_v2
         -------------------------------
         */
         $taxonid = $rec['taxonid'];
-        if($arr = @$this->json_info_3_1[$taxonid]) {
+        if($arr = @$this->json_info[$taxonid]) {
             if($rek = @$arr['transform_DH1_rek']) {
                 $new_id = $rek['ID'];
                 $this->replaced_by[$taxonid] = $new_id;
@@ -698,7 +692,7 @@ class DH_v21_TRAM_995_v2
             }
         }
         return $rec;
-    } //end main_G3_1_post()
+    } //end main_G3_1and2_post()
     
     private function to_json($rec, $filename = 'json_3_1.txt')
     {   // echo "\n-----------------\n"; print_r($rec);
