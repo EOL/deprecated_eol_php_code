@@ -289,6 +289,9 @@ class DH_v21_TRAM_995_v2
                 $accept_ID = $rec['acceptednameusageid'];
                 if($val = @$this->replaced_by[$parent_ID]) $rec['parentnameusageid'] = $val;
                 if($val = @$this->replaced_by[$accept_ID]) $rec['acceptednameusageid'] = $val;
+                // /*
+                if($rec['taxonid'] == $rec['OLD_taxonid']) $rec['OLD_taxonid'] = '';
+                // */
                 fwrite($WRITE, implode("\t", $rec)."\n");
             }
         } //end foreach()
