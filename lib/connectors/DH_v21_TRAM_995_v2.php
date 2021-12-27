@@ -516,7 +516,7 @@ class DH_v21_TRAM_995_v2
         //     print_r($rec);
         //     print_r($DH2_homonyms); //exit;
         // }
-        // if($canonicalname == "Lagena x") print_r($DH2_homonyms);
+        if($canonicalname == "Isothea") print_r($DH2_homonyms);
 
         /*Array(    [0] => Array(
                             [ID] => -13980
@@ -543,6 +543,11 @@ class DH_v21_TRAM_995_v2
                 if(count($reks) <= 1) exit("\nInvestigate code 202. DH1 here should always be > 1\n");
             }
             else exit("\nerror: should not go here 1.\n");
+            
+            if($canonicalname == "Isothea") {
+                print_r($reks); //exit;
+            }
+            
             /* debug
             if($orig_taxonid == -236079) {
                 print_r($reks); //exit("\ninvestigate now...\n");
@@ -1297,6 +1302,7 @@ class DH_v21_TRAM_995_v2
     }
     function generate_dwca()
     {   $source = $this->main_path."/work_6.txt";
+        $source = $this->main_path."/work_12.txt";
         echo "\nReading [$source]...\n"; $i = 0;
         foreach(new FileIterator($source) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." [generate_dwca]";
