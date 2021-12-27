@@ -64,9 +64,9 @@ class DH_v21_TRAM_995_v2
         
         // /* worked OK --- run one at a time
         // self::proc_Group_2_1();     //works with work_4.txt AND work_5.txt -> ends with work_6.txt
-        self::proc_Group_2_2();     //works with work_6.txt AND work_7.txt -> ends with work_8.txt
+        // self::proc_Group_2_2();     //works with work_6.txt AND work_7.txt -> ends with work_8.txt
         // self::proc_Group_3_1();     //works with work_8.txt AND work_9.txt -> ends with work_10.txt
-        // self::proc_Group_3_2();     //works with work_10.txt AND work_11.txt -> ends with work_12.txt
+        self::proc_Group_3_2();     //works with work_10.txt AND work_11.txt -> ends with work_12.txt
         // */
         exit("\n-stop muna-\n");
     }
@@ -1184,7 +1184,7 @@ class DH_v21_TRAM_995_v2
                     $new_id = 'EOL-NoDH' . sprintf("%08d", $this->no_match);
                     $this->replaced_by[$rec['taxonid']] = $new_id;
                     $rec['taxonid'] = $new_id;
-                    $rec['eolidannotations']= 'new';
+                    $rec['eolidannotations'] = 'new';
                 }
                 fwrite($WRITE, implode("\t", $rec)."\n");
             }
