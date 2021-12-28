@@ -508,6 +508,7 @@ class DH_v21_TRAM_995_v2
         RANK TEST as above for each DH1/DH2 pair
         ANCESTRY TEST (as above)
         */
+        $in_question = 'Baileya'; //debug only
         $canonicalname = $rec['canonicalname'];
         $DH2_homonyms = $this->DH2_canonicals[$canonicalname];
         if(count($DH2_homonyms) <= 1) exit("\nInvestigate code 201. DH2 here should always be > 1\n");
@@ -516,7 +517,7 @@ class DH_v21_TRAM_995_v2
         //     print_r($rec);
         //     print_r($DH2_homonyms); //exit;
         // }
-        if($canonicalname == "Isothea") print_r($DH2_homonyms);
+        // if($canonicalname == "$in_question") { echo "\nDH2 homonyms: "; print_r($DH2_homonyms); } //debug only
 
         /*Array(    [0] => Array(
                             [ID] => -13980
@@ -544,9 +545,7 @@ class DH_v21_TRAM_995_v2
             }
             else exit("\nerror: should not go here 1.\n");
             
-            if($canonicalname == "Isothea") {
-                print_r($reks); //exit;
-            }
+            // if($canonicalname == "$in_question") { echo "\nDH1 reks:"; print_r($reks); //exit; } //debug only
             
             /* debug
             if($orig_taxonid == -236079) {
@@ -566,10 +565,12 @@ class DH_v21_TRAM_995_v2
                     if($DH2_rec['pass_ANCESTRY_TEST'] == 'Y') { $ancestry_test_success++;
                         $rek['DH2 in question'] = $DH2_rec;
                         $DH1_passed_both_rank_and_ancestry_test[] = $rek;
-                        
                         $DH1_passes_both[$rek['ID']][] = $DH2_rec; //to be used below
+                        // if($canonicalname == "$in_question") { echo "\nAncestry Passed: DH2 [".$DH2_rec['ID']."]\n"; print_r($rek); } debug only
                     }
-                    else {} //wala na lang
+                    else {
+                        // if($canonicalname == "$in_question") { echo "\nAncestry Failed: DH2 [".$DH2_rec['ID']."]\n"; print_r($rek); } debug only
+                    } //wala na lang
                 }
                 else {} //wala na lang
             } //end foreach() $reks
@@ -595,14 +596,23 @@ class DH_v21_TRAM_995_v2
                 self::to_json($DH2_rec, "json_3_2.txt");
             }
 
+            foreach($DH1_passes_both as $rek_ID => $DH2_recs) {
+                if(count($DH2_recs) == 1) {
+                    foreach($DH2_recs as $DH2_rec) {
+                        $DH2_pass_ancestry_rec = array();
+                        $DH2_pass_ancestry_rec = $DH2_rec;
+                        $DH2_pass_ancestry_rec['transform_annote'] = $DH2_rec['eolidannotations'];
+                        $rek = $DH2_rec['success_rek'][0];
+                        $DH2_pass_ancestry_rec['transform_DH1_rek'] = $rek;
+                        unset($DH2_pass_ancestry_rec['success_rek']); //to lessen those to save to json
+                        self::to_json($DH2_pass_ancestry_rec, "json_3_2.txt");
+                        // if($canonicalname == "$in_question") { echo "\nDH2 rec with only 1 DH1 rek -> "; print_r($DH2_pass_ancestry_rec); } debug only
+                    }
+                }
+            }
+
             /* If there is more than one DH1 candidate that passes both the rank test and the ancestry test, 
             leave the old DH2 taxonID, and put “multipleMatches” in the EOLidAnnotations column for this taxon. */
-            // if(count($DH1_passed_both_rank_and_ancestry_test) > 1) {
-            //     foreach($DH2_homonyms as $DH2_rec) {
-            //         $DH2_rec['transform_annote'] = 'multipleMatches A';
-            //         self::to_json($DH2_rec, "json_3_2.txt");
-            //     }
-            // }
             if($ancestry_test_success > 1) {
                 $DH2_rec['transform_annote'] = 'multipleMatches A xG3.2';
                 self::to_json($DH2_rec, "json_3_2.txt");
@@ -636,7 +646,7 @@ class DH_v21_TRAM_995_v2
                 }
             }
         }
-        /* Symptom */
+        // if($canonicalname == "$in_question") exit("\n-end tests...-\n");
     } //end main_G3_2()
     private function main_G3_1and2_post($rec) //$rec is DH2
     {   //print_r($rec); exit("\n111\n");
