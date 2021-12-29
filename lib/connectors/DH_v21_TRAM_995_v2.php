@@ -295,7 +295,8 @@ class DH_v21_TRAM_995_v2
                     if($rec['taxonid'] == $rec['old_taxonid']) $rec['old_taxonid'] = '';
                 }
                 // */
-                fwrite($WRITE, implode("\t", $rec)."\n");
+                if($rec['old_taxonid'] == '-1710587') {} //deliberately manually excluded: https://eol-jira.bibalex.org/browse/TRAM-995?focusedCommentId=66576&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66576
+                else fwrite($WRITE, implode("\t", $rec)."\n");
             }
         } //end foreach()
         if($task == 'get_canonicals_and_info_DH1') return $final;
@@ -1161,6 +1162,7 @@ class DH_v21_TRAM_995_v2
                     elseif($canoMatchDH1_YN > 1)  {@$stats['Group_3-2']++; $rec['group'] = 'G3_2';}
                 }
                 $rec['old_taxonid'] = $rec['taxonid'];
+                if(!$rec['taxonid']) { print_r($rec); exit("\nERROR: taxonid cannot be blank\n"); }
                 fwrite($WRITE, implode("\t", $rec)."\n");
             }
             
