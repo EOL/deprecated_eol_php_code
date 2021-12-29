@@ -66,7 +66,7 @@ class DH_v21_TRAM_995_v2
         // self::proc_Group_2_1();     //works with work_4.txt AND work_5.txt -> ends with work_6.txt
         // self::proc_Group_2_2();     //works with work_6.txt AND work_7.txt -> ends with work_8.txt
         // self::proc_Group_3_1();     //works with work_8.txt AND work_9.txt -> ends with work_10.txt
-        self::proc_Group_3_2();     //works with work_10.txt AND work_11.txt -> ends with work_12.txt
+        // self::proc_Group_3_2();     //works with work_10.txt AND work_11.txt -> ends with work_12.txt
         // */
         exit("\n-stop muna-\n");
     }
@@ -380,17 +380,13 @@ class DH_v21_TRAM_995_v2
         RANK TEST as above
         ANCESTRY TEST (as above)
         */
-        
+        $in_question = "Pseudobalaninus septempunctatus"; //Lagena
         $canonicalname = $rec['canonicalname'];
         $DH2_homonyms = $this->DH2_canonicals[$canonicalname];
         if(count($DH2_homonyms) <= 1) exit("\nInvestigate code 201. DH2 here should always be > 1\n");
         
-        // if($rec['taxonid'] == '-41870') {
-        //     print_r($rec);
-        //     print_r($DH2_homonyms); //exit;
-        // }
-        
-        if($canonicalname == "Lagena") print_r($DH2_homonyms);
+        // if($rec['taxonid'] == '-41870') { print_r($rec); print_r($DH2_homonyms); }   //debug only
+        // if($canonicalname == "$in_question") print_r($DH2_homonyms);                 //debug only
         
         /*Array(    [0] => Array(
                             [ID] => -13980
@@ -436,7 +432,7 @@ class DH_v21_TRAM_995_v2
                         $DH2_pass_ancestry_rec['transform_DH1_rek'] = $rek;
                         unset($DH2_pass_ancestry_rec['success_rek']); //to lessen those to save to json
                         self::to_json($DH2_pass_ancestry_rec);
-                        // if($canonicalname == "Lagena") { echo "\n111"; print_r($DH2_pass_ancestry_rec); } //debug only
+                        // if($canonicalname == "$in_question") { echo "\n111"; print_r($DH2_pass_ancestry_rec); } //debug only
                     }
                     else {
                         $DH2_rec['transform_annote'] = 'h-ancestorMismatch';
@@ -458,7 +454,7 @@ class DH_v21_TRAM_995_v2
                     $DH2_rec['transform_new_id'] = $new_id;
                     $DH2_rec['transform_annote'] = 'h-RankMismatch';
                     self::to_json($DH2_rec);
-                    // if($canonicalname == "Lagena") { echo "\n222"; print_r($DH2_rec); } //debug only
+                    // if($canonicalname == "$in_question") { echo "\n222"; print_r($DH2_rec); } //debug only
                 }
             } //end foreach() $reks
         } //end foreach() $DH2_homonyms @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -1362,6 +1358,11 @@ class DH_v21_TRAM_995_v2
                 elseif($rank == 'forma.') $rank = 'form';
             }
             */
+            
+            if(!isset($IDs[$rec['taxonid']])) {
+                $IDs[$rec['taxonid']] = '';
+            }
+            else echo("\nDuplicate ID: ".$rec['taxonid']."\n");
             
             $tax = new \eol_schema\Taxon();
             $tax->taxonID = $rec['taxonid'];
