@@ -316,6 +316,7 @@ class IUCNRedlistDataConnector extends ContributorsMapAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                 = $rec->identifier;
         $taxon->scientificName          = $rec->scientificName;
+        $taxon->rank                    = 'species';
         $taxon->kingdom                 = $rec->kingdom;
         $taxon->phylum                  = $rec->phylum;
         $taxon->class                   = $rec->class;
