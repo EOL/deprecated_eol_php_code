@@ -332,7 +332,7 @@ class IUCNRedlistDataConnector extends ContributorsMapAPI
         $sciname = trim($sciname);
 
         $words = explode(" ", $sciname);
-        if($third = $words[2]) { //has a third word
+        if($third = @$words[2]) { //has a third word
             $first_char = $third[0];
             if(ctype_lower($first_char)) $rank = '';
             if(ctype_upper($first_char)) $rank = 'species';
