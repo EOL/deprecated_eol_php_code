@@ -46,6 +46,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $this->subjects['TaxonBiology'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology';
         $this->subjects['Habitat'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat';
         $this->subjects['Uses'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses'; //for list-type in SI PDFs
+        $this->subjects['GeneralDescription'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription'; //first client ZooKeys (20.tar.gz)
         
         /* Wikipedia EN
         http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description:  389994
@@ -397,6 +398,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 }
                 
                 // exit("\n[".$this->param['resource_id']."]\nelix\n"); //good debug
+                /* === Edit for new resources === */
                 /* assign ontologies assign ontology */
                 if(in_array($this->param['resource_id'], array("10088_5097_ENV"))) $this->ontologies = "envo,eol-geonames";
                 elseif(in_array($this->param['resource_id'], array("10088_6943_ENV"))) $this->ontologies = "envo,eol-geonames,growth";
@@ -411,6 +413,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 elseif($this->param['resource'] == 'all_BHL') $this->ontologies = "envo,eol-geonames";
                 if(@$this->param['group'] == 'BHL_plants') $this->ontologies = "envo,eol-geonames,growth"; //overwrites prev value
                 if($this->param['resource_id'] == "TreatmentBank_ENV") $this->ontologies = "envo,eol-geonames";
+                if($this->param['resource_id'] == "20_ENV") $this->ontologies = "envo,eol-geonames"; //ZooKeys
                 // exit("\n[$this->ontologies]\n");
                 // ---------------------- end customize ----------------------*/
                 
@@ -424,8 +427,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 self::save_article_2_txtfile($rec);
                 // exit("\nstop muna\n");
             }
-            // if($i >= 10) break; //debug only
-            // if($saved >= 20) break; //debug only
+            // if($i >= 10) break; //debug only         --- limit the no. of records processed
+            // if($saved >= 20) break; //debug only     --- limit the no. of records processed
         } //end loop
         if($this->param['resource_id'] == '26_ENV') echo("\n text_that_are_habitat: ".$this->text_that_are_habitat."\n");
     }
