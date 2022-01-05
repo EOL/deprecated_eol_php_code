@@ -316,7 +316,7 @@ class IUCNRedlistDataConnector extends ContributorsMapAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                 = $rec->identifier;
         $taxon->scientificName          = $rec->scientificName;
-        $taxon->taxonRank               = 'species';
+        $taxon->taxonRank               = self::guess_rank($rec->scientificName); //'species';
         $taxon->kingdom                 = $rec->kingdom;
         $taxon->phylum                  = $rec->phylum;
         $taxon->class                   = $rec->class;
@@ -325,6 +325,22 @@ class IUCNRedlistDataConnector extends ContributorsMapAPI
         $taxon->furtherInformationURL   = $rec->source;
         debug(" - " . $taxon->scientificName . " [$taxon->taxonID]");
         $this->archive_builder->write_object_to_file($taxon);
+    }
+    private function guess_rank($sciname)
+    {
+        $rank = 'species';
+        $sciname = trim($sciname);
+
+        $words = explode(" ", $sciname);
+        if($third = $words[2]) { //has a third word
+            $first_char = $third[0];
+            if(ctype_lower($first_char)) $rank = '';
+            if(ctype_upper($first_char)) $rank = 'species';
+            if($first_char == "(") $rank = 'species';
+        }
+        
+        if(stripos($sciname, " spp") !== false) $rank = 'species'; //string is found
+        return $rank;
     }
     private function process_profile_using_xml($record, $species_info)
     {
