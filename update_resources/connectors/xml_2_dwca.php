@@ -3,7 +3,9 @@ namespace php_active_record;
 /* https://eol-jira.bibalex.org/browse/TRAM-703?focusedCommentId=63349&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63349
 This is a generic script that will convert EOL XML to EOL DWC-A
 
-20	Thursday 2019-12-26 10:52:17 AM	{"agent.tab":2031,"media_resource.tab":28979,"reference.tab":1420,"taxon.tab":8830,"time_elapsed":{"sec":32.97,"min":0.55,"hr":0.01}}
+20	Thursday 2019-12-26 10:52:17 AM	{"agent.tab":2031, "media_resource.tab":28979, "reference.tab":1420, "taxon.tab":8830, "time_elapsed":{"sec":32.97,"min":0.55,"hr":0.01}}
+20	Thursday 2020-08-06 06:32:48 AM	{"agent.tab":2031, "media_resource.tab":28979, "reference.tab":1420, "taxon.tab":8830, "time_elapsed":{"sec":35.6, "min":0.59, "hr":0.01}}
+
 327	Thursday 2019-12-26 11:20:32 AM	{"agent.tab":120,"media_resource.tab":31927,"reference.tab":5025,"taxon.tab":17539,"vernacular_name.tab":4678,"time_elapsed":{"sec":29.3,"min":0.49,"hr":0.01}}
 
 TaiEOL	Thursday 2019-12-26 09:57:10 PM	{"agent.tab":15,"media_resource.tab":3823,"taxon.tab":1292,"vernacular_name.tab":807,"time_elapsed":{"sec":4.74,"min":0.08,"hr":0}}

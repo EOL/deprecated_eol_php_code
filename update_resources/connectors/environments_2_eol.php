@@ -328,10 +328,16 @@ after DATA-1893:
 ===================================================================================================================== Pensoft journals START
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank", "subjects":"Uses"}'
 
-php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"ZooKeys", "resource_id":"20", "subjects":"GeneralDescription|Distribution|Description"}'
+ZooKeys
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"20", "subjects":"GeneralDescription|Distribution|Description"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 5898
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 4931
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description: 2
+
+Subterranean Biology
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"832", "subjects":"GeneralDescription|Distribution"}'
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 10
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 4
 ===================================================================================================================== Pensoft journals END
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

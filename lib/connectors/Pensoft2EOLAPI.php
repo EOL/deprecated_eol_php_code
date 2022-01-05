@@ -412,8 +412,13 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                     "15423_ENV", "91155_ENV"))) $this->ontologies = "envo,eol-geonames";
                 elseif($this->param['resource'] == 'all_BHL') $this->ontologies = "envo,eol-geonames";
                 if(@$this->param['group'] == 'BHL_plants') $this->ontologies = "envo,eol-geonames,growth"; //overwrites prev value
-                if($this->param['resource_id'] == "TreatmentBank_ENV") $this->ontologies = "envo,eol-geonames";
-                if($this->param['resource_id'] == "20_ENV") $this->ontologies = "envo,eol-geonames"; //ZooKeys
+                
+                // /* DATA-1897: Pensoft journals (textmining)
+                if($this->param['resource_id'] == "TreatmentBank_ENV")  $this->ontologies = "envo,eol-geonames";
+                if($this->param['resource_id'] == "20_ENV")             $this->ontologies = "envo,eol-geonames"; //ZooKeys
+                if($this->param['resource_id'] == "832_ENV")            $this->ontologies = "envo,eol-geonames"; //Subterranean Biology
+                // */
+                
                 // exit("\n[$this->ontologies]\n");
                 // ---------------------- end customize ----------------------*/
                 

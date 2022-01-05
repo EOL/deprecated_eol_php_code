@@ -321,7 +321,8 @@ class DwCA_Utility
             "120082_ENV", "118986_ENV", "118920_ENV", "120083_ENV", 
             "118237_ENV", "MoftheAES_ENV", "30355_ENV", "27822_ENV", "30354_ENV", "119035_ENV", "118946_ENV", "118936_ENV", "118950_ENV", 
             "120602_ENV", "119187_ENV", "118978_ENV", "118941_ENV", "119520_ENV", "119188_ENV",
-            "15423_ENV", "91155_ENV", "20_ENV")) || $annotateYes || @$this->params['resource'] == 'all_BHL') { //first 2 clients: Amphibiaweb, Wikipedia EN
+            "15423_ENV", "91155_ENV", "20_ENV")) || $annotateYes || in_array(@$this->params['resource'], array('all_BHL', 'Pensoft_journals')))
+        { //first 2 clients: Amphibiaweb, Wikipedia EN. Then all_BHL and Pensoft_journals...
             echo "\nGoes here really: [$this->resource_id]\n";
             require_library('connectors/ContributorsMapAPI');
             require_library('connectors/Environments2EOLfinal');
