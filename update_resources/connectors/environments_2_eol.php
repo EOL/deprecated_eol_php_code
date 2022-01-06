@@ -325,6 +325,9 @@ after DATA-1893:
 26_ENV_final	Wed 2021-10-20 06:44:02 AM	{"agent.tab":1813, "measurement_or_fact_specific.tab":2526290, "media_resource.tab":94660, "occurrence.tab":2151130,          "reference.tab":703450, "taxon.tab":377647, "vernacular_name.tab":85681, "time_elapsed":{"sec":3240.83, "min":54.01, "hr":0.9}}
 ===================================================================================================================== WoRMS end
 
+20_ENV	Wed 2022-01-05 08:09:41 AM	{"agent.tab":2031, "MoF.tab":9771, "media.tab":28979, "occur.tab":9771, "reference.tab":1420, "taxon.tab":8830, "time_elapsed":{"sec":26703.6, "min":445.06, "hr":7.42}}
+829_ENV	Wed 2022-01-05 11:58:28 PM	{"agent.tab":661, "MoF.tab":192, "media.tab":8315, "occur.tab":192, "reference.tab":288, "taxon.tab":2700, "time_elapsed":{"sec":3919.08, "min":65.32, "hr":1.09}}
+
 ===================================================================================================================== Pensoft journals START
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank", "subjects":"Uses"}'
 
@@ -333,6 +336,11 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 5898
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 4931
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description: 2
+
+Zookeys (829)
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"829", "subjects":"GeneralDescription|Distribution"}'
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 1640
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 1066
 
 Subterranean Biology (832)
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"832", "subjects":"GeneralDescription|Distribution"}'
