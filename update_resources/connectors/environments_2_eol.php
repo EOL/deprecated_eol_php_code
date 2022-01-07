@@ -327,30 +327,63 @@ after DATA-1893:
 
 20_ENV	Wed 2022-01-05 08:09:41 AM	{"agent.tab":2031, "MoF.tab":9771, "media.tab":28979, "occur.tab":9771, "reference.tab":1420, "taxon.tab":8830, "time_elapsed":{"sec":26703.6, "min":445.06, "hr":7.42}}
 829_ENV	Wed 2022-01-05 11:58:28 PM	{"agent.tab":661, "MoF.tab":192, "media.tab":8315, "occur.tab":192, "reference.tab":288, "taxon.tab":2700, "time_elapsed":{"sec":3919.08, "min":65.32, "hr":1.09}}
+832_ENV	Thu 2022-01-06 12:34:13 AM	{"agent.tab":14, "MoF.tab":14, "media.tab":64, "occur.tab":14, "reference.tab":4, "taxon.tab":11, "time_elapsed":{"sec":144.2, "min":2.4, "hr":0.04}}
+
+830_ENV	Thu 2022-01-06 12:35:25 AM	{"agent.tab":43, "MoF.tab":1, "media.tab":62, "occur.tab":1, "reference.tab":13, "taxon.tab":39, "time_elapsed":{"sec":36.69, "min":0.61, "hr":0.01}}
+792_ENV	Thu 2022-01-06 02:42:31 AM	{"agent.tab":27, "MoF.tab":4, "media.tab":280, "occur.tab":4, "reference.tab":17, "taxon.tab":108, "time_elapsed":{"sec":140.98, "min":2.35, "hr":0.04}}
+798_ENV	Thu 2022-01-06 02:46:34 AM	{"agent.tab":17, "MoF.tab":5, "media.tab":66, "occur.tab":5, "reference.tab":11, "taxon.tab":22, "time_elapsed":{"sec":41.68, "min":0.69, "hr":0.01}}
+826_ENV	Thu 2022-01-06 03:04:19 AM	{"agent.tab":165, "MoF.tab":64, "media.tab":585, "occur.tab":64, "reference.tab":49, "taxon.tab":199, "time_elapsed":{"sec":561.56, "min":9.36, "hr":0.16}}
+834_ENV	Thu 2022-01-06 04:21:47 AM	{"agent.tab":20, "MoF.tab":25, "media.tab":231, "occur.tab":25, "reference.tab":11, "taxon.tab":90, "time_elapsed":{"sec":107.84, "min":1.8, "hr":0.03}}
+
 
 ===================================================================================================================== Pensoft journals START
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank", "subjects":"Uses"}'
 
-ZooKeys (20)
+ZooKeys (20)*
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"20", "subjects":"GeneralDescription|Distribution|Description"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 5898
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 4931
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description: 2
 
-Zookeys (829)
+Zookeys (829)*
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"829", "subjects":"GeneralDescription|Distribution"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 1640
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 1066
 
-Subterranean Biology (832)
+Subterranean Biology (832)*
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"832", "subjects":"GeneralDescription|Distribution"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 10
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 4
 
-Mycokeys (830)
+Mycokeys (830)*
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"830", "subjects":"GeneralDescription|Distribution"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 16
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 8
+
+Nota Lepidopterologica (798)
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"798", "subjects":"GeneralDescription|Distribution"}'
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 10
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 11
+
+Zoosystematics and Evolution (834)
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"834", "subjects":"GeneralDescription|Distribution"}'
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 21
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 44
+
+Deutsche Entomologische Zeitschrift (792)
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"792", "subjects":"GeneralDescription|Distribution"}'
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 36
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 47
+
+Phytokeys (826)
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"826", "subjects":"GeneralDescription|Distribution"}'
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 134
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 103
+
+Comparative Cytogenetics (554)
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"EOL_554_final", "subjects":"GeneralDescription"}'
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 1
+
 ===================================================================================================================== Pensoft journals END
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
