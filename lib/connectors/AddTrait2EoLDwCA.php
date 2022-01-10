@@ -22,17 +22,17 @@ class AddTrait2EoLDwCA
         
         $tables = $info['harvester']->tables;
         
-        if($this->resource_id == "20_ENV_final") {
-            // /* initialize to access two functions: run_gnparser() AND run_gnverifier()
+        if($this->resource_id == "20_ENV_final") { //1st client: Zookeys (20_ENV.tar.gz)
+            // /* initialize to access/re-use two functions: run_gnparser() AND run_gnverifier()
             require_library('connectors/Functions_Memoirs');
             require_library('connectors/ParseListTypeAPI_Memoirs');
             require_library('connectors/ParseUnstructuredTextAPI_Memoirs'); 
             $this->func2 = new ParseUnstructuredTextAPI_Memoirs(false, false);
-            // $string = "Sillaginodes punctatus (Cuvier) (Sillaginidae), Sillago bassensis Cuvier (Sillaginidae)";
-            // $arr = $this->func2->run_gnparser($string); //print_r($arr); //exit;
-            // $arr = $this->func2->run_gnverifier($string); //print_r($arr); exit;
+            $string = "Sillaginodes punctatus (Cuvier) (Sillaginidae), Sillago bassensis Cuvier (Sillaginidae)";
+            $arr = $this->func2->run_gnparser($string); print_r($arr); //exit;
+            $arr = $this->func2->run_gnverifier($string); print_r($arr); exit;
             // */
-            self::process_table($tables['http://eol.org/schema/media/document'][0], 'read_text_process_trait');
+            self::process_table($tables['http://eol.org/schema/media/document'][0], 'read_text_then_process_trait');
         }
         
         /* copied template
@@ -58,7 +58,7 @@ class AddTrait2EoLDwCA
             
             if($this->resource_id == "20_ENV_final") { //1st client: Zookeys (20_ENV.tar.gz)
                 $CVterm = $rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'];
-                if($CVterm == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution") { //print_r($rec); exit;
+                if($CVterm == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution") { //specific text object for Zookeys //print_r($rec); exit;
                     /*Array(
                         [http://purl.org/dc/terms/identifier] => zookeys.1.8.sp1_distribution
                         [http://rs.tdwg.org/dwc/terms/taxonID] => zookeys.1.8.sp1
@@ -101,6 +101,7 @@ class AddTrait2EoLDwCA
         if(preg_match_all("/host\:(.*?)\. /ims", $desc, $arr)) $reks = array_merge($reks, $arr[1]);
         if(preg_match_all("/hosts\:(.*?)\. /ims", $desc, $arr)) $reks = array_merge($reks, $arr[1]);
         if($reks) print_r($reks);
+        
     }
     /* copied template - should be working
     private function initialize_mapping()
