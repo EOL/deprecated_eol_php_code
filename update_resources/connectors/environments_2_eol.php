@@ -344,6 +344,8 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 5898
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 4931
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description: 2
+Above generates: --> 20_ENV.tar.gz
+Then run: zookeys_add_trait.php --> makes use of [20_ENV.tar.gz] and generates [20_ENV_final.tar.gz]
 
 Zookeys (829)*
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"829", "subjects":"GeneralDescription|Distribution"}'
