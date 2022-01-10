@@ -20,6 +20,7 @@ class DH_v21_TRAM_995_v2
         $this->tsv['DH21_Jen'] = $this->main_path."/dh2_1/DH2_1working.txt";
         $this->tsv['DH11'] = $this->main_path."/DH11_working_new.txt";
         $this->tsv['DH21'] = $this->main_path."/DH21_working_new.txt";
+        $this->tsv['remappings_Katja'] = $this->main_path."/Katja/remappings.txt";
     }
     // ----------------------------------------------------------------- start TRAM-807 -----------------------------------------------------------------
     function start()
@@ -62,13 +63,38 @@ class DH_v21_TRAM_995_v2
         // self::tag_DH2_with_group();                     //ends with work_4.txt -> also generates stats to see if all categories are correctly covered...
         ####################################################### */
         
-        // /* worked OK --- run one at a time
+        /* worked OK --- run one at a time
         // self::proc_Group_2_1();     //works with work_4.txt AND work_5.txt -> ends with work_6.txt
         // self::proc_Group_2_2();     //works with work_6.txt AND work_7.txt -> ends with work_8.txt
         // self::proc_Group_3_1();     //works with work_8.txt AND work_9.txt -> ends with work_10.txt
         self::proc_Group_3_2();     //works with work_10.txt AND work_11.txt -> ends with work_12.txt
+        */
+        
+        // /* Jan 2022 series:
+        self::implement_remappings_txt(); //works with work_12.txt
         // */
+        
         exit("\n-stop muna-\n");
+    }
+    private function implement_remappings_txt()
+    {
+        /*
+        $this->remappings_info = self::parse_tsv2($this->tsv['remappings_Katja'], 'read_remappings_txt'); // print_r($this->remappings_info); exit;
+        $this->replaced_by = array();
+        self::parse_tsv2($this->main_path."/work_12.txt", 'do_remappings'); //generates work_13.txt
+        unset($this->remappings_info);
+        self::parse_tsv2($this->main_path."/work_13.txt", 'refresh_parentIDs_work_13'); //generates work_14.txt
+        unset($this->replaced_by);
+        */
+
+        // /*
+        $this->ctr_novel = 200;
+        $this->replaced_by = array();
+        self::parse_tsv2($this->main_path."/work_14.txt", 'do_remappings_v2'); //generates work_15.txt
+        self::parse_tsv2($this->main_path."/work_15.txt", 'refresh_parentIDs_work_15'); //generates work_16.txt
+        unset($this->replaced_by);
+        echo "\nctr_novel: [$this->ctr_novel]\n";
+        // */
     }
     private function proc_Group_2_1()
     {   $this->DH1_canonicals = self::parse_tsv2($this->tsv['DH11'], 'get_canonicals_and_info_DH1'); //-> for G2_1 G2_2 G3_1 G3_2
@@ -166,6 +192,16 @@ class DH_v21_TRAM_995_v2
                 $fields = $row;
                 $fields = array_filter($fields); //print_r($fields);
                 //**************************************************************
+                if($task == 'do_remappings') { //works with 12 AND 13 -> ends with 14
+                    $tmp_fields = $fields;  $WRITE = fopen($this->main_path."/work_13.txt", "w"); fwrite($WRITE, implode("\t", $tmp_fields)."\n");
+                }
+                if($task == 'refresh_parentIDs_work_13') {$WRITE = fopen($this->main_path."/work_14.txt", "w"); fwrite($WRITE, implode("\t", $fields)."\n");}
+                //**************************************************************
+                if($task == 'do_remappings_v2') { //works with 14 AND 15 -> ends with 16
+                    $tmp_fields = $fields;  $WRITE = fopen($this->main_path."/work_15.txt", "w"); fwrite($WRITE, implode("\t", $tmp_fields)."\n");
+                }
+                if($task == 'refresh_parentIDs_work_15') {$WRITE = fopen($this->main_path."/work_16.txt", "w"); fwrite($WRITE, implode("\t", $fields)."\n");}
+                //**************************************************************
                 if($task == 'group_2_1') { //works with 4 AND 5 -> ends with 6
                     $tmp_fields = $fields;  $WRITE = fopen($this->main_path."/work_5.txt", "w"); fwrite($WRITE, implode("\t", $tmp_fields)."\n");
                 }
@@ -213,6 +249,56 @@ class DH_v21_TRAM_995_v2
             
             if(in_array($task, array('build_up_useful_cols_DH11', 'build_up_useful_cols_DH21'))) {
                 $rec = self::main_build_up($rec); 
+                fwrite($WRITE, implode("\t", $rec)."\n");
+            }
+
+            if($task == 'do_remappings') { // print_r($rec); exit("\nelix 100\n");
+                /*Array(
+                    [taxonid] => EOL-000000000001
+                    [acceptednameusageid] => 
+                    [parentnameusageid] => 
+                )
+                The latest version of the file is great. After checking some of the ID mappings, 
+                I found a few taxonIDs that need to be remapped. 
+                I will attach a file called remappings.txt with 3 columns: currentID, newID, notes. 
+                The currentID is the taxonID in your latest version of the file. 
+                Please replace this ID with the newID value for relevant taxa. 
+                If the newID value is “new,” please create a novel ID for this taxon. 
+                Please make sure to also update any parentNameUsageIDs for the descendants of these taxa. */
+                $taxonid = $rec['taxonid'];
+                if($newID = @$this->remappings_info[$taxonid]) {
+                    if($newID == 'new') {
+                        @$this->ctr_novel++;
+                        $new_id = 'EOL-new_' . sprintf("%08d", $this->ctr_novel);
+                        $this->replaced_by[$taxonid] = $new_id;
+                        $rec['taxonid'] = $new_id;
+                    }
+                    else {
+                        $this->replaced_by[$taxonid] = $newID;
+                        $rec['taxonid'] = $newID;
+                    }
+                }
+                fwrite($WRITE, implode("\t", $rec)."\n");
+            }
+            if($task == 'do_remappings_v2') { //print_r($rec); exit("\nelix 100\n");
+                /*Array(
+                    [taxonid] => EOL-000000000001
+                    [acceptednameusageid] => 
+                    [parentnameusageid] => 
+                )
+                After fixing those IDs, there should then be 295 remaining taxa where taxonID is still the old-ID. 
+                Please create new EOL-xxx taxonIDs for those.
+                For the next output, I only need the DwCA, not the temp file with all the extra columns. 
+                Please also clear the EOLidAnnotations column. We won't need this information going forward.
+                */
+                $taxonid = $rec['taxonid'];
+                if(substr($taxonid, 0,4) != 'EOL-') {
+                    $this->ctr_novel++; //started with 200
+                    $new_id = 'EOL-new_' . sprintf("%08d", $this->ctr_novel);
+                    $this->replaced_by[$taxonid] = $new_id;
+                    $rec['taxonid'] = $new_id;
+                }
+                $rec['eolidannotations'] = '';
                 fwrite($WRITE, implode("\t", $rec)."\n");
             }
             
@@ -285,7 +371,7 @@ class DH_v21_TRAM_995_v2
                     'cf' => $rec['canonical_family_ancestor'], 'cp' => $rec['canonical_parent'], 'cg' => $rec['canonical_grandparent']);
                 }
             }
-            if(in_array($task, array('refresh_parentIDs_work_5', 'refresh_parentIDs_work_7', 'refresh_parentIDs_work_9', 'refresh_parentIDs_work_11'))) {
+            if(in_array($task, array('refresh_parentIDs_work_5', 'refresh_parentIDs_work_7', 'refresh_parentIDs_work_9', 'refresh_parentIDs_work_11', 'refresh_parentIDs_work_13', 'refresh_parentIDs_work_15'))) {
                 $parent_ID = $rec['parentnameusageid'];
                 $accept_ID = $rec['acceptednameusageid'];
                 if($val = @$this->replaced_by[$parent_ID]) $rec['parentnameusageid'] = $val;
@@ -299,13 +385,27 @@ class DH_v21_TRAM_995_v2
                 else fwrite($WRITE, implode("\t", $rec)."\n");
                 // */
             }
+            
+            if($task == 'read_remappings_txt') { //print_r($rec); exit("\n172\n");
+                /*Array(
+                    [currentid] => EOL-000000043416
+                    [newid] => new
+                    [notes] => G2_1 ancestorMismatch
+                )*/
+                $final[$rec['currentid']] = $rec['newid'];
+            }
+            
         } //end foreach()
+        if($task == 'read_remappings_txt') return $final;
+        
         if($task == 'get_canonicals_and_info_DH1') return $final;
         elseif($task == 'get_canonicals_and_info_DH2') return $final;
         elseif($task == 'group_2_1') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_5.txt"); echo "\n work_5 [$total]\n";}
         elseif($task == 'group_2_2') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_7.txt"); echo "\n work_7 [$total]\n";}
         elseif($task == 'group_3_1_post') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_9.txt"); echo "\n work_9 [$total]\n";}
         elseif($task == 'group_3_2_post') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_11.txt"); echo "\n work_11 [$total]\n";}
+        elseif($task == 'do_remappings')    {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_13.txt"); echo "\n work_13 [$total]\n";}
+        elseif($task == 'do_remappings_v2') {fclose($WRITE); $total = self::get_total_rows($this->main_path."/work_15.txt"); echo "\n work_15 [$total]\n";}
         
         elseif($task == 'refresh_parentIDs_work_5') { fclose($WRITE);
             $total = self::get_total_rows($this->main_path."/work_5.txt"); echo "\n work_5 [$total]\n";
@@ -322,6 +422,14 @@ class DH_v21_TRAM_995_v2
         elseif($task == 'refresh_parentIDs_work_11') { fclose($WRITE);
             $total = self::get_total_rows($this->main_path."/work_11.txt"); echo "\n work_11 [$total]\n";
             $total = self::get_total_rows($this->main_path."/work_12.txt"); echo "\n work_12 [$total]\n";
+        }
+        elseif($task == 'refresh_parentIDs_work_13') { fclose($WRITE);
+            $total = self::get_total_rows($this->main_path."/work_13.txt"); echo "\n work_13 [$total]\n";
+            $total = self::get_total_rows($this->main_path."/work_14.txt"); echo "\n work_14 [$total]\n";
+        }
+        elseif($task == 'refresh_parentIDs_work_15') { fclose($WRITE);
+            $total = self::get_total_rows($this->main_path."/work_15.txt"); echo "\n work_15 [$total]\n";
+            $total = self::get_total_rows($this->main_path."/work_16.txt"); echo "\n work_16 [$total]\n";
         }
         
         if($task == 'build_up_useful_cols_DH11') { fclose($WRITE);
@@ -1314,6 +1422,7 @@ class DH_v21_TRAM_995_v2
     function generate_dwca()
     {   $source = $this->main_path."/work_6.txt";
         $source = $this->main_path."/work_12.txt";
+        $source = $this->main_path."/work_16.txt";
         echo "\nReading [$source]...\n"; $i = 0;
         foreach(new FileIterator($source) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." [generate_dwca]";
@@ -1368,7 +1477,7 @@ class DH_v21_TRAM_995_v2
                 $IDs[$rec['taxonid']] = '';
             }
             else echo("\nDuplicate ID: ".$rec['taxonid']."\n");
-            
+            // print_r($rec);
             $tax = new \eol_schema\Taxon();
             $tax->taxonID = $rec['taxonid'];
             $tax->scientificName = $rec['scientificname'];
