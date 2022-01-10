@@ -21,20 +21,25 @@ class AddTrait2EoLDwCA
         /* END DATA-1841 terms remapping */
         
         $tables = $info['harvester']->tables;
-        self::process_table($tables['http://eol.org/schema/media/document'][0], 'read_text_process_trait');
+        
+        if($this->resource_id == "20_ENV_final") {
+            // /* initialize to access two functions: run_gnparser() AND run_gnverifier()
+            require_library('connectors/Functions_Memoirs');
+            require_library('connectors/ParseListTypeAPI_Memoirs');
+            require_library('connectors/ParseUnstructuredTextAPI_Memoirs'); 
+            $this->func2 = new ParseUnstructuredTextAPI_Memoirs(false, false);
+            // $string = "Sillaginodes punctatus (Cuvier) (Sillaginidae), Sillago bassensis Cuvier (Sillaginidae)";
+            // $arr = $this->func2->run_gnparser($string); //print_r($arr); //exit;
+            // $arr = $this->func2->run_gnverifier($string); //print_r($arr); exit;
+            // */
+            self::process_table($tables['http://eol.org/schema/media/document'][0], 'read_text_process_trait');
+        }
+        
         /* copied template
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
         */
     }
-    private function initialize_mapping()
-    {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
-        echo "\n".count($mappings). " - default URIs from EOL registry.";
-        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
-        // self::use_mapping_from_jen();
-        // print_r($this->uris);
-    }
-    
     private function process_table($meta, $task)
     {   //print_r($meta);
         echo "\n task [$task]...\n"; $i = 0;
@@ -77,7 +82,10 @@ class AddTrait2EoLDwCA
                     $traits = self::parse_text_object($rec);
                 }
             }
-            
+            // https://parser.globalnames.org/api/v1/Pseudocaranx dentex (Bloch et Schneider)(Carangidae: Perciformes), white trevally
+            // https://verifier.globalnames.org/api/v1/verifications/Pseudocaranx dentex (Bloch et Schneider) (Carangidae: Perciformes), white trevally
+            // https://parser.globalnames.org/api/v1/Sillago maculata Quoy & Gaimard (Sillaginidae)
+            // https://verifier.globalnames.org/api/v1/verifications/Sillago maculata Quoy & Gaimard (Sillaginidae)
         }
     }
     private function parse_text_object($rec)
@@ -93,6 +101,14 @@ class AddTrait2EoLDwCA
         if(preg_match_all("/host\:(.*?)\. /ims", $desc, $arr)) $reks = array_merge($reks, $arr[1]);
         if(preg_match_all("/hosts\:(.*?)\. /ims", $desc, $arr)) $reks = array_merge($reks, $arr[1]);
         if($reks) print_r($reks);
+    }
+    /* copied template - should be working
+    private function initialize_mapping()
+    {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($mappings). " - default URIs from EOL registry.";
+        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
+        // self::use_mapping_from_jen();
+        // print_r($this->uris);
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
@@ -123,10 +139,10 @@ class AddTrait2EoLDwCA
                 $o->$field = $rec[$uri];
             }
             
-            /* START DATA-1841 terms remapping */
+            // START DATA-1841 terms remapping
             $o = $this->func->given_m_update_mType_mValue($o);
             // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
-            /* END DATA-1841 terms remapping */
+            // END DATA-1841 terms remapping
             
             $o->measurementID = Functions::generate_measurementID($o, $this->resource_id);
             $this->archive_builder->write_object_to_file($o);
@@ -149,11 +165,11 @@ class AddTrait2EoLDwCA
                 $k++;
             }
             // print_r($rec); exit("\ndebug...\n");
-            /*Array(
-                [http://rs.tdwg.org/dwc/terms/occurrenceID] => O1
-                [http://rs.tdwg.org/dwc/terms/taxonID] => ABGR4
-                ...
-            )*/
+            // Array(
+            //     [http://rs.tdwg.org/dwc/terms/occurrenceID] => O1
+            //     [http://rs.tdwg.org/dwc/terms/taxonID] => ABGR4
+            //     ...
+            // )
             $uris = array_keys($rec);
             $uris = array('http://rs.tdwg.org/dwc/terms/occurrenceID', 'http://rs.tdwg.org/dwc/terms/taxonID');
             $o = new \eol_schema\Occurrence_specific();
@@ -165,6 +181,6 @@ class AddTrait2EoLDwCA
             // if($i >= 10) break; //debug only
         }
     }
-    /*================================================================= ENDS HERE ======================================================================*/
+    */
 }
 ?>
