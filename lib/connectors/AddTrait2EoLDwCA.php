@@ -31,13 +31,15 @@ class AddTrait2EoLDwCA
             $desc = "host:Sillaginodes punctatus (Cuvier) (Sillaginidae), Sillago bassensis Cuvier (Sillaginidae). Eli boy";
             $desc = "hosts:Sillago maculata Quoy & Gaimard (Sillaginidae). xxx";
             $desc = "host:Passalus interstitialis Escholtz, 1829 (Coleoptera: Passalidae). xxx";
+            $desc = "host:Arripis georgianus (Valenciennes) (Arripidae: Perciformes), Australian ruff. xxx";
+            $desc = "host:Pseudocaranx wrighti (Whitley) (Carangidae: Perciformes), skipjack trevally. xxx";
             // $arr = $this->func2->run_gnparser($desc); print_r($arr); //exit;
             // $arr = $this->func2->run_gnverifier($desc); print_r($arr); exit;
-
+            /* just test
             $names = self::search_host_traits($desc);
             print_r($names);
             exit("\n-end test-\n");
-            
+            */
             // */
             self::process_table($tables['http://eol.org/schema/media/document'][0], 'read_text_then_process_trait');
         }
@@ -110,7 +112,8 @@ class AddTrait2EoLDwCA
         if(preg_match_all("/host\:(.*?)\. /ims", $desc, $arr)) $lines = array_merge($lines, $arr[1]);
         if(preg_match_all("/hosts\:(.*?)\. /ims", $desc, $arr)) $lines = array_merge($lines, $arr[1]);
         if($lines) {
-            // print_r($lines); return; //exit("\nelix 1\n");
+            $lines = array_map('trim', $lines);
+            // print_r($lines); //return; //exit("\nelix 1\n");
             /*Array(
                 [0] => Sillaginodes punctatus (Cuvier) (Sillaginidae), Sillago bassensis Cuvier (Sillaginidae)
             )*/
@@ -135,11 +138,16 @@ class AddTrait2EoLDwCA
     private function each_is_a_valid_binomial($parts)
     {   //print_r($parts); exit;
         foreach($parts as $part) {
+            /* first filter */
             $obj = $this->func2->run_gnparser($part); //print_r($obj); exit;
             if($canonical_full = @$obj[0]->canonical->full) { // exit("\n[$canonical_full]\n");
                 if(!self::more_than_one_word($canonical_full)) return false;
             }
             else return false;
+            
+            /* second filter */ //to filter out likes of "Australian ruff"
+            $obj = $this->func2->run_gnverifier($part); //print_r($obj); //exit("\nelix 4\n");
+            if($obj[0]->matchType != "Exact") return false;
         }
         return true;
     }
