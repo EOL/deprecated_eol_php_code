@@ -13,11 +13,11 @@ class AddTrait2EoLDwCA
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
-    {   
-        require_library('connectors/TraitGeneric'); 
-        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+    {
+        // require_library('connectors/TraitGeneric'); 
+        // $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         /* START DATA-1841 terms remapping */
-        $this->func->initialize_terms_remapping(60*60*24); //param is $expire_seconds. 0 means expire now.
+        // $this->func->initialize_terms_remapping(60*60*24); //param is $expire_seconds. 0 means expire now.
         /* END DATA-1841 terms remapping */
         
         $tables = $info['harvester']->tables;
@@ -28,9 +28,16 @@ class AddTrait2EoLDwCA
             require_library('connectors/ParseListTypeAPI_Memoirs');
             require_library('connectors/ParseUnstructuredTextAPI_Memoirs'); 
             $this->func2 = new ParseUnstructuredTextAPI_Memoirs(false, false);
-            $string = "Sillaginodes punctatus (Cuvier) (Sillaginidae), Sillago bassensis Cuvier (Sillaginidae)";
-            $arr = $this->func2->run_gnparser($string); print_r($arr); //exit;
-            $arr = $this->func2->run_gnverifier($string); print_r($arr); exit;
+            $desc = "host:Sillaginodes punctatus (Cuvier) (Sillaginidae), Sillago bassensis Cuvier (Sillaginidae). Eli boy";
+            $desc = "hosts:Sillago maculata Quoy & Gaimard (Sillaginidae). xxx";
+            $desc = "host:Passalus interstitialis Escholtz, 1829 (Coleoptera: Passalidae). xxx";
+            // $arr = $this->func2->run_gnparser($desc); print_r($arr); //exit;
+            // $arr = $this->func2->run_gnverifier($desc); print_r($arr); exit;
+
+            $names = self::search_host_traits($desc);
+            print_r($names);
+            exit("\n-end test-\n");
+            
             // */
             self::process_table($tables['http://eol.org/schema/media/document'][0], 'read_text_then_process_trait');
         }
@@ -92,16 +99,55 @@ class AddTrait2EoLDwCA
     {
         if($desc = $rec['http://purl.org/dc/terms/description']) {}
         else return array();
-        $reks = self::search_host_traits($desc);
+        $names = self::search_host_traits($desc);
+        print_r($names);
     }
     private function search_host_traits($desc)
     {
         //$desc = "Type-host: Pseudocaranx wrighti (Whitley) (Carangidae: Perciformes), skipjack trevally. Type-locality: Off North Mole, Fremantle, Western Australia, 32°03´S, 115°43´E, December 1994. Site: Intestine, pyloric caeca, rectum. Holotype: Queensland Museum, Reg. No. QM G230442, paratypes: Queensland Museum, Reg. Nos QM G230443-230451, BMNH Reg. Nos 2008.12.9.1-6.<br />"; //debug only - force assignment
-        $reks = array();
-        if(preg_match_all("/host\:(.*?)\. /ims", $desc, $arr)) $reks = array_merge($reks, $arr[1]);
-        if(preg_match_all("/hosts\:(.*?)\. /ims", $desc, $arr)) $reks = array_merge($reks, $arr[1]);
-        if($reks) print_r($reks);
+        $lines = array();
+        $final = array();
+        if(preg_match_all("/host\:(.*?)\. /ims", $desc, $arr)) $lines = array_merge($lines, $arr[1]);
+        if(preg_match_all("/hosts\:(.*?)\. /ims", $desc, $arr)) $lines = array_merge($lines, $arr[1]);
+        if($lines) {
+            // print_r($lines); return; //exit("\nelix 1\n");
+            /*Array(
+                [0] => Sillaginodes punctatus (Cuvier) (Sillaginidae), Sillago bassensis Cuvier (Sillaginidae)
+            )*/
+            foreach($lines as $line) {
+                $parts = explode(", ", $line);
+                if(count($parts) > 1) {
+                    if(self::each_is_a_valid_binomial($parts)) $final = array_merge($final, $parts);
+                    else $final[] = $line;
+                }
+                else {
+                    $final[] = $line;
+                }
+            }
+        }
         
+        if($final) {
+            // print_r($final); exit("\nelix 2\n");
+            return $final;
+        }
+        // else exit("\nelix 3\n");
+    }
+    private function each_is_a_valid_binomial($parts)
+    {   //print_r($parts); exit;
+        foreach($parts as $part) {
+            $obj = $this->func2->run_gnparser($part); //print_r($obj); exit;
+            if($canonical_full = @$obj[0]->canonical->full) { // exit("\n[$canonical_full]\n");
+                if(!self::more_than_one_word($canonical_full)) return false;
+            }
+            else return false;
+        }
+        return true;
+    }
+    private function more_than_one_word($string)
+    {
+        $parts = explode(" ", $string);
+        if(count($parts) > 1) return true;
+        else return false;
     }
     /* copied template - should be working
     private function initialize_mapping()
