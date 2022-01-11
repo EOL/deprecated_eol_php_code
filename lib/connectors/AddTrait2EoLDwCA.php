@@ -354,7 +354,7 @@ class AddTrait2EoLDwCA
     private function add_occurrence($taxonID, $identification_string)
     {
         $occurrence_id = md5($taxonID . "assoc_occur" . $identification_string);
-        $o = new \eol_schema\Occurrence();
+        $o = new \eol_schema\Occurrence_specific();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxonID;
         if(!isset($this->occurrence_ids[$occurrence_id])) {

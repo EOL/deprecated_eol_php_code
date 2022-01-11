@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_55545/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_55545/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_17401/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_17401/'
         );
         */
         
@@ -163,6 +163,7 @@ class DwCA_Utility
             // if($this->resource_id == 'globi_associations') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if(stripos($this->resource_id, "_meta_recoded") !== false) break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '26_ENV_final') break; //all extensions will be processed elsewhere. debug only, during dev only
+            // if($this->resource_id == '20_ENV_final') break; //all extensions will be processed elsewhere. debug only, during dev only
             
             /* not used
             if($this->resource_id == 'globi_associations_refuted') break; //all extensions will be processed elsewhere IN real operation.
@@ -265,6 +266,13 @@ class DwCA_Utility
             $func = new BirdsADW_Data($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+
+        if($this->resource_id == '20_ENV_final') { //1st client of AddTrait2EoLDwCA
+            require_library('connectors/AddTrait2EoLDwCA');
+            $func = new AddTrait2EoLDwCA($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+
         if(in_array($this->resource_id, array("parent_basal_values_Carnivora", "parent_basal_values"))) {
             require_library('connectors/SDRreportLib');
             $func = new SDRreportLib($this->archive_builder, $this->resource_id);
@@ -637,7 +645,12 @@ class DwCA_Utility
             if($this->resource_id == 'parent_basal_values_Carnivora') { //this actually works. But only goes here during dev. if needed, since MoF is customized in /lib/SDRreportLib.php in real operation
                 if($class == "measurementorfact") $c = new \eol_schema\MeasurementOrFact_specific();
             }
-            
+
+            if($this->resource_id == '20_ENV_final') {
+                if($class == "measurementorfact") $c = new \eol_schema\MeasurementOrFact_specific();
+                if($class == "occurrence") $c = new \eol_schema\Occurrence_specific();
+            }
+
             // if($class == "taxon") print_r($rec);
             
             $keys = array_keys($rec);

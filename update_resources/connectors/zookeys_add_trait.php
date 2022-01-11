@@ -20,13 +20,10 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
 {
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
-
     /* Orig in meta.xml has capital letters. Just a note reminder. */
-    $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
-    /* This will be processed in AddTrait2EoLDwCA.php which will be called from DwCA_Utility.php
-    http://rs.tdwg.org/dwc/terms/measurementorfact
-    http://rs.tdwg.org/dwc/terms/occurrence
-    */
+    // $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon'); //debug only during dev
+    $preferred_rowtypes = array(); //blank meaning all existing rowtypes will just be carried over
+    /* new Associations will be added in AddTrait2EoLDwCA.php, which will be called from DwCA_Utility.php */
     $func->convert_archive($preferred_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
