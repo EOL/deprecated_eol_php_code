@@ -342,6 +342,8 @@ class AddTrait2EoLDwCA
             $a->associationType = $associationType;
             $a->targetOccurrenceID = $related_occurrence->occurrenceID;
             if($val = @$rec['http://rs.tdwg.org/ac/terms/furtherInformationURL']) $a->source = $val;
+            if($val = @$rec['http://purl.org/dc/terms/bibliographicCitation']) $a->bibliographicCitation = $val;
+            if($val = @$rec['http://eol.org/schema/reference/referenceID']) $a->referenceID = $val;
             $a->measurementRemarks = $rec['http://purl.org/dc/terms/description'];
             if($val = @$rec['http://purl.org/dc/terms/bibliographicCitation']) $a->bibliographicCitation = $val;
             if(!isset($this->association_ids[$a->associationID])) {

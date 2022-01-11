@@ -8,6 +8,11 @@ http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 4931
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description: 2
 Above generates: --> 20_ENV.tar.gz
 Then run: zookeys_add_trait.php --> makes use of [20_ENV.tar.gz] and generates [20_ENV_final.tar.gz]
+
+
+20_ENV	        Wed 2022-01-05 08:09:41 AM	{"agent.tab":2031,                       "MoF.tab":9771, "media_resource.tab":28979, "occur.tab":9771, "reference.tab":1420, "taxon.tab":8830, "time_elapsed":{"sec":26703.6, "min":445.06, "hr":7.42}}
+20_ENV_final	Tue 2022-01-11 07:13:42 AM	{"agent.tab":2031, "association.tab":21, "MoF.tab":9771, "media_resource.tab":28979, "occur.tab":9803, "reference.tab":1420, "taxon.tab":8847, "time_elapsed":{"sec":202.26, "min":3.37, "hr":0.06}}
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
