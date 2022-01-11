@@ -330,10 +330,10 @@ after DATA-1893:
 832_ENV	Thu 2022-01-06 12:34:13 AM	{"agent.tab":14, "MoF.tab":14, "media.tab":64, "occur.tab":14, "reference.tab":4, "taxon.tab":11, "time_elapsed":{"sec":144.2, "min":2.4, "hr":0.04}}
 
 830_ENV	Thu 2022-01-06 12:35:25 AM	{"agent.tab":43, "MoF.tab":1, "media.tab":62, "occur.tab":1, "reference.tab":13, "taxon.tab":39, "time_elapsed":{"sec":36.69, "min":0.61, "hr":0.01}}
-792_ENV	Thu 2022-01-06 02:42:31 AM	{"agent.tab":27, "MoF.tab":4, "media.tab":280, "occur.tab":4, "reference.tab":17, "taxon.tab":108, "time_elapsed":{"sec":140.98, "min":2.35, "hr":0.04}}
 798_ENV	Thu 2022-01-06 02:46:34 AM	{"agent.tab":17, "MoF.tab":5, "media.tab":66, "occur.tab":5, "reference.tab":11, "taxon.tab":22, "time_elapsed":{"sec":41.68, "min":0.69, "hr":0.01}}
-826_ENV	Thu 2022-01-06 03:04:19 AM	{"agent.tab":165, "MoF.tab":64, "media.tab":585, "occur.tab":64, "reference.tab":49, "taxon.tab":199, "time_elapsed":{"sec":561.56, "min":9.36, "hr":0.16}}
 834_ENV	Thu 2022-01-06 04:21:47 AM	{"agent.tab":20, "MoF.tab":25, "media.tab":231, "occur.tab":25, "reference.tab":11, "taxon.tab":90, "time_elapsed":{"sec":107.84, "min":1.8, "hr":0.03}}
+792_ENV	Thu 2022-01-06 02:42:31 AM	{"agent.tab":27, "MoF.tab":4, "media.tab":280, "occur.tab":4, "reference.tab":17, "taxon.tab":108, "time_elapsed":{"sec":140.98, "min":2.35, "hr":0.04}}
+826_ENV	Thu 2022-01-06 03:04:19 AM	{"agent.tab":165, "MoF.tab":64, "media.tab":585, "occur.tab":64, "reference.tab":49, "taxon.tab":199, "time_elapsed":{"sec":561.56, "min":9.36, "hr":0.16}}
 
 ===================================================================================================================== Pensoft journals START
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank", "subjects":"Uses"}'
