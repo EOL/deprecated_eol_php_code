@@ -95,14 +95,37 @@ class AddTrait2EoLDwCA
             // https://verifier.globalnames.org/api/v1/verifications/Pseudocaranx dentex (Bloch et Schneider) (Carangidae: Perciformes), white trevally
             // https://parser.globalnames.org/api/v1/Sillago maculata Quoy & Gaimard (Sillaginidae)
             // https://verifier.globalnames.org/api/v1/verifications/Sillago maculata Quoy & Gaimard (Sillaginidae)
+            // https://parser.globalnames.org/api/v1/Cheilodactylus rubrolabiatus Allen ;& Heemstra (Cheilodactylidae)
+            // https://verifier.globalnames.org/api/v1/verifications/Cheilodactylus rubrolabiatus Allen ;& Heemstra (Cheilodactylidae)
         }
     }
     private function parse_text_object($rec)
     {
         if($desc = $rec['http://purl.org/dc/terms/description']) {}
         else return array();
-        $names = self::search_host_traits($desc);
-        print_r($names);
+        if($names = self::search_host_traits($desc)) { // print_r($names);
+            /*Array(
+                [0] => Apogon fasciatus (White) (Apogonidae)
+                [1] => Sillaginodes punctatus (Cuvier) (Sillaginidae)
+                [2] => Sillago bassensis Cuvier (Sillaginidae)
+            )*/
+            $names = self::parse_names($names); // print_r($names);
+            /*Array(
+                [Apogon fasciatus (White, 1790)] => Array(
+                        [ancestry] => Array(
+                                [Apogonidae] => family
+                    )
+                [Sillaginodes punctatus (Cuvier, 1829)] => Array(
+                        [ancestry] => Array(
+                                [Sillaginidae] => family
+                    )
+                [Sillago bassensis Cuvier, 1829] => Array(
+                        [ancestry] => Array(
+                                [Sillaginidae] => family
+                    )
+            )*/
+            self::write_host_traits($names);
+        }
     }
     private function search_host_traits($desc)
     {
@@ -123,17 +146,13 @@ class AddTrait2EoLDwCA
                     if(self::each_is_a_valid_binomial($parts)) $final = array_merge($final, $parts);
                     else $final[] = $line;
                 }
-                else {
-                    $final[] = $line;
-                }
+                else $final[] = $line;
             }
         }
         
-        if($final) {
-            // print_r($final); exit("\nelix 2\n");
-            return $final;
-        }
+        // if($final) { print_r($final); exit("\nelix 2\n"); }
         // else exit("\nelix 3\n");
+        return $final;
     }
     private function each_is_a_valid_binomial($parts)
     {   //print_r($parts); exit;
@@ -156,6 +175,72 @@ class AddTrait2EoLDwCA
         $parts = explode(" ", $string);
         if(count($parts) > 1) return true;
         else return false;
+    }
+    private function parse_names($names)
+    {   /*
+        Array(
+            [0] => Apogon fasciatus (White) (Apogonidae)
+            [1] => Sillaginodes punctatus (Cuvier) (Sillaginidae)
+            [2] => Sillago bassensis Cuvier (Sillaginidae)
+        Array(
+            [0] => Pseudocaranx dentex (Bloch et Schneider)(Carangidae: Perciformes), white trevally
+            [1] => Pseudocaranx wrighti (Whitley) (Carangidae: Perciformes), skipjack trevally
+        */
+        $final = array();
+        foreach($names as $name) {
+            $sciname = self::get_best_sciname($name); // echo "\nsciname: [$sciname]\n";
+            $ancestry = self::get_ancestry($name); // print_r($ancestry);
+            $final[$sciname] = array('ancestry' => $ancestry);
+        }
+        return $final;
+    }
+    private function get_best_sciname($name)
+    {
+        $obj = $this->func2->run_gnverifier($name); //print_r($obj); exit("\ncha 1\n");
+        if($obj[0]->matchType == 'Exact') {
+            if($val = $obj[0]->bestResult->matchedName) {
+                if(self::more_than_one_word($val)) return $val;
+            }
+            if($val = $obj[0]->bestResult->currentName) {
+                if(self::more_than_one_word($val)) return $val;
+            }
+            if($val = $obj[0]->bestResult->currentCanonicalFull) {
+                if(self::more_than_one_word($val)) return $val;
+            }
+            exit("\nShould not go here...[$name]\n");
+        }
+    }
+    private function get_ancestry($name)
+    {   //e.g. "Atherinomorus ogilbyi (Whitley) (Atherinidae, Atheriniformes), Ogilby’s hardyhead"
+        $final = array();
+        $obj = $this->func2->run_gnverifier($name); //print_r($obj); exit("\ncha 1\n");
+        if($obj[0]->matchType == 'Exact') {
+            $ancestors = explode("|", $obj[0]->bestResult->classificationPath);
+            $ranks = explode("|", $obj[0]->bestResult->classificationRanks);
+            if($ancestors && $ranks) {
+                if(preg_match_all("/\((.*?)\)/ims", $name, $arr)) { //get names in parenthesis
+                    foreach($arr[1] as $item) {
+                        $item = str_replace(array(":", ",", ";"), "", $item); //$item = "(Perciformes: Gadidae)"
+                        $words = explode(" ", $item);
+                        foreach($words as $word) {
+                            if(in_array($word, $ancestors)) {
+                                $index = self::get_index_given_array_value($word, $ancestors);
+                                $final[$word] = $ranks[$index];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // print_r($final);
+        return $final;
+    }
+    private function get_index_given_array_value($needle, $array)
+    {
+        while($fruit_name = current($array)) {
+            if($fruit_name == $needle) return key($array);
+            next($array);
+        }
     }
     /* copied template - should be working
     private function initialize_mapping()
