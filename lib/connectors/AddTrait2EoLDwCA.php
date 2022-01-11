@@ -103,13 +103,13 @@ class AddTrait2EoLDwCA
     {
         if($desc = $rec['http://purl.org/dc/terms/description']) {}
         else return array();
-        if($names = self::search_host_traits($desc)) { // print_r($names);
+        if($names = self::search_host_traits($desc)) { //print_r($names); //good debug
             /*Array(
                 [0] => Apogon fasciatus (White) (Apogonidae)
                 [1] => Sillaginodes punctatus (Cuvier) (Sillaginidae)
                 [2] => Sillago bassensis Cuvier (Sillaginidae)
             )*/
-            $names = self::parse_names($names); // print_r($names);
+            $names = self::parse_names($names); //print_r($names); //good debug
             /*Array(
                 [Apogon fasciatus (White, 1790)] => Array(
                         [ancestry] => Array(
@@ -124,7 +124,7 @@ class AddTrait2EoLDwCA
                                 [Sillaginidae] => family
                     )
             )*/
-            self::write_host_traits($names);
+            // self::write_host_traits($names);
         }
     }
     private function search_host_traits($desc)
@@ -189,6 +189,7 @@ class AddTrait2EoLDwCA
         $final = array();
         foreach($names as $name) {
             $sciname = self::get_best_sciname($name); // echo "\nsciname: [$sciname]\n";
+            if(!$sciname) exit("\nInvestigate: should not go here: [$name]\n");
             $ancestry = self::get_ancestry($name); // print_r($ancestry);
             $final[$sciname] = array('ancestry' => $ancestry);
         }
@@ -207,28 +208,57 @@ class AddTrait2EoLDwCA
             if($val = $obj[0]->bestResult->currentCanonicalFull) {
                 if(self::more_than_one_word($val)) return $val;
             }
-            exit("\nShould not go here...[$name]\n");
+            // exit("\nShould not go here...[$name]\n");
         }
+        return false;
     }
     private function get_ancestry($name)
     {   //e.g. "Atherinomorus ogilbyi (Whitley) (Atherinidae, Atheriniformes), Ogilby’s hardyhead"
         $final = array();
         $obj = $this->func2->run_gnverifier($name); //print_r($obj); exit("\ncha 1\n");
+        /* good debug
+        if($name == "Trachurus novaezealandiae (Richardson) (Carangidae: Perciformes), yellowtail horse mackerel") {
+            print_r($obj);
+            exit("\n[$name]3\n");
+        }
+        */
         if($obj[0]->matchType == 'Exact') {
             $ancestors = explode("|", $obj[0]->bestResult->classificationPath);
             $ranks = explode("|", $obj[0]->bestResult->classificationRanks);
-            if($ancestors && $ranks) {
-                if(preg_match_all("/\((.*?)\)/ims", $name, $arr)) { //get names in parenthesis
-                    foreach($arr[1] as $item) {
-                        $item = str_replace(array(":", ",", ";"), "", $item); //$item = "(Perciformes: Gadidae)"
-                        $words = explode(" ", $item);
+            
+            if(preg_match_all("/\((.*?)\)/ims", $name, $arr)) { //get names in parenthesis
+                foreach($arr[1] as $item) {
+                    $item = str_replace(array(":", ",", ";"), "", $item); //$item = "(Perciformes: Gadidae)"
+                    $words = explode(" ", $item);
+
+                    if($ancestors && $ranks) {
                         foreach($words as $word) {
                             if(in_array($word, $ancestors)) {
                                 $index = self::get_index_given_array_value($word, $ancestors);
                                 $final[$word] = $ranks[$index];
                             }
+                            else {
+                                if(self::valid_sciname($word)) $final[$word] = self::manual_rank_assignment($word);
+                            }
                         }
                     }
+                    else {
+                        exit("\n[$name]2\n");
+                        foreach($words as $word) $final[$word] = '';
+                    }
+                }
+            }
+        }
+        else {
+            /* good debug
+            if($name == "Trachurus novaezealandiae (Richardson) (Carangidae: Perciformes), yellowtail horse mackerel") exit("\n[$name]4\n");
+            */
+            if(preg_match_all("/\((.*?)\)/ims", $name, $arr)) { //get names in parenthesis
+                exit("\n[$name]1\n");
+                foreach($arr[1] as $item) {
+                    $item = str_replace(array(":", ",", ";"), "", $item); //$item = "(Perciformes: Gadidae)"
+                    $words = explode(" ", $item);
+                    foreach($words as $word) $final[$word] = '';
                 }
             }
         }
@@ -240,6 +270,29 @@ class AddTrait2EoLDwCA
         while($fruit_name = current($array)) {
             if($fruit_name == $needle) return key($array);
             next($array);
+        }
+    }
+    private function valid_sciname($name)
+    {
+        $obj = $this->func2->run_gnverifier($name); //print_r($obj); exit("\ncha 1\n");
+        if($obj[0]->matchType == 'Exact' && $obj[0]->bestResult->curation == 'Curated') {
+            if($val = $obj[0]->bestResult->matchedName) return $val;
+            if($val = $obj[0]->bestResult->currentName) return $val;
+            if($val = $obj[0]->bestResult->currentCanonicalFull) return $val;
+        }
+        return false;
+    }
+    private function manual_rank_assignment($name)
+    {
+        switch ($name) {
+          case "Perciformes":
+            return 'order';
+            break;
+          case "Carangidae":
+            return 'family';
+            break;
+          default:
+            return "";
         }
     }
     /* copied template - should be working
