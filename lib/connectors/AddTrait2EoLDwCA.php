@@ -124,7 +124,7 @@ class AddTrait2EoLDwCA
                                 [Sillaginidae] => family
                     )
             )*/
-            // self::write_host_traits($names);
+            self::write_associations($names, $rec, 'http://purl.obolibrary.org/obo/RO_0002454'); //write 'host' traits
         }
     }
     private function search_host_traits($desc)
@@ -293,6 +293,107 @@ class AddTrait2EoLDwCA
           default:
             return "";
         }
+    }
+
+    function write_associations($names, $rec, $associationType)
+    {   // print_r($rec); exit("\n111\n");
+        /*Array(
+            [http://purl.org/dc/terms/identifier] => zookeys.1.8.sp1_distribution
+            [http://rs.tdwg.org/dwc/terms/taxonID] => zookeys.1.8.sp1
+            [http://purl.org/dc/terms/type] => http://purl.org/dc/dcmitype/Text
+            [http://purl.org/dc/terms/format] => text/html
+            [http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution
+            [http://purl.org/dc/terms/title] => Distribution
+            [http://purl.org/dc/terms/description] => Type-host: Apogon fasciatus (White) (Apogonidae). Other hosts: Sillaginodes punctatus (Cuvier) (Sillaginidae), Sillago bassensis Cuvier (Sillaginidae). Site: Intestine/gut. Type-locality: Moreton Bay, off Tangalooma, Queensland, 27°14'S, 153°19'E. Other localities: Off Mandurah, 32°31'S, 115°41'E & off Point Peron, Western Australia, 32°18'S, 115°38'E., off American River, South Australia 35°48'S 137°46'E.
+            [http://rs.tdwg.org/ac/terms/accessURI] => 
+            [http://eol.org/schema/media/thumbnailURL] => 
+            [http://rs.tdwg.org/ac/terms/furtherInformationURL] => 
+            [http://ns.adobe.com/xap/1.0/CreateDate] => 
+            [http://purl.org/dc/terms/language] => en
+            [http://purl.org/dc/terms/audience] => Expert users
+            [http://ns.adobe.com/xap/1.0/rights/UsageTerms] => http://creativecommons.org/licenses/by/3.0/
+            [http://ns.adobe.com/xap/1.0/rights/Owner] => 
+            [http://purl.org/dc/terms/bibliographicCitation] => 
+            [http://eol.org/schema/agent/agentID] => 
+            [http://eol.org/schema/reference/referenceID] => doi: 10.3897/zookeys.1.8
+        )
+        Array(
+            [Apogon fasciatus (White, 1790)] => Array(
+                    [ancestry] => Array(
+                            [Apogonidae] => family
+                )
+            [Sillaginodes punctatus (Cuvier, 1829)] => Array(
+                    [ancestry] => Array(
+                            [Sillaginidae] => family
+                )
+            [Sillago bassensis Cuvier, 1829] => Array(
+                    [ancestry] => Array(
+                            [Sillaginidae] => family
+                )
+        )*/
+        $source_taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+        foreach($names as $target_sciname => $rek) {
+            $occurrence = $this->add_occurrence($source_taxonID, "$source_taxonID $associationType");
+            $related_taxon = $this->add_taxon($target_sciname, $rek);
+            $related_occurrence = $this->add_occurrence($related_taxon->taxonID, "$target_sciname $associationType");
+            $a = new \eol_schema\Association();
+            $a->associationID = md5("$occurrence->occurrenceID $associationType $related_occurrence->occurrenceID");
+            $a->occurrenceID = $occurrence->occurrenceID;
+            $a->associationType = $associationType;
+            $a->targetOccurrenceID = $related_occurrence->occurrenceID;
+            if($val = @$rec['http://rs.tdwg.org/ac/terms/furtherInformationURL']) $a->source = $val;
+            $a->measurementRemarks = $rec['http://purl.org/dc/terms/description'];
+            if($val = @$rec['http://purl.org/dc/terms/bibliographicCitation']) $a->bibliographicCitation = $val;
+            if(!isset($this->association_ids[$a->associationID])) {
+                $this->archive_builder->write_object_to_file($a);
+                $this->association_ids[$a->associationID] = '';
+            }
+        }
+        return $this->taxon_ids;
+    }
+    private function add_occurrence($taxonID, $identification_string)
+    {
+        $occurrence_id = md5($taxonID . "assoc_occur" . $identification_string);
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxonID;
+        if(!isset($this->occurrence_ids[$occurrence_id])) {
+            $this->archive_builder->write_object_to_file($o);
+            $this->occurrence_ids[$occurrence_id] = '';
+        }
+        return $o;
+    }
+    private function add_taxon($taxon_name, $rek)
+    {
+        /* copied template
+        $taxon_id = md5($taxon_name);
+        if(isset($this->taxon_ids[$taxon_id])) return $this->taxon_ids[$taxon_id];
+        $t = new \eol_schema\Taxon();
+        $t->taxonID = $taxon_id;
+        $t->scientificName = $taxon_name;
+        $t->order = $order;
+        $this->archive_builder->write_object_to_file($t);
+        $this->taxon_ids[$taxon_id] = $t;
+        return $t;
+        */
+        $valid_ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = md5($taxon_name);
+        $taxon->scientificName  = $taxon_name;
+        if($ancestry = $rek['ancestry']) {
+            // Array(
+            //         [Sillaginidae] => family
+            // )
+            foreach($ancestry as $sciname => $rank) {
+                if(in_array($rank, $valid_ranks)) $taxon->$rank = $sciname;
+            }
+        }
+
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->taxon_ids[$taxon->taxonID] = '';
+        }
+        return $taxon;
     }
     /* copied template - should be working
     private function initialize_mapping()
