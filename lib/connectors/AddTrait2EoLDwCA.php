@@ -243,7 +243,7 @@ class AddTrait2EoLDwCA
                         }
                     }
                     else {
-                        exit("\n[$name]2\n");
+                        exit("\nInvestigate if it must go on: [$name]2\n");
                         foreach($words as $word) $final[$word] = '';
                     }
                 }
@@ -254,7 +254,7 @@ class AddTrait2EoLDwCA
             if($name == "Trachurus novaezealandiae (Richardson) (Carangidae: Perciformes), yellowtail horse mackerel") exit("\n[$name]4\n");
             */
             if(preg_match_all("/\((.*?)\)/ims", $name, $arr)) { //get names in parenthesis
-                exit("\n[$name]1\n");
+                exit("\nInvestigate if it must go on: [$name]1\n");
                 foreach($arr[1] as $item) {
                     $item = str_replace(array(":", ",", ";"), "", $item); //$item = "(Perciformes: Gadidae)"
                     $words = explode(" ", $item);
@@ -262,7 +262,6 @@ class AddTrait2EoLDwCA
                 }
             }
         }
-        // print_r($final);
         return $final;
     }
     private function get_index_given_array_value($needle, $array)
