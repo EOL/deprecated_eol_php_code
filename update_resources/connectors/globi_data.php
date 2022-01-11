@@ -59,6 +59,8 @@ globi_associations_final	Tue 2021-10-05 04:59:53 AM	{"association.tab":2760813, 
 globi_associations	        Mon 2021-10-25 11:45:11 AM	{"association.tab":2818779, "occurrence_specific.tab":4732095, "reference.tab":2475313, "taxon.tab":324636, "time_elapsed":{"sec":8331.12, "min":138.85, "hr":2.31}}
 globi_associations_final	Mon 2021-10-25 01:34:04 PM	{"association.tab":2760813, "occurrence_specific.tab":4731979, "reference.tab":2475313, "taxon.tab":324636, "time_elapsed":{"sec":14863.43, "min":247.72, "hr":4.13}}
 
+globi_associations	        Mon 2022-01-10 09:31:54 PM	{"association.tab":2818779, "occurrence_specific.tab":4732095, "reference.tab":2475313, "taxon.tab":324636, "time_elapsed":{"sec":8534.33, "min":142.24, "hr":2.37}}
+globi_associations_final	Mon 2022-01-10 11:14:03 PM	{"association.tab":2760813, "occurrence_specific.tab":4731979, "reference.tab":2475313, "taxon.tab":324636, "time_elapsed":{"sec":14663.86, "min":244.4, "hr":4.07}}
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020
