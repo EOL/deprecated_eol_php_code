@@ -339,6 +339,7 @@ after DATA-1893:
 832	Sat 2022-01-08 11:26:02 PM	    {"agent.tab":6,                "media.tab":14,                 "reference.tab":2, "taxon.tab":3, "time_elapsed":false}
 832_ENV	Wed 2022-01-12 06:48:19 AM	{"agent.tab":6,                "media.tab":14,                 "reference.tab":2, "taxon.tab":3, "time_elapsed":{"sec":4.56, "min":0.08, "hr":0}}
 832_ENV	Wed 2022-01-12 07:02:30 AM	{"agent.tab":6,                "media.tab":14,                 "reference.tab":2, "taxon.tab":3, "time_elapsed":{"sec":10.07, "min":0.17, "hr":0}}
+832_ENV	Wed 2022-01-12 08:03:27 AM	{"agent.tab":6, "media_resource.tab":14, "reference.tab":2, "taxon.tab":3, "time_elapsed":{"sec":3.83, "min":0.06, "hr":0}}
 
 830_ENV	Thu 2022-01-06 12:35:25 AM	{"agent.tab":43, "MoF.tab":1, "media.tab":62, "occur.tab":1, "reference.tab":13, "taxon.tab":39, "time_elapsed":{"sec":36.69, "min":0.61, "hr":0.01}}
 798_ENV	Thu 2022-01-06 02:46:34 AM	{"agent.tab":17, "MoF.tab":5, "media.tab":66, "occur.tab":5, "reference.tab":11, "taxon.tab":22, "time_elapsed":{"sec":41.68, "min":0.69, "hr":0.01}}
@@ -351,6 +352,12 @@ after DATA-1893:
 834_ENV	Wed 2022-01-12 06:37:25 AM	{"agent.tab":22, "MoF.tab":24, "media.tab":230, "occur.tab":24, "reference.tab":11, "taxon.tab":90, "time_elapsed":{"sec":11.03, "min":0.18, "hr":0}}
 792_ENV	Wed 2022-01-12 06:37:34 AM	{"agent.tab":27, "MoF.tab":4, "media.tab":280, "occur.tab":4, "reference.tab":17, "taxon.tab":108, "time_elapsed":{"sec":4.78, "min":0.08, "hr":0}}
 826_ENV	Wed 2022-01-12 06:39:25 AM	{"agent.tab":144, "MoF.tab":62, "media.tab":609, "occur.tab":62, "reference.tab":48, "taxon.tab":208, "time_elapsed":{"sec":97.03, "min":1.62, "hr":0.03}}
+
+830_ENV	Wed 2022-01-12 08:03:26 AM	{"agent.tab":43, "MoF.tab":11, "media.tab":62, "occur.tab":11, "reference.tab":13, "taxon.tab":39, "time_elapsed":{"sec":42.85, "min":0.71, "hr":0.01}}
+798_ENV	Wed 2022-01-12 08:03:31 AM	{"agent.tab":17, "MoF.tab":18, "media.tab":66, "occur.tab":18, "reference.tab":11, "taxon.tab":22, "time_elapsed":{"sec":41.55, "min":0.69, "hr":0.01}}
+834_ENV	Wed 2022-01-12 08:05:54 AM	{"agent.tab":22, "MoF.tab":158, "media.tab":230, "occur.tab":158, "reference.tab":11, "taxon.tab":90, "time_elapsed":{"sec":127.39, "min":2.12, "hr":0.04}}
+792_ENV	Wed 2022-01-12 08:05:31 AM	{"agent.tab":27, "MoF.tab":123, "media.tab":280, "occur.tab":123, "reference.tab":17, "taxon.tab":108, "time_elapsed":{"sec":175.75, "min":2.93, "hr":0.05}}
+826_ENV	Wed 2022-01-12 08:15:26 AM	{"agent.tab":144, "MoF.tab":247, "media.tab":609, "occur.tab":247, "reference.tab":48, "taxon.tab":208, "time_elapsed":{"sec":745.47, "min":12.42, "hr":0.21}}
 
 ===================================================================================================================== Pensoft journals START
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank", "subjects":"Uses"}'
