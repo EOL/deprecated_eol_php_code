@@ -1,15 +1,18 @@
 <?php
 namespace php_active_record;
-/* connector: [called from DwCA_Utility.php, which is called from zookeys_add_trait.php for DATA-1897] */
+/* connector: [called from DwCA_Utility.php, which is called from zookeys_add_trait.php for DATA-1897] 
+This can be a generic lib for different resources. First client is Zookeys.
+*/
 class AddTrait2EoLDwCA
 {
     function __construct($archive_builder, $resource_id)
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
-        
-        // $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        // $this->download_options['expire_seconds'] = false; //comment after first harvest
+        /* copied template, not needed yet so far
+        $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options['expire_seconds'] = false; //comment after first harvest
+        */
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -28,6 +31,8 @@ class AddTrait2EoLDwCA
             require_library('connectors/ParseListTypeAPI_Memoirs');
             require_library('connectors/ParseUnstructuredTextAPI_Memoirs'); 
             $this->func2 = new ParseUnstructuredTextAPI_Memoirs(false, false);
+            // */
+            /* just test
             $desc = "host:Sillaginodes punctatus (Cuvier) (Sillaginidae), Sillago bassensis Cuvier (Sillaginidae). Eli boy";
             $desc = "hosts:Sillago maculata Quoy & Gaimard (Sillaginidae). xxx";
             $desc = "host:Passalus interstitialis Escholtz, 1829 (Coleoptera: Passalidae). xxx";
@@ -35,12 +40,10 @@ class AddTrait2EoLDwCA
             $desc = "host:Pseudocaranx wrighti (Whitley) (Carangidae: Perciformes), skipjack trevally. xxx";
             // $arr = $this->func2->run_gnparser($desc); print_r($arr); //exit;
             // $arr = $this->func2->run_gnverifier($desc); print_r($arr); exit;
-            /* just test
             $names = self::search_host_traits($desc);
             print_r($names);
             exit("\n-end test-\n");
             */
-            // */
             self::process_table($tables['http://eol.org/schema/media/document'][0], 'read_text_then_process_trait');
         }
         
@@ -345,6 +348,7 @@ class AddTrait2EoLDwCA
             if($val = @$rec['http://rs.tdwg.org/ac/terms/furtherInformationURL']) $a->source = $val;
             // */
             
+            /* ========== customize start ========== */
             if($this->resource_id == "20_ENV_final") { //for Zookeys only
                 /*I'd like to fiddle a bit with the attribution data in both Associations and MoF, 
                 to bring it in line with what we have in other resources. 
@@ -356,6 +360,7 @@ class AddTrait2EoLDwCA
                 if($val = @$rec['http://purl.org/dc/terms/bibliographicCitation']) $a->bibliographicCitation = $val;
                 // */
             }
+            /* ========== customize end ========== */
 
             $a->measurementRemarks = $rec['http://purl.org/dc/terms/description'];
             if($val = @$rec['http://purl.org/dc/terms/bibliographicCitation']) $a->bibliographicCitation = $val;
