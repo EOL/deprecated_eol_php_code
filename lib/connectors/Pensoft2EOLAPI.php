@@ -925,9 +925,9 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 $final = array();
                 if($val = @$rec['http://purl.org/dc/terms/source']) $final['source'] = $val;
                 if($val = @$rec['http://rs.tdwg.org/ac/terms/furtherInformationURL']) $final['source'] = $val;
-                if($val = @$rec['http://purl.org/dc/terms/bibliographicCitation']) $final['bibliographicCitation'] = $val;
+                // if($val = @$rec['http://purl.org/dc/terms/bibliographicCitation']) $final['bibliographicCitation'] = $val;
                 if($val = @$rec['http://purl.org/dc/terms/contributor']) $final['contributor'] = $val;
-                if($val = @$rec['http://eol.org/schema/reference/referenceID']) $final['referenceID'] = $val;
+                // if($val = @$rec['http://eol.org/schema/reference/referenceID']) $final['referenceID'] = $val;
                 if($val = @$rec['http://eol.org/schema/agent/agentID']) {
                     $final['agentID'] = $val;
                     $ids = explode(";", trim($val));
