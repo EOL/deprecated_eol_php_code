@@ -938,7 +938,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 }
                 
                 // /* ================= customize start =================
-                if($this->resource_id == '20_ENV') {
+                if($this->param['resource_id'] == '20_ENV') {
                     /*Please move the doi from References to the Source column. https://eol-jira.bibalex.org/browse/DATA-1897?focusedCommentId=66602&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66602 */
                     if($val = @$rec['http://eol.org/schema/reference/referenceID']) $final['referenceID'] = '';
                     if($val = @$rec['http://eol.org/schema/reference/referenceID']) $final['source'] = $val;
