@@ -113,15 +113,15 @@ class AddTrait2EoLDwCA
             /*Array(
                 [Apogon fasciatus (White, 1790)] => Array(
                         [ancestry] => Array(
-                                [Apogonidae] => family
+                                [Apogonidae] => family )
                     )
                 [Sillaginodes punctatus (Cuvier, 1829)] => Array(
                         [ancestry] => Array(
-                                [Sillaginidae] => family
+                                [Sillaginidae] => family )
                     )
                 [Sillago bassensis Cuvier, 1829] => Array(
                         [ancestry] => Array(
-                                [Sillaginidae] => family
+                                [Sillaginidae] => family )
                     )
             )*/
             self::write_associations($names, $rec, 'http://purl.obolibrary.org/obo/RO_0002454'); //write 'host' traits
@@ -341,9 +341,22 @@ class AddTrait2EoLDwCA
             $a->occurrenceID = $occurrence->occurrenceID;
             $a->associationType = $associationType;
             $a->targetOccurrenceID = $related_occurrence->occurrenceID;
+            // /* maybe this one is case to case basis per resource
             if($val = @$rec['http://rs.tdwg.org/ac/terms/furtherInformationURL']) $a->source = $val;
-            if($val = @$rec['http://purl.org/dc/terms/bibliographicCitation']) $a->bibliographicCitation = $val;
-            if($val = @$rec['http://eol.org/schema/reference/referenceID']) $a->referenceID = $val;
+            // */
+            
+            if($this->resource_id == "20_ENV_final") { //for Zookeys only
+                /*I'd like to fiddle a bit with the attribution data in both Associations and MoF, 
+                to bring it in line with what we have in other resources. 
+                Please move the doi from References to the Source column. 
+                And... I see BibliographicCitation is populated in the media file. 
+                Can you use that same field to populate bibCite in MoF and Occurrences?*/
+                if($val = @$rec['http://eol.org/schema/reference/referenceID']) $a->source = $val;
+                // /* this should work but unfortunately all those text in media tab with 'host:' or 'hosts:' don't have bibliographicCitation values
+                if($val = @$rec['http://purl.org/dc/terms/bibliographicCitation']) $a->bibliographicCitation = $val;
+                // */
+            }
+
             $a->measurementRemarks = $rec['http://purl.org/dc/terms/description'];
             if($val = @$rec['http://purl.org/dc/terms/bibliographicCitation']) $a->bibliographicCitation = $val;
             if(!isset($this->association_ids[$a->associationID])) {
