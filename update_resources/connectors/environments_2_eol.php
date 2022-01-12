@@ -326,14 +326,31 @@ after DATA-1893:
 ===================================================================================================================== WoRMS end
 
 20_ENV	Wed 2022-01-05 08:09:41 AM	{"agent.tab":2031, "MoF.tab":9771, "media.tab":28979, "occur.tab":9771, "reference.tab":1420, "taxon.tab":8830, "time_elapsed":{"sec":26703.6, "min":445.06, "hr":7.42}}
+20_ENV	Wed 2022-01-12 03:28:32 AM	{"agent.tab":2031, "MoF.tab":9771, "media.tab":28979, "occur.tab":9771, "reference.tab":1420, "taxon.tab":8830, "time_elapsed":{"sec":52.31, "min":0.87, "hr":0.01}}
+
+829	Sat 2022-01-01 11:07:12 PM	    {"agent.tab":661,                "media.tab":8315,                  "reference.tab":288, "taxon.tab":2700, "time_elapsed":false}
 829_ENV	Wed 2022-01-05 11:58:28 PM	{"agent.tab":661, "MoF.tab":192, "media.tab":8315, "occur.tab":192, "reference.tab":288, "taxon.tab":2700, "time_elapsed":{"sec":3919.08, "min":65.32, "hr":1.09}}
+829	Sat 2022-01-08 11:07:09 PM	    {"agent.tab":646,                "media.tab":7842,                  "reference.tab":277, "taxon.tab":2575, "time_elapsed":false}
+829_ENV	Wed 2022-01-12 06:56:06 AM	{"agent.tab":646, "MoF.tab":184, "media.tab":7842, "occur.tab":184, "reference.tab":277, "taxon.tab":2575, "time_elapsed":{"sec":486.9, "min":8.12, "hr":0.14}}
+829_ENV	Wed 2022-01-12 07:14:50 AM	{"agent.tab":646, "MoF.tab":184, "media.tab":7842, "occur.tab":184, "reference.tab":277, "taxon.tab":2575, "time_elapsed":{"sec":16.45, "min":0.27, "hr":0}}
+
+832	Sat 2022-01-01 11:26:03 PM	    {"agent.tab":14,               "media.tab":64,                 "reference.tab":4, "taxon.tab":11, "time_elapsed":false}
 832_ENV	Thu 2022-01-06 12:34:13 AM	{"agent.tab":14, "MoF.tab":14, "media.tab":64, "occur.tab":14, "reference.tab":4, "taxon.tab":11, "time_elapsed":{"sec":144.2, "min":2.4, "hr":0.04}}
+832	Sat 2022-01-08 11:26:02 PM	    {"agent.tab":6,                "media.tab":14,                 "reference.tab":2, "taxon.tab":3, "time_elapsed":false}
+832_ENV	Wed 2022-01-12 06:48:19 AM	{"agent.tab":6,                "media.tab":14,                 "reference.tab":2, "taxon.tab":3, "time_elapsed":{"sec":4.56, "min":0.08, "hr":0}}
+832_ENV	Wed 2022-01-12 07:02:30 AM	{"agent.tab":6,                "media.tab":14,                 "reference.tab":2, "taxon.tab":3, "time_elapsed":{"sec":10.07, "min":0.17, "hr":0}}
 
 830_ENV	Thu 2022-01-06 12:35:25 AM	{"agent.tab":43, "MoF.tab":1, "media.tab":62, "occur.tab":1, "reference.tab":13, "taxon.tab":39, "time_elapsed":{"sec":36.69, "min":0.61, "hr":0.01}}
 798_ENV	Thu 2022-01-06 02:46:34 AM	{"agent.tab":17, "MoF.tab":5, "media.tab":66, "occur.tab":5, "reference.tab":11, "taxon.tab":22, "time_elapsed":{"sec":41.68, "min":0.69, "hr":0.01}}
 834_ENV	Thu 2022-01-06 04:21:47 AM	{"agent.tab":20, "MoF.tab":25, "media.tab":231, "occur.tab":25, "reference.tab":11, "taxon.tab":90, "time_elapsed":{"sec":107.84, "min":1.8, "hr":0.03}}
 792_ENV	Thu 2022-01-06 02:42:31 AM	{"agent.tab":27, "MoF.tab":4, "media.tab":280, "occur.tab":4, "reference.tab":17, "taxon.tab":108, "time_elapsed":{"sec":140.98, "min":2.35, "hr":0.04}}
 826_ENV	Thu 2022-01-06 03:04:19 AM	{"agent.tab":165, "MoF.tab":64, "media.tab":585, "occur.tab":64, "reference.tab":49, "taxon.tab":199, "time_elapsed":{"sec":561.56, "min":9.36, "hr":0.16}}
+
+830_ENV	Wed 2022-01-12 06:36:05 AM	{"agent.tab":43, "MoF.tab":1, "media.tab":62, "occur.tab":1, "reference.tab":13, "taxon.tab":39, "time_elapsed":{"sec":7.04, "min":0.12, "hr":0}}
+798_ENV	Wed 2022-01-12 06:36:20 AM	{"agent.tab":17, "MoF.tab":5, "media.tab":66, "occur.tab":5, "reference.tab":11, "taxon.tab":22, "time_elapsed":{"sec":4.48, "min":0.07, "hr":0}}
+834_ENV	Wed 2022-01-12 06:37:25 AM	{"agent.tab":22, "MoF.tab":24, "media.tab":230, "occur.tab":24, "reference.tab":11, "taxon.tab":90, "time_elapsed":{"sec":11.03, "min":0.18, "hr":0}}
+792_ENV	Wed 2022-01-12 06:37:34 AM	{"agent.tab":27, "MoF.tab":4, "media.tab":280, "occur.tab":4, "reference.tab":17, "taxon.tab":108, "time_elapsed":{"sec":4.78, "min":0.08, "hr":0}}
+826_ENV	Wed 2022-01-12 06:39:25 AM	{"agent.tab":144, "MoF.tab":62, "media.tab":609, "occur.tab":62, "reference.tab":48, "taxon.tab":208, "time_elapsed":{"sec":97.03, "min":1.62, "hr":0.03}}
 
 ===================================================================================================================== Pensoft journals START
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank", "subjects":"Uses"}'

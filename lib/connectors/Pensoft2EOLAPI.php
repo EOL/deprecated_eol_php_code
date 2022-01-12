@@ -417,6 +417,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 if($this->param['resource_id'] == "TreatmentBank_ENV")  $this->ontologies = "envo,eol-geonames";
                 if($this->param['resource_id'] == "20_ENV")             $this->ontologies = "envo,eol-geonames"; //ZooKeys
                 if($this->param['resource_id'] == "832_ENV")            $this->ontologies = "envo,eol-geonames"; //Subterranean Biology
+                if($this->param['resource'] == 'Pensoft_journals')      $this->ontologies = "envo,eol-geonames"; //DATA-1897 Pensoft journals (textmining)
                 // */
                 
                 // exit("\n[$this->ontologies]\n");
