@@ -137,7 +137,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
         */
         if($this->debug) {
             if(isset($this->debug['neglect uncooperative contributor'])) {
-                echo "\n neglect uncooperative contributor: count($this->debug['neglect uncooperative contributor']) \n";
+                echo "\n neglect uncooperative contributor: ".count($this->debug['neglect uncooperative contributor'])." \n";
                 unset($this->debug['neglect uncooperative contributor']);
             }
             print_r($this->debug);
