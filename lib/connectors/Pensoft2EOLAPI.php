@@ -804,7 +804,10 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                                     if(ctype_lower($before_needle[0])) {} //continue
                                     else {
                                         $possible_sciname = $before_needle." ".$lbl;
-                                        echo "\nNot a valid geonames:\n[$lbl]\n[$possible_sciname]\n"; print_r($rek); continue;
+                                        if(self::is_valid_taxon($possible_sciname)) {
+                                            echo "\nNot a valid geonames:\n[$lbl]\n[$possible_sciname]\n"; print_r($rek); continue;
+                                        }
+                                        else {} //continue
                                     }
                                 }
                             }
@@ -835,6 +838,20 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             }
             
         } //end foreach()
+    }
+    private function is_valid_taxon($str)
+    {
+        require_library('connectors/Functions_Memoirs');
+        require_library('connectors/ParseListTypeAPI_Memoirs');
+        require_library('connectors/ParseUnstructuredTextAPI_Memoirs'); 
+        $func = new ParseUnstructuredTextAPI_Memoirs(false, false);
+        $obj = $func->run_gnverifier($str); //print_r($obj); //exit;
+        if($obj[0]->matchType == 'Exact') {
+            if($val = $obj[0]->bestResult->matchedName) return $val;
+            if($val = $obj[0]->bestResult->currentName) return $val;
+            if($val = $obj[0]->bestResult->currentCanonicalFull) return $val;
+        }
+        return false;
     }
     private function get_word_before_needle($needle, $context)
     {
