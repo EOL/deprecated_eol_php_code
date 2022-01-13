@@ -776,11 +776,24 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 [lbl] => Gulf Of Mexico
                 [context] => \nArgentina: east of BahÃ­a UniÃ³n (Lowry and Stoddart 1997). United States: <b>Gulf of Mexico</b>, south of Mobile Bay and south-east of the Mississippi River Delta (Lowry and Stoddart 1997).
                 [ontology] => eol-geonames
+            Array(
+                [id] => http://eol.org/schema/terms/Western_Guinean_lowland_forests
+                [lbl] => Western Guinean Lowland Forests
+                [context] => (Ivory Coast, Republic of Ghana, Republic of Guinea, Republic of Mali): Eastern Guinean forests, 
+                             Guinean forest-savanna mosaic, West Sudanian savanna, <b>Western Guinean lowland forests</b> (Fig. 44).
+                [ontology] => eol-geonames
             */
             if($rek['ontology'] == 'eol-geonames') {
-                $needle = "<b>".ucfirst($rek['lbl'])."</b>";
+                $needle = "<b>".ucfirst(strtolower($rek['lbl']))."</b>";
                 $needle = str_ireplace(" Of ", " of ", $needle);
-                if(strpos($rek['context'], $needle) !== false) {} //should be a case-sensitive search ----- string is found
+                //start format context
+                $context = $rek['context'];
+                if(preg_match("/<b>(.*?)<\/b>/ims", $context, $a)) {
+                    $old = "<b>".$a[1]."</b>";
+                    $new = "<b>".ucfirst(strtolower($a[1]))."</b>";
+                    $context = str_replace($old, $new, $context);
+                }
+                if(strpos($context, $needle) !== false) {} //should be a case-sensitive search ----- string is found
                 else { echo "\nNot a valid geonames:\n"; print_r($rek); continue; }
             }
             // */
