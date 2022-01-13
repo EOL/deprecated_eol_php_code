@@ -757,6 +757,34 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             }
             // */
             
+            // /* another general for all: https://eol-jira.bibalex.org/browse/DATA-1897?focusedCommentId=66606&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66606
+            // if a string e.g. species "Enoplochiton niger", then annotator must not get 'niger' as a country name.
+            /*Array(
+                [id] => http://www.geonames.org/2440476
+                [lbl] => niger
+                [context] => Deshayes, 1827 San Lorenzo Island, Peru (12Â°05â23âS; 77Â°13â26âW) south to BahÃ­a Tictoc, ChiloÃ© Province, Chile. 
+                             (43Â°36â40âS; 72Â°57â15âW). Bullock (1988) Enoplochiton <b>niger</b> (Barnes, 1824) Talara, Peru (04Â°34âS; 81Â°16âW) to Coquimbo Bay, Chile (29Â°58âS; 71Â°21âW). Ferreira 1986 Radsia barnesii (Gray, 1828) Ramada Beach,
+                [ontology] => eol-geonames
+            Array(
+                [id] => http://www.geonames.org/3895114
+                [lbl] => chile
+                [context] => et al. (2005) records the southernmost record of this species at Boca del Guafo (43Â°39âS; 74Â°00âW), 
+                             Region of AysÃ©n, southern <b>Chile</b>.
+                [ontology] => eol-geonames
+            Array(
+                [id] => http://www.geonames.org/3523271
+                [lbl] => Gulf Of Mexico
+                [context] => \nArgentina: east of BahÃ­a UniÃ³n (Lowry and Stoddart 1997). United States: <b>Gulf of Mexico</b>, south of Mobile Bay and south-east of the Mississippi River Delta (Lowry and Stoddart 1997).
+                [ontology] => eol-geonames
+            */
+            if($rek['ontology'] == 'eol-geonames') {
+                $needle = "<b>".ucfirst($rek['lbl'])."</b>";
+                $needle = str_ireplace(" Of ", " of ", $needle);
+                if(strpos($rek['context'], $needle) !== false) {} //should be a case-sensitive search ----- string is found
+                else { echo "\nNot a valid geonames:\n"; print_r($rek); continue; }
+            }
+            // */
+            
             //============= below this point is where $this->results is populated =============
             if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN
                 if(ctype_lower(substr($rek['lbl'],0,1))) { //bec. references has a lot like 'Urban C.' which are authors.
