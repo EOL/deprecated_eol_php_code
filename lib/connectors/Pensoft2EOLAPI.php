@@ -798,15 +798,17 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                         $needle_tmp = "<b>".str_replace(" ", "_", $lbl)."</b>";
                         $context_tmp = str_replace($needle, $needle_tmp, $context);
                         if(strpos($context, $needle) !== false) { //e.g. 'niger' //string is found
-                            $before_needle = self::get_word_before_needle($needle_tmp, $context_tmp);
-                            if(!ctype_alpha($before_needle[0])) {} //continue --- starts with "(" or any number
-                            else {
-                                if(ctype_lower($before_needle[0])) {} //continue
+                            if($before_needle = self::get_word_before_needle($needle_tmp, $context_tmp)) {
+                                if(!ctype_alpha($before_needle[0])) {} //continue --- starts with "(" or any number
                                 else {
-                                    $possible_sciname = $before_needle." ".$lbl;
-                                    echo "\nNot a valid geonames:\n[$lbl]\n[$possible_sciname]\n"; print_r($rek); continue;
+                                    if(ctype_lower($before_needle[0])) {} //continue
+                                    else {
+                                        $possible_sciname = $before_needle." ".$lbl;
+                                        echo "\nNot a valid geonames:\n[$lbl]\n[$possible_sciname]\n"; print_r($rek); continue;
+                                    }
                                 }
                             }
+                            else {} //continue; --- case where the needle is the first word in the context
                         }
                     }
                 }
