@@ -784,7 +784,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             New Zealand             and <b>New-Zealand</b>
             */
             
-            // /* another general for all: https://eol-jira.bibalex.org/browse/DATA-1897?focusedCommentId=66606&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66606
+            /* another general for all: https://eol-jira.bibalex.org/browse/DATA-1897?focusedCommentId=66606&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66606
             // if a string e.g. species "Enoplochiton niger", then annotator must not get 'niger' as a country name.
             if($rek['ontology'] == 'eol-geonames') {
                 $lbl = $rek['lbl'];
@@ -806,9 +806,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                         }
                     }
                 }
-                
             }
-            // */
+            */
             
             /* must have an inteligent partial string to annotate --- e.g. PJ_ZooKeys_20
             orig text: Prov. Limon, Parque Internacional La Amistad
@@ -833,8 +832,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     }
     private function get_word_before_needle($needle, $context)
     {
-        $context = str_replace("\n", " ", $context);
-        $context = str_replace("\t", " ", $context);
+        $context = str_ireplace("\n", " ", $context);
+        $context = str_ireplace("\t", " ", $context);
         $context = Functions::remove_whitespace($context);
         $context = str_replace("<b>", " <b>", $context);
         $context = str_replace("</b>", "</b> ", $context);
