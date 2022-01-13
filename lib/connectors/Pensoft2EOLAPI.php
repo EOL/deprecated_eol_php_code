@@ -846,7 +846,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         foreach($words as $index => $word) {
             if($word == $needle) {
                 if($index == 0) {
-                    echo "\nditox: [$needle]\n[$context]\n"; print_r($words);
+                    echo "\nditox:\nneedle:[$needle]\ncontext:[$context]\n"; print_r($words);
+                    return "";
                 }
                 return $words[$index-1];
             }
