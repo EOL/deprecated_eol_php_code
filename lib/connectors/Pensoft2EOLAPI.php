@@ -761,7 +761,6 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             guatemala               Panthea <b>guatemala</b>                        EXCLUDE
             niger                   Enoplochiton <b>niger</b>                       EXCLUDE
             patagonia               Pseudomorpha <b>patagonia</b>                   EXCLUDE
-            
             cerrado                 of the <b>cerrado</b>
             ural                    (preural 1 + <b>ural</b> 1)
             polar regions           extreme <b>polar regions</b>
@@ -801,7 +800,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                             if(ctype_lower($before_needle[0])) {} //continue
                             else {
                                 $possible_sciname = $before_needle." ".$lbl;
-                                echo "\nNot a valid geonames:\n[$lbl]\n[$possible_sciname]\n[$context]\n"; print_r($rek); continue;
+                                echo "\nNot a valid geonames:\n[$lbl]\n[$possible_sciname]\n"; print_r($rek); continue;
                             }
                         }
                     }
