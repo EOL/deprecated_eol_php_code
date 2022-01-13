@@ -757,53 +757,65 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             }
             // */
             
-            /* another general for all: https://eol-jira.bibalex.org/browse/DATA-1897?focusedCommentId=66606&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66606
-            // if a string e.g. species "Enoplochiton niger", then annotator must not get 'niger' as a country name.
-            Array(
-                [id] => http://www.geonames.org/2440476
-                [lbl] => niger
-                [context] => Deshayes, 1827 San Lorenzo Island, Peru (12Â°05â23âS; 77Â°13â26âW) south to BahÃ­a Tictoc, ChiloÃ© Province, Chile. 
-                             (43Â°36â40âS; 72Â°57â15âW). Bullock (1988) Enoplochiton <b>niger</b> (Barnes, 1824) Talara, Peru (04Â°34âS; 81Â°16âW) to Coquimbo Bay, Chile (29Â°58âS; 71Â°21âW). Ferreira 1986 Radsia barnesii (Gray, 1828) Ramada Beach,
-                [ontology] => eol-geonames
-            Array(
-                [id] => http://www.geonames.org/3895114
-                [lbl] => chile
-                [context] => et al. (2005) records the southernmost record of this species at Boca del Guafo (43Â°39âS; 74Â°00âW), 
-                             Region of AysÃ©n, southern <b>Chile</b>.
-                [ontology] => eol-geonames
-            Array(
-                [id] => http://www.geonames.org/3523271
-                [lbl] => Gulf Of Mexico
-                [context] => \nArgentina: east of BahÃ­a UniÃ³n (Lowry and Stoddart 1997). United States: <b>Gulf of Mexico</b>, south of Mobile Bay and south-east of the Mississippi River Delta (Lowry and Stoddart 1997).
-                [ontology] => eol-geonames
-            Array(
-                [id] => http://eol.org/schema/terms/Western_Guinean_lowland_forests
-                [lbl] => Western Guinean Lowland Forests
-                [context] => (Ivory Coast, Republic of Ghana, Republic of Guinea, Republic of Mali): Eastern Guinean forests, 
-                             Guinean forest-savanna mosaic, West Sudanian savanna, <b>Western Guinean lowland forests</b> (Fig. 44).
-                [ontology] => eol-geonames
+            /*
+            guatemala               Panthea <b>guatemala</b>                        EXCLUDE
+            niger                   Enoplochiton <b>niger</b>                       EXCLUDE
+            patagonia               Pseudomorpha <b>patagonia</b>                   EXCLUDE
+            
+            cerrado                 of the <b>cerrado</b>
+            ural                    (preural 1 + <b>ural</b> 1)
+            polar regions           extreme <b>polar regions</b>
+            neotropics              the <b>neotropics</b>
+            worldwide               is the <b>worldwide</b> unique
+            subarctic               arctic and <b>subarctic</b>
+            nearctic                other <b>nearctic</b> member
+            southern hemisphere     in the <b>southern hemisphere</b>
+            chile                   southern <b>Chile</b>
 
+            Gulf Of Mexico                      United States: <b>Gulf of Mexico</b>
+            Western Guinean Lowland Forests     West Sudanian savanna, <b>Western Guinean lowland forests</b>
+            Central Asia            In <b>central Asia</b>
+            Western Australia       (north-<b>western Australia</b>)
+            Eastern Africa          and south-<b>eastern Africa</b>
+            Eastern North America   across <b>eastern North America</b> from
+            Eastern Canada          in <b>eastern Canada</b>
+            Northern Europe         Barents Sea, <b>northern Europe</b>
+            Eastern North America   across <b>eastern North America</b>
+            Tropical Africa         in <b>tropical Africa</b>
+            New Zealand             and <b>New-Zealand</b>
+            */
+            
+            // /* another general for all: https://eol-jira.bibalex.org/browse/DATA-1897?focusedCommentId=66606&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66606
+            // if a string e.g. species "Enoplochiton niger", then annotator must not get 'niger' as a country name.
             if($rek['ontology'] == 'eol-geonames') {
-                $needle = "<b>".ucfirst(strtolower($rek['lbl']))."</b>";
-                // $needle = str_ireplace(" Of ", " of ", $needle);
-                //start format context
-                $context = $rek['context'];
-                if(preg_match("/<b>(.*?)<\/b>/ims", $context, $a)) {
-                    // $old = "<b>".$a[1]."</b>";
-                    // $new = "<b>".ucfirst(strtolower($a[1]))."</b>";
-                    // $context = str_replace($old, $new, $context);
-                    $words = explode(" ", $a[1]);
-                    foreach($words as $index => $val) {
-                        if($index == 0) $words[$index] = self::leave_first_char_as_is_and_others_as_small_letter($val);
-                        if($index > 0) $words[$index] = strtolower($val);
+                $lbl = $rek['lbl'];
+                if(ctype_upper($lbl[0])) {} //continue
+                else { //starts with small letter e.g. "chile", "niger"
+                    $context = $rek['context'];
+                    $needle = "<b>".ucfirst($lbl)."</b>";
+                    if(strpos($context, $needle) !== false) {} //continue //string is found
+                    else {
+                        $needle = "<b>".$lbl."</b>";
+                        if(strpos($context, $needle) !== false) { //e.g. 'niger' //string is found
+                            $before_needle = self::get_word_before_needle($needle, $context);
+                            if(ctype_lower($before_needle[0])) {} //continue
+                            else {
+                                $possible_sciname = $before_needle." ".$lbl;
+                                echo "\nNot a valid geonames:\n[$lbl]\n[$possible_sciname]\n[$context]\n"; print_r($rek); continue;
+                            }
+                        }
                     }
-                    $old = "<b>".$a[1]."</b>";
-                    $new = "<b>".implode(" ", $words)."</b>";
-                    $context = str_replace($old, $new, $context);
                 }
-                if(strpos($context, $needle) !== false) {} //should be a case-sensitive search ----- string is found
-                else { echo "\nNot a valid geonames:\n[$context]\n"; print_r($rek); continue; }
+                
             }
+            // */
+            
+            /* must have an inteligent partial string to annotate --- e.g. PJ_ZooKeys_20
+            orig text: Prov. Limon, Parque Internacional La Amistad
+            Array(
+                [id] => http://www.geonames.org/1308528
+                [lbl] => mon
+                [context] => <b>mon</b>, Parque Internacional La Amistad, Valle del Silencio, Alrededor del Refugio y Sendero Circular, 9.110281-82.961934, 2450 m, 22������27 September 2003,
             */
             
             //============= below this point is where $this->results is populated =============
@@ -819,12 +831,22 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             
         } //end foreach()
     }
+    private function get_word_before_needle($needle, $context)
+    {
+        $words = explode(" ", $context);
+        foreach($words as $index => $word) {
+            if($word == $needle) return $words[$index-1];
+        }
+        exit("\nERROR: needle: [$needle]\ncontext: [$context]\n");
+    }
+    /* not used eventually
     private function leave_first_char_as_is_and_others_as_small_letter($str)
     {
         $first_char = $str[0];
         $second_char_onwards = strtolower(trim(substr($str,1,strlen($str))));
         return $first_char.$second_char_onwards;
     }
+    */
     private function retrieve_json($id, $what, $desc)
     {
         $file = self::retrieve_path($id, $what);
