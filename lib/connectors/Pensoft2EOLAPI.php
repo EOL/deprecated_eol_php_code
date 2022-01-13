@@ -784,7 +784,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             New Zealand             and <b>New-Zealand</b>
             */
             
-            /* another general for all: https://eol-jira.bibalex.org/browse/DATA-1897?focusedCommentId=66606&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66606
+            // /* another general for all: https://eol-jira.bibalex.org/browse/DATA-1897?focusedCommentId=66606&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66606
             // if a string e.g. species "Enoplochiton niger", then annotator must not get 'niger' as a country name.
             if($rek['ontology'] == 'eol-geonames') {
                 $lbl = $rek['lbl'];
@@ -792,22 +792,24 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 else { //starts with small letter e.g. "chile", "niger"
                     $context = $rek['context'];
                     $needle = "<b>".ucfirst($lbl)."</b>";
-                    if(strpos($context, $needle) !== false) {} //continue //string is found
+                    if(strpos($context, $needle) !== false) {} //e.g. "<b>Chile</b>" //continue //string is found
                     else {
                         $needle = "<b>".$lbl."</b>";
                         if(strpos($context, $needle) !== false) { //e.g. 'niger' //string is found
                             $before_needle = self::get_word_before_needle($needle, $context);
                             if(!ctype_alpha($before_needle[0])) {} //continue --- starts with "(" or any number
-                            if(ctype_lower($before_needle[0])) {} //continue
                             else {
-                                $possible_sciname = $before_needle." ".$lbl;
-                                echo "\nNot a valid geonames:\n[$lbl]\n[$possible_sciname]\n"; print_r($rek); continue;
+                                if(ctype_lower($before_needle[0])) {} //continue
+                                else {
+                                    $possible_sciname = $before_needle." ".$lbl;
+                                    echo "\nNot a valid geonames:\n[$lbl]\n[$possible_sciname]\n"; print_r($rek); continue;
+                                }
                             }
                         }
                     }
                 }
             }
-            */
+            // */
             
             /* must have an inteligent partial string to annotate --- e.g. PJ_ZooKeys_20
             orig text: Prov. Limon, Parque Internacional La Amistad
