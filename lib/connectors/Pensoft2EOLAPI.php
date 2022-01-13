@@ -836,6 +836,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         foreach($words as $index => $word) {
             if($word == $needle) return $words[$index-1];
         }
+        print_r($words);
         exit("\nERROR: needle: [$needle]\ncontext: [$context]\n");
     }
     /* not used eventually
