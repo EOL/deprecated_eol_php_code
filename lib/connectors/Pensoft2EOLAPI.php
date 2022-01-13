@@ -757,9 +757,9 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             }
             // */
             
-            // /* another general for all: https://eol-jira.bibalex.org/browse/DATA-1897?focusedCommentId=66606&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66606
+            /* another general for all: https://eol-jira.bibalex.org/browse/DATA-1897?focusedCommentId=66606&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66606
             // if a string e.g. species "Enoplochiton niger", then annotator must not get 'niger' as a country name.
-            /*Array(
+            Array(
                 [id] => http://www.geonames.org/2440476
                 [lbl] => niger
                 [context] => Deshayes, 1827 San Lorenzo Island, Peru (12Â°05â23âS; 77Â°13â26âW) south to BahÃ­a Tictoc, ChiloÃ© Province, Chile. 
@@ -782,7 +782,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 [context] => (Ivory Coast, Republic of Ghana, Republic of Guinea, Republic of Mali): Eastern Guinean forests, 
                              Guinean forest-savanna mosaic, West Sudanian savanna, <b>Western Guinean lowland forests</b> (Fig. 44).
                 [ontology] => eol-geonames
-            */
+
             if($rek['ontology'] == 'eol-geonames') {
                 $needle = "<b>".ucfirst(strtolower($rek['lbl']))."</b>";
                 // $needle = str_ireplace(" Of ", " of ", $needle);
@@ -804,7 +804,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 if(strpos($context, $needle) !== false) {} //should be a case-sensitive search ----- string is found
                 else { echo "\nNot a valid geonames:\n[$context]\n"; print_r($rek); continue; }
             }
-            // */
+            */
             
             //============= below this point is where $this->results is populated =============
             if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN
