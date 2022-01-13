@@ -784,6 +784,18 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             New Zealand             and <b>New-Zealand</b>
             */
             
+            // /* another customized for a resource
+            if($this->param['resource_id'] == "20_ENV" && $rek['lbl'] == "mon") continue; //related to TO DO below
+            // */
+            
+            /* TO DO: must have an inteligent partial string to annotate --- e.g. PJ_ZooKeys_20
+            orig text: Prov. Limon, Parque Internacional La Amistad
+            Array(
+                [id] => http://www.geonames.org/1308528
+                [lbl] => mon
+                [context] => <b>mon</b>, Parque Internacional La Amistad, Valle del Silencio, Alrededor del Refugio y Sendero Circular, 9.110281-82.961934, 2450 m, 22������27 September 2003,
+            */
+            
             // /* another general for all: https://eol-jira.bibalex.org/browse/DATA-1897?focusedCommentId=66606&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66606
             // if a string e.g. species "Enoplochiton niger", then annotator must not get 'niger' as a country name.
             if($rek['ontology'] == 'eol-geonames') {
@@ -817,14 +829,6 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 }
             }
             // */
-            
-            /* must have an inteligent partial string to annotate --- e.g. PJ_ZooKeys_20
-            orig text: Prov. Limon, Parque Internacional La Amistad
-            Array(
-                [id] => http://www.geonames.org/1308528
-                [lbl] => mon
-                [context] => <b>mon</b>, Parque Internacional La Amistad, Valle del Silencio, Alrededor del Refugio y Sendero Circular, 9.110281-82.961934, 2450 m, 22������27 September 2003,
-            */
             
             //============= below this point is where $this->results is populated =============
             if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN
