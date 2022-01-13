@@ -785,16 +785,24 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             */
             if($rek['ontology'] == 'eol-geonames') {
                 $needle = "<b>".ucfirst(strtolower($rek['lbl']))."</b>";
-                $needle = str_ireplace(" Of ", " of ", $needle);
+                // $needle = str_ireplace(" Of ", " of ", $needle);
                 //start format context
                 $context = $rek['context'];
                 if(preg_match("/<b>(.*?)<\/b>/ims", $context, $a)) {
+                    // $old = "<b>".$a[1]."</b>";
+                    // $new = "<b>".ucfirst(strtolower($a[1]))."</b>";
+                    // $context = str_replace($old, $new, $context);
+                    $words = explode(" ", $a[1]);
+                    foreach($words as $index => $val) {
+                        if($index == 0) $words[$index] = self::leave_first_char_as_is_and_others_as_small_letter($val);
+                        if($index > 0) $words[$index] = strtolower($val);
+                    }
                     $old = "<b>".$a[1]."</b>";
-                    $new = "<b>".ucfirst(strtolower($a[1]))."</b>";
+                    $new = "<b>".implode(" ", $words)."</b>";
                     $context = str_replace($old, $new, $context);
                 }
                 if(strpos($context, $needle) !== false) {} //should be a case-sensitive search ----- string is found
-                else { echo "\nNot a valid geonames:\n"; print_r($rek); continue; }
+                else { echo "\nNot a valid geonames:\n[$context]\n"; print_r($rek); continue; }
             }
             // */
             
@@ -810,6 +818,12 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             }
             
         } //end foreach()
+    }
+    private function leave_first_char_as_is_and_others_as_small_letter($str)
+    {
+        $first_char = $str[0];
+        $second_char_onwards = strtolower(trim(substr($str,1,strlen($str))));
+        return $first_char.$second_char_onwards;
     }
     private function retrieve_json($id, $what, $desc)
     {
