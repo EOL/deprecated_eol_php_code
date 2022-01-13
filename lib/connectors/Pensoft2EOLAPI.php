@@ -795,8 +795,10 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                     if(strpos($context, $needle) !== false) {} //e.g. "<b>Chile</b>" //continue //string is found
                     else {
                         $needle = "<b>".$lbl."</b>";
+                        $needle_tmp = "<b>".str_replace(" ", "_", $lbl)."</b>";
+                        $context_tmp = str_replace($needle, $needle_tmp, $context);
                         if(strpos($context, $needle) !== false) { //e.g. 'niger' //string is found
-                            $before_needle = self::get_word_before_needle($needle, $context);
+                            $before_needle = self::get_word_before_needle($needle_tmp, $context_tmp);
                             if(!ctype_alpha($before_needle[0])) {} //continue --- starts with "(" or any number
                             else {
                                 if(ctype_lower($before_needle[0])) {} //continue
