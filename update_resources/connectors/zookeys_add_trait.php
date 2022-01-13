@@ -15,6 +15,8 @@ Then run: zookeys_add_trait.php --> makes use of [20_ENV.tar.gz] and generates [
 20_ENV_final	Wed 2022-01-12 03:29:08 AM	{"agent.tab":2031, "assoc.tab":21,  "MoF.tab":9771, "media.tab":28979, "occur.tab":9803, "reference.tab":1420, "taxon.tab":8847, "time_elapsed":{"sec":34.83, "min":0.58, "hr":0.01}}
 20_ENV	        Wed 2022-01-12 08:11:39 AM	{"agent.tab":2031,                  "MoF.tab":9771, "media.tab":28979, "occur.tab":9771, "reference.tab":1420, "taxon.tab":8830, "time_elapsed":{"sec":88.93, "min":1.48, "hr":0.02}}
 20_ENV_final	Wed 2022-01-12 08:12:14 AM	{"agent.tab":2031, "assoc.tab":21,  "MoF.tab":9771, "media.tab":28979, "occur.tab":9803, "reference.tab":1420, "taxon.tab":8847, "time_elapsed":{"sec":33.89, "min":0.56, "hr":0.01}}
+
+This can be a generic script for other resources: purpose of adding trait to existing DwCA resource.
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
