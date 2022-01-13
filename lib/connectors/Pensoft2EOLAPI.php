@@ -832,6 +832,9 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     }
     private function get_word_before_needle($needle, $context)
     {
+        $context = str_replace("<b>", " <b>", $context);
+        $context = str_replace("</b>", "</b> ", $context);
+        $context = Functions::remove_whitespace($context);
         $words = explode(" ", $context);
         foreach($words as $index => $word) {
             if($word == $needle) return $words[$index-1];
