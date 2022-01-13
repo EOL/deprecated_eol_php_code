@@ -844,7 +844,12 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $context = Functions::remove_whitespace($context);
         $words = explode(" ", $context);
         foreach($words as $index => $word) {
-            if($word == $needle) return $words[$index-1];
+            if($word == $needle) {
+                if($index == 0) {
+                    echo "\nditox: [$needle]\n[$context]\n"; print_r($words);
+                }
+                return $words[$index-1];
+            }
         }
         print_r($words);
         exit("\nERROR: needle: [$needle]\ncontext: [$context]\n");
