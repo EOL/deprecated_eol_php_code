@@ -847,11 +847,33 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $func = new ParseUnstructuredTextAPI_Memoirs(false, false);
         $obj = $func->run_gnverifier($str); //print_r($obj); //exit;
         if($obj[0]->matchType == 'Exact') {
-            if($val = $obj[0]->bestResult->matchedName) return $val;
-            if($val = $obj[0]->bestResult->currentName) return $val;
-            if($val = $obj[0]->bestResult->currentCanonicalFull) return $val;
+            if($val = $obj[0]->bestResult->matchedName) {
+                if(self::correct_cardinality($val, $str)) return $val;
+            }
+            if($val = $obj[0]->bestResult->currentName) {
+                if(self::correct_cardinality($val, $str)) return $val;
+            }
+            if($val = $obj[0]->bestResult->currentCanonicalFull) {
+                if(self::correct_cardinality($val, $str)) return $val;
+            }
         }
         return false;
+    }
+    private function correct_cardinality($val, $str)
+    {
+        if(self::more_than_one_word($str)) {
+            if(self::more_than_one_word($val)) return true;
+        }
+        else {
+            if(!self::more_than_one_word($val)) return true;
+        }
+        return false;
+    }
+    private function more_than_one_word($string)
+    {
+        $parts = explode(" ", $string);
+        if(count($parts) > 1) return true;
+        else return false;
     }
     private function get_word_before_needle($needle, $context)
     {
