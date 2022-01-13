@@ -748,7 +748,16 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             /* DATA-1893
             nothing to add here...
             */
+
+            // /* another general for all: https://eol-jira.bibalex.org/browse/DATA-1897?focusedCommentId=66605&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66605
+            $context = strip_tags($rek['context']);
+            if(stripos($context, "India ink") !== false && $rek['lbl'] == "india") { //string is found
+                // print_r($rek);
+                continue; 
+            }
+            // */
             
+            //============= below this point is where $this->results is populated =============
             if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN
                 if(ctype_lower(substr($rek['lbl'],0,1))) { //bec. references has a lot like 'Urban C.' which are authors.
                     $this->results[$rek['id']] = array("lbl" => $rek['lbl'], "ontology" => $rek['ontology']);
@@ -758,7 +767,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             else { //rest of the resources --> Just be sure the citation, reference, biblio parts of text is not included as input to Pensoft
                 $this->results[$rek['id']] = array("lbl" => $rek['lbl'], "ontology" => $rek['ontology']);
             }
-        }
+            
+        } //end foreach()
     }
     private function retrieve_json($id, $what, $desc)
     {
