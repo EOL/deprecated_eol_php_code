@@ -797,6 +797,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                         $needle = "<b>".$lbl."</b>";
                         if(strpos($context, $needle) !== false) { //e.g. 'niger' //string is found
                             $before_needle = self::get_word_before_needle($needle, $context);
+                            if(!ctype_alpha($before_needle[0])) {} //continue --- starts with "(" or any number
                             if(ctype_lower($before_needle[0])) {} //continue
                             else {
                                 $possible_sciname = $before_needle." ".$lbl;
@@ -832,6 +833,9 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     }
     private function get_word_before_needle($needle, $context)
     {
+        $context = str_replace("\n", " ", $context);
+        $context = str_replace("\t", " ", $context);
+        $context = Functions::remove_whitespace($context);
         $context = str_replace("<b>", " <b>", $context);
         $context = str_replace("</b>", "</b> ", $context);
         $context = Functions::remove_whitespace($context);
