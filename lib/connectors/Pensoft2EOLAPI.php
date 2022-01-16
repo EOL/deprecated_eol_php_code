@@ -1097,11 +1097,13 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                     if($val = @$rec['http://eol.org/schema/reference/referenceID']) $final['referenceID'] = '';
                     if($val = @$rec['http://eol.org/schema/reference/referenceID']) $final['source'] = $val;
                 }
-                // /* Eli's initiative: bring text description to measurementRemarks MoF
+                /* Eli's initiative: bring text description to measurementRemarks MoF
+                                     --- works OK but no instructions to do so
+                                     --- part of pair #001 1of2
                 if($this->param['resource'] == 'Pensoft_journals') {
                     if($val = @$rec['http://purl.org/dc/terms/description']) $final['measurementRemarks'] = str_replace("\\n", "", $val);
                 }
-                // */
+                */
                 // ================= customize end ================= */
                 
                 if($final) {

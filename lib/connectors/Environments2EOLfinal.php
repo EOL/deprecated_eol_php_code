@@ -235,12 +235,14 @@ class Environments2EOLfinal extends ContributorsMapAPI
                 else                                $rec['measurementRemarks'] = "source text: \"" . $arr[3] . "\"";
                 // */
                 
-                // /* customize --- add text object description to measurementRemarks in MoF
+                /* customize --- add text object description to measurementRemarks in MoF
+                             --- works OK but no instructions to do so
+                             --- part of pair #001 2of2
                 if($this->params['resource'] == 'Pensoft_journals') {
                     $tmp = $rec['measurementRemarks'].". ".$rek['measurementRemarks'];
                     $rec['measurementRemarks'] = Functions::remove_whitespace($tmp);
                 }
-                // */
+                */
                 
                 $basename = $arr[4]; //e.g. 'ENVO:00000300'
                 if(stripos($basename, "ENVO") !== false) { //string is found
