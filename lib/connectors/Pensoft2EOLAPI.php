@@ -30,7 +30,12 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     function __construct($param)
     {
         $this->param = $param; // print_r($param); exit;
-        
+        /*Array(
+            [task] => generate_eol_tags_pensoft
+            [resource] => Pensoft_journals
+            [resource_id] => 834_ENV
+            [subjects] => GeneralDescription|Distribution
+        )*/
         // /* add ontologies Yes/No in the id caching of Pensoft calls.
         if(in_array($this->param['resource_id'], array('617_ENV', '21_ENV', '26_ENV'))) $this->includeOntologiesYN = false; //Wikipedia EN | AmphibiaWeb text | WoRMS
         else $this->includeOntologiesYN = true; //the rest
@@ -814,10 +819,10 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                                 if(!ctype_alpha($before_needle[0])) {} //continue --- starts with "(" or any number
                                 else {
                                     if(ctype_lower($before_needle[0])) {} //continue
-                                    else {
+                                    else { // word before needle is alpha and capital letter
                                         $possible_sciname = $before_needle." ".$lbl;
                                         if(self::is_valid_taxon($possible_sciname)) {
-                                            echo "\nNot a valid geonames:\n[$lbl]\n[$possible_sciname]\n"; print_r($rek); continue;
+                                            echo "\nNot a valid geonames:\nlbl: [$lbl]\npossible_sciname: [$possible_sciname]\n"; print_r($rek); continue;
                                         }
                                         else {} //continue
                                     }
@@ -1092,6 +1097,11 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                     if($val = @$rec['http://eol.org/schema/reference/referenceID']) $final['referenceID'] = '';
                     if($val = @$rec['http://eol.org/schema/reference/referenceID']) $final['source'] = $val;
                 }
+                // /* Eli's initiative: bring text description to measurementRemarks MoF
+                if($this->param['resource'] == 'Pensoft_journals') {
+                    if($val = @$rec['http://purl.org/dc/terms/description']) $final['measurementRemarks'] = str_replace("\\n", "", $val);
+                }
+                // */
                 // ================= customize end ================= */
                 
                 if($final) {

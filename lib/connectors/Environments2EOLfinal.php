@@ -8,6 +8,12 @@ class Environments2EOLfinal extends ContributorsMapAPI
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
         $this->params = $params; //print_r($params); exit("\nelix\n");
+        /*Array(
+            [task] => generate_eol_tags_pensoft
+            [resource] => Pensoft_journals
+            [resource_id] => 834_ENV
+            [subjects] => GeneralDescription|Distribution
+        )*/
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->debug = array();
         /* OLD - Vangelis
@@ -200,7 +206,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
             $a = explode("_-_", $arr[0]);
             $taxonID = @$a[0];
             $identifier = @$a[1];
-            $rek = self::retrieve_json($taxonID."_".$identifier);
+            $rek = self::retrieve_json($taxonID."_".$identifier); //VERY IMPORTANT: where media taxon object metadata is retrieved and used in MoF
             // print_r($rek); exit("\n-end 1-\n");
             /* sample for 21_ENV
             Array(
@@ -227,6 +233,13 @@ class Environments2EOLfinal extends ContributorsMapAPI
                 // /* customized:
                 if($this->resource_id == '26_ENV')  $rec['measurementRemarks'] = "";
                 else                                $rec['measurementRemarks'] = "source text: \"" . $arr[3] . "\"";
+                // */
+                
+                // /* customize --- add text object description to measurementRemarks in MoF
+                if($this->params['resource'] == 'Pensoft_journals') {
+                    $tmp = $rec['measurementRemarks'].". ".$rek['measurementRemarks'];
+                    $rec['measurementRemarks'] = Functions::remove_whitespace($tmp);
+                }
                 // */
                 
                 $basename = $arr[4]; //e.g. 'ENVO:00000300'
