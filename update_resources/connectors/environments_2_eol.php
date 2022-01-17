@@ -385,12 +385,12 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 16
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 8
 
-Nota Lepidopterologica (798)
+Nota Lepidopterologica (798)*
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"798", "subjects":"GeneralDescription|Distribution"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 10
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 11
 
-Zoosystematics and Evolution (834)
+Zoosystematics and Evolution (834)*
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"834", "subjects":"GeneralDescription|Distribution"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 21
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 44
@@ -409,6 +409,10 @@ Comparative Cytogenetics (554)
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"EOL_554_final", "subjects":"GeneralDescription"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 1
 
+Journal of Hymenoptera Research (831)
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"831", "subjects":"GeneralDescription|Distribution"}'
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 51
+http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 44
 ===================================================================================================================== Pensoft journals END
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
