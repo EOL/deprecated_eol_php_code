@@ -7,14 +7,16 @@ measurement     6748    1385056     3191194
 occurrence      2250    461686      461686
 taxon           2157    224065      224065
 reference							189866
-885	Monday 2018-03-12 02:12:34 PM	{"measurement_or_fact.tab":3263772, "occurrence.tab":475706, "reference.tab":195897, "taxon.tab":215141}
-885	Monday 2018-08-06 12:37:07 PM	{"measurement_or_fact.tab":3263859, "occurrence.tab":475729, "reference.tab":195897, "taxon.tab":215138} eol-archive
-885	Monday 2019-10-07 07:34:29 PM	{"measurement_or_fact.tab":3263760, "occurrence.tab":475704, "reference.tab":195897, "taxon.tab":215117, "time_elapsed":{"sec":67953.72,"min":1132.56,"hr":18.88}}
-885	Fri 2021-01-22 07:13:38 AM	    {"measurement_or_fact.tab":4590822, "occurrence.tab":475704, "reference.tab":195897, "taxon.tab":215117, "time_elapsed":{"sec":73431.03999999999, "min":1223.85, "hr":20.4}}
-885	Tue 2021-03-16 09:55:02 PM	    {"measurement_or_fact.tab":4588886, "occurrence.tab":475435, "reference.tab":195628, "taxon.tab":215103, "time_elapsed":{"sec":67327.67, "min":1122.13, "hr":18.7}}
-885	Thu 2021-11-18 06:07:04 AM	    {"measurement_or_fact.tab":4588886, "occurrence.tab":475435, "reference.tab":195628, "taxon.tab":215103, "time_elapsed":{"sec":72988.62, "min":1216.48, "hr":20.27}}
+885	Monday 2018-03-12 02:12:34 PM	{"MoF":3263772, "occurrence.tab":475706, "reference.tab":195897, "taxon.tab":215141}
+885	Monday 2018-08-06 12:37:07 PM	{"MoF":3263859, "occurrence.tab":475729, "reference.tab":195897, "taxon.tab":215138} eol-archive
+885	Monday 2019-10-07 07:34:29 PM	{"MoF":3263760, "occurrence.tab":475704, "reference.tab":195897, "taxon.tab":215117, "time_elapsed":{"sec":67953.72,"min":1132.56,"hr":18.88}}
+885	Fri 2021-01-22 07:13:38 AM	    {"MoF":4590822, "occurrence.tab":475704, "reference.tab":195897, "taxon.tab":215117, "time_elapsed":{"sec":73431.03999999999, "min":1223.85, "hr":20.4}}
+885	Tue 2021-03-16 09:55:02 PM	    {"MoF":4588886, "occurrence.tab":475435, "reference.tab":195628, "taxon.tab":215103, "time_elapsed":{"sec":67327.67, "min":1122.13, "hr":18.7}}
+885	Thu 2021-11-18 06:07:04 AM	    {"MoF":4588886, "occurrence.tab":475435, "reference.tab":195628, "taxon.tab":215103, "time_elapsed":{"sec":72988.62, "min":1216.48, "hr":20.27}}
 Assigned occurrence->lifeStage to 'adult' URI (http://www.ebi.ac.uk/efo/EFO_0001272) for raw lifeStage value = 'copula'.
-885	Tue 2021-12-14 08:28:12 PM	    {"measurement_or_fact.tab":4588886, "occurrence.tab":475435, "reference.tab":195628, "taxon.tab":215103, "time_elapsed":{"sec":67074.33, "min":1117.91, "hr":18.63}}
+885	Tue 2021-12-14 08:28:12 PM	    {"MoF":4588886, "occurrence.tab":475435, "reference.tab":195628, "taxon.tab":215103, "time_elapsed":{"sec":67074.33, "min":1117.91, "hr":18.63}}
+convert MeasurementOfTaxon=false to child records
+885	Thu 2021-12-16 11:16:34 PM	    {"MoF":4588886, "occurrence.tab":475435, "reference.tab":195628, "taxon.tab":215103, "time_elapsed":{"sec":67524.58, "min":1125.41, "hr":18.76}}
 
 Undefined:
 [institution] => Array
