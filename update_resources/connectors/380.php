@@ -4,11 +4,10 @@ namespace php_active_record;
 http://www.eol.org/content_partners/490/resources/380
 https://eol-jira.bibalex.org/browse/TRAM-703
 This is a generic script that will convert EOL XML to EOL DWC-A
-
-380	Wednesday 2018-02-14 12:26:50 AM	{"agent.tab":1,"media_resource.tab":5567,"taxon.tab":3308,"vernacular_name.tab":5571}
-
+380	Wednesday 2018-02-14 12:26:50 AM	{"agent.tab":1, "media_resource.tab":5567, "taxon.tab":3308, "vernacular_name.tab":5571}
+380	Monday 2018-03-19 09:12:30 PM	    {"agent.tab":1, "media_resource.tab":5567, "taxon.tab":3308, "vernacular_name.tab":5571}
+380	Tue 2022-01-18 12:01:44 AM	        {"agent.tab":1, "media_resource.tab":5567, "taxon.tab":3308, "vernacular_name.tab":3308, "time_elapsed":false}
 */
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ConvertEOLtoDWCaAPI');
 $timestart = time_elapsed();
