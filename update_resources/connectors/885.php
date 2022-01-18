@@ -70,5 +70,5 @@ $params["resource_id"] = 885;
 $resource_id = $params["resource_id"];
 $func = new GBIFCountryTypeRecordAPI($resource_id);
 $func->export_gbif_to_eol($params);
-Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>
