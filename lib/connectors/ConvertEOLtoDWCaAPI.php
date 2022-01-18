@@ -457,8 +457,23 @@ class ConvertEOLtoDWCaAPI
                 $this->archive_builder->write_object_to_file($t);
             }
         }
-        elseif(in_array($type, array("vernacular"))) {
-            $this->archive_builder->write_object_to_file($t);
+        elseif(in_array($type, array("vernacular"))) { // print_r($t); exit;
+            /* e.g. from planetscott (380)
+            eol_schema\VernacularName Object(
+                ...many other entries here
+                [vernacularName] => Roraima Black Frog
+                [language] => SimpleXMLElement Object(
+                     [0] => en
+                 )
+                [taxonID] => Oreophrynella_quelchii
+            )*/
+            // /* new Jan 18, 2022: make combination of vernacular + taxonID a unique entry in the resource
+            $md5 = md5($t->vernacularName . $t->taxonID);
+            if(!isset($this->saved_comnames[$md5])) {
+                $this->archive_builder->write_object_to_file($t);
+                $this->saved_comnames[$md5] = '';
+            }
+            // */
         }
         elseif($type == "reference") {
             if(!isset($this->reference_ids[$t->identifier])) {
