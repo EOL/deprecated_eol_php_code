@@ -357,8 +357,10 @@ after DATA-1893:
 798_ENV	Wed 2022-01-12 08:03:31 AM	{"agent.tab":17, "MoF.tab":18, "media.tab":66, "occur.tab":18, "reference.tab":11, "taxon.tab":22, "time_elapsed":{"sec":41.55, "min":0.69, "hr":0.01}}
 834_ENV	Wed 2022-01-12 08:05:54 AM	{"agent.tab":22, "MoF.tab":158, "media.tab":230, "occur.tab":158, "reference.tab":11, "taxon.tab":90, "time_elapsed":{"sec":127.39, "min":2.12, "hr":0.04}}
 792_ENV	Wed 2022-01-12 08:05:31 AM	{"agent.tab":27, "MoF.tab":123, "media.tab":280, "occur.tab":123, "reference.tab":17, "taxon.tab":108, "time_elapsed":{"sec":175.75, "min":2.93, "hr":0.05}}
-826_ENV	Wed 2022-01-12 08:15:26 AM	{"agent.tab":144, "MoF.tab":247, "media.tab":609, "occur.tab":247, "reference.tab":48, "taxon.tab":208, "time_elapsed":{"sec":745.47, "min":12.42, "hr":0.21}}
 
+826_ENV	Wed 2022-01-12 08:15:26 AM	{"agent.tab":144, "MoF.tab":247, "media.tab":609, "occur.tab":247, "reference.tab":48, "taxon.tab":208, "time_elapsed":{"sec":745.47, "min":12.42, "hr":0.21}}
+removed 'ocean' in MoF
+826_ENV	Wed 2022-01-19 05:37:18 AM	{"agent.tab":144, "MoF.tab":246, "media.tab":609, "occur.tab":246, "reference.tab":48, "taxon.tab":208, "time_elapsed":{"sec":9.35, "min":0.16, "hr":0}}
 ===================================================================================================================== Pensoft journals START
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank", "subjects":"Uses"}'
 
