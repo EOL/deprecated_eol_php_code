@@ -387,6 +387,31 @@ class GBIFCountryTypeRecordAPI
     }
     private function create_type_records_idigbio($rec) // structured data
     {
+        if(trim($rec['taxon_id']) == "University") {
+            print_r($rec); exit("\nelix 1\n");
+        }
+        /*Array(
+            [] => 00036b59-d95a-4b19-b8ea-135aa7b97ecc
+            [http://portal.idigbio.org/terms/inhs/dead] => 
+            [http://portal.idigbio.org/terms/inhs/total_Males] => 
+            [http://rs.tdwg.org/dwc/terms/county] => 
+            [http://rs.tdwg.org/dwc/terms/locality] => Puaucho, 14.5 km W
+            [http://portal.idigbio.org/terms/tribe] => 
+            [http://rs.tdwg.org/dwc/terms/infraspecificEpithet] => 
+            [http://rs.tdwg.org/dwc/terms/rightsHolder] => 
+            [http://rs.tdwg.org/dwc/terms/lifeStage] => adult
+            ...
+            [http://purl.org/dc/terms/modified] => 2010-10-19 10:21:32.0
+            [http://portal.idigbio.org/terms/fcc/superfamily] => 
+            [http://rs.tdwg.org/dwc/terms/footprintWKT] => 
+            [http://rs.tdwg.org/dwc/terms/datasetID] => 
+            [http://rs.tdwg.org/dwc/terms/year] => 1994
+            [taxon_id] => Holotrochus_chilensis
+            [dataset] => iDigBio
+        )*/
+        
+        
+        
         if(count($rec) != 200) exit("\n count is not 200: " . count($rec));
         
         $rec["catnum"] = $rec[""];
