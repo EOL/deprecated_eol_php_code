@@ -72,7 +72,7 @@ class GBIFCountryTypeRecordAPI
         $this->debug = array();
         $this->spreadsheet_options = array('resource_id' => 'gbif', 'cache' => 1, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //set 'cache' to 0 if you don't want to cache spreadsheet
         $this->spreadsheet_options['expire_seconds'] = 60*60*24*1; //expires after 1 day
-        $this->spreadsheet_options['expire_seconds'] = 60*60; //during dev only
+        // $this->spreadsheet_options['expire_seconds'] = 60*60; //during dev only
         
         $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 1, 'expire_seconds' => false); //60*60*24*365
         
@@ -388,7 +388,8 @@ class GBIFCountryTypeRecordAPI
     private function create_type_records_idigbio($rec) // structured data
     {
         if(trim($rec['taxon_id']) == "University") {
-            print_r($rec); exit("\nelix 1\n");
+            print_r($rec); //exit("\nelix 1\n");
+            return;
         }
         /*Array(
             [] => 00036b59-d95a-4b19-b8ea-135aa7b97ecc
