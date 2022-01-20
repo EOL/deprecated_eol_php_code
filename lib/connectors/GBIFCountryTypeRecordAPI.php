@@ -387,8 +387,8 @@ class GBIFCountryTypeRecordAPI
     }
     private function create_type_records_idigbio($rec) // structured data
     {
-        if(trim($rec['taxon_id']) == "University") {
-            print_r($rec); //exit("\nelix 1\n");
+        if(trim($rec['taxon_id']) == "University") { //reported here: https://eol-jira.bibalex.org/browse/DATA-1549?focusedCommentId=66616&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66616
+            print_r($rec); //exit;
             return;
         }
         /*Array(
