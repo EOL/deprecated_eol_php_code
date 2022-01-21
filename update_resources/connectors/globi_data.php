@@ -316,7 +316,7 @@ $excluded_rowtypes = array('http://eol.org/schema/association', 'http://rs.tdwg.
                            'http://eol.org/schema/reference/reference', 'http://rs.tdwg.org/dwc/terms/taxon');
 // */
 
-$func->convert_archive($preferred_rowtypes);
+$func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
 Functions::finalize_dwca_resource($resource_id, true, false, $timestart); //3rd param true means delete folder
 $func = false; //close memory
 // */
