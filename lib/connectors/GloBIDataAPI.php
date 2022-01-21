@@ -833,6 +833,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
             $uris = array_keys($rec);
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
+                if($field == 'schema#localityName') $field = 'localityName'; //just a correction
                 $o->$field = $rec[$uri];
             }
             $this->archive_builder->write_object_to_file($o);
