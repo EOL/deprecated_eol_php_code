@@ -306,7 +306,16 @@ $dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-da
 
 // $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 $func = new DwCA_Utility($resource_id, $dwca);
+
+/* worked in 1.0 but caused memory leak in 1.1 because latter is now a large DwCA and reference is a big file.
 $preferred_rowtypes = array('http://eol.org/schema/reference/reference'); //was forced to lower case in DwCA_Utility.php
+*/
+// /* for 1.1 all four extensions will be parsed elsewhere (GloBIDataAPI). Not in DwCA_Utility.
+$preferred_rowtypes = array();
+$excluded_rowtypes = array('http://eol.org/schema/association', 'http://rs.tdwg.org/dwc/terms/occurrence', 
+                           'http://eol.org/schema/reference/reference', 'http://rs.tdwg.org/dwc/terms/taxon');
+// */
+
 $func->convert_archive($preferred_rowtypes);
 Functions::finalize_dwca_resource($resource_id, true, false, $timestart); //3rd param true means delete folder
 $func = false; //close memory

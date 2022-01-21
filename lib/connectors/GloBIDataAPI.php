@@ -85,7 +85,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
         // */
         
         //step 1 is build info list
-        self::process_reference($tables['http://eol.org/schema/reference/reference'][0], 'build info');            
+        self::process_reference($tables['http://eol.org/schema/reference/reference'][0], 'build info'); //includes a carry-over portion
         self::process_association($tables['http://eol.org/schema/association'][0], 'build info');       //generates $this->targetOccurrenceIDS $this->toDeleteOccurrenceIDS
                                                                                                         //generates $this->occurrenceIDS
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'build info');  //generates $this->taxonIDS AND assigns taxonID to $this->targetOccurrenceIDS
@@ -828,6 +828,15 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 $this->references[$refID]['refuted:referenceDoi']       = $rec['http://purl.org/ontology/bibo/doi'];
                 $this->references[$refID]['refuted:referenceUrl']       = $rec['http://purl.org/ontology/bibo/uri'];
             }
+            // /* this is the carry-over portion
+            $o = new \eol_schema\Reference();
+            $uris = array_keys($rec);
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+            // */
         }
     }
     private function get_taxon_ancestor_4occurID($targetORsource_OccurrenceID, $targetORsource, $rank) //OccurrenceID points to a taxon, then return its ancestor value with $rank. e.g. 'genus'
