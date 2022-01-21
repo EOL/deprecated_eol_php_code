@@ -302,6 +302,8 @@ $resource_id = "globi_associations";
 
 // /* //main operation
 $dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
+$dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.1-SNAPSHOT-darwin-core-aggregated.zip'; //started using 21Jan2022
+
 // $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 $func = new DwCA_Utility($resource_id, $dwca);
 $preferred_rowtypes = array('http://eol.org/schema/reference/reference'); //was forced to lower case in DwCA_Utility.php
