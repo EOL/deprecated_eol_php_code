@@ -297,7 +297,7 @@ exit("\n-end test-\n");
 */
 
 require_library('connectors/DwCA_Utility');
-ini_set('memory_limit','9096M'); //required
+ini_set('memory_limit','12096M'); //required
 $resource_id = "globi_associations";
 
 // /* //main operation
