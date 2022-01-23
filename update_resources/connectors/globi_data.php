@@ -59,8 +59,12 @@ globi_associations_final	Tue 2021-10-05 04:59:53 AM	{"association.tab":2760813, 
 globi_associations	        Mon 2021-10-25 11:45:11 AM	{"association.tab":2818779, "occurrence_specific.tab":4732095, "reference.tab":2475313, "taxon.tab":324636, "time_elapsed":{"sec":8331.12, "min":138.85, "hr":2.31}}
 globi_associations_final	Mon 2021-10-25 01:34:04 PM	{"association.tab":2760813, "occurrence_specific.tab":4731979, "reference.tab":2475313, "taxon.tab":324636, "time_elapsed":{"sec":14863.43, "min":247.72, "hr":4.13}}
 
+Last update for ver. 1.0:
 globi_associations	        Mon 2022-01-10 09:31:54 PM	{"association.tab":2818779, "occurrence_specific.tab":4732095, "reference.tab":2475313, "taxon.tab":324636, "time_elapsed":{"sec":8534.33, "min":142.24, "hr":2.37}}
 globi_associations_final	Mon 2022-01-10 11:14:03 PM	{"association.tab":2760813, "occurrence_specific.tab":4731979, "reference.tab":2475313, "taxon.tab":324636, "time_elapsed":{"sec":14663.86, "min":244.4, "hr":4.07}}
+First update for ver. 1.1:
+globi_associations	        Sat 2022-01-22 05:11:48 AM	{"association.tab":5601512, "occurrence_specific.tab":10229469, "reference.tab":5278334, "taxon.tab":346787, "time_elapsed":{"sec":13824.01, "min":230.4, "hr":3.84}}
+globi_associations_final	Sat 2022-01-22 08:49:32 AM	{"association.tab":5552473, "occurrence_specific.tab":10229340, "reference.tab":5278334, "taxon.tab":346787, "time_elapsed":{"sec":26887.33, "min":448.12, "hr":7.47}}
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020
@@ -301,10 +305,13 @@ ini_set('memory_limit','12096M'); //required
 $resource_id = "globi_associations";
 
 // /* //main operation
-$dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
-$dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.1-SNAPSHOT-darwin-core-aggregated.zip'; //started using 21Jan2022
-
-// $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
+if($dwca = get_latest_globi_snapshot()) echo "\nDwCA URL: [$dwca]\n";
+else { //old - manually picked the URL
+    exit("\nERROR: cannot get the DwCA URL from partner site.\n");
+    $dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
+    $dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.1-SNAPSHOT-darwin-core-aggregated.zip'; //started using 21Jan2022
+    // $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
+}
 $func = new DwCA_Utility($resource_id, $dwca);
 
 /* worked in 1.0 but caused memory leak in 1.1 because latter is now a large DwCA and reference is a big file.
@@ -356,5 +363,17 @@ function run_utility($resource_id)
     echo "\nundefined target occurrence [$resource_id]:" . count(@$ret['undefined target occurrence'])."\n";
     return $ret;
     // ===================================== */
+}
+function get_latest_globi_snapshot()
+{
+    $url = "https://www.globalbioticinteractions.org/data";
+    if($html = Functions::lookup_with_cache($url, array('expire_seconds' => 60*60*24*1))) {
+        if(preg_match_all("/<a href=\"(.*?)\"/ims", $html, $arr)) {
+            // print_r($arr[1]); exit;
+            foreach($arr[1] as $href) {
+                if(strpos($href, "SNAPSHOT-darwin-core-aggregated.zip") !== false) return $href; //string is found
+            }
+        }
+    }
 }
 ?>
