@@ -268,7 +268,7 @@ class GBIFCountryTypeRecordAPI
     {
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $rec["taxon_id"];
-        $taxon->scientificName  = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"];
+        $taxon->scientificName  = self::clean_sciname((string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
         $taxon->kingdom         = (string) $rec["http://rs.tdwg.org/dwc/terms/kingdom"];
         $taxon->phylum          = (string) $rec["http://rs.tdwg.org/dwc/terms/phylum"];
         $taxon->class           = (string) $rec["http://rs.tdwg.org/dwc/terms/class"];
@@ -315,7 +315,7 @@ class GBIFCountryTypeRecordAPI
         $taxon_id = md5($species);
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $taxon_id;
-        $taxon->scientificName  = $species;
+        $taxon->scientificName  = self::clean_sciname($species);
         $taxon->kingdom         = (string) $rec["http://rs.tdwg.org/dwc/terms/kingdom"];
         $taxon->phylum          = (string) $rec["http://rs.tdwg.org/dwc/terms/phylum"];
         $taxon->class           = (string) $rec["http://rs.tdwg.org/dwc/terms/class"];
@@ -335,7 +335,7 @@ class GBIFCountryTypeRecordAPI
         $synonym_taxon_id = md5($sciname);
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $synonym_taxon_id;
-        $taxon->scientificName  = $sciname;
+        $taxon->scientificName  = self::clean_sciname($sciname);
         $taxon->taxonRank       = strtolower((string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"]);
         $taxon->taxonomicStatus     = "synonym";
         $taxon->acceptedNameUsageID = $taxon_id;
@@ -343,6 +343,11 @@ class GBIFCountryTypeRecordAPI
             $this->taxon_ids[$taxon->taxonID] = '';
             $this->archive_builder->write_object_to_file($taxon);
         }
+    }
+    private function clean_sciname($name) //https://eol-jira.bibalex.org/browse/DATA-1549?focusedCommentId=66627&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66627
+    {
+        $name = str_replace(array("?", '"', "'"), "", $name);
+        return $name;
     }
     /*
     Hi Jen,
@@ -920,7 +925,11 @@ class GBIFCountryTypeRecordAPI
             $o->verbatimElevation   = $rec["http://rs.tdwg.org/dwc/terms/verbatimElevation"];
             $o->occurrenceRemarks   = $rec["http://rs.tdwg.org/dwc/terms/occurrenceRemarks"];
             // */
-            $o->sex                 = self::get_uri((string) $rec["http://rs.tdwg.org/dwc/terms/sex"], "sex");
+            
+            // /*
+            $sex = self::get_uri((string) $rec["http://rs.tdwg.org/dwc/terms/sex"], "sex");
+            $o->sex = $sex == "http://eol.org/schema/terms/unknown" ? "" : $sex;
+            // */
 
             $day = ""; $month = ""; $year = "";
             if($val = $rec["http://rs.tdwg.org/dwc/terms/eventDate"]) {
@@ -982,12 +991,19 @@ class GBIFCountryTypeRecordAPI
             elseif($sex == "META-YOUNG")                        $lifestage = "YOUNG";
             elseif(in_array($sex, array("JUVENILE", "JUV")))    $lifestage = "JUVENILE";
             if($val = $lifestage) {
-                $o->lifeStage = self::get_uri($val, "lifeStage");
+                // /*
+                $lifeStage = self::get_uri($val, "lifeStage");
+                $o->lifeStage = $lifeStage == "http://eol.org/schema/terms/unknown" ? "" : $lifeStage;
+                // */
+                
                 // /* per https://eol-jira.bibalex.org/browse/DATA-1549?focusedCommentId=65758&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65758
                 if(strtolower($o->lifeStage) == 'copula') $o->lifeStage = 'http://www.ebi.ac.uk/efo/EFO_0001272'; //adult
                 // */
             }
-            else                    $o->sex       = self::get_uri($sex, "sex");
+            else {
+                $sex = self::get_uri($sex, "sex");
+                $o->sex = $sex == "http://eol.org/schema/terms/unknown" ? "" : $sex;
+            }
             
             $o->identifiedBy                = $rec["http://rs.tdwg.org/dwc/terms/identifiedBy"];
             $o->reproductiveCondition       = $rec["http://rs.tdwg.org/dwc/terms/reproductiveCondition"];
