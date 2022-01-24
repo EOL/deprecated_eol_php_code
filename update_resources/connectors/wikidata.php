@@ -39,6 +39,7 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 -> steady increase OK
 71	Sun 2021-09-05 01:41:01 PM	     {"agent.tab":367898, "media_resource.tab":1486900, "taxon.tab":150220, "vernacular_name.tab":918796, "time_elapsed":{"sec":177607.13, "min":2960.12, "hr":49.34, "day":2.06}} consistent increase
 -> good increase since fixing/updating the ranges
+71	Mon 2022-01-24 05:48:29 AM	     {"agent.tab":392784, "media_resource.tab":1549432, "taxon.tab":162683, "vernacular_name.tab":991723, "time_elapsed":{"sec":179080.86, "min":2984.68, "hr":49.74, "day":2.07}} consistent OK
 
 *this one (71_new) eventually becomes 71.tar.gz
 71_new	Wednesday 2018-10-17 05:10:07 AM{"agent.tab": 22435,"media_resource.tab": 956972,"taxon.tab": 90844}
@@ -69,6 +70,7 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71_new	Mon 2021-06-07 11:08:54 PM	    {"agent.tab":357556, "media_resource.tab":1467878, "taxon.tab":148596, "time_elapsed":false}
 -> steady increase OK
 71_new	Sun 2021-09-05 02:09:57 PM	    {"agent.tab":367898, "media_resource.tab":1486900, "taxon.tab":150220, "time_elapsed":false}
+71_new	Mon 2022-01-24 06:18:22 AM	    {"agent.tab":392784, "media_resource.tab":1549432, "taxon.tab":162683, "time_elapsed":false} consistent OK
 
 when doing tests locally:
 php update_resources/connectors/wikidata.php _ generate_resource
