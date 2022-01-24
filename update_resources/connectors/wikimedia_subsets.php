@@ -31,6 +31,7 @@ wikimedia_comnames	Fri 2021-02-12 07:43:51 PM	    {"taxon.tab":145396, "vernacul
 wikimedia_comnames	Sat 2021-04-10 05:33:14 AM	    {"taxon.tab":147435, "vernacular_name.tab":893189, "time_elapsed":false} consistent OK
 wikimedia_comnames	Mon 2021-06-07 10:48:22 PM	    {"taxon.tab":148596, "vernacular_name.tab":899297, "time_elapsed":false}
 wikimedia_comnames	Sun 2021-09-05 01:47:50 PM	    {"taxon.tab":150220, "vernacular_name.tab":918796, "time_elapsed":false} big increase since fixing ranges
+wikimedia_comnames	Mon 2022-01-24 05:55:59 AM	    {"taxon.tab":162683, "vernacular_name.tab":991723, "time_elapsed":false}
 */
 
 // ini_set('error_reporting', E_ALL);
