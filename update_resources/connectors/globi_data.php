@@ -365,15 +365,27 @@ function run_utility($resource_id)
     // ===================================== */
 }
 function get_latest_globi_snapshot()
-{
+{   // 1st option
     $url = "https://www.globalbioticinteractions.org/data";
-    if($html = Functions::lookup_with_cache($url, array('expire_seconds' => 60*60*24*1))) {
-        if(preg_match_all("/<a href=\"(.*?)\"/ims", $html, $arr)) {
-            // print_r($arr[1]); exit;
+    if($html = Functions::lookup_with_cache($url, array('expire_seconds' => 0))) {
+        if(preg_match_all("/<a href=\"(.*?)\"/ims", $html, $arr)) { // print_r($arr[1]); exit;
             foreach($arr[1] as $href) {
-                if(strpos($href, "SNAPSHOT-darwin-core-aggregated.zip") !== false) return $href; //string is found
+                if(strpos($href, "SNAPSHOT-darwin-core-aggregated.zip") !== false) { //string is found
+                    $sought_file1 = $href;
+                    break;
+                }
             }
         }
     }
+    // 2nd option: https://www.globalbioticinteractions.org/data.tsv (from Joritt)
+    $url = "https://www.globalbioticinteractions.org/data.tsv";
+    $arr = file($url); // print_r($arr); exit;
+    foreach($arr as $row) {
+        $arr = explode("\t", $row);
+        if($arr[0] == "dwca-by-study.zip") { // print_r($arr);
+            $sought_file2 = $arr[2];
+        }
+    }
+    if($sought_file1 == $sought_file2) return $sought_file2;
 }
 ?>
