@@ -269,6 +269,7 @@ class GBIFCountryTypeRecordAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $rec["taxon_id"];
         $taxon->scientificName  = self::clean_sciname((string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
+        if(!$taxon->scientificName) return;
         $taxon->kingdom         = (string) $rec["http://rs.tdwg.org/dwc/terms/kingdom"];
         $taxon->phylum          = (string) $rec["http://rs.tdwg.org/dwc/terms/phylum"];
         $taxon->class           = (string) $rec["http://rs.tdwg.org/dwc/terms/class"];
@@ -316,6 +317,7 @@ class GBIFCountryTypeRecordAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $taxon_id;
         $taxon->scientificName  = self::clean_sciname($species);
+        if(!$taxon->scientificName) return;
         $taxon->kingdom         = (string) $rec["http://rs.tdwg.org/dwc/terms/kingdom"];
         $taxon->phylum          = (string) $rec["http://rs.tdwg.org/dwc/terms/phylum"];
         $taxon->class           = (string) $rec["http://rs.tdwg.org/dwc/terms/class"];
@@ -336,6 +338,7 @@ class GBIFCountryTypeRecordAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $synonym_taxon_id;
         $taxon->scientificName  = self::clean_sciname($sciname);
+        if(!$taxon->scientificName) return;
         $taxon->taxonRank       = strtolower((string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"]);
         $taxon->taxonomicStatus     = "synonym";
         $taxon->acceptedNameUsageID = $taxon_id;
@@ -347,7 +350,21 @@ class GBIFCountryTypeRecordAPI
     private function clean_sciname($name) //https://eol-jira.bibalex.org/browse/DATA-1549?focusedCommentId=66627&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66627
     {
         $name = str_replace(array("?", '"', "'"), "", $name);
+        //--------------------------
+        /* "(Archaeidae)" ->  I think for cases where there's just one string, all in parentheses,
+                              the parentheses can just be stripped and the string used as is. https://eol-jira.bibalex.org/browse/DATA-1549?focusedCommentId=66629&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66629
+        */
+        if(self::just_one_word($name)) $name = str_replace(array("(", ")"), "", $name);
+        //--------------------------
+        if(ctype_digit($name[0])) return false; //exclude if first char is digit
+        //--------------------------
         return $name;
+    }
+    private function just_one_word($name)
+    {
+        $arr = explode(" ", $name);
+        if(count($arr) == 1) return true;
+        else return false;
     }
     /*
     Hi Jen,
