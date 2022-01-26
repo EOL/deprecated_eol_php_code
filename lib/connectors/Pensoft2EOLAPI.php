@@ -1230,6 +1230,13 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     }
     private function noParentTerms_less_entities_file()
     {   echo "\nCleaning noParentTerms...\n";
+        
+        /*
+        WILL WAIT FOR JEN'S DECISION ON THE FATE OF THE ENTITIES FILE.
+        BEC. RIGHT NOW THERE ARE ITEMS IN ENTITIES THAT ARE NOT IN EOL TERMS FILE.
+        I WILL LEAVE ENTITIES FILE AS IS FOR NOW...
+        */
+        
         /* step 1: get_envo_from_entities_file */
         $envo_from_entities = self::get_envo_from_entities_file();
         // print_r($envo_from_entities); exit;
