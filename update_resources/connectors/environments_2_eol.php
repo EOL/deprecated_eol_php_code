@@ -354,6 +354,8 @@ after DATA-1893:
 826_ENV	Wed 2022-01-12 06:39:25 AM	{"agent.tab":144, "MoF.tab":62, "media.tab":609, "occur.tab":62, "reference.tab":48, "taxon.tab":208, "time_elapsed":{"sec":97.03, "min":1.62, "hr":0.03}}
 
 830_ENV	Wed 2022-01-12 08:03:26 AM	{"agent.tab":43, "MoF.tab":11, "media.tab":62, "occur.tab":11, "reference.tab":13, "taxon.tab":39, "time_elapsed":{"sec":42.85, "min":0.71, "hr":0.01}}
+830_ENV	Wed 2022-01-26 07:41:30 AM	{"agent.tab":43, "MoF.tab":10, "media.tab":62, "occur.tab":10, "reference.tab":13, "taxon.tab":39, "time_elapsed":{"sec":11.82, "min":0.2, "hr":0}} Mac Mini
+
 798_ENV	Wed 2022-01-12 08:03:31 AM	{"agent.tab":17, "MoF.tab":18, "media.tab":66, "occur.tab":18, "reference.tab":11, "taxon.tab":22, "time_elapsed":{"sec":41.55, "min":0.69, "hr":0.01}}
 834_ENV	Wed 2022-01-12 08:05:54 AM	{"agent.tab":22, "MoF.tab":158, "media.tab":230, "occur.tab":158, "reference.tab":11, "taxon.tab":90, "time_elapsed":{"sec":127.39, "min":2.12, "hr":0.04}}
 792_ENV	Wed 2022-01-12 08:05:31 AM	{"agent.tab":27, "MoF.tab":123, "media.tab":280, "occur.tab":123, "reference.tab":17, "taxon.tab":108, "time_elapsed":{"sec":175.75, "min":2.93, "hr":0.05}}
