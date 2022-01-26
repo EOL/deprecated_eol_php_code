@@ -60,6 +60,7 @@ applications/xls2EOL/xml/*.xml
 applications/xls2dwca_jenkins/temp/*
 applications/specimen_export/temp/*
 applications/specimen_image_export/temp/*
+applications/trait_data_import/temp/*
 applications/specimen_export/zdev_samples/*
 applications/specimen_export/zbak/*
 applications/BOLD2iNAT/temp/*
