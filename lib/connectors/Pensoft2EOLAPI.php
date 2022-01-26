@@ -620,6 +620,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 }
                 else $arr = array($basename, '', '', $label, $uri, $rek['ontology'], ""); //7th param is mType
                 
+                /*===== CUSTOMIZE START =====*/
                 // /* DATA-1893 - a provision to assign measurementType as early as this stage
                 if(!in_array($this->param['resource_id'], array('617_ENV'))) { //excluding Wikipedia EN for now
                     if($assignment = @$this->new_patterns[$label]) {
@@ -630,10 +631,11 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 
                 // /* for all resources: exclude terms not in EOL terms file
                 if(!isset($this->allowed_terms_URIs[$uri])) {
-                    echo "\n----------------------------------------\nhuli ka!\n"; print_r($rek); echo "\n----------------------------------------\n";
+                    echo "\n-----------------\nhuli ka! NOT FOUND IN EOL TERMS FILE\n"; print_r($rek); print_r($ret); print_r($arr); echo "-----------------\n";
                     continue;
                 }
                 // */
+                /*===== CUSTOMIZE END =====*/
                 
                 fwrite($f, implode("\t", $arr)."\n");
             }
