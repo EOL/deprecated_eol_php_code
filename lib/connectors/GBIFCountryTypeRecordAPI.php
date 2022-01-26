@@ -349,22 +349,50 @@ class GBIFCountryTypeRecordAPI
     }
     private function clean_sciname($name) //https://eol-jira.bibalex.org/browse/DATA-1549?focusedCommentId=66627&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66627
     {
-        $name = str_replace(array("?", '"', "'"), "", $name);
+        $name = str_replace(array("?", '"', "'"), "", trim($name));
         //--------------------------
         /* "(Archaeidae)" ->  I think for cases where there's just one string, all in parentheses,
                               the parentheses can just be stripped and the string used as is. https://eol-jira.bibalex.org/browse/DATA-1549?focusedCommentId=66629&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66629
         */
-        if(self::just_one_word($name)) $name = str_replace(array("(", ")"), "", $name);
+        /*Sure- two of your own examples above qualify for removal: CASE 1
+        (Blattoidea) melanderi
+        (Protoblattoidea)? minor
+
+        The other two categories are:
+        The entire string is inside parentheses, eg: (Archaeidae) => Archaeidae --- CASE 2
+        AND
+        Subgenus usage, which can be modeled as: --- CASE 3
+        string1 (string2) string3
+        There might be additional strings following- subspecies name and/or authority information- but if there are at least 3 strings, 
+        and only the second one is in parentheses, the record is probably a legit subgenus usage and requires no intervention.
+        */
+        
+        if(self::get_number_of_words($name) == 1) $name = str_replace(array("(", ")"), "", $name); //CASE 2
+        elseif(self::get_number_of_words($name) == 2 && self::there_is_string_inside_and_outside_parenthesis($name)) return false; //CASE 1
+        elseif(self::get_number_of_words($name) >= 3) {} //leave as is --- CASE 3
         //--------------------------
         if(ctype_digit($name[0])) return false; //exclude if first char is digit
+        if(stripos($name, " egg") !== false) return false; //string is found e.g. "'trilobite eggs'"
         //--------------------------
         return $name;
     }
-    private function just_one_word($name)
+    private function there_is_string_inside_and_outside_parenthesis($name)
     {
-        $arr = explode(" ", $name);
-        if(count($arr) == 1) return true;
-        else return false;
+        if(preg_match_all("/\((.*?)\)/ims", $name, $arr)) { //there is/are set of parenthesis
+            $results = $arr[1];
+            if(count($results) == 1) {
+                if($results[0]) { //there is something inside the parenthesis
+                    $tmp = str_replace("(".$results[0].")", "", $name); //remove the parenthesis first to check if there are other strings outside parenthesis
+                    if(trim($tmp)) return true;
+                }
+            }
+            else return true; //more than 1 set of parenthesis e.g. should be like this at this point: "(string1) (string2)"
+        }
+    }
+    private function get_number_of_words($name)
+    {
+        $arr = explode(" ", Functions::remove_whitespace($name));
+        return count($arr);
     }
     /*
     Hi Jen,
