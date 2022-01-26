@@ -35,5 +35,25 @@ class Functions_Pensoft
             $this->new_patterns[$rec['string']] = array('mType' => $rec['measurementType'], 'mValue' => $rec['measurementValue']);
         }
     }
+    function get_allowed_value_type_URIs_from_EOL_terms_file()
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24*1; //1 day expires
+        if($yml = Functions::lookup_with_cache("https://raw.githubusercontent.com/EOL/eol_terms/main/resources/terms.yml", $options)) {
+            /*  type: value
+                uri: http://eol.org/schema/terms/neohapantotype
+                parent_uris:        */
+            if(preg_match_all("/type\: value(.*?)parent_uris\:/ims", $yml, $a)) {
+                $arr = array_map('trim', $a[1]); // print_r($arr); exit;
+                foreach($arr as $line) {
+                    $uri = str_replace("uri: ", "", $line);
+                    $final[$uri] = '';
+                }
+            }
+            else exit("\nInvestigate: EOL terms file structure had changed.\n");
+        }
+        else exit("\nInvestigate: EOL terms file not accessible.\n");
+        return $final;
+    }
 }
 ?>

@@ -125,6 +125,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         */
         $this->initialize_new_patterns();         //generates $this->new_patterns   -> used in xxx() --- DATA-1893
         // echo("\n new_patterns: "  .count($this->new_patterns)."\n"); print_r($this->new_patterns); exit;
+        $this->allowed_terms_URIs = self::get_allowed_value_type_URIs_from_EOL_terms_file(); //print_r($this->allowed_terms_URIs); exit("\n".count($this->allowed_terms_URIs)."\n");
     }
     function generate_eol_tags_pensoft($resource, $timestart = '', $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
     {   //print_r($this->param); exit;
@@ -624,6 +625,13 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                     if($assignment = @$this->new_patterns[$label]) {
                         $arr = array($basename, '', '', $label, $assignment['mValue'], $rek['ontology'], $assignment['mType']);
                     }
+                }
+                // */
+                
+                // /* for all resources: exclude terms not in EOL terms file
+                if(!isset($this->allowed_terms_URIs[$uri])) {
+                    echo "\n----------------------------------------\nhuli ka!\n"; print_r($rek); echo "\n----------------------------------------\n";
+                    continue;
                 }
                 // */
                 
