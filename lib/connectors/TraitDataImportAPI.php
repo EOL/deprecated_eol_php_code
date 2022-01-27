@@ -1,7 +1,9 @@
 <?php
 namespace php_active_record;
 /* ALL THIS FROM COPIED TEMPLATE: MarineGEOAPI.php
-connectors: [marine_geo.php] [marine_geo_image.php] https://eol-jira.bibalex.org/browse/COLLAB-1004 */
+connectors: [marine_geo.php] [marine_geo_image.php] https://eol-jira.bibalex.org/browse/COLLAB-1004
+real connector now: [trait_data_import.php] DATA-1882: spreadsheet to DwC-A widget
+*/
 class TraitDataImportAPI
 {
     function __construct($app)
@@ -18,30 +20,18 @@ class TraitDataImportAPI
         $this->api['coll_num'] = 'http://www.boldsystems.org/index.php/API_Public/specimen?ids=COLL_NUM&format=json';
         
         /* ============================= START for specimen_export ============================= */
-        if($app == 'specimen_export') {
-            $this->input['path'] = DOC_ROOT.'/applications/specimen_export/temp/'; //input.xlsx
-            $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO/";
-            $this->input['worksheets'] = array('Voucher Data', 'Specimen Details', 'Taxonomy Data', 'Collection Data');
-            /* Labels specimen export
-            e.g. 'Voucher Data' -> from input.xlsx
-                 'Specimen Info Metadata' = array() -> from output.xls */
-            $this->labels['Voucher Data']['Specimen Info Metadata'] = array('Sample ID','Field ID','Museum ID','Collection Code','Institution Storing');
-            $this->labels['Taxonomy Data']['Taxonomy Metadata'] = array('Sample ID','Phylum','Class','Order','Family','Subfamily','Tribe','Genus','Species','Subspecies','Identifier','Identifier Email');
-            $this->labels['Taxonomy Data']['Extended Fields (BOLD 3.1)'] = array('Identification Method','Taxonomy Notes');
-            $this->labels['Specimen Details']['Specimen Details Metadata'] = array('Sample ID','Sex','Reproduction','Life Stage','Extra Info','Notes');
-            $this->labels['Specimen Details']['Specimen Details Metadata Extended Fields (BOLD 3.1)'] = array('Voucher Status','Tissue Descriptor','External URLs','Associated Taxa','Associated Specimens');
-            $this->labels['Collection Data']['Collection Info Metadata'] = array('Sample ID','Collectors','Collection Date','Country/Ocean','State/Province','Region','Sector','Exact Site','Lat','Lon','Elev');
-            $this->labels['Collection Data']['Collection Info Metadata Extended Fields (BOLD 3.1)'] = array('Depth','Elevation Precision','Depth Precision','GPS Source','Coordinate Accuracy','Event Time','Collection Date Accuracy','Habitat','Sampling Protocol','Collection Notes','Site Code','Collection Event ID');
-        }
+        if($app == 'specimen_export') {}
         /* ============================= END for specimen_export ============================= */
 
         /* ============================= START for image_export ============================= */
         if($app == 'specimen_image_export') {
-            $this->input['path'] = DOC_ROOT.'/applications/specimen_image_export/temp/'; //input.xlsx
+            // $this->input['path'] = DOC_ROOT.'/applications/specimen_image_export/temp/'; //input.xlsx
+            $this->input['path'] = DOC_ROOT.'/applications/trait_data_import/temp/'; //input.xlsx
             $dir = $this->input['path'];
             if(!is_dir($dir)) mkdir($dir);
             
-            $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO_sie/";
+            // $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO_sie/";
+            $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/";
             $dir = $this->resources['path'];
             if(!is_dir($dir)) mkdir($dir);
             
@@ -143,8 +133,12 @@ class TraitDataImportAPI
             $this->labels['Sheet1'] = array('Lab Sheet' => $this->labels_Lab_Sheet, 'Sheet1' => $this->labels['Sheet1']['MOOP']);
             // print_r($this->labels); exit;
         }
+        /* copied template
         require_library('MarineGEO_XLSParser');
         $parser = new MarineGEO_XLSParser($this->labels, $this->resource_id, $this->app);
+        */
+        require_library('TraitDataImport_XLSParser');
+        $parser = new TraitDataImport_XLSParser($this->labels, $this->resource_id, $this->app);
         if($this->app == 'specimen_export') $parser->create_specimen_export(); //creates to final xls
         elseif($this->app == 'specimen_image_export') $parser->create_specimen_image_export(); //creates the final xls
     }
