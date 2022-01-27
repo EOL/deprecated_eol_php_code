@@ -48,14 +48,6 @@ class TraitDataImportAPI
             $this->labels['Sheet1']['MOOP'] = array('Image File', 'Original Specimen', 'View Metadata', 'Caption', 'Measurement', 'Measurement Type', 'Sample Id', 'Process Id', 'License Holder', 'License', 'License Year', 'License Institution', 'License Contact', 'Photographer');
             $this->labels_Lab_Sheet = array('Process ID', 'Sample ID', 'Field ID');
             */
-            $this->api['BOLDS specimen'] = "http://www.boldsystems.org/index.php/API_Public/specimen?container=PROJECT_CODE&format=tsv";
-            
-            $this->dept_map['FISH'] = 'fishes';
-            $this->dept_map['MAMMALS'] = 'mammals';
-            $this->dept_map['HERPS'] = 'herps'; //Amphibians & Reptiles
-            $this->dept_map['BIRDS'] = 'birds';
-            $this->dept_map['BOTANY'] = 'botany';
-            $this->dept_map['PALEOBIOLOGY'] = 'paleo';
         }
         /* ============================= END for image_export ============================= */
     }
@@ -132,18 +124,20 @@ class TraitDataImportAPI
     /* =======================================START create output file======================================= */
     private function create_output_file()
     {
+        /* copied template
         if($this->app == 'specimen_image_export') {
             $this->labels['Sheet1'] = array('Lab Sheet' => $this->labels_Lab_Sheet, 'Sheet1' => $this->labels['Sheet1']['MOOP']);
             // print_r($this->labels); exit;
         }
-        /* copied template
         require_library('MarineGEO_XLSParser');
         $parser = new MarineGEO_XLSParser($this->labels, $this->resource_id, $this->app);
-        */
-        require_library('TraitDataImport_XLSParser');
-        $parser = new TraitDataImport_XLSParser($this->labels, $this->resource_id, $this->app);
         if($this->app == 'specimen_export') $parser->create_specimen_export(); //creates to final xls
         elseif($this->app == 'specimen_image_export') $parser->create_specimen_image_export(); //creates the final xls
+        */
+        
+        // /* trait data import does not create XML but rather DwCA
+        self::create_DwCA();
+        // */
     }
     /* ========================================END create output file======================================== */
     private function read_input_file($input_file)
@@ -251,39 +245,6 @@ class TraitDataImportAPI
         }
         return $output_rec;
     } */
-    private function construct_output_image($sheet_name, $field, $input_rec)
-    {   //echo "\n[$sheet_name]\n"; echo "\n[$field]\n"; print_r($input_rec); exit;
-        /*  [Sheet1]
-            [Image File]
-            Array(
-                [IRB] => 12307479
-                [Description] => TL=457.2 mm. Photographed during Kaneohe Bay, Hawaii, Bioblitz expedition, 2017. Specimen voucher field number: KB17-032
-                [Title: (Resource Information)] => Diodon hystrix USNM 442206 photograph dorsal view
-                [Creator: (Resource Information)] => Parenti, Lynne R.
-            )
-        */
-        $ret_Title = self::parse_Title($input_rec['Title: (Resource Information)']);
-        $ret_Desc = self::parse_Description($input_rec['Description']);
-        $ret_Creator = self::parse_Creator($input_rec['Creator: (Resource Information)']);
-        switch ($field) {
-            case "Image File";          return "https://collections.nmnh.si.edu/search/".$this->dept_map[$this->manual_entry->Dept]."/search.php?action=10&width=640&irn=".$input_rec['IRB'];
-            case "Original Specimen";   return 'Yes';
-            case "View Metadata";       return $ret_Title['View Metadata'];
-            case "Caption";             return $ret_Title['Caption'];
-            case "Measurement";         return $ret_Desc['Measurement'];
-            case "Measurement Type";    return $ret_Desc['Measurement Type'];
-            case "Sample Id";           return $ret_Title['Sample Id'];
-            case "Process Id";          return $ret_Title['Process Id'];
-            case "License Holder";      return ''; //leave blank per Jira
-            case "License";             return $this->manual_entry->Lic;
-            case "License Year";        return $this->manual_entry->Lic_yr;
-            case "License Institution"; return $this->manual_entry->Lic_inst;
-            case "License Contact";     return $this->manual_entry->Lic_cont;
-            case "Photographer";        return $ret_Creator['Photographer'];
-            default:
-                exit("\nInvestigate field [$sheet_name] [$field] not defined.\n");
-        }
-    }
     /* ========================================================== START for image_export ========================================================== */
     private function generate_Lab_Sheet_Worksheet()
     {
@@ -342,15 +303,6 @@ class TraitDataImportAPI
         //----------------------------------------
         return $final;
     }
-    /*
-    private function parse_Description($orig)
-    {
-        $final = array();
-        $final['Measurement'] = "$number_str $unit";
-        $final['Measurement Type'] = $str;
-        return $final;
-    }
-    */
     private function generate_info_list_tsv($project) //e.g. $project = 'KANB'
     {
         $url = str_replace('PROJECT_CODE', $project, $this->api['BOLDS specimen']);
@@ -388,197 +340,8 @@ class TraitDataImportAPI
         return $target;
     }
     /* ========================================================== END for image_export ========================================================== */
-    
-    private function construct_output($sheet_name, $field, $input_rec)
-    {   /* Array(
-        [Collector Number: (Version 1.2 elements (2))] => KB17-277
-        [Sex: (Sex/Stage)] => F
-        [Reproduction Description] => nonreproductive
-        [Life Stage: (Version 1.3 changes (1))] => juv
-        [Kind: (Measurements Details)] => 
-        [Verbatim value: (Measurements Details)] => 
-        [Unit: (Measurements Details)] => 
-        [Note: (Note Details)] => Archival sample.
-        [Secondary Sample Type] => Fin-clip
-        [GUID: (GUIDs)] => ark:/65665/3d6ffd3e4-1188-40e4-848a-2f1dff71abe0
-        )
-        Array(
-            [0] => Sample ID
-            [1] => Sex
-            [2] => Reproduction
-            [3] => Life Stage
-            [4] => Extra Info
-            [5] => Notes
-        )
-        Array(
-            [0] => Voucher Status
-            [1] => Tissue Descriptor
-            [2] => External URLs
-            [3] => Associated Taxa
-            [4] => Associated Specimens
-        )*/
-        switch ($field) {
-            /*=====Voucher Data=====*/
-            case "Sample ID":               return $input_rec['Collector Number: (Version 1.2 elements (2))'];
-            case "Field ID":                return $input_rec['Collector Number: (Version 1.2 elements (2))'];
-            case "Museum ID":               return $input_rec['Institution Code: (Version 1.2 elements (1))'].":FISH:".$input_rec['Catalog No.Text: (MaNIS extensions (1))'];
-            case "Collection Code":         return '';
-            case "Institution Storing":     return self::map_institution_code($input_rec['Institution Code: (Version 1.2 elements (1))']);
-            /*=====Specimen Details=====*/
-            case "Sample ID":               return $input_rec['Collector Number: (Version 1.2 elements (2))'];
-            case "Sex":                     return $input_rec['Sex: (Sex/Stage)'];
-            case "Reproduction":            return $input_rec['Reproduction Description'];
-            case "Life Stage":              return $input_rec['Life Stage: (Version 1.3 changes (1))'];
-            case "Extra Info":              return ''; //No Equivalent
-            case "Notes":                   return $input_rec['Note: (Note Details)'];
-            case "Voucher Status":          return ''; //No Equivalent
-            case "Tissue Descriptor":       return ''; //to be mapped
-            case "External URLs":           return self::prepend_guids($input_rec['GUID: (GUIDs)']); //"http://n2t.net/".$input_rec['GUID: (GUIDs)'];
-            case "Associated Taxa":         return ''; //No Equivalent
-            case "Associated Specimens":    return ''; //No Equivalent
-            /*=====Taxonomy Data=====*/
-            case "Phylum":                  return $input_rec['Phylum: (Version 1.2 elements (1))'];
-            case "Class":                   return $input_rec['Class: (Version 1.2 elements (1))'];
-            case "Order":                   return $input_rec['Order: (Version 1.2 elements (1))'];
-            case "Family":                  return $input_rec['Family: (Version 1.2 elements (1))'];
-            case "Subfamily":               return ''; //No Equivalent
-            case "Tribe":                   return ''; //No Equivalent
-            case "Genus":                   return $input_rec['Genus: (Version 1.2 elements (1))'];
-            case "Species":                 return $input_rec['Species: (Version 1.2 elements (2))'];
-            case "Subspecies":              return ''; //get from API
-            case "Identifier":              return self::format_Identifier_person($input_rec['Identified By: (Version 1.2 elements (2))']);
-            case "Identifier Email":        return ''; //No Equivalent
-            case "Identification Method":   return ''; //No Equivalent
-            case "Taxonomy Notes":          return ''; //No Equivalent
-            /*=====Collection Data=====*/
-            case "Collectors":      return $input_rec['Collector: (Version 1.2 elements (2))'];
-            case "Collection Date": return self::format_Collection_Date($input_rec);
-            case "Country/Ocean":   return $input_rec['Country: (Version 1.2 elements (3))'];
-            case "State/Province":  return $input_rec['State/Province: (Version 1.2 elements (3))'];
-            case "Region":          return $input_rec['County: (Version 1.2 elements (3))'];
-            case "Sector":          return '';
-            case "Exact Site":      return $input_rec['Locality: (Version 1.2 elements (3))'];
-            case "Lat":             return $input_rec['Latitude: (Version 1.2 elements (3))'];
-            case "Lon":             return $input_rec['Longitude: (Version 1.2 elements (3))'];
-            case "Elev":            return $input_rec['Maximum Elevation: (Version 1.2 elements (4))'];
-            //2nd half
-            case "Depth":                       return $input_rec['Maximum Depth: (Version 1.2 elements (4))'];
-            case "Elevation Precision":         return self::possible_subtraction($input_rec['Maximum Elevation: (Version 1.2 elements (4))'], $input_rec['Minimum Elevation: (Version 1.2 elements (4))']);
-            case "Depth Precision":             return self::possible_subtraction($input_rec['Maximum Depth: (Version 1.2 elements (4))'], $input_rec['Minimum Depth: (Version 1.2 elements (4))']);
-            case "GPS Source":                  return ''; //to be mapped
-            case "Coordinate Accuracy":         return ''; //to be mapped
-            case "Event Time":                  return '';
-            case "Collection Date Accuracy":    return '';
-            case "Habitat":                     return '';
-            case "Sampling Protocol":           return '';
-            case "Collection Notes":            return $input_rec['Minimum Depth: (Version 1.2 elements (4))']."-".$input_rec['Maximum Depth: (Version 1.2 elements (4))']." m";
-            case "Site Code":                   return '';
-            case "Collection Event ID":         return $input_rec['Field Number: (Version 1.2 elements (2))'];
-            /*=====End=====*/
-            default:
-                exit("\nInvestigate field [$field] not defined.\n");
-        }
-    }
-    private function format_Identifier_person($person) //e.g. 'Pitassy, Diane E.'
-    {
-        if(stripos($person, ",") !== false) { //string is found
-            $arr = explode(",", $person);
-            $arr = array_map('trim', $arr);
-            return trim($arr[1]." ".$arr[0]);
-        }
-    }
-    private function map_institution_code($institution_code) //e.g. 'USNM'
-    {   /* from column: Institution Code: (Version 1.2 elements (1))
-           value: USNM
-        */
-        switch($institution_code) {
-            case "USNM": return 'Smithsonian Institution National Museum of Natural History';
-            default:
-                echo("\nInvestigate institution_code [$institution_code] no mapping yet.\n");
-                return $institution_code;
-        }
-    }
-    private function possible_subtraction($max, $min)
-    {
-        if(is_numeric($max) && is_numeric($min)) return $max - $min;
-    }
-    private function prepend_guids($guids) /* //"http://n2t.net/".$input_rec['GUID: (GUIDs)']; */
-    {
-        $arr = array();
-        $separators = array(',', ';', '|');
-        $used_separator = ",";
-        $separator_foundYN = false;
-        foreach($separators as $sep) {
-            $arr = array_merge($arr, explode($sep, $guids));
-            if(stripos($guids, $sep) !== false) { //string is found
-                $used_separator = $sep;
-                $separator_foundYN = true;
-            }
-        }
-        $arr = array_map('trim', $arr);
-        // print_r($arr);
-        $arr = array_filter($arr); //remove null arrays
-        $arr = array_unique($arr); //make unique
-        $arr = array_values($arr); //reindex key
-        // print_r($arr);
-        // if a $separator_foundYN is true, then delete from $final the original $guids
-        if($separator_foundYN) {
-            if (($key = array_search($guids, $arr)) !== false) {
-                unset($arr[$key]);
-                // print_r($arr);
-            }
-        }
-        // start prepending if value starts with "ark:/". Please pre-pend "http://n2t.net/"
-        $final = array();
-        foreach($arr as $val) {
-            if(substr($val,0,5) == 'ark:/') $final[] = "http://n2t.net/".$val;
-            else                            $final[] = $val;
-        }
-        // print_r($final);
-        return implode(" $used_separator ", $final);
-    }
-    private function format_Collection_Date($input_rec)
-    {
-        $day = $input_rec['Day Collected: (Version 1.2 elements (3))'];
-        $month = $input_rec['Month Collected: (Version 1.2 elements (3))'];
-        $year = $input_rec['Year Collected: (Version 1.2 elements (2))'];
-        if($month && $day && $year) {
-            $s = $month."/".$day."/".$year;
-            $date = strtotime($s);
-            return strtoupper(date('d-M-Y', $date));
-        }
-        elseif($month && $year) {
-            $s = $month."/"."1"."/".$year;
-            $date = strtotime($s);
-            return strtoupper(date('M-Y', $date));
-        }
-        elseif($month && $day) {
-            $s = $month."/".$day."/"."1972";
-            $date = strtotime($s);
-            return strtoupper(date('d-M', $date));
-        }
-        elseif($month) {
-            $s = $month."/"."1"."/"."1972";
-            $date = strtotime($s);
-            return strtoupper(date('M', $date));
-        }
-        elseif($year) return $year;
-        elseif($day) return $day;
-    }
-    private function search_collector_no($coll_num)
-    {
-        $url = str_replace('COLL_NUM', $coll_num, $this->api['coll_num']);
-        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            $arr = json_decode($json, true);
-            print_r($arr);
-        }
-    }
     function test() //very initial stages.
     {
-        /* may not be needed since output.xls is based on input.xls
-        $coll_num = 'KB17-277';
-        self::search_collector_no($coll_num); exit;
-        */
         /*
         if($local_xls = Functions::save_remote_file_to_local($this->ant_habitat_mapping_file, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'file_extension' => 'xlsx', 'expire_seconds' => false))) {}
         unlink($local_xls);
