@@ -125,7 +125,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         */
         $this->initialize_new_patterns();         //generates $this->new_patterns   -> used in xxx() --- DATA-1893
         // echo("\n new_patterns: "  .count($this->new_patterns)."\n"); print_r($this->new_patterns); exit;
-        $this->allowed_terms_URIs = self::get_allowed_value_type_URIs_from_EOL_terms_file(); //print_r($this->allowed_terms_URIs); exit("\n".count($this->allowed_terms_URIs)."\n");
+        $this->allowed_terms_URIs = self::get_allowed_value_type_URIs_from_EOL_terms_file(); //print_r($this->allowed_terms_URIs);
+        echo ("\nallowed_terms_URIs from EOL terms file: [".count($this->allowed_terms_URIs)."]\n");
     }
     function generate_eol_tags_pensoft($resource, $timestart = '', $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
     {   //print_r($this->param); exit;
@@ -1230,26 +1231,21 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     }
     private function noParentTerms_less_entities_file()
     {   echo "\nCleaning noParentTerms...\n";
-        
         /*
-        WILL WAIT FOR JEN'S DECISION ON THE FATE OF THE ENTITIES FILE.
-        BEC. RIGHT NOW THERE ARE ITEMS IN ENTITIES THAT ARE NOT IN EOL TERMS FILE.
-        SOME TERMS CAN BE STOPPED BY ENTITIES BUT NOT THE EOL TERMS FILE.
-        I WILL LEAVE ENTITIES FILE AS IS FOR NOW...
+        Jen has spoken, entities file is now obsolete: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=66641&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66641
         */
-        
-        /* step 1: get_envo_from_entities_file */
+        /* step 1: get_envo_from_entities_file
         $envo_from_entities = self::get_envo_from_entities_file();
         // print_r($envo_from_entities); exit;
-        /*Array(
-            [0] => _entities_3
-            [1] => ENVO_00000002
-            [2] => ENVO_00000012
-            [3] => ENVO_00000013
-            [4] => ENVO_00000014
-        */
+        // Array(
+        //     [0] => _entities_3
+        //     [1] => ENVO_00000002
+        //     [2] => ENVO_00000012
+        //     [3] => ENVO_00000013
+        //     [4] => ENVO_00000014
         foreach($envo_from_entities as $envo_term) $envoFromEntities[$envo_term] = '';
         unset($envo_from_entities);
+        */
         
         /* step 2: loop */
         if(copy($this->eol_tags_path."eol_tags_noParentTerms.tsv", $this->eol_tags_path."eol_tags_noParentTerms.tsv.old")) echo "\nCopied OK (eol_tags_noParentTerms.tsv)\n";
@@ -1276,8 +1272,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             $i++; //if(($i % $this->modulo) == 0) echo "\n".number_format($i);
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars
-            $tmp = explode("\t", $row);
-            // print_r($tmp); exit;
+            $tmp = explode("\t", $row); // print_r($tmp); exit;
             /*Array(
                 [0] => Q140_-_3534a7422ad054e6972151018c05cb38
                 [1] => 
@@ -1288,12 +1283,16 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             )*/
             
             if($tmp[5] == "envo") {
+                /* entities file now OBSOLETE
                 $envo_term = pathinfo($tmp[4], PATHINFO_BASENAME); //bec it can be "http://www.wikidata.org/entity/Q1342399" or "ENVO_01001082".
                 if(isset($envoFromEntities[$envo_term])) {
                     $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "a");
                     fwrite($f, $row."\n");
                     fclose($f);
-                }
+                } */
+                $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "a");
+                fwrite($f, $row."\n"); //echo "\n[$row]\n"; //good debug
+                fclose($f);
             }
             elseif(in_array($tmp[5], array('eol-geonames', 'growth'))) {
                 $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "a");
