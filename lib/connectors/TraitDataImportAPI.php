@@ -24,7 +24,7 @@ class TraitDataImportAPI
         /* ============================= END for specimen_export ============================= */
 
         /* ============================= START for image_export ============================= */
-        if($app == 'specimen_image_export') {
+        if($app == 'trait_data_import') {
             // $this->input['path'] = DOC_ROOT.'/applications/specimen_image_export/temp/'; //input.xlsx
             $this->input['path'] = DOC_ROOT.'/applications/trait_data_import/temp/'; //input.xlsx
             $dir = $this->input['path'];
@@ -39,26 +39,18 @@ class TraitDataImportAPI
             if(!is_dir($dir)) mkdir($dir);
             
             $this->input['worksheets'] = array('data', 'references', 'vocabulary'); //'data' is the 1st worksheet from Trait_template.xlsx
-            /* Labels specimen image export ---> DIFFERENT ORIENTATION FROM specimen_export
-            e.g. 'Sheet1' -> from image_input.xlsx
-                 'Lab Sheet' = array() -> from image_output.xls
-                 'MOOP' = array() -> from image_output.xls
-            */
-            /* copied template
-            $this->labels['Sheet1']['MOOP'] = array('Image File', 'Original Specimen', 'View Metadata', 'Caption', 'Measurement', 'Measurement Type', 'Sample Id', 'Process Id', 'License Holder', 'License', 'License Year', 'License Institution', 'License Contact', 'Photographer');
-            $this->labels_Lab_Sheet = array('Process ID', 'Sample ID', 'Field ID');
-            */
         }
         /* ============================= END for image_export ============================= */
     }
     function start($filename = false, $form_url = false, $uuid = false, $json = false)
     {
-        if($this->app == 'specimen_image_export') {
+        /* copied template
+        if($this->app == 'trait_data_import') {
             if($json) {
-                $this->manual_entry = json_decode($json); //for specimen_image_export
-                // self::generate_info_list_tsv($this->manual_entry->Proj); --- copied
+                $this->manual_entry = json_decode($json);
+                self::generate_info_list_tsv($this->manual_entry->Proj);
             }
-        }
+        } */
         
         // /* for $form_url:
         if($form_url && $form_url != '_') $filename = self::process_form_url($form_url, $uuid); //this will download (wget) and save file in /specimen_export/temp/
@@ -124,17 +116,6 @@ class TraitDataImportAPI
     /* =======================================START create DwCA ======================================= */
     private function create_output_file()
     {
-        /* copied template
-        if($this->app == 'specimen_image_export') {
-            $this->labels['Sheet1'] = array('Lab Sheet' => $this->labels_Lab_Sheet, 'Sheet1' => $this->labels['Sheet1']['MOOP']);
-            // print_r($this->labels); exit;
-        }
-        require_library('MarineGEO_XLSParser');
-        $parser = new MarineGEO_XLSParser($this->labels, $this->resource_id, $this->app);
-        if($this->app == 'specimen_export') $parser->create_specimen_export(); //creates to final xls
-        elseif($this->app == 'specimen_image_export') $parser->create_specimen_image_export(); //creates the final xls
-        */
-        
         // /* trait data import does not create XML but rather DwCA
         self::create_DwCA();
         // */
@@ -156,7 +137,6 @@ class TraitDataImportAPI
         $sheet_names = $this->input['worksheets'];
         foreach($sheet_names as $sheet_name) self::read_worksheet($sheet_name, $input_file, $parser);
         
-        // if($this->app == 'specimen_image_export') self::generate_Lab_Sheet_Worksheet(); --- copied
     }
     private function read_worksheet($sheet_name, $input_file, $parser)
     {
@@ -230,84 +210,6 @@ class TraitDataImportAPI
         fwrite($WRITE, implode("\t", $save) . "\n");
         fclose($WRITE);
     }
-    /* copied
-    private function compute_output_rec($input_rec, $sheet_name)
-    {
-        $output_rec = array();
-        $subheads = array_keys($this->labels[$sheet_name]);
-        foreach($subheads as $subhead) {
-            $fields = $this->labels[$sheet_name][$subhead]; //print_r($fields); exit;
-            foreach($fields as $field) {
-                if($this->app == 'specimen_export') $output_rec[$field] = self::construct_output($sheet_name, $field, $input_rec);
-                else                                $output_rec[$field] = self::construct_output_image($sheet_name, $field, $input_rec);
-            }
-        }
-        // print_r($output_rec); exit("\nstopx\n");
-        if($this->app == 'specimen_image_export') {
-            // echo "\n$sheet_name\n"; print_r($output_rec); //good debug
-            $this->save_ProcessID_from_MOOP[$output_rec['Process Id']] = '';
-        }
-        return $output_rec;
-    } */
-    /* ========================================================== START for image_export ========================================================== */
-    private function generate_Lab_Sheet_Worksheet()
-    {
-        $this->info_catalognum = NULL; //purge
-        $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", 'Lab_Sheet').".txt";
-        $fields = $this->labels_Lab_Sheet;
-        $WRITE = Functions::file_open($filename, "w");
-        fwrite($WRITE, implode("\t", $fields) . "\n");
-        if($loop = @$this->info_processid) {
-            foreach($loop as $processid => $rek) {
-                if(isset($this->save_ProcessID_from_MOOP[$processid])) { //this will limit only 'Process Id' that appears in MOOP.
-                    $save = array($processid, $rek['sampleid'], $rek['fieldnum']);
-                    fwrite($WRITE, implode("\t", $save) . "\n");
-                }
-            }
-        }
-        fclose($WRITE);
-    }
-    private function parse_Creator($str)
-    {
-        /* Photographer:
-        from the image_input file, column "Creator: (Resource Information)", take the whole string. If it contains a comma followed by a space (only once in the string), 
-        use this as a separator, reverse the order of the segments, and separate them by a space, eg: "Pitassy, Diane E." -> "Diane E. Pitassy". 
-        If the string contains multiple commas, just leave it as is. */
-        // $str = "Parenti, Lynne R., Eli"; //debug only
-        $arr = explode(",", $str);
-        $arr = array_map('trim', $arr);
-        if(count($arr) <= 2) $final['Photographer'] = trim($arr[1].' '.$arr[0]);
-        else $final['Photographer'] = $str;
-        return $final;
-    }
-    private function parse_Title($str)
-    {   /* View Metadata:
-        from the image_input file, column "Title: (Resource Information)", everything that follows the string " photograph ", 
-        eg: for "Diodon hystrix USNM 442206 photograph dorsal view", -> "dorsal view" */
-        $arr = explode("photograph", $str);
-        $final['View Metadata'] = trim($arr[count($arr)-1]);
-        //----------------------------------------
-        /* Caption:
-        from the image_input file, column "Title: (Resource Information)", everything that follows the string "USNM", but include the string itself, 
-        eg: "Diodon hystrix USNM 442206 photograph dorsal view", -> "USNM 442206 photograph dorsal view" */
-        $arr = explode("USNM", $str);
-        $final['Caption'] = 'USNM '.trim($arr[count($arr)-1]);
-        //----------------------------------------
-        /* Sample ID:
-        from the image_input file, column "Title: (Resource Information)", find the number that follows the string "USNM". Using the string menu-selected for Department by the user, 
-        construct a triple of the form: "USNM:FISH:442211". Then, in the BOLD API result, find the row containing that triple. Take the string from the "sampleid" column.
-        */
-        if(preg_match_all('((?:[0-9]+,)*[0-9]+(?:\.[0-9]+)?)', $final['Caption'], $arr)) {
-            $numerical_part = $arr[0][0];
-            $triple = "USNM:".$this->manual_entry->Dept.":$numerical_part";
-            $ret = @$this->info_catalognum[$triple]; //catalognum from API is the $triple
-            $final['Sample Id'] = @$ret['sampleid'];
-            $final['Process Id'] = @$ret['processid'];
-        }
-        //----------------------------------------
-        return $final;
-    }
-    /* ========================================================== END for image_export ========================================================== */
     function test() //very initial stages.
     {
         /*
