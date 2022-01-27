@@ -47,8 +47,8 @@ $json = '{"Proj":"'.$form['Proj'].'", "Dept":"'.$dept_map[$form['Dept']].'"
          , "Proj_refresh":"'.$Proj_refresh.'"
          , "Lic":"'.$form['Lic'].'", "Lic_yr":"'.$form['Lic_yr'].'", "Lic_inst":"'.$form['Lic_inst'].'", "Lic_cont":"'.$form['Lic_cont'].'"}';
 $params['json'] = $json;
-
-   // $params['destination'] = $for_DOC_ROOT . "/applications/specimen_image_export/" . $newfile;
+// exit("\n$json\n");
+   // $params['destination'] = $for_DOC_ROOT . "/applications/specimen_image_export/" . $newfile; --- copied template
    $params['destination'] = $for_DOC_ROOT . "/applications/trait_data_import/" . $newfile;
    //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here. So use $for_DOC_ROOT instead.
 
@@ -64,6 +64,10 @@ echo "<hr>"; //exit;
 
 // php update_resources/connectors/marine_geo_image.php _ image_input.xlsx _ _ '$json'
 // php update_resources/connectors/marine_geo_image.php _ _ 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO/image_input.xlsx' uuid001 '$json'
+
+/* for command-line development
+php update_resources/connectors/trait_data_import.php _ Trait_template.xlsx _ _ '{"Proj":"KANB", "Proj_refresh":"0"}'
+*/
 
 $newfile = pathinfo($newfile, PATHINFO_BASENAME);
 /* copied template

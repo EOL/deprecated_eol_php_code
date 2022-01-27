@@ -38,14 +38,16 @@ class TraitDataImportAPI
             $dir = $this->resources['path'].'TSVs';
             if(!is_dir($dir)) mkdir($dir);
             
-            $this->input['worksheets'] = array('Sheet1');
+            $this->input['worksheets'] = array('data', 'references'); //'data' is the 1st worksheet from Trait_template.xlsx
             /* Labels specimen image export ---> DIFFERENT ORIENTATION FROM specimen_export
             e.g. 'Sheet1' -> from image_input.xlsx
                  'Lab Sheet' = array() -> from image_output.xls
                  'MOOP' = array() -> from image_output.xls
             */
+            /* copied template
             $this->labels['Sheet1']['MOOP'] = array('Image File', 'Original Specimen', 'View Metadata', 'Caption', 'Measurement', 'Measurement Type', 'Sample Id', 'Process Id', 'License Holder', 'License', 'License Year', 'License Institution', 'License Contact', 'Photographer');
             $this->labels_Lab_Sheet = array('Process ID', 'Sample ID', 'Field ID');
+            */
             $this->api['BOLDS specimen'] = "http://www.boldsystems.org/index.php/API_Public/specimen?container=PROJECT_CODE&format=tsv";
             
             $this->dept_map['FISH'] = 'fishes';
@@ -79,6 +81,7 @@ class TraitDataImportAPI
         if(file_exists($input_file)) {
             $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME);
             self::read_input_file($input_file); //writes to text files for reading in next step.
+            exit("\neli 3\n");
             self::create_output_file();
         }
         else debug("\nInput file not found: [$input_file]\n");
@@ -155,14 +158,14 @@ class TraitDataImportAPI
         $sheet_names = $this->input['worksheets'];
         foreach($sheet_names as $sheet_name) self::read_worksheet($sheet_name, $input_file, $parser);
         
-        if($this->app == 'specimen_image_export') self::generate_Lab_Sheet_Worksheet();
+        // if($this->app == 'specimen_image_export') self::generate_Lab_Sheet_Worksheet(); --- copied
     }
     private function read_worksheet($sheet_name, $input_file, $parser)
     {
         self::initialize_file($sheet_name);
         $temp = $parser->convert_sheet_to_array($input_file, NULL, NULL, false, $sheet_name);
         $headers = array_keys($temp);
-        // print_r($temp); print_r($headers); exit;
+        // print_r($temp); print_r($headers); exit("\neli 2\n"); //good debug
         
         $fld = $headers[0]; $i = -1;
         foreach($temp[$fld] as $col) { $i++;
@@ -181,9 +184,33 @@ class TraitDataImportAPI
             if(!$ignoreRow) {
                 foreach($headers as $header) $input_rec[$header] = $temp[$header][$i];
                 // echo "\ncount $i\n";
-                // print_r($input_rec); //exit;
+                // print_r($input_rec); exit("\neli 1\n");
+                /*Array(
+                    [taxon name] => Sciuridae
+                    [kingdom] => 
+                    [phylum] => 
+                    [family] => 
+                    [eolID] => 8703
+                    [predicate] => behavioral circadian rhythm
+                    [value] => diurnal
+                    [units] => 
+                    [statistical method] => 
+                    [sex] => 
+                    [lifestage] => 
+                    [inherit] => yes
+                    [stops at] => 34418|111049
+                    [measurementRemarks] => sun-loving chaps, squirrels
+                    [measurementMethod] => 
+                    [bibliographicCitation] => Hunt David M., Carvalho Livia S., Cowing Jill A. and Davies Wayne L. 2009Evolution and spectral tuning of visual pigments in birds and mammalsPhil. Trans. R. Soc. B3642941–2955. http://doi.org/10.1098/rstb.2009.0044
+                    [source] => http://doi.org/10.1098/rstb.2009.0044
+                    [referenceID] => Jones 2009
+                    [personal communication] => 
+                )*/
+                /* copied
                 $output_rec = self::compute_output_rec($input_rec, $sheet_name);
                 self::write_output_rec_2txt($output_rec, $sheet_name);
+                */
+                self::write_output_rec_2txt($input_rec, $sheet_name);
             }
         }
     }
@@ -205,6 +232,7 @@ class TraitDataImportAPI
         fwrite($WRITE, implode("\t", $save) . "\n");
         fclose($WRITE);
     }
+    /* copied
     private function compute_output_rec($input_rec, $sheet_name)
     {
         $output_rec = array();
@@ -222,7 +250,7 @@ class TraitDataImportAPI
             $this->save_ProcessID_from_MOOP[$output_rec['Process Id']] = '';
         }
         return $output_rec;
-    }
+    } */
     private function construct_output_image($sheet_name, $field, $input_rec)
     {   //echo "\n[$sheet_name]\n"; echo "\n[$field]\n"; print_r($input_rec); exit;
         /*  [Sheet1]
@@ -314,65 +342,15 @@ class TraitDataImportAPI
         //----------------------------------------
         return $final;
     }
+    /*
     private function parse_Description($orig)
-    {   /* Measurement: e.g. "TL=457.2 mm. Photographed during Kaneohe Bay, Hawaii, Bioblitz expedition, 2017. Specimen voucher field number: KB17-032"
-        from the image_input file, column "Description", look for "=" followed by (possibly whitespace followed by) a number, which may contain a decimal. 
-        The number may be followed by (possibly whitespace followed by) up to three characters representing a unit. 
-        That will be followed by ".", ";", "," and/or " " OR it could be the end of the input field. Take the number and the whitespace + up to 3chars, if present. 
-        eg: for "TL=457.2 mm. Photographed during Kaneohe Bay, Hawaii, Bioblitz expedition, 2017. Specimen voucher field number: KB17-032" -> 457.3 mm */
-        // $str = "TL=4,357.2 mm. Photographed during Kaneohe Bay, Hawaii, Bioblitz expedition, 2017. Specimen voucher field number: KB17-032";
-        // $str = "TL=4,357.2 mm; Photographed";
-        // $str = "TL=4,357.2 mm, Photographed";
-        // $str = "TL=4,357.2 mm Photographed";
-        // $str = "TL=4,357.2 mm";
-        $str = $orig;
+    {
         $final = array();
-        $tmp = explode("=", $str);
-        $str = $tmp[1];
-        // echo "\n[$str]\n";
-        // if(preg_match_all('!\d+\.*\d*!', $str, $arr)) {
-        if(preg_match_all('((?:[0-9]+,)*[0-9]+(?:\.[0-9]+)?)', $str, $arr)) {
-            // print_r($arr);
-            $number_str = $arr[0][0];
-            // echo "\n[$number_str]\n";
-            $str = trim(str_replace($number_str, '', $str));
-            // echo "\n[$str]\n";
-            $unit = '';
-            $chars = array(".", ";", ",", " ");
-            for($i = 0; $i <= strlen($str); $i++) {
-                $char = substr($str,$i,1);
-                if(in_array($char, $chars)) break;
-                $unit .= $char;
-            }
-            // echo "\n[$unit]\n";
-            $final['Measurement'] = "$number_str $unit";
-        }
-        else exit("\nTest this value: [$str]\n");
-        //----------------------------------------
-        /* Measurement Type:
-        in the pattern match above, take whatever is to the left of the "=". If that string contains a separator ".", ";" or "," 
-        take only what follows the last separator before the "=". 
-        eg: for "TL=457.2 mm. Photographed during Kaneohe Bay, Hawaii, Bioblitz expedition, 2017. Specimen voucher field number: KB17-032" -> TL */
-        $str = $orig;
-        // $str = "TL=4,357.2 mm"; //debug only
-        $tmp = explode("=", $str);
-        if($tmp[0] && @$tmp[1]) {
-            $str = trim($tmp[0]);
-            // echo ("\n[$str]\n");
-            $chars = array(".", ";", ",");
-            foreach($chars as $char) {
-                if(stripos($str, $char) !== false) { //string is found
-                    $arr = explode($char, $str);
-                    // print_r($arr);
-                    $final['Measurement Type'] = end($arr); // exit("\n".$final['Measurement Type']."\n");
-                    break;
-                }
-            }
-            if(!@$final['Measurement Type']) $final['Measurement Type'] = $str;
-        }
-        //----------------------------------------
+        $final['Measurement'] = "$number_str $unit";
+        $final['Measurement Type'] = $str;
         return $final;
     }
+    */
     private function generate_info_list_tsv($project) //e.g. $project = 'KANB'
     {
         $url = str_replace('PROJECT_CODE', $project, $this->api['BOLDS specimen']);
