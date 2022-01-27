@@ -65,7 +65,7 @@ class TraitDataImportAPI
         if(file_exists($input_file)) {
             $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME);
             self::read_input_file($input_file); //writes to text files for reading in next step.
-            exit("\neli 3\n");
+            // exit("\neli 3\n[$this->resource_id]\n");
             self::create_output_file();
         }
         else debug("\nInput file not found: [$input_file]\n");
@@ -122,7 +122,51 @@ class TraitDataImportAPI
     }
     private function create_DwCA()
     {
-        
+        $tsv['data'] = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_data.txt";
+        self::parse_tsv($tsv['data'], 'read_data');
+    }
+    
+    private function parse_tsv($txtfile, $task)
+    {   $i = 0; echo "\n[$task] [$txtfile]\n";
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            if($i == 1) $line = strtolower($line);
+            $row = explode("\t", $line); // print_r($row);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
+            }
+            $rec = array_map('trim', $rec);
+            print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [taxon name] => Sciuridae
+                [kingdom] => 
+                [phylum] => 
+                [family] => 
+                [eolid] => 8703
+                [predicate] => behavioral circadian rhythm
+                [value] => diurnal
+                [units] => 
+                [statistical method] => 
+                [sex] => 
+                [lifestage] => 
+                [inherit] => yes
+                [stops at] => 34418|111049
+                [measurementremarks] => sun-loving chaps, squirrels
+                [measurementmethod] => 
+                [bibliographiccitation] => Hunt David M., Carvalho Livia S., Cowing Jill A. and Davies Wayne L. 2009Evolution and spectral tuning of visual pigments in birds and mammalsPhil. Trans. R. Soc. B3642941–2955. http://doi.org/10.1098/rstb.2009.0044
+                [source] => http://doi.org/10.1098/rstb.2009.0044
+                [referenceid] => Jones 2009
+                [personal communication] => 
+            )*/
+            
+        } //end foreach()
     }
     /* ========================================END create DwCA ======================================== */
     private function read_input_file($input_file)
@@ -130,13 +174,12 @@ class TraitDataImportAPI
         $final = array();
         require_library('XLSParser'); $parser = new XLSParser();
         debug("\n reading: " . $input_file . "\n");
-
-        // $temp = $parser->convert_sheet_to_array($input_file); //automatically gets 1st sheet
-        // $temp = $parser->convert_sheet_to_array($input_file, '3'); //gets the 4th sheet. '0' gets the 1st sheet.
-        
+        /* tests
+        $temp = $parser->convert_sheet_to_array($input_file);        //automatically gets 1st sheet
+        $temp = $parser->convert_sheet_to_array($input_file, '3');   //gets the 4th sheet. '0' gets the 1st sheet.
+        */
         $sheet_names = $this->input['worksheets'];
         foreach($sheet_names as $sheet_name) self::read_worksheet($sheet_name, $input_file, $parser);
-        
     }
     private function read_worksheet($sheet_name, $input_file, $parser)
     {
