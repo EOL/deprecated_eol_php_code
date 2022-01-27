@@ -65,8 +65,9 @@ echo "<hr>"; //exit;
 // php update_resources/connectors/marine_geo_image.php _ image_input.xlsx _ _ '$json'
 // php update_resources/connectors/marine_geo_image.php _ _ 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO/image_input.xlsx' uuid001 '$json'
 
-/* for command-line development
+/* for command-line development - working OK
 php update_resources/connectors/trait_data_import.php _ Trait_template.xlsx _ _ '{"Proj":"KANB", "Proj_refresh":"0"}'
+php update_resources/connectors/trait_data_import.php _ _ 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Trait_Data_Import/Trait_template.xlsx' uuid001 '{"Proj":"KANB", "Proj_refresh":"0"}'
 */
 
 $newfile = pathinfo($newfile, PATHINFO_BASENAME);
