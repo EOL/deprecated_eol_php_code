@@ -38,7 +38,7 @@ class TraitDataImportAPI
             $dir = $this->resources['path'].'TSVs';
             if(!is_dir($dir)) mkdir($dir);
             
-            $this->input['worksheets'] = array('data', 'references'); //'data' is the 1st worksheet from Trait_template.xlsx
+            $this->input['worksheets'] = array('data', 'references', 'vocabulary'); //'data' is the 1st worksheet from Trait_template.xlsx
             /* Labels specimen image export ---> DIFFERENT ORIENTATION FROM specimen_export
             e.g. 'Sheet1' -> from image_input.xlsx
                  'Lab Sheet' = array() -> from image_output.xls
@@ -121,7 +121,7 @@ class TraitDataImportAPI
         return $arr[0];
         // foreach (glob($files) as $filename) echo "\n- $filename\n";
     }
-    /* =======================================START create output file======================================= */
+    /* =======================================START create DwCA ======================================= */
     private function create_output_file()
     {
         /* copied template
@@ -139,7 +139,11 @@ class TraitDataImportAPI
         self::create_DwCA();
         // */
     }
-    /* ========================================END create output file======================================== */
+    private function create_DwCA()
+    {
+        
+    }
+    /* ========================================END create DwCA ======================================== */
     private function read_input_file($input_file)
     {
         $final = array();

@@ -3,6 +3,7 @@ namespace php_active_record;
 /* ALL THIS FROM COPIED TEMPLATE: MarineGEO_XLSParser.php */
 class TraitDataImport_XLSParser
 {
+    NOT USED AT ALL...
     const SUBJECTS = "";
     function __construct($labels, $resource_id, $app)
     {
