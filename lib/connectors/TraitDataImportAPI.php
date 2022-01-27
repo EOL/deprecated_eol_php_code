@@ -56,7 +56,7 @@ class TraitDataImportAPI
         if($this->app == 'specimen_image_export') {
             if($json) {
                 $this->manual_entry = json_decode($json); //for specimen_image_export
-                self::generate_info_list_tsv($this->manual_entry->Proj);
+                // self::generate_info_list_tsv($this->manual_entry->Proj); --- copied
             }
         }
         
@@ -302,42 +302,6 @@ class TraitDataImportAPI
         }
         //----------------------------------------
         return $final;
-    }
-    private function generate_info_list_tsv($project) //e.g. $project = 'KANB'
-    {
-        $url = str_replace('PROJECT_CODE', $project, $this->api['BOLDS specimen']);
-        $local_tsv = self::download_tsv($url, $project);
-        $i = 0;
-        foreach(new FileIterator($local_tsv) as $line_number => $line) {
-            $line = explode("\t", $line); $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
-            if($i == 1) $fields = $line;
-            else {
-                if(!$line[0]) break;
-                $rec = array(); $k = 0;
-                foreach($fields as $fld) {
-                    $rec[$fld] = $line[$k]; $k++;
-                }
-                // print_r($rec); exit;
-                if($val = $rec['catalognum']) $this->info_catalognum[$val] = array('sampleid' => $rec['sampleid'], 'processid' => $rec['processid']);
-                /* Lab Sheet Worksheet:
-                Process ID: List all the Process ID values used in the first worksheet.
-                Sample ID: List each Sample ID with its corresponding Process ID from the other worksheet, or you can use the process ID value to find the row and take the string from the "sampleid" column
-                Field ID: use the process ID value to find the row and take the string from the "fieldnum" column
-                */
-                if($val = $rec['processid']) $this->info_processid[$val] = array('sampleid' => $rec['sampleid'], 'fieldnum' => $rec['fieldnum']);
-            }
-        }
-    }
-    private function download_tsv($form_url, $uuid)
-    {
-        $target = $this->resources['path'].'TSVs/'.$uuid.".tsv";
-        if($this->manual_entry->Proj_refresh) $cmd = WGET_PATH . " '$form_url' -O ".$target;     //wget -nc --> means 'will overwrite'
-        else                                  $cmd = WGET_PATH . " -nc '$form_url' -O ".$target; //wget -nc --> means 'no overwrite'
-        $cmd .= " 2>&1";
-        $shell_debug = shell_exec($cmd);
-        if(stripos($shell_debug, "ERROR 404: Not Found") !== false) exit("\n<i>URL path does not exist.\n$form_url</i>\n\n"); //string is found
-        echo "\n---\n".trim($shell_debug)."\n---\n";
-        return $target;
     }
     /* ========================================================== END for image_export ========================================================== */
     function test() //very initial stages.
