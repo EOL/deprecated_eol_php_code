@@ -307,7 +307,7 @@ class GBIFCountryTypeRecordAPI
         if(self::remove_parenthesis($taxon->genus) == $canonical)   $taxon->genus = '';
         return $taxon;
     }
-    private remove_parenthesis($str)
+    private function remove_parenthesis($str)
     {
         $str = str_replace(array("(", ")"), "", $str);
         return trim($str);
