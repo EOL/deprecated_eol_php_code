@@ -269,7 +269,7 @@ class GBIFCountryTypeRecordAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $rec["taxon_id"];
         $taxon->scientificName  = self::clean_sciname((string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
-        if(!$taxon->scientificName) return;
+        if(!$taxon->scientificName) return false;
         $taxon->kingdom         = (string) $rec["http://rs.tdwg.org/dwc/terms/kingdom"];
         $taxon->phylum          = (string) $rec["http://rs.tdwg.org/dwc/terms/phylum"];
         $taxon->class           = (string) $rec["http://rs.tdwg.org/dwc/terms/class"];
@@ -294,17 +294,23 @@ class GBIFCountryTypeRecordAPI
         $taxon->namePublishedIn = (string) $rec["http://rs.tdwg.org/dwc/terms/namePublishedIn"];
         $taxon->rightsHolder    = (string) $rec["http://purl.org/dc/terms/rightsHolder"];
         */
+        return true;
     }
     private function check_sciname_ancestry_values($taxon)
     {    //scientificname should not be equal to any of the ancestry
         $canonical = Functions::canonical_form($taxon->scientificName);
-        if($taxon->kingdom == $canonical)     $taxon->kingdom = '';
-        if($taxon->phylum == $canonical)     $taxon->phylum = '';
-        if($taxon->class == $canonical)     $taxon->class = '';
-        if($taxon->order == $canonical)     $taxon->order = '';
-        if($taxon->family == $canonical)     $taxon->family = '';
-        if($taxon->genus == $canonical)     $taxon->genus = '';
+        if(self::remove_parenthesis($taxon->kingdom) == $canonical) $taxon->kingdom = '';
+        if(self::remove_parenthesis($taxon->phylum) == $canonical)  $taxon->phylum = '';
+        if(self::remove_parenthesis($taxon->class) == $canonical)   $taxon->class = '';
+        if(self::remove_parenthesis($taxon->order) == $canonical)   $taxon->order = '';
+        if(self::remove_parenthesis($taxon->family) == $canonical)  $taxon->family = '';
+        if(self::remove_parenthesis($taxon->genus) == $canonical)   $taxon->genus = '';
         return $taxon;
+    }
+    private remove_parenthesis($str)
+    {
+        $str = str_replace(array("(", ")"), "", $str);
+        return trim($str);
     }
     private function create_classification_gbif($rec)
     {
@@ -502,7 +508,9 @@ class GBIFCountryTypeRecordAPI
         $institution_uri = self::get_uri($institution, "institution");
         $typestatus_uri = self::get_uri($typestatus, "TypeInformation");
         $rec["institutionCode"] = $institution;
-        if($institution_uri && $typestatus_uri) {
+        
+        $tax_status = self::create_instances_from_taxon_object($rec);
+        if($institution_uri && $typestatus_uri && $tax_status) {
             if(strtolower($typestatus_uri) == "exclude") return; //https://eol-jira.bibalex.org/browse/DATA-1549?focusedCommentId=65600&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65600
             $parent_id = self::add_string_types($rec, $institution_uri, "http://eol.org/schema/terms/TypeSpecimenRepository", "true");
             self::add_string_types($rec, $typestatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus", 'child', $parent_id);
@@ -531,8 +539,6 @@ class GBIFCountryTypeRecordAPI
                 if($val = $rec[$uri]) self::add_string_types($rec, Functions::import_decode($val), $uri, 'child', $parent_id);
             }
             // */
-            
-            self::create_instances_from_taxon_object($rec);
         }
     }
     private function get_institution($rec) //only for iDigBio
@@ -743,7 +749,8 @@ class GBIFCountryTypeRecordAPI
             $rec["contributor"] = self::get_contributor_name($val);
         }
 
-        if($institutionCode_uri && $typeStatus_uri) {
+        $tax_status = self::create_instances_from_taxon_object($rec);
+        if($institutionCode_uri && $typeStatus_uri && $tax_status) {
             $parent_id = self::add_string_types($rec, $institutionCode_uri, "http://eol.org/schema/terms/TypeSpecimenRepository", "true");
             self::add_string_types($rec, $typeStatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus", 'child', $parent_id); //new
             // self::add_string_types($rec, $typeStatus_uri, "http://eol.org/schema/terms/TypeInformation"); // old but working
@@ -752,8 +759,6 @@ class GBIFCountryTypeRecordAPI
             // no standard column in occurrence --- added after the last force-harvest for Germany and France
             if($val = $rec["http://rs.tdwg.org/dwc/terms/verbatimDepth"]) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/verbatimDepth", 'child', $parent_id);
             if($val = $rec["http://rs.tdwg.org/dwc/terms/countryCode"])   self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/countryCode", 'child', $parent_id);
-            
-            self::create_instances_from_taxon_object($rec);
         }
     }
     private function valid_record($rec)
