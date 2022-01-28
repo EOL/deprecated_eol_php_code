@@ -632,7 +632,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 
                 // /* for all resources: exclude terms not in EOL terms file
                 if(!isset($this->allowed_terms_URIs[$uri])) {
-                    echo "\n-----------------\nhuli ka! NOT FOUND IN EOL TERMS FILE\n"; print_r($rek); print_r($ret); print_r($arr); echo "-----------------\n";
+                    // echo "\n-----------------\nhuli ka! NOT FOUND IN EOL TERMS FILE\n"; print_r($rek); print_r($ret); print_r($arr); echo "-----------------\n";
                     continue;
                 }
                 // */
