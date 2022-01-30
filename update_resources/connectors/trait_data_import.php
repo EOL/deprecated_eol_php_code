@@ -42,7 +42,7 @@ if($val = $params['json'])     $json = $val;
 else                           $json = '';
 
 $resource_id = ''; //no longer used from here
-$func = new TraitDataImportAPI('specimen_image_export');
+$func = new TraitDataImportAPI('trait_data_import');
 $func->start($filename, $form_url, $uuid, $json);
 // Functions::get_time_elapsed($timestart);
 ?>
