@@ -19,6 +19,11 @@ convert MeasurementOfTaxon=false to child records
 885	Thu 2021-12-16 11:16:34 PM	    {"MoF":4588886, "occurrence.tab":475435, "reference.tab":195628, "taxon.tab":215103, "time_elapsed":{"sec":67524.58, "min":1125.41, "hr":18.76}}
 remove bad data from source file. e.g. taxon_id = "University". Reported here: https://eol-jira.bibalex.org/browse/DATA-1549?focusedCommentId=66616&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66616
 885	Thu 2022-01-20 01:10:30 AM	    {"MoF":4588860, "occurrence.tab":475432, "reference.tab":195627, "taxon.tab":215102, "time_elapsed":{"sec":71162.84, "min":1186.05, "hr":19.77}}
+below start where taxa are cleaned
+885	Thu 2022-01-27 03:07:58 AM	    {"MoF":4588860, "occurrence.tab":475432, "reference.tab":195627, "taxon.tab":215027, "time_elapsed":{"sec":69426.34, "min":1157.11, "hr":19.29}}
+-> wrong as MoF, Occur and Ref were not deducted from removed taxa
+885	Fri 2022-01-28 11:53:51 PM	    {"MoF":4586834, "occurrence.tab":475230, "reference.tab":195613, "taxon.tab":215041, "time_elapsed":{"sec":71989.33, "min":1199.82, "hr":20}}
+-> correct as MoF, Occur and Ref are now deducted
 
 Undefined:
 [institution] => Array
