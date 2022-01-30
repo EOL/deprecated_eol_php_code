@@ -380,7 +380,9 @@ class GBIFCountryTypeRecordAPI
         if(ctype_digit($name[0])) return false; //exclude if first char is digit
         if(stripos($name, " egg") !== false) return false; //string is found e.g. "'trilobite eggs'"
         //--------------------------
-        return $name;
+        $name = str_replace("( ", "(", $name); // Micrarionta ( Eremarionta) chacei
+        $name = str_replace(" )", ")", $name); // Epitonium (Punctiscala ) colimanum
+        return Functions::remove_whitespace($name);
     }
     private function there_is_string_inside_and_outside_parenthesis($name)
     {
