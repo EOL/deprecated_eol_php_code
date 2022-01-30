@@ -279,6 +279,7 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	Tue 2021-04-13 02:34:32 AM	    {"media_resource.tab":794167, "taxon.tab":420490, "time_elapsed":{"sec":125783.54, "min":2096.39, "hr":34.94, "day":1.46}} consistent OK
 80	Mon 2021-06-14 06:27:04 AM	    {"media_resource.tab":802962, "taxon.tab":424566, "time_elapsed":{"sec":58180.26, "min":969.67, "hr":16.16}} consistent OK
 80	Sun 2021-08-01 10:53:26 PM	    {"media_resource.tab":814055, "taxon.tab":430102, "time_elapsed":{"sec":163475.74, "min":2724.6, "hr":45.41, "day":1.89}} consistent OK
+80	Fri 2022-01-28 04:47:25 PM	    {"media_resource.tab":832258, "taxon.tab":439104, "time_elapsed":{"sec":195350.05, "min":3255.83, "hr":54.26, "day":2.26}} consistent OK
 
 wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
 wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
@@ -300,6 +301,7 @@ wikipedia-es	Wednesday 2020-07-29 04:21:20 PM{"media_resource.tab":319705, "taxo
 wikipedia-es	Mon 2020-10-12 01:06:01 AM	    {"media_resource.tab":324055, "taxon.tab":178175, "time_elapsed":{"sec":28331.05, "min":472.18, "hr":7.87}}
 wikipedia-es	Wed 2021-04-14 06:23:53 AM	    {"media_resource.tab":330887, "taxon.tab":181835, "time_elapsed":{"sec":50379.04, "min":839.65, "hr":13.99}}
 wikipedia-es	Tue 2021-06-15 11:34:10 AM	    {"media_resource.tab":337739, "taxon.tab":185297, "time_elapsed":{"sec":55272.35, "min":921.21, "hr":15.35}} consistent OK
+wikipedia-es	Sun 2022-01-30 06:14:33 AM	    {"media_resource.tab":356328, "taxon.tab":194730, "time_elapsed":{"sec":100786.04, "min":1679.77, "hr":28, "day":1.17}} consistent OK
 
 wikipedia-it	Tuesday 2017-11-14 04:48:25 AM	{"media_resource.tab":64723,"taxon.tab":39992}
 wikipedia-it	Monday 2017-12-04 05:16:39 AM	{"media_resource.tab":64861,"taxon.tab":40069}

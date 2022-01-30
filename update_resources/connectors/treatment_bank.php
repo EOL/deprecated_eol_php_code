@@ -33,7 +33,12 @@ TreatmentBank_ENV	Tue 2021-09-28 02:37:49 PM	{"MoF.tab":1554957, "occur_specific
 TreatmentBank	    Tue 2021-10-05 04:07:26 AM	{                                                   "media.tab":596261, "taxon.tab":597054, "time_elapsed":{"sec":66569.05, "min":1109.48, "hr":18.49}}
 TreatmentBank_ENV	Tue 2021-10-05 05:38:14 AM	{"MoF.tab":1554958, "occur_specific.tab":1554958,                       "taxon.tab":597054, "time_elapsed":{"sec":5437.94, "min":90.63, "hr":1.51}}
 TreatmentBank_ENV	Thu 2021-10-28 03:16:53 AM	{"MoF.tab":1554958, "occur_specific.tab":1554958,                       "taxon.tab":597054, "time_elapsed":{"sec":12692.65, "min":211.54, "hr":3.53}}
+after filter using EOL terms file:
+TreatmentBank	    Thu 2022-01-27 03:02:02 AM	{                                                   "media.tab":596261, "taxon.tab":597054, "time_elapsed":{"sec":67599.45, "min":1126.66, "hr":18.78}}
+TreatmentBank_ENV	Thu 2022-01-27 06:50:50 AM	{"MoF.tab":1818376, "occur_specific.tab":1818376, "taxon.tab":597054, "time_elapsed":{"sec":13718.37, "min":228.64, "hr":3.81}}
 */
+
+
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/TreatmentBankAPI');
