@@ -173,6 +173,7 @@ class TraitDataImportAPI
                 [eolid] => 8703
                 ...
             )*/
+            
             if($task == 'write_dwca') {
                 $taxon = new \eol_schema\Taxon();
                 $taxon->taxonID         = str_replace(" ", "_", $rec['taxon name']);
@@ -246,10 +247,12 @@ class TraitDataImportAPI
         )*/
         // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit("\n111\n"); //just testing
         $mType = @$this->vocabulary['predicate'][$rec['predicate']];
-        if($val = @$this->vocabulary['value'][$rec['value']]) $mValue = $val;
-        else                                                  $mValue = $rec['value'];
-        
+        $mValue = @$this->vocabulary['value'][$rec['value']];
         if($mType && $mValue) {
+            /* only columns that are not used
+            [inherit] => yes
+            [stops at] => 34418|111049
+            */
             $save = array();
             $save['taxon_id']                = $taxonID;
             $save['source']                  = $rec['source'];
