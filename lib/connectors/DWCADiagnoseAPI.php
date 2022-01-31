@@ -100,14 +100,14 @@ class DWCADiagnoseAPI
         }
     }
 
-    function check_unique_ids($resource_id, $file_extension = ".tab")
+    function check_unique_ids($resource_id, $file_extension = ".tab", $ContResLocPath = CONTENT_RESOURCE_LOCAL_PATH)
     {
         echo "\n----------Checking unique IDs [$resource_id]...----------\n";
-        if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . $resource_id)) {
-            echo "\nDir does not exist: [".CONTENT_RESOURCE_LOCAL_PATH . $resource_id."]\n";
+        if(!file_exists($ContResLocPath . $resource_id)) {
+            echo "\nDir does not exist: [".$ContResLocPath . $resource_id."]\n";
         }
         else {
-            $harvester = new ContentArchiveReader(NULL, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/");
+            $harvester = new ContentArchiveReader(NULL, $ContResLocPath . $resource_id . "/");
             $tableZ = $harvester->tables;
             /* orig but not scalable for big resources e.g. WoRMS (26)
             $tables = array_keys($tableZ);
@@ -132,7 +132,6 @@ class DWCADiagnoseAPI
                 // print_r($meta); exit;
                 self::process_fields_V2($meta, pathinfo($table, PATHINFO_BASENAME));
             }
-            
         }
         echo "\n----------end Checking unique IDs----------\n";
     }
