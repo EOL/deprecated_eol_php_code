@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+$timestart = time_elapsed();
 
 // /* normal operation
 ini_set('error_reporting', false);

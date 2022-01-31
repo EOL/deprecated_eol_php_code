@@ -51,6 +51,9 @@ class TraitDataImportAPI
                 self::generate_info_list_tsv($this->manual_entry->Proj);
             }
         } */
+        $arr_json = json_decode($json, true);
+        if($val = @$arr_json['timestart']) $timestart = $val;               //normal operation
+        else                               $timestart = time_elapsed();     //during dev only - command line
         
         // /* for $form_url:
         if($form_url && $form_url != '_') $filename = self::process_form_url($form_url, $uuid); //this will download (wget) and save file in /specimen_export/temp/
@@ -66,7 +69,7 @@ class TraitDataImportAPI
             $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME);
             self::read_input_file($input_file); //writes to text files for reading in next step.
             // exit("\neli 3\n[$this->resource_id]\n");
-            self::create_output_file();
+            self::create_output_file($timestart);
         }
         else debug("\nInput file not found: [$input_file]\n");
     }
@@ -114,18 +117,22 @@ class TraitDataImportAPI
         // foreach (glob($files) as $filename) echo "\n- $filename\n";
     }
     /* =======================================START create DwCA ======================================= */
-    private function create_output_file()
+    private function create_output_file($timestart)
     {
-        // /* trait data import does not create XML but rather DwCA
-        self::create_DwCA();
+        // /* initialize DwCA
+        $path = CONTENT_RESOURCE_LOCAL_PATH . '/Trait_Data_Import/';
+        $this->path_to_archive_directory = $path . $this->resource_id . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         // */
+        self::create_DwCA();
+        $this->archive_builder->finalize(TRUE);
+        Functions::finalize_dwca_resource($this->resource_id, false, true, $timestart, $path);
     }
     private function create_DwCA()
     {
         $tsv['data'] = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_data.txt";
-        self::parse_tsv($tsv['data'], 'read_data');
+        self::parse_tsv($tsv['data'], 'write_dwca');
     }
-    
     private function parse_tsv($txtfile, $task)
     {   $i = 0; echo "\n[$task] [$txtfile]\n";
         foreach(new FileIterator($txtfile) as $line_number => $line) {
@@ -143,7 +150,7 @@ class TraitDataImportAPI
                 foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); exit("\nstopx\n");
+            // print_r($rec); exit("\nstopx\n");
             /*Array(
                 [taxon name] => Sciuridae
                 [kingdom] => 
@@ -165,7 +172,18 @@ class TraitDataImportAPI
                 [referenceid] => Jones 2009
                 [personal communication] => 
             )*/
-            
+            if($task == 'write_dwca') {
+                $taxon = new \eol_schema\Taxon();
+                $taxon->taxonID         = str_replace(" ", "_", $rec['taxon name']);
+                $taxon->scientificName  = $rec['taxon name'];
+                if($val = @$rec['kingdom']) $taxon->kingdom = $val;
+                if($val = @$rec['phylum']) $taxon->phylum = $val;
+                if($val = @$rec['family']) $taxon->family = $val;
+                if(!isset($this->taxon_ids[$taxon->taxonID])) {
+                    $this->taxon_ids[$taxon->taxonID] = '';
+                    $this->archive_builder->write_object_to_file($taxon);
+                }
+            }
         } //end foreach()
     }
     /* ========================================END create DwCA ======================================== */

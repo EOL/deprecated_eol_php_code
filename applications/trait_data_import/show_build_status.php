@@ -41,7 +41,7 @@ else {
     /* Summary message */
     // /*
     // $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "MarineGEO_sie/" . $params['uuid'] . ".xls";
-    $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "Trait_Data_Import/" . $params['uuid'] . ".xls";
+    $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "Trait_Data_Import/" . $params['uuid'] . ".tar.gz";
     if(file_exists($final_archive_gzip_url)) {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
         if($final_archive_gzip_url) {

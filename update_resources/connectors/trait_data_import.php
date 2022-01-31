@@ -19,7 +19,7 @@ $GLOBALS['ENV_DEBUG'] = false;
 // */
 ini_set('memory_limit','7096M');
 require_library('connectors/TraitDataImportAPI');
-$timestart = time_elapsed();
+// $timestart = time_elapsed();
 
 $params['jenkins_or_cron']  = @$argv[1];
 $params['filename']         = @$argv[2];
@@ -27,7 +27,7 @@ $params['form_url']         = @$argv[3];
 $params['uuid']             = @$argv[4];
 $params['json']             = @$argv[5];
 
-// print_r($params); exit;
+print_r($params); //exit;
 /*Array(
     [jenkins_or_cron] => jenkins
     [filename] => 1574915471.zip
@@ -43,6 +43,7 @@ else                           $json = '';
 
 $resource_id = ''; //no longer used from here
 $func = new TraitDataImportAPI('trait_data_import');
+// echo "\n[$timestart]\n"; exit; //[0.035333]
 $func->start($filename, $form_url, $uuid, $json);
 // Functions::get_time_elapsed($timestart);
 ?>
