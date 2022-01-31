@@ -180,6 +180,7 @@ class TraitDataImportAPI
                 if($val = @$rec['kingdom']) $taxon->kingdom = $val;
                 if($val = @$rec['phylum']) $taxon->phylum = $val;
                 if($val = @$rec['family']) $taxon->family = $val;
+                if($val = @$rec['eolid']) $taxon->EOLid = $val;
                 if(!isset($this->taxon_ids[$taxon->taxonID])) {
                     $this->taxon_ids[$taxon->taxonID] = '';
                     $this->archive_builder->write_object_to_file($taxon);
