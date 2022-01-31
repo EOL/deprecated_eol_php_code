@@ -39,6 +39,7 @@ class TraitDataImportAPI
             if(!is_dir($dir)) mkdir($dir);
             
             $this->input['worksheets'] = array('data', 'references', 'vocabulary'); //'data' is the 1st worksheet from Trait_template.xlsx
+            $this->vocabulary_fields = array("predicate label", "predicate uri", "value label", "value uri", "units label", "units uri", "statmeth label", "statmeth uri", "sex label", "sex uri", "lifestage label", "lifestage uri");
         }
         /* ============================= END for image_export ============================= */
     }
@@ -124,9 +125,22 @@ class TraitDataImportAPI
         $this->path_to_archive_directory = $path . $this->resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         // */
+        // /* initialize TraitGeneric
+        require_library('connectors/TraitGeneric'); 
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        // START DATA-1841 terms remapping
+        $this->func->initialize_terms_remapping(60*60*24); //param is $expire_seconds. 0 means expire now.
+        // END DATA-1841 terms remapping
+        // */
+        self::generate_vocabulary(); //print_r($this->vocabulary); exit;
         self::create_DwCA();
         $this->archive_builder->finalize(TRUE);
         Functions::finalize_dwca_resource($this->resource_id, false, true, $timestart, $path);
+    }
+    private function generate_vocabulary()
+    {
+        $tsv['data'] = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_vocabulary.txt";
+        self::parse_tsv($tsv['data'], 'generate_vocabulary');
     }
     private function create_DwCA()
     {
@@ -145,7 +159,7 @@ class TraitDataImportAPI
                 continue;
             }
             else {
-                if(!@$row[0]) continue;
+                // if(!@$row[0]) continue; --- this has to be commented bec. of nature of vocabulary sheet
                 $k = 0; $rec = array();
                 foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
             }
@@ -157,20 +171,7 @@ class TraitDataImportAPI
                 [phylum] => 
                 [family] => 
                 [eolid] => 8703
-                [predicate] => behavioral circadian rhythm
-                [value] => diurnal
-                [units] => 
-                [statistical method] => 
-                [sex] => 
-                [lifestage] => 
-                [inherit] => yes
-                [stops at] => 34418|111049
-                [measurementremarks] => sun-loving chaps, squirrels
-                [measurementmethod] => 
-                [bibliographiccitation] => Hunt David M., Carvalho Livia S., Cowing Jill A. and Davies Wayne L. 2009Evolution and spectral tuning of visual pigments in birds and mammalsPhil. Trans. R. Soc. B3642941–2955. http://doi.org/10.1098/rstb.2009.0044
-                [source] => http://doi.org/10.1098/rstb.2009.0044
-                [referenceid] => Jones 2009
-                [personal communication] => 
+                ...
             )*/
             if($task == 'write_dwca') {
                 $taxon = new \eol_schema\Taxon();
@@ -183,8 +184,91 @@ class TraitDataImportAPI
                     $this->taxon_ids[$taxon->taxonID] = '';
                     $this->archive_builder->write_object_to_file($taxon);
                 }
+                self::write_MoF($rec, $taxon->taxonID);
+            }
+            elseif($task == 'generate_vocabulary') {
+                // print_r($rec); exit("\nstopx\n");
+                self::process_vocab_rec($rec);
             }
         } //end foreach()
+    }
+    private function process_vocab_rec($rec)
+    {   /*Array(
+            [predicate label] => abundance
+            [predicate uri] => http://purl.obolibrary.org/obo/NCIT_C70589
+            [value label] => (cone + half sphere)-20%
+            [value uri] => http://eol.org/schema/terms/conePlusHalfSphere-20Percent
+            [units label] => /cm^2
+            [units uri] => http://eol.org/schema/terms/percm2
+            [statmeth label] => average
+            [statmeth uri] => http://eol.org/schema/terms/average
+            [sex label] => female
+            [sex uri] => http://purl.obolibrary.org/obo/PATO_0000383
+            [lifestage label] => neonate
+            [lifestage uri] => http://purl.obolibrary.org/obo/UBERON_0007221
+        )*/
+        foreach($this->vocabulary_fields as $fld) {
+            if(!isset($rec[$fld])) echo "\nNot found in vocabulary [$fld].\n";
+        }
+        $items = array("predicate", "value", "units", "statmeth", "sex", "lifestage");
+        foreach($items as $item) {
+            $label = $rec["$item label"];
+            $uri = $rec["$item uri"];
+            if($label && $uri) {
+                $this->vocabulary[$item][$label] = $uri;
+                // echo "\n[$item][$label][$uri]\n";
+            }
+        }
+        // print_r($rec);
+    }
+    private function write_MoF($rec, $taxonID)
+    {   /*Array(
+            [taxon name] => Sciuridae
+            [kingdom] => 
+            [phylum] => 
+            [family] => 
+            [eolid] => 8703
+            [predicate] => behavioral circadian rhythm
+            [value] => diurnal
+            [units] => 
+            [statistical method] => 
+            [sex] => 
+            [lifestage] => 
+            [inherit] => yes
+            [stops at] => 34418|111049
+            [measurementremarks] => sun-loving chaps, squirrels
+            [measurementmethod] => 
+            [bibliographiccitation] => Hunt David M., Carvalho Livia S., Cowing Jill A. and Davies Wayne L. 2009Evolution and spectral tuning of visual pigments in birds and mammalsPhil. Trans. R. Soc. B3642941–2955. http://doi.org/10.1098/rstb.2009.0044
+            [source] => http://doi.org/10.1098/rstb.2009.0044
+            [referenceid] => Jones 2009
+            [personal communication] => 
+        )*/
+        // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit("\n111\n"); //just testing
+        $mType = @$this->vocabulary['predicate'][$rec['predicate']];
+        if($val = @$this->vocabulary['value'][$rec['value']]) $mValue = $val;
+        else                                                  $mValue = $rec['value'];
+        
+        if($mType && $mValue) {
+            $save = array();
+            $save['taxon_id']                = $taxonID;
+            $save['source']                  = $rec['source'];
+            $save['bibliographicCitation']   = $rec['bibliographiccitation'];
+            $save['measurementRemarks']      = $rec['measurementremarks'];
+            $save['measurementMethod']       = $rec['measurementmethod'];
+            $save['referenceID']             = $rec['referenceid']; 
+            $save['measurementDeterminedBy'] = $rec['personal communication']; 
+
+            $statisticalMethod = @$this->vocabulary['statmeth'][$rec['statistical method']];
+            $measurementUnit = @$this->vocabulary['units'][$rec['units']];
+            $save['statisticalMethod'] = $statisticalMethod ? $statisticalMethod : "";
+            $save['measurementUnit'] = $measurementUnit ? $measurementUnit : "";
+            
+            if($val = @$rec['sex'])       $save['occur']['sex']       = @$this->vocabulary['sex'][$val];
+            if($val = @$rec['lifestage']) $save['occur']['lifeStage'] = @$this->vocabulary['lifestage'][$val];
+
+            $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+            $this->func->add_string_types($save, $mValue, $mType, "true");
+        }
     }
     /* ========================================END create DwCA ======================================== */
     private function read_input_file($input_file)
