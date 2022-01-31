@@ -10,7 +10,6 @@
         <tr align="center">
             <td>
                 <font size="3">
-                    Download the input spreadsheet template <a href="https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO_sie/image_input.xlsx">here</a>.
                     Download the input spreadsheet template <a href="https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Trait_Data_Import/Trait_template.xlsx">here</a>.
                     <br>
                 </font>
@@ -48,54 +47,12 @@
         <tr>
             <td>
                 <table>
-                <tr><td>Project:</td> <td><input type='text' name='Proj' required><small>e.g. KANB</small></td></tr>
+                <tr><td>Filename ID:</td> <td><input type='text' name='filename_id'></td></tr>
                 <tr><td></td>
                     <td>
-                        Refresh download <input type='checkbox' name='Proj_refresh'>
-                        <br><small>Check tickbox if you want to get a fresh download of the project dataset.
-                        <br>Otherwise it will use the saved dataset from previous run.
-                        </small>
+                        <small>Optional. Enter filename ID if you want to overwrite previous upload.</small>
                     </td>
                 </tr>
-                <tr><td>Department</td>
-                    <td>
-                         <select name='Dept'>
-                          <option value="herps" disabled>Amphibians & Reptiles</option>
-                          <option value="birds" disabled>Birds</option>
-                          <option value="botany" disabled>Botany</option>
-                          <option value="fishes" selected>Fishes</option>
-                          <option value="mammals" disabled>Mammals</option>
-                          <option value="paleo" disabled>Paleobiology</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr><td>License:</td>
-                    <td>
-                         <select name='Lic'>
-                         <?php
-                         $licenses = array('CreativeCommons – Attribution (by)', 'CreativeCommons – Attribution Share-alike (by-sa)', 'CreativeCommons – Attribution Non-Commercial (by-nc)', 'CreativeCommons – Attribution Non-Commercial Share-alike (by-nc-sa)');
-                         foreach($licenses as $license) {
-                             $var = '';
-                             if($license == 'CreativeCommons – Attribution Non-Commercial (by-nc)') $var = 'selected';
-                             echo "<option value='$license' $var>$license</option>";
-                         }
-                         ?>
-                        </select>
-                    </td>
-                </tr>
-                <tr><td>License Year:</td> <td><input type='text' name='Lic_yr'></td></tr>
-                <tr>
-                    <td>License Institution:</td> 
-                    <td>
-                        <!--- <input type='text' name='Lic_inst'> --->
-                        <select name='Lic_inst'>
-                            <option value=""></option>
-                            <option value="Smithsonian Institution National Museum of Natural History">Smithsonian Institution National Museum of Natural History</option>
-                            <option value="NOAA Fisheries">NOAA Fisheries</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr><td>License Contact:</td> <td><input type='text' name='Lic_cont'></td></tr>
                 </table>
             </td>
         </tr>
