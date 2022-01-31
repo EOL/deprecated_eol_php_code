@@ -23,29 +23,24 @@ $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $se
 $params['true_root'] = $true_DOC_ROOT;
 $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
 
-echo "<pre>"; print_r($form); echo "</pre>";
+// echo "<pre>"; print_r($form); echo "</pre>"; exit("\neli 100\n");
 /*Array(
     [form_url] => 
-    [Proj] => KANB
-    [Dept] => fishes
-    [Lic] => CreativeCommons – Attribution Non-Commercial Share-alike (by-nc-sa)
-    [Lic_yr] => my_year
-    [Lic_inst] => my_inst
-    [Lic_cont] => my_contact
+    [Filename_ID] => 123
+)
+Array(
+    [form_url] => https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Trait_Data_Import/Trait_template.xlsx
+    [Filename_ID] => 124
 )*/
-$dept_map['fishes'] = 'FISH';
-$dept_map['mammals'] = 'MAMMALS';
-$dept_map['herps'] = 'HERPS'; //'AMPHIBIANS & REPTILES';
-$dept_map['birds'] = 'BIRDS';
-$dept_map['botany'] = 'BOTANY';
-$dept_map['paleo'] = 'PALEOBIOLOGY';
 
 if(isset($form['Proj_refresh'])) $Proj_refresh = 1;
 else                             $Proj_refresh = 0;
-
+/* copied template
 $json = '{"Proj":"'.$form['Proj'].'", "Dept":"'.$dept_map[$form['Dept']].'"
          , "Proj_refresh":"'.$Proj_refresh.'"
          , "timestart":"'.$timestart.'", "Lic_yr":"'.$form['Lic_yr'].'", "Lic_inst":"'.$form['Lic_inst'].'", "Lic_cont":"'.$form['Lic_cont'].'"}';
+*/
+$json = '{"Filename_ID":"'.$form['Filename_ID'].'", "timestart":"'.$timestart.'"}';
 $params['json'] = $json;
 // exit("\n$json\n");
    // $params['destination'] = $for_DOC_ROOT . "/applications/specimen_image_export/" . $newfile; --- copied template

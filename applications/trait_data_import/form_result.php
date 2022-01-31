@@ -16,12 +16,20 @@ $GLOBALS['ENV_DEBUG'] = true; //set to true during development
 */
 
 // echo "<pre>"; print_r($_FILES); exit("</pre>");
+$form = $_POST;
+// echo "<pre>"; print_r($form); echo "</pre>"; exit("\neli 200\n");
+/*Array(
+    [form_url] => 
+    [Filename_ID] => 111
+)*/
+if($val = @$form['Filename_ID']) $time_var = $val;
+else                             $time_var = time();
 
 $form_url = @get_val_var('form_url');
 
 if($form_url) { //URL is pasted.
     $orig_file = pathinfo($form_url, PATHINFO_BASENAME);
-    $newfile = time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
+    $newfile = $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
     
     if(!in_array(pathinfo($form_url, PATHINFO_EXTENSION), array('xls', 'xlsx', 'zip'))) exit("\nERROR: Wrong file format.\n\n");
     // print_r(pathinfo($form_url)); exit;
@@ -38,13 +46,13 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
         if($_FILES["file_upload"]["error"] > 0) {}
         else {
             $orig_file = $_FILES["file_upload"]["name"];
-            $url = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
+            $url = "temp/" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
             if(move_uploaded_file($_FILES["file_upload"]["tmp_name"] , $url)) {
                 debug("<br>file uploaded - OK<br>");
             }
             else echo "<br>uploading file - ERROR<br>";
         }
-        $newfile = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
+        $newfile = "temp/" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
         
         echo "<hr>orig_file: [$orig_file]";
         echo "<hr>url: [$url]";

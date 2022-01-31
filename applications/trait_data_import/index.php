@@ -47,7 +47,7 @@
         <tr>
             <td>
                 <table>
-                <tr><td>Filename ID:</td> <td><input type='text' name='filename_id'></td></tr>
+                <tr><td>Filename ID:</td> <td><input type='text' name='Filename_ID'></td></tr>
                 <tr><td></td>
                     <td>
                         <small>Optional. Enter filename ID if you want to overwrite previous upload.</small>

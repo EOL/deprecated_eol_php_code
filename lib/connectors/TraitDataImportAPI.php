@@ -136,6 +136,12 @@ class TraitDataImportAPI
         self::create_DwCA();
         $this->archive_builder->finalize(TRUE);
         Functions::finalize_dwca_resource($this->resource_id, false, true, $timestart, $path);
+        
+        // /* clear txt files
+        foreach($this->input['worksheets'] as $sheet) {
+            unlink(CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_".$sheet.".txt");
+        }
+        // */
     }
     private function generate_vocabulary()
     {
