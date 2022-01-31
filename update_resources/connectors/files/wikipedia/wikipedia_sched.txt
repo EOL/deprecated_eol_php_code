@@ -323,6 +323,7 @@ wikipedia-it	Wednesday 2020-07-29 09:41:53 PM{"media_resource.tab":70874, "taxon
 wikipedia-it	Mon 2020-10-12 06:54:04 AM	    {"media_resource.tab":71278, "taxon.tab":44261, "time_elapsed":{"sec":7042.68, "min":117.38, "hr":1.96}}
 wikipedia-it	Wed 2021-04-14 01:35:23 PM	    {"media_resource.tab":72874, "taxon.tab":45086, "time_elapsed":{"sec":13247.94, "min":220.8, "hr":3.68}}
 wikipedia-it	Tue 2021-06-15 06:34:02 PM	    {"media_resource.tab":73337, "taxon.tab":45349, "time_elapsed":{"sec":13867.58, "min":231.13, "hr":3.85}} consistent OK
+wikipedia-it	Sun 2022-01-30 01:33:57 PM	    {"media_resource.tab":74988, "taxon.tab":46264, "time_elapsed":{"sec":19159.35, "min":319.32, "hr":5.32}} consistent OK
 
 wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.tab":55915}
 957	            Monday 2017-12-04 05:20:51 AM	{"media_resource.tab":87940,"taxon.tab":56041}
