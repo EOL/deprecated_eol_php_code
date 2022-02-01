@@ -134,6 +134,11 @@ when debugging in MacMini, to generate DwCA - works OK
 php update_resources/connectors/wikidata.php _ generate_resource_force
 */
 
+/* for wikidata taxonomy (DATA-1668)
+php5.6 wikidata.php jenkins generate_wikidata_taxonomy
+php update_resources/connectors/wikidata.php _ generate_wikidata_taxonomy
+*/
+
 // print_r($argv);
 $params['jenkins_or_cron']  = @$argv[1];
 $params['task']             = @$argv[2];
@@ -143,10 +148,14 @@ $params['actual']           = @$argv[5];
 print_r($params);
 
 // /* main operation
-$resource_id = 71; //Wikimedia Commons is EOL resource = 71 //historical commons.tar.gz also exists on Nov 2017
-
-/* $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy] */
-$func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
+if($params['task'] == 'generate_wikidata_taxonomy') {
+    $resource_id = 'wikidata-hierarchy';
+    $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //will generate hierarchy resource. [wikidata-hierarchy]
+}
+else {
+    $resource_id = 71; //Wikimedia Commons is EOL resource = 71 //historical commons.tar.gz also exists on Nov 2017
+    $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
+}
 
 /* new utility for investigation -> moved to wikidata_test.php */
 
@@ -175,7 +184,8 @@ elseif(@$params['task'] == "create_then_fill_commons_data") {                   
     $func->fill_in_temp_files_with_wikimedia_dump_data();        //fill-in those blank json files
     echo("\n ==Finished preparing new WikiMedia dump== \n");
 }
-elseif(@$params['task'] == "generate_resource" || @$params['task'] == "generate_resource_force") { //step 4 (ran 6 connectors initially)
+elseif(@$params['task'] == "generate_resource" || @$params['task'] == "generate_resource_force"
+                                               || @$params['task'] == "generate_wikidata_taxonomy") { //step 4 (ran 6 connectors initially)
     /* orig when just 1 connector
     $func->generate_resource();
     Functions::finalize_dwca_resource($resource_id);

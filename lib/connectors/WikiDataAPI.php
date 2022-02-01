@@ -309,12 +309,14 @@ class WikiDataAPI extends WikipediaAPI
             $this->trans['editors'][$this->language_code] = $func->translate_source_target_lang("Wikipedia authors and editors", "en", $this->language_code);
         }
         
-        if($task != 'taxon_wiki_per_language_stats') self::initialize_files();
+        if(!in_array($task, array("taxon_wiki_per_language_stats", "generate_wikidata_taxonomy"))) self::initialize_files();
         if    ($this->what == "wikipedia") $what_generation_status = "wikipedia_generation_status_".$this->language_code."_";
         elseif($this->what == "wikimedia") $what_generation_status = "wikimedia_generation_status_";
+        elseif($this->what == "taxonomy")  $what_generation_status = "wikitaxonomy_generation_status_";
 
         if(
-            ($this->what == "wikimedia") || (
+            ($this->what == "wikimedia") || ($this->what == "taxonomy") || 
+                                            (
                                                 $this->what == "wikipedia" && in_array($this->language_code, $this->langs_with_multiple_connectors)
                                             )
           ) { //orig
@@ -330,7 +332,10 @@ class WikiDataAPI extends WikipediaAPI
             }
             else { //means finalize file
                 // if(true) { //use this when developing*** wikimedia & wikipedia --- for 'en' and now 'es' -> those with multiple jobs
-                if(self::finalize_media_filenames_ready($what_generation_status) || $task == "generate_resource_force" || $task == "taxon_wiki_per_language_stats") { //un-comment in real operation
+                if(self::finalize_media_filenames_ready($what_generation_status) || $task == "generate_resource_force" 
+                                                                                 || $task == "taxon_wiki_per_language_stats"
+                                                                                 || $task == "generate_wikidata_taxonomy"
+                                                                                 ) { //un-comment in real operation
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
                     $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
