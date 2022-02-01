@@ -46,6 +46,7 @@ $params['json'] = $json;
    // $params['destination'] = $for_DOC_ROOT . "/applications/specimen_image_export/" . $newfile; --- copied template
    $params['destination'] = $for_DOC_ROOT . "/applications/trait_data_import/" . $newfile;
    //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here. So use $for_DOC_ROOT instead.
+   $params['Filename_ID'] = $form['Filename_ID'];
 
 /* for more debugging...
 echo "<br>newfile: [$newfile]";

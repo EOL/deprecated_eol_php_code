@@ -22,9 +22,12 @@ $form = $_POST;
     [form_url] => 
     [Filename_ID] => 111
 )*/
+
+/* 1st try --- problematic
 if($val = @$form['Filename_ID']) $time_var = $val;
 else                             $time_var = time();
-
+*/
+$time_var = time();
 $form_url = @get_val_var('form_url');
 
 if($form_url) { //URL is pasted.

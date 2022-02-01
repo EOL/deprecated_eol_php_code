@@ -10,7 +10,9 @@ if($ctrler->did_build_fail($build_status)) {
 elseif($ctrler->is_build_currently_running($build_status)) {
     $ctrler->display_message(array('type' => "highlight", 'msg' => "Processing... Page will refresh every 5 seconds."));
     /* Very important variable is: $path below */
-    $path = "task_status.php?task=$task&uuid=$params[uuid]&destination=".urlencode($params['destination'])."&true_root=".urlencode($params['true_root']);
+    $path = "task_status.php?task=$task&uuid=$params[uuid]&destination=".urlencode($params['destination'])
+        ."&true_root=".urlencode($params['true_root'])
+        ."&Filename_ID=".urlencode($params['Filename_ID']);
     $ctrler->display_message(array('type' => "highlight", 'msg' => "OR you can check back later. &nbsp; You can use this <a href='$path'>link to check status</a> anytime."));
     $actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
     $actual_link = str_ireplace("form_result.php", $path, $actual_link);
@@ -43,6 +45,15 @@ else {
     // $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "MarineGEO_sie/" . $params['uuid'] . ".xls";
     $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "Trait_Data_Import/" . $params['uuid'] . ".tar.gz";
     if(file_exists($final_archive_gzip_url)) {
+        
+        // /* NEW: to accommodate Filename_ID implementation
+        if($Filename_ID = @$params['Filename_ID']) {
+            $rename_to = CONTENT_RESOURCE_LOCAL_PATH . "Trait_Data_Import/" . $params['Filename_ID'] . ".tar.gz";
+            Functions::file_rename($final_archive_gzip_url, $rename_to);
+            $final_archive_gzip_url = $rename_to;
+        }
+        // */
+        
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
         if($final_archive_gzip_url) {
             $final_archive_gzip_url = str_replace(DOC_ROOT, WEB_ROOT, $final_archive_gzip_url);
@@ -52,6 +63,14 @@ else {
                 This file will be stored on our server for a week, after which it will be removed.<br><br>
                 <a href='index.php'>Back to menu</a>";
             echo "<br>=======================================================<br><br>";
+            // echo "<pre>"; print_r($params); echo "</pre>"; //good debug
+            /*Array(
+                [task] => xls2dwca_job_1
+                [uuid] => 1643726800
+                [destination] => /Library/WebServer/Documents/eol_php_code//applications/trait_data_import/temp/1643726800.xlsx
+                [true_root] => /Library/WebServer/Documents/eol_php_code/
+                [Filename_ID] => 111222
+            )*/
         }
         else {
             echo "There were problems processing this file:<br><br>";
