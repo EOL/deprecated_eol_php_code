@@ -139,6 +139,7 @@ php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _
 php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'Pacific halibut'
 php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'Pale fox'
 
+Jenkins for Wikipedia en final: php5.6 wikipedia.php jenkins en generate_resource
 =============================================================================================================== */
 
 $params['jenkins_or_cron']  = @$argv[1];

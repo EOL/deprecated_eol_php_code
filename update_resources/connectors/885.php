@@ -24,6 +24,7 @@ below start where taxa are cleaned
 -> wrong as MoF, Occur and Ref were not deducted from removed taxa
 885	Fri 2022-01-28 11:53:51 PM	    {"MoF":4586834, "occurrence.tab":475230, "reference.tab":195613, "taxon.tab":215041, "time_elapsed":{"sec":71989.33, "min":1199.82, "hr":20}}
 -> correct as MoF, Occur and Ref are now deducted
+885	Mon 2022-01-31 12:45:30 PM	    {"MoF":4586834, "occurrence.tab":475230, "reference.tab":195613, "taxon.tab":215041, "time_elapsed":{"sec":71221.27, "min":1187.02, "hr":19.78}}
 
 Undefined:
 [institution] => Array
