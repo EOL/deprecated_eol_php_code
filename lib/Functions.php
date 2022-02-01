@@ -440,19 +440,19 @@ class Functions
         if(stripos($file_headers[0], "Not Found") !== false) return false; //string is found
         else return true;
     }
-    public static function finalize_dwca_resource($resource_id, $big_file = false, $deleteFolderYN = false, $timestart = false)
+    public static function finalize_dwca_resource($resource_id, $big_file = false, $deleteFolderYN = false, $timestart = false, $ContResLocPath = CONTENT_RESOURCE_LOCAL_PATH)
     {
         if(!$resource_id) return;
         if(stripos($resource_id, ".") !== false) return; //string is found
         if(stripos($resource_id, "*") !== false) return; //string is found
         
-        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 10) {
-            if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id)) {
-                recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
-                Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
+        if(filesize($ContResLocPath . $resource_id . "_working/taxon.tab") > 10) {
+            if(is_dir($ContResLocPath . $resource_id)) {
+                recursive_rmdir($ContResLocPath . $resource_id . "_previous");
+                Functions::file_rename($ContResLocPath . $resource_id, $ContResLocPath . $resource_id . "_previous");
             }
-            Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
-            Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
+            Functions::file_rename($ContResLocPath . $resource_id . "_working", $ContResLocPath . $resource_id);
+            Functions::file_rename($ContResLocPath . $resource_id . "_working.tar.gz", $ContResLocPath . $resource_id . ".tar.gz");
             // Functions::set_resource_status_to_harvest_requested($resource_id); //not needed anymore
             $arr = Functions::count_resource_tab_files($resource_id);
             if(!$big_file) {
@@ -462,18 +462,18 @@ class Functions
                 */
                 require_library('connectors/DWCADiagnoseAPI');
                 $func = new DWCADiagnoseAPI();
-                $func->check_unique_ids($resource_id);
+                $func->check_unique_ids($resource_id, ".tab", $ContResLocPath);
             }
             $arr['time_elapsed'] = self::get_time_elapsed($timestart);
             $str = str_replace(",", ", ", json_encode($arr));
-            self::finalize_connector_run($resource_id, $str);
+            self::finalize_connector_run($resource_id, $str, $ContResLocPath);
         }
         if($deleteFolderYN) {
-            if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))               recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
-            if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous")) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
+            if(is_dir($ContResLocPath . $resource_id))               recursive_rmdir($ContResLocPath . $resource_id);
+            if(is_dir($ContResLocPath . $resource_id . "_previous")) recursive_rmdir($ContResLocPath . $resource_id . "_previous");
         }
         //added 14-Nov-2017: decided to remove folders xxx_previous for all resources
-        if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous")) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
+        if(is_dir($ContResLocPath . $resource_id . "_previous")) recursive_rmdir($ContResLocPath . $resource_id . "_previous");
     }
     public static function get_time_elapsed($timestart)
     {
@@ -493,10 +493,10 @@ class Functions
         if($elapsed_time_day) $temp['day'] = $elapsed_time_day;
         return $temp;
     }
-    public static function finalize_connector_run($resource_folder, $rows)
+    public static function finalize_connector_run($resource_folder, $rows, $ContResLocPath = CONTENT_RESOURCE_LOCAL_PATH)
     {
         //write log
-        $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "EOL_FreshData_connectors.txt", "a");
+        $WRITE = Functions::file_open($ContResLocPath . "EOL_FreshData_connectors.txt", "a");
         fwrite($WRITE, $resource_folder . "\t" . date('D Y-m-d h:i:s A') . "\t" . $rows . "\n"); //date('l jS \of F Y h:i:s A')
         fclose($WRITE);
     }
