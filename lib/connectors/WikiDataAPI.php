@@ -642,9 +642,12 @@ class WikiDataAPI extends WikipediaAPI
                              $rek['author_yr'] = self::get_authorship_date($arr->claims); //echo "\nauthorship_date OK";
                              $rek['parent'] = self::get_taxon_parent($arr->claims, $rek['taxon_id']); //echo "\nparent OK";
                              
-                             if($this->what == "wikimedia") $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek, $arr); //this is where vernaculars are added
-                             $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //echo "\ngallery OK"; //P935
-                             $rek['com_category'] = self::get_commons_category($arr->claims); //echo "\ncategory OK"; //P373
+                             if($this->what == "wikimedia") {
+                                 $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek, $arr); //this is where vernaculars are added
+                                 $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //echo "\ngallery OK"; //P935
+                                 $rek['com_category'] = self::get_commons_category($arr->claims); //echo "\ncategory OK"; //P373
+                             }
+                             
                              debug("\n $this->language_code ".$rek['taxon_id']." - ");
                              if($this->what == "wikipedia") {
                                  if($title = $rek['sitelinks']->title) {
@@ -670,8 +673,7 @@ class WikiDataAPI extends WikipediaAPI
                                  /* eli's debug
                                  if($a = @$rek['obj_category']) {}//print_r($a);
                                  if($b = @$rek['obj_gallery']) {}//print_r($b);
-                                 if($a || $b)
-                                 {
+                                 if($a || $b) {
                                      print_r($rek);
                                      $exit_now = true;
                                      // exit("\nmeron commons\n");
