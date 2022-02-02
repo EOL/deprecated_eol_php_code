@@ -309,7 +309,13 @@ class WikiDataAPI extends WikipediaAPI
             $this->trans['editors'][$this->language_code] = $func->translate_source_target_lang("Wikipedia authors and editors", "en", $this->language_code);
         }
         
-        if(!in_array($task, array("taxon_wiki_per_language_stats", "generate_wikidata_taxonomy"))) self::initialize_files();
+        /* obsolete
+        if(!in_array($task, array("taxon_wiki_per_language_stats"))) self::initialize_files();
+        */
+        if($task == "generate_wikidata_taxonomy") self::initialize_files($this->language_code."_xtra");
+        elseif($task == "taxon_wiki_per_language_stats") {}
+        else self::initialize_files($this->language_code); //the rest goes here
+        
         if    ($this->what == "wikipedia") $what_generation_status = "wikipedia_generation_status_".$this->language_code."_";
         elseif($this->what == "wikimedia") $what_generation_status = "wikimedia_generation_status_";
         elseif($this->what == "taxonomy")  $what_generation_status = "wikitaxonomy_generation_status_";
@@ -398,13 +404,12 @@ class WikiDataAPI extends WikipediaAPI
         if(unlink($this->TEMP_FILE_PATH)) echo "\nFile deleted OK [$this->TEMP_FILE_PATH]\n";
         else                              echo "\nERROR: Failed to delete [$this->TEMP_FILE_PATH]\n";
     }
-    private function initialize_files()
+    private function initialize_files($lang_code)
     {   /* orig. worked well but it goes to /tmp/ folder. We need to put it in /extra/ in eol-archive
         $this->TEMP_FILE_PATH = temp_filepath(); 
         */
-        
         //creates a temp file
-        $this->TEMP_FILE_PATH = CONTENT_RESOURCE_LOCAL_PATH."/wikipedia_".$this->language_code."_".date("Y-m-d_H_s").".tmp";
+        $this->TEMP_FILE_PATH = CONTENT_RESOURCE_LOCAL_PATH."/wikipedia_".$lang_code."_".date("Y-m-d_H_s").".tmp";
         if(!($f = Functions::file_open($this->TEMP_FILE_PATH, "w"))) return;
         fclose($f);
         
@@ -585,12 +590,13 @@ class WikiDataAPI extends WikipediaAPI
             if(!$cont) continue;
             */
 
-            if(stripos($row, "Q16521") !== false) { //string is found -- "taxon"
+            if(stripos($row, "Q16521") !== false) { @$taxa_count++; //string is found -- "taxon"
                 /* remove the last char which is "," a comma */
-                $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
+                $last_char = substr($row, -1);
+                if($last_char == ",") $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
 
                 // debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
-                $arr = json_decode($row);
+                $arr = json_decode($row); //print_r($arr); exit("\nelix 1\n");
                 $Q_id = $arr->id;
 
                 /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent | Q132634
@@ -639,8 +645,15 @@ class WikiDataAPI extends WikipediaAPI
                      if($rek['taxon'] = self::get_taxon_name($arr)) { //old working param is $arr->claims
                          // echo "\n taxon: ".$rek['taxon']; //Feb 13 good debug
                          // /* normal operation ==========================
-                         if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) { //if true then create DwCA for it
-                             // print_r($rek['sitelinks']); exit; good debug
+                         // /* new block
+                         if($task == "generate_wikidata_taxonomy") $criteria = true;
+                         else{ //the rest goes here, original
+                             $rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks);
+                             $criteria = $rek['sitelinks'];
+                         }
+                         // */
+                         if($criteria) { //if true then create DwCA for it
+                             // print_r($rek['sitelinks']); exit; good debug --- only for wikipedia resource
                              $i++; 
                              $rek['rank'] = self::get_taxon_rank($arr->claims); //echo "\nrank OK";
                              $rek['author'] = self::get_authorship($arr->claims); //echo "\nauthorship OK";
@@ -733,7 +746,7 @@ class WikiDataAPI extends WikipediaAPI
             // if($exit_now) break;
             
         } //main loop
-        echo "\ntotal taxon wikis = [$i]\n";
+        echo "\ntotal taxon wikis = [$i] [$taxa_count]\n";
         echo "\ntotal non-taxon wikis = [$j]\n";
         
         if($task == 'taxon_wiki_per_language_stats') {

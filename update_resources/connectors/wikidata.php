@@ -134,7 +134,7 @@ when debugging in MacMini, to generate DwCA - works OK
 php update_resources/connectors/wikidata.php _ generate_resource_force
 */
 
-/* for wikidata taxonomy (DATA-1668)
+/* for wikidata taxonomy (DATA-1668) --- IMPORTANT: BE SURE TO RUN THIS AFTER Wikipedia EN (80.tar.gz)
 php5.6 wikidata.php jenkins generate_wikidata_taxonomy
 php update_resources/connectors/wikidata.php _ generate_wikidata_taxonomy
 */
