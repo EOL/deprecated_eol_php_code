@@ -837,7 +837,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                                     else { // word before needle is alpha and capital letter
                                         $possible_sciname = $before_needle." ".$lbl;
                                         if(self::is_valid_taxon($possible_sciname)) {
-                                            echo "\nNot a valid geonames:\nlbl: [$lbl]\npossible_sciname: [$possible_sciname]\ncontext: [$rek[context]]\n"; 
+                                            // echo "\nNot a valid geonames: lbl: [$lbl] | possible_sciname: [$possible_sciname] | context: [$rek[context]]\n";  //good debug
                                             // print_r($rek); //good debug
                                             continue;
                                         }
