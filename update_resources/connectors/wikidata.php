@@ -154,7 +154,7 @@ print_r($params);
 
 // /* main operation
 if($params['task'] == 'generate_wikidata_taxonomy') {
-    $resource_id = 'wikidata-hierarchy_6';
+    $resource_id = 'wikidata-hierarchy_5';
     $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //will generate hierarchy resource. [wikidata-hierarchy]
 }
 else {
