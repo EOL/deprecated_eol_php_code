@@ -2914,7 +2914,7 @@ class WikiDataAPI extends WikipediaAPI
             */
             if($main_id == $id) return false; //e.g. https://www.wikidata.org/wiki/Q28431692 - parent points to itself.
             $parent['id'] = $id;
-            $parent['name'] = self::lookup_value($id);
+            $parent['name'] = self::lookup_value($id); //this goes to lookup a remote service
             //start get rank
             if($obj = self::get_object($id)) {
                 $parent['taxon_name'] = self::get_taxon_name(@$obj->entities->$id); //old working param is $obj->entities->$id->claims

@@ -92,6 +92,11 @@ require_library('connectors/WikipediaAPI');
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = false; //orig value should be -> false
+/* during development
+ini_set('error_reporting', E_ALL);
+ini_set('display_errors', true);
+$GLOBALS['ENV_DEBUG'] = true; //set to true during development
+*/
 
 /*
 $orig = array(1,2,3,4,8,9);
