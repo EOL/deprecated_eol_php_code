@@ -534,7 +534,7 @@ class WikiDataAPI extends WikipediaAPI
     {
         $exit_now = false; //only used during debug
         $actual = 0; $i = 0; $j = 0;
-        $k = 0; $m = 250000; //only for breakdown when caching
+        $k = 0; $m = 564761; //only for breakdown when caching --- total taxa as of Feb 2, 2022 = 3388566 then divided by 6 to get $m
         
         // /* New: Aug 29, 2021
         $cmd = "wc -l ".$this->path['wiki_data_json'];
@@ -565,30 +565,27 @@ class WikiDataAPI extends WikipediaAPI
             else break;
             */
 
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;
             // if($k >=  $m   && $k < $m*2) $cont = true;
             // if($k >=  $m*2 && $k < $m*3) $cont = true;
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
             // if($k >=  $m*4 && $k < $m*5) $cont = true;
-            // if($k >=  $m*5 && $k < $m*6) $cont = true;
-            // if($k >=  $m*6 && $k < $m*7) $cont = true;
-            // if($k >=  $m*7 && $k < $m*8) $cont = true;
-            // if($k >=  $m*8 && $k < $m*9) $cont = true;
+            if($k >=  $m*5 && $k < $m*6) $cont = true;
 
             // these 3 have many pages, but just a stub page with under-construction feel
             // if($k >= 1132112 && $k < $m*5) $cont = true; // nl
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 1 && $k < 50) $cont = true;   //wikimedia total taxa = 2,208,086
-            else break;
+            // if($k >= 1 && $k < 50) $cont = true;   //wikimedia total taxa = 2,208,086
+            // else break;
             
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
-            */
+            // */
 
             if(stripos($row, "Q16521") !== false) { @$taxa_count++; //string is found -- "taxon"
                 /* remove the last char which is "," a comma */
