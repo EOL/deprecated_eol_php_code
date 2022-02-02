@@ -91,7 +91,15 @@ wikipedia_en_traits	Tue 2021-08-31 11:40:53 AM	    {"MoF.tab":148894, "occurrenc
 wikipedia_en_traits	Tue 2021-08-31 11:50:27 AM	    {"MoF.tab":149887, "occurrence.tab":149887, "taxon.tab":83240, "time_elapsed":false} correct OK
 after DATA-1893:
 wikipedia_en_traits	Wed 2021-10-13 09:32:56 AM	    {"MoF.tab":149887, "occurrence.tab":149887, "taxon.tab":83240, "time_elapsed":false}
+
+wikipedia_en_traits_FTG	Wed 2021-10-20 08:11:23 PM	{"MoF.tab":151048, "occurrence.tab":151048, "taxon.tab":430102, "time_elapsed":{"sec":867.93, "min":14.47, "hr":0.24}}
+wikipedia_en_traits_tmp1	Wed 2021-10-20 08:13:42 {"MoF.tab":151048, "occurrence.tab":151048, "taxon.tab":83240, "time_elapsed":false}
 wikipedia_en_traits	Wed 2021-10-20 08:15:56 PM	    {"MoF.tab":149887, "occurrence.tab":149887, "taxon.tab":83240, "time_elapsed":false}
+
+start removed entities file (Vangelis' file) and use EOL terms file exclusively cause substantial increase in MoF than usual
+wikipedia_en_traits_FTG	Tue 2022-02-01 05:29:21 PM	{"MoF.tab":268838, "occurrence.tab":268838, "taxon.tab":439104, "time_elapsed":{"sec":938.35, "min":15.64, "hr":0.26}}
+wikipedia_en_traits_tmp1	Tue 2022-02-01 05:32:51 {"MoF.tab":268838, "occurrence.tab":268838, "taxon.tab":114758, "time_elapsed":false}
+wikipedia_en_traits	Tue 2022-02-01 05:36:01 PM	    {"MoF.tab":257608, "occurrence.tab":257608, "taxon.tab":114758, "time_elapsed":false}
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
