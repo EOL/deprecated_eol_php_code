@@ -2966,7 +2966,7 @@ class WikiDataAPI extends WikipediaAPI
         $options = $this->download_options;
         if(@$options['resource_id']) unset($options['resource_id']);
         // /* as of Jan 29,2020. Previously value = false. Not anymore, since EntityData can change. Not often but it can change.
-        $options['expire_seconds'] = 60*60*24*30*6; //6 months
+        $options['expire_seconds'] = 60*60*24*30*12; //12 months
         // */
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
