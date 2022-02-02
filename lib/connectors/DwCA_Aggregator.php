@@ -397,7 +397,20 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                     }
                 }
                 // */
-            }
+                
+                // /* ancestry fields must not have separators: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=66656&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66656
+                if($what == "taxon") {
+                    $ancestors = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
+                    foreach($ancestors as $ancestor) {
+                        if($val = trim(@$rec["http://rs.tdwg.org/dwc/terms/".$ancestor])) {
+                            if(stripos($val, ";") !== false) $rec["http://rs.tdwg.org/dwc/terms/".$ancestor] = ""; //string is found
+                            elseif(stripos($val, ",") !== false) $rec["http://rs.tdwg.org/dwc/terms/".$ancestor] = ""; //string is found
+                            elseif(stripos($val, " ") !== false) $rec["http://rs.tdwg.org/dwc/terms/".$ancestor] = ""; //string is found
+                        }
+                    }
+                }
+                // */
+            } //end TreatmentBank
             // ==================== end customize ==================== */
             
             $uris = array_keys($rec);
