@@ -913,7 +913,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         foreach($words as $index => $word) {
             if($word == $needle) {
                 if($index == 0) { //meaning the $needle is the first word in the $context
-                    echo "\nditox:\nneedle:[$needle]\ncontext:[$context]\n"; print_r($words);
+                    // echo "\nditox:\nneedle:[$needle]\ncontext:[$context]\n"; print_r($words); //good debug
                     return "";
                 }
                 return $words[$index-1];
