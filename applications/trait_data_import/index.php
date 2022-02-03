@@ -7,11 +7,15 @@
             --->
             </td>
         </tr>
-        <tr align="center">
+        <tr>
             <td>
                 <font size="3">
-                    Download the input spreadsheet template <a href="https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Trait_Data_Import/Trait_template.xlsx">here</a>.
-                    <br>
+                 <ul>
+                  <li>Download to your computer the input spreadsheet template <a href="https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Trait_Data_Import/Trait_template.xlsx">here</a>.</li>
+                  <li>Open spreadsheet, enter your own data and save.</li>
+                  <li>Upload file using [Browse] button below.</li>
+                </ul>
+                
                 </font>
             </td>
         </tr>
