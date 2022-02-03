@@ -56,14 +56,12 @@ else {
         else $hash_post = $params['uuid'];
         // */
         
-        $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
-        
         // /* special provision
         $ckan_resource_id = get_ckan_resource_id_given_hash("hash-".$hash_post);
-        // echo "\nckan_resource_id: [$ckan_resource_id]\n";
         // */
         // echo "\n" . getcwd() . "\n"; exit;
-        
+
+        $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
         
         if($final_archive_gzip_url && $ckan_resource_id) {
             $final_archive_gzip_url = str_replace(DOC_ROOT, WEB_ROOT, $final_archive_gzip_url);
@@ -86,7 +84,7 @@ else {
             )*/
         }
         else {
-            echo "There were problems processing this file:<br><br>";
+            echo "There were problems processing this upload: [$final_archive_gzip_url] [$ckan_resource_id]"; print_r($params);
         }
         // echo "<a href='../../applications/tools.php'>Back to Tools</a>";
     }
