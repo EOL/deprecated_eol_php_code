@@ -12,11 +12,11 @@ php update_resources/connectors/marine_geo_image.php _ _ 'https://github.com/eli
 // print_r(pathinfo('http://www.boldsystems.org/index.php/API_Public/specimen?container=KANB&format=tsv')); exit;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-// /*
 $GLOBALS['ENV_DEBUG'] = false;  //set to false in production
-// $GLOBALS['ENV_DEBUG'] = true;   //set to true when debugging
+// /*
+$GLOBALS['ENV_DEBUG'] = true;   //set to true when debugging
 // error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
-// ini_set('error_reporting', E_ALL);
+ini_set('error_reporting', E_ALL);
 // */
 ini_set('memory_limit','7096M');
 require_library('connectors/TraitDataImportAPI');
