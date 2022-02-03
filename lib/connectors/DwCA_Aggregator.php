@@ -408,6 +408,9 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                             elseif(stripos($val, " ") !== false) $rec["http://rs.tdwg.org/dwc/terms/".$ancestor] = ""; //string is found
                         }
                     }
+                    if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == "03A487F05711FB7CFECA8E029F9BA19D.taxon") continue;
+                    if(stripos($rec['http://rs.tdwg.org/dwc/terms/scientificName'], "Acrididae;") !== false) continue //string is found
+                    if(stripos(@$rec['http://rs.gbif.org/terms/1.0/canonicalName'], "Acrididae;") !== false) continue //string is found
                 }
                 // */
             } //end TreatmentBank
@@ -421,7 +424,7 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
             }
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 2) break; //debug only
-        }
+        } //end foreach()
     }
     private function get_attributions()
     {   //exit("\nresource_id: [$this->resource_id]\n");
