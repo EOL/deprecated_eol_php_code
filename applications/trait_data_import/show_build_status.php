@@ -71,7 +71,7 @@ else {
             echo "The DwCA is now available in <a href='$final_archive_gzip_url'>$final_archive_gzip_url</a><br><br>
                 You can save this file to your computer.<br><br>
                 This file will be stored on our server for a week, after which it will be removed.<br><br>
-                The OpenData resource for this upload is <a href='$opendata'>here</a><br><br>
+                The OpenData resource for this upload is <a target='$hash_post' href='$opendata'>here</a><br><br>
                 The Upload ID is: <b>$hash_post</b>. You will use this if you want to re-upload an updated spreadsheet.<br><br>
                 <a href='index.php'>Back to menu</a>";
             echo "<br>=======================================================<br><br>";

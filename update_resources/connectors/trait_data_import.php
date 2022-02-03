@@ -28,7 +28,7 @@ $params['form_url']         = @$argv[3];
 $params['uuid']             = @$argv[4];
 $params['json']             = @$argv[5];
 
-print_r($params); //exit;
+if($GLOBALS['ENV_DEBUG']) print_r($params); //good debug
 /*Array(
     [jenkins_or_cron] => jenkins
     [filename] => 1574915471.zip

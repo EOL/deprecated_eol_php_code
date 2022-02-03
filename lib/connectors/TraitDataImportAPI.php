@@ -56,7 +56,7 @@ class TraitDataImportAPI
         $this->arr_json = json_decode($json, true);
         if($val = @$this->arr_json['timestart']) $timestart = $val;               //normal operation
         else                               $timestart = time_elapsed();     //during dev only - command line
-        print_r($this->arr_json); //exit;
+        if($GLOBALS['ENV_DEBUG']) print_r($this->arr_json);
         
         // /* for $form_url:
         if($form_url && $form_url != '_') $filename = self::process_form_url($form_url, $uuid); //this will download (wget) and save file in /specimen_export/temp/
