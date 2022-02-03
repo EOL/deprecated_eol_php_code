@@ -37,12 +37,12 @@ if($form_url) { //URL is pasted.
     if(!in_array(pathinfo($form_url, PATHINFO_EXTENSION), array('xls', 'xlsx', 'zip'))) exit("\nERROR: Wrong file format.\n\n");
     // print_r(pathinfo($form_url)); exit;
     
-    /* good debug
+    // /* good debug
     echo "<hr>form_url: [$form_url]";
     echo "<hr>orig_file: [$orig_file]";
     echo "<hr>newfile: [$newfile]<hr>";
     // exit;
-    */
+    // */
 }
 elseif($file_type = @$_FILES["file_upload"]["type"]) {
     if(in_array($file_type, array("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel", "application/zip"))) {
