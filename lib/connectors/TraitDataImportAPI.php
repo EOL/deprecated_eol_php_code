@@ -108,7 +108,36 @@ class TraitDataImportAPI
         
         // sleep(2); //we only upload one at a time, no need for delay
         $output = shell_exec($cmd);
-        print_r(json_decode($output, true));
+        $output = json_decode($output, true); //print_r($output);
+        if($output['success'] == 1) echo "\nOpenData resource UPDATE OK.\n";
+        else                        echo "\nERROR: OpenData resource UPDATE failed.\n";
+        /*Array(
+            [help] => https://opendata.eol.org/api/3/action/help_show?name=resource_update
+            [success] => 1
+            [result] => Array(
+                    [cache_last_updated] => 
+                    [cache_url] => 
+                    [mimetype_inner] => 
+                    [hash] => hash-cha_02
+                    [description] => Updated: 2022-02-03 05:36
+                    [format] => Darwin Core Archive
+                    [url] => http://localhost/eol_php_code/applications/content_server/resources/Trait_Data_Import/cha_02.tar.gz
+                    [created] => 2022-02-03T01:40:54.782481
+                    [state] => active
+                    [webstore_last_updated] => 
+                    [webstore_url] => 
+                    [package_id] => dab391f0-7ec0-4055-8ead-66b1dea55f28
+                    [last_modified] => 
+                    [mimetype] => 
+                    [url_type] => 
+                    [position] => 1
+                    [revision_id] => 3c3f2587-c0b3-4fdd-bb5e-c6ae23d79afe
+                    [size] => 
+                    [id] => a4b749ea-1134-4351-9fee-ac1e3df91a4f
+                    [resource_type] => 
+                    [name] => Fishes of Philippines
+                )
+        )*/
         // echo "\n$output\n";
     }
     private function CREATE_ckan_resource($resource_id) //https://docs.ckan.org/en/ckan-2.7.3/api/
@@ -133,8 +162,9 @@ class TraitDataImportAPI
         
         // sleep(2); //we only upload one at a time, no need for delay
         $output = shell_exec($cmd);
-        print_r(json_decode($output, true));
-        // echo "\n$output\n";
+        $output = json_decode($output, true);
+        if($output['success'] == 1) echo "\nOpenData resource CREATE OK.\n";
+        else                        echo "\nERROR: OpenData resource CREATE failed.\n";
     }
     private function get_ckan_resource_id_given_hash($hash)
     {
