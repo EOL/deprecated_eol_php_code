@@ -15,7 +15,7 @@
                 </font>
             </td>
         </tr>
-
+        <!---
         <tr>
             <td>
                 <font size="3">Excel File URL: </font><input type="text" name="form_url" size="100">
@@ -25,6 +25,7 @@
                 </small>
             </td>
         </tr>
+        --->
         <tr>
             <td>
                 <font size="3">Excel File Upload: </font><input type="file" name="file_upload" id="file_upload" size="100">
