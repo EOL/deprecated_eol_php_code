@@ -365,10 +365,10 @@ https://www.gbif.org/occurrence/map?geometry=POLYGON((-65.022 63.392, -74.232 64
         // echo "\n[$sciname]\n$final\n";
         return $final;
     }
-    function get_opendata_resources($dataset, $all_fields = false)
+    function get_opendata_resources($dataset, $all_fields = false, $expire_seconds = 60*60*2)
     {
         $options = $this->download_options;
-        $options['expire_seconds'] = 60*60*2; //2 hrs   //60*60*24; //1 day expires
+        $options['expire_seconds'] = $expire_seconds; //2 hrs   //60*60*24; //1 day expires
         if($json = Functions::lookup_with_cache($this->opendata_dataset_api.$dataset, $options)) {
             $o = json_decode($json);
             if($all_fields) return $o->result->resources;

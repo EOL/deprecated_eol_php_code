@@ -40,6 +40,7 @@ class TraitDataImportAPI
             
             $this->input['worksheets'] = array('data', 'references', 'vocabulary'); //'data' is the 1st worksheet from Trait_template.xlsx
             $this->vocabulary_fields = array("predicate label", "predicate uri", "value label", "value uri", "units label", "units uri", "statmeth label", "statmeth uri", "sex label", "sex uri", "lifestage label", "lifestage uri");
+            $this->opendata_dataset_api = 'https://opendata.eol.org/api/3/action/package_show?id=';
         }
         /* ============================= END for image_export ============================= */
     }
@@ -52,9 +53,10 @@ class TraitDataImportAPI
                 self::generate_info_list_tsv($this->manual_entry->Proj);
             }
         } */
-        $arr_json = json_decode($json, true);
-        if($val = @$arr_json['timestart']) $timestart = $val;               //normal operation
+        $this->arr_json = json_decode($json, true);
+        if($val = @$this->arr_json['timestart']) $timestart = $val;               //normal operation
         else                               $timestart = time_elapsed();     //during dev only - command line
+        print_r($this->arr_json); //exit;
         
         // /* for $form_url:
         if($form_url && $form_url != '_') $filename = self::process_form_url($form_url, $uuid); //this will download (wget) and save file in /specimen_export/temp/
@@ -70,10 +72,111 @@ class TraitDataImportAPI
             $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME);
             self::read_input_file($input_file); //writes to text files for reading in next step.
             // exit("\neli 3\n[$this->resource_id]\n");
-            self::create_output_file($timestart);
+            self::create_output_file($timestart); //generates the DwCA
+            self::create_or_update_OpenData_resource();
         }
         else debug("\nInput file not found: [$input_file]\n");
     }
+    private function create_or_update_OpenData_resource()
+    {
+        if($resource_id = @$this->arr_json['Filename_ID']) {}
+        else $resource_id = $this->resource_id;
+        
+        if($ckan_resource_id = self::get_ckan_resource_id_given_hash("hash-".$resource_id)) self::UPDATE_ckan_resource($resource_id, $ckan_resource_id);
+        else self::CREATE_ckan_resource($resource_id);
+    }
+    private function UPDATE_ckan_resource($resource_id, $ckan_resource_id) //https://docs.ckan.org/en/ckan-2.7.3/api/
+    {
+        $rec = array();
+        $rec['package_id'] = "trait-spreadsheet-repository"; // https://opendata.eol.org/dataset/trait-spreadsheet-repository
+        $rec['clear_upload'] = "true";
+        if(Functions::is_production()) $domain = "https://editors.eol.org";
+        else                           $domain = "http://localhost";
+        $rec['url'] = $domain.'/eol_php_code/applications/content_server/resources/Trait_Data_Import/'.$resource_id.'.tar.gz';
+        $rec['name'] = $resource_id." name";
+        // $rec['hash'] = "hash-".$resource_id;
+        // $rec['revision_id'] = $resource_id;
+        $rec['id'] = $ckan_resource_id; //e.g. a4b749ea-1134-4351-9fee-ac1e3df91a4f
+        $rec['description'] = "Updated: ".date("Y-m-d H:s");
+        $rec['format'] = "Darwin Core Archive";
+        $json = json_encode($rec);
+        
+        $cmd = 'curl https://opendata.eol.org/api/3/action/resource_update';
+        $cmd .= " -d '".$json."'";
+        $cmd .= ' -H "Authorization: b9187eeb-0819-4ca5-a1f7-2ed97641bbd4"';
+        
+        // sleep(2); //we only upload one at a time, no need for delay
+        $output = shell_exec($cmd);
+        echo "\n$output\n";
+    }
+    private function CREATE_ckan_resource($resource_id) //https://docs.ckan.org/en/ckan-2.7.3/api/
+    {
+        $rec = array();
+        $rec['package_id'] = "trait-spreadsheet-repository"; // https://opendata.eol.org/dataset/trait-spreadsheet-repository
+        $rec['clear_upload'] = "true";
+        if(Functions::is_production()) $domain = "https://editors.eol.org";
+        else                           $domain = "http://localhost";
+        $rec['url'] = $domain.'/eol_php_code/applications/content_server/resources/Trait_Data_Import/'.$resource_id.'.tar.gz';
+        $rec['name'] = $resource_id." name";
+        $rec['hash'] = "hash-".$resource_id;
+        // $rec['revision_id'] = $resource_id;
+        $rec['description'] = "Created: ".date("Y-m-d H:s");
+        $rec['format'] = "Darwin Core Archive";
+        $json = json_encode($rec);
+        
+        $cmd = 'curl https://opendata.eol.org/api/3/action/resource_create';
+        $cmd .= " -d '".$json."'";
+        $cmd .= ' -H "Authorization: b9187eeb-0819-4ca5-a1f7-2ed97641bbd4"';
+        
+        // sleep(2); //we only upload one at a time, no need for delay
+        $output = shell_exec($cmd);
+        echo "\n$output\n";
+    }
+    private function get_ckan_resource_id_given_hash($hash)
+    {
+        $ckan_resources = self::get_opendata_resources_given_datasetID("trait-spreadsheet-repository");
+        // print_r($ckan_resources); exit;
+        /*Array(
+            [0] => stdClass Object(
+                    [cache_last_updated] => 
+                    [cache_url] => 
+                    [mimetype_inner] => 
+                    [hash] => cha_02
+                    [description] => Updated: 2022-02-02 20:00
+                    [format] => Darwin Core Archive
+                    [url] => http://localhost/eol_php_code/applications/content_server/resources/Trait_Data_Import/cha_02.tar.gz
+                    [created] => 2022-02-03T00:21:26.418199
+                    [state] => active
+                    [webstore_last_updated] => 
+                    [webstore_url] => 
+                    [package_id] => dab391f0-7ec0-4055-8ead-66b1dea55f28
+                    [last_modified] => 
+                    [mimetype] => 
+                    [url_type] => 
+                    [position] => 0
+                    [revision_id] => 52f079cf-fa6f-40ec-a3f2-b826ed3c3885
+                    [size] => 
+                    [id] => 6f4d804b-6f49-4841-a84e-3e0b02b35043
+                    [resource_type] => 
+                    [name] => cha_02 name
+                )*/
+        foreach($ckan_resources as $res) {
+            if($res->hash == $hash) return $res->id;
+        }
+        return false;
+    }
+    private function get_opendata_resources_given_datasetID($dataset, $all_fields = true, $expire_seconds = 60*60*2)
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = 0;
+        if($json = Functions::lookup_with_cache($this->opendata_dataset_api.$dataset, $options)) {
+            $o = json_decode($json);
+            if($all_fields) return $o->result->resources;
+            foreach($o->result->resources as $res) $final[$res->url] = '';
+        }
+        return array_keys($final);
+    }
+    
     private function process_form_url($form_url, $uuid)
     {   //wget -nc https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /Volumes/AKiTiO4/other_files/bundle_images/xxx/740.027116-1.jpg
         $ext = pathinfo($form_url, PATHINFO_EXTENSION);

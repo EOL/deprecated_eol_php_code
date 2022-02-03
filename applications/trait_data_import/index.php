@@ -50,7 +50,11 @@
                 <tr><td>Filename ID:</td> <td><input type='text' name='Filename_ID'></td></tr>
                 <tr><td></td>
                     <td>
-                        <small>Optional. Enter filename ID if you want to overwrite previous upload.</small>
+                        <small>Optional.
+                        Please enter a unique filename. If left blank, system will generate a filename (series of numbers) for you.
+                        You can also use this filename to overwrite previous uploads.
+                        If left blank, a new resource will be created even if you submit a previously submitted spreadsheet.
+                        </small>
                     </td>
                 </tr>
                 </table>

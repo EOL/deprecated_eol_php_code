@@ -16,6 +16,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;  //set to false in production
 // $GLOBALS['ENV_DEBUG'] = true;   //set to true when debugging
 // error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
+// ini_set('error_reporting', E_ALL);
 // */
 ini_set('memory_limit','7096M');
 require_library('connectors/TraitDataImportAPI');
