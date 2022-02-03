@@ -570,8 +570,8 @@ class WikiDataAPI extends WikipediaAPI
             // if($k >=  1    && $k < $m) $cont = true;
             // if($k >=  $m   && $k < $m*2) $cont = true;
             // if($k >=  $m*2 && $k < $m*3) $cont = true;
-            if($k >=  $m*3 && $k < $m*4) $cont = true;
-            // if($k >=  $m*4 && $k < $m*5) $cont = true;
+            // if($k >=  $m*3 && $k < $m*4) $cont = true;
+            if($k >=  $m*4 && $k < $m*5) $cont = true;
             // if($k >=  $m*5 && $k < $m*6) $cont = true;
 
             // these 3 have many pages, but just a stub page with under-construction feel
