@@ -409,8 +409,8 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                         }
                     }
                     if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == "03A487F05711FB7CFECA8E029F9BA19D.taxon") continue;
-                    if(stripos($rec['http://rs.tdwg.org/dwc/terms/scientificName'], "Acrididae;") !== false) continue //string is found
-                    if(stripos(@$rec['http://rs.gbif.org/terms/1.0/canonicalName'], "Acrididae;") !== false) continue //string is found
+                    if(stripos($rec['http://rs.tdwg.org/dwc/terms/scientificName'], "Acrididae;") !== false) continue; //string is found
+                    if(stripos(@$rec['http://rs.gbif.org/terms/1.0/canonicalName'], "Acrididae;") !== false) continue; //string is found
                 }
                 // */
             } //end TreatmentBank
