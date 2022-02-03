@@ -93,10 +93,11 @@ class TraitDataImportAPI
         if(Functions::is_production()) $domain = "https://editors.eol.org";
         else                           $domain = "http://localhost";
         $rec['url'] = $domain.'/eol_php_code/applications/content_server/resources/Trait_Data_Import/'.$resource_id.'.tar.gz';
-        $rec['name'] = $resource_id." name";
+        // $rec['name'] = $resource_id." name";
         // $rec['hash'] = "hash-".$resource_id;
         // $rec['revision_id'] = $resource_id;
         $rec['id'] = $ckan_resource_id; //e.g. a4b749ea-1134-4351-9fee-ac1e3df91a4f
+        if($val = @$this->arr_json['Short_Desc']) $rec['name'] = $val;
         $rec['description'] = "Updated: ".date("Y-m-d H:s");
         $rec['format'] = "Darwin Core Archive";
         $json = json_encode($rec);
@@ -107,7 +108,8 @@ class TraitDataImportAPI
         
         // sleep(2); //we only upload one at a time, no need for delay
         $output = shell_exec($cmd);
-        echo "\n$output\n";
+        print_r(json_decode($output, true));
+        // echo "\n$output\n";
     }
     private function CREATE_ckan_resource($resource_id) //https://docs.ckan.org/en/ckan-2.7.3/api/
     {
@@ -117,9 +119,10 @@ class TraitDataImportAPI
         if(Functions::is_production()) $domain = "https://editors.eol.org";
         else                           $domain = "http://localhost";
         $rec['url'] = $domain.'/eol_php_code/applications/content_server/resources/Trait_Data_Import/'.$resource_id.'.tar.gz';
-        $rec['name'] = $resource_id." name";
+        // $rec['name'] = $resource_id." name";
         $rec['hash'] = "hash-".$resource_id;
         // $rec['revision_id'] = $resource_id;
+        if($val = @$this->arr_json['Short_Desc']) $rec['name'] = $val;
         $rec['description'] = "Created: ".date("Y-m-d H:s");
         $rec['format'] = "Darwin Core Archive";
         $json = json_encode($rec);
@@ -130,7 +133,8 @@ class TraitDataImportAPI
         
         // sleep(2); //we only upload one at a time, no need for delay
         $output = shell_exec($cmd);
-        echo "\n$output\n";
+        print_r(json_decode($output, true));
+        // echo "\n$output\n";
     }
     private function get_ckan_resource_id_given_hash($hash)
     {
@@ -165,7 +169,7 @@ class TraitDataImportAPI
         }
         return false;
     }
-    private function get_opendata_resources_given_datasetID($dataset, $all_fields = true, $expire_seconds = 60*60*2)
+    private function get_opendata_resources_given_datasetID($dataset, $all_fields = true)
     {
         $options = $this->download_options;
         $options['expire_seconds'] = 0;

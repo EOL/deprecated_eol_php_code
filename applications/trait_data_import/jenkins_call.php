@@ -14,11 +14,11 @@ $job_name = 'xls2dwca_job';
 $task = $ctrler->get_available_job($job_name);
 $postfix = "_xls2dwca";
 
-// /* for debugging:
+/* for debugging:
 $server_http_host = $_SERVER['HTTP_HOST'];
 $server_script_name = $_SERVER['SCRIPT_NAME'];
 $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $server_script_name);
-// */
+*/
 
 $params['true_root'] = $true_DOC_ROOT;
 $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
@@ -40,13 +40,15 @@ $json = '{"Proj":"'.$form['Proj'].'", "Dept":"'.$dept_map[$form['Dept']].'"
          , "Proj_refresh":"'.$Proj_refresh.'"
          , "timestart":"'.$timestart.'", "Lic_yr":"'.$form['Lic_yr'].'", "Lic_inst":"'.$form['Lic_inst'].'", "Lic_cont":"'.$form['Lic_cont'].'"}';
 */
-$json = '{"Filename_ID":"'.$form['Filename_ID'].'", "timestart":"'.$timestart.'"}';
+$json = '{"Filename_ID":"'.$form['Filename_ID'].'","Short_Desc":"'.$form['Short_Desc'].'" , "timestart":"'.$timestart.'"}';
+
 $params['json'] = $json;
 // exit("\n$json\n");
    // $params['destination'] = $for_DOC_ROOT . "/applications/specimen_image_export/" . $newfile; --- copied template
    $params['destination'] = $for_DOC_ROOT . "/applications/trait_data_import/" . $newfile;
    //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here. So use $for_DOC_ROOT instead.
    $params['Filename_ID'] = $form['Filename_ID'];
+   $params['Short_Desc'] = $form['Short_Desc'];
 
 /* for more debugging...
 echo "<br>newfile: [$newfile]";

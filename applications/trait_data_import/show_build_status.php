@@ -51,16 +51,29 @@ else {
             $rename_to = CONTENT_RESOURCE_LOCAL_PATH . "Trait_Data_Import/" . $params['Filename_ID'] . ".tar.gz";
             Functions::file_rename($final_archive_gzip_url, $rename_to);
             $final_archive_gzip_url = $rename_to;
+            $hash_post = $Filename_ID;
         }
+        else $hash_post = $params['uuid'];
         // */
         
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
-        if($final_archive_gzip_url) {
+        
+        // /* special provision
+        $ckan_resource_id = get_ckan_resource_id_given_hash("hash-".$hash_post);
+        // echo "\nckan_resource_id: [$ckan_resource_id]\n";
+        // */
+        // echo "\n" . getcwd() . "\n"; exit;
+        
+        
+        if($final_archive_gzip_url && $ckan_resource_id) {
             $final_archive_gzip_url = str_replace(DOC_ROOT, WEB_ROOT, $final_archive_gzip_url);
+            $opendata = "https://opendata.eol.org/dataset/trait-spreadsheet-repository/resource/".$ckan_resource_id;
+            
             echo "=======================================================<br>";
             echo "The export is now available in <a href='$final_archive_gzip_url'>$final_archive_gzip_url</a><br><br>
                 You can save this file to your computer.<br><br>
                 This file will be stored on our server for a week, after which it will be removed.<br><br>
+                The OpenData resource for this upload is <a href='$opendata'>here</a><br><br>
                 <a href='index.php'>Back to menu</a>";
             echo "<br>=======================================================<br><br>";
             // echo "<pre>"; print_r($params); echo "</pre>"; //good debug
@@ -92,5 +105,51 @@ else {
 }
 if($build_status) {
     if($ctrler->is_build_aborted($build_status)) echo "<p>Process aborted. &nbsp; <a href='index.php'>&lt;&lt; Back to main</a>";
+}
+
+function get_ckan_resource_id_given_hash($hash)
+{
+    $ckan_resources = get_opendata_resources_given_datasetID("trait-spreadsheet-repository");
+    // echo "<pre>"; print_r($ckan_resources); echo "<br>[$hash]</pre>"; //good debug
+    /*Array(
+        [0] => stdClass Object(
+                [cache_last_updated] => 
+                [cache_url] => 
+                [mimetype_inner] => 
+                [hash] => cha_02
+                [description] => Updated: 2022-02-02 20:00
+                [format] => Darwin Core Archive
+                [url] => http://localhost/eol_php_code/applications/content_server/resources/Trait_Data_Import/cha_02.tar.gz
+                [created] => 2022-02-03T00:21:26.418199
+                [state] => active
+                [webstore_last_updated] => 
+                [webstore_url] => 
+                [package_id] => dab391f0-7ec0-4055-8ead-66b1dea55f28
+                [last_modified] => 
+                [mimetype] => 
+                [url_type] => 
+                [position] => 0
+                [revision_id] => 52f079cf-fa6f-40ec-a3f2-b826ed3c3885
+                [size] => 
+                [id] => 6f4d804b-6f49-4841-a84e-3e0b02b35043
+                [resource_type] => 
+                [name] => cha_02 name
+            )*/
+    foreach($ckan_resources as $res) {
+        if($res->hash == $hash) return $res->id;
+    }
+    return false;
+}
+function get_opendata_resources_given_datasetID($dataset, $all_fields = true)
+{
+    // $options = $this->download_options;
+    $options['expire_seconds'] = 0;
+    if($json = Functions::lookup_with_cache("https://opendata.eol.org/api/3/action/package_show?id=".$dataset, $options)) {
+        $o = json_decode($json);
+        if($all_fields) return $o->result->resources;
+        foreach($o->result->resources as $res) $final[$res->url] = '';
+    }
+    else exit("\ncannot lookup\n");
+    return array_keys($final);
 }
 ?>
