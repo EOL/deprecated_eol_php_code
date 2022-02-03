@@ -291,7 +291,7 @@ class TraitDataImportAPI
         self::parse_tsv($tsv['data'], 'write_dwca');
     }
     private function parse_tsv($txtfile, $task)
-    {   $i = 0; echo "\n[$task] [$txtfile]\n";
+    {   $i = 0; debug("\n[$task] [$txtfile]\n");
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             if($i == 1) $line = strtolower($line);
