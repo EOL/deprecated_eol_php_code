@@ -14,6 +14,7 @@ ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true during development
 */
+$time_var = time();
 
 // echo "<pre>"; print_r($_FILES); exit("</pre>");
 $form = $_POST;
@@ -23,11 +24,18 @@ $form = $_POST;
     [Filename_ID] => 111
 )*/
 
+// /* Filename_ID check if doesn't exist in OpenData. If doesn't exist, stop operation now.
+require_library('connectors/TraitDataImportAPI');
+$func = new TraitDataImportAPI('trait_data_import');
+if($resource_id = $func->get_ckan_resource_id_given_hash("hash-".@get_val_var('Filename_ID'))) {} //continue;
+else exit("<hr>Upload ID does not exist. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+// */
+
 /* 1st try --- problematic
 if($val = @$form['Filename_ID']) $time_var = $val;
 else                             $time_var = time();
 */
-$time_var = time();
+
 $form_url = @get_val_var('form_url');
 
 if($form_url) { //URL is pasted.

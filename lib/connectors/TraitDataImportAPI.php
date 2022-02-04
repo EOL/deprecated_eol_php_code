@@ -166,7 +166,7 @@ class TraitDataImportAPI
         if($output['success'] == 1) echo "\nOpenData resource CREATE OK.\n";
         else                        echo "\nERROR: OpenData resource CREATE failed.\n";
     }
-    private function get_ckan_resource_id_given_hash($hash)
+    function get_ckan_resource_id_given_hash($hash)
     {
         $ckan_resources = self::get_opendata_resources_given_datasetID("trait-spreadsheet-repository");
         // print_r($ckan_resources); exit;
