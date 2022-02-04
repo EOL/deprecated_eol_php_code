@@ -74,7 +74,7 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
     }
     else exit("<hr>$file_type<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 }
-else exit("<hr>Please browse an Excel file OR enter its URL to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+else exit("<hr>Please browse an Excel file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 
 /* replaced by Jenkins call
 print "<br><b>Processing, please wait...</b><br><hr>";
