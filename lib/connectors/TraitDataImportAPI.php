@@ -169,7 +169,9 @@ class TraitDataImportAPI
     function get_ckan_resource_id_given_hash($hash)
     {
         $ckan_resources = self::get_opendata_resources_given_datasetID("trait-spreadsheet-repository");
-        // print_r($ckan_resources); exit;
+        echo "<pre>";
+        print_r($ckan_resources); //exit;
+        echo "</pre>";
         /*Array(
             [0] => stdClass Object(
                     [cache_last_updated] => 
