@@ -29,7 +29,7 @@ if($Filename_ID = @get_val_var('Filename_ID')) {
     require_library('connectors/TraitDataImportAPI');
     $func = new TraitDataImportAPI('trait_data_import');
     if($resource_id = $func->get_ckan_resource_id_given_hash("hash-".$Filename_ID)) {} //continue;
-    else exit("<hr>Upload ID does not exist. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+    else exit("<hr>Upload ID [$Filename_ID] does not exist. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 }
 // */
 
