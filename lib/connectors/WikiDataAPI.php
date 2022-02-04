@@ -565,7 +565,7 @@ class WikiDataAPI extends WikipediaAPI
             else break;
             */
 
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;
             // if($k >=  $m   && $k < $m*2) $cont = true;
@@ -585,7 +585,7 @@ class WikiDataAPI extends WikipediaAPI
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
-            // */
+            */
 
             if(stripos($row, "Q16521") !== false) { @$taxa_count++; //string is found -- "taxon"
                 /* remove the last char which is "," a comma */
