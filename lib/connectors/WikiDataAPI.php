@@ -153,6 +153,8 @@ class WikiDataAPI extends WikipediaAPI
             [File:Narcissus_rupicola_distrib.jpg] => 
             [File:Rosa_glauca_inflorescence_(32).jpg] =>            no real agent
         */
+        $filename = "CLOSEUP_OF_BALDWIN'S_IRONWEED,_A_COMMON_TALLGRASS_PRAIRIE_PLANT_SEEN_ON_THE_KONZA_PRAIRIE,_1,000_ACRES_OF_VIRGIN..._-_NARA_-_557190-1-1(1).tif"; //no artist
+        $filename = "CLOSEUP_OF_BALDWIN'S_IRONWEED,_A_COMMON_TALLGRASS_PRAIRIE_PLANT_SEEN_ON_THE_KONZA_PRAIRIE,_1,000_ACRES_OF_VIRGIN..._-_NARA_-_557190.jpg";
         // $filename = "Aa_species.jpg"; //force assignment Aa_species.jpg
         $filename = 'Narcissus_assoanus_distrib.jpg';
         // $filename = 'Ismaelguevara.jpg'; //really no artist
@@ -1182,6 +1184,7 @@ class WikiDataAPI extends WikipediaAPI
                     // $rek = self::process_file("Soft-shell_crab_on_ice.jpg"); //10964578
                     // $rek = self::process_file("Slifkin.jpg"); //11930268
                     // $rek = self::process_file("Clone_war_of_sea_anemones_3.jpg"); //18645958
+                    $rek = self::process_file("CLOSEUP_OF_BALDWIN'S_IRONWEED,_A_COMMON_TALLGRASS_PRAIRIE_PLANT_SEEN_ON_THE_KONZA_PRAIRIE,_1,000_ACRES_OF_VIRGIN..._-_NARA_-_557190-1-1(1).tif"); //no artist
                     $final[] = $rek;
                     break; //debug
                     */
@@ -2024,6 +2027,8 @@ class WikiDataAPI extends WikipediaAPI
                 $html = Functions::remove_whitespace($html);
                 $html = str_ireplace('[<a href="https://commons.wikimedia.org/w/index.php?title=API&action=edit&section=1" class="mw-redirect" title="Edit section: Summary">edit</a>]', "", $html);
                 $html = str_ireplace('[<a href="https://commons.wikimedia.org/w/index.php?title=API&action=edit&section=2" class="mw-redirect" title="Edit section: Licensing">edit</a>]', "", $html);
+                $html = str_ireplace('[<a href="https://commons.wikimedia.org/w/index.php?title=API&action=edit&section=1" title="Edit section: Summary">edit</a>]', "", $html);
+
                 $arr = array("class", "id");
                 foreach($arr as $attrib) { //remove class="" id=""
                     if(preg_match_all("/$attrib=\"(.*?)\"/ims", $html, $a)) {
