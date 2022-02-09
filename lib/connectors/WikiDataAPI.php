@@ -345,6 +345,10 @@ class WikiDataAPI extends WikipediaAPI
                                                                                  || $task == "taxon_wiki_per_language_stats"
                                                                                  || $task == "generate_wikidata_taxonomy"
                                                                                  ) { //un-comment in real operation
+                    // /* since calls have been cached already at this point, no need to have a big delay here
+                    if($this->what == "wikimedia")                                                                          $this->download_options['download_wait_time'] = 0;
+                    if($this->what == "wikipedia" && in_array($this->language_code, $this->langs_with_multiple_connectors)) $this->download_options['download_wait_time'] = 0;
+                    // */
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
                     $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
@@ -359,7 +363,7 @@ class WikiDataAPI extends WikipediaAPI
             }
             //end new block ---------------------------------------
         }
-        else self::parse_wiki_data_json(); //for non-English wikipedia --- orig
+        else self::parse_wiki_data_json(); //for wikipedia without multiple connectors --- orig
         
         self::add_parent_entries(); //not sure if we need it but gives added value to taxonomy
         $this->archive_builder->finalize(TRUE);
