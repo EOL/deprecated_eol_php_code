@@ -104,6 +104,12 @@ class WikimediaPartialRes
         //delete temp folder [wikimedia_partial_working]
         recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . '/wikimedia_partial_working');
         unlink(CONTENT_RESOURCE_LOCAL_PATH . '/wikimedia_partial_working.tar.gz');
+
+        /* NEW: Feb 9, 2022 - this folder wasn't removed for the longest time.
+        But just realized it is safe to delete since wikimedia_partial.tar.gz is already created. That file is the one accessed by JRice.
+        */
+        //delete temp folder [wikimedia_partial]
+        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . '/wikimedia_partial');
     }
 }
 ?>
