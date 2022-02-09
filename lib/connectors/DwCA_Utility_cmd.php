@@ -122,8 +122,13 @@ class DwCA_Utility_cmd
     {
         $parent_id = $rek['pID'];
         $str = "";
+        $saved_id = array();
         while($parent_id) {
             if($parent_id) {
+                // /* new block: Feb 9, 2022 --- prevented infinite loop
+                if(isset($saved_id[$parent_id])) break;
+                else $saved_id[$parent_id] = '';
+                // */
                 $str .= Functions::canonical_form(trim(@$this->id_name[$parent_id]['sN']))."|";
                 $parent_id = @$this->id_name[$parent_id]['pID'];
             }
