@@ -72,6 +72,8 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71_new	Sun 2021-09-05 02:09:57 PM	    {"agent.tab":367898, "media_resource.tab":1486900, "taxon.tab":150220, "time_elapsed":false}
 71_new	Mon 2022-01-24 06:18:22 AM	    {"agent.tab":392784, "media_resource.tab":1549432, "taxon.tab":162683, "time_elapsed":false} consistent OK
 
+wikidata-hierarchy	Tue 2022-02-08 10:02:56 AM	{"taxon.tab":3365727, "time_elapsed":{"sec":353281.95, "min":5888.03, "hr":98.13, "day":4.09}}
+
 when doing tests locally:
 php update_resources/connectors/wikidata.php _ generate_resource
 php update_resources/connectors/wikidata.php _ generate_resource_force
