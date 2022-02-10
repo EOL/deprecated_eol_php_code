@@ -22,7 +22,7 @@ class FillUpMissingParentsAPI
         // /*
         $tables = $info['harvester']->tables;
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'create_archive');
-        if($undefine_parents = self::get_undefined_parents()) {
+        if($undefined_parents = self::get_undefined_parents()) {
             self::append_undefined_parents($undefined_parents);
         }
         // */
@@ -86,9 +86,10 @@ class FillUpMissingParentsAPI
         $suggested_fields = explode("\t", "taxonID	source	parentNameUsageID	scientificName	taxonRank	scientificNameAuthorship");
         if($undefined = $func->check_if_all_parents_have_entries($this->resource_id, true, $url, $suggested_fields)) { //2nd param True means write to text file
             print_r($undefined);
-            exit("\nUndefined: ".count($undefined)."\n");
+            echo("\nUndefined: ".count($undefined)."\n");
             return $undefined;
         }
+        // exit("\ndid not detect undefined parents\n");
     }
     private function process_table($meta, $what)
     {   //print_r($meta);
@@ -121,9 +122,9 @@ class FillUpMissingParentsAPI
                     $field = pathinfo($uri, PATHINFO_BASENAME);
                     $o->$field = $rec[$uri];
                 }
-                if(!isset($this->taxonIDs[$o->taxonID])) {
+                if(!isset($this->taxon_ids[$o->taxonID])) {
                     $this->archive_builder->write_object_to_file($o);
-                    $this->taxonIDs[$o->taxonID] = '';
+                    $this->taxon_ids[$o->taxonID] = '';
                 }
             }
             // if($i >= 10) break; //debug only
