@@ -1,0 +1,34 @@
+<?php
+namespace php_active_record;
+/* */
+
+include_once(dirname(__FILE__) . "/../../config/environment.php");
+ini_set('memory_limit','7096M');
+$timestart = time_elapsed();
+$resource_id = "wikidata-hierarchy-final";
+$dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
+$dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
+
+process_resource_url($dwca_file, $resource_id, $timestart);
+
+function process_resource_url($dwca_file, $resource_id, $timestart)
+{
+    require_library('connectors/DwCA_Utility');
+    $func = new DwCA_Utility($resource_id, $dwca_file);
+
+    /* Orig in meta.xml has capital letters. Just a note reminder. */
+    $preferred_rowtypes = false;
+    $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
+    
+    /* This will be processed in FillUpMissingParentsAPI.php which will be called from DwCA_Utility.php
+    */
+    $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
+    Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
+    
+    require_library('connectors/DWCADiagnoseAPI');
+    $func = new DWCADiagnoseAPI();
+    $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
+    echo "\nUndefined parents now: ".count($undefined)."\n";
+    
+}
+?>
