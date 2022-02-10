@@ -154,6 +154,17 @@ $params['range_to']         = @$argv[4];
 $params['actual']           = @$argv[5];
 print_r($params);
 
+/* a utility --- but just a test - working OK --- we have the same thing below, this on top is just a test.
+if(@$params['task'] == "generate_wikidata_taxonomy") {
+    $resource_id = 'wikidata-hierarchy';
+    require_library('connectors/DWCADiagnoseAPI');
+    $func = new DWCADiagnoseAPI();
+    $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
+    echo "\nUndefined parents: ".count($undefined)."\n";
+}
+exit("\n-end test-\n");
+*/
+
 // /* main operation
 if($params['task'] == 'generate_wikidata_taxonomy') {
     $resource_id = 'wikidata-hierarchy';
@@ -202,7 +213,9 @@ elseif(@$params['task'] == "generate_resource" || @$params['task'] == "generate_
         echo "\n".$params['actual']." -- finished\n";
         if($status_arr[1]) {
             echo "\n---Can now proceed - finalize dwca...---\n\n";
-            Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //true means big file, 2nd param true means to delete working folder
+            if(@$params['task'] == "generate_wikidata_taxonomy") $deleteFolderYN = false;
+            else                                                 $deleteFolderYN = true;
+            Functions::finalize_dwca_resource($resource_id, true, $deleteFolderYN, $timestart); //2nd param true means big file, 3rd param true means to delete working folder
         }
         else echo "\nCannot finalize dwca yet.\n";
     }
@@ -210,11 +223,17 @@ elseif(@$params['task'] == "generate_resource" || @$params['task'] == "generate_
 }
 // */
 
-/* utility
-require_library('connectors/DWCADiagnoseAPI');
-$func = new DWCADiagnoseAPI();
-$func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
-*/
+// /* utility
+if(@$params['task'] == "generate_wikidata_taxonomy") {
+    require_library('connectors/DWCADiagnoseAPI');
+    $func = new DWCADiagnoseAPI();
+    $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
+    echo "\nUndefined parents: ".count($undefined)."\n";
+}
+// */
+
+// BOLDS_DumpsServiceAPI.php
+// private function add_needed_parent_entries($trials)
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
