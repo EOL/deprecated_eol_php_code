@@ -70,7 +70,7 @@ class FillUpMissingParentsAPI
                 [author_yr] => +1758-01-01T00:00:00Z
                 [parent] => Q127960
             )*/
-            if($rek['taxon_id']) $this->func->create_archive($rek);
+            if($rek['taxon_id']) self::create_archive($rek);
         }
     }
     private function get_taxon_name($arr)
@@ -134,11 +134,32 @@ class FillUpMissingParentsAPI
                     $o->$field = $rec[$uri];
                 }
                 if(!isset($this->taxon_ids[$o->taxonID])) {
-                    $this->archive_builder->write_object_to_file($o);
                     $this->taxon_ids[$o->taxonID] = '';
+                    $this->archive_builder->write_object_to_file($o);
                 }
             }
             // if($i >= 10) break; //debug only
+        }
+    }
+    private function create_archive($rec)
+    {
+        if(!@$rec['taxon']) return;
+        $t = new \eol_schema\Taxon();
+        $t->taxonID                  = $rec['taxon_id'];
+        $t->scientificName           = $rec['taxon'];
+        if($t->scientificNameAuthorship = $rec['author']) {
+            if($year = $rec['author_yr']) {
+                //+1831-01-01T00:00:00Z
+                $year = substr($year,1,4);
+                $t->scientificNameAuthorship .= ", $year";
+            }
+        }
+        $t->taxonRank                = $rec['rank'];
+        $t->parentNameUsageID        = $rec['parent']['id'];
+        $t->source = "https://www.wikidata.org/wiki/".$t->taxonID;
+        if(!isset($this->taxon_ids[$t->taxonID])) {
+            $this->taxon_ids[$t->taxonID] = '';
+            $this->archive_builder->write_object_to_file($t);
         }
     }
     private function process_measurementorfact($meta)
