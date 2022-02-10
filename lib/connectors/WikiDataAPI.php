@@ -35,7 +35,7 @@ drwxr-xr-x 2 root root           10 Nov  6  2017 wikipedia
 /* For testing one image to write to DwCA for Wikimedia. Follow the 3 asterisk ***. Un-comment these block of codes. Worked OK. Works also now for Wikipedia */
 class WikiDataAPI extends WikipediaAPI
 {
-    function __construct($folder, $lang, $what = "wikipedia", $langs_with_multiple_connectors = array(), $debug_taxon = false)
+    function __construct($folder, $lang, $what = "wikipedia", $langs_with_multiple_connectors = array(), $debug_taxon = false, $archive_builder = false)
     {
         $this->what = $what;
         $this->resource_id = $folder;
@@ -43,7 +43,8 @@ class WikiDataAPI extends WikipediaAPI
         $this->langs_with_multiple_connectors = $langs_with_multiple_connectors;
         $this->debug_taxon = $debug_taxon;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        if($archive_builder) $this->archive_builder = $archive_builder; //for FillUpMissingParentsAPI
+        else $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory)); //normal orig
         $this->taxon_ids = array();
         $this->object_ids = array();
         $this->debug = array();
@@ -786,7 +787,7 @@ class WikiDataAPI extends WikipediaAPI
             }
         }
     }
-    private function create_archive($rec)
+    function create_archive($rec)
     {
         if($this->what == "wikimedia") {
             if(!@$rec['obj_gallery'] && !@$rec['obj_category']) return;
@@ -2562,7 +2563,7 @@ class WikiDataAPI extends WikipediaAPI
         $substr = Functions::remove_whitespace($substr);
         return str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), "", $substr);
     }
-    private function get_taxon_name($arr)
+    function get_taxon_name($arr)
     {
         $claims = @$arr->claims;
         if($val = @$claims->P225[0]->mainsnak->datavalue->value) return (string) $val;
@@ -2578,17 +2579,17 @@ class WikiDataAPI extends WikipediaAPI
         */
         return false;
     }
-    private function get_authorship($claims)
+    function get_authorship($claims)
     {
         if($id = @$claims->P225[0]->qualifiers->P405[0]->datavalue->value->id) return self::lookup_value($id);
         return false;
     }
-    private function get_authorship_date($claims)
+    function get_authorship_date($claims)
     {
         if($date = @$claims->P225[0]->qualifiers->P574[0]->datavalue->value->time) return (string) $date;
         return false;
     }
-    private function get_taxon_rank($claims)
+    function get_taxon_rank($claims)
     {
         if($id = (string) @$claims->P105[0]->mainsnak->datavalue->value->id) return self::lookup_value($id);
         return false;
@@ -2904,7 +2905,7 @@ class WikiDataAPI extends WikipediaAPI
         }
         return false;
     }*/
-    private function get_taxon_parent($claims, $main_id, $first_pass = true)
+    function get_taxon_parent($claims, $main_id, $first_pass = true)
     {
         // /* Block much needed e.g. https://www.wikidata.org/wiki/Q11988878 Its ancestry goes back to itself. Without this block, will cause segmentation fault
         if($first_pass) $this->monitored_parents = array($main_id);
