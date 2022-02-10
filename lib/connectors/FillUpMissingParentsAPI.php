@@ -30,14 +30,25 @@ class FillUpMissingParentsAPI
         /* testing...
         $undefined_parents = array("Q102318370", "Q27661141", "Q59153571", "Q5226073", "Q60792312");
         $undefined_parents = array("Q140");
+        $undefined_parents = array("Q3018678"); // a sample of Wikidata redirect e.g. goes to Q2780905
         self::append_undefined_parents($undefined_parents);
         */
-        $this->archive_builder->finalize(TRUE);
     }
     private function append_undefined_parents($undefined_parents)
     {
         foreach($undefined_parents as $undefined_id) {
             $obj = $this->func->get_object($undefined_id);
+            
+            // /* New: a redirect by Wikidata --- use the redirect_id instead
+            $keys = array_keys((array) $obj->entities);
+            // print_r($keys); //exit;
+            $redirect_id = $keys[0];
+            if($redirect_id != $undefined_id) {
+                $undefined_id = $redirect_id;
+                $obj = $this->func->get_object($undefined_id);
+            }
+            // */
+            
             // print_r($obj); exit;
             // print_r($obj->entities->$undefined_id->claims); exit;
             $claims = $obj->entities->$undefined_id->claims;
@@ -50,7 +61,7 @@ class FillUpMissingParentsAPI
             $tmp = $this->func->get_taxon_parent($claims, $rek['taxon_id']); //complete with all ancestry - parent, grandparent, etc. to -> Biota
             // $rek['parent'] = $tmp['id'];
             $rek['parent'] = $tmp;
-            // print_r($rek); exit;
+            // print_r($rek); exit("\n-stop muna-\n");
             /*Array(
                 [taxon_id] => Q140
                 [taxon] => Panthera leo
