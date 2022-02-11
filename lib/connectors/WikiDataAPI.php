@@ -2912,17 +2912,25 @@ class WikiDataAPI extends WikipediaAPI
         // /* Block much needed e.g. https://www.wikidata.org/wiki/Q11988878 Its ancestry goes back to itself. Without this block, will cause segmentation fault
         if($first_pass) $this->monitored_parents = array($main_id);
         else {
-            if(in_array($main_id, $this->monitored_parents)) return false;
+            if(in_array($main_id, $this->monitored_parents)) {echo "\n-INVESTIGATE 01 [$main_id]\n"; return false;}
             else $this->monitored_parents[] = $main_id;
         }
         // */
         
         $parent = array();
-        if($id = (string) @$claims->P171[0]->mainsnak->datavalue->value->id) {
+        if($id = (string) @$claims->P171[0]->mainsnak->datavalue->value->id) { //get the parent
+            
+            // /* big data problem from Wikidata --- did a manual solution:
+            // Q11988878    https://www.wikidata.org/wiki/Q11988878 Medocostes lestoni  species     Q21016942
+            // Q21016942    https://www.wikidata.org/wiki/Q21016942 Medocostes  genus       Q11988878
+            // Q21016943    https://www.wikidata.org/wiki/Q21016943 Medocostidae    family      Q135338
+            if($main_id == "Q21016942") $id = "Q21016943"; //Medocostidae
+            // */
+            
             /* Feb 13 commented. May no longer need this. Let the forwarding come naturally.
             $id = self::replace_id_if_redirected($id);
             */
-            if($main_id == $id) return false; //e.g. https://www.wikidata.org/wiki/Q28431692 - parent points to itself.
+            if($main_id == $id) {echo "\n-INVESTIGATE 02 [$main_id]\n"; return false;} //e.g. https://www.wikidata.org/wiki/Q28431692 - parent points to itself.
             $parent['id'] = $id;
             $parent['name'] = self::lookup_value($id); //this goes to lookup a remote service
             //start get rank
@@ -2935,7 +2943,7 @@ class WikiDataAPI extends WikipediaAPI
             }
             return $parent;
         }
-        return false;
+        echo "\n-INVESTIGATE 03 [$main_id]\n"; return false;
     }
     private function replace_id_if_redirected($id)
     {
@@ -2983,6 +2991,17 @@ class WikiDataAPI extends WikipediaAPI
         // */
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
+            
+            // /* New: a redirect by Wikidata --- use the redirect_id instead ---> still being tested...will see...
+            $keys = array_keys((array) $obj->entities);
+            // print_r($keys); //exit;
+            $redirect_id = $keys[0];
+            if($redirect_id != $id) { @$this->debug['redirected_'.$id][] = $redirect_id; //to be investigated after every run
+                $id = $redirect_id;
+                $obj = $this->func->get_object($id);
+            }
+            // */
+            
             return $obj;
         }
         return false;
