@@ -375,7 +375,7 @@ class ResourceUtility
             )*/
             $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
-            $source = $rec['http://purl.org/dc/terms/source'];
+            $source = @$rec['http://purl.org/dc/terms/source'];
             $measurementValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
             if($step == "step_1") {
                 if(in_array($measurementValue, $sought_mValues)) {
