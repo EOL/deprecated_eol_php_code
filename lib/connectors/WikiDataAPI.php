@@ -2570,6 +2570,8 @@ class WikiDataAPI extends WikipediaAPI
         elseif(in_array(@$arr->id, array("Q4589415"))) { //special case for a ko & en article
             if($val = @$arr->labels->en->value) return (string) $val;
         }
+        elseif($val = @$arr->labels->en->value) return (string) $val; //New: added again Feb 11, 2022
+        
         /* this introduced new probs, thus commented
         elseif($val = @$arr->labels->en->value) return (string) $val;
         else {
