@@ -129,7 +129,10 @@ class FillUpMissingParentsAPI
     }
     private function create_archive($rec)
     {
-        if(!@$rec['taxon']) return;
+        if(!@$rec['taxon']) {
+            echo "\nWas not added: "; print_r($rec);
+            return;
+        }
         $t = new \eol_schema\Taxon();
         $t->taxonID                  = $rec['taxon_id'];
         $t->scientificName           = $rec['taxon'];
