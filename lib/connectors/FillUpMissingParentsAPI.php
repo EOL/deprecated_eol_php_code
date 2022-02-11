@@ -14,6 +14,14 @@ class FillUpMissingParentsAPI
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
     {
+        /* Steps:
+        1. extract wikidata-hierarchy.tar.gz to a temp
+        2. read taxon.tab from temp and generate the undefined_parents list
+        3. now add to archive the undefined_parents
+        4. now add the original taxon.tab, with implementation of $this->redirected_IDs
+        5. check again check_if_all_parents_have_entries() --- this must be zero records
+        */
+        
         require_library('connectors/WikiHTMLAPI');
         require_library('connectors/WikipediaAPI');
         require_library('connectors/WikiDataAPI');
@@ -89,7 +97,7 @@ class FillUpMissingParentsAPI
             if($rek['taxon_id']) self::create_archive($rek);
         }//end foreach()
     }
-    /* working OK
+    /* working OK - an option to get a taxon.tab that is a "taxon_working.tab"
     private function get_undefined_parents()
     {
         require_library('connectors/DWCADiagnoseAPI');
@@ -128,12 +136,14 @@ class FillUpMissingParentsAPI
                 [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => Carl Linnaeus, 1758
             )*/
             if($what == 'create_archive') {
+                
                 // /* implement redirect ID
                 $taxonID           = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $parentNameUsageID = $rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID'];
                 if($val = @$this->redirected_IDs[$taxonID])           $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = $val;
                 if($val = @$this->redirected_IDs[$parentNameUsageID]) $rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID'] = $val;
                 // */
+                
                 $uris = array_keys($rec);
                 $o = new \eol_schema\Taxon();
                 foreach($uris as $uri) {
