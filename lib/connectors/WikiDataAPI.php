@@ -2999,7 +2999,7 @@ class WikiDataAPI extends WikipediaAPI
             $redirect_id = $keys[0];
             if($redirect_id != $id) { @$this->debug['redirected_'.$id][] = $redirect_id; //to be investigated after every run
                 $id = $redirect_id;
-                $obj = $this->func->get_object($id);
+                $obj = self::get_object($id);
             }
             // */
             
