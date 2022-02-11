@@ -2,6 +2,9 @@
 namespace php_active_record;
 /* This can be a template for any resource, a means to enter taxon rows for the undefined parentNameUsageIDs
 first client is: wikidata-hierarchy.tar.gz (DATA-1668)
+
+             3365727
+{"taxon.tab":3365754, "time_elapsed":{"sec":1802.9, "min":30.05, "hr":0.5}} Mac Mini
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -32,5 +35,7 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
     $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
     echo "\nUndefined parents now: ".count($undefined)."\n";
     
+    //now u can delete working dir
+    recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id/");
 }
 ?>

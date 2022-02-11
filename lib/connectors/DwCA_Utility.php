@@ -64,14 +64,14 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_17401/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_17401/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_71294/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_71294/'
         );
         */
         
-        $archive_path = $paths['archive_path'];
+        $this->archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
-        $harvester = new ContentArchiveReader(NULL, $archive_path);
+        $harvester = new ContentArchiveReader(NULL, $this->archive_path);
         $tables = $harvester->tables;
         $index = array_keys($tables);
         if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
@@ -405,6 +405,11 @@ class DwCA_Utility
         if(in_array($this->resource_id, array("parent_BV_consolid8", "TS_consolid8", "parent_TS_consolid8"))) {
             require_library('connectors/SDR_Consolid8API');
             $func = new SDR_Consolid8API($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+        if($this->resource_id == 'wikidata-hierarchy-final') {
+            require_library('connectors/FillUpMissingParentsAPI');
+            $func = new FillUpMissingParentsAPI($this->archive_builder, $this->resource_id, $this->archive_path);
             $func->start($info);
         }
         // ================================= end of customization ================================= */ 

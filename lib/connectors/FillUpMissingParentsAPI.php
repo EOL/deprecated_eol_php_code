@@ -3,11 +3,13 @@ namespace php_active_record;
 /* connector: [called from DwCA_Utility.php, which is called from fill_up_undefined_parents.php for wikidata-hierarchy] */
 class FillUpMissingParentsAPI
 {
-    function __construct($archive_builder, $resource_id)
+    function __construct($archive_builder, $resource_id, $archive_path)
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
-        $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*1, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->archive_path = $archive_path;
+        // $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*1, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->redirected_IDs = array();
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -21,9 +23,9 @@ class FillUpMissingParentsAPI
         
         // /*
         $tables = $info['harvester']->tables;
-        self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'create_archive');
-        if($undefined_parents = self::get_undefined_parents()) {
+        if($undefined_parents = self::get_undefined_parents_v2()) {
             self::append_undefined_parents($undefined_parents);
+            self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'create_archive');
         }
         // */
         
@@ -32,9 +34,21 @@ class FillUpMissingParentsAPI
         $undefined_parents = array("Q140");
         $undefined_parents = array("Q3018678"); // a sample of Wikidata redirect e.g. goes to Q2780905
         $undefined_parents = array("Q21367139");
-        $undefined_parents = array("Q106564172");
+        $undefined_parents = array("Q17283161");
         self::append_undefined_parents($undefined_parents);
         */
+    }
+    private function get_undefined_parents_v2() //working OK
+    {
+        require_library('connectors/DWCADiagnoseAPI');
+        $func = new DWCADiagnoseAPI();
+        $url = $this->archive_path . "/taxon.tab";
+        if($undefined = $func->check_if_all_parents_have_entries($this->resource_id, true, $url)) { //2nd param True means write to text file
+            print_r($undefined);
+            echo("\nUndefined v2: ".count($undefined)."\n"); //exit;
+            return $undefined;
+        }
+        // exit("\ndid not detect undefined parents\n");
     }
     private function append_undefined_parents($undefined_parents)
     {
@@ -45,7 +59,7 @@ class FillUpMissingParentsAPI
             $keys = array_keys((array) $obj->entities);
             // print_r($keys); //exit;
             $redirect_id = $keys[0];
-            if($redirect_id != $undefined_id) {
+            if($redirect_id != $undefined_id) { $this->redirected_IDs[$undefined_id] = $redirect_id; //to be used later
                 $undefined_id = $redirect_id;
                 $obj = $this->func->get_object($undefined_id);
             }
@@ -75,6 +89,7 @@ class FillUpMissingParentsAPI
             if($rek['taxon_id']) self::create_archive($rek);
         }//end foreach()
     }
+    /* working OK
     private function get_undefined_parents()
     {
         require_library('connectors/DWCADiagnoseAPI');
@@ -87,10 +102,10 @@ class FillUpMissingParentsAPI
             return $undefined;
         }
         // exit("\ndid not detect undefined parents\n");
-    }
+    } */
     private function process_table($meta, $what)
     {   //print_r($meta);
-        echo "\nprocess: [$what]...\n"; $i = 0;
+        echo "\nprocess_table: [$what] [$meta->file_uri]...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -113,6 +128,12 @@ class FillUpMissingParentsAPI
                 [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => Carl Linnaeus, 1758
             )*/
             if($what == 'create_archive') {
+                // /* implement redirect ID
+                $taxonID           = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                $parentNameUsageID = $rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID'];
+                if($val = @$this->redirected_IDs[$taxonID])           $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = $val;
+                if($val = @$this->redirected_IDs[$parentNameUsageID]) $rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID'] = $val;
+                // */
                 $uris = array_keys($rec);
                 $o = new \eol_schema\Taxon();
                 foreach($uris as $uri) {
