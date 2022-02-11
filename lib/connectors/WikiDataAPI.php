@@ -2943,7 +2943,8 @@ class WikiDataAPI extends WikipediaAPI
             }
             return $parent;
         }
-        echo "\n-INVESTIGATE 03 [$main_id]\n"; return false;
+        // echo "\n-INVESTIGATE 03 [$main_id]\n"; --- no need to show - "Biota" the topmost node
+        return false;
     }
     private function replace_id_if_redirected($id)
     {
