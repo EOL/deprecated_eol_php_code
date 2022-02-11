@@ -31,6 +31,8 @@ class FillUpMissingParentsAPI
         $undefined_parents = array("Q102318370", "Q27661141", "Q59153571", "Q5226073", "Q60792312");
         $undefined_parents = array("Q140");
         $undefined_parents = array("Q3018678"); // a sample of Wikidata redirect e.g. goes to Q2780905
+        $undefined_parents = array("Q21367139");
+        $undefined_parents = array("Q106564172");
         self::append_undefined_parents($undefined_parents);
         */
     }
@@ -68,26 +70,10 @@ class FillUpMissingParentsAPI
                 [rank] => species
                 [author] => Carl Linnaeus
                 [author_yr] => +1758-01-01T00:00:00Z
-                [parent] => Q127960
+                [parent] => Q127960 --- now a complete ancestry
             )*/
             if($rek['taxon_id']) self::create_archive($rek);
-        }
-    }
-    private function get_taxon_name($arr)
-    {
-        $claims = @$arr->claims;
-        if($val = @$claims->P225[0]->mainsnak->datavalue->value) return (string) $val;
-        elseif(in_array(@$arr->id, array("Q4589415"))) { //special case for a ko & en article
-            if($val = @$arr->labels->en->value) return (string) $val;
-        }
-        /* this introduced new probs, thus commented
-        elseif($val = @$arr->labels->en->value) return (string) $val;
-        else {
-            // print_r($arr);
-            // exit("\nno taxon name, pls investigate...\n");
-        }
-        */
-        return false;
+        }//end foreach()
     }
     private function get_undefined_parents()
     {
