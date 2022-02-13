@@ -2936,6 +2936,12 @@ class WikiDataAPI extends WikipediaAPI
             if($main_id == "Q110229273") $id = "Q3499409"; //Sphaeropezia -> Stictidaceae
             // */
             
+            /* possible candidates
+            -INVESTIGATE 02 [Q110229273]
+            -INVESTIGATE 02 [Q106415738]
+            -INVESTIGATE 02 [Q107622619]
+            */
+            
             // /* NEW: since maybe a dump data quality issue
             if($main_id == $id) $id = self::lookup_value($main_id, 'parent_id');
             // */
