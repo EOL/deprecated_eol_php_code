@@ -707,7 +707,7 @@ class WikiDataAPI extends WikipediaAPI
                              if($rek['taxon_id']) {
                                  $ret = self::create_archive($rek);
                                  if($ret) {
-                                     self::save_ancestry_to_temp($rek['parent']);
+                                     if($this->what != "taxonomy") self::save_ancestry_to_temp($rek['parent']);
                                  }
                                  // if(!@$rek['other']['comprehensive_desc']) { print_r($rek); exit("\ninvestigate\n"); }
                                  // print_r($rek);
@@ -2932,13 +2932,17 @@ class WikiDataAPI extends WikipediaAPI
             */
             if($main_id == $id) {echo "\n-INVESTIGATE 02 [$main_id]\n"; return false;} //e.g. https://www.wikidata.org/wiki/Q28431692 - parent points to itself.
             $parent['id'] = $id;
-            $parent['name'] = self::lookup_value($id); //this goes to lookup a remote service
-            //start get rank
-            if($obj = self::get_object($id)) {
-                $parent['taxon_name'] = self::get_taxon_name(@$obj->entities->$id); //old working param is $obj->entities->$id->claims
-                $parent['rank'] = self::get_taxon_rank(@$obj->entities->$id->claims);
-                if($val = @$obj->entities->$id->claims) {
-                    if($val != $claims) $parent['parent'] = self::get_taxon_parent($val, $id, false);
+            // $parent['name'] = self::lookup_value($id); //this goes to lookup a remote service --- commented not needed redundant
+            
+            if($this->what != "taxonomy") { //since with 'taxonomy' all 3 million plus will be processed anyway
+                //start get rank
+                if($obj = self::get_object($id)) {
+                    $parent['taxon_name'] = self::get_taxon_name(@$obj->entities->$id); //old working param is $obj->entities->$id->claims
+                    $parent['rank'] = self::get_taxon_rank(@$obj->entities->$id->claims);
+                    if($val = @$obj->entities->$id->claims) {
+                        if($val != $claims) $parent['parent'] = self::get_taxon_parent($val, $id, false);
+                    }
+                    // print_r($parent); exit("\nelix\n");
                 }
             }
             return $parent;
