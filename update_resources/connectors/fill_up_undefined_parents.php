@@ -15,9 +15,17 @@ $resource_id = "wikidata-hierarchy-final";
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
 // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
 
-process_resource_url($dwca_file, $resource_id, $timestart);
+$undefined = process_resource_url($dwca_file, $resource_id, $timestart, 1);
 
-function process_resource_url($dwca_file, $resource_id, $timestart)
+if($undefined) {
+    $resource_id = "wikidata-hierarchy-final";
+    $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/wikidata-hierarchy-final.tar.gz';
+    // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/wikidata-hierarchy-final.tar.gz';
+    $undefined = process_resource_url($dwca_file, $resource_id, $timestart, 2);
+}
+
+
+function process_resource_url($dwca_file, $resource_id, $timestart, $ctr)
 {
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
@@ -34,9 +42,11 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
     require_library('connectors/DWCADiagnoseAPI');
     $func = new DWCADiagnoseAPI();
     $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
-    echo "\nUndefined parents now: ".count($undefined)."\n";
+    echo "\nUndefined parents now [$ctr]: ".count($undefined)."\n";
     
     //now u can delete working dir
     recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id/");
+    
+    return $undefined;
 }
 ?>

@@ -52,7 +52,7 @@ class FillUpMissingParentsAPI
         $func = new DWCADiagnoseAPI();
         $url = $this->archive_path . "/taxon.tab";
         if($undefined = $func->check_if_all_parents_have_entries($this->resource_id, true, $url)) { //2nd param True means write to text file
-            print_r($undefined);
+            // print_r($undefined);
             echo("\nUndefined v2: ".count($undefined)."\n"); //exit;
             return $undefined;
         }
