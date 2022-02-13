@@ -2931,6 +2931,10 @@ class WikiDataAPI extends WikipediaAPI
             if($main_id == "Q110229273") $id = "Q3499409"; //Sphaeropezia -> Stictidaceae
             // */
             
+            // /* NEW: since maybe a dump data quality issue
+            if($main_id == $id) $id = self::lookup_value($main_id, 'parent_id');
+            // */
+            
             /* Feb 13 commented. May no longer need this. Let the forwarding come naturally.
             $id = self::replace_id_if_redirected($id);
             */
@@ -2977,7 +2981,7 @@ class WikiDataAPI extends WikipediaAPI
         if($val = @$this->redirects[$id]) return $val;
         return $id;
     }
-    private function lookup_value($id)
+    private function lookup_value($id, $search = 'sciname')
     {
         if($obj = self::get_object($id)) {
             /* debug only
@@ -2987,7 +2991,12 @@ class WikiDataAPI extends WikipediaAPI
             if(!isset($obj->entities->$id->labels->en->value)) { //e.g. Q5614965 
                 print_r($obj->entities); exit("\npls investigate 01\n");
             }*/
-            if($val = (string) @$obj->entities->$id->labels->en->value) return $val;
+            if($search == 'sciname') {
+                if($val = (string) @$obj->entities->$id->labels->en->value) return $val;
+            }
+            elseif($search == 'parent_id') {
+                if($val = (string) @$obj->entities->$id->claims->P171[0]->mainsnak->datavalue->value->id) return $val;
+            }
         }
     }
     public function get_object($id)
