@@ -526,7 +526,9 @@ class WikiDataAPI extends WikipediaAPI
         $k = 0;
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; if(($k % 5000) == 0) echo " ".number_format($k)." ";
-            if(stripos($row, "Q16521") !== false) { //string is found -- "taxon"
+            $arr = json_decode($row); //print_r($arr); 
+            $instance_of = @$arr->claims->P31[0]->mainsnak->datavalue->value->id; //should be of 'taxon' Q16521
+            if($instance_of == "Q16521") {
                 /* remove the last char which is "," a comma */
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
                 debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
@@ -595,13 +597,16 @@ class WikiDataAPI extends WikipediaAPI
             if(!$cont) continue;
             */
 
-            if(stripos($row, "Q16521") !== false) { @$taxa_count++; //string is found -- "taxon"
+            $arr = json_decode($row); //print_r($arr); 
+            $instance_of = @$arr->claims->P31[0]->mainsnak->datavalue->value->id; //should be of 'taxon' Q16521
+            // exit("\n [$instance_of] elix 1\n");
+            
+            if($instance_of == "Q16521") { @$taxa_count++;
                 /* remove the last char which is "," a comma */
                 $last_char = substr($row, -1);
                 if($last_char == ",") $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
 
                 // debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
-                $arr = json_decode($row); //print_r($arr); exit("\nelix 1\n");
                 $Q_id = $arr->id;
 
                 /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent | Q132634
@@ -2997,6 +3002,9 @@ class WikiDataAPI extends WikipediaAPI
             elseif($search == 'parent_id') {
                 if($val = (string) @$obj->entities->$id->claims->P171[0]->mainsnak->datavalue->value->id) return $val;
             }
+            elseif($search == 'instance_of') {
+                if($val = (string) @$obj->entities->$id->claims->P31[0]->mainsnak->datavalue->value->id) return $val;
+            }
         }
     }
     public function get_object($id)
@@ -3049,7 +3057,9 @@ class WikiDataAPI extends WikipediaAPI
         foreach(new FileIterator($raw_dump) as $line_number => $row) {
             $k++;
             if(($k % 20000) == 0) echo " $k";
-            if(stripos($row, "Q16521") !== false) { //string is found -- "taxon"
+            $arr = json_decode($row); //print_r($arr); 
+            $instance_of = @$arr->claims->P31[0]->mainsnak->datavalue->value->id; //should be of 'taxon' Q16521
+            if($instance_of == "Q16521") {
                 $e++;
                 fwrite($f, $row."\n");
             }

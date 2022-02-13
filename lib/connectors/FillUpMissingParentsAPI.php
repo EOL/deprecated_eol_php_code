@@ -40,9 +40,9 @@ class FillUpMissingParentsAPI
         /* testing...
         $undefined_parents = array("Q102318370", "Q27661141", "Q59153571", "Q5226073", "Q60792312");
         $undefined_parents = array("Q140");
-        $undefined_parents = array("Q3018678"); // a sample of Wikidata redirect e.g. goes to Q2780905
-        $undefined_parents = array("Q21367139");
-        $undefined_parents = array("Q17283161");
+        // $undefined_parents = array("Q3018678"); // a sample of Wikidata redirect e.g. goes to Q2780905
+        // $undefined_parents = array("Q21367139");
+        // $undefined_parents = array("Q7239"); //not 'instance of taxon'
         self::append_undefined_parents($undefined_parents);
         */
     }
@@ -85,6 +85,8 @@ class FillUpMissingParentsAPI
             $tmp = $this->func->get_taxon_parent($claims, $rek['taxon_id']); //complete with all ancestry - parent, grandparent, etc. to -> Biota
             // $rek['parent'] = $tmp['id'];
             $rek['parent'] = $tmp;
+            $rek['instance_of'] = (string) @$obj->entities->$undefined_id->claims->P31[0]->mainsnak->datavalue->value->id; //just metadata, not used for now
+            // $this->func->lookup_value($undefined_id, 'instance_of'); --- working but doesn't need to make another call
             // print_r($rek); exit("\n-stop muna-\n");
             /*Array(
                 [taxon_id] => Q140
