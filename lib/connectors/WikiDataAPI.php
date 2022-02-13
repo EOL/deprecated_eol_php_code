@@ -2924,7 +2924,11 @@ class WikiDataAPI extends WikipediaAPI
             // Q11988878    https://www.wikidata.org/wiki/Q11988878 Medocostes lestoni  species     Q21016942
             // Q21016942    https://www.wikidata.org/wiki/Q21016942 Medocostes  genus       Q11988878
             // Q21016943    https://www.wikidata.org/wiki/Q21016943 Medocostidae    family      Q135338
-            if($main_id == "Q21016942") $id = "Q21016943"; //Medocostidae
+            if($main_id == "Q21016942") $id = "Q21016943"; //Medocostes -> Medocostidae
+            // */
+            
+            // /* maybe a dump data quality issue
+            if($main_id == "Q110229273") $id = "Q3499409"; //Sphaeropezia -> Stictidaceae
             // */
             
             /* Feb 13 commented. May no longer need this. Let the forwarding come naturally.
