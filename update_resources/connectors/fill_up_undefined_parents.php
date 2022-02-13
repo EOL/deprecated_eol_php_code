@@ -15,13 +15,14 @@ $resource_id = "wikidata-hierarchy-final";
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
 // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
 
-$undefined = process_resource_url($dwca_file, $resource_id, $timestart, 1);
+$ctr = 1;
+$undefined = process_resource_url($dwca_file, $resource_id, $timestart, $ctr);
 
-if($undefined) {
+while($undefined) { $ctr++;
     $resource_id = "wikidata-hierarchy-final";
     $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/wikidata-hierarchy-final.tar.gz';
     // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/wikidata-hierarchy-final.tar.gz';
-    $undefined = process_resource_url($dwca_file, $resource_id, $timestart, 2);
+    $undefined = process_resource_url($dwca_file, $resource_id, $timestart, $ctr);
 }
 
 
