@@ -60,6 +60,8 @@ class FillUpMissingParentsAPI
     }
     private function append_undefined_parents($undefined_parents)
     {
+        $to_be_added = array('Q21032607', 'Q68334453', 'Q14476748'); //last remaining undefined parents. Added here to save one entire loop
+        $undefined_parents = array_merge($undefined_parents, $to_be_added);
         foreach($undefined_parents as $undefined_id) {
             $obj = $this->func->get_object($undefined_id);
             
