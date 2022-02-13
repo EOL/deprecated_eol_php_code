@@ -2930,7 +2930,7 @@ class WikiDataAPI extends WikipediaAPI
             /* Feb 13 commented. May no longer need this. Let the forwarding come naturally.
             $id = self::replace_id_if_redirected($id);
             */
-            if($main_id == $id) {echo "\n-INVESTIGATE 02 [$main_id]\n"; return false;} //e.g. https://www.wikidata.org/wiki/Q28431692 - parent points to itself.
+            if($main_id == $id) {echo "\n-INVESTIGATE 02 [$main_id][$id][$this->what]\n"; return false;} //e.g. https://www.wikidata.org/wiki/Q28431692 - parent points to itself.
             $parent['id'] = $id;
             // $parent['name'] = self::lookup_value($id); //this goes to lookup a remote service --- commented not needed redundant
             
