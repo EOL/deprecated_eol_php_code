@@ -3,9 +3,13 @@ namespace php_active_record;
 /* This can be a template for any resource, a means to enter taxon rows for the undefined parentNameUsageIDs
 first client is: wikidata-hierarchy.tar.gz (DATA-1668)
 
+Many errors:
 wikidata-hierarchy	        Tue 2022-02-08 10:02:56 AM	{"taxon.tab":3365727, "time_elapsed":{"sec":353281.95, "min":5888.03, "hr":98.13, "day":4.09}} eol->archive
-wikidata-hierarchy-final	Thu 2022-02-10 11:46:47 PM	{"taxon.tab":3365754, "time_elapsed":{"sec":1802.9, "min":30.05, "hr":0.5}} Mac Mini
 wikidata-hierarchy-final	Fri 2022-02-11 08:22:30 AM	{"taxon.tab":3365754, "time_elapsed":{"sec":1105.31, "min":18.42, "hr":0.31}} eol->archive
+More stable:
+wikidata-hierarchy	        Mon 2022-02-14 07:03:04 AM	{"taxon.tab":3350652, "time_elapsed":{"sec":10372.9, "min":172.88, "hr":2.88}}
+wikidata-hierarchy-final	Mon 2022-02-14 08:48:27 AM	{"taxon.tab":3365214, "time_elapsed":{"sec":5338.23, "min":88.97, "hr":1.48}}
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
