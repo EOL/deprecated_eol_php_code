@@ -27,9 +27,8 @@ class DeltasHashIDsAPI
     {
         $tables = $info['harvester']->tables; // print_r($tables); exit;
         $extensions = array_keys($tables);
-        $extensions = array_diff($extensions, array("http://rs.tdwg.org/dwc/terms/taxon")); // print_r($extensions); exit;
+        $extensions = array_diff($extensions, array("http://rs.tdwg.org/dwc/terms/taxon", "http://eol.org/schema/agent/agent")); // print_r($extensions); exit;
         /*Array(
-            [1] => http://eol.org/schema/agent/agent
             [2] => http://eol.org/schema/media/document
         )*/
         // $extensions = array("http://eol.org/schema/media/document"); //debug only - force value

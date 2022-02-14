@@ -22,7 +22,7 @@ $resource = $param['resource'];
 
 echo "\n========== START hash identifiers ==========\n";
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
-process_resource_url($dwca_file, $resource_id, $timestart, $param);
+process_resource_url($dwca_file, $resource_id."_delta", $timestart, $param);
 echo "\n========== END hash identifiers ==========\n";
 
 function process_resource_url($dwca_file, $resource_id, $timestart, $param)
@@ -32,7 +32,7 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $param)
 
     /* Orig in meta.xml has capital letters. Just a note reminder. */
     $excluded_rowtypes = false;
-    $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
+    $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon','http://eol.org/schema/agent/agent');
     
     /* This will be processed in DeltasHashIDsAPI.php which will be called from DwCA_Utility.php */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
