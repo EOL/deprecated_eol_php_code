@@ -2573,10 +2573,13 @@ class WikiDataAPI extends WikipediaAPI
         $substr = Functions::remove_whitespace($substr);
         return str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), "", $substr);
     }
-    function get_taxon_name($arr)
+    function get_taxon_name($arr, $option = "OPTIONAL") //other value aside from OPTIONAL is REQUIRED.
     {
         $claims = @$arr->claims;
         if($val = @$claims->P225[0]->mainsnak->datavalue->value) return (string) $val;
+        if($option == 'REQUIRED') {
+            if($val = @$arr->labels->en->value) return (string) $val;
+        }
         /* this introduced new probs, thus commented
         elseif($val = @$arr->labels->en->value) return (string) $val;
         else {

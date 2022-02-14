@@ -81,7 +81,7 @@ class FillUpMissingParentsAPI
             $claims = $obj->entities->$undefined_id->claims;
             $rek = array();
             $rek['taxon_id'] = $undefined_id;
-            $rek['taxon'] = $this->func->get_taxon_name($obj->entities->$undefined_id); //echo "\nrank OK";
+            $rek['taxon'] = $this->func->get_taxon_name($obj->entities->$undefined_id, 'REQUIRED'); //echo "\nrank OK";
             $rek['rank'] = $this->func->get_taxon_rank($claims); //echo "\nrank OK";
             $rek['author'] = $this->func->get_authorship($claims); //echo "\nauthorship OK";
             $rek['author_yr'] = $this->func->get_authorship_date($claims); //echo "\nauthorship_date OK";
@@ -99,8 +99,10 @@ class FillUpMissingParentsAPI
                 [author_yr] => +1758-01-01T00:00:00Z
                 [parent] => Q127960 --- now a complete ancestry
             )*/
-            if($rek['taxon_id']) self::create_archive($rek);
-            // else echo "\nREMINDER: No taxon name for this parent [".$rek['taxon_id']."]\n"
+            if($rek['taxon']) self::create_archive($rek);
+            else {
+                echo "\nWas not added: "; print_r($rec);
+            }
         }//end foreach()
     }
     /* working OK - an option to get a taxon.tab that is a "taxon_working.tab"
@@ -166,10 +168,6 @@ class FillUpMissingParentsAPI
     }
     private function create_archive($rec)
     {
-        if(!@$rec['taxon']) {
-            echo "\nWas not added: "; print_r($rec);
-            return;
-        }
         $t = new \eol_schema\Taxon();
         $t->taxonID                  = $rec['taxon_id'];
         $t->scientificName           = $rec['taxon'];
