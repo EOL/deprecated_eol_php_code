@@ -32,6 +32,7 @@ class FillUpMissingParentsAPI
         // /*
         $tables = $info['harvester']->tables;
         if($undefined_parents = self::get_undefined_parents_v2()) {
+            /* or at this point you can add_2undefined_parents_their_parents(), if needed */
             self::append_undefined_parents($undefined_parents);
             self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'create_archive');
         }

@@ -527,7 +527,7 @@ class WikiDataAPI extends WikipediaAPI
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; if(($k % 5000) == 0) echo " ".number_format($k)." ";
             $arr = json_decode($row); //print_r($arr); 
-            $instance_of = @$arr->claims->P31[0]->mainsnak->datavalue->value->id; //should be of 'taxon' Q16521
+            $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
             if($instance_of == "Q16521") {
                 /* remove the last char which is "," a comma */
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
@@ -598,9 +598,8 @@ class WikiDataAPI extends WikipediaAPI
             */
 
             $arr = json_decode($row); //print_r($arr); 
-            $instance_of = @$arr->claims->P31[0]->mainsnak->datavalue->value->id; //should be of 'taxon' Q16521
-            // exit("\n [$instance_of] elix 1\n");
-            
+            $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
+            // echo("\ninstance_of: [$instance_of]\n"); //debug only
             if($instance_of == "Q16521") { @$taxa_count++;
                 /* remove the last char which is "," a comma */
                 $last_char = substr($row, -1);
@@ -709,7 +708,7 @@ class WikiDataAPI extends WikipediaAPI
                                  */ //eli's debug end
                              }
                              
-                             if($rek['taxon_id']) {
+                             if($rek['taxon_id']) { //print_r($rek);
                                  $ret = self::create_archive($rek);
                                  if($ret) {
                                      if($this->what != "taxonomy") self::save_ancestry_to_temp($rek['parent']);
@@ -3064,7 +3063,7 @@ class WikiDataAPI extends WikipediaAPI
             $k++;
             if(($k % 20000) == 0) echo " $k";
             $arr = json_decode($row); //print_r($arr); 
-            $instance_of = @$arr->claims->P31[0]->mainsnak->datavalue->value->id; //should be of 'taxon' Q16521
+            $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
             if($instance_of == "Q16521") {
                 $e++;
                 fwrite($f, $row."\n");
