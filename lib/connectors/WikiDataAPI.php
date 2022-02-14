@@ -526,6 +526,7 @@ class WikiDataAPI extends WikipediaAPI
         $k = 0;
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; if(($k % 5000) == 0) echo " ".number_format($k)." ";
+            $row = self::remove_last_char_if_comma($row); //remove the last char if it is "," a comma
             $arr = json_decode($row); //print_r($arr); 
             $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
             if($instance_of == "Q16521") {
@@ -597,14 +598,11 @@ class WikiDataAPI extends WikipediaAPI
             if(!$cont) continue;
             */
 
-            $arr = json_decode($row); //print_r($arr); 
+            $row = self::remove_last_char_if_comma($row); //remove the last char if it is "," a comma
+            $arr = json_decode($row); //print_r($arr); exit;
             $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
             // echo("\ninstance_of: [$instance_of]\n"); //debug only
             if($instance_of == "Q16521") { @$taxa_count++;
-                /* remove the last char which is "," a comma */
-                $last_char = substr($row, -1);
-                if($last_char == ",") $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
-
                 // debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
                 $Q_id = $arr->id;
 
@@ -778,6 +776,12 @@ class WikiDataAPI extends WikipediaAPI
             fclose($handle);
             exit("\n-end stats-\n");
         }
+    }
+    private function remove_last_char_if_comma($row)
+    {
+        $last_char = substr($row, -1);
+        if($last_char == ",") $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
+        return $row;
     }
     private function save_ancestry_to_temp($ancestry)
     {
@@ -3062,6 +3066,7 @@ class WikiDataAPI extends WikipediaAPI
         foreach(new FileIterator($raw_dump) as $line_number => $row) {
             $k++;
             if(($k % 20000) == 0) echo " $k";
+            $row = self::remove_last_char_if_comma($row); //remove the last char if it is "," a comma
             $arr = json_decode($row); //print_r($arr); 
             $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
             if($instance_of == "Q16521") {
