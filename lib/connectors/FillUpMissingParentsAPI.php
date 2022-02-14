@@ -61,7 +61,7 @@ class FillUpMissingParentsAPI
     }
     private function append_undefined_parents($undefined_parents)
     {
-        $to_be_added = array('Q21032607', 'Q68334453', 'Q14476748', 'Q21032613'); //last remaining undefined parents. Added here to save one entire loop
+        $to_be_added = array('Q21032607', 'Q68334453', 'Q14476748', 'Q21032613', 'Q2116552'); //last remaining undefined parents. Added here to save one entire loop
         $undefined_parents = array_merge($undefined_parents, $to_be_added);
         foreach($undefined_parents as $undefined_id) {
             $obj = $this->func->get_object($undefined_id);
@@ -100,6 +100,7 @@ class FillUpMissingParentsAPI
                 [parent] => Q127960 --- now a complete ancestry
             )*/
             if($rek['taxon_id']) self::create_archive($rek);
+            // else echo "\nREMINDER: No taxon name for this parent [".$rek['taxon_id']."]\n"
         }//end foreach()
     }
     /* working OK - an option to get a taxon.tab that is a "taxon_working.tab"
