@@ -32,7 +32,7 @@ class DeltasHashIDsAPI
             [1] => http://eol.org/schema/agent/agent
             [2] => http://eol.org/schema/media/document
         )*/
-        $extensions = array("http://eol.org/schema/media/document");
+        // $extensions = array("http://eol.org/schema/media/document"); //debug only - force value
         foreach($extensions as $tbl) {
             $this->unique_ids = array();
             self::process_table($tables[$tbl][0], 'hash_identifiers', $this->extensions[$tbl]);

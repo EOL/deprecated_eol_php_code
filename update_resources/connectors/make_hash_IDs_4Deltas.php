@@ -14,19 +14,16 @@ $GLOBALS['ENV_DEBUG'] = true; //set to true during development
 ini_set('memory_limit','7096M');
 $timestart = time_elapsed();
 
-// rowType="http://rs.tdwg.org/dwc/terms/Taxon">
-// rowType="http://eol.org/schema/agent/Agent">
-// rowType="http://eol.org/schema/media/Document">
-
-
 // print_r($argv);
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
 $param                     = json_decode(@$argv[2], true);
 $resource_id = $param['resource_id'];
 $resource = $param['resource'];
 
+echo "\n========== START hash identifiers ==========\n";
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
 process_resource_url($dwca_file, $resource_id, $timestart, $param);
+echo "\n========== END hash identifiers ==========\n";
 
 function process_resource_url($dwca_file, $resource_id, $timestart, $param)
 {
