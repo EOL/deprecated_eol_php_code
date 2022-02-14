@@ -529,7 +529,8 @@ class WikiDataAPI extends WikipediaAPI
             $row = self::remove_last_char_if_comma($row); //remove the last char if it is "," a comma
             $arr = json_decode($row); //print_r($arr); 
             $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
-            if($instance_of == "Q16521") {
+            $taxon_name  = trim((string) @$arr->claims->P225[0]->mainsnak->datavalue->value); //has a taxon name
+            if($instance_of == "Q16521" && $taxon_name) {
                 /* remove the last char which is "," a comma */
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
                 debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
@@ -601,8 +602,9 @@ class WikiDataAPI extends WikipediaAPI
             $row = self::remove_last_char_if_comma($row); //remove the last char if it is "," a comma
             $arr = json_decode($row); //print_r($arr); exit;
             $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
+            $taxon_name  = trim((string) @$arr->claims->P225[0]->mainsnak->datavalue->value); //has a taxon name
             // echo("\ninstance_of: [$instance_of]\n"); //debug only
-            if($instance_of == "Q16521") { @$taxa_count++;
+            if($instance_of == "Q16521" && $taxon_name) { @$taxa_count++;
                 // debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
                 $Q_id = $arr->id;
 
@@ -2575,11 +2577,6 @@ class WikiDataAPI extends WikipediaAPI
     {
         $claims = @$arr->claims;
         if($val = @$claims->P225[0]->mainsnak->datavalue->value) return (string) $val;
-        elseif(in_array(@$arr->id, array("Q4589415"))) { //special case for a ko & en article
-            if($val = @$arr->labels->en->value) return (string) $val;
-        }
-        elseif($val = @$arr->labels->en->value) return (string) $val; //New: added again Feb 11, 2022
-        
         /* this introduced new probs, thus commented
         elseif($val = @$arr->labels->en->value) return (string) $val;
         else {
@@ -3069,7 +3066,8 @@ class WikiDataAPI extends WikipediaAPI
             $row = self::remove_last_char_if_comma($row); //remove the last char if it is "," a comma
             $arr = json_decode($row); //print_r($arr); 
             $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
-            if($instance_of == "Q16521") {
+            $taxon_name  = trim((string) @$arr->claims->P225[0]->mainsnak->datavalue->value); //has a taxon name
+            if($instance_of == "Q16521" && $taxon_name) {
                 $e++;
                 fwrite($f, $row."\n");
             }
