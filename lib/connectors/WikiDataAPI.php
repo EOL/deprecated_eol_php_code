@@ -1142,14 +1142,13 @@ class WikiDataAPI extends WikipediaAPI
             $r->agentRole       = ($val = @$a['role']) ? (string) $val : $role;
             $r->agentRole = trim(str_replace("|", "", $r->agentRole));
             /* to capture erroneous artist entries
-            if(strlen($r->agentRole) == 1)
-            {
+            if(strlen($r->agentRole) == 1) {
                 print_r($artists);
                 exit("\nagent role is just 1 char\n");
             }
             */
             $r->term_homepage   = self::format_homepage(@$a['homepage']);
-            $r->identifier      = md5("$r->term_name|$r->agentRole");
+            $r->identifier      = md5("$r->term_name | $r->agentRole | $r->term_homepage | ");
             $agent_ids[] = $r->identifier;
             if(!isset($this->agent_ids[$r->identifier])) {
                $this->agent_ids[$r->identifier] = '';
