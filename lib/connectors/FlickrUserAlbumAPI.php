@@ -103,7 +103,7 @@ class FlickrUserAlbumAPI
             if(!($agent = (string) trim($rec->fullName))) continue;
             $r = new \eol_schema\Agent();
             $r->term_name = $agent;
-            $r->identifier = md5("$agent|" . $rec->role);
+            $r->identifier = md5("$agent | $rec->role | $rec->homepage | ");
             $r->agentRole = $rec->role;
             $r->term_homepage = $rec->homepage;
             $agent_ids[] = $r->identifier;
