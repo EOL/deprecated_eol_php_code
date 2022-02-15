@@ -1,7 +1,9 @@
 <?php
 namespace php_active_record;
 /* This can be a template for any Delta resource, a means to hash identifiers (DATA-1903)
-php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"71"}'
+
+php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"71"}' //Wikimedia commons
+php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"15"}' //Flickr
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -21,7 +23,11 @@ $resource_id = $param['resource_id'];
 $resource = $param['resource'];
 
 echo "\n========== START hash identifiers ==========\n";
-$dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
+if(in_array($resource_id, array("71", "15"))) {
+    $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
+}
+else exit("\nNot yet initialized [$resource_id]\n");
+
 process_resource_url($dwca_file, $resource_id."_delta", $timestart, $param);
 echo "\n========== END hash identifiers ==========\n";
 
@@ -31,8 +37,11 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $param)
     $func = new DwCA_Utility($resource_id, $dwca_file, $param);
 
     /* Orig in meta.xml has capital letters. Just a note reminder. */
-    $excluded_rowtypes = false;
-    $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon','http://eol.org/schema/agent/agent');
+    if(in_array($resource_id, array("71_delta", "15_delta"))) {
+        $excluded_rowtypes = false;
+        $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon','http://eol.org/schema/agent/agent');
+    }
+    else exit("\nNot yet initialized [$resource_id]\n");
     
     /* This will be processed in DeltasHashIDsAPI.php which will be called from DwCA_Utility.php */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
