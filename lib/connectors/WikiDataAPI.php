@@ -615,7 +615,7 @@ class WikiDataAPI extends WikipediaAPI
             // */
             
             // echo("\ninstance_of: [$instance_of]\n"); //debug only
-            if($instance_of == "Q16521" && $taxon_name) { @$taxa_count++;
+            if($instance_of == "Q16521" && self::valid_sciname($taxon_name) ) { @$taxa_count++;
                 // debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
                 $Q_id = $arr->id;
 
@@ -2611,6 +2611,23 @@ class WikiDataAPI extends WikipediaAPI
         }
         */
         return false;
+    }
+    private function valid_sciname($sciname)
+    {   if(!$sciname) return false;
+        /*
+        [A-Z][a-z-]+\ssp\..*?
+        [A-Z][a-z-]+\sspp.*?
+        [A-Z][a-z-]+\saff\..*?
+        [A-Z][a-z-]+\sn\.\s?sp\..*?
+        .*?\scf\..*?
+        .*?\sindet\..*?
+        */
+        $terms = array("sp", "spp", "aff", "?sp", "cf", "indet");
+        foreach($terms as $term) {
+            if(stripos($sciname, " $term. ") !== false) return false;  //string is found
+            if(stripos($sciname, " $term ") !== false) return false;  //string is found
+        }
+        return true;
     }
     function get_authorship($claims)
     {
