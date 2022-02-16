@@ -152,6 +152,12 @@ class FillUpMissingParentsAPI
                 if($val = @$this->redirected_IDs[$parentNameUsageID]) $rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID'] = $val;
                 // */
                 
+                // /* temporary fix until wikidata dump has reflected my edits in wikidata
+                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                if($taxonID == "Q107694904")    $rec['http://rs.tdwg.org/dwc/terms/scientificName'] = "Trachipleistophora";
+                if($taxonID == "Q15657618")     $rec['http://rs.tdwg.org/dwc/terms/scientificName'] = "Hemaris thetis";
+                // */
+                
                 $uris = array_keys($rec);
                 $o = new \eol_schema\Taxon();
                 foreach($uris as $uri) {
