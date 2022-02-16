@@ -615,7 +615,8 @@ class WikiDataAPI extends WikipediaAPI
             // */
             
             // echo("\ninstance_of: [$instance_of]\n"); //debug only
-            if($instance_of == "Q16521" && self::valid_sciname($taxon_name) ) { @$taxa_count++;
+            $taxonRank = self::get_taxon_rank($arr->claims);
+            if($instance_of == "Q16521" && self::valid_sciname($taxon_name, $taxonRank) ) { @$taxa_count++;
                 // debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
                 $Q_id = $arr->id;
 
@@ -2612,8 +2613,9 @@ class WikiDataAPI extends WikipediaAPI
         */
         return false;
     }
-    private function valid_sciname($sciname)
+    private function valid_sciname($sciname, $taxonRank)
     {   if(!$sciname) return false;
+        if($taxonRank == "cultivar") return false;
         /*
         [A-Z][a-z-]+\ssp\..*?
         [A-Z][a-z-]+\sspp.*?
