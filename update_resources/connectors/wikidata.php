@@ -75,6 +75,8 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71_delta	Mon 2022-02-14 09:02:25 AM	{"agent.tab":392784, "media_resource.tab":1549432, "taxon.tab":162683, "time_elapsed":{"sec":1031.02, "min":17.18, "hr":0.29}}
 
 wikidata-hierarchy	Tue 2022-02-08 10:02:56 AM	{"taxon.tab":3365727, "time_elapsed":{"sec":353281.95, "min":5888.03, "hr":98.13, "day":4.09}}
+wikidata-hierarchy-final	Mon 2022-02-14 08:48:27 AM	{"taxon.tab":3365214, "time_elapsed":{"sec":5338.23, "min":88.97, "hr":1.48}}
+wikidata-hierarchy-final	Wed 2022-02-16 01:41:50 AM	{"taxon.tab":3365214, "time_elapsed":{"sec":5814.62, "min":96.91, "hr":1.62}}
 
 when doing tests locally:
 php update_resources/connectors/wikidata.php _ generate_resource

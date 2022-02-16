@@ -99,7 +99,12 @@ class FillUpMissingParentsAPI
                 [author_yr] => +1758-01-01T00:00:00Z
                 [parent] => Q127960 --- now a complete ancestry
             )*/
-            if($rek['taxon']) self::create_archive($rek);
+            if($scientificName = $rek['taxon']) {
+                /* New: Feb 16, 2022
+                $rek['canonicalName'] = self::add_cannocial_using_gnparser($scientificName);
+                */
+                self::create_archive($rek);
+            }
             else {
                 echo "\nWas not added: "; print_r($rec);
             }
@@ -158,6 +163,11 @@ class FillUpMissingParentsAPI
                 if($taxonID == "Q15657618")     $rec['http://rs.tdwg.org/dwc/terms/scientificName'] = "Hemaris thetis";
                 // */
                 
+                /* New: Feb 16, 2022
+                $scientificName = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+                $rec['http://rs.gbif.org/terms/1.0/canonicalName'] = self::add_cannocial_using_gnparser($scientificName);
+                */
+                
                 $uris = array_keys($rec);
                 $o = new \eol_schema\Taxon();
                 foreach($uris as $uri) {
@@ -191,6 +201,43 @@ class FillUpMissingParentsAPI
             $this->taxon_ids[$t->taxonID] = '';
             $this->archive_builder->write_object_to_file($t);
         }
+    }
+    function add_cannocial_using_gnparser($scientificName, $rank)
+    {
+        // gnparser "Sarracenia flava 'Maxima'" -f pretty -C
+        $cmd = 'gnparser "'.$scientificName.'" -f compact -C';
+        $json = shell_exec($cmd);
+        $obj = json_decode($json);
+        // print_r($obj); exit;
+        /*stdClass Object(
+            [parsed] => 1
+            [quality] => 1
+            [verbatim] => Sarracenia flava 'Maxima'
+            [normalized] => Sarracenia flava ‘Maxima’
+            [canonical] => stdClass Object(
+                    [stemmed] => Sarracenia flau ‘Maxima’
+                    [simple] => Sarracenia flava ‘Maxima’
+                    [full] => Sarracenia flava ‘Maxima’
+                )
+            [cardinality] => 3
+            [id] => 39178008-65ee-5de3-af88-63ffdd67e00b
+            [parserVersion] => v1.6.3
+        )
+        1. Could you please run the scientificName values through gnparser and put the result in a canonicalName column? 
+        This will make it easier for me to work on the page mappings. Please turn on the option to parse cultivars (--cultivars -C). 
+        Fetch the full canonical form for taxa of rank subgenus, series, subseries, section, and subsection. 
+        Fetch the simple canonical form for all other taxa. 
+        For taxa that don't get parsed, please put the scientificName value in the canonicalName column. */
+        if($obj->parsed == 1) {
+            if(in_array($rank, array("subgenus", "series", "subseries", "section", "subsection"))) return self::remove_special_quotes($obj->canonical->full);
+            else return self::remove_special_quotes($obj->canonical->simple);
+        }
+        else return $scientificName;
+    }
+    private function remove_special_quotes($str)
+    {
+        return $str;
+        return str_replace(array("‘", "’"), "'", $str);
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);

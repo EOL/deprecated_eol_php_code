@@ -601,8 +601,19 @@ class WikiDataAPI extends WikipediaAPI
 
             $row = self::remove_last_char_if_comma($row); //remove the last char if it is "," a comma
             $arr = json_decode($row); //print_r($arr); exit;
+            $Q_id = $arr->id;
             $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
             $taxon_name  = trim((string) @$arr->claims->P225[0]->mainsnak->datavalue->value); //has a taxon name
+            
+            // /* New: Feb 16, 2022 - use get_object for some taxon names since dump is not reflective of website and API
+            if(self::needs_get_object_func($taxon_name)) {
+                $arr = self::get_object($Q_id);
+                $arr = $arr->entities->$Q_id;
+                $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
+                $taxon_name  = trim((string) @$arr->claims->P225[0]->mainsnak->datavalue->value); //has a taxon name
+            }
+            // */
+            
             // echo("\ninstance_of: [$instance_of]\n"); //debug only
             if($instance_of == "Q16521" && $taxon_name) { @$taxa_count++;
                 // debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
@@ -778,6 +789,14 @@ class WikiDataAPI extends WikipediaAPI
             fclose($handle);
             exit("\n-end stats-\n");
         }
+    }
+    private function needs_get_object_func($taxon_name)
+    {
+        if(strpos($taxon_name, "‘") !== false) return true; //string is found --- special start quote
+        if(strpos($taxon_name, "’") !== false) return true; //string is found --- special end quote
+        if(strpos($taxon_name, "'") !== false) return true; //string is found --- single quote
+        if(strpos($taxon_name, '"') !== false) return true; //string is found --- double quote
+        return false;
     }
     private function remove_last_char_if_comma($row)
     {
