@@ -100,9 +100,9 @@ class FillUpMissingParentsAPI
                 [parent] => Q127960 --- now a complete ancestry
             )*/
             if($scientificName = $rek['taxon']) {
-                /* New: Feb 16, 2022
-                $rek['canonicalName'] = self::add_cannocial_using_gnparser($scientificName);
-                */
+                // /* New: Feb 16, 2022
+                $rek['canonicalName'] = self::add_cannocial_using_gnparser($scientificName, $rek['rank']);
+                // */
                 self::create_archive($rek);
             }
             else {
@@ -163,10 +163,11 @@ class FillUpMissingParentsAPI
                 if($taxonID == "Q15657618")     $rec['http://rs.tdwg.org/dwc/terms/scientificName'] = "Hemaris thetis";
                 // */
                 
-                /* New: Feb 16, 2022
+                // /* New: Feb 16, 2022
                 $scientificName = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
-                $rec['http://rs.gbif.org/terms/1.0/canonicalName'] = self::add_cannocial_using_gnparser($scientificName);
-                */
+                $rank = $rec['http://rs.tdwg.org/dwc/terms/taxonRank'];
+                $rec['http://rs.gbif.org/terms/1.0/canonicalName'] = self::add_cannocial_using_gnparser($scientificName, $rank);
+                // */
                 
                 $uris = array_keys($rec);
                 $o = new \eol_schema\Taxon();
@@ -187,6 +188,7 @@ class FillUpMissingParentsAPI
         $t = new \eol_schema\Taxon();
         $t->taxonID                  = $rec['taxon_id'];
         $t->scientificName           = $rec['taxon'];
+        $t->canonicalName            = $rec['canonicalName'];
         if($t->scientificNameAuthorship = $rec['author']) {
             if($year = $rec['author_yr']) {
                 //+1831-01-01T00:00:00Z
