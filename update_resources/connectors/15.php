@@ -11,7 +11,7 @@ namespace php_active_record;
 15	Wednesday 2019-12-25 08:53:24 PM{"agent.tab":1856, "media_resource.tab":260368, "taxon.tab":70486, "time_elapsed":false} expected, vernaculars removed. Consistent OK
 15	Thursday 2020-06-04 06:52:37 AM	{"agent.tab":1796, "media_resource.tab":238120, "taxon.tab":71147, "time_elapsed":false} -- start new updated connector, no auth_token anymore.
 15_delta	Tue 2022-02-15 03:43:02 {"agent.tab":1796, "media_resource.tab":238120, "taxon.tab":71147, "time_elapsed":{"sec":357.45, "min":5.96, "hr":0.1}} - Mac Mini
-
+15_delta	Tue 2022-02-15 10:50:01 {"agent.tab":1796, "media_resource.tab":238120, "taxon.tab":71147, "time_elapsed":{"sec":156.75, "min":2.61, "hr":0.04}} - eol->archive
 */
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
