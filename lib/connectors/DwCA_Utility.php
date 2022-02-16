@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_22361/',   //71 Wikimedia resource
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_22361/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_79096/',   //71 Wikimedia resource
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_79096/'
         );
         */
         
@@ -413,6 +413,13 @@ class DwCA_Utility
             require_library('connectors/FillUpMissingParentsAPI');
             $func = new FillUpMissingParentsAPI($this->archive_builder, $this->resource_id, $this->archive_path);
             $func->start($info);
+            /* for testing
+            $sciname = "Sarracenia flava 'Maxima'";
+            $sciname = "Adenanthos cuneatus ‘Flat Out’";
+            $canonical = $func->add_cannocial_using_gnparser($sciname, 'series');
+            $canonical = $func->add_cannocial_using_gnparser($sciname, 'genus');
+            exit("\n[$sciname] [$canonical]\n");
+            */
         }
         
         if($this->params['resource'] == "Deltas_4hashing") {
