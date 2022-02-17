@@ -164,7 +164,7 @@ class FillUpMissingParentsAPI
                 // */
                 
                 // /* New: Feb 16, 2022
-                if(!$rec['http://rs.gbif.org/terms/1.0/canonicalName']) {
+                if(!@$rec['http://rs.gbif.org/terms/1.0/canonicalName']) {
                     $scientificName = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
                     $rank = $rec['http://rs.tdwg.org/dwc/terms/taxonRank'];
                     $rec['http://rs.gbif.org/terms/1.0/canonicalName'] = self::add_cannocial_using_gnparser($scientificName, $rank);
