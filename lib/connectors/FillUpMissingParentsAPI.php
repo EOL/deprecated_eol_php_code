@@ -164,9 +164,11 @@ class FillUpMissingParentsAPI
                 // */
                 
                 // /* New: Feb 16, 2022
-                $scientificName = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
-                $rank = $rec['http://rs.tdwg.org/dwc/terms/taxonRank'];
-                $rec['http://rs.gbif.org/terms/1.0/canonicalName'] = self::add_cannocial_using_gnparser($scientificName, $rank);
+                if(!$rec['http://rs.gbif.org/terms/1.0/canonicalName']) {
+                    $scientificName = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+                    $rank = $rec['http://rs.tdwg.org/dwc/terms/taxonRank'];
+                    $rec['http://rs.gbif.org/terms/1.0/canonicalName'] = self::add_cannocial_using_gnparser($scientificName, $rank);
+                }
                 // */
                 
                 $uris = array_keys($rec);
