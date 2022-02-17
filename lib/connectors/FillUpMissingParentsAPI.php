@@ -209,7 +209,7 @@ class FillUpMissingParentsAPI
     function add_cannocial_using_gnparser($scientificName, $rank)
     {
         // gnparser "Sarracenia flava 'Maxima'" -f pretty -C
-        $cmd = 'gnparser "'.$scientificName.'" -f compact -C';
+        $cmd = 'gnparser "'.$scientificName.'" -f compact -C > terminal_gnparser_wikidataTaxonomy.out';
         $json = shell_exec($cmd);
         $obj = json_decode($json);
         // print_r($obj); exit;

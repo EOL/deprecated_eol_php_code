@@ -16,7 +16,7 @@ cd /html/eol_php_code/update_resources/connectors
 php fill_up_undefined_parents.php _
 # generates wikidata-hierarchy-final.tar.gz
 
-$ nohup php fill_up_undefined_parents.php _ > terminal_fill_up_undefined_parents.txt
+$ nohup php fill_up_undefined_parents.php _ > terminal_fill_up_undefined_parents.out
 -> use 'nohup' so it continues even after logging out of the terminal
 
 For diagnostics:
@@ -25,6 +25,9 @@ For diagnostics:
     -> very helpful, if u want to delete current running process
     cat terminal_fill_up_undefined_parents.txt
     -> to see progress, very convenient
+    ps -p $PID
+    ps -p 517928
+    -> to investigate a running PID
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
