@@ -10,6 +10,10 @@ class FillUpMissingParentsAPI
         $this->archive_path = $archive_path;
         // $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*1, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->redirected_IDs = array();
+        // /* for gnfinder
+        if(Functions::is_production()) $this->json_path = '/var/www/html/gnfinder/'; //--- for terminal //'/html/gnfinder/'; --- for Jenkins
+        else                           $this->json_path = '/Volumes/AKiTiO4/other_files/gnfinder/';
+        // */
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -208,10 +212,19 @@ class FillUpMissingParentsAPI
     }
     function add_cannocial_using_gnparser($scientificName, $rank)
     {
-        // gnparser "Sarracenia flava 'Maxima'" -f pretty -C
-        $cmd = 'gnparser "'.$scientificName.'" -f compact -C > terminal_gnparser_wikidataTaxonomy.out';
-        $json = shell_exec($cmd);
-        $obj = json_decode($json);
+        $md5_id = md5($scientificName.$rank);
+        if($obj = self::retrieve_json_obj($md5_id)) {} //{echo "\nobj retrieved\n";}
+        else {
+            // gnparser "Sarracenia flava 'Maxima'" -f pretty -C
+            // $cmd = 'gnparser "'.$scientificName.'" -f compact -C > terminal_gnparser_wikidataTaxonomy.out'; //working OK, for testing
+            $cmd = 'gnparser "'.$scientificName.'" -f compact -C';
+            // echo "\nrunning: [$cmd]\n";
+            $json = shell_exec($cmd);
+            $obj = json_decode($json);
+            // /* for json object saving/retrieval routine
+            self::save_json($md5_id, $json);
+            // */
+        }
         // print_r($obj); exit;
         /*stdClass Object(
             [parsed] => 1
@@ -243,6 +256,40 @@ class FillUpMissingParentsAPI
         return $str;
         return str_replace(array("‘", "’"), "'", $str);
     }
+    /* ------------- START: retrieve module ------------- */
+    private function retrieve_json_obj($id)
+    {   $file = self::retrieve_path($id);
+        if(is_file($file)) {
+            $json = file_get_contents($file);
+            return json_decode($json);
+        }
+        return false;
+    }
+    private function retrieve_path($md5)
+    {   $filename = "$md5.json";
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        return $this->json_path . "$cache1/$cache2/$filename";
+    }
+    private function save_json($id, $json)
+    {   $file = self::build_path($id);
+        if($f = Functions::file_open($file, "w")) {
+            fwrite($f, $json);
+            fclose($f);
+        }
+        else exit("\nCannot write file\n");
+    }
+    private function build_path($md5)
+    {
+        $filename = "$md5.json";
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($this->json_path . $cache1)) mkdir($this->json_path . $cache1);
+        if(!file_exists($this->json_path . "$cache1/$cache2")) mkdir($this->json_path . "$cache1/$cache2");
+        return $this->json_path . "$cache1/$cache2/$filename";
+    }
+    /* ------------- END: retrieve module ------------- */
+    
     private function process_measurementorfact($meta)
     {   //print_r($meta);
         echo "\nprocess_measurementorfact...\n"; $i = 0;

@@ -415,8 +415,9 @@ class DwCA_Utility
             $func->start($info);
             /* for testing
             $sciname = "Sarracenia flava 'Maxima'";
-            $sciname = "Adenanthos cuneatus ‘Flat Out’";
-            $canonical = $func->add_cannocial_using_gnparser($sciname, 'series');
+            //$sciname = "Adenanthos cuneatus ‘Flat Out’";
+            $sciname = "Gadus morhua Linneaus 1972";
+            // $canonical = $func->add_cannocial_using_gnparser($sciname, 'series');
             $canonical = $func->add_cannocial_using_gnparser($sciname, 'genus');
             exit("\n[$sciname] [$canonical]\n");
             */
