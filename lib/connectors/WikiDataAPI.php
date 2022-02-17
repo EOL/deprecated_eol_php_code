@@ -601,24 +601,24 @@ class WikiDataAPI extends WikipediaAPI
 
             $row = self::remove_last_char_if_comma($row); //remove the last char if it is "," a comma
             $arr = json_decode($row); //print_r($arr); exit;
-            $Q_id = $arr->id;
+            $Q_id = @$arr->id; //use @ bec. needed for last rec
             $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
             $taxon_name  = trim((string) @$arr->claims->P225[0]->mainsnak->datavalue->value); //has a taxon name
             
             // /* New: Feb 16, 2022 - use get_object for some taxon names since dump is not reflective of website and API
             if(self::needs_get_object_func($taxon_name)) {
                 $arr = self::get_object($Q_id);
-                $arr = $arr->entities->$Q_id;
+                $arr = $arr->entities->$Q_id; $Q_id = $arr->id;
                 $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
                 $taxon_name  = trim((string) @$arr->claims->P225[0]->mainsnak->datavalue->value); //has a taxon name
             }
             // */
             
             // echo("\ninstance_of: [$instance_of]\n"); //debug only
-            $taxonRank = self::get_taxon_rank($arr->claims);
+            $taxonRank = self::get_taxon_rank(@$arr->claims); //use @ bec. needed for last rec
             if($instance_of == "Q16521" && self::valid_sciname($taxon_name, $taxonRank) ) { @$taxa_count++;
                 // debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
-                $Q_id = $arr->id;
+                // $Q_id = $arr->id; --- transferred up
 
                 /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent | Q132634
                 $arr = self::get_object('Q6707390');

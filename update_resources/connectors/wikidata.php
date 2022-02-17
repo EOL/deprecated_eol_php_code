@@ -232,7 +232,7 @@ if(@$params['task'] == "generate_wikidata_taxonomy") {
     require_library('connectors/DWCADiagnoseAPI');
     $func = new DWCADiagnoseAPI();
     $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
-    echo "\nUndefined parents: ".count($undefined)."\n";
+    echo "\nUndefined parents (wikidata.php): ".count($undefined)."\n";
 }
 // */
 

@@ -10,6 +10,21 @@ More stable:
 wikidata-hierarchy	        Mon 2022-02-14 07:03:04 AM	{"taxon.tab":3350652, "time_elapsed":{"sec":10372.9, "min":172.88, "hr":2.88}}
 wikidata-hierarchy-final	Mon 2022-02-14 08:48:27 AM	{"taxon.tab":3365214, "time_elapsed":{"sec":5338.23, "min":88.97, "hr":1.48}}
 
+in command-line in eol-archive:
+cd /html/eol_php_code/update_resources/connectors
+# this will be run in command-line since gnparser can't be accessed in Jenkins
+php fill_up_undefined_parents.php _
+# generates wikidata-hierarchy-final.tar.gz
+
+$ nohup php fill_up_undefined_parents.php _ > terminal_fill_up_undefined_parents.txt
+-> use 'nohup' so it continues even after logging out of the terminal
+
+For diagnostics:
+    ps --help simple
+    ps -r 
+    -> very helpful, if u want to delete current running process
+    cat terminal_fill_up_undefined_parents.txt
+    -> to see progress, very convenient
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
