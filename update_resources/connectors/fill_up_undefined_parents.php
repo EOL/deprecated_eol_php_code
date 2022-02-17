@@ -28,6 +28,8 @@ For diagnostics:
     ps -p $PID
     ps -p 517928
     -> to investigate a running PID
+    $ cat /var/www/html/eol_php_code/update_resources/connectors/terminal_fill_up_undefined_parents.out
+    -> to monitor runtime
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
