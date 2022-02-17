@@ -232,7 +232,7 @@ class FillUpMissingParentsAPI
         Fetch the full canonical form for taxa of rank subgenus, series, subseries, section, and subsection. 
         Fetch the simple canonical form for all other taxa. 
         For taxa that don't get parsed, please put the scientificName value in the canonicalName column. */
-        if($obj->parsed == 1) {
+        if(@$obj->parsed == 1) {
             if(in_array($rank, array("subgenus", "series", "subseries", "section", "subsection"))) return self::remove_special_quotes($obj->canonical->full);
             else return self::remove_special_quotes($obj->canonical->simple);
         }
