@@ -423,7 +423,7 @@ class DwCA_Utility
             */
         }
         
-        if($this->params['resource'] == "Deltas_4hashing") {
+        if(@$this->params['resource'] == "Deltas_4hashing") {
             require_library('connectors/DeltasHashIDsAPI');
             $func = new DeltasHashIDsAPI($this->archive_builder, $this->resource_id, $this->archive_path);
             $func->start($info);

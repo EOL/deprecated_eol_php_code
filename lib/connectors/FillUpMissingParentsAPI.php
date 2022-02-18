@@ -34,7 +34,11 @@ class FillUpMissingParentsAPI
         $this->func = new WikiDataAPI(false, "en", "taxonomy", $langs_with_multiple_connectors, $debug_taxon, $this->archive_builder); //this was copied from wikidata.php
         
         // /*
-        $tables = $info['harvester']->tables;
+        if($tables = @$info['harvester']->tables) print_r(array_keys($tables));
+        else {
+            echo "\nInvestigate: harvester-tables are not accessbile\n";
+            return;
+        }
         if($undefined_parents = self::get_undefined_parents_v2()) {
             /* or at this point you can add_2undefined_parents_their_parents(), if needed */
             self::append_undefined_parents($undefined_parents);

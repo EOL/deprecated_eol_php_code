@@ -11,7 +11,7 @@ wikidata-hierarchy	        Mon 2022-02-14 07:03:04 AM	{"taxon.tab":3350652, "tim
 wikidata-hierarchy-final	Mon 2022-02-14 08:48:27 AM	{"taxon.tab":3365214, "time_elapsed":{"sec":5338.23, "min":88.97, "hr":1.48}}
 
 in command-line in eol-archive:
-cd /html/eol_php_code/update_resources/connectors
+IMPORTANT TO CD to: cd /var/www/html/eol_php_code/update_resources/connectors/
 # this will be run in command-line since gnparser can't be accessed in Jenkins
 php fill_up_undefined_parents.php _
 # generates wikidata-hierarchy-final.tar.gz
