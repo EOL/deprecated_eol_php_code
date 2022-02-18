@@ -35,6 +35,12 @@ For diagnostics:
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 ini_set('memory_limit','7096M');
 $timestart = time_elapsed();
+// /* during development --- or when investigating
+ini_set('error_reporting', E_ALL);
+ini_set('display_errors', true);
+$GLOBALS['ENV_DEBUG'] = true; //set to true during development
+// */
+
 $resource_id = "wikidata-hierarchy-final";
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
 // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
