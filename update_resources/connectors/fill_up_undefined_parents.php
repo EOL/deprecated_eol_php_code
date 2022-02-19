@@ -41,11 +41,11 @@ ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true during development
 // */
 
-// /* just a test
+/* just a test
 $resource_id = "wikidata-hierarchy-final";
 $status = chmod(CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".tar.gz", 0775);
 exit("\nFile permission update: [$status]\n");
-// */
+*/
 
 $resource_id = "wikidata-hierarchy-final";
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
