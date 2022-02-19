@@ -41,6 +41,12 @@ ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true during development
 // */
 
+// /* just a test
+$resource_id = "wikidata-hierarchy-final";
+$status = chmod(CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".tar.gz", 0775);
+exit("\nFile permission update: [$status]\n");
+// */
+
 $resource_id = "wikidata-hierarchy-final";
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
 // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
@@ -69,6 +75,9 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $ctr)
     */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
+    
+    $status = chmod(CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".tar.gz", 0775);
+    echo "\nFile permission update: [$status]\n";
     
     require_library('connectors/DWCADiagnoseAPI');
     $func = new DWCADiagnoseAPI();
