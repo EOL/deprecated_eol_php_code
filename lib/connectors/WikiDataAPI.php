@@ -2628,6 +2628,8 @@ class WikiDataAPI extends WikipediaAPI
         foreach($terms as $term) {
             if(stripos($sciname, " $term. ") !== false) return false;  //string is found
             if(stripos($sciname, " $term ") !== false) return false;  //string is found
+            if(stripos($sciname, " $term.") !== false) return false;  //string is found
+            if(stripos($sciname, " $term") !== false) return false;  //string is found
         }
         return true;
     }
