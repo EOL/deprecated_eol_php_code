@@ -421,15 +421,17 @@ class TraitDataImportAPI
     }
     private function log_invalid_values($mType, $mValue)
     {
-        $filename = $this->resources['path'].$this->resource_id."_invalid_values.txt";
-        echo "\ncreated filename: [$filename]\n";
-        $fields = array("measurementType", "measurementValue");
-        $WRITE = Functions::file_open($filename, "a");
-        clearstatcache(); //important for filesize()
-        if(filesize($filename) == 0) fwrite($WRITE, implode("\t", $fields) . "\n");
-        $save = array($mType, $mValue);
-        fwrite($WRITE, implode("\t", $save) . "\n");
-        fclose($WRITE);
+        if($mType && !$mValue) {
+            $filename = $this->resources['path'].$this->resource_id."_invalid_values.txt";
+            echo "\ncreated filename: [$filename]\n";
+            $fields = array("measurementType", "measurementValue");
+            $WRITE = Functions::file_open($filename, "a");
+            clearstatcache(); //important for filesize()
+            if(filesize($filename) == 0) fwrite($WRITE, implode("\t", $fields) . "\n");
+            $save = array($mType, $mValue);
+            fwrite($WRITE, implode("\t", $save) . "\n");
+            fclose($WRITE);
+        }
     }
     /* ========================================END create DwCA ======================================== */
     private function read_input_file($input_file)

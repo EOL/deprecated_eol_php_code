@@ -77,8 +77,8 @@ else {
                 
                 $resources_path = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/";
                 $filename = $resources_path.$hash_post."_invalid_values.txt";
-                if(file_exists($filename)) echo "\nExists: [$filename] size: .".filesize($filename)."\n";
-                else echo "\nDoes not exist: [$filename]\n";
+                if(file_exists($filename) && filesize($filename) > 0) echo "<br>Invalid measurement values: [$filename] size: .".filesize($filename)."<br>";
+                // else echo "<br>Does not exist: [$filename]<br>";
             echo "<br>=======================================================<br><br>";
             // echo "<pre>"; print_r($params); echo "</pre>"; //good debug
             /*Array(
