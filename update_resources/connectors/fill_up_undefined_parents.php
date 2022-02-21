@@ -10,9 +10,9 @@ More stable:
 wikidata-hierarchy	        Mon 2022-02-14 07:03:04 AM	{"taxon.tab":3350652, "time_elapsed":{"sec":10372.9, "min":172.88, "hr":2.88}}
 wikidata-hierarchy-final	Mon 2022-02-14 08:48:27 AM	{"taxon.tab":3365214, "time_elapsed":{"sec":5338.23, "min":88.97, "hr":1.48}}
 Below here is after back and forth exchanges and adjustments: should be a good stable resource.
-wikidata-hierarchy-final	Fri 2022-02-18 11:59:15 PM	{"taxon.tab":3359815, "time_elapsed":{"sec":12240.02, "min":204, "hr":3.4}}
+wikidata-hierarchy-final	Sun 2022-02-20 11:51:15 PM	{"taxon.tab":3323627, "time_elapsed":{"sec":9562.62, "min":159.38, "hr":2.66}}
 
-in command-line in eol-archive:
+------------------------------------ in command-line in eol-archive:
 IMPORTANT TO CD to: cd /var/www/html/eol_php_code/update_resources/connectors/
 # this will be run in command-line since gnparser can't be accessed in Jenkins
 php fill_up_undefined_parents.php _
