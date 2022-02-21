@@ -389,6 +389,8 @@ class TraitDataImportAPI
             [personal communication] => 
         )*/
         // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit("\n111\n"); //just testing
+        $orig_mValue = $rec['value'];
+        $orig_mType = $rec['predicate'];
         $mType = @$this->vocabulary['predicate'][$rec['predicate']];
         if(@$rec['units']) $mValue = $rec['value'];
         else               $mValue = @$this->vocabulary['value'][$rec['value']];
@@ -417,21 +419,19 @@ class TraitDataImportAPI
             $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
             $this->func->add_string_types($save, $mValue, $mType, "true");
         }
-        else self::log_invalid_values($mType, $mValue);
+        else self::log_invalid_values($mType, $mValue, $orig_mType, $orig_mValue);
     }
-    private function log_invalid_values($mType, $mValue)
+    private function log_invalid_values($mType, $mValue, $orig_mType, $orig_mValue)
     {
-        if($mType && !$mValue) {
-            $filename = $this->resources['path'].$this->resource_id."_invalid_values.txt";
-            echo "\ncreated filename: [$filename]\n";
-            $fields = array("measurementType", "measurementValue");
-            $WRITE = Functions::file_open($filename, "a");
-            clearstatcache(); //important for filesize()
-            if(filesize($filename) == 0) fwrite($WRITE, implode("\t", $fields) . "\n");
-            $save = array($mType, $mValue);
-            fwrite($WRITE, implode("\t", $save) . "\n");
-            fclose($WRITE);
-        }
+        $filename = $this->resources['path'].$this->resource_id."_invalid_values.txt";
+        echo "\ncreated filename: [$filename]\n";
+        $fields = array("measurementType", "measurementValue");
+        $WRITE = Functions::file_open($filename, "a");
+        clearstatcache(); //important for filesize()
+        if(filesize($filename) == 0) fwrite($WRITE, implode("\t", $fields) . "\n");
+        $save = array("$orig_mType ($mType)", "$orig_mValue ($mValue)");
+        fwrite($WRITE, implode("\t", $save) . "\n");
+        fclose($WRITE);
     }
     /* ========================================END create DwCA ======================================== */
     private function read_input_file($input_file)
