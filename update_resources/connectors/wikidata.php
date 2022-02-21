@@ -233,6 +233,8 @@ if(@$params['task'] == "generate_wikidata_taxonomy") {
     $func = new DWCADiagnoseAPI();
     $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
     echo "\nUndefined parents (wikidata.php): ".count($undefined)."\n";
+    $working_dir = CONTENT_RESOURCE_LOCAL_PATH . $resource_id;
+    recursive_rmdir($working_dir); echo ("\n working directory removed: [$working_dir]");
 }
 // */
 
