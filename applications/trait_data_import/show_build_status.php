@@ -76,7 +76,7 @@ else {
                 <a href='index.php'>Back to menu</a>";
                 
                 $resources_path = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/";
-                $filename = $resources_path.$hash_post."_invalid_values.txt";
+                $filename = $resources_path.$params['Filename_ID']."_invalid_values.txt";
                 if(file_exists($filename) && filesize($filename) > 0) echo "<br>Invalid measurement values: [$filename] size: .".filesize($filename)."<br>";
                 // else echo "<br>Does not exist: [$filename]<br>";
             echo "<br>=======================================================<br><br>";
