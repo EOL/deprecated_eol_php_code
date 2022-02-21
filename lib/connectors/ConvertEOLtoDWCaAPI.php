@@ -351,7 +351,20 @@ class ConvertEOLtoDWCaAPI
         foreach($objects as $o) {
             if($params["dataset"] == "EOL China") {}
             if(!(string) $o) continue;
-            $records[] = array("term_name" => strip_tags((string) $o), "agentRole" => (string) $o{"role"}, "agentID" => md5((string) $o), "term_homepage" => (string) @$o{"homepage"});
+            /* orig
+            $records[] = array("term_name"      => strip_tags((string) $o), 
+                               "agentRole"      => (string) $o{"role"}, 
+                               "agentID"        => md5((string) $o), 
+                               "term_homepage"  => (string) @$o{"homepage"});
+            */
+            // /* NEW: Feb 21, 2022
+            $arr = array("term_name"      => strip_tags((string) $o), 
+                         "agentRole"      => (string) $o{"role"}, 
+                         "term_homepage"  => (string) @$o{"homepage"});
+            $agentID = md5($arr['term_name'].$arr['agentRole'].$arr['term_homepage']);
+            $arr["agentID"] = $agentID;
+            $records[] = $arr;
+            // */
         }
         // print_r($records);
         return $records;
@@ -512,7 +525,7 @@ class ConvertEOLtoDWCaAPI
         $taxon_id = false;
         if(isset($t_dc->identifier)) {
             if    ($val = trim($t_dc->identifier))      $taxon_id = $val;
-            elseif($val = trim($t_dwc->ScientificName)) $taxon_id = md5($val);
+            elseif($val = trim($t_dwc->ScientificName)) $taxon_id = md5($val); //flickr (15) goes here
             else //continue; is obsolete coz loop is gone here, use return; instead... //meaning if there is no taxon id and sciname then ignore record
             {
                 return $i;
