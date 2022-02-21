@@ -72,13 +72,17 @@ else {
                 You can save this file to your computer.<br><br>
                 This file will be stored on our server for a week, after which it will be removed.<br><br>
                 The OpenData resource for this upload is <a target='$hash_post' href='$opendata'>here</a><br><br>
-                The Upload ID is: <b>$hash_post</b>. You will use this if you want to re-upload an updated spreadsheet.<br><br>
-                <a href='index.php'>Back to menu</a>";
+                The Upload ID is: <b>$hash_post</b>. You will use this if you want to re-upload an updated spreadsheet.<br><br>";
                 
+                // /* NEW: Feb 21, 2022 --- invalid mValues report
                 $resources_path = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/";
                 $filename = $resources_path.$params['uuid']."_invalid_values.txt";
-                if(file_exists($filename) && filesize($filename) > 0) echo "<br>Invalid measurement values: [$filename] size: .".filesize($filename)."<br>";
-                // else echo "<br>Does not exist: [$filename]<br>";
+                if(file_exists($filename) && filesize($filename) > 0) {
+                    $href = str_replace(DOC_ROOT, WEB_ROOT, $filename);
+                    echo "<br><a href='$href'>Invalid measurement values</a><br><br>";
+                }
+                // */
+                echo "<a href='index.php'>Back to menu</a>"
             echo "<br>=======================================================<br><br>";
             // echo "<pre>"; print_r($params); echo "</pre>"; //good debug
             /*Array(
