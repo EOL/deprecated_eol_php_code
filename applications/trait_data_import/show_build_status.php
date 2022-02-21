@@ -79,7 +79,7 @@ else {
                 $filename = $resources_path.$params['uuid']."_invalid_values.txt";
                 if(file_exists($filename) && filesize($filename) > 0) {
                     $href = str_replace(DOC_ROOT, WEB_ROOT, $filename);
-                    echo "<br><a href='$href'>Invalid measurement values</a><br><br>";
+                    echo "<a target='".$params['uuid']."'  href='$href'>Invalid measurement values</a><br><br>";
                 }
                 // */
                 echo "<a href='index.php'>Back to menu</a>";
