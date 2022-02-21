@@ -344,7 +344,6 @@ class ConvertEOLtoDWCaAPI
         if(in_array($data_type, $media)) return true;
         else return false;
     }
-    
     private function process_agent($objects, $params)
     {
         $records = array();
@@ -369,7 +368,6 @@ class ConvertEOLtoDWCaAPI
         // print_r($records);
         return $records;
     }
-
     private function process_reference($objects, $taxon_id, $params)
     {
         $records = array();
