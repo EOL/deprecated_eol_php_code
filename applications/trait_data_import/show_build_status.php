@@ -82,7 +82,7 @@ else {
                     echo "<br><a href='$href'>Invalid measurement values</a><br><br>";
                 }
                 // */
-                echo "<a href='index.php'>Back to menu</a>"
+                echo "<a href='index.php'>Back to menu</a>";
             echo "<br>=======================================================<br><br>";
             // echo "<pre>"; print_r($params); echo "</pre>"; //good debug
             /*Array(
