@@ -74,6 +74,11 @@ else {
                 The OpenData resource for this upload is <a target='$hash_post' href='$opendata'>here</a><br><br>
                 The Upload ID is: <b>$hash_post</b>. You will use this if you want to re-upload an updated spreadsheet.<br><br>
                 <a href='index.php'>Back to menu</a>";
+                
+                $resources_path = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/";
+                $filename = $resources_path.$hash_post."_invalid_values.txt";
+                if(file_exists($filename)) echo "\nExists: [$filename] size: .".filesize($filename)."\n";
+                else echo "\nDoes not exist: [$filename]\n";
             echo "<br>=======================================================<br><br>";
             // echo "<pre>"; print_r($params); echo "</pre>"; //good debug
             /*Array(

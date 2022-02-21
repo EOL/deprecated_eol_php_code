@@ -390,7 +390,8 @@ class TraitDataImportAPI
         )*/
         // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit("\n111\n"); //just testing
         $mType = @$this->vocabulary['predicate'][$rec['predicate']];
-        $mValue = @$this->vocabulary['value'][$rec['value']];
+        if(@$rec['units']) $mValue = $rec['value'];
+        else               $mValue = @$this->vocabulary['value'][$rec['value']];
         if($mType && $mValue) {
             /* only columns that are not used
             [inherit] => yes
@@ -416,6 +417,19 @@ class TraitDataImportAPI
             $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
             $this->func->add_string_types($save, $mValue, $mType, "true");
         }
+        else self::log_invalid_values($mType, $mValue);
+    }
+    private function log_invalid_values($mType, $mValue)
+    {
+        $filename = $this->resources['path'].$this->resource_id."_invalid_values.txt";
+        echo "\ncreated filename: [$filename]\n";
+        $fields = array("measurementType", "measurementValue");
+        $WRITE = Functions::file_open($filename, "a");
+        clearstatcache(); //important for filesize()
+        if(filesize($filename) == 0) fwrite($WRITE, implode("\t", $fields) . "\n");
+        $save = array($mType, $mValue);
+        fwrite($WRITE, implode("\t", $save) . "\n");
+        fclose($WRITE);
     }
     /* ========================================END create DwCA ======================================== */
     private function read_input_file($input_file)
@@ -487,8 +501,10 @@ class TraitDataImportAPI
     private function initialize_file($sheet_name)
     {
         $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
-        $WRITE = Functions::file_open($filename, "w");
-        fclose($WRITE);
+        $WRITE = Functions::file_open($filename, "w"); fclose($WRITE);
+        
+        $filename = $this->resources['path'].$this->resource_id."_invalid_values.txt";
+        $WRITE = Functions::file_open($filename, "w"); fclose($WRITE);
     }
     private function write_output_rec_2txt($rec, $sheet_name)
     {
