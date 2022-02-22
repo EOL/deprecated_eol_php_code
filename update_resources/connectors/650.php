@@ -14,7 +14,8 @@ as of Feb 21, 2018
         Total by format:                                image/jpeg: 3038
     http://rs.tdwg.org/dwc/terms/taxon:                 Total: 238
 
-650	Monday 2020-06-08 03:07:14 AM	{"agent.tab":1, "media_resource.tab":3068, "taxon.tab":236, "vernacular_name.tab":3030, "time_elapsed":{"sec":117.43, "min":1.96, "hr":0.03}}
+650	Mon 2020-06-08 03:07:14 AM	{"agent.tab":1, "media_resource.tab":3068, "taxon.tab":236, "vernacular_name.tab":3030, "time_elapsed":{"sec":117.43, "min":1.96, "hr":0.03}}
+650	Mon 2022-02-21 03:47:40 AM	{"agent.tab":1, "media_resource.tab":3068, "taxon.tab":236, "vernacular_name.tab":236, "time_elapsed":{"sec":4065.2, "min":67.75, "hr":1.13}}
 */
 
 ini_set('error_reporting', E_ALL);

@@ -47,7 +47,7 @@ Limbo stage:
 Start getting publicdomain as well:
 544	Friday 2020-06-05 12:34:53 AM	{"agent.tab":481, "media_resource.tab":24921, "taxon.tab":21917, "vernacular_name.tab":8101, "time_elapsed":false}
 544	Friday 2020-06-05 12:35:29 AM	{"agent.tab":481, "media_resource.tab":24921, "taxon.tab":12839, "vernacular_name.tab":8101, "time_elapsed":{"sec":78000.21, "min":1300, "hr":21.67}}
-
+544	Sat 2022-02-19 08:54:21 PM	    {"agent.tab":575, "media_resource.tab":32551, "taxon.tab":14261, "vernacular_name.tab":7445, "time_elapsed":{"sec":302323.2, "min":5038.72, "hr":83.98, "day":3.5}}
 */
 
 ini_set('error_reporting', E_ALL);
