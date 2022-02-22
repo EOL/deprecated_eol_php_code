@@ -2595,8 +2595,8 @@ class WikiDataAPI extends WikipediaAPI
     function get_taxon_name($arr, $option = "OPTIONAL") //other value aside from OPTIONAL is REQUIRED.
     {
         // /* new block: to be used until the dump is fixed --- just temporary
-        if($arr->id == "Q107694904") return "Trachipleistophora";
-        if($arr->id == "Q15657618") return "Hemaris thetis";
+        if(@$arr->id == "Q107694904") return "Trachipleistophora";
+        if(@$arr->id == "Q15657618") return "Hemaris thetis";
         // */
         
         $claims = @$arr->claims;
