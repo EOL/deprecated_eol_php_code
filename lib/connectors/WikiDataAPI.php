@@ -551,7 +551,7 @@ class WikiDataAPI extends WikipediaAPI
         // /* New: Aug 29, 2021
         $cmd = "wc -l ".$this->path['wiki_data_json'];
         $out = shell_exec($cmd);
-        echo "\n-----\n[$out]\n-----\n";
+        echo "\n-----\n[".str_replace("\n", "", $out)."]\n-----\n";
         // */
         
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
