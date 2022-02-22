@@ -131,6 +131,8 @@ EXPECTED DECREASE IN MoF SINCE: Remove Q1053008 if Arthropoda. *Interestingly oc
 368_removed_aves	Wed 2021-10-20 01:57:31 AM	    {"MoF.tab":2268437, "occurrence.tab":549933, "taxon.tab":415640, "vernacular_name.tab":4997, "time_elapsed":false}
 368_final	Wed 2021-10-20 02:19:11 AM	            {"MoF.tab":2268437, "occurrence.tab":549933, "taxon.tab":402458, "vernacular_name.tab":4997, "time_elapsed":false}
 368_merged_MoF	Wed 2021-10-20 02:41:08 AM	        {"MoF.tab":2268153, "occurrence.tab":549933, "taxon.tab":402458, "vernacular_name.tab":4997, "time_elapsed":{"sec":1288.37, "min":21.47, "hr":0.36}}
+368_merged_MoF	Sun 2022-02-06 07:41:50 PM	        {"MoF.tab":2307902, "occurrence.tab":560044, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":1241.63, "min":20.69, "hr":0.34}}
+368_cleaned_MoF	Tue 2022-02-22 04:10:26 AM	        {"MoF.tab":2140043, "occurrence.tab":461721, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":1800.47, "min":30.01, "hr":0.5}} Mac Mini
 ----------------------------------------------------------------------------
 Reminders:
 # Four (4) connectors to run, one after the other - OK

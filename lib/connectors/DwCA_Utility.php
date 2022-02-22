@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_79096/',   //71 Wikimedia resource
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_79096/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_50783/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_50783/'
         );
         */
         
@@ -160,8 +160,8 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             */
+            // if($this->resource_id == '368_cleaned_MoF') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->params['resource'] == "Deltas_4hashing") break; //all extensions will be processed elsewhere. debug only
-            
             // if(in_array($this->resource_id, array('parent_BV_consolid8', 'TS_consolid8'))) break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == 'globi_associations') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if(stripos($this->resource_id, "_meta_recoded") !== false) break; //all extensions will be processed elsewhere. debug only, during dev only
@@ -397,6 +397,11 @@ class DwCA_Utility
         if(in_array($this->resource_id, array("368_merged_MoF"))) {
             require_library('connectors/MergeMoFrecordsAPI');
             $func = new MergeMoFrecordsAPI($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+        if(in_array($this->resource_id, array("368_cleaned_MoF"))) {
+            require_library('connectors/Remove_MoF_recordsAPI');
+            $func = new Remove_MoF_recordsAPI($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
         if(stripos($this->resource_id, "_meta_recoded") !== false) {
