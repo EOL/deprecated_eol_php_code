@@ -102,7 +102,7 @@ class Remove_MoF_recordsAPI
                 $inferred_from = Functions::remove_whitespace(str_ireplace(array("Inferred from", "."), "", trim($measurementRemarks)));
                 $str = $measurementType." | ".$measurementValue." | ".$inferred_from;
                 if(isset($this->to_remove[$str])) {
-                    $this->delete_occurrence_id[$occurrenceID] = '';
+                    // $this->delete_occurrence_id[$occurrenceID] = ''; --- wrong implementation; use $this->existing_occurrence_id instead
                     continue;
                 }
                 else { //write
@@ -113,6 +113,7 @@ class Remove_MoF_recordsAPI
                         $o->$field = $rec[$uri];
                     }
                     $this->archive_builder->write_object_to_file($o);
+                    $this->existing_occurrence_id[$occurrenceID] = '';
                     // if($i >= 10) break; //debug only
                 }
                 
@@ -156,8 +157,7 @@ class Remove_MoF_recordsAPI
             //===========================================================================================================================================================
             
             if($task == "write Occurrence") {
-                if(isset($this->delete_occurrence_id[$occurrenceID])) continue;
-                else {
+                if(isset($this->existing_occurrence_id[$occurrenceID])) {
                     // /* another adjustment
                     if($val = @$this->occurrence_id_lifeStage[$occurrenceID]) $rec['http://rs.tdwg.org/dwc/terms/lifeStage'] = $val;
                     // */
