@@ -5,6 +5,7 @@ namespace php_active_record;
 php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"71"}' //Wikimedia commons
 php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"15"}' //Flickr
 php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"368_cleaned_MoF"}' //PaleoDB
+php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"26_ENV_final"}' //WoRMS
 
 php5.6 make_hash_IDs_4Deltas.php jenkins '{"task": "", "resource":"Deltas_4hashing", "resource_id":"71"}'
 php5.6 make_hash_IDs_4Deltas.php jenkins '{"task": "", "resource":"Deltas_4hashing", "resource_id":"15"}'
@@ -34,6 +35,7 @@ else exit("\nNot yet initialized [$resource_id]\n");
 
 // /* customize
 if($resource_id == "368_cleaned_MoF") $resource_id = "368";
+if($resource_id == "26_ENV_final") $resource_id = "26";
 // */
 
 process_resource_url($dwca_file, $resource_id."_delta", $timestart, $param);
@@ -53,7 +55,13 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $param)
         $excluded_rowtypes = false;
         $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon','http://rs.gbif.org/terms/1.0/vernacularname');
     }
-    else exit("\nNot yet initialized [$resource_id]\n");
+    elseif(in_array($resource_id, array("26_delta"))) {
+        $excluded_rowtypes = false;
+        $preferred_rowtypes = array("http://rs.tdwg.org/dwc/terms/taxon", "http://eol.org/schema/media/document">
+                                    "http://eol.org/schema/reference/reference", "http://eol.org/schema/agent/agent">
+                                    "http://rs.gbif.org/terms/1.0/vernacularname");
+    }
+    else exit("\nNot yet initialized 1.0 [$resource_id]\n");
     
     /* This will be processed in DeltasHashIDsAPI.php which will be called from DwCA_Utility.php */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);

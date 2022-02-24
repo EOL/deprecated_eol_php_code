@@ -94,6 +94,30 @@ start removed all occurrences and trait records associated with specified taxa (
 26	Wed 2021-06-09 09:37:13 AM	{"agent.tab":1776, "measurement_or_fact_specific.tab":3402495, "media_resource.tab":92746, "occurrence_specific.tab":2214727, "reference.tab":692231, "taxon.tab":374006, "vernacular_name.tab":85169, "time_elapsed":false}
 26	Wed 2021-06-09 11:53:22 AM	{"agent.tab":1776, "measurement_or_fact_specific.tab":3402495, "media_resource.tab":92746, "occurrence_specific.tab":2214727, "reference.tab":692231, "taxon.tab":374006, "vernacular_name.tab":85169, "time_elapsed":false}
 26	Thu 2021-06-10 02:02:22 AM	{"agent.tab":1776, "measurement_or_fact_specific.tab":3402495, "media_resource.tab":92746, "occurrence_specific.tab":2214727, "reference.tab":692231, "taxon.tab":374006, "vernacular_name.tab":85169, "time_elapsed":false}
+
+In Jenkins: run one connector after the other:
+#OK
+php5.6 26.php jenkins
+#generates 26.tar.gz
+
+#OK
+php5.6 resource_utility.php jenkins '{"resource_id": "26_meta_recoded_1", "task": "metadata_recoding"}'
+#generates 26_meta_recoded_1.tar.gz
+
+#OK
+php5.6 resource_utility.php jenkins '{"resource_id": "26_meta_recoded", "task": "metadata_recoding"}'
+#generates 26_meta_recoded.tar.gz
+
+#OK
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"World Register of Marine Species", "resource_id":"26", "subjects":"Habitat|Distribution"}'
+#generates 26_ENV
+
+#OK
+php5.6 resource_utility.php jenkins '{"resource_id": "26_ENV_final", "task": "change_measurementIDs"}'
+#generates 26_ENV_final.tar.gz
+
+php5.6 make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"26_ENV_final"}'
+#generates 26_delta.tar.gz
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 

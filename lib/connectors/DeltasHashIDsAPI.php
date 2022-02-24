@@ -45,13 +45,7 @@ class DeltasHashIDsAPI
                 self::process_table($tables[$tbl][0], 'hash_identifiers', $this->extensions[$tbl]);
             }
         }
-        elseif(in_array($this->resource_id, array("368_delta"))) { //PaleDB
-            $extensions = array_diff($extensions, array("http://rs.tdwg.org/dwc/terms/taxon", "http://rs.gbif.org/terms/1.0/vernacularname"));
-            // print_r($extensions); exit;
-            /*Array(
-                [2] => http://rs.tdwg.org/dwc/terms/measurementorfact
-                [3] => http://rs.tdwg.org/dwc/terms/occurrence
-            )*/
+        elseif(in_array($this->resource_id, array("368_delta", "26_delta"))) { //PaleDB WoRMS
             $this->unique_ids = array();
             $tbl = "http://rs.tdwg.org/dwc/terms/occurrence";
             self::process_Occurrence($tables[$tbl][0], 'hash_identifiers', $this->extensions[$tbl]);
@@ -60,6 +54,7 @@ class DeltasHashIDsAPI
             $tbl = "http://rs.tdwg.org/dwc/terms/measurementorfact";
             self::process_MoF($tables[$tbl][0], 'hash_identifiers', $this->extensions[$tbl]);
         }
+        else exit("\nNot yet initialized 2.0 [$this->resource_id]\n");
     }
     private function process_Occurrence($meta, $what, $class)
     {   //print_r($meta);
