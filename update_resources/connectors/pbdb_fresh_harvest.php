@@ -140,20 +140,31 @@ Below stable delta version: - decrease in occurrences (from 368_cleaned_MoF) is 
 368_delta	Wed 2022-02-23 08:06:19 PM	            {"MoF.tab":2140043, "occurrence.tab":423710, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":2143.9, "min":35.73, "hr":0.6}} Mac Mini
 ----------------------------------------------------------------------------
 Reminders:
-# Four (4) connectors to run, one after the other - OK
+# Six (6) connectors to run, one after the other - OK
 
-# OK
-php5.6 pbdb_fresh_harvest.php jenkins #this generates 368.tar.gz
+php5.6 pbdb_fresh_harvest.php jenkins 
+# - this generates 368.tar.gz
 
 # This will adjust newly generated 368.tar.gz. 
 # It'll remove all Aves descendants as requested.
-php5.6 remove_Aves_children_from_368.php jenkins #this generates 368_removed_aves.tar.gz
+php5.6 remove_Aves_children_from_368.php jenkins 
+# - this generates 368_removed_aves.tar.gz
 
 # This will remove bad synonyms
-php5.6 synonyms_handling.php jenkins 368_final #this generates 368_final.tar.gz
+php5.6 synonyms_handling.php jenkins 368_final 
+# - this generates 368_final.tar.gz
 
 # 4th step: This will merge 2 occurrences into 1
-php5.6 368_merge_two_MoF_into_one.php #this generates 368_merged_MoF.tar.gz
+php5.6 368_merge_two_MoF_into_one.php 
+# - this generates 368_merged_MoF.tar.gz
+
+# 5the step: This will remove some MoF and put a lifeStage in occurrence
+php5.6 pbdb_more_adjustments.php 
+# - this generates 368_cleaned_MoF.tar.gz
+
+# 6th step: delta hashing
+php5.6 make_hash_IDs_4Deltas.php jenkins '{"task": "", "resource":"Deltas_4hashing", "resource_id":"368_cleaned_MoF"}'
+# - this generates 368_delta.tar.gz
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
