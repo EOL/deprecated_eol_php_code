@@ -124,7 +124,9 @@ class DeltasHashIDsAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            // print_r($rec); exit;
+            // if($i == 1954) print_r($rec); //exit;
+            // if($i == 1955) print_r($rec); //exit;
+            // if($i == 1956) print_r($rec); //exit;
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/measurementID] => 2a7071241876030d430ca5e2a48fbd36_368
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => 73e24fc3724cf0b60ecdbf2c4eeed717_368
@@ -155,8 +157,11 @@ class DeltasHashIDsAPI
                     if($field != 'measurementID') $row_str .= $rec[$uri]." | ";
                 }
                 
-                if($new_occur_id = @$this->old_new_occurID[$occurrenceID]) $o->occurrenceID = $new_occur_id;
-                else exit("\nNo occur id: [$occurrenceID]\n");
+                if($occurrenceID) {
+                    if($new_occur_id = @$this->old_new_occurID[$occurrenceID]) $o->occurrenceID = $new_occur_id;
+                    else exit("\nNo occur id: [$occurrenceID] Line no.: [$i]\n");
+                }
+                else {} //child MoF records really don't have occurrenceID
                 
                 $o->measurementID = md5($row_str); //exit("\n[$row_str][$row_str]\n");
                 if(!isset($this->unique_ids[$o->measurementID])) {
