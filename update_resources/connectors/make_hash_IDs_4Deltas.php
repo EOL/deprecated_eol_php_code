@@ -57,8 +57,8 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $param)
     }
     elseif(in_array($resource_id, array("26_delta"))) {
         $excluded_rowtypes = false;
-        $preferred_rowtypes = array("http://rs.tdwg.org/dwc/terms/taxon", "http://eol.org/schema/media/document">
-                                    "http://eol.org/schema/reference/reference", "http://eol.org/schema/agent/agent">
+        $preferred_rowtypes = array("http://rs.tdwg.org/dwc/terms/taxon", "http://eol.org/schema/media/document", 
+                                    "http://eol.org/schema/reference/reference", "http://eol.org/schema/agent/agent", 
                                     "http://rs.gbif.org/terms/1.0/vernacularname");
     }
     else exit("\nNot yet initialized 1.0 [$resource_id]\n");
