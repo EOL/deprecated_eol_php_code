@@ -4,6 +4,10 @@ namespace php_active_record;
 
 php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"71"}' //Wikimedia commons
 php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"15"}' //Flickr
+php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"368_cleaned_MoF"}' //PaleoDB
+
+php5.6 make_hash_IDs_4Deltas.php jenkins '{"task": "", "resource":"Deltas_4hashing", "resource_id":"71"}'
+php5.6 make_hash_IDs_4Deltas.php jenkins '{"task": "", "resource":"Deltas_4hashing", "resource_id":"15"}'
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -23,10 +27,14 @@ $resource_id = $param['resource_id'];
 $resource = $param['resource'];
 
 echo "\n========== START hash identifiers ==========\n";
-if(in_array($resource_id, array("71", "15"))) {
+if(in_array($resource_id, array("71", "15", "368_cleaned_MoF"))) {
     $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
 }
 else exit("\nNot yet initialized [$resource_id]\n");
+
+// /* customize
+if($resource_id == "368_cleaned_MoF") $resource_id = "368";
+// */
 
 process_resource_url($dwca_file, $resource_id."_delta", $timestart, $param);
 echo "\n========== END hash identifiers ==========\n";
@@ -40,6 +48,10 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $param)
     if(in_array($resource_id, array("71_delta", "15_delta"))) {
         $excluded_rowtypes = false;
         $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon','http://eol.org/schema/agent/agent');
+    }
+    elseif(in_array($resource_id, array("368_delta"))) {
+        $excluded_rowtypes = false;
+        $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon','http://rs.gbif.org/terms/1.0/vernacularname');
     }
     else exit("\nNot yet initialized [$resource_id]\n");
     

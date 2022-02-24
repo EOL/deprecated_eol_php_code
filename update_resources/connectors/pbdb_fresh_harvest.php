@@ -134,6 +134,10 @@ EXPECTED DECREASE IN MoF SINCE: Remove Q1053008 if Arthropoda. *Interestingly oc
 368_merged_MoF	Sun 2022-02-06 07:41:50 PM	        {"MoF.tab":2307902, "occurrence.tab":560044, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":1241.63, "min":20.69, "hr":0.34}}
 368_cleaned_MoF	Tue 2022-02-22 04:10:26 AM	        {"MoF.tab":2140043, "occurrence.tab":461721, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":1800.47, "min":30.01, "hr":0.5}} Mac Mini
 368_cleaned_MoF	Tue 2022-02-22 05:56:26 AM	        {"MoF.tab":2140043, "occurrence.tab":461721, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":1087.14, "min":18.12, "hr":0.3}} eol->archive
+Below occurrences are now fixed - increased as expected:
+368_cleaned_MoF	Wed 2022-02-23 07:13:49 PM	        {"MoF.tab":2140043, "occurrence.tab":514004, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":1086.67, "min":18.11, "hr":0.3}}
+Below stable delta version: - decrease in occurrences (from 368_cleaned_MoF) is expected:
+368_delta	Wed 2022-02-23 08:06:19 PM	            {"MoF.tab":2140043, "occurrence.tab":423710, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":2143.9, "min":35.73, "hr":0.6}} Mac Mini
 ----------------------------------------------------------------------------
 Reminders:
 # Four (4) connectors to run, one after the other - OK
