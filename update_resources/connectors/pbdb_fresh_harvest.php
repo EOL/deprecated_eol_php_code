@@ -138,6 +138,7 @@ Below occurrences are now fixed - increased as expected:
 368_cleaned_MoF	Wed 2022-02-23 07:13:49 PM	        {"MoF.tab":2140043, "occurrence.tab":514004, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":1086.67, "min":18.11, "hr":0.3}}
 Below stable delta version: - decrease in occurrences (from 368_cleaned_MoF) is expected:
 368_delta	Wed 2022-02-23 08:06:19 PM	            {"MoF.tab":2140043, "occurrence.tab":423710, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":2143.9, "min":35.73, "hr":0.6}} Mac Mini
+368_delta	Wed 2022-02-23 09:01:26 PM	            {"MoF.tab":2140043, "occurrence.tab":423710, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":1263.44, "min":21.06, "hr":0.35}} eol-archive
 ----------------------------------------------------------------------------
 Reminders:
 # Six (6) connectors to run, one after the other - OK
