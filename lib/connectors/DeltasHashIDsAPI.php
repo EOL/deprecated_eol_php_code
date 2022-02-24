@@ -140,6 +140,7 @@ class DeltasHashIDsAPI
                 [http://purl.org/dc/terms/bibliographicCitation] => The Paleobiology Database, https://paleobiodb.org
             )*/
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
             if($what == 'hash_identifiers') {
                 if($class == "measurementorfact")   $o = new \eol_schema\MeasurementOrFact();
                 else exit("\nUndefined class [$class]. Will terminate.\n");
@@ -157,11 +158,13 @@ class DeltasHashIDsAPI
                     if($field != 'measurementID') $row_str .= $rec[$uri]." | ";
                 }
                 
-                if($occurrenceID) {
+                if($occurrenceID) { //not child records
                     if($new_occur_id = @$this->old_new_occurID[$occurrenceID]) $o->occurrenceID = $new_occur_id;
-                    else exit("\nNo occur id: [$occurrenceID] Line no.: [$i]\n");
+                    else exit("\nNo occur id: [$occurrenceID] Line no.: [$i]\n"); //should not go here
                 }
-                else {} //child MoF records really don't have occurrenceID
+                else { //child MoF records really don't have occurrenceID by design. Also include measurementID in md5 for MoF child records.
+                    $row_str .= $measurementID." | ";
+                }
                 
                 $o->measurementID = md5($row_str); //exit("\n[$row_str][$row_str]\n");
                 if(!isset($this->unique_ids[$o->measurementID])) {
