@@ -94,6 +94,13 @@ start removed all occurrences and trait records associated with specified taxa (
 26	Wed 2021-06-09 09:37:13 AM	{"agent.tab":1776, "measurement_or_fact_specific.tab":3402495, "media_resource.tab":92746, "occurrence_specific.tab":2214727, "reference.tab":692231, "taxon.tab":374006, "vernacular_name.tab":85169, "time_elapsed":false}
 26	Wed 2021-06-09 11:53:22 AM	{"agent.tab":1776, "measurement_or_fact_specific.tab":3402495, "media_resource.tab":92746, "occurrence_specific.tab":2214727, "reference.tab":692231, "taxon.tab":374006, "vernacular_name.tab":85169, "time_elapsed":false}
 26	Thu 2021-06-10 02:02:22 AM	{"agent.tab":1776, "measurement_or_fact_specific.tab":3402495, "media_resource.tab":92746, "occurrence_specific.tab":2214727, "reference.tab":692231, "taxon.tab":374006, "vernacular_name.tab":85169, "time_elapsed":false}
+around Oct 13, 2021 - Jira                  {"agent.tab":1813, "MoF.tab":2526290, "media_resource.tab":94660, "occur.tab":2151130, "reference.tab":703450, "taxon.tab":377647, "vernacular_name.tab":85681} 
+26_ENV	        Thu 2022-02-10 06:01:06 AM	{"agent.tab":1829, "MoF.tab":3286487, "media_resource.tab":95531, "occur.tab":2397461, "reference.tab":711533, "taxon.tab":379551, "vernacular_name.tab":85716, "time_elapsed":{"sec":4267.01, "min":71.12, "hr":1.19}}
+26_ENV_final	Thu 2022-02-10 07:05:14 AM	{"agent.tab":1829, "MoF.tab":3286487, "media_resource.tab":95531, "occur.tab":2397461, "reference.tab":711533, "taxon.tab":379551, "vernacular_name.tab":85716, "time_elapsed":{"sec":3747.21, "min":62.45, "hr":1.04}}
+since delta MoF and occurrence are less --- maybe a good thing. Definitely removed identical records in occurrence, and MoF.
+26_delta	    Thu 2022-02-24 03:33:18 AM	{"agent.tab":1829, "MoF.tab":2738962, "media_resource.tab":95531, "occur.tab":1153098, "reference.tab":711533, "taxon.tab":379551, "vernacular_name.tab":85716, "time_elapsed":{"sec":2958.65, "min":49.31, "hr":0.82}}
+26_delta	    Thu 2022-02-24 09:30:40 AM	{"agent.tab":1829, "MoF.tab":2738962, "media_resource.tab":95531, "occur.tab":1153098, "reference.tab":711533, "taxon.tab":379551, "vernacular_name.tab":85716, "time_elapsed":{"sec":2995.03, "min":49.92, "hr":0.83}}
+26_delta	    Fri 2022-02-25 01:55:17 PM	{"agent.tab":1829, "MoF.tab":2738962, "media_resource.tab":95531, "occur.tab":1153098, "reference.tab":711533, "taxon.tab":379551, "vernacular_name.tab":85716, "time_elapsed":{"sec":3028.7, "min":50.48, "hr":0.84}}
 
 In Jenkins: run one connector after the other:
 #OK
