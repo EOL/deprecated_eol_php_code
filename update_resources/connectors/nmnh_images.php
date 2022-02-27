@@ -14,6 +14,7 @@ nmnh_images	Thu 2021-07-29 05:38:12 AM	{"agent.tab":1266, "media_resource.tab":3
 nmnh_images	Thu 2021-10-14 08:28:15 AM	{"agent.tab":1305, "media_resource.tab":383808, "taxon.tab":69660, "time_elapsed":{"sec":1687.74, "min":28.13, "hr":0.47}}
 nmnh_images	Sun 2021-10-24 10:34:21 PM	{"agent.tab":1305, "media_resource.tab":383808, "taxon.tab":69660, "time_elapsed":{"sec":1192.44, "min":19.87, "hr":0.33}}
 nmnh_images	Mon 2021-10-25 12:41:55 AM	{"agent.tab":1305, "media_resource.tab":383808, "taxon.tab":69660, "time_elapsed":{"sec":1211.35, "min":20.19, "hr":0.34}}
+nmnh_images	Fri 2022-01-14 08:16:11 AM	{"agent.tab":1328, "media_resource.tab":391395, "taxon.tab":70370, "time_elapsed":{"sec":1141.38, "min":19.02, "hr":0.32}}
 
 less: with 'TAX CRT' or 'Taxa CRT' in description
 less: blank StillImage value --- 101 recs below
