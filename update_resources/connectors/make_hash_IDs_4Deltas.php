@@ -6,6 +6,7 @@ php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resou
 php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"15"}' //Flickr
 php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"368_cleaned_MoF"}' //PaleoDB
 php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"26_ENV_final"}' //WoRMS
+php update_resources/connectors/make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"globi_associations_final"}' //GloBI
 
 php5.6 make_hash_IDs_4Deltas.php jenkins '{"task": "", "resource":"Deltas_4hashing", "resource_id":"71"}'
 php5.6 make_hash_IDs_4Deltas.php jenkins '{"task": "", "resource":"Deltas_4hashing", "resource_id":"15"}'
@@ -28,7 +29,7 @@ $resource_id = $param['resource_id'];
 $resource = $param['resource'];
 
 echo "\n========== START hash identifiers ==========\n";
-if(in_array($resource_id, array("71", "15", "368_cleaned_MoF", "26_ENV_final"))) {
+if(in_array($resource_id, array("71", "15", "368_cleaned_MoF", "26_ENV_final", "globi_associations_final"))) {
     $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
     // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz'; //during dev only
 }
@@ -37,6 +38,7 @@ else exit("\nNot yet initialized [$resource_id]\n");
 // /* customize
 if($resource_id == "368_cleaned_MoF") $resource_id = "368";
 if($resource_id == "26_ENV_final") $resource_id = "26";
+if($resource_id == "globi_associations_final") $resource_id = "globi_associations";
 // */
 
 process_resource_url($dwca_file, $resource_id."_delta", $timestart, $param);
@@ -61,6 +63,11 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $param)
         $preferred_rowtypes = array("http://rs.tdwg.org/dwc/terms/taxon", "http://eol.org/schema/media/document", 
                                     "http://eol.org/schema/reference/reference", "http://eol.org/schema/agent/agent", 
                                     "http://rs.gbif.org/terms/1.0/vernacularname");
+    }
+    elseif(in_array($resource_id, array("globi_associations_delta"))) {
+        $excluded_rowtypes = array("http://eol.org/schema/reference/reference"); //too big for DwCA_Utility, will be carried-over
+        $excluded_rowtypes[] = "http://rs.tdwg.org/dwc/terms/taxon"; //carried over but also to have unique taxa in taxon.tab
+        $preferred_rowtypes = array();
     }
     else exit("\nNot yet initialized 1.0 [$resource_id]\n");
     

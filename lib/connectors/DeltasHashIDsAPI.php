@@ -15,6 +15,7 @@ class DeltasHashIDsAPI
                                   "http://eol.org/schema/media/document"            => "document",
                                   "http://rs.gbif.org/terms/1.0/reference"          => "reference",
                                   "http://eol.org/schema/agent/agent"               => "agent",
+                                  "http://eol.org/schema/association"               => "association",
 
                                   //start of other row_types: check for NOTICES or WARNINGS, add here those undefined URIs
                                   "http://rs.gbif.org/terms/1.0/description"        => "document",
@@ -45,7 +46,7 @@ class DeltasHashIDsAPI
                 self::process_table($tables[$tbl][0], 'hash_identifiers', $this->extensions[$tbl]);
             }
         }
-        elseif(in_array($this->resource_id, array("368_delta", "26_delta"))) { //PaleDB WoRMS
+        elseif(in_array($this->resource_id, array("368_delta", "26_delta"))) { //PaleDB | WoRMS
             $this->unique_ids = array();
             $tbl = "http://rs.tdwg.org/dwc/terms/occurrence";
             self::process_Occurrence($tables[$tbl][0], 'hash_identifiers', $this->extensions[$tbl]);
@@ -53,6 +54,24 @@ class DeltasHashIDsAPI
             $this->unique_ids = array();
             $tbl = "http://rs.tdwg.org/dwc/terms/measurementorfact";
             self::process_MoF($tables[$tbl][0], 'hash_identifiers', $this->extensions[$tbl]);
+        }
+        
+        elseif(in_array($this->resource_id, array("globi_associations_delta"))) { //Globi
+            $this->unique_ids = array();
+            $tbl = "http://eol.org/schema/reference/reference";
+            self::process_table($tables[$tbl][0], 'carry-over', $this->extensions[$tbl]); //plain carry-over
+
+            $this->unique_ids = array();
+            $tbl = "http://rs.tdwg.org/dwc/terms/taxon";
+            self::process_table($tables[$tbl][0], 'carry-over', $this->extensions[$tbl]); //carry-over but also to make taxa unique
+
+            $this->unique_ids = array();
+            $tbl = "http://rs.tdwg.org/dwc/terms/occurrence";
+            self::process_Occurrence($tables[$tbl][0], 'hash_identifiers', $this->extensions[$tbl]);
+            
+            $this->unique_ids = array();
+            $tbl = "http://eol.org/schema/association";
+            self::process_Association($tables[$tbl][0], 'hash_identifiers', $this->extensions[$tbl]);
         }
         else exit("\nNot yet initialized 2.0 [$this->resource_id]\n");
     }
@@ -76,13 +95,46 @@ class DeltasHashIDsAPI
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => 73e24fc3724cf0b60ecdbf2c4eeed717_368
                 [http://rs.tdwg.org/dwc/terms/taxonID] => 1
                 [http://rs.tdwg.org/dwc/terms/lifeStage] => 
+            )
+            Array( --- GloBI
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => globi:occur:source:2-ITIS:554049-ATE
+                [http://rs.tdwg.org/dwc/terms/taxonID] => ITIS:554049
+                [http://rs.tdwg.org/dwc/terms/institutionCode] => 
+                [http://rs.tdwg.org/dwc/terms/collectionCode] => 
+                [http://rs.tdwg.org/dwc/terms/catalogNumber] => 
+                [http://rs.tdwg.org/dwc/terms/sex] => 
+                [http://rs.tdwg.org/dwc/terms/lifeStage] => 
+                [http://rs.tdwg.org/dwc/terms/reproductiveCondition] => 
+                [http://rs.tdwg.org/dwc/terms/behavior] => 
+                [http://rs.tdwg.org/dwc/terms/establishmentMeans] => 
+                [http://rs.tdwg.org/dwc/terms/occurrenceRemarks] => 
+                [http://rs.tdwg.org/dwc/terms/individualCount] => 
+                [http://rs.tdwg.org/dwc/terms/preparations] => 
+                [http://rs.tdwg.org/dwc/terms/fieldNotes] => 
+                [http://rs.tdwg.org/dwc/terms/samplingProtocol] => 
+                [http://rs.tdwg.org/dwc/terms/samplingEffort] => 
+                [http://rs.tdwg.org/dwc/terms/identifiedBy] => 
+                [http://rs.tdwg.org/dwc/terms/dateIdentified] => 
+                [http://rs.tdwg.org/dwc/terms/eventDate] => 
+                [http://purl.org/dc/terms/modified] => 
+                [http://rs.tdwg.org/dwc/terms/locality] => 
+                [http://rs.tdwg.org/dwc/terms/decimalLatitude] => 
+                [http://rs.tdwg.org/dwc/terms/decimalLongitude] => 
+                [http://rs.tdwg.org/dwc/terms/verbatimLatitude] => 
+                [http://rs.tdwg.org/dwc/terms/verbatimLongitude] => 
+                [http://rs.tdwg.org/dwc/terms/verbatimElevation] => 
+                [http://rs.tdwg.org/dwc/terms/basisOfRecord] => 
+                [http://eol.org/schema/terms/physiologicalState] => 
+                [http://eol.org/schema/terms/bodyPart] => 
             )*/
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             if($what == 'hash_identifiers') {
+                /*
                 if($class == "occurrence")  $o = new \eol_schema\Occurrence();
                 elseif($class == "occurrence_specific")  $o = new \eol_schema\Occurrence_specific();
                 else exit("\nUndefined class [$class]. Will terminate.\n");
-
+                */
+                $o = new \eol_schema\Occurrence_specific();
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
                 foreach($uris as $uri) {
@@ -94,9 +146,14 @@ class DeltasHashIDsAPI
                     // */
                     $o->$field = $rec[$uri];
                     
-                    // /* there are Occurrence rows with same column values but diff. occurrenceID...
-                    if($field != 'occurrenceID') $row_str .= $rec[$uri]." | ";
-                    // */
+                    if($this->resource_id == "globi_associations_delta") { //occurrence table is use solely for Associations
+                        $row_str .= $rec[$uri]." | ";
+                    }
+                    else { //rest goes here
+                        // /* there are Occurrence rows with same column values but diff. occurrenceID...
+                        if($field != 'occurrenceID') $row_str .= $rec[$uri]." | ";
+                        // */
+                    }
                 }
                 
                 $o->occurrenceID = md5($row_str); //exit("\n[$row_str][$row_str]\n");
@@ -142,9 +199,11 @@ class DeltasHashIDsAPI
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
             if($what == 'hash_identifiers') {
+                /*
                 if($class == "measurementorfact")   $o = new \eol_schema\MeasurementOrFact();
                 else exit("\nUndefined class [$class]. Will terminate.\n");
-
+                */
+                $o = new \eol_schema\MeasurementOrFact_specific();
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
                 foreach($uris as $uri) {
@@ -169,6 +228,85 @@ class DeltasHashIDsAPI
                 $o->measurementID = md5($row_str); //exit("\n[$row_str][$row_str]\n");
                 if(!isset($this->unique_ids[$o->measurementID])) {
                     $this->unique_ids[$o->measurementID] = '';
+                    $this->archive_builder->write_object_to_file($o);
+                }
+            }
+            // if($i >= 10) break; //debug only
+        }
+    }
+
+
+    private function process_Association($meta, $what, $class)
+    {   //print_r($meta);
+        echo "\nprocess_table: [$what] [$meta->file_uri]...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array( --- GloBI
+                [http://eol.org/schema/associationID] => globi:assoc:2-ITIS:554049-ATE-ITIS:24773
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => globi:occur:source:2-ITIS:554049-ATE
+                [http://eol.org/schema/associationType] => http://purl.obolibrary.org/obo/RO_0002470
+                [http://eol.org/schema/targetOccurrenceID] => globi:occur:target:2-ITIS:554049-ATE-ITIS:24773
+                [http://rs.tdwg.org/dwc/terms/measurementDeterminedDate] => 
+                [http://rs.tdwg.org/dwc/terms/measurementDeterminedBy] => 
+                [http://rs.tdwg.org/dwc/terms/measurementMethod] => 
+                [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
+                [http://purl.org/dc/terms/source] => Groom, Q.J., Maarten De Groot, M. & Marčiulynienė, D. (2020) Species interation data manually extracted from literature for species .
+                [http://purl.org/dc/terms/bibliographicCitation] => 
+                [http://purl.org/dc/terms/contributor] => 
+                [http://eol.org/schema/reference/referenceID] => globi:ref:2
+            )*/
+            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            $targetOccurrenceID = $rec['http://eol.org/schema/targetOccurrenceID'];
+            $associationID = $rec['http://eol.org/schema/associationID'];
+            if($what == 'hash_identifiers') {
+                if($class == "association")   $o = new \eol_schema\Association();
+                else exit("\nUndefined class [$class]. Will terminate.\n");
+
+                $uris = array_keys($rec); // print_r($uris); //exit;
+                $row_str = "";
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    // /*
+                    $parts = explode("#", $field);
+                    if($parts[0]) $field = $parts[0];
+                    if(@$parts[1]) $field = $parts[1];
+                    // */
+                    $o->$field = $rec[$uri];
+                    if($field != 'associationID') $row_str .= $rec[$uri]." | ";
+                }
+                
+                if($occurrenceID) {
+                    if($new_occur_id = @$this->old_new_occurID[$occurrenceID]) $o->occurrenceID = $new_occur_id;
+                    else exit("\nNo occur id: [$occurrenceID] Line no.: [$i]\n"); //should not go here
+                }
+                else { //child MoF records really don't have occurrenceID by design. Also include measurementID in md5 for MoF child records.
+                    exit("\nNo occurrenceID really?: [$occurrenceID] Line no.: [$i]\n");
+                    $row_str .= $associationID." | ";
+                }
+
+                if($targetOccurrenceID) {
+                    if($new_occur_id = @$this->old_new_occurID[$targetOccurrenceID]) $o->targetOccurrenceID = $new_occur_id;
+                    else exit("\nNo targetOccurrenceID: [$targetOccurrenceID] Line no.: [$i]\n"); //should not go here
+                }
+                else { //child MoF records really don't have occurrenceID by design. Also include measurementID in md5 for MoF child records.
+                    exit("\nNo targetOccurrenceID really?: [$targetOccurrenceID] Line no.: [$i]\n");
+                    $row_str .= $associationID." | ";
+                }
+                
+                $o->associationID = md5($row_str); //exit("\n[$row_str][$row_str]\n");
+                if(!isset($this->unique_ids[$o->associationID])) {
+                    $this->unique_ids[$o->associationID] = '';
                     $this->archive_builder->write_object_to_file($o);
                 }
             }
@@ -220,6 +358,35 @@ class DeltasHashIDsAPI
                 $o->identifier = md5($row_str); //exit("\n[$row_str][$row_str]\n");
                 if(!isset($this->unique_ids[$o->identifier])) {
                     $this->unique_ids[$o->identifier] = '';
+                    $this->archive_builder->write_object_to_file($o);
+                }
+            }
+            elseif($what == 'carry-over') {
+                if    ($class == "vernacular")  $o = new \eol_schema\VernacularName();
+                elseif($class == "agent")       $o = new \eol_schema\Agent();
+                elseif($class == "reference")   $o = new \eol_schema\Reference();
+                elseif($class == "taxon")       $o = new \eol_schema\Taxon();
+                elseif($class == "document")    $o = new \eol_schema\MediaResource();
+                else exit("\nUndefined class [$class]. Will terminate.\n");
+                $uris = array_keys($rec); // print_r($uris); //exit;
+                $row_str = "";
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    // /*
+                    $parts = explode("#", $field);
+                    if($parts[0]) $field = $parts[0];
+                    if(@$parts[1]) $field = $parts[1];
+                    // */
+                    $o->$field = $rec[$uri];
+                }
+                
+                // /*
+                if($class == "taxon") $unique_field = $o->taxonID;
+                else                  $unique_field = $o->identifier; //the rest goes here
+                // */
+                
+                if(!isset($this->unique_ids[$unique_field])) {
+                    $this->unique_ids[$unique_field] = '';
                     $this->archive_builder->write_object_to_file($o);
                 }
             }
