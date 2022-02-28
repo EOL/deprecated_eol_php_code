@@ -16,6 +16,7 @@ class DeltasHashIDsAPI
                                   "http://rs.gbif.org/terms/1.0/reference"          => "reference",
                                   "http://eol.org/schema/agent/agent"               => "agent",
                                   "http://eol.org/schema/association"               => "association",
+                                  "http://rs.tdwg.org/dwc/terms/taxon"              => "taxon",
 
                                   //start of other row_types: check for NOTICES or WARNINGS, add here those undefined URIs
                                   "http://rs.gbif.org/terms/1.0/description"        => "document",
@@ -271,7 +272,7 @@ class DeltasHashIDsAPI
             $associationID = $rec['http://eol.org/schema/associationID'];
             if($what == 'hash_identifiers') {
                 if($class == "association")   $o = new \eol_schema\Association();
-                else exit("\nUndefined class [$class]. Will terminate.\n");
+                else exit("\nUndefined class 01 [$class]. Will terminate.\n");
 
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
@@ -341,7 +342,7 @@ class DeltasHashIDsAPI
                 elseif($class == "reference")   $o = new \eol_schema\Reference();
                 elseif($class == "taxon")       $o = new \eol_schema\Taxon();
                 elseif($class == "document")    $o = new \eol_schema\MediaResource();
-                else exit("\nUndefined class [$class]. Will terminate.\n");
+                else exit("\nUndefined class 02 [$class]. Will terminate.\n");
 
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
@@ -367,7 +368,7 @@ class DeltasHashIDsAPI
                 elseif($class == "reference")   $o = new \eol_schema\Reference();
                 elseif($class == "taxon")       $o = new \eol_schema\Taxon();
                 elseif($class == "document")    $o = new \eol_schema\MediaResource();
-                else exit("\nUndefined class [$class]. Will terminate.\n");
+                else exit("\nUndefined class 03 [$class]. Will terminate.\n");
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
                 foreach($uris as $uri) {
