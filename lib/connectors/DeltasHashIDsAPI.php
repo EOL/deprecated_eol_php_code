@@ -139,12 +139,7 @@ class DeltasHashIDsAPI
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
                 foreach($uris as $uri) {
-                    $field = pathinfo($uri, PATHINFO_BASENAME);
-                    // /*
-                    $parts = explode("#", $field);
-                    if($parts[0]) $field = $parts[0];
-                    if(@$parts[1]) $field = $parts[1];
-                    // */
+                    $field = self::get_field_from_uri($uri);
                     $o->$field = $rec[$uri];
                     
                     if($this->resource_id == "globi_associations_delta") { //occurrence table is use solely for Associations
@@ -208,12 +203,7 @@ class DeltasHashIDsAPI
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
                 foreach($uris as $uri) {
-                    $field = pathinfo($uri, PATHINFO_BASENAME);
-                    // /*
-                    $parts = explode("#", $field);
-                    if($parts[0]) $field = $parts[0];
-                    if(@$parts[1]) $field = $parts[1];
-                    // */
+                    $field = self::get_field_from_uri($uri);
                     $o->$field = $rec[$uri];
                     if($field != 'measurementID') $row_str .= $rec[$uri]." | ";
                 }
@@ -277,12 +267,7 @@ class DeltasHashIDsAPI
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
                 foreach($uris as $uri) {
-                    $field = pathinfo($uri, PATHINFO_BASENAME);
-                    // /*
-                    $parts = explode("#", $field);
-                    if($parts[0]) $field = $parts[0];
-                    if(@$parts[1]) $field = $parts[1];
-                    // */
+                    $field = self::get_field_from_uri($uri);
                     $o->$field = $rec[$uri];
                     if($field != 'associationID') $row_str .= $rec[$uri]." | ";
                 }
@@ -347,12 +332,7 @@ class DeltasHashIDsAPI
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
                 foreach($uris as $uri) {
-                    $field = pathinfo($uri, PATHINFO_BASENAME);
-                    // /*
-                    $parts = explode("#", $field);
-                    if($parts[0]) $field = $parts[0];
-                    if(@$parts[1]) $field = $parts[1];
-                    // */
+                    $field = self::get_field_from_uri($uri);
                     $o->$field = $rec[$uri];
                     if($field != 'identifier') $row_str .= $rec[$uri]." | ";
                 }
@@ -362,7 +342,7 @@ class DeltasHashIDsAPI
                     $this->archive_builder->write_object_to_file($o);
                 }
             }
-            elseif($what == 'carry-over') {
+            elseif($what == 'carry-over') { //1st client is GloBi taxon.tab
                 if    ($class == "vernacular")  $o = new \eol_schema\VernacularName();
                 elseif($class == "agent")       $o = new \eol_schema\Agent();
                 elseif($class == "reference")   $o = new \eol_schema\Reference();
@@ -372,12 +352,7 @@ class DeltasHashIDsAPI
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
                 foreach($uris as $uri) {
-                    $field = pathinfo($uri, PATHINFO_BASENAME);
-                    // /*
-                    $parts = explode("#", $field);
-                    if($parts[0]) $field = $parts[0];
-                    if(@$parts[1]) $field = $parts[1];
-                    // */
+                    $field = self::get_field_from_uri($uri);
                     $o->$field = $rec[$uri];
                 }
                 
@@ -393,6 +368,14 @@ class DeltasHashIDsAPI
             }
             // if($i >= 10) break; //debug only
         }
+    }
+    private function get_field_from_uri($uri)
+    {
+        $field = pathinfo($uri, PATHINFO_BASENAME);
+        $parts = explode("#", $field);
+        if($parts[0]) $field = $parts[0];
+        if(@$parts[1]) $field = $parts[1];
+        return $field;
     }
 }
 ?>
