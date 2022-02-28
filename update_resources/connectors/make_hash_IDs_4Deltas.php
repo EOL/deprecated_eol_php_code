@@ -67,6 +67,8 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $param)
     elseif(in_array($resource_id, array("globi_associations_delta"))) {
         $excluded_rowtypes = array("http://eol.org/schema/reference/reference"); //too big for DwCA_Utility, will be carried-over
         $excluded_rowtypes[] = "http://rs.tdwg.org/dwc/terms/taxon"; //carried over but also to have unique taxa in taxon.tab
+        $excluded_rowtypes[] = "http://rs.tdwg.org/dwc/terms/occurrence";   //for delta hashing
+        $excluded_rowtypes[] = "http://eol.org/schema/association";         //for delta hashing
         $preferred_rowtypes = array();
     }
     else exit("\nNot yet initialized 1.0 [$resource_id]\n");
