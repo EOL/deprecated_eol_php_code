@@ -119,6 +119,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
                     
                     $taxonID = md5($rek['sn']); //copied template
                     $taxonID = self::format_taxonID($rek); //New: Mar 1, 2022
+                    if(@$this->taxon_images_count[$taxonID] >= 150) continue;
                     if(self::write_media($rec, $taxonID, $rek)) self::write_taxon($rek, $taxonID);
                 }
                 else {
@@ -345,6 +346,10 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         // */
         
         if(!isset($this->object_ids[$mr->identifier])) {
+            // /* New: to limit 100 or 150 images per taxon at this point.
+            @$this->taxon_images_count[$taxonID]++;
+            if($this->taxon_images_count[$taxonID] >= 151) return;
+            // */
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
         }
