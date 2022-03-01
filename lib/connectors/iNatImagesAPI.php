@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [nmnh_images.php] */
+/* connector: [inat_images.php] */
 class iNatImagesAPI
 {
     function __construct($folder = NULL)
@@ -10,8 +10,8 @@ class iNatImagesAPI
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
-        if(Functions::is_production()) $this->path = '/extra/other_files/NMNH_image_DwCA/GBIF_service/';
-        else                           $this->path = '/Volumes/AKiTiO4/web/cp/NMNH_image_DwCA/GBIF_service/0142850-200613084148143/';
+        if(Functions::is_production()) $this->path = '/extra/other_files/iNat_image_DwCA/GBIF_service/';
+        else                           $this->path = '/Volumes/AKiTiO4/web/cp/iNat_image_DwCA/GBIF_service/0142850-200613084148143/';
         
         // $this->download_options = array(
         //     'expire_seconds'     => 60*60*24*30, //expires in 1 month
