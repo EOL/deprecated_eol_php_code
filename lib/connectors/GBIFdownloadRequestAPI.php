@@ -239,22 +239,44 @@ class GBIFdownloadRequestAPI
                 'type' => 'and',
                 'predicates' => Array(
                                         0 => Array(
-                                                    'type' => 'equals',
-                                                    'key' => 'DATASET_KEY',
-                                                    'value' => '50c9509d-22c7-4a22-a47d-8c48425ef4a7',
-                                                    'matchCase' => ''
-                                                  )
-                                     )
+                                                'type' => 'equals',
+                                                'key' => 'DATASET_KEY',
+                                                'value' => '50c9509d-22c7-4a22-a47d-8c48425ef4a7',
+                                                'matchCase' => ''
+                                             ),
+                                        1 => Array(
+                                                'type' => 'or',
+                                                'predicates' => Array(
+                                                                    0 => Array(
+                                                                            'type' => 'equals',
+                                                                            'key' => 'LICENSE',
+                                                                            'value' => 'CC_BY_NC_4_0',
+                                                                            'matchCase' => ''
+                                                                        ),
+                                                                    1 => Array(
+                                                                            'type' => 'equals',
+                                                                            'key' => 'LICENSE',
+                                                                            'value' => 'CC_BY_4_0',
+                                                                            'matchCase' => ''
+                                                                        ),
+                                                                    2 => Array(
+                                                                            'type' => 'equals',
+                                                                            'key' => 'LICENSE',
+                                                                            'value' => 'CC0_1_0',
+                                                                            'matchCase' => ''
+                                                                        )
+                                                                )
+                                             ),
+                                        2 => Array(
+                                                'type' => 'equals',
+                                                'key' => 'MEDIA_TYPE',
+                                                'value' => 'StillImage',
+                                                'matchCase' => ''
+                                            )
+                )
             );
         } //end iNat
-        /* from download page: https://doi.org/10.15468/dl.yaw6gt (API)
-        {
-          "type": "equals",
-          "key": "DATASET_KEY",
-          "value": "50c9509d-22c7-4a22-a47d-8c48425ef4a7",
-          "matchCase": false
-        }
-        */
+        /* from download page: https://doi.org/10.15468/dl.xr247r (API) */
         //==================================================================================================================================
         
         /* For all except $this->resource_id == 'GBIF_map_harvest' */
