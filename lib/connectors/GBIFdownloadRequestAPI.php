@@ -1,8 +1,9 @@
 <?php
 namespace php_active_record;
 /* connector: 1st client: [gbif_download_request.php]
-              2nd client: [gbif_download_request_for_NMNH.php]  
-              3rd client: the 6 GBIF country type records -> e.g. Germany, Sweden, etc. */
+              2nd client: [gbif_download_request_for_NMNH.php]
+              3rd client: the 6 GBIF country type records -> e.g. Germany, Sweden, etc.
+              4th client: [gbif_download_request_for_iNat.php] */
 class GBIFdownloadRequestAPI
 {
     function __construct($resource_id)
@@ -27,6 +28,7 @@ class GBIFdownloadRequestAPI
         
         if($this->resource_id == 'GBIF_map_harvest') $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF';
         elseif($this->resource_id == 'NMNH_images')  $this->destination_path = DOC_ROOT.'update_resources/connectors/files/NMNH_images';
+        elseif($this->resource_id == 'iNat_images')  $this->destination_path = DOC_ROOT.'update_resources/connectors/files/iNat_images';
         elseif($this->resource_id == 'GBIF_Netherlands')  $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF_Netherlands';
         elseif($this->resource_id == 'GBIF_France')  $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF_France';
         elseif($this->resource_id == 'GBIF_Germany')  $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF_Germany';
@@ -53,6 +55,7 @@ class GBIFdownloadRequestAPI
         */
         $filename = $this->destination_path.'/query.json';
         $cmd = 'curl --include --user '.$this->gbif_username.':'.$this->gbif_pw.' --header "Content-Type: application/json" --data @'.$filename.' -s https://api.gbif.org/v1/occurrence/download/request';
+        echo "\ncmd:\n[$cmd]\n";
         $output = shell_exec($cmd);
         echo "\nRequest output:\n[$output]\n";
         $lines = explode("\n", trim($output));
@@ -94,7 +97,7 @@ class GBIFdownloadRequestAPI
             if(!self::generate_sh_file($taxon_group)) return false;
         }
         */
-        else { //for NMNH_images and the 6 GBIF countries
+        else { //for NMNH_images and the 6 GBIF countries and iNat_images
             $taxon_group = $this->resource_id;
             if(!self::generate_sh_file($taxon_group)) return false;
         }
@@ -231,6 +234,29 @@ class GBIFdownloadRequestAPI
                          );
         } //end GBIF countries
         //==================================================================================================================================
+        if($this->resource_id == 'iNat_images') {
+            $predicate = Array(
+                'type' => 'and',
+                'predicates' => Array(
+                                        0 => Array(
+                                                    'type' => 'equals',
+                                                    'key' => 'DATASET_KEY',
+                                                    'value' => '50c9509d-22c7-4a22-a47d-8c48425ef4a7',
+                                                    'matchCase' => ''
+                                                  )
+                                     )
+            );
+        } //end iNat
+        /* from download page: https://doi.org/10.15468/dl.yaw6gt (API)
+        {
+          "type": "equals",
+          "key": "DATASET_KEY",
+          "value": "50c9509d-22c7-4a22-a47d-8c48425ef4a7",
+          "matchCase": false
+        }
+        */
+        //==================================================================================================================================
+        
         /* For all except $this->resource_id == 'GBIF_map_harvest' */
         $param = Array( 'creator' => $this->gbif_username,
                         'notificationAddresses' => Array(0 => $this->gbif_email),
