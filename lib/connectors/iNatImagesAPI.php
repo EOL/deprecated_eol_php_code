@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector: [inat_images.php] */
-class iNatImagesAPI
+class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
 {
     function __construct($folder = NULL)
     {
@@ -26,8 +26,8 @@ class iNatImagesAPI
         $this->archive_builder->finalize(true);
     }
     private function process_table($what)
-    {   /* as of Dec 23, 2020
-        image rows from occurrence.txt: [54849]
+    {   /* as of Mar xx, 2022
+        image rows from occurrence.txt: [xxx]
         */
         $path = $this->path.$what.'.txt';
         $i = 0;
@@ -117,8 +117,9 @@ class iNatImagesAPI
                     }
                     // */
                     
-                    $taxonID = md5($rek['sn']);
-                    if(self::write_media($rec, $taxonID, $rek)) self::write_taxon($rek);
+                    $taxonID = md5($rek['sn']); //copied template
+                    $taxonID = self::format_taxonID($rek); //New: Mar 1, 2022
+                    if(self::write_media($rec, $taxonID, $rek)) self::write_taxon($rek, $taxonID);
                 }
                 else {
                     // /* good debug
@@ -137,7 +138,7 @@ class iNatImagesAPI
             // }
             // print_r($rec); exit("\nstopx\n");
             /*
-            Array occurrence.txt (
+            Array occurrence.txt ( --- from copied template
                 [accessrights] => 
                 [bibliographiccitation] => 
                 [contributor] => 
@@ -217,7 +218,7 @@ class iNatImagesAPI
             */
         }
     }
-    private function write_taxon($rek)
+    private function write_taxon($rek, $taxonID)
     {   /*Array(
             [scientificname] => Argemone corymbosa Greene
             [kingdom] => Plantae
@@ -228,7 +229,6 @@ class iNatImagesAPI
             [genus] => Argemone
             [taxonrank] => species
         )*/
-        $taxonID = md5($rek['sn']);
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $taxonID;
         $taxon->scientificName  = $rek['sn'];
@@ -238,6 +238,7 @@ class iNatImagesAPI
         $taxon->order           = $rek['o'];
         $taxon->family          = $rek['f'];
         $taxon->genus           = $rek['g'];
+        $taxon->taxonRank       = $rek['r'];
         $taxon->furtherInformationURL = $rek['s'];
         if(!isset($this->taxa_ids[$taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
@@ -284,11 +285,11 @@ class iNatImagesAPI
         
         if(!self::valid_record($rec['title'], $rec['description'], $rec['source'])) return false;
 
-        /* less: blank StillImage value --- 101 recs below ==========
+        /* less: blank StillImage value --- xxx recs below ==========
         [rec_type] => Array(
                     [StillImage] => Array(
-                            [image/jpeg] => 429345
-                            [] => 101
+                            [image/jpeg] => xxxxxx
+                            [] => xxx
                         )
                 )
         */
@@ -318,7 +319,6 @@ class iNatImagesAPI
         
         $mr = new \eol_schema\MediaResource();
         $mr->taxonID        = $taxonID;
-        $mr->identifier     = md5($rec['identifier']);
         $mr->type           = $type_info[$rec['type']];
         $mr->language       = 'en';
         $mr->format         = $format_info[$rec['type']];
@@ -328,7 +328,8 @@ class iNatImagesAPI
         // $mr->Owner          = '';
         // $mr->rights         = '';
         $mr->title          = $rec['title'];
-        $mr->UsageTerms     = 'http://creativecommons.org/licenses/publicdomain/';
+        $mr->UsageTerms     = 'http://creativecommons.org/licenses/publicdomain/'; //copied template
+        $mr->UsageTerms     = self::format_license($rec);
         // $mr->audience       = 'Everyone';
         $mr->description    = $rec['description'];
         // $mr->LocationCreated = '';
@@ -338,11 +339,31 @@ class iNatImagesAPI
         $agent_ids = self::add_agents($rec);
         $mr->agentID = implode("; ", $agent_ids);
         
+        // /* New: hash it
+        $arr = (array) $mr; //convert object to array; Just typecast it
+        $mr->identifier = md5(json_encode($arr));
+        // */
+        
         if(!isset($this->object_ids[$mr->identifier])) {
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
         }
         return true;
+    }
+    private function format_taxonID($rek)
+    {
+        return md5($rek['sn'].$rek['k'].$rek['p'].$rek['c'].$rek['o'].$rek['f'].$rek['g'].$rek['r']);
+    }
+    private function format_license($rec)
+    {
+        $str = $rec['license'];
+            if($str == "CC_BY_NC_4_0")  return "http://creativecommons.org/licenses/by-nc/4.0/";
+        elseif($str == "CC_BY_4_0")     return "http://creativecommons.org/licenses/by/4.0/";
+        elseif($str == "CC0_1_0")       return "http://creativecommons.org/licenses/publicdomain/";
+        else {
+            print_r($rec);
+            exit("\ninvalid license\n");
+        }
     }
     private function format_Sound($format)
     {

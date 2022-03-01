@@ -14,12 +14,15 @@ php update_resources/connectors/gbif_download_request_for_iNat.php _ '{"task":"s
 This will generate the .sh file if download is ready. The .sh file is the curl command to download.
 php update_resources/connectors/gbif_download_request_for_iNat.php _ '{"task":"generate_sh_file", "taxon":"iNat_images"}'
 
+                                This comes from NMNH_images template but does nothing, so I won't apply it here in iNat_images
+                                gbif_download_request_for_iNat.php _ '{"task":"start_download", "taxon":"iNat_images"}'
+
 This will check if all downloads are ready
 php update_resources/connectors/gbif_download_request_for_iNat.php _ '{"task":"check_if_all_downloads_are_ready_YN"}'
 
-Sample of .sh files:
+Sample of run_iNat_images.sh:
 #!/bin/sh
-curl -L -o 'iNat_images_DwCA.zip' -C - http://api.gbif.org/v1/occurrence/download/request/xxxxxxx-123456789012345.zip                                    
+curl -L -o 'iNat_images_DwCA.zip' https://api.gbif.org/v1/occurrence/download/request/0164955-210914110416597.zip
 
 .sh files are run in Jenkins eol-archive:
 bash /var/www/html/eol_php_code/update_resources/connectors/files/GBIF/run_iNat_images.sh
