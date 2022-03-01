@@ -10,8 +10,16 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
-        if(Functions::is_production()) $this->path = '/extra/other_files/iNat_image_DwCA/GBIF_service/';
-        else                           $this->path = '/Volumes/AKiTiO4/web/cp/iNat_image_DwCA/GBIF_service/0142850-200613084148143/';
+        if(Functions::is_production()) {
+            $this->path       = '/extra/other_files/iNat_image_DwCA/GBIF_service/';
+            $this->cache_path = '/extra/other_files/iNat_image_DwCA/cache/';
+        }
+        else {
+            $this->path       = '/Volumes/AKiTiO4/web/cp/iNat_image_DwCA/GBIF_service/0166633-210914110416597/'; //just subset data - Gadus morhua
+            $this->cache_path = '/Volumes/AKiTiO4/web/cp/iNat_image_DwCA/cache/';
+        }
+        if(!is_dir($this->cache_path)) mkdir($this->cache_path);
+        // $this->cache_path .= "/";
         
         $this->occurrence_gbifid_with_images = array();
         // $this->download_options = array(
@@ -21,6 +29,10 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
     /*================================================================= STARTS HERE ======================================================================*/
     function start()
     {
+        // /*
+        require_library('connectors/CacheMngtAPI');
+        $this->func = new CacheMngtAPI($this->cache_path);
+        // */
         self::process_table('occurrence');
         self::process_table('multimedia');
         print_r($this->debug);
@@ -98,18 +110,42 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
                     $rek['f'] = $rec['family']; //Carangidae
                     $rek['g'] = $rec['genus']; //Hemicaranx
                     $rek['r'] = strtolower($rec['taxonrank']); //SPECIES
-                    if($val = @$rec['identifier']) $rek['s'] = $val;        //http://n2t.net/ark:/65665/325e37c09-cdb2-4ef9-946f-44482687b6e9
+                    
+                    if($val = @$rec['taxonid']) $rek['s']  = "https://www.inaturalist.org/taxa/".$val;
+                    elseif($val = @$rec['identifier']) $rek['s'] = $val;        //http://n2t.net/ark:/65665/325e37c09-cdb2-4ef9-946f-44482687b6e9
                     elseif($val = @$rec['occurrenceid']) $rek['s'] = $val;  //http://n2t.net/ark:/65665/325e37c09-cdb2-4ef9-946f-44482687b6e9
+                    
+                    /* memory extensive, not good. Used below instead.
                     $this->occurrence_gbifid_with_images[$gbifid] = json_encode($rek);
+                    */
+                    // /* New solution:
+                    $md5_id = md5($gbifid);
+                    if($arr_rek = $this->func->retrieve_json_obj($md5_id, false)) {} //2nd param false means returned value is an array()
+                    else {
+                        $json = json_encode($rek);
+                        $this->func->save_json($md5_id, $json);
+                        // $arr_rek = json_decode($json, true);                    //just for testing
+                        // print_r($rek); print_r($arr_rek); exit("\ntest...\n");  //just for testing
+                    }
+                    // */
+                    
+                    
                     // [acceptedscientificname] => Hemicaranx amblyrhynchus (Cuvier, 1833)
                     // [verbatimscientificname] => Hemicaranx amblyrhynchus
                     // [license] => CC0_1_0
                     @$this->debug['license'][$rec['license']]++; //= '';
                 }
             }
-            elseif($what == 'multimedia') {
-                if($json = @$this->occurrence_gbifid_with_images[$gbifid]) {
-                    $rek = json_decode($json, true);
+            elseif($what == 'multimedia') { // print_r($rec); exit("\nstopx\n");
+                
+                // /* New solution:
+                $md5_id = md5($gbifid);
+                if($rek = $this->func->retrieve_json_obj($md5_id, false)) {} //2nd param false means returned value is an array()
+                else exit("\nThere should be cache at this point.\n");
+                // */
+                
+                // if($json = @$this->occurrence_gbifid_with_images[$gbifid]) { --- old implementation
+                if($rek) {
                     // print_r($rek); exit("\nditox na\n");
                     
                     // /* debug only
@@ -367,6 +403,12 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         elseif($str == "CC_BY_4_0")     return "http://creativecommons.org/licenses/by/4.0/";
         elseif($str == "CC0_1_0")       return "http://creativecommons.org/licenses/publicdomain/";
         else {
+            if(stripos($str, "licenses/by-nc/") !== false) return $str; //string is found
+            if(stripos($str, "licenses/by-nc-sa/") !== false) return $str; //string is found
+            if(stripos($str, "licenses/by/") !== false) return $str; //string is found
+            if(stripos($str, "licenses/by-sa/") !== false) return $str; //string is found
+            if(stripos($str, "licenses/publicdomain/") !== false) return "http://creativecommons.org/licenses/publicdomain/"; //string is found
+            if(stripos($str, "publicdomain/zero/") !== false) return "http://creativecommons.org/licenses/publicdomain/"; //string is found
             print_r($rec);
             exit("\ninvalid license\n");
         }
