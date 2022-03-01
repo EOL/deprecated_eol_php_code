@@ -13,6 +13,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         if(Functions::is_production()) $this->path = '/extra/other_files/iNat_image_DwCA/GBIF_service/';
         else                           $this->path = '/Volumes/AKiTiO4/web/cp/iNat_image_DwCA/GBIF_service/0142850-200613084148143/';
         
+        $this->occurrence_gbifid_with_images = array();
         // $this->download_options = array(
         //     'expire_seconds'     => 60*60*24*30, //expires in 1 month
         //     'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
@@ -66,7 +67,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
                     $k++;
                 }
             }
-            if(($i % 500000) == 0) echo "\n".number_format($i) . "[$path]";
+            if(($i % 500000) == 0) echo "\n".number_format($i) . "[$path]". " [".count($this->occurrence_gbifid_with_images)."]";
             // /*
             
             $gbifid = $rec['gbifid'];
@@ -217,7 +218,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
                 [genericname] => Hemicaranx
             )
             */
-        }
+        } //end foreach
     }
     private function write_taxon($rek, $taxonID)
     {   /*Array(
