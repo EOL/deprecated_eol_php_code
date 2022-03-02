@@ -112,14 +112,16 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
                     $rek['r'] = strtolower($rec['taxonrank']); //SPECIES
                     
                     if($val = @$rec['taxonid']) $rek['s']  = "https://www.inaturalist.org/taxa/".$val;
-                    elseif($val = @$rec['identifier']) $rek['s'] = $val;        //http://n2t.net/ark:/65665/325e37c09-cdb2-4ef9-946f-44482687b6e9
-                    elseif($val = @$rec['occurrenceid']) $rek['s'] = $val;  //http://n2t.net/ark:/65665/325e37c09-cdb2-4ef9-946f-44482687b6e9
+                    elseif($val = @$rec['references']) $rek['s'] = $val;    //https://www.inaturalist.org/observations/106689439
+                    elseif($val = @$rec['occurrenceid']) $rek['s'] = $val;  //https://www.inaturalist.org/observations/106689439
                     
                     /* memory extensive, not good. Used below instead.
                     $this->occurrence_gbifid_with_images[$gbifid] = json_encode($rek);
                     */
                     // /* New solution:
-                    $md5_id = md5($gbifid);
+                    $rek_taxonID = self::format_taxonID($rek); //New: Mar 1, 2022
+                    $this->occurrence_gbifid_with_images[$gbifid] = $rek_taxonID; //assignment, to be accessed in multimedia.txt
+                    $md5_id = md5($rek_taxonID);
                     if($arr_rek = $this->func->retrieve_json_obj($md5_id, false)) {} //2nd param false means returned value is an array()
                     else {
                         $json = json_encode($rek);
@@ -133,31 +135,31 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
                     // [acceptedscientificname] => Hemicaranx amblyrhynchus (Cuvier, 1833)
                     // [verbatimscientificname] => Hemicaranx amblyrhynchus
                     // [license] => CC0_1_0
-                    @$this->debug['license'][$rec['license']]++; //= '';
+                    @$this->debug['license occurrence.txt'][$rec['license']]++; //= '';
                 }
             }
             elseif($what == 'multimedia') { // print_r($rec); exit("\nstopx\n");
                 
                 // /* New solution:
-                $md5_id = md5($gbifid);
-                if($rek = $this->func->retrieve_json_obj($md5_id, false)) {} //2nd param false means returned value is an array()
-                else exit("\nThere should be cache at this point.\n");
+                if($rek_taxonID = @$this->occurrence_gbifid_with_images[$gbifid]) {
+                    $md5_id = md5($rek_taxonID);
+                    if($taxon_rek = $this->func->retrieve_json_obj($md5_id, false)) {} //2nd param false means returned value is an array()
+                    else exit("\nThere should be cache at this point.\n");
+                }
+                else exit("\nThere should be cache rek_taxonID at this point.\n");
                 // */
                 
-                // if($json = @$this->occurrence_gbifid_with_images[$gbifid]) { --- old implementation
-                if($rek) {
+                if($taxon_rek) {
                     // print_r($rek); exit("\nditox na\n");
                     
                     // /* debug only
-                    if(!@$rek['sn']) {
-                        print_r($rek); exit("\n no sn scientificname \n");
+                    if(!@$taxon_rek['sn']) {
+                        print_r($taxon_rek); exit("\n no sn scientificname \n");
                     }
                     // */
                     
-                    $taxonID = md5($rek['sn']); //copied template
-                    $taxonID = self::format_taxonID($rek); //New: Mar 1, 2022
                     if(@$this->taxon_images_count[$taxonID] >= 150) continue;
-                    if(self::write_media($rec, $taxonID, $rek)) self::write_taxon($rek, $taxonID);
+                    if(self::write_media($rec, $rek_taxonID, $taxon_rek)) self::write_taxon($taxon_rek, $rek_taxonID);
                 }
                 else {
                     // /* good debug
@@ -176,82 +178,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
             // }
             // print_r($rec); exit("\nstopx\n");
             /*
-            Array occurrence.txt ( --- from copied template
-                [accessrights] => 
-                [bibliographiccitation] => 
-                [contributor] => 
-                [created] => 
-                [creator] => 
-                [datesubmitted] => 
-                [description] => 
-                [format] => 
-                
-                [publisher] => National Museum of Natural History, Smithsonian Institution
-                [rights] => 
-                [rightsholder] => 
-                [source] => 
-                [temporal] => 
-                [title] => 
-                [type] => Image
-                [institutionid] => http://biocol.org/urn:lsid:biocol.org:col:34871
-                [institutioncode] => USNM
-                [collectioncode] => Fishes
-                [datasetname] => NMNH Extant Specimen Records
-                [ownerinstitutioncode] => 
-                [basisofrecord] => MACHINE_OBSERVATION
-                [catalognumber] => RAD117265
-                [individualcount] => 1
-                [organismquantity] => 
-                [organismquantitytype] => 
-                [occurrencestatus] => PRESENT
-                [preparations] => Polyester
-                [eventdate] => 1970-09-02T00:00:00
-                [startdayofyear] => 245
-                [enddayofyear] => 245
-                [year] => 1970
-                [month] => 9
-                [day] => 2
-                [verbatimeventdate] => 1970 Sep 02 - 0000 00 00
-                [locationid] => 11206
-                [highergeography] => Atlantic, Gulf of Mexico, United States, Florida
-                [waterbody] => Atlantic, Gulf of Mexico
-                [countrycode] => US
-                [stateprovince] => Florida
-                [decimallatitude] => 29.18
-                [decimallongitude] => -87.28
-                [typestatus] => 
-                [identifiedby] => 
-                [dateidentified] => 
-                [taxonid] => 
-                [scientificnameid] => 
-                [acceptednameusageid] => 2391412
-                [parentnameusageid] => 
-
-                [acceptednameusage] => 
-                [parentnameusage] => 
-                [originalnameusage] => 
-                [higherclassification] => Animalia, Chordata, Vertebrata, Osteichthyes, Actinopterygii, Neopterygii, Acanthopterygii, Perciformes, Percoidei, Carangidae
-                [subgenus] => 
-                [specificepithet] => amblyrhynchus
-                [infraspecificepithet] => 
-
-                [taxonrank] => SPECIES
-                [verbatimtaxonrank] => 
-                [nomenclaturalcode] => 
-                [taxonomicstatus] => ACCEPTED
-                [nomenclaturalstatus] => 
-                [taxonremarks] => 
-                [datasetkey] => 821cc27a-e3bb-4bc5-ac34-89ada245069d
-                [lastinterpreted] => 2020-12-15T21:16:20.936Z
-                [depth] => 1463.0
-                [issue] => OCCURRENCE_STATUS_INFERRED_FROM_INDIVIDUAL_COUNT;GEODETIC_DATUM_ASSUMED_WGS84
-                [mediatype] => StillImage
-                [hascoordinate] => true
-                [hasgeospatialissues] => false
-                [taxonkey] => 2391412
-                [acceptedtaxonkey] => 2391412
-                [species] => Hemicaranx amblyrhynchus
-                [genericname] => Hemicaranx
+            Array occurrence.txt ( --- see inat_images.php instead
             )
             */
         } //end foreach
@@ -285,39 +212,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         return $taxonID;
     }
     private function write_media($rec, $taxonID, $rek)
-    {   /*Array multimedia.txt (
-            [gbifid] => 1456016777
-            [type] => StillImage
-            [format] => tiff, jpeg, jpeg, jpeg, jpeg
-            [identifier] => http://n2t.net/ark:/65665/m3746dde37-ea30-45c0-aa16-31d34de9fa4e
-            [references] => 
-            [title] => Hemicaranx amblyrhynchus RAD117265-001
-            [description] => Envelope Notes Verbatim: Box 1; S-V 435; 1; FL 188; Gulf of Mexico; 2 exposures.
-            [source] => Division of Fishes NMNH Smithsonian Institution
-            [audience] => 
-            [created] => 
-            [creator] => Division of Fishes
-            [contributor] => 
-            [publisher] => Smithsonian Institution, NMNH, Fishes
-            [license] => Usage Conditions Apply
-            [rightsholder] => 
-        )
-        Array(
-            [gbifid] => 1317613575
-            [type] => Sound
-            [format] => audio/wav
-            [identifier] => http://n2t.net/ark:/65665/m3eca9242b-d95f-46e6-abf0-67e8035712e3
-            [references] => 
-            [title] => USNM 642718 Achaetops pycnopygius
-            [description] => USNM 642718 Achaetops pycnopygius
-            [source] => 
-            [audience] => 
-            [created] => 
-            *[creator] => Schmidt, Brian K.
-            [contributor] => 
-            *[publisher] => Smithsonian Institution, NMNH, Birds
-            [license] => Usage Conditions Apply
-            [rightsholder] => 
+    {   /*Array multimedia.txt ( see inat_images.txt
         )
         */
         
@@ -337,8 +232,8 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
 
         @$this->debug['rec_type'][$rec['type']][$rec['format']]++; //= ''; //for stats
         @$this->debug['media type'][$rec['type']]++; //= ''; //for stats
-        @$this->debug['references values'][$rec['references']]++; //= ''; //for stats
-
+        // @$this->debug['references values'][$rec['references']]++; //= ''; //for stats
+        
         if(!$rec['type'] || !$rec['format']) return false;
         
         $type_info['StillImage'] = 'http://purl.org/dc/dcmitype/StillImage';
@@ -360,7 +255,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         $mr->type           = $type_info[$rec['type']];
         $mr->language       = 'en';
         $mr->format         = $format_info[$rec['type']];
-        $mr->furtherInformationURL = $rek['s'];
+        $mr->furtherInformationURL = $rec['references'];
         $mr->accessURI      = $rec['identifier'];
         // $mr->CVterm         = '';
         // $mr->Owner          = '';
