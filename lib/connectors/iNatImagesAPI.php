@@ -258,10 +258,11 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         $mr->furtherInformationURL = $rec['references'];
         $mr->accessURI      = $rec['identifier'];
         // $mr->CVterm         = '';
-        // $mr->Owner          = '';
+        $mr->Owner          = $rec['rightsholder'];
         // $mr->rights         = '';
+        $mr->CreateDate     = $rec['created'];
         $mr->title          = $rec['title'];
-        $mr->UsageTerms     = 'http://creativecommons.org/licenses/publicdomain/'; //copied template
+        // $mr->UsageTerms     = 'http://creativecommons.org/licenses/publicdomain/'; //copied template
         $mr->UsageTerms     = self::format_license($rec);
         // $mr->audience       = 'Everyone';
         $mr->description    = $rec['description'];
