@@ -139,6 +139,9 @@ Below occurrences are now fixed - increased as expected:
 Below stable delta version: - decrease in occurrences (from 368_cleaned_MoF) is expected:
 368_delta	Wed 2022-02-23 08:06:19 PM	            {"MoF.tab":2140043, "occurrence.tab":423710, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":2143.9, "min":35.73, "hr":0.6}} Mac Mini
 368_delta	Wed 2022-02-23 09:01:26 PM	            {"MoF.tab":2140043, "occurrence.tab":423710, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":1263.44, "min":21.06, "hr":0.35}} eol-archive
+
+now a solution, but was able to bring back numbers from: 368_cleaned_MoF
+368_delta	Wed 2022-03-02 11:37:19 AM	            {"MoF.tab":2140043, "occurrence.tab":514004, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":2583.97, "min":43.07, "hr":0.72}} Mac Mini
 ----------------------------------------------------------------------------
 Reminders:
 # Six (6) connectors to run, one after the other - OK
