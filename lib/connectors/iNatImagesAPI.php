@@ -263,7 +263,9 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         $mr->CreateDate     = $rec['created'];
         $mr->title          = $rec['title'];
         // $mr->UsageTerms     = 'http://creativecommons.org/licenses/publicdomain/'; //copied template
-        $mr->UsageTerms     = self::format_license($rec);
+        if($mr->UsageTerms = self::format_license($rec)) {}
+        else return false;
+
         // $mr->audience       = 'Everyone';
         $mr->description    = $rec['description'];
         // $mr->LocationCreated = '';
@@ -305,8 +307,9 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
             if(stripos($str, "licenses/by-sa/") !== false) return $str; //string is found
             if(stripos($str, "licenses/publicdomain/") !== false) return "http://creativecommons.org/licenses/publicdomain/"; //string is found
             if(stripos($str, "publicdomain/zero/") !== false) return "http://creativecommons.org/licenses/publicdomain/"; //string is found
-            print_r($rec);
-            exit("\ninvalid license\n");
+            // print_r($rec);
+            $this->debug['invalid license'][$str] = '';
+            return false;
         }
     }
     private function format_Sound($format)
