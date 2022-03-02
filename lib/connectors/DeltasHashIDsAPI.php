@@ -145,6 +145,9 @@ class DeltasHashIDsAPI
                     if($this->resource_id == "globi_associations_delta") { //occurrence table is use solely for Associations
                         $row_str .= $rec[$uri]." | ";
                     }
+                    /* may not need to do this. The problem is not this but this: https://eol-jira.bibalex.org/browse/DATA-1814?focusedCommentId=66717&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66717
+                    elseif($this->resource_id == "368_delta") $row_str .= $rec[$uri]." | ";
+                    */
                     else { //rest goes here
                         // /* there are Occurrence rows with same column values but diff. occurrenceID...
                         if($field != 'occurrenceID') $row_str .= $rec[$uri]." | ";
