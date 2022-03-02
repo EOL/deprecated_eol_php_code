@@ -86,7 +86,25 @@ class iNatImagesSelectAPI
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
                 @$this->taxon_images_count[$taxonID]++;
                 if($this->taxon_images_count[$taxonID] > $this->image_limit) continue;
-                $blurriness_score = self::get_blurriness_score($accessURI);
+                $score = self::get_blurriness_score($accessURI);
+                // print_r($score);
+                /*Array(
+                    [score] => 262.24131043428315
+                    [url] => https://inaturalist-open-data.s3.amazonaws.com/photos/119359998/original.jpg
+                )*/
+                // /* start saving
+                $o = new \eol_schema\MediaResource();
+                $uris = array_keys($rec); // print_r($uris); //exit;
+                foreach($uris as $uri) {
+                    $field = self::get_field_from_uri($uri);
+                    $o->$field = $rec[$uri];
+                }
+                $unique_field = $o->identifier;
+                if(!isset($this->unique_ids[$unique_field])) {
+                    $this->unique_ids[$unique_field] = '';
+                    $this->archive_builder->write_object_to_file($o);
+                }
+                // */
             }
             elseif($what == 'carry-over') {
                 if    ($class == "vernacular")  $o = new \eol_schema\VernacularName();
@@ -112,7 +130,7 @@ class iNatImagesSelectAPI
                     $this->archive_builder->write_object_to_file($o);
                 }
             }
-            if($i >= 6) break; //debug only
+            if($i >= 13) break; //debug only
         }
     }
     private function get_field_from_uri($uri)
@@ -127,25 +145,27 @@ class iNatImagesSelectAPI
     {
         $md5_id = md5($accessURI);
         if($arr = $this->func->retrieve_json_obj($md5_id, false)) { //2nd param false means returned value is an array()
-            print_r($arr); echo("\nscore retrieved...\n");  //just for testing
+            // print_r($arr); 
+            // debug("\nscore retrieved...\n");  //just for testing
         }
         else {
             $arr = self::compute_blurriness_score($accessURI);
             $json = json_encode($arr);
             $this->func->save_json($md5_id, $json);
-            print_r($arr); echo("\nscore generated...\n");  //just for testing
+            // print_r($arr); 
+            // debug("\nscore generated...\n");  //just for testing
         }
         return $arr;
     }
     private function compute_blurriness_score($url)
     {
         if($target = self::download_image($url)) {
-            echo "\ndownloaded: [$target]\n";
+            // echo "\ndownloaded: [$target]\n";
             $py_script = str_ireplace("/eol_images", "", $this->temp_image_repo);
             $py_script .= "detect_blur.py";
             $cmd = 'python '.$py_script.' --images '.$this->temp_image_repo.' --threshold 100'; //with or without threshold since we are just after the score
-            echo "\naccessURI: [$url]\n";
-            echo "\ncmd:\n[$cmd]\n";
+            // echo "\naccessURI: [$url]\n";
+            // echo "\ncmd:\n[$cmd]\n";
             $output = shell_exec($cmd); // echo "\nRequest output:\n$output\n";
             $arr = array("score" => trim($output), "url" => $url); // print_r($arr);
             unlink($target); //delete temp downloaded image e.g. 17796c5772dbfc3e53d48e881fbb3c1e.jpeg
@@ -161,16 +181,15 @@ class iNatImagesSelectAPI
         $ext = pathinfo($url, PATHINFO_EXTENSION);
         $target = $this->temp_image_repo.$filename.".".$ext;
         if(!file_exists($target) || filesize($target) == 0) {
+            sleep(1); //delay for 1 second
             $cmd = WGET_PATH . " $url -O ".$target; //wget -nc --> means 'no overwrite'
             $cmd .= " 2>&1";
             $shell_debug = shell_exec($cmd);
             if(stripos($shell_debug, "ERROR 404: Not Found") !== false) exit("\n<i>URL path does not exist.\n$url</i>\n\n"); //string is found
-            echo "\n---\n".trim($shell_debug)."\n---\n"; //exit;
+            // echo "\n---\n".trim($shell_debug)."\n---\n"; //exit;
         }
         if(file_exists($target) && filesize($target)) return $target;
         else return false;
     }
-    
-    
 }
 ?>
