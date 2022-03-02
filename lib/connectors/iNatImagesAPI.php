@@ -35,6 +35,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         // */
         self::process_table('occurrence');
         self::process_table('multimedia');
+        unset($this->occurrence_gbifid_with_images); //clear memory
         print_r($this->debug);
         $this->archive_builder->finalize(true);
     }
@@ -274,6 +275,9 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         
         $agent_ids = self::add_agents($rec);
         $mr->agentID = implode("; ", $agent_ids);
+        
+        $mr->lat    = $rec['decimallatitude'];
+        $mr->long    = $rec['decimallongitude'];
         
         // /* New: hash it
         $arr = (array) $mr; //convert object to array; Just typecast it
