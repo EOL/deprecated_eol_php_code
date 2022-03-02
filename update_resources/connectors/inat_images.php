@@ -39,7 +39,7 @@ gbifID	abstract	accessRights	accrualMethod	accrualPeriodicity	accrualPolicy	alte
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/iNatImagesAPI');
-// ini_set('memory_limit','7096M'); //this can be removed and choose a caching solution. But let us try this first.
+ini_set('memory_limit','12096M'); //this can be removed and choose a caching solution. But let us try this first.
 $timestart = time_elapsed();
 $resource_id = 'inat_images';
 $func = new iNatImagesAPI($resource_id, false, true);
