@@ -169,11 +169,12 @@ class iNatImagesSelectAPI
             // debug("\nscore retrieved...\n");  //just for testing
         }
         else {
-            $arr = self::compute_blurriness_score($accessURI);
-            $json = json_encode($arr);
-            $this->func->save_json($md5_id, $json);
-            // print_r($arr); 
-            // debug("\nscore generated...\n");  //just for testing
+            if($arr = self::compute_blurriness_score($accessURI)) {
+                $json = json_encode($arr);
+                $this->func->save_json($md5_id, $json);
+                // print_r($arr); 
+                // debug("\nscore generated...\n");  //just for testing
+            }
         }
         return $arr;
     }
@@ -192,7 +193,7 @@ class iNatImagesSelectAPI
             return $arr;
         }
         else {
-            echo "\nCannot download.\n";
+            echo "\nCannot download [$url].\n";
         }
     }
     private function download_image($url)
@@ -205,7 +206,10 @@ class iNatImagesSelectAPI
             $cmd = WGET_PATH . " $url -O ".$target; //wget -nc --> means 'no overwrite'
             $cmd .= " 2>&1";
             $shell_debug = shell_exec($cmd);
-            if(stripos($shell_debug, "ERROR 404: Not Found") !== false) exit("\n<i>URL path does not exist.\n$url</i>\n\n"); //string is found
+            if(stripos($shell_debug, "ERROR 404: Not Found") !== false) { //string is found
+                return false;
+                exit("\nURL path does not exist.\n$url\n\n");
+            }
             // echo "\n---\n".trim($shell_debug)."\n---\n"; //exit;
         }
         if(file_exists($target) && filesize($target)) return $target;
