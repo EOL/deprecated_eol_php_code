@@ -25,13 +25,14 @@ class iNatImagesSelectAPI
                                   );
         $this->image_limit = 5; //100 orig
         if(Functions::is_production()) {
-            $this->cache_path = '/extra/other_files/iNat_image_DwCA/cache/';
+            $this->cache_path = '/extra/other_files/iNat_image_DwCA/cache_image_score/';
+            $this->temp_image_repo = "/html/eol_php_code/applications/blur_detection_opencv_eol/eol_images/";
         }
         else {
             $this->cache_path = '/Volumes/AKiTiO4/web/cp/iNat_image_DwCA/cache_image_score/';
             $this->temp_image_repo = "/Library/WebServer/Documents/eol_php_code/applications/blur_detection_opencv_eol/eol_images/";
-                                // = "/Volumes/AKiTiO4/python_apps/blur_detection_opencv/eol_images/";
         }
+        if(!is_dir($this->cache_path)) mkdir($this->cache_path);
         $this->agent_ids = array();
     }
     /*================================================================= STARTS HERE ======================================================================*/
