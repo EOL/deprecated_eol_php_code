@@ -1,9 +1,24 @@
 from: https://pyimagesearch.com/2015/09/07/blur-detection-with-opencv/
 -----------------------------------------------------------------
 I needed to do this on my Mac OS
-
 $ pip install imutils
 $ pip install opencv-python
+--- end for Mac OS ---
+
+
+Notes: eol-archive --- ran it but not sure if it helped:
+yum install python-devel
+yum install python27-python-pip
+pip install scikit-build
+  
+
+WORKED OK IN eol-archive !!!
+--- both installs worked OK and fixed problem in eol-archive
+yum install numpy
+  -> worked OK, installed numpy in Rhel
+yum install opencv-python
+  - worked OK, installed opencv in Rhel
+
 -----------------------------------------------------------------
 $ sudo pip install opencv-python
 Password:

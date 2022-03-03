@@ -150,6 +150,8 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
                 }
                 else exit("\nThere should be cache rek_taxonID at this point.\n");
                 // */
+
+                if(@$this->taxon_images_count[$rek_taxonID] > $this->initial_image_limit) continue;
                 
                 if($taxon_rek) {
                     // print_r($rek); exit("\nditox na\n");
@@ -160,7 +162,6 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
                     }
                     // */
                     
-                    if(@$this->taxon_images_count[$taxonID] > $this->initial_image_limit) continue;
                     if(self::write_media($rec, $rek_taxonID, $taxon_rek)) self::write_taxon($taxon_rek, $rek_taxonID);
                 }
                 else {
