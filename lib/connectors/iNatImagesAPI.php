@@ -22,6 +22,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         // $this->cache_path .= "/";
         
         $this->occurrence_gbifid_with_images = array();
+        $this->initial_image_limit = 150;
         // $this->download_options = array(
         //     'expire_seconds'     => 60*60*24*30, //expires in 1 month
         //     'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
@@ -159,7 +160,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
                     }
                     // */
                     
-                    if(@$this->taxon_images_count[$taxonID] >= 150) continue;
+                    if(@$this->taxon_images_count[$taxonID] > $this->initial_image_limit) continue;
                     if(self::write_media($rec, $rek_taxonID, $taxon_rek)) self::write_taxon($taxon_rek, $rek_taxonID);
                 }
                 else {
@@ -275,9 +276,11 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         
         $agent_ids = self::add_agents($rec);
         $mr->agentID = implode("; ", $agent_ids);
-        
+
+        /* it is in occurrenct.txt not in multimedia.txt
         $mr->lat    = $rec['decimallatitude'];
         $mr->long    = $rec['decimallongitude'];
+        */
         
         // /* New: hash it
         $arr = (array) $mr; //convert object to array; Just typecast it
@@ -287,7 +290,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         if(!isset($this->object_ids[$mr->identifier])) {
             // /* New: to limit 100 or 150 images per taxon at this point.
             @$this->taxon_images_count[$taxonID]++;
-            if($this->taxon_images_count[$taxonID] >= 151) return;
+            if($this->taxon_images_count[$taxonID] > $this->initial_image_limit) return;
             // */
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
