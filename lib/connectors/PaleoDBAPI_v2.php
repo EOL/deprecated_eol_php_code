@@ -597,14 +597,13 @@ class PaleoDBAPI_v2
         */
         $mValues1 = array("http://www.wikidata.org/entity/Q1759860", "http://www.marinespecies.org/traits/Infaunal", "http://www.marinespecies.org/traits/Epifaunal", "http://eol.org/schema/terms/semiInfaunal", "http://eol.org/schema/terms/Attached", "http://www.wikidata.org/entity/Q640114", "http://eol.org/schema/terms/intermediateEpifaunal", "http://eol.org/schema/terms/lowEpifaunal", "http://eol.org/schema/terms/upperEpifaunal", "http://eol.org/schema/terms/shallowInfaunal");
         if(in_array($rec['measurementValue'], $mValues1)) {
-            if(stripos($rec['measurementRemarks'], "Inferred from") !== false) $rec['occur']['lifeStage'] = "http://www.ebi.ac.uk/efo/EFO_0001272";  //string is found
+            if(stripos($rec['measurementRemarks'], "Inferred from") !== false) $rec['lifestage'] = "http://www.ebi.ac.uk/efo/EFO_0001272";  //string is found
         }
         
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"], $rec);
         unset($rec['catnum']);
         unset($rec['taxon_id']);
         unset($rec['lifestage']);
-        if(isset($rec['occur']['lifeStage'])) unset($rec['occur']['lifeStage']);
         
         $m = new \eol_schema\MeasurementOrFact();
         $m->occurrenceID = $occurrence_id;
