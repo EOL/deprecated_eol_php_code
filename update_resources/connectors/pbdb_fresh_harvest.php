@@ -140,8 +140,16 @@ Below stable delta version: - decrease in occurrences (from 368_cleaned_MoF) is 
 368_delta	Wed 2022-02-23 08:06:19 PM	            {"MoF.tab":2140043, "occurrence.tab":423710, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":2143.9, "min":35.73, "hr":0.6}} Mac Mini
 368_delta	Wed 2022-02-23 09:01:26 PM	            {"MoF.tab":2140043, "occurrence.tab":423710, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":1263.44, "min":21.06, "hr":0.35}} eol-archive
 
-now a solution, but was able to bring back numbers from: 368_cleaned_MoF
-368_delta	Wed 2022-03-02 11:37:19 AM	            {"MoF.tab":2140043, "occurrence.tab":514004, "taxon.tab":412201, "vernacular_name.tab":5053, "time_elapsed":{"sec":2583.97, "min":43.07, "hr":0.72}} Mac Mini
+Latest:
+368	Thu 2022-03-03 02:14:32 AM	                    {"MoF.tab":2459378, "occurrence.tab":595412, "taxon.tab":443906, "vernacular_name.tab":7587, "time_elapsed":false}
+368	Thu 2022-03-03 02:59:26 AM	                    {"MoF.tab":2414830, "occurrence.tab":583359, "taxon.tab":434753, "vernacular_name.tab":7457, "time_elapsed":false}
+368_removed_aves	Thu 2022-03-03 03:19:26 AM	    {"MoF.tab":2300702, "occurrence.tab":558986, "taxon.tab":424840, "vernacular_name.tab":5021, "time_elapsed":false}
+368_final	Thu 2022-03-03 03:41:00 AM	            {"MoF.tab":2300702, "occurrence.tab":558986, "taxon.tab":411197, "vernacular_name.tab":5021, "time_elapsed":false}
+368_merged_MoF	Thu 2022-03-03 04:02:16 AM	        {"MoF.tab":2300418, "occurrence.tab":558986, "taxon.tab":411197, "vernacular_name.tab":5021, "time_elapsed":{"sec":1253.79, "min":20.9, "hr":0.35}}
+368_cleaned_MoF	Thu 2022-03-03 04:36:25 AM	        {"MoF.tab":2133022, "occurrence.tab":512922, "taxon.tab":411197, "vernacular_name.tab":5021, "time_elapsed":{"sec":1069.95, "min":17.83, "hr":0.3}}
+368_delta	Thu 2022-03-03 04:58:35 AM	            {"MoF.tab":2133022, "occurrence.tab":512922, "taxon.tab":411197, "vernacular_name.tab":5021, "time_elapsed":{"sec":1286.41, "min":21.44, "hr":0.36}}
+
+
 ----------------------------------------------------------------------------
 Reminders:
 # Six (6) connectors to run, one after the other - OK

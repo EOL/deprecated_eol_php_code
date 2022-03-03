@@ -589,7 +589,8 @@ class PaleoDBAPI_v2
         unset($rec['phylum']); //not needed below. Must be removed before writing $rec to MoF
         // */
         
-        /* another adjustment --- this was originally/erroneously placed in Remove_MoF_records.php
+        /* another adjustment: https://eol-jira.bibalex.org/browse/DATA-1814?focusedCommentId=66697&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66697 
+        --- this was originally/erroneously placed in Remove_MoF_records.php
         And here's a second mapping, for a different process:
         If "Inferred from" appears in measurementRemarks, regardless of the rest of the text, 
         AND the measurementValue is one of those below, 
