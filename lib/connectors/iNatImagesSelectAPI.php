@@ -93,12 +93,20 @@ class iNatImagesSelectAPI
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
                 @$this->taxon_images_count[$taxonID]++;
                 if($this->taxon_images_count[$taxonID] > $this->image_limit) continue;
-                $score = self::get_blurriness_score($accessURI);
-                // print_r($score);
+                $ret = self::get_blurriness_score($accessURI);
+                // print_r($ret);
                 /*Array(
                     [score] => 262.24131043428315
                     [url] => https://inaturalist-open-data.s3.amazonaws.com/photos/119359998/original.jpg
                 )*/
+                if(!$ret['score']) {
+                    print_r($ret);
+                    echo "\nblank score, will try again\n";
+                    $ret = self::get_blurriness_score($accessURI);
+                    print_r($ret);
+                }
+                
+                
                 // /* start saving
                 $o = new \eol_schema\MediaResource();
                 $uris = array_keys($rec); // print_r($uris); //exit;
@@ -207,13 +215,17 @@ class iNatImagesSelectAPI
             $cmd .= " 2>&1";
             $shell_debug = shell_exec($cmd);
             if(stripos($shell_debug, "ERROR 404: Not Found") !== false) { //string is found
+                if(file_exists($target)) unlink($target);
                 return false;
                 exit("\nURL path does not exist.\n$url\n\n");
             }
             // echo "\n---\n".trim($shell_debug)."\n---\n"; //exit;
         }
         if(file_exists($target) && filesize($target)) return $target;
-        else return false;
+        else {
+            if(file_exists($target)) unlink($target);
+            return false;
+        }
     }
 }
 ?>
