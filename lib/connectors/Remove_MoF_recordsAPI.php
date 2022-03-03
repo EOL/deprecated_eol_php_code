@@ -117,16 +117,17 @@ class Remove_MoF_recordsAPI
                     // if($i >= 10) break; //debug only
                 }
                 
-                /* another adjustment
+                /* another adjustment --- this was moved to PaleoDBAPI_v2.php
                 And here's a second mapping, for a different process:
                 If "Inferred from" appears in measurementRemarks, regardless of the rest of the text, 
                 AND the measurementValue is one of those below, 
                 populate lifestage of the corresponding occurrence record with http://www.ebi.ac.uk/efo/EFO_0001272
-                */
+                
                 $mValues = array("http://www.wikidata.org/entity/Q1759860", "http://www.marinespecies.org/traits/Infaunal", "http://www.marinespecies.org/traits/Epifaunal", "http://eol.org/schema/terms/semiInfaunal", "http://eol.org/schema/terms/Attached", "http://www.wikidata.org/entity/Q640114", "http://eol.org/schema/terms/intermediateEpifaunal", "http://eol.org/schema/terms/lowEpifaunal", "http://eol.org/schema/terms/upperEpifaunal", "http://eol.org/schema/terms/shallowInfaunal");
                 if(in_array($measurementValue, $mValues)) {
                     if(stripos($measurementRemarks, "Inferred from") !== false) $this->occurrence_id_lifeStage[$occurrenceID] = "http://www.ebi.ac.uk/efo/EFO_0001272";  //string is found
                 }
+                */
             }
             //===========================================================================================================================================================
         }

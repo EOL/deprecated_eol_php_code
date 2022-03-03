@@ -589,6 +589,17 @@ class PaleoDBAPI_v2
         unset($rec['phylum']); //not needed below. Must be removed before writing $rec to MoF
         // */
         
+        /* another adjustment --- this was originally/erroneously placed in Remove_MoF_records.php
+        And here's a second mapping, for a different process:
+        If "Inferred from" appears in measurementRemarks, regardless of the rest of the text, 
+        AND the measurementValue is one of those below, 
+        populate lifestage of the corresponding occurrence record with http://www.ebi.ac.uk/efo/EFO_0001272
+        */
+        $mValues1 = array("http://www.wikidata.org/entity/Q1759860", "http://www.marinespecies.org/traits/Infaunal", "http://www.marinespecies.org/traits/Epifaunal", "http://eol.org/schema/terms/semiInfaunal", "http://eol.org/schema/terms/Attached", "http://www.wikidata.org/entity/Q640114", "http://eol.org/schema/terms/intermediateEpifaunal", "http://eol.org/schema/terms/lowEpifaunal", "http://eol.org/schema/terms/upperEpifaunal", "http://eol.org/schema/terms/shallowInfaunal");
+        if(in_array($rec['measurementValue'], $mValues1)) {
+            if(stripos($rec['measurementRemarks'], "Inferred from") !== false) $rec['occur']['lifeStage'] = "http://www.ebi.ac.uk/efo/EFO_0001272";  //string is found
+        }
+        
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"], $rec);
         unset($rec['catnum']);
         unset($rec['taxon_id']);
