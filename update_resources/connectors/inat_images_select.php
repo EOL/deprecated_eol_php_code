@@ -29,7 +29,7 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
     $func = new DwCA_Utility($resource_id, $dwca_file);
 
     $excluded_rowtypes = false;
-    $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon','http://eol.org/schema/agent/agent');
+    $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon'); //'http://eol.org/schema/agent/agent'
 
     /* This will be processed in DeltasHashIDsAPI.php which will be called from DwCA_Utility.php */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);

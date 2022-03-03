@@ -23,7 +23,7 @@ class iNatImagesSelectAPI
                                   "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
                                   "http://eol.org/schema/reference/reference"       => "reference"
                                   );
-        $this->image_limit = 100;
+        $this->image_limit = 5; //100 orig
         if(Functions::is_production()) {
             $this->cache_path = '/extra/other_files/iNat_image_DwCA/cache/';
         }
@@ -31,7 +31,7 @@ class iNatImagesSelectAPI
             $this->cache_path = '/Volumes/AKiTiO4/web/cp/iNat_image_DwCA/cache/';
             $this->temp_image_repo = "/Volumes/AKiTiO4/python_apps/blur_detection_opencv/eol_images/";
         }
-        
+        $this->agent_ids = array();
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -51,6 +51,10 @@ class iNatImagesSelectAPI
         $this->unique_ids = array();
         $tbl = "http://eol.org/schema/media/document";
         self::process_table($tables[$tbl][0], 'select_100_images', $this->extensions[$tbl]);
+
+        $this->unique_ids = array();
+        $tbl = "http://eol.org/schema/agent/agent";
+        self::process_table($tables[$tbl][0], 'carry-over', $this->extensions[$tbl]); //also includes only agents actually used in media objects
     }
     private function process_table($meta, $what, $class)
     {   //print_r($meta);
@@ -103,10 +107,18 @@ class iNatImagesSelectAPI
                 if(!isset($this->unique_ids[$unique_field])) {
                     $this->unique_ids[$unique_field] = '';
                     $this->archive_builder->write_object_to_file($o);
+                    
+                    // /*
+                    $agent_ids = explode(";", $o->agentID);
+                    $agent_ids = array_map('trim', $agent_ids);
+                    foreach($agent_ids as $agent_id) $this->agent_ids[$agent_id] = '';
+                    // */
                 }
                 // */
+                if($i >= 13) break; //debug only
             }
             elseif($what == 'carry-over') {
+                // print_r($this->agent_ids); exit;
                 if    ($class == "vernacular")  $o = new \eol_schema\VernacularName();
                 elseif($class == "agent")       $o = new \eol_schema\Agent();
                 elseif($class == "reference")   $o = new \eol_schema\Reference();
@@ -125,12 +137,17 @@ class iNatImagesSelectAPI
                 else                  $unique_field = $o->identifier; //the rest goes here
                 // */
                 
+                // /*
+                if($class == "agent") {
+                    if(!isset($this->agent_ids[$o->identifier])) continue;
+                }
+                // */
+                
                 if(!isset($this->unique_ids[$unique_field])) {
                     $this->unique_ids[$unique_field] = '';
                     $this->archive_builder->write_object_to_file($o);
                 }
             }
-            if($i >= 13) break; //debug only
         }
     }
     private function get_field_from_uri($uri)
