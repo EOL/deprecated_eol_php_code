@@ -23,13 +23,14 @@ class iNatImagesSelectAPI
                                   "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
                                   "http://eol.org/schema/reference/reference"       => "reference"
                                   );
-        $this->image_limit = 5; //100 orig
+        $this->image_limit = 100; //100 orig
         if(Functions::is_production()) {
             $this->cache_path = '/extra/other_files/iNat_image_DwCA/cache/';
         }
         else {
             $this->cache_path = '/Volumes/AKiTiO4/web/cp/iNat_image_DwCA/cache/';
-            $this->temp_image_repo = "/Volumes/AKiTiO4/python_apps/blur_detection_opencv/eol_images/";
+            $this->temp_image_repo = "/Library/WebServer/Documents/eol_php_code/applications/blur_detection_opencv_eol/eol_images/";
+                                // = "/Volumes/AKiTiO4/python_apps/blur_detection_opencv/eol_images/";
         }
         $this->agent_ids = array();
     }
