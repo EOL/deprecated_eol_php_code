@@ -63,7 +63,7 @@ class iNatImagesSelectAPI
     {   //print_r($meta);
         echo "\nprocess_table: [$what] [$meta->file_uri]...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 50) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
@@ -100,12 +100,13 @@ class iNatImagesSelectAPI
                     [url] => https://inaturalist-open-data.s3.amazonaws.com/photos/119359998/original.jpg
                 )*/
                 if(!$ret['score']) {
+                    echo "\n-----------start\n";
                     print_r($ret);
                     echo "\nblank score, will try again\n";
                     $ret = self::get_blurriness_score($accessURI);
                     print_r($ret);
+                    echo "\n-----------end\n";
                 }
-                
                 
                 // /* start saving
                 $o = new \eol_schema\MediaResource();
