@@ -23,7 +23,7 @@ class iNatImagesSelectAPI
                                   "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
                                   "http://eol.org/schema/reference/reference"       => "reference"
                                   );
-        $this->image_limit = 5; //100 orig
+        $this->image_limit = 100; //100 orig
         if(Functions::is_production()) {
             $this->cache_path = '/extra/other_files/iNat_image_DwCA/cache_image_score/';
             // $this->temp_image_repo = "/html/eol_php_code/applications/blur_detection_opencv_eol/eol_images/";
@@ -118,7 +118,7 @@ class iNatImagesSelectAPI
                     // */
                 }
                 // */
-                if($i >= 13) break; //debug only
+                // if($i >= 13) break; //debug only
             }
             elseif($what == 'carry-over') {
                 // print_r($this->agent_ids); exit;
