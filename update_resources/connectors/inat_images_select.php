@@ -19,7 +19,7 @@ $param                     = json_decode(@$argv[2], true);
 */
 $resource_id = 'inat_images'; //resource generated from inat_images.php
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
-$dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz'; //during dev only
+// $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz'; //during dev only
 $resource_id = 'inat_images_100cap'; //new resource
 process_resource_url($dwca_file, $resource_id, $timestart);
 
