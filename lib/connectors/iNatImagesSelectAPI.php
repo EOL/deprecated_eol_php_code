@@ -103,7 +103,7 @@ class iNatImagesSelectAPI
                     echo "\n-----------start\n";
                     print_r($ret);
                     echo "\nblank score, will try again\n";
-                    $ret = self::get_blurriness_score($accessURI);
+                    $ret = self::get_blurriness_score($accessURI, true); //2nd param true means force compute of score
                     print_r($ret);
                     echo "\n-----------end\n";
                 }
@@ -170,12 +170,21 @@ class iNatImagesSelectAPI
         if(@$parts[1]) $field = $parts[1];
         return $field;
     }
-    private function get_blurriness_score($accessURI)
+    private function get_blurriness_score($accessURI, $forceYN = false)
     {
         $md5_id = md5($accessURI);
         if($arr = $this->func->retrieve_json_obj($md5_id, false)) { //2nd param false means returned value is an array()
             // print_r($arr); 
             // debug("\nscore retrieved...\n");  //just for testing
+            
+            if($forceYN) {
+                if($arr = self::compute_blurriness_score($accessURI)) {
+                    $json = json_encode($arr);
+                    $this->func->save_json($md5_id, $json);
+                    // print_r($arr); 
+                    // debug("\nscore generated...\n");  //just for testing
+                }
+            }
         }
         else {
             if($arr = self::compute_blurriness_score($accessURI)) {
