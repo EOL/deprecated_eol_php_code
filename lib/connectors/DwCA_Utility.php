@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_22530/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_22530/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_91504/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_91504/'
         );
         */
         
@@ -431,6 +431,11 @@ class DwCA_Utility
         if(@$this->params['resource'] == "Deltas_4hashing") {
             require_library('connectors/DeltasHashIDsAPI');
             $func = new DeltasHashIDsAPI($this->archive_builder, $this->resource_id, $this->archive_path);
+            $func->start($info);
+        }
+        if($this->resource_id == 'inat_images_100cap') {
+            require_library('connectors/iNatImagesSelectAPI');
+            $func = new iNatImagesSelectAPI($this->archive_builder, $this->resource_id, $this->archive_path);
             $func->start($info);
         }
         
