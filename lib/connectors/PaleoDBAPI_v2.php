@@ -604,6 +604,7 @@ class PaleoDBAPI_v2
         unset($rec['catnum']);
         unset($rec['taxon_id']);
         unset($rec['lifestage']);
+        if(isset($rec['occur']['lifeStage'])) unset($rec['occur']['lifeStage']);
         
         $m = new \eol_schema\MeasurementOrFact();
         $m->occurrenceID = $occurrence_id;
