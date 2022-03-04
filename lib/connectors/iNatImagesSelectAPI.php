@@ -56,7 +56,7 @@ class iNatImagesSelectAPI
         $this->unique_ids = array();
         $tbl = "http://eol.org/schema/media/document";
         self::process_table($tables[$tbl][0], 'get_total_images_count_per_taxon', $this->extensions[$tbl]);
-        print_r($this->taxon_images_count); exit;
+        print_r($this->total_images_per_taxon); //exit;
         
         //step 2:
         $this->unique_ids = array();
@@ -104,10 +104,9 @@ class iNatImagesSelectAPI
             if($what == 'select_100_images') {
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
-                @$this->taxon_images_count[$taxonID]++;
-                if($this->taxon_images_count[$taxonID] > $this->image_limit) continue;
+                @$this->running_taxon_images_count[$taxonID]++;
                 
-                if($this->total_images_per_taxon > 100) {
+                if($this->total_images_per_taxon[$taxonID] > 100) {
                     if($ret = self::get_blurriness_score($accessURI)) {
                         // print_r($ret);
                         /*Array(
@@ -125,6 +124,9 @@ class iNatImagesSelectAPI
                         echo "\nWill ignore record, cannot download image.\n";
                         continue;
                     }
+                }
+                else {
+                    if($this->running_taxon_images_count[$taxonID] > $this->image_limit) continue;
                 }
                 
                 // /* start saving
