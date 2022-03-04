@@ -56,7 +56,7 @@ class iNatImagesSelectAPI
         $this->unique_ids = array();
         $tbl = "http://eol.org/schema/media/document";
         self::process_table($tables[$tbl][0], 'get_total_images_count_per_taxon', $this->extensions[$tbl]);
-        print_r($this->total_images_per_taxon); exit;
+        print_r($this->total_images_per_taxon); //exit;
         
         //step 2:
         $this->unique_ids = array();
@@ -106,7 +106,7 @@ class iNatImagesSelectAPI
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
                 @$this->running_taxon_images_count[$taxonID]++;
                 
-                if($this->total_images_per_taxon[$taxonID] > 100) { //many many images per taxon
+                if($this->total_images_per_taxon[$taxonID] > 100) { //many many images per taxon. Compute image score only for these images
                     if($ret = self::get_blurriness_score($accessURI)) {
                         // print_r($ret);
                         /*Array(
@@ -125,7 +125,7 @@ class iNatImagesSelectAPI
                         continue;
                     }
                 }
-                else {
+                else { //taxon with few images. i.e. less than 100
                     if($this->running_taxon_images_count[$taxonID] > $this->image_limit) continue;
                 }
                 
