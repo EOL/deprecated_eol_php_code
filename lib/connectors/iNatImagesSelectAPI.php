@@ -63,7 +63,7 @@ class iNatImagesSelectAPI
     {   //print_r($meta);
         echo "\nprocess_table: [$what] [$meta->file_uri]...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 50) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 500) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
@@ -93,19 +93,25 @@ class iNatImagesSelectAPI
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
                 @$this->taxon_images_count[$taxonID]++;
                 if($this->taxon_images_count[$taxonID] > $this->image_limit) continue;
-                $ret = self::get_blurriness_score($accessURI);
-                // print_r($ret);
-                /*Array(
-                    [score] => 262.24131043428315
-                    [url] => https://inaturalist-open-data.s3.amazonaws.com/photos/119359998/original.jpg
-                )*/
-                if(!$ret['score']) {
-                    echo "\n-----------start\n";
-                    print_r($ret);
-                    echo "\nblank score, will try again\n";
-                    $ret = self::get_blurriness_score($accessURI, true); //2nd param true means force compute of score
-                    print_r($ret);
-                    echo "\n-----------end\n";
+                
+                if($ret = self::get_blurriness_score($accessURI)) {
+                    // print_r($ret);
+                    /*Array(
+                        [score] => 262.24131043428315
+                        [url] => https://inaturalist-open-data.s3.amazonaws.com/photos/119359998/original.jpg
+                    )*/
+                    if(!$ret['score']) {
+                        echo "\n-----------start\n";
+                        print_r($ret);
+                        echo "\nblank score, will try again\n";
+                        $ret = self::get_blurriness_score($accessURI, true); //2nd param true means force compute of score
+                        print_r($ret);
+                        echo "\n-----------end\n";
+                    }
+                }
+                else { //cannot download image
+                    echo "\nWill ignore record, cannot download image.\n";
+                    continue;
                 }
                 
                 // /* start saving
@@ -220,7 +226,7 @@ class iNatImagesSelectAPI
         $ext = pathinfo($url, PATHINFO_EXTENSION);
         $target = $this->temp_image_repo.$filename.".".$ext;
         if(!file_exists($target) || filesize($target) == 0) {
-            sleep(1); //delay for 1 second
+            // sleep(1); //delay for 1 second
             $cmd = WGET_PATH . " $url -O ".$target; //wget -nc --> means 'no overwrite'
             $cmd .= " 2>&1";
             $shell_debug = shell_exec($cmd);
