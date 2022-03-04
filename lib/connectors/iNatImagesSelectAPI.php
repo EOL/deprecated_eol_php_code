@@ -51,10 +51,19 @@ class iNatImagesSelectAPI
         require_library('connectors/CacheMngtAPI');
         $this->func = new CacheMngtAPI($this->cache_path);
         // */
+        
+        //step 1: get total images count per taxon
+        $this->unique_ids = array();
+        $tbl = "http://eol.org/schema/media/document";
+        self::process_table($tables[$tbl][0], 'get_total_images_count_per_taxon', $this->extensions[$tbl]);
+        print_r($this->taxon_images_count); exit;
+        
+        //step 2:
         $this->unique_ids = array();
         $tbl = "http://eol.org/schema/media/document";
         self::process_table($tables[$tbl][0], 'select_100_images', $this->extensions[$tbl]);
 
+        //step 3:
         $this->unique_ids = array();
         $tbl = "http://eol.org/schema/agent/agent";
         self::process_table($tables[$tbl][0], 'carry-over', $this->extensions[$tbl]); //also includes only agents actually used in media objects
@@ -88,30 +97,34 @@ class iNatImagesSelectAPI
                 [http://ns.adobe.com/xap/1.0/rights/UsageTerms] => http://creativecommons.org/licenses/by-nc/4.0/
                 [http://eol.org/schema/agent/agentID] => 158ba8069d90c10d4f82293b0140f710; 9a6544e87051f5994b0b924b21e0f9a6
             )*/
+            if($what == 'get_total_images_count_per_taxon') {
+                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                @$this->total_images_per_taxon[$taxonID]++;
+            }
             if($what == 'select_100_images') {
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
                 @$this->taxon_images_count[$taxonID]++;
                 if($this->taxon_images_count[$taxonID] > $this->image_limit) continue;
                 
-                if($ret = self::get_blurriness_score($accessURI)) {
-                    // print_r($ret);
-                    /*Array(
-                        [score] => 262.24131043428315
-                        [url] => https://inaturalist-open-data.s3.amazonaws.com/photos/119359998/original.jpg
-                    )*/
-                    if(!$ret['score']) {
-                        echo "\n-----------start\n";
-                        print_r($ret);
-                        echo "\nblank score, will try again\n";
-                        $ret = self::get_blurriness_score($accessURI, true); //2nd param true means force compute of score
-                        print_r($ret);
-                        echo "\n-----------end\n";
+                if($this->total_images_per_taxon > 100) {
+                    if($ret = self::get_blurriness_score($accessURI)) {
+                        // print_r($ret);
+                        /*Array(
+                            [score] => 262.24131043428315
+                            [url] => https://inaturalist-open-data.s3.amazonaws.com/photos/119359998/original.jpg
+                        )*/
+                        if(!$ret['score']) {
+                            echo "\n-----------start\n"; print_r($ret);
+                            echo "\nblank score, will try again\n";
+                            $ret = self::get_blurriness_score($accessURI, true); //2nd param true means force compute of score
+                            print_r($ret); echo "\n-----------end\n";
+                        }
                     }
-                }
-                else { //cannot download image
-                    echo "\nWill ignore record, cannot download image.\n";
-                    continue;
+                    else { //cannot download image
+                        echo "\nWill ignore record, cannot download image.\n";
+                        continue;
+                    }
                 }
                 
                 // /* start saving
