@@ -63,7 +63,7 @@ class iNatImagesSelectAPI
         $tbl = "http://eol.org/schema/media/document";
         self::process_table($tables[$tbl][0], 'select_100_images', $this->extensions[$tbl]);
 
-        //step 3:
+        //step 3: carry-over agent but only those actually used in media
         $this->unique_ids = array();
         $tbl = "http://eol.org/schema/agent/agent";
         self::process_table($tables[$tbl][0], 'carry-over', $this->extensions[$tbl]); //also includes only agents actually used in media objects
@@ -240,6 +240,7 @@ class iNatImagesSelectAPI
     {   //wget -nc https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /Volumes/AKiTiO4/other_files/bundle_images/xxx/740.027116-1.jpg
         $filename = md5($url);
         $ext = pathinfo($url, PATHINFO_EXTENSION);
+        if(!$ext) $ext = 'jpg';
         $target = $this->temp_image_repo.$filename.".".$ext;
         if(!file_exists($target) || filesize($target) == 0) {
             // sleep(1); //delay for 1 second
