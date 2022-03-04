@@ -56,7 +56,7 @@ class iNatImagesSelectAPI
         $this->unique_ids = array();
         $tbl = "http://eol.org/schema/media/document";
         self::process_table($tables[$tbl][0], 'get_total_images_count_per_taxon', $this->extensions[$tbl]);
-        print_r($this->total_images_per_taxon); //exit;
+        // print_r($this->total_images_per_taxon); //exit;
         
         //step 2:
         $this->unique_ids = array();
