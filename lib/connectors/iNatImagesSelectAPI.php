@@ -107,7 +107,7 @@ class iNatImagesSelectAPI
                 @$this->running_taxon_images_count[$taxonID]++;
                 
                 if($this->total_images_per_taxon[$taxonID] > 100) { //many many images per taxon. Compute image score only for these images
-                    echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n";
+                    // echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n"; //good debug
                     if($ret = self::get_blurriness_score($accessURI)) {
                         // print_r($ret);
                         /*Array(
