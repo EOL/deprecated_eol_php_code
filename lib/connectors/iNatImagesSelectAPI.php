@@ -243,6 +243,7 @@ class iNatImagesSelectAPI
         $filename = md5($url);
         $ext = pathinfo($url, PATHINFO_EXTENSION);
         if(!$ext) $ext = 'jpg';
+        if($ext == "jpe") $ext = 'jpg';
         $target = $this->temp_image_repo.$filename.".".$ext;
         if(!file_exists($target) || filesize($target) == 0) {
             // sleep(1); //delay for 1 second

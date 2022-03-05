@@ -33,14 +33,13 @@ For diagnostics:
     -> very helpful, if u want to delete current running process
     cat terminal_inat_images_select.txt
     -> to see progress, very convenient
-    ps -p $PID
-    ps -p 33552
+    ps -p 17943
     -> to investigate a running PID
     $ cat /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
     -> to monitor runtime
     ls /extra/other_files/iNat_image_DwCA/cache_image_score/
     find /extra/other_files/iNat_image_DwCA/cache_image_score/ -type f | wc -l
-    kill -9 $PID
+    kill -9 17943
 */
 
 $resource_id = 'inat_images'; //resource generated from inat_images.php
