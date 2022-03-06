@@ -60,7 +60,7 @@ class iNatImagesSelectAPI
         /* good stats
         foreach($this->total_images_per_taxon as $taxonID => $total_images) {
             if($total_images > 100) { @$more++; $ret[$taxonID] = ''; }
-            else { @$less++; $ret2[$taxonID] = ''; }
+            else                    { @$less++; $ret2[$taxonID] = ''; }
         }
         echo "\nmore than 100 images: [$more]\n";
         echo "\ntaxonIDs: ".count($ret)."\n";

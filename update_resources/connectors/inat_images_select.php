@@ -37,6 +37,7 @@ For diagnostics:
         -> to investigate a running PID
     cat /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
         -> to monitor runtime
+    ls -lt /var/www/html/eol_php_code/applications/blur_detection_opencv_eol/eol_images/
     ls /extra/other_files/iNat_image_DwCA/cache_image_score/
     find /extra/other_files/iNat_image_DwCA/cache_image_score/ -type f | wc -l
     kill -9 17943
