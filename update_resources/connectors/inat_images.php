@@ -39,7 +39,8 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/iNatImagesAPI');
 ini_set('memory_limit','12096M'); //this can be removed and choose a caching solution. But let us try this first.
 $timestart = time_elapsed();
-$resource_id = 'inat_images';
+$resource_id = 'inat_images'; //being used currently, caching image scores
+$resource_id = 'inat_images_100limit'; //first crack, no score ranking, just use first 100 images per taxon in iNaturalist.
 $func = new iNatImagesAPI($resource_id, false, true);
 $func->start();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //2nd param False - not a big file | 3rd param True - can delete working folder

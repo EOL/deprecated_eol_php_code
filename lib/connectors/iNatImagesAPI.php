@@ -22,7 +22,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         // $this->cache_path .= "/";
         
         $this->occurrence_gbifid_with_images = array();
-        $this->initial_image_limit = 150;
+        $this->initial_image_limit = 100; //150; //no score ranking, just plain get first 100 images per taon in iNat.
         // $this->download_options = array(
         //     'expire_seconds'     => 60*60*24*30, //expires in 1 month
         //     'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
@@ -81,18 +81,14 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
                     $k++;
                 }
             }
-            if(($i % 500000) == 0) echo "\n".number_format($i) . "[$path]". " [".count($this->occurrence_gbifid_with_images)."]";
+            if(($i % 500000) == 0) echo "\n".number_format($i) . "[$what][$path]". " [".count($this->occurrence_gbifid_with_images)."]";
             // /*
             
             $gbifid = $rec['gbifid'];
             if($what == 'occurrence') {
-                
                 /* debug
-                if($rec['gbifid'] == '1317202490') {
-                    print_r($rec); exit("\nstopx [$what]\n");
-                }
+                if($rec['gbifid'] == '1317202490') { print_r($rec); exit("\nstopx [$what]\n"); }
                 */
-                
                 @$this->debug['type'][$rec['type']]++; //= ''; //stats only
                 // $this->debug['mediatype'][$rec['mediatype']] = ''; //stats only
                 
@@ -141,21 +137,18 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
                 }
             }
             elseif($what == 'multimedia') { // print_r($rec); exit("\nstopx\n");
-                
                 // /* New solution:
                 if($rek_taxonID = @$this->occurrence_gbifid_with_images[$gbifid]) {
                     $md5_id = md5($rek_taxonID);
                     if($taxon_rek = $this->func->retrieve_json_obj($md5_id, false)) {} //2nd param false means returned value is an array()
                     else exit("\nThere should be cache at this point.\n");
                 }
-                else exit("\nThere should be cache rek_taxonID at this point.\n");
+                else exit("\nThere should be cache rek_taxonID at this point [$gbifid].\n");
                 // */
 
                 if(@$this->taxon_images_count[$rek_taxonID] > $this->initial_image_limit) continue;
                 
-                if($taxon_rek) {
-                    // print_r($rek); exit("\nditox na\n");
-                    
+                if($taxon_rek) { // print_r($taxon_rek); exit("\nditox na\n");
                     // /* debug only
                     if(!@$taxon_rek['sn']) {
                         print_r($taxon_rek); exit("\n no sn scientificname \n");
@@ -215,9 +208,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         return $taxonID;
     }
     private function write_media($rec, $taxonID, $rek)
-    {   /*Array multimedia.txt ( see inat_images.txt
-        )
-        */
+    {   /* Array multimedia.txt ( see inat_images.php ) */
         
         if(!self::valid_record($rec['title'], $rec['description'], $rec['source'])) return false;
 
