@@ -30,13 +30,13 @@ $ nohup php inat_images_select.php _ > terminal_inat_images_select.out
 For diagnostics:
     ps --help simple
     ps -r 
-    -> very helpful, if u want to delete current running process
+        -> very helpful, if u want to delete current running process
     cat terminal_inat_images_select.txt
-    -> to see progress, very convenient
+        -> to see progress, very convenient
     ps -p 17943
-    -> to investigate a running PID
+        -> to investigate a running PID
     cat /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
-    -> to monitor runtime
+        -> to monitor runtime
     ls /extra/other_files/iNat_image_DwCA/cache_image_score/
     find /extra/other_files/iNat_image_DwCA/cache_image_score/ -type f | wc -l
     kill -9 17943
