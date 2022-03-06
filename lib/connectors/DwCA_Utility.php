@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_91504/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_91504/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_01968/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_01968/'
         );
         */
         
@@ -160,6 +160,7 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             */
+            // if($this->resource_id == 'inat_images_100cap') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '368_cleaned_MoF') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->params['resource'] == "Deltas_4hashing") break; //all extensions will be processed elsewhere. debug only
             // if(in_array($this->resource_id, array('parent_BV_consolid8', 'TS_consolid8'))) break; //all extensions will be processed elsewhere. debug only, during dev only
