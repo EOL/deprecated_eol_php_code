@@ -35,7 +35,7 @@ For diagnostics:
     -> to see progress, very convenient
     ps -p 17943
     -> to investigate a running PID
-    $ cat /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
+    cat /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
     -> to monitor runtime
     ls /extra/other_files/iNat_image_DwCA/cache_image_score/
     find /extra/other_files/iNat_image_DwCA/cache_image_score/ -type f | wc -l
@@ -45,7 +45,7 @@ For diagnostics:
 $resource_id = 'inat_images'; //resource generated from inat_images.php
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
 // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz'; //during dev only
-$resource_id = 'inat_images_100cap'; //new resource
+$resource_id = 'inat_images_100cap'; //new resource --- currently running, caching image scores
 process_resource_url($dwca_file, $resource_id, $timestart);
 
 function process_resource_url($dwca_file, $resource_id, $timestart)
