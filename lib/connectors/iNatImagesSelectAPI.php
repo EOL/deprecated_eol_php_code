@@ -57,6 +57,21 @@ class iNatImagesSelectAPI
         $tbl = "http://eol.org/schema/media/document";
         self::process_table($tables[$tbl][0], 'get_total_images_count_per_taxon', $this->extensions[$tbl]);
         // print_r($this->total_images_per_taxon); //exit;
+        /* good stats
+        foreach($this->total_images_per_taxon as $taxonID => $total_images) {
+            if($total_images > 100) { @$more++; $ret[$taxonID] = ''; }
+            else { @$less++; $ret2[$taxonID] = ''; }
+        }
+        echo "\nmore than 100 images: [$more]\n";
+        echo "\ntaxonIDs: ".count($ret)."\n";
+        echo "\nless than 100 images: [$less]\n";
+        echo "\ntaxonIDs: ".count($ret2)."\n";
+        // exit("\n-end-\n");
+        more:       47489
+        taxonIDs:   47489
+        less:       242899
+        taxonIDs:   242899
+        */
         
         //step 2:
         $this->unique_ids = array();
@@ -222,8 +237,7 @@ class iNatImagesSelectAPI
     }
     private function compute_blurriness_score($url)
     {
-        if($target = self::download_image($url)) {
-            // echo "\ndownloaded: [$target]\n";
+        if($target = self::download_image($url)) { // echo "\ndownloaded: [$target]\n";
             $py_script = str_ireplace("/eol_images", "", $this->temp_image_repo);
             $py_script .= "detect_blur.py";
             $cmd = 'python '.$py_script.' --images '.$this->temp_image_repo.' --threshold 100'; //with or without threshold since we are just after the score
@@ -234,9 +248,7 @@ class iNatImagesSelectAPI
             unlink($target); //delete temp downloaded image e.g. 17796c5772dbfc3e53d48e881fbb3c1e.jpeg
             return $arr;
         }
-        else {
-            echo "\nCannot download [$url].\n";
-        }
+        else echo "\nCannot download [$url]. May need to report to iNaturalist\n";
     }
     private function download_image($url)
     {   //wget -nc https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /Volumes/AKiTiO4/other_files/bundle_images/xxx/740.027116-1.jpg
