@@ -34,8 +34,8 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         require_library('connectors/CacheMngtAPI');
         $this->func = new CacheMngtAPI($this->cache_path);
         // */
-        self::process_table('occurrence');
-        self::process_table('multimedia');
+        self::process_table('occurrence'); //1st step: basically caching taxon reks, to be used on 2nd step
+        self::process_table('multimedia'); //2nd step
         unset($this->occurrence_gbifid_with_images); //clear memory
         print_r($this->debug);
         $this->archive_builder->finalize(true);
@@ -128,11 +128,11 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
                         // print_r($rek); print_r($arr_rek); exit("\ntest...\n");  //just for testing
                     }
                     // */
-                    
-                    
-                    // [acceptedscientificname] => Hemicaranx amblyrhynchus (Cuvier, 1833)
-                    // [verbatimscientificname] => Hemicaranx amblyrhynchus
-                    // [license] => CC0_1_0
+                    /* copied template
+                    [acceptedscientificname] => Hemicaranx amblyrhynchus (Cuvier, 1833)
+                    [verbatimscientificname] => Hemicaranx amblyrhynchus
+                    [license] => CC0_1_0
+                    */
                     @$this->debug['license occurrence.txt'][$rec['license']]++; //= '';
                 }
             }
@@ -141,7 +141,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
                 if($rek_taxonID = @$this->occurrence_gbifid_with_images[$gbifid]) {
                     $md5_id = md5($rek_taxonID);
                     if($taxon_rek = $this->func->retrieve_json_obj($md5_id, false)) {} //2nd param false means returned value is an array()
-                    else exit("\nThere should be cache at this point.\n");
+                    else exit("\nThere should be cache at this point [$rek_taxonID].\n");
                 }
                 else exit("\nThere should be cache rek_taxonID at this point [$gbifid].\n");
                 // */
@@ -160,7 +160,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
                 else {
                     // /* good debug
                     print_r($rec);
-                    exit("\nshould not go here...\n");
+                    exit("\nshould not go here [$rek_taxonID]...\n");
                     // */
                 }
                 // if($i >= 100) break; //debug only
