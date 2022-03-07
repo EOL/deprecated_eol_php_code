@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_01968/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_01968/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_57604/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_57604/'
         );
         */
         
@@ -439,7 +439,11 @@ class DwCA_Utility
             $func = new iNatImagesSelectAPI($this->archive_builder, $this->resource_id, $this->archive_path);
             $func->start($info);
         }
-        
+        if(in_array($this->resource_id, array("wikidata_hierarchy"))) { //1st client is: wikidata_hierarchy
+            require_library('connectors/DwCA_AssignEOLidAPI');
+            $func = new DwCA_AssignEOLidAPI($this->archive_builder, $this->resource_id, $this->archive_path);
+            $func->start($info);
+        }
         // ================================= end of customization ================================= */ 
         
         $this->archive_builder->finalize(TRUE);
