@@ -92,7 +92,7 @@ class iNatImagesSelectAPI
         echo "\nprocess_table: [$what] [$meta->file_uri]...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) { $i++;
             if($what != "get_total_images_count_per_taxon") {
-                if(($i % 500) == 0) echo "\n".number_format($i). " [$what]";
+                if(($i % 10000) == 0) echo "\n".number_format($i). " [$what]";
             }
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
@@ -264,6 +264,7 @@ class iNatImagesSelectAPI
         $ext = pathinfo($url, PATHINFO_EXTENSION);
         if(!$ext) $ext = 'jpg';
         if($ext == "jpe") $ext = 'jpg';
+        if($ext == "txt") $ext = 'jpg';
         $target = $this->temp_image_repo.$filename.".".$ext;
         if(!file_exists($target) || filesize($target) == 0) {
             // sleep(1); //delay for 1 second
