@@ -67,10 +67,9 @@ class iNatImagesSelectAPI
         echo "\nless than 100 images: [$less]\n";
         echo "\ntaxonIDs: ".count($ret2)."\n";
         // exit("\n-end-\n");
-        more:       47489
-        taxonIDs:   47489
-        less:       242899
-        taxonIDs:   242899
+        // as of: 7-Mar-2022 - from 1st GBIF export
+        // more:       47489    // taxonIDs:   47489
+        // less:       242899   // taxonIDs:   242899
         */
         
         //step 2:
