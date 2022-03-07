@@ -122,7 +122,7 @@ class iNatImagesSelectAPI
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
                 @$this->running_taxon_images_count[$taxonID]++;
-                
+
                 if($this->total_images_per_taxon[$taxonID] > 100) { //many many images per taxon. Compute image score only for these images
                     // echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n"; //good debug
                     if($ret = self::get_blurriness_score($accessURI)) {
@@ -144,7 +144,7 @@ class iNatImagesSelectAPI
                     }
                 }
                 else { //taxon with few images. i.e. less than 100
-                    if($this->running_taxon_images_count[$taxonID] > $this->image_limit) continue;
+                    if($this->running_taxon_images_count[$taxonID] > $this->image_limit) continue; //seems like a redundant row
                 }
                 
                 // /* start saving
