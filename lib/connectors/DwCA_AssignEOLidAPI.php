@@ -62,7 +62,7 @@ class DwCA_AssignEOLidAPI
         echo "\nprocess_table: [$what] [$meta->file_uri]...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) { $i++;
             if($what != "get_total_images_count_per_taxon") {
-                if(($i % 10000) == 0) echo "\n".number_format($i). " [$what]";
+                if(($i % 100000) == 0) echo "\n".number_format($i). " [$what]";
             }
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
