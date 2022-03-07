@@ -77,6 +77,10 @@ class iNatImagesSelectAPI
         $this->unique_ids = array();
         $tbl = "http://eol.org/schema/media/document";
         self::process_table($tables[$tbl][0], 'select_100_images', $this->extensions[$tbl]);
+        
+        // /* only during caching of scores
+        exit; //no need to proceed during caching
+        // */
 
         //step 3: carry-over agent but only those actually used in media
         $this->unique_ids = array();
@@ -146,7 +150,11 @@ class iNatImagesSelectAPI
                 else { //taxon with few images. i.e. less than 100
                     if($this->running_taxon_images_count[$taxonID] > $this->image_limit) continue; //seems like a redundant row
                 }
-                
+
+                // /* only during caching of scores
+                continue; //no need to proceed during caching
+                // */
+
                 // /* start saving
                 $o = new \eol_schema\MediaResource();
                 $uris = array_keys($rec); // print_r($uris); //exit;
