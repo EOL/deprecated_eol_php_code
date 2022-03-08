@@ -11,6 +11,8 @@ wikidata-hierarchy	        Mon 2022-02-14 07:03:04 AM	{"taxon.tab":3350652, "tim
 wikidata-hierarchy-final	Mon 2022-02-14 08:48:27 AM	{"taxon.tab":3365214, "time_elapsed":{"sec":5338.23, "min":88.97, "hr":1.48}}
 Below here is after back and forth exchanges and adjustments: should be a good stable resource.
 wikidata-hierarchy-final	Sun 2022-02-20 11:51:15 PM	{"taxon.tab":3323627, "time_elapsed":{"sec":9562.62, "min":159.38, "hr":2.66}}
+Below is after adding EOLid, so as expected nos. shouldn't change
+wikidata_hierarchy	        Mon 2022-03-07 10:30:43 AM	{"taxon.tab":3323627, "time_elapsed":{"sec":1127.85, "min":18.8, "hr":0.31}}
 
 ------------------------------------ in command-line in eol-archive:
 IMPORTANT TO CD to: cd /var/www/html/eol_php_code/update_resources/connectors/
