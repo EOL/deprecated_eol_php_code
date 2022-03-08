@@ -36,9 +36,9 @@ if(in_array($resource_id, array("71", "15", "368_cleaned_MoF", "26_ENV_final", "
 else exit("\nNot yet initialized [$resource_id]\n");
 
 // /* customize
-if($resource_id == "368_cleaned_MoF") $resource_id = "368";
-if($resource_id == "26_ENV_final") $resource_id = "26";
-if($resource_id == "globi_associations_final") $resource_id = "globi_associations";
+if($resource_id == "368_cleaned_MoF")           $resource_id = "368";
+if($resource_id == "26_ENV_final")              $resource_id = "26";
+if($resource_id == "globi_associations_final")  $resource_id = "globi_associations";
 // */
 
 process_resource_url($dwca_file, $resource_id."_delta", $timestart, $param);

@@ -60,7 +60,7 @@ class DeltasHashIDsAPI
         elseif(in_array($this->resource_id, array("globi_associations_delta"))) { //Globi
             $this->unique_ids = array();
             $tbl = "http://eol.org/schema/reference/reference";
-            self::process_table($tables[$tbl][0], 'carry-over', $this->extensions[$tbl]); //plain carry-over
+            self::process_table($tables[$tbl][0], 'hash_identifiers', $this->extensions[$tbl]); //plain carry-over
 
             $this->unique_ids = array();
             $tbl = "http://rs.tdwg.org/dwc/terms/taxon";
@@ -267,6 +267,12 @@ class DeltasHashIDsAPI
                 if($class == "association")   $o = new \eol_schema\Association();
                 else exit("\nUndefined class 01 [$class]. Will terminate.\n");
 
+                // /*
+                if($old_referenceID = @$rec['http://eol.org/schema/reference/referenceID']) {
+                    if($new_referenceID = @$this->old_new_referenceID[$old_referenceID]) $rec['http://eol.org/schema/reference/referenceID'] = $new_referenceID
+                }
+                // */
+
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
                 foreach($uris as $uri) {
@@ -328,9 +334,15 @@ class DeltasHashIDsAPI
                 if    ($class == "vernacular")  $o = new \eol_schema\VernacularName();
                 elseif($class == "agent")       $o = new \eol_schema\Agent();
                 elseif($class == "reference")   $o = new \eol_schema\Reference();
-                elseif($class == "taxon")       $o = new \eol_schema\Taxon();
+                // elseif($class == "taxon")       $o = new \eol_schema\Taxon(); --- not yet used here
                 elseif($class == "document")    $o = new \eol_schema\MediaResource();
                 else exit("\nUndefined class 02 [$class]. Will terminate.\n");
+
+                // /*
+                if($class == "reference") {
+                    $old_identifier = $rec['http://purl.org/dc/terms/identifier'];
+                }
+                // */
 
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
@@ -343,6 +355,11 @@ class DeltasHashIDsAPI
                 if(!isset($this->unique_ids[$o->identifier])) {
                     $this->unique_ids[$o->identifier] = '';
                     $this->archive_builder->write_object_to_file($o);
+                    // /* for hashing in other tables
+                    if($class == "reference") {
+                        $this->old_new_referenceID[$old_identifier] = $o->identifier;
+                    }
+                    // */
                 }
             }
             elseif($what == 'carry-over') { //1st client is GloBi taxon.tab
@@ -352,6 +369,13 @@ class DeltasHashIDsAPI
                 elseif($class == "taxon")       $o = new \eol_schema\Taxon();
                 elseif($class == "document")    $o = new \eol_schema\MediaResource();
                 else exit("\nUndefined class 03 [$class]. Will terminate.\n");
+
+                // /*
+                if($old_referenceID = @$rec['http://eol.org/schema/reference/referenceID']) {
+                    if($new_referenceID = @$this->old_new_referenceID[$old_referenceID]) $rec['http://eol.org/schema/reference/referenceID'] = $new_referenceID
+                }
+                // */
+
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
                 foreach($uris as $uri) {
