@@ -269,7 +269,7 @@ class DeltasHashIDsAPI
 
                 // /*
                 if($old_referenceID = @$rec['http://eol.org/schema/reference/referenceID']) {
-                    if($new_referenceID = @$this->old_new_referenceID[$old_referenceID]) $rec['http://eol.org/schema/reference/referenceID'] = $new_referenceID
+                    if($new_referenceID = @$this->old_new_referenceID[$old_referenceID]) $rec['http://eol.org/schema/reference/referenceID'] = $new_referenceID;
                 }
                 // */
 
@@ -372,7 +372,7 @@ class DeltasHashIDsAPI
 
                 // /*
                 if($old_referenceID = @$rec['http://eol.org/schema/reference/referenceID']) {
-                    if($new_referenceID = @$this->old_new_referenceID[$old_referenceID]) $rec['http://eol.org/schema/reference/referenceID'] = $new_referenceID
+                    if($new_referenceID = @$this->old_new_referenceID[$old_referenceID]) $rec['http://eol.org/schema/reference/referenceID'] = $new_referenceID;
                 }
                 // */
 
