@@ -352,14 +352,16 @@ class DeltasHashIDsAPI
                     if($field != 'identifier') $row_str .= $rec[$uri]." | ";
                 }
                 $o->identifier = md5($row_str); //exit("\n[$row_str][$row_str]\n");
+                
+                // /* for storing hashed referenceID, to be used in other tables
+                if($class == "reference") {
+                    $this->old_new_referenceID[$old_identifier] = $o->identifier;
+                }
+                // */
+                
                 if(!isset($this->unique_ids[$o->identifier])) {
                     $this->unique_ids[$o->identifier] = '';
                     $this->archive_builder->write_object_to_file($o);
-                    // /* for hashing in other tables
-                    if($class == "reference") {
-                        $this->old_new_referenceID[$old_identifier] = $o->identifier;
-                    }
-                    // */
                 }
             }
             elseif($what == 'carry-over') { //1st client is GloBi taxon.tab
