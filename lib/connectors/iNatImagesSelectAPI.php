@@ -23,7 +23,8 @@ class iNatImagesSelectAPI
                                   "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
                                   "http://eol.org/schema/reference/reference"       => "reference"
                                   );
-        $this->image_limit = 100; //100 orig
+        $this->image_limit = 30; //100; //100 orig
+        $this->limit_2trigger_score_computation = 30; //100; orig
         if(Functions::is_production()) {
             $this->cache_path = '/extra/other_files/iNat_image_DwCA/cache_image_score/';
             // $this->temp_image_repo = "/html/eol_php_code/applications/blur_detection_opencv_eol/eol_images/";
@@ -126,7 +127,7 @@ class iNatImagesSelectAPI
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
                 @$this->running_taxon_images_count[$taxonID]++;
 
-                if($this->total_images_per_taxon[$taxonID] > 100) { //many many images per taxon. Compute image score only for these images
+                if($this->total_images_per_taxon[$taxonID] > $this->limit_2trigger_score_computation) { //many many images per taxon. Compute image score only for these images
                     // echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n"; //good debug
                     if($ret = self::get_blurriness_score($accessURI)) {
                         // print_r($ret);

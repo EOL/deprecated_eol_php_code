@@ -44,7 +44,8 @@ For diagnostics:
     kill -9 17943
 */
 
-$resource_id = 'inat_images'; //resource generated from inat_images.php
+$resource_id = 'inat_images';           //resource generated from inat_images.php (150 images per taxon)
+$resource_id = 'inat_images_40limit';   //resource generated from inat_images.php
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
 // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz'; //during dev only
 $resource_id = 'inat_images_100cap'; //new resource --- currently running, caching image scores
