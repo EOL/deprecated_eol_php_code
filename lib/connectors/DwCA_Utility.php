@@ -434,7 +434,7 @@ class DwCA_Utility
             $func = new DeltasHashIDsAPI($this->archive_builder, $this->resource_id, $this->archive_path);
             $func->start($info);
         }
-        if($this->resource_id == 'inat_images_100cap') {
+        if(in_array($this->resource_id, array('inat_images_100cap', 'inat_images_3Mcap'))) {
             require_library('connectors/iNatImagesSelectAPI');
             $func = new iNatImagesSelectAPI($this->archive_builder, $this->resource_id, $this->archive_path);
             $func->start($info);

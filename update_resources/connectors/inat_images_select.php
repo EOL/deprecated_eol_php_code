@@ -49,7 +49,7 @@ $resource_id = 'inat_images_40limit';   //resource generated from inat_images.ph
 $resource_id = 'inat_images_20limit';   //resource generated from inat_images.php --- media_resource.tab : 3292778
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
 // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz'; //during dev only
-$resource_id = 'inat_images_100cap'; //new resource --- currently running, caching image scores
+$resource_id = 'inat_images_100cap'; //new resource --- currently running, caching image scores --- did not materialize
 $resource_id = 'inat_images_3Mcap'; //new resource --- currently running, caching image scores
 
 process_resource_url($dwca_file, $resource_id, $timestart);
