@@ -30,6 +30,7 @@ inat_images	Thu 2022-03-03 07:23:52 AM	{"agent.tab":228535, "media_resource.tab"
 inat_images_100limit	Sun 2022-03-06 0{"agent.tab":194651, "media_resource.tab":8742707, "taxon.tab":290388, "time_elapsed":{"sec":26243.11, "min":437.39, "hr":7.29}}
 -> with 100 limit per taxon
 inat_images_75limit	Tue 2022-03-08 07:22{"agent.tab":172958, "media_resource.tab":7452488, "taxon.tab":290388, "time_elapsed":{"sec":41403.1, "min":690.05, "hr":11.5}}
+inat_images_40limit	Tue 2022-03-08 03:02{"agent.tab":133245, "media_resource.tab":5144786, "taxon.tab":290388, "time_elapsed":{"sec":26667.94, "min":444.47, "hr":7.41}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/iNatImagesAPI');
@@ -39,6 +40,7 @@ $resource_id = 'inat_images'; //being used currently, caching image scores
 $resource_id = 'inat_images_100limit'; //no score ranking, just use first 100 images per taxon in iNaturalist.
 $resource_id = 'inat_images_75limit'; //no score ranking, just use first 75 images per taxon in iNaturalist.
 $resource_id = 'inat_images_40limit'; //no score ranking, just use first 40 images per taxon in iNaturalist.
+$resource_id = 'inat_images_20limit'; //no score ranking, just use first 40 images per taxon in iNaturalist.
 
 $func = new iNatImagesAPI($resource_id, false, true);
 $func->start();
