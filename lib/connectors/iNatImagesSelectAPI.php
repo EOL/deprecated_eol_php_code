@@ -24,7 +24,7 @@ class iNatImagesSelectAPI
                                   "http://eol.org/schema/reference/reference"       => "reference"
                                   );
         $this->image_limit = 30; //100; //100 orig
-        $this->limit_2trigger_score_computation = 30; //100; orig
+        // $this->limit_2trigger_score_computation = 30; //100; orig --- during caching only
         if(Functions::is_production()) {
             $this->cache_path = '/extra/other_files/iNat_image_DwCA/cache_image_score/';
             // $this->temp_image_repo = "/html/eol_php_code/applications/blur_detection_opencv_eol/eol_images/";
@@ -53,11 +53,13 @@ class iNatImagesSelectAPI
         $this->func = new CacheMngtAPI($this->cache_path);
         // */
         
+        /* used during caching
         //step 1: get total images count per taxon
         $this->unique_ids = array();
         $tbl = "http://eol.org/schema/media/document";
         self::process_table($tables[$tbl][0], 'get_total_images_count_per_taxon', $this->extensions[$tbl]);
         // print_r($this->total_images_per_taxon); //exit;
+        */
         /* good stats
         foreach($this->total_images_per_taxon as $taxonID => $total_images) {
             if($total_images > 100) { @$more++; $ret[$taxonID] = ''; }
@@ -125,35 +127,40 @@ class iNatImagesSelectAPI
             if($what == 'select_100_images') {
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
-                @$this->running_taxon_images_count[$taxonID]++;
+                if(@$this->running_taxon_images_count[$taxonID] > $this->image_limit) continue;
 
-                if($this->total_images_per_taxon[$taxonID] > $this->limit_2trigger_score_computation) { //many many images per taxon. Compute image score only for these images
-                    // echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n"; //good debug
-                    if($ret = self::get_blurriness_score($accessURI)) {
-                        // print_r($ret);
-                        /*Array(
-                            [score] => 262.24131043428315
-                            [url] => https://inaturalist-open-data.s3.amazonaws.com/photos/119359998/original.jpg
-                        )*/
-                        if(!$ret['score']) {
-                            echo "\n-----------start\n"; print_r($ret);
-                            echo "\nblank score, will try again\n";
-                            $ret = self::get_blurriness_score($accessURI, true); //2nd param true means force compute of score
-                            print_r($ret); echo "\n-----------end\n";
-                        }
-                    }
-                    else { //cannot download image
-                        echo "\nWill ignore record, cannot download image.\n";
-                        continue;
-                    }
-                }
+                /* used during caching
+                if($this->total_images_per_taxon[$taxonID] > $this->limit_2trigger_score_computation) {} //many many images per taxon. Compute image score only for these images
                 else { //taxon with few images. i.e. less than 100
-                    if($this->running_taxon_images_count[$taxonID] > $this->image_limit) continue; //seems like a redundant row
                 }
-
-                // /* only during caching of scores
+                */
+                
+                // echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n"; //good debug
+                if($ret = self::get_blurriness_score($accessURI)) {
+                    // print_r($ret);
+                    /*Array(
+                        [score] => 262.24131043428315
+                        [url] => https://inaturalist-open-data.s3.amazonaws.com/photos/119359998/original.jpg
+                    )*/
+                    if(!$ret['score']) {
+                        echo "\n-----------start\n"; print_r($ret);
+                        echo "\nblank score, will try again\n";
+                        $ret = self::get_blurriness_score($accessURI, true); //2nd param true means force compute of score
+                        print_r($ret); echo "\n-----------end\n";
+                        if(!$ret['score']) continue;
+                    }
+                }
+                else { //cannot download image
+                    echo "\nWill ignore record, cannot download image.\n";
+                    continue;
+                }
+                
+                /* only during caching of scores
                 continue; //no need to proceed during caching
-                // */
+                */
+
+                if($ret['score'] < 1000) continue;
+                @$this->running_taxon_images_count[$taxonID]++;
 
                 // /* start saving
                 $o = new \eol_schema\MediaResource();
