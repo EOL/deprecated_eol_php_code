@@ -252,6 +252,7 @@ class iNatImagesSelectAPI
     private function compute_blurriness_score($url)
     {
         if($target = self::download_image($url)) { // echo "\ndownloaded: [$target]\n";
+            echo "-*-";
             $py_script = str_ireplace("/eol_images", "", $this->temp_image_repo);
             $py_script .= "detect_blur.py";
             $cmd = 'python '.$py_script.' --images '.$this->temp_image_repo.' --threshold 100'; //with or without threshold since we are just after the score
