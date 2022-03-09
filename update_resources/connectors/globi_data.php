@@ -66,6 +66,8 @@ First update for ver. 1.1:
 globi_associations	        Sat 2022-01-22 05:11:48 AM	{"association.tab":5601512, "occurrence_specific.tab":10229469, "reference.tab":5278334, "taxon.tab":346787, "time_elapsed":{"sec":13824.01, "min":230.4, "hr":3.84}}
 globi_associations_final	Sat 2022-01-22 08:49:32 AM	{"association.tab":5552473, "occurrence_specific.tab":10229340, "reference.tab":5278334, "taxon.tab":346787, "time_elapsed":{"sec":26887.33, "min":448.12, "hr":7.47}}
 globi_associations_delta	Mon 2022-02-28 09:46:12 AM	{"association.tab":5552473, "occurrence_specific.tab":10229340, "reference.tab":5278334, "taxon.tab":331234, "time_elapsed":{"sec":13951.76, "min":232.53, "hr":3.88}}
+below with hashed referenceID, and consequently made unique referenceID (OK stable)
+globi_associations_delta	Tue 2022-03-08 01:55:57 PM	{"association.tab":5552473, "occurrence_specific.tab":10229340, "reference.tab":5116596, "taxon.tab":331234, "time_elapsed":{"sec":15015.04, "min":250.25, "hr":4.17}}
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020
