@@ -80,9 +80,8 @@ class iNatImagesSelectAPI
         $tbl = "http://eol.org/schema/media/document";
         self::process_table($tables[$tbl][0], 'select_100_images', $this->extensions[$tbl]);
         
-        /* only during caching of scores
-        exit; //no need to proceed during caching
-        */
+        unset($this->total_images_per_taxon);
+        unset($this->running_taxon_images_count);
 
         //step 3: carry-over agent but only those actually used in media
         $this->unique_ids = array();
@@ -137,6 +136,7 @@ class iNatImagesSelectAPI
                 
                 if($this->total_images_per_taxon[$taxonID] <= $this->image_limit) {} //get all, no need to check score
                 else {
+                    exit("\ngoes here...\n");
                     // echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n"; //good debug
                     if($ret = self::get_blurriness_score($accessURI)) {
                         // print_r($ret);
