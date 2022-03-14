@@ -31,6 +31,10 @@ class DH_v21_TRAM_996
         $this->tsv['COL_2019_new'] = $this->main_path."/data/COL_2019_dwca/taxa_new.txt";
         $this->tsv['Collembola'] = $this->main_path."/data/col2020-08-01/taxa.txt";
         $this->tsv['Collembola_new'] = $this->main_path."/data/col2020-08-01/taxa_new.txt";
+
+        $this->tsv['synonyms_COL'] = $this->main_path."/synonyms_COL.txt";
+        $this->tsv['synonyms_Collembola'] = $this->main_path."/synonyms_Collembola.txt";
+        
         
         // if(file_exists($this->tsv['Collembola'])) exit("\nfile exists ok\n");
         // else exit("\nfile does not exist...\n");
@@ -45,7 +49,7 @@ class DH_v21_TRAM_996
                         [taxonrank] => species
                         [scientificname] => Vicia macrophylla (Maxim.)B.Fedtsch. */
 
-        self::parse_tsv($this->tsv['DH21_current'], 'check', false);
+        // self::parse_tsv($this->tsv['DH21_current'], 'check', false);
 
         /* step 1: run once only - DONE
         $head = array('partner', 'taxonID');
@@ -68,7 +72,7 @@ class DH_v21_TRAM_996
         $WRITE = fopen($this->tsv['Collembola_new'], "w"); fwrite($WRITE, $txt); fclose($WRITE);
         */
 
-        // /* step 2: assemble COL taxonIDs
+        /* step 2: assemble COL taxonIDs
         self::parse_tsv($this->tsv['COL_2019_new'], 'assemble_COL_info', false); //creates $this->COL_identifier_taxonID_info
         self::parse_tsv($this->tsv['Collembola_new'], 'assemble_COL_info2', false);  //creates $this->COL_identifier_taxonID_info2
 
@@ -76,8 +80,15 @@ class DH_v21_TRAM_996
         $WRITE = fopen($this->tsv['COL_taxonIDs'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
         self::parse_tsv($this->tsv['COL_identifiers'], 'get_COL_identifiers', $WRITE);
         print_r($this->debug);
+        */
+        
+        // /* step 3: assemble synonyms
+        self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs COL', false); //creates $this->COL_taxonIDs
+        self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs Collembola', false); //creates $this->Collembola_taxonIDs
 
-        // self::parse_tsv($this->tsv['COL_2019_new'], 'assemble_COL_taxonIDs', $WRITE);
+        $head = array('partner', 'identifier', 'taxonID', 'acceptedNameUsageID', 'scientificName', 'taxonomicStatus');
+        $WRITE = fopen($this->tsv['synonyms_COL'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
+        self::parse_tsv($this->tsv['COL_2019_new'], 'get_COL_synonyms', $WRITE);
         // */
     }
     private function parse_tsv($txtfile, $task, $WRITE = false)
@@ -150,86 +161,82 @@ class DH_v21_TRAM_996
             //==============================================================================
             if($task == 'get_COL_identifiers') {
                 $identifier = $rec['identifier'];
-                $taxonID = '';
+                $taxonID = ''; $partner = 'COL';
                     if($val = @$this->COL_identifier_taxonID_info[$identifier]) $taxonID = $val;
-                elseif($val = @$this->COL_identifier_taxonID_info2[$identifier]) $taxonID = $val;
+                elseif($val = @$this->COL_identifier_taxonID_info2[$identifier]) { $taxonID = $val; $partner = 'Collembola'; }
                 else $this->debug['dh21 col identifier not in col_2019'][$identifier] = '';
-                $arr = array('COL', $identifier, $taxonID);
+                $arr = array($partner, $identifier, $taxonID);
                 fwrite($WRITE, implode("\t", $arr)."\n");
             }
-            // [d9cc5b8d8808d74e0e4bc110aef446d5] => 
-            // [c0f7020382cb330d36dbdaed35bc32b1] => 
-            // [88f518a3595fbe1219895c14d4fbc767] => 
-            // [4a5b2858c4d97bd448583a92d314b7ba] => 
-            // [4e56347ff71a975e41b22879c09226b4] => 
-            // [f60b284d06256921a7c8cb2a5444f2ab] => 
-            // [65541be3e018d0cd9ae0b3e2bcffefa4] => 
-            
             //==============================================================================
-
-            /*
-            if($task == 'assemble_COL_taxonIDs') {
-                if($identifier = $rec['identifier']) { // print_r($rec);
-                    if(isset($this->COL_identifiers[$identifier])) {
-                        $taxonID = $rec['taxonID'];
-                        $arr = array('COL', $identifier, $taxonID);
-                        fwrite($WRITE, implode("\t", $arr)."\n");
-                        // echo "\nsaved OK";
-                    }
-                    // else {} --- DH21 COL record not found in COL_2009
+            if($task == 'get_COL_taxonIDs COL') { // print_r($rec); exit;
+                /*Array(
+                    [partner] => COL
+                    [identifier] => d3fe342a0f6ed9a8d6e8dd0fce2aad88
+                    [taxonID] => 54706559
+                )*/
+                if($rec['partner'] == 'COL') $this->COL_taxonIDs[$rec['taxonID']] = '';
+            }
+            if($task == 'get_COL_taxonIDs Collembola') { // print_r($rec); exit;
+                if($rec['partner'] == 'Collembola') $this->Collembola_taxonIDs[$rec['taxonID']] = '';
+            }
+            //==============================================================================
+            if($task == 'get_COL_synonyms') { //print_r($rec); exit;
+                $taxonomicStatus        = $rec['taxonomicStatus'];
+                $acceptedNameUsageID    = $rec['acceptedNameUsageID'];
+                if($taxonomicStatus == 'synonym' && isset($this->COL_taxonIDs[$acceptedNameUsageID])) { // print_r($rec); exit;
+                    /*Array(
+                        [taxonID] => 316502
+                        [identifier] => 
+                        [datasetID] => 26
+                        [datasetName] => ScaleNet in Species 2000 & ITIS Catalogue of Life: 2019
+                        [acceptedNameUsageID] => 316423
+                        [parentNameUsageID] => 
+                        [taxonomicStatus] => synonym
+                        [taxonRank] => species
+                        [verbatimTaxonRank] => 
+                        [scientificName] => Canceraspis brasiliensis Hempel, 1934
+                        [kingdom] => Animalia
+                        [phylum] => 
+                        [class] => 
+                        [order] => 
+                        [superfamily] => 
+                        [family] => 
+                        [genericName] => Canceraspis
+                        [genus] => Limacoccus
+                        [subgenus] => 
+                        [specificEpithet] => brasiliensis
+                        [infraspecificEpithet] => 
+                        [scientificNameAuthorship] => Hempel, 1934
+                        [source] => 
+                        [namePublishedIn] => 
+                        [nameAccordingTo] => 
+                        [modified] => 
+                        [description] => 
+                        [taxonConceptID] => 
+                        [scientificNameID] => Coc-100-7
+                        [references] => http://www.catalogueoflife.org/annual-checklist/2019/details/species/id/6a3ba2fef8659ce9708106356d875285/synonym/3eb3b75ad13a5d0fbd1b22fa1074adc0
+                        [isExtinct] => 
+                    )*/
+                    $ret = array();
+                    if(preg_match("synonym\/(.*?)eli3cha22/ims", $rec['references']."eli3cha22", $a)) $ret['source'] = "COL:".$a[1];
+                    $ret['furtherInformationURL'] = self::format_furtherInformationURL('COL', $rec);
+                    $ret['acceptedNameUsageID'] = $rec['acceptedNameUsageID'];
+                    $ret['scientificName'] = $rec['scientificName'];
+                    
                 }
             }
-            */
             //==============================================================================
-            //==============================================================================
-            
-            /*Array(
-                [﻿taxonid] => 54706559
-                [identifier] => d3fe342a0f6ed9a8d6e8dd0fce2aad88
-                [datasetid] => 53
-                [datasetname] => Nomen.eumycetozoa.com in Species 2000 & ITIS Catalogue of Life: 2019
-                [acceptednameusageid] => 
-                [parentnameusageid] => 54787264
-                [taxonomicstatus] => accepted name
-                [taxonrank] => species
-                [verbatimtaxonrank] => 
-                [scientificname] => Acytostelium aggregatum Cavender & Vadell, 2000
-                [kingdom] => Protozoa
-                [phylum] => Mycetozoa
-                [class] => Dictyosteliomycetes
-                [order] => Acytosteliales
-                [superfamily] => 
-                [family] => Acytosteliaceae
-                [genericname] => Acytostelium
-                [genus] => Acytostelium
-                [subgenus] => 
-                [specificepithet] => aggregatum
-                [infraspecificepithet] => 
-                [scientificnameauthorship] => Cavender & Vadell, 2000
-                [source] => 
-                [namepublishedin] => 
-                [nameaccordingto] => Lado,C.
-                [modified] => 2019-02-15
-                [description] => 
-                [taxonconceptid] => 
-                [scientificnameid] => Eum-1
-                [references] => http://www.catalogueoflife.org/annual-checklist/2019/details/species/id/d3fe342a0f6ed9a8d6e8dd0fce2aad88
-                [isextinct] => false
-            )*/
-            // if($rec['identifier'] == 'd3fe342a0f6ed9a8d6e8dd0fce2aad88') {
-            //     print_r($rec); exit("\nstopx\n");
-            // }
-            // if($rec['taxonomicstatus'] == 'synonym') {
-            //     print_r($rec); //exit("\nstopx\n");
-            // }
-            // if($rec['acceptednameusageid'] == '11472753') {
-            //     print_r($rec); //exit("\nstopx\n");
-            // }
-            
             
             
             
         } //end foreach()
         if(in_array($task, array('assemble_taxonIDs_from_source_col', 'assemble_COL_identifiers'))) fclose($WRITE);
     } // end parse_tsv()
+    private function format_furtherInformationURL($partner, $rec)
+    {
+        if($partner == 'COL') return $rec['references'];
+        elseif($partner == 'COL2') return "http://www.catalogueoflife.org/data/taxon/".$rec['taxonID'];
+        elseif(in_array($partner, array('ITIS', 'NCBI', 'ODO', 'WOR'))) return $rec['furtherInformationURL'];
+    }
 }
