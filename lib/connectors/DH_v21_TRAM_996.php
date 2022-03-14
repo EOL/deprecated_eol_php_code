@@ -223,7 +223,10 @@ class DH_v21_TRAM_996
                     $ret['furtherInformationURL'] = self::format_furtherInformationURL('COL', $rec);
                     $ret['acceptedNameUsageID'] = $rec['acceptedNameUsageID'];
                     $ret['scientificName'] = $rec['scientificName'];
-                    
+                    $ret['taxonRank'] = $rec['taxonRank'];
+                    $ret['taxonomicStatus'] = 'not accepted';
+                    $ret['datasetID'] = self::format_datasetID('COL', $rec);
+                    $ret['canonicalName'] = self::format_canonicalName('COL', $rec);
                 }
             }
             //==============================================================================
@@ -233,6 +236,20 @@ class DH_v21_TRAM_996
         } //end foreach()
         if(in_array($task, array('assemble_taxonIDs_from_source_col', 'assemble_COL_identifiers'))) fclose($WRITE);
     } // end parse_tsv()
+    private function format_canonicalName($partner, $rec)
+    {   /* canonicalName - Use the value from the canonicalName column for ITIS, 
+            use gnparser to generate canonical forms for synonyms from the other data sets. 
+            Use the full canonical form for taxa of rank subgenus, series, subseries, section, and subsection. 
+            Use the simple canonical form for all other taxa. For taxa that don't get parsed, leave the canonicalName blank. */
+        
+    }
+    private function format_datasetID($partner, $rec)
+    {
+        if(in_array($partner, array('ITIS', 'NCBI', 'ODO', 'WOR'))) return $partner;
+        elseif(in_array($partner, array('COL', 'COL2'))) {
+            if(is_numeric($rec['datasetID'])) return "$partner-".$rec['datasetID'];
+        }
+    }
     private function format_furtherInformationURL($partner, $rec)
     {
         if($partner == 'COL') return $rec['references'];
