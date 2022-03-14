@@ -86,6 +86,9 @@ class DH_v21_TRAM_996
         self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs COL', false); //creates $this->COL_taxonIDs
         self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs Collembola', false); //creates $this->Collembola_taxonIDs
 
+        require_library('connectors/FillUpMissingParentsAPI');
+        $this->func = new FillUpMissingParentsAPI(false, false, false);
+
         $head = array('partner', 'identifier', 'taxonID', 'acceptedNameUsageID', 'scientificName', 'taxonomicStatus');
         $WRITE = fopen($this->tsv['synonyms_COL'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
         self::parse_tsv($this->tsv['COL_2019_new'], 'get_COL_synonyms', $WRITE);
@@ -219,14 +222,14 @@ class DH_v21_TRAM_996
                         [isExtinct] => 
                     )*/
                     $ret = array();
-                    if(preg_match("synonym\/(.*?)eli3cha22/ims", $rec['references']."eli3cha22", $a)) $ret['source'] = "COL:".$a[1];
+                    if(preg_match("/synonym\/(.*?)eli3cha22/ims", $rec['references']."eli3cha22", $a)) $ret['source'] = "COL:".$a[1];
                     $ret['furtherInformationURL'] = self::format_furtherInformationURL('COL', $rec);
                     $ret['acceptedNameUsageID'] = $rec['acceptedNameUsageID'];
                     $ret['scientificName'] = $rec['scientificName'];
                     $ret['taxonRank'] = $rec['taxonRank'];
                     $ret['taxonomicStatus'] = 'not accepted';
                     $ret['datasetID'] = self::format_datasetID('COL', $rec);
-                    $ret['canonicalName'] = self::format_canonicalName('COL', $rec);
+                    $ret['canonicalName'] = self::format_canonicalName('COL', $rec, $ret['taxonRank']);
                 }
             }
             //==============================================================================
@@ -236,12 +239,18 @@ class DH_v21_TRAM_996
         } //end foreach()
         if(in_array($task, array('assemble_taxonIDs_from_source_col', 'assemble_COL_identifiers'))) fclose($WRITE);
     } // end parse_tsv()
-    private function format_canonicalName($partner, $rec)
+    private function format_canonicalName($partner, $rec, $taxonRank)
     {   /* canonicalName - Use the value from the canonicalName column for ITIS, 
             use gnparser to generate canonical forms for synonyms from the other data sets. 
             Use the full canonical form for taxa of rank subgenus, series, subseries, section, and subsection. 
             Use the simple canonical form for all other taxa. For taxa that don't get parsed, leave the canonicalName blank. */
         
+        if($partner == 'ITIS') return $rec['canonicalName'];
+        else {
+            $canonical = $this->func->add_cannocial_using_gnparser($rec['scientificName'], $taxonRank);
+            // exit("\n[$canonical]\n");
+            return $canonical;
+        }
     }
     private function format_datasetID($partner, $rec)
     {
