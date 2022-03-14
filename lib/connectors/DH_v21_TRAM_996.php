@@ -23,6 +23,8 @@ class DH_v21_TRAM_996
         $this->tsv['remappings_Katja'] = $this->main_path."/Katja/remappings.txt";
         */
         $this->tsv['DH21_current'] = $this->main_path."/data/dh2.1mar2022/taxon.tab";
+        $this->tsv['DH11'] = $this->main_path."/data/DH_v1_1/taxon.tab";
+        
         $this->tsv['taxonIDs_from_source_col'] = $this->main_path."/taxonIDs_from_source_col.txt";
         $this->tsv['COL_identifiers'] = $this->main_path."/COL_identifiers.txt";
         $this->tsv['COL_taxonIDs'] = $this->main_path."/COL_taxonIDs.txt";
@@ -82,19 +84,28 @@ class DH_v21_TRAM_996
         print_r($this->debug);
         */
         
-        // /* step 3: assemble synonyms
+        // /* step 3: assemble synonyms --- COL
         self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs COL', false); //creates $this->COL_taxonIDs
-        self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs Collembola', false); //creates $this->Collembola_taxonIDs
+        // self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs Collembola', false); //creates $this->Collembola_taxonIDs
 
         require_library('connectors/FillUpMissingParentsAPI');
         $this->func = new FillUpMissingParentsAPI(false, false, false);
 
-        $head = array('partner', 'identifier', 'taxonID', 'acceptedNameUsageID', 'scientificName', 'taxonomicStatus');
+        $head = array('z_partner', 'z_identifier');
+        $head = array_merge($head, array('taxonID', 'source', 'acceptedNameUsageID', 'scientificName', 'taxonRank', 'canonicalName', 'taxonomicStatus', 'furtherInformationURL', 'datasetID'));
+        $this->synonyms_headers = $head; // print_r($head); exit;
+        
         $WRITE = fopen($this->tsv['synonyms_COL'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
-        self::parse_tsv($this->tsv['COL_2019_new'], 'get_COL_synonyms', $WRITE);
+        self::parse_tsv($this->tsv['COL_2019_new'], 'get_COL_synonyms', $WRITE, 'COL');
         // */
+        
+        /* step 4: assemble synonyms --- COL Collembola
+        $WRITE = fopen($this->tsv['synonyms_Collembola'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
+        self::parse_tsv($this->tsv['Collembola_new'], 'get_Collembola_synonyms', $WRITE, 'COL');
+        */
+        
     }
-    private function parse_tsv($txtfile, $task, $WRITE = false)
+    private function parse_tsv($txtfile, $task, $WRITE = false, $partner = '')
     {   $i = 0; echo "\nStart $task...\n";
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 300000) == 0) echo "\n[$task] - ".number_format($i)." ";
@@ -181,13 +192,20 @@ class DH_v21_TRAM_996
                 if($rec['partner'] == 'COL') $this->COL_taxonIDs[$rec['taxonID']] = '';
             }
             if($task == 'get_COL_taxonIDs Collembola') { // print_r($rec); exit;
+                /*Array(
+                    [partner] => Collembola
+                    [identifier] => d3fe342a0f6ed9a8d6e8dd0fce2aad88
+                    [taxonID] => 54706559
+                )*/
                 if($rec['partner'] == 'Collembola') $this->Collembola_taxonIDs[$rec['taxonID']] = '';
             }
             //==============================================================================
             if($task == 'get_COL_synonyms') { //print_r($rec); exit;
                 $taxonomicStatus        = $rec['taxonomicStatus'];
                 $acceptedNameUsageID    = $rec['acceptedNameUsageID'];
-                if($taxonomicStatus == 'synonym' && isset($this->COL_taxonIDs[$acceptedNameUsageID])) { // print_r($rec); exit;
+                
+                $condition = $taxonomicStatus == 'synonym' && isset($this->COL_taxonIDs[$acceptedNameUsageID]);
+                if($condition) { // print_r($rec); exit;
                     /*Array(
                         [taxonID] => 316502
                         [identifier] => 
@@ -222,7 +240,8 @@ class DH_v21_TRAM_996
                         [isExtinct] => 
                     )*/
                     $ret = array();
-                    if(preg_match("/synonym\/(.*?)eli3cha22/ims", $rec['references']."eli3cha22", $a)) $ret['source'] = "COL:".$a[1];
+                    $ret['taxonID'] = self::format_taxonID('COL', $rec);
+                    $ret['source'] = self::format_source('COL', $rec);
                     $ret['furtherInformationURL'] = self::format_furtherInformationURL('COL', $rec);
                     $ret['acceptedNameUsageID'] = $rec['acceptedNameUsageID'];
                     $ret['scientificName'] = $rec['scientificName'];
@@ -234,11 +253,23 @@ class DH_v21_TRAM_996
             }
             //==============================================================================
             
-            
-            
         } //end foreach()
         if(in_array($task, array('assemble_taxonIDs_from_source_col', 'assemble_COL_identifiers'))) fclose($WRITE);
     } // end parse_tsv()
+    private function format_taxonID($partner, $rec)
+    {
+        
+    }
+    private function format_source($partner, $rec)
+    {
+        if(in_array($partner, array('COL2', 'ITIS', 'NCBI', 'ODO', 'WOR'))) {
+            
+        }
+        elseif($partner == 'COL') {
+            if(preg_match("/synonym\/(.*?)eli3cha22/ims", $rec['references']."eli3cha22", $a)) return "COL:".$a[1];
+        }
+        
+    }
     private function format_canonicalName($partner, $rec, $taxonRank)
     {   /* canonicalName - Use the value from the canonicalName column for ITIS, 
             use gnparser to generate canonical forms for synonyms from the other data sets. 
