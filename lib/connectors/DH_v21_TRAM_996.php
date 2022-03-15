@@ -15,14 +15,9 @@ class DH_v21_TRAM_996
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/TRAM-996/";
         }
-        /* copied template
-        $this->tsv['DH11_Jen'] = $this->main_path."/dh1_1/DH1_1working.txt";
-        $this->tsv['DH21_Jen'] = $this->main_path."/dh2_1/DH2_1working.txt";
-        $this->tsv['DH11'] = $this->main_path."/DH11_working_new.txt";
-        $this->tsv['DH21'] = $this->main_path."/DH21_working_new.txt";
-        $this->tsv['remappings_Katja'] = $this->main_path."/Katja/remappings.txt";
-        */
-        $this->tsv['DH21_current'] = $this->main_path."/data/dh2.1mar2022/taxon.tab";
+
+        $this->tsv['DH21_current_old'] = $this->main_path."/data/dh2.1mar2022/taxon.tab";
+        $this->tsv['DH21_current'] = $this->main_path."/data/dh2.1mar2022/taxon_new.tab";
         $this->tsv['DH11'] = $this->main_path."/data/DH_v1_1/taxon.tab";
         
         $this->tsv['taxonIDs_from_source_col'] = $this->main_path."/taxonIDs_from_source_col.txt";
@@ -52,6 +47,13 @@ class DH_v21_TRAM_996
                         [scientificname] => Vicia macrophylla (Maxim.)B.Fedtsch. */
 
         // self::parse_tsv($this->tsv['DH21_current'], 'check', false);
+
+        /* manual adjustment: https://eol-jira.bibalex.org/browse/TRAM-996?focusedCommentId=66739&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66739
+        $txt = file_get_contents($this->tsv['DH21_current_old']);
+        $txt = str_ireplace("65541be3e018d0cd9ae0b3e2bcffefa4", "34c3e147c24f44f17fce5e12d676970a", $txt);
+        $WRITE = fopen($this->tsv['DH21_current'], "w"); fwrite($WRITE, $txt); fclose($WRITE);
+        exit("\n-end-\n");
+        */
 
         /* step 1: run once only - DONE
         $head = array('partner', 'taxonID');
@@ -83,10 +85,6 @@ class DH_v21_TRAM_996
         self::parse_tsv($this->tsv['COL_identifiers'], 'get_COL_identifiers', $WRITE);
         print_r($this->debug);
         */
-        
-        // /* step 3: assemble synonyms --- COL
-        self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs COL', false); //creates $this->COL_taxonIDs
-        // self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs Collembola', false); //creates $this->Collembola_taxonIDs
 
         require_library('connectors/FillUpMissingParentsAPI');
         $this->func = new FillUpMissingParentsAPI(false, false, false);
@@ -95,11 +93,14 @@ class DH_v21_TRAM_996
         $head = array_merge($head, array('taxonID', 'source', 'acceptedNameUsageID', 'scientificName', 'taxonRank', 'canonicalName', 'taxonomicStatus', 'furtherInformationURL', 'datasetID'));
         $this->synonyms_headers = $head; // print_r($head); exit;
         
+        /* step 3: assemble synonyms --- COL
+        self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs COL', false); //creates $this->COL_taxonIDs
         $WRITE = fopen($this->tsv['synonyms_COL'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
         self::parse_tsv($this->tsv['COL_2019_new'], 'get_COL_synonyms', $WRITE, 'COL');
-        // */
+        */
         
         /* step 4: assemble synonyms --- COL Collembola
+        self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs Collembola', false); //creates $this->Collembola_taxonIDs
         $WRITE = fopen($this->tsv['synonyms_Collembola'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
         self::parse_tsv($this->tsv['Collembola_new'], 'get_Collembola_synonyms', $WRITE, 'COL');
         */
@@ -261,6 +262,70 @@ class DH_v21_TRAM_996
                 }
                 // if($i >= 10) break;
             }
+            //==============================================================================
+            if($task == 'get_Collembola_synonyms') { //print_r($rec); exit;
+                $taxonomicStatus        = $rec['taxonomicStatus'];
+                $acceptedNameUsageID    = $rec['acceptedNameUsageID'];
+                
+                $condition = $taxonomicStatus == 'synonym' && isset($this->Collembola_taxonIDs[$acceptedNameUsageID]);
+                if($condition) { //print_r($rec); exit;
+                    /*Array(
+                        [taxonID] => 3011910
+                        [identifier] => 
+                        [datasetID] => 1130
+                        [datasetName] => Collembola.org in Species 2000 & ITIS Catalogue of Life: 2020-08-01 Beta
+                        [acceptedNameUsageID] => 3009726
+                        [parentNameUsageID] => 
+                        [taxonomicStatus] => synonym
+                        [taxonRank] => species
+                        [verbatimTaxonRank] => 
+                        [scientificName] => Megalothorax bonetella Najt & Rapoport, 1965
+                        [kingdom] => Animalia
+                        [phylum] => 
+                        [class] => 
+                        [order] => 
+                        [superfamily] => 
+                        [family] => 
+                        [genericName] => Megalothorax
+                        [genus] => Megalothorax
+                        [subgenus] => 
+                        [specificEpithet] => bonetella
+                        [infraspecificEpithet] => 
+                        [scientificNameAuthorship] => Najt & Rapoport, 1965
+                        [source] => 
+                        [namePublishedIn] => 
+                        [nameAccordingTo] => 
+                        [modified] => 
+                        [description] => 
+                        [taxonConceptID] => 
+                        [scientificNameID] => eabaf608-344b-4ff9-ae96-86df83b0014c
+                        [references] => http://www.catalogueoflife.org/col/details/species/id/6e503f12ba03d36fb004aef898d6ff9e/synonym/8f40f23a98b9090e950f7218d7b1737f
+                        [isExtinct] => 
+                    )
+                    In [COL_taxonIDs.txt]: this is the accepted taxa list
+                    Collembola	6e503f12ba03d36fb004aef898d6ff9e	3009726
+                    */
+                    $ret = array();
+                    $ret['z_partner'] = 'COL';
+                    $ret['z_identifier'] = self::format_z_identifier('COL', $rec);
+                    $ret['taxonID'] = self::format_taxonID('COL', $rec);
+                    $ret['source'] = self::format_source('COL', $rec);
+                    $ret['furtherInformationURL'] = self::format_furtherInformationURL('COL', $rec);
+                    $ret['acceptedNameUsageID'] = $rec['acceptedNameUsageID'];
+                    $ret['scientificName'] = $rec['scientificName'];
+                    $ret['taxonRank'] = $rec['taxonRank'];
+                    $ret['taxonomicStatus'] = 'not accepted';
+                    $ret['datasetID'] = self::format_datasetID('COL', $rec);
+                    $ret['canonicalName'] = self::format_canonicalName('COL', $rec, $ret['taxonRank']);
+                    $save = array();
+                    foreach($this->synonyms_headers as $head) $save[] = $ret[$head];
+                    // print_r($save); print_r($this->synonyms_headers); exit;
+                    fwrite($WRITE, implode("\t", $save)."\n");
+                }
+                // if($i >= 10) break;
+            }
+            
+            //==============================================================================
             //==============================================================================
         } //end foreach()
         if(in_array($task, array('assemble_taxonIDs_from_source_col', 'assemble_COL_identifiers'))) fclose($WRITE);
