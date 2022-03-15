@@ -55,12 +55,12 @@ class DH_v21_TRAM_996
         exit("\n-end-\n");
         */
 
-        /* step 1: run once only - DONE
+        /* step 1: run once only - DONE --- COL2, ITIS, NCBI, ODO, WOR
         $head = array('partner', 'taxonID');
         $WRITE = fopen($this->tsv['taxonIDs_from_source_col'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
         self::parse_tsv($this->tsv['DH21_current'], 'assemble_taxonIDs_from_source_col', $WRITE);
 
-        $head = array('partner', 'identifier');
+        $head = array('partner', 'identifier'); --- COL
         $WRITE = fopen($this->tsv['COL_identifiers'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
         self::parse_tsv($this->tsv['DH21_current'], 'assemble_COL_identifiers', $WRITE);
         */
@@ -82,7 +82,7 @@ class DH_v21_TRAM_996
 
         $head = array('partner', 'identifier', 'taxonID');
         $WRITE = fopen($this->tsv['COL_taxonIDs'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
-        self::parse_tsv($this->tsv['COL_identifiers'], 'get_COL_identifiers', $WRITE);
+        self::parse_tsv($this->tsv['COL_identifiers'], 'generate_COL_taxonIDs', $WRITE);
         print_r($this->debug);
         */
 
@@ -174,7 +174,7 @@ class DH_v21_TRAM_996
                 $this->COL_identifier_taxonID_info2[$identifier] = $taxonID;
             }
             //==============================================================================
-            if($task == 'get_COL_identifiers') {
+            if($task == 'generate_COL_taxonIDs') {
                 $identifier = $rec['identifier'];
                 $taxonID = ''; $partner = 'COL';
                     if($val = @$this->COL_identifier_taxonID_info[$identifier]) $taxonID = $val;
