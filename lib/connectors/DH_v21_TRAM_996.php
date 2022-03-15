@@ -238,8 +238,13 @@ class DH_v21_TRAM_996
                         [scientificNameID] => Coc-100-7
                         [references] => http://www.catalogueoflife.org/annual-checklist/2019/details/species/id/6a3ba2fef8659ce9708106356d875285/synonym/3eb3b75ad13a5d0fbd1b22fa1074adc0
                         [isExtinct] => 
-                    )*/
+                    )
+                    In [COL_taxonIDs.txt]: this is the accepted taxa list
+                    COL	6a3ba2fef8659ce9708106356d875285	316423
+                    */
                     $ret = array();
+                    $ret['z_partner'] = 'COL';
+                    $ret['z_identifier'] = self::format_z_identifier('COL', $rec);
                     $ret['taxonID'] = self::format_taxonID('COL', $rec);
                     $ret['source'] = self::format_source('COL', $rec);
                     $ret['furtherInformationURL'] = self::format_furtherInformationURL('COL', $rec);
@@ -249,16 +254,26 @@ class DH_v21_TRAM_996
                     $ret['taxonomicStatus'] = 'not accepted';
                     $ret['datasetID'] = self::format_datasetID('COL', $rec);
                     $ret['canonicalName'] = self::format_canonicalName('COL', $rec, $ret['taxonRank']);
+                    $save = array();
+                    foreach($this->synonyms_headers as $head) $save[] = $ret[$head];
+                    // print_r($save); print_r($this->synonyms_headers); exit;
+                    fwrite($WRITE, implode("\t", $save)."\n");
                 }
+                // if($i >= 10) break;
             }
             //==============================================================================
-            
         } //end foreach()
         if(in_array($task, array('assemble_taxonIDs_from_source_col', 'assemble_COL_identifiers'))) fclose($WRITE);
     } // end parse_tsv()
     private function format_taxonID($partner, $rec)
     {
         
+    }
+    private function format_z_identifier($partner, $rec)
+    {
+        if($partner == 'COL') {
+            if(preg_match("/synonym\/(.*?)eli3cha22/ims", $rec['references']."eli3cha22", $a)) return $a[1];
+        }
     }
     private function format_source($partner, $rec)
     {
