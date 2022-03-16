@@ -119,6 +119,7 @@ class DH_v21_TRAM_996
             $WRITE = fopen($this->tsv['synonyms_'.$partner], "w"); fwrite($WRITE, implode("\t", $head)."\n");
             
             if($partner == 'COL2') $source_file = 'COL_2021';
+            else exit("\n$partner not yet initialized 01.\n");
             self::parse_tsv($this->tsv[$source_file], 'get_Partner_synonyms', $WRITE, $partner);
             
         }
@@ -395,7 +396,7 @@ class DH_v21_TRAM_996
                     $ret['canonicalName'] = self::format_canonicalName($partner, $rec, $ret['taxonRank']);
                     $save = array();
                     foreach($this->synonyms_headers as $head) $save[] = $ret[$head];
-                    print_r($save); print_r($this->synonyms_headers); exit;
+                    print_r($save); //print_r($this->synonyms_headers); exit;
                     fwrite($WRITE, implode("\t", $save)."\n");
                 }
                 // if($i >= 10) break;
