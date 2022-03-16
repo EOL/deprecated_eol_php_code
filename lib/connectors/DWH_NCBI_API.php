@@ -39,6 +39,12 @@ https://eol-jira.bibalex.org/browse/TRAM-796 NCBI Taxonomy Extract for Dynamic H
 https://eol-jira.bibalex.org/browse/TRAM-981 Revise connector for NCBI Taxonomy Harvest to filter out more surrogates
 https://eol-jira.bibalex.org/browse/TRAM-989 NCBI Extract for DH2
 ===========================================================
+
+Dump comes from: based on TRAM-795
+ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/        (for desktop access)
+https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/      (preferably for connector use)
+*Right now there is no auto-download of this dump
+
 */
 class DWH_NCBI_API
 {
@@ -55,6 +61,7 @@ class DWH_NCBI_API
         else                           $dump_path = '/Volumes/AKiTiO4/d_w_h/TRAM-795/';
         $date_folder = 'taxdump_2020_02_03';
         $date_folder = 'taxdump_2020_09_20';
+        $date_folder = 'taxdump_2022_03_16'; //latest
         $this->file['names.dmp']['path']     = $dump_path.$date_folder."/names.dmp";
         $this->file['nodes.dmp']['path']     = $dump_path.$date_folder."/nodes.dmp";
         $this->file['citations.dmp']['path'] = $dump_path.$date_folder."/citations.dmp";
