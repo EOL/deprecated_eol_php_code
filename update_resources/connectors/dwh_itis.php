@@ -31,6 +31,7 @@ itis_2020-12-01	Sun 2020-12-06 09:41:44 PM	{"taxon.tab":104571, "vernacular_name
 
 itis_2020-12-01	Wed 2021-01-27 06:27:52 PM	{"taxon.tab":110126, "vernacular_name.tab":15586, "time_elapsed":{"sec":176.86, "min":2.95, "hr":0.05}}
 itis_2020-12-01	Wed 2021-01-27 06:28:44 PM	{"taxon.tab":110126, "vernacular_name.tab":15586, "time_elapsed":false}
+itis_2022-02-28	Tue 2022-03-15 10:23:49 AM	{"taxon.tab":112109, "vernacular_name.tab":16175, "time_elapsed":{"sec":424.57, "min":7.08, "hr":0.12}}
 
 Reminders: what is in Jenkins eol-archive. Run one after the other, these 2 scripts:
 (1)
@@ -39,12 +40,12 @@ php5.6 dwh_itis.php jenkins
 php5.6 synonyms_handling.php jenkins itis_2019-08-28
 php5.6 synonyms_handling.php jenkins itis_2020-07-28 #TRAM-987
 php5.6 synonyms_handling.php jenkins itis_2020-12-01 #TRAM-987
+php5.6 synonyms_handling.php jenkins itis_2022-02-28
+
+synonyms_handling.php _ itis_2022-02-28
+
+
 */
-
-include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/DWH_ITIS_API');
-$timestart = time_elapsed();
-
 /*
 Note: Database download files are currently from the 25-Feb-2019 data load.
 Note: Database download files are currently from the 02-Dec-2020 data load.
@@ -62,17 +63,23 @@ IMPORTANT: Will also need to update
 - DwCA_Utility.php
 */
 
+include_once(dirname(__FILE__) . "/../../config/environment.php");
+require_library('connectors/DWH_ITIS_API');
+$timestart = time_elapsed();
+
 if(Functions::is_production()) $dwca_file = "https://www.itis.gov/downloads/itisMySQLTables.tar.gz";
 else {
     $dwca_file = "http://localhost/cp/ITIS_DWH/2019-02-25/itisMySQLTables.tar.gz";
     $dwca_file = "http://localhost/cp/ITIS_DWH/2020-07-28/itisMySQLTables.tar.gz";
     $dwca_file = "http://localhost/cp/ITIS_DWH/2020-12-01/itisMySQLTables.tar.gz";
+    $dwca_file = "http://localhost/cp/ITIS_DWH/2022-02-28/itisMySQLTables.tar.gz";
 }
 $resource_id = "itis_2019-02-25";
 $resource_id = "itis_2019-03-31";
 $resource_id = "itis_2019-08-28"; //run in Sep 27, 2019
 $resource_id = "itis_2020-07-28"; //TRAM-987
 $resource_id = "itis_2020-12-01"; //TRAM-987
+$resource_id = "itis_2022-02-28";
 
 // /* main operation
 $func = new DWH_ITIS_API($resource_id, $dwca_file);

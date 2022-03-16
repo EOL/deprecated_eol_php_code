@@ -155,6 +155,7 @@ class INBioAPI
         elseif(file_exists($temp_dir ."itisMySQL082819/". $check_file_or_folder_name)) return array('archive_path' => $temp_dir."itisMySQL082819/", 'temp_dir' => $temp_dir); //from ITIS downloads
         elseif(file_exists($temp_dir ."itisMySQL072820/". $check_file_or_folder_name)) return array('archive_path' => $temp_dir."itisMySQL072820/", 'temp_dir' => $temp_dir); //from ITIS downloads - TRAM-987
         elseif(file_exists($temp_dir ."itisMySQL120120/". $check_file_or_folder_name)) return array('archive_path' => $temp_dir."itisMySQL120120/", 'temp_dir' => $temp_dir); //from ITIS downloads - TRAM-987
+        elseif(file_exists($temp_dir ."itisMySQL022822/". $check_file_or_folder_name)) return array('archive_path' => $temp_dir."itisMySQL022822/", 'temp_dir' => $temp_dir); //from ITIS downloads - while doing TRAM-806
         else {
             echo "\n1. ".$temp_dir . $check_file_or_folder_name."\n";
             echo "\n2. ".$archive_path . "/" . $check_file_or_folder_name."\n";
