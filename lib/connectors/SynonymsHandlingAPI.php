@@ -81,6 +81,7 @@ class SynonymsHandlingAPI
                     $field = pathinfo($uri, PATHINFO_BASENAME);
                     $rec[$field] = $rec[$uri];
                 }
+                $this->debug['taxonomicStatus'][$rec['taxonomicStatus']] = '';
                 if(!($rec = self::is_valid_synonym_or_taxonYN($rec))) continue;
                 $rec = $orig_rec;
             }
