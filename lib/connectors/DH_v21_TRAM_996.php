@@ -32,12 +32,16 @@ class DH_v21_TRAM_996
         $this->tsv['synonyms_COL'] = $this->main_path."/synonyms_COL.txt";
         $this->tsv['synonyms_Collembola'] = $this->main_path."/synonyms_Collembola.txt";
         $this->tsv['synonyms_COL2'] = $this->main_path."/synonyms_COL2.txt";
+        $this->tsv['synonyms_ODO'] = $this->main_path."/synonyms_ODO.txt";
         
         /* start of COL2 and the rest */
         $this->tsv['COL_2021'] = $this->main_path."/data/COL_2021_dwca/Taxon.tsv";
         
         // if(file_exists($this->tsv['Collembola'])) exit("\nfile exists ok\n");
         // else exit("\nfile does not exist...\n");
+        
+        $this->tsv['WorldOdonataList'] = $this->main_path."/data/worldodonatalist/taxa.txt";
+        
         
     }
     function start()
@@ -111,6 +115,8 @@ class DH_v21_TRAM_996
         /* ======== start for COL2, ITIS, NCBI, ODO, WOR ======== */
         $partners = array('COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
         $partners = array('COL2'); //during dev only
+        $partners = array('ODO'); //during dev only
+        
         foreach($partners as $partner) {
             $this->Partner_taxonIDs = array();
             self::parse_tsv($this->tsv['taxonIDs_from_source_col'], 'get_taxonIDs_2process', false, $partner); //generate $this->Partner_taxonIDs
@@ -119,6 +125,8 @@ class DH_v21_TRAM_996
             $WRITE = fopen($this->tsv['synonyms_'.$partner], "w"); fwrite($WRITE, implode("\t", $head)."\n");
             
             if($partner == 'COL2') $source_file = 'COL_2021';
+            if($partner == 'ODO') $source_file = 'WorldOdonataList';
+            
             else exit("\n$partner not yet initialized 01.\n");
             self::parse_tsv($this->tsv[$source_file], 'get_Partner_synonyms', $WRITE, $partner);
             
@@ -356,12 +364,17 @@ class DH_v21_TRAM_996
             if($task == 'get_Partner_synonyms') { //print_r($rec); exit;
                 /**/
                 if($partner == 'COL2') $rec = self::rename_field_indexes($rec, $partner); //"dwc:taxonomicStatus" -> "taxonomicStatus"
-                else exit("\n[$partner] not yet initialized.\n");
+                elseif(in_array($partner, array('ODO'))) {} //no need to adjust field indexes
+                else exit("\n[$partner] not yet initialized 02.\n");
                 
                 $taxonomicStatus        = $rec['taxonomicStatus'];
                 $acceptedNameUsageID    = $rec['acceptedNameUsageID'];
                 
-                $condition = $taxonomicStatus == 'synonym' && isset($this->Partner_taxonIDs[$acceptedNameUsageID]);
+                if(in_array($partner, array('COL2', 'ODO'))) {
+                    $condition = $taxonomicStatus == 'synonym' && isset($this->Partner_taxonIDs[$acceptedNameUsageID]);
+                }
+                else exit("\n[$partner] not yet initialized 03.\n");
+                
                 if($condition) { //print_r($rec); exit;
                     /*Array(    --- COL2
                         [dwc:taxonID] => 4BP2T
@@ -381,7 +394,19 @@ class DH_v21_TRAM_996
                         [dwc:nomenclaturalStatus] => 
                         [dwc:taxonRemarks] => 
                         [dcterms:references] => 
-                    )*/
+                    )
+                    Array(    --- ODO
+                        [taxonID] => Heliocharitidae
+                        [acceptedNameUsageID] => Dicteriadidae
+                        [parentNameUsageID] => 
+                        [scientificName] => Heliocharitidae
+                        [taxonRank] => family
+                        [furtherInformationURL] => https://www.pugetsound.edu/academics/academic-resources/slater-museum/biodiversity-resources/dragonflies/world-odonata-list2/
+                        [taxonomicStatus] => synonym
+                        [taxonRemarks] => 
+                        [higherClassification] => 
+                    )
+                    */
                     $ret = array();
                     $ret['z_partner'] = $partner;
                     $ret['z_identifier'] = self::format_z_identifier($partner, $rec); //none for COL2
@@ -396,7 +421,7 @@ class DH_v21_TRAM_996
                     $ret['canonicalName'] = self::format_canonicalName($partner, $rec, $ret['taxonRank']);
                     $save = array();
                     foreach($this->synonyms_headers as $head) $save[] = $ret[$head];
-                    print_r($save); //print_r($this->synonyms_headers); exit;
+                    print_r($save); print_r($this->synonyms_headers); //print_r($rec); exit;
                     fwrite($WRITE, implode("\t", $save)."\n");
                 }
                 // if($i >= 10) break;
