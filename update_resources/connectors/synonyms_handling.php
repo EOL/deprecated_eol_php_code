@@ -3,13 +3,16 @@ namespace php_active_record;
 /* this script will update EOL DwCA and implement synonym handling suggested here: DATA-1822
 
 php update_resources/connectors/synonyms_handling.php _ itis_2019-08-28
-php synonyms_handling.php jenkins itis_2019-08-28
+                         php5.6 synonyms_handling.php jenkins itis_2019-08-28
 
 php update_resources/connectors/synonyms_handling.php _ itis_2020-07-28
-php synonyms_handling.php jenkins itis_2020-07-28
+                         php5.6 synonyms_handling.php jenkins itis_2020-07-28
+
+php update_resources/connectors/synonyms_handling.php _ itis_2022-02-28
+                         php5.6 synonyms_handling.php jenkins itis_2022-02-28
 
 php update_resources/connectors/synonyms_handling.php _ 368_final
-php synonyms_handling.php jenkins 368_final
+php5.6 synonyms_handling.php jenkins 368_final
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
