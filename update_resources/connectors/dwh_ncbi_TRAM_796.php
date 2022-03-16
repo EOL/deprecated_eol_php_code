@@ -15,6 +15,10 @@ with new more filters
 NCBI_Taxonomy_Harvest_no_vernaculars	Wed 2021-01-27 10:52:11 PM	{"reference.tab":50881, "taxon.tab":1635339, "time_elapsed":{"sec":1069.87, "min":17.83, "hr":0.3}}
 NCBI_Taxonomy_Harvest	                Wed 2021-01-27 11:10:58 PM	{"reference.tab":50881, "taxon.tab":1635339, "vernacular_name.tab":44046, "time_elapsed":{"sec":1076.39, "min":17.94, "hr":0.3}}
 NCBI_Taxonomy_Harvest_DH	            Wed 2021-01-27 11:14:39 PM	{"reference.tab":23683, "taxon.tab":115794, "time_elapsed":{"sec":169.7, "min":2.83, "hr":0.05}}
+
+NCBI_Taxonomy_Harvest_no_vernaculars	Wed 2022-03-16 04:58:30 AM	{"reference.tab":52183, "taxon.tab":1818407, "time_elapsed":{"sec":1258.7, "min":20.98, "hr":0.35}}
+NCBI_Taxonomy_Harvest	                Wed 2022-03-16 05:20:53 AM	{"reference.tab":52183, "taxon.tab":1818407, "vernacular_name.tab":44475, "time_elapsed":{"sec":1283.05, "min":21.38, "hr":0.36}}
+NCBI_Taxonomy_Harvest_DH	            Wed 2022-03-16 05:25:07 AM	{"reference.tab":23594, "taxon.tab":133416, "time_elapsed":{"sec":193.3, "min":3.22, "hr":0.05}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_NCBI_API');
