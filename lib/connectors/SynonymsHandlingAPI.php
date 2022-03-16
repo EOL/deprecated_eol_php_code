@@ -23,16 +23,19 @@ class SynonymsHandlingAPI
         }
         $temp = 'f.|form|forma|infraspecies|species|ssp|subform|subsp.|subspecies|subvariety|var.|varietas|variety';
         $this->species_ranks = explode('|', $temp);
+        $this->debug = array();
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function synonym_updates($info)
-    {   $tables = $info['harvester']->tables;
+    {   //exit("$this->resource_id elix");
+        $tables = $info['harvester']->tables;
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'build up taxonID_info');
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         
         if($this->resource_id == '368_final') { //bec. it "Allowed memory size of xxx bytes exhausted in DwCA_Utility.php"
             self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'MoF');
         }
+        print_r($this->debug);
     }
     private function process_taxon($meta, $purpose = '')
     {   //print_r($meta);
@@ -182,6 +185,13 @@ class SynonymsHandlingAPI
         if(@$rec['acceptedNameUsageID']) {
             if(!self::valid_statusYN($rec)) return true;
             else {
+                @$this->debug['with aID but has a valid status COUNT']++;
+                $this->debug['with aID but has a valid status'][$rec['taxonID']][$rec['acceptedNameUsageID']][$rec['taxonomicStatus']] = '';
+
+                // /* For ITIS, will set to synonym per Katja: https://eol-jira.bibalex.org/browse/TRAM-806?focusedCommentId=66744&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66744
+                if($this->resource_id == 'itis_2022-02-28') return true;
+                // */
+                
                 echo "\nInvestigate: with aID but has a valid status\n"; print_r($rec); exit;
             }
         }
