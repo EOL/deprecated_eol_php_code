@@ -5,7 +5,7 @@ Part of this connector was taken from CSV2DwCA_Utility.php
 */
 class DWH_ITIS_API
 {
-    function __construct($folder = NULL, $dwca_file = NULL)
+    function __construct($folder = NULL, $dwca_file = NULL, $allNodesYN)
     {
         if($folder) {
             $this->resource_id = $folder;
@@ -13,6 +13,7 @@ class DWH_ITIS_API
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
         $this->dwca_file = $dwca_file;
+        $this->allNodesYN = $allNodesYN;
         $this->debug = array();
         $this->for_mapping = array();
         
@@ -83,7 +84,8 @@ class DWH_ITIS_API
         exit("\n-end-\n"); //debug
         */
         
-        /* create Bacteria taxon entry - works OK but Bacteria is now removed in TRAM-987
+        /* Irregardless, this block not needed anymore since FileIterator() is now fixed. No more skipping first row.
+        create Bacteria taxon entry - works OK but Bacteria is now removed in TRAM-987
         $rec = array();
         $rec['taxonID'] = 50;
         $rec['furtherInformationURL'] = 'https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value='.$rec['taxonID'].'#null';
@@ -143,15 +145,17 @@ class DWH_ITIS_API
         $remove_ids = array_merge($unnamed_taxon_ind_Y, $children_of_unnamed);
         echo "\nIDs to be removed: "; print_r($remove_ids); //exit;
         
-        // /* new step: TRAM-987 include only allowed nodes and its children
-        // Hi Eli,
-        // Yes, we only want to harvest those branches and their children.  So the branches listed will be the root nodes in the resource file.
-        // Similar to what we did last time for the CLP resource.
-        // Thanks for checking, Katja
-        echo "\nGet all allowed nodes and its children...\n";
-        $this->allowed_IDs = self::get_allowed_IDs();
-        echo "\nAllowed IDs: ".count($this->allowed_IDs)."\n";
-        // */
+        if(!$this->allNodesYN) {
+            // /* new step: TRAM-987 include only allowed nodes and its children
+            // Hi Eli,
+            // Yes, we only want to harvest those branches and their children.  So the branches listed will be the root nodes in the resource file.
+            // Similar to what we did last time for the CLP resource.
+            // Thanks for checking, Katja
+            echo "\nGet all allowed nodes and its children...\n";
+            $this->allowed_IDs = self::get_allowed_IDs();
+            echo "\nAllowed IDs: ".count($this->allowed_IDs)."\n";
+            // */
+        }
         
         //step 3 create series of info_files
         self::process_file($info['archive_path'].'kingdoms', 'kingdoms');                   // print_r($this->info_kingdom); exit("\ncheck info_kingdom\n");
@@ -235,12 +239,14 @@ class DWH_ITIS_API
             $row = explode("|", $line);
             // print_r($row); exit;
             if(!$row) continue; //continue; or break; --- should work fine
-            $i++; if(($i % 100000) == 0) echo "\n $i ";
-            if($i == 1) {
+
+            if($i == 0) {
                 $fields = self::fill_up_blank_fieldnames($row); // print_r($fields);
                 $count = count($fields);
             }
-            else { //main records
+
+            $i++; if(($i % 100000) == 0) echo "\n $i ";
+            if($i > 0) { //main records
                 $values = $row;
                 $k = 0; $rec = array();
                 foreach($fields as $field) {
@@ -248,7 +254,7 @@ class DWH_ITIS_API
                     $k++;
                 }
                 $rec = array_map('trim', $rec); //important step
-                // print_r($rec); exit;
+                // print_r($rec); exit("\nexit 200\n");
                 
                 // /*
                 $rek = array();
@@ -284,12 +290,14 @@ class DWH_ITIS_API
             $row = explode("|", $line);
             // print_r($row); exit;
             if(!$row) continue; //continue; or break; --- should work fine
-            $i++; if(($i % 100000) == 0) echo "\n $i ";
-            if($i == 1) {
+
+            if($i == 0) {
                 $fields = self::fill_up_blank_fieldnames($row); // print_r($fields);
                 $count = count($fields);
             }
-            else { //main records
+
+            $i++; if(($i % 100000) == 0) echo "\n $i ";
+            if($i > 0) { //main records
                 $values = $row;
                 $k = 0; $rec = array();
                 foreach($fields as $field) {
@@ -297,7 +305,7 @@ class DWH_ITIS_API
                     $k++;
                 }
                 $rec = array_map('trim', $rec); //important step
-                // print_r($rec); exit;
+                // print_r($rec); exit("\nexit 100\n");
                 
                 if($what == 'unnamed_taxon_ind') {
                     $taxon_id = $rec['col_1'];
@@ -330,7 +338,9 @@ class DWH_ITIS_API
                     $rec['parentNameUsageID'] = $rec['col_18'];
                     
                     if(in_array($rec['taxonID'], $remove_ids)) continue;
-                    if(!isset($this->allowed_IDs[$rec['taxonID']])) continue;
+                    if(!$this->allNodesYN) {
+                        if(!isset($this->allowed_IDs[$rec['taxonID']])) continue;
+                    }
                     if(in_array($rec['taxonID'], $this->allowed_branches)) $rec['parentNameUsageID'] = ''; //these are roots so no parents
                     
                     if(in_array($rec['parentNameUsageID'], $remove_ids)) { //may not pass this line
@@ -344,7 +354,7 @@ class DWH_ITIS_API
 
                     $rec['furtherInformationURL'] = 'https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value='.$rec['col_1'].'#null';
                     $rec['taxonRemarks'] = $rec['col_12'];
-                    @$this->debug['taxonomicStatus'][$rec['col_25']] = '';
+                    @$this->debug['taxonomicStatus 2022'][$rec['col_25']] = '';
                     $rec['taxonomicStatus'] = $rec['col_25']; //values are valid, invalid, accepted, not accepted
                     $rec['scientificName'] = $rec['col_26'];
                     $rec['canonicalName'] = @$this->info_longnames[$rec['col_1']];
@@ -391,7 +401,9 @@ class DWH_ITIS_API
                 if($what == 'vernaculars') {
                     $rec['taxonID'] = $rec['col_1'];
                     if(in_array($rec['taxonID'], $remove_ids)) continue;
-                    if(!isset($this->allowed_IDs[$rec['taxonID']])) continue;
+                    if(!$this->allNodesYN) {
+                        if(!isset($this->allowed_IDs[$rec['taxonID']])) continue;
+                    }
                     $rec['vernacularName'] = $rec['col_2'];
                     $rec['language'] = @$this->info_vernacular[$rec['col_3']];
                     if($rec['col_3'] != 'unspecified') self::create_vernaculars($rec);

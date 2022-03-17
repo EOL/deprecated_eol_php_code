@@ -31,7 +31,12 @@ itis_2020-12-01	Sun 2020-12-06 09:41:44 PM	{"taxon.tab":104571, "vernacular_name
 
 itis_2020-12-01	Wed 2021-01-27 06:27:52 PM	{"taxon.tab":110126, "vernacular_name.tab":15586, "time_elapsed":{"sec":176.86, "min":2.95, "hr":0.05}}
 itis_2020-12-01	Wed 2021-01-27 06:28:44 PM	{"taxon.tab":110126, "vernacular_name.tab":15586, "time_elapsed":false}
+
 itis_2022-02-28	Tue 2022-03-15 10:23:49 AM	{"taxon.tab":112109, "vernacular_name.tab":16175, "time_elapsed":{"sec":424.57, "min":7.08, "hr":0.12}}
+eol-archive below
+itis_2022-02-28	Wed 2022-03-16 10:56:24 AM	{"taxon.tab":112109, "vernacular_name.tab":16175, "time_elapsed":{"sec":246.15, "min":4.1, "hr":0.07}}
+itis_2022-02-28	Wed 2022-03-16 10:57:20 AM	{"taxon.tab":112109, "vernacular_name.tab":16175, "time_elapsed":false}
+
 
 Reminders: what is in Jenkins eol-archive. Run one after the other, these 2 scripts:
 (1)
@@ -79,10 +84,16 @@ $resource_id = "itis_2019-03-31";
 $resource_id = "itis_2019-08-28"; //run in Sep 27, 2019
 $resource_id = "itis_2020-07-28"; //TRAM-987
 $resource_id = "itis_2020-12-01"; //TRAM-987
-$resource_id = "itis_2022-02-28";
+$resource_id = "itis_2022-02-28"; //set to get all nodes, to be used in TRAM-996
+
+// /* provision Mar 17, 2022: an option to run all existing nodes and those specific nodes listed from: TRAM-987
+$allNodesYN = false;    //default --- running for the longest time now
+if($resource_id == "itis_2022-02-28") $allNodesYN = true; //for TRAM-996: "Fetch synonyms from DH source data sets"
+if($allNodesYN) $resource_id .= "_all_nodes";
+// */
 
 // /* main operation
-$func = new DWH_ITIS_API($resource_id, $dwca_file);
+$func = new DWH_ITIS_API($resource_id, $dwca_file, $allNodesYN);
 $func->start(); //main operation
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param should be false so the folder in /resources/ won't be deleted.
                                                                            //it will be used in run_diagnostics()

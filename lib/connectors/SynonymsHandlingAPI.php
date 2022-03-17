@@ -1,14 +1,14 @@
 <?php
 namespace php_active_record;
 /* connector: [called from DwCA_Utility.php, which is called from synonyms_handling.php for DATA-1824] */
-class SynonymsHandlingAPI
+class SynonymsHandlingAPI //https://eol-jira.bibalex.org/browse/DATA-1822
 {
     function __construct($archive_builder, $resource_id)
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
         
-        if(in_array($resource_id, array('itis_2019-08-28', 'itis_2020-07-28', 'itis_2020-12-01', 'itis_2022-02-28'))) {
+        if(in_array($resource_id, array('itis_2019-08-28', 'itis_2020-07-28', 'itis_2020-12-01', 'itis_2022-02-28_all_nodes'))) {
             $this->valid_statuses = array('valid', 'accepted');
             $this->invalid_statuses = array('invalid', 'not accepted');
         }
@@ -190,7 +190,7 @@ class SynonymsHandlingAPI
                 $this->debug['with aID but has a valid status'][$rec['taxonID']][$rec['acceptedNameUsageID']][$rec['taxonomicStatus']] = '';
 
                 // /* For ITIS, will set to synonym per Katja: https://eol-jira.bibalex.org/browse/TRAM-806?focusedCommentId=66744&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66744
-                if($this->resource_id == 'itis_2022-02-28') return true;
+                if($this->resource_id == 'itis_2022-02-28_all_nodes') return true;
                 // */
                 
                 echo "\nInvestigate: with aID but has a valid status\n"; print_r($rec); exit;

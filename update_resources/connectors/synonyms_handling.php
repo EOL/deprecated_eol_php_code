@@ -8,8 +8,8 @@ php update_resources/connectors/synonyms_handling.php _ itis_2019-08-28
 php update_resources/connectors/synonyms_handling.php _ itis_2020-07-28
                          php5.6 synonyms_handling.php jenkins itis_2020-07-28
 
-php update_resources/connectors/synonyms_handling.php _ itis_2022-02-28
-                         php5.6 synonyms_handling.php jenkins itis_2022-02-28
+php update_resources/connectors/synonyms_handling.php _ itis_2022-02-28_all_nodes
+                         php5.6 synonyms_handling.php jenkins itis_2022-02-28_all_nodes
 
 php update_resources/connectors/synonyms_handling.php _ 368_final
 php5.6 synonyms_handling.php jenkins 368_final
@@ -28,26 +28,29 @@ if($resource_id = @$params['resource_id']) {}
 else exit("\nERROR: No resource_id.\n");
 
 if(Functions::is_production()) {
+    $info[$resource_id] = array('dwca_file' => "https://editors.eol.org/eol_php_code/applications/content_server/resources/".$resource_id.".tar.gz");
+    // -> above line is default, should go first
     $info['itis_2019-08-28'] = array('dwca_file' => 'https://editors.eol.org/eol_php_code/applications/content_server/resources/itis_2019-08-28.tar.gz');
     $info['itis_2020-07-28'] = array('dwca_file' => 'https://editors.eol.org/eol_php_code/applications/content_server/resources/itis_2020-07-28.tar.gz');
     $info['itis_2020-12-01'] = array('dwca_file' => 'https://editors.eol.org/eol_php_code/applications/content_server/resources/itis_2020-12-01.tar.gz');
-    $info['itis_2022-02-28'] = array('dwca_file' => 'https://editors.eol.org/eol_php_code/applications/content_server/resources/itis_2022-02-28.tar.gz');
     $info['368_final'] = array('dwca_file' => 'https://editors.eol.org/eol_php_code/applications/content_server/resources/368_removed_aves.tar.gz');
 }
 else {
+    $info[$resource_id] = array('dwca_file' => "http://localhost/eol_php_code/applications/content_server/resources/".$resource_id.".tar.gz");
+    // -> above line is default, should go first
     $info['itis_2019-08-28'] = array('dwca_file' => 'http://localhost/eol_php_code/applications/content_server/resources_2/itis_2019-08-28.tar.gz');
     $info['itis_2020-07-28'] = array('dwca_file' => 'http://localhost/eol_php_code/applications/content_server/resources/itis_2020-07-28.tar.gz');
     $info['itis_2020-12-01'] = array('dwca_file' => 'http://localhost/eol_php_code/applications/content_server/resources/itis_2020-12-01.tar.gz');
-    $info['itis_2022-02-28'] = array('dwca_file' => 'http://localhost/eol_php_code/applications/content_server/resources/itis_2022-02-28.tar.gz');
     $info['368_final'] = array('dwca_file' => 'http://localhost/eol_php_code/applications/content_server/resources_2/368_removed_aves.tar.gz');
 }
-$info['itis_2019-08-28']['preferred_rowtypes'] = array('http://rs.gbif.org/terms/1.0/vernacularname');
-$info['itis_2020-07-28']['preferred_rowtypes'] = array('http://rs.gbif.org/terms/1.0/vernacularname');
-$info['itis_2020-12-01']['preferred_rowtypes'] = array('http://rs.gbif.org/terms/1.0/vernacularname');
-$info['itis_2022-02-28']['preferred_rowtypes'] = array('http://rs.gbif.org/terms/1.0/vernacularname');
 
+// /* customize here:
+$info['itis_2019-08-28']['preferred_rowtypes']           = array('http://rs.gbif.org/terms/1.0/vernacularname');
+$info['itis_2020-07-28']['preferred_rowtypes']           = array('http://rs.gbif.org/terms/1.0/vernacularname');
+$info['itis_2020-12-01']['preferred_rowtypes']           = array('http://rs.gbif.org/terms/1.0/vernacularname');
+$info['itis_2022-02-28_all_nodes']['preferred_rowtypes'] = array('http://rs.gbif.org/terms/1.0/vernacularname');
 $info['368_final']['preferred_rowtypes'] = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.gbif.org/terms/1.0/vernacularname');
-
+// */
 
 if(!@$info[$resource_id]) exit("\nERROR: resource_id not initialized.\n");
 $dwca_file          = $info[$resource_id]['dwca_file'];
