@@ -32,10 +32,12 @@ itis_2020-12-01	Sun 2020-12-06 09:41:44 PM	{"taxon.tab":104571, "vernacular_name
 itis_2020-12-01	Wed 2021-01-27 06:27:52 PM	{"taxon.tab":110126, "vernacular_name.tab":15586, "time_elapsed":{"sec":176.86, "min":2.95, "hr":0.05}}
 itis_2020-12-01	Wed 2021-01-27 06:28:44 PM	{"taxon.tab":110126, "vernacular_name.tab":15586, "time_elapsed":false}
 
-below acceptable nos. from Mac Mini
+below acceptable nos. from Mac Mini:
 itis_2022-02-28_all_nodes	Thu 2022-03-17 12:41:18 AM	{"taxon.tab":885381, "vernacular_name.tab":120365, "time_elapsed":{"sec":618.69, "min":10.31, "hr":0.17}}
 itis_2022-02-28_all_nodes	Thu 2022-03-17 12:54:13 AM	{"taxon.tab":883294, "vernacular_name.tab":120365, "time_elapsed":false}
-
+from eol-archive:
+itis_2022-02-28_all_nodes	Thu 2022-03-17 01:23:39 AM	{"taxon.tab":885381, "vernacular_name.tab":120365, "time_elapsed":{"sec":457.63, "min":7.63, "hr":0.13}}
+itis_2022-02-28_all_nodes	Thu 2022-03-17 01:30:32 AM	{"taxon.tab":883294, "vernacular_name.tab":120365, "time_elapsed":false}
 
 Reminders: what is in Jenkins eol-archive. Run one after the other, these 2 scripts:
 (1)

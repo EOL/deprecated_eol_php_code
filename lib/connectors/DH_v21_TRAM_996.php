@@ -35,6 +35,7 @@ class DH_v21_TRAM_996
         $this->tsv['synonyms_ODO'] = $this->main_path."/synonyms_ODO.txt";
         $this->tsv['synonyms_NCBI'] = $this->main_path."/synonyms_NCBI.txt";
         $this->tsv['synonyms_WOR'] = $this->main_path."/synonyms_WOR.txt";
+        $this->tsv['synonyms_ITIS'] = $this->main_path."/synonyms_ITIS.txt";
         
         /* start of COL2 and the rest */
         $this->tsv['COL_2021'] = $this->main_path."/data/COL_2021_dwca/Taxon.tsv";
@@ -53,6 +54,14 @@ class DH_v21_TRAM_996
         // /*
         $this->tsv['WOR_source'] = $this->main_path."/data/WoRMS2EoL/taxon.txt";
         // from partner: http://www.marinespecies.org/export/eol/WoRMS2EoL.zip
+        // */
+        
+        // /*
+        $this->tsv['ITIS_source'] = $this->main_path."/data/itis_2022-02-28_all_nodes/taxon.tab";
+        // php5.6 dwh_itis.php jenkins '{"allNodesYN":"1", "resource_id":"itis_2022-02-28"}'
+        // -> generates itis_2022-02-28_all_nodes.tar.gz
+        // php5.6 synonyms_handling.php jenkins itis_2022-02-28_all_nodes
+        // -> generates itis_2022-02-28_all_nodes.tar.gz (smaller size)
         // */
         
     }
@@ -130,7 +139,7 @@ class DH_v21_TRAM_996
         $partners = array('ODO'); //during dev only
         $partners = array('NCBI'); //during dev only
         $partners = array('WOR'); //during dev only
-        
+        $partners = array('ITIS'); //during dev only
         foreach($partners as $partner) {
             $this->Partner_taxonIDs = array();
             self::parse_tsv($this->tsv['taxonIDs_from_source_col'], 'get_taxonIDs_2process', false, $partner); //generate $this->Partner_taxonIDs
@@ -142,6 +151,7 @@ class DH_v21_TRAM_996
             elseif($partner == 'ODO')  $source_file = 'WorldOdonataList';
             elseif($partner == 'NCBI') $source_file = 'NCBI_source';
             elseif($partner == 'WOR')  $source_file = 'WOR_source';
+            elseif($partner == 'ITIS')  $source_file = 'ITIS_source';
             else exit("\n$partner not yet initialized 01.\n");
             
             self::parse_tsv($this->tsv[$source_file], 'get_Partner_synonyms', $WRITE, $partner);
@@ -379,7 +389,7 @@ class DH_v21_TRAM_996
             if($task == 'get_Partner_synonyms') { //print_r($rec); exit;
                 /**/
                 if($partner == 'COL2') $rec = self::rename_field_indexes($rec, $partner); //"dwc:taxonomicStatus" -> "taxonomicStatus"
-                elseif(in_array($partner, array('ODO', 'NCBI', 'WOR'))) {} //no need to adjust field indexes
+                elseif(in_array($partner, array('ODO', 'NCBI', 'WOR', 'ITIS'))) {} //no need to adjust field indexes
                 else exit("\n[$partner] not yet initialized 02.\n");
                 
                 $taxonomicStatus        = $rec['taxonomicStatus'];
@@ -391,9 +401,17 @@ class DH_v21_TRAM_996
                 elseif(in_array($partner, array('WOR'))) {
                     $condition = $taxonomicStatus == 'unaccepted' && isset($this->Partner_taxonIDs[$acceptedNameUsageID]);
                 }
+                elseif(in_array($partner, array('ITIS'))) {
+                    $condition = in_array($taxonomicStatus, array('invalid', 'not accepted')) && isset($this->Partner_taxonIDs[$acceptedNameUsageID]);
+                }
                 else exit("\n[$partner] not yet initialized 03.\n");
                 
-                if($condition) { //print_r($rec); //exit("\nfound...\n");
+                /*
+                ITIS: Fetch taxa where taxonomicStatus is “invalid” OR “not accepted” and the acceptedNameUsageID points to an ITIS DH 2.1 taxon.
+                Please run the ITIS hierarchy connector (TRAM-806) to get the latest version of the resource and then get the synonyms from that.
+                */
+                
+                if($condition) { print_r($rec); //exit("\nfound...\n");
                     if($partner == 'WOR') {
                         $json = json_encode($rec);
                         $json = str_replace("urn:lsid:marinespecies.org:taxname:", "", $json);
@@ -460,6 +478,18 @@ class DH_v21_TRAM_996
                         [rights] => 
                         [rightsHolder] => 
                         [datasetName] => 
+                    )
+                    Array(  --- ITIS
+                        [taxonID] => 14195
+                        [furtherInformationURL] => https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=14195#null
+                        [acceptedNameUsageID] => 846123
+                        [parentNameUsageID] => 
+                        [scientificName] => Hepaticopsida
+                        [taxonRank] => class
+                        [scientificNameAuthorship] => 
+                        [taxonomicStatus] => not accepted
+                        [taxonRemarks] => other, see comments
+                        [canonicalName] => Hepaticopsida
                     )*/
                     $ret = array();
                     $ret['z_partner'] = $partner;
