@@ -32,23 +32,27 @@ itis_2020-12-01	Sun 2020-12-06 09:41:44 PM	{"taxon.tab":104571, "vernacular_name
 itis_2020-12-01	Wed 2021-01-27 06:27:52 PM	{"taxon.tab":110126, "vernacular_name.tab":15586, "time_elapsed":{"sec":176.86, "min":2.95, "hr":0.05}}
 itis_2020-12-01	Wed 2021-01-27 06:28:44 PM	{"taxon.tab":110126, "vernacular_name.tab":15586, "time_elapsed":false}
 
-itis_2022-02-28	Tue 2022-03-15 10:23:49 AM	{"taxon.tab":112109, "vernacular_name.tab":16175, "time_elapsed":{"sec":424.57, "min":7.08, "hr":0.12}}
-eol-archive below
-itis_2022-02-28	Wed 2022-03-16 10:56:24 AM	{"taxon.tab":112109, "vernacular_name.tab":16175, "time_elapsed":{"sec":246.15, "min":4.1, "hr":0.07}}
-itis_2022-02-28	Wed 2022-03-16 10:57:20 AM	{"taxon.tab":112109, "vernacular_name.tab":16175, "time_elapsed":false}
+below acceptable nos. from Mac Mini
+itis_2022-02-28_all_nodes	Thu 2022-03-17 12:41:18 AM	{"taxon.tab":885381, "vernacular_name.tab":120365, "time_elapsed":{"sec":618.69, "min":10.31, "hr":0.17}}
+itis_2022-02-28_all_nodes	Thu 2022-03-17 12:54:13 AM	{"taxon.tab":883294, "vernacular_name.tab":120365, "time_elapsed":false}
 
 
 Reminders: what is in Jenkins eol-archive. Run one after the other, these 2 scripts:
 (1)
-php5.6 dwh_itis.php jenkins
+php5.6 dwh_itis.php jenkins '{"allNodesYN":"0", "resource_id":"itis_2020-07-28"}'
+php5.6 dwh_itis.php jenkins '{"allNodesYN":"0", "resource_id":"itis_2020-12-01"}'
+php5.6 dwh_itis.php jenkins '{"allNodesYN":"1", "resource_id":"itis_2022-02-28"}'
+
+php update_resources/connectors/dwh_itis.php _ '{"allNodesYN":"0", "resource_id":"itis_2020-07-28"}'
+php update_resources/connectors/dwh_itis.php _ '{"allNodesYN":"0", "resource_id":"itis_2020-12-01"}'
+php update_resources/connectors/dwh_itis.php _ '{"allNodesYN":"1", "resource_id":"itis_2022-02-28"}'
+
 (2) where date changes
 php5.6 synonyms_handling.php jenkins itis_2019-08-28
-php5.6 synonyms_handling.php jenkins itis_2020-07-28 #TRAM-987
-php5.6 synonyms_handling.php jenkins itis_2020-12-01 #TRAM-987
-php5.6 synonyms_handling.php jenkins itis_2022-02-28
-
-synonyms_handling.php _ itis_2022-02-28
-
+php5.6 synonyms_handling.php jenkins itis_2020-07-28                #TRAM-987
+php5.6 synonyms_handling.php jenkins itis_2020-12-01                #TRAM-987
+php5.6 synonyms_handling.php jenkins itis_2022-02-28_all_nodes      #TRAM-996 DH21 synonyms
+       synonyms_handling.php _ itis_2022-02-28_all_nodes
 
 */
 /*
@@ -72,23 +76,28 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_ITIS_API');
 $timestart = time_elapsed();
 
+// print_r($argv);
+$params['jenkins_or_cron'] = @$argv[1]; //not needed here
+$param                     = json_decode(@$argv[2], true);
+$resource_id = $param['resource_id'];
+$allNodesYN = $param['allNodesYN'];
+
 if(Functions::is_production()) $dwca_file = "https://www.itis.gov/downloads/itisMySQLTables.tar.gz";
-else {
+else { // to be manually filled on-demand
     $dwca_file = "http://localhost/cp/ITIS_DWH/2019-02-25/itisMySQLTables.tar.gz";
     $dwca_file = "http://localhost/cp/ITIS_DWH/2020-07-28/itisMySQLTables.tar.gz";
     $dwca_file = "http://localhost/cp/ITIS_DWH/2020-12-01/itisMySQLTables.tar.gz";
     $dwca_file = "http://localhost/cp/ITIS_DWH/2022-02-28/itisMySQLTables.tar.gz";
 }
+/* old implementation
 $resource_id = "itis_2019-02-25";
 $resource_id = "itis_2019-03-31";
 $resource_id = "itis_2019-08-28"; //run in Sep 27, 2019
 $resource_id = "itis_2020-07-28"; //TRAM-987
 $resource_id = "itis_2020-12-01"; //TRAM-987
-$resource_id = "itis_2022-02-28"; //set to get all nodes, to be used in TRAM-996
+*/
 
 // /* provision Mar 17, 2022: an option to run all existing nodes and those specific nodes listed from: TRAM-987
-$allNodesYN = false;    //default --- running for the longest time now
-if($resource_id == "itis_2022-02-28") $allNodesYN = true; //for TRAM-996: "Fetch synonyms from DH source data sets"
 if($allNodesYN) $resource_id .= "_all_nodes";
 // */
 
