@@ -7,7 +7,7 @@ class SynonymsHandlingAPI //https://eol-jira.bibalex.org/browse/DATA-1822
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
-        
+        // /* customize here:
         if(in_array($resource_id, array('itis_2019-08-28', 'itis_2020-07-28', 'itis_2020-12-01', 'itis_2022-02-28_all_nodes'))) {
             $this->valid_statuses = array('valid', 'accepted');
             $this->invalid_statuses = array('invalid', 'not accepted');
@@ -21,6 +21,7 @@ class SynonymsHandlingAPI //https://eol-jira.bibalex.org/browse/DATA-1822
             $this->valid_statuses = array('valid', 'accepted');
             $this->invalid_statuses = array('invalid', 'not accepted', 'synonym');
         }
+        // */
         $temp = 'f.|form|forma|infraspecies|species|ssp|subform|subsp.|subspecies|subvariety|var.|varietas|variety';
         $this->species_ranks = explode('|', $temp);
         $this->debug = array();
