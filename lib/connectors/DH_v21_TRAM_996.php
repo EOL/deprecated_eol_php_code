@@ -64,6 +64,8 @@ class DH_v21_TRAM_996
         // -> generates itis_2022-02-28_all_nodes.tar.gz (smaller size)
         // */
         
+        
+        $this->min_synonym_headers = array('taxonID', 'source', 'acceptedNameUsageID', 'scientificName', 'taxonRank', 'canonicalName', 'taxonomicStatus', 'furtherInformationURL', 'datasetID', 'hash');
     }
     function start()
     {   /*
@@ -118,7 +120,7 @@ class DH_v21_TRAM_996
         $this->func = new FillUpMissingParentsAPI(false, false, false);
 
         $head = array('z_partner', 'z_identifier');
-        $head = array_merge($head, array('taxonID', 'source', 'acceptedNameUsageID', 'scientificName', 'taxonRank', 'canonicalName', 'taxonomicStatus', 'furtherInformationURL', 'datasetID'));
+        $head = array_merge($head, $this->min_synonym_headers);
         $this->synonyms_headers = $head; // print_r($head); exit;
         
         /* step 3: assemble synonyms --- COL
@@ -134,13 +136,16 @@ class DH_v21_TRAM_996
         */
         
         /* ======== start for COL2, ITIS, NCBI, ODO, WOR ======== */
-        /* all five prefixes worked OK
+        $head = $this->min_synonym_headers;
+        $this->synonyms_headers = $head; // print_r($head); exit;
+        
+        // /* all five prefixes worked OK
         $partners = array('COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
-        $partners = array('COL2'); //during dev only
-        $partners = array('ODO'); //during dev only
-        $partners = array('NCBI'); //during dev only
-        $partners = array('WOR'); //during dev only
-        $partners = array('ITIS'); //during dev only
+        // $partners = array('COL2'); //during dev only
+        // $partners = array('ODO'); //during dev only
+        // $partners = array('NCBI'); //during dev only
+        // $partners = array('WOR'); //during dev only
+        // $partners = array('ITIS'); //during dev only
         foreach($partners as $partner) {
             $this->Partner_taxonIDs = array();
             self::parse_tsv($this->tsv['taxonIDs_from_source_col'], 'get_taxonIDs_2process', false, $partner); //generate $this->Partner_taxonIDs
@@ -155,22 +160,30 @@ class DH_v21_TRAM_996
             
             self::parse_tsv($this->tsv[$source_file], 'get_Partner_synonyms', $WRITE, $partner);
         }
-        */
+        // */
         
         /* #3. Filter out problematic synonyms
         Once we have all the synonyms from the source files, we need to filter out synonyms that contradict an accepted name assertion in DH 2.1.
         For example, this synonym from ITIS:
         552289 https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=552289#null	727501 Xenarthra Cope, 1889 order Cope, 1889 invalid other, see comments Xenarthra
+
+        ITIS	-none for ITIS-		ITIS:552289	727501	Xenarthra Cope, 1889	order	Xenarthra	not accepted	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=552289#null	ITIS
+        -> from synonyms_ITIS.txt
+
         conflicts with this DH 2.1 accepted name assertion:
         EOL-000000628304 MAM:Xenarthra EOL-000000628303 Xenarthra accepted MAM Xenarthra 1308046
 
-        To find conflicts between synonym and DH 2.1 accepted name data, compare the canonical of each synonym to all canonicals of accepted names in the DH. 
+        To find conflicts between synonym and DH 2.1 accepted name data, 
+        compare the canonical of each synonym to all canonicals of accepted names in the DH. 
         If the canonical of a synonym matches the canonical of any DH 2.1 accepted name, discard the synonym, unless one of the following is true:
         A. The only DH 2.1 accepted name match to the synonym is the accepted name of the synonym.
 
         For example this synonym from ODO:
         Lestes-scalaris-1 Lestes-scalaris Lestes scalaris Calvert, 1909 species https://www.pugetsound.edu/academics/academic-resources/slater-museum/biodiversity-resources/dragonflies/world-odonata-list2/	synonym
 
+        ODO	-none for ODO-		ODO:Lestes-scalaris-1	Lestes-scalaris	Lestes scalaris Calvert, 1909	species	Lestes scalaris	not accepted	https://www.pugetsound.edu/academics/academic-resources/slater-museum/biodiversity-resources/dragonflies/world-odonata-list2/	ODO
+        -> from synonyms_ODO.txt
+        
         maps to this accepted DH 2.1 taxon:
         EOL-000000983393 ODO:Lestes-scalaris https://www.pugetsound.edu/academics/academic-resources/slater-museum/biodiversity-resources/dragonflies/world-odonata-list2/	EOL-000000983342 Lestes scalaris Gundlach, 1888 species accepted ODO Lestes scalaris 1034222
 
@@ -439,7 +452,7 @@ class DH_v21_TRAM_996
                 Please run the ITIS hierarchy connector (TRAM-806) to get the latest version of the resource and then get the synonyms from that.
                 */
                 
-                if($condition) { print_r($rec); //exit("\nfound...\n");
+                if($condition) { //print_r($rec); //exit("\nfound...\n");
                     if($partner == 'WOR') {
                         $json = json_encode($rec);
                         $json = str_replace("urn:lsid:marinespecies.org:taxname:", "", $json);
@@ -531,9 +544,17 @@ class DH_v21_TRAM_996
                     $ret['taxonomicStatus'] = 'not accepted';
                     $ret['datasetID'] = self::format_datasetID($partner, $rec);
                     $ret['canonicalName'] = self::format_canonicalName($partner, $rec, $ret['taxonRank']);
+                    $ret['hash'] = md5(json_encode($ret));
+                    
+                    if(!isset($this->hash_IDs[$ret['hash']])) $this->hash_IDs[$ret['hash']] = '';
+                    else {
+                        print_r($rec); print_r($ret);
+                        exit("\n[$partner] -> Investigate identical synonym row.\n");
+                    }
+                    
                     $save = array();
                     foreach($this->synonyms_headers as $head) $save[] = $ret[$head];
-                    print_r($save); //print_r($this->synonyms_headers); print_r($rec); exit;
+                    // print_r($save); //print_r($this->synonyms_headers); print_r($rec); exit;
                     fwrite($WRITE, implode("\t", $save)."\n");
                 }
                 // if($i >= 10) break;
@@ -583,7 +604,8 @@ class DH_v21_TRAM_996
         
         if($partner == 'ITIS') return $rec['canonicalName'];
         else {
-            $canonical = $this->func->add_cannocial_using_gnparser($rec['scientificName'], $taxonRank); // exit("\n[$canonical]\n");
+            $sciname = str_replace('"', "", $rec['scientificName']);
+            $canonical = $this->func->add_cannocial_using_gnparser($sciname, $taxonRank); // exit("\n[$canonical]\n");
             return $canonical;
         }
     }
