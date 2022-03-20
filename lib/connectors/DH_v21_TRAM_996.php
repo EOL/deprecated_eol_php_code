@@ -64,7 +64,6 @@ class DH_v21_TRAM_996
         // -> generates itis_2022-02-28_all_nodes.tar.gz (smaller size)
         // */
         
-        
         $this->min_synonym_headers = array('taxonID', 'source', 'acceptedNameUsageID', 'scientificName', 'taxonRank', 'canonicalName', 'taxonomicStatus', 'furtherInformationURL', 'datasetID', 'hash');
     }
     function start()
@@ -123,17 +122,17 @@ class DH_v21_TRAM_996
         $head = array_merge($head, $this->min_synonym_headers);
         $this->synonyms_headers = $head; // print_r($head); exit;
         
-        /* step 3: assemble synonyms --- COL
+        // /* step 3: assemble synonyms --- COL
         self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs COL', false); //creates $this->COL_taxonIDs
         $WRITE = fopen($this->tsv['synonyms_COL'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
         self::parse_tsv($this->tsv['COL_2019_new'], 'get_COL_synonyms', $WRITE, 'COL');
-        */
+        // */
         
-        /* step 4: assemble synonyms --- COL Collembola
+        // /* step 4: assemble synonyms --- COL Collembola
         self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs Collembola', false); //creates $this->Collembola_taxonIDs
         $WRITE = fopen($this->tsv['synonyms_Collembola'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
         self::parse_tsv($this->tsv['Collembola_new'], 'get_Collembola_synonyms', $WRITE, 'COL');
-        */
+        // */
         
         /* ======== start for COL2, ITIS, NCBI, ODO, WOR ======== */
         $head = $this->min_synonym_headers;
@@ -147,9 +146,9 @@ class DH_v21_TRAM_996
         // $partners = array('WOR'); //during dev only
         // $partners = array('ITIS'); //during dev only
         foreach($partners as $partner) {
-            $this->Partner_taxonIDs = array();
+            $this->Partner_taxonIDs = array(); //it is a partner-exclusive var., thus it is being initialized for every partner prefix.
             self::parse_tsv($this->tsv['taxonIDs_from_source_col'], 'get_taxonIDs_2process', false, $partner); //generate $this->Partner_taxonIDs
-            echo "\n]$partner: ".count($this->Partner_taxonIDs)."\n";
+            echo "\n$partner: ".count($this->Partner_taxonIDs)."\n";
             $WRITE = fopen($this->tsv['synonyms_'.$partner], "w"); fwrite($WRITE, implode("\t", $head)."\n");
                 if($partner == 'COL2') $source_file = 'COL_2021';
             elseif($partner == 'ODO')  $source_file = 'WorldOdonataList';
@@ -348,6 +347,7 @@ class DH_v21_TRAM_996
                     $ret['taxonomicStatus'] = 'not accepted';
                     $ret['datasetID'] = self::format_datasetID('COL', $rec);
                     $ret['canonicalName'] = self::format_canonicalName('COL', $rec, $ret['taxonRank']);
+                    $ret['hash'] = self::format_hash($partner, $ret, $rec);
                     $save = array();
                     foreach($this->synonyms_headers as $head) $save[] = $ret[$head];
                     // print_r($save); print_r($this->synonyms_headers); exit;
@@ -410,6 +410,7 @@ class DH_v21_TRAM_996
                     $ret['taxonomicStatus'] = 'not accepted';
                     $ret['datasetID'] = self::format_datasetID('COL', $rec);
                     $ret['canonicalName'] = self::format_canonicalName('COL', $rec, $ret['taxonRank']);
+                    $ret['hash'] = self::format_hash($partner, $ret, $rec);
                     $save = array();
                     foreach($this->synonyms_headers as $head) $save[] = $ret[$head];
                     // print_r($save); print_r($this->synonyms_headers); exit;
@@ -561,7 +562,7 @@ class DH_v21_TRAM_996
         if(isset($WRITE)) {
             if($WRITE) fclose($WRITE);
         }
-        
+        if(isset($this->hash_IDs)) echo "\n----------------------\n[$partner] ".count($this->hash_IDs)."\n----------------------\n";
     } // end parse_tsv()
     private function format_taxonID($partner, $rec)
     {
