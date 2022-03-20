@@ -544,14 +544,7 @@ class DH_v21_TRAM_996
                     $ret['taxonomicStatus'] = 'not accepted';
                     $ret['datasetID'] = self::format_datasetID($partner, $rec);
                     $ret['canonicalName'] = self::format_canonicalName($partner, $rec, $ret['taxonRank']);
-                    $ret['hash'] = md5(json_encode($ret));
-                    
-                    if(!isset($this->hash_IDs[$ret['hash']])) $this->hash_IDs[$ret['hash']] = '';
-                    else {
-                        print_r($rec); print_r($ret);
-                        exit("\n[$partner] -> Investigate identical synonym row.\n");
-                    }
-                    
+                    $ret['hash'] = self::format_hash($partner, $ret, $rec);
                     $save = array();
                     foreach($this->synonyms_headers as $head) $save[] = $ret[$head];
                     // print_r($save); //print_r($this->synonyms_headers); print_r($rec); exit;
@@ -656,5 +649,15 @@ class DH_v21_TRAM_996
             $final[$new_index] = $value;
         }
         return $final;
+    }
+    private function format_hash($partner, $ret, $rec)
+    {
+        $ret['hash'] = md5(json_encode($ret));
+        if(!isset($this->hash_IDs[$ret['hash']])) $this->hash_IDs[$ret['hash']] = '';
+        else {
+            print_r($rec); print_r($ret);
+            exit("\n[$partner] -> Investigate identical synonym row.\n");
+        }
+        return $ret['hash'];
     }
 }
