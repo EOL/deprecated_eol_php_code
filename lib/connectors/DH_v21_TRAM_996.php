@@ -122,23 +122,23 @@ class DH_v21_TRAM_996
         $head = array_merge($head, $this->min_synonym_headers);
         $this->synonyms_headers = $head; // print_r($head); exit;
         
-        // /* step 3: assemble synonyms --- COL
+        /* step 3: assemble synonyms --- COL
         self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs COL', false); //creates $this->COL_taxonIDs
         $WRITE = fopen($this->tsv['synonyms_COL'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
         self::parse_tsv($this->tsv['COL_2019_new'], 'get_COL_synonyms', $WRITE, 'COL');
-        // */
+        */
         
-        // /* step 4: assemble synonyms --- COL Collembola
+        /* step 4: assemble synonyms --- COL Collembola
         self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs Collembola', false); //creates $this->Collembola_taxonIDs
         $WRITE = fopen($this->tsv['synonyms_Collembola'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
         self::parse_tsv($this->tsv['Collembola_new'], 'get_Collembola_synonyms', $WRITE, 'COL');
-        // */
+        */
         
         /* ======== start for COL2, ITIS, NCBI, ODO, WOR ======== */
         $head = $this->min_synonym_headers;
         $this->synonyms_headers = $head; // print_r($head); exit;
         
-        // /* all five prefixes worked OK
+        /* all five prefixes worked OK
         $partners = array('COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
         // $partners = array('COL2'); //during dev only
         // $partners = array('ODO'); //during dev only
@@ -159,7 +159,7 @@ class DH_v21_TRAM_996
             
             self::parse_tsv($this->tsv[$source_file], 'get_Partner_synonyms', $WRITE, $partner);
         }
-        // */
+        */
         
         /* #3. Filter out problematic synonyms
         Once we have all the synonyms from the source files, we need to filter out synonyms that contradict an accepted name assertion in DH 2.1.
@@ -196,7 +196,29 @@ class DH_v21_TRAM_996
         Please report all the synonyms that were removed during this step 
         (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match).
         */
+        // /* step 1:
+        $partners = array('COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
+        // $partners = array('COL2'); //during dev only
+        $partners = array('ODO'); //during dev only
+        // $partners = array('NCBI'); //during dev only
+        // $partners = array('WOR'); //during dev only
+        // $partners = array('ITIS'); //during dev only
+        foreach($partners as $partner) {
+            $this->syn_canonical = array(); //initialize - partner exclusive
+                if($partner == 'COL2') $source_file = 'xxx';
+            elseif($partner == 'ODO')  $source_file = 'synonyms_ODO';
+            elseif($partner == 'NCBI') $source_file = 'xxx';
+            elseif($partner == 'WOR')  $source_file = 'xxx';
+            elseif($partner == 'ITIS')  $source_file = 'xxx';
+            else exit("\n$partner not yet initialized 03.\n");
+            self::parse_tsv($this->tsv[$source_file], 'open_Partner_synonyms', false, $partner);
+            self::parse_tsv($this->tsv['DH21_current'], 'check_syn_with_DH21_canonical', false, $partner);
+            
+        }
         
+        print_r($this->syn_canonical_matched_DH21); exit;
+        
+        // */
     }
     private function parse_tsv($txtfile, $task, $WRITE = false, $partner = '')
     {   $i = 0; echo "\nStart $task...[$partner]\n";
@@ -208,11 +230,16 @@ class DH_v21_TRAM_996
                 $fields = $row;
                 $fields = array_filter($fields);
                 $fields = array_map('trim', $fields);
-                // print_r($fields); exit;
+                // print_r($fields); //exit;
                 continue;
             }
             else {
-                if(!@$row[0]) continue;
+                if($task == 'open_Partner_synonyms') {
+                    if(!@$row[9]) continue; //'hash'
+                }
+                else { //rest goes here
+                    if(!@$row[0]) continue;
+                }
                 $k = 0; $rec = array();
                 foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
             }
@@ -553,7 +580,62 @@ class DH_v21_TRAM_996
                 }
                 // if($i >= 10) break;
             }
-            
+            //==============================================================================
+            if($task == 'open_Partner_synonyms') { // print_r($rec); exit("\nelix1\n");
+                /*Array(
+                    [taxonID] => 
+                    [source] => ODO:Heliocharitidae
+                    [acceptedNameUsageID] => Dicteriadidae
+                    [scientificName] => Heliocharitidae
+                    [taxonRank] => family
+                    [canonicalName] => Heliocharitidae
+                    [taxonomicStatus] => not accepted
+                    [furtherInformationURL] => https://www.pugetsound.edu/academics/academic-resources/slater-museum/biodiversity-resources/dragonflies/world-odonata-list2/
+                    [datasetID] => ODO
+                    [hash] => 634d60f4a35728bde0ec5a6a3e48a79e
+                )
+                Please report all the synonyms that were removed during this step 
+                (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match). */
+                if($canonical = $rec['canonicalName']) $this->syn_canonical[$canonical] = array('r' => $rec['taxonRank'], 'a' => $rec['acceptedNameUsageID']);
+                else { print_r($rec); exit("\nNo canonicalName\n"); }
+            }
+            //==============================================================================
+            if($task == 'check_syn_with_DH21_canonical') { // print_r($rec); exit("\nelix1\n");
+                /*Array(
+                    [taxonID] => EOL-000000000001
+                    [source] => trunk:4038af35-41da-469e-8806-40e60241bb58
+                    [furtherInformationURL] => 
+                    [acceptedNameUsageID] => 
+                    [parentNameUsageID] => 
+                    [scientificName] => Life
+                    [taxonRank] => 
+                    [taxonomicStatus] => accepted
+                    [datasetID] => trunk
+                    [canonicalName] => Life
+                    [eolID] => 2913056
+                    [Landmark] => 
+                    [higherClassification] => 
+                )*/
+                if($rec['taxonomicStatus'] == 'accepted') {
+                    if($canonical = $rec['canonicalName']) {
+                        if(isset($this->syn_canonical[$canonical])) {
+                            $DH_rank = $rec['taxonRank'];
+                            $syn_rank = $this->syn_canonical[$canonical]['r'];
+                            // B. The rank of the synonym is genus and the rank of the DH 2.1 canonical match is not genus.
+                            // C. The rank of the DH 2.1 canonical match is genus and the rank of the synonym is not genus.
+                            if($syn_rank == 'genus' && $DH_rank != 'genus') continue; //don't discard
+                            if($DH_rank == 'genus' && $syn_rank != 'genus') continue; //don't discard
+
+                            //save first:
+                            $identifier = self::get_identifier_from_source($rec['source']);
+                            $syn_rec = $this->syn_canonical[$canonical];
+                            $this->syn_canonical_matched_DH21[$canonical][] = array("s" => $syn_rec, 'i' => $identifier);
+                            
+                        }
+                    }
+                }
+                
+            }
             //==============================================================================
             //==============================================================================
 
@@ -660,5 +742,10 @@ class DH_v21_TRAM_996
             exit("\n[$partner] -> Investigate identical synonym row.\n");
         }
         return $ret['hash'];
+    }
+    private function get_identifier_from_source($source)
+    {   //e.g. trunk:4038af35-41da-469e-8806-40e60241bb58
+        $arr = explode(":", $source);
+        return trim($arr[1]);
     }
 }
