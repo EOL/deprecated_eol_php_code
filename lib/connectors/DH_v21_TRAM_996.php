@@ -134,6 +134,7 @@ class DH_v21_TRAM_996
         */
         
         /* ======== start for COL2, ITIS, NCBI, ODO, WOR ======== */
+        /* all five prefixes worked OK
         $partners = array('COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
         $partners = array('COL2'); //during dev only
         $partners = array('ODO'); //during dev only
@@ -144,9 +145,7 @@ class DH_v21_TRAM_996
             $this->Partner_taxonIDs = array();
             self::parse_tsv($this->tsv['taxonIDs_from_source_col'], 'get_taxonIDs_2process', false, $partner); //generate $this->Partner_taxonIDs
             echo "\n]$partner: ".count($this->Partner_taxonIDs)."\n";
-
             $WRITE = fopen($this->tsv['synonyms_'.$partner], "w"); fwrite($WRITE, implode("\t", $head)."\n");
-            
                 if($partner == 'COL2') $source_file = 'COL_2021';
             elseif($partner == 'ODO')  $source_file = 'WorldOdonataList';
             elseif($partner == 'NCBI') $source_file = 'NCBI_source';
@@ -156,6 +155,35 @@ class DH_v21_TRAM_996
             
             self::parse_tsv($this->tsv[$source_file], 'get_Partner_synonyms', $WRITE, $partner);
         }
+        */
+        
+        /* #3. Filter out problematic synonyms
+        Once we have all the synonyms from the source files, we need to filter out synonyms that contradict an accepted name assertion in DH 2.1.
+        For example, this synonym from ITIS:
+        552289 https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=552289#null	727501 Xenarthra Cope, 1889 order Cope, 1889 invalid other, see comments Xenarthra
+        conflicts with this DH 2.1 accepted name assertion:
+        EOL-000000628304 MAM:Xenarthra EOL-000000628303 Xenarthra accepted MAM Xenarthra 1308046
+
+        To find conflicts between synonym and DH 2.1 accepted name data, compare the canonical of each synonym to all canonicals of accepted names in the DH. 
+        If the canonical of a synonym matches the canonical of any DH 2.1 accepted name, discard the synonym, unless one of the following is true:
+        A. The only DH 2.1 accepted name match to the synonym is the accepted name of the synonym.
+
+        For example this synonym from ODO:
+        Lestes-scalaris-1 Lestes-scalaris Lestes scalaris Calvert, 1909 species https://www.pugetsound.edu/academics/academic-resources/slater-museum/biodiversity-resources/dragonflies/world-odonata-list2/	synonym
+
+        maps to this accepted DH 2.1 taxon:
+        EOL-000000983393 ODO:Lestes-scalaris https://www.pugetsound.edu/academics/academic-resources/slater-museum/biodiversity-resources/dragonflies/world-odonata-list2/	EOL-000000983342 Lestes scalaris Gundlach, 1888 species accepted ODO Lestes scalaris 1034222
+
+        We want to keep this synonym because the only canonical DH 2.1 canonical match for it is its accepted name, which is ok.
+
+        B. The rank of the synonym is genus and the rank of the DH 2.1 canonical match is not genus.
+        C. The rank of the DH 2.1 canonical match is genus and the rank of the synonym is not genus.
+
+        This process will also remove some synonyms that are not actually conflicting with DH assertions, 
+        e.g., in the case of same rank homonyms, but that's ok for now. 
+        Please report all the synonyms that were removed during this step 
+        (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match).
+        */
         
     }
     private function parse_tsv($txtfile, $task, $WRITE = false, $partner = '')
