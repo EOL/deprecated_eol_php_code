@@ -161,6 +161,15 @@ class DH_v21_TRAM_996
         }
         */
         
+        /* a utility before #3 - just a utility not part of normal operation ---> SUCCESS all synonym rows are unique from all 7 partners OK
+        $partners = array('Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
+        foreach($partners as $partner) {
+            echo "\naccessing...".$this->tsv['synonyms_'.$partner]."\n";
+            self::parse_tsv($this->tsv['synonyms_'.$partner], 'util_1', false, $partner);
+        }
+        exit("\n-end utility-\n");
+        */
+        
         /* #3. Filter out problematic synonyms
         Once we have all the synonyms from the source files, we need to filter out synonyms that contradict an accepted name assertion in DH 2.1.
         For example, this synonym from ITIS:
@@ -196,24 +205,17 @@ class DH_v21_TRAM_996
         Please report all the synonyms that were removed during this step 
         (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match).
         */
-        // /* step 1:
+        // /*
         $partners = array('COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
         // $partners = array('COL2'); //during dev only
-        $partners = array('ODO'); //during dev only
+        // $partners = array('ODO'); //during dev only
         // $partners = array('NCBI'); //during dev only
-        // $partners = array('WOR'); //during dev only
+        $partners = array('WOR'); //during dev only
         // $partners = array('ITIS'); //during dev only
         foreach($partners as $partner) {
             $this->syn_canonical = array(); //initialize - partner exclusive
-                if($partner == 'COL2') $source_file = 'xxx';
-            elseif($partner == 'ODO')  $source_file = 'synonyms_ODO';
-            elseif($partner == 'NCBI') $source_file = 'xxx';
-            elseif($partner == 'WOR')  $source_file = 'xxx';
-            elseif($partner == 'ITIS')  $source_file = 'xxx';
-            else exit("\n$partner not yet initialized 03.\n");
-            self::parse_tsv($this->tsv[$source_file], 'open_Partner_synonyms', false, $partner);
+            self::parse_tsv($this->tsv['synonyms_'.$partner], 'open_Partner_synonyms', false, $partner);
             self::parse_tsv($this->tsv['DH21_current'], 'check_syn_with_DH21_canonical', false, $partner);
-            
         }
         
         print_r($this->syn_canonical_matched_DH21); exit;
@@ -236,6 +238,9 @@ class DH_v21_TRAM_996
             else {
                 if($task == 'open_Partner_synonyms') {
                     if(!@$row[9]) continue; //'hash'
+                }
+                elseif($task == 'util_1') {
+                    if(!@$row[1]) continue; //'source'
                 }
                 else { //rest goes here
                     if(!@$row[0]) continue;
@@ -581,6 +586,29 @@ class DH_v21_TRAM_996
                 // if($i >= 10) break;
             }
             //==============================================================================
+            if($task == 'util_1') { //print_r($rec); exit("\nelix1\n");
+                /*Array(
+                    [z_partner] => COL
+                    [z_identifier] => 8f40f23a98b9090e950f7218d7b1737f
+                    [taxonID] => 
+                    [source] => COL:8f40f23a98b9090e950f7218d7b1737f
+                    [acceptedNameUsageID] => 3009726
+                    [scientificName] => Megalothorax bonetella Najt & Rapoport, 1965
+                    [taxonRank] => species
+                    [canonicalName] => Megalothorax bonetella
+                    [taxonomicStatus] => not accepted
+                    [furtherInformationURL] => http://www.catalogueoflife.org/col/details/species/id/6e503f12ba03d36fb004aef898d6ff9e/synonym/8f40f23a98b9090e950f7218d7b1737f
+                    [datasetID] => COL-1130
+                    [hash] => 49a7e001c992b7e1a57f13cb4c4f1588
+                )*/
+                $hash = $rec['hash'];
+                if(isset($this->hash_IDs2[$hash])) { print_r($rec); exit("\nnon-unique hash [$partner]\n"); }
+                else {
+                    $this->hash_IDs2[$hash] = '';
+                    @$this->hash_IDs2_count++;
+                }
+            }
+            //==============================================================================
             if($task == 'open_Partner_synonyms') { // print_r($rec); exit("\nelix1\n");
                 /*Array(
                     [taxonID] => 
@@ -644,7 +672,8 @@ class DH_v21_TRAM_996
         if(isset($WRITE)) {
             if($WRITE) fclose($WRITE);
         }
-        if(isset($this->hash_IDs)) echo "\n----------------------\n[$partner] ".count($this->hash_IDs)."\n----------------------\n";
+        if(isset($this->hash_IDs)) echo "\n----------------------\nhash_IDs count for [$partner]: ".count($this->hash_IDs)."\n----------------------\n";
+        if($task == 'util_1') echo "\n-----\n[$partner ".count($this->hash_IDs2)."] $this->hash_IDs2_count\n-----\n";
     } // end parse_tsv()
     private function format_taxonID($partner, $rec)
     {
