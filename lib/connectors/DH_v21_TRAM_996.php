@@ -133,10 +133,12 @@ class DH_v21_TRAM_996
 
         require_library('connectors/FillUpMissingParentsAPI');
         $this->func = new FillUpMissingParentsAPI(false, false, false);
-
+        /*
         $head = array('z_partner', 'z_identifier');
         $head = array_merge($head, $this->min_synonym_headers);
         $this->synonyms_headers = $head; // print_r($head); exit;
+        */
+        $this->synonyms_headers = $this->min_synonym_headers
         
         /* step 3: assemble synonyms --- COL
         self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs COL', false); //creates $this->COL_taxonIDs
@@ -241,10 +243,12 @@ class DH_v21_TRAM_996
             unset($this->syn_canonical_matched_DH21);
             
             //start refresh synonyms 1
+            /*
             if(in_array($partner, array('COL', "Collembola"))) $head = array_merge(array('z_partner', 'z_identifier'), $this->min_synonym_headers);
             else $head = $this->min_synonym_headers;
             $this->synonyms_headers = $head;
-            
+            */
+            $this->synonyms_headers = $this->min_synonym_headers;
             $WRITE = fopen($this->tsv['synonyms_upd_1_'.$partner], "w"); fwrite($WRITE, implode("\t", $head)."\n");
             self::parse_tsv($this->tsv['synonyms_'.$partner], 'update_1', $WRITE, $partner);
         }
@@ -505,8 +509,10 @@ class DH_v21_TRAM_996
                     COL	6a3ba2fef8659ce9708106356d875285	316423
                     */
                     $ret = array();
+                    /*
                     $ret['z_partner'] = 'COL';
                     $ret['z_identifier'] = self::format_z_identifier('COL', $rec);
+                    */
                     $ret['taxonID'] = self::format_taxonID('COL', $rec);
                     $ret['source'] = self::format_source('COL', $rec);
                     $ret['furtherInformationURL'] = self::format_furtherInformationURL('COL', $rec);
@@ -568,8 +574,10 @@ class DH_v21_TRAM_996
                     Collembola	6e503f12ba03d36fb004aef898d6ff9e	3009726
                     */
                     $ret = array();
+                    /*
                     $ret['z_partner'] = 'COL';
                     $ret['z_identifier'] = self::format_z_identifier('COL', $rec);
+                    */
                     $ret['taxonID'] = self::format_taxonID('COL', $rec);
                     $ret['source'] = self::format_source('COL', $rec);
                     $ret['furtherInformationURL'] = self::format_furtherInformationURL('COL', $rec);
@@ -703,8 +711,10 @@ class DH_v21_TRAM_996
                         [canonicalName] => Hepaticopsida
                     )*/
                     $ret = array();
+                    /*
                     $ret['z_partner'] = $partner;
                     $ret['z_identifier'] = self::format_z_identifier($partner, $rec); //none for COL2
+                    */
                     $ret['taxonID'] = self::format_taxonID($partner, $rec);
                     $ret['source'] = self::format_source($partner, $rec);
                     $ret['furtherInformationURL'] = self::format_furtherInformationURL($partner, $rec);
