@@ -261,10 +261,11 @@ class DH_v21_TRAM_996
         }
         */ //end #3
         
-        // /* replace syn acceptedNameUsageID with DH21 acceptedNameUsageID
+        /* replace syn acceptedNameUsageID with DH21 acceptedNameUsageID
         $partners = array('Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
         $partners = array('ODO'); //during dev only
-        $partners = array('COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
+        $partners = array('COL2', 'ITIS', 'NCBI', 'ODO', 'WOR'); //during dev only
+        $partners = array('Collembola', 'COL'); //during dev only
         $this->synonyms_headers = $this->min_synonym_headers2;
         foreach($partners as $partner) {
             $this->identifier_taxonID_info = array(); //partner exclusive
@@ -272,8 +273,13 @@ class DH_v21_TRAM_996
             $WRITE = fopen($this->tsv['synonyms_upd_2_'.$partner], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
             self::parse_tsv($this->tsv['synonyms_upd_1_'.$partner], 'update_2', $WRITE, $partner);
         }
-        // */
+        */
         
+        // /* #4 Deduplicate synonyms
+        // step 1: consolidate all synonyms
+        self::parse_tsv($this->tsv['DH21_current'], 'check', false, '');
+        
+        // */
         
     }
     private function main_3($partner)
@@ -431,7 +437,28 @@ class DH_v21_TRAM_996
                 [higherclassification] => Life|Cellular Organisms|Eukaryota|Amoebozoa|Evosea|Eumycetozoa|Dictyostelia|Acytosteliales|Acytosteliaceae|Acytostelium
             )*/
             //==============================================================================
-            if($task == 'check') { print_r($rec); exit; }
+            if($task == 'check') { print_r($rec); exit;
+                /*Array(
+                    [taxonID] => EOL-000000000001
+                    [source] => trunk:4038af35-41da-469e-8806-40e60241bb58
+                    [furtherInformationURL] => 
+                    [acceptedNameUsageID] => 
+                    [parentNameUsageID] => 
+                    [scientificName] => Life
+                    [taxonRank] => 
+                    [taxonomicStatus] => accepted
+                    [datasetID] => trunk
+                    [canonicalName] => Life
+                    [eolID] => 2913056
+                    [Landmark] => 
+                    [higherClassification] => 
+                )*/
+                /*
+                if(substr($rec['taxonID'],0,4) == "SYN-") {
+                    print_r($rec); exit;
+                }
+                */
+            }
             if($task == 'assemble_taxonIDs_from_source_col') {
                 $source = $rec['source'];
                 $arr = explode(":", $source);
@@ -919,6 +946,26 @@ class DH_v21_TRAM_996
                 fwrite($WRITE, implode("\t", $save)."\n");
             }
             //==============================================================================
+            if($task == 'xxx') {
+                /*Array(
+                    [taxonID] => SYN-000001683069
+                    [source] => 
+                    [furtherInformationURL] => 
+                    [acceptedNameUsageID] => EOL-000003165652
+                    [parentNameUsageID] => 
+                    [scientificName] => 2019-nCoV
+                    [taxonRank] => 
+                    [taxonomicStatus] => not accepted
+                    [datasetID] => trunk
+                    [canonicalName] => 2019-nCoV
+                    [eolID] => 
+                    [Landmark] => 
+                    [higherClassification] => 
+                )*/
+                
+                // taxonID  source  acceptedNameUsageID DH_acceptedNameUsageID  scientificName  taxonRank   canonicalName   taxonomicStatus furtherInformationURL   datasetID   hash
+                // taxonID  source  acceptedNameUsageID                         scientificName  taxonRank   canonicalName   taxonomicStatus furtherInformationURL   datasetID   hash
+            }
             //==============================================================================
             //==============================================================================
 
