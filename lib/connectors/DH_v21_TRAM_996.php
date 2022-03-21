@@ -226,7 +226,7 @@ class DH_v21_TRAM_996
         // $partners = array('COL'); //during dev only
         // $partners = array('Collembola'); //during dev only
         // $partners = array('COL2'); //during dev only
-        $partners = array('ODO'); //during dev only
+        // $partners = array('ODO'); //during dev only
         // $partners = array('NCBI'); //during dev only
         // $partners = array('WOR'); //during dev only
         // $partners = array('ITIS'); //during dev only
@@ -245,7 +245,6 @@ class DH_v21_TRAM_996
             $this->synonym_headers = $head;
             $WRITE = fopen($this->tsv['synonyms_upd_1_'.$partner], "w"); fwrite($WRITE, implode("\t", $head)."\n");
             self::parse_tsv($this->tsv['synonyms_'.$partner], 'update_1', $WRITE, $partner);
-            
         }
         // */ end #3
     }
@@ -299,7 +298,7 @@ class DH_v21_TRAM_996
             }
         }
         fclose($WRITE);
-        echo "\nto_be_removed: [".count($to_be_removed)."]\n";
+        echo "\nto_be_removed [$partner]: [".count($to_be_removed)."]\n";
         return $to_be_removed;
     }
     private function parse_tsv($txtfile, $task, $WRITE = false, $partner = '')
