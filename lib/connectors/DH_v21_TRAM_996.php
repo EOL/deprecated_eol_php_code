@@ -36,6 +36,22 @@ class DH_v21_TRAM_996
         $this->tsv['synonyms_NCBI'] = $this->main_path."/synonyms_NCBI.txt";
         $this->tsv['synonyms_WOR'] = $this->main_path."/synonyms_WOR.txt";
         $this->tsv['synonyms_ITIS'] = $this->main_path."/synonyms_ITIS.txt";
+
+        $this->tsv['synonyms_problematic_COL'] = $this->main_path."/synonyms_problematic_COL.txt";
+        $this->tsv['synonyms_problematic_Collembola'] = $this->main_path."/synonyms_problematic_Collembola.txt";
+        $this->tsv['synonyms_problematic_COL2'] = $this->main_path."/synonyms_problematic_COL2.txt";
+        $this->tsv['synonyms_problematic_ODO'] = $this->main_path."/synonyms_problematic_ODO.txt";
+        $this->tsv['synonyms_problematic_NCBI'] = $this->main_path."/synonyms_problematic_NCBI.txt";
+        $this->tsv['synonyms_problematic_WOR'] = $this->main_path."/synonyms_problematic_WOR.txt";
+        $this->tsv['synonyms_problematic_ITIS'] = $this->main_path."/synonyms_problematic_ITIS.txt";
+
+        $this->tsv['synonyms_upd_1_COL']        = $this->main_path."/synonyms_upd_1_COL.txt";
+        $this->tsv['synonyms_upd_1_Collembola'] = $this->main_path."/synonyms_upd_1_Collembola.txt";
+        $this->tsv['synonyms_upd_1_COL2']       = $this->main_path."/synonyms_upd_1_COL2.txt";
+        $this->tsv['synonyms_upd_1_ODO']        = $this->main_path."/synonyms_upd_1_ODO.txt";
+        $this->tsv['synonyms_upd_1_NCBI']       = $this->main_path."/synonyms_upd_1_NCBI.txt";
+        $this->tsv['synonyms_upd_1_WOR']        = $this->main_path."/synonyms_upd_1_WOR.txt";
+        $this->tsv['synonyms_upd_1_ITIS']       = $this->main_path."/synonyms_upd_1_ITIS.txt";
         
         /* start of COL2 and the rest */
         $this->tsv['COL_2021'] = $this->main_path."/data/COL_2021_dwca/Taxon.tsv";
@@ -205,22 +221,86 @@ class DH_v21_TRAM_996
         Please report all the synonyms that were removed during this step 
         (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match).
         */
-        // /*
-        $partners = array('COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
+        // /* start #3
+        $partners = array('Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
+        // $partners = array('COL'); //during dev only
+        // $partners = array('Collembola'); //during dev only
         // $partners = array('COL2'); //during dev only
-        // $partners = array('ODO'); //during dev only
+        $partners = array('ODO'); //during dev only
         // $partners = array('NCBI'); //during dev only
-        $partners = array('WOR'); //during dev only
+        // $partners = array('WOR'); //during dev only
         // $partners = array('ITIS'); //during dev only
         foreach($partners as $partner) {
-            $this->syn_canonical = array(); //initialize - partner exclusive
+            $this->syn_canonical = array();                 //initialize - partner exclusive
+            $this->syn_canonical_matched_DH21 = array();    //initialize - partner exclusive
             self::parse_tsv($this->tsv['synonyms_'.$partner], 'open_Partner_synonyms', false, $partner);
             self::parse_tsv($this->tsv['DH21_current'], 'check_syn_with_DH21_canonical', false, $partner);
+            $this->to_be_removed = self::main_3($partner);
+            unset($this->syn_canonical);
+            unset($this->syn_canonical_matched_DH21);
+            
+            //start refresh synonyms 1
+            if(in_array($partner, array('COL', "Collembola"))) $head = array_merge(array('z_partner', 'z_identifier'), $this->min_synonym_headers);
+            else $head = $this->min_synonym_headers;
+            $this->synonym_headers = $head;
+            $WRITE = fopen($this->tsv['synonyms_upd_1_'.$partner], "w"); fwrite($WRITE, implode("\t", $head)."\n");
+            self::parse_tsv($this->tsv['synonyms_'.$partner], 'update_1', $WRITE, $partner);
+            
         }
+        // */ end #3
+    }
+    private function main_3($partner)
+    {   // print_r($this->syn_canonical_matched_DH21); exit;
+        echo "\ntotal: ".count($this->syn_canonical_matched_DH21)."\n";
+        /*[Lestes scalaris] => Array(
+                [0] => Array(
+                        [s] => Array(
+                                [r] => species
+                                [a] => Lestes-scalaris
+                            )
+                        [i] => Lestes-scalaris
+                    )
+            )
+        [Orolestes motis] => Array(
+                [0] => Array(
+                        [s] => Array(
+                                [r] => species
+                                [a] => Lestes-umbrinus
+                            )
+                        [i] => Orolestes-motis
+                    )
+            )
+        */
         
-        print_r($this->syn_canonical_matched_DH21); exit;
+        $WRITE = fopen($this->tsv['synonyms_problematic_'.$partner], "w");
+        $head = array('scientificName', 'source', 'acceptedNameUsageID', 'taxonID of other DH taxon', 'syn_hash');
+        fwrite($WRITE, implode("\t", $head)."\n");
         
-        // */
+        $to_be_removed = array();
+        foreach($this->syn_canonical_matched_DH21 as $synonym => $recs) {
+            if(count($recs) > 1) exit("more than 1");
+            else {
+                $rec = $recs[0]; //print_r($rec); exit;
+                /*Array(
+                    [s] => Array(
+                            [sn] => Petalonema pulchrum Gilg
+                            [s] => COL:c66c050289db69cb4051b00bafe702d6
+                            [r] => species
+                            [a] => 53524691
+                            [h] => 71396c59ba052df232569cd83a23f43a
+                        )
+                    [i] => Petalonema-pulchrum
+                )*/
+                if($rec['s']['a'] != $rec['i']) { // acceptedNameUsageID neq identifier
+                    $to_be_removed[$rec['s']['h']] = ''; //to be removed
+                    $save = array($rec['s']['sn'], $rec['s']['s'], $rec['s']['a'], $rec['i'], $rec['s']['h']);
+                    fwrite($WRITE, implode("\t", $save)."\n");
+                }
+            }
+        }
+        fclose($WRITE);
+        echo "\nto_be_removed: [".count($to_be_removed)."]\n";
+        return $to_be_removed;
     }
     private function parse_tsv($txtfile, $task, $WRITE = false, $partner = '')
     {   $i = 0; echo "\nStart $task...[$partner]\n";
@@ -239,7 +319,7 @@ class DH_v21_TRAM_996
                 if($task == 'open_Partner_synonyms') {
                     if(!@$row[9]) continue; //'hash'
                 }
-                elseif($task == 'util_1') {
+                elseif(in_array($task, array('util_1', 'update_1'))) {
                     if(!@$row[1]) continue; //'source'
                 }
                 else { //rest goes here
@@ -624,7 +704,7 @@ class DH_v21_TRAM_996
                 )
                 Please report all the synonyms that were removed during this step 
                 (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match). */
-                if($canonical = $rec['canonicalName']) $this->syn_canonical[$canonical] = array('r' => $rec['taxonRank'], 'a' => $rec['acceptedNameUsageID']);
+                if($canonical = $rec['canonicalName']) $this->syn_canonical[$canonical] = array('sn' => $rec['scientificName'], 's' => $rec['source'], 'r' => $rec['taxonRank'], 'a' => $rec['acceptedNameUsageID'], 'h' => $rec['hash']);
                 else { print_r($rec); exit("\nNo canonicalName\n"); }
             }
             //==============================================================================
@@ -665,6 +745,27 @@ class DH_v21_TRAM_996
                 
             }
             //==============================================================================
+            if($task == 'update_1') { //print_r($rec); exit("\nelix 2\n");
+                /*Array(
+                    [taxonID] => 
+                    [source] => ODO:Heliocharitidae
+                    [acceptedNameUsageID] => Dicteriadidae
+                    [scientificName] => Heliocharitidae
+                    [taxonRank] => family
+                    [canonicalName] => Heliocharitidae
+                    [taxonomicStatus] => not accepted
+                    [furtherInformationURL] => https://www.pugetsound.edu/academics/academic-resources/slater-museum/biodiversity-resources/dragonflies/world-odonata-list2/
+                    [datasetID] => ODO
+                    [hash] => 634d60f4a35728bde0ec5a6a3e48a79e
+                )*/
+                $hash = $rec['hash'];
+                if(!isset($this->to_be_removed[$hash])) {
+                    $save = array();
+                    foreach($this->synonyms_headers as $head) $save[] = $rec[$head];
+                    // print_r($save); print_r($this->synonyms_headers); exit;
+                    fwrite($WRITE, implode("\t", $save)."\n");
+                }
+            }
             //==============================================================================
 
         } //end foreach()
