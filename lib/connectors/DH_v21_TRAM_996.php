@@ -292,7 +292,31 @@ class DH_v21_TRAM_996
                                 )
                         )
                 )*/
-                $to_be_removed[$recs[0]['s']['h']] = ''; //to be removed
+                foreach($recs as $rec) {
+                    // /* block copied below, except for the 'break;' row
+                $DH_prefix     = $rec['H']['p'];
+                $DH_identifier = $rec['H']['i'];
+                $DH_taxonID    = $rec['H']['t'];
+                if($rec['s']['a'] != $DH_identifier) { // acceptedNameUsageID neq identifier
+                    $to_be_removed[$rec['s']['h']] = ''; //to be removed
+                    $save = array($rec['s']['sn'], $rec['s']['s'], $rec['s']['a'], $DH_taxonID, $DH_identifier, $rec['s']['h']);
+                    fwrite($WRITE, implode("\t", $save)."\n");
+                    break;
+                }
+                else { //at this point: acceptedNameUsageID == DH_identifier
+                    if($partner != $DH_prefix) {
+                        $to_be_removed[$rec['s']['h']] = ''; //to be removed
+                        $save = array($rec['s']['sn'], $rec['s']['s'], $rec['s']['a'], $DH_taxonID, $DH_identifier, $rec['s']['h']);
+                        fwrite($WRITE, implode("\t", $save)."\n");
+                        break;
+                    }
+                    else { //those synonyms that are not removed
+                        // print_r($rec); //good debug
+                    }
+                }
+                    // */
+                }
+                
             }
             else {
                 $rec = $recs[0]; //print_r($rec); exit("\nelix 3\n");
@@ -326,7 +350,7 @@ class DH_v21_TRAM_996
                         fwrite($WRITE, implode("\t", $save)."\n");
                     }
                     else { //those synonyms that are not removed
-                        print_r($rec);
+                        // print_r($rec); //good debug
                     }
                 }
             }
