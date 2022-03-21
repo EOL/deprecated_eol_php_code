@@ -52,6 +52,14 @@ class DH_v21_TRAM_996
         $this->tsv['synonyms_upd_1_NCBI']       = $this->main_path."/synonyms_upd_1_NCBI.txt";
         $this->tsv['synonyms_upd_1_WOR']        = $this->main_path."/synonyms_upd_1_WOR.txt";
         $this->tsv['synonyms_upd_1_ITIS']       = $this->main_path."/synonyms_upd_1_ITIS.txt";
+
+        $this->tsv['synonyms_upd_2_COL']        = $this->main_path."/synonyms_upd_2_COL.txt";
+        $this->tsv['synonyms_upd_2_Collembola'] = $this->main_path."/synonyms_upd_2_Collembola.txt";
+        $this->tsv['synonyms_upd_2_COL2']       = $this->main_path."/synonyms_upd_2_COL2.txt";
+        $this->tsv['synonyms_upd_2_ODO']        = $this->main_path."/synonyms_upd_2_ODO.txt";
+        $this->tsv['synonyms_upd_2_NCBI']       = $this->main_path."/synonyms_upd_2_NCBI.txt";
+        $this->tsv['synonyms_upd_2_WOR']        = $this->main_path."/synonyms_upd_2_WOR.txt";
+        $this->tsv['synonyms_upd_2_ITIS']       = $this->main_path."/synonyms_upd_2_ITIS.txt";
         
         /* start of COL2 and the rest */
         $this->tsv['COL_2021'] = $this->main_path."/data/COL_2021_dwca/Taxon.tsv";
@@ -80,7 +88,8 @@ class DH_v21_TRAM_996
         // -> generates itis_2022-02-28_all_nodes.tar.gz (smaller size)
         // */
         
-        $this->min_synonym_headers = array('taxonID', 'source', 'acceptedNameUsageID', 'scientificName', 'taxonRank', 'canonicalName', 'taxonomicStatus', 'furtherInformationURL', 'datasetID', 'hash');
+        $this->min_synonym_headers  = array('taxonID', 'source', 'acceptedNameUsageID',                           'scientificName', 'taxonRank', 'canonicalName', 'taxonomicStatus', 'furtherInformationURL', 'datasetID', 'hash');
+        $this->min_synonym_headers2 = array('taxonID', 'source', 'acceptedNameUsageID', 'DH_acceptedNameUsageID', 'scientificName', 'taxonRank', 'canonicalName', 'taxonomicStatus', 'furtherInformationURL', 'datasetID', 'hash');
     }
     function start()
     {   /*
@@ -138,11 +147,11 @@ class DH_v21_TRAM_996
         $head = array_merge($head, $this->min_synonym_headers);
         $this->synonyms_headers = $head; // print_r($head); exit;
         */
-        $this->synonyms_headers = $this->min_synonym_headers
+        $this->synonyms_headers = $this->min_synonym_headers;
         
         /* step 3: assemble synonyms --- COL
         self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs COL', false); //creates $this->COL_taxonIDs
-        $WRITE = fopen($this->tsv['synonyms_COL'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
+        $WRITE = fopen($this->tsv['synonyms_COL'], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
         self::parse_tsv($this->tsv['COL_2019_new'], 'get_COL_synonyms', $WRITE, 'COL');
         */
         
@@ -151,7 +160,7 @@ class DH_v21_TRAM_996
         $WRITE = fopen($this->tsv['synonyms_Collembola'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
         self::parse_tsv($this->tsv['Collembola_new'], 'get_Collembola_synonyms', $WRITE, 'COL');
         */
-        
+        // exit("\n-stop-\n");
         /* ======== start for COL2, ITIS, NCBI, ODO, WOR ======== */
         $head = $this->min_synonym_headers;
         $this->synonyms_headers = $head; // print_r($head); exit;
@@ -223,7 +232,7 @@ class DH_v21_TRAM_996
         Please report all the synonyms that were removed during this step 
         (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match).
         */
-        // /* start #3
+        /* start #3
         $partners = array('Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
         // $partners = array('COL'); //during dev only
         // $partners = array('Collembola'); //during dev only
@@ -243,16 +252,29 @@ class DH_v21_TRAM_996
             unset($this->syn_canonical_matched_DH21);
             
             //start refresh synonyms 1
-            /*
-            if(in_array($partner, array('COL', "Collembola"))) $head = array_merge(array('z_partner', 'z_identifier'), $this->min_synonym_headers);
-            else $head = $this->min_synonym_headers;
-            $this->synonyms_headers = $head;
-            */
+            // if(in_array($partner, array('COL', "Collembola"))) $head = array_merge(array('z_partner', 'z_identifier'), $this->min_synonym_headers);
+            // else $head = $this->min_synonym_headers;
+            // $this->synonyms_headers = $head;
             $this->synonyms_headers = $this->min_synonym_headers;
-            $WRITE = fopen($this->tsv['synonyms_upd_1_'.$partner], "w"); fwrite($WRITE, implode("\t", $head)."\n");
+            $WRITE = fopen($this->tsv['synonyms_upd_1_'.$partner], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
             self::parse_tsv($this->tsv['synonyms_'.$partner], 'update_1', $WRITE, $partner);
         }
-        // */ end #3
+        */ //end #3
+        
+        // /* replace syn acceptedNameUsageID with DH21 acceptedNameUsageID
+        $partners = array('Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
+        $partners = array('ODO'); //during dev only
+        $partners = array('COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
+        $this->synonyms_headers = $this->min_synonym_headers2;
+        foreach($partners as $partner) {
+            $this->identifier_taxonID_info = array(); //partner exclusive
+            self::parse_tsv($this->tsv['DH21_current'], 'build_identifier_taxonID_info', false, $partner); //builds $this->identifier_taxonID_info
+            $WRITE = fopen($this->tsv['synonyms_upd_2_'.$partner], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
+            self::parse_tsv($this->tsv['synonyms_upd_1_'.$partner], 'update_2', $WRITE, $partner);
+        }
+        // */
+        
+        
     }
     private function main_3($partner)
     {   // print_r($this->syn_canonical_matched_DH21); exit;
@@ -378,9 +400,11 @@ class DH_v21_TRAM_996
             }
             else {
                 if($task == 'open_Partner_synonyms') {
+                    print_r($row); exit("\nupdate this script 1\n");
                     if(!@$row[9]) continue; //'hash'
                 }
-                elseif(in_array($task, array('util_1', 'update_1'))) {
+                elseif(in_array($task, array('util_1', 'update_1', 'update_2'))) {
+                    // print_r($row); exit("\nupdate this script 2\n");
                     if(!@$row[1]) continue; //'source'
                 }
                 else { //rest goes here
@@ -849,6 +873,53 @@ class DH_v21_TRAM_996
                     fwrite($WRITE, implode("\t", $save)."\n");
                 }
             }
+            //==============================================================================
+            if($task == 'build_identifier_taxonID_info') { //print_r($rec); exit;
+                /*Array(
+                    [taxonID] => EOL-000000000001
+                    [source] => trunk:4038af35-41da-469e-8806-40e60241bb58
+                    [furtherInformationURL] => 
+                    [acceptedNameUsageID] => 
+                    [parentNameUsageID] => 
+                    [scientificName] => Life
+                    [taxonRank] => 
+                    [taxonomicStatus] => accepted
+                    [datasetID] => trunk
+                    [canonicalName] => Life
+                    [eolID] => 2913056
+                    [Landmark] => 
+                    [higherClassification] => 
+                )*/
+                $ret = self::get_prefix_identifier_from_source($rec['source']); $prefix = $ret[0]; $identifier = $ret[1];
+                if($partner == $prefix) $this->identifier_taxonID_info[$identifier] = $rec['taxonID'];
+            }
+            //==============================================================================
+            if($task == 'update_2') { //print_r($rec); exit;
+                /*Array(
+                    [taxonID] => 
+                    [source] => ODO:Heliocharitidae
+                    [acceptedNameUsageID] => Dicteriadidae
+                    [scientificName] => Heliocharitidae
+                    [taxonRank] => family
+                    [canonicalName] => Heliocharitidae
+                    [taxonomicStatus] => not accepted
+                    [furtherInformationURL] => https://www.pugetsound.edu/academics/academic-resources/slater-museum/biodiversity-resources/dragonflies/world-odonata-list2/
+                    [datasetID] => ODO
+                    [hash] => 634d60f4a35728bde0ec5a6a3e48a79e
+                )*/
+                $acceptedNameUsageID = $rec['acceptedNameUsageID'];
+                if($val = @$this->identifier_taxonID_info[$acceptedNameUsageID]) $rec['DH_acceptedNameUsageID'] = $val;
+                else {
+                    $this->debug['no lookup'][$partner.":".$acceptedNameUsageID] = '';
+                    print_r($rec); exit("\nNo lookup...\n");
+                }
+                $save = array();
+                foreach($this->synonyms_headers as $head) $save[] = $rec[$head];
+                // print_r($save); print_r($this->synonyms_headers); exit;
+                fwrite($WRITE, implode("\t", $save)."\n");
+            }
+            //==============================================================================
+            //==============================================================================
             //==============================================================================
 
         } //end foreach()
