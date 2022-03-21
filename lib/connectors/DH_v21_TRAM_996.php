@@ -149,18 +149,18 @@ class DH_v21_TRAM_996
         */
         $this->synonyms_headers = $this->min_synonym_headers;
         
-        /* step 3: assemble synonyms --- COL
+        // /* step 3: assemble synonyms --- COL
         self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs COL', false); //creates $this->COL_taxonIDs
         $WRITE = fopen($this->tsv['synonyms_COL'], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
         self::parse_tsv($this->tsv['COL_2019_new'], 'get_COL_synonyms', $WRITE, 'COL');
-        */
+        // */
         
         /* step 4: assemble synonyms --- COL Collembola
         self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs Collembola', false); //creates $this->Collembola_taxonIDs
         $WRITE = fopen($this->tsv['synonyms_Collembola'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
         self::parse_tsv($this->tsv['Collembola_new'], 'get_Collembola_synonyms', $WRITE, 'COL');
         */
-        // exit("\n-stop-\n");
+        exit("\n-stop 1-\n");
         /* ======== start for COL2, ITIS, NCBI, ODO, WOR ======== */
         $head = $this->min_synonym_headers;
         $this->synonyms_headers = $head; // print_r($head); exit;
@@ -232,9 +232,9 @@ class DH_v21_TRAM_996
         Please report all the synonyms that were removed during this step 
         (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match).
         */
-        /* start #3
-        $partners = array('Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
-        // $partners = array('COL'); //during dev only
+        // /* start #3
+        // $partners = array('Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
+        $partners = array('COL'); //during dev only
         // $partners = array('Collembola'); //during dev only
         // $partners = array('COL2'); //during dev only
         // $partners = array('ODO'); //during dev only
@@ -259,7 +259,9 @@ class DH_v21_TRAM_996
             $WRITE = fopen($this->tsv['synonyms_upd_1_'.$partner], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
             self::parse_tsv($this->tsv['synonyms_'.$partner], 'update_1', $WRITE, $partner);
         }
-        */ //end #3
+        // */ //end #3
+        exit("\n-stop 2-\n");
+        
         
         /* replace syn acceptedNameUsageID with DH21 acceptedNameUsageID
         $partners = array('Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
@@ -1011,7 +1013,13 @@ class DH_v21_TRAM_996
         
         if($partner == 'ITIS') return $rec['canonicalName'];
         else {
+            // /* manual adjustments
             $sciname = str_replace('"', "", $rec['scientificName']);
+            if($partner == 'COL') {
+                $sciname = str_replace("lii`fordi", "lilfordi", $sciname);
+                $sciname = str_replace("L`Hardy", "L'Hardy", $sciname);
+            }
+            // */
             $canonical = $this->func->add_cannocial_using_gnparser($sciname, $taxonRank); // exit("\n[$canonical]\n");
             return $canonical;
         }
