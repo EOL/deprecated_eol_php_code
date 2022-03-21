@@ -236,13 +236,15 @@ class DH_v21_TRAM_996
             self::parse_tsv($this->tsv['synonyms_'.$partner], 'open_Partner_synonyms', false, $partner);
             self::parse_tsv($this->tsv['DH21_current'], 'check_syn_with_DH21_canonical', false, $partner);
             $this->to_be_removed = self::main_3($partner);
+            // print_r($this->syn_canonical_matched_DH21); print_r($this->to_be_removed); exit; //debug only
             unset($this->syn_canonical);
             unset($this->syn_canonical_matched_DH21);
             
             //start refresh synonyms 1
             if(in_array($partner, array('COL', "Collembola"))) $head = array_merge(array('z_partner', 'z_identifier'), $this->min_synonym_headers);
             else $head = $this->min_synonym_headers;
-            $this->synonym_headers = $head;
+            $this->synonyms_headers = $head;
+            
             $WRITE = fopen($this->tsv['synonyms_upd_1_'.$partner], "w"); fwrite($WRITE, implode("\t", $head)."\n");
             self::parse_tsv($this->tsv['synonyms_'.$partner], 'update_1', $WRITE, $partner);
         }
@@ -251,49 +253,81 @@ class DH_v21_TRAM_996
     private function main_3($partner)
     {   // print_r($this->syn_canonical_matched_DH21); exit;
         echo "\ntotal: ".count($this->syn_canonical_matched_DH21)."\n";
-        /*[Lestes scalaris] => Array(
-                [0] => Array(
-                        [s] => Array(
-                                [r] => species
-                                [a] => Lestes-scalaris
-                            )
-                        [i] => Lestes-scalaris
-                    )
-            )
-        [Orolestes motis] => Array(
-                [0] => Array(
-                        [s] => Array(
-                                [r] => species
-                                [a] => Lestes-umbrinus
-                            )
-                        [i] => Orolestes-motis
-                    )
-            )
-        */
+        /**/
         
         $WRITE = fopen($this->tsv['synonyms_problematic_'.$partner], "w");
-        $head = array('scientificName', 'source', 'acceptedNameUsageID', 'taxonID of other DH taxon', 'syn_hash');
+        $head = array('scientificName', 'source', 'acceptedNameUsageID', 'DH_taxonID', 'DH_identifier', 'syn_hash');
         fwrite($WRITE, implode("\t", $head)."\n");
         
         $to_be_removed = array();
         foreach($this->syn_canonical_matched_DH21 as $synonym => $recs) {
-            if(count($recs) > 1) exit("more than 1");
+            if(count($recs) > 1) { //print_r($recs); exit("more than 1 [$synonym]");
+                /*Array(
+                    [0] => Array(
+                            [s] => Array(
+                                    [sn] => Paludicola Wagler, 1830
+                                    [s] => ITIS:1094751
+                                    [r] => genus
+                                    [a] => 207817
+                                    [h] => 0d605965b4b729718b59cca15cb9b143
+                                )
+                            [H] => Array(
+                                    [p] => NCBI
+                                    [i] => 2038676
+                                    [t] => EOL-000000009869
+                                )
+                        )
+                    [1] => Array(
+                            [s] => Array(
+                                    [sn] => Paludicola Wagler, 1830
+                                    [s] => ITIS:1094751
+                                    [r] => genus
+                                    [a] => 207817
+                                    [h] => 0d605965b4b729718b59cca15cb9b143
+                                )
+                            [H] => Array(
+                                    [p] => NCBI
+                                    [i] => 2729669
+                                    [t] => EOL-000002500239
+                                )
+                        )
+                )*/
+                $to_be_removed[$recs[0]['s']['h']] = ''; //to be removed
+            }
             else {
-                $rec = $recs[0]; //print_r($rec); exit;
+                $rec = $recs[0]; //print_r($rec); exit("\nelix 3\n");
                 /*Array(
                     [s] => Array(
-                            [sn] => Petalonema pulchrum Gilg
-                            [s] => COL:c66c050289db69cb4051b00bafe702d6
+                            [sn] => Aeshna annulata Latreille, 1805 (nec Fabricius, 1798)
+                            [s] => ODO:Aeshna-annulata-4
                             [r] => species
-                            [a] => 53524691
-                            [h] => 71396c59ba052df232569cd83a23f43a
+                            [a] => Cordulegaster-boltonii
+                            [h] => 09304eebc6da2261746e5e18f7cfd1ca
                         )
-                    [i] => Petalonema-pulchrum
-                )*/
-                if($rec['s']['a'] != $rec['i']) { // acceptedNameUsageID neq identifier
+                    [H] => Array(
+                            [p] => ODO
+                            [i] => Aeshna-annulata
+                            [t] => EOL-000000976787
+                        )
+                )
+                */
+                $DH_prefix     = $rec['H']['p'];
+                $DH_identifier = $rec['H']['i'];
+                $DH_taxonID    = $rec['H']['t'];
+                if($rec['s']['a'] != $DH_identifier) { // acceptedNameUsageID neq identifier
                     $to_be_removed[$rec['s']['h']] = ''; //to be removed
-                    $save = array($rec['s']['sn'], $rec['s']['s'], $rec['s']['a'], $rec['i'], $rec['s']['h']);
+                    $save = array($rec['s']['sn'], $rec['s']['s'], $rec['s']['a'], $DH_taxonID, $DH_identifier, $rec['s']['h']);
                     fwrite($WRITE, implode("\t", $save)."\n");
+                }
+                else { //at this point: acceptedNameUsageID == DH_identifier
+                    if($partner != $DH_prefix) {
+                        $to_be_removed[$rec['s']['h']] = ''; //to be removed
+                        $save = array($rec['s']['sn'], $rec['s']['s'], $rec['s']['a'], $DH_taxonID, $DH_identifier, $rec['s']['h']);
+                        fwrite($WRITE, implode("\t", $save)."\n");
+                    }
+                    else { //those synonyms that are not removed
+                        print_r($rec);
+                    }
                 }
             }
         }
@@ -734,10 +768,12 @@ class DH_v21_TRAM_996
                             if($DH_rank == 'genus' && $syn_rank != 'genus') continue; //don't discard
 
                             //save first:
-                            $identifier = self::get_identifier_from_source($rec['source']);
+                            $ret = self::get_prefix_identifier_from_source($rec['source']);
+                            $prefix = $ret[0];
+                            $identifier = $ret[1];
                             $syn_rec = $this->syn_canonical[$canonical];
-                            $this->syn_canonical_matched_DH21[$canonical][] = array("s" => $syn_rec, 'i' => $identifier);
-                            
+                            $DH_rec = array('p' => $prefix, 'i' => $identifier, 't' => $rec['taxonID']);
+                            $this->syn_canonical_matched_DH21[$canonical][] = array("s" => $syn_rec, 'H' => $DH_rec);
                         }
                     }
                 }
@@ -756,6 +792,20 @@ class DH_v21_TRAM_996
                     [furtherInformationURL] => https://www.pugetsound.edu/academics/academic-resources/slater-museum/biodiversity-resources/dragonflies/world-odonata-list2/
                     [datasetID] => ODO
                     [hash] => 634d60f4a35728bde0ec5a6a3e48a79e
+                )    
+                Array(
+                    [z_partner] => COL
+                    [z_identifier] => 8f40f23a98b9090e950f7218d7b1737f
+                    [taxonID] => 
+                    [source] => COL:8f40f23a98b9090e950f7218d7b1737f
+                    [acceptedNameUsageID] => 3009726
+                    [scientificName] => Megalothorax bonetella Najt & Rapoport, 1965
+                    [taxonRank] => species
+                    [canonicalName] => Megalothorax bonetella
+                    [taxonomicStatus] => not accepted
+                    [furtherInformationURL] => http://www.catalogueoflife.org/col/details/species/id/6e503f12ba03d36fb004aef898d6ff9e/synonym/8f40f23a98b9090e950f7218d7b1737f
+                    [datasetID] => COL-1130
+                    [hash] => 49a7e001c992b7e1a57f13cb4c4f1588
                 )*/
                 $hash = $rec['hash'];
                 if(!isset($this->to_be_removed[$hash])) {
@@ -872,9 +922,10 @@ class DH_v21_TRAM_996
         }
         return $ret['hash'];
     }
-    private function get_identifier_from_source($source)
+    private function get_prefix_identifier_from_source($source)
     {   //e.g. trunk:4038af35-41da-469e-8806-40e60241bb58
         $arr = explode(":", $source);
-        return trim($arr[1]);
+        $arr = array_map('trim', $arr);
+        return array($arr[0], @$arr[1]);
     }
 }
