@@ -305,8 +305,8 @@ class DH_v21_TRAM_996
         we want to get rid of the manually curated one.
         */
         
-        // /* #4 Deduplicate synonyms
-        // step 1: consolidate all synonyms
+        /* #4 Deduplicate synonyms */
+        /* step 1: consolidate all synonyms
         $partners = array('trunk', 'Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR'); //complete
         // $partners = array('ODO'); //during dev only
         // $partners = array('trunk'); //during dev only
@@ -320,11 +320,21 @@ class DH_v21_TRAM_996
             else                    $source_file = 'synonyms_upd_2_'.$partner;
             self::parse_tsv($this->tsv[$source_file], 'consolidate_synonyms', $WRITE, $partner);
         }
-        
+        print_r($this->debug);
         exit("\n-stop 4-\n");
+        */
+        // [trunk syn] => 2138
+        // [COL2 syn] => 9579
+        // [ITIS syn] => 61649
+        // [NCBI syn] => 15544
+        // [ODO syn] => 4169
+        // [WOR syn] => 168417
         // */
-        
-        
+        // /* step 2: record combo hits
+        self::parse_tsv($this->tsv['Consolidated_Syn_1'], 'find_combo_hits', false, '');
+        print_r($this->combo_hits);
+        exit("\n-stop 5-\n");
+        // */
     }
     private function main_3($partner)
     {   // print_r($this->syn_canonical_matched_DH21); exit;
@@ -457,6 +467,10 @@ class DH_v21_TRAM_996
                     // print_r($row); exit("\nupdate this script 2\n");
                     if(!@$row[1]) continue; //'source'
                 }
+                // elseif($task == 'consolidate_synonyms' & $partner == 'trunk') {
+                //     if(!@$row[0]) continue; //to capture taxonID e.g. "SYN-000001681243"
+                // }
+                elseif(in_array($task, array('consolidate_synonyms', 'find_combo_hits'))) {} //just get all recs encountered from tsv
                 else { //rest goes here
                     if(!@$row[1]) continue;
                 }
@@ -1035,18 +1049,21 @@ class DH_v21_TRAM_996
                     foreach($this->synonyms_headers as $head) $save[] = $rec[$head];
                     // print_r($save); print_r($this->synonyms_headers); exit;
                     fwrite($WRITE, implode("\t", $save)."\n");
+                    @$this->debug[$partner.' syn']++;
                 }
             }
             //==============================================================================
             if($task == 'find_combo_hits') {
-                /*
                 $acceptedNameUsageID = $rec['acceptedNameUsageID'];
                 $scientificName = $rec['scientificName'];
                 if($acceptedNameUsageID && $scientificName) {
                     $combo = "$acceptedNameUsageID|$scientificName";
-                    if(isset($this->combo))
+                    if(isset($combos[$combo])) {
+                        $this->combo_hits[$combo][] = $combos[$combo];
+                        $this->combo_hits[$combo][] = $rec;
+                    }
+                    else $combos[$combo] = $rec;
                 }
-                */
             }
             //==============================================================================
 
