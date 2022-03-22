@@ -281,7 +281,7 @@ class DH_v21_TRAM_996
         exit("\n-stop 3-\n");
         END --- */
 
-        // /* START --- replace syn acceptedNameUsageID with DH21 acceptedNameUsageID --- for COL
+        /* START --- replace syn acceptedNameUsageID with DH21 acceptedNameUsageID --- for COL
         $partners = array('Collembola', 'COL');
         $partners = array('Collembola'); //during dev only
         $partners = array('COL'); //during dev only
@@ -297,10 +297,8 @@ class DH_v21_TRAM_996
             $WRITE = fopen($this->tsv['synonyms_upd_2_'.$partner], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
             self::parse_tsv($this->tsv['synonyms_upd_1_'.$partner], 'update_2', $WRITE, $partner);
         }
-        
-        exit("\n-stop 3-\n");
-        // END --- */
-        
+        exit("\n-stop 4-\n");
+        END --- */
         
 
         /* investigate syn from DH21
@@ -327,11 +325,11 @@ class DH_v21_TRAM_996
         */
         
         /* #4 Deduplicate synonyms */
-        /* step 1: consolidate all synonyms
+        // /* step 1: consolidate all synonyms
         $partners = array('trunk', 'Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR'); //complete
         // $partners = array('ODO'); //during dev only
         // $partners = array('trunk'); //during dev only
-        $partners = array('trunk', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR'); //during dev only
+        // $partners = array('trunk', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR'); //during dev only
         // $partners = array('Collembola', 'COL'); //during dev only
         $this->synonyms_headers = $this->min_synonym_headers2;
         $WRITE = fopen($this->tsv['Consolidated_Syn_1'], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n"); fclose($WRITE);
@@ -343,7 +341,7 @@ class DH_v21_TRAM_996
         }
         print_r($this->debug);
         exit("\n-stop 4-\n");
-        */
+        // */
         // [trunk syn] => 2138
         // [COL2 syn] => 9579
         // [ITIS syn] => 61649
@@ -351,6 +349,7 @@ class DH_v21_TRAM_996
         // [ODO syn] => 4169
         // [WOR syn] => 168417
         // */
+        
         // /* step 2: record combo hits
         self::parse_tsv($this->tsv['Consolidated_Syn_1'], 'find_combo_hits', false, '');
         print_r($this->combo_hits);
