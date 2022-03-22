@@ -161,7 +161,8 @@ class DH_v21_TRAM_996
         
         /* step 4: assemble synonyms --- COL Collembola
         self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs Collembola', false); //creates $this->Collembola_taxonIDs
-        $WRITE = fopen($this->tsv['synonyms_Collembola'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
+        // print_r($this->Collembola_taxonIDs); echo "\nCollembola_taxonIDs: ".count($this->Collembola_taxonIDs)."\n";
+        $WRITE = fopen($this->tsv['synonyms_Collembola'], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
         self::parse_tsv($this->tsv['Collembola_new'], 'get_Collembola_synonyms', $WRITE, 'COL');
         */
         // exit("\n-stop 1-\n");
@@ -238,8 +239,8 @@ class DH_v21_TRAM_996
         */
         /* start #3
         // $partners = array('Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
-        $partners = array('COL'); //during dev only
-        // $partners = array('Collembola'); //during dev only
+        // $partners = array('COL'); //during dev only
+        $partners = array('Collembola'); //during dev only
         // $partners = array('COL2'); //during dev only
         // $partners = array('ODO'); //during dev only
         // $partners = array('NCBI'); //during dev only
@@ -266,21 +267,41 @@ class DH_v21_TRAM_996
         exit("\n-stop 2-\n");
         */ //end #3
         
-        
-        /* START --- replace syn acceptedNameUsageID with DH21 acceptedNameUsageID
-        $partners = array('Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
-        $partners = array('ODO'); //during dev only
-        $partners = array('COL2', 'ITIS', 'NCBI', 'ODO', 'WOR'); //during dev only
-        $partners = array('Collembola', 'COL'); //during dev only
+        /* START --- replace syn acceptedNameUsageID with DH21 acceptedNameUsageID --- for non-COL
+        $partners = array('COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
+        // $partners = array('ODO'); //during dev only
         $this->synonyms_headers = $this->min_synonym_headers2;
         foreach($partners as $partner) {
             $this->identifier_taxonID_info = array(); //partner exclusive
             self::parse_tsv($this->tsv['DH21_current'], 'build_identifier_taxonID_info', false, $partner); //builds $this->identifier_taxonID_info
+            echo "\nidentifier_taxonID_info [$partner]: ".count($this->identifier_taxonID_info)."\n"; //exit;
             $WRITE = fopen($this->tsv['synonyms_upd_2_'.$partner], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
             self::parse_tsv($this->tsv['synonyms_upd_1_'.$partner], 'update_2', $WRITE, $partner);
         }
         exit("\n-stop 3-\n");
         END --- */
+
+        // /* START --- replace syn acceptedNameUsageID with DH21 acceptedNameUsageID --- for COL
+        $partners = array('Collembola', 'COL');
+        $partners = array('Collembola'); //during dev only
+        $partners = array('COL'); //during dev only
+        $this->synonyms_headers = $this->min_synonym_headers2;
+        foreach($partners as $partner) {
+            $this->accepted_identifier_info = array(); //partner exclusive
+            self::parse_tsv($this->tsv['COL_taxonIDs'], 'build_accepted_identifier_info', false, $partner); //builds $this->accepted_identifier_info()
+
+            $this->identifier_taxonID_info = array(); //partner exclusive
+            self::parse_tsv($this->tsv['DH21_current'], 'build_identifier_taxonID_info', false, $partner); //builds $this->identifier_taxonID_info
+
+            echo "\nidentifier_taxonID_info [$partner]: ".count($this->identifier_taxonID_info)."\n"; //exit;
+            $WRITE = fopen($this->tsv['synonyms_upd_2_'.$partner], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
+            self::parse_tsv($this->tsv['synonyms_upd_1_'.$partner], 'update_2', $WRITE, $partner);
+        }
+        
+        exit("\n-stop 3-\n");
+        // END --- */
+        
+        
 
         /* investigate syn from DH21
         self::parse_tsv($this->tsv['DH21_current'], 'check', false, '');
@@ -460,7 +481,7 @@ class DH_v21_TRAM_996
             }
             else {
                 if($task == 'open_Partner_synonyms') {
-                    print_r($row); exit("\nupdate this script 1\n");
+                    // print_r($row); exit("\nupdate this script 1\n");
                     if(!@$row[9]) continue; //'hash'
                 }
                 elseif(in_array($task, array('util_1', 'update_1', 'update_2'))) {
@@ -471,6 +492,9 @@ class DH_v21_TRAM_996
                 //     if(!@$row[0]) continue; //to capture taxonID e.g. "SYN-000001681243"
                 // }
                 elseif(in_array($task, array('consolidate_synonyms', 'find_combo_hits'))) {} //just get all recs encountered from tsv
+                elseif($task == 'get_Collembola_synonyms') {
+                    if(!@$row[0]) continue;
+                }
                 else { //rest goes here
                     if(!@$row[1]) continue;
                 }
@@ -590,6 +614,14 @@ class DH_v21_TRAM_996
                 )*/
                 if($rec['partner'] == 'Collembola') $this->Collembola_taxonIDs[$rec['taxonID']] = '';
             }
+            if($task == 'build_accepted_identifier_info') { // print_r($rec); exit;
+                /*Array(
+                    [partner] => Collembola
+                    [identifier] => d3fe342a0f6ed9a8d6e8dd0fce2aad88
+                    [taxonID] => 54706559
+                )*/
+                if($rec['partner'] == $partner) $this->accepted_identifier_info[$rec['taxonID']] = $rec['identifier'];
+            }
             //==============================================================================
             if($task == 'get_COL_synonyms') { //print_r($rec); exit;
                 $taxonomicStatus        = $rec['taxonomicStatus'];
@@ -661,7 +693,7 @@ class DH_v21_TRAM_996
                 $acceptedNameUsageID    = $rec['acceptedNameUsageID'];
                 
                 $condition = $taxonomicStatus == 'synonym' && isset($this->Collembola_taxonIDs[$acceptedNameUsageID]);
-                if($condition) { //print_r($rec); exit;
+                if($condition) { //print_r($rec); exit("\nhuli ka...\n");
                     /*Array(
                         [taxonID] => 3011910
                         [identifier] => 
@@ -992,7 +1024,12 @@ class DH_v21_TRAM_996
                     [higherClassification] => 
                 )*/
                 $ret = self::get_prefix_identifier_from_source($rec['source']); $prefix = $ret[0]; $identifier = $ret[1];
-                if($partner == $prefix) $this->identifier_taxonID_info[$identifier] = $rec['taxonID'];
+                if($partner == 'Collembola') {
+                    if('COL' == $prefix) $this->identifier_taxonID_info[$identifier] = $rec['taxonID'];
+                }
+                else { //the rest
+                    if($partner == $prefix) $this->identifier_taxonID_info[$identifier] = $rec['taxonID'];
+                }
             }
             //==============================================================================
             if($task == 'update_2') { //print_r($rec); exit;
@@ -1009,6 +1046,14 @@ class DH_v21_TRAM_996
                     [hash] => 634d60f4a35728bde0ec5a6a3e48a79e
                 )*/
                 $acceptedNameUsageID = $rec['acceptedNameUsageID'];
+                
+                // /* for COL and Collembola
+                if(in_array($partner, array('COL', 'Collembola'))) {
+                    if($val = $this->accepted_identifier_info[$acceptedNameUsageID]) $acceptedNameUsageID = $val;
+                    else { print_r($rec); exit("\nNo lookup 2...\n"); }
+                }
+                // */
+                
                 if($val = @$this->identifier_taxonID_info[$acceptedNameUsageID]) $rec['DH_acceptedNameUsageID'] = $val;
                 else {
                     $this->debug['no lookup'][$partner.":".$acceptedNameUsageID] = '';
