@@ -62,7 +62,7 @@ class DH_v21_TRAM_996
         $this->tsv['synonyms_upd_2_ITIS']       = $this->main_path."/synonyms_upd_2_ITIS.txt";
 
         $this->tsv['Consolidated_Syn_1']       = $this->main_path."/synonyms_consolidated_1.txt";
-        
+        $this->tsv['Consolidated_Syn_2']       = $this->main_path."/synonyms_consolidated_2.txt";
         
         
         /* start of COL2 and the rest */
@@ -352,12 +352,51 @@ class DH_v21_TRAM_996
             [ODO syn] => 4170
             [WOR syn] => 168418
         )*/
+
+        /* ===== tests only =====
+        $this->taxonIDs_2remove = array(); $this->hashes_2remove = array();
+        $recs = array();
+        $recs[] = Array(
+                    'taxonID' => 'SYN-000001683001',                    'source' => '',
+                    'acceptedNameUsageID' => 'EOL-000000084582',        'DH_acceptedNameUsageID' => 'EOL-000000084582',
+                    'scientificName' => 'Acantharia',                   'taxonRank' => 'class',
+                    'canonicalName' => 'Acantharia',                    'taxonomicStatus' => 'not accepted',
+                    'furtherInformationURL' => '',                      //'datasetID' => 'ITIS',
+                                                                        'datasetID' => 'trunk',
+                    'hash' => ''
+                );
+        $recs[] = Array(
+                    'taxonID' => '',                                    'source' => 'NCBI:65574_2',
+                    'acceptedNameUsageID' => '65574',                   'DH_acceptedNameUsageID' => 'EOL-000000084582',
+                    'scientificName' => 'Acantharia',                   'taxonRank' => 'class',
+                    'canonicalName' => 'Acantharia',                    'taxonomicStatus' => 'not accepted',
+                    'furtherInformationURL' => 'https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=65574',
+                    'datasetID' => 'NCBI',
+                    // 'datasetID' => 'ITIS',
+                    'hash' => 'da6783c16b93c4810442ca5e97fdb0de'
+                );
+        self::parse_combo($recs);
+        print_r($this->taxonIDs_2remove); print_r($this->hashes_2remove);
+        exit("\n-end test\n");
+        */
+        
         
         // /* step 2: record combo hits
         self::parse_tsv($this->tsv['Consolidated_Syn_1'], 'find_combo_hits', false, '');
         // print_r($this->combo_hits);
-        // echo "\ntotal combo hits: ".count($this->combo_hits)."\n";
+        echo "\ntotal combo hits: ".count($this->combo_hits)."\n";
+
+        $this->taxonIDs_2remove = array(); $this->hashes_2remove = array();
         self::parse_combo_hits();
+        // print_r($this->taxonIDs_2remove); print_r($this->hashes_2remove);
+        echo "\ntaxonIDs_2remove: ".count($this->taxonIDs_2remove)."\n";
+        echo "\nhashes_2remove: ".count($this->hashes_2remove)."\n";
+
+        // step 3: remove duplicate syns in Consolidated_Syn_1
+        $this->synonyms_headers = $this->min_synonym_headers2;
+        $WRITE = fopen($this->tsv['Consolidated_Syn_2'], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
+        self::parse_tsv($this->tsv['Consolidated_Syn_1'], 'consolidate_synonyms_2', $WRITE, '');
+        print_r($this->debug);
         exit("\n-stop 5-\n");
         // */
     }
@@ -365,10 +404,52 @@ class DH_v21_TRAM_996
     {   $i = 0;
         foreach($this->combo_hits as $combo => $recs) {
             if(count($recs) > 1) { $i++;
-                echo "\n[$combo]"; print_r($recs);
+                // echo "\n[$combo]"; print_r($recs);
+                self::parse_combo($recs);
             }
         }
         echo "\ntotal raw combo hits: [$i]\n";
+    }
+    function parse_combo($recs)
+    {   //print_r($recs); //exit;
+        /* In cases where this happens, discard the synonyms from lower priority resources using the 
+        following source data set priority sequence: ITIS > WOR > COL2 > COL > NCBI > ODO > trunk */
+        $p['ITIS'] = 1;
+        $p['WOR'] = 2;
+        $p['COL2'] = 3;
+        $p['COL'] = 4;
+        $p['NCBI'] = 5;
+        $p['ODO'] = 6;
+        $p['trunk'] = 7;
+        $final = array();
+        foreach($recs as $rec) {
+            $datasetID = $rec['datasetID'];
+            if(substr($datasetID,0,4) == 'COL-') $datasetID = 'COL'; //COL-1130
+            if($index = $p[$datasetID]) $final[$index] = $rec;
+            else { print_r($rec); exit("\ndatasetID not yet initialized\n"); }
+        }
+        //print_r($final);
+        asort($final); //print_r($final);
+        $i = 0;
+        foreach($final as $rec) { $i++;
+            if($i == 1) { //echo "\nretain"; print_r($rec);
+                if($val = $rec['taxonID']) $taxonIDs_2retain[$val] = '';
+                if($val = $rec['hash']) $hashes_2retain[$val] = '';
+            }
+            // else {
+            //     // echo "\nremove"; print_r($rec);
+            //     if($val = $rec['taxonID']) $this->taxonIDs_2remove[$val] = '';
+            //     if($val = $rec['hash']) $this->hashes_2remove[$val] = '';
+            // }
+        }
+        //refresh
+        foreach($recs as $rec) {
+            if(isset($taxonIDs_2retain[$rec['taxonID']]) || isset($hashes_2retain[$rec['hash']])) {}
+            else {
+                if($val = $rec['taxonID']) $this->taxonIDs_2remove[$val] = '';
+                if($val = $rec['hash']) $this->hashes_2remove[$val] = '';
+            }
+        }
     }
     private function main_3($partner)
     {   // print_r($this->syn_canonical_matched_DH21); exit;
@@ -504,7 +585,7 @@ class DH_v21_TRAM_996
                 // elseif($task == 'consolidate_synonyms' & $partner == 'trunk') {
                 //     if(!@$row[0]) continue; //to capture taxonID e.g. "SYN-000001681243"
                 // }
-                elseif(in_array($task, array('consolidate_synonyms', 'find_combo_hits'))) {} //just get all recs encountered from tsv
+                elseif(in_array($task, array('consolidate_synonyms', 'find_combo_hits', 'consolidate_synonyms_2'))) {} //just get all recs encountered from tsv
                 elseif($task == 'get_Collembola_synonyms') {
                     if(!@$row[0]) continue;
                 }
@@ -1108,9 +1189,25 @@ class DH_v21_TRAM_996
                     // print_r($save); print_r($this->synonyms_headers); exit;
                     fwrite($WRITE, implode("\t", $save)."\n");
                     @$this->debug[$partner.' syn']++;
+                    @$this->debug['all syn']++;
                 }
             }
             //==============================================================================
+            if($task == 'consolidate_synonyms_2') {
+                if($taxonID = $rec['taxonID']) {
+                    if(isset($this->taxonIDs_2remove[$taxonID])) continue;
+                }
+                if($hash = $rec['hash']) {
+                    if(isset($this->hashes_2remove[$hash])) continue;
+                }
+                $save = array();
+                foreach($this->synonyms_headers as $head) $save[] = $rec[$head];
+                // print_r($save); print_r($this->synonyms_headers); exit;
+                fwrite($WRITE, implode("\t", $save)."\n");
+                @$this->debug['saved synonyms']++;
+            }
+            //==============================================================================
+            
             if($task == 'find_combo_hits') { //print_r($rec); exit;
                 /*Array(
                     [taxonID] => SYN-000001683069
