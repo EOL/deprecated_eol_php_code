@@ -325,7 +325,7 @@ class DH_v21_TRAM_996
         */
         
         /* #4 Deduplicate synonyms */
-        // /* step 1: consolidate all synonyms
+        /* step 1: consolidate all synonyms
         $partners = array('trunk', 'Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR'); //complete
         // $partners = array('ODO'); //during dev only
         // $partners = array('trunk'); //during dev only
@@ -341,20 +341,34 @@ class DH_v21_TRAM_996
         }
         print_r($this->debug);
         exit("\n-stop 4-\n");
-        // */
-        // [trunk syn] => 2138
-        // [COL2 syn] => 9579
-        // [ITIS syn] => 61649
-        // [NCBI syn] => 15544
-        // [ODO syn] => 4169
-        // [WOR syn] => 168417
-        // */
+        */
+        /*Array(
+            [trunk syn] => 2138
+            [Collembola syn] => 3272
+            [COL syn] => 1334518
+            [COL2 syn] => 9580
+            [ITIS syn] => 61650
+            [NCBI syn] => 15545
+            [ODO syn] => 4170
+            [WOR syn] => 168418
+        )*/
         
         // /* step 2: record combo hits
         self::parse_tsv($this->tsv['Consolidated_Syn_1'], 'find_combo_hits', false, '');
-        print_r($this->combo_hits);
+        // print_r($this->combo_hits);
+        // echo "\ntotal combo hits: ".count($this->combo_hits)."\n";
+        self::parse_combo_hits();
         exit("\n-stop 5-\n");
         // */
+    }
+    private function parse_combo_hits()
+    {   $i = 0;
+        foreach($this->combo_hits as $combo => $recs) {
+            if(count($recs) > 1) { $i++;
+                echo "\n[$combo]"; print_r($recs);
+            }
+        }
+        echo "\ntotal raw combo hits: [$i]\n";
     }
     private function main_3($partner)
     {   // print_r($this->syn_canonical_matched_DH21); exit;
@@ -1097,16 +1111,38 @@ class DH_v21_TRAM_996
                 }
             }
             //==============================================================================
-            if($task == 'find_combo_hits') {
-                $acceptedNameUsageID = $rec['acceptedNameUsageID'];
+            if($task == 'find_combo_hits') { //print_r($rec); exit;
+                /*Array(
+                    [taxonID] => SYN-000001683069
+                    [source] => 
+                    [acceptedNameUsageID] => EOL-000003165652
+                    [DH_acceptedNameUsageID] => EOL-000003165652
+                    [scientificName] => 2019-nCoV
+                    [taxonRank] => 
+                    [canonicalName] => 2019-nCoV
+                    [taxonomicStatus] => not accepted
+                    [furtherInformationURL] => 
+                    [datasetID] => trunk
+                    [hash] => 
+                )*/
+                $acceptedNameUsageID = $rec['DH_acceptedNameUsageID'];
                 $scientificName = $rec['scientificName'];
                 if($acceptedNameUsageID && $scientificName) {
+                    /* 1st try
                     $combo = "$acceptedNameUsageID|$scientificName";
                     if(isset($combos[$combo])) {
                         $this->combo_hits[$combo][] = $combos[$combo];
                         $this->combo_hits[$combo][] = $rec;
                     }
                     else $combos[$combo] = $rec;
+                    */
+                    $combo = "$acceptedNameUsageID|$scientificName";
+                    if(isset($this->combo_hits[$combo])){
+                        if(!in_array($rec, $this->combo_hits[$combo])) $this->combo_hits[$combo][] = $rec;
+                    }
+                    else {
+                        $this->combo_hits[$combo][] = $rec;
+                    }
                 }
             }
             //==============================================================================
