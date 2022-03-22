@@ -60,6 +60,10 @@ class DH_v21_TRAM_996
         $this->tsv['synonyms_upd_2_NCBI']       = $this->main_path."/synonyms_upd_2_NCBI.txt";
         $this->tsv['synonyms_upd_2_WOR']        = $this->main_path."/synonyms_upd_2_WOR.txt";
         $this->tsv['synonyms_upd_2_ITIS']       = $this->main_path."/synonyms_upd_2_ITIS.txt";
+
+        $this->tsv['Consolidated_Syn_1']       = $this->main_path."/synonyms_consolidated_1.txt";
+        
+        
         
         /* start of COL2 and the rest */
         $this->tsv['COL_2021'] = $this->main_path."/data/COL_2021_dwca/Taxon.tsv";
@@ -149,18 +153,18 @@ class DH_v21_TRAM_996
         */
         $this->synonyms_headers = $this->min_synonym_headers;
         
-        // /* step 3: assemble synonyms --- COL
+        /* step 3: assemble synonyms --- COL
         self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs COL', false); //creates $this->COL_taxonIDs
         $WRITE = fopen($this->tsv['synonyms_COL'], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
         self::parse_tsv($this->tsv['COL_2019_new'], 'get_COL_synonyms', $WRITE, 'COL');
-        // */
+        */
         
         /* step 4: assemble synonyms --- COL Collembola
         self::parse_tsv($this->tsv['COL_taxonIDs'], 'get_COL_taxonIDs Collembola', false); //creates $this->Collembola_taxonIDs
         $WRITE = fopen($this->tsv['synonyms_Collembola'], "w"); fwrite($WRITE, implode("\t", $head)."\n");
         self::parse_tsv($this->tsv['Collembola_new'], 'get_Collembola_synonyms', $WRITE, 'COL');
         */
-        exit("\n-stop 1-\n");
+        // exit("\n-stop 1-\n");
         /* ======== start for COL2, ITIS, NCBI, ODO, WOR ======== */
         $head = $this->min_synonym_headers;
         $this->synonyms_headers = $head; // print_r($head); exit;
@@ -232,7 +236,7 @@ class DH_v21_TRAM_996
         Please report all the synonyms that were removed during this step 
         (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match).
         */
-        // /* start #3
+        /* start #3
         // $partners = array('Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
         $partners = array('COL'); //during dev only
         // $partners = array('Collembola'); //during dev only
@@ -259,11 +263,11 @@ class DH_v21_TRAM_996
             $WRITE = fopen($this->tsv['synonyms_upd_1_'.$partner], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
             self::parse_tsv($this->tsv['synonyms_'.$partner], 'update_1', $WRITE, $partner);
         }
-        // */ //end #3
         exit("\n-stop 2-\n");
+        */ //end #3
         
         
-        /* replace syn acceptedNameUsageID with DH21 acceptedNameUsageID
+        /* START --- replace syn acceptedNameUsageID with DH21 acceptedNameUsageID
         $partners = array('Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR');
         $partners = array('ODO'); //during dev only
         $partners = array('COL2', 'ITIS', 'NCBI', 'ODO', 'WOR'); //during dev only
@@ -275,13 +279,51 @@ class DH_v21_TRAM_996
             $WRITE = fopen($this->tsv['synonyms_upd_2_'.$partner], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
             self::parse_tsv($this->tsv['synonyms_upd_1_'.$partner], 'update_2', $WRITE, $partner);
         }
+        exit("\n-stop 3-\n");
+        END --- */
+
+        /* investigate syn from DH21
+        self::parse_tsv($this->tsv['DH21_current'], 'check', false, '');
+        print_r($this->debug); echo "\n".count($this->debug['datasetID'])."\n"; exit;
+        */
+        
+        /* 4. Deduplicate synonyms
+        For this step, please add the manually curated synonyms from the DH 2.1 file to the other synonyms. 
+        These all have taxonID values starting with SYN-.
+
+        If we get exactly the same synonym from more than one source, we should keep only one version, using the following criteria:
+
+        Two synonyms are equivalent IF both of the following are true:
+        A. They have the same acceptedNameUsageID
+        B. They have exactly the same scientificName
+
+        In cases where this happens, discard the synonyms from lower priority resources using the following source data set 
+        priority sequence: ITIS > WOR > COL2 > COL > NCBI > ODO > trunk
+
+        Where ITIS is the highest priority data set and trunk is the lowest priority data set, 
+        i.e., if there is a manually curated synonym that’s already in one of the other synonym data sets, 
+        we want to get rid of the manually curated one.
         */
         
         // /* #4 Deduplicate synonyms
         // step 1: consolidate all synonyms
-        self::parse_tsv($this->tsv['DH21_current'], 'check', false, '');
+        $partners = array('trunk', 'Collembola', 'COL', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR'); //complete
+        // $partners = array('ODO'); //during dev only
+        // $partners = array('trunk'); //during dev only
+        $partners = array('trunk', 'COL2', 'ITIS', 'NCBI', 'ODO', 'WOR'); //during dev only
+        // $partners = array('Collembola', 'COL'); //during dev only
+        $this->synonyms_headers = $this->min_synonym_headers2;
+        $WRITE = fopen($this->tsv['Consolidated_Syn_1'], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n"); fclose($WRITE);
+        foreach($partners as $partner) {
+            $WRITE = fopen($this->tsv['Consolidated_Syn_1'], "a");
+            if($partner == 'trunk') $source_file = 'DH21_current';
+            else                    $source_file = 'synonyms_upd_2_'.$partner;
+            self::parse_tsv($this->tsv[$source_file], 'consolidate_synonyms', $WRITE, $partner);
+        }
         
+        exit("\n-stop 4-\n");
         // */
+        
         
     }
     private function main_3($partner)
@@ -416,7 +458,7 @@ class DH_v21_TRAM_996
                     if(!@$row[1]) continue; //'source'
                 }
                 else { //rest goes here
-                    if(!@$row[0]) continue;
+                    if(!@$row[1]) continue;
                 }
                 $k = 0; $rec = array();
                 foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
@@ -439,7 +481,7 @@ class DH_v21_TRAM_996
                 [higherclassification] => Life|Cellular Organisms|Eukaryota|Amoebozoa|Evosea|Eumycetozoa|Dictyostelia|Acytosteliales|Acytosteliaceae|Acytostelium
             )*/
             //==============================================================================
-            if($task == 'check') { print_r($rec); exit;
+            if($task == 'check') { //print_r($rec); exit;
                 /*Array(
                     [taxonID] => EOL-000000000001
                     [source] => trunk:4038af35-41da-469e-8806-40e60241bb58
@@ -455,11 +497,27 @@ class DH_v21_TRAM_996
                     [Landmark] => 
                     [higherClassification] => 
                 )*/
-                /*
-                if(substr($rec['taxonID'],0,4) == "SYN-") {
-                    print_r($rec); exit;
+                // /*
+                if(substr($rec['taxonID'],0,4) == "SYN-") { //print_r($rec); exit;
+                    /*Array(
+                        [taxonID] => SYN-000001683069
+                        [source] => 
+                        [furtherInformationURL] => 
+                        [acceptedNameUsageID] => EOL-000003165652
+                        [parentNameUsageID] => 
+                        [scientificName] => 2019-nCoV
+                        [taxonRank] => 
+                        [taxonomicStatus] => not accepted
+                        [datasetID] => trunk
+                        [canonicalName] => 2019-nCoV
+                        [eolID] => 
+                        [Landmark] => 
+                        [higherClassification] => 
+                    )*/
+                    $this->debug['datasetID'][$rec['datasetID']] = '';
+                    @$this->debug['datasetID count']++;
                 }
-                */
+                // */
             }
             if($task == 'assemble_taxonIDs_from_source_col') {
                 $source = $rec['source'];
@@ -948,8 +1006,8 @@ class DH_v21_TRAM_996
                 fwrite($WRITE, implode("\t", $save)."\n");
             }
             //==============================================================================
-            if($task == 'xxx') {
-                /*Array(
+            if($task == 'consolidate_synonyms') {
+                /*Array( --- trunk
                     [taxonID] => SYN-000001683069
                     [source] => 
                     [furtherInformationURL] => 
@@ -964,11 +1022,32 @@ class DH_v21_TRAM_996
                     [Landmark] => 
                     [higherClassification] => 
                 )*/
-                
                 // taxonID  source  acceptedNameUsageID DH_acceptedNameUsageID  scientificName  taxonRank   canonicalName   taxonomicStatus furtherInformationURL   datasetID   hash
                 // taxonID  source  acceptedNameUsageID                         scientificName  taxonRank   canonicalName   taxonomicStatus furtherInformationURL   datasetID   hash
+                if($partner == 'trunk') { //from DH21
+                    $rec['DH_acceptedNameUsageID'] = $rec['acceptedNameUsageID'];
+                    $rec['hash'] = ''; //we don't need a value atm or ever...
+                    $condition = substr($rec['taxonID'],0,4) == "SYN-";
+                }
+                else $condition = true; //from all 7 prefixes
+                if($condition) {
+                    $save = array();
+                    foreach($this->synonyms_headers as $head) $save[] = $rec[$head];
+                    // print_r($save); print_r($this->synonyms_headers); exit;
+                    fwrite($WRITE, implode("\t", $save)."\n");
+                }
             }
             //==============================================================================
+            if($task == 'find_combo_hits') {
+                /*
+                $acceptedNameUsageID = $rec['acceptedNameUsageID'];
+                $scientificName = $rec['scientificName'];
+                if($acceptedNameUsageID && $scientificName) {
+                    $combo = "$acceptedNameUsageID|$scientificName";
+                    if(isset($this->combo))
+                }
+                */
+            }
             //==============================================================================
 
         } //end foreach()
