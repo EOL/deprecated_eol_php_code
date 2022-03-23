@@ -63,6 +63,7 @@ class DH_v21_TRAM_996
 
         $this->tsv['Consolidated_Syn_1']       = $this->main_path."/synonyms_consolidated_1.txt";
         $this->tsv['Consolidated_Syn_2']       = $this->main_path."/synonyms_consolidated_2.txt";
+        $this->tsv['Consolidated_Syn_3']       = $this->main_path."/synonyms_consolidated_3.txt";
         
         
         /* start of COL2 and the rest */
@@ -351,6 +352,7 @@ class DH_v21_TRAM_996
             [NCBI syn] => 15545
             [ODO syn] => 4170
             [WOR syn] => 168418
+            1,599,292 synonyms_consolidated_1.txt
         )*/
 
         /* ===== tests only =====
@@ -394,6 +396,7 @@ class DH_v21_TRAM_996
         self::parse_tsv($this->tsv['Consolidated_Syn_1'], 'consolidate_synonyms_2', $WRITE, '');
         print_r($this->debug);
         exit("\n-stop 5-\n");
+        // 1,599,036 synonyms_consolidated_2.txt
         */
         
         /* ---------- test Consolidated_Syn_2 if there are still duplicates --- there should be none/zero
@@ -449,21 +452,21 @@ class DH_v21_TRAM_996
         /* #5. Assign taxonID values for synonyms */
         self::parse_tsv($this->tsv['Consolidated_Syn_2'], 'build_SN_Accepted_prefix_info', false, ''); //builds $this->SN_Accepted_prefix_info
         self::parse_tsv($this->tsv['DH11'], 'find_hits_DH21_DH11', false, ''); //builds $this->hits_DH21_DH11
-        print_r($this->new_id);
+        // print_r($this->new_id);
         echo "\nnew_ids: ".count($this->new_id)."\n";
+        unset($this->SN_Accepted_prefix_info);
+        unset($this->hits_DH21_DH11);
         //     [8fa925c03c1307a67dffc39a20520332] => SYN-000001673778
         //     [f7955cef3ce90a6390ae9ad3169327cd] => SYN-000001673779
         //     [26980b1945e1c76bcce741995f2bd170] => SYN-000001673780
         //     [23767120207cfcc7c1239585d31f217e] => SYN-000001673781
         //     [bda4241ca3611e3c267f8e13ab8820d2] => SYN-000001673782
         // new_ids: 1,324,011 --- salvaged SYN- IDs from DH11 that can be used in DH21 synonyms.
-        
 
-        // $this->synonyms_headers = $this->min_synonym_headers2;
-        // $WRITE = fopen($this->tsv['Consolidated_Syn_3'], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
-        // self::parse_tsv($this->tsv['Consolidated_Syn_1'], 'consolidate_synonyms_2', $WRITE, '');
-        
-        
+        $this->synonyms_headers = $this->min_synonym_headers2;
+        $WRITE = fopen($this->tsv['Consolidated_Syn_3'], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
+        self::parse_tsv($this->tsv['Consolidated_Syn_2'], 'save_new_SYN_ids_to_DH21_synonyms', $WRITE, '');
+        print_r($this->debug);
     }
     private function record_combo_hits($source_file)
     {
@@ -666,7 +669,7 @@ class DH_v21_TRAM_996
                     if(!@$row[0]) continue;
                 }
                 else { //rest goes here
-                    if(!@$row[1]) continue;
+                    // if(!@$row[1]) continue;
                 }
                 $k = 0; $rec = array();
                 foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
@@ -745,7 +748,27 @@ class DH_v21_TRAM_996
                         $this->new_id[$DH21_taxonID_OR_hash] = $rec['taxonID'];
                     }
                 }
+            }
+            if($task == 'save_new_SYN_ids_to_DH21_synonyms') { //looping DH21 synonyms
+                //     [8fa925c03c1307a67dffc39a20520332] => SYN-000001673778
+                //     [f7955cef3ce90a6390ae9ad3169327cd] => SYN-000001673779
+                //     [26980b1945e1c76bcce741995f2bd170] => SYN-000001673780
+                //     [23767120207cfcc7c1239585d31f217e] => SYN-000001673781
+                //     [bda4241ca3611e3c267f8e13ab8820d2] => SYN-000001673782
                 
+                if($val = $rec['taxonID']) $DH21_taxonID_OR_hash = $val;
+                if($val = $rec['hash']) $DH21_taxonID_OR_hash = $val;
+                if(isset($this->new_id[$DH21_taxonID_OR_hash])) {
+                    if($new_taxonID = $this->new_id[$DH21_taxonID_OR_hash]) {
+                        $rec['taxonID'] = $new_taxonID;
+                        @$this->debug['connections saved']++;
+                    }
+                    else exit("\nshould not go here...\n");
+                }
+                $save = array();
+                foreach($this->synonyms_headers as $head) $save[] = $rec[$head];
+                // print_r($save); print_r($this->synonyms_headers); exit;
+                fwrite($WRITE, implode("\t", $save)."\n");
             }
             //==============================================================================
             if($task == 'assemble_taxonIDs_from_source_col') {
