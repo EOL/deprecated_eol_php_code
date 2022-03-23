@@ -396,7 +396,7 @@ class DH_v21_TRAM_996
         exit("\n-stop 5-\n");
         */
         
-        /* test Consolidated_Syn_2 if there are still duplicates --- there should be none/zero
+        /* ---------- test Consolidated_Syn_2 if there are still duplicates --- there should be none/zero
         $this->combo_hits = array();
         self::record_combo_hits('Consolidated_Syn_2');
             // total raw combo hits: [0]
@@ -405,6 +405,64 @@ class DH_v21_TRAM_996
         exit("\n-stop 6-\n");
         // self::record_combo_hits('Consolidated_Syn_1'); //just for testing, backtrack a bit. Not part of normal operation
         */
+        
+        /* ---------- investigate DH11 before going to #5
+        self::parse_tsv($this->tsv['DH11'], 'check', false, '');
+        print_r($this->debug); exit("\n-end check-\n");
+        */
+        /* DH11 synonyms:
+        Array(
+            [source] => Array(
+                    [NCBI] => 
+                    [ASW] => 
+                    [ODO] => 
+                    [BOM] => 
+                    [COL] => 
+                )
+            [DH11 synonyms total] => 1,680,845
+        )*/
+        /* ---------- investigate
+        self::parse_tsv($this->tsv['Consolidated_Syn_2'], 'check', false, '');
+        print_r($this->debug); exit("\n-end check-\n");
+        */
+        /* from Consolidated_Syn_2
+        [source] => Array(
+                DH21        DH11
+                [COL] =>    --- COL
+                [COL2] =>   --- COL
+                [ITIS] =>   no DH11 syn
+                [NCBI] =>   --- NCBI
+                [ODO] =>    --- ODO
+                [WOR] =>    no DH11 syn
+        [DH21 synonyms total] => 1,596,905
+        
+        A. The scientificName value is exactly the same
+        B. The acceptedNameUsageID value is exactly the same
+        C. The source value in DH 1.1 corresponds to the source prefix in DH 2.1, based on the following criteria:
+        • For DH 2.1 synonyms with source prefixes COL or COL2 look only for DH 1.1 matches where source is COL
+        • For DH 2.1 synonyms with source prefix NCBI look only for DH 1.1 matches where source is NCBI
+        • For DH 2.1 synonyms with source prefix ODO look only for DH 1.1 matches where source is ODO
+        • For DH 2.1 synonyms that lack a source value, look for DH 1.1. matches where source is BOM or where the source value is empty.
+        There were no ITIS or WOR synonyms in DH 1.1, so you don’t need to worry about finding matches for those.
+        */
+
+        /* #5. Assign taxonID values for synonyms */
+        self::parse_tsv($this->tsv['Consolidated_Syn_2'], 'build_SN_Accepted_prefix_info', false, ''); //builds $this->SN_Accepted_prefix_info
+        self::parse_tsv($this->tsv['DH11'], 'find_hits_DH21_DH11', false, ''); //builds $this->hits_DH21_DH11
+        print_r($this->new_id);
+        echo "\nnew_ids: ".count($this->new_id)."\n";
+        //     [8fa925c03c1307a67dffc39a20520332] => SYN-000001673778
+        //     [f7955cef3ce90a6390ae9ad3169327cd] => SYN-000001673779
+        //     [26980b1945e1c76bcce741995f2bd170] => SYN-000001673780
+        //     [23767120207cfcc7c1239585d31f217e] => SYN-000001673781
+        //     [bda4241ca3611e3c267f8e13ab8820d2] => SYN-000001673782
+        // new_ids: 1,324,011 --- salvaged SYN- IDs from DH11 that can be used in DH21 synonyms.
+        
+
+        // $this->synonyms_headers = $this->min_synonym_headers2;
+        // $WRITE = fopen($this->tsv['Consolidated_Syn_3'], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
+        // self::parse_tsv($this->tsv['Consolidated_Syn_1'], 'consolidate_synonyms_2', $WRITE, '');
+        
         
     }
     private function record_combo_hits($source_file)
@@ -632,43 +690,64 @@ class DH_v21_TRAM_996
             )*/
             //==============================================================================
             if($task == 'check') { //print_r($rec); exit;
-                /*Array(
-                    [taxonID] => EOL-000000000001
-                    [source] => trunk:4038af35-41da-469e-8806-40e60241bb58
-                    [furtherInformationURL] => 
-                    [acceptedNameUsageID] => 
-                    [parentNameUsageID] => 
-                    [scientificName] => Life
-                    [taxonRank] => 
-                    [taxonomicStatus] => accepted
-                    [datasetID] => trunk
-                    [canonicalName] => Life
-                    [eolID] => 2913056
-                    [Landmark] => 
-                    [higherClassification] => 
-                )*/
-                // /*
+                /*
                 if(substr($rec['taxonID'],0,4) == "SYN-") { //print_r($rec); exit;
-                    /*Array(
-                        [taxonID] => SYN-000001683069
-                        [source] => 
-                        [furtherInformationURL] => 
-                        [acceptedNameUsageID] => EOL-000003165652
-                        [parentNameUsageID] => 
-                        [scientificName] => 2019-nCoV
-                        [taxonRank] => 
-                        [taxonomicStatus] => not accepted
-                        [datasetID] => trunk
-                        [canonicalName] => 2019-nCoV
-                        [eolID] => 
-                        [Landmark] => 
-                        [higherClassification] => 
-                    )*/
-                    $this->debug['datasetID'][$rec['datasetID']] = '';
-                    @$this->debug['datasetID count']++;
+                    $this->debug['source'][$rec['source']] = '';
+                    @$this->debug['DH11 synonyms total']++;
                 }
+                */
+                // /*
+                $ret = self::get_prefix_identifier_from_source($rec['source']);
+                $this->debug['source'][$ret[0]] = '';
+                @$this->debug['DH21 synonyms total']++;
                 // */
             }
+            //==============================================================================
+            if($task == 'build_SN_Accepted_prefix_info') { //print_r($rec); exit;
+                /*Array(
+                    [taxonID] => 
+                    [source] => COL:8f40f23a98b9090e950f7218d7b1737f
+                    [acceptedNameUsageID] => 3009726
+                    [DH_acceptedNameUsageID] => EOL-000003051475
+                    [scientificName] => Megalothorax bonetella Najt & Rapoport, 1965
+                    [taxonRank] => species
+                    [canonicalName] => Megalothorax bonetella
+                    [taxonomicStatus] => not accepted
+                    [furtherInformationURL] => http://www.catalogueoflife.org/col/details/species/id/6e503f12ba03d36fb004aef898d6ff9e/synonym/8f40f23a98b9090e950f7218d7b1737f
+                    [datasetID] => COL-1130
+                    [hash] => 16a33241e893a2bc352a7654c6deb3da
+                )*/
+                $ret = self::get_prefix_identifier_from_source($rec['source']);
+                $prefix = $ret[0];
+                if(in_array($prefix, array('ITIS', 'WOR'))) continue; //There were no ITIS or WOR synonyms in DH 1.1, so you don’t need to worry about finding matches for those.
+                $combo = $rec['scientificName']."|".$rec['DH_acceptedNameUsageID']."|".$prefix;
+                if($val = $rec['taxonID']) $value = $val;
+                if($val = $rec['hash']) $value = $val;
+                $this->SN_Accepted_prefix_info[$combo] = $val;
+            }
+            if($task == 'find_hits_DH21_DH11') { //looping DH11
+                if(substr($rec['taxonID'],0,4) == "SYN-") { //print_r($rec); exit;
+                    /*Array(
+                        [taxonID] => SYN-000000000001
+                        [source] => NCBI
+                        [acceptedNameUsageID] => EOL-000000000001
+                        [scientificName] => all
+                        [taxonRank] => no rank
+                        [taxonomicStatus] => synonym
+                        [taxonRemarks] => 
+                        [datasetID] => NCBI
+                        [canonicalName] => 
+                        ...
+                    )*/
+                    $combo = $rec['scientificName']."|".$rec['acceptedNameUsageID']."|".$rec['source'];
+                    if(isset($this->SN_Accepted_prefix_info[$combo])) {
+                        $DH21_taxonID_OR_hash = $this->SN_Accepted_prefix_info[$combo];
+                        $this->new_id[$DH21_taxonID_OR_hash] = $rec['taxonID'];
+                    }
+                }
+                
+            }
+            //==============================================================================
             if($task == 'assemble_taxonIDs_from_source_col') {
                 $source = $rec['source'];
                 $arr = explode(":", $source);
