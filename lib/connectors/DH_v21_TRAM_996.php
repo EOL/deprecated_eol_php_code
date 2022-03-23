@@ -384,6 +384,10 @@ class DH_v21_TRAM_996
         /* step 2: record combo hits
         $this->combo_hits = array();
         self::record_combo_hits('Consolidated_Syn_1');
+            // total combo hits: 1599027
+            // total raw combo hits: [251]
+            // taxonIDs_2remove: 16
+            // hashes_2remove: 241
         // step 3: remove duplicate syns in Consolidated_Syn_1
         $this->synonyms_headers = $this->min_synonym_headers2;
         $WRITE = fopen($this->tsv['Consolidated_Syn_2'], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
@@ -392,14 +396,15 @@ class DH_v21_TRAM_996
         exit("\n-stop 5-\n");
         */
         
-        // /* test Consolidated_Syn_2 if there are still duplicates --- there should be none/zero
+        /* test Consolidated_Syn_2 if there are still duplicates --- there should be none/zero
         $this->combo_hits = array();
         self::record_combo_hits('Consolidated_Syn_2');
-        // total raw combo hits: [0]
-        // taxonIDs_2remove: 0
-        // hashes_2remove: 0
+            // total raw combo hits: [0]
+            // taxonIDs_2remove: 0
+            // hashes_2remove: 0
         exit("\n-stop 6-\n");
-        // */
+        // self::record_combo_hits('Consolidated_Syn_1'); //just for testing, backtrack a bit. Not part of normal operation
+        */
         
     }
     private function record_combo_hits($source_file)
