@@ -381,24 +381,37 @@ class DH_v21_TRAM_996
         */
         
         
-        // /* step 2: record combo hits
-        self::parse_tsv($this->tsv['Consolidated_Syn_1'], 'find_combo_hits', false, '');
-        // print_r($this->combo_hits);
-        echo "\ntotal combo hits: ".count($this->combo_hits)."\n";
-
-        $this->taxonIDs_2remove = array(); $this->hashes_2remove = array();
-        self::parse_combo_hits();
-        // print_r($this->taxonIDs_2remove); print_r($this->hashes_2remove);
-        echo "\ntaxonIDs_2remove: ".count($this->taxonIDs_2remove)."\n";
-        echo "\nhashes_2remove: ".count($this->hashes_2remove)."\n";
-
+        /* step 2: record combo hits
+        $this->combo_hits = array();
+        self::record_combo_hits('Consolidated_Syn_1');
         // step 3: remove duplicate syns in Consolidated_Syn_1
         $this->synonyms_headers = $this->min_synonym_headers2;
         $WRITE = fopen($this->tsv['Consolidated_Syn_2'], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
         self::parse_tsv($this->tsv['Consolidated_Syn_1'], 'consolidate_synonyms_2', $WRITE, '');
         print_r($this->debug);
         exit("\n-stop 5-\n");
+        */
+        
+        // /* test Consolidated_Syn_2 if there are still duplicates --- there should be none/zero
+        $this->combo_hits = array();
+        self::record_combo_hits('Consolidated_Syn_2');
+        // total raw combo hits: [0]
+        // taxonIDs_2remove: 0
+        // hashes_2remove: 0
+        exit("\n-stop 6-\n");
         // */
+        
+    }
+    private function record_combo_hits($source_file)
+    {
+        self::parse_tsv($this->tsv[$source_file], 'find_combo_hits', false, ''); //builds $this->combo_hits
+        // print_r($this->combo_hits);
+        echo "\ntotal combo hits: ".count($this->combo_hits)."\n";
+        $this->taxonIDs_2remove = array(); $this->hashes_2remove = array();
+        self::parse_combo_hits();
+        // print_r($this->taxonIDs_2remove); print_r($this->hashes_2remove);
+        echo "\ntaxonIDs_2remove: ".count($this->taxonIDs_2remove)."\n";
+        echo "\nhashes_2remove: ".count($this->hashes_2remove)."\n";
     }
     private function parse_combo_hits()
     {   $i = 0;
@@ -1225,14 +1238,6 @@ class DH_v21_TRAM_996
                 $acceptedNameUsageID = $rec['DH_acceptedNameUsageID'];
                 $scientificName = $rec['scientificName'];
                 if($acceptedNameUsageID && $scientificName) {
-                    /* 1st try
-                    $combo = "$acceptedNameUsageID|$scientificName";
-                    if(isset($combos[$combo])) {
-                        $this->combo_hits[$combo][] = $combos[$combo];
-                        $this->combo_hits[$combo][] = $rec;
-                    }
-                    else $combos[$combo] = $rec;
-                    */
                     $combo = "$acceptedNameUsageID|$scientificName";
                     if(isset($this->combo_hits[$combo])){
                         if(!in_array($rec, $this->combo_hits[$combo])) $this->combo_hits[$combo][] = $rec;
