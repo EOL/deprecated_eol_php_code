@@ -497,6 +497,7 @@ class DH_v21_TRAM_996
         Functions::show_totals($this->tsv['Consolidated_Syn_4']);
         // */
         // /Volumes/AKiTiO4/d_w_h/TRAM-996//synonyms_consolidated_4.txt: [1,599,038] as of Mar 24, 2022
+        // /Volumes/AKiTiO4/d_w_h/TRAM-996//synonyms_consolidated_4.txt: [1,599,028] as of Mar 24, 2022, after removing blank rows.
     }
     private function record_combo_hits($source_file)
     {
