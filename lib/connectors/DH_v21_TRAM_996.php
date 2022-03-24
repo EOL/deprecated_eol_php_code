@@ -779,9 +779,10 @@ class DH_v21_TRAM_996
                 if(!$rec['taxonID']) {
                     /* this is the series used: $this->SYN_series = "SYN-1"; //+ 11 zeros */
                     $this->SYN_ctr++;
-                    $rec['taxonID'] = $this->SYN_series.Functions::format_number_with_leading_zeros($this->SYN_ctr, "00000000000");
+                    $rec['taxonID'] = $this->SYN_series.Functions::format_number_with_leading_zeros($this->SYN_ctr, 11); //meaning 11 zeros
                 }
                 $rec['acceptedNameUsageID'] = $rec['DH_acceptedNameUsageID']; //final assignment
+                if(!$rec['scientificName']) continue;
                 $save = array();
                 foreach($this->synonyms_headers as $head) $save[] = $rec[$head];
                 // print_r($save); print_r($this->synonyms_headers); exit;
