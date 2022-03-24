@@ -64,6 +64,7 @@ class DH_v21_TRAM_996
         $this->tsv['Consolidated_Syn_1']       = $this->main_path."/synonyms_consolidated_1.txt";
         $this->tsv['Consolidated_Syn_2']       = $this->main_path."/synonyms_consolidated_2.txt";
         $this->tsv['Consolidated_Syn_3']       = $this->main_path."/synonyms_consolidated_3.txt";
+        $this->tsv['Consolidated_Syn_4']       = $this->main_path."/synonyms_consolidated_4.txt";
         
         
         /* start of COL2 and the rest */
@@ -449,15 +450,13 @@ class DH_v21_TRAM_996
         There were no ITIS or WOR synonyms in DH 1.1, so you don’t need to worry about finding matches for those.
         */
 
-        /* #5. Assign taxonID values for synonyms */
+        /* #5. Assign taxonID values for synonyms
         self::parse_tsv($this->tsv['Consolidated_Syn_2'], 'build_SN_Accepted_prefix_info', false, ''); //builds $this->SN_Accepted_prefix_info
         self::parse_tsv($this->tsv['DH11'], 'find_hits_DH21_DH11', false, ''); //builds $this->hits_DH21_DH11
         // print_r($this->new_id);
         echo "\nnew_ids: ".count($this->new_id)."\n";
         unset($this->SN_Accepted_prefix_info);
         unset($this->hits_DH21_DH11);
-        //     [8fa925c03c1307a67dffc39a20520332] => SYN-000001673778
-        //     [f7955cef3ce90a6390ae9ad3169327cd] => SYN-000001673779
         //     [26980b1945e1c76bcce741995f2bd170] => SYN-000001673780
         //     [23767120207cfcc7c1239585d31f217e] => SYN-000001673781
         //     [bda4241ca3611e3c267f8e13ab8820d2] => SYN-000001673782
@@ -467,6 +466,36 @@ class DH_v21_TRAM_996
         $WRITE = fopen($this->tsv['Consolidated_Syn_3'], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
         self::parse_tsv($this->tsv['Consolidated_Syn_2'], 'save_new_SYN_ids_to_DH21_synonyms', $WRITE, '');
         print_r($this->debug);
+        */
+        // as of Mar 24, 2022
+        // 1599292 synonyms_consolidated_1.txt
+        // 1599036 synonyms_consolidated_2.txt
+        // 1599037 synonyms_consolidated_3.txt
+        
+        /* investigate SYN- series
+        $this->old_SYN_id = 'SYN-000000000000';
+        // $source_file = 'Consolidated_Syn_3';
+        // $source_file = 'DH11';
+        $source_file = 'DH21_current';
+        self::parse_tsv($this->tsv[$source_file], 'check', false, '');
+        echo "\nbiggest SYN_id [$source_file]: $this->old_SYN_id\n";
+        */
+        // biggest SYN_id [Consolidated_Syn_3]: SYN-000001684772
+        // biggest SYN_id [DH11]:               SYN-000001682086
+        // biggest SYN_id [DH21_current]:       SYN-000001684772
+        
+        // /* LAST PART: assigning "SYN-xxx" for left un-matched synonyms. And making SYN- IDs unique.
+        $this->SYN_series = "SYN-000001684772";
+        $this->SYN_series = "SYN-100000000000"; //considered series 2 for any intent and purpose - GOOD OK
+        $this->SYN_series = "SYN-1"; //+ 11 zeros
+        $this->SYN_ctr = 0;
+        $this->synonyms_headers = $this->min_synonym_headers; //used the less no. of header fields vs $this->min_synonym_headers2
+        $WRITE = fopen($this->tsv['Consolidated_Syn_4'], "w"); fwrite($WRITE, implode("\t", $this->synonyms_headers)."\n");
+        self::parse_tsv($this->tsv['Consolidated_Syn_3'], 'assigning_new_SYN_id_series', $WRITE, '');
+        Functions::show_totals($this->tsv['Consolidated_Syn_4']);
+        self::parse_tsv($this->tsv['Consolidated_Syn_4'], 'check_taxonID_if_unique', false, '');
+        Functions::show_totals($this->tsv['Consolidated_Syn_4']);
+        // */
     }
     private function record_combo_hits($source_file)
     {
@@ -693,17 +722,76 @@ class DH_v21_TRAM_996
             )*/
             //==============================================================================
             if($task == 'check') { //print_r($rec); exit;
+                /*Array(
+                    [taxonID] => SYN-000001683069
+                    [source] => 
+                    [acceptedNameUsageID] => EOL-000003165652
+                    [DH_acceptedNameUsageID] => EOL-000003165652
+                    [scientificName] => 2019-nCoV
+                    [taxonRank] => 
+                    [canonicalName] => 2019-nCoV
+                    [taxonomicStatus] => not accepted
+                    [furtherInformationURL] => 
+                    [datasetID] => trunk
+                    [hash] => 
+                )*/
+                /* check if SYN ids are unique: OK they are unique [synonyms_consolidated_3.txt]
+                $taxonID = $rec['taxonID'];
+                if(substr($rec['taxonID'],0,4) == "SYN-") {
+                    if(!isset($unique[$taxonID])) $unique[$taxonID] = '';
+                    else exit("\nnon unique SYN id: [$taxonID]\n");
+                }
+                */
+                /* getting biggest SYN-xxx
+                $taxonID = $rec['taxonID'];
+                if(substr($rec['taxonID'],0,4) == "SYN-") {
+                    if($taxonID > $this->old_SYN_id) $this->old_SYN_id = $taxonID;
+                }
+                */
                 /*
                 if(substr($rec['taxonID'],0,4) == "SYN-") { //print_r($rec); exit;
                     $this->debug['source'][$rec['source']] = '';
                     @$this->debug['DH11 synonyms total']++;
                 }
                 */
-                // /*
+                /*
                 $ret = self::get_prefix_identifier_from_source($rec['source']);
                 $this->debug['source'][$ret[0]] = '';
                 @$this->debug['DH21 synonyms total']++;
-                // */
+                */
+            }
+            //==============================================================================
+            if($task == 'assigning_new_SYN_id_series') { //print_r($rec); exit;
+                /*Array(
+                    [taxonID] => SYN-000001683069
+                    [source] => 
+                    [acceptedNameUsageID] => EOL-000003165652
+                    [DH_acceptedNameUsageID] => EOL-000003165652
+                    [scientificName] => 2019-nCoV
+                    [taxonRank] => 
+                    [canonicalName] => 2019-nCoV
+                    [taxonomicStatus] => not accepted
+                    [furtherInformationURL] => 
+                    [datasetID] => trunk
+                    [hash] => 
+                )*/
+                if(!$rec['taxonID']) {
+                    /* this is the series used: $this->SYN_series = "SYN-1"; //+ 11 zeros */
+                    $this->SYN_ctr++;
+                    $rec['taxonID'] = $this->SYN_series.Functions::format_number_with_leading_zeros($this->SYN_ctr, "00000000000");
+                }
+                $rec['acceptedNameUsageID'] = $rec['DH_acceptedNameUsageID']; //final assignment
+                $save = array();
+                foreach($this->synonyms_headers as $head) $save[] = $rec[$head];
+                // print_r($save); print_r($this->synonyms_headers); exit;
+                fwrite($WRITE, implode("\t", $save)."\n");
+            }
+            //==============================================================================
+            if($task == 'check_taxonID_if_unique') {
+                $taxonID = $rec['taxonID'];
+                if(!$taxonID) { exit("\nblank taxonID\n"); print_r($rec); }
+                if(!isset($unique[$taxonID])) $unique[$taxonID] = '';
+                else exit("\nnon unique taxonID: [$taxonID]\n");
             }
             //==============================================================================
             if($task == 'build_SN_Accepted_prefix_info') { //print_r($rec); exit;
