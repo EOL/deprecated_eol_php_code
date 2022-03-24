@@ -496,6 +496,7 @@ class DH_v21_TRAM_996
         self::parse_tsv($this->tsv['Consolidated_Syn_4'], 'check_taxonID_if_unique', false, '');
         Functions::show_totals($this->tsv['Consolidated_Syn_4']);
         // */
+        // /Volumes/AKiTiO4/d_w_h/TRAM-996//synonyms_consolidated_4.txt: [1,599,038] as of Mar 24, 2022
     }
     private function record_combo_hits($source_file)
     {
@@ -789,6 +790,7 @@ class DH_v21_TRAM_996
             //==============================================================================
             if($task == 'check_taxonID_if_unique') {
                 $taxonID = $rec['taxonID'];
+                if(!$taxonID && !$rec['scientificName']) continue; //seems blank row
                 if(!$taxonID) { exit("\nblank taxonID\n"); print_r($rec); }
                 if(!isset($unique[$taxonID])) $unique[$taxonID] = '';
                 else exit("\nnon unique taxonID: [$taxonID]\n");
