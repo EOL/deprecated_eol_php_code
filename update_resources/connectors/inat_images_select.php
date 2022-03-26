@@ -44,14 +44,25 @@ For diagnostics:
     kill -9 17943
 */
 
-$resource_id = 'inat_images';           //resource generated from inat_images.php (150 images per taxon)
-$resource_id = 'inat_images_20limit';   //resource generated from inat_images.php --- media_resource.tab : 3292778
-$resource_id = 'inat_images_100limit';  //resource generated from inat_images.php --- media_resource.tab : 8742707 - future ideal, eventually
-$resource_id = 'inat_images_40limit';   //resource generated from inat_images.php --- media_resource.tab : 5144786 - currently being used
-$dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
-// $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz'; //during dev only
-$resource_id = 'inat_images_100cap'; //new resource --- currently running, caching image scores --- did not materialize
-$resource_id = 'inat_images_3Mcap'; //new resource --- currently running, caching image scores
+$source_dwca = 'inat_images';           //resource generated from inat_images.php (150 images per taxon)
+$source_dwca = 'inat_images_20limit';   //resource generated from inat_images.php --- media_resource.tab : 3292778
+$source_dwca = 'inat_images_100limit';  //resource generated from inat_images.php --- media_resource.tab : 8742707 - future ideal, eventually
+$source_dwca = 'inat_images_40limit';   //resource generated from inat_images.php --- media_resource.tab : 5144786 - currently being used
+
+$resource_id = 'inat_images_100cap'; //new resource --- stopped --- did not materialize
+
+// /* 1st combo: finished OK
+$source_dwca = 'inat_images_40limit';   //resource generated from inat_images.php --- media_resource.tab : 5144786
+$resource_id = 'inat_images_3Mcap';     //new resource (update in DwCA_Utility.php)
+// */
+
+// /* 2nd combo: currently processing...
+$source_dwca = 'inat_images_100limit';  //resource generated from inat_images.php --- media_resource.tab : 8742707 - future ideal, eventually
+$resource_id = 'inat_images_3Mcap_2';   //new resource (update in DwCA_Utility.php)
+// */
+
+$dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz';
+// $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz'; //during dev only
 
 process_resource_url($dwca_file, $resource_id, $timestart);
 
