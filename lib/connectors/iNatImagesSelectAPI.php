@@ -3,11 +3,12 @@ namespace php_active_record;
 /* connector: [called from DwCA_Utility.php, which is called from inat_images_select.php] */
 class iNatImagesSelectAPI
 {
-    function __construct($archive_builder, $resource_id, $archive_path)
+    function __construct($archive_builder, $resource_id, $archive_path, $params)
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
         $this->archive_path = $archive_path;
+        $this->params = $params;
         // $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*1, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->extensions = array("http://rs.gbif.org/terms/1.0/vernacularname"     => "vernacular",
                                   "http://rs.tdwg.org/dwc/terms/occurrence"         => "occurrence",
@@ -90,10 +91,14 @@ class iNatImagesSelectAPI
     }
     private function process_table($meta, $what, $class)
     {   //print_r($meta);
+        
+        $modulo = 10000;
+        if($needle = @$this->params['taxonID']) $modulo = 500000;
+        
         echo "\nprocess_table: [$what] [$meta->file_uri]...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) { $i++;
             if($what != "get_total_images_count_per_taxon") {
-                if(($i % 10000) == 0) echo "\n".number_format($i). " [$what]";
+                if(($i % $modulo) == 0) echo "\n".number_format($i). " [$what]";
             }
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
@@ -119,6 +124,13 @@ class iNatImagesSelectAPI
                 [http://ns.adobe.com/xap/1.0/rights/UsageTerms] => http://creativecommons.org/licenses/by-nc/4.0/
                 [http://eol.org/schema/agent/agentID] => 158ba8069d90c10d4f82293b0140f710; 9a6544e87051f5994b0b924b21e0f9a6
             )*/
+            
+            if($needle = @$this->params['taxonID']) {
+                if(in_array($class, array('taxon', 'document', 'vernacular'))) {
+                    if($needle != @$rec['http://rs.tdwg.org/dwc/terms/taxonID']) continue;
+                }
+            }
+            
             //=======================================================================================
             if($what == 'get_total_images_count_per_taxon') {
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
@@ -158,7 +170,12 @@ class iNatImagesSelectAPI
                         echo "\nWill ignore record, cannot download image.\n";
                         continue;
                     }
-                    if($ret['score'] < 1000) continue;
+                    
+                    if($needle = @$this->params['taxonID']) {} //not score-specific if per taxon
+                    else { //main operation
+                        if($ret['score'] < 1000) continue;
+                    }
+                    
                 }
                 
                 @$this->running_taxon_images_count[$taxonID]++;
@@ -166,10 +183,17 @@ class iNatImagesSelectAPI
                 // /* start saving
                 $o = new \eol_schema\MediaResource();
                 $uris = array_keys($rec); // print_r($uris); //exit;
+                
+                // if($needle = @$this->params['taxonID']) $uris = array('http://purl.org/dc/terms/identifier', 'http://rs.tdwg.org/dwc/terms/taxonID',
+                // 'http://rs.tdwg.org/ac/terms/additionalInformation', 'http://rs.tdwg.org/ac/terms/accessURI', 'http://eol.org/schema/agent/agentID');
+                
                 foreach($uris as $uri) {
                     $field = self::get_field_from_uri($uri);
                     $o->$field = $rec[$uri];
                 }
+                
+                if($needle = @$this->params['taxonID']) $o->additionalInformation = $ret['score']; //."|".$ret['url'];
+                
                 $unique_field = $o->identifier;
                 if(!isset($this->unique_ids[$unique_field])) {
                     $this->unique_ids[$unique_field] = '';
