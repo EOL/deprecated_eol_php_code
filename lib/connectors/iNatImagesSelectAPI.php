@@ -184,8 +184,9 @@ class iNatImagesSelectAPI
                 $o = new \eol_schema\MediaResource();
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 
-                // if($needle = @$this->params['taxonID']) $uris = array('http://purl.org/dc/terms/identifier', 'http://rs.tdwg.org/dwc/terms/taxonID',
-                // 'http://rs.tdwg.org/ac/terms/additionalInformation', 'http://rs.tdwg.org/ac/terms/accessURI', 'http://eol.org/schema/agent/agentID');
+                /* if u want to limit columns for per taxon DwCA
+                if($needle = @$this->params['taxonID']) $uris = array('http://purl.org/dc/terms/identifier', 'http://rs.tdwg.org/dwc/terms/taxonID', 'http://rs.tdwg.org/ac/terms/additionalInformation', 'http://rs.tdwg.org/ac/terms/accessURI', 'http://eol.org/schema/agent/agentID');
+                */
                 
                 foreach($uris as $uri) {
                     $field = self::get_field_from_uri($uri);
