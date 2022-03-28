@@ -33,7 +33,7 @@ For diagnostics:
         -> very helpful, if u want to delete current running process
     cat terminal_inat_images_select.txt
         -> to see progress, very convenient
-    ps -p 17943
+    ps -p 302021
         -> to investigate a running PID
     cat /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
         -> to monitor runtime
@@ -41,7 +41,7 @@ For diagnostics:
     ls -lt /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
     ls /extra/other_files/iNat_image_DwCA/cache_image_score/
     find /extra/other_files/iNat_image_DwCA/cache_image_score/ -type f | wc -l
-    kill -9 17943
+    kill -9 302021
 */
 
 $source_dwca = 'inat_images';           //resource generated from inat_images.php (150 images per taxon)
