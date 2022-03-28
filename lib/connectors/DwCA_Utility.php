@@ -437,7 +437,7 @@ class DwCA_Utility
         }
         if(in_array($this->resource_id, array('inat_images_100cap', 'inat_images_3Mcap', 'inat_images_3Mcap_2'))) {
             require_library('connectors/iNatImagesSelectAPI');
-            $func = new iNatImagesSelectAPI($this->archive_builder, $this->resource_id, $this->archive_path);
+            $func = new iNatImagesSelectAPI($this->archive_builder, $this->resource_id, $this->archive_path, $this->params);
             $func->start($info);
         }
         if(in_array($this->resource_id, array("wikidata_hierarchy"))) { //1st client is: wikidata_hierarchy
