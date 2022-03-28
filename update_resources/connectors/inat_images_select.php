@@ -52,12 +52,12 @@ $source_dwca = 'inat_images_40limit';   //resource generated from inat_images.ph
 $resource_id = 'inat_images_100cap'; //new resource --- stopped --- did not materialize
 
 // /* 1st combo: finished OK
-$source_dwca = 'inat_images_40limit';   //resource generated from inat_images.php --- media_resource.tab : 5144786
+$source_dwca = 'inat_images_40limit';   //resource generated from inat_images.php --- media_resource.tab : 5,144,786
 $resource_id = 'inat_images_3Mcap';     //new resource (update in DwCA_Utility.php)
 // */
 
 // /* 2nd combo: currently processing...
-$source_dwca = 'inat_images_100limit';  //resource generated from inat_images.php --- media_resource.tab : 8742707 - future ideal, eventually
+$source_dwca = 'inat_images_100limit';  //resource generated from inat_images.php --- media_resource.tab : 8,742,707 - future ideal, eventually
 $resource_id = 'inat_images_3Mcap_2';   //new resource (update in DwCA_Utility.php)
 // */
 

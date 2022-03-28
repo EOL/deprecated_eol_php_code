@@ -119,10 +119,12 @@ class iNatImagesSelectAPI
                 [http://ns.adobe.com/xap/1.0/rights/UsageTerms] => http://creativecommons.org/licenses/by-nc/4.0/
                 [http://eol.org/schema/agent/agentID] => 158ba8069d90c10d4f82293b0140f710; 9a6544e87051f5994b0b924b21e0f9a6
             )*/
+            //=======================================================================================
             if($what == 'get_total_images_count_per_taxon') {
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 @$this->total_images_per_taxon[$taxonID]++;
             }
+            //=======================================================================================
             if($what == 'select_100_images') {
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
@@ -173,7 +175,7 @@ class iNatImagesSelectAPI
                     $this->unique_ids[$unique_field] = '';
                     $this->archive_builder->write_object_to_file($o);
                     
-                    // /*
+                    // /* to prevent duplicate agents
                     $agent_ids = explode(";", $o->agentID);
                     $agent_ids = array_map('trim', $agent_ids);
                     foreach($agent_ids as $agent_id) $this->agent_ids[$agent_id] = '';
@@ -182,6 +184,7 @@ class iNatImagesSelectAPI
                 // */
                 // if($i >= 13) break; //debug only
             }
+            //=======================================================================================
             elseif($what == 'carry-over') {
                 // print_r($this->agent_ids); exit;
                 if    ($class == "vernacular")  $o = new \eol_schema\VernacularName();
@@ -213,6 +216,8 @@ class iNatImagesSelectAPI
                     $this->archive_builder->write_object_to_file($o);
                 }
             }
+            //=======================================================================================
+            
         }
     }
     private function get_field_from_uri($uri)
