@@ -148,16 +148,15 @@ class iNatImagesSelectAPI
                 }
                 */
                 
+                /* orig: Eli's scheme
                 if($this->total_images_per_taxon[$taxonID] <= $this->image_limit) {} //get all, no need to check score
                 else {
-                    // exit("\ngoes here...\n");
                     // echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n"; //good debug
-                    if($ret = self::get_blurriness_score($accessURI)) {
-                        // print_r($ret);
-                        /*Array(
-                            [score] => 262.24131043428315
-                            [url] => https://inaturalist-open-data.s3.amazonaws.com/photos/119359998/original.jpg
-                        )*/
+                    if($ret = self::get_blurriness_score($accessURI)) { // print_r($ret);
+                        // Array(
+                        //     [score] => 262.24131043428315
+                        //     [url] => https://inaturalist-open-data.s3.amazonaws.com/photos/119359998/original.jpg
+                        // )
                         if(!$ret['score']) {
                             echo "\n-----------start\n"; print_r($ret);
                             echo "\nblank score, will try again\n";
@@ -170,13 +169,41 @@ class iNatImagesSelectAPI
                         echo "\nWill ignore record, cannot download image.\n";
                         continue;
                     }
-                    
                     if($needle = @$this->params['taxonID']) {} //not score-specific if per taxon
                     else { //main operation
                         if($ret['score'] < 1000) continue;
                     }
-                    
                 }
+                */
+                // /* Katja's scheme: a random-pick (21-100) and scoring (>100)
+                $total_images_per_taxon = $this->total_images_per_taxon[$taxonID];
+                if($total_images_per_taxon <= $this->image_limit) {} //get all, no need to check score
+                elseif($total_images_per_taxon > $this->image_limit && $total_images_per_taxon <= 100) {} //get all, no need to check score
+                elseif($total_images_per_taxon > 100) { //scoring --- entire block here copied from above
+                    // echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n"; //good debug
+                    if($ret = self::get_blurriness_score($accessURI)) { // print_r($ret);
+                        // Array(
+                        //     [score] => 262.24131043428315
+                        //     [url] => https://inaturalist-open-data.s3.amazonaws.com/photos/119359998/original.jpg
+                        // )
+                        if(!$ret['score']) {
+                            echo "\n-----------start\n"; print_r($ret);
+                            echo "\nblank score, will try again\n";
+                            $ret = self::get_blurriness_score($accessURI, true); //2nd param true means force compute of score
+                            print_r($ret); echo "\n-----------end\n";
+                            if(!$ret['score']) continue;
+                        }
+                    }
+                    else { //cannot download image
+                        echo "\nWill ignore record, cannot download image.\n";
+                        continue;
+                    }
+                    if($needle = @$this->params['taxonID']) {} //not score-specific if per taxon
+                    else { //main operation
+                        if($ret['score'] < 1000) continue;
+                    }
+                }
+                // */
                 
                 @$this->running_taxon_images_count[$taxonID]++;
 
