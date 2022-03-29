@@ -29,6 +29,18 @@ Secondary implementation:
 php inat_images_select.php _ '{"taxonID":"6c2d12b42fa5108952956024716c2267"}'
 -> to process only one taxon. e.g. Gadus morhua
 
+php inat_images_select.php _ '{"taxonID":"c74d829f291b0471dc8e469dec09a3dc"}'
+-> https://www.inaturalist.org/taxa/78856	Ribes indecorum Eastw.	Plantae	Tracheophyta	Magnoliopsida	Saxifragales	Grossulariaceae	Ribes	species
+
+php inat_images_select.php _ '{"taxonID":"802348bd4ba248a598da11918485f140"}'
+-> 	https://www.inaturalist.org/taxa/61495	Erythemis simplicicollis Say, 1839	Animalia	Arthropoda	Insecta	Odonata	
+
+php inat_images_select.php _ '{"taxonID":"07cb0ee9203934e5fc3fbc2ccfcee1e3"}'
+-> 	https://www.inaturalist.org/taxa/372465	Trigoniophthalmus alternatus (Silvestri, 1904)	Animalia	Arthropoda	Insecta	Archaeognatha	Machilidae	Trigoniophthalmus	species
+
+php inat_images_select.php _ '{"taxonID":"e4fdd48749104fcd0c01c1ae79eed4ce"}'
+-> 	https://www.inaturalist.org/taxa/129115	Knautia arvensis (L.) Coult.	Plantae	Tracheophyta	Magnoliopsida	Dipsacales	
+
 $ nohup php inat_images_select.php _ > terminal_inat_images_select.out
 -> use 'nohup' so it continues even after logging out of the terminal
 
@@ -49,6 +61,10 @@ For diagnostics:
     kill -9 302021
 
 inat_images_3Mcap	Fri 2022-03-25 08:42:08 AM	{"agent.tab":71631, "media_resource.tab":1644277, "taxon.tab":290388, "time_elapsed":{"sec":1369861.24, "min":22831.02, "hr":380.52, "day":15.86}}
+
+https://dev.to/ko31/using-imagemagick-to-easily-split-an-image-file-13hb
+-> split image into 16 equal parts.
+
 */
 
 // print_r($argv);
