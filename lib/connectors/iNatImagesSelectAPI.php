@@ -148,7 +148,7 @@ class iNatImagesSelectAPI
                 }
                 */
                 
-                /* orig: Eli's scheme
+                // /* orig: Eli's scheme
                 if($this->total_images_per_taxon[$taxonID] <= $this->image_limit) {} //get all, no need to check score
                 else {
                     // echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n"; //good debug
@@ -174,8 +174,8 @@ class iNatImagesSelectAPI
                         if($ret['score'] < 1000) continue;
                     }
                 }
-                */
-                // /* Katja's scheme: a random-pick (21-100) and scoring (>100)
+                // */
+                /* Katja's scheme: a random-pick (21-100) and scoring (>100)
                 $total_images_per_taxon = $this->total_images_per_taxon[$taxonID];
                 if($total_images_per_taxon <= $this->image_limit) {} //get all, no need to check score
                 elseif($total_images_per_taxon > $this->image_limit && $total_images_per_taxon <= 100) {} //get all, no need to check score
@@ -203,7 +203,7 @@ class iNatImagesSelectAPI
                         if($ret['score'] < 1000) continue;
                     }
                 }
-                // */
+                */
                 
                 @$this->running_taxon_images_count[$taxonID]++;
 
