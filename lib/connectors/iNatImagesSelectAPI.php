@@ -216,7 +216,7 @@ class iNatImagesSelectAPI
                 @$this->running_taxon_images_count[$taxonID]++;
                 // /*
                 @$this->media_count++;
-                if($this->media_count >= 3000000) return; //1001 --- just playing around with limits, during dev - for a report asked by Katja
+                if($this->media_count >= 5000) return; //3000000 normal operation --- just playing around with limits 5K, during dev - for a report asked by Katja
                 // */
                 
                 // /* start saving
