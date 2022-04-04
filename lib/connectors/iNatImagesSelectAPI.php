@@ -141,8 +141,10 @@ class iNatImagesSelectAPI
             if($what == 'select_100_images') {
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
+                /* REMINDER: temporarily commented for Katja's report. Should be included in normal operation!
                 if(@$this->running_taxon_images_count[$taxonID] > $this->image_limit) continue;
-
+                */
+                
                 /* used during caching
                 if($this->total_images_per_taxon[$taxonID] > $this->limit_2trigger_score_computation) {} //many many images per taxon. Compute image score only for these images
                 else { //taxon with few images. i.e. less than 100
