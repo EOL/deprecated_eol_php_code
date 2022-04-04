@@ -220,7 +220,7 @@ class iNatImagesSelectAPI
                     $o->$field = $rec[$uri];
                 }
                 
-                if($needle = @$this->params['taxonID']) $o->additionalInformation = $ret['score']; //."|".$ret['url'];
+                if($needle = @$this->params['taxonID']) $o->additionalInformation = $ret['score']." | ".$ret['highest 1/16th score']; //."|".$ret['url'];
                 
                 $unique_field = $o->identifier;
                 if(!isset($this->unique_ids[$unique_field])) {
@@ -280,8 +280,9 @@ class iNatImagesSelectAPI
         if(@$parts[1]) $field = $parts[1];
         return $field;
     }
-    private function get_blurriness_score($accessURI, $forceYN = false)
+    function get_blurriness_score($accessURI, $forceYN = false, $func = false)
     {
+        if($func) $this->func = $func; //only when calling it from inat_images_select.php during dev
         $md5_id = md5($accessURI);
         if($arr = $this->func->retrieve_json_obj($md5_id, false)) { //2nd param false means returned value is an array()
             // print_r($arr); 
@@ -289,38 +290,142 @@ class iNatImagesSelectAPI
             
             if($forceYN) {
                 if($arr = self::compute_blurriness_score($accessURI)) {
+                    $arr = $func->average_score($arr);
                     $json = json_encode($arr);
                     $this->func->save_json($md5_id, $json);
                     // print_r($arr); 
                     // debug("\nscore generated...\n");  //just for testing
                 }
             }
+            else {
+                if(!isset($arr['parts'])) {
+                    $arr = self::average_score($arr);
+                    $json = json_encode($arr);
+                    $this->func->save_json($md5_id, $json);
+                }
+            }
         }
         else {
             if($arr = self::compute_blurriness_score($accessURI)) {
+                $arr = $func->average_score($arr);
                 $json = json_encode($arr);
                 $this->func->save_json($md5_id, $json);
                 // print_r($arr); 
                 // debug("\nscore generated...\n");  //just for testing
             }
         }
+        
+        // /* deletion was moved here instead:
+        if(file_exists($arr['local'])) unlink($arr['local']); //delete temp downloaded image e.g. 17796c5772dbfc3e53d48e881fbb3c1e.jpeg
+        // e.g. "/Library/WebServer/Documents/eol_php_code/applications/blur_detection_opencv_eol/eol_images/f02b40a842171a27faaafa617331dce9.jpg"
+        // */
+        
+        // /* step 1: delete previous old 16 files --- deletion was moved here instead:
+        $ext = pathinfo($arr['local'], PATHINFO_EXTENSION);
+        $dir = pathinfo($arr['local'], PATHINFO_DIRNAME);
+        $file_path = str_replace("eol_images", "img_parts/", $dir);
+        foreach(glob($file_path . "*." . $ext) as $filename) unlink($filename);
+        // */
+        
         return $arr;
     }
-    private function compute_blurriness_score($url)
+    function average_score($arr)
+    {   /*Array(
+            [score] => 19.909014155363817
+            [url] => http://localhost/other_files/iNat_imgs/original_11.jpg
+            [local] => /Library/WebServer/Documents/eol_php_code/applications/blur_detection_opencv_eol/eol_images/f02b40a842171a27faaafa617331dce9.jpg
+        )*/
+        /*Array(
+            [dirname] => /Library/WebServer/Documents/eol_php_code/applications/blur_detection_opencv_eol/eol_images
+            [basename] => f02b40a842171a27faaafa617331dce9.jpg
+            [extension] => jpg
+            [filename] => f02b40a842171a27faaafa617331dce9
+        )*/
+
+        if(!file_exists(@$arr['local'])) { echo "\nNeeds to re-download image again...\n"; //exit;
+            if($arr['local'] = self::download_image($arr['url'])) {} // echo "\ndownloaded: [$target]\n";
+            else exit("\ncannot download remote image [".$arr['url']."]\n");
+        }
+
+        /* step 1: delete previous old 16 files --- WAS MOVED ELSEWHERE
+        $ext = pathinfo($arr['local'], PATHINFO_EXTENSION);
+        $dir = pathinfo($arr['local'], PATHINFO_DIRNAME);
+        $file_path = str_replace("eol_images", "img_parts/", $dir);
+        foreach(glob($file_path . "*." . $ext) as $filename) unlink($filename);
+        */
+        
+        /* step 2: run imagemagick */
+        $filename = pathinfo($arr['local'], PATHINFO_FILENAME);
+        $destination = str_replace("eol_images", "img_parts", $arr['local']);
+        // print_r(pathinfo($arr['local'])); exit;
+        $destination = str_replace($filename, "parts", $destination); //exit("\n[$destination]\n");
+        // convert -crop 25%x25% input.png output.png --- this divides the image input.png into 16 equal parts.
+        $cmd = "convert -crop 25%x25% ".$arr['local']." $destination"; //divided by 16
+        // $cmd = "convert -crop 50%x50% ".$arr['local']." $destination"; //divided by 4
+        shell_exec($cmd); //generates parts-0.jpg to parts-15.jpg
+
+        /* step 2: start loop of 16 parts
+        // unlink($arr['local']);
+        for($i = 0; $i <= 15; $i++) {
+            $parts_image_file = str_replace("parts.", "parts-".$i.".", $destination);
+            echo "\n$parts_image_file\n";
+        }
+        */
+        
+        $temp_image_repo = str_ireplace("/eol_images", "/img_parts", $this->temp_image_repo);
+        if($ret = self::compute_blurriness_score_folder(2, $temp_image_repo)) {
+            $arr['parts'] = $ret[0];
+            $arr['highest 1/16th score'] = $ret[1];
+            // print_r($arr);
+            // exit("\n111\n");
+        }
+        return $arr;
+    }
+    private function compute_blurriness_score($url, $threshold = 1, $image_repo = false) //1 is having score as output, otherwise more output
     {
+        if(!$image_repo) $image_repo = $this->temp_image_repo;
         if($target = self::download_image($url)) { // echo "\ndownloaded: [$target]\n";
             echo "-*-";
             $py_script = str_ireplace("/eol_images", "", $this->temp_image_repo);
             $py_script .= "detect_blur.py";
-            $cmd = 'python '.$py_script.' --images '.$this->temp_image_repo.' --threshold 100'; //with or without threshold since we are just after the score
-            // echo "\naccessURI: [$url]\n";
-            // echo "\ncmd:\n[$cmd]\n";
+            $cmd = 'python '.$py_script.' --images '.$image_repo.' --threshold '.$threshold; //with or without threshold since we are just after the score
+            // echo "\naccessURI: [$url]\n"; // echo "\ncmd:\n[$cmd]\n";
             $output = shell_exec($cmd); // echo "\nRequest output:\n$output\n";
-            $arr = array("score" => trim($output), "url" => $url); // print_r($arr);
+            $arr = array("score" => trim($output), "url" => $url, "local" => $target); // print_r($arr);
+            /* won't be deleted here anymore:
             unlink($target); //delete temp downloaded image e.g. 17796c5772dbfc3e53d48e881fbb3c1e.jpeg
+            e.g. "/Library/WebServer/Documents/eol_php_code/applications/blur_detection_opencv_eol/eol_images/f02b40a842171a27faaafa617331dce9.jpg"
+            */
             return $arr;
         }
         else echo "\nCannot download [$url]. May need to report to iNaturalist\n";
+    }
+    private function compute_blurriness_score_folder($threshold = 1, $image_repo = false) //1 is having score as output, otherwise more output
+    {
+        if(!$image_repo) $image_repo = $this->temp_image_repo;
+        if(is_dir($image_repo)) { // echo "\ndownloaded: [$target]\n";
+            $py_script = str_ireplace("/eol_images", "", $this->temp_image_repo);
+            $py_script .= "detect_blur.py";
+            $cmd = 'python '.$py_script.' --images '.$image_repo.' --threshold '.$threshold; //with or without threshold since we are just after the score
+            $output = shell_exec($cmd); // echo "\nRequest output:\n$output\n";
+            // /* convert string output to array()
+            $output = str_ireplace($image_repo, "", $output);
+            $arr = explode("\n", $output);
+            foreach($arr as $row) {
+                $cols = explode(" - ", $row);
+                $cols = array_map('trim', $cols);
+                if(@$cols[1]) {
+                    $index = str_ireplace(array("parts-", ".jpg"), "", $cols[0]);
+                    if($index <= 15) $final[$cols[0]] = $cols[1]; //limit to 16 images (0-15). Since sometimes 19 images are generated by imagemagick, where 16-18 are blank images
+                }
+            }
+            $final = array_filter($final); //remove null arrays
+            asort($final);
+            $highest_16th_score = end($final);
+            // */
+            return array($final, $highest_16th_score);
+        }
+        else exit("\nFolder not found [$image_repo]\n");
     }
     private function download_image($url)
     {   //wget -nc https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /Volumes/AKiTiO4/other_files/bundle_images/xxx/740.027116-1.jpg
@@ -329,6 +434,13 @@ class iNatImagesSelectAPI
         if(!$ext) $ext = 'jpg';
         if($ext == "jpe") $ext = 'jpg';
         if($ext == "txt") $ext = 'jpg';
+        
+        /* step 1: delete previous file, if there is any
+        $file_path = $this->temp_image_repo;
+        foreach(glob($file_path . "*.j*") as $filename) unlink($filename);
+        // exit("\nelix1\n");
+        */
+        
         $target = $this->temp_image_repo.$filename.".".$ext;
         if(!file_exists($target) || filesize($target) == 0) {
             // sleep(1); //delay for 1 second

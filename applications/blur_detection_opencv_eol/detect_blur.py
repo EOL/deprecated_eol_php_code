@@ -31,7 +31,10 @@ for imagePath in paths.list_images(args["images"]):
     if fm < args["threshold"]:
         text = "Blurry"
 
-    print (str(fm))
+    if args["threshold"] == 1:
+        print (str(fm))
+    else:
+        print (imagePath + " - " + str(fm))
     # print (imagePath + " - " + text + " - " + str(fm))
     
     # show the image

@@ -27,16 +27,16 @@ php inat_images_select.php _
 
 Secondary implementation:
 php inat_images_select.php _ '{"taxonID":"6c2d12b42fa5108952956024716c2267"}'
--> to process only one taxon. e.g. Gadus morhua
+-> to process only one taxon. e.g. Gadus morhua done
 
 php inat_images_select.php _ '{"taxonID":"c74d829f291b0471dc8e469dec09a3dc"}'
--> https://www.inaturalist.org/taxa/78856	Ribes indecorum Eastw.	Plantae	Tracheophyta	Magnoliopsida	Saxifragales	Grossulariaceae	Ribes	species
+-> https://www.inaturalist.org/taxa/78856	Ribes indecorum done
 
 php inat_images_select.php _ '{"taxonID":"802348bd4ba248a598da11918485f140"}'
 -> 	https://www.inaturalist.org/taxa/61495	Erythemis simplicicollis Say, 1839	Animalia	Arthropoda	Insecta	Odonata	
 
 php inat_images_select.php _ '{"taxonID":"07cb0ee9203934e5fc3fbc2ccfcee1e3"}'
--> 	https://www.inaturalist.org/taxa/372465	Trigoniophthalmus alternatus (Silvestri, 1904)	Animalia	Arthropoda	Insecta	Archaeognatha	Machilidae	Trigoniophthalmus	species
+-> 	https://www.inaturalist.org/taxa/372465	Trigoniophthalmus alternatus done
 
 php inat_images_select.php _ '{"taxonID":"e4fdd48749104fcd0c01c1ae79eed4ce"}'
 -> 	https://www.inaturalist.org/taxa/129115	Knautia arvensis (L.) Coult.	Plantae	Tracheophyta	Magnoliopsida	Dipsacales	
@@ -64,8 +64,47 @@ inat_images_3Mcap	Fri 2022-03-25 08:42:08 AM	{"agent.tab":71631, "media_resource
 
 https://dev.to/ko31/using-imagemagick-to-easily-split-an-image-file-13hb
 -> split image into 16 equal parts.
-
 */
+
+/* ----------------------------------- test functions
+$cache_path = '/Volumes/AKiTiO4/web/cp/iNat_image_DwCA/cache_image_score/';
+require_library('connectors/CacheMngtAPI');
+$func2 = new CacheMngtAPI($cache_path);
+
+require_library('connectors/iNatImagesSelectAPI');
+$func = new iNatImagesSelectAPI(false, false, false, false);
+// $accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Knautia_arvensis/original_11.jpg'; done
+// $accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Knautia_arvensis/original_06.jpg'; //done
+// $accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Knautia_arvensis/original_08.jpg'; done
+// $accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Knautia_arvensis/original_17.jpg'; //done
+// $accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Knautia_arvensis/original_19.jpg'; //done
+// $accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Knautia_arvensis/original_14.jpg'; done
+// Mar 31
+// $accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Knautia_arvensis/original_20.jpg'; done
+// $accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Knautia_arvensis/original_10.jpg'; done
+// $accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Knautia_arvensis/original_03.jpg'; done
+// $accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Knautia_arvensis/original_04.jpg'; done
+
+$accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Ribes_indecorum/original_0.jpg';
+$accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Ribes_indecorum/original_4.jpg';
+$accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Ribes_indecorum/original_9.jpg';
+$accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Ribes_indecorum/original_20.jpg';
+// $accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Ribes_indecorum/original_13.jpg';
+
+// $accessURI = 'http://localhost/other_files/iNat_imgs/dragonfly/original4.jpg';
+// $accessURI = 'http://localhost/other_files/iNat_imgs/dragonfly/original2.jpg';
+// $accessURI = 'http://localhost/other_files/iNat_imgs/dragonfly/original3.jpg';
+// $accessURI = 'https://inaturalist-open-data.s3.amazonaws.com/photos/529119/original.jpg';
+$accessURI = 'https://inaturalist-open-data.s3.amazonaws.com/photos/22142886/original.jpg';
+
+
+$arr = $func->get_blurriness_score($accessURI, false, $func2); //2nd param true means overwrite download, will re-download
+print_r($arr);
+// if(file_exists($arr['local'])) $arr = $func->average_score($arr);
+// else exit("\ndoes not exist: ".$arr['local']."\n");
+// print_r($arr);
+exit("\n-end test functions-\n");
+----------------------------------- */
 
 // print_r($argv);
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
@@ -102,7 +141,7 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $params)
     $func = new DwCA_Utility($resource_id, $dwca_file, $params);
 
     $excluded_rowtypes = false;
-    $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon'); //'http://eol.org/schema/agent/agent'
+    $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon'); //'http://eol.org/schema/agent/agent' //normal operation
 
     /* This will be processed in iNatImagesSelectAPI.php which will be called from DwCA_Utility.php */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
