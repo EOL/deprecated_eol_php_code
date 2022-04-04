@@ -152,7 +152,11 @@ class iNatImagesSelectAPI
                 */
                 
                 // /* orig: Eli's scheme
-                if($this->total_images_per_taxon[$taxonID] <= $this->image_limit) {} //get all, no need to check score
+                if($this->total_images_per_taxon[$taxonID] <= $this->image_limit) { //get all, no need to check score
+                    // /* REMINDER: this should be commented in normal operation. Used in Katja's report.
+                    continue;
+                    // */
+                }
                 else {
                     // echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n"; //good debug
                     if($ret = self::get_blurriness_score($accessURI)) { // print_r($ret);
