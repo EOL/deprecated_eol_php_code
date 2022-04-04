@@ -119,21 +119,20 @@ $source_dwca = 'inat_images_40limit';   //resource generated from inat_images.ph
 
 $resource_id = 'inat_images_100cap'; //new resource --- stopped --- did not materialize
 
-/* 1st combo: finished OK
+// /* 1st combo: finished OK
 $source_dwca = 'inat_images_40limit';   //resource generated from inat_images.php --- media_resource.tab : 5,144,786
 $resource_id = 'inat_images_3Mcap';     //new resource (update in DwCA_Utility.php)
-*/
-
-// /* 2nd combo: currently processing...
-$source_dwca = 'inat_images_100limit';  //resource generated from inat_images.php --- media_resource.tab : 8,742,707 - future ideal, eventually
-$resource_id = 'inat_images_3Mcap_2';   //new resource (update in DwCA_Utility.php)
 // */
 
-$dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz';
-// $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz'; //during dev only
+/* 2nd combo: currently processing...
+$source_dwca = 'inat_images_100limit';  //resource generated from inat_images.php --- media_resource.tab : 8,742,707 - future ideal, eventually
+$resource_id = 'inat_images_3Mcap_2';   //new resource (update in DwCA_Utility.php)
+*/
+
+if(Functions::is_production()) $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz';
+else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz'; //during dev only
 
 process_resource_url($dwca_file, $resource_id, $timestart, $params);
-
 
 function process_resource_url($dwca_file, $resource_id, $timestart, $params)
 {

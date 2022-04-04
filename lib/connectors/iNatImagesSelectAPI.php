@@ -37,6 +37,7 @@ class iNatImagesSelectAPI
         }
         if(!is_dir($this->cache_path)) mkdir($this->cache_path);
         $this->agent_ids = array();
+        $this->media_count = 0;
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -171,7 +172,8 @@ class iNatImagesSelectAPI
                     }
                     if($needle = @$this->params['taxonID']) {} //not score-specific if per taxon
                     else { //main operation
-                        if($ret['score'] < 1000) continue;
+                        // if($ret['score'] < 1000) continue;
+                        if($ret['highest 1/16th score'] <= 300) continue;
                     }
                 }
                 // */
@@ -206,6 +208,8 @@ class iNatImagesSelectAPI
                 */
                 
                 @$this->running_taxon_images_count[$taxonID]++;
+                @$this->media_count++;
+                if($this->media_count >= 1001) return; //1001 --- just playing around with limits
 
                 // /* start saving
                 $o = new \eol_schema\MediaResource();
