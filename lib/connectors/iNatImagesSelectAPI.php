@@ -141,9 +141,9 @@ class iNatImagesSelectAPI
             if($what == 'select_100_images') {
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
-                /* REMINDER: temporarily commented for Katja's report. Should be included in normal operation!
+                // /* REMINDER: temporarily commented for Katja's report. Should be included in normal operation!
                 if(@$this->running_taxon_images_count[$taxonID] > $this->image_limit) continue;
-                */
+                // */
                 
                 /* used during caching
                 if($this->total_images_per_taxon[$taxonID] > $this->limit_2trigger_score_computation) {} //many many images per taxon. Compute image score only for these images
@@ -153,9 +153,9 @@ class iNatImagesSelectAPI
                 
                 // /* orig: Eli's scheme
                 if($this->total_images_per_taxon[$taxonID] <= $this->image_limit) { //get all, no need to check score
-                    // /* REMINDER: this should be commented in normal operation. Used in Katja's report.
+                    /* REMINDER: this should be commented in normal operation. Used in Katja's report.
                     continue;
-                    // */
+                    */
                 }
                 else {
                     // echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n"; //good debug
@@ -182,15 +182,15 @@ class iNatImagesSelectAPI
                         
                         $highest_16th = (float) $ret['highest 1/16th score'];
                         
-                        // /* for Katja's report: I'm looking for images where the highest 1/16th score is in the 100-300 range.
+                        /* for Katja's report: I'm looking for images where the highest 1/16th score is in the 100-300 range.
                         if($highest_16th >= 100 && $highest_16th <= 300) {}
                         else continue;
-                        // */
+                        */
                         
-                        /* for normal operation --- to be set...
+                        // /* for normal operation --- to be set...
                         if($highest_16th >= 150) {}
                         else continue;
-                        */
+                        // */
                     }
                 }
                 // */
