@@ -178,14 +178,15 @@ class iNatImagesSelectAPI
                         
                         $highest_16th = $ret['highest 1/16th score'];
                         
-                        // /* for Katja's report: I'm looking for images where the highest 1/16th score is in the 100-300 range.
+                        /* for Katja's report: I'm looking for images where the highest 1/16th score is in the 100-300 range.
                         if($highest_16th >= 100 && $highest_16th <= 300) {}
                         else continue;
-                        // */
-                        
-                        /* for normal operation --- to be set...
                         */
                         
+                        // /* for normal operation --- to be set...
+                        if($highest_16th >= 150) {}
+                        else continue;
+                        // */
                     }
                 }
                 // */
