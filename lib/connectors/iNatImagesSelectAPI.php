@@ -141,9 +141,9 @@ class iNatImagesSelectAPI
             if($what == 'select_100_images') {
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
-                // /* REMINDER: temporarily commented for Katja's report. Should be included in normal operation!
+                /* REMINDER: temporarily commented for Katja's report. Should be included in normal operation!
                 if(@$this->running_taxon_images_count[$taxonID] > $this->image_limit) continue;
-                // */
+                */
                 
                 /* used during caching
                 if($this->total_images_per_taxon[$taxonID] > $this->limit_2trigger_score_computation) {} //many many images per taxon. Compute image score only for these images
@@ -176,17 +176,17 @@ class iNatImagesSelectAPI
                     else { //main operation
                         // if($ret['score'] < 1000) continue; //during initial testing
                         
-                        $highest_16th = $ret['highest 1/16th score'];
+                        $highest_16th = (float) $ret['highest 1/16th score'];
                         
-                        /* for Katja's report: I'm looking for images where the highest 1/16th score is in the 100-300 range.
+                        // /* for Katja's report: I'm looking for images where the highest 1/16th score is in the 100-300 range.
                         if($highest_16th >= 100 && $highest_16th <= 300) {}
                         else continue;
-                        */
+                        // */
                         
-                        // /* for normal operation --- to be set...
+                        /* for normal operation --- to be set...
                         if($highest_16th >= 150) {}
                         else continue;
-                        // */
+                        */
                     }
                 }
                 // */
@@ -224,7 +224,7 @@ class iNatImagesSelectAPI
                 
                 // /*
                 @$this->media_count++;
-                if($this->media_count >= 3000000) return; //3000000 normal operation --- for Katja's report 5K, during dev - for a report asked by Katja
+                if($this->media_count >= 5000) return; //3000000 normal operation --- for Katja's report 5K, during dev - for a report asked by Katja
                 // */
                 
                 // /* start saving
