@@ -351,7 +351,7 @@ class iNatImagesSelectAPI
             [filename] => f02b40a842171a27faaafa617331dce9
         )*/
 
-        if(!file_exists(@$arr['local'])) { echo "\nNeeds to re-download image again...\n"; //exit;
+        if(!file_exists(@$arr['local'])) { echo "-R-"; //exit; //Needs to re-download image again...
             if($arr['local'] = self::download_image($arr['url'])) {} // echo "\ndownloaded: [$target]\n";
             else exit("\ncannot download remote image [".$arr['url']."]\n");
         }
