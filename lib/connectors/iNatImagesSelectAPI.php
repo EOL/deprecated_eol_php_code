@@ -173,7 +173,13 @@ class iNatImagesSelectAPI
                     if($needle = @$this->params['taxonID']) {} //not score-specific if per taxon
                     else { //main operation
                         // if($ret['score'] < 1000) continue;
-                        if($ret['highest 1/16th score'] <= 300) continue;
+                        $highest_16th = $ret['highest 1/16th score'];
+                        
+                        // /* for Katja's report: I'm looking for images where the highest 1/16th score is in the 100-300 range.
+                        if($highest_16th >= 100 && $highest_16th <= 300) {}
+                        else continue;
+                        // */
+                        
                     }
                 }
                 // */
