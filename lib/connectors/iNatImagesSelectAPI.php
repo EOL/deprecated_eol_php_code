@@ -54,11 +54,16 @@ class iNatImagesSelectAPI
         $this->func = new CacheMngtAPI($this->cache_path);
         // */
         
+        // /* for Jen's flowering plants report
+        $tbl = "http://rs.tdwg.org/dwc/terms/taxon";
+        self::process_table($tables[$tbl][0], 'get_Plantae_taxonIDs', $this->extensions[$tbl]); //generates $this->Plantae_taxonIDs
+        // */
+        
         // /* used during caching
         //step 1: get total images count per taxon
         $this->unique_ids = array();
         $tbl = "http://eol.org/schema/media/document";
-        self::process_table($tables[$tbl][0], 'get_total_images_count_per_taxon', $this->extensions[$tbl]);
+        self::process_table($tables[$tbl][0], 'get_total_images_count_per_taxon', $this->extensions[$tbl]); //generates $this->total_images_per_taxon
         // print_r($this->total_images_per_taxon); //exit;
         // */
         /* good stats
@@ -140,15 +145,20 @@ class iNatImagesSelectAPI
             if($what == 'select_100_images') {
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
-                // /* REMINDER: temporarily commented for Katja's report. Should be included in normal operation! (series 2 change)
+                /* REMINDER: temporarily commented for Katja's and Jen's report. Should be included in normal operation! (series 2 change)
                 if(@$this->running_taxon_images_count[$taxonID] > $this->image_limit) continue;
+                */
+                
+                // /* REMINDER: should be commented in normal operation. Only for Jen's Plantae report. (series 2 change)
+                if(isset($this->Plantae_taxonIDs[$taxonID])) {}
+                else continue;
                 // */
                 
                 // /* orig: Eli's scheme
                 if($this->total_images_per_taxon[$taxonID] <= $this->image_limit) { //get all, no need to check score
-                    /* REMINDER: this should be commented in normal operation. Used in Katja's report. (series 2 change)
+                    // /* REMINDER: this should be commented in normal operation. Used in Katja's report. (series 2 change)
                     continue;
-                    */
+                    // */
                 }
                 else {
                     // echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n"; //good debug
@@ -223,7 +233,7 @@ class iNatImagesSelectAPI
                 
                 // /* (series 2 change)
                 @$this->media_count++;
-                if($this->media_count >= 3000000) return; //3000000 normal operation --- for Katja's report 5K, during dev - for a report asked by Katja
+                if($this->media_count >= 5000) return; //3000000 normal operation --- for Katja's report 5K, during dev - for a report asked by Katja
                 // */
                 
                 // /* start saving
@@ -291,7 +301,22 @@ class iNatImagesSelectAPI
                 }
             }
             //=======================================================================================
-            
+            if($what == 'get_Plantae_taxonIDs') { // print_r($rec); exit("\ncha 1\n");
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/taxonID] => 07cb0ee9203934e5fc3fbc2ccfcee1e3
+                    [http://rs.tdwg.org/ac/terms/furtherInformationURL] => https://www.inaturalist.org/taxa/372465
+                    [http://rs.tdwg.org/dwc/terms/scientificName] => Trigoniophthalmus alternatus (Silvestri, 1904)
+                    [http://rs.tdwg.org/dwc/terms/kingdom] => Animalia
+                    [http://rs.tdwg.org/dwc/terms/phylum] => Arthropoda
+                    [http://rs.tdwg.org/dwc/terms/class] => Insecta
+                    [http://rs.tdwg.org/dwc/terms/order] => Archaeognatha
+                    [http://rs.tdwg.org/dwc/terms/family] => Machilidae
+                    [http://rs.tdwg.org/dwc/terms/genus] => Trigoniophthalmus
+                    [http://rs.tdwg.org/dwc/terms/taxonRank] => species
+                )*/
+                if($rec['http://rs.tdwg.org/dwc/terms/kingdom'] == 'Platae') $this->Plantae_taxonIDs[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = '';
+            }
+            //=======================================================================================
         }
     }
     private function get_field_from_uri($uri)
