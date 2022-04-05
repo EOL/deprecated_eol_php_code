@@ -46,3 +46,6 @@ $ python detect_blur.py --images my_images
 
 $ python detect_blur.py --images my_images --threshold 100
 $ python detect_blur.py --images eol_images --threshold 100
+
+convert -crop 25%x25% input.png output.png
+convert -crop 25%x25% original.jpg output.jpg
