@@ -397,7 +397,10 @@ class iNatImagesSelectAPI
         
         if(!file_exists(@$arr['local'])) { echo "-R-"; //exit; //Needs to re-download image again...
             if($arr['local'] = self::download_image($arr['url'])) {} // echo "\ndownloaded: [$target]\n";
-            else exit("\ncannot download remote image [".$arr['url']."]\n");
+            else {
+                echo "\nCannot download [$url]. May need to report to iNaturalist 2.\n";
+                return $arr;
+            }
         }
 
         /* step 1: delete previous old 16 files --- WAS MOVED ELSEWHERE
