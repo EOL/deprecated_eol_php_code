@@ -185,7 +185,7 @@ class iNatImagesSelectAPI
                     else { //main operation --- scoring here is considered
                         // if($ret['score'] < 1000) continue; //during initial testing
                         
-                        $highest_16th = (float) $ret['highest 1/16th score'];
+                        $highest_16th = (float) @$ret['highest 1/16th score'];
                         
                         /* for Katja's (& Jen's) report: I'm looking for images where the highest 1/16th score is in the 100-300 range.
                         if($highest_16th >= 100 && $highest_16th <= 300) {}
@@ -193,7 +193,7 @@ class iNatImagesSelectAPI
                         */
                         
                         // /* FINALLY: for normal operation
-                        if($highest_16th >= 100) {}
+                        if($highest_16th >= 100 || $ret['score'] >= 2000) {}
                         else continue;
                         // */
                     }
@@ -390,6 +390,11 @@ class iNatImagesSelectAPI
             [filename] => f02b40a842171a27faaafa617331dce9
         )*/
 
+        if($arr['score'] >= 2000) { //no need to divide-and-score, big image score is already high
+            echo "-2K-";
+            return $arr;
+        }
+        
         if(!file_exists(@$arr['local'])) { echo "-R-"; //exit; //Needs to re-download image again...
             if($arr['local'] = self::download_image($arr['url'])) {} // echo "\ndownloaded: [$target]\n";
             else exit("\ncannot download remote image [".$arr['url']."]\n");
