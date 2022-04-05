@@ -141,7 +141,7 @@ class iNatImagesSelectAPI
             if($what == 'select_100_images') {
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
-                // /* REMINDER: temporarily commented for Katja's report. Should be included in normal operation!
+                // /* REMINDER: temporarily commented for Katja's report. Should be included in normal operation! (series 2 change)
                 if(@$this->running_taxon_images_count[$taxonID] > $this->image_limit) continue;
                 // */
                 
@@ -153,7 +153,7 @@ class iNatImagesSelectAPI
                 
                 // /* orig: Eli's scheme
                 if($this->total_images_per_taxon[$taxonID] <= $this->image_limit) { //get all, no need to check score
-                    /* REMINDER: this should be commented in normal operation. Used in Katja's report.
+                    /* REMINDER: this should be commented in normal operation. Used in Katja's report. (series 2 change)
                     continue;
                     */
                 }
@@ -188,7 +188,7 @@ class iNatImagesSelectAPI
                         */
                         
                         // /* for normal operation --- to be set...
-                        if($highest_16th >= 150) {}
+                        if($highest_16th >= 100) {}
                         else continue;
                         // */
                     }
@@ -226,9 +226,9 @@ class iNatImagesSelectAPI
                 
                 @$this->running_taxon_images_count[$taxonID]++;
                 
-                // /*
+                // /* series 2 change:
                 @$this->media_count++;
-                if($this->media_count >= 5000) return; //3000000 normal operation --- for Katja's report 5K, during dev - for a report asked by Katja
+                if($this->media_count >= 3000000) return; //3000000 normal operation --- for Katja's report 5K, during dev - for a report asked by Katja
                 // */
                 
                 // /* start saving
