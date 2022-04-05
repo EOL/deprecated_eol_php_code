@@ -234,7 +234,7 @@ class iNatImagesSelectAPI
                 
                 // /* (series 2 change)
                 @$this->media_count++;
-                if($this->media_count >= 5000) return; //3000000 normal operation --- for Katja's report 5K, during dev - for a report asked by Katja
+                if($this->media_count >= 3000000) return; //3000000 normal operation --- for Katja's report 5K, during dev - for a report asked by Katja
                 // */
                 
                 // /* start saving
