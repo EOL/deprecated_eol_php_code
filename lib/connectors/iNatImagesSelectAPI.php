@@ -25,7 +25,6 @@ class iNatImagesSelectAPI
                                   "http://eol.org/schema/reference/reference"       => "reference"
                                   );
         $this->image_limit = 20; //100; //100 orig
-        // $this->limit_2trigger_score_computation = 30; //100; orig --- during caching only
         if(Functions::is_production()) {
             $this->cache_path = '/extra/other_files/iNat_image_DwCA/cache_image_score/';
             // $this->temp_image_repo = "/html/eol_php_code/applications/blur_detection_opencv_eol/eol_images/";
@@ -145,12 +144,6 @@ class iNatImagesSelectAPI
                 if(@$this->running_taxon_images_count[$taxonID] > $this->image_limit) continue;
                 // */
                 
-                /* used during caching
-                if($this->total_images_per_taxon[$taxonID] > $this->limit_2trigger_score_computation) {} //many many images per taxon. Compute image score only for these images
-                else { //taxon with few images. i.e. less than 100
-                }
-                */
-                
                 // /* orig: Eli's scheme
                 if($this->total_images_per_taxon[$taxonID] <= $this->image_limit) { //get all, no need to check score
                     /* REMINDER: this should be commented in normal operation. Used in Katja's report. (series 2 change)
@@ -176,8 +169,9 @@ class iNatImagesSelectAPI
                         echo "\nWill ignore record, cannot download image.\n";
                         continue;
                     }
+                    
                     if($needle = @$this->params['taxonID']) {} //not score-specific if per taxon
-                    else { //main operation
+                    else { //main operation --- scoring here is considered
                         // if($ret['score'] < 1000) continue; //during initial testing
                         
                         $highest_16th = (float) $ret['highest 1/16th score'];
@@ -187,13 +181,14 @@ class iNatImagesSelectAPI
                         else continue;
                         */
                         
-                        // /* for normal operation --- to be set...
+                        // /* FINALLY: for normal operation
                         if($highest_16th >= 100) {}
                         else continue;
                         // */
                     }
                 }
                 // */
+                
                 /* Katja's scheme: a random-pick (21-100) and scoring (>100)
                 $total_images_per_taxon = $this->total_images_per_taxon[$taxonID];
                 if($total_images_per_taxon <= $this->image_limit) {} //get all, no need to check score
@@ -226,7 +221,7 @@ class iNatImagesSelectAPI
                 
                 @$this->running_taxon_images_count[$taxonID]++;
                 
-                // /* series 2 change:
+                // /* (series 2 change)
                 @$this->media_count++;
                 if($this->media_count >= 3000000) return; //3000000 normal operation --- for Katja's report 5K, during dev - for a report asked by Katja
                 // */
