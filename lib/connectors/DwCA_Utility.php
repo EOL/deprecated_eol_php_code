@@ -161,6 +161,7 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             */
+            // if($this->resource_id == 'inat_images_3Mcap') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == 'inat_images_100cap') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '368_cleaned_MoF') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->params['resource'] == "Deltas_4hashing") break; //all extensions will be processed elsewhere. debug only
