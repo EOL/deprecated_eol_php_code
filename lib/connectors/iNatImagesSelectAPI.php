@@ -253,7 +253,7 @@ class iNatImagesSelectAPI
                 /*
                 if($needle = @$this->params['taxonID']) $o->additionalInformation = $ret['score']." | ".$ret['highest 1/16th score']; //."|".$ret['url'];
                 */
-                $o->additionalInformation = $ret['score']." | ".$ret['highest 1/16th score']; //."|".$ret['url'];
+                $o->additionalInformation = $ret['score']." | ".@$ret['highest 1/16th score']; //."|".$ret['url'];
                 
                 $unique_field = $o->identifier;
                 if(!isset($this->unique_ids[$unique_field])) {
