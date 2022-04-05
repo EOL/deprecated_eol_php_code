@@ -57,6 +57,7 @@ class iNatImagesSelectAPI
         // /* for Jen's flowering plants report
         $tbl = "http://rs.tdwg.org/dwc/terms/taxon";
         self::process_table($tables[$tbl][0], 'get_Plantae_taxonIDs', $this->extensions[$tbl]); //generates $this->Plantae_taxonIDs
+        echo "\nPlantae_taxonIDs: ".count($this->Plantae_taxonIDs)."\n";
         // */
         
         // /* used during caching
@@ -186,15 +187,15 @@ class iNatImagesSelectAPI
                         
                         $highest_16th = (float) $ret['highest 1/16th score'];
                         
-                        /* for Katja's report: I'm looking for images where the highest 1/16th score is in the 100-300 range.
+                        // /* for Katja's report: I'm looking for images where the highest 1/16th score is in the 100-300 range.
                         if($highest_16th >= 100 && $highest_16th <= 300) {}
                         else continue;
-                        */
+                        // */
                         
-                        // /* FINALLY: for normal operation
+                        /* FINALLY: for normal operation
                         if($highest_16th >= 100) {}
                         else continue;
-                        // */
+                        */
                     }
                 }
                 // */
@@ -314,7 +315,7 @@ class iNatImagesSelectAPI
                     [http://rs.tdwg.org/dwc/terms/genus] => Trigoniophthalmus
                     [http://rs.tdwg.org/dwc/terms/taxonRank] => species
                 )*/
-                if($rec['http://rs.tdwg.org/dwc/terms/kingdom'] == 'Platae') $this->Plantae_taxonIDs[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = '';
+                if($rec['http://rs.tdwg.org/dwc/terms/kingdom'] == 'Plantae') $this->Plantae_taxonIDs[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = '';
             }
             //=======================================================================================
         }
@@ -337,7 +338,7 @@ class iNatImagesSelectAPI
             
             if($forceYN) {
                 if($arr = self::compute_blurriness_score($accessURI)) {
-                    $arr = $func->average_score($arr);
+                    $arr = self::average_score($arr);
                     $json = json_encode($arr);
                     $this->func->save_json($md5_id, $json);
                     // print_r($arr); 
@@ -354,7 +355,7 @@ class iNatImagesSelectAPI
         }
         else {
             if($arr = self::compute_blurriness_score($accessURI)) {
-                $arr = $func->average_score($arr);
+                $arr = self::average_score($arr);
                 $json = json_encode($arr);
                 $this->func->save_json($md5_id, $json);
                 // print_r($arr); 
