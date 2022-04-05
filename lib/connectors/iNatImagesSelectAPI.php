@@ -363,17 +363,19 @@ class iNatImagesSelectAPI
             }
         }
         
-        // /* deletion was moved here instead:
-        if(file_exists($arr['local'])) unlink($arr['local']); //delete temp downloaded image e.g. 17796c5772dbfc3e53d48e881fbb3c1e.jpeg
-        // e.g. "/Library/WebServer/Documents/eol_php_code/applications/blur_detection_opencv_eol/eol_images/f02b40a842171a27faaafa617331dce9.jpg"
-        // */
-        
-        // /* step 1: delete previous old 16 files --- deletion was moved here instead:
-        $ext = pathinfo($arr['local'], PATHINFO_EXTENSION);
-        $dir = pathinfo($arr['local'], PATHINFO_DIRNAME);
-        $file_path = str_replace("eol_images", "img_parts/", $dir);
-        foreach(glob($file_path . "*." . $ext) as $filename) unlink($filename);
-        // */
+        if(@$arr['local']) {
+            // /* deletion was moved here instead:
+            if(file_exists($arr['local'])) unlink($arr['local']); //delete temp downloaded image e.g. 17796c5772dbfc3e53d48e881fbb3c1e.jpeg
+            // e.g. "/Library/WebServer/Documents/eol_php_code/applications/blur_detection_opencv_eol/eol_images/f02b40a842171a27faaafa617331dce9.jpg"
+            // */
+
+            // /* step 1: delete previous old 16 files --- deletion was moved here instead:
+            $ext = pathinfo($arr['local'], PATHINFO_EXTENSION);
+            $dir = pathinfo($arr['local'], PATHINFO_DIRNAME);
+            $file_path = str_replace("eol_images", "img_parts/", $dir);
+            foreach(glob($file_path . "*." . $ext) as $filename) unlink($filename);
+            // */
+        }
         
         return $arr;
     }
@@ -399,6 +401,8 @@ class iNatImagesSelectAPI
             if($arr['local'] = self::download_image($arr['url'])) {} // echo "\ndownloaded: [$target]\n";
             else {
                 echo "\nCannot download [$url]. May need to report to iNaturalist 2.\n";
+                $arr['local'] = '';
+                $arr['score'] = 0;
                 return $arr;
             }
         }
