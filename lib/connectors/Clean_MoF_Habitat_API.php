@@ -39,8 +39,20 @@ class Clean_MoF_Habitat_API
         $this->allowed_terms_URIs = $func->get_allowed_value_type_URIs_from_EOL_terms_file($this->download_options); print_r($this->allowed_terms_URIs);
         echo ("\nallowed_terms_URIs from EOL terms file: [".count($this->allowed_terms_URIs)."]\n");
         */
-        
-        self::get_descendants_info();
+
+        // /* use external func for computation of descendants
+        require_library('connectors/DH_v1_1_postProcessing');
+        $this->func = new DH_v1_1_postProcessing(1);
+        // */
+        self::get_descendants_info(); //generates $this->descendants
+
+        $marine = 'http://purl.obolibrary.org/obo/ENVO_00000447';
+        $descendants_of_marine = $this->func->get_descendants_of_taxID($marine, false, $this->descendants);
+        echo "\nDescendants of marine ($marine): ".count($descendants_of_marine)."\n"; //print_r($descendants_of_marine);
+
+        $terrestrial = 'http://purl.obolibrary.org/obo/ENVO_00000446';
+        $descendants_of_terrestrial = $this->func->get_descendants_of_taxID($terrestrial, false, $this->descendants);
+        echo "\nDescendants of terrestrial ($terrestrial): ".count($descendants_of_terrestrial)."\n"; //print_r($descendants_of_terrestrial);
         
         $tables = $info['harvester']->tables;
         exit("\nstop muna...\n");
@@ -106,15 +118,15 @@ class Clean_MoF_Habitat_API
                             )
                     )*/
                     if($uri = @$rek['uri']) {
-                        // /* debug
+                        /* debug
                         if($uri == 'https://www.gbif.org/dataset/1b2af425-9f6f-4b28-a008-af9757317c4c') {
                             print_r($rek);
                             exit("\nhuli ka\n");
                         }
-                        // */
+                        */
                         if($parents = @$rek['parents']) {
                             foreach($parents as $parent) {
-                                $this->children_of_term[$parent][] = $uri;
+                                $this->descendants[$parent][$uri] = ''; //used for descendants (children)
                             }
                         }
                     }
@@ -123,7 +135,6 @@ class Clean_MoF_Habitat_API
             else exit("\nInvestigate: EOL terms file structure had changed.\n");
         }
         else exit("\nInvestigate: EOL terms file not accessible.\n");
-        // print_r($this->children_of_term); exit("\nstop5...\n");
         /*
         [http://grbio.org/cool/cxwr-bj09] => Array
                (
