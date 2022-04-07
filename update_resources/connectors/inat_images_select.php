@@ -50,7 +50,7 @@ For diagnostics:
         -> very helpful, if u want to delete current running process
     cat terminal_inat_images_select.txt
         -> to see progress, very convenient
-    ps -p 422830
+    ps -p 35394
         -> to investigate a running PID
     cat /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
         -> to monitor runtime
@@ -58,7 +58,7 @@ For diagnostics:
     ls -lt /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
     ls /extra/other_files/iNat_image_DwCA/cache_image_score/
     find /extra/other_files/iNat_image_DwCA/cache_image_score/ -type f | wc -l
-    kill -9 422830
+    kill -9 35394
     wc -l /extra/eol_php_resources/inat_images_3Mcap_working/media_resource_working.tab
     cat /extra/eol_php_resources/inat_images_3Mcap_working/media_resource_working.tab
     
