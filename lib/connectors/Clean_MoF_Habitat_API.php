@@ -50,23 +50,35 @@ class Clean_MoF_Habitat_API
         $descendants_of_marine = $this->func->get_descendants_of_taxID($marine, false, $this->descendants);
         echo "\nDescendants of marine ($marine): ".count($descendants_of_marine)."\n"; //print_r($descendants_of_marine);
         $this->descendants_of_marine = self::re_orient($descendants_of_marine); unset($descendants_of_marine);
+        $this->descendants_of_marine[$marine] = '';
         echo "\nDescendants of marine ($marine): ".count($this->descendants_of_marine)."\n";
 
         $terrestrial = 'http://purl.obolibrary.org/obo/ENVO_00000446';
         $descendants_of_terrestrial = $this->func->get_descendants_of_taxID($terrestrial, false, $this->descendants);
         echo "\nDescendants of terrestrial ($terrestrial): ".count($descendants_of_terrestrial)."\n"; //print_r($descendants_of_terrestrial);
         $this->descendants_of_terrestrial = self::re_orient($descendants_of_terrestrial); unset($descendants_of_terrestrial);
+        $this->descendants_of_terrestrial[$terrestrial] = '';
         echo "\nDescendants of terrestrial ($terrestrial): ".count($this->descendants_of_terrestrial)."\n";
         
         $tables = $info['harvester']->tables;
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'build_occurID_taxonID_info'); //gen $this->occurID_taxonID_info
-        self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'log_habitat_use'); //gen $this->log
-        print_r($this->log);
-        exit("\nstop muna...\n");
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'log_habitat_use'); //gen $this->marine_and_terrestrial
+        echo "\ntaxonIDs with both marine and terrestrial habitats: ".count($this->marine_and_terrestrial)."\n"; // print_r($this->marine_and_terrestrial);
+
+        unset($this->descendants);
+        unset($this->descendants_of_marine);
+        unset($this->descendants_of_terrestrial);
+        unset($this->occurID_taxonID_info);
+        
+        /* start writing */
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_occurrence');
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_MoF');
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'write_taxon');
+        // exit("\nstop muna...\n");
     }
     private function process_table($meta, $task)
     {   //print_r($meta);
-        echo "\nRunning $task...\n"; $i = 0;
+        echo "\n\nRunning $task..."; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 300000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -108,18 +120,72 @@ class Clean_MoF_Habitat_API
                 if($taxonID_in_question = $this->occurID_taxonID_info[$occurrenceID]) {}
                 else { print_r($rec); exit("\nno link to taxonID\n"); }
                 if(self::is_habitat_YN($mType)) {
-                    if(self::is_mValue_descendant_of_marine($mValue)) $this->log[$taxonID_in_question]['marine'] = 1;
-                    if(self::is_mValue_descendant_of_terrestrial($mValue)) $this->log[$taxonID_in_question]['terrestrial'] = 1;
+                    if(self::is_mValue_descendant_of_marine($mValue)) $log[$taxonID_in_question]['marine'] = '';
+                    if(self::is_mValue_descendant_of_terrestrial($mValue)) $log[$taxonID_in_question]['terrestrial'] = '';
+                }
+                if(isset($log[$taxonID_in_question]['marine']) && isset($log[$taxonID_in_question]['terrestrial'])) $this->marine_and_terrestrial[$taxonID_in_question] = '';
+            }
+            //===================================================================================================================
+            if($task == 'write_occurrence') {
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => b93b7c3d84fcdb1705f77f3e802f6f6e_708
+                    [http://rs.tdwg.org/dwc/terms/taxonID] => EOL:9063
+                )*/
+                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                if(isset($this->marine_and_terrestrial[$taxonID])) { //don't save
+                    $this->occurrenceIDs_2delete[$occurrenceID] = '';
+                    continue;
+                }
+                else { //save
+                    $o = new \eol_schema\Occurrence_specific();
+                    $uris = array_keys($rec);
+                    foreach($uris as $uri) {
+                        $field = pathinfo($uri, PATHINFO_BASENAME);
+                        $o->$field = $rec[$uri];
+                    }
+                    $this->archive_builder->write_object_to_file($o);
                 }
             }
             //===================================================================================================================
-            if($task == '') {
+            if($task == 'write_MoF') {
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/measurementID] => 06164abc963e5da8fd4030fa3305df59_708
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => b93b7c3d84fcdb1705f77f3e802f6f6e_708
+                    [http://eol.org/schema/measurementOfTaxon] => true
+                    [http://rs.tdwg.org/dwc/terms/measurementType] => http://purl.obolibrary.org/obo/RO_0002303
+                    [http://rs.tdwg.org/dwc/terms/measurementValue] => http://purl.obolibrary.org/obo/ENVO_00000446
+                    [http://rs.tdwg.org/dwc/terms/measurementMethod] => text mining
+                    [http://rs.tdwg.org/dwc/terms/measurementRemarks] => source text: "terrestrial"
+                    [http://purl.org/dc/terms/source] => https://eol.org/search?q=Sphaerospira
+                    [http://purl.org/dc/terms/contributor] => <a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>
+                    [http://eol.org/schema/reference/referenceID] => 2a5fe9f9217cd54939ff5bdf16a6d0c0
+                )*/
+                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                if(isset($this->occurrenceIDs_2delete[$occurrenceID])) continue; //don't save
+                else {
+                    $o = new \eol_schema\MeasurementOrFact_specific();
+                    $uris = array_keys($rec);
+                    foreach($uris as $uri) {
+                        $field = pathinfo($uri, PATHINFO_BASENAME);
+                        $o->$field = $rec[$uri];
+                    }
+                    $this->archive_builder->write_object_to_file($o);
+                }
             }
             //===================================================================================================================
-            if($task == '') {
-            }
-            //===================================================================================================================
-            if($task == '') {
+            if($task == 'write_taxon') { //print_r($rec); exit;
+                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                if(isset($this->marine_and_terrestrial[$taxonID])) continue; //don't save
+                else {
+                    $o = new \eol_schema\Taxon();
+                    $uris = array_keys($rec);
+                    foreach($uris as $uri) {
+                        $field = pathinfo($uri, PATHINFO_BASENAME);
+                        $o->$field = $rec[$uri];
+                    }
+                    $this->archive_builder->write_object_to_file($o);
+                }
             }
             //===================================================================================================================
             //===================================================================================================================
