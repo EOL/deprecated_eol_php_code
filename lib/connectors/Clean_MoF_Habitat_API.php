@@ -73,7 +73,7 @@ class Clean_MoF_Habitat_API
         /* start writing */
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_occurrence'); //gen $this->occurrenceIDs_2delete
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_MoF'); //gen $this->referenceIDs
-        self::process_table($tables['http://eol.org/schema/reference/reference'][0], 'write_reference');
+        self::process_table($tables['http://eol.org/schema/reference/reference'][0], 'write_reference'); //only those refs existing in MoF
         unset($this->occurrenceIDs_2delete);
         unset($this->referenceIDs);
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'write_taxon');
