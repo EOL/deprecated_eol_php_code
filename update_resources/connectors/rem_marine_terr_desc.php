@@ -26,14 +26,13 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
 
-    $preferred_rowtypes = array();
-    $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/reference/reference', 
-                               'http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence');
-    
-    /* Whatever remain will be processed in DwCA_Utility.php
-    http://rs.tdwg.org/dwc/terms/taxon
-    http://eol.org/schema/reference/reference
-    */
+    if($resource_id == '708_cleaned_habitat_values') {
+        $preferred_rowtypes = array();
+        $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/reference/reference', 
+                                   'http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence');
+    }
+    else exit("\nresource ID not yet initialized [$resource_id]\n");
+    /* $excluded_rowtypes will be processed in Clean_MoF_Habitat_API.php */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
