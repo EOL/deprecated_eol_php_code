@@ -25,7 +25,11 @@ saved at one point: 708_31Jul2020.tar.gz
     http://eol.org/schema/reference/reference:      Total: 195531
 
 Below are start of the updated resutls based on a legacy filter:
-708	Sunday 2020-08-02 11:20:43 AM	{"measurement_or_fact.tab":808856, "occurrence.tab":704252, "reference.tab":198288, "taxon.tab":199940, "time_elapsed":{"sec":605.09, "min":10.08, "hr":0.17}}
+708	Sunday 2020-08-02 11:20:43 AM	                    {         "measurement_or_fact.tab":808856,          "occurrence.tab":704252, "reference.tab":198288, "taxon.tab":199940, "time_elapsed":{"sec":605.09, "min":10.08, "hr":0.17}}
+708_cleaned_habitat_values	Thu 2022-04-07 03:20:12 AM	{"measurement_or_fact_specific.tab":663740, "occurrence_specific.tab":588157, "reference.tab":198288, "taxon.tab":187515, "time_elapsed":{"sec":833.32, "min":13.89, "hr":0.23}} Mac Mini
+708_cleaned_habitat_values	Thu 2022-04-07 09:46:52 AM	{"measurement_or_fact_specific.tab":663740, "occurrence_specific.tab":588157, "reference.tab":198288, "taxon.tab":187515, "time_elapsed":{"sec":536.23, "min":8.94, "hr":0.15}} eol-archive
+Below references is also properly updated
+708_cleaned_habitat_values	Thu 2022-04-07 10:45:34 AM	{"measurement_or_fact_specific.tab":663740, "occurrence_specific.tab":588157, "reference.tab":180268, "taxon.tab":187515, "time_elapsed":{"sec":569.97, "min":9.5, "hr":0.16}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
