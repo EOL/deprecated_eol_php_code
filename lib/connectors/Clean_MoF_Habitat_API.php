@@ -73,7 +73,10 @@ class Clean_MoF_Habitat_API
         /* start writing */
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_occurrence');
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_MoF');
+        self::process_table($tables['http://eol.org/schema/reference/reference'][0], 'write_reference');
+        unset($this->referenceIDs);
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'write_taxon');
+        
         // exit("\nstop muna...\n");
     }
     private function process_table($meta, $task)
@@ -171,7 +174,32 @@ class Clean_MoF_Habitat_API
                         $o->$field = $rec[$uri];
                     }
                     $this->archive_builder->write_object_to_file($o);
+                    
+                    // /*
+                    if($str = $rec['http://eol.org/schema/reference/referenceID']) {
+                        $referenceIDs = explode(";", $str);
+                        $referenceIDs = array_map('trim', $referenceIDs);
+                        $referenceIDs = array_filter($referenceIDs); //remove null arrays
+                        $referenceIDs = array_unique($referenceIDs); //make unique
+                        $referenceIDs = array_values($referenceIDs); //reindex key
+                        foreach($referenceIDs as $id) $this->referenceIDs[$id] = '';
+                    }
+                    // */
                 }
+            }
+            //===================================================================================================================
+            if($task == 'write_reference') {
+                $identifier = $rec['http://purl.org/dc/terms/identifier'];
+                if(isset($this->referenceIDs[$identifier])){ //save
+                    $o = new \eol_schema\Reference();
+                    $uris = array_keys($rec);
+                    foreach($uris as $uri) {
+                        $field = pathinfo($uri, PATHINFO_BASENAME);
+                        $o->$field = $rec[$uri];
+                    }
+                    $this->archive_builder->write_object_to_file($o);
+                }
+                else continue;
             }
             //===================================================================================================================
             if($task == 'write_taxon') { //print_r($rec); exit;
