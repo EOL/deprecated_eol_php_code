@@ -27,7 +27,8 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
     $func = new DwCA_Utility($resource_id, $dwca_file);
 
     $preferred_rowtypes = array();
-    $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence');
+    $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/reference/reference', 
+                               'http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence');
     
     /* Whatever remain will be processed in DwCA_Utility.php
     http://rs.tdwg.org/dwc/terms/taxon
