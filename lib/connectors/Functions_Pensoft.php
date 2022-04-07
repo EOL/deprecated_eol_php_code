@@ -35,9 +35,10 @@ class Functions_Pensoft
             $this->new_patterns[$rec['string']] = array('mType' => $rec['measurementType'], 'mValue' => $rec['measurementValue']);
         }
     }
-    function get_allowed_value_type_URIs_from_EOL_terms_file()
+    function get_allowed_value_type_URIs_from_EOL_terms_file($download_options = false)
     {
-        $options = $this->download_options;
+        if($download_options) $options = $download_options;         //bec this func is also called from other libs
+        else                  $options = $this->download_options;
         $options['expire_seconds'] = 60*60*24*1; //1 day expires
         if($yml = Functions::lookup_with_cache("https://raw.githubusercontent.com/EOL/eol_terms/main/resources/terms.yml", $options)) {
             /*  type: value
