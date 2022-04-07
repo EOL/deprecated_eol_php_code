@@ -197,7 +197,10 @@ class Clean_MoF_Habitat_API
                         $field = pathinfo($uri, PATHINFO_BASENAME);
                         $o->$field = $rec[$uri];
                     }
-                    $this->archive_builder->write_object_to_file($o);
+                    if(!isset($this->saved_ref_IDs[$identifier])) {
+                        $this->archive_builder->write_object_to_file($o);
+                        $this->saved_ref_IDs[$identifier] = '';
+                    }
                 }
                 else continue;
             }
