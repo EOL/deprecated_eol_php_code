@@ -71,12 +71,12 @@ class Clean_MoF_Habitat_API
         unset($this->occurID_taxonID_info);
         
         /* start writing */
-        self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_occurrence');
-        self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_MoF');
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_occurrence'); //gen $this->occurrenceIDs_2delete
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_MoF'); //gen $this->referenceIDs
         self::process_table($tables['http://eol.org/schema/reference/reference'][0], 'write_reference');
+        unset($this->occurrenceIDs_2delete);
         unset($this->referenceIDs);
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'write_taxon');
-        
         // exit("\nstop muna...\n");
     }
     private function process_table($meta, $task)
