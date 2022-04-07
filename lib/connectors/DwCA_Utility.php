@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_57604/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_57604/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_94776/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_94776/'
         );
         */
         
@@ -161,6 +161,7 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             */
+            // if(stripos($this->resource_id, "_cleaned_habitat_values") !== false) break; //all extensions will be processed elsewhere. debug only, during dev only //string is found
             // if($this->resource_id == 'inat_images_3Mcap') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == 'inat_images_100cap') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '368_cleaned_MoF') break; //all extensions will be processed elsewhere. debug only, during dev only
@@ -368,6 +369,13 @@ class DwCA_Utility
             $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+        
+        if(stripos($this->resource_id, "_cleaned_habitat_values") !== false) { //string is found
+            require_library('connectors/Clean_MoF_Habitat_API');
+            $func = new Clean_MoF_Habitat_API($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+        
         // /* parts of a whole: will run one after the other --------------------
         if(in_array($this->resource_id, array("wikipedia_en_traits_FTG"))) { //calls FTG library
             require_library('connectors/FilterTermGroupByTaxa');
