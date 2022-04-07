@@ -33,7 +33,7 @@ class Clean_MoF_Habitat_API
         if($this->resource_id == 'xxx') self::process_reference($tables['http://eol.org/schema/reference/reference'][0]);
         */
         
-        /* 
+        /* not used here. Info from terms.yml is formatted differently here.
         require_library('connectors/Functions_Pensoft');
         $func = new Functions_Pensoft();
         $this->allowed_terms_URIs = $func->get_allowed_value_type_URIs_from_EOL_terms_file($this->download_options); print_r($this->allowed_terms_URIs);
@@ -49,13 +49,106 @@ class Clean_MoF_Habitat_API
         $marine = 'http://purl.obolibrary.org/obo/ENVO_00000447';
         $descendants_of_marine = $this->func->get_descendants_of_taxID($marine, false, $this->descendants);
         echo "\nDescendants of marine ($marine): ".count($descendants_of_marine)."\n"; //print_r($descendants_of_marine);
+        $this->descendants_of_marine = self::re_orient($descendants_of_marine); unset($descendants_of_marine);
+        echo "\nDescendants of marine ($marine): ".count($this->descendants_of_marine)."\n";
 
         $terrestrial = 'http://purl.obolibrary.org/obo/ENVO_00000446';
         $descendants_of_terrestrial = $this->func->get_descendants_of_taxID($terrestrial, false, $this->descendants);
         echo "\nDescendants of terrestrial ($terrestrial): ".count($descendants_of_terrestrial)."\n"; //print_r($descendants_of_terrestrial);
+        $this->descendants_of_terrestrial = self::re_orient($descendants_of_terrestrial); unset($descendants_of_terrestrial);
+        echo "\nDescendants of terrestrial ($terrestrial): ".count($this->descendants_of_terrestrial)."\n";
         
         $tables = $info['harvester']->tables;
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'build_occurID_taxonID_info'); //gen $this->occurID_taxonID_info
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'log_habitat_use'); //gen $this->log
+        print_r($this->log);
         exit("\nstop muna...\n");
+    }
+    private function process_table($meta, $task)
+    {   //print_r($meta);
+        echo "\nRunning $task...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 300000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            //===================================================================================================================
+            if($task == 'build_occurID_taxonID_info') {
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => b93b7c3d84fcdb1705f77f3e802f6f6e_708
+                    [http://rs.tdwg.org/dwc/terms/taxonID] => EOL:9063
+                )*/
+                $this->occurID_taxonID_info[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            }
+            //===================================================================================================================
+            if($task == 'log_habitat_use') { // print_r($rec); exit;
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/measurementID] => 06164abc963e5da8fd4030fa3305df59_708
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => b93b7c3d84fcdb1705f77f3e802f6f6e_708
+                    [http://eol.org/schema/measurementOfTaxon] => true
+                    [http://rs.tdwg.org/dwc/terms/measurementType] => http://purl.obolibrary.org/obo/RO_0002303
+                    [http://rs.tdwg.org/dwc/terms/measurementValue] => http://purl.obolibrary.org/obo/ENVO_00000446
+                    [http://rs.tdwg.org/dwc/terms/measurementMethod] => text mining
+                    [http://rs.tdwg.org/dwc/terms/measurementRemarks] => source text: "terrestrial"
+                    [http://purl.org/dc/terms/source] => https://eol.org/search?q=Sphaerospira
+                    [http://purl.org/dc/terms/contributor] => <a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>
+                    [http://eol.org/schema/reference/referenceID] => 2a5fe9f9217cd54939ff5bdf16a6d0c0
+                )*/
+                $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
+                $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                if($taxonID_in_question = $this->occurID_taxonID_info[$occurrenceID]) {}
+                else { print_r($rec); exit("\nno link to taxonID\n"); }
+                if(self::is_habitat_YN($mType)) {
+                    if(self::is_mValue_descendant_of_marine($mValue)) $this->log[$taxonID_in_question]['marine'] = 1;
+                    if(self::is_mValue_descendant_of_terrestrial($mValue)) $this->log[$taxonID_in_question]['terrestrial'] = 1;
+                }
+            }
+            //===================================================================================================================
+            if($task == '') {
+            }
+            //===================================================================================================================
+            if($task == '') {
+            }
+            //===================================================================================================================
+            if($task == '') {
+            }
+            //===================================================================================================================
+            //===================================================================================================================
+            //===================================================================================================================
+            //===================================================================================================================
+            //===================================================================================================================
+            //===================================================================================================================
+
+        }
+    }
+    private function is_mValue_descendant_of_marine($mValue)
+    {
+        if(isset($this->descendants_of_marine[$mValue])) return true;
+        else return false;
+    }
+    private function is_mValue_descendant_of_terrestrial($mValue)
+    {
+        if(isset($this->descendants_of_terrestrial[$mValue])) return true;
+        else return false;
+    }
+    private function is_habitat_YN($mType)
+    {
+        if($mType == 'http://purl.obolibrary.org/obo/RO_0002303') return true;
+        else return false;
+    }
+    private function re_orient($arr)
+    {
+        foreach($arr as $item) $final[$item] = '';
+        return $final;
     }
     private function get_descendants_info()
     {
