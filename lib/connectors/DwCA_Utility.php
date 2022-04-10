@@ -376,7 +376,7 @@ class DwCA_Utility
             $func->start($info);
         }
         
-        // /* parts of a whole: will run one after the other --------------------
+        // /* ====================== parts of a whole: will run one after the other ======================
         if(in_array($this->resource_id, array("wikipedia_en_traits_FTG"))) { //calls FTG library
             require_library('connectors/FilterTermGroupByTaxa');
             $func = new FilterTermGroupByTaxa($this->archive_builder, $this->resource_id, $this->params);
@@ -392,7 +392,8 @@ class DwCA_Utility
             $func = new ResourceUtility($this->archive_builder, $this->resource_id);
             $func->remove_contradicting_traits_fromMoF($info);
         }
-        // -------------------- */
+        // ====================== end: parts of a whole ====================== */
+        
         if(in_array($this->resource_id, array("WoRMS2EoL_zip"))) { //calls a generic utility
             require_library('connectors/ResourceUtility');
             $func = new ResourceUtility($this->archive_builder, $this->resource_id);
