@@ -23,7 +23,7 @@ if(Functions::is_production()) $dwca_file = CONTENT_RESOURCE_LOCAL_PATH . "/$res
 else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
 
 // /* ---------- customize here ---------- e.g. "wikipedia_en_traits_tmp1" is the source --- "wikipedia_en_traits" is the target resource
-if($resource_id == 'wikipedia_en_traits_tmp1') $resource_id = "wikipedia_en_traits";
+if($resource_id == 'wikipedia_en_traits_tmp1') $resource_id = "wikipedia_en_traits_tmp2"; //"wikipedia_en_traits"; orig value
 else exit("\nERROR: resource_id not yet initialized. Will terminate.\n");
 // ----------------------------------------*/
 process_resource_url($dwca_file, $resource_id);

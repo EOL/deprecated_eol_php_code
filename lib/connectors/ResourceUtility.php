@@ -452,7 +452,7 @@ class ResourceUtility
         }
     }
     
-    /*=================================================== STARTS remove_contradicting_traits_fromMoF =======================================*/
+    /*=================================================== ENDS remove_contradicting_traits_fromMoF =======================================*/
 
     private function carry_over_extension($meta, $class)
     {   //print_r($meta);
