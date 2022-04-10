@@ -370,11 +370,15 @@ class DwCA_Utility
             $func->start($info);
         }
         
-        if(stripos($this->resource_id, "_cleaned_habitat_values") !== false) { //string is found
+        // /* remove all records for taxon with habitat value(s) that are descendants of both marine and terrestrial
+        if((stripos($this->resource_id, "_cleaned_habitat_values") !== false) ||                //string is found
+           ($this->resource_id == "wikipedia_en_traits_tmp3")
+          ) {
             require_library('connectors/Clean_MoF_Habitat_API');
             $func = new Clean_MoF_Habitat_API($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+        // */
         
         // /* ====================== parts of a whole: will run one after the other ======================
         if(in_array($this->resource_id, array("wikipedia_en_traits_FTG"))) { //calls FTG library

@@ -6,7 +6,8 @@ https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=66299&page=com.at
 
 php5.6 remove_contradicting_traits_from_MoF.php jenkins '{"resource_id": "wikipedia_en_traits_tmp1"}'
        remove_contradicting_traits_from_MoF.php _ '{"resource_id": "wikipedia_en_traits_tmp1"}'
-#generates wikipedia_en_traits.tar.gz
+# generates wikipedia_en_traits.tar.gz           OLD
+# generates wikipedia_en_traits_tmp2.tar.gz      NEW
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -26,6 +27,7 @@ else                           $dwca_file = 'http://localhost/eol_php_code/appli
 if($resource_id == 'wikipedia_en_traits_tmp1') $resource_id = "wikipedia_en_traits_tmp2"; //"wikipedia_en_traits"; orig value
 else exit("\nERROR: resource_id not yet initialized. Will terminate.\n");
 // ----------------------------------------*/
+
 process_resource_url($dwca_file, $resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;

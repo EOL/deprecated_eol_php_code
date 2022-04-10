@@ -101,6 +101,11 @@ wikipedia_en_traits_FTG	Tue 2022-02-01 05:29:21 PM	{"MoF.tab":268838, "occurrenc
 wikipedia_en_traits_tmp1	Tue 2022-02-01 05:32:51 {"MoF.tab":268838, "occurrence.tab":268838, "taxon.tab":114758, "time_elapsed":false}
 wikipedia_en_traits	Tue 2022-02-01 05:36:01 PM	    {"MoF.tab":257608, "occurrence.tab":257608, "taxon.tab":114758, "time_elapsed":false}
 
+now generates wikipedia_en_traits_tmp2 instead of wikipedia_en_traits
+wikipedia_en_traits_tmp2	Sat 2022-04-09 08:55:22 {"MoF.tab":257608, "occurrence.tab":257608, "taxon.tab":114758, "time_elapsed":false}
+-> correct tally with last wikipedia_en_traits
+
+
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
 
