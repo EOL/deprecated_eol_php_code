@@ -57,6 +57,7 @@ function process_resource_url($dwca_file, $resource_id)
     http://rs.tdwg.org/dwc/terms/taxon
     */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
-    Functions::finalize_dwca_resource($resource_id);
+    // Functions::finalize_dwca_resource($resource_id);
+    Functions::finalize_dwca_resource($resource_id, false, true);
 }
 ?>
