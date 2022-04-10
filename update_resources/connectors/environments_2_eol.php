@@ -105,6 +105,9 @@ now generates wikipedia_en_traits_tmp2 instead of wikipedia_en_traits
 wikipedia_en_traits_tmp2	Sat 2022-04-09 08:55:22 {"MoF.tab":257608, "occurrence.tab":257608, "taxon.tab":114758, "time_elapsed":false}
 -> correct tally with last wikipedia_en_traits
 
+wikipedia_en_traits_tmp3	Sat 2022-04-09 10:31:46 {"MoF.tab":240020, "occurrence.tab":240020, "taxon.tab":111796, "time_elapsed":{"sec":255.15, "min":4.25, "hr":0.07}} Mac Mini
+wikipedia_en_traits_tmp3	Sun 2022-04-10 09:28:49 {"MoF.tab":240020, "occurrence.tab":240020, "taxon.tab":111796, "time_elapsed":{"sec":189.46, "min":3.16, "hr":0.05}} eol-archive
+This will then be copied (cp in Jenkins terminal) to wikipedia_en_traits.tar.gz
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
