@@ -123,7 +123,8 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 php5.6 resource_utility.php jenkins '{"resource_id": "26_ENV_final", "task": "change_measurementIDs"}'
 #generates 26_ENV_final.tar.gz
 
-php5.6 make_hash_IDs_4Deltas.php _ '{"task": "", "resource":"Deltas_4hashing", "resource_id":"26_ENV_final"}'
+#not yet OK: commented still needs investigation
+php5.6 make_hash_IDs_4Deltas.php jenkins '{"task": "", "resource":"Deltas_4hashing", "resource_id":"26_ENV_final"}'
 #generates 26_delta.tar.gz
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
