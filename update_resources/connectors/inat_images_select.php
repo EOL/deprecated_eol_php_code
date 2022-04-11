@@ -69,7 +69,7 @@ https://dev.to/ko31/using-imagemagick-to-easily-split-an-image-file-13hb
 -> split image into 16 equal parts.
 */
 
-// /* ----------------------------------- test functions
+/* ----------------------------------- test functions
 if(Functions::is_production())  $cache_path = '/extra/other_files/iNat_image_DwCA/cache_image_score/';
 else                            $cache_path = '/Volumes/AKiTiO4/web/cp/iNat_image_DwCA/cache_image_score/';
 require_library('connectors/CacheMngtAPI');
@@ -114,7 +114,7 @@ foreach($uris as $accessURI) {
 }
 
 exit("\n-end test functions-\n");
-// ----------------------------------- */
+----------------------------------- */
 
 /*
 NEED TO INVESTIGATE THIS: https://inaturalist-open-data.s3.amazonaws.com/photos/54776039/original.jpeg --- 127.496908501 | 694.308756733
