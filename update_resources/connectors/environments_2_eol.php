@@ -105,6 +105,7 @@ now generates wikipedia_en_traits_tmp2 instead of wikipedia_en_traits
 wikipedia_en_traits_tmp2	Sat 2022-04-09 08:55:22 {"MoF.tab":257608, "occurrence.tab":257608, "taxon.tab":114758, "time_elapsed":false}
 -> correct tally with last wikipedia_en_traits
 
+Below start: remove all records for taxon with habitat value(s) that are descendants of both marine and terrestrial
 wikipedia_en_traits_tmp3	Sat 2022-04-09 10:31:46 {"MoF.tab":240020, "occurrence.tab":240020, "taxon.tab":111796, "time_elapsed":{"sec":255.15, "min":4.25, "hr":0.07}} Mac Mini
 wikipedia_en_traits_tmp3	Sun 2022-04-10 09:28:49 {"MoF.tab":240020, "occurrence.tab":240020, "taxon.tab":111796, "time_elapsed":{"sec":189.46, "min":3.16, "hr":0.05}} eol-archive
 This will then be copied (cp in Jenkins terminal) to wikipedia_en_traits.tar.gz
@@ -207,11 +208,11 @@ May 19 Wed
 environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI Contributions to Botany", "resource_id":"scb-0093", "subjects":"Uses|Description"}'
 
 ---------------------------------------------------------------------------------------as of Sep 6, 2021
-#step 1
+#STEP 1
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
 #generates 617_ENV.tar.gz
 
-#step 2: just a utility
+#STEP 2: just a utility
 #these 3 is just for stats = generates 3 reports
 #php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1357", "habitat_filter": "saline water"}'
 #php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390", "habitat_filter": "saline water"}'
@@ -221,17 +222,27 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390, Q1357, Q10908", "habitat_filter": "saline water"}'
 #generates wikipedia_en_traits_FTG.tar.gz
 
-#step 3: final step
+#STEP 3: final step
 # Wikipedia EN creates a new DwCA for its traits. Not like 'AmphibiaWeb text'.
 # Thus there is an extra step for Wikipedia EN: it removes taxa without MoF
 php5.6 remove_taxa_without_MoF.php jenkins '{"resource_id": "wikipedia_en_traits_FTG"}'
 # OLD: generates wikipedia_en_traits.tar.gz
 # NEW: generates wikipedia_en_traits_tmp1.tar.gz
 
-#step 4: new step
+#STEP 4: new step
 # remove contradicting traits in MoF
 php5.6 remove_contradicting_traits_from_MoF.php jenkins '{"resource_id": "wikipedia_en_traits_tmp1"}'
-#generates the final: wikipedia_en_traits.tar.gz
+# OLD: generates the final: wikipedia_en_traits.tar.gz
+# NEW: generates wikipedia_en_traits_tmp2.tar.gz
+
+#STEP 5: remove all records for taxon with habitat value(s) that are 
+#        descendants of both marine and terrestrial
+php5.6 rem_marine_terr_desc.php jenkins '{"resource_id":"wikipedia_en_traits_tmp2"}'
+#generates: wikipedia_en_traits_tmp3.tar.gz
+
+#LAST STEP: copy wikipedia_en_traits_tmp3.tar.gz to wikipedia_en_traits.tar.gz OK
+cd /html/eol_php_code/applications/content_server/resources
+cp wikipedia_en_traits_tmp3.tar.gz wikipedia_en_traits.tar.gz 
 ===================================================================================================================== AmphibiaWeb
 21_ENV	Wed 2020-12-02 07:01:55 PM	{"agent.tab":743, "MoF":2202, "media_resource.tab":8138, "occurrence.tab":2202, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
 START differentiate Wikipedia EN and other resources when treated by Pensoft. Expected increase in MoF
