@@ -50,9 +50,9 @@ For diagnostics:
         -> very helpful, if u want to delete current running process
     cat terminal_inat_images_select.txt
         -> to see progress, very convenient
-    ps -p 467639
+    ps -p 275295
         -> to investigate a running PID
-    kill -9 467639
+    kill -9 275295
         -> to kill a running PID
     cat /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
         -> to monitor runtime
@@ -62,6 +62,8 @@ For diagnostics:
     find /extra/other_files/iNat_image_DwCA/cache_image_score/ -type f | wc -l
     wc -l /extra/eol_php_resources/inat_images_3Mcap_working/media_resource_working.tab
     cat /extra/eol_php_resources/inat_images_3Mcap_working/media_resource_working.tab
+    
+    grep "https://inaturalist-open-data.s3.amazonaws.com/photos/54756158/original.jpeg" /extra/eol_php_resources/inat_images_3Mcap_working/media_resource_working.tab
     
 
 inat_images_3Mcap	Fri 2022-03-25 08:42:08 AM	{"agent.tab":71631, "media_resource.tab":1644277, "taxon.tab":290388, "time_elapsed":{"sec":1369861.24, "min":22831.02, "hr":380.52, "day":15.86}}
@@ -128,6 +130,8 @@ e1786636763fb9018b5a21525ae50992	b796680b6e72c867ee7f4ed072ddbf37	http://purl.or
 
 bc0102c3c1da436762d17ed6fc0c30ea	d9fa7351cb85353b36f32e51af9d0cef	http://purl.org/dc/dcmitype/StillImage	image/jpeg			https://inaturalist-open-data.s3.amazonaws.com/photos/54828166/original.jpeg	https://www.inaturalist.org/photos/54828166	2019-10-22T19:04:37-07:00	en	http://creativecommons.org/licenses/by-nc/4.0/	Donna Pomeroy	158ba8069d90c10d4f82293b0140f710; a039991f706754ef9356cbd4730f8215	151.008833318 | 206.412103619
 7bd01a82c22f26635d5972e01c1c002f	b786f06eb68b82b3b36a21b35808a0f4	http://purl.org/dc/dcmitype/StillImage	image/jpeg			https://inaturalist-open-data.s3.amazonaws.com/photos/54832329/original.jpeg	https://www.inaturalist.org/photos/54832329	2019-10-21T20:45:15-07:00	en	http://creativecommons.org/licenses/by-nc/4.0/	Arno Beidts	158ba8069d90c10d4f82293b0140f710; bba39dd8d128817796b4389cb4a8776a	151.008833318 | 206.412103619
+
+grep "https://inaturalist-open-data.s3.amazonaws.com/photos/54828166/original.jpeg" /extra/eol_php_resources/inat_images_3Mcap_working/media_resource_working.tab
 */
 
 // print_r($argv);
