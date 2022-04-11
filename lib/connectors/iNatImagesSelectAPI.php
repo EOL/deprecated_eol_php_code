@@ -156,10 +156,13 @@ class iNatImagesSelectAPI
                 */
                 
                 // /* orig: Eli's scheme
+                $ret = array();
                 if($this->total_images_per_taxon[$taxonID] <= $this->image_limit) { //get all, no need to check score
                     /* REMINDER: this should be commented in normal operation. Used in Katja's report. (series 2 change)
                     continue;
                     */
+                    $ret['score'] = "total images for this taxon: ".$this->total_images_per_taxon[$taxonID];
+                    $ret['highest 1/16th score'] = "image_limit: ".$this->image_limit;
                 }
                 else {
                     // echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n"; //good debug
