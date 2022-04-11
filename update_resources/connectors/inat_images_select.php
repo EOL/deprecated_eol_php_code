@@ -70,7 +70,8 @@ https://dev.to/ko31/using-imagemagick-to-easily-split-an-image-file-13hb
 */
 
 // /* ----------------------------------- test functions
-$cache_path = '/Volumes/AKiTiO4/web/cp/iNat_image_DwCA/cache_image_score/';
+if(Functions::is_production())  $cache_path = '/extra/other_files/iNat_image_DwCA/cache_image_score/';
+else                            $cache_path = '/Volumes/AKiTiO4/web/cp/iNat_image_DwCA/cache_image_score/';
 require_library('connectors/CacheMngtAPI');
 $func2 = new CacheMngtAPI($cache_path);
 
