@@ -393,7 +393,7 @@ removed 'ocean' in MoF
 ===================================================================================================================== Pensoft journals START
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank", "subjects":"Uses"}'
 
-ZooKeys (20)*
+ZooKeys (20)**
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"20", "subjects":"GeneralDescription|Distribution|Description"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 5898
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 4931
@@ -401,46 +401,46 @@ http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description: 2
 Above generates: --> 20_ENV.tar.gz
 Then run: zookeys_add_trait.php --> makes use of [20_ENV.tar.gz] and generates [20_ENV_final.tar.gz]
 
-Zookeys (829)*
+Zookeys (829)**
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"829", "subjects":"GeneralDescription|Distribution"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 1640
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 1066
 
-Subterranean Biology (832)*
+Subterranean Biology (832)* | No MoF
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"832", "subjects":"GeneralDescription|Distribution"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 10
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 4
 
-Mycokeys (830)*
+Mycokeys (830)**
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"830", "subjects":"GeneralDescription|Distribution"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 16
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 8
 
-Nota Lepidopterologica (798)*
+Nota Lepidopterologica (798)**
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"798", "subjects":"GeneralDescription|Distribution"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 10
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 11
 
-Zoosystematics and Evolution (834)*
+Zoosystematics and Evolution (834)**
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"834", "subjects":"GeneralDescription|Distribution"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 21
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 44
 
-Deutsche Entomologische Zeitschrift (792)
+Deutsche Entomologische Zeitschrift (792)*
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"792", "subjects":"GeneralDescription|Distribution"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 36
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 47
 
-Phytokeys (826)
+Phytokeys (826) **
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"826", "subjects":"GeneralDescription|Distribution"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 134
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 103
 
-Comparative Cytogenetics (554)
+Comparative Cytogenetics (554) - No MoF
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"EOL_554_final", "subjects":"GeneralDescription"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 1
 
-Journal of Hymenoptera Research (831)
+Journal of Hymenoptera Research (831) - No MoF
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Pensoft_journals", "resource_id":"831", "subjects":"GeneralDescription|Distribution"}'
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription: 51
 http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 44
