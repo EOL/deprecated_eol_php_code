@@ -50,7 +50,7 @@ For diagnostics:
         -> very helpful, if u want to delete current running process
     cat terminal_inat_images_select.txt
         -> to see progress, very convenient
-    ps -p 35394
+    ps -p 324671
         -> to investigate a running PID
     cat /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
         -> to monitor runtime
@@ -58,7 +58,7 @@ For diagnostics:
     ls -lt /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
     ls /extra/other_files/iNat_image_DwCA/cache_image_score/
     find /extra/other_files/iNat_image_DwCA/cache_image_score/ -type f | wc -l
-    kill -9 35394
+    kill -9 324671
     wc -l /extra/eol_php_resources/inat_images_3Mcap_working/media_resource_working.tab
     cat /extra/eol_php_resources/inat_images_3Mcap_working/media_resource_working.tab
     
@@ -69,7 +69,7 @@ https://dev.to/ko31/using-imagemagick-to-easily-split-an-image-file-13hb
 -> split image into 16 equal parts.
 */
 
-/* ----------------------------------- test functions
+// /* ----------------------------------- test functions
 $cache_path = '/Volumes/AKiTiO4/web/cp/iNat_image_DwCA/cache_image_score/';
 require_library('connectors/CacheMngtAPI');
 $func2 = new CacheMngtAPI($cache_path);
@@ -98,16 +98,35 @@ $accessURI = 'http://localhost/other_files/iNat_imgs/PLANT_Ribes_indecorum/origi
 // $accessURI = 'http://localhost/other_files/iNat_imgs/dragonfly/original2.jpg';
 // $accessURI = 'http://localhost/other_files/iNat_imgs/dragonfly/original3.jpg';
 // $accessURI = 'https://inaturalist-open-data.s3.amazonaws.com/photos/529119/original.jpg';
-$accessURI = 'https://inaturalist-open-data.s3.amazonaws.com/photos/22142886/original.jpg';
+$accessURI = 'https://inaturalist-open-data.s3.amazonaws.com/photos/54776039/original.jpeg';
 
+$uris = array('https://inaturalist-open-data.s3.amazonaws.com/photos/54784100/original.jpeg', 'https://inaturalist-open-data.s3.amazonaws.com/photos/54847938/original.jpg');
+    // 42.3468312806 | 121.217790016
+    // 42.3468312806 | 121.217790016
 
-$arr = $func->get_blurriness_score($accessURI, false, $func2); //2nd param true means overwrite download, will re-download
-print_r($arr);
-// if(file_exists($arr['local'])) $arr = $func->average_score($arr);
-// else exit("\ndoes not exist: ".$arr['local']."\n");
-// print_r($arr);
+foreach($uris as $accessURI) {
+    $arr = $func->get_blurriness_score($accessURI, false, $func2); //2nd param true means overwrite download, will re-download
+    print_r($arr);
+    // if(file_exists($arr['local'])) $arr = $func->average_score($arr);
+    // else exit("\ndoes not exist: ".$arr['local']."\n");
+    // print_r($arr);
+}
+
 exit("\n-end test functions-\n");
------------------------------------ */
+// ----------------------------------- */
+
+/*
+NEED TO INVESTIGATE THIS: https://inaturalist-open-data.s3.amazonaws.com/photos/54776039/original.jpeg --- 127.496908501 | 694.308756733
+
+e1786636763fb9018b5a21525ae50992	b796680b6e72c867ee7f4ed072ddbf37	http://purl.org/dc/dcmitype/StillImage	image/jpeg			https://inaturalist-open-data.s3.amazonaws.com/photos/54756158/original.jpeg	https://www.inaturalist.org/photos/54756158	2019-10-22T07:04:02-07:00	en	http://creativecommons.org/licenses/by-nc/4.0/	Rafael Angel Arenas Wong	158ba8069d90c10d4f82293b0140f710; 8c848336cd6f220161b832e014483fdd	127.496908501 | 694.308756733
+1b04d4327f8486790313e1dfef67ee22	21fb140b620560501d12e2c171219eba	http://purl.org/dc/dcmitype/StillImage	image/jpeg			https://inaturalist-open-data.s3.amazonaws.com/photos/54776039/original.jpeg	https://www.inaturalist.org/photos/54776039	2019-09-16T14:43:48-07:00	en	http://creativecommons.org/licenses/by-nc/4.0/	darcyoh	158ba8069d90c10d4f82293b0140f710; 4831cbd7f59193ac911557d9d5dba0b5	127.496908501 | 694.308756733
+
+57d673a38a122a637e3f2a3d51f41c07	59c7e97030753cb4407386efd8fcde66	http://purl.org/dc/dcmitype/StillImage	image/jpeg			https://inaturalist-open-data.s3.amazonaws.com/photos/54784100/original.jpeg	https://www.inaturalist.org/photos/54784100	2019-10-18T14:44:30-07:00	en	http://creativecommons.org/licenses/by-nc/4.0/	Nathaniel Sharp	158ba8069d90c10d4f82293b0140f710; 0bedb513782fed9622030f2100e15a2f	42.3468312806 | 121.217790016
+7043c075c7b033daa13a8d551dbd603e	4b1ceb15ad5703853b61701d409e4fc0	http://purl.org/dc/dcmitype/StillImage	image/jpeg			https://inaturalist-open-data.s3.amazonaws.com/photos/54847938/original.jpg	https://www.inaturalist.org/photos/54847938	2019-10-23T16:20:07-07:00	en	http://creativecommons.org/licenses/by-nc/4.0/	Marco Floriani	158ba8069d90c10d4f82293b0140f710; a402fd28e0d7b1d621e5819f1f2927e5	42.3468312806 | 121.217790016
+
+bc0102c3c1da436762d17ed6fc0c30ea	d9fa7351cb85353b36f32e51af9d0cef	http://purl.org/dc/dcmitype/StillImage	image/jpeg			https://inaturalist-open-data.s3.amazonaws.com/photos/54828166/original.jpeg	https://www.inaturalist.org/photos/54828166	2019-10-22T19:04:37-07:00	en	http://creativecommons.org/licenses/by-nc/4.0/	Donna Pomeroy	158ba8069d90c10d4f82293b0140f710; a039991f706754ef9356cbd4730f8215	151.008833318 | 206.412103619
+7bd01a82c22f26635d5972e01c1c002f	b786f06eb68b82b3b36a21b35808a0f4	http://purl.org/dc/dcmitype/StillImage	image/jpeg			https://inaturalist-open-data.s3.amazonaws.com/photos/54832329/original.jpeg	https://www.inaturalist.org/photos/54832329	2019-10-21T20:45:15-07:00	en	http://creativecommons.org/licenses/by-nc/4.0/	Arno Beidts	158ba8069d90c10d4f82293b0140f710; bba39dd8d128817796b4389cb4a8776a	151.008833318 | 206.412103619
+*/
 
 // print_r($argv);
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here

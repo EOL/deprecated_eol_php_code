@@ -146,20 +146,20 @@ class iNatImagesSelectAPI
             if($what == 'select_100_images') {
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
-                /* REMINDER: temporarily commented for Katja's and Jen's report. Should be included in normal operation! (series 2 change)
+                // /* REMINDER: temporarily commented for Katja's and Jen's report. Should be included in normal operation! (series 2 change)
                 if(@$this->running_taxon_images_count[$taxonID] > $this->image_limit) continue;
-                */
+                // */
                 
-                // /* REMINDER: should be commented in normal operation. Only for Jen's Plantae report. (series 2 change)
+                /* REMINDER: should be commented in normal operation. Only for Jen's Plantae report. (series 2 change)
                 if(isset($this->Plantae_taxonIDs[$taxonID])) {}
                 else continue;
-                // */
+                */
                 
                 // /* orig: Eli's scheme
                 if($this->total_images_per_taxon[$taxonID] <= $this->image_limit) { //get all, no need to check score
-                    // /* REMINDER: this should be commented in normal operation. Used in Katja's report. (series 2 change)
+                    /* REMINDER: this should be commented in normal operation. Used in Katja's report. (series 2 change)
                     continue;
-                    // */
+                    */
                 }
                 else {
                     // echo "\ntaxon ($taxonID) with > 100 images: ".$this->total_images_per_taxon[$taxonID]."\n"; //good debug
@@ -187,15 +187,15 @@ class iNatImagesSelectAPI
                         
                         $highest_16th = (float) $ret['highest 1/16th score'];
                         
-                        // /* for Katja's report: I'm looking for images where the highest 1/16th score is in the 100-300 range.
+                        /* for Katja's report only: I'm looking for images where the highest 1/16th score is in the 100-300 range. Should be commented in normal operation
                         if($highest_16th >= 100 && $highest_16th <= 300) {}
                         else continue;
-                        // */
+                        */
                         
-                        /* FINALLY: for normal operation
+                        // /* FINALLY: for normal operation
                         if($highest_16th >= 100) {}
                         else continue;
-                        */
+                        // */
                     }
                 }
                 // */
@@ -234,7 +234,7 @@ class iNatImagesSelectAPI
                 
                 // /* (series 2 change)
                 @$this->media_count++;
-                if($this->media_count >= 5000) return; //3000000 normal operation --- for Katja's report 5K, during dev - for a report asked by Katja
+                if($this->media_count >= 3000000) return; //3000000 normal operation --- for Katja's report 5K, during dev - for a report asked by Katja
                 // */
                 
                 // /* start saving
@@ -374,7 +374,7 @@ class iNatImagesSelectAPI
         $file_path = str_replace("eol_images", "img_parts/", $dir);
         foreach(glob($file_path . "*." . $ext) as $filename) unlink($filename);
         // */
-        
+
         return $arr;
     }
     function average_score($arr)
