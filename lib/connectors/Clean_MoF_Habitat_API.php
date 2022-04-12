@@ -98,6 +98,20 @@ class Clean_MoF_Habitat_API
         echo "\n\nRunning $task..."; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 300000) == 0) echo "\n".number_format($i);
+            // /* ----- writing headers for the report -----
+            if($task == "write_MoF" && $i == 1) {
+                $file = CONTENT_RESOURCE_LOCAL_PATH.$this->resource_id."_MoF_removed.txt";
+                $fhandle = Functions::file_open($file, "w");
+                // /* build headers array
+                foreach($meta->fields as $field) {
+                    if(!$field['term']) continue;
+                    @$fields[] = pathinfo($field['term'], PATHINFO_FILENAME);
+                }
+                // */
+                print_r($fields);
+                fwrite($fhandle, implode("\t", $fields)."\n");
+            }
+            // ----- end ----- */
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
@@ -211,7 +225,10 @@ class Clean_MoF_Habitat_API
                     [http://eol.org/schema/reference/referenceID] => 2a5fe9f9217cd54939ff5bdf16a6d0c0
                 )*/
                 $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
-                if(isset($this->occurrenceIDs_2delete[$occurrenceID])) continue; //don't save
+                if(isset($this->occurrenceIDs_2delete[$occurrenceID])) { //don't save
+                    fwrite($fhandle, implode("\t", $rec)."\n"); //save removed record
+                    continue;
+                }
                 else {
                     $o = new \eol_schema\MeasurementOrFact_specific();
                     $uris = array_keys($rec);
@@ -272,6 +289,7 @@ class Clean_MoF_Habitat_API
             //===================================================================================================================
 
         }
+        if(isset($fhandle)) fclose($fhandle);
     }
     private function is_mValue_descendant_of_marine($mValue)
     {

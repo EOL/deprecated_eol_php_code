@@ -104,6 +104,7 @@ since delta MoF and occurrence are less --- maybe a good thing. Definitely remov
 
 26_delta	    Sun 2022-04-10 07:06:40 AM	{"agent.tab":1855, "MoF.tab":2253336, "media_resource.tab":95845, "occur.tab":1105752, "reference.tab":724227, "taxon.tab":383405, "vernacular_name.tab":86337, "time_elapsed":{"sec":2735.98, "min":45.6, "hr":0.76}}
 26_delta	    Tue 2022-04-12 05:42:11 AM	{"agent.tab":1855, "MoF.tab":2253336, "media_resource.tab":95845, "occur.tab":1105752, "reference.tab":724227, "taxon.tab":383405, "vernacular_name.tab":86337, "time_elapsed":{"sec":3046.25, "min":50.77, "hr":0.85}}
+26_delta_new	Tue 2022-04-12 07:45:07 AM	{"agent.tab":1855, "MoF.tab":2228457, "media_resource.tab":95845, "occur.tab":1100358, "reference.tab":724227, "taxon.tab":383405, "vernacular_name.tab":86337, "time_elapsed":{"sec":2339.96, "min":39, "hr":0.65}}
 
 In Jenkins: run one connector after the other:
 #OK
