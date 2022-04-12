@@ -51,6 +51,11 @@ class DeltasHashIDsAPI
             $this->unique_ids = array();
             $tbl = "http://rs.tdwg.org/dwc/terms/occurrence";
             self::process_Occurrence($tables[$tbl][0], 'hash_identifiers', $this->extensions[$tbl]);
+
+            // /* new: to accommodate MoF child records
+            $tbl = "http://rs.tdwg.org/dwc/terms/measurementorfact";
+            self::process_MoF($tables[$tbl][0], 'pre_hash_identifiers', $this->extensions[$tbl]);
+            // */
             
             $this->unique_ids = array();
             $tbl = "http://rs.tdwg.org/dwc/terms/measurementorfact";
@@ -197,11 +202,33 @@ class DeltasHashIDsAPI
             )*/
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
+            if($what == 'pre_hash_identifiers') {
+                $o = object();
+                $uris = array_keys($rec); // print_r($uris); //exit;
+                $row_str = "";
+                foreach($uris as $uri) {
+                    $field = self::get_field_from_uri($uri);
+                    $o->$field = $rec[$uri];
+                    if($field != 'measurementID') $row_str .= $rec[$uri]." | ";
+                }
+                
+                if($occurrenceID) { //not child records
+                    if($new_occur_id = @$this->old_new_occurID[$occurrenceID]) $o->occurrenceID = $new_occur_id;
+                    else exit("\nNo occur id: [$occurrenceID] Line no.: [$i]\n"); //should not go here
+                }
+                else { //child MoF records really don't have occurrenceID by design. Also include measurementID in md5 for MoF child records.
+                    $row_str .= $measurementID." | ";
+                }
+                
+                $o->measurementID = md5($row_str); //exit("\n[$row_str][$row_str]\n");
+                $this->old_new_measurementID[$measurementID] = $o->measurementID;
+            }
             if($what == 'hash_identifiers') {
-                /*
-                if($class == "measurementorfact")   $o = new \eol_schema\MeasurementOrFact();
-                else exit("\nUndefined class [$class]. Will terminate.\n");
-                */
+                if($parentMeasurementID = @$rec['http://eol.org/schema/parentMeasurementID']) {
+                    if($new_parent = $this->old_new_measurementID[$parentMeasurementID]) $rec['http://eol.org/schema/parentMeasurementID'] = $new_parent
+                    else exit("\nInvestigate, cannot link old and new parent IDs\n");
+                }
+                
                 $o = new \eol_schema\MeasurementOrFact_specific();
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
