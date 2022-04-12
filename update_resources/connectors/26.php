@@ -102,6 +102,9 @@ since delta MoF and occurrence are less --- maybe a good thing. Definitely remov
 26_delta	    Thu 2022-02-24 09:30:40 AM	{"agent.tab":1829, "MoF.tab":2738962, "media_resource.tab":95531, "occur.tab":1153098, "reference.tab":711533, "taxon.tab":379551, "vernacular_name.tab":85716, "time_elapsed":{"sec":2995.03, "min":49.92, "hr":0.83}}
 26_delta	    Fri 2022-02-25 01:55:17 PM	{"agent.tab":1829, "MoF.tab":2738962, "media_resource.tab":95531, "occur.tab":1153098, "reference.tab":711533, "taxon.tab":379551, "vernacular_name.tab":85716, "time_elapsed":{"sec":3028.7, "min":50.48, "hr":0.84}}
 
+26_delta	    Sun 2022-04-10 07:06:40 AM	{"agent.tab":1855, "MoF.tab":2253336, "media_resource.tab":95845, "occur.tab":1105752, "reference.tab":724227, "taxon.tab":383405, "vernacular_name.tab":86337, "time_elapsed":{"sec":2735.98, "min":45.6, "hr":0.76}}
+26_delta	    Tue 2022-04-12 05:42:11 AM	{"agent.tab":1855, "MoF.tab":2253336, "media_resource.tab":95845, "occur.tab":1105752, "reference.tab":724227, "taxon.tab":383405, "vernacular_name.tab":86337, "time_elapsed":{"sec":3046.25, "min":50.77, "hr":0.85}}
+
 In Jenkins: run one connector after the other:
 #OK
 php5.6 26.php jenkins
@@ -126,6 +129,13 @@ php5.6 resource_utility.php jenkins '{"resource_id": "26_ENV_final", "task": "ch
 #not yet OK: commented still needs investigation
 php5.6 make_hash_IDs_4Deltas.php jenkins '{"task": "", "resource":"Deltas_4hashing", "resource_id":"26_ENV_final"}'
 #generates 26_delta.tar.gz
+
+#STEP 7: remove all records for taxon with habitat value(s) that are 
+#        descendants of both marine and terrestrial
+php5.6 rem_marine_terr_desc.php jenkins '{"resource_id":"26_delta"}'
+#generates: 26_delta_new.tar.gz
+
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 

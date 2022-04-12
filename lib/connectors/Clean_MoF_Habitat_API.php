@@ -62,6 +62,9 @@ class Clean_MoF_Habitat_API
         
         $tables = $info['harvester']->tables;
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'build_occurID_taxonID_info'); //gen $this->occurID_taxonID_info
+        // /* to cover MoF child records
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'build_measurement_occurrence_info');
+        // */
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'log_habitat_use'); //gen $this->marine_and_terrestrial
         echo "\ntaxonIDs with both marine and terrestrial habitats: ".count($this->marine_and_terrestrial)."\n"; // print_r($this->marine_and_terrestrial);
 
@@ -73,10 +76,21 @@ class Clean_MoF_Habitat_API
         /* start writing */
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_occurrence'); //gen $this->occurrenceIDs_2delete
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_MoF'); //gen $this->referenceIDs
-        if($tbl = @$tables['http://eol.org/schema/reference/reference'][0]) self::process_table($tbl, 'write_reference'); //only those refs existing in MoF
-        unset($this->occurrenceIDs_2delete);
-        unset($this->referenceIDs);
-        self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'write_taxon');
+
+        // /* customize per resource here:
+        if((stripos($this->resource_id, "_cleaned_habitat_values") !== false) ||                //string is found
+           (in_array($this->resource_id, array('wikipedia_en_traits_tmp3')))
+          ) { //delete taxon, references
+              if($tbl = @$tables['http://eol.org/schema/reference/reference'][0]) self::process_table($tbl, 'write_reference'); //only those refs existing in MoF
+              unset($this->occurrenceIDs_2delete);
+              unset($this->referenceIDs);
+              self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'write_taxon');
+        }
+        elseif(in_array($this->resource_id, array('26_delta_new'))) { //don't delete taxon, references
+            unset($this->occurrenceIDs_2delete);
+            unset($this->referenceIDs);
+        }
+        // */
         // exit("\nstop muna...\n");
     }
     private function process_table($meta, $task)
@@ -103,6 +117,29 @@ class Clean_MoF_Habitat_API
                 )*/
                 $this->occurID_taxonID_info[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             }
+            if($task == 'build_measurement_occurrence_info') {
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/measurementID] => c33917c14712b00f8fd741b714f4539e
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => 
+                    [http://eol.org/schema/measurementOfTaxon] => 
+                    [http://eol.org/schema/parentMeasurementID] => 71aa534c631c2a69cd5487cee6028e35_26_ENV_final
+                    [http://rs.tdwg.org/dwc/terms/measurementType] => http://rs.tdwg.org/dwc/terms/locality
+                    [http://rs.tdwg.org/dwc/terms/measurementValue] => http://www.geonames.org/6255148
+                    [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+                    [http://eol.org/schema/terms/statisticalMethod] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementDeterminedDate] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementDeterminedBy] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementMethod] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
+                    [http://purl.org/dc/terms/source] => 
+                    [http://purl.org/dc/terms/bibliographicCitation] => 
+                    [http://purl.org/dc/terms/contributor] => 
+                    [http://eol.org/schema/reference/referenceID] => 
+                )*/
+                $measurementID = @$rec['http://rs.tdwg.org/dwc/terms/measurementID'];
+                $occurrenceID = @$rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                $this->measurement_occurrence_info[$measurementID] = $occurrenceID;
+            }
             //===================================================================================================================
             if($task == 'log_habitat_use') { // print_r($rec); exit;
                 /*Array(
@@ -120,7 +157,16 @@ class Clean_MoF_Habitat_API
                 $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
                 $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
                 $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
-                if($taxonID_in_question = $this->occurID_taxonID_info[$occurrenceID]) {}
+
+                // /* for MoF child records
+                $child_occurrenceID = false;
+                if($parentMeasurementID = @$rec['http://eol.org/schema/parentMeasurementID']) {
+                    $child_occurrenceID = $this->measurement_occurrence_info[$parentMeasurementID];
+                }
+                // */
+                
+                if($taxonID_in_question = @$this->occurID_taxonID_info[$occurrenceID]) {}
+                elseif($taxonID_in_question = $this->occurID_taxonID_info[$child_occurrenceID]) {}
                 else { print_r($rec); exit("\nno link to taxonID\n"); }
                 if(self::is_habitat_YN($mType)) {
                     if(self::is_mValue_descendant_of_marine($mValue)) $log[$taxonID_in_question]['marine'] = '';
