@@ -30,8 +30,8 @@ $resource = $param['resource'];
 
 echo "\n========== START hash identifiers ==========\n";
 if(in_array($resource_id, array("71", "15", "368_cleaned_MoF", "26_ENV_final", "globi_associations_final"))) {
-    $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
-    // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz'; //during dev only
+    if(Functions::is_production()) $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
+    else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz'; //during dev only
 }
 else exit("\nNot yet initialized [$resource_id]\n");
 

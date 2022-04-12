@@ -55,6 +55,8 @@ class DeltasHashIDsAPI
             // /* new: to accommodate MoF child records
             $tbl = "http://rs.tdwg.org/dwc/terms/measurementorfact";
             self::process_MoF($tables[$tbl][0], 'pre_hash_identifiers', $this->extensions[$tbl]);
+            // print_r($this->old_new_measurementID);
+            // echo "\n".$this->old_new_measurementID['71aa534c631c2a69cd5487cee6028e35_26_ENV_final']."\n"; exit;
             // */
             
             $this->unique_ids = array();
@@ -203,7 +205,7 @@ class DeltasHashIDsAPI
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
             if($what == 'pre_hash_identifiers') {
-                $o = object();
+                $o = (object)[];
                 $uris = array_keys($rec); // print_r($uris); //exit;
                 $row_str = "";
                 foreach($uris as $uri) {
@@ -225,7 +227,7 @@ class DeltasHashIDsAPI
             }
             if($what == 'hash_identifiers') {
                 if($parentMeasurementID = @$rec['http://eol.org/schema/parentMeasurementID']) {
-                    if($new_parent = $this->old_new_measurementID[$parentMeasurementID]) $rec['http://eol.org/schema/parentMeasurementID'] = $new_parent
+                    if($new_parent = $this->old_new_measurementID[$parentMeasurementID]) $rec['http://eol.org/schema/parentMeasurementID'] = $new_parent;
                     else exit("\nInvestigate, cannot link old and new parent IDs\n");
                 }
                 
