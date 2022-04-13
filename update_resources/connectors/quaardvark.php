@@ -8,6 +8,8 @@ This script is now used instead of 22.php. See 22.php for more details.
 22	Tue 2021-01-26 01:52:53 PM	{"agent.tab":78, "measurement_or_fact_specific.tab":75723, "media_resource.tab":11333, "occurrence_specific.tab":75199, "taxon.tab":11044, "time_elapsed":false}
 22_cleaned_MoF_habitat	Wed 2022-04-13 06:54:54 AM	
                                 {"agent.tab":78, "measurement_or_fact_specific.tab":67589, "media_resource.tab":11333, "occurrence_specific.tab":67134, "taxon.tab":11044, "time_elapsed":{"sec":78.56, "min":1.31, "hr":0.02}} Mac Mini
+22_cleaned_MoF_habitat	Wed 2022-04-13 07:07:11 AM	
+                                {"agent.tab":78, "measurement_or_fact_specific.tab":67589, "media_resource.tab":11333, "occurrence_specific.tab":67134, "taxon.tab":11044, "time_elapsed":{"sec":71.15, "min":1.19, "hr":0.02}} eol-archive
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/QuaardvarkAPI');
