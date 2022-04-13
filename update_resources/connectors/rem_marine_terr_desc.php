@@ -14,8 +14,8 @@ php update_resources/connectors/rem_marine_terr_desc.php _ '{"resource_id":"21_E
 -> AmphibiaWeb
 php update_resources/connectors/rem_marine_terr_desc.php _ '{"resource_id":"22"}'
 -> Animal Diversity Web (ADW)
-
-
+php update_resources/connectors/rem_marine_terr_desc.php _ '{"resource_id":"24"}'
+-> AntWeb
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
@@ -37,8 +37,7 @@ elseif($resource_id == "wikipedia_en_traits_tmp2") $resource_id = "wikipedia_en_
 elseif($resource_id == "26_delta") $resource_id = "26_delta_new";
 elseif($resource_id == "21_ENV") $resource_id = "21_cleaned_MoF_habitat";
 elseif($resource_id == "22") $resource_id = "22_cleaned_MoF_habitat";
-
-
+elseif($resource_id == "24") $resource_id = "24_cleaned_MoF_habitat";
 else exit("\nresource ID not yet initialized [$resource_id]\n");
 // */
 
@@ -59,7 +58,7 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
         $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 
                                    'http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence');
     }
-    elseif(in_array($resource_id, array('26_delta_new', '21_cleaned_MoF_habitat', '22_cleaned_MoF_habitat'))) {
+    elseif(in_array($resource_id, array('26_delta_new', '21_cleaned_MoF_habitat', '22_cleaned_MoF_habitat', '24_cleaned_MoF_habitat'))) {
         $preferred_rowtypes = array();
         $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence');
     }

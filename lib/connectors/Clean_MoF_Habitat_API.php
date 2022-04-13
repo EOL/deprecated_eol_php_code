@@ -84,7 +84,7 @@ class Clean_MoF_Habitat_API
               unset($this->referenceIDs);
               self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'write_taxon');
         }
-        elseif(in_array($this->resource_id, array('26_delta_new', '21_cleaned_MoF_habitat', '22_cleaned_MoF_habitat'))) { //don't delete taxon, references
+        elseif(in_array($this->resource_id, array('26_delta_new', '21_cleaned_MoF_habitat', '22_cleaned_MoF_habitat', '24_cleaned_MoF_habitat'))) { //don't delete taxon, references
             unset($this->occurrenceIDs_2delete);
             unset($this->referenceIDs);
         }
