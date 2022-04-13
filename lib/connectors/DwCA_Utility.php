@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_81736/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_81736/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_83798/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_83798/'
         );
         */
         
@@ -163,7 +163,7 @@ class DwCA_Utility
             */
             // if($this->resource_id == '26_delta') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '26_delta_new') break; //all extensions will be processed elsewhere. debug only, during dev only
-            // if(stripos($this->resource_id, "_cleaned_habitat_values") !== false) break; //all extensions will be processed elsewhere. debug only, during dev only //string is found
+            // if(stripos($this->resource_id, "_cleaned_MoF_habitat") !== false) break; //all extensions will be processed elsewhere. debug only, during dev only //string is found
             // if($this->resource_id == 'inat_images_3Mcap') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == 'inat_images_100cap') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '368_cleaned_MoF') break; //all extensions will be processed elsewhere. debug only, during dev only
@@ -373,7 +373,7 @@ class DwCA_Utility
         }
         
         // /* remove all records for taxon with habitat value(s) that are descendants of both marine and terrestrial
-        if((stripos($this->resource_id, "_cleaned_habitat_values") !== false) ||                //string is found
+        if((stripos($this->resource_id, "_cleaned_MoF_habitat") !== false) ||                //string is found
            (in_array($this->resource_id, array('wikipedia_en_traits_tmp3', '26_delta_new')))
           ) {
             require_library('connectors/Clean_MoF_Habitat_API');

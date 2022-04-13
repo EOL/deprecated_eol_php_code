@@ -16,6 +16,11 @@ php5.6 21.php jenkins
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
 # - generates at one time 21_final.tar.gz (OBSOLETE - Vangelis tagger)
 # - latest, generates 21_ENV.tar.gz  (CURRENT OK - Pensoft Annotator)
+
+21_ENV	Wed 2021-10-13 10:30:40 AM	{"agent.tab":777, "MoF.tab":3015, "media_resource.tab":8454, "occurrence.tab":2091, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":117.84, "min":1.96, "hr":0.03}}
+21_ENV	Thu 2022-01-13 08:00:09 PM	{"agent.tab":777, "MoF.tab":3015, "media_resource.tab":8454, "occurrence.tab":2091, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":73.35, "min":1.22, "hr":0.02}}
+21_cleaned_MoF_habitat	Wed 2022-04-{"agent.tab":777, "MoF.tab":3015, "media_resource.tab":8454, "occurrence.tab":2091, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":18.52, "min":0.31, "hr":0.01}}
+-> no excluded MoF habitat values
 */
 
 $timestart = microtime(1);
