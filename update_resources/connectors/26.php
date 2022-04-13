@@ -102,9 +102,10 @@ since delta MoF and occurrence are less --- maybe a good thing. Definitely remov
 26_delta	    Thu 2022-02-24 09:30:40 AM	{"agent.tab":1829, "MoF.tab":2738962, "media_resource.tab":95531, "occur.tab":1153098, "reference.tab":711533, "taxon.tab":379551, "vernacular_name.tab":85716, "time_elapsed":{"sec":2995.03, "min":49.92, "hr":0.83}}
 26_delta	    Fri 2022-02-25 01:55:17 PM	{"agent.tab":1829, "MoF.tab":2738962, "media_resource.tab":95531, "occur.tab":1153098, "reference.tab":711533, "taxon.tab":379551, "vernacular_name.tab":85716, "time_elapsed":{"sec":3028.7, "min":50.48, "hr":0.84}}
 
-26_delta	    Sun 2022-04-10 07:06:40 AM	{"agent.tab":1855, "MoF.tab":2253336, "media_resource.tab":95845, "occur.tab":1105752, "reference.tab":724227, "taxon.tab":383405, "vernacular_name.tab":86337, "time_elapsed":{"sec":2735.98, "min":45.6, "hr":0.76}}
-26_delta	    Tue 2022-04-12 05:42:11 AM	{"agent.tab":1855, "MoF.tab":2253336, "media_resource.tab":95845, "occur.tab":1105752, "reference.tab":724227, "taxon.tab":383405, "vernacular_name.tab":86337, "time_elapsed":{"sec":3046.25, "min":50.77, "hr":0.85}}
-26_delta_new	Tue 2022-04-12 07:45:07 AM	{"agent.tab":1855, "MoF.tab":2228457, "media_resource.tab":95845, "occur.tab":1100358, "reference.tab":724227, "taxon.tab":383405, "vernacular_name.tab":86337, "time_elapsed":{"sec":2339.96, "min":39, "hr":0.65}}
+26_delta	    Sun 2022-04-10 07:06:40 AM	{"agent":1855, "MoF":2253336, "media":95845, "occur":1105752, "ref":724227, "taxon":383405, "vernacular_name":86337, "time_elapsed":{"sec":2735.98, "min":45.6, "hr":0.76}}
+26_delta	    Tue 2022-04-12 05:42:11 AM	{"agent":1855, "MoF":2253336, "media":95845, "occur":1105752, "ref":724227, "taxon":383405, "vernacular_name":86337, "time_elapsed":{"sec":3046.25, "min":50.77, "hr":0.85}}
+26_delta_new	Tue 2022-04-12 07:45:07 AM	{"agent":1855, "MoF":2228457, "media":95845, "occur":1100358, "ref":724227, "taxon":383405, "vernacular_name":86337, "time_elapsed":{"sec":2339.96, "min":39, "hr":0.65}}
+26_delta_new	Tue 2022-04-12 12:20:59 PM	{"agent":1855, "MoF":2228457, "media":95845, "occur":1100358, "ref":724227, "taxon":383405, "vernacular_name":86337, "time_elapsed":{"sec":2358.21, "min":39.3, "hr":0.66}}
 
 In Jenkins: run one connector after the other:
 #OK

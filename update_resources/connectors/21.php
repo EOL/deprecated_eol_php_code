@@ -7,9 +7,15 @@ Connector parses this XML and generates the EOL-compliant XML.
 <taxon> and <dataObject> have dc:identifier
 
 IMPLEMENT: run these 2 scripts: 
-21.php                  -> generates 21.tar.gz (problem with source XML from Amphibiaweb. Probably connector also needs updating.)
-environments_2_eol.php  -> generates 21_ENV.tar.gz  (CURRENT OK - Pensoft Annotator)
-                        -> generates at one time 21_final.tar.gz (OBSOLETE - Vangelis tagger)
+
+php5.6 21.php jenkins 
+# - XML from partner explodes atm. Fixed version is used here.
+# - generates 21.tar.gz
+# - (problem with source XML from Amphibiaweb. Probably connector also needs updating.)
+
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
+# - generates at one time 21_final.tar.gz (OBSOLETE - Vangelis tagger)
+# - latest, generates 21_ENV.tar.gz  (CURRENT OK - Pensoft Annotator)
 */
 
 $timestart = microtime(1);

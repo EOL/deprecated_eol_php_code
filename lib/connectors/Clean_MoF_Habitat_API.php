@@ -78,7 +78,7 @@ class Clean_MoF_Habitat_API
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_MoF'); //gen $this->referenceIDs
 
         // /* customize per resource here:
-        if((stripos($this->resource_id, "_cleaned_habitat_values") !== false) ||                //string is found
+        if((stripos($this->resource_id, "_cleaned_MoF_habitat") !== false) ||                //string is found
            (in_array($this->resource_id, array('wikipedia_en_traits_tmp3')))
           ) { //delete taxon, references
               if($tbl = @$tables['http://eol.org/schema/reference/reference'][0]) self::process_table($tbl, 'write_reference'); //only those refs existing in MoF
