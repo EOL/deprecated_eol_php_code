@@ -23,7 +23,9 @@ with the new "terms_to_remove" list
 24	Wed 2021-10-13 11:30:48 AM	{"agent.tab":173, "measurement_or_fact_specific.tab":96447, "media_resource.tab":140143, "occurrence_specific.tab":60908, "taxon.tab":16470, "time_elapsed":{"sec":3690.66, "min":61.51, "hr":1.03}}
 24	Tue 2022-03-15 02:19:23 AM	{"agent.tab":173, "measurement_or_fact_specific.tab":96447, "media_resource.tab":140143, "occurrence_specific.tab":60908, "taxon.tab":16470, "time_elapsed":{"sec":3142.83, "min":52.38, "hr":0.87}}
 24_cleaned_MoF_habitat	Wed 2022-04-13 08:18:11 AM	
-                                {"agent.tab":173, "measurement_or_fact_specific.tab":96287, "media_resource.tab":140143, "occurrence_specific.tab":60823, "taxon.tab":16470, "time_elapsed":{"sec":243.34, "min":4.06, "hr":0.07}}
+                                {"agent.tab":173, "measurement_or_fact_specific.tab":96287, "media_resource.tab":140143, "occurrence_specific.tab":60823, "taxon.tab":16470, "time_elapsed":{"sec":243.34, "min":4.06, "hr":0.07}} Mac Mini
+24_cleaned_MoF_habitat	Wed 2022-04-13 08:30:12 AM	
+                                {"agent.tab":173, "measurement_or_fact_specific.tab":96287, "media_resource.tab":140143, "occurrence_specific.tab":60823, "taxon.tab":16470, "time_elapsed":{"sec":156.28, "min":2.6, "hr":0.04}} eol-archive
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
