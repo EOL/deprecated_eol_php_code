@@ -50,9 +50,9 @@ For diagnostics:
         -> very helpful, if u want to delete current running process
     cat terminal_inat_images_select.txt
         -> to see progress, very convenient
-    ps -p 275295
+    ps -p 121221
         -> to investigate a running PID
-    kill -9 275295
+    kill -9 121221
         -> to kill a running PID
     cat /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
         -> to monitor runtime

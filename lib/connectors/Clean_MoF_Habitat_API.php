@@ -66,7 +66,7 @@ class Clean_MoF_Habitat_API
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'build_measurement_occurrence_info');
         // */
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'log_habitat_use'); //gen $this->marine_and_terrestrial
-        echo "\ntaxonIDs with both marine and terrestrial habitats: ".count($this->marine_and_terrestrial)."\n"; // print_r($this->marine_and_terrestrial);
+        echo "\ntaxonIDs with both marine and terrestrial habitats: ".count(@$this->marine_and_terrestrial)."\n"; // print_r($this->marine_and_terrestrial);
 
         unset($this->descendants);
         unset($this->descendants_of_marine);
