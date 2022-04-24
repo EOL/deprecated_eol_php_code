@@ -331,8 +331,15 @@ class iNatImagesSelectAPI
         if(@$parts[1]) $field = $parts[1];
         return $field;
     }
+    private function valid_image_filename_extension($accessURI)
+    {
+        $ext = pathinfo($accessURI, PATHINFO_EXTENSION);
+        if(in_array($ext, array('psd'))) return false;
+        return true;
+    }
     function get_blurriness_score($accessURI, $forceYN = false, $func = false)
     {
+        if(!self::valid_image_filename_extension($accessURI)) return array();
         if($func) $this->func = $func; //only when calling it from inat_images_select.php during dev
         $md5_id = md5($accessURI);
         if($arr = $this->func->retrieve_json_obj($md5_id, false)) { //2nd param false means returned value is an array()

@@ -34,10 +34,11 @@ inat_images_40limit	Tue 2022-03-08 03:02{"agent.tab":133245, "media_resource.tab
 inat_images_20limit	Wed 2022-03-09 05:21{"agent.tab":100022, "media_resource.tab":3292778, "taxon.tab":290388, "time_elapsed":{"sec":20674.17, "min":344.57, "hr":5.74}}
 
 40-select-20
-inat_images_3Mcap    Sat 2022-04-23 07:55:09 AM  {"agent.tab":97617, "media_resource.tab":2999999, "taxon.tab":290388, "time_elapsed":{"sec":683328.96, "min":11388.82, "hr":189.81, "day":7.91}}
-
-
+inat_images_3Mcap    Sat 2022-04-23 07:55:09 AM {"agent.tab":97617, "media_resource.tab":2999999, "taxon.tab":290388, "time_elapsed":{"sec":683328.96, "min":11388.82, "hr":189.81, "day":7.91}}
+100-select-20
+inat_images_3Mcap_2	Sun 2022-04-24 09:52:43 AM	{"agent.tab":97678, "media_resource.tab":3000000, "taxon.tab":290388, "time_elapsed":{"sec":26738.75, "min":445.65, "hr":7.43}}
 */
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/iNatImagesAPI');
 ini_set('memory_limit','12096M'); //this can be removed and choose a caching solution. But let us try this first.

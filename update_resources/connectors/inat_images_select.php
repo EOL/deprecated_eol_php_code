@@ -50,9 +50,9 @@ For diagnostics:
         -> very helpful, if u want to delete current running process
     cat terminal_inat_images_select.txt
         -> to see progress, very convenient
-    ps -p 38044
+    ps -p 274357
         -> to investigate a running PID
-    kill -9 38044
+    kill -9 274357
         -> to kill a running PID
     cat /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
         -> to monitor runtime
@@ -61,6 +61,8 @@ For diagnostics:
     ls /extra/other_files/iNat_image_DwCA/cache_image_score/
     find /extra/other_files/iNat_image_DwCA/cache_image_score/ -type f | wc -l
     wc -l /extra/eol_php_resources/inat_images_3Mcap_working/media_resource_working.tab
+    wc -l /extra/eol_php_resources/inat_images_3Mcap2_working/media_resource_working.tab
+
     cat /extra/eol_php_resources/inat_images_3Mcap_working/media_resource_working.tab
     
     grep "https://inaturalist-open-data.s3.amazonaws.com/photos/54756158/original.jpeg" /extra/eol_php_resources/inat_images_3Mcap_working/media_resource_working.tab
@@ -147,15 +149,15 @@ $source_dwca = 'inat_images_40limit';   //resource generated from inat_images.ph
 
 $resource_id = 'inat_images_100cap'; //new resource --- stopped --- did not materialize
 
-/* 1st combo: finished OK
+// /* 1st combo: finished OK
 $source_dwca = 'inat_images_40limit';   //resource generated from inat_images.php --- media_resource.tab : 5,144,786
 $resource_id = 'inat_images_3Mcap';     //new resource (update in DwCA_Utility.php)
-*/
+// */
 
-// /* 2nd combo: currently processing...
+/* 2nd combo: currently processing...
 $source_dwca = 'inat_images_100limit';  //resource generated from inat_images.php --- media_resource.tab : 8,742,707 - future ideal, eventually
 $resource_id = 'inat_images_3Mcap_2';   //new resource (update in DwCA_Utility.php)
-// */
+*/
 
 if(Functions::is_production()) $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz';
 else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz'; //during dev only
