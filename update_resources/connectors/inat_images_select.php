@@ -150,7 +150,6 @@ $resource_id = 'inat_images_100cap'; //new resource --- stopped --- did not mate
 /* 1st combo: finished OK
 $source_dwca = 'inat_images_40limit';   //resource generated from inat_images.php --- media_resource.tab : 5,144,786
 $resource_id = 'inat_images_3Mcap';     //new resource (update in DwCA_Utility.php)
-inat_images_3Mcap    Sat 2022-04-23 07:55:09 AM  {"agent.tab":97617, "media_resource.tab":2999999, "taxon.tab":290388, "time_elapsed":{"sec":683328.96, "min":11388.82, "hr":189.81, "day":7.91}}
 */
 
 // /* 2nd combo: currently processing...
