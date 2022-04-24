@@ -50,9 +50,9 @@ For diagnostics:
         -> very helpful, if u want to delete current running process
     cat terminal_inat_images_select.txt
         -> to see progress, very convenient
-    ps -p 121221
+    ps -p 38044
         -> to investigate a running PID
-    kill -9 121221
+    kill -9 38044
         -> to kill a running PID
     cat /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
         -> to monitor runtime
@@ -147,15 +147,16 @@ $source_dwca = 'inat_images_40limit';   //resource generated from inat_images.ph
 
 $resource_id = 'inat_images_100cap'; //new resource --- stopped --- did not materialize
 
-// /* 1st combo: finished OK
+/* 1st combo: finished OK
 $source_dwca = 'inat_images_40limit';   //resource generated from inat_images.php --- media_resource.tab : 5,144,786
 $resource_id = 'inat_images_3Mcap';     //new resource (update in DwCA_Utility.php)
-// */
+inat_images_3Mcap    Sat 2022-04-23 07:55:09 AM  {"agent.tab":97617, "media_resource.tab":2999999, "taxon.tab":290388, "time_elapsed":{"sec":683328.96, "min":11388.82, "hr":189.81, "day":7.91}}
+*/
 
-/* 2nd combo: currently processing...
+// /* 2nd combo: currently processing...
 $source_dwca = 'inat_images_100limit';  //resource generated from inat_images.php --- media_resource.tab : 8,742,707 - future ideal, eventually
 $resource_id = 'inat_images_3Mcap_2';   //new resource (update in DwCA_Utility.php)
-*/
+// */
 
 if(Functions::is_production()) $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz';
 else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz'; //during dev only

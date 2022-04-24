@@ -236,8 +236,8 @@ class iNatImagesSelectAPI
                 @$this->running_taxon_images_count[$taxonID]++;
                 
                 // /* (series 2 change)
-                @$this->media_count++;
                 if($this->media_count >= 3000000) return; //3000000 normal operation --- for Katja's report 5K, during dev - for a report asked by Katja
+                @$this->media_count++;
                 // */
                 
                 // /* start saving
