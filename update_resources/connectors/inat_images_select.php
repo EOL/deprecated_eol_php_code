@@ -142,21 +142,26 @@ $params                     = json_decode(@$argv[2], true);
 $taxonID = @$params['taxonID'];
 // exit("\ntaxonID: [$taxonID]\n");
 
-$source_dwca = 'inat_images';           //resource generated from inat_images.php (150 images per taxon) --- media_resource.tab : 10836311
-$source_dwca = 'inat_images_20limit';   //resource generated from inat_images.php --- media_resource.tab : 3292778
-$source_dwca = 'inat_images_100limit';  //resource generated from inat_images.php --- media_resource.tab : 8742707 - future ideal, eventually
-$source_dwca = 'inat_images_40limit';   //resource generated from inat_images.php --- media_resource.tab : 5144786 - currently being used
+$source_dwca = 'inat_images';           //resource generated from inat_images.php (150 images per taxon) --- media_resource.tab : 10,836,311
+$source_dwca = 'inat_images_20limit';   //resource generated from inat_images.php --- media_resource.tab : 3,292,778
+$source_dwca = 'inat_images_100limit';  //resource generated from inat_images.php --- media_resource.tab : 8,742,707 - future ideal, eventually
+$source_dwca = 'inat_images_40limit';   //resource generated from inat_images.php --- media_resource.tab : 5,144,786 - currently being used
 
 $resource_id = 'inat_images_100cap'; //new resource --- stopped --- did not materialize
 
-// /* 1st combo: finished OK
+/* 1st combo: finished OK
 $source_dwca = 'inat_images_40limit';   //resource generated from inat_images.php --- media_resource.tab : 5,144,786
 $resource_id = 'inat_images_3Mcap';     //new resource (update in DwCA_Utility.php)
-// */
+*/
 
-/* 2nd combo: currently processing...
+// /* 2nd combo: currently processing...
 $source_dwca = 'inat_images_100limit';  //resource generated from inat_images.php --- media_resource.tab : 8,742,707 - future ideal, eventually
 $resource_id = 'inat_images_3Mcap_2';   //new resource (update in DwCA_Utility.php)
+// */
+
+/* 3rd combo: currently processing...
+$source_dwca = 'inat_images';  //resource generated from inat_images.php --- media_resource.tab : 8,742,707 - future ideal, eventually
+$resource_id = 'inat_images_3Mcap_3';   //new resource (update in DwCA_Utility.php)
 */
 
 if(Functions::is_production()) $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz';
