@@ -50,9 +50,9 @@ For diagnostics:
         -> very helpful, if u want to delete current running process
     cat terminal_inat_images_select.txt
         -> to see progress, very convenient
-    ps -p 274357
+    ps -p 30544
         -> to investigate a running PID
-    kill -9 274357
+    kill -9 30544
         -> to kill a running PID
     cat /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
         -> to monitor runtime
@@ -149,15 +149,15 @@ $source_dwca = 'inat_images_40limit';   //resource generated from inat_images.ph
 
 $resource_id = 'inat_images_100cap'; //new resource --- stopped --- did not materialize
 
-/* 1st combo: finished OK
+// /* 1st combo: finished OK
 $source_dwca = 'inat_images_40limit';   //resource generated from inat_images.php --- media_resource.tab : 5,144,786
 $resource_id = 'inat_images_3Mcap';     //new resource (update in DwCA_Utility.php)
-*/
+// */
 
-// /* 2nd combo: currently processing...
+/* 2nd combo: currently processing...
 $source_dwca = 'inat_images_100limit';  //resource generated from inat_images.php --- media_resource.tab : 8,742,707 - future ideal, eventually
 $resource_id = 'inat_images_3Mcap_2';   //new resource (update in DwCA_Utility.php)
-// */
+*/
 
 /* 3rd combo: currently processing...
 $source_dwca = 'inat_images';  //resource generated from inat_images.php --- media_resource.tab : 8,742,707 - future ideal, eventually
