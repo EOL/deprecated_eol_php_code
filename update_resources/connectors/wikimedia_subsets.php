@@ -33,6 +33,7 @@ wikimedia_comnames	Mon 2021-06-07 10:48:22 PM	    {"taxon.tab":148596, "vernacul
 wikimedia_comnames	Sun 2021-09-05 01:47:50 PM	    {"taxon.tab":150220, "vernacular_name.tab":918796, "time_elapsed":false} big increase since fixing ranges
 wikimedia_comnames	Mon 2022-01-24 05:55:59 AM	    {"taxon.tab":162683, "vernacular_name.tab":991723, "time_elapsed":false}
 wikimedia_comnames	Wed 2022-04-20 01:02:22 PM	    {"taxon.tab":162683, "time_elapsed":false} --- wrong timing, will run again soon
+wikimedia_comnames	Thu 2022-04-28 09:54:45 PM	    {"taxon.tab":163083, "vernacular_name.tab":993598, "time_elapsed":false}
 */
 
 // ini_set('error_reporting', E_ALL);

@@ -40,6 +40,7 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71	Sun 2021-09-05 01:41:01 PM	     {"agent.tab":367898, "media_resource.tab":1486900, "taxon.tab":150220, "vernacular_name.tab":918796, "time_elapsed":{"sec":177607.13, "min":2960.12, "hr":49.34, "day":2.06}} consistent increase
 -> good increase since fixing/updating the ranges
 71	Mon 2022-01-24 05:48:29 AM	     {"agent.tab":392784, "media_resource.tab":1549432, "taxon.tab":162683, "vernacular_name.tab":991723, "time_elapsed":{"sec":179080.86, "min":2984.68, "hr":49.74, "day":2.07}} consistent OK
+71	Thu 2022-04-28 09:47:13 PM	     {"agent.tab":792529, "media_resource.tab":1556142, "taxon.tab":163083, "vernacular_name.tab":993598, "time_elapsed":{"sec":264401.7, "min":4406.7, "hr":73.44, "day":3.06}}
 
 *this one (71_new) eventually becomes 71.tar.gz
 71_new	Wednesday 2018-10-17 05:10:07 AM{"agent.tab": 22435,"media_resource.tab": 956972,"taxon.tab": 90844}
@@ -71,8 +72,10 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 -> steady increase OK
 71_new	Sun 2021-09-05 02:09:57 PM	    {"agent.tab":367898, "media_resource.tab":1486900, "taxon.tab":150220, "time_elapsed":false}
 71_new	Mon 2022-01-24 06:18:22 AM	    {"agent.tab":392784, "media_resource.tab":1549432, "taxon.tab":162683, "time_elapsed":false} consistent OK
+71_new	Thu 2022-04-28 10:20:41 PM	    {"agent.tab":792529, "media_resource.tab":1556142, "taxon.tab":163083, "time_elapsed":false}
 
 71_delta	Mon 2022-02-14 09:02:25 AM	{"agent.tab":392784, "media_resource.tab":1549432, "taxon.tab":162683, "time_elapsed":{"sec":1031.02, "min":17.18, "hr":0.29}}
+71_delta	Thu 2022-04-28 10:42:15 PM	{"agent.tab":792529, "media_resource.tab":1556142, "taxon.tab":163083, "time_elapsed":{"sec":1283.01, "min":21.38, "hr":0.36}}
 
 wikidata-hierarchy	Tue 2022-02-08 10:02:56 AM	{"taxon.tab":3365727, "time_elapsed":{"sec":353281.95, "min":5888.03, "hr":98.13, "day":4.09}}
 wikidata-hierarchy-final	Mon 2022-02-14 08:48:27 AM	{"taxon.tab":3365214, "time_elapsed":{"sec":5338.23, "min":88.97, "hr":1.48}}
