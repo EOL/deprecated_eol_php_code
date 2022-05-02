@@ -211,6 +211,8 @@ environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI C
 #STEP 1
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
 #generates 617_ENV.tar.gz
+#the resource that is "wikipedia English" pertains to this DwCA: https://opendata.eol.org/dataset/wikip/resource/8d4b6858-a26b-42fe-8d3a-cc3f7f7020b9
+#the DwCA will be looked up via API using the resource name "wikipedia English".
 
 #STEP 2: just a utility
 #these 3 is just for stats = generates 3 reports
