@@ -110,9 +110,15 @@ wikipedia_en_traits_tmp3	Sat 2022-04-09 10:31:46 {"MoF.tab":240020, "occurrence.
 wikipedia_en_traits_tmp3	Sun 2022-04-10 09:28:49 {"MoF.tab":240020, "occurrence.tab":240020, "taxon.tab":111796, "time_elapsed":{"sec":189.46, "min":3.16, "hr":0.05}} eol-archive
 This will then be copied (cp in Jenkins terminal) to wikipedia_en_traits.tar.gz
 
+LATEST HARVEST - GOOD STEADY INCREASE
+617_ENV	Wed 2022-05-04 04:50:45 AM	                {"MoF.tab":273880, "occurrence_specific.tab":273880, "taxon.tab":438670, "time_elapsed":{"sec":239413.12, "min":3990.22, "hr":66.5, "day":2.77}}
+wikipedia_en_traits_FTG	Wed 2022-05-04 05:05:26 AM	{"MoF.tab":272695, "occurrence.tab":272695, "taxon.tab":438670, "time_elapsed":{"sec":875.51, "min":14.59, "hr":0.24}}
+wikipedia_en_traits_tmp1	Wed 2022-05-04 05:09:05 {"MoF.tab":272695, "occurrence.tab":272695, "taxon.tab":116322, "time_elapsed":false}
+wikipedia_en_traits_tmp2	Wed 2022-05-04 05:12:10 {"MoF.tab":261236, "occurrence.tab":261236, "taxon.tab":116322, "time_elapsed":false}
+wikipedia_en_traits_tmp3	Wed 2022-05-04 05:15:14 {"MoF.tab":243419, "occurrence_specific.tab":243419, "taxon.tab":113285, "time_elapsed":{"sec":184.05, "min":3.07, "hr":0.05}}
+
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
-
 
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"MoftheAES 1st", "resource_id":"118935", "subjects":"Description|Uses"}'
 php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"MoftheAES 2nd", "resource_id":"120081", "subjects":"Description|Uses"}'
