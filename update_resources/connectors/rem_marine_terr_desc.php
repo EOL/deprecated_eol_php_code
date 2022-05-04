@@ -29,17 +29,17 @@ $resource_id = @$params['resource_id'];
 if(Functions::is_production())  $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
 else                            $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
 
-// /* customize here:
-if(in_array($resource_id, array('708'))) {
+// /* ---------- CUSTOMIZE HERE: ----------
+if(in_array($resource_id, array('708'))) { //Environments EOL resource
     $resource_id .= "_cleaned_MoF_habitat"; //remove all records for taxon with habitat value(s) that are descendants of both marine and terrestrial
 }
-elseif($resource_id == "wikipedia_en_traits_tmp2") $resource_id = "wikipedia_en_traits_tmp3";
-elseif($resource_id == "26_delta") $resource_id = "26_delta_new";
-elseif($resource_id == "21_ENV") $resource_id = "21_cleaned_MoF_habitat";   //AmphibiaWeb reverted back to old state - https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=66801&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66801
-elseif($resource_id == "22") $resource_id = "22_cleaned_MoF_habitat";       
-elseif($resource_id == "24") $resource_id = "24_cleaned_MoF_habitat";       //AntWeb reverted back to old state - https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=66801&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66801
+elseif($resource_id == "wikipedia_en_traits_tmp2") $resource_id = "wikipedia_en_traits_tmp3";   //Wikipedia Eng Traits
+elseif($resource_id == "26_delta") $resource_id = "26_delta_new";           //WoRMS
+elseif($resource_id == "21_ENV") $resource_id = "21_cleaned_MoF_habitat";   //AmphibiaWeb REVERTED back to old state - https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=66801&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66801
+elseif($resource_id == "22") $resource_id = "22_cleaned_MoF_habitat";       //Animal Diversity Web (ADW)
+elseif($resource_id == "24") $resource_id = "24_cleaned_MoF_habitat";       //AntWeb REVERTED back to old state - https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=66801&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66801
 else exit("\nresource ID not yet initialized [$resource_id]\n");
-// */
+// ---------------------------------------- */
 
 process_resource_url($dwca_file, $resource_id, $timestart);
 
