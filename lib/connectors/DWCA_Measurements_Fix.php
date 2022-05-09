@@ -14,7 +14,7 @@ class DWCA_Measurements_Fix
         $this->debug = array();
     }
     function start($info)
-    {
+    {   echo "\nDWCA_Measurements_Fix...\n";
         $tables = $info['harvester']->tables;
         /*step 1: loop MoF and get all measurementIDs -> $this->measurementIDs */
         self::process_extension($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'MoF', 'build-up');

@@ -9,11 +9,12 @@ final_SC_unitedstates	Mon 2021-06-14 10:45:35 PM	{"measurement_or_fact_specific.
 php update_resources/connectors/dwca_MoF_fix.php _ '{"resource_id":"SC_unitedstates"}'
 
 
-2nd client:
-php update_resources/connectors/dwca_MoF_fix.php _ '{"resource_id":"26_delta_new"}'
+Other clients:
+php update_resources/connectors/dwca_MoF_fix.php _ '{"resource_id":"26_delta_new", "resource":"MoF_normalized"}'
 -> WoRMS
 
-
+php update_resources/connectors/dwca_MoF_fix.php _ '{"resource_id":"22_cleaned_MoF_habitat", "resource":"MoF_normalized"}'
+-> Animal Diversity Web
 
 */
 
@@ -33,13 +34,14 @@ if(Functions::is_production())  $dwca = 'https://editors.eol.org/eol_php_code/ap
 else                            $dwca = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
 
 // /* ---------- CUSTOMIZE HERE: ----------
-if($resource_id == "26_delta_new")          $resource_id = "26_MoF_normalized";           //WoRMS
-elseif($resource_id == "SC_unitedstates")   $resource_id = "final_SC_unitedstates";
+if($resource_id == "SC_unitedstates")   $resource_id = "final_SC_unitedstates";
+elseif($resource_id == "26_delta_new")              $resource_id = "26_MoF_normalized"; //WoRMS
+elseif($resource_id == "22_cleaned_MoF_habitat")    $resource_id = "22_MoF_normalized"; //Animal Diversity Web
 else exit("\nresource ID not yet initialized [$resource_id]\n");
 // ---------------------------------------- */
 
 
-$func = new DwCA_Utility($resource_id, $dwca);
+$func = new DwCA_Utility($resource_id, $dwca, $params);
 $preferred_rowtypes = array();
 $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact');
 $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);

@@ -234,12 +234,11 @@ class DwCA_Utility
             $func = new DWCA_Associations_Fix($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        if(in_array($this->resource_id, array('final_SC_unitedstates', '26_MoF_normalized'))) {
+        if(in_array($this->resource_id, array('final_SC_unitedstates')) || @$this->params['resource'] == 'MoF_normalized') {
             require_library('connectors/DWCA_Measurements_Fix');
             $func = new DWCA_Measurements_Fix($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        
         
         /* this has been run already. Other connector(s) are created for further adjustments on DwCA's. e.g. DATA-1841
         if(substr($this->resource_id,0,3) == 'SC_') {
