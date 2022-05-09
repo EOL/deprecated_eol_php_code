@@ -60,6 +60,12 @@ class Clean_MoF_Habitat_API
         $this->descendants_of_terrestrial[$terrestrial] = '';
         echo "\nDescendants of terrestrial ($terrestrial): ".count($this->descendants_of_terrestrial)."\n";
         
+        /*
+        print_r($this->descendants_of_marine);
+        print_r($this->descendants_of_terrestrial);
+        exit("\nstop munax...\n");
+        */
+        
         $tables = $info['harvester']->tables;
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'build_occurID_taxonID_info'); //gen $this->occurID_taxonID_info
         // /* to cover MoF child records
@@ -97,12 +103,12 @@ class Clean_MoF_Habitat_API
             */
             self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'log_habitat_use_step2'); //gen $this->occurrenceIDs_2delete
             unset($this->descendants);
-            unset($this->descendants_of_marine);
-            unset($this->descendants_of_terrestrial);
             unset($this->occurID_taxonID_info);
             /* start writing */
             self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_occurrence_type2');
             self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_MoF'); //gen $this->referenceIDs
+            unset($this->descendants_of_marine);
+            unset($this->descendants_of_terrestrial);
         }
 
         // /* customize per resource here:
@@ -307,10 +313,24 @@ class Clean_MoF_Habitat_API
                     [http://purl.org/dc/terms/contributor] => <a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>
                     [http://eol.org/schema/reference/referenceID] => 2a5fe9f9217cd54939ff5bdf16a6d0c0
                 )*/
+                $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
+                $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
                 $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
                 if(isset($this->occurrenceIDs_2delete[$occurrenceID])) { //don't save
-                    fwrite($fhandle, implode("\t", $rec)."\n"); //save removed record
-                    continue;
+                    if(self::is_habitat_YN($mType)) {
+                        /* orig
+                        fwrite($fhandle, implode("\t", $rec)."\n"); //save removed record
+                        continue;
+                        */
+                        
+                        // /* new
+                        if(self::is_mValue_descendant_of_marine($mValue) || self::is_mValue_descendant_of_terrestrial($mValue)) {
+                            fwrite($fhandle, implode("\t", $rec)."\n"); //save removed record
+                            continue;
+                        }
+                        // */
+                        
+                    }
                 }
                 else {
                     $o = new \eol_schema\MeasurementOrFact_specific();
