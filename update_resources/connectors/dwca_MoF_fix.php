@@ -2,9 +2,19 @@
 namespace php_active_record;
 /* First client for DWCA_Measurements_Fix() is to clean SC_unitedstates.tar.gz
 Can be used as template for any resource.
-
+1st client:
 final_SC_unitedstates	Mon 2021-06-14 10:06:17 AM	{"measurement_or_fact_specific.tab":337634, "occurrence.tab":168817, "reference.tab":2, "taxon.tab":215560, "time_elapsed":{"sec":243.69, "min":4.06, "hr":0.07}}
 final_SC_unitedstates	Mon 2021-06-14 10:45:35 PM	{"measurement_or_fact_specific.tab":337634, "occurrence.tab":168817, "reference.tab":2, "taxon.tab":215560, "time_elapsed":{"sec":228.22, "min":3.8, "hr":0.06}}
+
+php update_resources/connectors/dwca_MoF_fix.php _ '{"resource_id":"SC_unitedstates"}'
+
+
+2nd client:
+php update_resources/connectors/dwca_MoF_fix.php _ '{"resource_id":"26_delta_new"}'
+-> WoRMS
+
+
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -14,10 +24,20 @@ $timestart = time_elapsed();
 require_library('connectors/DwCA_Utility');
 // ini_set('memory_limit','9096M'); //required
 
-// /* INPUT:
-$resource_id = "final_SC_unitedstates";
-$dwca = "https://editors.eol.org/eol_php_code/applications/content_server/resources/SC_unitedstates.tar.gz";
-// */
+// print_r($argv);
+$params['jenkins_or_cron']  = @$argv[1]; //not needed here
+$params                     = json_decode(@$argv[2], true);
+$resource_id = @$params['resource_id']; 
+
+if(Functions::is_production())  $dwca = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
+else                            $dwca = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
+
+// /* ---------- CUSTOMIZE HERE: ----------
+if($resource_id == "26_delta_new")          $resource_id = "26_MoF_normalized";           //WoRMS
+elseif($resource_id == "SC_unitedstates")   $resource_id = "final_SC_unitedstates";
+else exit("\nresource ID not yet initialized [$resource_id]\n");
+// ---------------------------------------- */
+
 
 $func = new DwCA_Utility($resource_id, $dwca);
 $preferred_rowtypes = array();

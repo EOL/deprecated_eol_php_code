@@ -62,7 +62,7 @@ class DWCA_Measurements_Fix
             elseif($what == 'write') {
                 if($class == 'MoF') {
                     if($parentMeasurementID = @$rec['http://eol.org/schema/parentMeasurementID']) {
-                        if(!isset($this->measurementIDs[$parentMeasurementID])) continue;
+                        if(!isset($this->measurementIDs[$parentMeasurementID])) continue; //remove orphan records in MoF
                     }
                     
                     // /* customize: In SC_unitedstates, please replace the MoF element http://purl.org/dc/terms/contributor 

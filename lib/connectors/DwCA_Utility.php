@@ -161,6 +161,7 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             */
+            // if($this->resource_id == '26_MoF_normalized') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '26_delta') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '26_delta_new') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if(stripos($this->resource_id, "_cleaned_MoF_habitat") !== false) break; //all extensions will be processed elsewhere. debug only, during dev only //string is found
@@ -233,7 +234,7 @@ class DwCA_Utility
             $func = new DWCA_Associations_Fix($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        if($this->resource_id == 'final_SC_unitedstates') {
+        if(in_array($this->resource_id, array('final_SC_unitedstates', '26_MoF_normalized'))) {
             require_library('connectors/DWCA_Measurements_Fix');
             $func = new DWCA_Measurements_Fix($this->archive_builder, $this->resource_id);
             $func->start($info);
