@@ -108,6 +108,7 @@ since delta MoF and occurrence are less --- maybe a good thing. Definitely remov
 26_delta_new	Sun 2022-05-08 12:45:32 PM	{"agent":1855, "MoF":2231822, "media":95845, "occur":1103284, "ref":724227, "taxon":383405, "vernacular":86337, "time_elapsed":{"sec":3718.92, "min":61.98, "hr":1.03}}
 START PROPER FILTER OF marine+terrestrial in MoF Habitat records: now only contradicting Habitat records are removed
 26_delta_new	Mon 2022-05-09 06:50:30 AM	{"agent":1855, "MoF":2231822, "media":95845, "occur":1103284, "ref":724227, "taxon":383405, "vernacular":86337, "time_elapsed":{"sec":2411.52, "min":40.19, "hr":0.67}}
+26_MoF_normalized	Mon 2022-05-09 09:10:53 {"agent":1855, "MoF":2231607, "media":95845, "occur":1103284, "ref":724227, "taxon":383405, "vernacular":86337, "time_elapsed":{"sec":2459.97, "min":41, "hr":0.68}}
 =========================================================================================
 In Jenkins: run one connector after the other:
 #OK
