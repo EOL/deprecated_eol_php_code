@@ -9,7 +9,7 @@ class USDAPlants2019
         $this->archive_builder = $archive_builder;
         
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        // $this->download_options['expire_seconds'] = false; //comment after first harvest
+        $this->download_options['expire_seconds'] = false; //comment after first harvest
         /* replaced now by URIs below
         $this->area['L48'] = "Lower 48 United States of America";
         $this->area['AK'] = "Alaska, USA";
@@ -281,15 +281,13 @@ class USDAPlants2019
     }
     private function parse_state_list_page()
     {   $final = array();
-        $options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => false, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        
-        if($html = Functions::lookup_with_cache($this->state_list_page, $options)) {
-            // /*
+        if($html = Functions::lookup_with_cache($this->state_list_page, $this->download_options)) {
+            /*
             $file = CONTENT_RESOURCE_LOCAL_PATH."/usda.html";
             $fhandle = Functions::file_open($file, "w");
             fwrite($fhandle, $html);
             exit("\nHTML saved\n");
-            // */
+            */
             
             if(preg_match_all("/class=\"BodyTextBlackBold\">(.*?)<\/td>/ims", $html, $arr)) {
                 $a = $arr[1];
