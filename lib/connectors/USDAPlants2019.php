@@ -176,6 +176,13 @@ class USDAPlants2019
                 $this->delete_occurrence_id[$occurrenceID] = '';
                 continue;
             }
+            // /* remove mValue == 'http://eol.org/schema/terms/colonizing' per: https://eol-jira.bibalex.org/browse/DATA-1819?focusedCommentId=66813&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66813
+            if($mvalue == 'http://eol.org/schema/terms/colonizing') {
+                echo "\nhuli ka colonizing...\n";
+                $this->delete_occurrence_id[$occurrenceID] = '';
+                continue;
+            }
+            // */
             //===========================================================================================================================================================
             $o = new \eol_schema\MeasurementOrFact_specific();
             $uris = array_keys($rec);
@@ -273,7 +280,15 @@ class USDAPlants2019
         }
     }
     private function parse_state_list_page()
-    {   if($html = Functions::lookup_with_cache($this->state_list_page, $this->download_options)) {
+    {   $final = array();
+        if($html = Functions::lookup_with_cache($this->state_list_page, $this->download_options)) {
+            // /*
+            $file = CONTENT_RESOURCE_LOCAL_PATH."/usda.html";
+            $fhandle = Functions::file_open($file, "w");
+            fwrite($fhandle, $html);
+            exit("\nHTML saved\n");
+            // */
+            
             if(preg_match_all("/class=\"BodyTextBlackBold\">(.*?)<\/td>/ims", $html, $arr)) {
                 $a = $arr[1];
                 $a = array_map('strip_tags', $a); // print_r($a);
@@ -299,8 +314,11 @@ class USDAPlants2019
                 }
             }
         }
+        else echo "\nCannot lookup: [$this->state_list_page]\n";
+        
         print_r($final); //exit;
-        $this->area_id_info = self::assign_id_2_locations($final);
+        if($final) $this->area_id_info = self::assign_id_2_locations($final);
+        else echo "\nNo final var\n";
         return $final;
     }
     private function assign_id_2_locations($state_list)
