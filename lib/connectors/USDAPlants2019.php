@@ -281,7 +281,9 @@ class USDAPlants2019
     }
     private function parse_state_list_page()
     {   $final = array();
-        if($html = Functions::lookup_with_cache($this->state_list_page, $this->download_options)) {
+        $options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => false, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        
+        if($html = Functions::lookup_with_cache($this->state_list_page, $options)) {
             // /*
             $file = CONTENT_RESOURCE_LOCAL_PATH."/usda.html";
             $fhandle = Functions::file_open($file, "w");
