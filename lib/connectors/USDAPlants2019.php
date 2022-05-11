@@ -304,9 +304,10 @@ class USDAPlants2019
         }
     }*/
     private function process_per_state_or_territory($aliases)
-    {
+    {   echo "\nStates and Territories total: ".count($aliases)."\n";
         foreach($aliases as $alias) {
             echo "\nDownloading CSV ".$alias."...";
+            // continue; //debug only
             $options = $this->download_options;
             $url = str_replace("STATE_NAME", $alias, $this->service['per_location']);
             if($local = Functions::save_remote_file_to_local($url, $options)) {
