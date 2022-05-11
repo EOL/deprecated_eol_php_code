@@ -519,7 +519,10 @@ class USDAPlants2019
             /* seems $d[1] can have values like: I,N,W OR PB ; not just single N or I */
             $arr = explode(",", $d[1]);
             foreach($arr as $type) {
-                if(!in_array($type, array('N',"I"))) exit("\nUn-initialized Native or Introduced code [$type]\n"); //continue;
+                if(!in_array($type, array("N","I"))) {
+                    echo "\nUn-initialized Native or Introduced code [$type]\n";
+                    continue;
+                }
                 $mType = $this->NorI_mType[$type];
                 $taxon_id = $rec['Symbol'];
                 $save = array();
