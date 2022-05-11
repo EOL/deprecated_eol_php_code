@@ -62,6 +62,7 @@ class USDAPlants2019
         $this->service['per_location'] = 'https://plants.sc.egov.usda.gov/assets/docs/NRCSStateList/STATE_NAME_NRCS_csv.txt';
         $this->service['taxon_page'] = 'https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=';
         // */
+        // https://plantsservices.sc.egov.usda.gov/api/StateSearch --> XML of list know states and territories. But not used ATM.
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -90,6 +91,7 @@ class USDAPlants2019
         $aliases = self::get_state_territory_names();
         self::process_per_state_or_territory($aliases);
         // */
+        if($this->debug) print_r($this->debug);
     }
     private function initialize_mapping()
     {   /* seems obsolete already
@@ -520,7 +522,7 @@ class USDAPlants2019
             $arr = explode(",", $d[1]);
             foreach($arr as $type) {
                 if(!in_array($type, array("N","I"))) {
-                    echo "\nUn-initialized Native or Introduced code [$type]\n";
+                    $this->debug["Un-initialized Native or Introduced code"][$type] = '';
                     continue;
                 }
                 $mType = $this->NorI_mType[$type];
