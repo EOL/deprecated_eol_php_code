@@ -201,7 +201,7 @@ class USDAPlants2019
             }
             // /* remove mValue == 'http://eol.org/schema/terms/colonizing' per: https://eol-jira.bibalex.org/browse/DATA-1819?focusedCommentId=66813&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66813
             if($mvalue == 'http://eol.org/schema/terms/colonizing') {
-                echo "\nhuli ka colonizing...\n";
+                // echo "\nhuli ka colonizing...\n";
                 $this->delete_occurrence_id[$occurrenceID] = '';
                 continue;
             }
