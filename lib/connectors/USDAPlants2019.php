@@ -49,10 +49,19 @@ class USDAPlants2019
         
         $this->NorI_mType['N'] = 'http://eol.org/schema/terms/NativeRange';
         $this->NorI_mType['I'] = 'http://eol.org/schema/terms/IntroducedRange';
-        $this->state_list_page = 'https://plants.sc.egov.usda.gov/dl_state.html';
-        $this->service['taxon_page'] = 'https://plants.usda.gov/core/profile?symbol=';
-        $this->service['per_state_page'] = 'https://plants.sc.egov.usda.gov/java/stateDownload?statefips=';
+        
         $this->debug = array();
+        
+        /* old service
+        $this->state_list_page = 'https://plants.sc.egov.usda.gov/dl_state.html';
+        $this->service['taxon_page']     = 'https://plants.usda.gov/core/profile?symbol=';
+        $this->service['per_state_page'] = 'https://plants.sc.egov.usda.gov/java/stateDownload?statefips=';
+        */
+        // /* new service
+        // $this->state_territory_list = 'https://plants.sc.egov.usda.gov/main.2bb5bc1d4bc87d62d061.js'; -- not used atm
+        $this->service['per_location'] = 'https://plants.sc.egov.usda.gov/assets/docs/NRCSStateList/STATE_NAME_NRCS_csv.txt';
+        $this->service['taxon_page'] = 'https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=';
+        // */
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -62,20 +71,34 @@ class USDAPlants2019
         /* START DATA-1841 terms remapping */
         $this->func->initialize_terms_remapping(60*60*24); //param is $expire_seconds. 0 means expire now.
         /* END DATA-1841 terms remapping */
-        
+
+        // /* ========== Bring in the legacy data: 727_24Oct2017.tar.gz ==========
         $tables = $info['harvester']->tables;
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
         unset($this->occurrenceID_bodyPart);
+        // */
         
+        /* ========== Below here is bringing in MoF data from available USDA service ========== */
+
         self::initialize_mapping(); //for location string mappings
-        self::process_per_state();
+
+        /* self::process_per_state(); --> old implementation, using old HTML service */
+
+        // /* using new service: May 10, 2022
+        // $aliases = self::get_state_territory_aliases(); --- not used atm, used below instead.
+        $aliases = self::get_state_territory_names();
+        self::process_per_state_or_territory($aliases);
+        // */
     }
     private function initialize_mapping()
-    {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+    {   /* seems obsolete already
+        $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
+        */
+        $mappings = array();
         $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
-        // self::use_mapping_from_jen();
+        // self::use_mapping_from_jen(); //copied template
         // print_r($this->uris);
     }
     private function process_measurementorfact($meta)
@@ -264,6 +287,7 @@ class USDAPlants2019
             // if($i >= 10) break; //debug only
         }
     }
+    /* old service - obsolete
     function process_per_state()
     {   $state_list = self::parse_state_list_page();
         foreach($state_list as $territory => $states) {
@@ -278,27 +302,86 @@ class USDAPlants2019
                 }
             }
         }
+    }*/
+    private function process_per_state_or_territory($aliases)
+    {
+        foreach($aliases as $alias) {
+            echo "\nDownloading CSV ".$alias."...";
+            $options = $this->download_options;
+            $url = str_replace("STATE_NAME", $alias, $this->service['per_location']);
+            if($local = Functions::save_remote_file_to_local($url, $options)) {
+                self::parse_state_list($local, $alias);
+                if(file_exists($local)) unlink($local);
+            }
+            // break; //debug - process just 1 alias
+        }
     }
+    private function get_state_territory_names()
+    {
+        return array("Alabama", "Alaska", "Arkansas", "Arizona", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "NewHampshire", "NewJersey", "NewMexico", "NewYork", "NorthCarolina", "NorthDakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "RhodeIsland", "SouthCarolina", "SouthDakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "WestVirginia", "Wisconsin", "Wyoming", "PuertoRico", "VirginIslands");
+    }
+    private function get_state_territory_aliases() //isn't used atm.
+    {   /*
+        {State:"Idaho",Alias:"Idaho",CSV:!1},
+        {State:"Illinois",Alias:"Illinois",CSV:!1}
+        {territory:"Puerto Rico",Alias:"PuertoRico",CSV:!0},
+        {territory:"U.S. Minor Outlying Islands",Alias:"U.S.MinorOutlying Islands",CSV:!1}
+        {territory:"Virgin Islands",Alias:"VirginIslands",CSV:!0}
+        only "CSV:!0" has records for 'territory'
+        the "CSV:!1" has no records for 'territory'
+        */
+        if($js_file = Functions::lookup_with_cache($this->state_territory_list, $this->download_options)) {
+            // exit("\n$js_file\n");
+            // {State:"Wyoming",Alias:"Wyoming",CSV:!1}
+            // {State:"Alabama",Alias:"Alabama",CSV:!1}
+            if(preg_match_all("/\{State:\"(.*?)\,CSV/ims", $js_file, $arr)) {
+                foreach($arr[1] as $line) {
+                    //[28] => New Hampshire",Alias:"NewHampshire"
+                    if(preg_match("/Alias:\"(.*?)\"/ims", $line, $arr2)) $aliases[$arr2[1]] = '';
+                }
+                // print_r($aliases); exit;
+                $state_count = count($aliases);
+                echo "\nState: ".$state_count."\n";
+            }
+            else exit("\nNothing found...\n");
+
+            if(preg_match_all("/\{territory:\"(.*?)\}/ims", $js_file, $arr3)) {
+                // print_r($arr3[1]); //good debug
+                /*
+                [4] => Puerto Rico",Alias:"PuertoRico",CSV:!0
+                */
+                foreach($arr3[1] as $line) {
+                    if(preg_match("/Alias:\"(.*?)\"\,CSV:\!0/ims", $line, $arr2)) $aliases[$arr2[1]] = '';
+                }
+                // print_r($aliases); exit;
+                $territory_count = count($aliases) - $state_count;
+                echo "\nTerritory: ".$territory_count."\n";
+            }
+        }
+        else exit("\nCannot lookup: [$this->state_territory_list]\n");
+        echo "\nTotal: ".count($aliases)."\n";
+        return array_keys($aliases);
+    }
+    /* obselete - not used anymore
     private function parse_state_list_page()
     {   $final = array();
         if($html = Functions::lookup_with_cache($this->state_list_page, $this->download_options)) {
-            /*
-            $file = CONTENT_RESOURCE_LOCAL_PATH."/usda.html";
-            $fhandle = Functions::file_open($file, "w");
-            fwrite($fhandle, $html);
-            exit("\nHTML saved\n");
-            */
+            // good debug
+            // $file = CONTENT_RESOURCE_LOCAL_PATH."/usda.html";
+            // $fhandle = Functions::file_open($file, "w");
+            // fwrite($fhandle, $html);
+            // exit("\nHTML saved\n");
             
             if(preg_match_all("/class=\"BodyTextBlackBold\">(.*?)<\/td>/ims", $html, $arr)) {
                 $a = $arr[1];
                 $a = array_map('strip_tags', $a); // print_r($a);
-                /*Array(
-                    [0] => U.S. States
-                    [1] => U.S. Territories and Protectorates
-                    [2] => Canada
-                    [3] => Denmark
-                    [4] => France
-                )*/
+                // Array(
+                //     [0] => U.S. States
+                //     [1] => U.S. Territories and Protectorates
+                //     [2] => Canada
+                //     [3] => Denmark
+                //     [4] => France
+                // )
                 $i = -1;
                 foreach($a as $area) { $i++;
                     if($area == 'France') {
@@ -330,17 +413,17 @@ class USDAPlants2019
                 if(preg_match("/>(.*?)elix/ims", $str.'elix', $arr)) $location = $arr[1];
                 if($id && $location) {
                     $final[$id] = $location;
-                    /* for stats only
-                    if($string_uri = self::get_string_uri($location)) echo $string_uri;
-                    else                                              echo " no uri";
-                    */
+                    // start - for stats only
+                    // if($string_uri = self::get_string_uri($location)) echo $string_uri;
+                    // else                                              echo " no uri";
+                    // end - for stats only
                 }
             }
         }
         return $final;
-    }
+    } */
     function parse_state_list($local, $state_id)
-    {   echo "\nprocessing [$state_id]\n";
+    {   echo "\nprocessing [$local] [$state_id]\n";
         
         // /* important: check if without data e.g. https://plants.sc.egov.usda.gov/java/stateDownload?statefips=CANFCALB
         $contents = file_get_contents($local);
@@ -359,26 +442,36 @@ class USDAPlants2019
                 $rec = array(); $k = 0;
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
-                } // print_r($rec); exit;
-                /*Array(
+                } //print_r($rec); exit("\nstop munax...\n");
+                /*Array( OLD
                     [Symbol] => DIBR2
                     [Synonym Symbol] => 
                     [Scientific Name with Author] => Dicliptera brachiata (Pursh) Spreng.
                     [National Common Name] => branched foldwing
                     [Family] => Acanthaceae
-                )*/
+                )
+                Array( NEW
+                    [Symbol] => ABPR3
+                    [Synonym Symbol] => 
+                    [Scientific Name with Author] => Abrus precatorius L.
+                    [State Common Name] => rosarypea
+                    [Family] => Fabaceae
+                )
+                */
                 if(!$rec['Synonym Symbol'] && @$rec['Symbol']) { //echo " ".$rec['Symbol'];
-                    $rec['source_url'] = $this->service['taxon_page'] . $rec['Symbol'];
+                    $rec['source_url'] = $this->service['taxon_page'].$rec['Symbol'];
+                    $rec['taxonRank'] = self::get_profile_data($rec['source_url'], 1, 'rank');
                     self::create_taxon($rec);
                     self::create_vernacular($rec);
-                    if($NorI_data = self::parse_profile_page($this->service['taxon_page'].$rec['Symbol'])) { //NorI = Native or Introduced
+                    if($NorI_data = self::parse_profile_page($rec['source_url'])) { //NorI = Native or Introduced
                         self::write_NorI_measurement($NorI_data, $rec);
                     }
                     // write presence for this state
                     self::write_presence_measurement_for_state($state_id, $rec);
                 }
             }
-        }
+            // if($i >= 5) break; //debug --- get 5 rows from CSV only
+        }//end loop
     }
     private function get_string_uri($string)
     {   if($string_uri = @$this->uris[$string]) return $string_uri;
@@ -390,7 +483,7 @@ class USDAPlants2019
         }
     }
     private function write_presence_measurement_for_state($state_id, $rec)
-    {   $string_value = $this->area_id_info[$state_id];
+    {   $string_value = $state_id; //e.g. 'Alabama'         //old -> $this->area_id_info[$state_id];
         if($string_uri = self::get_string_uri($string_value)) {}
         else {
             $this->debug['no uri mapping yet'][$string_value] = '';
@@ -415,13 +508,17 @@ class USDAPlants2019
                 )
         )*/
         foreach($NorI_data as $d) {
+            $d = array_map('trim', $d);
             if($d[0] == 'None') continue;
             $mValue = $this->area[$d[0]]['uri'];
             $mRemarks = @$this->area[$d[0]]['mRemarks'];
+            // echo "\nmValue: [$mValue][$d[0]]\n";
+            // echo "\nmRemarks: [$mRemarks][$d[0]]\n";
+            // print_r($this->area);
             /* seems $d[1] can have values like: I,N,W OR PB ; not just single N or I */
             $arr = explode(",", $d[1]);
             foreach($arr as $type) {
-                if(!in_array($type, array('N',"I"))) continue;
+                if(!in_array($type, array('N',"I"))) exit("\nUn-initialized Native or Introduced code [$type]\n"); //continue;
                 $mType = $this->NorI_mType[$type];
                 $taxon_id = $rec['Symbol'];
                 $save = array();
@@ -438,12 +535,12 @@ class USDAPlants2019
     private function create_taxon($rec)
     {
         $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID  = $rec["Symbol"];
+        $taxon->taxonID         = $rec["Symbol"];
         $taxon->scientificName  = $rec["Scientific Name with Author"];
         $taxon->taxonomicStatus = 'valid';
-        $taxon->family  = $rec["Family"];
-        $taxon->source = $rec['source_url'];
-        // $taxon->taxonRank       = '';
+        $taxon->family          = $rec["Family"];
+        $taxon->source          = $rec['source_url'];
+        $taxon->taxonRank       = $rec['taxonRank'];
         // $taxon->taxonRemarks    = '';
         // $taxon->rightsHolder    = '';
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
@@ -452,15 +549,20 @@ class USDAPlants2019
         }
     }
     private function create_vernacular($rec)
-    {   if($comname = $rec['National Common Name']) {
+    {   if($comname = $rec['State Common Name']) {
             $v = new \eol_schema\VernacularName();
             $v->taxonID         = $rec["Symbol"];
             $v->vernacularName  = $comname;
             $v->language        = 'en';
-            $this->archive_builder->write_object_to_file($v);
+            $vernacular_id = md5($v->taxonID.$v->vernacularName.$v->language);
+            if(!isset($this->vernacular_ids[$vernacular_id])) {
+                $this->vernacular_ids[$vernacular_id] = '';
+                $this->archive_builder->write_object_to_file($v);
+            }
         }
     }
-    function parse_profile_page($url, $trialNo = 1)
+    /*
+    function parse_profile_page_OLD($url, $trialNo = 1)
     {   $final = false;
         if($trialNo == 1) $options = $this->download_options;
         else {
@@ -476,14 +578,67 @@ class USDAPlants2019
                     $str = Functions::remove_whitespace($str); // echo "\n[$str]\n";
                     $arr = explode("<br>", $str);
                     $arr = array_filter($arr); //remove null array
-                    // print_r($arr);
-                    /*Array(
+                    print_r($arr); exit;
+                    Array(
                         [0] => CAN N
                         [1] => L48 N
                         [2] => SPM N
-                    )*/
+                    )
                     foreach($arr as $a) $final[] = explode(" ", $a);
                 }
+            }
+            else {
+                echo("\nInvestigate $url status not found! Trial no. [$trialNo]\n");
+                if($trialNo == 1) self::parse_profile_page($url, 2);
+                else return false;
+            }
+        }
+        return $final;
+    }
+    */
+    private function get_profile_data($url, $trialNo = 1, $needle)
+    {
+        if($trialNo == 1) $options = $this->download_options;
+        else {
+            $options = $this->download_options;
+            $options['expire_seconds'] = 0;
+        }
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $obj = json_decode($json); // print_r($obj); exit;
+            if($needle == 'rank') return strtolower(@$obj->Rank);
+        }
+        else {
+            echo("\nCannot access: $url. Will try again. Trial no. [$trialNo]\n");
+            if($trialNo == 1) self::get_profile_data($url, 2, $needle);
+            else return false;
+        }
+    }
+    function parse_profile_page($url, $trialNo = 1)
+    {   $final = false;
+        if($trialNo == 1) $options = $this->download_options;
+        else {
+            $options = $this->download_options;
+            $options['expire_seconds'] = 0;
+        }
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $obj = json_decode($json);
+            // print_r($obj->NativeStatuses); //exit;
+            /*
+            Array(
+                [0] => stdClass Object(
+                        [Region] => L48
+                        [Status] => I
+                        [Type] => Introduced
+                    )
+                [1] => stdClass Object(
+                        [Region] => PR
+                        [Status] => I
+                        [Type] => Introduced
+                    )
+            */
+            $final = array();
+            if($obj->NativeStatuses) {
+                foreach($obj->NativeStatuses as $o) $final[] = array($o->Region, $o->Status);
             }
             else {
                 echo("\nInvestigate $url status not found! Trial no. [$trialNo]\n");
