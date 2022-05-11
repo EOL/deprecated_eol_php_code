@@ -62,7 +62,11 @@ class USDAPlants2019
         $this->service['per_location'] = 'https://plants.sc.egov.usda.gov/assets/docs/NRCSStateList/STATE_NAME_NRCS_csv.txt';
         $this->service['taxon_page'] = 'https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=';
         // */
-        // https://plantsservices.sc.egov.usda.gov/api/StateSearch --> XML of list know states and territories. But not used ATM.
+        /*
+        Other important info:
+        https://plants.usda.gov/assets/docs/PLANTS_Help_Document.pdf#page=8 --> Source of codes and acronyms.
+        https://plantsservices.sc.egov.usda.gov/api/StateSearch --> XML of list know states and territories. But not used ATM.
+        */
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
