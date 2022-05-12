@@ -445,7 +445,7 @@ class USDAPlants2019
         $file = fopen($local, 'r');
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) {
-            $i++; if(($i % 100) == 0) echo "\n $i ";
+            $i++; if(($i % 100) == 0) echo " -$i- ";
             if($i == 1) $fields = $line;
             else {
                 $rec = array(); $k = 0;
