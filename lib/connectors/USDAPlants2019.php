@@ -64,6 +64,7 @@ class USDAPlants2019
         // */
         /*
         Other important info:
+        https://editors.eol.org/eol_php_code/applications/content_server/resources/usda.html --> old service investigation
         https://plants.usda.gov/assets/docs/PLANTS_Help_Document.pdf#page=8 --> Source of codes and acronyms.
         https://plantsservices.sc.egov.usda.gov/api/StateSearch --> XML of list know states and territories. But not used ATM.
         */
