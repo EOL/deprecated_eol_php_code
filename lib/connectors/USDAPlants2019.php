@@ -49,7 +49,16 @@ class USDAPlants2019
         // $this->state_territory_list = 'https://plants.sc.egov.usda.gov/main.2bb5bc1d4bc87d62d061.js'; -- not used atm
         $this->service['per_location'] = 'https://plants.sc.egov.usda.gov/assets/docs/NRCSStateList/STATE_NAME_NRCS_csv.txt';
         $this->service['taxon_page'] = 'https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=';
+        $this->growth["Forb/herb"] = "http://purl.obolibrary.org/obo/FLOPO_0022142";
+        $this->growth["Graminoid"] = "http://purl.obolibrary.org/obo/FLOPO_0900036";
+        $this->growth["Lichenous"] = "http://eol.org/schema/terms/lichenous";
+        $this->growth["Nonvascular"] = "http://eol.org/schema/terms/nonvascular";
+        $this->growth["Shrub"] = "http://purl.obolibrary.org/obo/FLOPO_0900034";
+        $this->growth["Subshrub"] = "http://eol.org/schema/terms/subshrub";
+        $this->growth["Tree"] = "http://purl.obolibrary.org/obo/FLOPO_0900033";
+        $this->growth["Vine"] = "http://purl.obolibrary.org/obo/FLOPO_0900035";
         // */
+        // https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=ABPR3
         /*
         Other important info:
         https://editors.eol.org/eol_php_code/applications/content_server/resources/usda.html --> old service investigation
@@ -497,11 +506,18 @@ class USDAPlants2019
                     $rec['taxonRank'] = self::get_profile_data($rec['source_url'], 1, 'rank');
                     self::create_taxon($rec);
                     self::create_vernacular($rec);
+                    //--------------------------------------------------- Native Status
                     if($NorI_data = self::parse_profile_page($rec['source_url'])) { //NorI = Native or Introduced
                         self::write_NorI_measurement($NorI_data, $rec);
                     }
+                    //--------------------------------------------------- Growth Habits
+                    if($growth_habits = self::get_profile_data($rec['source_url'], 1, 'GrowthHabits')) {
+                        self::write_GrowthHabits($growth_habits, $rec);
+                    }
+                    //--------------------------------------------------- Present data
                     // write presence for this state
                     self::write_presence_measurement_for_state($state_id, $rec);
+                    //---------------------------------------------------
                 }
             }
             // if($i >= 5) break; //debug --- get 5 rows from CSV only
@@ -567,6 +583,31 @@ class USDAPlants2019
                 // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
                 $this->func->pre_add_string_types($save, $mValue, $mType, "true");
             }
+        }
+    }
+    private function write_GrowthHabits($growth_habits, $rec)
+    {   /*Array(
+                [0] => Vine
+            )
+        */
+        foreach($growth_habits as $string_value) {
+            if($string_uri = $this->growth[$string_value]) {}
+            else {
+                $this->debug['no uri mapping yet - Growth Habit'][$string_value] = '';
+                $string_uri = $string_value;
+            }
+            
+            $mValue = $string_uri;
+            $mType = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
+            $taxon_id = $rec['Symbol'];
+            $save = array();
+            $save['taxon_id'] = $taxon_id;
+            $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+            $save['source'] = $rec['source_url'];
+            $save['measurementRemarks'] = $string_value;
+            // $save['measurementID'] = '';
+            // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing --- copied template
+            $this->func->pre_add_string_types($save, $mValue, $mType, "true");
         }
     }
     private function create_taxon($rec)
@@ -643,6 +684,14 @@ class USDAPlants2019
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json); // print_r($obj); exit;
             if($needle == 'rank') return strtolower(@$obj->Rank);
+            elseif($needle == 'GrowthHabits') {
+                /*
+                <GrowthHabits>
+                <d2p1:string>Forb/herb</d2p1:string>
+                </GrowthHabits>
+                */
+                return @$obj->GrowthHabits; //return an array value
+            }
         }
         else {
             echo("\nCannot access: $url. Will try again. Trial no. [$trialNo]\n");
