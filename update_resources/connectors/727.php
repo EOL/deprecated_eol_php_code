@@ -41,6 +41,10 @@ Below start where mtype == Uses are removed
 727_meta_recoded	Wed 2021-03-10 09:48:35 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":581757, "media_resource.tab":5, "occurrence_specific.tab":636471, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":{"sec":597.21, "min":9.95, "hr":0.17}}
 727_meta_recoded	Thu 2022-03-10 09:28:17 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":581757, "media_resource.tab":5, "occurrence_specific.tab":636471, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":{"sec":609.92, "min":10.17, "hr":0.17}}
 727_meta_recoded	Tue 2022-05-10 08:32:21 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":581757, "media_resource.tab":5, "occurrence_specific.tab":636471, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":{"sec":600.71, "min":10.01, "hr":0.17}}
+
+727	Thu 2022-05-12 11:05:47 AM	                {"agent.tab":1, "measurement_or_fact_specific.tab":535921, "media_resource.tab":5, "occurrence_specific.tab":590611, "reference.tab":2, "taxon.tab":35186, "vernacular_name.tab":47481, "time_elapsed":false}
+727_meta_recoded	Thu 2022-05-12 11:14:15 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":535897, "media_resource.tab":5, "occurrence_specific.tab":590611, "reference.tab":2, "taxon.tab":35186, "vernacular_name.tab":47481, "time_elapsed":{"sec":508.3, "min":8.47, "hr":0.14}}
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
