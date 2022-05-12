@@ -10,19 +10,7 @@ class USDAPlants2019
         
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->download_options['expire_seconds'] = false; //comment after first harvest
-        /* replaced now by URIs below
-        $this->area['L48'] = "Lower 48 United States of America";
-        $this->area['AK'] = "Alaska, USA";
-        $this->area['HI'] = "Hawaii, USA";
-        $this->area['PR'] = "Puerto Rico";
-        $this->area['VI'] = "U. S. Virgin Islands";
-        $this->area['CAN'] = "Canada";
-        $this->area['GL'] = "Greenland (Denmark)";
-        $this->area['SPM'] = "St. Pierre and Miquelon (France)";
-        $this->area['NA'] = "North America (only non-vascular plants and lichens have Native Status given at this level)"; //"North America";
-        $this->area['NAV'] = "Navassa Island (The sole Caribbean member of the United States Minor Outlying Islands)"; //"Navassa Island";
-        $this->area['PB'] = "Pacific Basin excluding Hawaii";
-        */
+
         $this->area['L48']['uri'] = "http://www.wikidata.org/entity/Q578170";
         $this->area['AK']['uri'] = "http://www.geonames.org/5879092";
         $this->area['HI']['uri'] = "http://www.geonames.org/5855797";
@@ -106,7 +94,44 @@ class USDAPlants2019
         $mappings = array();
         $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
         // self::use_mapping_from_jen(); //copied template
-        // print_r($this->uris);
+        echo "\nmapping URIs: ".count($this->uris)."\n";
+        self::get_terms_yml();
+        echo "\nmapping URIs: ".count($this->uris)." --- EOL term.yml added.\n";
+        // exit("\nLouisiana: ".$this->uris['Louisiana']."\n"); //should be "http://www.geonames.org/4331987"
+        if($this->uris['Louisiana'] == "http://www.geonames.org/4331987") echo "\nTest passed OK.\n";
+    }
+    private function get_terms_yml()
+    {
+        $url = "https://raw.githubusercontent.com/EOL/eol_terms/main/resources/terms.yml";
+        if($yml = Functions::lookup_with_cache($url, array("expire_seconds" => 60*60*24*15))) { //15 days cache
+            $yml .= "alias: ";
+            if(preg_match_all("/name\:(.*?)alias\:/ims", $yml, $a)) {
+                $arr = array_map('trim', $a[1]);
+                foreach($arr as $block) { // echo "\n$block\n"; exit;
+                    /*
+                     [10713] => verbatim coordinates
+                    type: measurement
+                    uri: http://rs.tdwg.org/dwc/terms/verbatimCoordinates
+                    parent_uris:
+                    synonym_of_uri: []
+                    units_term_uri:
+                    */
+                    $rek = array();
+                    if(preg_match("/elicha(.*?)\n/ims", "elicha".$block, $a)) $rek['name'] = trim($a[1]);
+                    if(preg_match("/type\: (.*?)\n/ims", $block, $a)) $rek['type'] = trim($a[1]);
+                    if(preg_match("/uri\: (.*?)\n/ims", $block, $a)) $rek['uri'] = trim($a[1]); //https://eol.org/schema/terms/thallus_length
+                    $rek = array_map('trim', $rek);
+                    // print_r($rek);
+                    /*Array(
+                        [name] => compound fruit
+                        [type] => value
+                        [uri] => https://www.wikidata.org/entity/Q747463
+                    )*/
+                    if(@$rek['type'] == 'value') $this->uris[$rek['name']] = $rek['uri'];
+                }
+            }
+            else exit("\nInvestigate: EOL terms file structure had changed.\n");
+        }
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
@@ -317,7 +342,7 @@ class USDAPlants2019
             echo "\nDownloading CSV ".$alias."..."."$i of ".count($aliases);
             // continue; //debug only
             $options = $this->download_options;
-            $url = str_replace("STATE_NAME", $alias, $this->service['per_location']);
+            $url = str_replace("STATE_NAME", str_replace(" ", "", $alias), $this->service['per_location']);
             if($local = Functions::save_remote_file_to_local($url, $options)) {
                 self::parse_state_list($local, $alias);
                 if(file_exists($local)) unlink($local);
@@ -327,7 +352,7 @@ class USDAPlants2019
     }
     private function get_state_territory_names()
     {
-        return array("Alabama", "Alaska", "Arkansas", "Arizona", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "NewHampshire", "NewJersey", "NewMexico", "NewYork", "NorthCarolina", "NorthDakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "RhodeIsland", "SouthCarolina", "SouthDakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "WestVirginia", "Wisconsin", "Wyoming", "PuertoRico", "VirginIslands");
+        return array("Alabama", "Alaska", "Arkansas", "Arizona", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "RhodeIsland", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming", "Puerto Rico", "Virgin Islands");
     }
     private function get_state_territory_aliases() //isn't used atm.
     {   /*
@@ -431,7 +456,7 @@ class USDAPlants2019
         }
         return $final;
     } */
-    function parse_state_list($local, $state_id)
+    function parse_state_list($local, $state_id) //state_id here is e.g. "Puerto Rico"
     {   echo "\nprocessing [$local] [$state_id]\n";
         
         // /* important: check if without data e.g. https://plants.sc.egov.usda.gov/java/stateDownload?statefips=CANFCALB
@@ -491,8 +516,8 @@ class USDAPlants2019
             case "St. Pierre and Miquelon": return 'http://www.geonames.org/3424932';
         }
     }
-    private function write_presence_measurement_for_state($state_id, $rec)
-    {   $string_value = $state_id; //e.g. 'Alabama'         //old -> $this->area_id_info[$state_id];
+    private function write_presence_measurement_for_state($state_id, $rec) //state_id here is "Puerto Rico"
+    {   $string_value = $state_id; //e.g. 'Alabama' or 'Puerto Rico'         //old -> $this->area_id_info[$state_id];
         if($string_uri = self::get_string_uri($string_value)) {}
         else {
             $this->debug['no uri mapping yet'][$string_value] = '';
