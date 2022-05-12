@@ -312,8 +312,9 @@ class USDAPlants2019
     }*/
     private function process_per_state_or_territory($aliases)
     {   echo "\nStates and Territories total: ".count($aliases)."\n";
-        foreach($aliases as $alias) {
-            echo "\nDownloading CSV ".$alias."...";
+        $i = 0;
+        foreach($aliases as $alias) { $i++;
+            echo "\nDownloading CSV ".$alias."..."."$i of ".count($aliases);
             // continue; //debug only
             $options = $this->download_options;
             $url = str_replace("STATE_NAME", $alias, $this->service['per_location']);
@@ -444,7 +445,7 @@ class USDAPlants2019
         $file = fopen($local, 'r');
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) {
-            $i++;
+            $i++; if(($i % 100) == 0) echo "\n $i ";
             if($i == 1) $fields = $line;
             else {
                 $rec = array(); $k = 0;
@@ -652,9 +653,12 @@ class USDAPlants2019
                 foreach($obj->NativeStatuses as $o) $final[] = array($o->Region, $o->Status);
             }
             else {
+                $this->debug['no NativeStatuses data'][$url] = '';
+                /* works but, not needed. Since at this point there is really no Native data for this taxon.
                 echo("\nInvestigate $url status not found! Trial no. [$trialNo]\n");
                 if($trialNo == 1) self::parse_profile_page($url, 2);
                 else return false;
+                */
             }
         }
         return $final;
