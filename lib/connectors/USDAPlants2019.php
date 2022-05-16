@@ -9,7 +9,7 @@ class USDAPlants2019
         $this->archive_builder = $archive_builder;
         
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        $this->download_options['expire_seconds'] = false; //comment after first harvest
+        // $this->download_options['expire_seconds'] = false; //comment after first harvest
 
         $this->area['L48']['uri'] = "http://www.wikidata.org/entity/Q578170";
         $this->area['AK']['uri'] = "http://www.geonames.org/5879092";
