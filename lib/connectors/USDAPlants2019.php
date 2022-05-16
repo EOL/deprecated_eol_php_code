@@ -112,7 +112,7 @@ class USDAPlants2019
     private function get_terms_yml()
     {
         $url = "https://raw.githubusercontent.com/EOL/eol_terms/main/resources/terms.yml";
-        if($yml = Functions::lookup_with_cache($url, array("expire_seconds" => 60*60*24*15))) { //15 days cache
+        if($yml = Functions::lookup_with_cache($url, array("expire_seconds" => 60*60*24*1))) { //1 day cache
             $yml .= "alias: ";
             if(preg_match_all("/name\:(.*?)alias\:/ims", $yml, $a)) {
                 $arr = array_map('trim', $a[1]);
