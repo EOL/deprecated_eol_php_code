@@ -9,7 +9,7 @@ class BHL_Download_API //extends Functions_Memoirs
 {
     function __construct() {
         $this->api_key = BHL_API_KEY;
-        $this->download_options = array('resource_id' => "BHL", 'timeout' => 172800, 'expire_seconds' => 60*60*24*30*1, 'download_wait_time' => 2000000);
+        $this->download_options = array('resource_id' => "BHL", 'timeout' => 172800, 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 2000000);
         $this->Endpoint = "https://www.biodiversitylibrary.org/api3";
     }
     function PublicationSearch($searchterm, $method = "PublicationSearch")
@@ -42,7 +42,13 @@ class BHL_Download_API //extends Functions_Memoirs
                                     [FoundIn] => Text
                                     [ItemID] => 292464
                 */
-                foreach($objects->Result as $obj) {
+                $i = 0;
+                foreach($objects->Result as $obj) { $i++;
+                    /* good debug
+                    if($i == 4) {
+                        print_r($obj); exit("\nfirst [$i] obj\n");
+                    }
+                    */
                     if($obj->BHLType == 'Part') {
                         $type = 'part';
                         $id = $obj->PartID;
@@ -63,7 +69,7 @@ class BHL_Download_API //extends Functions_Memoirs
             }
         }
     }
-    function GetPartMetadata($id, $idtype, $method = "GetPartMetadata") //no OCR text yet, but with multiple pages
+    function GetPartMetadata($part_id, $idtype, $method = "GetPartMetadata") //no OCR text yet, but with multiple pages
     {   /* If it has [ExternalUrl], then it won't have [Pages]
         https://www.biodiversitylibrary.org/api3?op=GetPartMetadata
         &id=<identifier of a part (article, chapter, ect)>
@@ -72,13 +78,28 @@ class BHL_Download_API //extends Functions_Memoirs
         &names=<"t" or "true" to include scientific names in the part in the response>
         &apikey=<API key value>
         */
-        $url = $this->Endpoint."?op=$method&id=$id&idtype=$idtype&pages=t&names=t&parts=t&format=json&apikey=".$this->api_key;
+        $url = $this->Endpoint."?op=$method&id=$part_id&idtype=$idtype&pages=t&names=t&parts=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            $obj = json_decode($json);
-            print_r($obj); //exit("\n-end GetPartMetadata-\n");
+            $objs = json_decode($json);
+            foreach($objs->Result as $obj) {
+                // print_r($obj); exit("\n-end GetPartMetadata-\n");
+                
+                if($pages = @$obj->Pages) self::process_pages_from_part($part_id, $pages);
+                elseif($external_url = @$obj->ExternalUrl) echo "\nexternal_url: [$external_url]\n";
+                
+                /* if there are no Pages, then most likely it should have [ExternalUrl]
+                e.g. [ExternalUrl] => https://natureconservation.pensoft.net/articles.php?id=12464
+                then u can get the PDF to download:
+                https://natureconservation.pensoft.net/article/12464/download/pdf
+                */
+
+            }
         }
     }
-    function GetItemMetadata($id, $idtype, $method = "GetItemMetadata") //can consist of multiple pages. 
+    private function process_pages_from_part($part_id, $pages)
+    {
+    }
+    function GetItemMetadata($item_id, $idtype, $method = "GetItemMetadata") //can consist of multiple pages. 
     {   /*                                                                No need to lookup GetPageMetadata() for OCR text
         https://www.biodiversitylibrary.org/api3?op=GetItemMetadata
         &id=<identifier of an item>
@@ -88,10 +109,14 @@ class BHL_Download_API //extends Functions_Memoirs
         &parts=<"t" or "true" to include parts in the item in the response>
         &apikey=<API key value>
         */
-        $url = $this->Endpoint."?op=$method&id=$id&idtype=$idtype&pages=t&ocr=t&parts=t&format=json&apikey=".$this->api_key;
+        $url = $this->Endpoint."?op=$method&id=$item_id&idtype=$idtype&pages=t&ocr=t&parts=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            $obj = json_decode($json);
-            print_r($obj); //exit("\n-end GetItemMetadata-\n");
+            $objs = json_decode($json);
+            foreach($objs->Result as $obj) {
+                print_r($obj); exit("\n-end GetItemMetadata-\n");
+                /* an item has a TitleID and multiple [Pages] with [OcrText] */
+            }
+            
         }
     }
     function GetPageMetadata($page_id, $method = "GetPageMetadata")

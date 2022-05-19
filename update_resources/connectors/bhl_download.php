@@ -2,6 +2,8 @@
 namespace php_active_record;
 /* This will be an all-in-one BHL download facility. 
 Note: ConvertioAPI.php - for converting PDF to text.
+
+Part - consists of multiple pages
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -22,4 +24,16 @@ $page_id = "52894691";
 $search = "brachypterous";
 $search = "saproxylic";
 $func->PublicationSearch($search);
+
+$idtype = 'bhl';
+$item_id = '269395';
+$item_id = '262632';
+// $func->GetItemMetadata($item_id, $idtype);
+
+$part_id = '263683';
+$part_id = '241705';
+$idtype = 'bhl';
+// $func->GetPartMetadata($part_id, $idtype); //no OCR text yet, but with multiple pages
+
+
 ?>
