@@ -3,9 +3,7 @@ namespace php_active_record;
 /* This will be an all-in-one BHL download facility. 
 https://about.biodiversitylibrary.org/tools-and-services/developer-and-data-tools/#APIs
 https://www.biodiversitylibrary.org/docs/api3.html
-
 https://www.biodiversitylibrary.org/docs/api3/GetPageMetadata.xml
-
 */
 class BHL_Download_API //extends Functions_Memoirs
 {
@@ -31,19 +29,15 @@ class BHL_Download_API //extends Functions_Memoirs
                 $objects = json_decode($json);
                 // print_r($objects); exit;
                 /*
-                [34] => stdClass Object
-                                (
+                [34] => stdClass Object(
                                     [BHLType] => Part
                                     [FoundIn] => Metadata
                                     [Volume] => 2
                                     [ExternalUrl] => http://www.pensoft.net/journals/zookeys/article/56/
-                                    [Authors] => Array
-                                        (
-                                        )
+                                    [Authors] => Array()
                                     [PartUrl] => https://www.biodiversitylibrary.org/part/98696
                                     [PartID] => 98696
-                [35] => stdClass Object
-                                (
+                [35] => stdClass Object(
                                     [BHLType] => Item
                                     [FoundIn] => Text
                                     [ItemID] => 292464
@@ -62,13 +56,8 @@ class BHL_Download_API //extends Functions_Memoirs
                         $idtype = 'bhl';
                         self::GetItemMetadata($id, $idtype);
                     }
-                    else {
-                        print_r($obj); exit("\nun-classified object\n");
-                    }
-                    // self::PageSearch($type, $id);
+                    else { print_r($obj); exit("\nun-classified BHLType\n"); }
                 }
-
-                
                 echo "\nRecords: ".count($objects->Result)."\n";
                 $results = $objects->Result;
             }
@@ -86,11 +75,11 @@ class BHL_Download_API //extends Functions_Memoirs
         $url = $this->Endpoint."?op=$method&id=$id&idtype=$idtype&pages=t&names=t&parts=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $obj = json_decode($json);
-            print_r($obj); //exit("\nend GetPartMetadata\n");
+            print_r($obj); //exit("\n-end GetPartMetadata-\n");
         }
     }
-    function GetItemMetadata($id, $idtype, $method = "GetItemMetadata") //can consist of multiple pages. No need to lookup GetPageMetadata() for OCT text
-    {   /*
+    function GetItemMetadata($id, $idtype, $method = "GetItemMetadata") //can consist of multiple pages. 
+    {   /*                                                                No need to lookup GetPageMetadata() for OCR text
         https://www.biodiversitylibrary.org/api3?op=GetItemMetadata
         &id=<identifier of an item>
         &idtype=<"bhl" if id is a BHL identifier, "ia" if id is an Internet Archive identifier (OPTIONAL; "bhl" is the default)>
@@ -102,7 +91,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $url = $this->Endpoint."?op=$method&id=$id&idtype=$idtype&pages=t&ocr=t&parts=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $obj = json_decode($json);
-            print_r($obj); //exit("\nend GetItemMetadata\n");
+            print_r($obj); //exit("\n-end GetItemMetadata-\n");
         }
     }
     function GetPageMetadata($page_id, $method = "GetPageMetadata")
