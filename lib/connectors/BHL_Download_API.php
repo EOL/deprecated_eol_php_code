@@ -11,9 +11,115 @@ class BHL_Download_API //extends Functions_Memoirs
 {
     function __construct() {
         $this->api_key = BHL_API_KEY;
-        $this->download_options = array('resource_id' => "BHL", 'timeout' => 172800, 'expire_seconds' => 60*60*24*30*1, 'download_wait_time' => 1);
-        
+        $this->download_options = array('resource_id' => "BHL", 'timeout' => 172800, 'expire_seconds' => 60*60*24*30*1, 'download_wait_time' => 2000000);
         $this->Endpoint = "https://www.biodiversitylibrary.org/api3";
+    }
+    function PublicationSearch($searchterm, $method = "PublicationSearch")
+    {   /*
+        https://www.biodiversitylibrary.org/api3?op=PublicationSearch
+        &searchterm=<the text for which to search>
+        &searchtype=<'C' for a catalog-only search; 'F' for a catalog+full-text search>
+        &page=<1 for the first page of results, 2 for the second, and so on>
+        &pageSize=<the maximum number of results to return per page (default = 100)>
+        &apikey=<API key value>
+        */
+        $page = 0;
+        $results = true;
+        while($results) { $page++;
+            $url = $this->Endpoint."?op=$method&searchterm=$searchterm&searchtype=F&page=$page&pageSize=100&format=json&apikey=".$this->api_key;
+            if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+                $objects = json_decode($json);
+                // print_r($objects); exit;
+                /*
+                [34] => stdClass Object
+                                (
+                                    [BHLType] => Part
+                                    [FoundIn] => Metadata
+                                    [Volume] => 2
+                                    [ExternalUrl] => http://www.pensoft.net/journals/zookeys/article/56/
+                                    [Authors] => Array
+                                        (
+                                        )
+                                    [PartUrl] => https://www.biodiversitylibrary.org/part/98696
+                                    [PartID] => 98696
+                [35] => stdClass Object
+                                (
+                                    [BHLType] => Item
+                                    [FoundIn] => Text
+                                    [ItemID] => 292464
+                */
+                foreach($objects->Result as $obj) {
+                    if($obj->BHLType == 'Part') {
+                        $type = 'part';
+                        $id = $obj->PartID;
+                        $idtype = 'bhl';
+                        // self::GetPartMetadata($id, $idtype); //no OCR text yet
+                    }
+                    elseif($obj->BHLType == 'Item') {
+                        $type = 'item';
+                        $id = $obj->ItemID;
+                        // print_r($obj); exit("\ntype == 'Item'\n");
+                        $idtype = 'bhl';
+                        self::GetItemMetadata($id, $idtype);
+                    }
+                    else {
+                        print_r($obj); exit("\nun-classified object\n");
+                    }
+                    // self::PageSearch($type, $id);
+                }
+
+                
+                echo "\nRecords: ".count($objects->Result)."\n";
+                $results = $objects->Result;
+            }
+        }
+    }
+    function GetPartMetadata($id, $idtype, $method = "GetPartMetadata") //no OCR text yet
+    {   /*
+        https://www.biodiversitylibrary.org/api3?op=GetPartMetadata
+        &id=<identifier of a part (article, chapter, ect)>
+        &idtype=<bhl, doi, jstor, biostor, or soulsby (OPTIONAL; "bhl" is the default)>
+        &pages=<"t" or "true" to include the part's pages in the response>
+        &names=<"t" or "true" to include scientific names in the part in the response>
+        &apikey=<API key value>
+        */
+        $url = $this->Endpoint."?op=$method&id=$id&idtype=$idtype&pages=t&names=t&parts=t&format=json&apikey=".$this->api_key;
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            $obj = json_decode($json);
+            print_r($obj); //exit("\nend GetPartMetadata\n");
+        }
+    }
+    function GetItemMetadata($id, $idtype, $method = "GetItemMetadata")
+    {   /*
+        https://www.biodiversitylibrary.org/api3?op=GetItemMetadata
+        &id=<identifier of an item>
+        &idtype=<"bhl" if id is a BHL identifier, "ia" if id is an Internet Archive identifier (OPTIONAL; "bhl" is the default)>
+        &pages=<"t" or "true" to include page details in the response>
+        &ocr=<"t" or "true" to include the page text in the response>
+        &parts=<"t" or "true" to include parts in the item in the response>
+        &apikey=<API key value>
+        */
+        $url = $this->Endpoint."?op=$method&id=$id&idtype=$idtype&pages=t&ocr=t&parts=t&format=json&apikey=".$this->api_key;
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            $obj = json_decode($json);
+            print_r($obj); exit("\nend GetItemMetadata\n");
+        }
+    }
+    function PageSearch($idtype, $id, $method = "PageSearch")
+    {   /*
+        https://www.biodiversitylibrary.org/api3?op=PageSearch
+        &itemid=<BHL identifier of the item to be searched (not used if id/idtype are specified)>
+        &idtype=<"item" or "part", designating the type of publication to be searched (not used if itemid is specified)>
+        &id=<BHL identifier of the item or part to be searched (not used if itemid is specified)>
+        &text=<the text for which to search>
+        &apikey=<API key value>
+        https://www.biodiversitylibrary.org/api3?op=PageSearch&idType=item&id=22004&text=domestic+cat&apikey=12345678-BBBB-DDDD-FFFF-123456789012
+        */
+        $url = $this->Endpoint."?op=$method&idtype=$idtype&id=$id&text=&format=json&apikey=".$this->api_key;
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            $obj = json_decode($json);
+            print_r($obj); exit("\nend PageSearch\n");
+        }
     }
     function GetPageMetadata($page_id, $method = "GetPageMetadata")
     {   /* GetPageMetadata
@@ -26,9 +132,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $url = $this->Endpoint."?op=$method&pageid=$page_id&ocr=t&names=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $obj = json_decode($json);
-            // echo "<pre>";
             print_r($obj);
-            // echo "</pre>";
         }
     }
     
