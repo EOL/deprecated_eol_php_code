@@ -44,21 +44,25 @@ class EOLterms_ymlAPI
                         [type] => value
                         [uri] => https://www.wikidata.org/entity/Q747463
                     )*/
-                    if($sought_type == 'ALL') $final[$rek['name']] = $rek['uri'];
-                    elseif(@$rek['type'] == $sought_type) $final[$rek['name']] = $rek['uri'];
+                    if($sought_type == 'ALL')               $final[$rek['name']] = $rek['uri'];
+                    elseif(@$rek['type'] == $sought_type)   $final[$rek['name']] = $rek['uri'];
+                    @$this->debug['EOL terms type'][@$rek['type']]++; //just for stats
+                    /*
                     else {
                         echo "\n-----------------------\n";
-                        echo "\n[block]\n";
-                        print_r($rek)
+                        echo "\n[$block]\n";
+                        print_r($rek);
                         exit("\nUndefined sought type: [$sought_type]\n");
                         echo "\n-----------------------\n";
                     }
+                    */
                 }
             }
             else exit("\nInvestigate: EOL terms file structure had changed.\n");
         }
         else exit("Remote EOL terms (.yml) file not accessible.");
-    }
-    return $final;
+        print_r($this->debug); //just for stats
+        return $final;
+    } //end get_terms_yml()
 }
 ?>
