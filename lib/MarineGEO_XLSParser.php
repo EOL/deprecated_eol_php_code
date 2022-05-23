@@ -23,6 +23,16 @@ class MarineGEO_XLSParser
             $this->sheet_mappings['Sheet1'] = 'MOOP';
             $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO_sie/";
         }
+        /* not being used. A simple [upload] xlsx file was created instead. -> https://editors.eol.org/eol_php_code/applications/trait_data_import/
+        if($app == 'trait_spreadsheet_input') {
+            $this->output['worksheets'] = array('vocabulary');
+            $this->sheet_mappings['Lab Sheet'] = 'Lab Sheet';
+            $this->sheet_mappings['Sheet1'] = 'MOOP';
+            $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."trait_data_import/";
+            $dir = $this->resources['path'];
+            if(!is_dir($dir)) mkdir($dir);
+        }
+        */
     }
     private function get_no_of_cols_per_worksheet($worksheet, $labels)
     {
@@ -304,6 +314,88 @@ class MarineGEO_XLSParser
             return true;
         }
         else return false;
+    }
+    public function trait_spreadsheet_input() //copied template | Not being used atm.
+    {
+        // print_r($this->labels); exit;
+        // /*
+        // Array(
+        //     [Sheet1] => Array(
+        //             [Lab Sheet] => Array(
+        //                     [0] => Process ID
+        //                     [1] => Sample ID
+        //                     [2] => Field ID
+        //             [MOOP] => Array(
+        //                     [0] => Image File
+        //                     [1] => Original Specimen
+        //                     [2] => View Metadata
+        //                     [3] => Caption
+        //                     [4] => Measurement
+        //                     [5] => Measurement Type
+        //                     [6] => Sample Id
+        //                     [7] => Process Id
+        //                     [8] => License Holder
+        //                     [9] => License
+        //                     [10] => License Year
+        //                     [11] => License Institution
+        //                     [12] => License Contact
+        //                     [13] => Photographer
+        // */
+        $alpha = array(1 => 'A', 2 => 'B', 3 => 'C', 4 => 'D', 5 => 'E', 6 => 'F', 7 => 'G', 8 => 'H', 9 => 'I', 10 => 'J', 11 => 'K', 12 => 'L', 13 => 'M', 14 => 'N', 15 => 'O', 16 => 'P', 17 => 'Q', 18 => 'R', 19 => 'S', 20 => 'T', 21 => 'U', 22 => 'V', 23 => 'W', 24 => 'X ', 25 => 'Y', 26 => 'Z');
+        $labels = $this->labels['Sheet1'];
+        $output_file = $this->resources['path'].$this->resource_id.".xls";
+        // print_r($this->labels); exit;
+        require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
+        define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
+        
+        //set cache method
+        $cacheMethod = \PHPExcel_CachedObjectStorageFactory::cache_in_memory; //options for memory in CachedObjectStorageFactory.php
+        if (!\PHPExcel_Settings::setCacheStorageMethod($cacheMethod)) die($cacheMethod . " caching method is not available" . EOL);
+
+        $objPHPExcel = new \PHPExcel();
+
+        // /*
+        $worksheets = array_keys($labels);
+        if($GLOBALS['ENV_DEBUG']) print_r($worksheets); //exit;
+        $sheetIndex = -1;
+        foreach($worksheets as $worksheet) { $sheetIndex++;
+            // echo "\n$sheetIndex\n";
+            $objPHPExcel->setActiveSheetIndex($sheetIndex);
+            
+            $no_of_cols_per_worksheet = self::get_no_of_cols_per_worksheet($worksheet, $labels);
+            if($GLOBALS['ENV_DEBUG']) echo "\nno_of_cols_per_worksheet: $no_of_cols_per_worksheet\n";
+            for($c = 1; $c <= $no_of_cols_per_worksheet; $c++) $objPHPExcel->getActiveSheet()->getColumnDimension($alpha[$c])->setWidth(20);
+            
+            $objPHPExcel->getActiveSheet()->setTitle($this->sheet_mappings[$worksheet]);
+            // $objPHPExcel->getActiveSheet()->setCellValue('A1', "xxx");
+            
+            /* here to place if there are main_heads */
+            
+            $col = 1;
+            $heads = $labels[$worksheet];
+            foreach($heads as $head) {
+                $objPHPExcel->getActiveSheet()->setCellValue($alpha[$col]."1", $head);
+                $col++;
+            }
+            
+            $main_heads = array();
+            $row_num = 2;
+            self::get_txt_file_write_2excel($objPHPExcel, $worksheet, $main_heads, $labels, $alpha, $row_num);
+            $objPHPExcel->createSheet();
+        }//loop worksheets
+
+        $objPHPExcel->removeSheetByIndex(2);
+        //save Excel file
+        require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel/IOFactory.php';
+        // /* to save to .xls
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $objWriter->save($output_file);
+        // */
+        /* to save to .xlxs
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save($output_file);
+        */
+        return;
     }
 }
 ?>
