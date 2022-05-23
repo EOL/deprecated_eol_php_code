@@ -104,43 +104,48 @@ class USDAPlants2019
         $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
         // self::use_mapping_from_jen(); //copied template
         echo "\nmapping URIs: ".count($this->uris)."\n";
-        self::get_terms_yml();
+        self::assemble_terms_yml();
         echo "\nmapping URIs: ".count($this->uris)." --- EOL term.yml added.\n";
         // exit("\nLouisiana: ".$this->uris['Louisiana']."\n"); //should be "http://www.geonames.org/4331987"
         if($this->uris['Louisiana'] == "http://www.geonames.org/4331987") echo "\nTest passed OK.\n";
     }
-    private function get_terms_yml()
+    private function assemble_terms_yml()
     {
+        require_library('connectors/EOLterms_ymlAPI');
+        $func = new EOLterms_ymlAPI($this->resource_id, $this->archive_builder);
+        $ret = $func->get_terms_yml('value'); //sought_type is 'value'
+        foreach($ret as $label => $uri) $this->uris[$label] = $uri;
+
+        /* moved to lib [EOLterms_ymlAPI.php]
         $url = "https://raw.githubusercontent.com/EOL/eol_terms/main/resources/terms.yml";
         if($yml = Functions::lookup_with_cache($url, array("expire_seconds" => 60*60*24*1))) { //1 day cache
             $yml .= "alias: ";
             if(preg_match_all("/name\:(.*?)alias\:/ims", $yml, $a)) {
                 $arr = array_map('trim', $a[1]);
                 foreach($arr as $block) { // echo "\n$block\n"; exit;
-                    /*
-                     [10713] => verbatim coordinates
-                    type: measurement
-                    uri: http://rs.tdwg.org/dwc/terms/verbatimCoordinates
-                    parent_uris:
-                    synonym_of_uri: []
-                    units_term_uri:
-                    */
+                    // [10713] => verbatim coordinates
+                    // type: measurement
+                    // uri: http://rs.tdwg.org/dwc/terms/verbatimCoordinates
+                    // parent_uris:
+                    // synonym_of_uri: []
+                    // units_term_uri:
                     $rek = array();
                     if(preg_match("/elicha(.*?)\n/ims", "elicha".$block, $a)) $rek['name'] = trim($a[1]);
                     if(preg_match("/type\: (.*?)\n/ims", $block, $a)) $rek['type'] = trim($a[1]);
                     if(preg_match("/uri\: (.*?)\n/ims", $block, $a)) $rek['uri'] = trim($a[1]); //https://eol.org/schema/terms/thallus_length
                     $rek = array_map('trim', $rek);
                     // print_r($rek);
-                    /*Array(
-                        [name] => compound fruit
-                        [type] => value
-                        [uri] => https://www.wikidata.org/entity/Q747463
-                    )*/
+                    // Array(
+                    //     [name] => compound fruit
+                    //     [type] => value
+                    //     [uri] => https://www.wikidata.org/entity/Q747463
+                    // )
                     if(@$rek['type'] == 'value') $this->uris[$rek['name']] = $rek['uri'];
                 }
             }
             else exit("\nInvestigate: EOL terms file structure had changed.\n");
         }
+        */
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
