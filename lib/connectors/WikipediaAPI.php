@@ -282,7 +282,12 @@ class WikipediaAPI extends WikiHTMLAPI
                 
                 // $rek['other']['comprehensive_desc'] = "the quick brown fox jumps over the lazy dog...";  //debug
                 $rek['other']['brief_summary'] = self::create_brief_summary($rek['other']['comprehensive_desc']);
-                $rek['other']['permalink']        = $func_region->get_permalink($html);
+
+                // /* permalink section - New: May 23, 2022
+                if($val = $func_region->get_permalink($html)) $rek['other']['permalink'] = $val;
+                else                                          $rek['other']['permalink'] = $url;
+                // */
+
                 $rek['other']['last_modified']    = $func_region->get_last_modified($html);
                 $rek['other']['phrase']           = $func_region->get_wikipedia_phrase($html);
                 $rek['other']['citation']         = $func_region->get_citation($rek['other']['title'], $rek['other']['permalink'], $rek['other']['last_modified'], $rek['other']['phrase'], $this->pre_trans);

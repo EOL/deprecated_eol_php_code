@@ -292,9 +292,15 @@ class WikipediaRegionalAPI
         return $ancestry;
     }
     function get_permalink($html)
-    {
+    {   //1st option: maybe old and obsolete
         // <li id="t-permalink"><a href="/w/index.php?title=Piranhas&amp;oldid=140727080" title="Dauerhafter Link zu dieser Seitenversion">Permanenter Link</a></li>
         if(preg_match("/<li id=\"t-permalink\"><a href=\"(.*?)\"/ims", $html, $arr)) return html_entity_decode($arr[1]);
+
+        //2nd option: as of May 23, 2022
+        // <li id="t-permalink" class="mw-list-item"><a href="/w/index.php?title=Chaetobranchus&amp;oldid=1010457174" title="Permanent link to this revision of this page"><span>Permanent link</span></a></li>
+        // <li id="t-permalink" class="mw-list-item"><a href="/w/index.php?title=Atlantic_cod&amp;oldid=1088550696" title="Permanent link to this revision of this page"><span>Permanent link</span></a></li>
+        if(preg_match("/<li id=\"t-permalink\" class=\"mw-list-item\"><a href=\"(.*?)\"/ims", $html, $arr)) return html_entity_decode($arr[1]);
+        echo " [No permalink] ";
     }
     private function get_brief_description($html) //for 'de' only
     {
