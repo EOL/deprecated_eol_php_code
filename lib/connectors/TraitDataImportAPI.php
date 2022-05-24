@@ -417,9 +417,59 @@ class TraitDataImportAPI
             if($val = @$rec['lifestage']) $save['occur']['lifeStage'] = @$this->vocabulary['lifestage'][$val];
 
             $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-            $this->func->add_string_types($save, $mValue, $mType, "true");
+            $ret = $this->func->add_string_types($save, $mValue, $mType, "true");
+            if($rec['inherit'] == 'yes') self::create_child_MoF_startstop($rec, $ret, $taxonID);
         }
         else self::log_invalid_values($mType, $mValue, $orig_mType, $orig_mValue);
+    }
+    private function create_child_MoF_startstop($rec, $ret, $taxonID)
+    {   /* $ret valus is:
+        array('occurrenceID' => $occurrence_id, 'measurementID' => $m->measurementID);
+
+        Whenever there is a data row where the inherit value is yes, you create a regular measurement record for this row 
+        with all the relevant metadata, and then you create a child measurement with the parentMeasurementID pointing back 
+        to the original measurement record for both the start node and each of the stop nodes (if there are any). 
+        The start and stop child measurement records need values only for the following fields:
+            measurementID
+            parentMeasurementID
+            measurementType
+            measurementValue
+        where measurementType is either https://eol.org/schema/terms/starts_at or https://eol.org/schema/terms/stops_at
+        and measurementValue is the values from the eolID column for starts_at records
+        or one of the values from the stops at column for stops_at records, with each of the pipe-separated values getting their own stops_at record.
+        */
+
+        // --- starts_at child ---
+        if($eolID = @$rec['eolid']) {
+            $save = array();
+            $save['parentMeasurementID']    = $ret['measurementID'];
+            $mType                          = 'https://eol.org/schema/terms/starts_at';
+            $mValue                         = $eolID;
+            
+            // $save['taxon_id']                = $taxonID;
+            // $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+            
+            $this->func->add_string_types($save, $mValue, $mType, "child");
+        }
+        else echo "\nInvestigate: no eolID for [inherit] == 'yes'.\n";
+        
+        // --- stops_at child(ren) ---
+        if($stops = @$rec['stops at']) {
+            $stops = explode("|", $stops);
+            $stops = array_map('trim', $stops);
+            // echo "\nstops_at: "; print_r($stops); //good debug
+            foreach($stops as $stop) {
+                $save = array();
+                $save['parentMeasurementID']    = $ret['measurementID'];
+                $mType                          = 'https://eol.org/schema/terms/stops_at'; 
+                $mValue                         = $stop;
+
+                // $save['taxon_id']                = $taxonID;
+                // $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+
+                $this->func->add_string_types($save, $mValue, $mType, "child");
+            }
+        }
     }
     private function log_invalid_values($mType, $mValue, $orig_mType, $orig_mValue)
     {

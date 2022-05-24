@@ -49,16 +49,22 @@ class TraitGeneric
         }
         if(@$rec['parentMeasurementID']) $measurementOfTaxon = 'child'; //means a child record
         // */
-
+        
+        /* moved below, under non-child MoF
         $taxon_id = $rec["taxon_id"];
         $catnum   = $rec["catnum"].$measurementType; //because one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
-
+        */
+        
         if($measurementOfTaxon == "child") { //per Jen: https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=63196&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63196
             /* child records: they will have no occurrence ID, MoT can be blank or false */
             $occurrence_id = "";
             $measurementOfTaxon = "";
         }
-        else $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
+        else {
+            $taxon_id = $rec["taxon_id"];
+            $catnum   = $rec["catnum"].$measurementType; //because one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
+            $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
+        }
 
         if($this->is_long_type) $m = new \eol_schema\MeasurementOrFact_specific();
         else                    $m = new \eol_schema\MeasurementOrFact();
