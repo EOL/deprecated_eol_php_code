@@ -26,14 +26,15 @@ $ nohup php fill_up_undefined_parents.php _ > terminal_fill_up_undefined_parents
 For diagnostics:
     ps --help simple
     ps -r 
-    -> very helpful, if u want to delete current running process
+        -> very helpful, if u want to check current running processes
+    ps -p 30544
+        -> to investigate a running PID
+    kill -9 30544
+        -> to kill a running PID
     cat terminal_fill_up_undefined_parents.txt
-    -> to see progress, very convenient
-    ps -p $PID
-    ps -p 517928
-    -> to investigate a running PID
+        -> to see progress, very convenient
     $ cat /var/www/html/eol_php_code/update_resources/connectors/terminal_fill_up_undefined_parents.out
-    -> to monitor runtime
+        -> to monitor runtime
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -45,13 +46,13 @@ ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true during development
 // */
 
-/* just a test
 $resource_id = "wikidata-hierarchy-final";
+
+/* just a test
 $status = chmod(CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".tar.gz", 0775);
 exit("\nFile permission update: [$status]\n");
 */
 
-$resource_id = "wikidata-hierarchy-final";
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
 // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
 
@@ -59,9 +60,8 @@ $ctr = 1;
 $undefined = process_resource_url($dwca_file, $resource_id, $timestart, $ctr);
 
 while($undefined) { $ctr++;
-    $resource_id = "wikidata-hierarchy-final";
-    $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/wikidata-hierarchy-final.tar.gz';
-    // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/wikidata-hierarchy-final.tar.gz';
+    $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
+    // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
     $undefined = process_resource_url($dwca_file, $resource_id, $timestart, $ctr);
 }
 
