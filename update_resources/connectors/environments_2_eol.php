@@ -111,11 +111,17 @@ wikipedia_en_traits_tmp3	Sun 2022-04-10 09:28:49 {"MoF.tab":240020, "occurrence.
 This will then be copied (cp in Jenkins terminal) to wikipedia_en_traits.tar.gz
 
 LATEST HARVEST - GOOD STEADY INCREASE
-617_ENV	Wed 2022-05-04 04:50:45 AM	                {"MoF.tab":273880, "occurrence_specific.tab":273880, "taxon.tab":438670, "time_elapsed":{"sec":239413.12, "min":3990.22, "hr":66.5, "day":2.77}}
+617_ENV	Wed 2022-05-04 04:50:45 AM	                {"MoF.tab":273880, "occurrence.tab":273880, "taxon.tab":438670, "time_elapsed":{"sec":239413.12, "min":3990.22, "hr":66.5, "day":2.77}}
 wikipedia_en_traits_FTG	Wed 2022-05-04 05:05:26 AM	{"MoF.tab":272695, "occurrence.tab":272695, "taxon.tab":438670, "time_elapsed":{"sec":875.51, "min":14.59, "hr":0.24}}
 wikipedia_en_traits_tmp1	Wed 2022-05-04 05:09:05 {"MoF.tab":272695, "occurrence.tab":272695, "taxon.tab":116322, "time_elapsed":false}
 wikipedia_en_traits_tmp2	Wed 2022-05-04 05:12:10 {"MoF.tab":261236, "occurrence.tab":261236, "taxon.tab":116322, "time_elapsed":false}
-wikipedia_en_traits_tmp3	Wed 2022-05-04 05:15:14 {"MoF.tab":243419, "occurrence_specific.tab":243419, "taxon.tab":113285, "time_elapsed":{"sec":184.05, "min":3.07, "hr":0.05}}
+wikipedia_en_traits_tmp3	Wed 2022-05-04 05:15:14 {"MoF.tab":243419, "occurrence.tab":243419, "taxon.tab":113285, "time_elapsed":{"sec":184.05, "min":3.07, "hr":0.05}}
+
+617_ENV	Tue 2022-05-24 06:49:06 PM	                {"MoF.tab":273880, "occurrence.tab":273880, "taxon.tab":438670, "time_elapsed":{"sec":20993.82, "min":349.9, "hr":5.83}}
+wikipedia_en_traits_FTG	Tue 2022-05-24 07:04:59 PM	{"MoF.tab":272695, "occurrence.tab":272695, "taxon.tab":438670, "time_elapsed":{"sec":934.1, "min":15.57, "hr":0.26}}
+wikipedia_en_traits_tmp1	Tue 2022-05-24 07:08:43 {"MoF.tab":272695, "occurrence.tab":272695, "taxon.tab":116322, "time_elapsed":false}
+wikipedia_en_traits_tmp2	Tue 2022-05-24 07:12:24 {"MoF.tab":272297, "occurrence.tab":272297, "taxon.tab":116322, "time_elapsed":false}
+wikipedia_en_traits_tmp3	Tue 2022-05-24 07:15:38 {"MoF.tab":253641, "occurrence.tab":253641, "taxon.tab":113217, "time_elapsed":{"sec":193.81, "min":3.23, "hr":0.05}}
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
