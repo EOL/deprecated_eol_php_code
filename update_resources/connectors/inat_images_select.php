@@ -47,7 +47,7 @@ $ nohup php inat_images_select.php _ > terminal_inat_images_select.out
 For diagnostics:
     ps --help simple
     ps -r 
-        -> very helpful, if u want to delete current running process
+        -> very helpful, if u want to check current running processes
     cat terminal_inat_images_select.txt
         -> to see progress, very convenient
     ps -p 30544
