@@ -41,6 +41,7 @@ else exit("\nERROR: resource_id not yet initialized. Will terminate.\n");
 // ----------------------------------------*/
 process_resource_url($dwca_file, $resource_id);
 
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
@@ -58,6 +59,14 @@ function process_resource_url($dwca_file, $resource_id)
     */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     // Functions::finalize_dwca_resource($resource_id);
-    Functions::finalize_dwca_resource($resource_id, false, true);
+    Functions::finalize_dwca_resource($resource_id, false, false); //3rd param false means don't delete working folder yet
+    
+    // /* New: important to check if all parents have entries.
+    require_library('connectors/DWCADiagnoseAPI');
+    $func = new DWCADiagnoseAPI();
+    $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true); //2nd param true means output will write to text file
+    echo "\nTotal undefined parents:" . count($undefined_parents)."\n"; unset($undefined_parents);
+    recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id."/"); //we can now delete folder after check_if_all_parents_have_entries() - DWCADiagnoseAPI
+    // */
 }
 ?>
