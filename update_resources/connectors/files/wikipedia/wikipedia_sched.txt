@@ -13,18 +13,18 @@ ja  ko  ru  pt
             ca  cs          fi  no  ro      tr        uk
             |   |           |   |   |       |         |
             sr  sv - 3d5h   ast ka  hr      th        hy
-            ID              az  lt  la      kk        mrj
+            ID  xxx         az  lt  la      kk        mrj
             nn 9h           MIN et  da      lv        pms
             sk              bg  nv  ml      is        ga
             bn              szl gl  be      ne        hsb
             hu              af  br  ms      oc        sl
    1d 15h - WAR (removed)   eo  ta  el      qu        mk
-                            av  hi  fy      be-x-old  tl
+            xxx             av  hi  fy      be-x-old  tl
                             chy koi frr     udm       ba
                             fj  io  lb      co        fo
                             ik  my  su      sq        os
                             zea mn  kn      csb       cv
-                                kv  tt      mr        kab
+                            xxx kv  tt      mr        kab
                                 gv  as      olo       sah
                                 wuu dsb     mhr       nds
                                 ht  li      tg        als
