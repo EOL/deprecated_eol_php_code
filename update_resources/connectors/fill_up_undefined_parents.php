@@ -14,19 +14,23 @@ wikidata-hierarchy-final	Sun 2022-02-20 11:51:15 PM	{"taxon.tab":3323627, "time_
 Below is after adding EOLid, so as expected nos. shouldn't change
 wikidata_hierarchy	        Mon 2022-03-07 10:30:43 AM	{"taxon.tab":3323627, "time_elapsed":{"sec":1127.85, "min":18.8, "hr":0.31}}
 
------------------------------------- in command-line in eol-archive:
+------------------------------------ 1st client: in command-line in eol-archive:
 IMPORTANT TO CD to: cd /var/www/html/eol_php_code/update_resources/connectors/
 # this will be run in command-line since gnparser can't be accessed in Jenkins
 php fill_up_undefined_parents.php _ '{"resource_id": "wikidata-hierarchy-final", "source_dwca": "wikidata-hierarchy"}'
-php fill_up_undefined_parents.php jenkins '{"resource_id": "wikidata-hierarchy-final", "source_dwca": "wikidata-hierarchy"}'
 # generates wikidata-hierarchy-final.tar.gz
 
 $ nohup php fill_up_undefined_parents.php _ '{"resource_id": "wikidata-hierarchy-final", "source_dwca": "wikidata-hierarchy"}' > terminal_fill_up_undefined_parents.out
 -> use 'nohup' so it continues even after logging out of the terminal
------------------------------------- 2nd client:
+
+------------------------------------ 2nd client: can run in jenkins since gnparser is not needed for this resource
 php fill_up_undefined_parents.php _ '{"resource_id": "wikipedia_en_traits_tmp4", "source_dwca": "wikipedia_en_traits_tmp3"}'
+php5.6 fill_up_undefined_parents.php jenkins '{"resource_id": "wikipedia_en_traits_tmp4", "source_dwca": "wikipedia_en_traits_tmp3", "resource": "fillup_missing_parents"}'
+-> generates wikipedia_en_traits_tmp4.tar.gz
 
-
+------------------------------------ 3rd client: same as 2nd client. For all text wikipedia languages (es, de, etc.)
+php fill_up_undefined_parents.php _ '{"resource_id": "80", "source_dwca": "80", "resource": "fillup_missing_parents"}'
+# generates 80.tar.gz
 
 For diagnostics:
     ps --help simple
@@ -49,6 +53,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 ini_set('memory_limit','7096M');
 
 $timestart = time_elapsed();
+echo "\n--------------------START: fillup missing parent entries--------------------\n";
 // print_r($argv);
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
 $param                     = json_decode(@$argv[2], true);
@@ -62,36 +67,34 @@ ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true during development
 // */
 
-
 /* just a test
 $status = chmod(CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".tar.gz", 0775);
 exit("\nFile permission update: [$status]\n");
 */
 
-$dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz';
-// $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz';
+if(Functions::is_production()) $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz';
+else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz';
 
 $ctr = 1;
-$undefined = process_resource_url($dwca_file, $resource_id, $timestart, $ctr);
+$undefined = process_resource_url($dwca_file, $resource_id, $timestart, $ctr, $param);
 
 while($undefined) { $ctr++;
-    $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
-    // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
-    $undefined = process_resource_url($dwca_file, $resource_id, $timestart, $ctr);
+    if(Functions::is_production()) $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
+    else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
+    $undefined = process_resource_url($dwca_file, $resource_id, $timestart, $ctr, $param);
 }
+echo "\n--------------------END: fillup missing parent entries--------------------\n";
 
-
-function process_resource_url($dwca_file, $resource_id, $timestart, $ctr)
+function process_resource_url($dwca_file, $resource_id, $timestart, $ctr, $param)
 {
     require_library('connectors/DwCA_Utility');
-    $func = new DwCA_Utility($resource_id, $dwca_file);
+    $func = new DwCA_Utility($resource_id, $dwca_file, $param);
 
     /* Orig in meta.xml has capital letters. Just a note reminder. */
     $preferred_rowtypes = false;
     $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
     
-    /* This will be processed in FillUpMissingParentsAPI.php which will be called from DwCA_Utility.php
-    */
+    /* This will be processed in FillUpMissingParentsAPI.php which will be called from DwCA_Utility.php */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
     

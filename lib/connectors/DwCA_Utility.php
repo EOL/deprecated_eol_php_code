@@ -161,7 +161,6 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             */
-            
             // if($this->resource_id == 'wikipedia_en_traits_tmp4') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '26_MoF_normalized') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '26_delta') break; //all extensions will be processed elsewhere. debug only, during dev only
@@ -435,7 +434,7 @@ class DwCA_Utility
             $func = new SDR_Consolid8API($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        if(in_array($this->resource_id, array("wikidata-hierarchy-final", "wikipedia_en_traits_tmp4"))) {
+        if($this->resource_id == "wikidata-hierarchy-final" || @$this->params['resource'] == "fillup_missing_parents") {
             require_library('connectors/FillUpMissingParentsAPI');
             $func = new FillUpMissingParentsAPI($this->archive_builder, $this->resource_id, $this->archive_path);
             $func->start($info);

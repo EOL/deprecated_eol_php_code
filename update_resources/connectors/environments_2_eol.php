@@ -123,6 +123,15 @@ wikipedia_en_traits_tmp1	Tue 2022-05-24 07:08:43 {"MoF.tab":272695, "occurrence.
 wikipedia_en_traits_tmp2	Tue 2022-05-24 07:12:24 {"MoF.tab":272297, "occurrence.tab":272297, "taxon.tab":116322, "time_elapsed":false}
 wikipedia_en_traits_tmp3	Tue 2022-05-24 07:15:38 {"MoF.tab":253641, "occurrence.tab":253641, "taxon.tab":113217, "time_elapsed":{"sec":193.81, "min":3.23, "hr":0.05}}
 
+wikipedia_en_traits_tmp1	Wed 2022-05-25 09:39:20 {"MoF.tab":272695, "occurrence.tab":272695, "taxon.tab":171844, "time_elapsed":false}
+wikipedia_en_traits_tmp2	Wed 2022-05-25 09:43:02 {"MoF.tab":272297, "occurrence.tab":272297, "taxon.tab":171844, "time_elapsed":false}
+wikipedia_en_traits_tmp3	Wed 2022-05-25 09:46:33 {"MoF.tab":253641, "occurrence.tab":253641, "taxon.tab":168739, "time_elapsed":{"sec":210.2, "min":3.5, "hr":0.06}}
+
+wikipedia_en_traits_tmp3	Wed 2022-05-25 09:05:40 {"MoF.tab":253641, "occurrence.tab":253641, "taxon.tab":168739, "time_elapsed":{"sec":208.15, "min":3.47, "hr":0.06}}
+wikipedia_en_traits_tmp4	Wed 2022-05-25 09:11:12 {"MoF.tab":253641, "occurrence.tab":253641, "taxon.tab":169088, "time_elapsed":{"sec":329.25, "min":5.49, "hr":0.09}}
+wikipedia_en_traits_tmp4	Wed 2022-05-25 09:15:11 {"MoF.tab":253641, "occurrence.tab":253641, "taxon.tab":169090, "time_elapsed":{"sec":568.65, "min":9.48, "hr":0.16}}
+
+
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
 
