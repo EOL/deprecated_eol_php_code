@@ -282,6 +282,8 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	Fri 2022-01-28 04:47:25 PM	    {"media_resource.tab":832258, "taxon.tab":439104, "time_elapsed":{"sec":195350.05, "min":3255.83, "hr":54.26, "day":2.26}} consistent OK
 80	Sun 2022-05-01 08:34:38 AM	    {"media_resource.tab":832790, "taxon.tab":438670, "time_elapsed":{"sec":164721.33, "min":2745.36, "hr":45.76, "day":1.91}}
 80	Tue 2022-05-24 12:59:00 PM	    {"media_resource.tab":832790, "taxon.tab":438670, "time_elapsed":{"sec":122700.17, "min":2045, "hr":34.08, "day":1.42}}
+80	Thu 2022-05-26 06:59:09 AM	    {"media_resource.tab":832790, "taxon.tab":438686, "time_elapsed":{"sec":920.5, "min":15.34, "hr":0.26}}
+-> now without any missing parent entries OK
 
 wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
 wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
