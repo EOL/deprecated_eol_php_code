@@ -17,11 +17,16 @@ wikidata_hierarchy	        Mon 2022-03-07 10:30:43 AM	{"taxon.tab":3323627, "tim
 ------------------------------------ in command-line in eol-archive:
 IMPORTANT TO CD to: cd /var/www/html/eol_php_code/update_resources/connectors/
 # this will be run in command-line since gnparser can't be accessed in Jenkins
-php fill_up_undefined_parents.php _
+php fill_up_undefined_parents.php _ '{"resource_id": "wikidata-hierarchy-final", "source_dwca": "wikidata-hierarchy"}'
+php fill_up_undefined_parents.php jenkins '{"resource_id": "wikidata-hierarchy-final", "source_dwca": "wikidata-hierarchy"}'
 # generates wikidata-hierarchy-final.tar.gz
 
-$ nohup php fill_up_undefined_parents.php _ > terminal_fill_up_undefined_parents.out
+$ nohup php fill_up_undefined_parents.php _ '{"resource_id": "wikidata-hierarchy-final", "source_dwca": "wikidata-hierarchy"}' > terminal_fill_up_undefined_parents.out
 -> use 'nohup' so it continues even after logging out of the terminal
+------------------------------------ 2nd client:
+php fill_up_undefined_parents.php _ '{"resource_id": "wikipedia_en_traits_tmp4", "source_dwca": "wikipedia_en_traits_tmp3"}'
+
+
 
 For diagnostics:
     ps --help simple
@@ -37,24 +42,34 @@ For diagnostics:
         -> to monitor runtime
 */
 
+// https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia_en_traits_tmp1_undefined_parent_ids.txt
+// https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia_en_traits_tmp3_undefined_parent_ids.txt
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 ini_set('memory_limit','7096M');
+
 $timestart = time_elapsed();
+// print_r($argv);
+$params['jenkins_or_cron'] = @$argv[1]; //not needed here
+$param                     = json_decode(@$argv[2], true);
+$resource_id = $param['resource_id'];
+$source_dwca = $param['source_dwca'];
+
+
 // /* during development --- or when investigating
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true during development
 // */
 
-$resource_id = "wikidata-hierarchy-final";
 
 /* just a test
 $status = chmod(CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".tar.gz", 0775);
 exit("\nFile permission update: [$status]\n");
 */
 
-$dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
-// $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/wikidata-hierarchy.tar.gz';
+$dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz';
+// $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz';
 
 $ctr = 1;
 $undefined = process_resource_url($dwca_file, $resource_id, $timestart, $ctr);

@@ -138,7 +138,7 @@ class DwCA_Utility
         else {
             // $info = self::start(); //default doesn't expire. Your call. -- orig row
             if(Functions::is_production()) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
-            else                           $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
+            else                           $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //60*60*1 - 1 hour expire
         }
 
         $temp_dir = $info['temp_dir'];
@@ -161,6 +161,8 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             */
+            
+            // if($this->resource_id == 'wikipedia_en_traits_tmp4') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '26_MoF_normalized') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '26_delta') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '26_delta_new') break; //all extensions will be processed elsewhere. debug only, during dev only
@@ -433,7 +435,7 @@ class DwCA_Utility
             $func = new SDR_Consolid8API($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        if($this->resource_id == 'wikidata-hierarchy-final') {
+        if(in_array($this->resource_id, array("wikidata-hierarchy-final", "wikipedia_en_traits_tmp4"))) {
             require_library('connectors/FillUpMissingParentsAPI');
             $func = new FillUpMissingParentsAPI($this->archive_builder, $this->resource_id, $this->archive_path);
             $func->start($info);

@@ -216,6 +216,7 @@ class FillUpMissingParentsAPI
     }
     function add_cannocial_using_gnparser($scientificName, $rank)
     {
+        if($this->resource_id != "wikidata-hierarchy-final") return "";
         $md5_id = md5($scientificName.$rank);
         if($obj = self::retrieve_json_obj($md5_id)) {} //{echo "\nobj retrieved\n";}
         else {
