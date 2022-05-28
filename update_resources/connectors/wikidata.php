@@ -76,6 +76,8 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 
 71_delta	Mon 2022-02-14 09:02:25 AM	{"agent.tab":392784, "media_resource.tab":1549432, "taxon.tab":162683, "time_elapsed":{"sec":1031.02, "min":17.18, "hr":0.29}}
 71_delta	Thu 2022-04-28 10:42:15 PM	{"agent.tab":792529, "media_resource.tab":1556142, "taxon.tab":163083, "time_elapsed":{"sec":1283.01, "min":21.38, "hr":0.36}}
+71_delta	Fri 2022-05-27 05:17:46 AM	{"agent.tab":792529, "media_resource.tab":1556142, "taxon.tab":163092, "time_elapsed":{"sec":4633.78, "min":77.23, "hr":1.29}}
+-> new utility: filled-up missing parent entries 163092
 
 wikidata-hierarchy	Tue 2022-02-08 10:02:56 AM	{"taxon.tab":3365727, "time_elapsed":{"sec":353281.95, "min":5888.03, "hr":98.13, "day":4.09}}
 wikidata-hierarchy-final	Mon 2022-02-14 08:48:27 AM	{"taxon.tab":3365214, "time_elapsed":{"sec":5338.23, "min":88.97, "hr":1.48}}
