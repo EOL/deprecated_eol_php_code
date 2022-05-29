@@ -219,7 +219,12 @@ class WikipediaRegionalAPI
         <div id="mw-navigation">
         */
         elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-
+        
+        /* May 30, 2022: (pt and ko had probs.) start is same for es and pt. But still can't identify end string
+        No sol'n yet, still searching...
+        <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="pt" dir="ltr">
+        <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
+        */
         
         elseif(in_array($lang, array('fr', 'eu'))) {
             if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
@@ -246,6 +251,8 @@ class WikipediaRegionalAPI
                 // /* for future investigation. Initial finding is that the article is not worthy to publish
                 // echo "\n$html\n";
                 echo("\nInvestigate WikipediaRegionalAPI 2nd try [$lang] [".strlen($html)."]...\n"); //just ignore it.
+                @$this->debug["2nd try - [$lang]"]++;
+                if($this->debug["2nd try - [$lang]"] > 50) exit("\nMore than 50 cases. Will exit now.\n");
                 // echo "\n[$html]\n"; exit(-1); //un-comment this to debug and see the problem.
                 // */
                 return false;
