@@ -57,7 +57,9 @@ ja  ko  ru  pt
                                     nrm
                                     rn
                                     dty
-
+                
+                stopped at (May 28, 2022): wikipedia-gu | ku | kk | mrj
+                
                 probably needs to have multiple connectors: hu szl eu (or don't)
                 $use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id");
 
@@ -373,6 +375,7 @@ wikipedia-fr	Mon 2020-11-23 07:19:04 AM	      {"media_resource.tab":242884, "tax
 wikipedia-fr	Fri 2021-04-16 12:44:44 AM	      {"media_resource.tab":246448, "taxon.tab":139087, "time_elapsed":{"sec":42528.69, "min":708.81, "hr":11.81}}
 wikipedia-fr	Fri 2021-06-18 01:47:19 PM	      {"media_resource.tab":248704, "taxon.tab":140286, "time_elapsed":{"sec":154981.97, "min":2583.03, "hr":43.05, "day":1.79}} consistent OK
 wikipedia-fr	Mon 2021-08-02 10:51:47 PM	      {"media_resource.tab":251075, "taxon.tab":141786, "time_elapsed":{"sec":22454.21, "min":374.24, "hr":6.24}}
+wikipedia-fr	Sun 2022-05-29 08:04:12 AM	      {"media_resource.tab":256192, "taxon.tab":144774, "time_elapsed":{"sec":786.66, "min":13.11, "hr":0.22}}
 
 wikipedia-ja	Friday 2017-11-10 08:35:41 AM	{"media_resource.tab":26208,"taxon.tab":20431}
 wikipedia-ja	Saturday 2017-12-02 10:53:40 PM	{"media_resource.tab":26264,"taxon.tab":20475}
