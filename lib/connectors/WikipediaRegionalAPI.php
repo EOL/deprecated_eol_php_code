@@ -20,7 +20,7 @@ class WikipediaRegionalAPI
         else                            $path = '/Volumes/Thunderbolt4/eol_cache_wiki_regions/';    //for local
         if($resource_id == 957) $this->download_options = array('resource_id' => $resource_id,  'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1); //'delay_in_minutes' => 1
         else                    $this->download_options = array('cache_path' => $path,          'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1); //'delay_in_minutes' => 1
-        $this->download_options['expire_seconds'] = 60*60*24*25;
+        $this->download_options['expire_seconds'] = 60*60*24*30;
         
         $this->ranks['de'] = array("reich", "klasse", "ordnung", "familie", "gattung");
         $this->ranks_en['reich']    = "kingdom";
