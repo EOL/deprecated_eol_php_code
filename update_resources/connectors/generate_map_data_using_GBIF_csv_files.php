@@ -9,7 +9,7 @@ php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GBIFoccurrenceAPI_DwCA');
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = true; //should be false in eol-archive
+$GLOBALS['ENV_DEBUG'] = false; //should be false in eol-archive
 
 print_r($argv);
 
