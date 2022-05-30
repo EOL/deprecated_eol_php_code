@@ -605,9 +605,12 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 self::if_needed_2cluster_orSave($final, $taxon_concept_id);
             }
             else {
+                /* new: May 30, 2022 - don't use API if csv doesn't provide map data.
                 debug("\nCSV map data not available [$sciname][$taxon_concept_id]...");
                 $this->debug['CSV map data not available']["[$sciname][$taxon_concept_id]"] = '';
                 self::gen_map_data_using_api($sciname, $taxon_concept_id);
+                */
+                $this->debug['no CSV data']["[$sciname][$taxon_concept_id]"] = '';
             }
         }
         else {
