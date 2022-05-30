@@ -548,10 +548,12 @@ class WikiDataAPI extends WikipediaAPI
         $actual = 0; $i = 0; $j = 0;
         $k = 0; $m = 564761; //only for breakdown when caching --- total taxa as of Feb 2, 2022 = 3388566 then divided by 6 to get $m
         
-        // /* New: Aug 29, 2021
-        $cmd = "wc -l ".$this->path['wiki_data_json'];
-        $out = shell_exec($cmd);
-        echo "\n-----\n[".str_replace("\n", "", $out)."]\n-----\n";
+        // /* New: Aug 29, 2021 --- Warning: this takes a couple of minutes when run locally.
+        if(Functions::is_production()) {
+            $cmd = "wc -l ".$this->path['wiki_data_json'];
+            $out = shell_exec($cmd);
+            echo "\n-----\n[".str_replace("\n", "", $out)."]\n-----\n";
+        }
         // */
         
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
@@ -626,8 +628,8 @@ class WikiDataAPI extends WikipediaAPI
                 for debug end ======================== */
                 
                 /* force taxon in wikipedia & wikimedia. when developing ***. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                if($this->debug_taxon == "Panthera leo")    {$arr = self::get_object('Q140'); $arr = $arr->entities->Q140;}
-                if($this->debug_taxon == "wolf")            {$arr = self::get_object('Q18498'); $arr = $arr->entities->Q18498;}
+                // if($this->debug_taxon == "Panthera leo")    {$arr = self::get_object('Q140'); $arr = $arr->entities->Q140;}
+                // if($this->debug_taxon == "wolf")            {$arr = self::get_object('Q18498'); $arr = $arr->entities->Q18498;}
                 if($val = $this->during_dev()) $arr = $val;
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

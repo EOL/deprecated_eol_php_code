@@ -193,42 +193,25 @@ class WikipediaRegionalAPI
         if(self::is_orientation_right2left($html)) exit("\nWiki is right-to-left. Will stop here.\n\n");
         $lang = $this->language_code;
         if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-//                      <div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">
-//                      <div id="mw-content-text" lang="bs" dir="ltr" class="mw-content-ltr">
-//                      <div id="mw-navigation">
-
-        /*
-        For 'fr' the wiki template structure has changed. Starting range is the same, no change:
-                                        <div id="mw-content-text" lang="fr" dir="ltr" class="mw-content-ltr">
-        While our ending range is now:  <div id='mw-data-after-content'> ---> Works OK
-        Now 'eu' also is same with 'fr' case.
-        */
-        
-        /* As of Jun 11, 2021, the starting range has changed to this: for en and fr so far as I've checked. Maybe more languages.
-        <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="en" dir="ltr">
-        <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
-        <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="eu" dir="ltr">
-        And just followed this ending range: <div id='mw-data-after-content'>
-        The old ending range is also not reliable anymore.
-        */
+                     // <div id="mw-content-text" lang="fr" dir="ltr" class="mw-content-ltr">
+                     // <div id="mw-navigation">
         elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-
-        /*
-        As of May 26, 2022
-        <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="es" dir="ltr">
-        <div id="mw-navigation">
-        */
+                         // <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
+                         // <div id='mw-data-after-content'>
         elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-        
-        /* May 30, 2022: (pt and ko had probs.) start is same for es and pt. But still can't identify end string
-        No sol'n yet, still searching...
-        <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="pt" dir="ltr">
-        <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
-        */
-        
-        elseif(in_array($lang, array('fr', 'eu'))) {
-            if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-        }
+                         // <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
+                         // <div id="mw-navigation">
+        elseif(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+                         // <div id="mw-content-text" lang="fr" dir="ltr" class="mw-content-ltr">
+                         // <div id='mw-data-after-content'>
+
+        /* fr, ko and pt and probably more use this section below: */
+        elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div class=\"mw-workspace-container mw-footer-container\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+                         // <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
+                         // <div class="mw-workspace-container mw-footer-container">
+        elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<footer id=\"footer\" class=\"mw-footer\" role=\"contentinfo\" >/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+                         // <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
+                         // <footer id="footer" class="mw-footer" role="contentinfo" >
         else {
             if($lang == 'no')               $lang = 'nb'; //2nd option for 'no' Norwegian is to use 'nb'.
             elseif($lang == 'zh-min-nan')   $lang = 'nan';
@@ -240,13 +223,14 @@ class WikipediaRegionalAPI
             elseif($lang == 'fiu-vro')      $lang = 'vro';
             elseif($lang == 'roa-rup')      $lang = 'rup';
             elseif($lang == 'nrm')          $lang = 'nrf';
-            else {
-                echo("\nInvestigate WikipediaRegionalAPI 1st try [$lang]...if-then-else not yet setup\n");
-            }
+            else echo("\nInvestigate WikipediaRegionalAPI 1st try [$lang]...if-then-else not yet setup\n");
             
             if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
             elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
             elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+            elseif(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+            elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div class=\"mw-workspace-container mw-footer-container\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+            elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<footer id=\"footer\" class=\"mw-footer\" role=\"contentinfo\" >/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
             else {
                 // /* for future investigation. Initial finding is that the article is not worthy to publish
                 // echo "\n$html\n";
