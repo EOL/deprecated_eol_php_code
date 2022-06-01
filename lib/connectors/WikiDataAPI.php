@@ -468,6 +468,11 @@ class WikiDataAPI extends WikipediaAPI
             }
         }
     }
+    private function valid_parent_id($id)
+    {
+        if($id == "Q109044861") return ""; //https://www.wikidata.org/wiki/Q109044861 - no label defined yet
+        else return $id;
+    }
     private function create_parent_taxon($rec)
     {
         if(!@$rec['taxon_name']) return;
@@ -475,7 +480,7 @@ class WikiDataAPI extends WikipediaAPI
         $t->taxonID                 = $rec['id'];
         $t->scientificName          = $rec['taxon_name'];
         $t->taxonRank               = $rec['rank'];
-        $t->parentNameUsageID       = @$rec['parent_id'];
+        $t->parentNameUsageID       = self::valid_parent_id(@$rec['parent_id']);
         $t->source                  = "https://www.wikidata.org/wiki/".$t->taxonID;
         if(!isset($this->taxon_ids[$t->taxonID])) {
             $this->taxon_ids[$t->taxonID] = '';
@@ -841,7 +846,7 @@ class WikiDataAPI extends WikipediaAPI
         }
         
         $t->taxonRank                = $rec['rank'];
-        $t->parentNameUsageID        = $rec['parent']['id'];
+        $t->parentNameUsageID        = self::valid_parent_id($rec['parent']['id']);
         
         if($val = @$rec['other']['permalink']) $t->source = $val;
         else                                   $t->source = "https://www.wikidata.org/wiki/".$t->taxonID;

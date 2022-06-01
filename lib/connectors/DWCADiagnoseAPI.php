@@ -337,7 +337,7 @@ class DWCADiagnoseAPI
 
         $undefined = array();
         foreach($parent_ids as $parent_id) {
-            if($parent_id == "Q109044861") {}
+            if($parent_id == "Q109044861") {} //https://www.wikidata.org/wiki/Q109044861 - no label defined yet
             else {
                 if(!isset($taxon_ids[$parent_id])) $undefined[$parent_id] = '';
             }
