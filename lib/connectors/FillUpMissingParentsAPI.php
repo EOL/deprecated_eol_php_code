@@ -114,7 +114,7 @@ class FillUpMissingParentsAPI
                 self::create_archive($rek);
             }
             else {
-                echo "\nWas not added: "; print_r($rec);
+                echo "\nWas not added: "; print_r($rek);
             }
         }//end foreach()
     }
