@@ -337,7 +337,10 @@ class DWCADiagnoseAPI
 
         $undefined = array();
         foreach($parent_ids as $parent_id) {
-            if(!isset($taxon_ids[$parent_id])) $undefined[$parent_id] = '';
+            if($parent_id == "Q109044861") {}
+            else {
+                if(!isset($taxon_ids[$parent_id])) $undefined[$parent_id] = '';
+            }
         }
         if($write_2text_file) {
             foreach(array_keys($undefined) as $id) fwrite($WRITE, $id . "\n");
