@@ -722,7 +722,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             */
             fwrite($file, $json); //now real json-value
             fclose($file);
-            echo " - map data saved. n = ".$rec['count']."\n";
+            echo " - map data saved. [$tc_id] n = ".$rec['count']."\n";
         }
     }
     private function get_map_data_path($taxon_concept_id)
