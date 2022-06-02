@@ -722,6 +722,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             */
             fwrite($file, $json); //now real json-value
             fclose($file);
+            echo " - map data saved. n = ".$rec['count']."\n";
         }
     }
     private function get_map_data_path($taxon_concept_id)
@@ -730,6 +731,17 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $path = $this->save_path['map_data']."/".$folder."/";
         if(!is_dir($path)) mkdir($path);
         return $path;
+    }
+    private function get_map_data_path_v2($taxon_concept_id) //to be implemented after last harvest
+    {
+        $taxon_concept_id = Functions::format_number_with_leading_zeros($taxon_concept_id, 4); //1 becomes 0001 | 13 becomes 0013 | 236 becomes 0236
+        $md5 = $taxon_concept_id;       //from original copied template -> $md5 = md5($taxon_concept_id)
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        $cache_path = $this->save_path['map_data']."/";
+        if(!file_exists($cache_path . $cache1))           mkdir($cache_path . $cache1);
+        if(!file_exists($cache_path . "$cache1/$cache2")) mkdir($cache_path . "$cache1/$cache2");
+        return $cache_path . "$cache1/$cache2/";
     }
     private function prepare_csv_data($usageKey, $paths)
     {
