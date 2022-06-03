@@ -154,7 +154,7 @@ $source_dwca = 'inat_images_40limit';   //resource generated from inat_images.ph
 $resource_id = 'inat_images_3Mcap';     //new resource (update in DwCA_Utility.php)
 */
 
-// /* 2nd combo: currently processing...
+// /* 2nd combo: finally agreed upon to be used as iNat image resource
 $source_dwca = 'inat_images_100limit';  //resource generated from inat_images.php --- media_resource.tab : 8,742,707 - future ideal, eventually
 $resource_id = 'inat_images_3Mcap_2';   //new resource (update in DwCA_Utility.php)
 // */

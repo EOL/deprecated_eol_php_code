@@ -48,7 +48,7 @@ ini_set('memory_limit','12096M'); //this can be removed and choose a caching sol
 $timestart = time_elapsed();
 
 // $resource_id = 'inat_images'; //being used currently, caching image scores
-$resource_id = 'inat_images_100limit'; //no score ranking, just use first 100 images per taxon in iNaturalist.
+$resource_id = 'inat_images_100limit'; //no score ranking, just use first 100 images per taxon in iNaturalist. --- finally agreed upon to use
 // $resource_id = 'inat_images_75limit'; //no score ranking, just use first 75 images per taxon in iNaturalist.
 // $resource_id = 'inat_images_40limit'; //no score ranking, just use first 40 images per taxon in iNaturalist.
 // $resource_id = 'inat_images_20limit'; //no score ranking, just use first 40 images per taxon in iNaturalist.

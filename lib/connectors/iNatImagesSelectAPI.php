@@ -24,7 +24,7 @@ class iNatImagesSelectAPI
                                   "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
                                   "http://eol.org/schema/reference/reference"       => "reference"
                                   );
-        $this->image_limit = 20; //100; //100 orig
+        $this->image_limit = 20; //20 agreed upon to use... //100;
         if(Functions::is_production()) {
             $this->cache_path = '/extra/other_files/iNat_image_DwCA/cache_image_score/';
             // $this->temp_image_repo = "/html/eol_php_code/applications/blur_detection_opencv_eol/eol_images/";
@@ -85,7 +85,7 @@ class iNatImagesSelectAPI
         //step 2:
         $this->unique_ids = array();
         $tbl = "http://eol.org/schema/media/document";
-        self::process_table($tables[$tbl][0], 'select_100_images', $this->extensions[$tbl]);
+        self::process_table($tables[$tbl][0], 'select_X_number_of_images', $this->extensions[$tbl]); //X is $this->image_limit, which is 20.
         
         unset($this->total_images_per_taxon);
         unset($this->running_taxon_images_count);
@@ -143,7 +143,7 @@ class iNatImagesSelectAPI
                 @$this->total_images_per_taxon[$taxonID]++;
             }
             //=======================================================================================
-            if($what == 'select_100_images') {
+            if($what == 'select_X_number_of_images') {
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
                 // /* REMINDER: temporarily commented for Katja's and Jen's report. Should be included in normal operation! (series 2 change)
