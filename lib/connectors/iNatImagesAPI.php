@@ -22,7 +22,7 @@ class iNatImagesAPI /* copied template, from: NMNHimagesAPI.php */
         // $this->cache_path .= "/";
         
         $this->occurrence_gbifid_with_images = array();
-        $this->initial_image_limit = 100; //finally 100 agreed upon to use: 100-select-20 //20; //40; //75; //100; //150; //no score ranking, just plain get first xx images per taxon in iNat.
+        $this->initial_image_limit = 100; //FINALLY 100 agreed upon to use: 100-select-20 //20; //40; //75; //100; //150; //no score ranking, just plain get first xx images per taxon in iNat.
         // $this->download_options = array(
         //     'expire_seconds'     => 60*60*24*30, //expires in 1 month
         //     'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
