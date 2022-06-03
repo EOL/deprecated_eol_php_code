@@ -668,11 +668,13 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $decimal_places = 6;
         while(true) {
             foreach($final['records'] as $r) {
-                $lat = number_format($r['h'], $decimal_places);
-                $lon = number_format($r['i'], $decimal_places);
-                if(isset($unique["$lat,$lon"])) continue;
-                else $unique["$lat,$lon"] = '';
-                $to_be_saved['records'][] = $r;
+                if(is_numeric($r['h']) && is_numeric($r['i'])) {
+                    $lat = number_format($r['h'], $decimal_places);
+                    $lon = number_format($r['i'], $decimal_places);
+                    if(isset($unique["$lat,$lon"])) continue;
+                    else $unique["$lat,$lon"] = '';
+                    $to_be_saved['records'][] = $r;
+                }
             }
             debug("\n New total [$decimal_places]: " . count($unique) . "");
             $limit_to_break = $this->limit_20k;
