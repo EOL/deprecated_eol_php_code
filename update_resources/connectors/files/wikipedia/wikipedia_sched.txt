@@ -1185,7 +1185,6 @@ wikipedia-yo	Friday 2020-08-14 09:25:10 PM	{"media_resource.tab":332, "taxon.tab
 wikipedia-rn	Friday 2020-08-14 09:30:00 PM	{"media_resource.tab":79, "taxon.tab":343, "time_elapsed":{"sec":917.27, "min":15.29, "hr":0.25}}
 wikipedia-dty	Friday 2020-08-14 09:45:21 PM	{"media_resource.tab":81, "taxon.tab":314, "time_elapsed":{"sec":912.43, "min":15.21, "hr":0.25}}
 wikipedia-szl	Saturday 2020-08-15 03:07:38 AM	{"media_resource.tab":84814, "taxon.tab":51785, "time_elapsed":{"sec":59807.04, "min":996.78, "hr":16.61}}
-wikipedia-id	Saturday 2020-08-15 08:10:22 AM	{"media_resource.tab":247419, "taxon.tab":132391, "time_elapsed":{"sec":18948.53, "min":315.81, "hr":5.26}}
 wikipedia-af	Saturday 2020-08-15 08:20:42 AM	{"media_resource.tab":25834, "taxon.tab":16284, "time_elapsed":{"sec":18777.78, "min":312.96, "hr":5.22}}
 wikipedia-eo	Saturday 2020-08-15 12:21:17 PM	{"media_resource.tab":17527, "taxon.tab":12690, "time_elapsed":{"sec":14427.77, "min":240.46, "hr":4.01}}
 wikipedia-av	Saturday 2020-08-15 12:39:29 PM	{"media_resource.tab":65, "taxon.tab":222, "time_elapsed":{"sec":1084.3, "min":18.07, "hr":0.3}}
@@ -1225,8 +1224,6 @@ wikipedia-sv	Tuesday 2020-05-12 09:30:22 PM	{"media_resource.tab":92802, "taxon.
 
 Not yet with multiple connectors: "no", "fi", "ca", "uk", "tr", "ro", "cs"
 
-
-
 wikipedia-ca	Sunday 2019-04-28 03:07:45 AM	{"media_resource.tab":124020,"taxon.tab":70790}
 wikipedia-ca	Thursday 2019-08-15 08:52:01 PM	{"media_resource.tab":124621,"taxon.tab":71136} OK
 wikipedia-ca	Tuesday 2020-02-25 12:18:35 AM	{"media_resource.tab":124044,"taxon.tab":71415,"time_elapsed":{"sec":99695.53,"min":1661.59,"hr":27.69,"day":1.15}}
@@ -1243,7 +1240,9 @@ wikipedia-id             Thursday 2020-02-27 12:00:57 PM{"media_resource.tab":24
 wikipedia-id            Monday 2020-03-02 12:29:14 PM	{"media_resource.tab":246801, "taxon.tab":131971, "time_elapsed":{"sec":11721.51, "min":195.36, "hr":3.26}}
 wikipedia-id	          Monday 2020-04-27 12:30:33 PM	{"media_resource.tab":246982, "taxon.tab":132085, "time_elapsed":{"sec":13190.78, "min":219.85, "hr":3.66}}
 wikipedia-id	          Monday 2020-05-11 09:18:48 PM	{"media_resource.tab":246980, "taxon.tab":132106, "time_elapsed":{"sec":16009.38, "min":266.82, "hr":4.45}} New
-
+wikipedia-id	          Saturday 2020-08-15 08:10:22  {"media_resource.tab":247419, "taxon.tab":132391, "time_elapsed":{"sec":18948.53, "min":315.81, "hr":5.26}}
+wikipedia-id	          Fri 2021-08-20 07:38:52 PM	  {"media_resource.tab":250840, "taxon.tab":135037, "time_elapsed":{"sec":42022, "min":700.37, "hr":11.67}}
+9
 Below here: starts with multiple connector v2:
 
 wikipedia-hu	Thursday 2019-10-31 09:12:57 AM	{"media_resource.tab":43804,"taxon.tab":28245,"time_elapsed":{"sec":36599.33,"min":609.99,"hr":10.17}}
