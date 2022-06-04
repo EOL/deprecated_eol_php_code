@@ -55,7 +55,7 @@ if($arr['task'] == 'initial') { //this is where to get e.g. the total number of 
         $funcj->jenkins_call($arr, "generate_stats"); //finally make the call
     }
     elseif($arr['connector'] == 'gen_wikipedia_by_lang') {
-        $total_count = 2700000; //old value 2500000
+        $total_count = 3448535; //as of Jun 5, 2022         //2700000; //old value 2500000
         $arr['total_count'] = $total_count;
         echo "\ntotal_count: $total_count\n";
         
