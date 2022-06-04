@@ -4,7 +4,7 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiHTMLAPI');
 require_library('connectors/WikipediaAPI');
-require_library('connectors/WikiDataAPI');
+require_library('connectors/WikiDataAPI_ver2');
 $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = false; //orig false in production
 
@@ -139,19 +139,33 @@ php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _
 php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'Pacific halibut'
 php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'Pale fox'
 
-Jenkins for Wikipedia en final: php5.6 wikipedia.php jenkins en generate_resource
 =============================================================================================================== */
-
 $params['jenkins_or_cron']  = @$argv[1];
 $params['language']         = @$argv[2];
-
 $params['task']             = @$argv[3];
 $params['range_from']       = @$argv[4];
 $params['range_to']         = @$argv[5];
 $params['actual']           = @$argv[6];
 $debug_taxon                = @$argv[7];
-
 print_r($params);
+/*
+Array(
+    [jenkins_or_cron] => jenkins
+    [language] => nl
+    [task] => generate_resource
+    [range_from] => 833332
+    [range_to] => 1249998
+    [actual] => 3of6
+)
+Array(
+    [jenkins_or_cron] => jenkins
+    [language] => nl
+    [task] => generate_resource
+    [range_from] => 
+    [range_to] => 
+    [actual] => 
+)
+*/
 
 // /* //----------start main operation
 if($val = $params['language']) $language = $val;
@@ -166,6 +180,15 @@ delete_temp_files_and_others($language);
 exit("\nend test\n");
 */
 
+// /* new section for wikipedia_ver2 ****************************
+$actual = @$params['actual'];
+if($actual) $resource_id .= "_".$actual;
+else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
+    echo "\n----------\nMeaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.\n----------\n";
+    aggregate_6partial_wikipedias($timestart, $resource_id);
+}
+// ************************************************************** */
+
 $langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh"); //1st batch | single connectors: ko, ja, ru
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch Dutch Polish Swedish Vietnamese
 /* No longer have multiple connectors
@@ -179,7 +202,7 @@ $use_MultipleConnJenkinsAPI = array_merge($use_MultipleConnJenkinsAPI, array("sz
 */
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $use_MultipleConnJenkinsAPI);
 
-$func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors, $debug_taxon); //generic call
+$func = new WikiDataAPI_ver2($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors, $debug_taxon, false); //generic call. 6th param is false means running ver2
 
 if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real operation
 // if(false) { //*** use this when developing to process language e.g. 'en' for one taxon only
@@ -192,10 +215,14 @@ if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real o
             delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
         }
         else {
-            echo "\nCannot finalize dwca yet.\n";
+            echo "\nCannot finalize dwca yet. But will generate partial DwCA [$resource_id]\n";
             // /* ------------------------------------------------------ place to start injecting MultipleConnJenkinsAPI
             if(in_array($language, $use_MultipleConnJenkinsAPI)) inject_MultipleConnJenkinsAPI($language);
             // ------------------------------------------------------ */
+            
+            // /* new section for wikipedia_ver2 ****************************
+            Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //2nd param true means big file; 3rd param true means will delete working folder
+            // ************************************************************** */
         }
     }
     else exit(1);
@@ -264,6 +291,24 @@ function delete_temp_files_and_others($language)
         }
     }
 }
+function aggregate_6partial_wikipedias($timestart, $resource_id)
+{
+    require_library('connectors/DwCA_Aggregator_Functions');
+    require_library('connectors/DwCA_Aggregator');
+    $langs = array();
+    //wikipedia-nl_1of6... and so on
+    //80_1of6 ... and so on
+    
+    //string generate the partials 1-6:
+    for ($i = 1; $i <= 6; $i++) $langs[] = $resource_id."_".$i."of6";
+    print_r($langs);
+
+    $resource_id .= '_ELI'; //debug only
+    echo "\nProcessing [$resource_id] partials:[".count($langs)."]...\n";
+    $func = new DwCA_Aggregator($resource_id, NULL, 'regular'); //'regular' not 'wikipedia' which is used in wikipedia aggregate resource
+    $func->combine_DwCAs($langs);
+    Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+}
 
 /* http://opendata.eol.org/dataset/wikipedia_5k
 Data and Resources
@@ -313,9 +358,6 @@ wikipedia-ast (Asturian)
 (ckb) Sorani    https://en.wikipedia.org/wiki/Sorani        --- same as Arabic and Persian
 (dv) Divehi     https://en.wikipedia.org/wiki/Maldivian_language    307     --- same as Arabic and Persian
 (yi) Yiddish                https://en.wikipedia.org/wiki/Yiddish	219     --- same as Arabic and Persian
-(ug) Uyghur                 https://en.wikipedia.org/wiki/Uyghur_language   --- same as Arabic and Persian
-(arz) Egyptian Arabic       https://en.wikipedia.org/wiki/Egyptian_Arabic       --- same as Arabic and Persian
-(mzn) Mazandarani           https://en.wikipedia.org/wiki/Mazanderani_language  --- same as Arabic and Persian
 
 
 -eo Esperanto --- But... let's skip Volapuk (Volapük vo) and Esperanto. I'm not sure I want to open that can of worms.
@@ -485,48 +527,49 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 * (sc) Sardinian              https://en.wikipedia.org/wiki/Sardinian_language
 * (ln) Lingala                https://en.wikipedia.org/wiki/Lingala
 
-* (hak) Hakka                 https://en.wikipedia.org/wiki/Hakka_Chinese
-* (kw) Cornish                https://en.wikipedia.org/wiki/Cornish_language
-* (bcl) Central Bicolano      https://en.wikipedia.org/wiki/Central_Bikol
-* (za) Zhuang                 https://en.wikipedia.org/wiki/Zhuang_languages
-* (ang) Anglo-Saxon           https://en.wikipedia.org/wiki/Anglo-Frisian_languages#English_(Anglo)_languages
-* (eml) Emilian-Romagnol      https://en.wikipedia.org/wiki/Emilian-Romagnol_language
+(hak) Hakka                 https://en.wikipedia.org/wiki/Hakka_Chinese
 
-* (av) Avar                   https://en.wikipedia.org/wiki/Avar_language
-* (fj) Fijian                 https://en.wikipedia.org/wiki/Fijian_language
-* (chy) Cheyenne              https://en.wikipedia.org/wiki/Cheyenne_language
-* (ik) Inupiak                https://en.wikipedia.org/wiki/Inupiaq_language
-* (zea) Zeelandic             https://en.wikipedia.org/wiki/Zeelandic
-* (bxr) Buryat                https://en.wikipedia.org/wiki/Buryat_language
-* (bjn) Banjar                https://en.wikipedia.org/wiki/Banjar_language (bjn or bvu)
-* (so) Somali                 https://en.wikipedia.org/wiki/Somali_language
-
-* (zh-classical) Classical Chinese    https://en.wikipedia.org/wiki/Classical_Chinese *(lzh)
-* (mwl) Mirandese                     https://en.wikipedia.org/wiki/Mirandese_language
-* (sn) Shona                          https://en.wikipedia.org/wiki/Shona_language
-* (mai) Maithili              https://en.wikipedia.org/wiki/Maithili_language
-* (chr) Cherokee              https://en.wikipedia.org/wiki/Cherokee_language
-* (tk) Turkmen                https://en.wikipedia.org/wiki/Turkmen_language
-* (szy) Sakizaya              https://en.wikipedia.org/wiki/Sakizaya_language
-* (ab) Abkhazian              https://en.wikipedia.org/wiki/Abkhaz_language
-* (tcy) Tulu                  https://en.wikipedia.org/wiki/Tulu_language
-* (wo) Wolof                  https://en.wikipedia.org/wiki/Wolof_language
-* (ban) Balinese              https://en.wikipedia.org/wiki/Balinese_language
-* (ay) Aymara                 https://en.wikipedia.org/wiki/Aymara_language
-* (tyv) Tuvan                 https://en.wikipedia.org/wiki/Tuvan_language
-* (atj) Atikamekw             https://en.wikipedia.org/wiki/Atikamekw_language
-* (new) Newar                 https://en.wikipedia.org/wiki/Newar_language
-* (fiu-vro) Võro              https://en.wikipedia.org/wiki/V%C3%B5ro_language *(vro)
-* (mg) Malagasy               https://en.wikipedia.org/wiki/Malagasy_language
-* (rm) Romansh                https://en.wikipedia.org/wiki/Romansh_language
-* (ltg) Latgalian             https://en.wikipedia.org/wiki/Latgalian_language
-* (ext) Extremaduran          https://en.wikipedia.org/wiki/Extremaduran_language
-* (kl) Greenlandic            https://en.wikipedia.org/wiki/Greenlandic_language
-* (roa-rup) Aromanian         https://en.wikipedia.org/wiki/Aromanian_language *(rup)
-* (nrm) Norman                https://en.wikipedia.org/wiki/Norman_language
-* (rn) Kirundi                https://en.wikipedia.org/wiki/Kirundi
-* (dty) Doteli                https://en.wikipedia.org/wiki/Doteli
-
+kw	188
+bcl	186
+za	175
+ang	167
+eml	165
+av	159
+chy	150
+fj	150
+ik	150
+ug	144
+zea	144
+bxr	139
+zh-classical	139
+bjn	137
+so	137
+arz	135
+mwl	130
+sn	130
+chr	128
+mai	117
+tk	117
+tcy	115
+szy	113
+mzn	111
+wo	110
+ab	108
+ban	108
+ay	107
+tyv	107
+atj	104
+new	103
+fiu-vro	100
+mg	93
+rm	93
+ltg	85
+ext	84
+kl	82
+roa-rup	80
+nrm	79
+rn	79
+dty	77
 hyw	72
 lo	72
 kg	70

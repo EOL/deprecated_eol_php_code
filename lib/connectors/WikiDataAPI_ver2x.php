@@ -33,24 +33,25 @@ drwxr-xr-x 2 root root           10 Nov  6  2017 wikipedia
 [root@eol-archive wikidata]# 
 */
 /* For testing one image to write to DwCA for Wikimedia. Follow the 3 asterisk ***. Un-comment these block of codes. Worked OK. Works also now for Wikipedia */
-class WikiDataAPI extends WikipediaAPI
+class WikiDataAPI_ver2 extends WikipediaAPI
 {
-    function __construct($folder, $lang, $what = "wikipedia", $langs_with_multiple_connectors = array(), $debug_taxon = false, $archive_builder = false)
+    function __construct($folder, $lang, $what = "wikipedia", $langs_with_multiple_connectors = array(), $debug_taxon = false, $is_running_version_1_YN = true)
     {
         $this->what = $what;
         $this->resource_id = $folder;
         $this->language_code = $lang;
         $this->langs_with_multiple_connectors = $langs_with_multiple_connectors;
         $this->debug_taxon = $debug_taxon;
+        
+        $this->is_running_version_1_YN = $is_running_version_1_YN;
+        
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
-        if($archive_builder) $this->archive_builder = $archive_builder; //for FillUpMissingParentsAPI
-        else $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory)); //normal orig
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->object_ids = array();
         $this->debug = array();
-        $this->download_options = array('expire_seconds' => 60*60*24*30*2, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('expire_seconds' => 60*60*24*25*2, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false; //just temporary, comment in normal operation
-        if($this->resource_id == "wikidata-hierarchy") $this->download_options['download_wait_time'] = 500000;
         if(!Functions::is_production()) $this->download_options['expire_seconds'] = 60*60*24*5; //during development
 
         if(Functions::is_production()) {
@@ -148,22 +149,15 @@ class WikiDataAPI extends WikipediaAPI
         }
         return true;
     }
-    function test($filename = false) //php update_resources/connectors/wikidata.php _ debug
+    function test($filename = false)
     {
         /* [file in question] => -----                              Nov 25, 2018
-            [File:Narcissus_rupicola_distrib.jpg] => 
+            [File:Virgin%27s_bower_(Clematis_terniflora).jpg] => 
+            [File:Narcissus rupicola distrib.jpg] => 
             [File:Rosa_glauca_inflorescence_(32).jpg] =>            no real agent
+            [File:Alnus_acuminata_4.jpg] =>                         no real agent
         */
-        $filename = "CLOSEUP_OF_BALDWIN'S_IRONWEED,_A_COMMON_TALLGRASS_PRAIRIE_PLANT_SEEN_ON_THE_KONZA_PRAIRIE,_1,000_ACRES_OF_VIRGIN..._-_NARA_-_557190-1-1(1).tif"; //no artist
-        $filename = "CLOSEUP_OF_BALDWIN'S_IRONWEED,_A_COMMON_TALLGRASS_PRAIRIE_PLANT_SEEN_ON_THE_KONZA_PRAIRIE,_1,000_ACRES_OF_VIRGIN..._-_NARA_-_557190.jpg";
         // $filename = "Aa_species.jpg"; //force assignment Aa_species.jpg
-        $filename = 'Narcissus_assoanus_distrib.jpg';
-        // $filename = 'Ismaelguevara.jpg'; //really no artist
-        // $filename = 'Narcissus_jonquilla_distrib.jpg'; //from ['Artist']['value']
-        //$filename = 'Family_Ursidae_four_species.jpg'; //from ['Credit']['value']. Sample of multiple credit lines
-        //$filename = '01_Schwarzbär_cropped.jpg'; //with non-ascii char
-        // $filename = "Phytolacca_rivinoides_(flowers)_in_Costa_Rica.jpg"; //no real agents Jul 25, 2020
-        // $filename = "Tillandsia_usneoides_on_a_tree_in_Costa_Rica.jpg"; //no real agents Jul 25, 2020
         $arr = self::process_file($filename); //case-sensitive filename param
         print_r($arr);
         /* Note: then search for 'good debug' below. Two options: coming from API or dump. Then continue to investigate... */
@@ -214,24 +208,28 @@ class WikiDataAPI extends WikipediaAPI
         // self::test_agent_value($a, array('name' => "xxx", 'role' => "yyy", 'homepage' => "zzz"));
         
         $arr[] = array('filename' => 'Aa_species.jpg',              'name' => "Eric in SF",    'condition' => 'eq', 'role' => 'creator');
-        $arr[] = array('filename' => 'Abies_grandis_needles.jpg',   'name' => "Sten",    'condition' => 'eq');
-        $arr[] = array('filename' => 'Indian_-_Rama_Destroys_Ogress_-_Walters_W888.jpg',   'name' => "Walters Art Museum:  Home page  Info about artwork", 'condition' => 'eq');
-        $arr[] = array('filename' => 'Salix_sericea_NRCS-2.jpg',        'name' => "Wikimedia Commons",              'condition' => 'eq');
-        $arr[] = array('filename' => 'Caligula_by_A_Yakovlev_1911.jpg', 'name' => "Alexandre Jacovleff",    'condition' => 'eq');
+        $arr[] = array('filename' => 'Abies_grandis_needles.jpg',   'name' => "Sten Porse",    'condition' => 'eq');
+        $arr[] = array('filename' => 'Indian_-_Rama_Destroys_Ogress_-_Walters_W888.jpg',   'name' => "Walters Art Museum", 'condition' => 'eq');
+        $arr[] = array('filename' => 'Salix_sericea_NRCS-2.jpg',        'name' => "Nonenmac",              'condition' => 'eq');
+        $arr[] = array('filename' => 'Caligula_by_A_Yakovlev_1911.jpg', 'name' => "Alexander Yakovlev",    'condition' => 'eq');
         $arr[] = array('filename' => 'Megalophaedusa_martensi_02.jpg',  'name' => "Takahashi",             'condition' => 'eq', 'index' => 1);
         $arr[] = array('filename' => 'Elgaria_multicarinata_08416.JPG', 'name' => "Walter Siegmund ©2006 Walter Siegmund", 'condition' => 'eq', 'index' => 1);
         $arr[] = array('filename' => 'Alexander_yakovlev,_autoritratto,_1917.JPG', 'name' => "Sailko", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://commons.wikimedia.org/wiki/User:Sailko');
-        $arr[] = array('filename' => 'Alexandr Yakovlev (self-portrait, 1917, GTG).jpg', 'name' => "Alexandre Jacovleff", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://en.wikipedia.org/wiki/en:Alexandre_Jacovleff');
+        $arr[] = array('filename' => 'Alexandr_Yakovlev_(self-portrait,_1917,_GTG).jpg', 'name' => "Alexandre Jacovleff", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://en.wikipedia.org/wiki/en:Alexandre_Jacovleff');
+        $arr[] = array('filename' => 'España_y_Portugal.jpg', 'name' => "Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC", 'condition' => 'eq', 'role' => 'creator');
         $arr[] = array('filename' => 'Okinawa_Churaumi_Aquarium.jpg', 'name' => "Derek Mawhinney", 'condition' => 'eq', 'role' => 'creator');
+        $arr[] = array('filename' => 'Indian_-_Rama_Destroys_Ogress_-_Walters_W888.jpg', 'name' => "Walters Art Museum", 'condition' => 'eq', 'role' => 'source');
         $arr[] = array('filename' => '1PRT.png', 'name' => "Jmol, Jmol Development Team", 'condition' => 'eq', 'role' => 'source', 'index' => 1);
-        $arr[] = array('filename' => 'Red-breasted_Parakeet.jpg', 'name' => "Ltshears", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://www.flickr.com/photos/64684201@N00/');
-        $arr[] = array('filename' => 'Whales_are_Paraphyletic.png', 'name' => "Chiswick Chap", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://commons.wikimedia.org/wiki/User:Chiswick_Chap');
-        $arr[] = array('filename' => 'Narcissus_assoanus_distrib.jpg', 'name' => "Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg');
+        $arr[] = array('filename' => 'Red-breasted_Parakeet.jpg', 'name' => "Flickr user NatureAtYourBackyard . Photo uploaded to commons by user ltshears", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://www.flickr.com/photos/64684201@N00/');
+        $arr[] = array('filename' => 'Red-breasted_Parakeet.jpg', 'name' => "Johnny Wee. (Thanks for a million views.) (64684201@N00)", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://www.flickr.com/photos/64684201@N00/291506502/');
+        $arr[] = array('filename' => 'Whales_are_Paraphyletic.png', 'name' => "Ian Alexander", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://commons.wikimedia.org/wiki/User:Chiswick_Chap');
+        $arr[] = array('filename' => 'Narcissus_assoanus_distrib.jpg', 'name' => "Cillas;España_y_Portugal.jpg: Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg');
+        $arr[] = array('filename' => 'Narcissus_assoanus_distrib.jpg', 'name' => "Se ha trabajado con datos propios sobre la imagen existente en Commons: España_y_Portugal.jpg", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg');
         $arr[] = array('filename' => 'Japanese_Kolonok.jpg', 'name' => "Conifer",    'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://www.flickr.com/photos/conifer/');
         $arr[] = array('filename' => 'Saguinus_nigricollis_3.jpg', 'name' => "Felipe Neira", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://www.flickr.com/photos/11923391@N00/');
         $arr[] = array('filename' => 'Saguinus_nigricollis_3.jpg', 'name' => "Flickr user ID ipecuador", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://www.flickr.com/photos/ipecuador/233502258/in/dateposted/');
         $arr[] = array('filename' => 'Blue_Shepherd_ja_leijona.jpg',              'name' => "Korkeasaaren kirja, a book published in 1951, photos thus in the public domain.",    'condition' => 'eq', 'role' => 'source');
-        $arr[] = array('filename' => 'Inclusion_bodies.jpg', 'name' => "Unknown photographer",    'condition' => 'eq', 'role' => 'creator', 'homepage' => '');
+        $arr[] = array('filename' => 'Inclusion_bodies.jpg', 'name' => "{{NCI Visuals Online|2252}} (since removed)",    'condition' => 'eq', 'role' => 'source', 'homepage' => 'https://en.wikipedia.org/wiki/National_Cancer_Institute');
         $arr[] = array('filename' => 'Feh-painting.jpg', 'name' => "Brehms Tierleben, Small Edition 1927",    'condition' => 'eq', 'role' => 'source', 'homepage' => 'https://en.wikipedia.org/wiki/Brehms_Tierleben');
         $arr[] = array('filename' => 'Alitta_virens_pharynx_(dorsal).jpg', 'name' => "Flickr user ID a_semenov", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://www.flickr.com/photos/a_semenov/3459795279/sizes/o/in/photostream/');
         $arr[] = array('filename' => 'Chicory-m.jpg', 'name' => "marya", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://www.flickr.com/photos/35237093637@N01');
@@ -240,10 +238,13 @@ class WikiDataAPI extends WikipediaAPI
         $arr[] = array('filename' => 'Sea_spider_(Pantopoda_or_pycnogonids).webm', 'name' => "Denise King", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://vimeo.com/growthanddk');
         $arr[] = array('filename' => 'Sea_spider_(Pantopoda_or_pycnogonids).webm', 'name' => "Vimeo video 136560584", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://vimeo.com/136560584');
         $arr[] = array('filename' => 'Tordalke01.jpg', 'name' => "T.Müller",    'condition' => 'eq', 'role' => 'creator');
-        $arr[] = array('filename' => 'Llaca.jpg', 'name' => "Yamilhussein (page does not exist)", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://commons.wikimedia.org/w/index.php?title=User:Yamilhussein&action=edit&redlink=1');
+        $arr[] = array('filename' => 'Llaca.jpg', 'name' => "Yamil Hussein E.", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://commons.wikimedia.org/w/index.php?title=User:Yamilhussein&action=edit&redlink=1');
         $arr[] = array('filename' => 'Llaca.jpg', 'name' => "http://www.jacobita.cl/", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://www.jacobita.cl/');
-        $arr[] = array('filename' => '01_Schwarzbär_cropped.jpg', 'name' => "Diginatur", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://commons.wikimedia.org/wiki/User:Diginatur');
+
         echo "\n\nNext...".count($arr);
+        // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
+        // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
+        // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
         $i = 0;
         foreach($arr as $a) { $i++;
             if(!@$a['index']) $a['index'] = 0;
@@ -251,9 +252,9 @@ class WikiDataAPI extends WikipediaAPI
             if(!isset($arr['Artist'])) echo "\n$i filename not found!";
             else { //start test proper
                 $param = array('condition' => $a['condition']);
-                if(isset($a['name']))     $param['name']     = @$arr['Artist'][$a['index']]['name'];
-                if(isset($a['role']))     $param['role']     = @$arr['Artist'][$a['index']]['role'];
-                if(isset($a['homepage'])) $param['homepage'] = @$arr['Artist'][$a['index']]['homepage'];
+                if(isset($a['name']))     $param['name']     = $arr['Artist'][$a['index']]['name'];
+                if(isset($a['role']))     $param['role']     = $arr['Artist'][$a['index']]['role'];
+                if(isset($a['homepage'])) $param['homepage'] = $arr['Artist'][$a['index']]['homepage'];
                 echo "\n$i. ".(self::validate_test($param, $a) ? 'OK' : "error: $a[filename]");
             }
         }
@@ -313,20 +314,12 @@ class WikiDataAPI extends WikipediaAPI
             $this->trans['editors'][$this->language_code] = $func->translate_source_target_lang("Wikipedia authors and editors", "en", $this->language_code);
         }
         
-        /* obsolete
-        if(!in_array($task, array("taxon_wiki_per_language_stats"))) self::initialize_files();
-        */
-        if($task == "generate_wikidata_taxonomy") self::initialize_files($this->language_code."_xtra");
-        elseif($task == "taxon_wiki_per_language_stats") {}
-        else self::initialize_files($this->language_code); //the rest goes here
-        
+        if($task != 'taxon_wiki_per_language_stats') self::initialize_files();
         if    ($this->what == "wikipedia") $what_generation_status = "wikipedia_generation_status_".$this->language_code."_";
         elseif($this->what == "wikimedia") $what_generation_status = "wikimedia_generation_status_";
-        elseif($this->what == "taxonomy")  $what_generation_status = "wikitaxonomy_generation_status_";
 
         if(
-            ($this->what == "wikimedia") || ($this->what == "taxonomy") || 
-                                            (
+            ($this->what == "wikimedia") || (
                                                 $this->what == "wikipedia" && in_array($this->language_code, $this->langs_with_multiple_connectors)
                                             )
           ) { //orig
@@ -338,18 +331,12 @@ class WikiDataAPI extends WikipediaAPI
                 $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
                 if(!($f = Functions::file_open($txtfile, "a"))) return;
                 fwrite($f, "$actual_task DONE"."\n"); fclose($f); echo "\n-$actual_task DONE\n";
-                return array(true, false); //so it can run and test final step if ready
+                if($this->is_running_version_1_YN) return array(true, false); //so it can run and test final step if ready
+                else echo "\nRunning ver2. Will generate partial DwCA now [$actual].\n";
             }
             else { //means finalize file
                 // if(true) { //use this when developing*** wikimedia & wikipedia --- for 'en' and now 'es' -> those with multiple jobs
-                if(self::finalize_media_filenames_ready($what_generation_status) || $task == "generate_resource_force" 
-                                                                                 || $task == "taxon_wiki_per_language_stats"
-                                                                                 || $task == "generate_wikidata_taxonomy"
-                                                                                 ) { //un-comment in real operation
-                    // /* since calls have been cached already at this point, no need to have a big delay here
-                    if($this->what == "wikimedia")                                                                          $this->download_options['download_wait_time'] = 0;
-                    if($this->what == "wikipedia" && in_array($this->language_code, $this->langs_with_multiple_connectors)) $this->download_options['download_wait_time'] = 0;
-                    // */
+                if(self::finalize_media_filenames_ready($what_generation_status) || $task == "generate_resource_force" || $task == "taxon_wiki_per_language_stats") { //un-comment in real operation
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
                     $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
@@ -364,7 +351,7 @@ class WikiDataAPI extends WikipediaAPI
             }
             //end new block ---------------------------------------
         }
-        else self::parse_wiki_data_json(); //for wikipedia without multiple connectors --- orig
+        else self::parse_wiki_data_json(); //for non-English wikipedia --- orig
         
         self::add_parent_entries(); //not sure if we need it but gives added value to taxonomy
         $this->archive_builder->finalize(TRUE);
@@ -412,12 +399,13 @@ class WikiDataAPI extends WikipediaAPI
         if(unlink($this->TEMP_FILE_PATH)) echo "\nFile deleted OK [$this->TEMP_FILE_PATH]\n";
         else                              echo "\nERROR: Failed to delete [$this->TEMP_FILE_PATH]\n";
     }
-    private function initialize_files($lang_code)
+    private function initialize_files()
     {   /* orig. worked well but it goes to /tmp/ folder. We need to put it in /extra/ in eol-archive
         $this->TEMP_FILE_PATH = temp_filepath(); 
         */
+        
         //creates a temp file
-        $this->TEMP_FILE_PATH = CONTENT_RESOURCE_LOCAL_PATH."/wikipedia_".$lang_code."_".date("Y-m-d_H_s").".tmp";
+        $this->TEMP_FILE_PATH = CONTENT_RESOURCE_LOCAL_PATH."/wikipedia_".$this->language_code."_".date("Y-m-d_H_s").".tmp";
         if(!($f = Functions::file_open($this->TEMP_FILE_PATH, "w"))) return;
         fclose($f);
         
@@ -468,11 +456,6 @@ class WikiDataAPI extends WikipediaAPI
             }
         }
     }
-    private function valid_parent_id($id)
-    {
-        if($id == "Q109044861") return ""; //https://www.wikidata.org/wiki/Q109044861 - no label defined yet
-        else return $id;
-    }
     private function create_parent_taxon($rec)
     {
         if(!@$rec['taxon_name']) return;
@@ -480,7 +463,7 @@ class WikiDataAPI extends WikipediaAPI
         $t->taxonID                 = $rec['id'];
         $t->scientificName          = $rec['taxon_name'];
         $t->taxonRank               = $rec['rank'];
-        $t->parentNameUsageID       = self::valid_parent_id(@$rec['parent_id']);
+        $t->parentNameUsageID       = @$rec['parent_id'];
         $t->source                  = "https://www.wikidata.org/wiki/".$t->taxonID;
         if(!isset($this->taxon_ids[$t->taxonID])) {
             $this->taxon_ids[$t->taxonID] = '';
@@ -530,12 +513,8 @@ class WikiDataAPI extends WikipediaAPI
         
         $k = 0;
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
-            $k++; if(($k % 5000) == 0) echo " ".number_format($k)." ";
-            $row = self::remove_last_char_if_comma($row); //remove the last char if it is "," a comma
-            $arr = json_decode($row); //print_r($arr); 
-            $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
-            $taxon_name  = trim((string) @$arr->claims->P225[0]->mainsnak->datavalue->value); //has a taxon name
-            if($instance_of == "Q16521" && $taxon_name) {
+            $k++; if(($k % 1000) == 0) echo " ".number_format($k)." ";
+            if(stripos($row, "Q16521") !== false) { //string is found -- "taxon"
                 /* remove the last char which is "," a comma */
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
                 debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
@@ -551,18 +530,9 @@ class WikiDataAPI extends WikipediaAPI
     {
         $exit_now = false; //only used during debug
         $actual = 0; $i = 0; $j = 0;
-        $k = 0; $m = 564761; //only for breakdown when caching --- total taxa as of Feb 2, 2022 = 3388566 then divided by 6 to get $m
-        
-        // /* New: Aug 29, 2021 --- Warning: this takes a couple of minutes when run locally.
-        if(Functions::is_production()) {
-            $cmd = "wc -l ".$this->path['wiki_data_json'];
-            $out = shell_exec($cmd);
-            echo "\n-----\n[".str_replace("\n", "", $out)."]\n-----\n";
-        }
-        // */
-        
+        $k = 0; $m = 250000; //only for breakdown when caching
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
-            $k++; if(($k % 5000) == 0) echo " ".number_format($k)." ";
+            $k++; if(($k % 1000) == 0) echo " ".number_format($k)." ";
             if(in_array($task, array("save_all_media_filenames", "generate_resource")) && $range_from && $range_to) {
                 $cont = false;
                 if($k >= $range_from && $k < $range_to) $cont = true;
@@ -591,41 +561,31 @@ class WikiDataAPI extends WikipediaAPI
             // if($k >=  $m*2 && $k < $m*3) $cont = true;
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
             // if($k >=  $m*4 && $k < $m*5) $cont = true;
-            if($k >=  $m*5 && $k < $m*6) $cont = true;
+            // if($k >=  $m*5 && $k < $m*6) $cont = true;
+            // if($k >=  $m*6 && $k < $m*7) $cont = true;
+            // if($k >=  $m*7 && $k < $m*8) $cont = true;
+            // if($k >=  $m*8 && $k < $m*9) $cont = true;
 
             // these 3 have many pages, but just a stub page with under-construction feel
             // if($k >= 1132112 && $k < $m*5) $cont = true; // nl
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            // if($k >= 1 && $k < 50) $cont = true;   //wikimedia total taxa = 2,208,086
-            // else break;
+            if($k >= 1 && $k < 50) $cont = true;   //wikimedia total taxa = 2,208,086
+            else break;
             
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
             */
 
-            $row = self::remove_last_char_if_comma($row); //remove the last char if it is "," a comma
-            $arr = json_decode($row); //print_r($arr); exit;
-            $Q_id = @$arr->id; //use @ bec. needed for last rec
-            $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
-            $taxon_name  = trim((string) @$arr->claims->P225[0]->mainsnak->datavalue->value); //has a taxon name
-            
-            // /* New: Feb 16, 2022 - use get_object for some taxon names since dump is not reflective of website and API
-            if(self::needs_get_object_func($taxon_name)) {
-                $arr = self::get_object($Q_id);
-                $arr = $arr->entities->$Q_id; $Q_id = $arr->id;
-                $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
-                $taxon_name  = trim((string) @$arr->claims->P225[0]->mainsnak->datavalue->value); //has a taxon name
-            }
-            // */
-            
-            // echo("\ninstance_of: [$instance_of]\n"); //debug only
-            $taxonRank = self::get_taxon_rank(@$arr->claims); //use @ bec. needed for last rec
-            if($instance_of == "Q16521" && self::valid_sciname($taxon_name, $taxonRank) ) { @$taxa_count++;
+            if(stripos($row, "Q16521") !== false) { //string is found -- "taxon"
+                /* remove the last char which is "," a comma */
+                $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
+
                 // debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
-                // $Q_id = $arr->id; --- transferred up
+                $arr = json_decode($row);
+                $Q_id = $arr->id;
 
                 /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent | Q132634
                 $arr = self::get_object('Q6707390');
@@ -633,11 +593,40 @@ class WikiDataAPI extends WikipediaAPI
                 for debug end ======================== */
                 
                 /* force taxon in wikipedia & wikimedia. when developing ***. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                // if($this->debug_taxon == "Panthera leo")    {$arr = self::get_object('Q140'); $arr = $arr->entities->Q140;}
-                // if($this->debug_taxon == "wolf")            {$arr = self::get_object('Q18498'); $arr = $arr->entities->Q18498;}
+                if($this->debug_taxon == "Panthera leo")    {$arr = self::get_object('Q140'); $arr = $arr->entities->Q140;}
+                if($this->debug_taxon == "wolf")            {$arr = self::get_object('Q18498'); $arr = $arr->entities->Q18498;}
+                if($this->debug_taxon == 'Formicidae')      {$arr = self::get_object('Q7386'); $arr = $arr->entities->Q7386;}
+                if($this->debug_taxon == "Gadus morhua")    {$arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788;}
+                if($this->debug_taxon == "fish Pisces")     {$arr = self::get_object('Q152'); $arr = $arr->entities->Q152;}
+                if($this->debug_taxon == "starfish Asteroidea")     {$arr = self::get_object('Q25349'); $arr = $arr->entities->Q25349;}
+                if($this->debug_taxon == "Orca")                    {$arr = self::get_object('Q26843'); $arr = $arr->entities->Q26843;}
+                if($this->debug_taxon == "Shark Selachimorpha")     {$arr = self::get_object('Q7372'); $arr = $arr->entities->Q7372;}
+                if($this->debug_taxon == "Pacific halibut")         {$arr = self::get_object('Q1819782'); $arr = $arr->entities->Q1819782;}
+                if($this->debug_taxon == "Pale fox")                {$arr = self::get_object('Q739525'); $arr = $arr->entities->Q739525;}
+                if($this->debug_taxon == "Chanos chanos")           {$arr = self::get_object('Q465261'); $arr = $arr->entities->Q465261;}
+                if($this->debug_taxon == "Oreochromis niloticus")   {$arr = self::get_object('Q311170'); $arr = $arr->entities->Q311170;}
+                if($this->debug_taxon == "Polar bear")       {$arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609;}
+                if($this->debug_taxon == "Angiosperms")      {$arr = self::get_object('Q25314'); $arr = $arr->entities->Q25314;} //DATA-1803
+                if($this->debug_taxon == "Mus musculus")     {$arr = self::get_object('Q83310'); $arr = $arr->entities->Q83310;}
+                if($this->debug_taxon == "Rodentia")         {$arr = self::get_object('Q10850'); $arr = $arr->entities->Q10850;}
+                if($this->debug_taxon == "Animalia")         {$arr = self::get_object('Q729'); $arr = $arr->entities->Q729;}
+                if($this->debug_taxon == "Plantae")          {$arr = self::get_object('Q756'); $arr = $arr->entities->Q756;}
+                if($this->debug_taxon == "Virus")            {$arr = self::get_object('Q808'); $arr = $arr->entities->Q808;}
+                if($this->debug_taxon == "ferns")            {$arr = self::get_object('Q80005'); $arr = $arr->entities->Q80005;}
+                if($this->debug_taxon == "Acacia")           {$arr = self::get_object('Q81666'); $arr = $arr->entities->Q81666;}
+                if($this->debug_taxon == "Panthera tigris")  {$arr = self::get_object('Q19939'); $arr = $arr->entities->Q19939;}
+                if($this->debug_taxon == "Bald Eagle")       {$arr = self::get_object('Q127216'); $arr = $arr->entities->Q127216;}
+                if($this->debug_taxon == "Aves")             {$arr = self::get_object('Q5113'); $arr = $arr->entities->Q5113;}
+                if($this->debug_taxon == "sunflower")        {$arr = self::get_object('Q171497'); $arr = $arr->entities->Q171497;}
+                if($this->debug_taxon == "Rosa")             {$arr = self::get_object('Q34687'); $arr = $arr->entities->Q34687;} //genus of plant
+                if($this->debug_taxon == "Hominidae")        {$arr = self::get_object('Q635162'); $arr = $arr->entities->Q635162;}  //-- Homo sapiens
+                if($this->debug_taxon == "Fungi")            {$arr = self::get_object('Q764'); $arr = $arr->entities->Q764;}
+                if($this->debug_taxon == "Coronaviridae")    {$arr = self::get_object('Q1134583'); $arr = $arr->entities->Q1134583;}
+                if($this->debug_taxon == "Tracheophyta")     {$arr = self::get_object('Q27133'); $arr = $arr->entities->Q27133;}
+                if($this->debug_taxon == "Leuciscus cephalus") {$arr = self::get_object('Q189014'); $arr = $arr->entities->Q189014;}
                 if($val = $this->during_dev()) $arr = $val;
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
-                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
                 
                 // /* taxon_wiki_per_language_stats
                 if($task == 'taxon_wiki_per_language_stats') {
@@ -659,41 +648,22 @@ class WikiDataAPI extends WikipediaAPI
                     $rek = array();
                      // /*
                      $rek['taxon_id'] = trim((string) $arr->id);
-                     
-                     if($this->what == "wikipedia") { //per https://eol-jira.bibalex.org/browse/DATA-1800?focusedCommentId=64902&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64902
-                         if($this->language_code == 'mg') { //Malagasy (mg)
-                             if($rek['taxon_id'] == 'Q43365') { //homonym issue
-                                 continue;
-                             }
-                         }
-                     }
-                     
                      // if($rek['taxon_id'] != 'Q11988878') continue; //Feb 13 good debug
                      // echo "\n id: ".$rek['taxon_id']; //Feb 13 good debug
                      if($rek['taxon'] = self::get_taxon_name($arr)) { //old working param is $arr->claims
                          // echo "\n taxon: ".$rek['taxon']; //Feb 13 good debug
                          // /* normal operation ==========================
-                         // /* new block
-                         if($task == "generate_wikidata_taxonomy") $criteria = true;
-                         else{ //the rest goes here, original
-                             $rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks);
-                             $criteria = $rek['sitelinks'];
-                         }
-                         // */
-                         if($criteria) { //if true then create DwCA for it
-                             // print_r($rek['sitelinks']); exit; good debug --- only for wikipedia resource
+                         if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) { //if true then create DwCA for it
+                             // print_r($rek['sitelinks']); exit; good debug
                              $i++; 
                              $rek['rank'] = self::get_taxon_rank($arr->claims); //echo "\nrank OK";
                              $rek['author'] = self::get_authorship($arr->claims); //echo "\nauthorship OK";
                              $rek['author_yr'] = self::get_authorship_date($arr->claims); //echo "\nauthorship_date OK";
                              $rek['parent'] = self::get_taxon_parent($arr->claims, $rek['taxon_id']); //echo "\nparent OK";
                              
-                             if($this->what == "wikimedia") {
-                                 $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek, $arr); //this is where vernaculars are added
-                                 $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //echo "\ngallery OK"; //P935
-                                 $rek['com_category'] = self::get_commons_category($arr->claims); //echo "\ncategory OK"; //P373
-                             }
-                             
+                             if($this->what == "wikimedia") $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek, $arr); //this is where vernaculars are added
+                             $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //echo "\ngallery OK"; //P935
+                             $rek['com_category'] = self::get_commons_category($arr->claims); //echo "\ncategory OK"; //P373
                              debug("\n $this->language_code ".$rek['taxon_id']." - ");
                              if($this->what == "wikipedia") {
                                  if($title = $rek['sitelinks']->title) {
@@ -702,7 +672,7 @@ class WikiDataAPI extends WikipediaAPI
                                          // /* New: manual removal of taxon ---------------------
                                          // remove Sciuridae - https://www.wikidata.org/wiki/Q9482 | for language_code = 'pa' | for 'wikipedia' only
                                          if($this->language_code == 'pa') {
-                                             if($rek['taxon_id'] == 'Q9482') { $rek = array(); continue; }
+                                             if($rek['taxon_id'] == 'Q9482') $rek = array();
                                          }
                                          // ------------------------------------------------------ */
                                      }
@@ -719,7 +689,8 @@ class WikiDataAPI extends WikipediaAPI
                                  /* eli's debug
                                  if($a = @$rek['obj_category']) {}//print_r($a);
                                  if($b = @$rek['obj_gallery']) {}//print_r($b);
-                                 if($a || $b) {
+                                 if($a || $b)
+                                 {
                                      print_r($rek);
                                      $exit_now = true;
                                      // exit("\nmeron commons\n");
@@ -727,10 +698,10 @@ class WikiDataAPI extends WikipediaAPI
                                  */ //eli's debug end
                              }
                              
-                             if($rek['taxon_id']) { //print_r($rek);
+                             if($rek['taxon_id']) {
                                  $ret = self::create_archive($rek);
                                  if($ret) {
-                                     if($this->what != "taxonomy") self::save_ancestry_to_temp($rek['parent']);
+                                     self::save_ancestry_to_temp($rek['parent']);
                                  }
                                  // if(!@$rek['other']['comprehensive_desc']) { print_r($rek); exit("\ninvestigate\n"); }
                                  // print_r($rek);
@@ -774,7 +745,7 @@ class WikiDataAPI extends WikipediaAPI
             // if($exit_now) break;
             
         } //main loop
-        echo "\ntotal taxon wikis = [$i] [$taxa_count]\n";
+        echo "\ntotal taxon wikis = [$i]\n";
         echo "\ntotal non-taxon wikis = [$j]\n";
         
         if($task == 'taxon_wiki_per_language_stats') {
@@ -798,20 +769,6 @@ class WikiDataAPI extends WikipediaAPI
             exit("\n-end stats-\n");
         }
     }
-    private function needs_get_object_func($taxon_name)
-    {
-        if(strpos($taxon_name, "‘") !== false) return true; //string is found --- special start quote
-        if(strpos($taxon_name, "’") !== false) return true; //string is found --- special end quote
-        if(strpos($taxon_name, "'") !== false) return true; //string is found --- single quote
-        if(strpos($taxon_name, '"') !== false) return true; //string is found --- double quote
-        return false;
-    }
-    private function remove_last_char_if_comma($row)
-    {
-        $last_char = substr($row, -1);
-        if($last_char == ",") $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
-        return $row;
-    }
     private function save_ancestry_to_temp($ancestry)
     {
         $id = $ancestry['id'];
@@ -824,7 +781,7 @@ class WikiDataAPI extends WikipediaAPI
             }
         }
     }
-    function create_archive($rec)
+    private function create_archive($rec)
     {
         if($this->what == "wikimedia") {
             if(!@$rec['obj_gallery'] && !@$rec['obj_category']) return;
@@ -846,7 +803,7 @@ class WikiDataAPI extends WikipediaAPI
         }
         
         $t->taxonRank                = $rec['rank'];
-        $t->parentNameUsageID        = self::valid_parent_id($rec['parent']['id']);
+        $t->parentNameUsageID        = $rec['parent']['id'];
         
         if($val = @$rec['other']['permalink']) $t->source = $val;
         else                                   $t->source = "https://www.wikidata.org/wiki/".$t->taxonID;
@@ -904,12 +861,11 @@ class WikiDataAPI extends WikipediaAPI
         */
         return true;
     }
-    private function format_language($lang) //to fix error: "Message: Language should use standardized ISO 639 language codes"
+    private function format_language($lang)
     {
         if($lang == 'be-tarask') return 'be';
         elseif($lang == 'zh-min-nan') return 'nan';
-        elseif($lang == 'zh-classical') return 'lzh';
-        else                            return $lang;
+        else                     return $lang;
     }
     private function create_commons_objects($commons, $t)
     {
@@ -1169,13 +1125,14 @@ class WikiDataAPI extends WikipediaAPI
             $r->agentRole       = ($val = @$a['role']) ? (string) $val : $role;
             $r->agentRole = trim(str_replace("|", "", $r->agentRole));
             /* to capture erroneous artist entries
-            if(strlen($r->agentRole) == 1) {
+            if(strlen($r->agentRole) == 1)
+            {
                 print_r($artists);
                 exit("\nagent role is just 1 char\n");
             }
             */
             $r->term_homepage   = self::format_homepage(@$a['homepage']);
-            $r->identifier      = md5("$r->term_name | $r->agentRole | $r->term_homepage | ");
+            $r->identifier      = md5("$r->term_name|$r->agentRole");
             $agent_ids[] = $r->identifier;
             if(!isset($this->agent_ids[$r->identifier])) {
                $this->agent_ids[$r->identifier] = '';
@@ -1225,7 +1182,6 @@ class WikiDataAPI extends WikipediaAPI
                     // $rek = self::process_file("Soft-shell_crab_on_ice.jpg"); //10964578
                     // $rek = self::process_file("Slifkin.jpg"); //11930268
                     // $rek = self::process_file("Clone_war_of_sea_anemones_3.jpg"); //18645958
-                    $rek = self::process_file("CLOSEUP_OF_BALDWIN'S_IRONWEED,_A_COMMON_TALLGRASS_PRAIRIE_PLANT_SEEN_ON_THE_KONZA_PRAIRIE,_1,000_ACRES_OF_VIRGIN..._-_NARA_-_557190-1-1(1).tif"); //no artist
                     $final[] = $rek;
                     break; //debug
                     */
@@ -1243,22 +1199,7 @@ class WikiDataAPI extends WikipediaAPI
         return $final;
     }
     private function process_file($file) //e.g. Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
-    {   /* new block Jul 21, 2020 ================== START */
-        $orig_file = $file;
-        if(mb_detect_encoding($file, 'ASCII', true)) {} //echo "\nValid all-ASCII\n";
-        else {
-            // echo "\nNon-ASCII detected [$file].";
-            $file = urlencode($file);
-            $file = str_replace("+", " ", $file);
-            $file = str_replace(" ", "_", $file);
-            // echo "\nConverted: [$file].\n";
-        }
-        /* another option that works
-        if(preg_match('/[^\x20-\x7e]/', $filename)) echo "\nNon-ASCII detected\n";
-        else                                        echo "\nValid all-ASCII\n";
-        */
-        /* new block Jul 21, 2020 ================== END */
-
+    {
         $rek = array();
         // if(false) //will force to use API data - debug only
         if($filename = self::has_cache_data($file)) { //Eyes_of_gorilla.jpg - used in normal operation -- get media info from commons
@@ -1283,7 +1224,7 @@ class WikiDataAPI extends WikipediaAPI
         if(!$rek) return false;
         
         $rek['source_url']  = "https://commons.wikimedia.org/wiki/File:".$file;
-        $rek['media_url']   = self::get_media_url($orig_file);
+        $rek['media_url']   = self::get_media_url($file);
         if($val = @$rek['Artist']) $rek['Artist'] = self::format_artist($val);
         $rek['ImageDescription'] = Functions::remove_this_last_char_from_str($rek['ImageDescription'], "|");
         
@@ -2068,8 +2009,6 @@ class WikiDataAPI extends WikipediaAPI
                 $html = Functions::remove_whitespace($html);
                 $html = str_ireplace('[<a href="https://commons.wikimedia.org/w/index.php?title=API&action=edit&section=1" class="mw-redirect" title="Edit section: Summary">edit</a>]', "", $html);
                 $html = str_ireplace('[<a href="https://commons.wikimedia.org/w/index.php?title=API&action=edit&section=2" class="mw-redirect" title="Edit section: Licensing">edit</a>]', "", $html);
-                $html = str_ireplace('[<a href="https://commons.wikimedia.org/w/index.php?title=API&action=edit&section=1" title="Edit section: Summary">edit</a>]', "", $html);
-
                 $arr = array("class", "id");
                 foreach($arr as $attrib) { //remove class="" id=""
                     if(preg_match_all("/$attrib=\"(.*?)\"/ims", $html, $a)) {
@@ -2281,40 +2220,7 @@ class WikiDataAPI extends WikipediaAPI
                 if($val = self::get_artist_from_special_source($rek['ImageDescription'])) $rek['Artist'][] = $val; //get_media_metadata_from_api()
             }
             
-            // print_r($rek['Artist']); exit("\n[2]\n");
-            
             if($val = @$rek['Artist']) $rek['Artist'] = self::flickr_lookup_if_needed($val);
-
-            if(!@$rek['Artist']) { // Jul 17, 2020: latest updates
-                if($val = @$arr['imageinfo'][0]['extmetadata']['Artist']['value']) {
-                    $orig = $val; //echo "\n[$val]\n";
-                    /* sample $val
-                    Cillas;<a href="//commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg" title="File:España y Portugal.jpg">España_y_Portugal.jpg</a>: Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC
-                    */
-                    if($val = trim(strip_tags($val))) {
-                        $homepage = '';
-                        if(substr($val,0,5) == 'File:') { //check if u can get author from succeeding url File:
-                            $homepage = 'https://commons.wikimedia.org/wiki/'.$val;
-                            $filename = str_ireplace('File:','',$val);
-                            if($an_artist = self::get_artist_using_File_colon($filename)) $rek['Artist'][] = $an_artist;
-                        }
-                        if(!@$rek['Artist']) {
-                            if(preg_match("/title\=\"File\:(.*?)\"/ims", $orig, $a)) {
-                                $filename = $a[1];
-                                if($an_artist = self::get_artist_using_File_colon($filename)) $rek['Artist'][] = $an_artist;
-                            }
-                        }
-                        if(!@$rek['Artist']) { //last option only
-                            if(substr($val,0,4) != 'http') $rek['Artist'][] = array('name' => $val, 'homepage' => $homepage, 'role' => 'author');
-                        }
-                    }
-                }
-                if(!@$rek['Artist']) { //still no artist
-                    if($val = @$arr['imageinfo'][0]['extmetadata']['Credit']['value']) {
-                        if($arr = self::get_artists_from_Credit_value($val)) $rek['Artist'] = $arr;
-                    }
-                }
-            }
             
             //end artist ========================
             
@@ -2337,29 +2243,8 @@ class WikiDataAPI extends WikipediaAPI
             }
             */
         }
-        else echo "\nNot found in API. API call: [$api_call]\n";
+        else echo "\nNot found in API\n";
         return $rek; //$arr
-    }
-    private function get_artist_using_File_colon($filename)
-    {
-        $ret = self::process_file($filename);
-        if(@$ret['Artist'][0]['name']) return $ret['Artist'][0];
-    }
-    private function get_artists_from_Credit_value($credit)
-    {   /*<ul>
-        <li><a href="//commons.wikimedia.org/wiki/File:Grosser_Panda.JPG" title="File:Grosser Panda.JPG">File:Grosser_Panda.JPG</a></li>
-        <li><a href="//commons.wikimedia.org/wiki/File:2010-kodiak-bear-1.jpg" title="File:2010-kodiak-bear-1.jpg">File:2010-kodiak-bear-1.jpg</a></li>
-        <li><a href="//commons.wikimedia.org/wiki/File:Polar_Bear_2004-11-15.jpg" title="File:Polar Bear 2004-11-15.jpg">File:Polar Bear 2004-11-15.jpg</a></li>
-        <li><a href="//commons.wikimedia.org/wiki/File:Formosan_black_bear_suckling_cubs.jpg" title="File:Formosan black bear suckling cubs.jpg">File:Formosan black bear suckling cubs.jpg</a></li>
-        </ul>*/
-        $final = array();
-        if(preg_match_all("/\/File\:(.*?)\"/ims", $credit, $a)) {
-            // print_r($a[1]); exit;
-            foreach($a[1] as $filename) {
-                if($an_artist = self::get_artist_using_File_colon($filename)) $final[] = $an_artist;
-            }
-        }
-        return $final;
     }
     private function check_if_dump_image_is_map($wiki)
     {   /*
@@ -2446,19 +2331,14 @@ class WikiDataAPI extends WikipediaAPI
         $final = array();
         foreach($arr[1] as $item) {
             if(preg_match("/wiki\/User\:(.*?)\"/ims", $item, $a)) $final[] = array("name" => $a[1], 'homepage' => 'https://commons.wikimedia.org/wiki/User:'.$a[1], 'role' => 'creator');
-            else {
-                $homepage = '';
-                if(preg_match("/href=\"http(.*?)\"/ims", $item, $a2)) $homepage = 'http'.$a2[1];
-                $final[] = array("name" => self::remove_space(strip_tags($item)), 'role' => 'creator', 'homepagae' => $homepage);
-            }
+            else                                                  $final[] = array("name" => self::remove_space(strip_tags($item)), 'role' => 'creator', 'homepagae' => 'media_urlx');
         }
         return $final;
     }
     private function invalid_artist_name_value($rek)
     {
-        if(!@$rek['Artist'][0]['name']) return true;
+        if(!isset($rek['Artist'][0]['name'])) return false;
         if($rek['Artist'][0]['name'] == "Unknown") return true;
-        if($rek['Artist'][0]['name'] == "Own work") return true;
         if(stripos($rek['Artist'][0]['name'], "Unknown author") !== false) return true;
         // if(stripos($rek['Artist'][0]['name'], "Unknown photographer") !== false) return true; --- not needed yet
         if(Functions::get_mimetype($rek['Artist'][0]['name'])) return true; //name should not be an image path
@@ -2599,16 +2479,11 @@ class WikiDataAPI extends WikipediaAPI
         $substr = Functions::remove_whitespace($substr);
         return str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), "", $substr);
     }
-    function get_taxon_name($arr, $option = "OPTIONAL") //other value aside from OPTIONAL is REQUIRED.
+    private function get_taxon_name($arr)
     {
-        // /* new block: to be used until the dump is fixed --- just temporary
-        if(@$arr->id == "Q107694904") return "Trachipleistophora";
-        if(@$arr->id == "Q15657618") return "Hemaris thetis";
-        // */
-        
         $claims = @$arr->claims;
         if($val = @$claims->P225[0]->mainsnak->datavalue->value) return (string) $val;
-        if($option == 'REQUIRED') {
+        elseif(in_array(@$arr->id, array("Q4589415"))) { //special case for a ko & en article
             if($val = @$arr->labels->en->value) return (string) $val;
         }
         /* this introduced new probs, thus commented
@@ -2620,37 +2495,17 @@ class WikiDataAPI extends WikipediaAPI
         */
         return false;
     }
-    private function valid_sciname($sciname, $taxonRank)
-    {   if(!$sciname) return false;
-        if($taxonRank == "cultivar") return false;
-        /*
-        [A-Z][a-z-]+\ssp\..*?
-        [A-Z][a-z-]+\sspp.*?
-        [A-Z][a-z-]+\saff\..*?
-        [A-Z][a-z-]+\sn\.\s?sp\..*?
-        .*?\scf\..*?
-        .*?\sindet\..*?
-        */
-        $terms = array("sp", "spp", "aff", "?sp", "cf", "indet");
-        foreach($terms as $term) {
-            if(stripos($sciname, " $term. ") !== false) return false;  //string is found
-            if(stripos($sciname, " $term ") !== false) return false;  //string is found
-            if(stripos($sciname, " $term.") !== false) return false;  //string is found
-            if(stripos($sciname, " $term") !== false) return false;  //string is found
-        }
-        return true;
-    }
-    function get_authorship($claims)
+    private function get_authorship($claims)
     {
         if($id = @$claims->P225[0]->qualifiers->P405[0]->datavalue->value->id) return self::lookup_value($id);
         return false;
     }
-    function get_authorship_date($claims)
+    private function get_authorship_date($claims)
     {
         if($date = @$claims->P225[0]->qualifiers->P574[0]->datavalue->value->time) return (string) $date;
         return false;
     }
-    function get_taxon_rank($claims)
+    private function get_taxon_rank($claims)
     {
         if($id = (string) @$claims->P105[0]->mainsnak->datavalue->value->id) return self::lookup_value($id);
         return false;
@@ -2824,7 +2679,7 @@ class WikiDataAPI extends WikipediaAPI
                 }
                 // 6-if the sitelink matches more than one common name, keep one of them at random, flag that common name as isPreferredName, discard the sitelink, and keep the other, non-matching common names, unflagged
                 elseif(count($matches) > 1) {
-                    print_r($matches); echo("\nDebug only. Has not gone here yet before [#6].\n"); //exit("\n-------------\n");
+                    print_r($matches); exit("\nDebug only. Has not gone here yet before.\n");
                     $recs = self::get_matched_rec_and_other_recs($matches[0], $orig_comnames[$lang]);
                     $all = array_merge($all, $recs);
                 }
@@ -2966,61 +2821,34 @@ class WikiDataAPI extends WikipediaAPI
         }
         return false;
     }*/
-    function get_taxon_parent($claims, $main_id, $first_pass = true)
+    private function get_taxon_parent($claims, $main_id, $first_pass = true)
     {
         // /* Block much needed e.g. https://www.wikidata.org/wiki/Q11988878 Its ancestry goes back to itself. Without this block, will cause segmentation fault
         if($first_pass) $this->monitored_parents = array($main_id);
         else {
-            if(in_array($main_id, $this->monitored_parents)) {echo "\n-INVESTIGATE 01 [$main_id]\n"; return false;}
+            if(in_array($main_id, $this->monitored_parents)) return false;
             else $this->monitored_parents[] = $main_id;
         }
         // */
         
         $parent = array();
-        if($id = (string) @$claims->P171[0]->mainsnak->datavalue->value->id) { //get the parent
-            
-            // /* big data problem from Wikidata --- did a manual solution:
-            // Q11988878    https://www.wikidata.org/wiki/Q11988878 Medocostes lestoni  species     Q21016942
-            // Q21016942    https://www.wikidata.org/wiki/Q21016942 Medocostes  genus       Q11988878
-            // Q21016943    https://www.wikidata.org/wiki/Q21016943 Medocostidae    family      Q135338
-            if($main_id == "Q21016942") $id = "Q21016943"; //Medocostes -> Medocostidae
-            // */
-            
-            // /* maybe a dump data quality issue
-            if($main_id == "Q110229273") $id = "Q3499409"; //Sphaeropezia -> Stictidaceae
-            // */
-            
-            /* possible candidates
-            -INVESTIGATE 02 [Q110229273]
-            -INVESTIGATE 02 [Q106415738]
-            -INVESTIGATE 02 [Q107622619]
-            */
-            
-            // /* NEW: since maybe a dump data quality issue
-            if($main_id == $id) $id = self::lookup_value($main_id, 'parent_id');
-            // */
-            
+        if($id = (string) @$claims->P171[0]->mainsnak->datavalue->value->id) {
             /* Feb 13 commented. May no longer need this. Let the forwarding come naturally.
             $id = self::replace_id_if_redirected($id);
             */
-            if($main_id == $id) {echo "\n-INVESTIGATE 02 [$main_id][$id][$this->what]\n"; return false;} //e.g. https://www.wikidata.org/wiki/Q28431692 - parent points to itself.
+            if($main_id == $id) return false; //e.g. https://www.wikidata.org/wiki/Q28431692 - parent points to itself.
             $parent['id'] = $id;
-            // $parent['name'] = self::lookup_value($id); //this goes to lookup a remote service --- commented not needed redundant
-            
-            if($this->what != "taxonomy") { //since with 'taxonomy' all 3 million plus will be processed anyway
-                //start get rank
-                if($obj = self::get_object($id)) {
-                    $parent['taxon_name'] = self::get_taxon_name(@$obj->entities->$id); //old working param is $obj->entities->$id->claims
-                    $parent['rank'] = self::get_taxon_rank(@$obj->entities->$id->claims);
-                    if($val = @$obj->entities->$id->claims) {
-                        if($val != $claims) $parent['parent'] = self::get_taxon_parent($val, $id, false);
-                    }
-                    // print_r($parent); exit("\nelix\n");
+            $parent['name'] = self::lookup_value($id);
+            //start get rank
+            if($obj = self::get_object($id)) {
+                $parent['taxon_name'] = self::get_taxon_name(@$obj->entities->$id); //old working param is $obj->entities->$id->claims
+                $parent['rank'] = self::get_taxon_rank(@$obj->entities->$id->claims);
+                if($val = @$obj->entities->$id->claims) {
+                    if($val != $claims) $parent['parent'] = self::get_taxon_parent($val, $id, false);
                 }
             }
             return $parent;
         }
-        // echo "\n-INVESTIGATE 03 [$main_id]\n"; --- no need to show - "Biota" the topmost node
         return false;
     }
     private function replace_id_if_redirected($id)
@@ -3046,7 +2874,7 @@ class WikiDataAPI extends WikipediaAPI
         if($val = @$this->redirects[$id]) return $val;
         return $id;
     }
-    private function lookup_value($id, $search = 'sciname')
+    private function lookup_value($id)
     {
         if($obj = self::get_object($id)) {
             /* debug only
@@ -3056,15 +2884,7 @@ class WikiDataAPI extends WikipediaAPI
             if(!isset($obj->entities->$id->labels->en->value)) { //e.g. Q5614965 
                 print_r($obj->entities); exit("\npls investigate 01\n");
             }*/
-            if($search == 'sciname') {
-                if($val = (string) @$obj->entities->$id->labels->en->value) return $val;
-            }
-            elseif($search == 'parent_id') {
-                if($val = (string) @$obj->entities->$id->claims->P171[0]->mainsnak->datavalue->value->id) return $val;
-            }
-            elseif($search == 'instance_of') {
-                if($val = (string) @$obj->entities->$id->claims->P31[0]->mainsnak->datavalue->value->id) return $val;
-            }
+            if($val = (string) @$obj->entities->$id->labels->en->value) return $val;
         }
     }
     public function get_object($id)
@@ -3073,21 +2893,10 @@ class WikiDataAPI extends WikipediaAPI
         $options = $this->download_options;
         if(@$options['resource_id']) unset($options['resource_id']);
         // /* as of Jan 29,2020. Previously value = false. Not anymore, since EntityData can change. Not often but it can change.
-        $options['expire_seconds'] = 60*60*24*30*12; //12 months
+        $options['expire_seconds'] = 60*60*24*30*6; //6 months
         // */
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
-            
-            // /* New: a redirect by Wikidata --- use the redirect_id instead ---> still being tested...will see...
-            $keys = array_keys((array) $obj->entities);
-            // print_r($keys); //exit;
-            $redirect_id = $keys[0];
-            if($redirect_id != $id) { @$this->debug['redirected_'.$id][] = $redirect_id; //to be investigated after every run
-                $id = $redirect_id;
-                $obj = self::get_object($id);
-            }
-            // */
-            
             return $obj;
         }
         return false;
@@ -3117,11 +2926,7 @@ class WikiDataAPI extends WikipediaAPI
         foreach(new FileIterator($raw_dump) as $line_number => $row) {
             $k++;
             if(($k % 20000) == 0) echo " $k";
-            $row = self::remove_last_char_if_comma($row); //remove the last char if it is "," a comma
-            $arr = json_decode($row); //print_r($arr); 
-            $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
-            $taxon_name  = trim((string) @$arr->claims->P225[0]->mainsnak->datavalue->value); //has a taxon name
-            if($instance_of == "Q16521" && $taxon_name) {
+            if(stripos($row, "Q16521") !== false) { //string is found -- "taxon"
                 $e++;
                 fwrite($f, $row."\n");
             }
@@ -3141,9 +2946,7 @@ class WikiDataAPI extends WikipediaAPI
     
     // ============================ start temp file generation ================================================================================================
     function create_temp_files_based_on_wikimedia_filenames()
-    {   /* # Can be repeated from this point.
-           # Especially if harvest was aborted due to maintenance, you can start here. */
-        /*
+    {   /*
         $files = array();
         $files[] = "Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg";
         $files[] = "Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16531419109).jpg";
@@ -3170,8 +2973,7 @@ class WikiDataAPI extends WikipediaAPI
         }
     }
     function fill_in_temp_files_with_wikimedia_dump_data()
-    {   /* # Can be repeated from this point.
-           # Especially if harvest was aborted due to maintenance, you can start here. */
+    {
         $path = $this->path['commons'];
         $reader = new \XMLReader();
         $reader->open($path);
@@ -3188,7 +2990,7 @@ class WikiDataAPI extends WikipediaAPI
                 if($filename = self::taxon_media($title)) {
                     $i++; if(($i % 100000) == 0) echo("\n".number_format($i).". saving content"); //just a row count indicator
                     $month_num = date('m'); //if month is February value is 02
-                    if(in_array($month_num, array('04','08','12'))) { //scheduled every other month (2,4,6,8,10,12) to refresh all cached information from XML (4,8,12 only).
+                    if(in_array($month_num, array('03','06','09','12'))) { //scheduled quarterly to refresh all cached information from XML.
                         $json = json_encode($t);
                         if($FILE = Functions::file_open($filename, 'w')) { // normal
                             fwrite($FILE, $json);
