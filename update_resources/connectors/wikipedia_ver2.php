@@ -4,7 +4,7 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiHTMLAPI');
 require_library('connectors/WikipediaAPI');
-require_library('connectors/WikiDataAPI');
+require_library('connectors/WikiDataAPI_ver2');
 $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = false; //orig false in production
 
@@ -166,6 +166,15 @@ delete_temp_files_and_others($language);
 exit("\nend test\n");
 */
 
+// /* new section for wikipedia_ver2 ****************************
+$actual = @$params['actual'];
+if($actual) $resource_id .= "_".$actual;
+else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
+    echo "\n----------\nMeaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.\n----------\n";
+    aggregate_6partial_wikipedias($timestart, $resource_id);
+}
+// ************************************************************** */
+
 $langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh"); //1st batch | single connectors: ko, ja, ru
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch Dutch Polish Swedish Vietnamese
 /* No longer have multiple connectors
@@ -179,7 +188,9 @@ $use_MultipleConnJenkinsAPI = array_merge($use_MultipleConnJenkinsAPI, array("sz
 */
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $use_MultipleConnJenkinsAPI);
 
-$func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors, $debug_taxon); //generic call
+$func = new WikiDataAPI_ver2($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors, $debug_taxon, false, false); //generic call. 
+// 6th param false -> default false for archive_builder param
+// 7th param is false means running ver2
 
 if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real operation
 // if(false) { //*** use this when developing to process language e.g. 'en' for one taxon only
@@ -196,6 +207,10 @@ if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real o
             // /* ------------------------------------------------------ place to start injecting MultipleConnJenkinsAPI
             if(in_array($language, $use_MultipleConnJenkinsAPI)) inject_MultipleConnJenkinsAPI($language);
             // ------------------------------------------------------ */
+            
+            // /* new section for wikipedia_ver2 ****************************
+            Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //2nd param true means big file; 3rd param true means will delete working folder
+            // ************************************************************** */
         }
     }
     else exit(1);
