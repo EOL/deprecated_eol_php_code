@@ -702,7 +702,7 @@ class WikiDataAPI extends WikipediaAPI
                                          // /* New: manual removal of taxon ---------------------
                                          // remove Sciuridae - https://www.wikidata.org/wiki/Q9482 | for language_code = 'pa' | for 'wikipedia' only
                                          if($this->language_code == 'pa') {
-                                             if($rek['taxon_id'] == 'Q9482') $rek = array();
+                                             if($rek['taxon_id'] == 'Q9482') { $rek = array(); continue; }
                                          }
                                          // ------------------------------------------------------ */
                                      }
