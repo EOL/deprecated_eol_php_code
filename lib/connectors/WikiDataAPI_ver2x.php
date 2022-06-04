@@ -331,8 +331,11 @@ class WikiDataAPI_ver2 extends WikipediaAPI
                 $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
                 if(!($f = Functions::file_open($txtfile, "a"))) return;
                 fwrite($f, "$actual_task DONE"."\n"); fclose($f); echo "\n-$actual_task DONE\n";
+                
+                // /* for ver2
                 if($this->is_running_version_1_YN) return array(true, false); //so it can run and test final step if ready
                 else echo "\nRunning ver2. Will generate partial DwCA now [$actual].\n";
+                // */
             }
             else { //means finalize file
                 // if(true) { //use this when developing*** wikimedia & wikipedia --- for 'en' and now 'es' -> those with multiple jobs
