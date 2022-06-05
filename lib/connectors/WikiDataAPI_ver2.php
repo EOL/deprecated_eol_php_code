@@ -757,7 +757,9 @@ class WikiDataAPI_ver2 extends WikipediaAPI
                                  */
                              }
                          }
-                         else debug("\nNo sitelinks [$this->language_code]\n"); //debug only
+                         else {
+                             // debug("\nNo sitelinks [$this->language_code]\n"); //debug only --- to many rows to display
+                         }
                          // print_r($rek); //exit("\nstop muna\n");
                          // if($i >= 20) break; //debug
                          // ===============================*/ //end normal operation
