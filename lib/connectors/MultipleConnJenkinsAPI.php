@@ -72,10 +72,10 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
                     [total_count] => 1906685
                 )*/
                 $lang = $arr_info['langx'];
-                if($connector_task == 'finalize') $cmd = PHP_PATH." wikipedia.php jenkins $lang generate_resource";
-                else $cmd = PHP_PATH." wikipedia.php jenkins $lang generate_resource ".$param['range'][0]." ".$param['range'][1]." ".$param['ctr']."of".$param['divisor'];
-                               // wikipedia.php jenkins es generate_resource 1 416666 1of6
-                               // wikipedia.php jenkins es generate_resource
+                if($connector_task == 'finalize') $cmd = PHP_PATH." wikipedia_ver2.php jenkins $lang generate_resource";
+                else $cmd = PHP_PATH." wikipedia_ver2.php jenkins $lang generate_resource ".$param['range'][0]." ".$param['range'][1]." ".$param['ctr']."of".$param['divisor'];
+                               // wikipedia_ver2.php jenkins es generate_resource 1 416666 1of6
+                               // wikipedia_ver2.php jenkins es generate_resource
             }
             elseif($connector == "xxx.php")         $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
             

@@ -6,7 +6,7 @@ require_library('connectors/WikiHTMLAPI');
 require_library('connectors/WikipediaAPI');
 require_library('connectors/WikiDataAPI_ver2');
 $timestart = time_elapsed();
-// $GLOBALS['ENV_DEBUG'] = false; //orig false in production
+$GLOBALS['ENV_DEBUG'] = true; //orig false in production
 
 /*
 $func = new WikiDataAPI('1', 'inh', 'wikipedia', array()); //generic call
@@ -155,7 +155,7 @@ print_r($params);
 
 // /* //----------start main operation
 if($val = $params['language']) $language = $val;
-else                           $language = "zh"; //manually supplied
+else { print_r($params); exit("\nWill terminate, no language passed.\n"); }                           //$language = "zh"; //manually supplied
 
 if    ($language == 'en') $resource_id = 80;
 elseif($language == 'de') $resource_id = 957;
@@ -278,6 +278,24 @@ function delete_temp_files_and_others($language)
             else                  echo "deletion failed\n";
         }
     }
+}
+function aggregate_6partial_wikipedias($timestart, $resource_id)
+{
+    require_library('connectors/DwCA_Aggregator_Functions');
+    require_library('connectors/DwCA_Aggregator');
+    $langs = array();
+    //wikipedia-nl_1of6... and so on
+    //80_1of6 ... and so on
+    
+    //string generate the partials 1-6:
+    for ($i = 1; $i <= 6; $i++) $langs[] = $resource_id."_".$i."of6";
+    print_r($langs);
+
+    $resource_id .= '_ELI'; //debug only
+    echo "\nProcessing [$resource_id] partials:[".count($langs)."]...\n";
+    $func = new DwCA_Aggregator($resource_id, NULL, 'regular'); //'regular' not 'wikipedia' which is used in wikipedia aggregate resource
+    $func->combine_DwCAs($langs);
+    Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
 
 /* http://opendata.eol.org/dataset/wikipedia_5k

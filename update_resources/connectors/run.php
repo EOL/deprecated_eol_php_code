@@ -8,7 +8,7 @@ echo "\nCACHE_PATH xx 01 is ".CACHE_PATH."\n";
 require_library('connectors/MultipleConnJenkinsAPI');
 ini_set('memory_limit','4096M');
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = false;
+$GLOBALS['ENV_DEBUG'] = true; //false in production
 
 /*
 php5.6                    run.php jenkins '{"connector":"eol_v3_api.php", "divisor":6, "task":"initial"}'
