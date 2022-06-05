@@ -170,8 +170,16 @@ exit("\nend test\n");
 $actual = @$params['actual'];
 if($actual) $resource_id .= "_".$actual;
 else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
-    echo "\n----------\nMeaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.\n----------\n";
-    aggregate_6partial_wikipedias($timestart, $resource_id);
+    
+    $test_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id."_1of6.tar.gz";
+    if(file_exists($test_file)) { //ready to aggregate
+        echo "\n----------\nMeaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.\n----------\n";
+        aggregate_6partial_wikipedias($timestart, $resource_id);
+        echo "\nFinished aggregate_6partial_wikipedias()...\n";
+        delete_temp_files_and_others($language);
+        return;
+    }
+    else echo "\n===== A one-connector run =====\n";
 }
 // ************************************************************** */
 
@@ -209,7 +217,11 @@ if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real o
             // ------------------------------------------------------ */
             
             // /* new section for wikipedia_ver2 ****************************
-            Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //2nd param true means big file; 3rd param true means will delete working folder
+            if(stripos($resource_id, "of6") !== false) { //string is found
+                echo "\nSaving partial to DwCA [$resource_id]\n";
+                Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //2nd param true means big file; 3rd param true means will delete working folder
+            }
+            else echo "\nFrom the old 6-connector-run.\n";
             // ************************************************************** */
         }
     }
