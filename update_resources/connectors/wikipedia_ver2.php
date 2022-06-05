@@ -200,8 +200,9 @@ $func = new WikiDataAPI_ver2($resource_id, $language, 'wikipedia', $langs_with_m
 // 6th param false -> default false for archive_builder param
 // 7th param is false means running ver2
 
-if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real operation
+if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id, "of6") !== false) { //uncomment in real operation
 // if(false) { //*** use this when developing to process language e.g. 'en' for one taxon only
+    echo "\n===== Goes to the 6-partial-connector run =====\n";
     $status_arr = $func->generate_resource($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.
     if($status_arr[0]) {
         echo "\n".$params['actual']." -- finished\n";
@@ -228,6 +229,7 @@ if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real o
     else exit(1);
 }
 else { //orig - just one connector
+    echo "\n===== Goes to the one-connector run =====\n";
     $func->generate_resource();
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means delete working folder
 }
