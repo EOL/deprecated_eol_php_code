@@ -6,7 +6,7 @@ require_library('connectors/WikiHTMLAPI');
 require_library('connectors/WikipediaAPI');
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
-// $GLOBALS['ENV_DEBUG'] = false; //orig false in production
+$GLOBALS['ENV_DEBUG'] = true; //orig false in production
 
 /*
 $func = new WikiDataAPI('1', 'inh', 'wikipedia', array()); //generic call
