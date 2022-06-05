@@ -257,7 +257,7 @@ function inject_MultipleConnJenkinsAPI($language)
     require_library('connectors/MultipleConnJenkinsAPI');
     $funcj = new MultipleConnJenkinsAPI();
     echo "\ntry to finalize now...\n";
-    $total_count = 2700000; //2500000 old value
+    $total_count = 3448535; //6Jun2022      //2700000; //2500000 old value
     $arr_info = array();
     $arr_info['finalize_now'] = true;
     $arr_info['langx'] = $language;
