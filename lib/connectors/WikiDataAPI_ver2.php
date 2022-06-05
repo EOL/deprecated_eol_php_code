@@ -579,10 +579,12 @@ class WikiDataAPI_ver2 extends WikipediaAPI
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; if(($k % 5000) == 0) echo " ".number_format($k)." ";
             if(in_array($task, array("save_all_media_filenames", "generate_resource")) && $range_from && $range_to) {
+                echo "\nREMINDER: range values detected.\n";
                 $cont = false;
                 if($k >= $range_from && $k < $range_to) $cont = true;
                 if(!$cont) continue;
             }
+            else echo "\nREMINDER: NO range values detected [$task] [$range_from] [$range_to].\n";
 
             /* this can be used to investigate rows OR this case exclude rows
             if($k >= 921904 && $k <= 921910) continue; //elixAug2 ---> the actual fix is the infinite loop in get_taxon_parent()
