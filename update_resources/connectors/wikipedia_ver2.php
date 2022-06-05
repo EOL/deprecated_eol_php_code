@@ -185,6 +185,8 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
 
 $langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh"); //1st batch | single connectors: ko, ja, ru
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch Dutch Polish Swedish Vietnamese
+$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("ce")); //3rd batch
+
 /* No longer have multiple connectors
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("no", "fi", "ca", "uk")); //3rd batch Norwegian Finnish Catalan Ukranian
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("tr", "ro", "cs")); //4th batch Turkish Romanian Czech

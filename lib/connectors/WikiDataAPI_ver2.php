@@ -298,6 +298,8 @@ class WikiDataAPI_ver2 extends WikipediaAPI
         exit; 
         */
         
+        // exit("\n[$task] [$range_from] [$range_to], [$actual_task]\n");
+        
         /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
