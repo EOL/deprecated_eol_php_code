@@ -177,7 +177,7 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
         aggregate_6partial_wikipedias($timestart, $resource_id);
         echo "\nFinished aggregate_6partial_wikipedias()...\n";
         echo "\nLet us see if we can still delete files here:\n";
-        delete_temp_files_and_others($language);
+        delete_temp_files_and_others($language, $resource_id); //2nd param $resource_id is for eventually 80_1of6 80_2of6
         return;
     }
     else echo "\n===== A one-connector run =====\n";
@@ -285,7 +285,7 @@ function inject_MultipleConnJenkinsAPI($language)
     $funcj->jenkins_call($arr_info, "finalize"); //finally make the call
     /* END continue lifeline of Jenkins event ----------------------------------------------- */
 }
-function delete_temp_files_and_others($language)
+function delete_temp_files_and_others($language, $resource_id = false)
 {   /*
     -rw-r--r-- 1 root      root       91798932 Apr 18 19:30 wikipedia-pl.tar.gz
     -rw-r--r-- 1 root      root             15 Apr 18 19:29 wikipedia_generation_status_pl_2019_04.txt
@@ -295,9 +295,18 @@ function delete_temp_files_and_others($language)
     -rw-r--r-- 1 root      root              0 Apr 18 15:13 wikipedia_pl_2019-04-18_15_06.tmp
     -rw-r--r-- 1 root      root              0 Apr 18 14:59 wikipedia_pl_2019-04-18_14_11.tmp
     -rw-r--r-- 1 root      root              0 Apr 18 14:56 wikipedia_pl_2019-04-18_14_07.tmp
+    
+    -rw-r--r-- 1 root root  76296 Jun  6 05:45 wikipedia-ce_1of6.tar.gz
+    -rw-r--r-- 1 root root  84669 Jun  6 05:45 wikipedia-ce_4of6.tar.gz
+    -rw-r--r-- 1 root root  58418 Jun  6 05:44 wikipedia-ce_6of6.tar.gz
+    -rw-r--r-- 1 root root  79654 Jun  6 05:44 wikipedia-ce_5of6.tar.gz
+    -rw-r--r-- 1 root root  87294 Jun  6 05:44 wikipedia-ce_2of6.tar.gz
+    -rw-r--r-- 1 root root  46594 Jun  6 05:44 wikipedia-ce_3of6.tar.gz
     */
     $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia_generation_status_".$language."_*.txt";
     $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia_".$language."_*.tmp";
+    $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia-".$language."_*of6.tar.gz";
+    if($resource_id) $paths[] = CONTENT_RESOURCE_LOCAL_PATH . $resource_id."_*of6.tar.gz"; //e.g. 80_1of6.tar.gz 
     foreach($paths as $path) {
         foreach(glob($path) as $filename) {
             echo "\n[$filename] [".filesize($filename)."] - ";
@@ -318,7 +327,7 @@ function aggregate_6partial_wikipedias($timestart, $resource_id)
     for ($i = 1; $i <= 6; $i++) $langs[] = $resource_id."_".$i."of6";
     print_r($langs);
 
-    $resource_id .= '_ELI'; //debug only
+    // $resource_id .= '_ELI'; //debug only
     echo "\nProcessing [$resource_id] partials:[".count($langs)."]...\n";
     $func = new DwCA_Aggregator($resource_id, NULL, 'regular'); //'regular' not 'wikipedia' which is used in wikipedia aggregate resource
     $func->combine_DwCAs($langs);
