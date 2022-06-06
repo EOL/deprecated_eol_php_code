@@ -216,22 +216,32 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
         if($status_arr[1]) {
             echo "\n---Can now proceed - finalize dwca...---\n\n";
             Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //2nd param true means big file; 3rd param true means will delete working folder
-            if($params['actual']) {} // 1of6, 2of6, etc -> don't delete temp files yet
-            else delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
+            if($params['actual']) {
+                // /* check here if u can now run finalize
+                $what_generation_status = "wikipedia_generation_status_".$language."_";
+                if($func->finalize_media_filenames_ready($what_generation_status) {
+                    inject_MultipleConnJenkinsAPI($language);
+                }
+                // */
+            } // 1of6, 2of6, etc -> don't delete temp files yet
+            else
+            {
+                delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
+            }
         }
         else {
             echo "\nCannot finalize dwca yet. [$resource_id]\n";
-            // /* ------------------------------------------------------ place to start injecting MultipleConnJenkinsAPI (NOT THE PATH for 'ce')
+            /* ------------------------------------------------------ place to start injecting MultipleConnJenkinsAPI (NOT THE PATH for 'ce')
             if(in_array($language, $use_MultipleConnJenkinsAPI)) inject_MultipleConnJenkinsAPI($language);
-            // ------------------------------------------------------ */
+            ------------------------------------------------------ */
             
-            // /* new section for wikipedia_ver2 ****************************
+            /* new section for wikipedia_ver2 ****************************
             if(stripos($resource_id, "of6") !== false) { //string is found
                 echo "\nSaving partial to DwCA [$resource_id]\n";
                 Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //2nd param true means big file; 3rd param true means will delete working folder
             }
             else echo "\nFrom the old 6-connector-run.\n";
-            // ************************************************************** */
+            ************************************************************** */
         }
     }
     else exit(1);

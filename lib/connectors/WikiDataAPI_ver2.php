@@ -148,9 +148,9 @@ class WikiDataAPI_ver2 extends WikipediaAPI
             }
         }
     }
-    private function finalize_media_filenames_ready($status) //e.g. "wikimedia_filenames_status_" or "wikimedia_generation_status_" or "wikipedia_generation_status_"
+    function finalize_media_filenames_ready($what_generation_status) //e.g. "wikimedia_filenames_status_" or "wikimedia_generation_status_" or "wikipedia_generation_status_"
     {
-        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "$status" . date("Y_m") . ".txt";
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "$what_generation_status" . ".txt"; //removed date("Y_m")
         if(!file_exists($txtfile)) return false;
         $contents = file_get_contents($txtfile);
         for($i=1; $i<=6; $i++) {
@@ -348,7 +348,7 @@ class WikiDataAPI_ver2 extends WikipediaAPI
             if($actual_task) { //un-comment in real operation
                 self::parse_wiki_data_json($task, $range_from, $range_to);
                 //log this task finished
-                $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
+                $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . ".txt"; //removed date("Y_m")
                 if(!($f = Functions::file_open($txtfile, "a"))) return;
                 fwrite($f, "$actual_task DONE"."\n"); fclose($f); echo "\n-$actual_task DONE\n";
                 
@@ -369,7 +369,7 @@ class WikiDataAPI_ver2 extends WikipediaAPI
                     // */
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
-                    $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
+                    $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . ".txt"; //removed date("Y_m")
                     if(!($f = Functions::file_open($txtfile, "w"))) return;
                     fwrite($f, "Truncated now."."\n"); fclose($f); 
                     /* no more {return true;} here... bec it still has steps below */
