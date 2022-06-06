@@ -176,6 +176,7 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
         echo "\n----------\nMeaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.\n----------\n";
         aggregate_6partial_wikipedias($timestart, $resource_id);
         echo "\nFinished aggregate_6partial_wikipedias()...\n";
+        echo "\nLet us see if we can still delete files here:\n";
         delete_temp_files_and_others($language);
         return;
     }
