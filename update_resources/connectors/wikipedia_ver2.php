@@ -151,6 +151,15 @@ $params['range_to']         = @$argv[5];
 $params['actual']           = @$argv[6];
 $debug_taxon                = @$argv[7];
 
+// /*
+// So that these two becomes equal:
+// php5.6 wikipedia_ver2.php jenkins ce #Chechen
+// php5.6 wikipedia_ver2.php jenkins ce generate_resource_force #Chechen
+// -> orig 1 connector run
+if(@$params['task']) {}
+else $params['task'] = "generate_resource_force"; //default value for task if left blank
+// */
+
 print_r($params);
 
 // /* //----------start main operation
@@ -226,7 +235,7 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
         }
         else {
             echo "\nCannot finalize dwca yet. [$resource_id]\n";
-            /* ------------------------------------------------------ place to start injecting MultipleConnJenkinsAPI (NOT THE PATH for 'ce')
+            /* ---------------NOT BEING USED HERE--------------- place to start injecting MultipleConnJenkinsAPI (NOT THE PATH for 'ce')
             if(in_array($language, $use_MultipleConnJenkinsAPI)) inject_MultipleConnJenkinsAPI($language);
             ------------------------------------------------------ */
             
