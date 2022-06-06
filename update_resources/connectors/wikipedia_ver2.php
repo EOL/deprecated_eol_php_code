@@ -216,7 +216,8 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
         if($status_arr[1]) {
             echo "\n---Can now proceed - finalize dwca...---\n\n";
             Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //2nd param true means big file; 3rd param true means will delete working folder
-            delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
+            if($params['actual']) {} // 1of6, 2of6, etc -> don't delete temp files yet
+            else delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
         }
         else {
             echo "\nCannot finalize dwca yet. [$resource_id]\n";
