@@ -219,15 +219,10 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
             if($params['actual']) {
                 // /* check here if u can now run finalize
                 $what_generation_status = "wikipedia_generation_status_".$language."_";
-                if($func->finalize_media_filenames_ready($what_generation_status) {
-                    inject_MultipleConnJenkinsAPI($language);
-                }
+                if($func->finalize_media_filenames_ready($what_generation_status)) inject_MultipleConnJenkinsAPI($language);
                 // */
             } // 1of6, 2of6, etc -> don't delete temp files yet
-            else
-            {
-                delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
-            }
+            else delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
         }
         else {
             echo "\nCannot finalize dwca yet. [$resource_id]\n";
