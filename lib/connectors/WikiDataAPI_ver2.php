@@ -352,11 +352,10 @@ class WikiDataAPI_ver2 extends WikipediaAPI
                 if(!($f = Functions::file_open($txtfile, "a"))) return;
                 fwrite($f, "$actual_task DONE"."\n"); fclose($f); echo "\n-$actual_task DONE\n";
                 
-                /* for ver2 --- this block is wrong...
+                // /* for ver2
                 if($this->is_running_version_1_YN) return array(true, false); //so it can run and test final step if ready
                 else echo "\nRunning ver2. Will generate partial DwCA now [$actual_task].\n";
-                */
-                return array(true, false);
+                // */
             }
             else { //means finalize file
                 // if(true) { //use this when developing*** wikimedia & wikipedia --- for 'en' and now 'es' -> those with multiple jobs
