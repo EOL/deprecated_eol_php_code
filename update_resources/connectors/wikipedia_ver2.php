@@ -195,7 +195,7 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
 
 $langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh"); //1st batch | single connectors: ko, ja, ru
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch Dutch Polish Swedish Vietnamese
-$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("ce", "tr", "pl")); //3rd batch ... th also
+$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("ce", "tr", "pl", "sv")); //3rd batch ... th also
 
 /* No longer have multiple connectors
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("no", "fi", "ca", "uk")); //3rd batch Norwegian Finnish Catalan Ukranian
@@ -234,9 +234,6 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
         }
         else {
             echo "\nCannot finalize dwca yet. [$resource_id]\n";
-            /* ---------------NOT BEING USED HERE--------------- place to start injecting MultipleConnJenkinsAPI (NOT THE PATH for 'ce')
-            if(in_array($language, $use_MultipleConnJenkinsAPI)) inject_MultipleConnJenkinsAPI($language);
-            ------------------------------------------------------ */
             
             /* new section for wikipedia_ver2 ****************************
             if(stripos($resource_id, "of6") !== false) { //string is found
