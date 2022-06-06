@@ -55,7 +55,16 @@ if($arr['task'] == 'initial') { //this is where to get e.g. the total number of 
         $funcj->jenkins_call($arr, "generate_stats"); //finally make the call
     }
     elseif($arr['connector'] == 'gen_wikipedia_by_lang') {
-        $total_count = 3448535; //as of Jun 5, 2022         //2700000; //old value 2500000
+        // /* New: un-comment in real operation
+        if(Functions::is_production()) {
+            // $cmd = "wc -l ".$this->path['wiki_data_json'];
+            $cmd = "wc -l "."/extra/dumps/wikidata/latest-all-taxon.json";
+            $out = shell_exec($cmd);
+            $total_count = str_replace("\n", "", $out);
+            echo "\n-----\n[".$total_count."]\n-----\n";
+        }
+        // */
+        // $total_count = 3448535; //as of Jun 5, 2022         //2700000; //old value 2500000 ---> durive dev only, debug only
         $arr['total_count'] = $total_count;
         echo "\ntotal_count: $total_count\n";
         
