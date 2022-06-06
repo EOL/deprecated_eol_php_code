@@ -194,10 +194,14 @@ $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, a
 */
 
 $use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id"); //first client for MultipleConnJenkinsAPI | , "cy", "az", "ast", "bg" "ceb"
+$use_MultipleConnJenkinsAPI = array_merge($use_MultipleConnJenkinsAPI, array("ce")); //new batch (ver2)
+
 /* No longer have multiple connectors
 $use_MultipleConnJenkinsAPI = array_merge($use_MultipleConnJenkinsAPI, array("szl", "af", "ka", "lt"));
 */
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $use_MultipleConnJenkinsAPI);
+$langs_with_multiple_connectors = array_unique($langs_with_multiple_connectors); //make unique
+$langs_with_multiple_connectors = array_values($langs_with_multiple_connectors); //reindex key
 
 $func = new WikiDataAPI_ver2($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors, $debug_taxon, false, false); //generic call. 
 // 6th param false -> default false for archive_builder param
@@ -215,8 +219,8 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
             delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
         }
         else {
-            echo "\nCannot finalize dwca yet.\n";
-            // /* ------------------------------------------------------ place to start injecting MultipleConnJenkinsAPI
+            echo "\nCannot finalize dwca yet. [$resource_id]\n";
+            // /* ------------------------------------------------------ place to start injecting MultipleConnJenkinsAPI (NOT THE PATH for 'ce')
             if(in_array($language, $use_MultipleConnJenkinsAPI)) inject_MultipleConnJenkinsAPI($language);
             // ------------------------------------------------------ */
             
