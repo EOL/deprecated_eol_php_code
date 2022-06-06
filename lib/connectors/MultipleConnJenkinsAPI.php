@@ -79,6 +79,7 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
             }
             elseif($connector == "xxx.php")         $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
             
+            echo "\n----------\ncmd = [$cmd]\n----------\n";
             // /* works well locally Jul 10, 2019, but will still check if it will work in eol-archive - fingers crossed
             $cmd .= " 2>&1";
             $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
