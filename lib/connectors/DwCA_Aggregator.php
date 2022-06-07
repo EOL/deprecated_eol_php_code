@@ -3,7 +3,7 @@ namespace php_active_record;
 /* connector: [aggregate_resources.php] - first client 
 This lib basically combined DwCA's (.tar.gz) resources.
 First client is combining several wikipedia languages -> combine_wikipedia_DwCAs(). Started with languages "ta", "el", "ceb".
-2nd client is /connectors/wikipedia_ver2.php
+2nd client is /connectors/wikipedia.php
 */
 class DwCA_Aggregator extends DwCA_Aggregator_Functions
 {

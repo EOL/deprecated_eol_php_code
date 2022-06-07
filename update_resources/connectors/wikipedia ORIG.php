@@ -151,25 +151,11 @@ $params['range_to']         = @$argv[5];
 $params['actual']           = @$argv[6];
 $debug_taxon                = @$argv[7];
 
-// /*
-// So that these two becomes equal:
-// php5.6 wikipedia.php jenkins ce #Chechen
-// php5.6 wikipedia.php jenkins ce generate_resource_force #Chechen
-// -> orig 1 connector run
-if(@$params['task']) { //there is value
-    if($params['task'] == "generate_resource") {
-        if($params['range_from'] && $params['range_to']) {} //wikipedia.php jenkins es generate_resource 1 416666 1of6
-        else $params['task'] = "generate_resource_force";   //wikipedia.php jenkins es generate_resource
-    }
-}
-else $params['task'] = "generate_resource_force"; //default value for task if left blank e.g. php5.6 wikipedia.php jenkins en
-// */
-
 print_r($params);
 
 // /* //----------start main operation
 if($val = $params['language']) $language = $val;
-else { print_r($params); exit("\nWill terminate, no language passed.\n"); }                           //$language = "zh"; //manually supplied
+else                           $language = "zh"; //manually supplied
 
 if    ($language == 'en') $resource_id = 80;
 elseif($language == 'de') $resource_id = 957;
@@ -180,72 +166,41 @@ delete_temp_files_and_others($language);
 exit("\nend test\n");
 */
 
-// /* new section for wikipedia ver2 ****************************
-$actual = @$params['actual'];
-if($actual) $resource_id .= "_".$actual;
-else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
-    
-    $test_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id."_1of6.tar.gz";
-    if(file_exists($test_file)) { //ready to aggregate
-        echo "\n----------\nMeaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.\n----------\n";
-        aggregate_6partial_wikipedias($timestart, $resource_id);
-        echo "\nFinished aggregate_6partial_wikipedias()...\n";
-        echo "\nLet us see if we can still delete files here:\n";
-        delete_temp_files_and_others($language, $resource_id); //2nd param $resource_id is for eventually 80_1of6 80_2of6
-        inject_jenkins_run($resource_id);
-        return;
-    }
-    else echo "\n===== A one-connector run =====\n";
-}
-// ************************************************************** */
-
 $langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh"); //1st batch | single connectors: ko, ja, ru
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch Dutch Polish Swedish Vietnamese
-$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("ce", "tr", "pl", "sv")); //3rd batch ... th also
-
 /* No longer have multiple connectors
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("no", "fi", "ca", "uk")); //3rd batch Norwegian Finnish Catalan Ukranian
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("tr", "ro", "cs")); //4th batch Turkish Romanian Czech
 */
 
 $use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id"); //first client for MultipleConnJenkinsAPI | , "cy", "az", "ast", "bg" "ceb"
-
 /* No longer have multiple connectors
 $use_MultipleConnJenkinsAPI = array_merge($use_MultipleConnJenkinsAPI, array("szl", "af", "ka", "lt"));
 */
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $use_MultipleConnJenkinsAPI);
-$langs_with_multiple_connectors = array_unique($langs_with_multiple_connectors); //make unique
-$langs_with_multiple_connectors = array_values($langs_with_multiple_connectors); //reindex key
 
-$func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors, $debug_taxon, false, false); //generic call. 
-// 6th param false -> default false for archive_builder param
-// 7th param is false means running ver2
+$func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors, $debug_taxon); //generic call
 
-if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id, "of6") !== false) { //uncomment in real operation
+if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real operation
 // if(false) { //*** use this when developing to process language e.g. 'en' for one taxon only
-    echo "\n===== Goes to the 6-partial-connector run =====\n";
     $status_arr = $func->generate_resource($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.
     if($status_arr[0]) {
         echo "\n".$params['actual']." -- finished\n";
         if($status_arr[1]) {
             echo "\n---Can now proceed - finalize dwca...---\n\n";
             Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //2nd param true means big file; 3rd param true means will delete working folder
-            if($params['actual']) {
-                // /* check here if u can now run finalize
-                $what_generation_status = "wikipedia_generation_status_".$language."_";
-                if($func->finalize_media_filenames_ready($what_generation_status)) inject_MultipleConnJenkinsAPI($language);
-                // */
-            } // 1of6, 2of6, etc -> don't delete temp files yet
-            else delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
+            delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
         }
         else {
-            echo "\nCannot finalize dwca yet. [$resource_id]\n";
+            echo "\nCannot finalize dwca yet.\n";
+            // /* ------------------------------------------------------ place to start injecting MultipleConnJenkinsAPI
+            if(in_array($language, $use_MultipleConnJenkinsAPI)) inject_MultipleConnJenkinsAPI($language);
+            // ------------------------------------------------------ */
         }
     }
     else exit(1);
 }
 else { //orig - just one connector
-    echo "\n===== Goes to the one-connector run =====\n";
     $func->generate_resource();
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means delete working folder
 }
@@ -271,13 +226,11 @@ echo "\n Done processing.\n";
 
 function inject_MultipleConnJenkinsAPI($language)
 {
-    /* START continue lifeline of Jenkins event --------------------------------------------- 
-    run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"sh"}'
-    */
+    /* START continue lifeline of Jenkins event --------------------------------------------- */
     require_library('connectors/MultipleConnJenkinsAPI');
     $funcj = new MultipleConnJenkinsAPI();
     echo "\ntry to finalize now...\n";
-    $total_count = 3448535; //2700000; //2500000 old value
+    $total_count = 2700000; //2500000 old value
     $arr_info = array();
     $arr_info['finalize_now'] = true;
     $arr_info['langx'] = $language;
@@ -290,19 +243,7 @@ function inject_MultipleConnJenkinsAPI($language)
     $funcj->jenkins_call($arr_info, "finalize"); //finally make the call
     /* END continue lifeline of Jenkins event ----------------------------------------------- */
 }
-function inject_jenkins_run($resource_id)
-{   /*
-    fill_up_undefined_parents.php jenkins '{"resource_id": "wikipedia-is", "source_dwca": "wikipedia-is", "resource": "fillup_missing_parents"}'
-    */
-    require_library('connectors/MultipleConnJenkinsAPI');
-    $funcj = new MultipleConnJenkinsAPI();
-    echo "\ntry to fillup_missing_parents...\n";
-    $arr_info = array();
-    $arr_info['resource_id'] = $resource_id;
-    $arr_info['connector'] = 'fill_up_undefined_parents';
-    $funcj->jenkins_call_single_run($arr_info, "fillup missing parents");
-}
-function delete_temp_files_and_others($language, $resource_id = false)
+function delete_temp_files_and_others($language)
 {   /*
     -rw-r--r-- 1 root      root       91798932 Apr 18 19:30 wikipedia-pl.tar.gz
     -rw-r--r-- 1 root      root             15 Apr 18 19:29 wikipedia_generation_status_pl_2019_04.txt
@@ -312,18 +253,9 @@ function delete_temp_files_and_others($language, $resource_id = false)
     -rw-r--r-- 1 root      root              0 Apr 18 15:13 wikipedia_pl_2019-04-18_15_06.tmp
     -rw-r--r-- 1 root      root              0 Apr 18 14:59 wikipedia_pl_2019-04-18_14_11.tmp
     -rw-r--r-- 1 root      root              0 Apr 18 14:56 wikipedia_pl_2019-04-18_14_07.tmp
-    
-    -rw-r--r-- 1 root root  76296 Jun  6 05:45 wikipedia-ce_1of6.tar.gz
-    -rw-r--r-- 1 root root  84669 Jun  6 05:45 wikipedia-ce_4of6.tar.gz
-    -rw-r--r-- 1 root root  58418 Jun  6 05:44 wikipedia-ce_6of6.tar.gz
-    -rw-r--r-- 1 root root  79654 Jun  6 05:44 wikipedia-ce_5of6.tar.gz
-    -rw-r--r-- 1 root root  87294 Jun  6 05:44 wikipedia-ce_2of6.tar.gz
-    -rw-r--r-- 1 root root  46594 Jun  6 05:44 wikipedia-ce_3of6.tar.gz
     */
     $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia_generation_status_".$language."_*.txt";
     $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia_".$language."_*.tmp";
-    $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia-".$language."_*of6.tar.gz";
-    if($resource_id) $paths[] = CONTENT_RESOURCE_LOCAL_PATH . $resource_id."_*of6.tar.gz"; //e.g. 80_1of6.tar.gz 
     foreach($paths as $path) {
         foreach(glob($path) as $filename) {
             echo "\n[$filename] [".filesize($filename)."] - ";
@@ -331,24 +263,6 @@ function delete_temp_files_and_others($language, $resource_id = false)
             else                  echo "deletion failed\n";
         }
     }
-}
-function aggregate_6partial_wikipedias($timestart, $resource_id)
-{
-    require_library('connectors/DwCA_Aggregator_Functions');
-    require_library('connectors/DwCA_Aggregator');
-    $langs = array();
-    //wikipedia-nl_1of6... and so on
-    //80_1of6 ... and so on
-    
-    //string generate the partials 1-6:
-    for ($i = 1; $i <= 6; $i++) $langs[] = $resource_id."_".$i."of6";
-    print_r($langs);
-
-    // $resource_id .= '_ELI'; //debug only
-    echo "\nProcessing [$resource_id] partials:[".count($langs)."]...\n";
-    $func = new DwCA_Aggregator($resource_id, NULL, 'regular'); //'regular' not 'wikipedia' which is used in wikipedia aggregate resource
-    $func->combine_DwCAs($langs);
-    Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
 
 /* http://opendata.eol.org/dataset/wikipedia_5k

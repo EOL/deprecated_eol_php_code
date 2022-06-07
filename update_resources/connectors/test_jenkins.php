@@ -4,7 +4,7 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiHTMLAPI');
 require_library('connectors/WikipediaAPI');
-require_library('connectors/WikiDataAPI_ver2');
+require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true; //orig false in production
 

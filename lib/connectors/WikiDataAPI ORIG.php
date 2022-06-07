@@ -35,16 +35,13 @@ drwxr-xr-x 2 root root           10 Nov  6  2017 wikipedia
 /* For testing one image to write to DwCA for Wikimedia. Follow the 3 asterisk ***. Un-comment these block of codes. Worked OK. Works also now for Wikipedia */
 class WikiDataAPI extends WikipediaAPI
 {
-    function __construct($folder, $lang, $what = "wikipedia", $langs_with_multiple_connectors = array(), $debug_taxon = false, $archive_builder = false, $is_running_version_1_YN = true)
+    function __construct($folder, $lang, $what = "wikipedia", $langs_with_multiple_connectors = array(), $debug_taxon = false, $archive_builder = false)
     {
         $this->what = $what;
         $this->resource_id = $folder;
         $this->language_code = $lang;
         $this->langs_with_multiple_connectors = $langs_with_multiple_connectors;
         $this->debug_taxon = $debug_taxon;
-        
-        $this->is_running_version_1_YN = $is_running_version_1_YN;
-        
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         if($archive_builder) $this->archive_builder = $archive_builder; //for FillUpMissingParentsAPI
         else $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory)); //normal orig
@@ -73,15 +70,7 @@ class WikiDataAPI extends WikipediaAPI
         
         if($this->what == "wikipedia") { //80 - wikipedia-en | 957 - wikipedia-de
             $lang_1st_batch = array('80','wikipedia-es','wikipedia-it','957','wikipedia-fr','wikipedia-zh','wikipedia-ru','wikipedia-pt','wikipedia-ja','wikipedia-ko','wikipedia-nl');
-            // /* for ver2, so it does not create a folder in cache_path like "wikipedia-zh_1of6" but just: "wikipedia-zh"
-            $tmp_resource_id = str_replace("_1of6", "", $this->resource_id);
-            $tmp_resource_id = str_replace("_2of6", "", $tmp_resource_id);
-            $tmp_resource_id = str_replace("_3of6", "", $tmp_resource_id);
-            $tmp_resource_id = str_replace("_4of6", "", $tmp_resource_id);
-            $tmp_resource_id = str_replace("_5of6", "", $tmp_resource_id);
-            $tmp_resource_id = str_replace("_6of6", "", $tmp_resource_id);
-            // */
-            if(!in_array($tmp_resource_id, $lang_1st_batch)) $this->download_options['resource_id'] = $tmp_resource_id;
+            if(!in_array($this->resource_id, $lang_1st_batch)) $this->download_options['resource_id'] = $this->resource_id;
             if(in_array($this->language_code, array('sv', 'ceb', 'war', 'min'))) $this->download_options['expire_seconds'] = 60*60*24*30*6; //6 months expiration
         }
         
@@ -148,9 +137,9 @@ class WikiDataAPI extends WikipediaAPI
             }
         }
     }
-    function finalize_media_filenames_ready($what_generation_status) //e.g. "wikimedia_filenames_status_" or "wikimedia_generation_status_" or "wikipedia_generation_status_"
+    private function finalize_media_filenames_ready($status) //e.g. "wikimedia_filenames_status_" or "wikimedia_generation_status_" or "wikipedia_generation_status_"
     {
-        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "$what_generation_status" . ".txt"; //removed date("Y_m")
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "$status" . date("Y_m") . ".txt";
         if(!file_exists($txtfile)) return false;
         $contents = file_get_contents($txtfile);
         for($i=1; $i<=6; $i++) {
@@ -298,8 +287,6 @@ class WikiDataAPI extends WikipediaAPI
         exit; 
         */
         
-        // exit("\n[$task] [$range_from] [$range_to], [$actual_task]\n");
-        
         /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
@@ -348,14 +335,10 @@ class WikiDataAPI extends WikipediaAPI
             if($actual_task) { //un-comment in real operation
                 self::parse_wiki_data_json($task, $range_from, $range_to);
                 //log this task finished
-                $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . ".txt"; //removed date("Y_m")
+                $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
                 if(!($f = Functions::file_open($txtfile, "a"))) return;
                 fwrite($f, "$actual_task DONE"."\n"); fclose($f); echo "\n-$actual_task DONE\n";
-                
-                // /* for ver2
-                if($this->is_running_version_1_YN) return array(true, false); //so it can run and test final step if ready
-                else echo "\nRunning ver2. Will generate partial DwCA now [$actual_task].\n";
-                // */
+                return array(true, false); //so it can run and test final step if ready
             }
             else { //means finalize file
                 // if(true) { //use this when developing*** wikimedia & wikipedia --- for 'en' and now 'es' -> those with multiple jobs
@@ -369,7 +352,7 @@ class WikiDataAPI extends WikipediaAPI
                     // */
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
-                    $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . ".txt"; //removed date("Y_m")
+                    $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
                     if(!($f = Functions::file_open($txtfile, "w"))) return;
                     fwrite($f, "Truncated now."."\n"); fclose($f); 
                     /* no more {return true;} here... bec it still has steps below */
@@ -581,12 +564,10 @@ class WikiDataAPI extends WikipediaAPI
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; if(($k % 5000) == 0) echo " ".number_format($k)." ";
             if(in_array($task, array("save_all_media_filenames", "generate_resource")) && $range_from && $range_to) {
-                // echo "\nREMINDER: range values detected.\n";
                 $cont = false;
                 if($k >= $range_from && $k < $range_to) $cont = true;
                 if(!$cont) continue;
             }
-            // else echo "\nREMINDER: NO range values detected [$task] [$range_from] [$range_to].\n";
 
             /* this can be used to investigate rows OR this case exclude rows
             if($k >= 921904 && $k <= 921910) continue; //elixAug2 ---> the actual fix is the infinite loop in get_taxon_parent()
@@ -761,9 +742,7 @@ class WikiDataAPI extends WikipediaAPI
                                  */
                              }
                          }
-                         else {
-                             // debug("\nNo sitelinks [$this->language_code]\n"); //debug only --- to many rows to display
-                         }
+                         else debug("\nNo sitelinks [$this->language_code]\n"); //debug only
                          // print_r($rek); //exit("\nstop muna\n");
                          // if($i >= 20) break; //debug
                          // ===============================*/ //end normal operation
