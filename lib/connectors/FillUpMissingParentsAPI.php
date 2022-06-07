@@ -44,6 +44,9 @@ class FillUpMissingParentsAPI
             self::append_undefined_parents($undefined_parents);
             self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'create_archive');
         }
+        else { //no undefined parents
+            self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'create_archive');
+        }
         // */
         
         /* testing...
@@ -60,6 +63,7 @@ class FillUpMissingParentsAPI
         require_library('connectors/DWCADiagnoseAPI');
         $func = new DWCADiagnoseAPI();
         $url = $this->archive_path . "/taxon.tab";
+        // echo "\n====Will read this path: [$url]\n";
         if($undefined = $func->check_if_all_parents_have_entries($this->resource_id, true, $url)) { //2nd param True means write to text file
             // print_r($undefined);
             echo("\nUndefined v2: ".count($undefined)."\n"); //exit;

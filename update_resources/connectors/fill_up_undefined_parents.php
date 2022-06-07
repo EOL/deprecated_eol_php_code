@@ -96,6 +96,7 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $ctr, $param
     
     /* This will be processed in FillUpMissingParentsAPI.php which will be called from DwCA_Utility.php */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
+    // echo "\n===Ready to finalize...\n";
     Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
     
     $status = chmod(CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".tar.gz", 0775);
