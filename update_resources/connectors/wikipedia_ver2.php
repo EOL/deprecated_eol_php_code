@@ -192,6 +192,7 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
         echo "\nFinished aggregate_6partial_wikipedias()...\n";
         echo "\nLet us see if we can still delete files here:\n";
         delete_temp_files_and_others($language, $resource_id); //2nd param $resource_id is for eventually 80_1of6 80_2of6
+        inject_jenkins_run($resource_id);
         return;
     }
     else echo "\n===== A one-connector run =====\n";
@@ -278,7 +279,9 @@ echo "\n Done processing.\n";
 
 function inject_MultipleConnJenkinsAPI($language)
 {
-    /* START continue lifeline of Jenkins event --------------------------------------------- */
+    /* START continue lifeline of Jenkins event --------------------------------------------- 
+    run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"sh"}'
+    */
     require_library('connectors/MultipleConnJenkinsAPI');
     $funcj = new MultipleConnJenkinsAPI();
     echo "\ntry to finalize now...\n";
@@ -294,6 +297,18 @@ function inject_MultipleConnJenkinsAPI($language)
     $arr_info['batches'] = $batches;
     $funcj->jenkins_call($arr_info, "finalize"); //finally make the call
     /* END continue lifeline of Jenkins event ----------------------------------------------- */
+}
+function inject_jenkins_run($resource_id)
+{   /*
+    fill_up_undefined_parents.php jenkins '{"resource_id": "wikipedia-is", "source_dwca": "wikipedia-is", "resource": "fillup_missing_parents"}'
+    */
+    require_library('connectors/MultipleConnJenkinsAPI');
+    $funcj = new MultipleConnJenkinsAPI();
+    echo "\ntry to fillup_missing_parents...\n";
+    $arr_info = array();
+    $arr_info['resource_id'] = $resource_id;
+    $arr_info['connector'] = 'fill_up_undefined_parents';
+    $funcj->jenkins_call_single_run($arr_info, "fillup missing parents");
 }
 function delete_temp_files_and_others($language, $resource_id = false)
 {   /*

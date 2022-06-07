@@ -50,6 +50,7 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
         foreach($batches as $batch) {
             $ctr++;
             print_r($batch);
+            // /* ---------- START main body ----------
             $param = array();
             $param['range'] = $batch;
             $param['ctr'] = $ctr;
@@ -80,22 +81,64 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
             elseif($connector == "xxx.php")         $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
             
             echo "\n----------\ncmd = [$cmd]\n----------\n";
-            // /* works well locally Jul 10, 2019, but will still check if it will work in eol-archive - fingers crossed
-            $cmd .= " 2>&1";
-            $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
-            $cmd = $ctrler->generate_exec_command($params['uuid'].$postfix); //pass the desired basename of the .sh filename (e.g. xxx.sh then pass "xxx")
-            $c = $ctrler->build_curl_cmd_for_jenkins($cmd, $task);
-            $shell_debug = shell_exec($c);
-            // for more debugging...
-            // echo "\ncmd: $cmd
-            //       \nc: $c";
-            // echo "\nshell_debug: [$shell_debug]";
-
-            // break; //debug only -- just run 1 batch
-            echo "\nCACHE_PATH 03 is ".CACHE_PATH."\n";
-            sleep(20); //this is important so Jenkins will detect that the first job is already taken and will use the next available job. Effective works OK
-            // */
+            self::actual_jenkins_call($params, $postfix, $cmd, $task, $ctrler);
+            // */ ---------- END main body ----------
         }
+    }
+    function jenkins_call_single_run($arr_info, $connector_task)
+    {
+        $connector = $arr_info['connector'];
+        $resource_id = @$arr_info['resource_id'];
+
+        echo "\nCACHE_PATH 01 is ".CACHE_PATH."\n";
+        require_once(DOC_ROOT."../LiteratureEditor/Custom/lib/Functions.php");
+        require_once(DOC_ROOT."../FreshData/controllers/other.php");
+        require_once(DOC_ROOT."../FreshData/controllers/freshdata.php");
+        echo "\nCACHE_PATH 02 is ".CACHE_PATH."\n";
+
+        $ctrler = new \freshdata_controller(array());
+        ini_set('memory_limit','4096M');
+        $postfix = "_run";
+
+        if($connector_task == 'fillup missing parents') $job_name = 'fillup_missing_parents';
+        else exit("\nUndefined job ($connector_task).\n");
+
+        // /* ---------- START main body ----------
+        $param = array();
+        $task = $ctrler->get_available_job($job_name);
+        $json = json_encode($param, true);
+        $params['uuid'] = time();
+        echo "\njson param: [$json]\n";
+        
+        if($connector == "fill_up_undefined_parents") {
+            // fill_up_undefined_parents.php jenkins '{"resource_id": "wikipedia-is", "source_dwca": "wikipedia-is", "resource": "fillup_missing_parents"}'
+            if($connector_task == 'fillup missing parents') {
+                $json = '{"resource_id": "'.$resource_id.'", "source_dwca": "'.$resource_id.'", "resource": "fillup_missing_parents"}';
+                $cmd = PHP_PATH.' fill_up_undefined_parents.php jenkins ' . "'" . $json . "'";
+            }
+            else exit("\nUndefined connector task [$connector_task].\n");
+        }
+        elseif($connector == "xxx.php") $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
+        else exit("\nUndefined connector [$connector].\n");
+        echo "\n----------\ncmd = [$cmd]\n----------\n";
+        self::actual_jenkins_call($params, $postfix, $cmd, $task, $ctrler);
+        // */ ---------- END main body ----------
+    }
+    private function actual_jenkins_call($params, $postfix, $cmd, $task, $ctrler)
+    {
+        // /* works well locally Jul 10, 2019, but will still check if it will work in eol-archive - fingers crossed
+        $cmd .= " 2>&1";
+        $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
+        $cmd = $ctrler->generate_exec_command($params['uuid'].$postfix); //pass the desired basename of the .sh filename (e.g. xxx.sh then pass "xxx")
+        $c = $ctrler->build_curl_cmd_for_jenkins($cmd, $task);
+        $shell_debug = shell_exec($c);
+        // for more debugging...
+        // echo "\ncmd: $cmd
+        //       \nc: $c";
+        // echo "\nshell_debug: [$shell_debug]";
+        echo "\nCACHE_PATH 03 is ".CACHE_PATH."\n";
+        sleep(20); //this is important so Jenkins will detect that the first job is already taken and will use the next available job. Effective works OK
+        // */
     }
     private function total_rows_in_file($file_path)
     {
