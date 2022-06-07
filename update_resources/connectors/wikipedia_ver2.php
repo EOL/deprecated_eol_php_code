@@ -156,8 +156,13 @@ $debug_taxon                = @$argv[7];
 // php5.6 wikipedia_ver2.php jenkins ce #Chechen
 // php5.6 wikipedia_ver2.php jenkins ce generate_resource_force #Chechen
 // -> orig 1 connector run
-if(@$params['task']) {}
-else $params['task'] = "generate_resource_force"; //default value for task if left blank
+if(@$params['task']) { //there is value
+    if($params['task'] == "generate_resource") {
+        if($params['range_from'] && $params['range_to']) {} //wikipedia.php jenkins es generate_resource 1 416666 1of6
+        else $params['task'] = "generate_resource_force";   //wikipedia.php jenkins es generate_resource
+    }
+}
+else $params['task'] = "generate_resource_force"; //default value for task if left blank e.g. php5.6 wikipedia.php jenkins en
 // */
 
 print_r($params);
