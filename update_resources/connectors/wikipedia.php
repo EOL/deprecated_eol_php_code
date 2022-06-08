@@ -185,18 +185,6 @@ $actual = @$params['actual'];
 if($actual) $resource_id .= "_".$actual;
 else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
     
-    // /* new block
-    if(!is_this_wikipedia_lang_old_YN($language)) exit("\nSeems already recently generated [$language]\n");
-    else { //needs refresh of dwca, but must need to check first if 'Y' should be "6c"
-        $info = get_language_info_from_TSV($lang);
-        print_r($info);
-        $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
-        if($status == 'Y' && $six_conn == '6c') echo "\n=PROCEEDx WITH HARVEST for [$language]=\n";
-        else exit("\n=CANNOT PROCEEDx [$language], GO TO NEXT LANGUAGE=\n");
-    }
-    // */
-    
-    
     $test_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id."_1of6.tar.gz";
     if(file_exists($test_file)) { //ready to aggregate
         echo "\n----------\nMeaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.\n----------\n";
@@ -269,6 +257,19 @@ $func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multip
 
 if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id, "of6") !== false) { //uncomment in real operation
 // if(false) { //*** use this when developing to process language e.g. 'en' for one taxon only
+    
+    // /* new block
+    if(!is_this_wikipedia_lang_old_YN($language)) exit("\nSeems already recently generated [$language]\n");
+    else { //needs refresh of dwca, but must need to check first if 'Y' should be "6c"
+        $info = get_language_info_from_TSV($lang);
+        print_r($info);
+        $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
+        if($status == 'Y' && $six_conn == '6c') echo "\n=PROCEEDx WITH HARVEST for [$language]=\n";
+        else exit("\n=CANNOT PROCEEDx [$language], GO TO NEXT LANGUAGE=\n");
+    }
+    // */
+    
+    
     echo "\n===== Goes to the 6-partial-connector run =====\n";
     $status_arr = $func->generate_resource($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.
     if($status_arr[0]) {
