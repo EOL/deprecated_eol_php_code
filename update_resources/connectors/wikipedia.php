@@ -199,20 +199,8 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
         
         $cont_2next_lang = @$params['cont_2next_lang'];
         // if($cont_2next_lang == 'Y') { //should be implemented like this
-        if(true) {
-            echo "\nDesigned to process the next language.\n";
-            if($ret = get_next_lang_after($language)) { //this gets the next 6c lang.
-                echo "\nNext lang. to process is: [$next_lang]\n";
-                $next_lang = $ret[0];
-                $six_conn = $ret[1];
-                $tmp = array('next_lang' => $next_lang, 'cont_2next_lang' => 'Y');
-                /*
-                if($six_conn == '6c') inject_jenkins_run($tmp, 'run_wikipedia_lang');
-                else                  inject_jenkins_run($tmp, 'run_wikipedia_lang_single');
-                */
-                inject_jenkins_run($tmp, 'run_wikipedia_lang'); //always 6c
-            }
-            else exit("\nNo more next lang for [$language]\n");
+        if(true) { //temporary implementation -- always true for now
+            run_next_lang($language);
         }
         else {
             echo "\nDesigned NOT to process the next language.\n";
@@ -223,7 +211,7 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
     else {
         echo "\n===== A one-connector run =====\n";
         // /* new block
-        if(!is_this_wikipedia_lang_old_YN($language)) exit("\nSeems already recently generated [$language]\n");
+        if(!is_this_wikipedia_lang_old_YN($language)) exit("\nSeems already recently generated (single) [$language]\n");
         else { //needs refresh of dwca, but must need to check first if 'Y' and not "6c"
             $info = get_language_info_from_TSV($language);
             print_r($info);
@@ -265,7 +253,10 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
 // if(false) { //*** use this when developing to process language e.g. 'en' for one taxon only
     
     // /* new block
-    if(!is_this_wikipedia_lang_old_YN($language)) exit("\nSeems already recently generated [$language]\n");
+    if(!is_this_wikipedia_lang_old_YN($language)) {
+        echo "\nSeems already recently generated (multiple) [$language]\n";
+        run_next_lang($language);
+    }
     else { //needs refresh of dwca, but must need to check first if 'Y' should be "6c"
         $info = get_language_info_from_TSV($language);
         print_r($info);
@@ -538,6 +529,22 @@ function get_language_info_from_TSV($needle)
         if($needle == $lang) return $arr;
     }
     return false;
+}
+function run_next_lang($language)
+{
+    echo "\nDesigned to process the next language.\n";
+    if($ret = get_next_lang_after($language)) { //this gets the next 6c lang.
+        $next_lang = $ret[0];
+        $six_conn = $ret[1];
+        echo "\nNext lang. to process is: [$next_lang]\n";
+        $tmp = array('next_lang' => $next_lang, 'cont_2next_lang' => 'Y');
+        /*
+        if($six_conn == '6c') inject_jenkins_run($tmp, 'run_wikipedia_lang');
+        else                  inject_jenkins_run($tmp, 'run_wikipedia_lang_single');
+        */
+        inject_jenkins_run($tmp, 'run_wikipedia_lang'); //always 6c
+    }
+    else exit("\nNo more next lang for [$language]\n");
 }
 /* http://opendata.eol.org/dataset/wikipedia_5k
 Data and Resources
