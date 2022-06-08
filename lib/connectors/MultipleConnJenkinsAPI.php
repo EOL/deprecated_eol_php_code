@@ -116,7 +116,7 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
             // fill_up_undefined_parents.php jenkins '{"resource_id": "wikipedia-is", "source_dwca": "wikipedia-is", "resource": "fillup_missing_parents"}'
             if($connector_task == 'fillup missing parents') {
                 $json = '{"resource_id": "'.$resource_id.'", "source_dwca": "'.$resource_id.'", "resource": "fillup_missing_parents"}';
-                $cmd = PHP_PATH.' fill_up_undefined_parents.php jenkins ' . "'" . $json . "'";
+                $cmd = PHP_PATH.' fill_up_undefined_parents_real.php jenkins ' . "'" . $json . "'";
             }
             else exit("\nUndefined connector task [$connector_task].\n");
         }
