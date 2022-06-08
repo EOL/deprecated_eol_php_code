@@ -6,6 +6,8 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 echo "\nCACHE_PATH xx 01 is ".CACHE_PATH."\n";
 
 require_library('connectors/MultipleConnJenkinsAPI');
+require_library('connectors/MoreFunc4Wikipedia');
+
 ini_set('memory_limit','4096M');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = false; //false in production
@@ -20,12 +22,39 @@ php5.6                    run.php jenkins '{"connector":"gen_wikipedia_by_lang",
 */
 
 $funcj = new MultipleConnJenkinsAPI();
+$func_wp = new MoreFunc4Wikipedia();
+
 // print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $params['json']              = @$argv[2]; //useful here
 $arr = json_decode($params['json'], true);
 // print_r($params);
 print_r($arr);
+
+
+// /* new block
+$language = $arr['langx'];
+if(!$func_wp->is_this_wikipedia_lang_old_YN($language)) {
+    echo "\nSeems already recently generated (multiple) [$language]. Run next language...\n";
+    if($ret = $func_wp->get_next_lang_after($language)) { //this gets the next 6c lang.
+        $arr['langx'] = $ret[0];
+    }
+    else exit("\nFor some reason exits...\n");
+}
+else { //needs refresh of dwca, but must need to check first if 'Y' AND should be "6c"
+    $info = $func_wp->get_language_info_from_TSV($language);
+    print_r($info);
+    $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
+    if($status == 'Y' && $six_conn == '6c') echo "\n=PROCEEDx WITH HARVEST for [$language]=\n";
+    else {
+        echo "\n=CANNOT PROCEEDx [$language], GO TO NEXT LANGUAGE=\n";
+        if($ret = $func_wp->get_next_lang_after($language)) { //this gets the next 6c lang.
+            $arr['langx'] = $ret[0];
+        }
+    }
+}
+// */
+
 
 if($arr['task'] == 'initial') { //this is where to get e.g. the total number of rows/records/taxa to which we will divide. Customized for every connector.
     if($arr['connector'] == 'eol_v3_api.php') { //customization part

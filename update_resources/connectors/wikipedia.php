@@ -5,6 +5,8 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiHTMLAPI');
 require_library('connectors/WikipediaAPI');
 require_library('connectors/WikiDataAPI');
+require_library('connectors/MoreFunc4Wikipedia');
+
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = false; //orig false in production
 
@@ -183,6 +185,7 @@ exit("\nend test\n");
 */
 
 // /* new section for wikipedia ver2 ****************************
+$func_wp = new MoreFunc4Wikipedia();
 $actual = @$params['actual'];
 if($actual) $resource_id .= "_".$actual;
 else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
@@ -211,9 +214,9 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
     else {
         echo "\n===== A one-connector run =====\n";
         // /* new block
-        if(!is_this_wikipedia_lang_old_YN($language)) exit("\nSeems already recently generated (single) [$language]\n");
+        if(!$func_wp->is_this_wikipedia_lang_old_YN($language)) exit("\nSeems already recently generated (single) [$language]\n");
         else { //needs refresh of dwca, but must need to check first if 'Y' and not "6c"
-            $info = get_language_info_from_TSV($language);
+            $info = $func_wp->get_language_info_from_TSV($language);
             print_r($info);
             $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
             if($status == 'Y' && $six_conn != '6c') echo "\n=PROCEEDy WITH HARVEST for [$language]=\n";
@@ -253,12 +256,12 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
 // if(false) { //*** use this when developing to process language e.g. 'en' for one taxon only
     
     // /* new block
-    if(!is_this_wikipedia_lang_old_YN($language)) {
-        echo "\nSeems already recently generated (multiple) [$language]\n";
-        run_next_lang($language);
+    if(!$func_wp->is_this_wikipedia_lang_old_YN($language)) {
+        exit("\nSeems already recently generated (multiple) [$language]\n");
+        // run_next_lang($language); --- wrongly implemented here - cause 6 conns to call new lang each
     }
-    else { //needs refresh of dwca, but must need to check first if 'Y' should be "6c"
-        $info = get_language_info_from_TSV($language);
+    else { //needs refresh of dwca, but must need to check first if 'Y' AND should be "6c"
+        $info = $func_wp->get_language_info_from_TSV($language);
         print_r($info);
         $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
         if($status == 'Y' && $six_conn == '6c') echo "\n=PROCEEDx WITH HARVEST for [$language]=\n";
@@ -427,79 +430,6 @@ function aggregate_6partial_wikipedias($timestart, $resource_id)
     $func->combine_DwCAs($langs);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
-function get_next_lang_after($needle)
-{   // echo "\n". DOC_ROOT;
-    // /Library/WebServer/Documents/eol_php_code/
-    $tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
-    $txt = file_get_contents($tsv);
-    $rows = explode("\n", $txt);
-    /* step1: get all valid langs to process */
-    $final = array();
-    foreach($rows as $row) {
-        $arr = explode("\t", $row);
-        $arr = array_map('trim', $arr); // print_r($arr);
-        $lang = $arr[0]; $status = $arr[1];
-        // if($lang == "-----") continue;
-        // if($status == "N") continue;
-        $final[] = $arr;
-    } // print_r($final);
-    /* step2: loop and search for needle in $final, get $i */
-    $i = -1;
-    foreach($final as $arr) { $i++; // print_r($rek); exit;
-        /*Array(
-            [0] => pl
-            [1] => Y
-        )*/
-        $lang = $arr[0]; $status = $arr[1];
-        if($needle == $lang) break;
-    }
-    /* step3: start with $i, then get the next valid lang */
-    $start = $i+1; // echo "\nstart at: [$start]\n";
-    $i = -1;
-    foreach($final as $arr) { $i++; // print_r($rek); exit;
-        /*Array(
-            [0] => pl
-            [1] => Y
-            [2] => 6c
-        )*/
-        if($i >= $start) {
-            $lang = $arr[0]; $status = $arr[1]; $six_conn = $arr[2];
-            if($status == "Y" && $six_conn == "6c") {
-                if(is_this_wikipedia_lang_old_YN($lang)) return array($lang, $six_conn);
-            }
-        }
-    }
-    return false;
-}
-/*
-$lang = 'es';
-$lang = 'ce';
-if(is_this_wikipedia_lang_old_YN($lang)) {
-    echo "\nYes, this is an old file.\n";
-}
-else echo "\nNo, this is already a new file\n";
-*/
-function is_this_wikipedia_lang_old_YN($lang)
-{
-    $lang_date = get_date_of_this_wikipedia_lang($lang);
-    echo "\ndate of $lang: $lang_date\n";
-    // get date today minus 2 months
-    $date = date("Y-m-d");
-    $today = date_create($date);
-    echo "\ntoday: ".date_format($today, 'Y-m-d')."\n";
-    date_sub($today, date_interval_create_from_date_string('2 months'));
-    $minus_2_months = date_format($today, 'Y-m-d');
-    // compare
-    echo "minus 2 months: " .$minus_2_months. "\n";
-    echo "\n$lang_date < $minus_2_months \n";
-    if($lang_date < $minus_2_months) return true;
-    else return false;
-}
-function get_date_of_this_wikipedia_lang($lang)
-{
-    $file = CONTENT_RESOURCE_LOCAL_PATH.'wikipedia-'.$lang.'.tar.gz';
-    return date("Y-m-d", filemtime($file));
-}
 function get_all_6_connectors()
 {   $final = array();
     $tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
@@ -516,24 +446,10 @@ function get_all_6_connectors()
     }
     return $final;
 }
-function get_language_info_from_TSV($needle)
-{
-    $tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
-    $txt = file_get_contents($tsv);
-    $rows = explode("\n", $txt);
-    $final = array();
-    foreach($rows as $row) {
-        $arr = explode("\t", $row);
-        $arr = array_map('trim', $arr); // print_r($arr);
-        $lang = $arr[0]; $status = $arr[1]; $six_conn = $arr[2];
-        if($needle == $lang) return $arr;
-    }
-    return false;
-}
 function run_next_lang($language)
 {
     echo "\nDesigned to process the next language.\n";
-    if($ret = get_next_lang_after($language)) { //this gets the next 6c lang.
+    if($ret = $func_wp->get_next_lang_after($language)) { //this gets the next 6c lang.
         $next_lang = $ret[0];
         $six_conn = $ret[1];
         echo "\nNext lang. to process is: [$next_lang]\n";
