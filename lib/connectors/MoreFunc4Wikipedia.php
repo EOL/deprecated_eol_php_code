@@ -25,7 +25,8 @@ class MoreFunc4Wikipedia
     private function get_date_of_this_wikipedia_lang($lang)
     {
         $file = CONTENT_RESOURCE_LOCAL_PATH.'wikipedia-'.$lang.'.tar.gz';
-        return date("Y-m-d", filemtime($file));
+        if(file_exists($file)) return date("Y-m-d", filemtime($file));
+        else                   return date("Y-m-d", false);
     }
     function get_language_info_from_TSV($needle)
     {
