@@ -165,7 +165,9 @@ if(@$params['task']) { //there is value
 else $params['task'] = "generate_resource_force"; //default value for task if left blank e.g. php5.6 wikipedia.php jenkins en
 // */
 
+echo "\nstart----->\n";
 print_r($params);
+echo "\nend----->\n";
 
 // /* //----------start main operation
 if($val = $params['language']) $language = $val;
@@ -196,7 +198,8 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
         inject_jenkins_run($tmp, 'fill_up_undefined_parents');
         
         $cont_2next_lang = @$params['cont_2next_lang'];
-        if($cont_2next_lang == 'Y') {
+        // if($cont_2next_lang == 'Y') { //should be implemented like this
+        if(true) {
             echo "\nDesigned to process the next language.\n";
             if($ret = get_next_lang_after($language)) { //this gets the next 6c lang.
                 echo "\nNext lang. to process is: [$next_lang]\n";
@@ -211,7 +214,10 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
             }
             else exit("\nNo more next lang for [$language]\n");
         }
-        else echo "\nDesigned NOT to process the next language.\n";
+        else {
+            echo "\nDesigned NOT to process the next language.\n";
+            print_r($params);
+        }
         return;
     }
     else {
