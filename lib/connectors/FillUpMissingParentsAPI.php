@@ -188,7 +188,7 @@ class FillUpMissingParentsAPI
                 
                 // /*
                 if($no_label_defined) {
-                    if(in_array($rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID']), $no_label_defined) $rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID'] = '';
+                    if(in_array($rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID'], $no_label_defined)) $rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID'] = '';
                 }
                 // */
                 
