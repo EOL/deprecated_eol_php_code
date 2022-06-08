@@ -185,6 +185,18 @@ $actual = @$params['actual'];
 if($actual) $resource_id .= "_".$actual;
 else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
     
+    // /* new block
+    if(!is_this_wikipedia_lang_old_YN($language)) exit("\nSeems already recently generated [$language]\n");
+    else { //needs refresh of dwca, but must need to check first if 'Y' should be "6c"
+        $info = get_language_info_from_TSV($lang);
+        print_r($info);
+        $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
+        if($status == 'Y' && $six_conn == '6c') echo "\n=PROCEEDx WITH HARVEST for [$language]=\n";
+        else exit("\n=CANNOT PROCEEDx [$language], GO TO NEXT LANGUAGE=\n");
+    }
+    // */
+    
+    
     $test_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id."_1of6.tar.gz";
     if(file_exists($test_file)) { //ready to aggregate
         echo "\n----------\nMeaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.\n----------\n";
@@ -222,8 +234,8 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
             $info = get_language_info_from_TSV($lang);
             print_r($info);
             $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
-            if($status == 'Y' && $six_conn != '6c') echo "\n=PROCEED WITH HARVEST for [$language]=\n";
-            else exit("\n=CANNOT PROCEED [$language], GO TO NEXT LANGUAGE=\n");
+            if($status == 'Y' && $six_conn != '6c') echo "\n=PROCEEDy WITH HARVEST for [$language]=\n";
+            else exit("\n=CANNOT PROCEEDy [$language], GO TO NEXT LANGUAGE=\n");
         }
         // */
     }
