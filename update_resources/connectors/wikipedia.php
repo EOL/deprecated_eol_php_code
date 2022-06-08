@@ -295,6 +295,10 @@ else { //orig - just one connector
     echo "\n===== Goes to the one-connector run =====\n";
     $func->generate_resource();
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means delete working folder
+    // /*
+    $tmp = array('resource_id' => $resource_id);
+    inject_jenkins_run($tmp, 'fill_up_undefined_parents');
+    // */
 }
 // ----------end main operation */
 
