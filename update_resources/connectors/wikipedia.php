@@ -214,7 +214,19 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
         else echo "\nDesigned NOT to process the next language.\n";
         return;
     }
-    else echo "\n===== A one-connector run =====\n";
+    else {
+        echo "\n===== A one-connector run =====\n";
+        // /* new block
+        if(!is_this_wikipedia_lang_old_YN($language)) exit("\nSeems already recently generated [$language]\n");
+        else { //needs refresh of dwca, but must need to check first if 'Y' and not "6c"
+            $info = get_language_info_from_TSV($lang);
+            print_r($info);
+            $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
+            if($status == 'Y' && $six_conn != '6c') echo "\n=PROCEED WITH HARVEST for [$language]=\n";
+            else exit("\n=CANNOT PROCEED [$language], GO TO NEXT LANGUAGE=\n");
+        }
+        // */
+    }
 }
 // ************************************************************** */
 
@@ -489,6 +501,20 @@ function get_all_6_connectors()
         if($six_conn == '6c') $final[] = $lang;
     }
     return $final;
+}
+function get_language_info_from_TSV($needle)
+{
+    $tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
+    $txt = file_get_contents($tsv);
+    $rows = explode("\n", $txt);
+    $final = array();
+    foreach($rows as $row) {
+        $arr = explode("\t", $row);
+        $arr = array_map('trim', $arr); // print_r($arr);
+        $lang = $arr[0]; $status = $arr[1]; $six_conn = $arr[2];
+        if($needle == $lang) return $arr;
+    }
+    return false;
 }
 /* http://opendata.eol.org/dataset/wikipedia_5k
 Data and Resources

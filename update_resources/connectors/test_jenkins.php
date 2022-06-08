@@ -60,9 +60,31 @@ else echo "\nNo, this is already a new file\n";
 // exit(0); //SUCCESS in Jenkins
 // exit(1); //SUCCESS in Jenkins
 // exit();  //succes in Jenkins
-shell_exec("exit 1");
+// shell_exec("exit 1"); //still success in Jenkins
 
+$lang = 'or';
+$info = get_language_info_from_TSV($lang);
+print_r($info);
+$lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
+if($status == 'Y' && $six_conn != '6c') echo "\nproceed with harvest\n";
+else echo "\ncannot proceed, go to next lang\n";
+exit("\n-end-\n");
 
+function get_language_info_from_TSV($needle)
+{
+    $tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
+    $txt = file_get_contents($tsv);
+    $rows = explode("\n", $txt);
+    $final = array();
+    foreach($rows as $row) {
+        $arr = explode("\t", $row);
+        $arr = array_map('trim', $arr);
+        // print_r($arr);
+        $lang = $arr[0]; $status = $arr[1]; $six_conn = $arr[2];
+        if($needle == $lang) return $arr;
+    }
+    return false;
+}
 function is_this_wikipedia_lang_old_YN($lang)
 {
     $lang_date = get_date_of_this_wikipedia_lang($lang);
