@@ -474,7 +474,22 @@ function get_date_of_this_wikipedia_lang($lang)
     $file = CONTENT_RESOURCE_LOCAL_PATH.'wikipedia-'.$lang.'.tar.gz';
     return date("Y-m-d", filemtime($file));
 }
-
+function get_all_6_connectors()
+{   $final = array();
+    $tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
+    $txt = file_get_contents($tsv);
+    $rows = explode("\n", $txt);
+    /* step1: get all valid langs to process */
+    $final = array();
+    foreach($rows as $row) {
+        $arr = explode("\t", $row);
+        $arr = array_map('trim', $arr);
+        // print_r($arr);
+        $lang = $arr[0]; $status = $arr[1]; $six_conn = $arr[2];
+        if($six_conn == '6c') $final[] = $lang;
+    }
+    return $final;
+}
 /* http://opendata.eol.org/dataset/wikipedia_5k
 Data and Resources
 
