@@ -41,8 +41,8 @@ class FillUpMissingParentsAPI
         }
         if($undefined_parents = self::get_undefined_parents_v2()) {
             /* or at this point you can add_2undefined_parents_their_parents(), if needed */
-            self::append_undefined_parents($undefined_parents);
-            self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'create_archive');
+            $no_label_defined = self::append_undefined_parents($undefined_parents);
+            self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'create_archive', $no_label_defined);
         }
         else { //no undefined parents
             self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'create_archive');
@@ -75,6 +75,7 @@ class FillUpMissingParentsAPI
     {
         $to_be_added = array('Q21032607', 'Q68334453', 'Q14476748', 'Q21032613', 'Q2116552'); //last remaining undefined parents. Added here to save one entire loop
         $undefined_parents = array_merge($undefined_parents, $to_be_added);
+        $no_label_defined = array();
         foreach($undefined_parents as $undefined_id) {
             $obj = $this->func->get_object($undefined_id);
             
@@ -119,8 +120,10 @@ class FillUpMissingParentsAPI
             }
             else {
                 echo "\nWas not added: "; print_r($rek);
+                $no_label_defined[$rek['taxon_id']] = ''; //e.g. Q111551242
             }
         }//end foreach()
+        return array_keys($no_label_defined);
     }
     /* working OK - an option to get a taxon.tab that is a "taxon_working.tab"
     private function get_undefined_parents()
@@ -136,7 +139,7 @@ class FillUpMissingParentsAPI
         }
         // exit("\ndid not detect undefined parents\n");
     } */
-    private function process_table($meta, $what)
+    private function process_table($meta, $what, $no_label_defined = array())
     {   //print_r($meta);
         echo "\nprocess_table: [$what] [$meta->file_uri]...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -180,6 +183,12 @@ class FillUpMissingParentsAPI
                     $scientificName = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
                     $rank = $rec['http://rs.tdwg.org/dwc/terms/taxonRank'];
                     $rec['http://rs.gbif.org/terms/1.0/canonicalName'] = self::add_cannocial_using_gnparser($scientificName, $rank);
+                }
+                // */
+                
+                // /*
+                if($no_label_defined) {
+                    if(in_array($rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID']), $no_label_defined) $rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID'] = '';
                 }
                 // */
                 
