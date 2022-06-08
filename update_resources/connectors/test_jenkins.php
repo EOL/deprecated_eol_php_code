@@ -8,10 +8,137 @@ require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true; //orig false in production
 
-
+/*
 $resource_id = 'wikipedia-ce';
 inject_jenkins_run($resource_id);
+*/
+/*
+$ret = get_next_lang_after('en');
+print_r($ret);
+$next_lang = $ret[0];
+$six_conn = $ret[1];
+exit("\nNext lang is: [$next_lang][$six_conn]\n");
+*/
+/*
+$all_6c = get_all_6_connectors();
+print_r($all_6c);
+*/
 
+/*
+// PHP program to illustrate date_sub() function
+
+// Subtract 5 years from the 25th of June, 2018
+$date = date_create('2018-06-25');
+date_sub($date, date_interval_create_from_date_string('5 years'));  echo date_format($date, 'Y-m-d') . "\n";
+
+// Subtract 5 month from the 25th of June, 2018
+$date = date_create('2018-06-25');
+date_sub($date, date_interval_create_from_date_string('5 month'));  echo date_format($date, 'Y-m-d'). "\n";
+
+// // Subtract 5 days from the 25th of June, 2018
+$date = date_create('2018-06-25');
+date_sub($date, date_interval_create_from_date_string('5 days'));   echo date_format($date, 'Y-m-d');
+
+$date = date("Y-m-d");
+$today = date_create($date);
+echo "\ntoday: ".date_format($today, 'Y-m-d')."\n";
+date_sub($today, date_interval_create_from_date_string('2 months'));
+echo "yesterday: " . date_format($today, 'Y-m-d'). "\n";
+*/
+// Input : echo "Last modified: ".date("F d Y H:i:s.", filemtime("gfg.txt"));
+// Output : Last modified: May 1 2018 07:26:14.
+
+$lang = 'es';
+$lang = 'ce';
+if(is_this_wikipedia_lang_old_YN($lang)) {
+    echo "\nYes, this is an old file.\n";
+}
+else echo "\nNo, this is already a new file\n";
+
+
+function is_this_wikipedia_lang_old_YN($lang)
+{
+    $lang_date = get_date_of_this_wikipedia_lang($lang);
+    echo "\ndate of $lang: $lang_date\n";
+    // get date today minus 2 months
+    $date = date("Y-m-d");
+    $today = date_create($date);
+    echo "\ntoday: ".date_format($today, 'Y-m-d')."\n";
+    date_sub($today, date_interval_create_from_date_string('2 months'));
+    $minus_2_months = date_format($today, 'Y-m-d');
+    // compare
+    echo "minus 2 months: " .$minus_2_months. "\n";
+    echo "\n$lang_date < $minus_2_months \n";
+    if($lang_date < $minus_2_months) return true;
+    else return false;
+}
+function get_date_of_this_wikipedia_lang($lang)
+{
+    $file = CONTENT_RESOURCE_LOCAL_PATH.'wikipedia-'.$lang.'.tar.gz';
+    return date("Y-m-d", filemtime($file));
+}
+
+
+
+function get_all_6_connectors()
+{   $final = array();
+    $tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
+    $txt = file_get_contents($tsv);
+    $rows = explode("\n", $txt);
+    /* step1: get all valid langs to process */
+    $final = array();
+    foreach($rows as $row) {
+        $arr = explode("\t", $row);
+        $arr = array_map('trim', $arr);
+        // print_r($arr);
+        $lang = $arr[0]; $status = $arr[1]; $six_conn = $arr[2];
+        if($six_conn == '6c') $final[] = $lang;
+    }
+    return $final;
+}
+
+function get_next_lang_after($needle)
+{   // echo "\n". DOC_ROOT;
+    // /Library/WebServer/Documents/eol_php_code/
+    $tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
+    $txt = file_get_contents($tsv);
+    $rows = explode("\n", $txt);
+    /* step1: get all valid langs to process */
+    $final = array();
+    foreach($rows as $row) {
+        $arr = explode("\t", $row);
+        $arr = array_map('trim', $arr); // print_r($arr);
+        $lang = $arr[0]; $status = $arr[1];
+        // if($lang == "-----") continue;
+        // if($status == "N") continue;
+        $final[] = $arr;
+    } // print_r($final);
+    /* step2: loop and search for needle in $final, get $i */
+    $i = -1;
+    foreach($final as $arr) { $i++; // print_r($rek); exit;
+        /*Array(
+            [0] => pl
+            [1] => Y
+        )*/
+        $lang = $arr[0]; $status = $arr[1];
+        if($needle == $lang) break;
+    }
+    /* step3: start with $i, then get the next valid lang */
+    $start = $i+1; // echo "\nstart at: [$start]\n";
+    $i = -1;
+    foreach($final as $arr) { $i++; // print_r($rek); exit;
+        /*Array(
+            [0] => pl
+            [1] => Y
+            [2] => 6c
+        )*/
+        if($i >= $start) {
+            $lang = $arr[0]; $status = $arr[1]; $six_conn = $arr[2];
+            if($status == "Y" && $six_conn == "6c") return array($lang, $six_conn);
+        }
+    }
+    return false;
+}
 
 function inject_jenkins_run($resource_id)
 {   /*

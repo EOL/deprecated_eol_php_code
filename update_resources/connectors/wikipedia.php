@@ -192,7 +192,26 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
         echo "\nFinished aggregate_6partial_wikipedias()...\n";
         echo "\nLet us see if we can still delete files here:\n";
         delete_temp_files_and_others($language, $resource_id); //2nd param $resource_id is for eventually 80_1of6 80_2of6
-        inject_jenkins_run($resource_id);
+        $tmp = array('resource_id' => $resource_id);
+        inject_jenkins_run($tmp, 'fill_up_undefined_parents');
+        
+        $cont_2next_lang = @$params['cont_2next_lang'];
+        if($cont_2next_lang == 'Y') {
+            echo "\nDesigned to process the next language.\n";
+            if($ret = get_next_lang_after($language)) { //this gets the next 6c lang.
+                echo "\nNext lang. to process is: [$next_lang]\n";
+                $next_lang = $ret[0];
+                $six_conn = $ret[1];
+                $tmp = array('next_lang' => $next_lang, 'cont_2next_lang' => 'Y');
+                /*
+                if($six_conn == '6c') inject_jenkins_run($tmp, 'run_wikipedia_lang');
+                else                  inject_jenkins_run($tmp, 'run_wikipedia_lang_single');
+                */
+                inject_jenkins_run($tmp, 'run_wikipedia_lang'); //always 6c
+            }
+            else exit("\nNo more next lang for [$language]\n");
+        }
+        else echo "\nDesigned NOT to process the next language.\n";
         return;
     }
     else echo "\n===== A one-connector run =====\n";
@@ -202,6 +221,9 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
 $langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh"); //1st batch | single connectors: ko, ja, ru
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch Dutch Polish Swedish Vietnamese
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("ce", "tr", "pl", "sv")); //3rd batch ... th also
+$all_6c = get_all_6_connectors(); //from all_wikipedias_main.tsv
+$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $all_6c);
+
 
 /* No longer have multiple connectors
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("no", "fi", "ca", "uk")); //3rd batch Norwegian Finnish Catalan Ukranian
@@ -290,17 +312,46 @@ function inject_MultipleConnJenkinsAPI($language)
     $funcj->jenkins_call($arr_info, "finalize"); //finally make the call
     /* END continue lifeline of Jenkins event ----------------------------------------------- */
 }
-function inject_jenkins_run($resource_id)
-{   /*
-    fill_up_undefined_parents.php jenkins '{"resource_id": "wikipedia-is", "source_dwca": "wikipedia-is", "resource": "fillup_missing_parents"}'
-    */
+function inject_jenkins_run($params, $what)
+{
     require_library('connectors/MultipleConnJenkinsAPI');
     $funcj = new MultipleConnJenkinsAPI();
-    echo "\ntry to fillup_missing_parents...\n";
-    $arr_info = array();
-    $arr_info['resource_id'] = $resource_id;
-    $arr_info['connector'] = 'fill_up_undefined_parents';
-    $funcj->jenkins_call_single_run($arr_info, "fillup missing parents");
+    if($what == 'fill_up_undefined_parents') {
+        /*
+        fill_up_undefined_parents.php jenkins '{"resource_id": "wikipedia-is", "source_dwca": "wikipedia-is", "resource": "fillup_missing_parents"}'
+        */
+        $resource_id = $params['resource_id'];
+        echo "\ntry to fillup_missing_parents...\n";
+        $arr_info = array();
+        $arr_info['resource_id'] = $resource_id;
+        $arr_info['connector'] = 'fill_up_undefined_parents';
+        $funcj->jenkins_call_single_run($arr_info, "fillup missing parents");
+    }
+    elseif($what == 'run_wikipedia_lang') {
+        /*
+        run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce", "cont_2next_lang":"Y"}'
+        */
+        $next_lang = $params['next_lang'];
+        $cont_2next_lang = $params['cont_2next_lang'];
+        echo "\ntry to run_wikipedia_lang...\n";
+        $arr_info = array();
+        $arr_info['langx'] = $next_lang;
+        $arr_info['cont_2next_lang'] = $cont_2next_lang;
+        $arr_info['connector'] = 'run_wikipedia_lang';
+        $funcj->jenkins_call_single_run($arr_info, "run wikipedia lang");
+    }
+    /* not being used
+    elseif($what == 'run_wikipedia_lang_single') {
+        // wikipedia.php jenkins ga #Irish
+        $next_lang = $params['next_lang'];
+        $cont_2next_lang = $params['cont_2next_lang'];
+        echo "\ntry to run_wikipedia_lang_single...\n";
+        $arr_info = array();
+        $arr_info['language'] = $next_lang;
+        $arr_info['cont_2next_lang'] = $cont_2next_lang;
+        $arr_info['connector'] = 'run_wikipedia_lang_single';
+        $funcj->jenkins_call_single_run($arr_info, "run wikipedia lang single");
+    } */
 }
 function delete_temp_files_and_others($language, $resource_id = false)
 {   /*
@@ -349,6 +400,79 @@ function aggregate_6partial_wikipedias($timestart, $resource_id)
     $func = new DwCA_Aggregator($resource_id, NULL, 'regular'); //'regular' not 'wikipedia' which is used in wikipedia aggregate resource
     $func->combine_DwCAs($langs);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+}
+function get_next_lang_after($needle)
+{   // echo "\n". DOC_ROOT;
+    // /Library/WebServer/Documents/eol_php_code/
+    $tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
+    $txt = file_get_contents($tsv);
+    $rows = explode("\n", $txt);
+    /* step1: get all valid langs to process */
+    $final = array();
+    foreach($rows as $row) {
+        $arr = explode("\t", $row);
+        $arr = array_map('trim', $arr); // print_r($arr);
+        $lang = $arr[0]; $status = $arr[1];
+        // if($lang == "-----") continue;
+        // if($status == "N") continue;
+        $final[] = $arr;
+    } // print_r($final);
+    /* step2: loop and search for needle in $final, get $i */
+    $i = -1;
+    foreach($final as $arr) { $i++; // print_r($rek); exit;
+        /*Array(
+            [0] => pl
+            [1] => Y
+        )*/
+        $lang = $arr[0]; $status = $arr[1];
+        if($needle == $lang) break;
+    }
+    /* step3: start with $i, then get the next valid lang */
+    $start = $i+1; // echo "\nstart at: [$start]\n";
+    $i = -1;
+    foreach($final as $arr) { $i++; // print_r($rek); exit;
+        /*Array(
+            [0] => pl
+            [1] => Y
+            [2] => 6c
+        )*/
+        if($i >= $start) {
+            $lang = $arr[0]; $status = $arr[1]; $six_conn = $arr[2];
+            if($status == "Y" && $six_conn == "6c") {
+                if(is_this_wikipedia_lang_old_YN($lang)) return array($lang, $six_conn);
+            }
+        }
+    }
+    return false;
+}
+/*
+$lang = 'es';
+$lang = 'ce';
+if(is_this_wikipedia_lang_old_YN($lang)) {
+    echo "\nYes, this is an old file.\n";
+}
+else echo "\nNo, this is already a new file\n";
+*/
+function is_this_wikipedia_lang_old_YN($lang)
+{
+    $lang_date = get_date_of_this_wikipedia_lang($lang);
+    echo "\ndate of $lang: $lang_date\n";
+    // get date today minus 2 months
+    $date = date("Y-m-d");
+    $today = date_create($date);
+    echo "\ntoday: ".date_format($today, 'Y-m-d')."\n";
+    date_sub($today, date_interval_create_from_date_string('2 months'));
+    $minus_2_months = date_format($today, 'Y-m-d');
+    // compare
+    echo "minus 2 months: " .$minus_2_months. "\n";
+    echo "\n$lang_date < $minus_2_months \n";
+    if($lang_date < $minus_2_months) return true;
+    else return false;
+}
+function get_date_of_this_wikipedia_lang($lang)
+{
+    $file = CONTENT_RESOURCE_LOCAL_PATH.'wikipedia-'.$lang.'.tar.gz';
+    return date("Y-m-d", filemtime($file));
 }
 
 /* http://opendata.eol.org/dataset/wikipedia_5k

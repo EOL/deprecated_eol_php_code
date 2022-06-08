@@ -95,13 +95,15 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
         require_once(DOC_ROOT."../FreshData/controllers/other.php");
         require_once(DOC_ROOT."../FreshData/controllers/freshdata.php");
         echo "\nCACHE_PATH 02 is ".CACHE_PATH."\n";
+        print_r($arr_info);
 
         $ctrler = new \freshdata_controller(array());
         ini_set('memory_limit','4096M');
         $postfix = "_run";
 
         if($connector_task == 'fillup missing parents') $job_name = 'fillup_missing_parents';
-        else exit("\nUndefined job ($connector_task).\n");
+        elseif($connector_task == 'run wikipedia lang') $job_name = 'run_wikipedia_lang';
+        else exit("\nUndefined connector_task ($connector_task).\n");
 
         // /* ---------- START main body ----------
         $param = array();
@@ -109,7 +111,7 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
         $json = json_encode($param, true);
         $params['uuid'] = time();
         echo "\njson param: [$json]\n";
-        
+        //==========================================================================================================
         if($connector == "fill_up_undefined_parents") {
             // fill_up_undefined_parents.php jenkins '{"resource_id": "wikipedia-is", "source_dwca": "wikipedia-is", "resource": "fillup_missing_parents"}'
             if($connector_task == 'fillup missing parents') {
@@ -118,8 +120,18 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
             }
             else exit("\nUndefined connector task [$connector_task].\n");
         }
+        //==========================================================================================================
+        elseif($connector == "run_wikipedia_lang" && @$arr_info['langx']) {
+            // run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce", "cont_2next_lang":"Y"}'
+            $langx = $arr_info['langx'];
+            $cont_2next_lang = $arr_info['cont_2next_lang'];
+            $json = '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"'.$langx.'", "cont_2next_lang":"'.$cont_2next_lang.'"}';
+            $cmd = PHP_PATH.' run.php jenkins ' . "'" . $json . "'";
+        }
+        //==========================================================================================================
         elseif($connector == "xxx.php") $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
         else exit("\nUndefined connector [$connector].\n");
+        //==========================================================================================================
         echo "\n----------\ncmd = [$cmd]\n----------\n";
         self::actual_jenkins_call($params, $postfix, $cmd, $task, $ctrler);
         // */ ---------- END main body ----------

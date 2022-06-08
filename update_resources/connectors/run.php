@@ -15,6 +15,8 @@ php5.6                    run.php jenkins '{"connector":"eol_v3_api.php", "divis
 php update_resources/connectors/run.php _ '{"connector":"eol_v3_api.php", "divisor":6, "task":"initial"}'
 
 php5.6                    run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"sh"}'
+                          run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce"}'
+                          run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce", "cont_2next_lang":"Y"}'
 */
 
 $funcj = new MultipleConnJenkinsAPI();
