@@ -219,7 +219,7 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
         // /* new block
         if(!is_this_wikipedia_lang_old_YN($language)) exit("\nSeems already recently generated [$language]\n");
         else { //needs refresh of dwca, but must need to check first if 'Y' and not "6c"
-            $info = get_language_info_from_TSV($lang);
+            $info = get_language_info_from_TSV($language);
             print_r($info);
             $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
             if($status == 'Y' && $six_conn != '6c') echo "\n=PROCEEDy WITH HARVEST for [$language]=\n";
@@ -261,7 +261,7 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
     // /* new block
     if(!is_this_wikipedia_lang_old_YN($language)) exit("\nSeems already recently generated [$language]\n");
     else { //needs refresh of dwca, but must need to check first if 'Y' should be "6c"
-        $info = get_language_info_from_TSV($lang);
+        $info = get_language_info_from_TSV($language);
         print_r($info);
         $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
         if($status == 'Y' && $six_conn == '6c') echo "\n=PROCEEDx WITH HARVEST for [$language]=\n";
