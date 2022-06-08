@@ -58,7 +58,8 @@ else echo "\nNo, this is already a new file\n";
 */
 
 // exit(0); //SUCCESS in Jenkins
-exit(1);
+// exit(1); //SUCCESS in Jenkins
+exit();
 
 function is_this_wikipedia_lang_old_YN($lang)
 {
