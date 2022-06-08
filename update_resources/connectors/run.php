@@ -31,13 +31,13 @@ $arr = json_decode($params['json'], true);
 // print_r($params);
 print_r($arr);
 
-
 // /* new block
 $language = $arr['langx'];
 if(!$func_wp->is_this_wikipedia_lang_old_YN($language)) {
     echo "\nSeems already recently generated (multiple) [$language]. Run next language...\n";
     if($ret = $func_wp->get_next_lang_after($language)) { //this gets the next 6c lang.
         $arr['langx'] = $ret[0];
+        echo "\nA. Next lang is [".$arr['langx']."]\n";
     }
     else exit("\nFor some reason exits...\n");
 }
@@ -50,11 +50,11 @@ else { //needs refresh of dwca, but must need to check first if 'Y' AND should b
         echo "\n=CANNOT PROCEEDx [$language], GO TO NEXT LANGUAGE=\n";
         if($ret = $func_wp->get_next_lang_after($language)) { //this gets the next 6c lang.
             $arr['langx'] = $ret[0];
+            echo "\nB. Next lang is [".$arr['langx']."]\n";
         }
     }
 }
 // */
-
 
 if($arr['task'] == 'initial') { //this is where to get e.g. the total number of rows/records/taxa to which we will divide. Customized for every connector.
     if($arr['connector'] == 'eol_v3_api.php') { //customization part
