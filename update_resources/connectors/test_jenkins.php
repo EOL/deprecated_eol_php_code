@@ -48,13 +48,17 @@ echo "yesterday: " . date_format($today, 'Y-m-d'). "\n";
 // Input : echo "Last modified: ".date("F d Y H:i:s.", filemtime("gfg.txt"));
 // Output : Last modified: May 1 2018 07:26:14.
 
+/*
 $lang = 'es';
 $lang = 'ce';
 if(is_this_wikipedia_lang_old_YN($lang)) {
     echo "\nYes, this is an old file.\n";
 }
 else echo "\nNo, this is already a new file\n";
+*/
 
+exit(0);
+// exit(1);
 
 function is_this_wikipedia_lang_old_YN($lang)
 {
