@@ -230,7 +230,7 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
 $langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh"); //1st batch | single connectors: ko, ja, ru
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch Dutch Polish Swedish Vietnamese
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("ce", "tr", "pl", "sv")); //3rd batch ... th also
-$all_6c = get_all_6_connectors(); //from all_wikipedias_main.tsv
+$all_6c = $func_wp->get_all_6_connectors(); //from all_wikipedias_main.tsv
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $all_6c);
 
 
@@ -429,22 +429,6 @@ function aggregate_6partial_wikipedias($timestart, $resource_id)
     $func = new DwCA_Aggregator($resource_id, NULL, 'regular'); //'regular' not 'wikipedia' which is used in wikipedia aggregate resource
     $func->combine_DwCAs($langs);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
-}
-function get_all_6_connectors()
-{   $final = array();
-    $tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
-    $txt = file_get_contents($tsv);
-    $rows = explode("\n", $txt);
-    /* step1: get all valid langs to process */
-    $final = array();
-    foreach($rows as $row) {
-        $arr = explode("\t", $row);
-        $arr = array_map('trim', $arr);
-        // print_r($arr);
-        $lang = $arr[0]; $status = $arr[1]; $six_conn = $arr[2];
-        if($six_conn == '6c') $final[] = $lang;
-    }
-    return $final;
 }
 function run_next_lang($language, $func_wp)
 {

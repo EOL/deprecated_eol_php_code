@@ -5,6 +5,7 @@ class MoreFunc4Wikipedia
 {
     function __construct()
     {
+        $this->all_wikipedias_tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
     }
     function is_this_wikipedia_lang_old_YN($lang)
     {
@@ -30,7 +31,7 @@ class MoreFunc4Wikipedia
     }
     function get_language_info_from_TSV($needle)
     {
-        $tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
+        $tsv = $this->all_wikipedias_tsv;
         $txt = file_get_contents($tsv);
         $rows = explode("\n", $txt);
         $final = array();
@@ -45,7 +46,7 @@ class MoreFunc4Wikipedia
     function get_next_lang_after($needle)
     {   // echo "\n". DOC_ROOT;
         // /Library/WebServer/Documents/eol_php_code/
-        $tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
+        $tsv = $this->all_wikipedias_tsv;
         $txt = file_get_contents($tsv);
         $rows = explode("\n", $txt);
         /* step1: get all valid langs to process */
@@ -85,6 +86,22 @@ class MoreFunc4Wikipedia
             }
         }
         return false;
+    }
+    function get_all_6_connectors()
+    {   $final = array();
+        $tsv = $this->all_wikipedias_tsv;
+        $txt = file_get_contents($tsv);
+        $rows = explode("\n", $txt);
+        /* step1: get all valid langs to process */
+        $final = array();
+        foreach($rows as $row) {
+            $arr = explode("\t", $row);
+            $arr = array_map('trim', $arr);
+            // print_r($arr);
+            $lang = $arr[0]; $status = $arr[1]; $six_conn = $arr[2];
+            if($six_conn == '6c') $final[] = $lang;
+        }
+        return $final;
     }
 }
 ?>
