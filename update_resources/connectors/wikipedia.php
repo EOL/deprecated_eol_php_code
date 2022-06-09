@@ -203,7 +203,7 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
         $cont_2next_lang = @$params['cont_2next_lang'];
         // if($cont_2next_lang == 'Y') { //should be implemented like this
         if(true) { //temporary implementation -- always true for now
-            run_next_lang($language);
+            run_next_lang($language, $func_wp);
         }
         else {
             echo "\nDesigned NOT to process the next language.\n";
@@ -446,7 +446,7 @@ function get_all_6_connectors()
     }
     return $final;
 }
-function run_next_lang($language)
+function run_next_lang($language, $func_wp)
 {
     echo "\nDesigned to process the next language.\n";
     if($ret = $func_wp->get_next_lang_after($language)) { //this gets the next 6c lang.
