@@ -203,7 +203,7 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
         $cont_2next_lang = @$params['cont_2next_lang'];
         // if($cont_2next_lang == 'Y') { //should be implemented like this
         if(true) { //temporary implementation -- always true for now
-            run_next_lang($language, $func_wp);
+            run_next_lang($language, $func_wp); //-- always a 6c language
         }
         else {
             echo "\nDesigned NOT to process the next language.\n";
@@ -220,7 +220,7 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
             print_r($info);
             $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
             if($status == 'Y' && $six_conn != '6c') echo "\n=PROCEEDy WITH HARVEST for [$language]=\n";
-            else exit("\n=CANNOT PROCEEDy [$language], GO TO NEXT LANGUAGE=\n");
+            else exit("\n===CANNOT PROCEEDy [$language], Because it is 6c or with status equal to 'N'===\n");
         }
         // */
     }
