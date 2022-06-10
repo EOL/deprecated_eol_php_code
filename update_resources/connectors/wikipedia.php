@@ -154,6 +154,8 @@ $params['actual']           = @$argv[6];
 $debug_taxon                = @$argv[7];
 $six_coverage               = @$argv[8];
 
+if(!$six_coverage) $six_coverage = "1st";
+
 // /*
 // So that these two becomes equal:
 // php5.6 wikipedia.php jenkins ce #Chechen
