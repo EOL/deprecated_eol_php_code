@@ -26,6 +26,7 @@ with the new "terms_to_remove" list
                                 {"agent.tab":173, "measurement_or_fact_specific.tab":96287, "media_resource.tab":140143, "occurrence_specific.tab":60823, "taxon.tab":16470, "time_elapsed":{"sec":243.34, "min":4.06, "hr":0.07}} Mac Mini
 24_cleaned_MoF_habitat	Wed 2022-04-13 08:30:12 AM	
                                 {"agent.tab":173, "measurement_or_fact_specific.tab":96287, "media_resource.tab":140143, "occurrence_specific.tab":60823, "taxon.tab":16470, "time_elapsed":{"sec":156.28, "min":2.6, "hr":0.04}} eol-archive
+24	Thu 2022-06-09 11:13:21 PM	{"agent.tab":173, "measurement_or_fact_specific.tab":96412, "media_resource.tab":140143, "occurrence_specific.tab":60873, "taxon.tab":16470, "time_elapsed":{"sec":3525.04, "min":58.75, "hr":0.98}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
