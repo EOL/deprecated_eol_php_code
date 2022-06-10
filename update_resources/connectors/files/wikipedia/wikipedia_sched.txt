@@ -14,21 +14,21 @@ ja  ko  ru  pt
             pl ---------------------------------------pl-1
             vi -----------------vi3 vi2     vi1       |
             1   2           3   4   5       |         |
-            ca  cs          fi  no* ro*     tr*       uk*
-            |   |           |   |   |       |         |
-            sr  sv - 3d5h   ast ka  hr      th        hy
-            ID  xxx         az  lt  la      kk        mrj
-            nn 9h           MIN et  da      lv        pms
-            sk              bg  nv  ml      is        ga
-            bn              szl gl  be      ne        hsb
-            hu              af  br  ms      oc        sl
-   1d 15h - WAR (removed)   eo  ta  el      qu        mk
-            xxx             av  hi  fy      be-x-old  tl
-                            chy koi frr->   udm       ba
-                            fj  io  lb      co        fo->
-                            ik  my  su      sq        os
-                            zea mn  kn      csb->     cv
-                            xxx kv  tt      mr        kab
+                                no* ro*     tr*       uk*
+                                |   |       |         |
+                                ka  hr      th        hy
+                                lt  la      kk        mrj
+                                et  da      lv        pms
+                                nv  ml      is        ga
+                                gl  be      ne        hsb
+                                br  ms      oc        sl
+   1d 15h - WAR (removed)       ta  el      qu        mk
+                                hi  fy      be-x-old  tl
+                                koi frr->   udm       ba
+                                io  lb      co        fo->
+                                my  su      sq        os
+                                mn  kn      csb->     cv
+                                kv  tt      mr        kab
                                 gv  as      olo       sah
                                 wuu dsb     mhr       nds
                                 ht  li      tg        als
@@ -55,12 +55,22 @@ ja  ko  ru  pt
                                     tk      ban       atj
                                     tcy     ay        new
                                     szy     tyv       fiu-vro
-                                    ext               mg
-                                    kl                rm
-                                    roa-rup           ltg
-                                    nrm
-                                    rn
-                                    dty
+                                    ext     ca        mg
+                                    kl      sr        rm
+                                    roa-rup ID        ltg
+                                    nrm     nn 9h     fi
+                                    rn      sk        ast
+                                    dty     bn        az
+                                            hu        MIN
+                                            cs        bg
+                                            sv-3d5h   szl
+                                                      af
+                                                      eo
+                                                      av
+                                                      chy
+                                                      fj
+                                                      ik
+                                                      zea
                 
                 probably needs to have multiple connectors: hu szl eu (or don't)
                 $use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id");
