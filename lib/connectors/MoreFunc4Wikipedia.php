@@ -6,8 +6,9 @@ class MoreFunc4Wikipedia
     function __construct($six_coverage = '1st')
     {
         echo "\n-----six_coverage is [$six_coverage]-----\n";
-        if($six_coverage == '1st') $this->all_wikipedias_tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
-        else                       $this->all_wikipedias_tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main_2ndpart.tsv";
+        if($six_coverage == '1st')      $this->all_wikipedias_tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
+        elseif($six_coverage == '2nd')  $this->all_wikipedias_tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main_2ndpart.tsv";
+        else                            $this->all_wikipedias_tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
     }
     function is_this_wikipedia_lang_old_YN($lang)
     {
