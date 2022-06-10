@@ -19,6 +19,8 @@ php update_resources/connectors/run.php _ '{"connector":"eol_v3_api.php", "divis
 php5.6                    run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"sh"}'
                           run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce"}'
                           run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce", "cont_2next_lang":"Y"}'
+                          run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce", "six_coverage":"1st"}'
+                          run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce", "six_coverage":"2nd"}'
 */
 
 $funcj = new MultipleConnJenkinsAPI();
@@ -30,6 +32,8 @@ $params['json']              = @$argv[2]; //useful here
 $arr = json_decode($params['json'], true);
 // print_r($params);
 print_r($arr);
+
+if(!isset($arr['six_coverage'])) $arr['six_coverage'] = "1st";
 
 // /* new block
 $language = $arr['langx'];

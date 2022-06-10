@@ -3,9 +3,11 @@ namespace php_active_record;
 /**/
 class MoreFunc4Wikipedia
 {
-    function __construct()
+    function __construct($six_coverage = '1st')
     {
-        $this->all_wikipedias_tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
+        echo "\n-----six_coverage is [$six_coverage]-----\n";
+        if($six_coverage == '1st') $this->all_wikipedias_tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
+        else                       $this->all_wikipedias_tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main_2ndpart.tsv";
     }
     function is_this_wikipedia_lang_old_YN($lang)
     {

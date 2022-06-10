@@ -152,6 +152,7 @@ $params['range_from']       = @$argv[4];
 $params['range_to']         = @$argv[5];
 $params['actual']           = @$argv[6];
 $debug_taxon                = @$argv[7];
+$six_coverage               = @$argv[8];
 
 // /*
 // So that these two becomes equal:
@@ -185,7 +186,7 @@ exit("\nend test\n");
 */
 
 // /* new section for wikipedia ver2 ****************************
-$func_wp = new MoreFunc4Wikipedia();
+$func_wp = new MoreFunc4Wikipedia($six_coverage);
 $actual = @$params['actual'];
 if($actual) $resource_id .= "_".$actual;
 else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
