@@ -530,6 +530,7 @@ wikipedia-hy	Monday 2020-02-24 11:01:45 AM	{"media_resource.tab":7099,"taxon.tab
 wikipedia-hy	Sunday 2020-04-26 04:12:34 AM	{"media_resource.tab":6688, "taxon.tab":6234, "time_elapsed":{"sec":6220.27, "min":103.67, "hr":1.73}}
 wikipedia-hy	Sunday 2020-05-10 10:27:22 PM	{"media_resource.tab":6407, "taxon.tab":6061, "time_elapsed":{"sec":1451.56, "min":24.19, "hr":0.4}} New
 wikipedia-hy	Sunday 2020-08-09 08:12:39 AM	{"media_resource.tab":3867, "taxon.tab":6155, "time_elapsed":{"sec":6146.61, "min":102.44, "hr":1.71}} will monitor big drop in media, but will accept for now.
+wikipedia-hy	Sat 2022-06-11 04:15:39 AM	  {"media_resource.tab":4054, "taxon.tab":6381, "time_elapsed":{"sec":9.18, "min":0.15, "hr":0}}
 
 wikipedia-mrj	Thursday 2020-02-20 05:20:36 AM	{"media_resource.tab":5713,"taxon.tab":5402,"time_elapsed":{"sec":6659.51,"min":110.99,"hr":1.85}}
 wikipedia-mrj	Monday 2020-02-24 11:22:46 AM	{"media_resource.tab":5713,"taxon.tab":5402,"time_elapsed":{"sec":1255.3,"min":20.92,"hr":0.35}}
