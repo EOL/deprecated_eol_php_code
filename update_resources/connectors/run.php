@@ -20,11 +20,8 @@ php5.6                    run.php jenkins '{"connector":"gen_wikipedia_by_lang",
                           run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce"}'
                           run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce", "cont_2next_lang":"Y"}'
                           run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce", "six_coverage":"1st"}'
-                          run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce", "six_coverage":"2nd"}'
+                          run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"cy", "six_coverage":"2nd"}'
 */
-
-$funcj = new MultipleConnJenkinsAPI();
-$func_wp = new MoreFunc4Wikipedia();
 
 // print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
@@ -34,6 +31,10 @@ $arr = json_decode($params['json'], true);
 print_r($arr);
 
 if(!isset($arr['six_coverage'])) $arr['six_coverage'] = "1st";
+
+$funcj = new MultipleConnJenkinsAPI();
+$func_wp = new MoreFunc4Wikipedia($arr['six_coverage']);
+
 
 // /* new block
 $language = $arr['langx'];
