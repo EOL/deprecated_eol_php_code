@@ -57,7 +57,7 @@ class MoreFunc4Wikipedia
         foreach($rows as $row) {
             $arr = explode("\t", $row);
             $arr = array_map('trim', $arr); // print_r($arr);
-            $lang = $arr[0]; $status = $arr[1];
+            $lang = $arr[0]; $status = @$arr[1];
             // if($lang == "-----") continue;
             // if($status == "N") continue;
             $final[] = $arr;
@@ -101,7 +101,7 @@ class MoreFunc4Wikipedia
             $arr = explode("\t", $row);
             $arr = array_map('trim', $arr);
             // print_r($arr);
-            $lang = $arr[0]; $status = $arr[1]; $six_conn = $arr[2];
+            $lang = $arr[0]; $status = @$arr[1]; $six_conn = @$arr[2];
             if($six_conn == '6c') $final[] = $lang;
         }
         return $final;
