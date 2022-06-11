@@ -42,7 +42,7 @@ ja  ko  ru  pt
                                 am  bs      sco       pa
                                 si  mi      ky        wa
                                 bar jv      lfn       nah
-                                nap sh      nds-nl    eu
+                                nap*sh      nds-nl    eu
                                 vo  ia      bo        ha
                                 lez rw      stq       lbe
                                 sa  vec     inh       lij
@@ -57,20 +57,18 @@ ja  ko  ru  pt
                                     szy     tyv       fiu-vro
                                     ext     ca        mg
                                     kl      sr        rm
-                                    roa-rup ID        ltg
+                                    roa-rup ID        ltg*
                                     nrm     nn 9h     fi
                                     rn      sk        ast
-                                    dty     bn        az
-                                            hu        MIN
-                                            cs        bg
-                                            sv-3d5h   szl
+                                    dty*    bn        az
+                                    fj      hu        MIN
+                                    ik      cs        bg
+                                    zea     sv-3d5h   szl
                                                       af
                                                       eo
                                                       av
                                                       chy
-                                                      fj
-                                                      ik
-                                                      zea
+
                 
                 probably needs to have multiple connectors: hu szl eu (or don't)
                 $use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id");
