@@ -17,7 +17,7 @@ class MoreFunc4Wikipedia
         // get date today minus 2 months
         $date = date("Y-m-d");
         $today = date_create($date);
-        echo "\ntoday: ".date_format($today, 'Y-m-d')."\n";
+        echo "\n-------new...\ntoday: ".date_format($today, 'Y-m-d')."\n";
         date_sub($today, date_interval_create_from_date_string('2 months'));
         $minus_2_months = date_format($today, 'Y-m-d');
         // compare
