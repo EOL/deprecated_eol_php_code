@@ -108,9 +108,11 @@ if($arr['task'] == 'initial') { //this is where to get e.g. the total number of 
         else                $batches[] = array(1, $total_count);
         print_r($batches);
         $arr['batches'] = $batches;
+        
         //start create temp group indicator files
         // not needed here
         //end
+        echo "\nJust before the call:\n"; print_r($arr);
         $funcj->jenkins_call($arr, "generate_stats"); //finally make the call
     }
     elseif($arr['connector'] == 'xxx.php') { //customization part
