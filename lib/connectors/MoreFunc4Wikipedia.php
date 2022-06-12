@@ -64,14 +64,20 @@ class MoreFunc4Wikipedia
         } // print_r($final);
         /* step2: loop and search for needle in $final, get $i */
         $i = -1;
+        $needle_found = false;
         foreach($final as $arr) { $i++; // print_r($rek); exit;
             /*Array(
                 [0] => pl
                 [1] => Y
             )*/
             $lang = $arr[0]; $status = $arr[1];
-            if($needle == $lang) break;
+            if($needle == $lang) {
+                $needle_found = true;
+                break;
+            }
         }
+        if($needle_found) echo "\nneedle found OK [$needle]\n";
+        else              echo "\nERROR: needle was not found [$needle]\n";
         /* step3: start with $i, then get the next valid lang */
         $start = $i+1; // echo "\nstart at: [$start]\n";
         $i = -1;

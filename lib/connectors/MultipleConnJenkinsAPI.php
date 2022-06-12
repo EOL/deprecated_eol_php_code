@@ -74,8 +74,8 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
                 )*/
                 $lang = $arr_info['langx'];
                 $six_coverage = @$arr_info['six_coverage'];
-                if($connector_task == 'finalize') $cmd = PHP_PATH." wikipedia.php jenkins $lang generate_resource"; //todo: add cont_2next_lang
-                else $cmd = PHP_PATH." wikipedia.php jenkins $lang generate_resource ".$param['range'][0]." ".$param['range'][1]." ".$param['ctr']."of".$param['divisor']." '' ".$six_coverage;
+                if($connector_task == 'finalize') $cmd = PHP_PATH." wikipedia.php jenkins $lang generate_resource '' '' '' '' ".$six_coverage; //todo: add cont_2next_lang
+                else                              $cmd = PHP_PATH." wikipedia.php jenkins $lang generate_resource ".$param['range'][0]." ".$param['range'][1]." ".$param['ctr']."of".$param['divisor']." '' ".$six_coverage;
                                // wikipedia.php jenkins es generate_resource 1 416666 1of6
                                // wikipedia.php jenkins es generate_resource
             }
