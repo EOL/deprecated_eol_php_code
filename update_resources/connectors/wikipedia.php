@@ -155,6 +155,7 @@ $debug_taxon                = @$argv[7];
 $six_coverage               = @$argv[8];
 
 if(!$six_coverage) $six_coverage = "1st";
+$params['six_coverage'] = $six_coverage;
 
 // /*
 // So that these two becomes equal:
@@ -283,7 +284,7 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
             if($params['actual']) {
                 // /* check here if u can now run finalize
                 $what_generation_status = "wikipedia_generation_status_".$language."_";
-                if($func->finalize_media_filenames_ready($what_generation_status)) inject_MultipleConnJenkinsAPI($language);
+                if($func->finalize_media_filenames_ready($what_generation_status)) inject_MultipleConnJenkinsAPI($language, $six_coverage);
                 // */
             } // 1of6, 2of6, etc -> don't delete temp files yet
             else delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
@@ -323,7 +324,7 @@ echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
 
-function inject_MultipleConnJenkinsAPI($language)
+function inject_MultipleConnJenkinsAPI($language, $six_coverage)
 {
     /* START continue lifeline of Jenkins event --------------------------------------------- 
     run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"sh"}'
@@ -335,6 +336,7 @@ function inject_MultipleConnJenkinsAPI($language)
     $arr_info = array();
     $arr_info['finalize_now'] = true;
     $arr_info['langx'] = $language;
+    $arr_info['six_coverage'] = $six_coverage;
     $arr_info['connector'] = 'gen_wikipedia_by_lang';
     $arr_info['divisor'] = 6;
     $arr_info['total_count'] = $total_count;
@@ -365,10 +367,12 @@ function inject_jenkins_run($params, $what)
         */
         $next_lang = $params['next_lang'];
         $cont_2next_lang = $params['cont_2next_lang'];
+        $six_coverage = @$params['six_coverage'];
         echo "\ntry to run_wikipedia_lang...\n";
         $arr_info = array();
         $arr_info['langx'] = $next_lang;
         $arr_info['cont_2next_lang'] = $cont_2next_lang;
+        $arr_info['six_coverage'] = $six_coverage;
         $arr_info['connector'] = 'run_wikipedia_lang';
         $funcj->jenkins_call_single_run($arr_info, "run wikipedia lang");
     }

@@ -81,7 +81,7 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
             }
             elseif($connector == "xxx.php")         $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
             
-            echo "\n----------\ncmd = [$cmd]\n----------\n";
+            echo "\n----------\ncmd1 = [$cmd]\n----------\n";
             self::actual_jenkins_call($params, $postfix, $cmd, $task, $ctrler);
             // */ ---------- END main body ----------
         }
@@ -133,7 +133,7 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
         elseif($connector == "xxx.php") $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
         else exit("\nUndefined connector [$connector].\n");
         //==========================================================================================================
-        echo "\n----------\ncmd = [$cmd]\n----------\n";
+        echo "\n----------\ncmd2 = [$cmd]\n----------\n";
         self::actual_jenkins_call($params, $postfix, $cmd, $task, $ctrler);
         // */ ---------- END main body ----------
     }
