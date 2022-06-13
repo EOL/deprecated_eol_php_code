@@ -365,6 +365,9 @@ function inject_jenkins_run($params, $what)
         /*
         run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce", "cont_2next_lang":"Y"}'
         */
+        echo "\n----->here six_coverage is critical\n";
+        print_r($params);
+        echo "\n----->\n";
         $next_lang = $params['next_lang'];
         $cont_2next_lang = $params['cont_2next_lang'];
         $six_coverage = @$params['six_coverage'];
