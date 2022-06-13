@@ -434,6 +434,7 @@ class WikiDataAPI extends WikipediaAPI
         $this->TEMP_FILE_PATH = temp_filepath(); 
         */
         //creates a temp file
+        sleep(5); //so to be sure that file is unique
         $this->TEMP_FILE_PATH = CONTENT_RESOURCE_LOCAL_PATH."/wikipedia_".$lang_code."_".date("Y-m-d_H_s").".tmp";
         if(!($f = Functions::file_open($this->TEMP_FILE_PATH, "w"))) return;
         fclose($f);
