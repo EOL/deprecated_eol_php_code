@@ -207,7 +207,7 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
         $cont_2next_lang = @$params['cont_2next_lang'];
         // if($cont_2next_lang == 'Y') { //should be implemented like this
         if(true) { //temporary implementation -- always true for now
-            run_next_lang($language, $func_wp); //-- always a 6c language
+            run_next_lang($language, $func_wp, $six_coverage); //-- always a 6c language
         }
         else {
             echo "\nDesigned NOT to process the next language.\n";
@@ -440,14 +440,14 @@ function aggregate_6partial_wikipedias($timestart, $resource_id)
     $func->combine_DwCAs($langs);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
-function run_next_lang($language, $func_wp)
+function run_next_lang($language, $func_wp, $six_coverage)
 {
     echo "\nDesigned to process the next language.\n";
     if($ret = $func_wp->get_next_lang_after($language)) { //this gets the next 6c lang.
         $next_lang = $ret[0];
         $six_conn = $ret[1];
         echo "\nNext lang. to process is: [$next_lang]\n";
-        $tmp = array('next_lang' => $next_lang, 'cont_2next_lang' => 'Y');
+        $tmp = array('next_lang' => $next_lang, 'cont_2next_lang' => 'Y', 'six_coverage' => $six_coverage);
         /*
         if($six_conn == '6c') inject_jenkins_run($tmp, 'run_wikipedia_lang');
         else                  inject_jenkins_run($tmp, 'run_wikipedia_lang_single');
