@@ -52,7 +52,7 @@ else { //needs refresh of dwca, but must need to check first if 'Y' AND should b
     $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
     if($status == 'Y' && $six_conn == '6c') echo "\n=PROCEEDx WITH HARVEST for [$language]=\n";
     else {
-        echo "\n=CANNOT PROCEEDx [$language], GO TO NEXT LANGUAGE=\n";
+        echo "\n=CANNOT PROCEEDxx [$language], GO TO NEXT LANGUAGE=\n";
         if($ret = $func_wp->get_next_lang_after($language)) { //this gets the next 6c lang.
             $arr['langx'] = $ret[0];
             echo "\nB. Next lang is [".$arr['langx']."]\n";
