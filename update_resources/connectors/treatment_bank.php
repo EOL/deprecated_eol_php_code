@@ -26,6 +26,9 @@ php update_resources/connectors/treatment_bank.php _ '{"task": "generate_single_
 STEP 4:
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank", "subjects":"Uses"}'
 -> generates TreatmentBank_ENV.tar.gz
+
+STEP 5: adjustments starting here: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=66874&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66874
+
 -> last step
 ================== STATS ==================
 TreatmentBank	    Wed 2021-09-08 04:23:09 PM	{                                                   "media.tab":596261, "taxon.tab":597054, "time_elapsed":{"sec":66673.13, "min":1111.22, "hr":18.52}}
@@ -39,6 +42,8 @@ TreatmentBank_ENV	Thu 2022-01-27 06:50:50 AM	{"MoF.tab":1818376, "occur_specific
 after cleaning scientificName e.g. https://zenodo.org/record/5688763#.YflRD_XMJ_Q
 TreatmentBank	    Fri 2022-02-04 03:50:57 AM	{                                                   "media.tab":596261, "taxon.tab":597053, "time_elapsed":{"sec":66563.64, "min":1109.39, "hr":18.49}}
 TreatmentBank_ENV	Fri 2022-02-04 05:42:20 AM	{"MoF.tab":1818376, "occur_specific.tab":1818376,                       "taxon.tab":597053, "time_elapsed":{"sec":6675.69, "min":111.26, "hr":1.85}}
+                                                {"MoF.tab":1818344, "occur_specific.tab":1818344,                       "taxon.tab":597036, "time_elapsed":{"sec":1944.27, "min":32.4, "hr":0.54}}
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/TreatmentBankAPI');
