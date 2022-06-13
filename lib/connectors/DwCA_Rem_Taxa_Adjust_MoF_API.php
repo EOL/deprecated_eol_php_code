@@ -27,11 +27,8 @@ class DwCA_Rem_Taxa_Adjust_MoF_API
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'info');
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'write_taxa');
         
-        
-        /* copied template
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
-        */
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_occurrence');
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_MoF');
     }
     private function initialize_mapping()
     {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
@@ -91,15 +88,23 @@ class DwCA_Rem_Taxa_Adjust_MoF_API
                     class=Hexanauplia, where phylum=Chordata
                     class=Insecta, where phylum=Chordata
                 */
-                if($class == 'Gastropoda'   && $phylum == 'Arthropoda') $taxonIDs_to_delete[$taxonID] = '';
-                if($class == 'Amphibia'     && $phylum == 'Arthropoda') $taxonIDs_to_delete[$taxonID] = '';
-                if($order == 'Anura'        && $phylum == 'Arthropoda') $taxonIDs_to_delete[$taxonID] = '';
-                if($class == 'Gastropoda'   && $phylum == 'Chordata') $taxonIDs_to_delete[$taxonID] = '';
-                if($class == 'Hexanauplia'  && $phylum == 'Chordata') $taxonIDs_to_delete[$taxonID] = '';
-                if($class == 'Insecta'      && $phylum == 'Chordata') $taxonIDs_to_delete[$taxonID] = '';
+                if($class == 'Gastropoda'   && $phylum == 'Arthropoda') $this->taxonIDs_to_delete[$taxonID] = '';
+                if($class == 'Amphibia'     && $phylum == 'Arthropoda') $this->taxonIDs_to_delete[$taxonID] = '';
+                if($order == 'Anura'        && $phylum == 'Arthropoda') $this->taxonIDs_to_delete[$taxonID] = '';
+                if($class == 'Gastropoda'   && $phylum == 'Chordata') $this->taxonIDs_to_delete[$taxonID] = '';
+                if($class == 'Hexanauplia'  && $phylum == 'Chordata') $this->taxonIDs_to_delete[$taxonID] = '';
+                if($class == 'Insecta'      && $phylum == 'Chordata') $this->taxonIDs_to_delete[$taxonID] = '';
             } //end what == 'info'
             //===========================================================================================================================================================
             if($what == 'write_taxa') {
+                if(isset($this->taxonIDs_to_delete[$taxonID])) continue;
+                $acceptedNameUsageID = $rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'];
+                $parentNameUsageID   = $rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID'];
+                $originalNameUsageID = $rec['http://rs.tdwg.org/dwc/terms/originalNameUsageID'];
+                if(isset($this->taxonIDs_to_delete[$acceptedNameUsageID])) $rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'] = '';
+                if(isset($this->taxonIDs_to_delete[$parentNameUsageID])) $rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID'] = '';
+                if(isset($this->taxonIDs_to_delete[$originalNameUsageID])) $rec['http://rs.tdwg.org/dwc/terms/originalNameUsageID'] = '';
+
                 //-----------------------------------------------------------
                 /* They use "Animalia" quite often instead of "Metazoa" in their ancestry data. Could we have a global replace for that? */
                 if($kingdom == 'Metazoa') $rec['http://rs.tdwg.org/dwc/terms/kingdom'] = 'Animalia';
@@ -143,9 +148,9 @@ class DwCA_Rem_Taxa_Adjust_MoF_API
     }
 
 
-    private function process_measurementorfact($meta)
+    private function process_measurementorfact($meta, $what)
     {   //print_r($meta);
-        echo "\nprocess_measurementorfact...\n"; $i = 0;
+        echo "\nprocess_measurementorfact...[$what]\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -160,39 +165,29 @@ class DwCA_Rem_Taxa_Adjust_MoF_API
             } //print_r($rec); exit;
             /**/
             //===========================================================================================================================================================
-            /*For all records with measurementType
-            http://purl.obolibrary.org/obo/VT_0001256
-            http://purl.obolibrary.org/obo/VT_0001259
-            http://www.wikidata.org/entity/Q245097
-            Please add a lifestage item (I suggest a column in MoF) with lifestage=http://www.ebi.ac.uk/efo/EFO_0001272
-            Thanks!
-            */
-            $sought_mtypes = array('http://purl.obolibrary.org/obo/VT_0001256', 'http://purl.obolibrary.org/obo/VT_0001259', 'http://www.wikidata.org/entity/Q245097');
-            $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
-            $lifeStage = '';
-            if(in_array($mtype, $sought_mtypes)) $lifeStage = 'http://www.ebi.ac.uk/efo/EFO_0001272';
-            $rec['http://rs.tdwg.org/dwc/terms/lifeStage'] = $lifeStage;
-            //===========================================================================================================================================================
+            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            if(isset($this->occurrenceIDs_to_delete[$occurrenceID])) continue;
+            
             $o = new \eol_schema\MeasurementOrFact_specific();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
             }
-            
             /* START DATA-1841 terms remapping */
+            /* copied template
             $o = $this->func->given_m_update_mType_mValue($o);
             // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
+            */
             /* END DATA-1841 terms remapping */
-            
-            $o->measurementID = Functions::generate_measurementID($o, $this->resource_id);
+            // $o->measurementID = Functions::generate_measurementID($o, $this->resource_id); //copied template
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 10) break; //debug only
         }
     }
-    private function process_occurrence($meta)
+    private function process_occurrence($meta, $what)
     {   //print_r($meta);
-        echo "\nprocess_occurrence...\n"; $i = 0;
+        echo "\nprocess_occurrence...[$what]\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -206,13 +201,18 @@ class DwCA_Rem_Taxa_Adjust_MoF_API
                 $k++;
             }
             // print_r($rec); exit("\ndebug...\n");
-            /*Array(
-                [http://rs.tdwg.org/dwc/terms/occurrenceID] => O1
-                [http://rs.tdwg.org/dwc/terms/taxonID] => ABGR4
-                ...
-            )*/
+            /**/
+            
+            $taxonID      = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            if(isset($this->taxonIDs_to_delete[$taxonID])) {
+                $this->occurrenceIDs_to_delete[$occurrenceID] = '';
+                continue;
+            }
+            
+            
             $uris = array_keys($rec);
-            $uris = array('http://rs.tdwg.org/dwc/terms/occurrenceID', 'http://rs.tdwg.org/dwc/terms/taxonID');
+            // $uris = array('http://rs.tdwg.org/dwc/terms/occurrenceID', 'http://rs.tdwg.org/dwc/terms/taxonID'); //copied template
             $o = new \eol_schema\Occurrence_specific();
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
