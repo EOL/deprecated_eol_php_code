@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_83798/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_83798/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_27438/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_27438/'
         );
         */
         
@@ -463,6 +463,13 @@ class DwCA_Utility
             $func = new DwCA_AssignEOLidAPI($this->archive_builder, $this->resource_id, $this->archive_path);
             $func->start($info);
         }
+        
+        if(in_array($this->resource_id, array("TreatmentBank_adjustment_01"))) { //calls a generic utility
+            require_library('connectors/DwCA_Rem_Taxa_Adjust_MoF_API');
+            $func = new DwCA_Rem_Taxa_Adjust_MoF_API($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+        
         // ================================= end of customization ================================= */ 
         
         $this->archive_builder->finalize(TRUE);

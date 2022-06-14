@@ -1,6 +1,27 @@
 <?php
 namespace php_active_record;
-/* connector: [treatment_bank.php] */
+/* connector: [treatment_bank.php]
+Below is the algorithm for this connector: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=66362&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66362
+Hi Jen,
+I think I now got a pathway to harvest their complete data.
+From their API page you can obtain a list of all the treatments available from Plazi using:
+http://tb.plazi.org/GgServer/xml.rss.xml
+
+    - this XML is too big to load in browser for investigation
+    - download it locally using: wget http://tb.plazi.org/GgServer/xml.rss.xml
+    - it lists 611,618 treatments and the corresponding metadata file
+    e.g. metadata http://tb.plazi.org/GgServer/xml/03FA87C50911FFB0FC2DFC79FB4AD551.xml
+    From this metadata XML you can filter docType="treatment".
+    And get the masterDocId="FFC3FFBD0912FFB9FF8BFFEAFFFDD364".
+    Now you can get the DwCA using the masterDocId.
+    e.g.
+    tb.plazi.org/GgServer/dwca/FFC3FFBD0912FFB9FF8BFFEAFFFDD364.zip
+    - from the DwCA, the eml.xml is a good source for attribution
+    - Jen at this point, my concern is the taxa.txt (for names) and the media.txt to do textmining? Is that correct?
+
+Thanks.
+PS: I find the GBIF path incomplete and I assume not updated.
+*/
 class TreatmentBankAPI
 {
     function __construct($folder = NULL)
@@ -24,6 +45,35 @@ class TreatmentBankAPI
         
         if(!is_dir($this->path['main'])) mkdir($this->path['main']);
         if(!is_dir($this->path['main']."DwCA/")) mkdir($this->path['main']."DwCA/");
+        
+        /* Some notes:
+        From XML rss:
+        <item>
+        <title>Scotina celans Blackwall 1841</title>
+        <description>Scotina celans Blackwall 1841 (pages 85-85) in Paschetta, Mauro, Christille, Claretta, Marguerettaz, Fabio &amp; Isaia, Marco 2016, 
+        Regional catalogue of the spiders (Arachnida, Araneae) of Aosta Valley (NW Italy), Zoosystema 38 (1), pages 49-125</description>
+        <link>http://tb.plazi.org/GgServer/xml/475887A6ED003862C1489F0C8CADFBD4</link>
+        <pubDate>2021-03-03T16:40:41-02:00</pubDate>
+        <guid isPermaLink="false">475887A6ED003862C1489F0C8CADFBD4.xml</guid>
+        </item>
+        
+        "Paschetta, Mauro, Christille, Claretta, Marguerettaz, Fabio & Isaia, Marco, 2016, 
+        Regional catalogue of the spiders (Arachnida, Araneae) of Aosta Valley (NW Italy)". 
+        
+        From: http://tb.plazi.org/GgServer/xml/475887A6ED003862C1489F0C8CADFBD4
+        
+        <document id="BA54B2DC762A1AE50259E4E42ECA063C" ID-DOI="http://doi.org/10.5281/zenodo.4578738" ID-ISSN="1638-9387" ID-Zenodo-Dep="4578738" ID-ZooBank="urn:lsid:zoobank.org:pub:0F3B35C3-FB21-40C4-915E-2C7C4712CD9F" _generate="added" approvalRequired="443" approvalRequired_for_taxonomicNames="26" approvalRequired_for_textStreams="384" approvalRequired_for_treatments="33" checkinTime="1614789632185" checkinUser="felipe" 
+        docAuthor="Paschetta, Mauro, Christille, Claretta, Marguerettaz, Fabio & Isaia, Marco" 
+        docDate="2016" docId="475887A6ED003862C1489F0C8CADFBD4" docLanguage="en" docName="Zoosystema.38.1.49-125.pdf" docOrigin="Zoosystema 38 (1)" docSource="http://dx.doi.org/10.5252/z2016n1a3" docStyle="DocumentStyle:0AF8C315773078909029C6FC3CC05C6C.1:Zoosystema.2015-2017.journal_article" docStyleId="0AF8C315773078909029C6FC3CC05C6C" docStyleName="Zoosystema.2015-2017.journal_article" docStyleVersion="1" 
+        docTitle="Scotina celans Blackwall 1841" docType="treatment" docVersion="3" 
+        lastPageNumber="85" masterDocId="BB61FFDEED243846C05F9C498E34FFF6" 
+        masterDocTitle="Regional catalogue of the spiders (Arachnida, Araneae) of Aosta Valley (NW Italy)" 
+        masterLastPageNumber="125" masterPageNumber="49" pageId="36" 
+        pageNumber="85" updateTime="1614800640157" updateUser="ExternalLinkService" zenodo-license-document="CC0-1.0" zenodo-license-figures="CC0-1.0" zenodo-license-treatments="UNSPECIFIED">
+        
+        BB61FFDEED243846C05F9C498E34FFF6
+        tb.plazi.org/GgServer/dwca/BB61FFDEED243846C05F9C498E34FFF6.zip
+        */
     }
     function start($from, $to)
     {   //exit("\n[$from] [$to]\n");

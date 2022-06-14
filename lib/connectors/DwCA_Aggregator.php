@@ -115,6 +115,7 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
         echo "\nConverting archive to EOL DwCA...\n";
         $info = self::start($dwca_file, $download_options); //1 day expire -> 60*60*24*1
         $temp_dir = $info['temp_dir'];
+        $this->temp_dir = $temp_dir; //first client is TreatmentBank. Used in reading eml.xml from the source DwCA
         $harvester = $info['harvester'];
         $tables = $info['tables'];
         $index = $info['index'];
@@ -166,7 +167,7 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
         echo ("\n temporary directory removed: " . $temp_dir);
         // */
         if($this->debug) print_r($this->debug);
-    }
+    } //end convert_archive()
     private function start($dwca_file = false, $download_options = array('timeout' => 172800, 'expire_seconds' => false)) //probably default expires in a month 60*60*24*30. Not false.
     {
         if($dwca_file) $this->dwca_file = $dwca_file;
@@ -423,6 +424,21 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                 $o->$field = $rec[$uri];
             }
             $this->archive_builder->write_object_to_file($o);
+            
+            // /* new: add a new text object using <title> tag from eml.xml. Will practically double the no. of text objects. Per https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=66921&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66921
+            if($this->resource_id == "TreatmentBank") {
+                if($what == "document") {
+                    if($title = self::get_title_from_eml_xml()) {
+                        $o->identifier = md5($o->identifier.$title);
+                        $o->title = 'Title for eol-geonames';
+                        $o->description = $title;
+                        $o->bibliographicCitation = '';
+                        $this->archive_builder->write_object_to_file($o);
+                    }
+                }
+            }
+            // */
+            
             // if($i >= 2) break; //debug only
         } //end foreach()
     }
@@ -473,6 +489,14 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
             return $ret;
         }
         else echo "\nNo attribution info yet for resource_id: [$this->resource_id]\n";
+    }
+    private function get_title_from_eml_xml()
+    {
+        $xml_string = file_get_contents($this->temp_dir."/eml.xml");
+        $hash = simplexml_load_string($xml_string); //print_r($hash);
+        $title = trim((string) $hash->dataset->title);
+        // echo "\n---\n[$title]\n---\n"; exit("\nexit munax\n");
+        if($title) return $title;
     }
 }
 ?>
