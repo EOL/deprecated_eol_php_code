@@ -1270,6 +1270,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         244557_-_WoRMS:note:86413			Arafura Sea	http://www.marineregions.org/mrgid/4347	eol-geonames
         244558_-_WoRMS:note:86414			mud	ENVO_01000001	envo
         244558_-_WoRMS:note:86414			gravel	ENVO_01000018	envo
+        903E305AF00D922FFF7B0AC2D6C4F88A.taxon_-_903E305AF00D922FFF7B0AC2D6C4F88A.text			alpine	ENVO_01000340	envo	
         */
         $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "w"); fclose($f); //initialize
         $file = $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"; $i = 0;
@@ -1295,11 +1296,13 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                     fwrite($f, $row."\n");
                     fclose($f);
                 } */
+                if(!self::is_unique_row($tmp)) continue; //new 16Jun2022 to prevent duplicates
                 $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "a");
                 fwrite($f, $row."\n"); //echo "\n[$row]\n"; //good debug
                 fclose($f);
             }
             elseif(in_array($tmp[5], array('eol-geonames', 'growth'))) {
+                if(!self::is_unique_row($tmp)) continue; //new 16Jun2022 to prevent duplicates
                 $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "a");
                 fwrite($f, $row."\n");
                 fclose($f);
@@ -1308,6 +1311,23 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         }
         $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"); echo "\n eol_tags_noParentTerms.tsv.old ($out)\n";
         $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv");     echo "\n eol_tags_noParentTerms.tsv ($out)\n";
+    }
+    private function is_unique_row($tmp) //$tmp is an array
+    {
+        /*
+        903E305AF00D922FFF7B0AC2D6C4F88A.taxon_-_903E305AF00D922FFF7B0AC2D6C4F88A.text			italy	http://www.geonames.org/3175395	eol-geonames	
+        903E305AF00D922FFF7B0AC2D6C4F88A.taxon_-_04d3143bfe8a216c037d8a4c27394c75			italy	http://www.geonames.org/3175395	eol-geonames	
+        */
+        $str = $tmp[0]; //903E305AF00D922FFF7B0AC2D6C4F88A.taxon_-_903E305AF00D922FFF7B0AC2D6C4F88A.text
+        $arr = explode("_-_", $str);
+        $word1 = $arr[0]; //get the taxon part
+        $word2 = $tmp[3]; //italy
+        $md5 = md5($word1.$word2);
+        if(isset($this->unique_rows[$md5])) return false;
+        else {
+            $this->unique_rows[$md5] = '';
+            return true;
+        }
     }
     public function apply_adjustments($uri, $label) //apply it here: ALL_remap_replace_remove.txt
     {
