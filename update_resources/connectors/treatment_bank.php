@@ -45,15 +45,37 @@ TreatmentBank	    Thu 2022-01-27 03:02:02 AM	{                                  
 TreatmentBank_ENV	Thu 2022-01-27 06:50:50 AM	{"MoF.tab":1818376, "occur_specific.tab":1818376,                       "taxon.tab":597054, "time_elapsed":{"sec":13718.37, "min":228.64, "hr":3.81}}
 after cleaning scientificName e.g. https://zenodo.org/record/5688763#.YflRD_XMJ_Q
 TreatmentBank	    Fri 2022-02-04 03:50:57 AM	{                                                   "media.tab":596261, "taxon.tab":597053, "time_elapsed":{"sec":66563.64, "min":1109.39, "hr":18.49}}
-TreatmentBank_ENV	Fri 2022-02-04 05:42:20 AM	{"MoF.tab":1818376, "occur_specific.tab":1818376,                       "taxon.tab":597053, "time_elapsed":{"sec":6675.69, "min":111.26, "hr":1.85}}
-Below implemented adjustments: removal of taxa, then MoF and occurrence accordingly
-                                                {"MoF.tab":1818344, "occur_specific.tab":1818344,                       "taxon.tab":597036, "time_elapsed":{"sec":1944.27, "min":32.4, "hr":0.54}} Mac mini
 
+TreatmentBank_ENV	Fri 2022-02-04 05:42:20 AM	{"MoF.tab":1818376, "occur_specific.tab":1818376,                       "taxon.tab":597053, "time_elapsed":{"sec":6675.69, "min":111.26, "hr":1.85}}
+
+
+Groups of 3 now:
+Below also implemented the adding of another text object from <title> form eml.xml from DwCA. This as expected exactly doubles the media count.
+TreatmentBank	Wed 2022-06-15 03:51:07 AM	            {"media.tab":1192522,                    "taxon.tab":597053, "time_elapsed":{"sec":76459.03, "min":1274.32, "hr":21.24}}
+
+*Below are erroneous - not unique traits caused by <title> inclusion
+TreatmentBank_ENV	Thu 2022-06-16 12:49:52 AM	        {"MoF.tab":2193559, "occur.tab":2193559, "taxon.tab":597053, "time_elapsed":{"sec":75516.92, "min":1258.62, "hr":20.98}}
+Below implemented adjustments: removal of taxa, then MoF and occurrence accordingly
+TreatmentBank_adjustment_01	Thu 2022-06-16 02:23:32 AM	{"MoF.tab":2193511, "occur.tab":2193511, "taxon.tab":597036, "time_elapsed":{"sec":1549.79, "min":25.83, "hr":0.43}}
+
+*Below start of correct - no more duplicates:
+TreatmentBank_ENV	Fri 2022-06-17 01:05:59 AM	        {"MoF.tab":2007609, "occur.tab":2007609, "taxon.tab":597053, "time_elapsed":{"sec":50351.17, "min":839.19, "hr":13.99}}
+TreatmentBank_adjustment_01	Fri 2022-06-17 03:40:54 AM	{"MoF.tab":2007566, "occur.tab":2007566, "taxon.tab":597036, "time_elapsed":{"sec":1421.39, "min":23.69, "hr":0.39}}
+
+*** Last step: TreatmentBank_adjustment_01.tar.gz is renamed to TreatmentBank_final.tar.gz
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/TreatmentBankAPI');
 // $GLOBALS["ENV_DEBUG"] = false;
 $timestart = time_elapsed();
+
+/* test only
+$str = "903E305AF00D922FFF7B0AC2D6C4F88A.taxon_-_903E305AF00D922FFF7B0AC2D6C4F88A.text			alpine	ENVO_01000340	envo	";
+$str = "244558_-_WoRMS:note:86414			gravel	ENVO_01000018	envo";
+$arr = explode("\t", $str);
+print_r($arr);
+exit("\n-end test-\n");
+*/
 
 print_r($argv);
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
