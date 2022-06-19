@@ -890,6 +890,7 @@ class WikipediaAPI extends WikiHTMLAPI
             $needle = 'style="float:right;margin-left:0.5em"';
             if($tmp = self::get_pre_tag_entry($html, $needle)) {
                 // $rights = array('<p>Die <b>', '<p>Doo <i><b>', '<p>Doo <b>', '<p>Do <b>', '<p>Do <i><b>', '<p>Ne <b>', '<p>Juu <b>', '<p>Ju <b>', '<p><i><b>', '<p><b>');
+                $rights = array(); //todo
                 foreach($rights as $right) {
                     $left = $tmp . $needle;
                     $html = self::process_left($html, $left);
