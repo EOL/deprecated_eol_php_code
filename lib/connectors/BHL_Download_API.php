@@ -57,16 +57,16 @@ class BHL_Download_API //extends Functions_Memoirs
                     // /*
                     if($obj->BHLType == 'Part') { $Part_count++;
                         $type = 'part';
-                        $id = $obj->PartID; echo("\nPartID: [$id] $Part_count of ".$debug['BHLType']['Part']."\n");
+                        $part_id = $obj->PartID; echo("\nPartID: [$id] $Part_count of ".$debug['BHLType']['Part']."\n");
                         $idtype = 'bhl';
-                        // self::GetPartMetadata($id, $idtype); //no OCR text yet, but with multiple pages
+                        // self::GetPartMetadata(array('part_id'=>$part_id, 'idtype'=>$idtype)); //no OCR text yet, but with multiple pages
                     }
                     elseif($obj->BHLType == 'Item') { $Item_count++;
                         $type = 'item';
-                        $id = $obj->ItemID; echo("\nItemID: [$id] $Item_count of ".$debug['BHLType']['Item']."\n");
+                        $item_id = $obj->ItemID; echo("\nItemID: [$id] $Item_count of ".$debug['BHLType']['Item']."\n");
                         // print_r($obj); exit("\ntype == 'Item'\n");
                         $idtype = 'bhl';
-                        // self::GetItemMetadata($id, $idtype);
+                        // self::GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype));
                     }
                     else { print_r($obj); exit("\nun-classified BHLType\n"); }
                     // */
@@ -77,7 +77,7 @@ class BHL_Download_API //extends Functions_Memoirs
             }
         }
     }
-    function GetPartMetadata($part_id, $idtype, $method = "GetPartMetadata") //1 object (part) result, no OcrText yet, but with multiple pages
+    function GetPartMetadata($params) //1 object (part) result, no OcrText yet, but with multiple pages
     {   /* If it has [ExternalUrl], then it won't have [Pages]
         https://www.biodiversitylibrary.org/api3?op=GetPartMetadata
         &id=<identifier of a part (article, chapter, ect)>
@@ -86,6 +86,8 @@ class BHL_Download_API //extends Functions_Memoirs
         &names=<"t" or "true" to include scientific names in the part in the response>
         &apikey=<API key value>
         */
+        $part_id = $params['part_id']; $idtype = $params['idtype']; $method = "GetPartMetadata";
+        
         $url = $this->Endpoint."?op=$method&id=$part_id&idtype=$idtype&pages=t&names=t&parts=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $objs = json_decode($json);
@@ -118,7 +120,7 @@ class BHL_Download_API //extends Functions_Memoirs
         }
         echo "\nPages from part_id $part_id: ".count($pages)."\n"; exit;
     }
-    function GetItemMetadata($item_id, $idtype, $method = "GetItemMetadata") //can consist of multiple pages. 
+    function GetItemMetadata($params) //can consist of multiple pages.
     {   /*                                                                No need to lookup GetPageMetadata() for OCR text
         https://www.biodiversitylibrary.org/api3?op=GetItemMetadata
         &id=<identifier of an item>
@@ -128,6 +130,8 @@ class BHL_Download_API //extends Functions_Memoirs
         &parts=<"t" or "true" to include parts in the item in the response>
         &apikey=<API key value>
         */
+        $item_id = $params['item_id']; $idtype = $params['idtype']; $method = "GetItemMetadata";
+        
         $url = $this->Endpoint."?op=$method&id=$item_id&idtype=$idtype&pages=t&ocr=t&parts=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $objs = json_decode($json);
