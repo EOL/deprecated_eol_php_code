@@ -57,13 +57,13 @@ class BHL_Download_API //extends Functions_Memoirs
                     // /*
                     if($obj->BHLType == 'Part') { $Part_count++;
                         $type = 'part';
-                        $part_id = $obj->PartID; echo("\nPartID: [$id] $Part_count of ".$debug['BHLType']['Part']."\n");
+                        $part_id = $obj->PartID; echo("\nPartID: [$part_id] $Part_count of ".$debug['BHLType']['Part']."\n");
                         $idtype = 'bhl';
                         // self::GetPartMetadata(array('part_id'=>$part_id, 'idtype'=>$idtype)); //no OCR text yet, but with multiple pages
                     }
                     elseif($obj->BHLType == 'Item') { $Item_count++;
                         $type = 'item';
-                        $item_id = $obj->ItemID; echo("\nItemID: [$id] $Item_count of ".$debug['BHLType']['Item']."\n");
+                        $item_id = $obj->ItemID; echo("\nItemID: [$item_id] $Item_count of ".$debug['BHLType']['Item']."\n");
                         // print_r($obj); exit("\ntype == 'Item'\n");
                         $idtype = 'bhl';
                         // self::GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype));
