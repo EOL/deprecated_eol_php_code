@@ -49,6 +49,7 @@ class BHL_Download_API //extends Functions_Memoirs
                         print_r($obj); exit("\nfirst [$i] obj\n");
                     }
                     */
+                    /*
                     if($obj->BHLType == 'Part') {
                         $type = 'part';
                         $id = $obj->PartID;
@@ -63,11 +64,15 @@ class BHL_Download_API //extends Functions_Memoirs
                         self::GetItemMetadata($id, $idtype);
                     }
                     else { print_r($obj); exit("\nun-classified BHLType\n"); }
+                    */
+                    
+                    @$this->debug['BHLType'][$obj->BHLType]++;
                 }
                 echo "\nRecords: ".count($objects->Result)."\n";
                 $results = $objects->Result;
             }
         }
+        print_r($this->debug);
     }
     function GetPartMetadata($part_id, $idtype, $method = "GetPartMetadata") //no OCR text yet, but with multiple pages
     {   /* If it has [ExternalUrl], then it won't have [Pages]
@@ -81,6 +86,8 @@ class BHL_Download_API //extends Functions_Memoirs
         $url = $this->Endpoint."?op=$method&id=$part_id&idtype=$idtype&pages=t&names=t&parts=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $objs = json_decode($json);
+            // print_r($objs);
+            echo "\nCount: ".count($objs->Result)."\n";
             foreach($objs->Result as $obj) {
                 // print_r($obj); exit("\n-end GetPartMetadata-\n");
                 
@@ -95,6 +102,7 @@ class BHL_Download_API //extends Functions_Memoirs
 
             }
         }
+        else echo "\npart_id not found ($part_id)\n";
     }
     private function process_pages_from_part($part_id, $pages)
     {
@@ -113,7 +121,8 @@ class BHL_Download_API //extends Functions_Memoirs
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $objs = json_decode($json);
             foreach($objs->Result as $obj) {
-                print_r($obj); exit("\n-end GetItemMetadata-\n");
+                // print_r($obj); exit("\n-end GetItemMetadata-\n");
+                echo "\nItemID: ".$obj->ItemID."\n";
                 /* an item has a TitleID and multiple [Pages] with [OcrText] */
             }
             

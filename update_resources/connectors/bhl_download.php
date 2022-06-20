@@ -28,12 +28,13 @@ $func->PublicationSearch($search);
 $idtype = 'bhl';
 $item_id = '269395';
 $item_id = '262632';
-// $func->GetItemMetadata($item_id, $idtype);
+$item_id = '292464';
+// $func->GetItemMetadata($item_id, $idtype); exit; //with OcrText and with multiple pages
 
 $part_id = '263683';
-$part_id = '241705';
+// $part_id = '241705'; //has external URL
 $idtype = 'bhl';
-// $func->GetPartMetadata($part_id, $idtype); //no OCR text yet, but with multiple pages
+// $func->GetPartMetadata($part_id, $idtype); //one object (part) result, no OCR text yet, but with multiple pages
 
 
 ?>
