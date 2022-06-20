@@ -50,7 +50,7 @@ For diagnostics:
 // https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia_en_traits_tmp3_undefined_parent_ids.txt
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-ini_set('memory_limit','7096M');
+ini_set('memory_limit','10096M');
 
 $timestart = time_elapsed();
 echo "\n--------------------START: fillup missing parent entries--------------------\n";
