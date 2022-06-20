@@ -49,6 +49,13 @@ class FillUpMissingParentsAPI
         }
         // */
         
+        /* start customize */
+        if($this->resource_id == 'wikipedia-war') {
+            self::carry_over($tables['http://eol.org/schema/media/document'][0], 'document');
+        }
+        /* end customize */
+        
+        
         /* testing...
         $undefined_parents = array("Q102318370", "Q27661141", "Q59153571", "Q5226073", "Q60792312");
         $undefined_parents = array("Q140");
@@ -379,6 +386,42 @@ class FillUpMissingParentsAPI
             $uris = array_keys($rec);
             $uris = array('http://rs.tdwg.org/dwc/terms/occurrenceID', 'http://rs.tdwg.org/dwc/terms/taxonID');
             $o = new \eol_schema\Occurrence_specific();
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+            // if($i >= 10) break; //debug only
+        }
+    }
+    private function carry_over($meta, $class)
+    {   //print_r($meta);
+        echo "\ncarry_over...[$class][$meta->file_uri]\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit("\ndebug...\n");
+            $uris = array_keys($rec);
+            
+            if    ($class == "vernacular")          $o = new \eol_schema\VernacularName();
+            elseif($class == "agent")               $o = new \eol_schema\Agent();
+            elseif($class == "reference")           $o = new \eol_schema\Reference();
+            elseif($class == "taxon")               $o = new \eol_schema\Taxon();
+            elseif($class == "document")            $o = new \eol_schema\MediaResource();
+            elseif($class == "occurrence")          $o = new \eol_schema\Occurrence();
+            elseif($class == "occurrence_specific") $o = new \eol_schema\Occurrence_specific(); //1st client is 10088_5097_ENV
+            elseif($class == "measurementorfact")   $o = new \eol_schema\MeasurementOrFact();
+            else exit("\nUndefined class [$class]. Will terminate.\n");
+            
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];

@@ -50,7 +50,7 @@ For diagnostics:
 // https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia_en_traits_tmp3_undefined_parent_ids.txt
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-ini_set('memory_limit','10096M');
+ini_set('memory_limit','7096M');
 
 $timestart = time_elapsed();
 echo "\n--------------------START: fillup missing parent entries--------------------\n";
@@ -93,6 +93,7 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $ctr, $param
     /* Orig in meta.xml has capital letters. Just a note reminder. */
     $preferred_rowtypes = false;
     $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
+    if($resource_id == 'wikipedia-war') $excluded_rowtypes[] = 'http://eol.org/schema/media/document'; //bec war has a big media tab
     
     /* This will be processed in FillUpMissingParentsAPI.php which will be called from DwCA_Utility.php */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
