@@ -77,7 +77,7 @@ class MoreFunc4Wikipedia
             }
         }
         if($needle_found) echo "\nneedle found OK [$needle]\n";
-        else              echo "\nERROR: needle was not found [$needle] [$this->all_wikipedias_tsv]\n";
+        else              exit("\nERROR: needle was not found [$needle] [$this->all_wikipedias_tsv]\n");
         /* step3: start with $i, then get the next valid lang */
         $start = $i+1; // echo "\nstart at: [$start]\n";
         $i = -1;
