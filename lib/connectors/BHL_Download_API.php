@@ -43,9 +43,9 @@ class BHL_Download_API //extends Functions_Memoirs
                                     [ItemID] => 292464
                 */
                 
-                $this->debug = array();
-                foreach($objects->Result as $obj) @$this->debug['BHLType'][$obj->BHLType]++;
-                print_r($this->debug);
+                $debug = array();
+                foreach($objects->Result as $obj) @$debug['BHLType'][$obj->BHLType]++;
+                if($debug) print_r($debug);
                 
                 $i = 0; $Part_count = 0; $Item_count = 0;
                 foreach($objects->Result as $obj) { $i++;
@@ -57,13 +57,13 @@ class BHL_Download_API //extends Functions_Memoirs
                     // /*
                     if($obj->BHLType == 'Part') { $Part_count++;
                         $type = 'part';
-                        $id = $obj->PartID; echo("\nPartID: [$id] $Part_count of ".$this->debug['BHLType']['Part']."\n");
+                        $id = $obj->PartID; echo("\nPartID: [$id] $Part_count of ".$debug['BHLType']['Part']."\n");
                         $idtype = 'bhl';
                         // self::GetPartMetadata($id, $idtype); //no OCR text yet, but with multiple pages
                     }
                     elseif($obj->BHLType == 'Item') { $Item_count++;
                         $type = 'item';
-                        $id = $obj->ItemID; echo("\nItemID: [$id] $Item_count of ".$this->debug['BHLType']['Item']."\n");
+                        $id = $obj->ItemID; echo("\nItemID: [$id] $Item_count of ".$debug['BHLType']['Item']."\n");
                         // print_r($obj); exit("\ntype == 'Item'\n");
                         $idtype = 'bhl';
                         // self::GetItemMetadata($id, $idtype);
@@ -76,7 +76,6 @@ class BHL_Download_API //extends Functions_Memoirs
                 $results = $objects->Result;
             }
         }
-        print_r($this->debug);
     }
     function GetPartMetadata($part_id, $idtype, $method = "GetPartMetadata") //1 object (part) result, no OcrText yet, but with multiple pages
     {   /* If it has [ExternalUrl], then it won't have [Pages]
