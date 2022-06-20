@@ -42,31 +42,35 @@ class BHL_Download_API //extends Functions_Memoirs
                                     [FoundIn] => Text
                                     [ItemID] => 292464
                 */
-                $i = 0;
+                
+                $this->debug = array();
+                foreach($objects->Result as $obj) @$this->debug['BHLType'][$obj->BHLType]++;
+                print_r($this->debug);
+                
+                $i = 0; $Part_count = 0; $Item_count = 0;
                 foreach($objects->Result as $obj) { $i++;
                     /* good debug
                     if($i == 4) {
                         print_r($obj); exit("\nfirst [$i] obj\n");
                     }
                     */
-                    /*
-                    if($obj->BHLType == 'Part') {
+                    // /*
+                    if($obj->BHLType == 'Part') { $Part_count++;
                         $type = 'part';
-                        $id = $obj->PartID;
+                        $id = $obj->PartID; echo("\nPartID: [$id] $Part_count of ".$this->debug['BHLType']['Part']."\n");
                         $idtype = 'bhl';
                         // self::GetPartMetadata($id, $idtype); //no OCR text yet, but with multiple pages
                     }
-                    elseif($obj->BHLType == 'Item') {
+                    elseif($obj->BHLType == 'Item') { $Item_count++;
                         $type = 'item';
-                        $id = $obj->ItemID;
+                        $id = $obj->ItemID; echo("\nItemID: [$id] $Item_count of ".$this->debug['BHLType']['Item']."\n");
                         // print_r($obj); exit("\ntype == 'Item'\n");
                         $idtype = 'bhl';
-                        self::GetItemMetadata($id, $idtype);
+                        // self::GetItemMetadata($id, $idtype);
                     }
                     else { print_r($obj); exit("\nun-classified BHLType\n"); }
-                    */
+                    // */
                     
-                    @$this->debug['BHLType'][$obj->BHLType]++;
                 }
                 echo "\nRecords: ".count($objects->Result)."\n";
                 $results = $objects->Result;
@@ -74,7 +78,7 @@ class BHL_Download_API //extends Functions_Memoirs
         }
         print_r($this->debug);
     }
-    function GetPartMetadata($part_id, $idtype, $method = "GetPartMetadata") //no OCR text yet, but with multiple pages
+    function GetPartMetadata($part_id, $idtype, $method = "GetPartMetadata") //1 object (part) result, no OcrText yet, but with multiple pages
     {   /* If it has [ExternalUrl], then it won't have [Pages]
         https://www.biodiversitylibrary.org/api3?op=GetPartMetadata
         &id=<identifier of a part (article, chapter, ect)>
@@ -86,8 +90,9 @@ class BHL_Download_API //extends Functions_Memoirs
         $url = $this->Endpoint."?op=$method&id=$part_id&idtype=$idtype&pages=t&names=t&parts=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $objs = json_decode($json);
-            // print_r($objs);
+            print_r($objs);
             echo "\nCount: ".count($objs->Result)."\n";
+            // exit("\nexit GetPartMetadata()\n");
             foreach($objs->Result as $obj) {
                 // print_r($obj); exit("\n-end GetPartMetadata-\n");
                 
@@ -106,6 +111,13 @@ class BHL_Download_API //extends Functions_Memoirs
     }
     private function process_pages_from_part($part_id, $pages)
     {
+        foreach($pages as $page) {
+            echo " $page->PageID | ";
+            
+            self::GetPageMetadata($page->PageID);
+            
+        }
+        echo "\nPages from part_id $part_id: ".count($pages)."\n"; exit;
     }
     function GetItemMetadata($item_id, $idtype, $method = "GetItemMetadata") //can consist of multiple pages. 
     {   /*                                                                No need to lookup GetPageMetadata() for OCR text
@@ -128,7 +140,7 @@ class BHL_Download_API //extends Functions_Memoirs
             
         }
     }
-    function GetPageMetadata($page_id, $method = "GetPageMetadata")
+    function GetPageMetadata($page_id, $method = "GetPageMetadata", $needle = 'saproxylic')
     {   /* GetPageMetadata
         Return metadata about a page. You may choose to include the text and a list of names found on the page.
         Example - https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=3137380&ocr=t&names=t&apikey=<key+value>
@@ -138,9 +150,20 @@ class BHL_Download_API //extends Functions_Memoirs
         */
         $url = $this->Endpoint."?op=$method&pageid=$page_id&ocr=t&names=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            $obj = json_decode($json);
-            print_r($obj);
+            $objs = json_decode($json);
+            // print_r($objs); exit("\nelix1\n");
+            foreach($objs->Result as $obj) { //but just result anyway
+                echo "\nPageID: ".$obj->PageID."\n";
+                /* a page has an [OcrText] */
+                if(stripos($obj->OcrText, $needle) !== false) { //string is found
+                    print_r($obj);
+                }
+                else echo "\nNo $needle in page $page_id.\n";
+            }
+            
         }
+        
+        else echo "\npage_id not found ($page_id)\n";
     }
     /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     /* seems not used

@@ -19,6 +19,7 @@ $page_id = "29947515";
 $page_id = "40409488";
 $page_id = "48619917";
 $page_id = "52894691";
+$page_id = '59914358';
 // $func->GetPageMetadata($page_id); exit;
 
 $search = "brachypterous";
@@ -33,8 +34,10 @@ $item_id = '292464';
 
 $part_id = '263683';
 // $part_id = '241705'; //has external URL
+// $part_id = '98698'; //has external URL
+$part_id = '303321';
 $idtype = 'bhl';
-// $func->GetPartMetadata($part_id, $idtype); //one object (part) result, no OCR text yet, but with multiple pages
+// $func->GetPartMetadata($part_id, $idtype); //1 object (part) result, no OcrText yet, but with multiple pages
 
 
 ?>
