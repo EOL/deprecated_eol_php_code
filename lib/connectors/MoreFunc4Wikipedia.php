@@ -88,7 +88,7 @@ class MoreFunc4Wikipedia
                 [2] => 6c
             )*/
             if($i >= $start) {
-                $lang = $arr[0]; $status = $arr[1]; $six_conn = $arr[2];
+                $lang = $arr[0]; $status = @$arr[1]; $six_conn = @$arr[2];
                 if($status == "Y" && $six_conn == "6c") {
                     if(self::is_this_wikipedia_lang_old_YN($lang)) return array($lang, $six_conn);
                 }
