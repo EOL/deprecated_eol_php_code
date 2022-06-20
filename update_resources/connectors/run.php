@@ -38,7 +38,7 @@ $func_wp = new MoreFunc4Wikipedia($arr['six_coverage']);
 
 // /* new block
 $language = $arr['langx'];
-if(!$func_wp->is_this_wikipedia_lang_old_YN($language) && $arr['ForceYN'] != "Y") {
+if(!$func_wp->is_this_wikipedia_lang_old_YN($language) && $arr['forceYN'] != "Y") {
     echo "\nSeems already recently generated (multiple) [$language]. Run next language...\n";
     if($ret = $func_wp->get_next_lang_after($language)) { //this gets the next 6c lang.
         $arr['langx'] = $ret[0];
