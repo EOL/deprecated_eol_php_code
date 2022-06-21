@@ -9,7 +9,8 @@ class BHL_Download_API //extends Functions_Memoirs
 {
     function __construct() {
         $this->api_key = BHL_API_KEY;
-        $this->download_options = array('resource_id' => "BHL", 'timeout' => 172800, 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 2000000);
+        $this->download_options = array('resource_id' => "BHL", 'timeout' => 172800, 'expire_seconds' => false, 'download_wait_time' => 2000000);
+        // $this->download_options['expire_seconds'] = 60*60*24*30*6;
         $this->Endpoint = "https://www.biodiversitylibrary.org/api3";
     }
     function PublicationSearch($searchterm, $method = "PublicationSearch")
@@ -51,12 +52,11 @@ class BHL_Download_API //extends Functions_Memoirs
                 $i = 0; $Part_count = 0; $Item_count = 0;
                 foreach($objects->Result as $obj) { $i++;
                     /* good debug
-                    if($i == 4) {
-                        print_r($obj); exit("\nfirst [$i] obj\n");
-                    }
+                    if($i == 4) { print_r($obj); exit("\nfirst [$i] obj\n"); }
                     */
                     // /*
                     if($obj->BHLType == 'Part') { $Part_count++;
+                        // print_r($obj); exit("\n111\n");
                         $type = 'part';
                         $part_id = $obj->PartID; echo("\nPartID: [$part_id] $Part_count of ".$debug['BHLType']['Part']."\n");
                         $idtype = 'bhl';
@@ -92,14 +92,17 @@ class BHL_Download_API //extends Functions_Memoirs
         $url = $this->Endpoint."?op=$method&id=$part_id&idtype=$idtype&pages=t&names=t&parts=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $objs = json_decode($json);
-            // print_r($objs);
+            // print_r($objs); exit;
             echo "\nCount: ".count($objs->Result)."\n";
             // exit("\nexit GetPartMetadata()\n");
             foreach($objs->Result as $obj) { //1 object result only
-                // print_r($obj); exit("\n-end GetPartMetadata-\n");
+                self::write_part_info($obj);
                 
+                // print_r($obj); exit("\n-end GetPartMetadata-\n");
+                /*
                 if($pages = @$obj->Pages) self::process_pages_from_part($part_id, $pages);
                 elseif($external_url = @$obj->ExternalUrl) echo "\nexternal_url: [$external_url]\n";
+                */
                 
                 /* if there are no Pages, then most likely it should have [ExternalUrl]
                 e.g. [ExternalUrl] => https://natureconservation.pensoft.net/articles.php?id=12464
@@ -112,12 +115,12 @@ class BHL_Download_API //extends Functions_Memoirs
         else echo "\npart_id not found ($part_id)\n";
     }
     private function process_pages_from_part($part_id, $pages)
-    {
-        foreach($pages as $page) {
-            echo " $page->PageID | ";
-            self::GetPageMetadata(array('page_id'=>$page->PageID, 'needle'=>$this->needle));
+    {   $i = 0;
+        foreach($pages as $page) { $i++;
+            // echo " $page->PageID | ";
+            self::GetPageMetadata(array('page_id'=>$page->PageID, 'needle'=>$this->needle, 'ctr'=>$i));
         }
-        echo "\nTotal Pages from part_id $part_id: ".count($pages)."\n"; exit("\ncha1\n");
+        echo "\nTotal Pages from part_id $part_id: ".count($pages)."\n"; //exit("\ncha1\n");
     }
     function GetItemMetadata($params) //1 object result but can consist of multiple Pages.
     {   /*                                                                No need to lookup GetPageMetadata() for OCR text
@@ -140,20 +143,40 @@ class BHL_Download_API //extends Functions_Memoirs
                 // print_r($obj); exit("\n-end GetItemMetadata-\n");
                 echo "\nItemID: ".$obj->ItemID."\n";
                 echo "\nItemID has total pages: ".count($obj->Pages)."\n";
-                /* an item has a TitleID and multiple [Pages] with [OcrText] */
                 
+                self::write_item_info($obj);
+                
+                /* an item has a TitleID and multiple [Pages] with [OcrText] */
+                /* working OK but no longer needed
                 foreach($obj->Pages as $page) { //print_r($page); exit;
                     if(stripos($page->OcrText, $needle) !== false) { //string is found
                         echo "\nFound OK $needle in page $page->PageID.\n";
-                        // print_r($page); exit;
-                        // echo "\n$page->OcrText\n";
                     }
                     else echo "\nNo $needle in page $page->PageID.\n";
                 }
-                
+                */
             }
         }
         exit("\ncha2\n");
+    }
+    function GetTitleMetadata($params)
+    {   /* GetTitleMetadata
+        https://www.biodiversitylibrary.org/api3?op=GetTitleMetadata
+        &id=<identifier of a title>
+        &idtype=<bhl, doi, oclc, issn, isbn, lccn, ddc, nal, nlm, coden, or soulsby (OPTIONAL; "bhl" is the default)>
+        &item=<"t" or "true" to include the title's items in the response>
+        &format=<"xml" for an XML response or "json" for JSON (OPTIONAL; "xml" is the default)>
+        &apikey=<API key value>
+        */
+        $title_id = $params['title_id'];
+        $idtype = $params['idtype'];
+        $method = 'GetTitleMetadata';
+        
+        $url = $this->Endpoint."?op=$method&id=$title_id&idtype=$idtype&item=t&format=json&apikey=".$this->api_key;
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            $objs = json_decode($json);
+            print_r($objs); exit("\nend GetTitleMetadata\n");
+        }
     }
     function GetPageMetadata($params)
     {   /* GetPageMetadata
@@ -163,14 +186,14 @@ class BHL_Download_API //extends Functions_Memoirs
         ocr - "t" or "true" to return text of the page
         names - "t" or "true" to return the names that appear on the page
         */
-        $page_id = $params['page_id']; $needle = @$params['needle']; $method = "GetPageMetadata";
+        $page_id = $params['page_id']; $needle = @$params['needle']; $method = "GetPageMetadata"; $ctr = @$params['ctr'];
         
         $url = $this->Endpoint."?op=$method&pageid=$page_id&ocr=t&names=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $objs = json_decode($json);
             // print_r($objs); exit("\nelix1\n");
             foreach($objs->Result as $obj) { //but just result anyway
-                echo "\nPageID: ".$obj->PageID."\n";
+                echo "\n$ctr. PageID: ".$obj->PageID."\n";
                 /* a page has an [OcrText] */
                 if($needle) { //if a value for needle is passed
                     if(stripos($obj->OcrText, $needle) !== false) { //string is found
@@ -184,6 +207,48 @@ class BHL_Download_API //extends Functions_Memoirs
         
         else echo "\npage_id not found ($page_id)\n";
     }
+    private function write_item_info($obj)
+    {
+        /* Item metadata more importantly has ItemTextUrl where you can get all OCR text in one place
+        [ItemID] => 292464
+        [TitleID] => 177982
+        [ThumbnailPageID] => 60852632
+        [Source] => Internet Archive
+        [SourceIdentifier] => CAT30987312
+        [IsVirtual] => 0
+        [Volume] => 2006
+        [Year] => 2006
+        [HoldingInstitution] => U.S. Department of Agriculture, National Agricultural Library
+        [Sponsor] => U.S. Department of Agriculture, National Agricultural Library
+        [Language] => English
+        [Rights] => The contributing institution believes that this item is not in copyright
+        [CopyrightStatus] => Not provided. Contact contributing library to verify copyright status.
+        [ItemUrl] => https://www.biodiversitylibrary.org/item/292464
+        [TitleUrl] => https://www.biodiversitylibrary.org/bibliography/177982
+        [ItemThumbUrl] => https://www.biodiversitylibrary.org/pagethumb/60852632
+        [ItemTextUrl] => https://www.biodiversitylibrary.org/itemtext/292464
+        */
+        if($url = $obj->ItemTextUrl) {
+            $options = $this->download_options;
+            $options['expire_seconds'] = false; //should always be false
+            if($text = Functions::lookup_with_cache($url, $options)) {
+                echo "\ntext size: ".strlen($text)."\n"; exit;
+            }
+        }
+        else exit("\nInvestigate item_id $obj->ItemID\n");
+    }
+    private function write_part_info($obj)
+    {
+        // [PartUrl] => https://www.biodiversitylibrary.org/part/263683
+        // [PartID] => 263683
+        // [ItemID] => 220677
+        // [Title] => Changes in the saproxylic Coleoptera fauna of four wood pasture sites
+        echo "\n-----------------------------Part Title";
+        echo "\n".$obj->Title." | ItemID: $obj->ItemID";
+        echo "\n-----------------------------\n";
+    }
+    
+    
     /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     /* seems not used
     function PageSearch($idtype, $id, $method = "PageSearch")
