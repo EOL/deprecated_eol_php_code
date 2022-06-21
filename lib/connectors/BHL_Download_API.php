@@ -116,7 +116,7 @@ class BHL_Download_API //extends Functions_Memoirs
                         $item_id = $obj->ItemID; echo("\nItemID: [$item_id] $Item_count of ".$debug['BHLType']['Item']."\n");
                         // print_r($obj); exit("\ntype == 'Item'\n");
                         $idtype = 'bhl';
-                        // self::GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype, 'needle'=>$this->needle));
+                        self::GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype, 'needle'=>$this->needle));
                         if($obj->ItemID) $this->breakdown['Item'][$obj->ItemID] = '';
                     }
                     else { print_r($obj); exit("\nun-classified BHLType\n"); }
@@ -128,12 +128,11 @@ class BHL_Download_API //extends Functions_Memoirs
                 $results = $objects->Result;
             }
         }
-        print_r($this->breakdown);
+        /* -----start evaluation----- */
+        // print_r($this->breakdown);
         $arr_Part = array_keys($this->breakdown['Part']);
         $arr_Item = array_keys($this->breakdown['Item']);
-        
-        if (array_intersect($arr_Part, $arr_Item) == $arr_Part) {
-            // $arr_Part is a subset of $arr_Item
+        if(array_intersect($arr_Part, $arr_Item) == $arr_Part) { //$arr_Part is a subset of $arr_Item
             echo "\nOK Part is a subset of Item\n";
         }
         else echo "\nPart is not a subset of Item - Investigate\n";
@@ -160,7 +159,7 @@ class BHL_Download_API //extends Functions_Memoirs
                 // print_r($obj); //exit;
                 // /* ----- start debug -----
                 foreach($obj->Pages as $p) {
-                    if($p->ItemID != '0') {
+                    if($p->ItemID != "0" || $p->ItemID > 0) {
                         print_r($obj);
                         exit("\nhuli ka\n");
                     }
