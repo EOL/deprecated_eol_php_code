@@ -57,12 +57,60 @@ class BHL_Download_API //extends Functions_Memoirs
                     // /*
                     if($obj->BHLType == 'Part') { $Part_count++;
                         // print_r($obj); exit("\n111\n");
+                        /*stdClass Object(
+                            [BHLType] => Part
+                            [FoundIn] => Both
+                            [Volume] => 20
+                            [Authors] => Array(
+                                    [0] => stdClass Object(
+                                            [Name] => Lott, Derek A
+                                        )
+                                )
+                            [PartUrl] => https://www.biodiversitylibrary.org/part/263683
+                            [PartID] => 263683
+                            [Genre] => Article
+                            [Title] => Changes in the saproxylic Coleoptera fauna of four wood pasture sites
+                            [ContainerTitle] => British Journal of Entomology and Natural History
+                            [Issue] => 3
+                            [Date] => 2007
+                            [PageRange] => 142--148
+                        )*/
                         $type = 'part';
                         $part_id = $obj->PartID; echo("\nPartID: [$part_id] $Part_count of ".$debug['BHLType']['Part']."\n");
                         $idtype = 'bhl';
                         self::GetPartMetadata(array('part_id'=>$part_id, 'idtype'=>$idtype)); //no OCR text yet, but with multiple pages
                     }
                     elseif($obj->BHLType == 'Item') { $Item_count++;
+                        // print_r($obj); exit("\n222\n");
+                        /*stdClass Object(
+                            [BHLType] => Item
+                            [FoundIn] => Text
+                            [ItemID] => 292464
+                            [TitleID] => 177982
+                            [Volume] => 2006
+                            [ItemUrl] => https://www.biodiversitylibrary.org/item/292464
+                            [TitleUrl] => https://www.biodiversitylibrary.org/bibliography/177982
+                            [MaterialType] => Published material
+                            [PublisherPlace] => Asheville  NC
+                            [PublisherName] => U.S. Dept. of Agriculture, Forest Service, Southern Research Station
+                            [PublicationDate] => 2006
+                            [Authors] => Array(
+                                    [0] => stdClass Object(
+                                            [Name] => Grove, Simon J
+                                        )
+                                    [1] => stdClass Object(
+                                            [Name] => Hanula, James L. (James Lee),
+                                        )
+                                    [2] => stdClass Object(
+                                            [Name] => United States. Forest Service. Southern Research Station.
+                                        )
+                                    [3] => stdClass Object(
+                                            [Name] => International Congress of Entomology Brisbane, Qld.)
+                                        )
+                                )
+                            [Genre] => Book
+                            [Title] => Insect biodiversity and dead wood : proceedings of a symposium for the 22nd International Congress of Entomology
+                        )*/
                         $type = 'item';
                         $item_id = $obj->ItemID; echo("\nItemID: [$item_id] $Item_count of ".$debug['BHLType']['Item']."\n");
                         // print_r($obj); exit("\ntype == 'Item'\n");
@@ -244,7 +292,7 @@ class BHL_Download_API //extends Functions_Memoirs
         // [ItemID] => 220677
         // [Title] => Changes in the saproxylic Coleoptera fauna of four wood pasture sites
         echo "\n-----------------------------Part Title";
-        echo "\n".$obj->Title." | ItemID: $obj->ItemID";
+        echo "\n".$obj->Title." | ItemID: ".@$obj->ItemID." | Pages count: ".count($obj->Pages); //not all have ItemID here
         echo "\n-----------------------------\n";
     }
     
