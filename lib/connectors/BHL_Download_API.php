@@ -60,14 +60,14 @@ class BHL_Download_API //extends Functions_Memoirs
                         $type = 'part';
                         $part_id = $obj->PartID; echo("\nPartID: [$part_id] $Part_count of ".$debug['BHLType']['Part']."\n");
                         $idtype = 'bhl';
-                        // self::GetPartMetadata(array('part_id'=>$part_id, 'idtype'=>$idtype)); //no OCR text yet, but with multiple pages
+                        self::GetPartMetadata(array('part_id'=>$part_id, 'idtype'=>$idtype)); //no OCR text yet, but with multiple pages
                     }
                     elseif($obj->BHLType == 'Item') { $Item_count++;
                         $type = 'item';
                         $item_id = $obj->ItemID; echo("\nItemID: [$item_id] $Item_count of ".$debug['BHLType']['Item']."\n");
                         // print_r($obj); exit("\ntype == 'Item'\n");
                         $idtype = 'bhl';
-                        self::GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype, 'needle'=>$this->needle));
+                        // self::GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype, 'needle'=>$this->needle));
                     }
                     else { print_r($obj); exit("\nun-classified BHLType\n"); }
                     // */
@@ -163,7 +163,7 @@ class BHL_Download_API //extends Functions_Memoirs
         ocr - "t" or "true" to return text of the page
         names - "t" or "true" to return the names that appear on the page
         */
-        $page_id = $params['page_id']; $needle = $params['needle']; $method = "GetPageMetadata";
+        $page_id = $params['page_id']; $needle = @$params['needle']; $method = "GetPageMetadata";
         
         $url = $this->Endpoint."?op=$method&pageid=$page_id&ocr=t&names=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -172,13 +172,14 @@ class BHL_Download_API //extends Functions_Memoirs
             foreach($objs->Result as $obj) { //but just result anyway
                 echo "\nPageID: ".$obj->PageID."\n";
                 /* a page has an [OcrText] */
-                if(stripos($obj->OcrText, $needle) !== false) { //string is found
-                    echo "\nFound OK $needle in page $page_id.\n";
-                    // print_r($obj); exit;
+                if($needle) { //if a value for needle is passed
+                    if(stripos($obj->OcrText, $needle) !== false) { //string is found
+                        echo "\nFound OK $needle in page $page_id.\n";
+                        // print_r($obj); exit;
+                    }
+                    else echo "\nNo $needle in page $page_id.\n";
                 }
-                else echo "\nNo $needle in page $page_id.\n";
             }
-            
         }
         
         else echo "\npage_id not found ($page_id)\n";

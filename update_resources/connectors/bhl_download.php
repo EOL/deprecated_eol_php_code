@@ -20,24 +20,24 @@ $page_id = "40409488";
 $page_id = "48619917";
 $page_id = "52894691";
 $page_id = '59914358';
-// $func->GetPageMetadata($page_id); exit;
+// $func->GetPageMetadata(array('page_id'=>$page_id)); exit;
 
 $search = "brachypterous";
 $search = "saproxylic";
-$func->PublicationSearch($search);
+$func->PublicationSearch($search); exit("\n-end search-\n");
 
 $idtype = 'bhl';
 $item_id = '269395';
 $item_id = '262632';
 $item_id = '292464';
-// $func->GetItemMetadata($item_id, $idtype); exit; //with OcrText and with multiple pages
+$func->GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype)); exit; //with OcrText and with multiple pages
 
 $part_id = '263683';
 // $part_id = '241705'; //has external URL
 // $part_id = '98698'; //has external URL
 $part_id = '303321';
 $idtype = 'bhl';
-// $func->GetPartMetadata($part_id, $idtype); //1 object (part) result, no OcrText yet, but with multiple pages
+$func->GetPartMetadata(array('part_id'=>$part_id, 'idtype'=>$idtype)); //1 object (part) result, no OcrText yet, but with multiple pages
 
 
 ?>
