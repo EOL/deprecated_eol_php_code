@@ -25,6 +25,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $this->needle = $searchterm;
         $page = 0;
         $results = true;
+        $this->breakdown = array();
         while($results) { $page++;
             $url = $this->Endpoint."?op=$method&searchterm=$searchterm&searchtype=F&page=$page&pageSize=100&format=json&apikey=".$this->api_key;
             if($json = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -116,15 +117,26 @@ class BHL_Download_API //extends Functions_Memoirs
                         // print_r($obj); exit("\ntype == 'Item'\n");
                         $idtype = 'bhl';
                         // self::GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype, 'needle'=>$this->needle));
+                        if($obj->ItemID) $this->breakdown['Item'][$obj->ItemID] = '';
                     }
                     else { print_r($obj); exit("\nun-classified BHLType\n"); }
                     // */
                     
-                }
+                    // if($i > 5) break; //debug only
+                } //end foreach()
                 echo "\nRecords: ".count($objects->Result)."\n";
                 $results = $objects->Result;
             }
         }
+        print_r($this->breakdown);
+        $arr_Part = array_keys($this->breakdown['Part']);
+        $arr_Item = array_keys($this->breakdown['Item']);
+        
+        if (array_intersect($arr_Part, $arr_Item) == $arr_Part) {
+            // $arr_Part is a subset of $arr_Item
+            echo "\nOK Part is a subset of Item\n";
+        }
+        else echo "\nPart is not a subset of Item - Investigate\n";
     }
     function GetPartMetadata($params) //1 object (part) result, no OcrText yet, but with multiple pages
     {   /* If it has [ExternalUrl], then it won't have [Pages]
@@ -140,10 +152,28 @@ class BHL_Download_API //extends Functions_Memoirs
         $url = $this->Endpoint."?op=$method&id=$part_id&idtype=$idtype&pages=t&names=t&parts=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $objs = json_decode($json);
-            // print_r($objs); exit;
+            // print_r($objs); exit("\nelix1\n");
             echo "\nCount: ".count($objs->Result)."\n";
             // exit("\nexit GetPartMetadata()\n");
             foreach($objs->Result as $obj) { //1 object result only
+                
+                // print_r($obj); //exit;
+                // /* ----- start debug -----
+                foreach($obj->Pages as $p) {
+                    if($p->ItemID != '0') {
+                        print_r($obj);
+                        exit("\nhuli ka\n");
+                    }
+                }
+                // ----- ----- */
+                
+                /*stdClass Object(
+                                    [PartUrl] => https://www.biodiversitylibrary.org/part/263683
+                                    [PartID] => 263683
+                                    [ItemID] => 220677
+                */
+                if(@$obj->ItemID) $this->breakdown['Part'][$obj->ItemID] = '';
+                
                 self::write_part_info($obj);
                 
                 // print_r($obj); exit("\n-end GetPartMetadata-\n");
@@ -205,7 +235,7 @@ class BHL_Download_API //extends Functions_Memoirs
                 */
             }
         }
-        exit("\ncha2\n");
+        // exit("\ncha2\n");
     }
     function GetTitleMetadata($params)
     {   /* GetTitleMetadata
@@ -276,14 +306,16 @@ class BHL_Download_API //extends Functions_Memoirs
         [ItemThumbUrl] => https://www.biodiversitylibrary.org/pagethumb/60852632
         [ItemTextUrl] => https://www.biodiversitylibrary.org/itemtext/292464
         */
+        /* un-comment in main operation
         if($url = $obj->ItemTextUrl) {
             $options = $this->download_options;
             $options['expire_seconds'] = false; //should always be false
             if($text = Functions::lookup_with_cache($url, $options)) {
-                echo "\ntext size: ".strlen($text)."\n"; exit;
+                echo "\ntext size: ".strlen($text)."\n"; //exit("\n333\n");
             }
         }
         else exit("\nInvestigate item_id $obj->ItemID\n");
+        */
     }
     private function write_part_info($obj)
     {
@@ -301,10 +333,7 @@ class BHL_Download_API //extends Functions_Memoirs
         }
         echo "\n-----------------------------\n";
         
-        if(count($obj->Pages) == 0) {
-            print_r($obj);
-        }
-        
+        // if(count($obj->Pages) == 0) print_r($obj); //good debug
     }
     private function is_needle_found_in_Part_metadata($obj, $needle)
     {
