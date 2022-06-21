@@ -1,22 +1,19 @@
-en	N	6c
-es	N	6c
-it	N	6c
-de	N	6c
-fr	N	6c
-ja	N	6c
-ko	N	6c
-ru	N	6c
-pt	N	6c
-zh	N	6c
-nl	N	6c
-pl	N	6c
+en	Y	6c
+es	Y	6c
+it	Y	6c
+de	Y	6c
+fr	Y	6c
+ja	Y	6c
+ko	Y	6c
+ru	Y	6c
+pt	Y	6c
+zh	Y	6c
+nl	Y	6c
+pl	Y	6c
 vi	Y	6c
 -----	-----	-----
-war	N	6c
-ceb	N	6c
------	-----	-----
-ca	N	6c
-uk	N	6c
+ca	Y	6c
+uk	Y	6c
 sv	Y	6c
 no	Y	6c
 hu	Y	6c
@@ -88,6 +85,10 @@ mr	Y	6c
 tt	Y	6c
 an	Y	6c
 ku	Y	6c
+-----	-----	-----
+war	Y	6c
+ceb	Y	6c
+-----	-----	-----
 gu	Y	
 frr	Y	
 qu	Y	
@@ -118,7 +119,7 @@ ia	Y
 fo	Y	
 zh-min-nan	Y	
 pam	Y	
-ce	N	
+ce	Y	
 nds-nl	Y	
 ace	Y	
 vec	Y	
