@@ -12,6 +12,8 @@ class BHL_Download_API //extends Functions_Memoirs
         $this->download_options = array('resource_id' => "BHL", 'timeout' => 172800, 'expire_seconds' => false, 'download_wait_time' => 2000000);
         // $this->download_options['expire_seconds'] = 60*60*24*30*6;
         $this->Endpoint = "https://www.biodiversitylibrary.org/api3";
+        $this->save_path = CONTENT_RESOURCE_LOCAL_PATH."reports/BHL";
+        if(!is_dir($this->save_path)) mkdir($this->save_path);
     }
     function PublicationSearch($searchterm, $method = "PublicationSearch")
     {   /*
@@ -22,6 +24,8 @@ class BHL_Download_API //extends Functions_Memoirs
         &pageSize=<the maximum number of results to return per page (default = 100)>
         &apikey=<API key value>
         */
+        if(strlen($searchterm) < 10) exit("\nSearch term is too short: [$searchterm]\n");
+        
         $this->needle = $searchterm;
         $page = 0;
         $results = true;
@@ -134,8 +138,19 @@ class BHL_Download_API //extends Functions_Memoirs
         $arr_Item = array_keys($this->breakdown['Item']);
         if(array_intersect($arr_Part, $arr_Item) == $arr_Part) { //$arr_Part is a subset of $arr_Item
             echo "\nOK Part is a subset of Item\n";
+            self::generate_corpus_doc($arr_Item);
         }
         else echo "\nPart is not a subset of Item - Investigate\n";
+    }
+    private function generate_corpus_doc($item_ids, )
+    {
+        // if(!($f = Functions::file_open($this->wikipedia_bot_file, "a"))) return;
+        // fwrite($f, $title."\n");
+        // fclose($f);
+        // exit;
+        foreach($item_ids as $item_id) {
+            echo " $item_id ";
+        }
     }
     function GetPartMetadata($params) //1 object (part) result, no OcrText yet, but with multiple pages
     {   /* If it has [ExternalUrl], then it won't have [Pages]
