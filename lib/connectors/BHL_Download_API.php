@@ -293,9 +293,29 @@ class BHL_Download_API //extends Functions_Memoirs
         // [Title] => Changes in the saproxylic Coleoptera fauna of four wood pasture sites
         echo "\n-----------------------------Part Title";
         echo "\n".$obj->Title." | ItemID: ".@$obj->ItemID." | Pages count: ".count($obj->Pages); //not all have ItemID here
+        if($url = @$obj->ExternalUrl) echo " | External: $url";
+        if(count($obj->Pages) == 0) {
+            echo " | Subjects: ".count(@$obj->Subjects);
+            if(self::is_needle_found_in_Part_metadata($obj, $this->needle)) echo "\nneedle ($this->needle) found in metadata OK\n";
+            else                                                            echo "\nInvestigate needle ($this->needle) not found\n";
+        }
         echo "\n-----------------------------\n";
+        
+        if(count($obj->Pages) == 0) {
+            print_r($obj);
+        }
+        
     }
-    
+    private function is_needle_found_in_Part_metadata($obj, $needle)
+    {
+        $arr = (array) $obj;
+        $str = json_encode($arr);
+        if(stripos($str, $needle) !== false) return true; //string is found
+        else {
+            exit("\nyyy\n$str\nxxx\nInvestigate: needle ($needle) not found in Part metadata\n");
+            return false;
+        }
+    }
     
     /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     /* seems not used
