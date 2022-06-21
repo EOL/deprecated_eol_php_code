@@ -12,8 +12,8 @@ class BHL_Download_API //extends Functions_Memoirs
         $this->download_options = array('resource_id' => "BHL", 'timeout' => 172800, 'expire_seconds' => false, 'download_wait_time' => 2000000);
         // $this->download_options['expire_seconds'] = 60*60*24*30*6;
         $this->Endpoint = "https://www.biodiversitylibrary.org/api3";
-        $this->save_path = CONTENT_RESOURCE_LOCAL_PATH."reports/BHL";
-        if(!is_dir($this->save_path)) mkdir($this->save_path);
+        $this->save_dir = CONTENT_RESOURCE_LOCAL_PATH."reports/BHL";
+        if(!is_dir($this->save_dir)) mkdir($this->save_dir);
     }
     function PublicationSearch($searchterm, $method = "PublicationSearch")
     {   /*
@@ -27,6 +27,10 @@ class BHL_Download_API //extends Functions_Memoirs
         if(strlen($searchterm) < 10) exit("\nSearch term is too short: [$searchterm]\n");
         
         $this->needle = $searchterm;
+        
+        $this->corpus_file = $this->save_dir."/search_BHL_".$searchterm.".txt";
+        $f = Functions::file_open($this->corpus_file, "w"); fclose($f); //initialize file
+        
         $page = 0;
         $results = true;
         $this->breakdown = array();
@@ -137,19 +141,16 @@ class BHL_Download_API //extends Functions_Memoirs
         $arr_Part = array_keys($this->breakdown['Part']);
         $arr_Item = array_keys($this->breakdown['Item']);
         if(array_intersect($arr_Part, $arr_Item) == $arr_Part) { //$arr_Part is a subset of $arr_Item
-            echo "\nOK Part is a subset of Item\n";
+            echo "\nOK Part is a subset of Item n=".count($arr_Item)."\n";
             self::generate_corpus_doc($arr_Item);
         }
         else echo "\nPart is not a subset of Item - Investigate\n";
     }
-    private function generate_corpus_doc($item_ids, )
+    private function generate_corpus_doc($item_ids)
     {
-        // if(!($f = Functions::file_open($this->wikipedia_bot_file, "a"))) return;
-        // fwrite($f, $title."\n");
-        // fclose($f);
         // exit;
         foreach($item_ids as $item_id) {
-            echo " $item_id ";
+            // echo " $item_id ";
         }
     }
     function GetPartMetadata($params) //1 object (part) result, no OcrText yet, but with multiple pages
@@ -267,8 +268,30 @@ class BHL_Download_API //extends Functions_Memoirs
         $url = $this->Endpoint."?op=$method&id=$title_id&idtype=$idtype&item=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $objs = json_decode($json);
-            print_r($objs); exit("\nend GetTitleMetadata\n");
+            foreach($objs->Result as $obj) { //just 1 object
+                /*stdClass Object(
+                    [TitleID] => 177982
+                    [Genre] => Monograph/Item
+                    [MaterialType] => Published material
+                    [FullTitle] => Insect biodiversity and dead wood : proceedings of a symposium for the 22nd International Congress of Entomology
+                    [ShortTitle] => Insect biodiversity and dead wood
+                    [SortTitle] => Insect biodiversity and dead wood proceedings of a symposi
+                    [PublisherPlace] => Asheville,  NC
+                    [PublisherName] => U.S. Dept. of Agriculture, Forest Service, Southern Research Station
+                    [PublicationDate] => [2006]
+                    [TitleUrl] => https://www.biodiversitylibrary.org/bibliography/177982
+                    [CreationDate] => 2021/05/15 11:35:32
+                    [Authors] => Array()
+                    [Subjects] => Array()
+                    [Identifiers] => Array()
+                    [Variants] => Array()
+                    [Notes] => Array()
+                )*/
+                // print_r($obj); exit("\n444\n");
+                return $obj;
+            }
         }
+        else exit("\nInvestigate: title_id not found [$title_id]\n");
     }
     function GetPageMetadata($params)
     {   /* GetPageMetadata
@@ -320,16 +343,35 @@ class BHL_Download_API //extends Functions_Memoirs
         [ItemThumbUrl] => https://www.biodiversitylibrary.org/pagethumb/60852632
         [ItemTextUrl] => https://www.biodiversitylibrary.org/itemtext/292464
         */
-        /* un-comment in main operation
+        
+        $title_obj = self::GetTitleMetadata(array('title_id'=>$obj->TitleID, 'idtype'=>'bhl'));
+        
+        // /* un-comment in main operation
         if($url = $obj->ItemTextUrl) {
             $options = $this->download_options;
             $options['expire_seconds'] = false; //should always be false
             if($text = Functions::lookup_with_cache($url, $options)) {
                 echo "\ntext size: ".strlen($text)."\n"; //exit("\n333\n");
+                if(!isset($this->printed_ItemIDs[$obj->ItemID])) {
+                    self::write_2_text($text, $title_obj, $obj->ItemID);
+                    $this->printed_ItemIDs[$obj->ItemID] = '';
+                }
             }
         }
         else exit("\nInvestigate item_id $obj->ItemID\n");
-        */
+        // */
+    }
+    private function write_2_text($text, $title_obj, $item_id)
+    {
+        $f = Functions::file_open($this->corpus_file, "a");
+        $title = "FULL TITLE: ".$title_obj->FullTitle;
+        $pad = Functions::format_number_with_leading_zeros("", strlen($title));
+        fwrite($f, "$pad "."ItemID: $item_id"."\n");
+        fwrite($f, $title."\n");
+        fwrite($f, "$pad\n\n");
+        fwrite($f, $text."\n");
+        fwrite($f, "=============== end of file ==============\n\n");
+        fclose($f);
     }
     private function write_part_info($obj)
     {
