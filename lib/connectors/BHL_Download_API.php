@@ -138,17 +138,53 @@ class BHL_Download_API //extends Functions_Memoirs
         }
         /* -----start evaluation----- */
         // print_r($this->breakdown);
-        $arr_Part = array_keys($this->breakdown['Part']);
-        $arr_Item = array_keys($this->breakdown['Item']);
+        $arr_Part = array_keys($this->breakdown['Part']);   echo "\nPart: ".count($arr_Part)."\n";
+        $arr_Item = array_keys($this->breakdown['Item']);   echo "\nItem: ".count($arr_Item)."\n";
         if(array_intersect($arr_Part, $arr_Item) == $arr_Part) { //$arr_Part is a subset of $arr_Item
             echo "\nOK Part is a subset of Item n=".count($arr_Item)."\n";
-            self::generate_corpus_doc($arr_Item);
+            // self::generate_corpus_doc($arr_Item); //was never used
         }
         else echo "\nPart is not a subset of Item - Investigate\n";
         
-        echo "\nNames found: ".count($this->namez)."\n";
-        print_r($this->namez);
-        
+        echo "\nscientificNames found: ".count($this->namez)."\n"; //print_r($this->namez);
+        self::write_scinames($this->namez, $this->needle);
+    }
+    private function write_scinames($names, $needle)
+    {
+        $names = array_keys($names);
+        $file = $this->save_dir."/scinames_BHL_".$needle.".jsonl";
+        $f = Functions::file_open($file, "w");
+        /* write start */
+        $w = '{"label": "TERM_POS", "pattern": "'.$needle.'"}';             fwrite($f, $w."\n");
+        $w = '{"label": "TERM_POS", "pattern": "'.ucfirst($needle).'"}';    fwrite($f, $w."\n");
+        $w = '{"label": "TERM_NEG", "pattern": "not '.$needle.'"}';         fwrite($f, $w."\n");
+        $w = '{"label": "TERM_NEG", "pattern": "non-'.$needle.'"}';         fwrite($f, $w."\n");
+        $w = '{"label": "TERM_NEG", "pattern": "none '.$needle.'"}';        fwrite($f, $w."\n");
+        /* write names */
+        foreach($names as $name) {
+            if(self::taxon_is_species_level($name)) $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
+            else                                    $w = '{"label": "GNRD_HLT", "pattern": "'.$name.'"}';
+            fwrite($f, $w."\n");
+        }
+        /* write static entries in jsonl */
+        $lines = array();
+        $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "complex"}';
+        $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "species complex"}';
+        $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "group"}';
+        $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "subgroup"}';
+        $lines[] = '{"label": "NAME_POSTFIX", "pattern": "sp._n."}';
+        $lines[] = '{"label": "AUX_POS", "pattern": "is"}';
+        $lines[] = '{"label": "AUX_POS", "pattern": "are"}';
+        $lines[] = '{"label": "AUX_NEG", "pattern": "is not"}';
+        $lines[] = '{"label": "AUX_NEG", "pattern": "is negatively"}';
+        $lines[] = '{"label": "AUX_NEG", "pattern": "are not"}';
+        $lines[] = '{"label": "AUX_NEG", "pattern": "are negatively"}';
+        $lines[] = '{"label": "GROUP_POS", "pattern": "all"}';
+        $lines[] = '{"label": "GROUP_POS", "pattern": "All"}';
+        $lines[] = '{"label": "GROUP_NEG", "pattern": "not all"}';
+        $lines[] = '{"label": "GROUP_NEG", "pattern": "Not all"}';
+        foreach($lines as $w) fwrite($f, $w."\n");
+        fclose($f);
     }
     private function generate_corpus_doc($item_ids)
     {
@@ -434,7 +470,12 @@ class BHL_Download_API //extends Functions_Memoirs
             return false;
         }
     }
-    
+    private function taxon_is_species_level($name)
+    {
+        $arr = explode(" ", trim($name));
+        if(count($arr) > 1) return true;
+        else return false;
+    }
     /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     /* seems not used
     function PageSearch($idtype, $id, $method = "PageSearch")
