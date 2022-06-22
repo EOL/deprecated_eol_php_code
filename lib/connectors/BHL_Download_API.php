@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
-/* This will be an all-in-one BHL download facility. 
+/* connector: bhl_search.php
+This will be an all-in-one BHL download facility. 
 https://about.biodiversitylibrary.org/tools-and-services/developer-and-data-tools/#APIs
 https://www.biodiversitylibrary.org/docs/api3.html
 https://www.biodiversitylibrary.org/docs/api3/GetPageMetadata.xml
@@ -400,7 +401,7 @@ class BHL_Download_API //extends Functions_Memoirs
         fwrite($f, "$pad "."ItemID: $item_id"."\n");
         fwrite($f, $title."\n");
         fwrite($f, "$pad\n\n");
-        $text = str_replace("- \n", "", $text);
+        // $text = str_replace("- \n", "", $text); //not a good idea
         fwrite($f, $text."\n");
         fwrite($f, "=============== end of file ==============\n\n");
         fclose($f);
