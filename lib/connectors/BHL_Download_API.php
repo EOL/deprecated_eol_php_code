@@ -25,7 +25,6 @@ class BHL_Download_API //extends Functions_Memoirs
         &apikey=<API key value>
         */
         if(strlen($searchterm) < 10) exit("\nSearch term is too short: [$searchterm]\n");
-        
         $this->needle = $searchterm;
         
         $this->corpus_file = $this->save_dir."/search_BHL_".$searchterm.".txt";
@@ -130,7 +129,7 @@ class BHL_Download_API //extends Functions_Memoirs
                     else { print_r($obj); exit("\nun-classified BHLType\n"); }
                     // */
                     
-                    // if($i > 5) break; //debug only
+                    // if($i > 20) break; //debug only
                 } //end foreach()
                 echo "\nRecords: ".count($objects->Result)."\n";
                 $results = $objects->Result;
@@ -145,6 +144,10 @@ class BHL_Download_API //extends Functions_Memoirs
             self::generate_corpus_doc($arr_Item);
         }
         else echo "\nPart is not a subset of Item - Investigate\n";
+        
+        echo "\nNames found: ".count($this->namez)."\n";
+        print_r($this->namez);
+        
     }
     private function generate_corpus_doc($item_ids)
     {
@@ -230,7 +233,7 @@ class BHL_Download_API //extends Functions_Memoirs
         
         $url = $this->Endpoint."?op=$method&id=$item_id&idtype=$idtype&pages=t&ocr=t&parts=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            $objs = json_decode($json);
+            $objs = json_decode($json); //print_r($objs); exit;
             if(count($objs->Result) > 1) exit("\nThis item_id $item_id has multiple results.\n");
             foreach($objs->Result as $obj) { //just 1 object but with multiple pages
                 // print_r($obj); exit("\n-end GetItemMetadata-\n");
@@ -240,17 +243,41 @@ class BHL_Download_API //extends Functions_Memoirs
                 self::write_item_info($obj);
                 
                 /* an item has a TitleID and multiple [Pages] with [OcrText] */
-                /* working OK but no longer needed
+                // /* working OK but no longer needed
                 foreach($obj->Pages as $page) { //print_r($page); exit;
+                    // /* working Ok but not needed atm
                     if(stripos($page->OcrText, $needle) !== false) { //string is found
                         echo "\nFound OK $needle in page $page->PageID.\n";
+                        if($names = self::get_names_for_PageID($page->PageID)) { //print_r($names); exit;
+                            /*Array(
+                                [0] => stdClass Object(
+                                        [NameFound] => Araneae
+                                        [NameConfirmed] => Araneae
+                                        [NameCanonical] => Araneae
+                                    )
+                            */
+                            foreach($names as $name) $this->namez[$name->NameFound] = '';
+                        }
                     }
-                    else echo "\nNo $needle in page $page->PageID.\n";
+                    // else echo "\nNo $needle in page $page->PageID.\n";
+                    // */
                 }
-                */
+                // */
             }
         }
         // exit("\ncha2\n");
+    }
+    private function get_names_for_PageID($page_id)
+    {
+        if($ret = self::GetPageMetadata(array('page_id'=>$page_id))) {
+            $page_info = $ret->Result[0];
+            // print_r($page_info); exit("\neee\n");
+            if($names = $page_info->Names) {
+                // print_r($names); //exit;
+                echo "\nNames in PageID $page_id: ".count($names)."\n";
+                return $names;
+            }
+        }
     }
     function GetTitleMetadata($params)
     {   /* GetTitleMetadata
@@ -306,8 +333,9 @@ class BHL_Download_API //extends Functions_Memoirs
         $url = $this->Endpoint."?op=$method&pageid=$page_id&ocr=t&names=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $objs = json_decode($json);
+            return $objs;
             // print_r($objs); exit("\nelix1\n");
-            foreach($objs->Result as $obj) { //but just result anyway
+            foreach($objs->Result as $obj) { //but just 1 result anyway
                 echo "\n$ctr. PageID: ".$obj->PageID."\n";
                 /* a page has an [OcrText] */
                 if($needle) { //if a value for needle is passed
@@ -317,9 +345,11 @@ class BHL_Download_API //extends Functions_Memoirs
                     }
                     else echo "\nNo $needle in page $page_id.\n";
                 }
+                // if($obj->Names) {
+                //     print_r($obj); exit("\nhuli ka\n");
+                // }
             }
         }
-        
         else echo "\npage_id not found ($page_id)\n";
     }
     private function write_item_info($obj)
@@ -345,6 +375,7 @@ class BHL_Download_API //extends Functions_Memoirs
         */
         
         $title_obj = self::GetTitleMetadata(array('title_id'=>$obj->TitleID, 'idtype'=>'bhl'));
+        // print_r($title_obj); exit;
         
         // /* un-comment in main operation
         if($url = $obj->ItemTextUrl) {
@@ -369,6 +400,7 @@ class BHL_Download_API //extends Functions_Memoirs
         fwrite($f, "$pad "."ItemID: $item_id"."\n");
         fwrite($f, $title."\n");
         fwrite($f, "$pad\n\n");
+        $text = str_replace("- \n", "", $text);
         fwrite($f, $text."\n");
         fwrite($f, "=============== end of file ==============\n\n");
         fclose($f);
