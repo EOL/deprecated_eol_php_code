@@ -255,6 +255,13 @@ class Clean_MoF_Habitat_API
                         if(self::is_mValue_descendant_of_terrestrial($mValue))  $this->occurrenceIDs_2delete[$occurrenceID] = ''; //Contradicting MoF records
                     }
                 }
+                
+                /* ========== START customize ========== */
+                if($this->resource_id == "26_delta_new") { //per: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66931&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66931
+                    $measurementMethod = $rec['http://rs.tdwg.org/dwc/terms/measurementMethod'];
+                    if($measurementMethod == "inherited from urn:lsid:marinespecies.org:taxname:2687, Carnivora") $this->occurrenceIDs_2delete[$occurrenceID] = '';
+                }
+                /* ========== END customize ========== */
             }
             //===================================================================================================================
             if($task == 'write_occurrence') {
