@@ -109,9 +109,11 @@ since delta MoF and occurrence are less --- maybe a good thing. Definitely remov
 START PROPER FILTER OF marine+terrestrial in MoF Habitat records: now only contradicting Habitat records are removed
 26_delta_new	Mon 2022-05-09 06:50:30 AM	{"agent":1855, "MoF":2231822, "media":95845, "occur":1103284, "ref":724227, "taxon":383405, "vernacular":86337, "time_elapsed":{"sec":2411.52, "min":40.19, "hr":0.67}}
 26_delta_new	Fri 2022-06-10 08:24:38 AM	{"agent":1871, "MoF":2261214, "media":96141, "occur":1125064, "ref":731895, "taxon":384507, "vernacular":86667, "time_elapsed":{"sec":2518.82, "min":41.98, "hr":0.7}}
+26_delta_new	Thu 2022-06-23 10:30:42 PM	{"agent":1871, "MoF":2261054, "media":96141, "occur":1124944, "ref":731895, "taxon":384507, "vernacular":86667, "time_elapsed":{"sec":2425.16, "min":40.42, "hr":0.67}}
 
 26_MoF_normalized	Mon 2022-05-09 09:10:53 {"agent":1855, "MoF":2231607, "media":95845, "occur":1103284, "ref":724227, "taxon":383405, "vernacular":86337, "time_elapsed":{"sec":2459.97, "min":41, "hr":0.68}}
 26_MoF_normalized	Fri 2022-06-10 09:08:28 {"agent":1871, "MoF":2260999, "media":96141, "occur":1125064, "ref":731895, "taxon":384507, "vernacular":86667, "time_elapsed":{"sec":2619.43, "min":43.66, "hr":0.73}} Consistent OK
+26_MoF_normalized	Thu 2022-06-23 11:13:17 {"agent":1871, "MoF":2260839, "media":96141, "occur":1124944, "ref":731895, "taxon":384507, "vernacular":86667, "time_elapsed":{"sec":2542.9, "min":42.38, "hr":0.71}}
 =========================================================================================
 In Jenkins: run one connector after the other:
 #OK
