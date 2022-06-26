@@ -1326,6 +1326,8 @@ wikipedia-ceb	Friday 2020-05-01 06:42:16 PM	  {"media_resource.tab":254, "taxon.
 wikipedia-ceb	Mon 2020-12-28 06:16:37 AM	    {"media_resource.tab":248, "taxon.tab":612, "time_elapsed":{"sec":123460.09, "min":2057.67, "hr":34.29, "day":1.43}}
 wikipedia-ceb	Sun 2022-06-19 09:56:12 PM	    {"media_resource.tab":248, "taxon.tab":612, "time_elapsed":{"sec":14.82, "min":0.25, "hr":0}}
 ->no refresh yet
+wikipedia-ceb	Sat 2022-06-25 02:42:11 PM	    {"media_resource.tab":929, "taxon.tab":1143, "time_elapsed":{"sec":3.32, "min":0.06, "hr":0}}
+-> finrally refreshed after a long time
 
 wikipedia-ta	Thursday 2020-03-05 05:14:42 AM	{"media_resource.tab":5129, "taxon.tab":5541, "time_elapsed":{"sec":5169.46, "min":86.16, "hr":1.44}}
 wikipedia-ta	Friday 2020-03-06 02:59:05 AM	  {"media_resource.tab":5129, "taxon.tab":5541, "time_elapsed":{"sec":1735.28, "min":28.92, "hr":0.48}}
