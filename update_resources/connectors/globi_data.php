@@ -304,7 +304,7 @@ exit("\n-end test-\n");
 */
 
 require_library('connectors/DwCA_Utility');
-ini_set('memory_limit','12096M'); //required
+ini_set('memory_limit','18096M'); //required 12096M
 $resource_id = "globi_associations";
 
 // /* //main operation
@@ -317,19 +317,21 @@ else { //old - manually picked the URL
 }
 $func = new DwCA_Utility($resource_id, $dwca);
 
-/* worked in 1.0 but caused memory leak in 1.1 because latter is now a large DwCA and reference is a big file.
-$preferred_rowtypes = array('http://eol.org/schema/reference/reference'); //was forced to lower case in DwCA_Utility.php
-*/
-// /* for 1.1 all four extensions will be parsed elsewhere (GloBIDataAPI). Not in DwCA_Utility.
+// worked in 1.0 but caused memory leak in 1.1 because latter is now a large DwCA and reference is a big file.
+// $preferred_rowtypes = array('http://eol.org/schema/reference/reference'); //was forced to lower case in DwCA_Utility.php
+
+// for 1.1 all four extensions will be parsed elsewhere (GloBIDataAPI). Not in DwCA_Utility.
 $preferred_rowtypes = array();
 $excluded_rowtypes = array('http://eol.org/schema/association', 'http://rs.tdwg.org/dwc/terms/occurrence', 
                            'http://eol.org/schema/reference/reference', 'http://rs.tdwg.org/dwc/terms/taxon');
-// */
 
 $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
 Functions::finalize_dwca_resource($resource_id, true, false, $timestart); //3rd param true means delete folder
 $func = false; //close memory
-echo "\n-Eli stop muna-\n"; return; //used when testing changes in globi_associations.tar.gz (1st step),
+// */ //end main operation
+
+// /* used when testing changes in globi_associations.tar.gz (1st step). Comment in normal operation
+echo "\n-Eli stop muna-\n"; return;
 // */
 
 // /*
