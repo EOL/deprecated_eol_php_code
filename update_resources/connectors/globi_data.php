@@ -307,7 +307,7 @@ require_library('connectors/DwCA_Utility');
 ini_set('memory_limit','18096M'); //required 12096M
 $resource_id = "globi_associations";
 
-// /* //main operation
+/* //main operation
 if($dwca = get_latest_globi_snapshot()) echo "\nDwCA URL: [$dwca]\n";
 else { //old - manually picked the URL
     exit("\nERROR: cannot get the DwCA URL from partner site.\n");
@@ -328,11 +328,11 @@ $excluded_rowtypes = array('http://eol.org/schema/association', 'http://rs.tdwg.
 $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
 Functions::finalize_dwca_resource($resource_id, true, false, $timestart); //3rd param true means delete folder
 $func = false; //close memory
-// */ //end main operation
+*/ //end main operation
 
-// /* used when testing changes in globi_associations.tar.gz (1st step). Comment in normal operation
+/* used when testing changes in globi_associations.tar.gz (1st step). Comment in normal operation
 echo "\n-Eli stop muna-\n"; return;
-// */
+*/
 
 // /*
 $ret = run_utility($resource_id); //exit('stopx goes here...');
