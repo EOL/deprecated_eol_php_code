@@ -329,6 +329,7 @@ $excluded_rowtypes = array('http://eol.org/schema/association', 'http://rs.tdwg.
 $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
 Functions::finalize_dwca_resource($resource_id, true, false, $timestart); //3rd param true means delete folder
 $func = false; //close memory
+echo "\n-Eli stop muna-\n"; return; //used when testing changes in globi_associations.tar.gz (1st step),
 // */
 
 // /*

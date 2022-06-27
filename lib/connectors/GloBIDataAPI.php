@@ -797,6 +797,18 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 $k++;
             }
             // print_r($rec); exit;
+            
+            // /* manual fixing some entries in full_reference: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=66933&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66933
+            if($full_ref = @$rec['http://eol.org/schema/reference/full_reference']) {
+                if(stripos($full_ref, "theBlack Mountain'District") !== false) { //string is found
+                    $full_ref = str_ireplace("theBlack Mountain'District", "the 'Black Mountain' District", $full_ref);
+                }
+                if(stripos($full_ref, 'the \"Black Mountain\" district') !== false) { //string is found
+                    $full_ref = str_ireplace('the \"Black Mountain\" district', "the 'Black Mountain' district", $full_ref);
+                }
+            }
+            // */
+            
             /*Array(
                 [http://purl.org/dc/terms/identifier] => globi:ref:63
                 [http://eol.org/schema/reference/publicationType] => 
