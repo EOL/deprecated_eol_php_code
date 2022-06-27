@@ -806,6 +806,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 if(stripos($full_ref, 'the \"Black Mountain\" district') !== false) { //string is found
                     $full_ref = str_ireplace('the \"Black Mountain\" district', "the 'Black Mountain' district", $full_ref);
                 }
+                $rec['http://eol.org/schema/reference/full_reference'] = $full_ref;
             }
             // */
             

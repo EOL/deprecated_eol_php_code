@@ -392,6 +392,11 @@ function get_latest_globi_snapshot()
             $sought_file2 = $arr[2];
         }
     }
-    if($sought_file1 == $sought_file2) return $sought_file2;
+    echo "\nsought_file1: [$sought_file1]\n";
+    echo "\nsought_file2: [$sought_file2]\n";
+    if($sought_file1 == $sought_file2) {
+        echo "\nOK same URLs detected. Will proceed.\n";
+        return $sought_file2;
+    }
 }
 ?>
