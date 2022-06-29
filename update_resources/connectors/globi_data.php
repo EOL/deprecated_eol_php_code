@@ -68,6 +68,13 @@ globi_associations_final	Sat 2022-01-22 08:49:32 AM	{"association.tab":5552473, 
 globi_associations_delta	Mon 2022-02-28 09:46:12 AM	{"association.tab":5552473, "occurrence_specific.tab":10229340, "reference.tab":5278334, "taxon.tab":331234, "time_elapsed":{"sec":13951.76, "min":232.53, "hr":3.88}}
 below with hashed referenceID, and consequently made unique referenceID (OK stable)
 globi_associations_delta	Tue 2022-03-08 01:55:57 PM	{"association.tab":5552473, "occurrence_specific.tab":10229340, "reference.tab":5116596, "taxon.tab":331234, "time_elapsed":{"sec":15015.04, "min":250.25, "hr":4.17}}
+
+below sudden big increase in data from partner:
+globi_associations	        Mon 2022-06-27 04:27:46 PM	{"association.tab":8023468, "occurrence_specific.tab":15097828, "reference.tab":8102860, "taxon.tab":421428, "time_elapsed":{"sec":19699.58, "min":328.33, "hr":5.47}}
+globi_associations_final	Mon 2022-06-27 10:05:38 PM	{"association.tab":7867153, "occurrence_specific.tab":15097697, "reference.tab":8102860, "taxon.tab":421428, "time_elapsed":{"sec":39971.63, "min":666.19, "hr":11.1}}
+globi_associations_delta	Tue 2022-06-28 09:04:28 AM	{"association.tab":7867153, "occurrence_specific.tab":15097697, "reference.tab":7792945, "taxon.tab":337341, "time_elapsed":{"sec":21721.61, "min":362.03, "hr":6.03}}
+
+
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020
