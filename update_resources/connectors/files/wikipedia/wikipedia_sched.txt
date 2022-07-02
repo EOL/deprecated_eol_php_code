@@ -3,8 +3,6 @@ Wikipedia languages monthly refresh schedule:
 $job['en']['next']['es'];
 $job['es']['next']['it'];
 
-
-
                                 no* ro*     tr*       uk*
                                 |   |       |         |
                                 ka  hr      th        hy
@@ -1318,6 +1316,7 @@ wikipedia-war	Friday 2020-05-01 06:20:51 PM	  {"media_resource.tab":2201403, "ta
 wikipedia-war	Wednes 2020-05-20 09:01:06 AM   {"media_resource.tab":2201332, "taxon.tab":1188096, "time_elapsed":{"sec":153484.65, "min":2558.08, "hr":42.63, "day":1.78}}
 wikipedia-war	Thu 2020-10-29 04:32:09 PM	    {"media_resource.tab":2201405, "taxon.tab":1188382, "time_elapsed":{"sec":151800.99, "min":2530.02, "hr":42.17, "day":1.76}}
 wikipedia-war	Sun 2022-06-19 11:41:31 PM	    {"media_resource.tab":2201405, "taxon.tab":1188396, "time_elapsed":{"sec":4365.99, "min":72.77, "hr":1.21}}
+->no refresh yet
 wikipedia-war	Wed 2022-06-29 09:53:21 PM	    {"media_resource.tab":2178767, "taxon.tab":1176953, "time_elapsed":{"sec":4281.7, "min":71.36, "hr":1.19}}
 -> finally refreshed here.
 

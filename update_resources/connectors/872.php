@@ -25,6 +25,9 @@ start of moving OCCURRENCE cols to MoF rows with mOfTaxon = false (DATA-1875):
 872	Tue 2021-01-19 09:15:26 PM	    {"measurement_or_fact.tab":1863513, "occurrence.tab":271867, "taxon.tab":151012, "time_elapsed":{"sec":1451.96, "min":24.2, "hr":0.4}}
 after automating API download request-then-refresh:
 872	Thu 2021-05-20 01:05:07 PM	    {"measurement_or_fact.tab":1863513, "occurrence.tab":271867, "taxon.tab":151012, "time_elapsed":{"sec":1434.46, "min":23.91, "hr":0.4}}
+872	Sat 2021-12-18 01:16:00 AM	    {"measurement_or_fact.tab":1910814, "occurrence.tab":279289, "taxon.tab":140395, "time_elapsed":{"sec":1557.49, "min":25.96, "hr":0.43}}
+872	Fri 2022-03-18 01:18:55 AM	    {"measurement_or_fact.tab":1909706, "occurrence.tab":279129, "taxon.tab":140307, "time_elapsed":{"sec":1734.49, "min":28.91, "hr":0.48}}
+872	Sat 2022-06-18 01:17:42 AM	    {"measurement_or_fact.tab":1909706, "occurrence.tab":279129, "taxon.tab":140307, "time_elapsed":{"sec":1660.33, "min":27.67, "hr":0.46}}
 
 for 1k taxa:
 measurement_or_fact.tab     [3655]
