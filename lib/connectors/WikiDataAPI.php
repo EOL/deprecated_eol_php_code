@@ -2755,7 +2755,7 @@ class WikiDataAPI extends WikipediaAPI
         foreach($orig_comnames as $rec) {
             if($val = $rec['comname']) {
                 if(strlen($val) > 1) {
-                    $final[$rec['lang']][] = array('comname' => $val, 'lang' => $rec['lang'], 'refs' => $rec['refs']);
+                    $final[$rec['lang']][] = array('comname' => $val, 'lang' => $rec['lang'], 'refs' => @$rec['refs']);
                 }
             }
         }
