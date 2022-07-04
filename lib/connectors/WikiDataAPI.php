@@ -2754,7 +2754,9 @@ class WikiDataAPI extends WikipediaAPI
         $final = array();
         foreach($orig_comnames as $rec) {
             if($val = $rec['comname']) {
-                $final[$rec['lang']][] = array('comname' => $val, 'lang' => $rec['lang'], 'refs' => $rec['refs']);
+                if(strlen($val) > 1) {
+                    $final[$rec['lang']][] = array('comname' => $val, 'lang' => $rec['lang'], 'refs' => $rec['refs']);
+                }
             }
         }
         return $final;
@@ -2865,13 +2867,15 @@ class WikiDataAPI extends WikipediaAPI
                 $name['lang'] = @$rec->mainsnak->datavalue->value->language;
                 if($name['lang'] == "be-tarask") $name['lang'] = 'be';
                 elseif($name['lang'] == "zh-min-nan") $name['lang'] = 'nan';
+                /* worked in the early years but not anymore especially in 2022 or maybe even earlier.
                 $name['refs'] = self::get_vernacular_refs(@$rec->references);
+                */
                 if(@$name['comname']) $names[] = $name;
             }
         }
         return $names;
     }
-    private function get_vernacular_refs($recs)
+    private function get_vernacular_refs($recs) //no longer used
     {
         if(!$recs) return array();
         $final = array();
