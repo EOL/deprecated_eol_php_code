@@ -1219,7 +1219,8 @@ class WikiDataAPI extends WikipediaAPI
         // <a href="/wiki/File:Irrawaddy_Dolphin.jpg"
         debug("\nelix:[$url]\n");
         $options = $this->download_options;
-        if($html = Functions::lookup_with_cache($url, $options)) { //preferably monthly cache expires. This gets filenames from page-gallery & page-category
+        if($html = Functions::lookup_with_cache($url, $options)) { //preferably monthly cache expires. 
+                                                                   //This gets filenames from page-gallery & page-category
             if(preg_match_all("/<a href=\"\/wiki\/File:(.*?)\"/ims", $html, $arr)) {
                 $files = array_values(array_unique($arr[1]));
                 // print_r($files); //exit;

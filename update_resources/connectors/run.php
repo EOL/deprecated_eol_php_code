@@ -18,16 +18,16 @@ php update_resources/connectors/run.php _ '{"connector":"eol_v3_api.php", "divis
 
 php5.6                    run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"sh"}'
                           run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce"}'
-                          run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce", "cont_2next_lang":"Y"}'
                           run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce", "six_coverage":"1st"}'
                           run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"cy", "six_coverage":"2nd"}'
+
+php update_resources/connectors/run.php _ '{"connector":"gen_wikimedia", "divisor":6, "task":"initial"}'
 */
 
 // print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $params['json']              = @$argv[2]; //useful here
 $arr = json_decode($params['json'], true);
-// print_r($params);
 print_r($arr);
 
 if(!isset($arr['six_coverage'])) $arr['six_coverage'] = "1st";
@@ -92,7 +92,7 @@ if($arr['task'] == 'initial') { //this is where to get e.g. the total number of 
         //end
         $funcj->jenkins_call($arr, "generate_stats"); //finally make the call
     }
-    elseif($arr['connector'] == 'gen_wikipedia_by_lang') {
+    elseif($arr['connector'] == 'gen_wikipedia_by_lang' || $arr['connector'] == 'gen_wikimedia') {
         // /* New: un-comment in real operation
         if(Functions::is_production()) {
             // $cmd = "wc -l ".$this->path['wiki_data_json'];

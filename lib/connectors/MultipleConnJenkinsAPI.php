@@ -108,7 +108,22 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
                     // wikipedia.php jenkins es generate_resource
                 }
             }
-            elseif($connector == "xxx.php")         $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
+            elseif($connector == "gen_wikimedia") {
+                /* orig
+                php5.6 wikidata.php jenkins generate_resource 1 524435 1of6
+                php5.6 wikidata.php jenkins generate_resource 2622175 3450000 6of6 
+                */
+                // /* new
+                $vparams = array();
+                $vparams['task']            = "generate_resource";
+                $vparams['range_from']      = $param['range'][0];
+                $vparams['range_to']        = $param['range'][1];
+                $vparams['actual']          = $param['ctr']."of".$param['divisor'];
+                $json = json_encode($vparams, true);
+                $cmd = PHP_PATH.' wikidata.php jenkins ' . "'" . $json . "'";
+                // */
+            }
+            elseif($connector == "xxx.php")             $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
             
             echo "\n----------\ncmd1 = [$cmd]\n----------\n";
             self::actual_jenkins_call($params, $postfix, $cmd, $task, $ctrler);
