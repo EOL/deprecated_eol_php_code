@@ -33,35 +33,37 @@ print_r($arr);
 if(!isset($arr['six_coverage'])) $arr['six_coverage'] = "1st";
 
 $funcj = new MultipleConnJenkinsAPI();
-$func_wp = new MoreFunc4Wikipedia($arr['six_coverage']);
-
 
 // /* new block
-$language = $arr['langx'];
-if(!$func_wp->is_this_wikipedia_lang_old_YN($language)) {
-    echo "\nSeems already recently generated (multiple) [$language]. Run next language...\n";
-    if($ret = $func_wp->get_next_lang_after($language)) { //this gets the next 6c lang.
-        $arr['langx'] = $ret[0];
-        echo "\nA. Next lang is [".$arr['langx']."]\n";
-    }
-    else exit("\nFor some reason exits...\n");
-}
-else { //needs refresh of dwca, but must need to check first if 'Y' AND should be "6c"
-    $info = $func_wp->get_language_info_from_TSV($language);
-    print_r($info);
-    $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
-    if($status == 'Y' && $six_conn == '6c') echo "\n=PROCEEDx WITH HARVEST for [$language]=\n";
-    else {
-        echo "\n=CANNOT PROCEEDxx [$language], GO TO NEXT LANGUAGE=\n";
+if($arr['connector'] == 'gen_wikipedia_by_lang') {
+    $func_wp = new MoreFunc4Wikipedia($arr['six_coverage']);
+    $language = $arr['langx'];
+    if(!$func_wp->is_this_wikipedia_lang_old_YN($language)) {
+        echo "\nSeems already recently generated (multiple) [$language]. Run next language...\n";
         if($ret = $func_wp->get_next_lang_after($language)) { //this gets the next 6c lang.
             $arr['langx'] = $ret[0];
-            echo "\nB. Next lang is [".$arr['langx']."]\n";
+            echo "\nA. Next lang is [".$arr['langx']."]\n";
+        }
+        else exit("\nFor some reason exits...\n");
+    }
+    else { //needs refresh of dwca, but must need to check first if 'Y' AND should be "6c"
+        $info = $func_wp->get_language_info_from_TSV($language);
+        print_r($info);
+        $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
+        if($status == 'Y' && $six_conn == '6c') echo "\n=PROCEEDx WITH HARVEST for [$language]=\n";
+        else {
+            echo "\n=CANNOT PROCEEDxx [$language], GO TO NEXT LANGUAGE=\n";
+            if($ret = $func_wp->get_next_lang_after($language)) { //this gets the next 6c lang.
+                $arr['langx'] = $ret[0];
+                echo "\nB. Next lang is [".$arr['langx']."]\n";
+            }
         }
     }
 }
 // */
 
-if($arr['task'] == 'initial') { //this is where to get e.g. the total number of rows/records/taxa to which we will divide. Customized for every connector.
+if($arr['task'] == 'initial') { //this is where to get e.g. the total number of rows/records/taxa to which we will divide. 
+                                //Customized for every connector.
     if($arr['connector'] == 'eol_v3_api.php') { //customization part
         /* execution time: 7 days using 6 connectors */
         require_library('connectors/Eol_v3_API');
