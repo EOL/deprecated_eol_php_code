@@ -74,10 +74,39 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
                 )*/
                 $lang = $arr_info['langx'];
                 $six_coverage = @$arr_info['six_coverage'];
-                if($connector_task == 'finalize') $cmd = PHP_PATH." wikipedia.php jenkins $lang generate_resource '' '' '' '' ".$six_coverage; //todo: add cont_2next_lang
-                else                              $cmd = PHP_PATH." wikipedia.php jenkins $lang generate_resource ".$param['range'][0]." ".$param['range'][1]." ".$param['ctr']."of".$param['divisor']." '' ".$six_coverage;
-                               // wikipedia.php jenkins es generate_resource 1 416666 1of6
-                               // wikipedia.php jenkins es generate_resource
+                if($connector_task == 'finalize') {
+                    $vparams = array();
+                    $vparams['language']        = $lang;
+                    $vparams['task']            = "generate_resource";
+                    $vparams['range_from']      = '';
+                    $vparams['range_to']        = '';
+                    $vparams['actual']          = '';
+                    $vparams['debug_taxon']     = '';
+                    $vparams['six_coverage']    = $six_coverage;
+                    //todo: add cont_2next_lang
+                    $json = json_encode($vparams, true);
+                    $cmd = PHP_PATH.' wikipedia.php jenkins ' . "'" . $json . "'";
+                    /* orig
+                    $cmd = PHP_PATH." wikipedia.php jenkins $lang generate_resource '' '' '' '' ".$six_coverage; //todo: add cont_2next_lang
+                    */
+                }
+                else {
+                    $vparams = array();
+                    $vparams['language']        = $lang;
+                    $vparams['task']            = "generate_resource";
+                    $vparams['range_from']      = $param['range'][0];
+                    $vparams['range_to']        = $param['range'][1];
+                    $vparams['actual']          = $param['ctr']."of".$param['divisor'];
+                    $vparams['debug_taxon']     = '';
+                    $vparams['six_coverage']    = $six_coverage;
+                    $json = json_encode($vparams, true);
+                    $cmd = PHP_PATH.' wikipedia.php jenkins ' . "'" . $json . "'";
+                    /* orig
+                    $cmd = PHP_PATH." wikipedia.php jenkins $lang generate_resource ".$param['range'][0]." ".$param['range'][1]." ".$param['ctr']."of".$param['divisor']." '' ".$six_coverage;
+                    */
+                    // wikipedia.php jenkins es generate_resource 1 416666 1of6
+                    // wikipedia.php jenkins es generate_resource
+                }
             }
             elseif($connector == "xxx.php")         $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
             

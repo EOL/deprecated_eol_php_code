@@ -144,15 +144,40 @@ php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _
 Jenkins for Wikipedia en final: php5.6 wikipedia.php jenkins en generate_resource
 =============================================================================================================== */
 
-$params['jenkins_or_cron']  = @$argv[1];
+$params['jenkins_or_cron']  = @$argv[1]; //irrelevant here
+/* orig
 $params['language']         = @$argv[2];
-
 $params['task']             = @$argv[3];
 $params['range_from']       = @$argv[4];
 $params['range_to']         = @$argv[5];
 $params['actual']           = @$argv[6];
 $debug_taxon                = @$argv[7];
 $six_coverage               = @$argv[8];
+*/
+
+// /* new
+$params['json']              = @$argv[2]; //useful here
+if(substr($params['json'],0,1) == "{") { //a real json param
+    $vparams = json_decode($params['json'], true);
+    print_r($vparams);
+    $params['language']     = $vparams['language']        ;
+    $params['task']         = $vparams['task']            ;
+    $params['range_from']   = $vparams['range_from']      ;
+    $params['range_to']     = $vparams['range_to']        ;
+    $params['actual']       = $vparams['actual']          ;
+    $debug_taxon            = $vparams['debug_taxon']     ;
+    $six_coverage           = $vparams['six_coverage']    ;
+}
+else { // the lone param is the language code e.g. php5.6 wikipedia.php jenkins chy #Cheyenne
+    $params['language']     = $params['json'];
+    $params['task']         = '';
+    $params['range_from']   = '';
+    $params['range_to']     = '';
+    $params['actual']       = '';
+    $debug_taxon            = '';
+    $six_coverage           = '';
+}
+// */
 
 if(!$six_coverage) $six_coverage = "1st";
 $params['six_coverage'] = $six_coverage;
