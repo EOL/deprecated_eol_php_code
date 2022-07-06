@@ -744,7 +744,7 @@ class WikiDataAPI extends WikipediaAPI
                              if($this->what == "wikimedia") {
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
                                  if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
-                                 // print_r($rek['obj_gallery']); exit;
+                                 // print_r(@$rek['obj_category']); print_r(@$rek['obj_gallery']); exit("\n$url\n");
                                  if($range_maps = self::get_range_map($arr->claims)) {
                                      if(@$rek['obj_gallery']) $rek['obj_gallery'] = array_merge($range_maps, $rek['obj_gallery']);
                                      else                     $rek['obj_gallery'] = $range_maps;
@@ -1232,12 +1232,12 @@ class WikiDataAPI extends WikipediaAPI
         // <a href="/wiki/File:Irrawaddy_Dolphin.jpg"
         debug("\nelix:[$url]\n");
         $options = $this->download_options;
-        if(is_even_YN($this->k) && $this->even_num_no_expireYN) $options['expire_seconds'] = false;
+        if($this->is_even_YN($this->k) && $this->even_num_no_expireYN) $options['expire_seconds'] = false;
         if($html = Functions::lookup_with_cache($url, $options)) { //preferably monthly cache expires. 
                                                                    //This gets filenames from page-gallery & page-category
             if(preg_match_all("/<a href=\"\/wiki\/File:(.*?)\"/ims", $html, $arr)) {
                 $files = array_values(array_unique($arr[1]));
-                // print_r($files); //exit;
+                // print_r($files); exit("\nstop muna\n");
                 
                 //for utility use only, will not pass here on normal operation =========================== start
                 if($this->save_all_filenames) { 
@@ -2201,7 +2201,7 @@ class WikiDataAPI extends WikipediaAPI
     {   //https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:Gorilla_498.jpg
         $rek = array();
         $options = $this->download_options;
-        if(is_even_YN($this->k) && $this->even_num_no_expireYN) $options['expire_seconds'] = false;
+        if($this->is_even_YN($this->k) && $this->even_num_no_expireYN) $options['expire_seconds'] = false;
         // $options['expire_seconds'] = false; //preferably monthly cache expires
         $api_call = "https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file;
         // echo "\n[$api_call]\n";
@@ -3118,7 +3118,7 @@ class WikiDataAPI extends WikipediaAPI
         if(@$options['resource_id']) unset($options['resource_id']);
         // /* as of Jan 29,2020. Previously value = false. Not anymore, since EntityData can change. Not often but it can change.
         $options['expire_seconds'] = 60*60*24*30*12; //12 months
-        if(is_even_YN($this->k) && $this->even_num_no_expireYN) $options['expire_seconds'] = false;
+        if($this->is_even_YN($this->k) && $this->even_num_no_expireYN) $options['expire_seconds'] = false;
         // */
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
@@ -3233,6 +3233,7 @@ class WikiDataAPI extends WikipediaAPI
                 if($filename = self::taxon_media($title)) {
                     $i++; if(($i % 100000) == 0) echo("\n".number_format($i).". saving content"); //just a row count indicator
                     $month_num = date('m'); //if month is February value is 02
+                    /* normal operation
                     if(in_array($month_num, array('04','08','12'))) { //scheduled every other month (2,4,6,8,10,12) to refresh all cached information from XML (4,8,12 only).
                         $json = json_encode($t);
                         if($FILE = Functions::file_open($filename, 'w')) { // normal
@@ -3240,7 +3241,7 @@ class WikiDataAPI extends WikipediaAPI
                             fclose($FILE);
                         }
                     }
-                    else { //if not quarterly schedule, it will not overwrite cache
+                    else { //if not quarterly schedule, it will not overwrite cache. Except only when filesize == 0
                         if(filesize($filename) == 0) {
                             $json = json_encode($t);
                             if($FILE = Functions::file_open($filename, 'w')) { // normal
@@ -3251,6 +3252,14 @@ class WikiDataAPI extends WikipediaAPI
                         }
                         // else echo("\nalready saved: [$filename]"); //just for debug...
                     }
+                    */
+                    // /* just this once 6Jul2022, Will overwrite all cache. Use normal operation block above next time.
+                    $json = json_encode($t);
+                    if($FILE = Functions::file_open($filename, 'w')) { // normal
+                        fwrite($FILE, $json);
+                        fclose($FILE);
+                    }
+                    // */
                 }
                 // else echo " negative"; //meaning this media file is not encountered in the taxa wikidata process. //just for debug...
                 /* just tests
