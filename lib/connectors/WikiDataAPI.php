@@ -148,13 +148,13 @@ class WikiDataAPI extends WikipediaAPI
             }
         }
     }
-    function finalize_media_filenames_ready($what_generation_status) //e.g. "wikimedia_filenames_status_" or "wikimedia_generation_status_" or "wikipedia_generation_status_"
+    function finalize_media_filenames_ready($what_generation_status, $limit = 6) //e.g. "wikimedia_filenames_status_" or "wikimedia_generation_status_" or "wikipedia_generation_status_"
     {
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "$what_generation_status" . ".txt"; //removed date("Y_m")
         if(!file_exists($txtfile)) return false;
         $contents = file_get_contents($txtfile);
-        for($i=1; $i<=6; $i++) {
-            if(stripos($contents, $i."of6 DONE") !== false) {} //string is found
+        for($i=1; $i <= $limit; $i++) {
+            if(stripos($contents, $i."of".$limit." DONE") !== false) {} //string is found
             else return false;
         }
         return true;
@@ -548,7 +548,7 @@ class WikiDataAPI extends WikipediaAPI
         
         $k = 0;
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
-            $k++; if(($k % 5000) == 0) echo " ".number_format($k)." ";
+            $k++; if(($k % 5000) == 0) echo " BBB ".number_format($k)." ";
             $row = self::remove_last_char_if_comma($row); //remove the last char if it is "," a comma
             $arr = json_decode($row); //print_r($arr); 
             $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
@@ -563,6 +563,12 @@ class WikiDataAPI extends WikipediaAPI
                 }
                 else continue;
             } //end of taxon wiki
+            
+            /* debug only, during dev only*
+            if($k >= 50000) break;
+            */
+            
+            
         } //main loop
     }
     private function parse_wiki_data_json($task = false, $range_from = false, $range_to = false)
@@ -580,13 +586,19 @@ class WikiDataAPI extends WikipediaAPI
         // */
         
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
-            $k++; if(($k % 5000) == 0) echo " ".number_format($k)." ";
+            $k++; if(($k % 5000) == 0) echo " AAA ".number_format($k)." ";
+
+            /* debug only, during dev only*
+            if($k >= 50000) break;
+            */
+
             if(in_array($task, array("save_all_media_filenames", "generate_resource")) && $range_from && $range_to) {
                 // echo "\nREMINDER: range values detected.\n";
                 $cont = false;
                 if($k >= $range_from && $k < $range_to) $cont = true;
                 if(!$cont) continue;
             }
+            
             // else echo "\nREMINDER: NO range values detected [$task] [$range_from] [$range_to].\n";
 
             /* this can be used to investigate rows OR this case exclude rows
@@ -1257,7 +1269,7 @@ class WikiDataAPI extends WikipediaAPI
                         $final[] = $rek;
                         $limit++;
                     }
-                    // if($limit >= 35) break; //no. of images to get
+                    // if($limit >= 10) break; //no. of images to get --- during dev only*
                 }
                 // exit("\n cha222 \n");
             }
@@ -1295,11 +1307,12 @@ class WikiDataAPI extends WikipediaAPI
                 if(!in_array($file, array("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598172619).jpg", 
                 "The_marine_mammals_of_the_north-western_coast_of_North_America_described_and_illustrated_(microform)_-_together_with_an_account_of_the_American_whale-fishery_(1874)_(20624848441).jpg"))) exit("\n111 [$file] 222\n");
                 */
-                $rek = self::get_media_metadata_from_api($file);
+                $rek = self::get_media_metadata_from_api($file); echo " -A2- ";
             }
+            else echo " -D- ";
             // print_r($rek); exit;
         }
-        else {
+        else { echo " -A1- ";
             debug("\nused api data");
             $rek = self::get_media_metadata_from_api($file);
         }
@@ -2925,6 +2938,7 @@ class WikiDataAPI extends WikipediaAPI
             $v = new \eol_schema\VernacularName();
             $v->taxonID         = $taxon_id;
             $v->vernacularName  = Functions::import_decode($rec['comname']);
+            if(!$v->vernacularName) continue;
             
             //manual
             if($rec['lang'] == "be-tarask") $rec['lang'] = 'be';
