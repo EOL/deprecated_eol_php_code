@@ -3218,6 +3218,10 @@ class WikiDataAPI extends WikipediaAPI
     {   /* # Can be repeated from this point.
            # Especially if harvest was aborted due to maintenance, you can start here. */
         $path = $this->path['commons'];
+        if(!file_exists($path)) {
+            echo "\nFile does not exist anymore: [$path]\nWill exit program.\n";
+            return;
+        }
         $reader = new \XMLReader();
         $reader->open($path);
         $i = 0;
@@ -3319,6 +3323,10 @@ class WikiDataAPI extends WikipediaAPI
     function process_wikimedia_txt_dump() //initial verification of the wikimedia dump file
     {
         $path = $this->path['commons'];
+        if(!file_exists($path)) {
+            echo "\nFile does not exist anymore: [$path]\nWill exit program.\n";
+            return;
+        }
         /*
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $row) {
