@@ -312,10 +312,10 @@ function aggregate_6partial_wikimedias($timestart, $resource_id, $divisor)
 }
 function delete_temp_files_and_others($resource_id = false)
 {   /*
-    wikimedia_debug_2022-07-05 11.txt
+    wikimedia_debug_2022-07-05 H_i_s.txt
     */
     $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_generation_status_*.txt";
-    $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_debug_*.txt";
+    // $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_debug_*.txt";
     // $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia-_*of6.tar.gz";
     // if($resource_id) $paths[] = CONTENT_RESOURCE_LOCAL_PATH . $resource_id."_*of6.tar.gz"; //e.g. 80_1of6.tar.gz 
     foreach($paths as $path) {
