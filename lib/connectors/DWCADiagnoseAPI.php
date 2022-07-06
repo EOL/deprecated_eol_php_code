@@ -107,6 +107,7 @@ class DWCADiagnoseAPI
             echo "\nDir does not exist: [".$ContResLocPath . $resource_id."]\n";
         }
         else {
+            echo "\ngoes here aaa\n";
             $harvester = new ContentArchiveReader(NULL, $ContResLocPath . $resource_id . "/");
             $tableZ = $harvester->tables;
             /* orig but not scalable for big resources e.g. WoRMS (26)
@@ -132,6 +133,10 @@ class DWCADiagnoseAPI
                 // print_r($meta); exit;
                 self::process_fields_V2($meta, pathinfo($table, PATHINFO_BASENAME));
             }
+            // /* new
+            $dir = CONTENT_RESOURCE_LOCAL_PATH . "_working";
+            if(is_dir($dir)) rmdir($dir);
+            // */
         }
         echo "\n----------end Checking unique IDs----------\n";
     }
@@ -164,7 +169,7 @@ class DWCADiagnoseAPI
             if(!isset($temp_ids[$rec[$field_index_key]])) $temp_ids[$rec[$field_index_key]] = '';
             else {
                 if($val = $rec[$field_index_key]) {
-                    echo "\n -- not unique ID in [$class] - {" . $rec[$field_index_key] . "} - [$field_index_key]";
+                    echo "\n -- V2: not unique ID in [$class] - {" . $rec[$field_index_key] . "} - [$field_index_key]";
                     return false;
                 }
             }
@@ -195,7 +200,7 @@ class DWCADiagnoseAPI
             if(!isset($temp_ids[$rec[$field_index_key]])) $temp_ids[$rec[$field_index_key]] = '';
             else {
                 if($val = $rec[$field_index_key]) {
-                    echo "\n -- not unique ID in [$class] - {" . $rec[$field_index_key] . "} - [$field_index_key]";
+                    echo "\n -- V1: not unique ID in [$class] - {" . $rec[$field_index_key] . "} - [$field_index_key]";
                     return false;
                 }
             }
@@ -208,6 +213,7 @@ class DWCADiagnoseAPI
         // e.g. https://collections.nmnh.si.edu/services/media.php?env=mammals&irn=7005395
         // e.g. https://collections.nmnh.si.edu/media/index.php?irn=10295934
         $irns = array();
+        echo "\ngoes here bbb\n";
         $harvester = new ContentArchiveReader(NULL, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/");
         // $tables = $harvester->tables; print_r($tables);
         $records = $harvester->process_row_type('http://eol.org/schema/media/document');

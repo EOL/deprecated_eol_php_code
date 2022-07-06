@@ -10,7 +10,14 @@ require_library('connectors/MoreFunc4Wikipedia');
 
 ini_set('memory_limit','4096M');
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = false; //false in production
+
+$GLOBALS['ENV_DEBUG'] = false; //orig value should be -> false
+/* during development
+ini_set('error_reporting', E_ALL);
+ini_set('display_errors', true);
+$GLOBALS['ENV_DEBUG'] = true; //set to true during development
+*/
+
 
 /*
 php5.6                    run.php jenkins '{"connector":"eol_v3_api.php", "divisor":6, "task":"initial"}'
@@ -22,6 +29,8 @@ php5.6                    run.php jenkins '{"connector":"gen_wikipedia_by_lang",
                           run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"cy", "six_coverage":"2nd"}'
 
 php update_resources/connectors/run.php _ '{"connector":"gen_wikimedia", "divisor":6, "task":"initial"}'
+php update_resources/connectors/run.php _ '{"connector":"gen_wikimedia", "divisor":2, "task":"initial"}'
+
 */
 
 // print_r($argv);
@@ -103,6 +112,7 @@ if($arr['task'] == 'initial') { //this is where to get e.g. the total number of 
         }
         // */
         // $total_count = 3448535; //as of Jun 5, 2022         //2700000; //old value 2500000 ---> durive dev only, debug only
+        // $total_count = 35; //debug only during dev only
         $arr['total_count'] = $total_count;
         echo "\ntotal_count: $total_count\n";
         

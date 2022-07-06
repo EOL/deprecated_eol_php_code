@@ -306,6 +306,9 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
             elseif($what == "occurrence")           $o = new \eol_schema\Occurrence_specific();
             elseif($what == "measurementorfact")    $o = new \eol_schema\MeasurementOrFact_specific();
             elseif($what == "association")          $o = new \eol_schema\Association();
+            elseif($what == "vernacular")           $o = new \eol_schema\VernacularName();
+            elseif($what == "agent")                $o = new \eol_schema\Agent();
+            else exit("\nERROR: Undefined rowtype[$what].\n");
             
             if($this->DwCA_Type == 'wikipedia') {
                 if($what == "taxon") {
@@ -317,9 +320,28 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
             }
             elseif($this->DwCA_Type == 'regular') {
                 if($what == "taxon") {
-                    //taxonID must be uniqe
+                    //taxonID must be unique
                     $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                     if(!isset($this->taxon_ids[$taxon_id])) $this->taxon_ids[$taxon_id] = '';
+                    else continue;
+                }
+                elseif($what == "document") {
+                    //identifier must be unique
+                    $identifier = $rec['http://purl.org/dc/terms/identifier'];
+                    if(!isset($this->object_ids[$identifier])) $this->object_ids[$identifier] = '';
+                    else continue;
+                }
+                elseif($what == "agent") {
+                    //identifier must be unique
+                    $identifier = $rec['http://purl.org/dc/terms/identifier'];
+                    if(!isset($this->agent_ids[$identifier])) $this->agent_ids[$identifier] = '';
+                    else continue;
+                }
+                elseif($what == "vernacular") {
+                    //row must be unique
+                    $identifier = $rec['http://rs.tdwg.org/dwc/terms/vernacularName']."|".$rec['http://purl.org/dc/terms/language']."|".$rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                    $identifier = md5($identifier);
+                    if(!isset($this->vernacular_ids[$identifier])) $this->vernacular_ids[$identifier] = '';
                     else continue;
                 }
             }
@@ -421,6 +443,19 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
             // print_r($uris);
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
+                /* good debug
+                echo "\n[$field][$uri]\n";
+                if($field == "vernacularName" && $uri == "http://rs.tdwg.org/dwc/terms/vernacularName") {
+                    if(!$rec[$uri]) continue;
+                }
+                */
+                
+                // /* some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName"
+                $parts = explode("#", $field);
+                if($parts[0]) $field = $parts[0];
+                if(@$parts[1]) $field = $parts[1];
+                // */
+                
                 $o->$field = $rec[$uri];
             }
             $this->archive_builder->write_object_to_file($o);

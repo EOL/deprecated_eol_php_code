@@ -156,11 +156,24 @@ php update_resources/connectors/wikidata.php _ generate_wikidata_taxonomy
 */
 
 // print_r($argv);
-$params['jenkins_or_cron']  = @$argv[1];
+$params['jenkins_or_cron']  = @$argv[1]; //irrelevant here
+$params['json']             = @$argv[2]; //useful here
+$vparams = json_decode($params['json'], true);
+print_r($vparams);
+
+/* old
 $params['task']             = @$argv[2];
 $params['range_from']       = @$argv[3];
 $params['range_to']         = @$argv[4];
 $params['actual']           = @$argv[5];
+*/
+// /* new
+$params['task']             = $vparams['task'];
+$params['range_from']       = $vparams['range_from'];
+$params['range_to']         = $vparams['range_to'];
+$params['actual']           = $vparams['actual'];
+$params['divisor']          = $vparams['divisor'];
+// */
 print_r($params);
 
 /* a utility --- but just a test - working OK --- we have the same thing below, this on top is just a test.
@@ -181,7 +194,21 @@ if($params['task'] == 'generate_wikidata_taxonomy') {
 }
 else {
     $resource_id = 71; //Wikimedia Commons is EOL resource = 71 //historical commons.tar.gz also exists on Nov 2017
+    /* orig
     $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
+    */
+    // exit("\ngoes here\n");
+
+    // /* **************************** new section for wikipedia ver2 ****************************
+    $actual = @$params['actual'];
+    if($actual) $resource_id .= "_".$actual;
+    else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
+        echo "\nReady to aggregate now...\n";
+        return;
+    }
+    $func = new WikiDataAPI($resource_id, "en", "wikimedia", array(), false, false, false);
+    // 7th param is false means running ver2
+    // ******************************************************************************************* */
 }
 
 /* new utility for investigation -> moved to wikidata_test.php */
@@ -220,13 +247,25 @@ elseif(@$params['task'] == "generate_resource" || @$params['task'] == "generate_
     $status_arr = $func->generate_resource($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //step 4 (ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.)
     if($status_arr[0]) {
         echo "\n".$params['actual']." -- finished\n";
-        if($status_arr[1]) {
-            echo "\n---Can now proceed - finalize dwca...---\n\n";
+        // if($status_arr[1]) { //orig - new ver can always finalize
+        if(true) {
+            echo "\n---Can now proceed - finalize dwca...CCC---\n\n";
             if(@$params['task'] == "generate_wikidata_taxonomy") $deleteFolderYN = false;
             else                                                 $deleteFolderYN = true;
             Functions::finalize_dwca_resource($resource_id, true, $deleteFolderYN, $timestart); //2nd param true means big file, 3rd param true means to delete working folder
+            
+            // /* now here is the part to check
+            $what_generation_status = "wikimedia_generation_status_";
+            if($func->finalize_media_filenames_ready($what_generation_status, $params['divisor'])) {
+                aggregate_6partial_wikimedias($timestart, 71, $params['divisor']);
+                delete_temp_files_and_others();
+                $tmp = array('resource_id' => 71);
+                inject_jenkins_run($tmp, 'fill_up_undefined_parents');
+            }
+            else echo "\nNot yet ready [$what_generation_status]\n";
+            // */
         }
-        else echo "\nCannot finalize dwca yet.\n";
+        else echo "\nCannot finalize dwca yet 111.\n";
     }
     else exit(1);
 }
@@ -252,6 +291,59 @@ echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60/24 . " days";
 echo "\n Done processing.\n";
+
+function aggregate_6partial_wikimedias($timestart, $resource_id, $divisor)
+{
+    require_library('connectors/DwCA_Aggregator_Functions');
+    require_library('connectors/DwCA_Aggregator');
+    $langs = array();
+    //71_1of2.tar.gz... and so on
+    //71_2of2.tar.gz... and so on
+    
+    //string generate the partials 1-6:
+    for ($i = 1; $i <= $divisor; $i++) $langs[] = $resource_id."_".$i."of".$divisor;
+    print_r($langs);
+
+    // $resource_id .= '_ELI'; //debug only
+    echo "\nProcessing [$resource_id] partials:[".count($langs)."]...\n";
+    $func = new DwCA_Aggregator($resource_id, NULL, 'regular'); //'regular' not 'wikipedia' which is used in wikipedia aggregate resource
+    $func->combine_DwCAs($langs);
+    Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+}
+function delete_temp_files_and_others($resource_id = false)
+{   /*
+    wikimedia_debug_2022-07-05 11.txt
+    */
+    $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_generation_status_*.txt";
+    $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_debug_*.txt";
+    // $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia-_*of6.tar.gz";
+    // if($resource_id) $paths[] = CONTENT_RESOURCE_LOCAL_PATH . $resource_id."_*of6.tar.gz"; //e.g. 80_1of6.tar.gz 
+    foreach($paths as $path) {
+        foreach(glob($path) as $filename) {
+            echo "\n[$filename] [".filesize($filename)."] - ";
+            if(unlink($filename)) echo "deleted OK\n";
+            else                  echo "deletion failed\n";
+        }
+    }
+}
+function inject_jenkins_run($params, $what)
+{
+    require_library('connectors/MultipleConnJenkinsAPI');
+    $funcj = new MultipleConnJenkinsAPI();
+    if($what == 'fill_up_undefined_parents') {
+        /*
+        fill_up_undefined_parents.php jenkins '{"resource_id": "71", "source_dwca": "71", "resource": "fillup_missing_parents"}'
+        */
+        $resource_id = $params['resource_id'];
+        echo "\ntry to fillup_missing_parents...\n";
+        $arr_info = array();
+        $arr_info['resource_id'] = $resource_id;
+        $arr_info['connector'] = 'fill_up_undefined_parents';
+        $funcj->jenkins_call_single_run($arr_info, "fillup missing parents");
+    }
+    elseif($what == 'specify here...') {}
+    else exit("\nTask not specified.\n");
+}
 
 /*
 this is a request made by wikimedia harvester (71): this 2 are same, first is a subset of the 2nd. And one is urlencoded() other is not.

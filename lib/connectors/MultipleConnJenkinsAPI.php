@@ -115,10 +115,11 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
                 */
                 // /* new
                 $vparams = array();
-                $vparams['task']            = "generate_resource";
-                $vparams['range_from']      = $param['range'][0];
-                $vparams['range_to']        = $param['range'][1];
-                $vparams['actual']          = $param['ctr']."of".$param['divisor'];
+                $vparams['task']        = "generate_resource";
+                $vparams['range_from']  = $param['range'][0];
+                $vparams['range_to']    = $param['range'][1];
+                $vparams['actual']      = $param['ctr']."of".$param['divisor'];
+                $vparams['divisor']     = $param['divisor'];
                 $json = json_encode($vparams, true);
                 $cmd = PHP_PATH.' wikidata.php jenkins ' . "'" . $json . "'";
                 // */
