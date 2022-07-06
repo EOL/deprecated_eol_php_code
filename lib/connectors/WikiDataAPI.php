@@ -44,6 +44,7 @@ class WikiDataAPI extends WikipediaAPI
         $this->debug_taxon = $debug_taxon;
         
         $this->is_running_version_1_YN = $is_running_version_1_YN;
+        $this->even_num_no_expireYN = true;
         
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         if($archive_builder) $this->archive_builder = $archive_builder; //for FillUpMissingParentsAPI
@@ -587,7 +588,7 @@ class WikiDataAPI extends WikipediaAPI
         
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; if(($k % 5000) == 0) echo " AAA ".number_format($k)." ";
-
+            $this->k = $k;
             /* debug only, during dev only*
             if($k >= 50000) break;
             */
@@ -1231,6 +1232,7 @@ class WikiDataAPI extends WikipediaAPI
         // <a href="/wiki/File:Irrawaddy_Dolphin.jpg"
         debug("\nelix:[$url]\n");
         $options = $this->download_options;
+        if(is_even_YN($this->k) && $this->even_num_no_expireYN) $options['expire_seconds'] = false;
         if($html = Functions::lookup_with_cache($url, $options)) { //preferably monthly cache expires. 
                                                                    //This gets filenames from page-gallery & page-category
             if(preg_match_all("/<a href=\"\/wiki\/File:(.*?)\"/ims", $html, $arr)) {
@@ -2199,6 +2201,7 @@ class WikiDataAPI extends WikipediaAPI
     {   //https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:Gorilla_498.jpg
         $rek = array();
         $options = $this->download_options;
+        if(is_even_YN($this->k) && $this->even_num_no_expireYN) $options['expire_seconds'] = false;
         // $options['expire_seconds'] = false; //preferably monthly cache expires
         $api_call = "https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file;
         // echo "\n[$api_call]\n";
@@ -3115,6 +3118,7 @@ class WikiDataAPI extends WikipediaAPI
         if(@$options['resource_id']) unset($options['resource_id']);
         // /* as of Jan 29,2020. Previously value = false. Not anymore, since EntityData can change. Not often but it can change.
         $options['expire_seconds'] = 60*60*24*30*12; //12 months
+        if(is_even_YN($this->k) && $this->even_num_no_expireYN) $options['expire_seconds'] = false;
         // */
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);

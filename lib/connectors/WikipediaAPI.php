@@ -2671,5 +2671,9 @@ class WikipediaAPI extends WikiHTMLAPI
         if(stripos($html, "Robot icon.svg") !== false && stripos($html, "Lsjbot") !== false) return true; //string is found
         return false;
     }
+    function is_even_YN($num){
+        if($num % 2 == 0) return true;
+        else return false;
+    }
 }
 ?>
