@@ -1302,6 +1302,7 @@ class WikiDataAPI extends WikipediaAPI
         // if(false) { //this is when debugging... force use api instead of json.
             debug("\nused cache data");
             $rek = self::get_media_metadata_from_json($filename, $file);
+            if($rek) @$this->debug['total']['dump']++;
             if($rek == "protected") return false; //"continue";
             if(!$rek) {
                 // echo "\njust used api data instead";
@@ -1310,6 +1311,7 @@ class WikiDataAPI extends WikipediaAPI
                 "The_marine_mammals_of_the_north-western_coast_of_North_America_described_and_illustrated_(microform)_-_together_with_an_account_of_the_American_whale-fishery_(1874)_(20624848441).jpg"))) exit("\n111 [$file] 222\n");
                 */
                 $rek = self::get_media_metadata_from_api($file); echo " -A2- ";
+                if($rek) @$this->debug['total']['API']++;
             }
             else echo " -D- ";
             // print_r($rek); exit;
@@ -1317,6 +1319,7 @@ class WikiDataAPI extends WikipediaAPI
         else { echo " -A1- ";
             debug("\nused api data");
             $rek = self::get_media_metadata_from_api($file);
+            if($rek) @$this->debug['total']['API']++;
         }
         if(!$rek) return false;
         
