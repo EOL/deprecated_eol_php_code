@@ -112,7 +112,7 @@ if($arr['task'] == 'initial') { //this is where to get e.g. the total number of 
         }
         // */
         // $total_count = 3448535; //as of Jun 5, 2022         //2700000; //old value 2500000 ---> durive dev only, debug only
-        // $total_count = 35; //debug only during dev only
+        // $total_count = 35; //debug only during dev only*
         $arr['total_count'] = $total_count;
         echo "\ntotal_count: $total_count\n";
         
