@@ -1309,12 +1309,17 @@ class WikiDataAPI extends WikipediaAPI
             if($rek == "protected") return false; //"continue";
             if(!$rek) {
                 // echo "\njust used api data instead";
-                /*
+                /* debug only
                 if(!in_array($file, array("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598172619).jpg", 
                 "The_marine_mammals_of_the_north-western_coast_of_North_America_described_and_illustrated_(microform)_-_together_with_an_account_of_the_American_whale-fishery_(1874)_(20624848441).jpg"))) exit("\n111 [$file] 222\n");
                 */
+                
+                /* I have now disabled this API call designed to supplement dump data. Reason is to speed up harvest. - Jul 7, 2022
                 $rek = self::get_media_metadata_from_api($file); echo " -A2- ";
                 if($rek) @$this->debug['total_API']++;
+                */
+                return false;
+                
             }
             else echo " -D- ";
             // print_r($rek); exit;

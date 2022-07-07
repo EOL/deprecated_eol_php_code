@@ -36,6 +36,8 @@ wikimedia_comnames	Wed 2022-04-20 01:02:22 PM	    {"taxon.tab":162683, "time_ela
 wikimedia_comnames	Thu 2022-04-28 09:54:45 PM	    {"taxon.tab":163083, "vernacular_name.tab":993598, "time_elapsed":false}
 wikimedia_comnames	Fri 2022-05-27 04:52:37 AM	    {"taxon.tab":163092, "vernacular_name.tab":993598, "time_elapsed":{"sec":1322.92, "min":22.05, "hr":0.37}}
 -> new utility: filled-up missing parent entries 163092
+wikimedia_comnames	Thu 2022-07-07 05:01:16 AM	    {"taxon.tab":110157, "vernacular_name.tab":618360, "time_elapsed":{"sec":3647.58, "min":60.79, "hr":1.01}}
+-> big decrease - will wait for the latest run
 */
 
 // ini_set('error_reporting', E_ALL);
