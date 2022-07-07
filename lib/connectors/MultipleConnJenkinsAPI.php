@@ -149,6 +149,7 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
 
         if($connector_task == 'fillup missing parents') $job_name = 'fillup_missing_parents';
         elseif($connector_task == 'run wikipedia lang') $job_name = 'run_wikipedia_lang';
+        elseif($connector_task == 'Back to Wikimedia Run') $job_name = 'Back_to_Wikimedia_Run';
         else exit("\nUndefined connector_task ($connector_task).\n");
 
         // /* ---------- START main body ----------
@@ -175,6 +176,11 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
             $cmd = PHP_PATH.' run.php jenkins ' . "'" . $json . "'";
         }
         //==========================================================================================================
+        elseif($connector == "Back_to_Wikimedia_Run") {
+            $json = '{}';
+            $cmd = 'echo "going back to wikimedia..."';
+        }
+        //==========================================================================================================
         elseif($connector == "xxx.php") $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
         else exit("\nUndefined connector [$connector].\n");
         //==========================================================================================================
@@ -183,12 +189,24 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
         // */ ---------- END main body ----------
     }
     private function actual_jenkins_call($params, $postfix, $cmd, $task, $ctrler)
-    {
+    {   /* good debug
+        print_r($params);
+        echo "\npostfix: [$postfix]\n";
+        echo "\ncmd: [$cmd]\n";
+        echo "\ntask: [$task]\n";
+        exit("\nstop muna, investigate...\n");
+        */
         // /* works well locally Jul 10, 2019, but will still check if it will work in eol-archive - fingers crossed
         $cmd .= " 2>&1";
         $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
         $cmd = $ctrler->generate_exec_command($params['uuid'].$postfix); //pass the desired basename of the .sh filename (e.g. xxx.sh then pass "xxx")
         $c = $ctrler->build_curl_cmd_for_jenkins($cmd, $task);
+        /* good debug
+        echo "\n-------------------------\ncmd: [$cmd]\n";
+        echo "\ntask: [$task]\n";
+        echo "\nc: [$c]\n";
+        exit("\nstop muna, investigate...\n");
+        */
         $shell_debug = shell_exec($c);
         // for more debugging...
         // echo "\ncmd: $cmd

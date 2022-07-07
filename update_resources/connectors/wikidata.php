@@ -261,6 +261,7 @@ elseif(@$params['task'] == "generate_resource" || @$params['task'] == "generate_
                 delete_temp_files_and_others();
                 $tmp = array('resource_id' => 71);
                 inject_jenkins_run($tmp, 'fill_up_undefined_parents');
+                inject_jenkins_run($tmp, 'Back_to_Wikimedia_Run');
             }
             else echo "\nNot yet ready [$what_generation_status]\n";
             // */
@@ -341,7 +342,14 @@ function inject_jenkins_run($params, $what)
         $arr_info['connector'] = 'fill_up_undefined_parents';
         $funcj->jenkins_call_single_run($arr_info, "fillup missing parents");
     }
-    elseif($what == 'specify here...') {}
+    elseif($what == 'Back_to_Wikimedia_Run') {
+        $resource_id = $params['resource_id'];
+        echo "\ntry to Back_to_Wikimedia_Run...\n";
+        $arr_info = array();
+        $arr_info['resource_id'] = $resource_id;
+        $arr_info['connector'] = 'Back_to_Wikimedia_Run';
+        $funcj->jenkins_call_single_run($arr_info, "Back to Wikimedia Run");
+    }
     else exit("\nTask not specified.\n");
 }
 
