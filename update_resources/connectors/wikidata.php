@@ -169,10 +169,10 @@ $params['actual']           = @$argv[5];
 */
 // /* new
 $params['task']             = $vparams['task'];
-$params['range_from']       = $vparams['range_from'];
-$params['range_to']         = $vparams['range_to'];
-$params['actual']           = $vparams['actual'];
-$params['divisor']          = $vparams['divisor'];
+$params['range_from']       = @$vparams['range_from'];
+$params['range_to']         = @$vparams['range_to'];
+$params['actual']           = @$vparams['actual'];
+$params['divisor']          = @$vparams['divisor'];
 // */
 print_r($params);
 
@@ -203,8 +203,10 @@ else {
     $actual = @$params['actual'];
     if($actual) $resource_id .= "_".$actual;
     else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
-        echo "\nReady to aggregate now...\n";
-        return;
+        if($params['task'] == 'generate_resource') {
+            echo "\nReady to aggregate now...\n";
+            return;
+        }
     }
     $func = new WikiDataAPI($resource_id, "en", "wikimedia", array(), false, false, false);
     // 7th param is false means running ver2
