@@ -136,7 +136,8 @@ class WikiDataAPI extends WikipediaAPI
         }
         else { //means finalize file
             if(self::finalize_media_filenames_ready("wikimedia_filenames_status_")) {
-                /* it seems there is no need to go here: It was un-commented for the longest time
+                /* it seems there is no need to go here: It was un-commented for the longest time.
+                But no longer needed since the 6 connectors before it alreay cover all latest-all-taxon.json rows
                 self::parse_wiki_data_json($task, false, false);
                 */
                 //truncate for next run
