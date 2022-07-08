@@ -136,14 +136,16 @@ class WikiDataAPI extends WikipediaAPI
         }
         else { //means finalize file
             if(self::finalize_media_filenames_ready("wikimedia_filenames_status_")) {
+                /* it seems there is no need to go here: It was un-commented for the longest time
                 self::parse_wiki_data_json($task, false, false);
+                */
                 //truncate for next run
                 $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
                 if(!($f = Functions::file_open($txtfile, "w"))) return;
                 fwrite($f, "Truncated now."."\n"); fclose($f); 
                 return true; //so it can run next step...
             }
-            else {
+            else { //in principle it should not go here
                 echo "\n\n ---Cannot finalize media filenames yet.---\n\n";
                 return false;
             }
@@ -602,7 +604,6 @@ class WikiDataAPI extends WikipediaAPI
                 if($k >= $range_from && $k < $range_to) $cont = true;
                 if(!$cont) continue;
             }
-            
             // else echo "\nREMINDER: NO range values detected [$task] [$range_from] [$range_to].\n";
 
             /* this can be used to investigate rows OR this case exclude rows
