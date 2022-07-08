@@ -3172,7 +3172,7 @@ class WikiDataAPI extends WikipediaAPI
         $e = 0; $i = 0; $k = 0;
         foreach(new FileIterator($raw_dump) as $line_number => $row) {
             $k++;
-            if(($k % 20000) == 0) echo " $k";
+            if(($k % 20000) == 0) echo " ".number_format($k);
             $row = self::remove_last_char_if_comma($row); //remove the last char if it is "," a comma
             $arr = json_decode($row); //print_r($arr); 
             $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
