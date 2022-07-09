@@ -136,10 +136,11 @@ class WikiDataAPI extends WikipediaAPI
         }
         else { //means finalize file
             if(self::finalize_media_filenames_ready("wikimedia_filenames_status_")) {
-                /* it seems there is no need to go here: It was un-commented for the longest time.
-                But no longer needed since the 6 connectors before it alreay cover all latest-all-taxon.json rows
-                self::parse_wiki_data_json($task, false, false);
-                */
+                // /* it seems there is no need to go here: It was un-commented for the longest time.
+                // But no longer needed since the 6 connectors before it alreay cover all latest-all-taxon.json rows
+                self::parse_wiki_data_json($task, false, false); //cannot comment this row. 
+                                                                 //This creates the final wikimedia_filenames_YYYY_MM.txt needed for next step: create_then_fill_commons_data
+                // */
                 //truncate for next run
                 $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . ".txt"; //removed date("Y_m")
                 if(!($f = Functions::file_open($txtfile, "w"))) return;

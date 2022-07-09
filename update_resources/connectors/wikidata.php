@@ -241,10 +241,16 @@ elseif(@$params['task'] == "save_all_media_filenames") {
 }
 elseif(@$params['task'] == "create_then_fill_commons_data") {                                      //step 3 (ran 1 connector)
     $func = new WikiDataAPI($resource_id, "");
+
     //these 2 functions are ran one after the other, preferably. This is to process a new WikiMedia dump
+
+    echo "\nstart...create_temp_files_based_on_wikimedia_filenames()\n";
     $func->create_temp_files_based_on_wikimedia_filenames();     //create blank json files
-    echo "\nstart...\n";
+    echo "\nend...create_temp_files_based_on_wikimedia_filenames()\n";
+
+    echo "\nstart...fill_in_temp_files_with_wikimedia_dump_data()\n";
     $func->fill_in_temp_files_with_wikimedia_dump_data();        //fill-in those blank json files
+    echo "\nend...fill_in_temp_files_with_wikimedia_dump_data()\n";
     echo("\n ==Finished preparing new WikiMedia dump== \n");
 }
 elseif(@$params['task'] == "generate_resource" || @$params['task'] == "generate_resource_force"
