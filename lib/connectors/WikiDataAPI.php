@@ -129,7 +129,7 @@ class WikiDataAPI extends WikipediaAPI
         if($actual_task) {
             self::parse_wiki_data_json($task, $range_from, $range_to);
             //log this task finished
-            $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
+            $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . ".txt"; //removed date("Y_m")
             if(!($f = Functions::file_open($txtfile, "a"))) return;
             fwrite($f, "$actual_task DONE"."\n"); fclose($f); echo "\n-$actual_task DONE\n";
             return true; //so it can run and test final step if ready
@@ -141,7 +141,7 @@ class WikiDataAPI extends WikipediaAPI
                 self::parse_wiki_data_json($task, false, false);
                 */
                 //truncate for next run
-                $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
+                $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . ".txt"; //removed date("Y_m")
                 if(!($f = Functions::file_open($txtfile, "w"))) return;
                 fwrite($f, "Truncated now."."\n"); fclose($f); 
                 return true; //so it can run next step...
