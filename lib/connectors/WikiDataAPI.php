@@ -753,6 +753,9 @@ class WikiDataAPI extends WikipediaAPI
                              if($this->what == "wikimedia") {
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
                                  if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
+                                 
+                                 if($this->save_all_filenames) continue;
+                                 
                                  // print_r(@$rek['obj_category']); print_r(@$rek['obj_gallery']); exit("\n$url\n");
                                  if($range_maps = self::get_range_map($arr->claims)) {
                                      if(@$rek['obj_gallery']) $rek['obj_gallery'] = array_merge($range_maps, $rek['obj_gallery']);
