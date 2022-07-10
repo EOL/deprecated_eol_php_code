@@ -206,7 +206,7 @@ else {
     */
     // exit("\ngoes here\n");
 
-    // /* **************************** new section for wikipedia ver2 ****************************
+    // /* **************************** new section for wikimedia ver2 ****************************
     $actual = @$params['actual'];
     if($actual) $resource_id .= "_".$actual;
     else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
