@@ -97,7 +97,8 @@ class WikiDataAPI extends WikipediaAPI
         
         $this->passed_already = false; //use to create a fake meta.xml
         
-        $this->save_all_filenames = false; //use to save all media filenames to text file; normal operation is false; => not being used since a lookup is still needed
+        $this->save_all_filenames = false; //use to save all media filenames to text file; normal operation is false;
+                                           // => not being used since a lookup is still needed
         
         $this->license['public domain']   = "http://creativecommons.org/licenses/publicdomain/";
         $this->license['by']              = "http://creativecommons.org/licenses/by/3.0/";
@@ -1256,7 +1257,7 @@ class WikiDataAPI extends WikipediaAPI
                 
                 $limit = 0;
                 foreach($files as $file) { // https://commons.wikimedia.org/wiki/File:Eyes_of_gorilla.jpg
-                    $rek = self::process_file($file);
+                    $rek = self::process_file($file, "ccc");
                     if($rek == "continue") continue;
                     if(!$rek) continue;
                     /* debug only -- use when u want to generate DwCA with just one media       //use this when developing*** wikimedia only
@@ -1287,7 +1288,7 @@ class WikiDataAPI extends WikipediaAPI
         // print_r($final);exit;
         return $final;
     }
-    private function process_file($file) //e.g. Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
+    private function process_file($file, $where_from = "") //e.g. Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
     {   /* new block Jul 21, 2020 ================== START */
         $orig_file = $file;
         if(mb_detect_encoding($file, 'ASCII', true)) {} //echo "\nValid all-ASCII\n";
@@ -1326,10 +1327,10 @@ class WikiDataAPI extends WikipediaAPI
                 return false;
                 
             }
-            else echo " -D- ";
+            else echo " -D- [$where_from] ";
             // print_r($rek); exit;
         }
-        else { echo " -A1- ";
+        else { echo " -A1- [$where_from] ";
             debug("\nused api data");
             $rek = self::get_media_metadata_from_api($file);
             if($rek) @$this->debug['total_API']++;
@@ -2397,7 +2398,7 @@ class WikiDataAPI extends WikipediaAPI
     }
     private function get_artist_using_File_colon($filename)
     {
-        $ret = self::process_file($filename);
+        $ret = self::process_file($filename, "bbb");
         if(@$ret['Artist'][0]['name']) return $ret['Artist'][0];
     }
     private function get_artists_from_Credit_value($credit)
@@ -2998,7 +2999,7 @@ class WikiDataAPI extends WikipediaAPI
         $final = array();
         if($filenames) {
             foreach($filenames as $fn) {
-                if($rec = self::process_file($fn)) {
+                if($rec = self::process_file($fn, "aaa")) {
                     $rec['eol_type'] = 'map';
                     $final[] = $rec;
                 }
