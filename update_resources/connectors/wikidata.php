@@ -233,6 +233,9 @@ if($params['task'] == 'test') { /*to run tests: php update_resources/connectors/
 
 if(@$params['task'] == "create_all_taxon_dump") {
     $func->create_all_taxon_dump();     //step 1 (ran 1 connector)
+    //Getting ready for next step:
+    $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . ".txt";           if(file_exists($txtfile)) unlink($txtfile);
+    $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . ".txt";    if(file_exists($txtfile)) unlink($txtfile);
 }
 elseif(@$params['task'] == "save_all_media_filenames") {
     $status = $func->save_all_media_filenames($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //step 2 (ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.)

@@ -121,10 +121,10 @@ class WikiDataAPI extends WikipediaAPI
     {   
         // $GLOBALS['ENV_DEBUG'] = true; //debug only --- elixAug2 troubleshooting a problem.
         //initialize:
-        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
-        if(!($f = Functions::file_open($txtfile, "w"))) return;
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . ".txt"; //removed date("Y_m")
+        if(!($f = Functions::file_open($txtfile, "a"))) return;
         fclose($f);
-        echo "\n-Filename created OK\n";
+        echo "\n-Filename created or ready for append OK: [$txtfile]\n";
         
         $this->save_all_filenames = true; //use to save all media filenames to text file
         if($actual_task) {
@@ -138,12 +138,10 @@ class WikiDataAPI extends WikipediaAPI
         else { //means finalize file
             if(self::finalize_media_filenames_ready("wikimedia_filenames_status_")) {
                 echo "\nLast run for task: save_all_media_filenames\n";
-                
-                // /* it seems there is no need to go here: It was un-commented for the longest time.
+                /* it seems there is no need to go here: It was un-commented for the longest time.
                 // But no longer needed since the 6 connectors before it alreay cover all latest-all-taxon.json rows
-                self::parse_wiki_data_json($task, false, false); //cannot comment this row. 
-                                                                 //This creates the final wikimedia_filenames_YYYY_MM.txt needed for next step: create_then_fill_commons_data
-                // */
+                self::parse_wiki_data_json($task, false, false); 
+                */
                 //truncate for next run
                 $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . ".txt"; //removed date("Y_m")
                 if(!($f = Functions::file_open($txtfile, "w"))) return;
@@ -3198,7 +3196,7 @@ class WikiDataAPI extends WikipediaAPI
     }
     private function save_filenames_2file($files)
     {   //save to text file
-        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . ".txt"; //removed date("Y_m")
         $WRITE_pageid = fopen($txtfile, "a");
         fwrite($WRITE_pageid, implode("\n", $files) . "\n");
         fclose($WRITE_pageid);
@@ -3218,7 +3216,7 @@ class WikiDataAPI extends WikipediaAPI
         */
         $main_path = $this->path['wikimedia_cache'];
         $i = 0;
-        $filename = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . ".txt"; //removed date("Y_m")
         if(!file_exists($filename)) exit("\nFile doesn't exist: [$filename]\nRun php5.6 wikidata.php jenkins save_all_media_filenames\n");
         foreach(new FileIterator($filename) as $line_number => $file) {
             $md5 = md5($file);
