@@ -3255,7 +3255,7 @@ class WikiDataAPI extends WikipediaAPI
                 if($filename = self::taxon_media($title)) {
                     $i++; if(($i % 100000) == 0) echo("\n".number_format($i).". saving content"); //just a row count indicator
                     $month_num = date('m'); //if month is February value is 02
-                    /* normal operation
+                    /* normal operation for the longest time
                     if(in_array($month_num, array('04','08','12'))) { //scheduled every other month (2,4,6,8,10,12) to refresh all cached information from XML (4,8,12 only).
                         $json = json_encode($t);
                         if($FILE = Functions::file_open($filename, 'w')) { // normal
@@ -3275,7 +3275,7 @@ class WikiDataAPI extends WikipediaAPI
                         // else echo("\nalready saved: [$filename]"); //just for debug...
                     }
                     */
-                    // /* just this once 6Jul2022, Will overwrite all cache. Use normal operation block above next time.
+                    // /* just this once 10Jul2022, Will overwrite all cache. Might use this as the permanent normal operation.
                     $json = json_encode($t);
                     if($FILE = Functions::file_open($filename, 'w')) { // normal
                         fwrite($FILE, $json);
@@ -3283,8 +3283,8 @@ class WikiDataAPI extends WikipediaAPI
                     }
                     // */
                 }
-                // else echo " negative"; //meaning this media file is not encountered in the taxa wikidata process. //just for debug...
-                /* just tests
+                else @$media_not_found_in_dump++; //meaning this media file is not encountered in the taxa wikidata process. 
+                /* just tests - good debug
                 if(substr($title,0,5) == "File:") {
                     print_r($t); 
                     $json = json_encode($t);
@@ -3296,7 +3296,8 @@ class WikiDataAPI extends WikipediaAPI
                 }
                 */
             }
-        }
+        } //end while()
+        echo "\nmedia_not_found_in_dump: $media_not_found_in_dump\n";
         /*
         <page>
             <title>South Pole</title>
