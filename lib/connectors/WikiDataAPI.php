@@ -44,7 +44,7 @@ class WikiDataAPI extends WikipediaAPI
         $this->debug_taxon = $debug_taxon;
         
         $this->is_running_version_1_YN = $is_running_version_1_YN;
-        $this->even_num_no_expireYN = false; //Jul10 true
+        $this->even_num_no_expireYN = true; //Jul10 true
         
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         if($archive_builder) $this->archive_builder = $archive_builder; //for FillUpMissingParentsAPI
@@ -1241,7 +1241,7 @@ class WikiDataAPI extends WikipediaAPI
         // <a href="/wiki/File:A_hand-book_to_the_primates_(Plate_XL)_(5589462024).jpg"
         // <a href="/wiki/File:Irrawaddy_Dolphin.jpg"
         debug("\nelix:[$url]\n");
-        $options = $this->download_options;
+        $options = $this->download_options; $options['expire_seconds'] = 60*60*24*30*4; //4 months
         if($this->is_even_YN($this->k) && $this->even_num_no_expireYN) $options['expire_seconds'] = false;
         if($html = Functions::lookup_with_cache($url, $options)) { //preferably monthly cache expires. 
                                                                    //This gets filenames from page-gallery & page-category
