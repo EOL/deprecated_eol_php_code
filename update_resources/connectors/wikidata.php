@@ -257,7 +257,7 @@ elseif(@$params['task'] == "create_then_fill_commons_data") {                   
     echo("\n ==Finished preparing new WikiMedia dump== \n");
 
     //blank dirs removed, blank anyway at this point.
-    $dirs = array('71_working', '71_1of6_working', '71_2of6_working', '71_3of6_working', '71_4of6_working', '71_5of6_working', '71_6of6_working')
+    $dirs = array('71_working', '71_1of6_working', '71_2of6_working', '71_3of6_working', '71_4of6_working', '71_5of6_working', '71_6of6_working');
     foreach($dirs as $dir) {
         $delete_dir = CONTENT_RESOURCE_LOCAL_PATH . $dir;
         recursive_rmdir($delete_dir); echo ("\n blank directory removed: [$delete_dir]");
