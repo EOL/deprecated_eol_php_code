@@ -1328,10 +1328,10 @@ class WikiDataAPI extends WikipediaAPI
                 return false;
                 
             }
-            else echo " -D- "; //[$where_from]
+            //else echo " -D- "; //[$where_from] //good debug
             // print_r($rek); exit;
         }
-        else { echo " -A- "; //[$where_from] // /* this will be in-cosideration to be removed and just rely on dump for data
+        else { //echo " -A- "; //[$where_from] // /* this will be in-cosideration to be removed and just rely on dump for data
             debug("\nused api data");
             $rek = self::get_media_metadata_from_api($file);
             if($rek) @$this->debug['total_API']++; // */
