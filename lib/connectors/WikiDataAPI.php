@@ -3254,8 +3254,8 @@ class WikiDataAPI extends WikipediaAPI
                 $title = str_replace(" ", "_", $title);
                 if($filename = self::taxon_media($title)) {
                     $i++; if(($i % 100000) == 0) echo("\n".number_format($i).". saving content"); //just a row count indicator
+                    /* normal operation for the longest time - will no longer use this but use below instead
                     $month_num = date('m'); //if month is February value is 02
-                    /* normal operation for the longest time
                     if(in_array($month_num, array('04','08','12'))) { //scheduled every other month (2,4,6,8,10,12) to refresh all cached information from XML (4,8,12 only).
                         $json = json_encode($t);
                         if($FILE = Functions::file_open($filename, 'w')) { // normal
