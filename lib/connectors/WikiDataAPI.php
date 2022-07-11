@@ -44,7 +44,7 @@ class WikiDataAPI extends WikipediaAPI
         $this->debug_taxon = $debug_taxon;
         
         $this->is_running_version_1_YN = $is_running_version_1_YN;
-        $this->even_num_no_expireYN = true;
+        $this->even_num_no_expireYN = false; //Jul10 true
         
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         if($archive_builder) $this->archive_builder = $archive_builder; //for FillUpMissingParentsAPI
@@ -1328,13 +1328,13 @@ class WikiDataAPI extends WikipediaAPI
                 return false;
                 
             }
-            else echo " -D- [$where_from] ";
+            else echo " -D- "; //[$where_from]
             // print_r($rek); exit;
         }
-        else { echo " -A1- [$where_from] ";
+        else { echo " -A1- "; //[$where_from] // /* this will be in-cosideration to be removed and just rely on dump for data
             debug("\nused api data");
             $rek = self::get_media_metadata_from_api($file);
-            if($rek) @$this->debug['total_API']++;
+            if($rek) @$this->debug['total_API']++; // */
         }
         if(!$rek) return false;
         
