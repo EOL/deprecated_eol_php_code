@@ -419,9 +419,7 @@ class WikiDataAPI extends WikipediaAPI
         foreach($index as $i) {
             fwrite($f, "\n$i ---"."\n");
             $arr = false;
-            if(is_array($this->debug[$i])) {
-                $arr = array_keys($this->debug[$i]);
-            }
+            if(is_array($this->debug[$i])) $arr = array_keys($this->debug[$i]);
             if(is_array($arr)) {
                 foreach($arr as $row) fwrite($f, "$row"."\n");
             }
