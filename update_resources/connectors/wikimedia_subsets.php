@@ -37,7 +37,9 @@ wikimedia_comnames	Thu 2022-04-28 09:54:45 PM	    {"taxon.tab":163083, "vernacul
 wikimedia_comnames	Fri 2022-05-27 04:52:37 AM	    {"taxon.tab":163092, "vernacular_name.tab":993598, "time_elapsed":{"sec":1322.92, "min":22.05, "hr":0.37}}
 -> new utility: filled-up missing parent entries 163092
 wikimedia_comnames	Thu 2022-07-07 05:01:16 AM	    {"taxon.tab":110157, "vernacular_name.tab":618360, "time_elapsed":{"sec":3647.58, "min":60.79, "hr":1.01}}
--> big decrease - will wait for the latest run
+-> big decrease - seems erroneous. Next run below is better:
+wikimedia_comnames	Wed 2022-07-13 06:01:04 PM	    {"taxon.tab":154018, "vernacular_name.tab":973908, "time_elapsed":{"sec":1292.89, "min":21.55, "hr":0.36}}
+-> first run using new scheme, no more or limited API calls consistent OK
 */
 
 // ini_set('error_reporting', E_ALL);
