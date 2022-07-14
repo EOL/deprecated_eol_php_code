@@ -160,6 +160,8 @@ class BHL_Download_API //extends Functions_Memoirs
         $w = '{"label": "TERM_NEG", "pattern": "not '.$needle.'"}';         fwrite($f, $w."\n");
         $w = '{"label": "TERM_NEG", "pattern": "non-'.$needle.'"}';         fwrite($f, $w."\n");
         $w = '{"label": "TERM_NEG", "pattern": "none '.$needle.'"}';        fwrite($f, $w."\n");
+        $w = '{"label": "TERM_NEG", "pattern": "not entirely '.$needle.'"}';    fwrite($f, $w."\n");
+        $w = '{"label": "TERM_NEG", "pattern": "not exclusively '.$needle.'"}'; fwrite($f, $w."\n");
         /* write names */
         foreach($names as $name) {
             if(self::taxon_is_species_level($name)) $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
