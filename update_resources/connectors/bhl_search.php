@@ -23,7 +23,7 @@ $page_id = '59914358';
 // $func->GetPageMetadata(array('page_id'=>$page_id)); exit;
 
 $search = "brachypterous";
-$search = "saproxylic";
+// $search = "saproxylic";
 $func->PublicationSearch($search); exit("\n-end search-\n");
 
 $idtype = 'bhl';
@@ -38,6 +38,4 @@ $part_id = '263683';
 $part_id = '303321';
 $idtype = 'bhl';
 $func->GetPartMetadata(array('part_id'=>$part_id, 'idtype'=>$idtype)); //1 object (part) result, no OcrText yet, but with multiple pages
-
-
 ?>
