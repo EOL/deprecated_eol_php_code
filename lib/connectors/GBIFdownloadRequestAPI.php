@@ -3,7 +3,24 @@ namespace php_active_record;
 /* connector: 1st client: [gbif_download_request.php]
               2nd client: [gbif_download_request_for_NMNH.php]
               3rd client: the 6 GBIF country type records -> e.g. Germany, Sweden, etc.
-              4th client: [gbif_download_request_for_iNat.php] */
+              4th client: [gbif_download_request_for_iNat.php] 
+
+THERE IS A CURL ISSUE: hopefully the "--insecure" param works?
+curl: (60) SSL certificate problem: certificate has expired
+More details here: https://curl.haxx.se/docs/sslcerts.html
+
+curl performs SSL certificate verification by default, using a "bundle"
+of Certificate Authority (CA) public keys (CA certs). If the default
+bundle file isn't adequate, you can specify an alternate file
+using the --cacert option.
+If this HTTPS server uses a certificate signed by a CA represented in
+the bundle, the certificate verification probably failed due to a
+problem with the certificate (it might be expired, or the name might
+not match the domain name in the URL).
+If you'd like to turn off curl's verification of the certificate, use
+the -k (or --insecure) option.
+
+*/
 class GBIFdownloadRequestAPI
 {
     function __construct($resource_id)
@@ -54,7 +71,7 @@ class GBIFdownloadRequestAPI
         curl --include --user userName:PASSWORD --header "Content-Type: application/json" --data @query.json https://api.gbif.org/v1/occurrence/download/request
         */
         $filename = $this->destination_path.'/query.json';
-        $cmd = 'curl --include --user '.$this->gbif_username.':'.$this->gbif_pw.' --header "Content-Type: application/json" --data @'.$filename.' -s https://api.gbif.org/v1/occurrence/download/request';
+        $cmd = 'curl --insecure --include --user '.$this->gbif_username.':'.$this->gbif_pw.' --header "Content-Type: application/json" --data @'.$filename.' -s https://api.gbif.org/v1/occurrence/download/request';
         echo "\ncmd:\n[$cmd]\n";
         $output = shell_exec($cmd);
         echo "\nRequest output:\n[$output]\n";
@@ -113,10 +130,10 @@ class GBIFdownloadRequestAPI
         And since it does not work in our Rhel Linux eol-archive, I just removed it.
         $cmd = 'curl -Ss https://api.gbif.org/v1/occurrence/download/'.$key.' | jq .';
         */
-        $cmd = 'curl -Ss https://api.gbif.org/v1/occurrence/download/'.$key;
+        $cmd = 'curl --insecure -Ss https://api.gbif.org/v1/occurrence/download/'.$key;
         
         $output = shell_exec($cmd);
-        // echo "\nRequest output:\n[$output]\n"; //good debug
+        echo "\nRequest output:\n[$output]\n"; //good debug
         $arr = json_decode($output, true);
         // print_r($arr); exit;
         if($arr['status'] == 'SUCCEEDED') return $arr;
@@ -318,7 +335,7 @@ class GBIFdownloadRequestAPI
         So I now removed the "-C"
         $row2 = "curl -L -o '".$taxon_group."_DwCA.zip' -C - $downloadLink";
         */
-        $row2 = "curl -LsS -o '".$taxon_group."_DwCA.zip' $downloadLink";   //this worked OK as of Oct 17, 2021
+        $row2 = "curl --insecure -LsS -o '".$taxon_group."_DwCA.zip' $downloadLink";   //this worked OK as of Oct 17, 2021
         /* for some reason this -sS is causing error. BETTER TO NOT USE IT.
         -s is "silent"
         -S is show errors when it is "silent"
