@@ -78,8 +78,8 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71_new	Thu 2022-07-07 04:00:25 AM	    {"agent.tab":509946, "media_resource.tab":985603, "taxon.tab":95205, "time_elapsed":false}
 -> big decrease - seems erroneous. Next run below is better:
 71_new	Wed 2022-07-13 05:39:27 PM	    {"agent.tab":788702, "media_resource.tab":1248218, "taxon.tab":154008, "time_elapsed":false}
+71_new	Wed 2022-07-13 09:19:21 PM	    {"agent.tab":788702, "media_resource.tab":1248218, "taxon.tab":154018, "time_elapsed":false}
 -> first run using new scheme, no more or limited API calls consistent OK
-
 
 71_delta	Mon 2022-02-14 09:02:25 AM	{"agent.tab":392784, "media_resource.tab":1549432, "taxon.tab":162683, "time_elapsed":{"sec":1031.02, "min":17.18, "hr":0.29}}
 71_delta	Thu 2022-04-28 10:42:15 PM	{"agent.tab":792529, "media_resource.tab":1556142, "taxon.tab":163083, "time_elapsed":{"sec":1283.01, "min":21.38, "hr":0.36}}
@@ -88,11 +88,8 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71_delta	Thu 2022-07-07 07:22:56 AM	{"agent.tab":509946, "media_resource.tab":985603, "taxon.tab":110157, "time_elapsed":{"sec":7742.5, "min":129.04, "hr":2.15}}
 -> big decrease - seems erroneous. Next run below is better:
 71_delta	Wed 2022-07-13 07:21:21 PM	{"agent.tab":788702, "media_resource.tab":1248218, "taxon.tab":154018, "time_elapsed":{"sec":3744.34, "min":62.41, "hr":1.04}}
+71_delta	Wed 2022-07-13 10:04:30 PM	{"agent.tab":788702, "media_resource.tab":1248218, "taxon.tab":154018, "time_elapsed":{"sec":1257.01, "min":20.95, "hr":0.35}}
 -> first run using new scheme, no more or limited API calls consistent OK
-
-
-
-
 
 wikidata-hierarchy	Tue 2022-02-08 10:02:56 AM	{"taxon.tab":3365727, "time_elapsed":{"sec":353281.95, "min":5888.03, "hr":98.13, "day":4.09}}
 wikidata-hierarchy-final	Mon 2022-02-14 08:48:27 AM	{"taxon.tab":3365214, "time_elapsed":{"sec":5338.23, "min":88.97, "hr":1.48}}
