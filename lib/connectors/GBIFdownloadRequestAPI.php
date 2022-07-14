@@ -5,7 +5,7 @@ namespace php_active_record;
               3rd client: the 6 GBIF country type records -> e.g. Germany, Sweden, etc.
               4th client: [gbif_download_request_for_iNat.php] 
 
-THERE IS A CURL ISSUE: hopefully the "--insecure" param works?
+THERE IS A CURL ISSUE: and the "--insecure" param as a sol'n actually works OK!
 curl: (60) SSL certificate problem: certificate has expired
 More details here: https://curl.haxx.se/docs/sslcerts.html
 
@@ -20,6 +20,8 @@ not match the domain name in the URL).
 If you'd like to turn off curl's verification of the certificate, use
 the -k (or --insecure) option.
 
+                                               https://api.gbif.org/v1/occurrence/download/request/0389316-210914110416597.zip
+curl --insecure -LsS -o 'NMNH_images_DwCA.zip' https://api.gbif.org/v1/occurrence/download/request/0389316-210914110416597.zip
 */
 class GBIFdownloadRequestAPI
 {
