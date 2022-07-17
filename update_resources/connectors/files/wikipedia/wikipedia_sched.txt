@@ -285,6 +285,7 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	Tue 2022-05-24 12:59:00 PM	    {"media_resource.tab":832790, "taxon.tab":438670, "time_elapsed":{"sec":122700.17, "min":2045, "hr":34.08, "day":1.42}}
 80	Thu 2022-05-26 06:59:09 AM	    {"media_resource.tab":832790, "taxon.tab":438686, "time_elapsed":{"sec":920.5, "min":15.34, "hr":0.26}}
 -> now without any missing parent entries OK 438686
+80	Fri 2022-07-15 06:40:14 AM	    {"media_resource.tab":837742, "taxon.tab":440902, "time_elapsed":{"sec":1953.1, "min":32.55, "hr":0.54}} consistent OK
 
 wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
 wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
@@ -309,6 +310,7 @@ wikipedia-es	Tue 2021-06-15 11:34:10 AM	    {"media_resource.tab":337739, "taxon
 wikipedia-es	Sun 2022-01-30 06:14:33 AM	    {"media_resource.tab":356328, "taxon.tab":194730, "time_elapsed":{"sec":100786.04, "min":1679.77, "hr":28, "day":1.17}} consistent OK
 wikipedia-es	Fri 2022-05-27 11:52:18 AM	    {"media_resource.tab":360144, "taxon.tab":196602, "time_elapsed":{"sec":704.88, "min":11.75, "hr":0.2}}
 -> now without any missing parent entries OK 196602
+wikipedia-es	Fri 2022-07-15 10:14:26 AM	    {"media_resource.tab":368519, "taxon.tab":200803, "time_elapsed":{"sec":774.89, "min":12.91, "hr":0.22}} consistent OK
 
 wikipedia-it	Tuesday 2017-11-14 04:48:25 AM	{"media_resource.tab":64723,"taxon.tab":39992}
 wikipedia-it	Monday 2017-12-04 05:16:39 AM	{"media_resource.tab":64861,"taxon.tab":40069}

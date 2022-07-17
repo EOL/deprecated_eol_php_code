@@ -230,10 +230,11 @@ environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"SI C
 
 ---------------------------------------------------------------------------------------as of Sep 6, 2021
 #STEP 1
-php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"Raw English Wikipedia - initial step", "resource_id":"617", "subjects":"Description"}'
 #generates 617_ENV.tar.gz
-#the resource that is "wikipedia English" pertains to this DwCA: https://opendata.eol.org/dataset/wikip/resource/8d4b6858-a26b-42fe-8d3a-cc3f7f7020b9
-#the DwCA will be looked up via API using the resource name "wikipedia English".
+#the resource that is "Raw English Wikipedia - initial step" pertains to 80.tar.gz which is
+    this DwCA: https://opendata.eol.org/dataset/wikip/resource/8fcddff7-f866-447b-8624-31e14757a9df
+#the DwCA will be looked up via API using the resource name "Raw English Wikipedia - initial step".
 
 #STEP 2: just a utility
 #these 3 is just for stats = generates 3 reports
