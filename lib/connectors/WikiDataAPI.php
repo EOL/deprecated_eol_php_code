@@ -1234,7 +1234,7 @@ class WikiDataAPI extends WikipediaAPI
         elseif(substr($url,0,5) == "User:") return "https://wikipedia.org/wiki/".$url;
         return $url;
     }
-    private even_odd_expiration($options)
+    private function even_odd_expiration($options)
     {
         if($this->is_even_YN($this->k)) { //even number
             if($this->even_num_no_expireYN) $options['expire_seconds'] = false;
