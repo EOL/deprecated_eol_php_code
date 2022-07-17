@@ -286,6 +286,7 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	Thu 2022-05-26 06:59:09 AM	    {"media_resource.tab":832790, "taxon.tab":438686, "time_elapsed":{"sec":920.5, "min":15.34, "hr":0.26}}
 -> now without any missing parent entries OK 438686
 80	Fri 2022-07-15 06:40:14 AM	    {"media_resource.tab":837742, "taxon.tab":440902, "time_elapsed":{"sec":1953.1, "min":32.55, "hr":0.54}} consistent OK
+80	Sat 2022-07-16 11:53:18 AM	    {"media_resource.tab":837742, "taxon.tab":440902, "time_elapsed":{"sec":989.94, "min":16.5, "hr":0.27}}
 
 wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
 wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
@@ -334,6 +335,7 @@ wikipedia-it	Wed 2021-04-14 01:35:23 PM	    {"media_resource.tab":72874, "taxon.
 wikipedia-it	Tue 2021-06-15 06:34:02 PM	    {"media_resource.tab":73337, "taxon.tab":45349, "time_elapsed":{"sec":13867.58, "min":231.13, "hr":3.85}} consistent OK
 wikipedia-it	Sun 2022-01-30 01:33:57 PM	    {"media_resource.tab":74988, "taxon.tab":46264, "time_elapsed":{"sec":19159.35, "min":319.32, "hr":5.32}} consistent OK
 wikipedia-it	Fri 2022-05-27 08:13:20 PM	    {"media_resource.tab":74824, "taxon.tab":46127, "time_elapsed":{"sec":170.28, "min":2.84, "hr":0.05}}
+wikipedia-it	Fri 2022-07-15 11:24:55 AM	    {"media_resource.tab":74928, "taxon.tab":46157, "time_elapsed":{"sec":188.83, "min":3.15, "hr":0.05}} consistent inc. OK
 
 wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.tab":55915}
 957	            Monday 2017-12-04 05:20:51 AM	{"media_resource.tab":87940,"taxon.tab":56041}
@@ -355,6 +357,8 @@ wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.
 957	            Thu 2021-04-15 01:22:25 AM	    {"media_resource.tab":99078, "taxon.tab":63389, "time_elapsed":{"sec":25487.67, "min":424.79, "hr":7.08}}
 957	            Wed 2021-06-16 06:01:45 AM	    {"media_resource.tab":99612, "taxon.tab":63751, "time_elapsed":{"sec":24990.45, "min":416.51, "hr":6.94}} consistent OK
 957	            Mon 2021-08-02 03:16:52 PM	    {"media_resource.tab":100235, "taxon.tab":64184, "time_elapsed":{"sec":10690.27, "min":178.17, "hr":2.97}}
+Below start of new scheme:
+957	            Sun 2022-07-17 01:55:42 AM	    {"media_resource.tab":101839, "taxon.tab":65299, "time_elapsed":{"sec":415.79, "min":6.93, "hr":0.12}} consistent inc. OK
 
 wikipedia-fr	Sunday 2017-12-03 12:04:24 AM	{"media_resource.tab":214962,"taxon.tab":119824}
 wikipedia-fr	Sunday 2018-04-29 04:10:02 PM	{"media_resource.tab":214956,"taxon.tab":119821}
@@ -401,6 +405,7 @@ wikipedia-ja	Fri 2021-04-16 07:06:20 AM	    {"media_resource.tab":17160, "taxon.
 wikipedia-ja	Fri 2021-06-18 09:25:51 PM	    {"media_resource.tab":17272, "taxon.tab":22606, "time_elapsed":{"sec":27504.56, "min":458.41, "hr":7.64}} consistent OK
 wikipedia-ja	Wed 2021-08-04 12:49:17 PM	    {"media_resource.tab":17412, "taxon.tab":22755, "time_elapsed":{"sec":5336.84, "min":88.95, "hr":1.48}}
 wikipedia-ja	Sun 2022-05-29 05:26:49 PM	    {"media_resource.tab":17597, "taxon.tab":22961, "time_elapsed":{"sec":33742.66, "min":562.38, "hr":9.37}}
+wikipedia-ja	Fri 2022-07-15 01:55:45 PM	    {"media_resource.tab":17712, "taxon.tab":23092, "time_elapsed":{"sec":37.68, "min":0.63, "hr":0.01}} consistent inc. OK
 
 wikipedia-ko	Thursday 2017-11-30 10:29:47 PM	{"media_resource.tab":24527,"taxon.tab":16954}
 wikipedia-ko	Sunday 2017-12-03 12:48:17 AM	{"media_resource.tab":24701,"taxon.tab":17060}
@@ -484,6 +489,7 @@ wikipedia-zh	Wed 2020-10-14 02:55:11 PM	    {"media_resource.tab":91789, "taxon.
 wikipedia-zh	Sat 2021-04-17 08:14:37 AM	    {"media_resource.tab":94110, "taxon.tab":105830, "time_elapsed":{"sec":29965.73, "min":499.43, "hr":8.32}}
 wikipedia-zh	Thu 2021-08-05 05:28:31 PM	    {"media_resource.tab":96751, "taxon.tab":108147, "time_elapsed":{"sec":17658.03, "min":294.3, "hr":4.91}} consistent OK
 wikipedia-zh	Tue 2022-05-31 09:10:33 PM	    {"media_resource.tab":101815, "taxon.tab":111324, "time_elapsed":{"sec":9198.77, "min":153.31, "hr":2.56}}
+wikipedia-zh	Fri 2022-07-15 08:24:27 PM	    {"media_resource.tab":103823, "taxon.tab":113179, "time_elapsed":{"sec":394.26, "min":6.57, "hr":0.11}} consistent inc. OK
 --------------------------------------------- START OF NEW BATCH ---------------------------------------------
 
 langs_with_multiple_connectors: "nl", "pl", "sv", "vi"
@@ -976,6 +982,7 @@ wikipedia-fi	Saturday 2020-04-25 10:38:29 PM	{"media_resource.tab":42649, "taxon
 wikipedia-fi	Sunday 2020-05-10 10:44:29 PM	  {"media_resource.tab":42648, "taxon.tab":28728, "time_elapsed":{"sec":3753.39, "min":62.56, "hr":1.04}} New
 wikipedia-fi	Thursday 2020-08-13 08:28:50 AM	{"media_resource.tab":43452, "taxon.tab":29162, "time_elapsed":{"sec":30957.38, "min":515.96, "hr":8.6}} consistent OK
 wikipedia-fi	Thu 2022-06-09 03:03:23 PM	    {"media_resource.tab":46925, "taxon.tab":31299, "time_elapsed":{"sec":47.43, "min":0.79, "hr":0.01}} consistent OK
+wikipedia-fi	Sun 2022-07-17 10:05:18 AM	    {"media_resource.tab":47336, "taxon.tab":31590, "time_elapsed":{"sec":49.87, "min":0.83, "hr":0.01}} consistent inc. OK
 
 wikipedia-no	Saturday 2019-04-27 02:04:01 PM	{"media_resource.tab":61203,"taxon.tab":37024}
 wikipedia-no	Thursday 2019-08-15 07:56:33 AM	{"media_resource.tab":62169,"taxon.tab":37534} OK
