@@ -44,7 +44,7 @@ class WikiDataAPI extends WikipediaAPI
         $this->debug_taxon = $debug_taxon;
         
         $this->is_running_version_1_YN = $is_running_version_1_YN;
-        $this->even_num_no_expireYN = true; //Jul10 true
+        $this->even_num_no_expireYN = false; //Jul10 true
         
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         if($archive_builder) $this->archive_builder = $archive_builder; //for FillUpMissingParentsAPI
@@ -1234,6 +1234,16 @@ class WikiDataAPI extends WikipediaAPI
         elseif(substr($url,0,5) == "User:") return "https://wikipedia.org/wiki/".$url;
         return $url;
     }
+    private even_odd_expiration($options)
+    {
+        if($this->is_even_YN($this->k)) { //even number
+            if($this->even_num_no_expireYN) $options['expire_seconds'] = false;
+        }
+        else { // odd number
+            if(!$this->even_num_no_expireYN) $options['expire_seconds'] = false;
+        }
+        return $options;
+    }
     private function get_commons_info($url)
     {
         $final = array();
@@ -1241,7 +1251,7 @@ class WikiDataAPI extends WikipediaAPI
         // <a href="/wiki/File:Irrawaddy_Dolphin.jpg"
         debug("\nelix:[$url]\n");
         $options = $this->download_options; $options['expire_seconds'] = 60*60*24*30*4; //4 months
-        if($this->is_even_YN($this->k) && $this->even_num_no_expireYN) $options['expire_seconds'] = false;
+        $options = self::even_odd_expiration($options);
         if($html = Functions::lookup_with_cache($url, $options)) { //preferably monthly cache expires. 
                                                                    //This gets filenames from page-gallery & page-category
             if(preg_match_all("/<a href=\"\/wiki\/File:(.*?)\"/ims", $html, $arr)) {
@@ -2221,7 +2231,7 @@ class WikiDataAPI extends WikipediaAPI
     {   //https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:Gorilla_498.jpg
         $rek = array();
         $options = $this->download_options;
-        if($this->is_even_YN($this->k) && $this->even_num_no_expireYN) $options['expire_seconds'] = false;
+        $options = self::even_odd_expiration($options);
         // $options['expire_seconds'] = false; //preferably monthly cache expires
         $api_call = "https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file;
         // echo "\n[$api_call]\n";
@@ -3139,7 +3149,7 @@ class WikiDataAPI extends WikipediaAPI
         // /* as of Jan 29,2020. Previously value = false. Not anymore, since EntityData can change. Not often but it can change.
         $options['expire_seconds'] = 60*60*24*30*12; //12 months
         if(isset($this->k)) {
-            if($this->is_even_YN($this->k) && $this->even_num_no_expireYN) $options['expire_seconds'] = false;
+            $options = self::even_odd_expiration($options);
         }
         // */
         if($json = Functions::lookup_with_cache($url, $options)) {
