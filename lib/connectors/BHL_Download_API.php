@@ -28,7 +28,7 @@ class BHL_Download_API //extends Functions_Memoirs
         if(strlen($searchterm) < 10) exit("\nSearch term is too short: [$searchterm]\n");
         $this->needle = $searchterm;
         
-        $this->corpus_file = $this->save_dir."/search_BHL_".$searchterm.".txt";
+        $this->corpus_file = $this->save_dir."/corpus_".$searchterm.".txt";
         $f = Functions::file_open($this->corpus_file, "w"); fclose($f); //initialize file
         
         $page = 0;
@@ -152,7 +152,7 @@ class BHL_Download_API //extends Functions_Memoirs
     private function write_scinames($names, $needle)
     {
         $names = array_keys($names);
-        $file = $this->save_dir."/scinames_BHL_".$needle.".jsonl";
+        $file = $this->save_dir."/entities_".$needle.".jsonl";
         $f = Functions::file_open($file, "w");
         /* write start */
         $w = '{"label": "TERM_POS", "pattern": "'.$needle.'"}';             fwrite($f, $w."\n");
