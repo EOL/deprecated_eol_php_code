@@ -423,6 +423,8 @@ class WikiDataAPI extends WikipediaAPI
     private function write_2file_debug_contents()
     {
         if($this->debug) {
+            $this->debug["resource_id"] = $this->resource_id;
+            if($lang = @$this->language_code) $this->debug["language"] = $lang;
             $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/".$this->what."_debug_".date("Y-m-d H_i_s").".txt", "w");
             $index = array_keys($this->debug);
             foreach($index as $i) {
