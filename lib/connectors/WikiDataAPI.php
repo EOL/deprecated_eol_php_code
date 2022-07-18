@@ -413,24 +413,29 @@ class WikiDataAPI extends WikipediaAPI
         // print_r($this->debug); //exit; No need to display this since it is written to file anyway below. I think...
         echo "\n----end debug array\n";
         
-        //write to file $this->debug contents
-        $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/".$this->what."_debug_".date("Y-m-d H_i_s").".txt", "w");
-        $index = array_keys($this->debug);
-        foreach($index as $i) {
-            fwrite($f, "\n$i ---"."\n");
-            $arr = false;
-            if(is_array($this->debug[$i])) $arr = array_keys($this->debug[$i]);
-            if(is_array($arr)) {
-                foreach($arr as $row) fwrite($f, "$row"."\n");
-            }
-            else fwrite($f, $this->debug[$i]."\n");
-        }
-        fclose($f);
-        
+        self::write_2file_debug_contents(); //write to file $this->debug contents
+
         print_r($this->count); //just a debug print of values
         
         // if(($this->what == "wikimedia") || ($this->what == "wikipedia" && $this->language_code == "en")) return array(true, true);
         return array(true, true); //all that reaches this point will return true true
+    }
+    private function write_2file_debug_contents()
+    {
+        if($this->debug) {
+            $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/".$this->what."_debug_".date("Y-m-d H_i_s").".txt", "w");
+            $index = array_keys($this->debug);
+            foreach($index as $i) {
+                fwrite($f, "\n$i ---"."\n");
+                $arr = false;
+                if(is_array($this->debug[$i])) $arr = array_keys($this->debug[$i]);
+                if(is_array($arr)) {
+                    foreach($arr as $row) fwrite($f, "$row"."\n");
+                }
+                else fwrite($f, $this->debug[$i]."\n");
+            }
+            fclose($f);
+        }
     }
     private function delete_TEMP_FILE_PATH()
     {
