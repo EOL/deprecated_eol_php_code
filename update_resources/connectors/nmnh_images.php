@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
 /* DATA-1871: new NMNH image connector from GBIF export
+
+Jenkins link: http://160.111.248.39:8081/job/NMNH_images/
+
 nmnh_images	Thu 2020-12-24 05:28:07 AM	{"agent.tab":1001, "media_resource.tab":367537, "taxon.tab":63374, "time_elapsed":{"sec":534.69, "min":8.91, "hr":0.15}}
 nmnh_images	Thu 2020-12-24 06:05:58 AM	{"agent.tab":1001, "media_resource.tab":367537, "taxon.tab":63374, "time_elapsed":{"sec":509.55, "min":8.49, "hr":0.14}}
 nmnh_images	Thu 2020-12-24 06:14:34 AM	{"agent.tab":1001, "media_resource.tab":347040, "taxon.tab":60121, "time_elapsed":{"sec":492.24, "min":8.2, "hr":0.14}}
@@ -14,7 +17,10 @@ nmnh_images	Thu 2021-07-29 05:38:12 AM	{"agent.tab":1266, "media_resource.tab":3
 nmnh_images	Thu 2021-10-14 08:28:15 AM	{"agent.tab":1305, "media_resource.tab":383808, "taxon.tab":69660, "time_elapsed":{"sec":1687.74, "min":28.13, "hr":0.47}}
 nmnh_images	Sun 2021-10-24 10:34:21 PM	{"agent.tab":1305, "media_resource.tab":383808, "taxon.tab":69660, "time_elapsed":{"sec":1192.44, "min":19.87, "hr":0.33}}
 nmnh_images	Mon 2021-10-25 12:41:55 AM	{"agent.tab":1305, "media_resource.tab":383808, "taxon.tab":69660, "time_elapsed":{"sec":1211.35, "min":20.19, "hr":0.34}}
+nmnh_images	Mon 2021-10-25 01:45:07 AM	{"agent.tab":1297, "media_resource.tab":381102, "taxon.tab":68739, "time_elapsed":{"sec":1189.7, "min":19.83, "hr":0.33}}
+nmnh_images	Mon 2021-10-25 05:13:05 AM	{"agent.tab":1295, "media_resource.tab":380510, "taxon.tab":68462, "time_elapsed":{"sec":1175.73, "min":19.6, "hr":0.33}}
 nmnh_images	Fri 2022-01-14 08:16:11 AM	{"agent.tab":1328, "media_resource.tab":391395, "taxon.tab":70370, "time_elapsed":{"sec":1141.38, "min":19.02, "hr":0.32}}
+nmnh_images	Tue 2022-07-19 03:53:41 AM	{"agent.tab":1346, "media_resource.tab":450266, "taxon.tab":89524, "time_elapsed":{"sec":1536.04, "min":25.6, "hr":0.43}} consistent inc. OK
 
 less: with 'TAX CRT' or 'Taxa CRT' in description
 less: blank StillImage value --- 101 recs below
@@ -24,8 +30,6 @@ less: blank StillImage value --- 101 recs below
                     [] => 101
                 )
         )
-nmnh_images	Mon 2021-10-25 01:45:07 AM	{"agent.tab":1297, "media_resource.tab":381102, "taxon.tab":68739, "time_elapsed":{"sec":1189.7, "min":19.83, "hr":0.33}}
-nmnh_images	Mon 2021-10-25 05:13:05 AM	{"agent.tab":1295, "media_resource.tab":380510, "taxon.tab":68462, "time_elapsed":{"sec":1175.73, "min":19.6, "hr":0.33}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NMNHimagesAPI');
