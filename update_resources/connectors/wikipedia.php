@@ -219,6 +219,18 @@ $actual = @$params['actual'];
 if($actual) $resource_id .= "_".$actual;
 else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
     
+    // /* customize for those with language redirects
+    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_4of6.tar.gz
+    // -rw-r--r-- 1 root root 1332048 Jul 19 10:50 wikipedia-be-x-old_2of6.tar.gz
+    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_1of6.tar.gz
+    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_5of6.tar.gz
+    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_3of6.tar.gz
+    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_6of6.tar.gz
+    // -rwxrwxr-x 1 root root 1320102 Jun  8 11:34 wikipedia-be-x-old.tar.gz
+    if($resource_id == "wikipedia-be-tarask") $resource_id = "wikipedia-be-x-old";
+    // */
+    
+    
     $test_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id."_1of6.tar.gz";
     if(file_exists($test_file)) { //ready to aggregate
         echo "\n----------\nMeaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.\n----------\n";
