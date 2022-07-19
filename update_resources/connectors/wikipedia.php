@@ -455,6 +455,10 @@ function aggregate_6partial_wikipedias($timestart, $resource_id)
     //wikipedia-nl_1of6... and so on
     //80_1of6 ... and so on
     
+    // /* customize for those with language redirects
+    if($resource_id == "wikipedia-be-tarask") $resource_id = "wikipedia-be-x-old";
+    // */
+    
     //string generate the partials 1-6:
     for ($i = 1; $i <= 6; $i++) $langs[] = $resource_id."_".$i."of6";
     print_r($langs);
