@@ -448,7 +448,7 @@ function delete_temp_files_and_others($language, $resource_id = false)
     }
 }
 function aggregate_6partial_wikipedias($timestart, $resource_id)
-{
+{   echo "\nStart aggregate_6partial_wikipedias() for $resource_id \n";
     require_library('connectors/DwCA_Aggregator_Functions');
     require_library('connectors/DwCA_Aggregator');
     $langs = array();
