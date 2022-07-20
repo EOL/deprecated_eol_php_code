@@ -13,10 +13,10 @@ $job['es']['next']['it'];
                                 br  ms      oc        sl
    1d 15h - WAR (removed)       ta  el      qu        mk
                                 hi  fy      be-x-old  tl
-                                koi frr->   udm       ba
-                                io  lb      co        fo->
+                                koi frr     udm       ba
+                                io  lb      co        fo
                                 my  su      sq        os
-                                mn  kn      csb->     cv
+                                mn  kn      csb       cv
                                 kv  tt      mr        kab
                                 gv  as      olo       sah
                                 wuu dsb     mhr       nds
@@ -53,10 +53,11 @@ $job['es']['next']['it'];
                                     fj      hu        MIN
                                     ik      cs        bg
                                     zea     sv-3d5h   szl
-                                            +uk       af
+                                   -END-    +uk       af
                                                       eo
                                                       av
                                                       chy
+                                                     -END-
 
                 
                 probably needs to have multiple connectors: hu szl eu (or don't)
@@ -802,6 +803,9 @@ wikipedia-udm	Friday 2020-03-20 09:13:40 AM	{"media_resource.tab":2069, "taxon.t
 wikipedia-udm	Sunday 2020-04-26 01:47:55 AM	{"media_resource.tab":1539, "taxon.tab":1501, "time_elapsed":{"sec":875.69, "min":14.59, "hr":0.24}}
 wikipedia-udm	Monday 2020-05-11 02:48:50 AM	{"media_resource.tab":1534, "taxon.tab":1507, "time_elapsed":{"sec":2948.83, "min":49.15, "hr":0.82}} New
 wikipedia-udm	Tuesday 2020-08-11 12:51:11 PM{"media_resource.tab":1107, "taxon.tab":1510, "time_elapsed":{"sec":2717.81, "min":45.3, "hr":0.75}} drop media but consistent taxon
+wikipedia-udm	Sun 2021-08-15 07:33:25 AM	  {"media_resource.tab":1125, "taxon.tab":1546, "time_elapsed":{"sec":3219.93, "min":53.67, "hr":0.89}}
+wikipedia-udm	Wed 2022-06-08 11:34:15 AM	  {"media_resource.tab":1122, "taxon.tab":1542, "time_elapsed":{"sec":3.38, "min":0.06, "hr":0}}
+wikipedia-udm	Wed 2022-07-20 02:43:42 AM	  {"media_resource.tab":1122, "taxon.tab":1542, "time_elapsed":{"sec":4.76, "min":0.08, "hr":0}}
 
 wikipedia-co	Wednesday 2020-04-01 10:26:55 PM	{"media_resource.tab":1182, "taxon.tab":1594, "time_elapsed":{"sec":884.92, "min":14.75, "hr":0.25}}
 wikipedia-co	Sunday 2020-04-26 02:01:39 AM	    {"media_resource.tab":1186, "taxon.tab":1597, "time_elapsed":{"sec":814.59, "min":13.58, "hr":0.23}}
