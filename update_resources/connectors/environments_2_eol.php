@@ -130,7 +130,7 @@ wikipedia_en_traits_tmp3	Wed 2022-05-25 09:46:33 {"MoF.tab":253641, "occurrence.
 wikipedia_en_traits_tmp3	Wed 2022-05-25 09:05:40 {"MoF.tab":253641, "occurrence.tab":253641, "taxon.tab":168739, "time_elapsed":{"sec":208.15, "min":3.47, "hr":0.06}}
 wikipedia_en_traits_tmp4	Wed 2022-05-25 09:11:12 {"MoF.tab":253641, "occurrence.tab":253641, "taxon.tab":169088, "time_elapsed":{"sec":329.25, "min":5.49, "hr":0.09}}
 wikipedia_en_traits_tmp4	Wed 2022-05-25 09:15:11 {"MoF.tab":253641, "occurrence.tab":253641, "taxon.tab":169090, "time_elapsed":{"sec":568.65, "min":9.48, "hr":0.16}}
-
+wikipedia_en_traits_tmp4	Tue 2022-07-19 06:19:03 {"MoF.tab":259711, "occurrence.tab":259711, "taxon.tab":171805, "time_elapsed":{"sec":599.05, "min":9.98, "hr":0.17}} consistent OK
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors

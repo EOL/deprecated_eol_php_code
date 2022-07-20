@@ -39,7 +39,7 @@ $job['es']['next']['it'];
                                 diq ln      kw        eml
                                 ce  mwl     bcl       bxr
                                 yo  sn      za        zh-classical
-             (removed) 1d 10h - CEB mai     ab        bjn
+                                +ro mai     ab        bjn
                                     chr     wo        so
                                     tk      ban       atj
                                     tcy     ay        new
@@ -53,7 +53,7 @@ $job['es']['next']['it'];
                                     fj      hu        MIN
                                     ik      cs        bg
                                     zea     sv-3d5h   szl
-                                                      af
+                                            +uk       af
                                                       eo
                                                       av
                                                       chy
