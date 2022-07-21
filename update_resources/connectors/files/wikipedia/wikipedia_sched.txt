@@ -799,6 +799,9 @@ wikipedia-be-x-old	Sunday 2020-04-26 01:33:10 AM	{"media_resource.tab":1453, "ta
 wikipedia-be-x-old	Monday 2020-05-11 01:59:33 AM	{"media_resource.tab":1455, "taxon.tab":1844, "time_elapsed":{"sec":2411.94, "min":40.2, "hr":0.67}} New
 wikipedia-be-x-old	Tuesday 2020-08-11 12:05:44 PM{"media_resource.tab":1044, "taxon.tab":1878, "time_elapsed":{"sec":2271.27, "min":37.85, "hr":0.63}} drop in media but consistent in taxon
 
+wikipedia-be-x-old_6of6	Wed 2022-07-20 09:08:53 AM{"media_resource.tab":1185, "taxon.tab":2039, "time_elapsed":{"sec":9624.88, "min":160.41, "hr":2.67}}
+
+
 wikipedia-udm	Friday 2020-03-20 09:13:40 AM	{"media_resource.tab":2069, "taxon.tab":2367, "time_elapsed":{"sec":2942.98, "min":49.05, "hr":0.82}}
 wikipedia-udm	Sunday 2020-04-26 01:47:55 AM	{"media_resource.tab":1539, "taxon.tab":1501, "time_elapsed":{"sec":875.69, "min":14.59, "hr":0.24}}
 wikipedia-udm	Monday 2020-05-11 02:48:50 AM	{"media_resource.tab":1534, "taxon.tab":1507, "time_elapsed":{"sec":2948.83, "min":49.15, "hr":0.82}} New
