@@ -52,8 +52,8 @@ $job['es']['next']['it'];
                                     dty*    bn        az
                                     fj      hu        MIN
                                     ik      cs        bg
-                                    zea     sv-3d5h   szl
-                                   -END-    +uk       af
+                                    zea     +uk       szl
+                                   -END-              af
                                                       eo
                                                       av
                                                       chy
@@ -741,6 +741,7 @@ wikipedia-bjn	Sunday 2020-05-17 07:52:41 AM	{"media_resource.tab":179, "taxon.ta
 wikipedia-bjn	Sunday 2020-05-17 09:36:41 AM	{"media_resource.tab":179, "taxon.tab":547, "time_elapsed":{"sec":752.3, "min":12.54, "hr":0.21}}
 wikipedia-bjn	Friday 2020-05-22 01:06:17 AM	{"media_resource.tab":179, "taxon.tab":547, "time_elapsed":{"sec":795.23, "min":13.25, "hr":0.22}}
 wikipedia-bjn	Tuesday 2020-08-11 06:26:44 AM{"media_resource.tab":183, "taxon.tab":556, "time_elapsed":{"sec":951.95, "min":15.87, "hr":0.26}} consistent OK
+wikipedia-bjn	Thu 2022-07-21 11:38:38 PM	  {"media_resource.tab":202, "taxon.tab":599, "time_elapsed":{"sec":17.7, "min":0.3, "hr":0}}
 
 wikipedia-so	Friday 2020-05-15 04:41:39 AM	{"media_resource.tab":190, "taxon.tab":545, "time_elapsed":{"sec":927.06, "min":15.45, "hr":0.26}}
 wikipedia-so	Sunday 2020-05-17 08:05:25 AM	{"media_resource.tab":190, "taxon.tab":545, "time_elapsed":{"sec":756.15, "min":12.6, "hr":0.21}}
@@ -798,9 +799,7 @@ wikipedia-be-x-old	Monday 2020-03-16 10:49:26 AM	{"media_resource.tab":1956, "ta
 wikipedia-be-x-old	Sunday 2020-04-26 01:33:10 AM	{"media_resource.tab":1453, "taxon.tab":1823, "time_elapsed":{"sec":865.83, "min":14.43, "hr":0.24}}
 wikipedia-be-x-old	Monday 2020-05-11 01:59:33 AM	{"media_resource.tab":1455, "taxon.tab":1844, "time_elapsed":{"sec":2411.94, "min":40.2, "hr":0.67}} New
 wikipedia-be-x-old	Tuesday 2020-08-11 12:05:44 PM{"media_resource.tab":1044, "taxon.tab":1878, "time_elapsed":{"sec":2271.27, "min":37.85, "hr":0.63}} drop in media but consistent in taxon
-
-wikipedia-be-x-old_6of6	Wed 2022-07-20 09:08:53 AM{"media_resource.tab":1185, "taxon.tab":2039, "time_elapsed":{"sec":9624.88, "min":160.41, "hr":2.67}}
-
+wikipedia-be-x-old	Thu 2022-07-21 10:12:37 AM	  {"media_resource.tab":1185, "taxon.tab":2039, "time_elapsed":{"sec":7.47, "min":0.12, "hr":0}} consistent inc. OK
 
 wikipedia-udm	Friday 2020-03-20 09:13:40 AM	{"media_resource.tab":2069, "taxon.tab":2367, "time_elapsed":{"sec":2942.98, "min":49.05, "hr":0.82}}
 wikipedia-udm	Sunday 2020-04-26 01:47:55 AM	{"media_resource.tab":1539, "taxon.tab":1501, "time_elapsed":{"sec":875.69, "min":14.59, "hr":0.24}}
@@ -948,11 +947,12 @@ wikipedia-bcl	Thursday 2020-05-14 10:19:52 AM	{"media_resource.tab":350, "taxon.
 wikipedia-bcl	Thursday 2020-05-14 10:58:53 AM	  {"media_resource.tab":350, "taxon.tab":654, "time_elapsed":{"sec":762.3, "min":12.71, "hr":0.21}}
 wikipedia-bcl	Wednesday 2020-08-12 05:31:17 AM	{"media_resource.tab":360, "taxon.tab":667, "time_elapsed":{"sec":1071.89, "min":17.86, "hr":0.3}} consistent OK
 
-wikipedia-za	Thursday 2020-05-14 10:33:31 AM	{"media_resource.tab":169, "taxon.tab":662, "time_elapsed":{"sec":813.58, "min":13.56, "hr":0.23}}
-wikipedia-za	Thursday 2020-05-14 11:11:40 AM	{"media_resource.tab":169, "taxon.tab":662, "time_elapsed":{"sec":759.82, "min":12.66, "hr":0.21}}
-wikipedia-za	Monday 2020-05-11 02:09:04 PM	{"media_resource.tab":169, "taxon.tab":662, "time_elapsed":{"sec":1065.77, "min":17.76, "hr":0.3}}
+wikipedia-za	Thursday 2020-05-14 10:33:31 AM	  {"media_resource.tab":169, "taxon.tab":662, "time_elapsed":{"sec":813.58, "min":13.56, "hr":0.23}}
+wikipedia-za	Thursday 2020-05-14 11:11:40 AM	  {"media_resource.tab":169, "taxon.tab":662, "time_elapsed":{"sec":759.82, "min":12.66, "hr":0.21}}
+wikipedia-za	Monday 2020-05-11 02:09:04 PM	    {"media_resource.tab":169, "taxon.tab":662, "time_elapsed":{"sec":1065.77, "min":17.76, "hr":0.3}}
 wikipedia-za	Monday 2020-05-11 03:47:30 PM	    {"media_resource.tab":169, "taxon.tab":662, "time_elapsed":{"sec":811.26, "min":13.52, "hr":0.23}}
 wikipedia-za	Wednesday 2020-08-12 05:48:55 AM	{"media_resource.tab":169, "taxon.tab":662, "time_elapsed":{"sec":1049.79, "min":17.5, "hr":0.29}} consistent OK
+wikipedia-za	Thu 2022-07-21 11:37:53 PM	      {"media_resource.tab":170, "taxon.tab":678, "time_elapsed":{"sec":7.22, "min":0.12, "hr":0}}
 
 wikipedia-ab	Wednesday 2020-05-20 07:25:51 AM	{"media_resource.tab":43, "taxon.tab":215, "time_elapsed":{"sec":797.33, "min":13.29, "hr":0.22}}
 wikipedia-ab	Wednesday 2020-08-12 06:04:53 AM	{"media_resource.tab":43, "taxon.tab":215, "time_elapsed":{"sec":947.76, "min":15.8, "hr":0.26}} consistent OK
