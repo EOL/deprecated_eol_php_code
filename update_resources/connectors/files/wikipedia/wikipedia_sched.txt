@@ -31,7 +31,7 @@ $job['es']['next']['it'];
                                 am  bs      sco       pa
                                 si  mi      ky        wa
                                 bar jv      lfn       nah
-                                nap*sh      nds-nl    eu
+                                nap sh      nds-nl    eu
                                 vo  ia      bo        ha
                                 lez rw      stq       lbe
                                 sa  vec     inh       lij
