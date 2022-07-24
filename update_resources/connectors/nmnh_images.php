@@ -37,5 +37,5 @@ $timestart = time_elapsed();
 $resource_id = 'nmnh_images';
 $func = new NMNHimagesAPI($resource_id, false, true);
 $func->start();
-Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //2nd param False - not a big file | 3rd param True - can delete working folder
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //2nd param False - not a big file | 3rd param True - can delete working folder
 ?>
