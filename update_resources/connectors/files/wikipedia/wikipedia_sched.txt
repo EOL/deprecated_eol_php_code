@@ -3,7 +3,7 @@ Wikipedia languages monthly refresh schedule:
 $job['en']['next']['es'];
 $job['es']['next']['it'];
 
-                                no* ro*     tr*       uk*
+                                no* ro      tr*       uk
                                 |   |       |         |
                                 ka  hr      th        hy
                                 lt  la      kk        mrj
