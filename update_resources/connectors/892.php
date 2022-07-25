@@ -17,7 +17,10 @@ after applied latest mappings: https://eol-jira.bibalex.org/browse/DATA-1582?foc
 892	Fri 2021-02-19 11:10:52 AM	    {"measurement_or_fact.tab":527794, "occurrence.tab":75544, "taxon.tab":25667, "time_elapsed":{"sec":417.4, "min":6.96, "hr":0.12}}
 classification resource:
 after automating API download request-then-refresh:
-892	Thu 2021-05-20 01:43:13 PM	    {"measurement_or_fact.tab":527794, "occurrence.tab":75544, "taxon.tab":25667, "time_elapsed":{"sec":424.03, "min":7.07, "hr":0.12}}
+892	Thu 2021-05-20 01:43:13 PM	    {"measurement_or_fact.tab":527794,  "occurrence.tab":75544,  "taxon.tab":25667, "time_elapsed":{"sec":424.03, "min":7.07, "hr":0.12}}
+892	Sat 2022-06-18 02:11:30 AM	    {"measurement_or_fact.tab":1409077, "occurrence.tab":206180, "taxon.tab":72150, "time_elapsed":{"sec":1192.74, "min":19.88, "hr":0.33}}
+892	Sun 2022-07-24 01:40:52 PM	    {"measurement_or_fact.tab":1409077, "occurrence.tab":206180, "taxon.tab":72150, "time_elapsed":{"sec":1221.79, "min":20.36, "hr":0.34}}
+-> after 1 year big increase, will check next harvest if consistent
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

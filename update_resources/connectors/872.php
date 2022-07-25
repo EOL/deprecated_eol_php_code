@@ -28,6 +28,8 @@ after automating API download request-then-refresh:
 872	Sat 2021-12-18 01:16:00 AM	    {"measurement_or_fact.tab":1910814, "occurrence.tab":279289, "taxon.tab":140395, "time_elapsed":{"sec":1557.49, "min":25.96, "hr":0.43}}
 872	Fri 2022-03-18 01:18:55 AM	    {"measurement_or_fact.tab":1909706, "occurrence.tab":279129, "taxon.tab":140307, "time_elapsed":{"sec":1734.49, "min":28.91, "hr":0.48}}
 872	Sat 2022-06-18 01:17:42 AM	    {"measurement_or_fact.tab":1909706, "occurrence.tab":279129, "taxon.tab":140307, "time_elapsed":{"sec":1660.33, "min":27.67, "hr":0.46}}
+872	Sat 2022-06-18 01:17:42 AM	    {"measurement_or_fact.tab":1909706, "occurrence.tab":279129, "taxon.tab":140307, "time_elapsed":{"sec":1660.33, "min":27.67, "hr":0.46}}
+872	Sun 2022-07-24 12:46:07 PM	    {"measurement_or_fact.tab":1909706, "occurrence.tab":279129, "taxon.tab":140307, "time_elapsed":{"sec":1709.95, "min":28.5, "hr":0.47}}
 
 for 1k taxa:
 measurement_or_fact.tab     [3655]

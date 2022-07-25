@@ -17,6 +17,9 @@ taxon                       50395   50395
 after automating API download request-then-refresh:
 893	Thu 2021-05-20 11:38:35 AM	    {"measurement_or_fact.tab":517192, "occurrence.tab":87627, "taxon.tab":50393, "time_elapsed":{"sec":434.71, "min":7.25, "hr":0.12}}
 893	Fri 2021-05-21 08:39:30 AM	    {"measurement_or_fact.tab":517192, "occurrence.tab":87627, "taxon.tab":50393, "time_elapsed":{"sec":460.9, "min":7.68, "hr":0.13}}
+893	Sat 2022-06-18 02:23:14 AM	    {"measurement_or_fact.tab":760582, "occurrence.tab":129106, "taxon.tab":63050, "time_elapsed":{"sec":696.1, "min":11.6, "hr":0.19}}
+893	Sun 2022-07-24 01:52:41 PM	    {"measurement_or_fact.tab":760582, "occurrence.tab":129106, "taxon.tab":63050, "time_elapsed":{"sec":695.83, "min":11.6, "hr":0.19}}
+-> after 1 year moderate increase, will check next harvest if consistent
 
 classification resource:
 */

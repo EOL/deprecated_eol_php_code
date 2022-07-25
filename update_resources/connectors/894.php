@@ -14,7 +14,8 @@ taxon                       81258
 894	Monday 2018-03-12 03:31:57 AM	{"measurement_or_fact.tab":499598,  "occurrence.tab":135121, "taxon.tab":81241}
 after automating API download request-then-refresh:
 894	Fri 2021-05-21 09:18:39 AM	    {"measurement_or_fact.tab":3034298, "occurrence.tab":444151, "taxon.tab":233336, "time_elapsed":{"sec":2339, "min":38.98, "hr":0.65}}
-
+894	Sat 2022-06-18 03:07:50 AM	    {"measurement_or_fact.tab":3222117, "occurrence.tab":472440, "taxon.tab":225818, "time_elapsed":{"sec":2667.74, "min":44.46, "hr":0.74}}
+894	Sun 2022-07-24 02:37:27 PM	    {"measurement_or_fact.tab":3222117, "occurrence.tab":472440, "taxon.tab":225818, "time_elapsed":{"sec":2678.83, "min":44.65, "hr":0.74}} consistent OK
 classification resource:
 */
 
