@@ -31,6 +31,19 @@ class Data_OpenTraits
                 $current = count($obj->result->results);
                 print("\nCurrent: ".$current);
                 
+                $i = 0;
+                foreach($obj->result->results as $rec) { $i++;
+                    // print(" ".count($rec->resources));
+                    if(count($rec->resources) == 1) {
+                        // print("\n $i. ".$rec->resources[0]->name."\n"); # resource name
+                        $rek = self::get_rec_metadata($rec);
+                    }
+                    else {
+                        print_r($rec);
+                        exit("\nInvestigate: more than one resource in dataset\n");
+                    }
+                }
+                
                 if($current < 50) break;
             }
             else break;
@@ -94,6 +107,52 @@ class Data_OpenTraits
         fclose($f);
         print_r($this->debug);
     }
+    private function get_rec_metadata($rec)
+    {
+        print("\n".$rec->name."\n");
+        print_r($rec); #exit;
+        // [1]- 
+        // [4]- Find in description: any doi. I think the string to look for is "doi.org", and bound the string by spaces, lopping off any trailing "."
+        // [5]- Resource file url (to the file download; we won't need the resource page url)
+        $ret['Dataset_name'] = $rec->title; #$rec->name;
+        $ret['Dataset_url'] = $this->opendata_page['package_id'].$rec->name; #https://opendata.eol.org/dataset/marine-ecology-literature
+        $ret['Dataset_desc'] = $rec->notes;
+        $ret['DOI'] = self::get_doi_from_notes($rec);
+        $ret['Resource_file'] = $rec->resources[0]->url;
+        print_r($ret); #exit;
+        return $ret;
+    }
+    private function get_doi_from_notes($rec)
+    {
+        $notes = $rec->notes;
+        # $notes = "Triblehorn, J. D., & Yager, D. D. (2001). Broad versus narrow auditory tuning and corresponding bat-evasive flight 
+        # behaviour in praying mantids. Journal of Zoology, 254(1), 27–40.  https://doi.org/10.1017/S095283690100053X";
+        // $notes = "eli is here.";
+        
+        if(stripos($notes, "//doi.org/") !== false) {} //string is found
+        else return "";
+        
+        $start_pos = strpos($notes, "//doi.org/");
+        $i = $start_pos;
+        $final = "";
+        if($start_pos >= 0) {
+            while(true) {
+                $char = substr($notes, $i, 1);
+                if($char == " ") break;
+                if($char == "") break;
+                $final .= $char;
+                $i++;
+            }
+        }
+        echo "\nstart pos: [$start_pos]\n";
+        $final = self::remove_last_char_if_period($final);
+        echo "\nDOI: [$final]\n";
+        // exit("\n$notes\n");
+        return "https:".$final;
+    }
+    # ========================= ends here. Below are copied templates =========================
+    
+    
     private function process_rec($rec, $count)
     {   //print_r($rec); exit;
         /* 
