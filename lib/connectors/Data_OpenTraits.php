@@ -110,7 +110,7 @@ class Data_OpenTraits
     private function get_rec_metadata($rec)
     {
         print("\n".$rec->name."\n");
-        print_r($rec); #exit;
+        // print_r($rec); #exit;
         // [1]- 
         // [4]- Find in description: any doi. I think the string to look for is "doi.org", and bound the string by spaces, lopping off any trailing "."
         // [5]- Resource file url (to the file download; we won't need the resource page url)
@@ -144,14 +144,18 @@ class Data_OpenTraits
                 $i++;
             }
         }
-        echo "\nstart pos: [$start_pos]\n";
         $final = self::remove_last_char_if_period($final);
-        echo "\nDOI: [$final]\n";
-        // exit("\n$notes\n");
+        // echo "\nstart pos: [$start_pos]\n"; echo "\nDOI: [$final]\n";
         return "https:".$final;
     }
-    # ========================= ends here. Below are copied templates =========================
+    private function remove_last_char_if_period($str)
+    {
+        $last_char = substr($str, -1); // returns last char of string
+        if(in_array($last_char, array(".", '"'))) $str = substr($str, 0, -1); // remove last char of string
+        return $str;
+    }
     
+    # =================================== ends here. Below are copied templates ===================================
     
     private function process_rec($rec, $count)
     {   //print_r($rec); exit;
