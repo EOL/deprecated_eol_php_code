@@ -19,6 +19,16 @@ class Data_OpenTraits
     }
     function start()
     {
+        $dwca_url = 'http://localhost/other_files/DH/dhv21hc.zip';
+        $info = self::extract_dwca($dwca_url, $this->download_options, "DH"); // print_r($info);
+        $tables = $info['harvester']->tables; // print_r(array_keys($tables));
+        $rowtype = "http://rs.tdwg.org/dwc/terms/taxon";
+        self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME)."_DH");
+        
+        exit("\nexit 1\n");
+        
+        
+        
         $start_num = 0;
         while(true) {
             $url = $this->opendata_api['tag taxonomic inference'];
@@ -249,7 +259,7 @@ class Data_OpenTraits
     }
     private function process_dwca($dwca_url)
     {
-        $info = self::extract_dwca($dwca_url, $this->download_options);
+        $info = self::extract_dwca($dwca_url, $this->download_options, "regular");
         // print_r($info); exit("\nexit 1\n");
         $tables = $info['harvester']->tables;
         // print_r(array_keys($tables));
@@ -310,11 +320,28 @@ class Data_OpenTraits
                 $this->batch['canonicals'][$scientificName] = '';
             }
             #=====================================================================================
-            
-            
+            elseif($rowtype == "taxon_DH") {
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/taxonID] => EOL-000000000001
+                    [http://purl.org/dc/terms/source] => trunk:4038af35-41da-469e-8806-40e60241bb58
+                    [http://rs.tdwg.org/ac/terms/furtherInformationURL] => 
+                    [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => 
+                    [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 
+                    [http://rs.tdwg.org/dwc/terms/scientificName] => Life
+                    [http://rs.tdwg.org/dwc/terms/taxonRank] => 
+                    [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => accepted
+                    [http://rs.tdwg.org/dwc/terms/datasetID] => trunk
+                    [http://rs.gbif.org/terms/1.0/canonicalName] => Life
+                    [http://eol.org/schema/EOLid] => 2913056
+                    [http://eol.org/schema/Landmark] => 3
+                    [http://rs.tdwg.org/dwc/terms/higherClassification] => 
+                )*/
+                print_r($rec); exit("\nstop muna\n");
+            }
+            #=====================================================================================
         }
     }
-    private function extract_dwca($dwca_file = false, $download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1)) //default expires in 1 day 60*60*24*1. Not false.
+    private function extract_dwca($dwca_file = false, $download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1), $type = "regular") //default expires in 1 day 60*60*24*1. Not false.
     {
         /* un-comment in real operation
         require_library('connectors/INBioAPI');
@@ -324,10 +351,18 @@ class Data_OpenTraits
         */
 
         // /* development only
-        $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_09600/',
-            'temp_dir'     => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_09600/'
-        );
+        if($type == "regular") {
+            $paths = Array(
+                'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_09600/',
+                'temp_dir'     => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_09600/'
+            );
+        }
+        elseif($type == "DH") {
+            $paths = Array(
+                'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_55799/',
+                'temp_dir'     => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_55799/'
+            );
+        }
         // */
         
         $archive_path = $paths['archive_path'];
