@@ -27,9 +27,9 @@ class Data_OpenTraits
                 echo("\n$eol_id - $hc\n");
                 if($i >= 3) break;
             }
-            exit("stopx");
-            exit("\n no hit \n");
         }
+        exit("stopx");
+        
     }
     private function lookup_DH($eol_id = false)
     {
