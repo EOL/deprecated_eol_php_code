@@ -16,18 +16,38 @@ class Data_OpenTraits
         /* https://opendata.eol.org/dataset/marine-ecology-literature -> needs only 1 resource from this dataset
         $this->exclude_resourced_IDs = array();
         */
+        $this->DH_info = false;
+    }
+    private function get_nearest_common_ancester($EOLids)
+    {
+        $i = 0;
+        foreach($EOLids as $eol_id) { $i++;
+            echo "\neol_id: [$eol_id]\n";
+            if($hc = self::lookup_DH($eol_id)) {
+                echo("\n$eol_id - $hc\n");
+                if($i >= 3) break;
+            }
+            exit("stopx");
+            exit("\n no hit \n");
+        }
+    }
+    private function lookup_DH($eol_id = false)
+    {
+        $dwca_url = 'http://localhost/other_files/DH/dhv21hc.zip';
+        if(!$this->DH_info) $this->DH_info = self::extract_dwca($dwca_url, $this->download_options, "DH"); // print_r($this->DH_info);
+        $tables = $this->DH_info['harvester']->tables; // print_r(array_keys($tables));
+        $rowtype = "http://rs.tdwg.org/dwc/terms/taxon";
+        if($eol_id) {
+            echo "\npassed 1\n";
+            $ret = self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME)."_DH", $eol_id);
+            return $ret;
+        }
+        // exit("\nexit 1\n");
+        
     }
     function start()
     {
-        $dwca_url = 'http://localhost/other_files/DH/dhv21hc.zip';
-        $info = self::extract_dwca($dwca_url, $this->download_options, "DH"); // print_r($info);
-        $tables = $info['harvester']->tables; // print_r(array_keys($tables));
-        $rowtype = "http://rs.tdwg.org/dwc/terms/taxon";
-        self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME)."_DH");
-        
-        exit("\nexit 1\n");
-        
-        
+        self::lookup_DH(); //initialize DH access
         
         $start_num = 0;
         while(true) {
@@ -67,7 +87,7 @@ class Data_OpenTraits
 
         exit("\nstop muna\n");
         
-        
+        /* copied template
         if($json = Functions::lookup_with_cache($this->opendata_api['tag taxonomic inference'], $this->download_options)) {
             $obj = json_decode($json); //print_r($obj);
             $i = 0; $count = 0;
@@ -83,34 +103,12 @@ class Data_OpenTraits
             echo "\nResources: [$i]\n";
             // print_r($this->package); echo " - package"; //exit("exit 2"); //good debug
         }
-        /* assemble data then print */
-        /*Array(
-            [10c26a35-e332-4c56-94fd-a5b39d245ff6] => Array(
-                    [1095] => 
-                    [1300082] => 
-                    [1300106] => 
-                    [937] => 
-            )
-            [xxxxx] => Array(
-                    [173] => 
-                    [173x] => 
-            )
         */
+        /* assemble data then print */
+        /* copied template
         foreach($this->package as $package_id => $ids) {
             foreach(array_keys($ids) as $id) $final[$id][] = $package_id;
         }
-        // print_r($final); echo " - final"; //good debug
-        /* print to text file */
-        /*Array(
-            [110558] => Array(
-                    [0] => owens-and-lewis-2018
-                    [1] => mcdermott-1964
-                )
-            [110548] => Array(
-                    [0] => owens-and-lewis-2018
-                    [1] => mcdermott-1964
-                )
-        )*/
         asort($final);      echo "\n1 ".count($final)."\n";
         ksort($final);      echo "\n2 ".count($final)."\n";
         
@@ -121,6 +119,7 @@ class Data_OpenTraits
         }
         fclose($f);
         print_r($this->debug);
+        */
     }
     private function get_rec_metadata($rec)
     {
@@ -181,7 +180,14 @@ class Data_OpenTraits
         else $final['canonicals'] = "";
         
         /* [6]- Nearest common ancestor for all taxa in the taxa file */
-        print_r($canonicals);
+        $EOLids = array_keys($this->batch['EOLids']);
+        $EOLids = array_map('trim', $EOLids);
+        asort($EOLids);
+        print_r($EOLids);
+        echo "\nEOLids: ".count($EOLids)."\n";
+        echo "\ncanonicals: ".count($canonicals)."\n";
+        // exit;
+        $final['nearest common ancestor'] = self::get_nearest_common_ancester($EOLids);
         
         /* [8]- deduplicated, term names for all measurementType terms that appear in rows where measurementOfTaxon=true  */
         $mTypes = array_keys($this->batch['mType']);
@@ -265,14 +271,14 @@ class Data_OpenTraits
         // print_r(array_keys($tables));
         $rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //normal operation
         // $rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //debug only
-        foreach($rowtypes as $rowtype) self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME));
+        foreach($rowtypes as $rowtype) self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME), false);
         // recursive_rmdir($info['temp_dir']); //remove temp folder
     }
-    private function process_table($meta, $rowtype)
+    private function process_table($meta, $rowtype, $eol_id = false)
     {   //print_r($meta); exit;
         echo "\nprocess_table...[$meta->file_uri]\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 500000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
@@ -317,7 +323,11 @@ class Data_OpenTraits
                     [http://eol.org/schema/EOLid] => 46531931
                 )*/
                 $scientificName = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+                    
                 $this->batch['canonicals'][$scientificName] = '';
+                
+                $EOLid = $rec['http://eol.org/schema/EOLid'];
+                if($EOLid) $this->batch['EOLids'][$EOLid] = '';
             }
             #=====================================================================================
             elseif($rowtype == "taxon_DH") {
@@ -336,7 +346,11 @@ class Data_OpenTraits
                     [http://eol.org/schema/Landmark] => 3
                     [http://rs.tdwg.org/dwc/terms/higherClassification] => 
                 )*/
-                print_r($rec); exit("\nstop muna\n");
+                // print_r($rec); exit("\nstop muna\n");
+                // echo "\npassed 3\n";
+                $EOLid = $rec['http://eol.org/schema/EOLid'];
+                $hc = $rec['http://rs.tdwg.org/dwc/terms/higherClassification'];
+                if($eol_id == $EOLid) return $hc;
             }
             #=====================================================================================
         }
