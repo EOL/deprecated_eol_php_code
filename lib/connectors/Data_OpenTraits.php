@@ -37,13 +37,16 @@ class Data_OpenTraits
                     if(count($rec->resources) == 1) {
                         // print("\n $i. ".$rec->resources[0]->name."\n"); # resource name
                         $rek = self::get_rec_metadata($rec);
-                        self::process_rec($rec, $i);
+                        self::process_rec($rec, $i); // generates $this->batch
+                        $rek = self::format_DwCA_data(); // will use $this->batch
                         
                     }
                     else {
                         print_r($rec);
                         exit("\nInvestigate: more than one resource in dataset\n");
                     }
+                    exit("\nprocessed 1 dwca...\n");
+                    
                 }
                 
                 if($current < 50) break;
@@ -156,7 +159,29 @@ class Data_OpenTraits
         if(in_array($last_char, array(".", '"'))) $str = substr($str, 0, -1); // remove last char of string
         return $str;
     }
-    
+    private function format_DwCA_data()
+    {
+        /* [7]- canonical|names|of|all|taxa|in|the|taxa|file If there are 2-10 of them (so, discard this if there's only one, or >10) */
+        $canonicals = array_keys($this->batch['canonicals']);
+        $canonicals = array_map('trim', $canonicals);
+        asort($canonicals);
+        // print_r($canonicals);
+        $total = count($canonicals);
+        if($total > 2 && $total < 10) $final['canonicals'] = implode("|", $canonicals);
+        else $final['canonicals'] = "";
+        
+        /* [6]- Nearest common ancestor for all taxa in the taxa file */
+        
+        /* [8]- deduplicated, term names for all measurementType terms that appear in rows where measurementOfTaxon=true  */
+        $mTypes = array_keys($this->batch['mType']);
+        $arr = array();
+        foreach($mTypes as $mType) $arr[] = pathinfo($mType, PATHINFO_BASENAME);
+        asort($arr);
+        print_r($arr);
+        $final['mTypes'] = implode("|", $arr);
+        
+        print_r($final);
+    }
     # =================================== ends here. Below are copied templates ===================================
     
     private function process_rec($rec, $count)
@@ -208,24 +233,18 @@ class Data_OpenTraits
         
         echo "\nProcessing [$count]. ".$dataset_name." -> ".$res->name."...\n";
         $this->batch = array();
-        
         $ext = pathinfo($res->url, PATHINFO_EXTENSION);
         if(in_array($ext, array('zip', 'gz'))) self::process_dwca($res->url);
+        else exit("Investigate resource file: [$res->url]");
 
+        /* copied template
         if($resources_count == 1)       $id_to_use = $dataset_name;
         elseif($resources_count > 1)    $id_to_use = $dataset_name."/resource/".$res->id;
         else exit("\nNo resources!\n");
         $this->package[$id_to_use] = $this->batch;
-
+        */
+        
         // print_r($this->batch); exit("\n-exit muna-\n");
-    }
-    private function format_title($str)
-    {
-        if($str == "Queirós et al, 2013") $str = "queiros-et-al-2013";
-        $str = strtolower($str);
-        $str = str_replace(" ", "-", $str);
-        $str = str_replace(array(","), "", $str);
-        return $str;
     }
     private function process_dwca($dwca_url)
     {
@@ -234,9 +253,9 @@ class Data_OpenTraits
         $tables = $info['harvester']->tables;
         // print_r(array_keys($tables));
         $rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //normal operation
-        $rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //debug only
+        // $rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //debug only
         foreach($rowtypes as $rowtype) self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME));
-        recursive_rmdir($info['temp_dir']); //remove temp folder
+        // recursive_rmdir($info['temp_dir']); //remove temp folder
     }
     private function process_table($meta, $rowtype)
     {   //print_r($meta); exit;
@@ -253,6 +272,7 @@ class Data_OpenTraits
                 $rec[$field['term']] = @$tmp[$k];
                 $k++;
             } // print_r($rec); exit("\nstop muna\n");
+            $rec = array_map('trim', $rec);
             #=====================================================================================
             if($rowtype == "measurementorfact") {
                 /*Array(
@@ -273,10 +293,8 @@ class Data_OpenTraits
                 $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
                 $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
                 $measurementOfTaxon = $rec['http://eol.org/schema/measurementOfTaxon'];
-                
-                if(strtolower($measurementOfTaxon) == 'true') {
-                    $this->batch[$mType] = '';
-                }
+                if(strtolower($measurementOfTaxon) == 'true') $this->batch['mType'][$mType] = '';
+                else $this->debug['other mType values'][$mType] = '';
             }
             #=====================================================================================
             elseif($rowtype == "taxon") {
@@ -287,8 +305,8 @@ class Data_OpenTraits
                     [http://rs.tdwg.org/dwc/terms/phylum] => 
                     [http://eol.org/schema/EOLid] => 46531931
                 )*/
-                $eol_id = @$rec['http://eol.org/schema/EOLid'];
-                if($eol_id) $this->batch[$eol_id] = '';
+                $scientificName = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+                $this->batch['canonicals'][$scientificName] = '';
             }
             #=====================================================================================
             
@@ -301,13 +319,13 @@ class Data_OpenTraits
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($dwca_file, "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
-        // print_r($paths); exit("\n-exit muna-\n");
+        print_r($paths); exit("\n-exit muna-\n");
         */
 
         // /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_59017/',
-            'temp_dir'     => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_59017/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_09600/',
+            'temp_dir'     => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_09600/'
         );
         // */
         
@@ -322,5 +340,15 @@ class Data_OpenTraits
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
+    /* copied template but seems not used ?
+    private function format_title($str)
+    {
+        if($str == "Queirós et al, 2013") $str = "queiros-et-al-2013";
+        $str = strtolower($str);
+        $str = str_replace(" ", "-", $str);
+        $str = str_replace(array(","), "", $str);
+        return $str;
+    }
+    */
 }
 ?>
