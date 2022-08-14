@@ -8,7 +8,10 @@ $timestart = time_elapsed();
 
 /*
 $url = "https://opendata.eol.org/dataset/86081133-3db1-4ffc-8b1f-2bbba1d1f948/resource/b9951366-90e8-475e-927e-774b95faf7ed/download/hardtomatch.tar.gz";
+$url = "http://rs.tdwg.org/dwc/terms/taxon";
 print_r(pathinfo($url));
+echo "\n";
+echo pathinfo($url, PATHINFO_BASENAME);
 exit("\n-end test-\n");
 */
 

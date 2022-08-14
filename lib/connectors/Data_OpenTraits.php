@@ -37,6 +37,8 @@ class Data_OpenTraits
                     if(count($rec->resources) == 1) {
                         // print("\n $i. ".$rec->resources[0]->name."\n"); # resource name
                         $rek = self::get_rec_metadata($rec);
+                        self::process_rec($rec, $i);
+                        
                     }
                     else {
                         print_r($rec);
@@ -158,18 +160,9 @@ class Data_OpenTraits
     # =================================== ends here. Below are copied templates ===================================
     
     private function process_rec($rec, $count)
-    {   //print_r($rec); exit;
+    {   // print_r($rec); exit("\nrec struct:\n");
         /* 
         [num_resources] => 1
-        [tags] => Array(
-             [0] => stdClass Object(
-                     [vocabulary_id] => 
-                     [state] => active
-                     [display_name] => taxonomic inference
-                     [id] => 3ab34f90-5543-4c40-b3fa-ea817137463e
-                     [name] => taxonomic inference
-                 )
-         )
         [name] => lewis-and-taylor-1965
         */
         
@@ -184,17 +177,34 @@ class Data_OpenTraits
         foreach($rec->resources as $resource) self::process_resource($resource, $rec->name, count($rec->resources), $count);
     }
     private function process_resource($res, $dataset_name, $resources_count, $count)
-    {   //print_r($res);
+    {   // print_r($res); exit("\nresource struct:\n");
         /*stdClass Object(
+            [mimetype] => 
+            [cache_url] => 
+            [hash] => 
             [description] => 
-            [name] => Lewis and Taylor, 1965
-            [package_id] => 10c26a35-e332-4c56-94fd-a5b39d245ff6
+            [name] => marine ecology lit v5
             [format] => ZIP
-            [url] => https://opendata.eol.org/dataset/10c26a35-e332-4c56-94fd-a5b39d245ff6/resource/98edf631-a461-4761-a25e-f36c6527dc46/download/archive.zip
-            [id] => 98edf631-a461-4761-a25e-f36c6527dc46
+            [url] => https://opendata.eol.org/dataset/86081133-3db1-4ffc-8b1f-2bbba1d1f948/resource/e56f7eff-6b71-4f92-92e1-558a82d55df8/download/archive.zip
+            [cache_last_updated] => 
+            [package_id] => 86081133-3db1-4ffc-8b1f-2bbba1d1f948
+            [created] => 2020-08-26T20:57:48.155974
+            [state] => active
+            [mimetype_inner] => 
+            [webstore_last_updated] => 
+            [last_modified] => 2021-04-19T15:39:23.568261
+            [position] => 0
+            [revision_id] => 751d1c8c-13ce-4a07-8836-52c9075bf49a
+            [webstore_url] => 
+            [url_type] => upload
+            [id] => e56f7eff-6b71-4f92-92e1-558a82d55df8
+            [resource_type] => 
+            [size] => 
         )*/
         
+        /* copied template
         if(in_array($res->id, $this->exclude_resourced_IDs)) return;
+        */
         
         echo "\nProcessing [$count]. ".$dataset_name." -> ".$res->name."...\n";
         $this->batch = array();
@@ -224,11 +234,11 @@ class Data_OpenTraits
         $tables = $info['harvester']->tables;
         // print_r(array_keys($tables));
         $rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //normal operation
-        // $rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //debug only
-        foreach($rowtypes as $rowtype) self::process_table($tables[$rowtype][0]);
+        $rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //debug only
+        foreach($rowtypes as $rowtype) self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME));
         recursive_rmdir($info['temp_dir']); //remove temp folder
     }
-    private function process_table($meta)
+    private function process_table($meta, $rowtype)
     {   //print_r($meta); exit;
         echo "\nprocess_table...[$meta->file_uri]\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -242,33 +252,64 @@ class Data_OpenTraits
                 if(!$field['term']) continue;
                 $rec[$field['term']] = @$tmp[$k];
                 $k++;
-            } print_r($rec); exit("\nstop muna\n");
-            /**/
-            $eol_id = @$rec['http://eol.org/schema/EOLid'];
-            $mType = @$rec['http://rs.tdwg.org/dwc/terms/measurementType'];
-            $mValue = @$rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
-            
-            if($eol_id) $this->batch[$eol_id] = '';
-            if(in_array($mType, array('https://eol.org/schema/terms/starts_at', 'https://eol.org/schema/terms/stops_at'))) {
-                if($mValue) $this->batch[$mValue] = '';
+            } // print_r($rec); exit("\nstop muna\n");
+            #=====================================================================================
+            if($rowtype == "measurementorfact") {
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/measurementID] => 0
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => 46531931
+                    [http://eol.org/schema/measurementOfTaxon] => TRUE
+                    [http://eol.org/schema/parentMeasurementID] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementType] => http://eol.org/schema/terms/TrophicGuild
+                    [http://rs.tdwg.org/dwc/terms/measurementValue] => http://eol.org/schema/terms/phytoplanktivore
+                    [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+                    [http://eol.org/schema/terms/statisticalMethod] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementMethod] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
+                    [http://purl.org/dc/terms/bibliographicCitation] => Takeshi Naganuma. 1996. Canoid copepods: linking lower-higher trophic levels by linking lower-higher Reynolds numbers. MARINE ECOLOGY PROGRESS SERIES, 99: 311-313
+                    [http://purl.org/dc/terms/source] => https://www.int-res.com/articles/meps/136/m136p311.pdf
+                    [http://eol.org/schema/reference/referenceID] => 
+                )*/
+                $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
+                $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+                $measurementOfTaxon = $rec['http://eol.org/schema/measurementOfTaxon'];
+                
+                if(strtolower($measurementOfTaxon) == 'true') {
+                    $this->batch[$mType] = '';
+                }
             }
+            #=====================================================================================
+            elseif($rowtype == "taxon") {
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/taxonID] => 46531931
+                    [http://rs.tdwg.org/dwc/terms/scientificName] => Calanoida
+                    [http://rs.tdwg.org/dwc/terms/kingdom] => 
+                    [http://rs.tdwg.org/dwc/terms/phylum] => 
+                    [http://eol.org/schema/EOLid] => 46531931
+                )*/
+                $eol_id = @$rec['http://eol.org/schema/EOLid'];
+                if($eol_id) $this->batch[$eol_id] = '';
+            }
+            #=====================================================================================
+            
+            
         }
     }
     private function extract_dwca($dwca_file = false, $download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1)) //default expires in 1 day 60*60*24*1. Not false.
     {
-        // /* un-comment in real operation
+        /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($dwca_file, "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
         // print_r($paths); exit("\n-exit muna-\n");
-        // */
-
-        /* development only
-        $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_83164/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_83164/'
-        );
         */
+
+        // /* development only
+        $paths = Array(
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_59017/',
+            'temp_dir'     => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_59017/'
+        );
+        // */
         
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
