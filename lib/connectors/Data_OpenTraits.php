@@ -167,10 +167,11 @@ class Data_OpenTraits
         asort($canonicals);
         // print_r($canonicals);
         $total = count($canonicals);
-        if($total > 2 && $total < 10) $final['canonicals'] = implode("|", $canonicals);
+        if($total >= 2 && $total <= 10) $final['canonicals'] = implode("|", $canonicals);
         else $final['canonicals'] = "";
         
         /* [6]- Nearest common ancestor for all taxa in the taxa file */
+        print_r($canonicals);
         
         /* [8]- deduplicated, term names for all measurementType terms that appear in rows where measurementOfTaxon=true  */
         $mTypes = array_keys($this->batch['mType']);
