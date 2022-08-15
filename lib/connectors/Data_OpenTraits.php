@@ -13,6 +13,7 @@ class Data_OpenTraits
         if(Functions::is_production()) $this->report_dir = "/extra/other_files/temp/";
         else                           $this->report_dir = "/Volumes/AKiTiO4/other_files/temp/";
         $this->filename = "data_4_opentraits.txt";
+        $this->filename = "data_4_opentraits_".date("Y_m_d_H").".txt";
         /* https://opendata.eol.org/dataset/marine-ecology-literature -> needs only 1 resource from this dataset
         $this->exclude_resourced_IDs = array();
         */
@@ -45,7 +46,7 @@ class Data_OpenTraits
             if($pipe_delimited = self::lookup_DH($eol_id)) {
                 echo("\n$eol_id - $pipe_delimited\n");
                 $hc[$eol_id] = $pipe_delimited;
-                if($i >= 2) break; // debug only, during dev only
+                // if($i >= 2) break; // debug only, during dev only
             }
         }
         /*
@@ -58,7 +59,7 @@ class Data_OpenTraits
         return $nearest_common_ancester;
         // exit("stopx");
     }
-    private function lookup_DH($eol_id = false)
+    private function lookup_DH($eol_id = false, $deleteFolder_YN = false)
     {
         $dwca_url = 'http://localhost/other_files/DH/dhv21hc.zip';
         if(!$this->DH_info) $this->DH_info = self::extract_dwca($dwca_url, $this->download_options, "DH"); // print_r($this->DH_info);
@@ -70,11 +71,13 @@ class Data_OpenTraits
             return $ret;
         }
         // exit("\nexit 1\n");
+        
+        if($deleteFolder_YN) recursive_rmdir($this->DH_info['temp_dir']);
     }
     function start()
     {
         $f = Functions::file_open($this->report_dir.$this->filename, "w"); fclose($f); # initialize report text file
-        self::lookup_DH(); //initialize DH access
+        self::lookup_DH(false); //initialize DH access
         
         $start_num = 0;
         while(true) {
@@ -104,7 +107,7 @@ class Data_OpenTraits
                     }
                     // print_r($rek);
                     self::write_2text_file($rek);
-                    exit("\nprocessed 1 dwca...\n");
+                    // exit("\nprocessed 1 dwca...\n");
                     
                 }
                 
@@ -114,7 +117,8 @@ class Data_OpenTraits
             $start_num += 50;
         }
         print_r($this->debug);
-        exit("\nstop muna\n");
+        self::lookup_DH(false, true); // 2nd param true means delete folder
+        print("\n -- end report -- \n");
     }
     private function write_2text_file($rek)
     {   /*Array(
@@ -155,6 +159,7 @@ class Data_OpenTraits
         standardizationScripts:
         webpage:
         */
+        fwrite($f, "============================================================"."\n");
         fwrite($f, "layout: dataset"."\n");
         fwrite($f, "id: ".self::format_kebab_case($rek['OpenData']['Dataset_name'])."\n");
         fwrite($f, "name: ".$rek['OpenData']['Dataset_name']."\n");
@@ -233,8 +238,6 @@ class Data_OpenTraits
         asort($EOLids);
         print_r($EOLids);
         echo "\nEOLids: ".count($EOLids)."\n";
-        echo "\ncanonicals: ".count($canonicals)."\n";
-        // exit;
         $final['nearest common ancestor'] = self::get_nearest_common_ancester($EOLids);
 
 
@@ -243,6 +246,7 @@ class Data_OpenTraits
         $canonicals = array_map('trim', $canonicals);
         asort($canonicals);
         // print_r($canonicals);
+        echo "\ncanonicals: ".count($canonicals)."\n";
         $total = count($canonicals);
         if($total >= 2 && $total <= 10) $final['canonicals'] = implode("|", $canonicals);
         else $final['canonicals'] = "";
@@ -258,6 +262,13 @@ class Data_OpenTraits
         
         print_r($final);
         return $final;
+    }
+    private function format_kebab_case($str)
+    {   // (eg: Dunn et al, 2015 => dunn-et-al-2015)
+        $str = strtolower($str);
+        $str = str_replace(array(" "), "-", $str);
+        $str = str_replace(array(","), "", $str);
+        return $str;
     }
     # =================================== ends here. Below are copied templates ===================================
     
@@ -332,7 +343,7 @@ class Data_OpenTraits
         $rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //normal operation
         // $rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //debug only
         foreach($rowtypes as $rowtype) self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME), false);
-        // recursive_rmdir($info['temp_dir']); //remove temp folder
+        recursive_rmdir($info['temp_dir']); //remove temp folder --- un-comment in real operation
     }
     private function process_table($meta, $rowtype, $eol_id = false)
     {   //print_r($meta); exit;
@@ -417,14 +428,14 @@ class Data_OpenTraits
     }
     private function extract_dwca($dwca_file = false, $download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1), $type = "regular") //default expires in 1 day 60*60*24*1. Not false.
     {
-        /* un-comment in real operation
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($dwca_file, "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
-        print_r($paths); exit("\n-exit muna-\n");
-        */
+        // print_r($paths); exit("\n-exit muna-\n");
+        // */
 
-        // /* development only
+        /* development only
         if($type == "regular") {
             $paths = Array(
                 'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_09600/',
@@ -437,7 +448,7 @@ class Data_OpenTraits
                 'temp_dir'     => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_55799/'
             );
         }
-        // */
+        */
         
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
