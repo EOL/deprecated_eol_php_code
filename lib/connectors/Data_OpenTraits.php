@@ -34,7 +34,7 @@ class Data_OpenTraits
         echo "\nFinal result:\n";
         print_r($result);
         echo "\n".end($result)."\n";
-        return end($result)
+        return end($result);
     }
     private function get_nearest_common_ancester($EOLids)
     {
@@ -70,10 +70,10 @@ class Data_OpenTraits
             return $ret;
         }
         // exit("\nexit 1\n");
-        
     }
     function start()
     {
+        $f = Functions::file_open($this->report_dir.$this->filename, "w"); fclose($f); # initialize report text file
         self::lookup_DH(); //initialize DH access
         
         $start_num = 0;
@@ -102,7 +102,8 @@ class Data_OpenTraits
                         print_r($rec);
                         exit("\nInvestigate: more than one resource in dataset\n");
                     }
-                    print_r($rek);
+                    // print_r($rek);
+                    self::write_2text_file($rek);
                     exit("\nprocessed 1 dwca...\n");
                     
                 }
@@ -112,42 +113,70 @@ class Data_OpenTraits
             else break;
             $start_num += 50;
         }
-
-        exit("\nstop muna\n");
-        
-        /* copied template
-        if($json = Functions::lookup_with_cache($this->opendata_api['tag taxonomic inference'], $this->download_options)) {
-            $obj = json_decode($json); //print_r($obj);
-            $i = 0; $count = 0;
-            foreach($obj->result->results as $rec) { //loop all resources with tags = 'taxonomic inference'
-                // print_r($rec); exit("\n001\n");
-                // print_r($rec->tags); exit;
-                if(@$rec->tags{0}->name == 'taxonomic inference') { $count++;
-                    self::process_rec($rec, $count);
-                    $i++;
-                    // if($i > 5) break; //debug only
-                }
-            }
-            echo "\nResources: [$i]\n";
-            // print_r($this->package); echo " - package"; //exit("exit 2"); //good debug
-        }
-        */
-        /* assemble data then print */
-        /* copied template
-        foreach($this->package as $package_id => $ids) {
-            foreach(array_keys($ids) as $id) $final[$id][] = $package_id;
-        }
-        asort($final);      echo "\n1 ".count($final)."\n";
-        ksort($final);      echo "\n2 ".count($final)."\n";
-        
-        $f = Functions::file_open($this->report_dir.$this->filename, "w");
-        fwrite($f, "EOLid"."\t"."Datasets"."\n");
-        foreach($final as $taxonID => $datasets) {
-            fwrite($f, $taxonID."\t".implode(", ", $datasets)."\n");
-        }
-        fclose($f);
         print_r($this->debug);
+        exit("\nstop muna\n");
+    }
+    private function write_2text_file($rek)
+    {   /*Array(
+            [OpenData] => Array(
+                    [Dataset_name] => marine ecology literature
+                    [Dataset_url] => https://opendata.eol.org/dataset/marine-ecology-literature
+                    [Dataset_desc] => A collection, from the literature, of traits relating to trophic guild, habitat and host relationships of marine invertebrates
+                    [DOI] => 
+                    [Resource_file] => https://opendata.eol.org/dataset/86081133-3db1-4ffc-8b1f-2bbba1d1f948/resource/e56f7eff-6b71-4f92-92e1-558a82d55df8/download/archive.zip
+                )
+            [DwCA] => Array(
+                    [nearest common ancestor] => Spiralia
+                    [canonicals] => 
+                    [mTypes] => CMO_0000013|Diet|EcomorphologicalGuild|NCIT_C25513|Present|Q1053008|Q33596|RO_0002303|RO_0002454|RO_0002634|RO_0008503|TrophicGuild|burrowDepth|burrowDiameter
+                )
+        )*/
+        $f = Functions::file_open($this->report_dir.$this->filename, "a");
+        /*
+        layout: dataset
+        id: [1] converted to kebab-case (eg: Dunn et al, 2015 => dunn-et-al-2015)
+        name: [1]
+        contentURL: [5]
+        datasetDOI_URL: [2]
+        contactName: Jen Hammock
+        contactEmail: secretariat@eol.org|jen.hammock@gmail.org
+        license: CC0
+        traitList: [8]
+        higherGeography:
+        decimalLatitude:
+        decimalLongitude:
+        taxon: [6]
+        eventDate:
+        paperDOIcitation: [4]
+        description: [3]
+        taxaList: [7]
+        usefulClasses:
+        dataStandard:
+        standardizationScripts:
+        webpage:
         */
+        fwrite($f, "layout: dataset"."\n");
+        fwrite($f, "id: ".self::format_kebab_case($rek['OpenData']['Dataset_name'])."\n");
+        fwrite($f, "name: ".$rek['OpenData']['Dataset_name']."\n");
+        fwrite($f, "contentURL: ".$rek['OpenData']['Resource_file']."\n");
+        fwrite($f, "datasetDOI_URL: ".$rek['OpenData']['Dataset_url']."\n");
+        fwrite($f, "contactName: Jen Hammock"."\n");
+        fwrite($f, "contactEmail: secretariat@eol.org|jen.hammock@gmail.org"."\n");
+        fwrite($f, "license: CC0"."\n");
+        fwrite($f, "traitList: ".$rek['DwCA']['mTypes']."\n");
+        fwrite($f, "higherGeography:"."\n");
+        fwrite($f, "decimalLatitude:"."\n");
+        fwrite($f, "decimalLongitude:"."\n");
+        fwrite($f, "taxon: ".$rek['DwCA']['nearest common ancestor']."\n");
+        fwrite($f, "eventDate:"."\n");
+        fwrite($f, "paperDOIcitation: ".$rek['OpenData']['DOI']."\n");
+        fwrite($f, "description: ".$rek['OpenData']['Dataset_desc']."\n");
+        fwrite($f, "taxaList: ".$rek['DwCA']['canonicals']."\n");
+        fwrite($f, "usefulClasses:"."\n");
+        fwrite($f, "dataStandard:"."\n");
+        fwrite($f, "standardizationScripts:"."\n");
+        fwrite($f, "webpage:"."\n");
+        fclose($f);
     }
     private function get_rec_metadata($rec)
     {
@@ -198,15 +227,6 @@ class Data_OpenTraits
     }
     private function format_DwCA_data()
     {
-        /* [7]- canonical|names|of|all|taxa|in|the|taxa|file If there are 2-10 of them (so, discard this if there's only one, or >10) */
-        $canonicals = array_keys($this->batch['canonicals']);
-        $canonicals = array_map('trim', $canonicals);
-        asort($canonicals);
-        // print_r($canonicals);
-        $total = count($canonicals);
-        if($total >= 2 && $total <= 10) $final['canonicals'] = implode("|", $canonicals);
-        else $final['canonicals'] = "";
-        
         /* [6]- Nearest common ancestor for all taxa in the taxa file */
         $EOLids = array_keys($this->batch['EOLids']);
         $EOLids = array_map('trim', $EOLids);
@@ -216,6 +236,17 @@ class Data_OpenTraits
         echo "\ncanonicals: ".count($canonicals)."\n";
         // exit;
         $final['nearest common ancestor'] = self::get_nearest_common_ancester($EOLids);
+
+
+        /* [7]- canonical|names|of|all|taxa|in|the|taxa|file If there are 2-10 of them (so, discard this if there's only one, or >10) */
+        $canonicals = array_keys($this->batch['canonicals']);
+        $canonicals = array_map('trim', $canonicals);
+        asort($canonicals);
+        // print_r($canonicals);
+        $total = count($canonicals);
+        if($total >= 2 && $total <= 10) $final['canonicals'] = implode("|", $canonicals);
+        else $final['canonicals'] = "";
+        
         
         /* [8]- deduplicated, term names for all measurementType terms that appear in rows where measurementOfTaxon=true  */
         $mTypes = array_keys($this->batch['mType']);
