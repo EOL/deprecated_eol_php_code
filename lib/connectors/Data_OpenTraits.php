@@ -10,10 +10,18 @@ class Data_OpenTraits
         $this->opendata_page['package_id'] = 'https://opendata.eol.org/dataset/';
         // https://opendata.eol.org/dataset/owens-and-lewis-2018
         // https://opendata.eol.org/dataset/mcdermott-1964
+        
         if(Functions::is_production()) $this->report_dir = "/extra/other_files/temp/";
         else                           $this->report_dir = "/Volumes/AKiTiO4/other_files/temp/";
+
+        if(Functions::is_production()) $this->save_dir = "/extra/other_files/OpenTraits/";
+        else                           $this->save_dir = "/Volumes/AKiTiO4/other_files/OpenTraits/";
+        if(!is_dir($this->save_dir)) mkdir($this->save_dir);
+        
         $this->filename = "data_4_opentraits.txt";
         $this->filename = "data_4_opentraits_".date("Y_m_d_H").".txt";
+        $this->filename = "data_4_opentraits_".date("Y_m_d_H-i-s").".txt";
+        
         /* https://opendata.eol.org/dataset/marine-ecology-literature -> needs only 1 resource from this dataset
         $this->exclude_resourced_IDs = array();
         */
@@ -66,13 +74,41 @@ class Data_OpenTraits
         $tables = $this->DH_info['harvester']->tables; // print_r(array_keys($tables));
         $rowtype = "http://rs.tdwg.org/dwc/terms/taxon";
         if($eol_id) {
-            echo "\npassed 1\n";
-            $ret = self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME)."_DH", $eol_id);
-            return $ret;
+            // echo "\npassed 1\n";
+            
+            if($higherClassification = self::get_cache_higherClassification($eol_id)) return $higherClassification;
+            else {
+                $higherClassification = self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME)."_DH", $eol_id);
+                self::save_2cache_higherClassification($eol_id, $higherClassification);
+                return $higherClassification;
+            }
+            
         }
         // exit("\nexit 1\n");
         
         if($deleteFolder_YN) recursive_rmdir($this->DH_info['temp_dir']);
+    }
+    private function get_cache_higherClassification($eol_id)
+    {
+        $file = $this->save_dir.$eol_id.".txt";
+        if(file_exists($file)) {
+            $json = file_get_contents($file);
+            $arr = json_decode($json, true);
+            print_r($arr);
+            // exit("\nretrieved hc\n");
+            return $arr['hc'];
+        }
+    }
+    private function save_2cache_higherClassification($eol_id, $higherClassification)
+    {
+        $file = $this->save_dir.$eol_id.".txt";
+        $f = Functions::file_open($file, "w");
+        $save = array("hc" => $higherClassification);
+        fwrite($f, json_encode($save));
+        fclose($f);
+        print_r($save);
+        // exit("\nsaved hc\n");
+        
     }
     function start()
     {
