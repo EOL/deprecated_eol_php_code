@@ -18,18 +18,45 @@ class Data_OpenTraits
         */
         $this->DH_info = false;
     }
+    function process_pipe_delim_values($hc) // works OK!
+    {
+        $arrays = array();
+        foreach($hc as $eol_id => $str) { // echo "\n[$str]";
+            $arrays[] = explode("|", $str);
+        }
+        print_r($arrays);
+        $array1 = $arrays[0];
+        for($i = 1; $i <= count($arrays)-1; $i++) { // echo "\n[$i]";
+            $array2 = $arrays[$i];
+            $result = array_intersect($array1, $array2);
+            $array1 = $result; // ready for next loop
+        }
+        echo "\nFinal result:\n";
+        print_r($result);
+        echo "\n".end($result)."\n";
+        return end($result)
+    }
     private function get_nearest_common_ancester($EOLids)
     {
-        $i = 0;
+        # step 1: get all pipe-delimited higherclassification
+        $hc = array(); $i = 0;
         foreach($EOLids as $eol_id) { $i++;
-            echo "\neol_id: [$eol_id]\n";
-            if($hc = self::lookup_DH($eol_id)) {
-                echo("\n$eol_id - $hc\n");
-                if($i >= 3) break;
+            echo "\neol_id: [$eol_id] $i of ".count($EOLids)."\n";
+            if($pipe_delimited = self::lookup_DH($eol_id)) {
+                echo("\n$eol_id - $pipe_delimited\n");
+                $hc[$eol_id] = $pipe_delimited;
+                if($i >= 2) break; // debug only, during dev only
             }
         }
-        exit("stopx");
-        
+        /*
+        $hc[2] = "Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Protostomia|Spiralia|Gnathifera|Syndermata";
+        $hc[38] = "Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Protostomia|Spiralia|Annelida|Pleistoannelida|Sedentaria|Clitellata|Hirudinea|Acanthobdellidea";
+        $hc[46] = "Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Protostomia|Spiralia|Annelida|Pleistoannelida|Sedentaria|Clitellata";
+        */
+        # step 2:
+        $nearest_common_ancester = self::process_pipe_delim_values($hc);
+        return $nearest_common_ancester;
+        // exit("stopx");
     }
     private function lookup_DH($eol_id = false)
     {
@@ -62,19 +89,20 @@ class Data_OpenTraits
                 print("\nCurrent: ".$current);
                 
                 $i = 0;
-                foreach($obj->result->results as $rec) { $i++;
+                foreach($obj->result->results as $rec) { $i++; $rek = array();
                     // print(" ".count($rec->resources));
                     if(count($rec->resources) == 1) {
                         // print("\n $i. ".$rec->resources[0]->name."\n"); # resource name
-                        $rek = self::get_rec_metadata($rec);
+                        $rek['OpenData'] = self::get_rec_metadata($rec);
                         self::process_rec($rec, $i); // generates $this->batch
-                        $rek = self::format_DwCA_data(); // will use $this->batch
+                        $rek['DwCA'] = self::format_DwCA_data(); // will use $this->batch
                         
                     }
                     else {
                         print_r($rec);
                         exit("\nInvestigate: more than one resource in dataset\n");
                     }
+                    print_r($rek);
                     exit("\nprocessed 1 dwca...\n");
                     
                 }
@@ -198,6 +226,7 @@ class Data_OpenTraits
         $final['mTypes'] = implode("|", $arr);
         
         print_r($final);
+        return $final;
     }
     # =================================== ends here. Below are copied templates ===================================
     
