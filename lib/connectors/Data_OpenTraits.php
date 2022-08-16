@@ -108,7 +108,7 @@ class Data_OpenTraits
         if(file_exists($file)) {
             $json = file_get_contents($file);
             $arr = json_decode($json, true);
-            echo "\nretrieved... "; print_r($arr);
+            echo "\nretrieved...[$eol_id] "; print_r($arr);
             // exit("\nretrieved hc\n");
             return $arr['hc'];
         }
@@ -121,7 +121,7 @@ class Data_OpenTraits
         $save = array("hc" => $higherClassification);
         fwrite($f, json_encode($save));
         fclose($f);
-        echo "\nsaved... "; print_r($save);
+        echo "\nsaved...[$eol_id] "; print_r($save);
         // exit("\nsaved hc\n");
     }
     function start()
@@ -129,7 +129,7 @@ class Data_OpenTraits
         $f = Functions::file_open($this->report_dir.$this->filename, "w"); fclose($f); # initialize report text file
         self::lookup_DH(false); //initialize DH access
         
-        $start_num = 2;
+        $start_num = 1;
         while(true) {
             $url = $this->opendata_api['tag taxonomic inference'];
             $url = str_replace("START_NUM", $start_num, $url);
@@ -286,7 +286,14 @@ class Data_OpenTraits
         $EOLids = array_keys($this->batch['EOLids']);
         $EOLids = array_map('trim', $EOLids);
         asort($EOLids);
-        print_r($EOLids);
+        print_r($EOLids); //exit;
+        
+        // if(count($EOLids) == 111) {
+        //     exit("\nelix...\n");
+        // }
+        
+        
+        
         echo "\nEOLids: ".count($EOLids)."\n";
         $final['nearest common ancestor'] = self::get_nearest_common_ancester($EOLids);
 
