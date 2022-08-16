@@ -16,7 +16,7 @@ exit("\n-end test-\n");
 */
 
 $func = new Data_OpenTraits();
-$func->start();
+// $func->start();
 
 /* test during dev:
 $hc[2] = "Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Protostomia|Spiralia|Gnathifera|Syndermata";
@@ -24,6 +24,11 @@ $hc[38] = "Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Prot
 $hc[46] = "Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Protostomia|Spiralia|Annelida|Pleistoannelida|Sedentaria|Clitellata";
 $func->process_pipe_delim_values($hc);
 */
+
+// /*
+$ids = array(3585, 3587, 3589, 3685, 3907, 3923, 4525, 4535, 93136, 2968283, 17240251, 23476847, 47181178);
+foreach($ids as $eol_id) $func->lookup_DH($eol_id);
+// */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

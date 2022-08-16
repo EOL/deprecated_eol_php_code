@@ -33,7 +33,14 @@ class Data_OpenTraits
         foreach($hc as $eol_id => $str) { // echo "\n[$str]";
             $arrays[] = explode("|", $str);
         }
+        
+        if(count($arrays) == 1) {  // means there is only 1 taxa in the taxa file with EOLid.
+            echo "\nmeans there is only 1 taxa in the taxa file with EOLid.\n";
+            print_r($hc);
+            return end($arrays[0]);
+        }
         print_r($arrays);
+
         $array1 = $arrays[0];
         for($i = 1; $i <= count($arrays)-1; $i++) { // echo "\n[$i]";
             $array2 = $arrays[$i];
@@ -41,9 +48,14 @@ class Data_OpenTraits
             $array1 = $result; // ready for next loop
         }
         echo "\nFinal result:\n";
-        print_r($result);
-        echo "\n".end($result)."\n";
-        return end($result);
+        if($result) {
+            print_r($result);
+            echo "\n".end($result)."\n";
+            return end($result);
+        }
+        else {
+            echo "\nNo intersection at this point.\n"; // may not reach this point.
+        }
     }
     private function get_nearest_common_ancester($EOLids)
     {
@@ -67,7 +79,7 @@ class Data_OpenTraits
         return $nearest_common_ancester;
         // exit("stopx");
     }
-    private function lookup_DH($eol_id = false, $deleteFolder_YN = false)
+    function lookup_DH($eol_id = false, $deleteFolder_YN = false)
     {
         $dwca_url = 'http://localhost/other_files/DH/dhv21hc.zip';
         if(!$this->DH_info) $this->DH_info = self::extract_dwca($dwca_url, $this->download_options, "DH"); // print_r($this->DH_info);
@@ -76,12 +88,14 @@ class Data_OpenTraits
         if($eol_id) {
             // echo "\npassed 1\n";
             
-            if($higherClassification = self::get_cache_higherClassification($eol_id)) return $higherClassification;
-            else {
+            $higherClassification = self::get_cache_higherClassification($eol_id);
+            
+            if($higherClassification === false) {
                 $higherClassification = self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME)."_DH", $eol_id);
                 self::save_2cache_higherClassification($eol_id, $higherClassification);
                 return $higherClassification;
             }
+            else return $higherClassification; // can be null or with real value
             
         }
         // exit("\nexit 1\n");
@@ -94,10 +108,11 @@ class Data_OpenTraits
         if(file_exists($file)) {
             $json = file_get_contents($file);
             $arr = json_decode($json, true);
-            print_r($arr);
+            echo "\nretrieved... "; print_r($arr);
             // exit("\nretrieved hc\n");
             return $arr['hc'];
         }
+        else return false;
     }
     private function save_2cache_higherClassification($eol_id, $higherClassification)
     {
@@ -106,16 +121,15 @@ class Data_OpenTraits
         $save = array("hc" => $higherClassification);
         fwrite($f, json_encode($save));
         fclose($f);
-        print_r($save);
+        echo "\nsaved... "; print_r($save);
         // exit("\nsaved hc\n");
-        
     }
     function start()
     {
         $f = Functions::file_open($this->report_dir.$this->filename, "w"); fclose($f); # initialize report text file
         self::lookup_DH(false); //initialize DH access
         
-        $start_num = 0;
+        $start_num = 2;
         while(true) {
             $url = $this->opendata_api['tag taxonomic inference'];
             $url = str_replace("START_NUM", $start_num, $url);
