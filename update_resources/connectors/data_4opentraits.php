@@ -20,7 +20,8 @@ $func = new Data_OpenTraits();
 /* a utility, run once only. But didn't get to do it anymore.
 $func->save_higherClassifaction_as_cache();
 */
-$func->start();
+
+$func->start(); // main operation
 
 /* test during dev:
 $hc[2] = "Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Protostomia|Spiralia|Gnathifera|Syndermata";

@@ -64,9 +64,7 @@ class Data_OpenTraits
             echo "\nnearest common ancestor: [".end($result)."]\n";
             return end($result);
         }
-        else {
-            echo "\nNo intersection at this point.\n"; // may not reach this point.
-        }
+        else echo "\nNo intersection at this point.\n"; // may not reach this point.
     }
     private function get_nearest_common_ancester($EOLids)
     {
@@ -479,7 +477,7 @@ class Data_OpenTraits
                     [http://eol.org/schema/EOLid] => 46531931
                 )*/
                 $scientificName = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
-                    
+                
                 $this->batch['canonicals'][$scientificName] = '';
                 
                 $EOLid = $rec['http://eol.org/schema/EOLid'];
@@ -493,8 +491,6 @@ class Data_OpenTraits
                 // /* Manual adjustment:
                 if(in_array($EOLid, array(46516723, 52207788))) $this->get_sciname_of_this_EOLid[$EOLid] = $scientificName;
                 // */
-                
-                
             }
             #=====================================================================================
             elseif($rowtype == "taxon_DH") {
