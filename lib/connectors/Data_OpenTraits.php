@@ -43,20 +43,25 @@ class Data_OpenTraits
         if(count($arrays) == 1) {  // means there is only 1 taxa in the taxa file with EOLid.
             echo "\nmeans there is only 1 taxa in the taxa file with EOLid.\n";
             print_r($hc);
+            print_r($arrays);
             return end($arrays[0]);
         }
         print_r($arrays);
 
-        $array1 = $arrays[0];
-        for($i = 1; $i <= count($arrays)-1; $i++) { // echo "\n[$i]";
-            $array2 = $arrays[$i];
-            $result = array_intersect($array1, $array2);
-            $array1 = $result; // ready for next loop
+        $result = array();
+        if($arrays) {
+            $array1 = $arrays[0];
+            for($i = 1; $i <= count($arrays)-1; $i++) { // echo "\n[$i]";
+                $array2 = $arrays[$i];
+                $result = array_intersect($array1, $array2);
+                $array1 = $result; // ready for next loop
+            }
         }
+
         echo "\nFinal result:\n";
         if($result) {
             print_r($result);
-            echo "\n".end($result)."\n";
+            echo "\nnearest common ancestor: [".end($result)."]\n";
             return end($result);
         }
         else {
@@ -337,6 +342,11 @@ class Data_OpenTraits
     }
     private function format_kebab_case($str)
     {   // (eg: Dunn et al, 2015 => dunn-et-al-2015)
+        
+        if(stripos($str, "ó") !== false) { //string is found --------- e.g. "Queirós"
+            $str = str_ireplace("ó", "o", $str);
+        }
+        
         $str = strtolower($str);
         $str = str_replace(array(" "), "-", $str);
         $str = str_replace(array(","), "", $str);
