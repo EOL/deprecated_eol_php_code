@@ -129,7 +129,7 @@ class Data_OpenTraits
         $f = Functions::file_open($this->report_dir.$this->filename, "w"); fclose($f); # initialize report text file
         self::lookup_DH(false); //initialize DH access
         
-        $start_num = 1;
+        $start_num = 0;
         while(true) {
             $url = $this->opendata_api['tag taxonomic inference'];
             $url = str_replace("START_NUM", $start_num, $url);
@@ -288,15 +288,12 @@ class Data_OpenTraits
         asort($EOLids);
         print_r($EOLids); //exit;
         
-        // if(count($EOLids) == 111) {
+        // if(count($EOLids) == 272) {
         //     exit("\nelix...\n");
         // }
         
-        
-        
         echo "\nEOLids: ".count($EOLids)."\n";
         $final['nearest common ancestor'] = self::get_nearest_common_ancester($EOLids);
-
 
         /* [7]- canonical|names|of|all|taxa|in|the|taxa|file If there are 2-10 of them (so, discard this if there's only one, or >10) */
         $canonicals = array_keys($this->batch['canonicals']);
