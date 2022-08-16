@@ -17,6 +17,12 @@ class Data_OpenTraits
         if(Functions::is_production()) $this->save_dir = "/extra/other_files/OpenTraits/";
         else                           $this->save_dir = "/Volumes/AKiTiO4/other_files/OpenTraits/";
         if(!is_dir($this->save_dir)) mkdir($this->save_dir);
+
+        /* the func save_higherClassifaction_as_cache() was discontinued.
+        if(Functions::is_production()) $this->cache_dir = "/extra/OpenTraits_cache/";
+        else                           $this->cache_dir = "/Volumes/AKiTiO4/OpenTraits_cache/";
+        if(!is_dir($this->cache_dir)) mkdir($this->cache_dir);
+        */
         
         $this->filename = "data_4_opentraits.txt";
         $this->filename = "data_4_opentraits_".date("Y_m_d_H").".txt";
@@ -69,6 +75,7 @@ class Data_OpenTraits
                 // if($i >= 2) break; // debug only, during dev only
             }
         }
+        
         /*
         $hc[2] = "Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Protostomia|Spiralia|Gnathifera|Syndermata";
         $hc[38] = "Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Protostomia|Spiralia|Annelida|Pleistoannelida|Sedentaria|Clitellata|Hirudinea|Acanthobdellidea";
@@ -76,6 +83,11 @@ class Data_OpenTraits
         */
         # step 2:
         $nearest_common_ancester = self::process_pipe_delim_values($hc);
+
+        // /* new:
+        if(count($EOLids) == 1 && !$nearest_common_ancester) return "use sciname";
+        // */
+
         return $nearest_common_ancester;
         // exit("stopx");
     }
@@ -149,6 +161,12 @@ class Data_OpenTraits
                         $rek['OpenData'] = self::get_rec_metadata($rec);
                         self::process_rec($rec, $i); // generates $this->batch
                         $rek['DwCA'] = self::format_DwCA_data(); // will use $this->batch
+                        
+                        // /*
+                        if($rek['DwCA']['nearest common ancestor'] == 'use sciname') {
+                            foreach($this->get_sciname_of_this_EOLid as $eol_id => $taxon) $rek['DwCA']['nearest common ancestor'] = $taxon;
+                        }
+                        // */
                         
                     }
                     else {
@@ -341,7 +359,10 @@ class Data_OpenTraits
             }
         // }
         
-        foreach($rec->resources as $resource) self::process_resource($resource, $rec->name, count($rec->resources), $count);
+        foreach($rec->resources as $resource) {
+            $this->get_sciname_of_this_EOLid = array();
+            self::process_resource($resource, $rec->name, count($rec->resources), $count);
+        }
     }
     private function process_resource($res, $dataset_name, $resources_count, $count)
     {   // print_r($res); exit("\nresource struct:\n");
@@ -453,6 +474,17 @@ class Data_OpenTraits
                 
                 $EOLid = $rec['http://eol.org/schema/EOLid'];
                 if($EOLid) $this->batch['EOLids'][$EOLid] = '';
+                
+                /* single taxon in taxa file and there is no higherClassification in DH:
+                taxonID	scientificName	eolID
+                Eryonoidea	Eryonoidea	46516723
+                Thaumastochelidae	Thaumastochelidae	52207788
+                */
+                // /* Manual adjustment:
+                if(in_array($EOLid, array(46516723, 52207788))) $this->get_sciname_of_this_EOLid[$EOLid] = $scientificName;
+                // */
+                
+                
             }
             #=====================================================================================
             elseif($rowtype == "taxon_DH") {
