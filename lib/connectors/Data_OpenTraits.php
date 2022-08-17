@@ -32,6 +32,11 @@ class Data_OpenTraits
         $this->exclude_resourced_IDs = array();
         */
         $this->DH_info = false;
+        /*
+        grep "49315902" taxon.tab 
+        grep "Tiphobia" taxon.tab 
+        EOL-000000818797	MOL:Tiphobia			EOL-000000818692	Tiphobia E. A. Smith, 1880	genus	accepted	MOL	Tiphobia	52589339		Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Protostomia|Spiralia|Mollusca|Gastropoda|Caenogastropoda|Cerithioidea|Paludomidae
+        */
     }
     function process_pipe_delim_values($hc) // works OK!
     {
@@ -77,6 +82,19 @@ class Data_OpenTraits
                 $hc[$eol_id] = $pipe_delimited;
                 // if($i >= 2) break; // debug only, during dev only
             }
+            else { // $eol_id doesn't exist, let us try to search the sciname
+                if($sciname = @$this->info_EOLid_sciname[$eol_id]) {
+
+                    if($pipe_delimited = self::lookup_DH_sciname($eol_id, $sciname, false)) {
+                        
+                        // /* copied template
+                        echo("\n$eol_id [$sciname] - $pipe_delimited\n");
+                        $hc[$eol_id] = $pipe_delimited;
+                        // */
+                    }
+                    
+                }
+            }
         }
         
         /*
@@ -117,6 +135,37 @@ class Data_OpenTraits
         
         if($deleteFolder_YN) recursive_rmdir($this->DH_info['temp_dir']);
     }
+    function lookup_DH_sciname($eol_id, $sciname, $deleteFolder_YN = false)
+    {
+        $dwca_url = 'http://localhost/other_files/DH/dhv21hc.zip';
+        if(!$this->DH_info) $this->DH_info = self::extract_dwca($dwca_url, $this->download_options, "DH"); // print_r($this->DH_info);
+        $tables = $this->DH_info['harvester']->tables; // print_r(array_keys($tables));
+        $rowtype = "http://rs.tdwg.org/dwc/terms/taxon";
+        if($eol_id) {
+            
+            $higherClassification = self::get_cache_higherClassification($eol_id);
+            
+            if($higherClassification === false) { // no cache file yet === SEEMS IT DOESN'T GO HERE
+                exit("\nSEEMS IT DOESN'T GO HERE\n");
+                /*
+                $higherClassification = self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME)."_DH", $eol_id);
+                */
+                $higherClassification = self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME)."_DH", $sciname, "scientificName");
+                self::save_2cache_higherClassification($eol_id, $higherClassification);
+                return $higherClassification;
+            }
+            elseif($higherClassification == "null" || $higherClassification == "" || $higherClassification == null) {
+                $higherClassification = self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME)."_DH", $sciname, "scientificName");
+                self::save_2cache_higherClassification($eol_id, $higherClassification);
+                return $higherClassification;
+            }
+            else return $higherClassification; // can be null or with real value
+        }
+        // exit("\nexit 1\n");
+        
+        if($deleteFolder_YN) recursive_rmdir($this->DH_info['temp_dir']);
+    }
+
     private function get_cache_higherClassification($eol_id)
     {
         $file = $this->save_dir.$eol_id.".txt";
@@ -428,7 +477,7 @@ class Data_OpenTraits
         foreach($rowtypes as $rowtype) self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME), false);
         recursive_rmdir($info['temp_dir']); //remove temp folder --- un-comment in real operation
     }
-    private function process_table($meta, $rowtype, $eol_id = false)
+    private function process_table($meta, $rowtype, $eol_id = false, $what2search = false)
     {   //print_r($meta); exit;
         echo "\nprocess_table...[$meta->file_uri]\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -481,7 +530,10 @@ class Data_OpenTraits
                 $this->batch['canonicals'][$scientificName] = '';
                 
                 $EOLid = $rec['http://eol.org/schema/EOLid'];
-                if($EOLid) $this->batch['EOLids'][$EOLid] = '';
+                if($EOLid) {
+                    $this->batch['EOLids'][$EOLid] = '';
+                    $this->info_EOLid_sciname[$EOLid] = $scientificName;
+                }
                 
                 /* single taxon in taxa file and there is no higherClassification in DH:
                 taxonID	scientificName	eolID
@@ -511,9 +563,18 @@ class Data_OpenTraits
                 )*/
                 // print_r($rec); exit("\nstop muna\n");
                 // echo "\npassed 3\n";
-                $EOLid = $rec['http://eol.org/schema/EOLid'];
                 $hc = $rec['http://rs.tdwg.org/dwc/terms/higherClassification'];
-                if($eol_id == $EOLid) return $hc;
+                
+                if($what2search == 'scientificName') {
+                    $canonicalName = $rec['http://rs.gbif.org/terms/1.0/canonicalName'];
+                    $scientificName = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+                    if($eol_id == $canonicalName) return $hc;
+                    if($eol_id == $scientificName) return $hc;
+                }
+                else {
+                    $EOLid = $rec['http://eol.org/schema/EOLid'];
+                    if($eol_id == $EOLid) return $hc;
+                }
             }
             #=====================================================================================
         }

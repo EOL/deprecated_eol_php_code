@@ -2,6 +2,11 @@
 namespace php_active_record;
 /* DATA-1909: resource metadata and summary-from-resource-data export from CKAN
 nohup php update_resources/connectors/data_4opentraits.php _ > terminal.out
+
+40 9's
+19 11's
+total: 59 files
+1st run 2.5 hrs
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/Data_OpenTraits');
