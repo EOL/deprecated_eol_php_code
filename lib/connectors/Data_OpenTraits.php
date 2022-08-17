@@ -32,10 +32,13 @@ class Data_OpenTraits
         $this->exclude_resourced_IDs = array();
         */
         $this->DH_info = false;
-        /*
-        grep "49315902" taxon.tab 
-        grep "Tiphobia" taxon.tab 
-        EOL-000000818797	MOL:Tiphobia			EOL-000000818692	Tiphobia E. A. Smith, 1880	genus	accepted	MOL	Tiphobia	52589339		Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Protostomia|Spiralia|Mollusca|Gastropoda|Caenogastropoda|Cerithioidea|Paludomidae
+        /* sample of EOLid not found in DH, but searching for sciname = "Tiphobia" is found in DH.
+        grep "49315902" taxon.tab --> not found in DH
+        grep "Tiphobia" taxon.tab --> found in DH
+        EOL-000000818797	MOL:Tiphobia			EOL-000000818692	Tiphobia E. A. Smith, 1880	genus	accepted	MOL	Tiphobia	52589339	
+        	Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Protostomia|Spiralia|Mollusca|Gastropoda|Caenogastropoda|Cerithioidea|Paludomidae
+     {"hc":"Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Protostomia|Spiralia|Mollusca|Gastropoda|Caenogastropoda|Cerithioidea|Paludomidae"}
+     -> succesfully picked-up the hc and assigned in our system.
         */
     }
     function process_pipe_delim_values($hc) // works OK!
