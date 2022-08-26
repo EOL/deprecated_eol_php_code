@@ -282,6 +282,13 @@ class WormsArchiveAPI extends ContributorsMapAPI
                 $c->$field = $rec[$key];
                 if($field == "taxonID") $c->$field = self::get_worms_taxon_id($c->$field);
             }
+            
+            // /* remove [source] == 'DEU' per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=67026&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67026
+            if($class == "vernacular") {
+                if($rec["http://purl.org/dc/terms/source"] == 'DEU') return;
+            }
+            // */
+            
             $this->archive_builder->write_object_to_file($c);
         }
     }
