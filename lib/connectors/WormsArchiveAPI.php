@@ -285,7 +285,7 @@ class WormsArchiveAPI extends ContributorsMapAPI
             
             // /* remove [source] == 'DEU' per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=67026&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67026
             if($class == "vernacular") {
-                if($rec["http://purl.org/dc/terms/source"] == 'DEU') return;
+                if($rec["http://purl.org/dc/terms/language"] == 'DEU') return;
             }
             // */
             
