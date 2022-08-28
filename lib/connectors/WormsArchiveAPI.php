@@ -286,12 +286,12 @@ class WormsArchiveAPI extends ContributorsMapAPI
             
             // /* remove [source] == 'DEU' per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=67026&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67026
             if($class == "vernacular") {
-                if($rec["http://purl.org/dc/terms/language"] == 'DEU') return;
+                if($rec["http://purl.org/dc/terms/language"] == 'DEU') continue;
             }
             // */
             
             $this->archive_builder->write_object_to_file($c);
-        }
+        } // end foreach()
     }
     /*
     synonym ->  379702	WoRMS:citation:379702	255040	Leptasterias epichlora (Brandt, 1835)
