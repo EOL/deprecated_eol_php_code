@@ -116,14 +116,14 @@ START PROPER FILTER OF marine+terrestrial in MoF Habitat records: now only contr
 26_MoF_normalized	Fri 2022-06-10 09:08:28 {"agent":1871, "MoF":2260999, "media":96141, "occur":1125064, "ref":731895, "taxon":384507, "vernacular":86667, "time_elapsed":{"sec":2619.43, "min":43.66, "hr":0.73}} Consistent OK
 26_MoF_normalized	Thu 2022-06-23 11:13:17 {"agent":1871, "MoF":2260839, "media":96141, "occur":1124944, "ref":731895, "taxon":384507, "vernacular":86667, "time_elapsed":{"sec":2542.9, "min":42.38, "hr":0.71}}
 
-26	                Sun 2022-08-28 11:13:08 AM	{"agent.tab":1879, "MoF":3063929, "media":98075, "occur":2433912, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":4133.49, "min":68.89, "hr":1.15}}
-26_meta_recoded_1	Sun 2022-08-28 12:06:12 PM	{"agent.tab":1879, "MoF":2904153, "media":98075, "occur":2433912, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":3084.07, "min":51.4, "hr":0.86}}
-26_meta_recoded	    Sun 2022-08-28 12:59:38 PM	{"agent.tab":1879, "MoF":2852741, "media":98075, "occur":2433912, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":3204.84, "min":53.41, "hr":0.89}}
-26_ENV	            Sun 2022-08-28 02:01:22 PM	{"agent.tab":1879, "MoF":2630398, "media":98075, "occur":2211569, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":3701.94, "min":61.7, "hr":1.03}}
-26_ENV_final	    Sun 2022-08-28 02:55:36 PM	{"agent.tab":1879, "MoF":2630398, "media":98075, "occur":2211569, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":3174.34, "min":52.91, "hr":0.88}}
-26_delta	        Sun 2022-08-28 03:42:33 PM	{"agent.tab":1879, "MoF":2234244, "media":98075, "occur":657098, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":2759.42, "min":45.99, "hr":0.77}}
-26_delta_new	    Sun 2022-08-28 04:17:42 PM	{"agent.tab":1879, "MoF":2212478, "media":98075, "occur":654508, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":2107.34, "min":35.12, "hr":0.59}}
-26_MoF_normalized	Sun 2022-08-28 04:55:33 PM	{"agent.tab":1879, "MoF":2212231, "media":98075, "occur":654508, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":2259.38, "min":37.66, "hr":0.63}}
+26	                Sun 2022-08-28 11:13:08 AM	{"agent":1879, "MoF":3063929, "media":98075, "occur":2433912, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":4133.49, "min":68.89, "hr":1.15}}
+26_meta_recoded_1	Sun 2022-08-28 12:06:12 PM	{"agent":1879, "MoF":2904153, "media":98075, "occur":2433912, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":3084.07, "min":51.4, "hr":0.86}}
+26_meta_recoded	    Sun 2022-08-28 12:59:38 PM	{"agent":1879, "MoF":2852741, "media":98075, "occur":2433912, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":3204.84, "min":53.41, "hr":0.89}}
+26_ENV	            Sun 2022-08-28 02:01:22 PM	{"agent":1879, "MoF":2630398, "media":98075, "occur":2211569, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":3701.94, "min":61.7, "hr":1.03}}
+26_ENV_final	    Sun 2022-08-28 02:55:36 PM	{"agent":1879, "MoF":2630398, "media":98075, "occur":2211569, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":3174.34, "min":52.91, "hr":0.88}}
+26_delta	        Sun 2022-08-28 03:42:33 PM	{"agent":1879, "MoF":2234244, "media":98075, "occur":657098, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":2759.42, "min":45.99, "hr":0.77}}
+26_delta_new	    Sun 2022-08-28 04:17:42 PM	{"agent":1879, "MoF":2212478, "media":98075, "occur":654508, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":2107.34, "min":35.12, "hr":0.59}}
+26_MoF_normalized	Sun 2022-08-28 04:55:33 PM	{"agent":1879, "MoF":2212231, "media":98075, "occur":654508, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":2259.38, "min":37.66, "hr":0.63}}
 
 -rw-r--r-- 1 root      root       150939877 Aug 28 16:56 WoRMS.tar.gz
 -rw-r--r-- 1 root      root       150949430 Aug 28 16:16 26_delta_new.tar.gz
