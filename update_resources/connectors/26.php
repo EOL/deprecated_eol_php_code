@@ -94,6 +94,7 @@ start removed all occurrences and trait records associated with specified taxa (
 26	Wed 2021-06-09 09:37:13 AM	{"agent.tab":1776, "measurement_or_fact_specific.tab":3402495, "media_resource.tab":92746, "occurrence_specific.tab":2214727, "reference.tab":692231, "taxon.tab":374006, "vernacular_name.tab":85169, "time_elapsed":false}
 26	Wed 2021-06-09 11:53:22 AM	{"agent.tab":1776, "measurement_or_fact_specific.tab":3402495, "media_resource.tab":92746, "occurrence_specific.tab":2214727, "reference.tab":692231, "taxon.tab":374006, "vernacular_name.tab":85169, "time_elapsed":false}
 26	Thu 2021-06-10 02:02:22 AM	{"agent.tab":1776, "measurement_or_fact_specific.tab":3402495, "media_resource.tab":92746, "occurrence_specific.tab":2214727, "reference.tab":692231, "taxon.tab":374006, "vernacular_name.tab":85169, "time_elapsed":false}
+
 around Oct 13, 2021 - Jira                  {"agent.tab":1813, "MoF.tab":2526290, "media_resource.tab":94660, "occur.tab":2151130, "reference.tab":703450, "taxon.tab":377647, "vernacular_name.tab":85681} 
 26_ENV	        Thu 2022-02-10 06:01:06 AM	{"agent.tab":1829, "MoF.tab":3286487, "media_resource.tab":95531, "occur.tab":2397461, "reference.tab":711533, "taxon.tab":379551, "vernacular_name.tab":85716, "time_elapsed":{"sec":4267.01, "min":71.12, "hr":1.19}}
 26_ENV_final	Thu 2022-02-10 07:05:14 AM	{"agent.tab":1829, "MoF.tab":3286487, "media_resource.tab":95531, "occur.tab":2397461, "reference.tab":711533, "taxon.tab":379551, "vernacular_name.tab":85716, "time_elapsed":{"sec":3747.21, "min":62.45, "hr":1.04}}
@@ -114,6 +115,26 @@ START PROPER FILTER OF marine+terrestrial in MoF Habitat records: now only contr
 26_MoF_normalized	Mon 2022-05-09 09:10:53 {"agent":1855, "MoF":2231607, "media":95845, "occur":1103284, "ref":724227, "taxon":383405, "vernacular":86337, "time_elapsed":{"sec":2459.97, "min":41, "hr":0.68}}
 26_MoF_normalized	Fri 2022-06-10 09:08:28 {"agent":1871, "MoF":2260999, "media":96141, "occur":1125064, "ref":731895, "taxon":384507, "vernacular":86667, "time_elapsed":{"sec":2619.43, "min":43.66, "hr":0.73}} Consistent OK
 26_MoF_normalized	Thu 2022-06-23 11:13:17 {"agent":1871, "MoF":2260839, "media":96141, "occur":1124944, "ref":731895, "taxon":384507, "vernacular":86667, "time_elapsed":{"sec":2542.9, "min":42.38, "hr":0.71}}
+
+26	                Sun 2022-08-28 11:13:08 AM	{"agent.tab":1879, "MoF":3063929, "media":98075, "occur":2433912, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":4133.49, "min":68.89, "hr":1.15}}
+26_meta_recoded_1	Sun 2022-08-28 12:06:12 PM	{"agent.tab":1879, "MoF":2904153, "media":98075, "occur":2433912, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":3084.07, "min":51.4, "hr":0.86}}
+26_meta_recoded	    Sun 2022-08-28 12:59:38 PM	{"agent.tab":1879, "MoF":2852741, "media":98075, "occur":2433912, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":3204.84, "min":53.41, "hr":0.89}}
+26_ENV	            Sun 2022-08-28 02:01:22 PM	{"agent.tab":1879, "MoF":2630398, "media":98075, "occur":2211569, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":3701.94, "min":61.7, "hr":1.03}}
+26_ENV_final	    Sun 2022-08-28 02:55:36 PM	{"agent.tab":1879, "MoF":2630398, "media":98075, "occur":2211569, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":3174.34, "min":52.91, "hr":0.88}}
+26_delta	        Sun 2022-08-28 03:42:33 PM	{"agent.tab":1879, "MoF":2234244, "media":98075, "occur":657098, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":2759.42, "min":45.99, "hr":0.77}}
+26_delta_new	    Sun 2022-08-28 04:17:42 PM	{"agent.tab":1879, "MoF":2212478, "media":98075, "occur":654508, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":2107.34, "min":35.12, "hr":0.59}}
+26_MoF_normalized	Sun 2022-08-28 04:55:33 PM	{"agent.tab":1879, "MoF":2212231, "media":98075, "occur":654508, "ref":738320, "taxon.tab":385717, "vernacular_name.tab":79700, "time_elapsed":{"sec":2259.38, "min":37.66, "hr":0.63}}
+
+-rw-r--r-- 1 root      root       150939877 Aug 28 16:56 WoRMS.tar.gz
+-rw-r--r-- 1 root      root       150949430 Aug 28 16:16 26_delta_new.tar.gz
+-rw-r--r-- 1 root      root       152178574 Aug 28 15:41 26_delta.tar.gz
+-rw-r--r-- 1 root      root       221312747 Aug 28 14:54 26_ENV_final.tar.gz
+-rw-r--r-- 1 root      root       182703125 Aug 28 14:00 26_ENV.tar.gz
+-rw-r--r-- 1 root      root       204955296 Aug 28 12:58 26_meta_recoded.tar.gz
+-rw-r--r-- 1 root      root       205082864 Aug 28 12:04 26_meta_recoded_1.tar.gz
+-rw-r--r-- 1 root      root       207230964 Aug 28 11:11 26.tar.gz
+
+
 =========================================================================================
 In Jenkins: run one connector after the other:
 #OK
@@ -136,16 +157,28 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 php5.6 resource_utility.php jenkins '{"resource_id": "26_ENV_final", "task": "change_measurementIDs"}'
 #generates 26_ENV_final.tar.gz
 
-#not yet OK: commented still needs investigation
+#OK
 php5.6 make_hash_IDs_4Deltas.php jenkins '{"task": "", "resource":"Deltas_4hashing", "resource_id":"26_ENV_final"}'
 #generates 26_delta.tar.gz
 
-#STEP 7: remove all records for taxon with habitat value(s) that are 
-#        descendants of both marine and terrestrial
+#OK: remove all Habitat contradicting MoF records for taxon;
+# i.e.  MoF habitat value(s) that are descendants of both marine and terrestrial
 php5.6 rem_marine_terr_desc.php jenkins '{"resource_id":"26_delta"}'
 #generates: 26_delta_new.tar.gz
 
+#OK: remove the orphan child records in MoF
+php5.6 dwca_MoF_fix.php jenkins '{"resource_id":"26_delta_new", "resource":"MoF_normalized"}'
+#generates 26_MoF_normalized.tar.gz
 
+# total 8 php files to run
+
+#LAST STEP: copy last transactional DwCA to WoRMS.tar.gz OK
+
+cd /html/eol_php_code/applications/content_server/resources
+cp 26_MoF_normalized.tar.gz WoRMS.tar.gz
+ls -lt 26_MoF_normalized.tar.gz
+ls -lt WoRMS.tar.gz
+rm -f 26_MoF_normalized.tar.gz
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 

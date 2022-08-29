@@ -25,7 +25,7 @@ $timestart = time_elapsed();
 // print_r($argv);
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
 $param                     = json_decode(@$argv[2], true);
-$resource_id = $param['resource_id'];
+$resource_id = $param['resource_id']; // the source DwCA
 $resource = $param['resource'];
 
 echo "\n========== START hash identifiers ==========\n";
@@ -37,7 +37,7 @@ else exit("\nNot yet initialized [$resource_id]\n");
 
 // /* customize
 if($resource_id == "368_cleaned_MoF")           $resource_id = "368";
-if($resource_id == "26_ENV_final")              $resource_id = "26";
+if($resource_id == "26_ENV_final")              $resource_id = "26"; # will eventually become 26_delta.tar.gz
 if($resource_id == "globi_associations_final")  $resource_id = "globi_associations";
 // */
 
