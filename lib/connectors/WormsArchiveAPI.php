@@ -795,14 +795,23 @@ class WormsArchiveAPI extends ContributorsMapAPI
                 [http://rs.tdwg.org/dwc/terms/measurementValue] => benthos
                 [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
                 [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:101
+                                                                      inherited from urn:lsid:marinespecies.org:taxname:558
             )*/
             $mID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
             $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
             $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+            $measurementAccuracy = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'];
+            
+            // /* 1st criteria for deletion
             if(isset($this->exclude_mType_mValue[$mType][$mValue])) {
                 $this->ToExcludeMeasurementIDs[$mID] = '';
                 if($child = @$this->childOf[$mID]) $this->ToExcludeMeasurementIDs[$child] = '';
             }
+            // */
+            
+            // /* 2nd criteria for deletion: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=67036&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67036
+            if($measurementAccuracy == 'inherited from urn:lsid:marinespecies.org:taxname:558') $this->ToExcludeMeasurementIDs[$mID] = '';
+            // */
         }
     }
     private function get_super_child($id)
