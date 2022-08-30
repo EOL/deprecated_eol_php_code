@@ -11,10 +11,10 @@ class Data_OpenTraits
         // https://opendata.eol.org/dataset/owens-and-lewis-2018
         // https://opendata.eol.org/dataset/mcdermott-1964
         
-        if(Functions::is_production()) $this->report_dir = "/extra/other_files/temp/";
+        if(Functions::is_production()) $this->report_dir =           "/extra/other_files/temp/";
         else                           $this->report_dir = "/Volumes/AKiTiO4/other_files/temp/";
 
-        if(Functions::is_production()) $this->save_dir = "/extra/other_files/OpenTraits/";
+        if(Functions::is_production()) $this->save_dir =           "/extra/other_files/OpenTraits/";
         else                           $this->save_dir = "/Volumes/AKiTiO4/other_files/OpenTraits/";
         if(!is_dir($this->save_dir)) mkdir($this->save_dir);
 
