@@ -88,7 +88,8 @@ class Data_OpenTraits
             else { // $eol_id doesn't exist, let us try to search the sciname
                 if($sciname = @$this->info_EOLid_sciname[$eol_id]) {
 
-                    if($pipe_delimited = self::lookup_DH_sciname($eol_id, $sciname, false)) {
+                    // if($pipe_delimited = self::lookup_DH_sciname($eol_id, $sciname, false)) { # orig, works but too slow
+                    if($pipe_delimited = @$this->eolID_hc[$eol_id]) {
                         
                         // /* copied template
                         echo("\n$eol_id [$sciname] - $pipe_delimited\n");
@@ -115,6 +116,12 @@ class Data_OpenTraits
         return $nearest_common_ancester;
         // exit("stopx");
     }
+    private function lookup_DH_build_info_list()
+    {
+        $tables = $this->DH_info['harvester']->tables;
+        $rowtype = "http://rs.tdwg.org/dwc/terms/taxon";
+        self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME)."_BuildUp", false);
+    }
     function lookup_DH($eol_id = false, $deleteFolder_YN = false)
     {
         $dwca_url = 'http://localhost/other_files/DH/dhv21hc.zip';
@@ -124,20 +131,26 @@ class Data_OpenTraits
         if($eol_id) {
             // echo "\npassed 1\n";
             
+            /* not being used anymore
             $higherClassification = self::get_cache_higherClassification($eol_id);
+            */
+            $higherClassification = @$this->eolID_hc[$eol_id];
+            return $higherClassification;
             
+            /* not being used anymore
             if($higherClassification === false) {
                 $higherClassification = self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME)."_DH", $eol_id);
                 self::save_2cache_higherClassification($eol_id, $higherClassification);
                 return $higherClassification;
             }
             else return $higherClassification; // can be null or with real value
-            
+            */
         }
         // exit("\nexit 1\n");
         
         if($deleteFolder_YN) recursive_rmdir($this->DH_info['temp_dir']);
     }
+    /* not being used anymore
     function lookup_DH_sciname($eol_id, $sciname, $deleteFolder_YN = false)
     {
         $dwca_url = 'http://localhost/other_files/DH/dhv21hc.zip';
@@ -150,9 +163,9 @@ class Data_OpenTraits
             
             if($higherClassification === false) { // no cache file yet === SEEMS IT DOESN'T GO HERE
                 exit("\nSEEMS IT DOESN'T GO HERE\n");
-                /*
-                $higherClassification = self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME)."_DH", $eol_id);
-                */
+                // 
+                // $higherClassification = self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME)."_DH", $eol_id);
+                // 
                 $higherClassification = self::process_table($tables[$rowtype][0], pathinfo($rowtype, PATHINFO_BASENAME)."_DH", $sciname, "scientificName");
                 self::save_2cache_higherClassification($eol_id, $higherClassification);
                 return $higherClassification;
@@ -168,7 +181,7 @@ class Data_OpenTraits
         
         if($deleteFolder_YN) recursive_rmdir($this->DH_info['temp_dir']);
     }
-
+    */
     private function get_cache_higherClassification($eol_id)
     {
         $file = $this->save_dir.$eol_id.".txt";
@@ -195,6 +208,9 @@ class Data_OpenTraits
     {
         $f = Functions::file_open($this->report_dir.$this->filename, "w"); fclose($f); # initialize report text file
         self::lookup_DH(false); //initialize DH access
+        // /* new build $this->eolID_hc[eol_id] = hc
+        self::lookup_DH_build_info_list();
+        // */
         
         $start_num = 0;
         while(true) {
@@ -578,6 +594,12 @@ class Data_OpenTraits
                     $EOLid = $rec['http://eol.org/schema/EOLid'];
                     if($eol_id == $EOLid) return $hc;
                 }
+            }
+            #=====================================================================================
+            elseif($rowtype == "taxon_BuildUp") {
+                $EOLid = $rec['http://eol.org/schema/EOLid'];
+                $hc    = $rec['http://rs.tdwg.org/dwc/terms/higherClassification'];
+                $this->eolID_hc[$EOLid] = $hc;
             }
             #=====================================================================================
         }
