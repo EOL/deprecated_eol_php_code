@@ -2,6 +2,17 @@
 namespace php_active_record;
 /* DATA-1909: resource metadata and summary-from-resource-data export from CKAN
 nohup php update_resources/connectors/data_4opentraits.php _ > terminal.out
+-> use 'nohup' so it continues even after logging out of the terminal
+For diagnostics:
+    ps --help simple
+    ps -r 
+        -> very helpful, if u want to check current running processes
+    cat terminal_textmine_loop.out
+        -> to see progress, very convenient
+    ps -p 85790
+        -> to investigate a running PID
+    kill -9 85790
+        -> to kill a running PID
 
 40 9's
 19 11's
