@@ -115,7 +115,8 @@ START PROPER FILTER OF marine+terrestrial in MoF Habitat records: now only contr
 26_MoF_normalized	Mon 2022-05-09 09:10:53 {"agent":1855, "MoF":2231607, "media":95845, "occur":1103284, "ref":724227, "taxon":383405, "vernacular":86337, "time_elapsed":{"sec":2459.97, "min":41, "hr":0.68}}
 26_MoF_normalized	Fri 2022-06-10 09:08:28 {"agent":1871, "MoF":2260999, "media":96141, "occur":1125064, "ref":731895, "taxon":384507, "vernacular":86667, "time_elapsed":{"sec":2619.43, "min":43.66, "hr":0.73}} Consistent OK
 26_MoF_normalized	Thu 2022-06-23 11:13:17 {"agent":1871, "MoF":2260839, "media":96141, "occur":1124944, "ref":731895, "taxon":384507, "vernacular":86667, "time_elapsed":{"sec":2542.9, "min":42.38, "hr":0.71}}
-Below expected decrease in Vernaculars:
+Below expected decrease in Vernaculars: removed vernaculars where lang = "DEU"
+Unexpected decrease in Occurrence though. Not yet sure the reason for decrease.
 26	                Sun 2022-08-28 11:13:08 AM	{"agent":1879, "MoF":3063929, "media":98075, "occur":2433912, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":4133.49, "min":68.89, "hr":1.15}}
 26_meta_recoded_1	Sun 2022-08-28 12:06:12 PM	{"agent":1879, "MoF":2904153, "media":98075, "occur":2433912, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":3084.07, "min":51.4, "hr":0.86}}
 26_meta_recoded	    Sun 2022-08-28 12:59:38 PM	{"agent":1879, "MoF":2852741, "media":98075, "occur":2433912, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":3204.84, "min":53.41, "hr":0.89}}
@@ -124,7 +125,7 @@ Below expected decrease in Vernaculars:
 26_delta	        Sun 2022-08-28 03:42:33 PM	{"agent":1879, "MoF":2234244, "media":98075, "occur":657098, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":2759.42, "min":45.99, "hr":0.77}}
 26_delta_new	    Sun 2022-08-28 04:17:42 PM	{"agent":1879, "MoF":2212478, "media":98075, "occur":654508, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":2107.34, "min":35.12, "hr":0.59}}
 26_MoF_normalized	Sun 2022-08-28 04:55:33 PM	{"agent":1879, "MoF":2212231, "media":98075, "occur":654508, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":2259.38, "min":37.66, "hr":0.63}}
-Below expected decrease in MoF:
+Below expected decrease in MoF: removed MoF where measurementAccuracy = "inherited from 558"
 26	                Tue 2022-08-30 04:56:49 AM	{"agent":1879, "MoF":2999052, "media":98075, "occur":2369035, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":4056.74, "min":67.61, "hr":1.13}}
 26_meta_recoded_1	Tue 2022-08-30 07:19:01 AM	{"agent":1879, "MoF":2839276, "Media":98075, "occur":2369035, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":3075.03, "min":51.25, "hr":0.85}}
 26_meta_recoded	    Tue 2022-08-30 08:10:55 AM	{"agent":1879, "MoF":2787864, "Media":98075, "occur":2369035, "ref":738320, "taxon":385717, "vernacular":79700, "time_elapsed":{"sec":3111.54, "min":51.86, "hr":0.86}}
