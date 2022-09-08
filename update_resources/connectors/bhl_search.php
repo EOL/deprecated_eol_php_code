@@ -31,6 +31,7 @@ $item_id = '269395';
 $item_id = '262632';
 $item_id = '292464';
 $func->GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype)); exit; //with OcrText and with multiple pages
+// https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=285968&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
 
 $part_id = '263683';
 // $part_id = '241705'; //has external URL
