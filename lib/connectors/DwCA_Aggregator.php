@@ -325,26 +325,29 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                     if(!isset($this->taxon_ids[$taxon_id])) $this->taxon_ids[$taxon_id] = '';
                     else continue;
                 }
-                elseif($what == "document") {
-                    //identifier must be unique
-                    $identifier = $rec['http://purl.org/dc/terms/identifier'];
-                    if(!isset($this->object_ids[$identifier])) $this->object_ids[$identifier] = '';
-                    else continue;
-                }
-                elseif($what == "agent") {
-                    //identifier must be unique
-                    $identifier = $rec['http://purl.org/dc/terms/identifier'];
-                    if(!isset($this->agent_ids[$identifier])) $this->agent_ids[$identifier] = '';
-                    else continue;
-                }
-                elseif($what == "vernacular") {
-                    //row must be unique
-                    $identifier = $rec['http://rs.tdwg.org/dwc/terms/vernacularName']."|".$rec['http://purl.org/dc/terms/language']."|".$rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-                    $identifier = md5($identifier);
-                    if(!isset($this->vernacular_ids[$identifier])) $this->vernacular_ids[$identifier] = '';
-                    else continue;
-                }
             }
+
+            if($what == "document") {
+                //identifier must be unique
+                $identifier = $rec['http://purl.org/dc/terms/identifier'];
+                if(!isset($this->object_ids[$identifier])) $this->object_ids[$identifier] = '';
+                else continue;
+            }
+            elseif($what == "agent") {
+                //identifier must be unique
+                $identifier = $rec['http://purl.org/dc/terms/identifier'];
+                if(!isset($this->agent_ids[$identifier])) $this->agent_ids[$identifier] = '';
+                else continue;
+            }
+            elseif($what == "vernacular") {
+                //row must be unique
+                $identifier = $rec['http://rs.tdwg.org/dwc/terms/vernacularName']."|".$rec['http://purl.org/dc/terms/language']."|".$rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                $identifier = md5($identifier);
+                if(!isset($this->vernacular_ids[$identifier])) $this->vernacular_ids[$identifier] = '';
+                else continue;
+            }
+
+
             
             /* Investigation only --- works OK
             if($what == "taxon") {
