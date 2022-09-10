@@ -380,7 +380,10 @@ class DeltasHashIDsAPI
                     $o->$field = $rec[$uri];
                     if($field != 'identifier') $row_str .= $rec[$uri]." | ";
                 }
-                $o->identifier = md5($row_str); //exit("\n[$row_str][$row_str]\n");
+                
+                if($class != "vernacular") {
+                    $o->identifier = md5($row_str); //exit("\n[$row_str][$row_str]\n");
+                }
                 
                 // /* for storing hashed referenceID, to be used in other tables
                 if($class == "reference") {
@@ -415,8 +418,9 @@ class DeltasHashIDsAPI
                 }
                 
                 // /*
-                if($class == "taxon") $unique_field = $o->taxonID;
-                else                  $unique_field = $o->identifier; //the rest goes here
+                if($class == "taxon")           $unique_field = $o->taxonID;
+                elseif($class == "vernacular")  $unique_field = md5($o->vernacularName.@$o->source.$o->language);
+                else                            $unique_field = $o->identifier; //the rest goes here
                 // */
                 
                 if(!isset($this->unique_ids[$unique_field])) {
