@@ -52,6 +52,11 @@ $timestart = time_elapsed();
 require_library('connectors/DwCA_Utility');
 ini_set('memory_limit','7096M'); //required
 
+// This will rename 71.tar.gz from the long Jenkins run to 71_orig.tar.gz
+// The remaining 71.tar.gz is the resource with just images.
+// The wikimedia_comnames.tar.gz is the resource with just vernaculars.
+
+
 $resource_id = 'wikimedia_comnames';
 $func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . "71" . ".tar.gz");
 $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.gbif.org/terms/1.0/vernacularname');
