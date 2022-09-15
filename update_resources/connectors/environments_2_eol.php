@@ -132,6 +132,14 @@ wikipedia_en_traits_tmp4	Wed 2022-05-25 09:11:12 {"MoF.tab":253641, "occurrence.
 wikipedia_en_traits_tmp4	Wed 2022-05-25 09:15:11 {"MoF.tab":253641, "occurrence.tab":253641, "taxon.tab":169090, "time_elapsed":{"sec":568.65, "min":9.48, "hr":0.16}}
 wikipedia_en_traits_tmp4	Tue 2022-07-19 06:19:03 {"MoF.tab":259711, "occurrence.tab":259711, "taxon.tab":171805, "time_elapsed":{"sec":599.05, "min":9.98, "hr":0.17}} consistent OK
 
+wikipedia_en_traits_FTG	Wed 2022-09-14 05:40:37 PM	{"MoF.tab":278959, "occurrence.tab":278959, "taxon.tab":442781, "time_elapsed":{"sec":918.44, "min":15.31, "hr":0.26}}
+wikipedia_en_traits_tmp1	Wed 2022-09-14 05:44:42 PM	{"MoF.tab":278959, "occurrence.tab":278959, "taxon.tab":174676, "time_elapsed":false}
+wikipedia_en_traits_tmp2	Wed 2022-09-14 05:48:25 PM	{"MoF.tab":278548, "occurrence.tab":278548, "taxon.tab":174676, "time_elapsed":false}
+wikipedia_en_traits_tmp3	Wed 2022-09-14 05:51:59 PM	{"MoF.tab":259433, "occurrence.tab":259433, "taxon.tab":171482, "time_elapsed":{"sec":213.51, "min":3.56, "hr":0.06}}
+wikipedia_en_traits_tmp4	Wed 2022-09-14 05:56:58 PM	{"MoF.tab":259433, "occurrence.tab":259433, "taxon.tab":171837, "time_elapsed":{"sec":296.06, "min":4.93, "hr":0.08}}
+wikipedia_en_traits_tmp4	Wed 2022-09-14 06:00:58 PM	{"MoF.tab":259433, "occurrence.tab":259433, "taxon.tab":171838, "time_elapsed":{"sec":535.86, "min":8.93, "hr":0.15}}
+-> this batch Sep 14, final resource has a slight decrease in nos. Still very acceptable.
+
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
 
