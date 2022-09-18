@@ -502,6 +502,15 @@ class MADtoolNatDBAPI
                 if($record_type == 'taxa') return;
 
                 $mType = $mapped_record['measurementType'];
+                
+                // /* per Jen: https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=67046&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67046
+                // I have a straight up remap for this resource, after another of those vocabulary changes of heart 
+                // For any record with measurementType= http://eol.org/schema/terms/paternalCare
+                // please change to measurementType= http://purl.obolibrary.org/obo/GO_0060746
+                // The rest of the record can stay the same. Thanks!!
+                if($mType == 'http://eol.org/schema/terms/paternalCare') $mType = 'http://purl.obolibrary.org/obo/GO_0060746';
+                // */
+                
                 // $mOfTaxon = ($record_type == "MeasurementOfTaxon=true") ? "true" : "";
                 $mValue   = ($mapped_record['measurementValue'] != "")                             ? $mapped_record['measurementValue']                             : $rec['value'];
                 $mUnit    = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementUnit'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementUnit'] : $rec['units'];
