@@ -3,24 +3,29 @@ namespace php_active_record;
 /* DATA-1754 
 natdb	Thursday 2019-01-24 10:37:40 AM	{"measurement_or_fact.tab"         :165791,"occurrence.tab"         :92783,"taxon.tab":2778}
 natdb	Monday 2019-01-28 10:56:44 AM	{"measurement_or_fact.tab"         :150997,"occurrence_specific.tab":92783,"taxon.tab":2778}
-natdb	Tuesday 2019-01-29 05:00:27 AM	{"measurement_or_fact_specific.tab":127187,"occurrence_specific.tab":94701,"taxon.tab":2778}
-natdb	Tuesday 2019-01-29 08:09:05 AM	{"measurement_or_fact_specific.tab":127187,"occurrence_specific.tab":94701,"reference.tab":8,"taxon.tab":2778}
-natdb	Tuesday 2019-01-29 05:57:54 PM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778} - PATO_0000146 now as 'child measurement'. Before it was as 'occurrence'
-natdb	Tuesday 2019-01-29 06:41:50 PM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778} - MacMini
-natdb	Sunday 2019-02-24 10:35:57 PM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778} - eol-archive
-natdb	Monday 2019-10-14 04:41:26 AM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778,"time_elapsed":{"sec":542.37,"min":9.04,"hr":0.15}} - MacMini
-natdb	Monday 2019-10-14 05:42:34 AM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":477.22,"min":7.95,"hr":0.13}} - MacMini
-natdb	Monday 2019-10-14 06:12:34 AM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":242.49,"min":4.04,"hr":0.07}} - eol-archive
+natdb	Tuesday 2019-01-29 05:00:27 AM	{"MoA":127187,"occurrence_specific.tab":94701,"taxon.tab":2778}
+natdb	Tuesday 2019-01-29 08:09:05 AM	{"MoA":127187,"occurrence_specific.tab":94701,"reference.tab":8,"taxon.tab":2778}
+natdb	Tuesday 2019-01-29 05:57:54 PM	{"MoA":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778} - PATO_0000146 now as 'child measurement'. Before it was as 'occurrence'
+natdb	Tuesday 2019-01-29 06:41:50 PM	{"MoA":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778} - MacMini
+natdb	Sunday 2019-02-24 10:35:57 PM	{"MoA":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778} - eol-archive
+natdb	Monday 2019-10-14 04:41:26 AM	{"MoA":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778,"time_elapsed":{"sec":542.37,"min":9.04,"hr":0.15}} - MacMini
+natdb	Monday 2019-10-14 05:42:34 AM	{"MoA":132656,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":477.22,"min":7.95,"hr":0.13}} - MacMini
+natdb	Monday 2019-10-14 06:12:34 AM	{"MoA":132656,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":242.49,"min":4.04,"hr":0.07}} - eol-archive
 Start DATA-1481 terms remapping
-natdb	Monday 2019-12-02 08:12:33 AM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":260.54,"min":4.34,"hr":0.07000000000000001}}
-natdb	Wednesday 2020-01-15 09:24:06 AM{"measurement_or_fact_specific.tab":130356,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":250.58,"min":4.18,"hr":0.07000000000000001}}
-natdb	Monday 2020-01-27 04:12:46 AM	{"measurement_or_fact_specific.tab":130356,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":251.15,"min":4.19,"hr":0.07000000000000001}}
-natdb	Friday 2020-02-28 02:42:38 AM	{"measurement_or_fact_specific.tab":130356,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":250.3,"min":4.17,"hr":0.07000000000000001}}
-natdb	Friday 2020-07-17 11:24:08 AM	{"measurement_or_fact_specific.tab":129380, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":293.77, "min":4.9, "hr":0.08}}
+natdb	Monday 2019-12-02 08:12:33 AM	{"MoA":132656,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":260.54,"min":4.34,"hr":0.07000000000000001}}
+natdb	Wednesday 2020-01-15 09:24:06 AM{"MoA":130356,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":250.58,"min":4.18,"hr":0.07000000000000001}}
+natdb	Monday 2020-01-27 04:12:46 AM	{"MoA":130356,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":251.15,"min":4.19,"hr":0.07000000000000001}}
+natdb	Friday 2020-02-28 02:42:38 AM	{"MoA":130356,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":250.3,"min":4.17,"hr":0.07000000000000001}}
+natdb	Friday 2020-07-17 11:24:08 AM	{"MoA":129380, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":293.77, "min":4.9, "hr":0.08}}
 
-natdb	                Wed 2021-02-24 10:30:06 AM	{"measurement_or_fact_specific.tab":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":314.37, "min":5.24, "hr":0.09}}
-natdb_meta_recoded_1	Wed 2021-02-24 10:31:57 AM	{"measurement_or_fact_specific.tab":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":111.05, "min":1.85, "hr":0.03}}
-natdb_meta_recoded	    Wed 2021-02-24 10:33:41 AM	{"measurement_or_fact_specific.tab":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":103.38, "min":1.72, "hr":0.03}}
+natdb	                Wed 2021-02-24 10:30:06 AM	{"MoA":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":314.37, "min":5.24, "hr":0.09}}
+natdb_meta_recoded_1	Wed 2021-02-24 10:31:57 AM	{"MoA":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":111.05, "min":1.85, "hr":0.03}}
+natdb_meta_recoded	    Wed 2021-02-24 10:33:41 AM	{"MoA":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":103.38, "min":1.72, "hr":0.03}}
+
+natdb	                Sun 2022-09-18 11:06:37 AM	{"MoA":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":331.83, "min":5.53, "hr":0.09}}
+natdb_meta_recoded_1	Sun 2022-09-18 11:08:30 AM	{"MoA":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":112.25, "min":1.87, "hr":0.03}}
+natdb_meta_recoded	    Sun 2022-09-18 11:10:16 AM	{"MoA":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":106.05, "min":1.77, "hr":0.03}}
+
 
 Now includes other steps (metadata recoding) after main connector:
 php5.6 mad_natdb.php jenkins

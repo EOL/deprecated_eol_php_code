@@ -680,6 +680,8 @@ wikipedia-tr	Sunday 2020-02-23 11:13:08 PM	  {"media_resource.tab":11201, "taxon
 wikipedia-tr	Saturday 2020-04-25 04:38:09 PM	{"media_resource.tab":11448, "taxon.tab":9508, "time_elapsed":{"sec":9986.35, "min":166.44, "hr":2.77}} OK
 wikipedia-tr	Sunday 2020-05-10 09:12:56 PM	  {"media_resource.tab":11309, "taxon.tab":9534, "time_elapsed":{"sec":1667.54, "min":27.79, "hr":0.46}} NEW
 wikipedia-tr	Tuesday 2020-08-11 01:37:10 AM	{"media_resource.tab":11527, "taxon.tab":9715, "time_elapsed":{"sec":9184.04, "min":153.07, "hr":2.55}} consistent OK
+wikipedia-tr	Thu 2022-09-08 10:02:01 PM	    {"media_resource.tab":78478, "taxon.tab":45622, "time_elapsed":{"sec":228.86, "min":3.81, "hr":0.06}}
+-> big increase
 
 wikipedia-th	Friday 2020-02-07 11:42:25 AM	{"media_resource.tab":10780,"taxon.tab":8960,"time_elapsed":{"sec":9871.88,"min":164.53,"hr":2.74}}
 wikipedia-th	Sunday 2020-02-23 11:33:09 PM	  {"media_resource.tab":10784,"taxon.tab":8963,"time_elapsed":{"sec":1194.28,"min":19.9,"hr":0.33}}
@@ -692,6 +694,7 @@ wikipedia-eu	Saturday 2020-02-29 04:56:45 PM	{"media_resource.tab":142295, "taxo
 wikipedia-eu	Wednesday 2020-04-29 05:03:53 AM{"media_resource.tab":142382, "taxon.tab":82587, "time_elapsed":{"sec":114371.9, "min":1906.2, "hr":31.77, "day":1.32}}
 wikipedia-eu	Monday 2020-05-11 03:51:19 PM	  {"media_resource.tab":142382, "taxon.tab":82592, "time_elapsed":{"sec":11945.91, "min":199.1, "hr":3.32}}
 wikipedia-eu	Tuesday 2020-08-11 04:07:28 AM	{"media_resource.tab":142672, "taxon.tab":82781, "time_elapsed":{"sec":97709.53, "min":1628.49, "hr":27.14, "day":1.13}} consistent OK
+wikipedia-eu	Sun 2022-09-18 01:38:59 PM	    {"media_resource.tab":145209, "taxon.tab":84666, "time_elapsed":{"sec":407.39, "min":6.79, "hr":0.11}}
 
 wikipedia-ha	Monday 2020-05-04 05:06:17 AM	  {"media_resource.tab":326, "taxon.tab":737, "time_elapsed":{"sec":1178.64, "min":19.64, "hr":0.33}}
 wikipedia-ha	Tuesday 2020-05-05 04:12:42 AM	{"media_resource.tab":328, "taxon.tab":737, "time_elapsed":{"sec":780.13, "min":13, "hr":0.22}}
