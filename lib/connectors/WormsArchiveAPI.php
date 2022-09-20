@@ -810,7 +810,10 @@ class WormsArchiveAPI extends ContributorsMapAPI
             // */
             
             // /* 2nd criteria for deletion: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=67036&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67036
-            if($measurementAccuracy == 'inherited from urn:lsid:marinespecies.org:taxname:558') $this->ToExcludeMeasurementIDs[$mID] = '';
+            if($measurementAccuracy == 'inherited from urn:lsid:marinespecies.org:taxname:558') {
+                $this->ToExcludeMeasurementIDs[$mID] = '';
+                if($child = @$this->childOf[$mID]) $this->ToExcludeMeasurementIDs[$child] = '';
+            }
             // */
         }
     }
