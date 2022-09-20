@@ -738,6 +738,10 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 if(in_array($rek['lbl'], array('ocean', 'sea'))) continue;
                 if($rek['id'] == 'http://purl.obolibrary.org/obo/ENVO_00000447') continue;
                 // */
+                
+                // /* per: https://eol-jira.bibalex.org/browse/DATA-1914 - as of Sep 20, 2022
+                if(in_array($rek['lbl'], array('organ', 'field', 'well', 'adhesive', 'quarry', 'reservoir', 'umbrella', 'plantation', 'bar'))) continue;
+                // */
             }
             // */
             
