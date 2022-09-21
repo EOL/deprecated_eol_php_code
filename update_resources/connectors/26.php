@@ -140,6 +140,11 @@ Below expected decrease in MoF: removed MoF where measurementAccuracy = "inherit
 26_delta_new	    Mon 2022-09-19 07:14:50 PM	{"agent.tab":1893, "MoF":2151836, "Media":98246, "occur":645202, "ref":741350, "taxon.tab":386382, "vernacular_name.tab":79720, "time_elapsed":{"sec":2240.12, "min":37.34, "hr":0.62}}
 26_MoF_normalized	Mon 2022-09-19 07:53:17 PM	{"agent.tab":1893, "MoF":2151589, "Media":98246, "occur":645202, "ref":741350, "taxon.tab":386382, "vernacular_name.tab":79720, "time_elapsed":{"sec":2296.74, "min":38.28, "hr":0.64}}
 
+26_ENV_final	    Tue 2022-09-20 07:09:25 PM	{"agent.tab":1893, "MoF":2571315, "Media":98246, "occur":2150861, "ref":741350, "taxon.tab":386382, "vernacular_name.tab":79720, "time_elapsed":{"sec":3356.44, "min":55.94, "hr":0.93}}
+26_delta	        Tue 2022-09-20 07:57:23 PM	{"agent.tab":1893, "MoF":2173545, "Media":98246, "occur":647793, "ref":741350, "taxon.tab":386382, "vernacular_name.tab":79720, "time_elapsed":{"sec":2819.33, "min":46.99, "hr":0.78}}
+26_delta_new	    Tue 2022-09-20 08:35:37 PM	{"agent.tab":1893, "MoF":2151796, "Media":98246, "occur":645202, "ref":741350, "taxon.tab":386382, "vernacular_name.tab":79720, "time_elapsed":{"sec":2292.95, "min":38.22, "hr":0.64}}
+26_MoF_normalized	Tue 2022-09-20 09:14:22 PM	{"agent.tab":1893, "MoF":2151549, "Media":98246, "occur":645202, "ref":741350, "taxon.tab":386382, "vernacular_name.tab":79720, "time_elapsed":{"sec":2313.89, "min":38.56, "hr":0.64}}
+
 
 -rw-r--r-- 1 root      root       150939877 Aug 28 16:56 WoRMS.tar.gz
 -rw-r--r-- 1 root      root       150949430 Aug 28 16:16 26_delta_new.tar.gz

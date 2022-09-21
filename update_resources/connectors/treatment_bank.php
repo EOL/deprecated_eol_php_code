@@ -62,6 +62,9 @@ TreatmentBank_adjustment_01	Thu 2022-06-16 02:23:32 AM	{"MoF.tab":2193511, "occu
 TreatmentBank_ENV	Fri 2022-06-17 01:05:59 AM	        {"MoF.tab":2007609, "occur.tab":2007609, "taxon.tab":597053, "time_elapsed":{"sec":50351.17, "min":839.19, "hr":13.99}}
 TreatmentBank_adjustment_01	Fri 2022-06-17 03:40:54 AM	{"MoF.tab":2007566, "occur.tab":2007566, "taxon.tab":597036, "time_elapsed":{"sec":1421.39, "min":23.69, "hr":0.39}}
 
+TreatmentBank_ENV	        Tue 2022-09-20 06:52:12 PM	{"MoF.tab":1865825, "occur.tab":1865825, "taxon.tab":597053, "time_elapsed":{"sec":62465.11, "min":1041.09, "hr":17.35}}
+TreatmentBank_adjustment_01	Tue 2022-09-20 08:24:35 PM	{"MoF.tab":1865787, "occur.tab":1865787, "taxon.tab":597036, "time_elapsed":{"sec":1381.3, "min":23.02, "hr":0.38}}
+
 *** Last step: TreatmentBank_adjustment_01.tar.gz is renamed to TreatmentBank_final.tar.gz
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
