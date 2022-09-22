@@ -53,8 +53,8 @@ $job['es']['next']['it'];
                                     fj      hu        MIN
                                     ik      cs        bg
                                     zea     +uk       szl
-                                   -END-              af
-                                                      eo
+                                    ceb               af
+                                   -END-              eo
                                                       av
                                                       chy
                                                      -END-
