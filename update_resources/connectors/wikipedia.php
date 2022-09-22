@@ -307,10 +307,15 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
         print_r($info);
         $lang = $info[0]; $status = $info[1]; $six_conn = $info[2];
         if($status == 'Y' && $six_conn == '6c') echo "\n=PROCEEDx WITH HARVEST for [$language]=\n";
-        else exit("\n=CANNOT PROCEEDx [$language], GO TO NEXT LANGUAGE=\n");
+        else {
+            /* we need to log which resources fall here, so they can be setup CORRECTLY as a 6-connector ('ce') run OR a single run ('yo') */
+            $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."wikipedia_missed_harvest.txt", "a");
+            fwrite($f, date("Y-m-d_H_s") . " =CANNOT PROCEEDx [$language], GO TO NEXT LANGUAGE=\n");
+            fclose($f);
+            exit("\n=CANNOT PROCEEDx [$language], GO TO NEXT LANGUAGE=\n");
+        }
     }
     // */
-    
     
     echo "\n===== Goes to the 6-partial-connector run =====\n";
     $status_arr = $func->generate_resource($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.
