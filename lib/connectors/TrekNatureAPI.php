@@ -36,6 +36,12 @@ class TrekNatureAPI
                     foreach($arr[1] as $param) {
                         $rec = array();
                         $image_url = $this->image_summary_page . $param;
+                        // echo "\n[https://www.treknature.com/viewphotos.php@l=3&p=313070.html]\n";
+                        // exit("\naaa[$image_url]bbb\n");
+                        
+                        $image_url = str_replace("&amp;", "&", $image_url);
+                        
+                        
                         if($html2 = Functions::lookup_with_cache($image_url, $this->download_options)) {
                             $rec["page"] = $url;
                             $rec["source"] = $image_url;
