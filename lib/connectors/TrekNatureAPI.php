@@ -15,11 +15,191 @@ class TrekNatureAPI
         $this->image_list_page = "http://www.treknature.com/members/fragman/photos/";
         $this->image_summary_page = "http://www.treknature.com/viewphotos.php";
     }
+    
+    private function get_lists_of_pages()
+    {   
+        // https://www.treknature.com/members/page1.htm@sort_by=md.html
+        // https://www.treknature.com/members/page17.htm@sort_by=md.html
+        $final = array();
+        for($i = 1; $i <= 17; $i++) {
+            $url = "https://www.treknature.com/members/page".$i.".htm@sort_by=md.html";
+            echo "\n[$url]";
+            // href="../gallery/Middle_East/Israel/index.html"
+            if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+                if(preg_match_all("/href=\"..\/gallery\/(.*?)\"/ims", $html, $arr)) {
+                    // print_r($arr[1]); //exit;
+                    $final = array_merge($final, $arr[1]);
+                    $final = array_unique($final);
+                    asort($final);
+                    $final = array_values($final); //reindex key
+                }
+            }
+        }
+        print_r($final);
+        array_pop($final);
+        print_r($final);
+        return $final;
+    }
+    private function access_partial_urls($partial_urls)
+    {
+        $final = array();
+        // print_r($partial_urls);
+        // https://www.treknature.com/gallery/Middle_East/Oman/index.html
+                                          // South_America/Venezuela/index.html
+        foreach($partial_urls as $partial) {
+            $url = "https://www.treknature.com/gallery/".$partial;
+            echo "\n[$url]";
+            $final[] = $url;
+        }
+        return $final;
+    }
     function get_all_taxa()
     {
+        // /* new but not exclusive to Member fragman
+        $partial_urls = self::get_lists_of_pages();
+        $urls = self::access_partial_urls($partial_urls);
+        self::scrape_image_info_ver2($urls);
+        // */
+        
+        // exit("\n-end muna-\n");
+        /* obsolete
         self::scrape_image_info();
+        */
         $this->archive_builder->finalize(TRUE);
     }
+    private function scrape_image_info_ver2($urls)
+    {
+        /* possible lookup to wikidata
+        // https://www.wikidata.org/w/index.php?go=Go&search=white+eyed+gull
+        // https://www.wikidata.org/w/index.php?go=Go&search=Red lionfish
+        // https://www.wikidata.org/w/index.php?go=Go&search=Red Colobus
+        */
+        
+        $page = 1; //debug original value is 1;
+        // as of 26 Sep 2022 there are 1-84 pages. e.g. https://www.treknature.com/gallery/Africa/Algeria/index.html
+        foreach($urls as $url) {
+            if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+                echo "\nPage URL: [$url]";
+                
+                // <img src="https://i1.treknature.com/misc/g-s-g.gif" border="0" width="16" height="12" alt="Gold Star Critiquer/Silver Workshop Editor/Gold Note Writer [C: 236 W: 38 N: 343]" align="middle" /></a> (2616)</span></td><td width="32%">
+                // <a href="Yerushalayim/Jerusalem/index.html">Jerusalem</a><br /><a href="photo313031.htm">
+                // <img class="thumb-border" src="https://i1.treknature.com/photos/1990/dsc_5367_s_.jpg" width="108" height="150" border="1" alt="Title: Vicia cypria" title="Title: Vicia cypria" /></a><br />
+                //     <a style="text-decoration: none; color: black;" href="photo313031.htm">Vicia cypria</a> (6) <br />
+                //     <span class="minor-text"><a href="../../../members/fragman/index.html" title="">fragman</a> 
+                //     <a href="javascript:void(0)" onClick="popup('c_star',1990);">
+                // <img src="https://i1.treknature.com/misc/g-s-g.gif"
+
+                $html = str_replace("g-n-g.gif", "g-s-g.gif", $html);
+                $html = str_replace("s-n-s.gif", "g-s-g.gif", $html);
+
+                if(preg_match_all("/<img src=\"https\:\/\/i1.treknature.com\/misc\/g-s-g.gif\"(.*?)<img src=\"https\:\/\/i1.treknature.com\/misc\/g-s-g.gif\"/ims", $html, $arr)) {
+                    // print_r($arr[1]); exit;
+
+                    /* debug
+                    if($url == "https://www.treknature.com/gallery/Africa/Morocco/index.html") {
+                        print_r($arr[1]);
+                        exit;
+                    }
+                    */
+                    
+                    foreach($arr[1] as $block) {
+                        
+                        if ( stripos( $block, ">fragman</a>" ) !== false ) {}
+                        else continue; // not from fragman
+                        
+                        
+                        
+                        // href="photo301152.htm">
+                        if(preg_match_all("/href=\"photo(.*?)\"/ims", $block, $arrx)) {
+                            if($val = $arrx[1]) {} //print_r($val);
+                            else echo "\ninvestigate no images A1 [$url]\n";
+
+                            foreach($arrx[1] as $param) {
+                                $rec = array();
+                                // $image_url = $this->image_summary_page . $param;
+                                $image_url = str_replace("index.html", "/photo".$param, $url);
+                                // exit("\naaa[$image_url]bbb\n");
+
+                                $image_url = str_replace("&amp;", "&", $image_url);
+                                echo "\nImage URL: [$image_url]";
+
+                                if($html2 = Functions::lookup_with_cache($image_url, $this->download_options)) {
+                                    $rec["page"] = $url;
+                                    $rec["source"] = $image_url;
+                                    $temp = explode("p=", $rec["source"]);
+
+                                    if(preg_match("/photo(.*?).htm/ims", $image_url, $arr2)) $rec["image_id"] = $arr2[1];
+
+                                    // $rec["sciname"] = self::get_sciname_from_desc($html2);
+
+                                    // Genre: <a href="/photos.php?filter=LA">Landscapes</a></td>
+                                    if(preg_match("/Genre:(.*?)<\/td>/ims", $html2, $arr2)) {
+                                        if($rec["image_id"] == "20786") $rec["sciname"] = "Alnus glutinosa";
+                                        elseif(is_numeric(stripos($arr2[1], "Landscapes"))) continue;
+                                    }
+
+                                    // if($rec["image_id"] == "308084") $rec["sciname"] = "Cinnyris coccinigastrus";
+                                    
+
+
+                                    if(!@$rec["sciname"]) {
+                                        if(preg_match("/<h1>(.*?)<\/h1>/ims", $html2, $arr2)) $rec["sciname"] = $arr2[1];
+                                    }
+
+                                    if(preg_match("/Photographer's Note<\/span><\/td><\/tr>(.*?)<\/td>/ims", $html2, $arr2)) $rec["caption"] = trim(strip_tags($arr2[1]));
+                                    // <h1>Capparis decidua</h1><br><img src="http://i1.treknature.com/photos/1990/capparis_decidua1.jpg" WIDTH="750" HEIGHT="500" border="1" alt="Capparis decidua"></td>
+                                    if(preg_match("/<\/h1>(.*?)<\/td>/ims", $html2, $arr2)) {
+                                        if(preg_match("/src=\"(.*?)\"/ims", $arr2[1], $arr2)) $rec["src"] = $arr2[1];
+                                    }
+                                    if(preg_match("/<h2>Photos:(.*?)<\/div>/ims", $html2, $arr2)) {
+                                        $temp = array_map('trim', explode(" >> ", $arr2[1]));
+                                        $temp = array_map('strip_tags', $temp);
+                                        // print_r($temp);
+                                        if    ($val = @$temp[5]) $rec["location"] = str_ireplace("register", "", $val) . ", " . $temp[2];
+                                        elseif($val = @$temp[4]) $rec["location"] = str_ireplace("register", "", $val) . ", " . $temp[2];
+                                    }
+                                }
+
+                                if($rec) self::process_record($rec);
+                                else echo "\ninvestigate no image details [$image_url]\n";
+
+                                //additional records
+                                if(in_array($rec["image_id"], array("258161","238990","213710","212647","212559","120397","48044", "231718"))) {
+                                    if    ($rec["image_id"] == "258161") $rec["sciname"] = "Cistus creticus";
+                                    elseif($rec["image_id"] == "238990") $rec["sciname"] = "Euphorbia antilibanotica";
+                                    elseif($rec["image_id"] == "213710") $rec["sciname"] = "Ziziphora clinopodioides";
+                                    elseif($rec["image_id"] == "212647") $rec["sciname"] = "Melanargia galathea";
+                                    elseif($rec["image_id"] == "212559") $rec["sciname"] = "Galanthus";
+                                    elseif($rec["image_id"] == "120397") $rec["sciname"] = "Plantago ciliata";
+                                    elseif($rec["image_id"] == "48044")  $rec["sciname"] = "Ixia sorrel";
+                                    elseif($rec["image_id"] == "231718") $rec["sciname"] = "Ranunculus asiaticus";
+                                    self::process_record($rec);
+                                }
+
+                            } // end foreach()
+                        }
+                        else echo "\ninvestigate no images A2 [$url]\n";
+                        
+                        
+                    } //end foreach block
+                }
+            }
+            // if($page >= 10) break; //debug
+            $page++;
+        } //end main foreach()
+    }
+    private function get_sciname_from_desc($html)
+    {
+        if(preg_match("/<td align=\"left\" bgcolor=\"#FFFFFF\"(.*?)<\/td>/ims", $html, $arr)) {
+            // print_r($arr[1]); exit;
+            if(preg_match("/\((.*?)\)/ims", $arr[1], $arr2)) {
+                return $arr2[1];
+            }
+        }
+    }
+    
+    
+    
     private function scrape_image_info()
     {
         // as of 30Dec2014 there are 1-187 pages. e.g. http://www.treknature.com/members/fragman/photos/page2.htm
@@ -27,11 +207,11 @@ class TrekNatureAPI
         while(true) {
             $url = $this->image_list_page . "page" . $page . ".htm";
             if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-                echo "\n[$url]";
+                echo "\nPage URL: [$url]";
                 // <a href="/viewphotos.php?l=3&p=300942">
                 if(preg_match_all("/viewphotos.php(.*?)\"/ims", $html, $arr)) {
                     if($val = $arr[1]) {} //print_r($val);
-                    else echo "\ninvestigate no images [$url]\n";
+                    else echo "\ninvestigate no images B1 [$url]\n";
                     
                     foreach($arr[1] as $param) {
                         $rec = array();
@@ -40,6 +220,7 @@ class TrekNatureAPI
                         // exit("\naaa[$image_url]bbb\n");
                         
                         $image_url = str_replace("&amp;", "&", $image_url);
+                        echo "\nImage URL: [$image_url]";
                         
                         
                         if($html2 = Functions::lookup_with_cache($image_url, $this->download_options)) {
@@ -88,15 +269,18 @@ class TrekNatureAPI
                             self::process_record($rec);
                         }
                         
-                    }
+                    } // end foreach()
                 }
-                else echo "\ninvestigate no images [$url]\n";
+                else echo "\ninvestigate no images B2 [$url]\n";
                 
+                /*
                 if(!is_numeric(stripos($html, '.htm">></a>'))) break; // last page, nothing to follow
+                */
+                
             }
-            // if($page >= 2) break; //debug
+            if($page >= 200) break; //debug
             $page++;
-        }
+        } //end while()
     }
     private function process_record($rec)
     {

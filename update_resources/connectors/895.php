@@ -17,7 +17,9 @@ agent   1       1       1       1
 895	Sunday 2018-12-16 11:03:50 AM	    {"agent.tab":1,"media_resource.tab":4441,"taxon.tab":2362}
 895	Wednesday 2019-01-16 11:08:07 AM	{"agent.tab":1,"media_resource.tab":4419,"taxon.tab":2352}
 895	Saturday 2019-02-16 11:10:52 AM	    {"agent.tab":1,"media_resource.tab":4443,"taxon.tab":2362}
-895	Monday 2019-02-18 10:15:36 AM	    {"agent.tab":1,"media_resource.tab":4443,"taxon.tab":2362}
+895	Monday 2019-02-18 10:15:36 AM	    {"agent.tab":1, "media_resource.tab":4443, "taxon.tab":2362}
+895	Wed 2020-12-16 10:11:44 AM	        {"agent.tab":1, "media_resource.tab":4457, "taxon.tab":2369, "time_elapsed":false}
+895	Sun 2022-09-25 10:34:55 AM	        {"agent.tab":1, "media_resource.tab":162,  "taxon.tab":114, "time_elapsed":false}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
