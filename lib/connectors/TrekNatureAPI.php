@@ -71,7 +71,7 @@ class TrekNatureAPI
             echo "\n[$url]";
             $final[] = $url;
         }
-        // print_r($final); exit;
+        echo "\nfragman's grouped images: ".count($final)."\n"; print_r($final); //exit;
         
         // 2nd step: get 1 - n pages
         $final2 = array();
@@ -91,11 +91,12 @@ class TrekNatureAPI
                     else $final2[] = $url;
                 }
             }
-            // if($i >= 50) break; //debug only
+            // if($i >= 3) break; //debug only
+            if($i >= 50) break; // part of main operation, to remove possibility of infinite loop. As of 26Sep2022 i=28
         }
         // print_r($final);
-        // print_r($final2); exit;        
-        return $final;
+        // print_r($final2); exit;
+        return $final2;
     }
     function get_all_taxa()
     {
