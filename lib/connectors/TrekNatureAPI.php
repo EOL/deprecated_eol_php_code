@@ -57,7 +57,7 @@ class TrekNatureAPI
         }
         */
         
-        // /* version 2.5 --- 135 urls
+        // /* version 2.5 --- 135 urls --- 216 urls final2
         // step 1:
         $member_url = "https://www.treknature.com/members/fragman/index.html";
         if($html = Functions::lookup_with_cache($member_url, $this->download_options)) {
