@@ -43,7 +43,7 @@ class TrekNatureAPI
         return $final;
         */
         
-        // /* version 2
+        /* version 2 --- 27 urls
         $member_url = "https://www.treknature.com/members/fragman/index.html";
         if($html = Functions::lookup_with_cache($member_url, $this->download_options)) {
             // [<a href="photos/Asia/Vietnam/index.html">view photos</a>]
@@ -55,7 +55,54 @@ class TrekNatureAPI
                 return $arr[1];
             }
         }
+        */
+        
+        // /* version 2.5 --- 135 urls
+        // step 1:
+        $member_url = "https://www.treknature.com/members/fragman/index.html";
+        if($html = Functions::lookup_with_cache($member_url, $this->download_options)) {
+            // href="../../map.php@ctr=Armenia&amp;member=fragman.html">view map</a>
+            // href="../../map.php@ctr=Morocco&amp;member=fragman.html">view map</a>
+            if(preg_match_all("/href=\"..\/..\/map.php(.*?)\">view map<\/a>/ims", $html, $arr)) {
+                // print_r($arr[1]); exit("-end");
+                $final = $arr[1]; //move to step 2
+            }
+        }
+        // step 2:
+        //                                   @ctr=Armenia&amp;member=fragman.html
+        // https://www.treknature.com/map.php@ctr=Armenia&member=fragman.html
+        foreach($final as $f) {
+            $map_url = "https://www.treknature.com/map.php".str_replace("&amp;", "&", $f);
+            echo "\n$map_url";
+            
+            if($html = Functions::lookup_with_cache($map_url, $this->download_options)) {
+                // href="members/fragman/photos/Africa/Morocco/South/Agadir/index.html">view photos</a>]
+                if(preg_match_all("/href=\"members\/fragman\/photos\/(.*?)\">view photos<\/a>/ims", $html, $arr)) {
+                    print_r($arr[1]); //exit("-end");
+                    array_pop($arr[1]);     // remove last element
+                    print_r($arr[1]); //exit("-end");
+                    $final2 = $arr[1];
+                    
+                    //next step:
+                                                               // [0] => Asia/Armenia/West/Ararat/index.html
+                    // https://www.treknature.com/members/fragman/photos/Asia/Armenia/West/Ararat/index.html
+                    foreach($final2 as $f) {
+                        $url = "https://www.treknature.com/members/fragman/photos/".$f;
+                        $pinale[] = $url;
+                    }
+                }
+            }
+        }
+        // print_r($pinale); exit("-end");
+        
+        // [132] => https://www.treknature.com/members/fragman/photos/Asia/Vietnam/Mekong_River_Delta/Hau_Giang/index.html
+        // [133] => https://www.treknature.com/members/fragman/photos/Asia/Vietnam/Red_River_Delta/Ha_Noi/index.html
+        // [134] => https://www.treknature.com/members/fragman/photos/Asia/Vietnam/South_East/Ho_Chi_Minh/index.html
+        
+        return $pinale;
         // */
+        
+        exit("\nmuna\n");
     }
     private function access_partial_urls($partial_urls)
     {
@@ -100,12 +147,19 @@ class TrekNatureAPI
     }
     function get_all_taxa()
     {
-        // /* new
+        // /* ----- start new -----
         $partial_urls = self::get_lists_of_pages();
+        /* if you are using: get_lists_of_pages() version 2 --- 27 urls
         $urls = self::access_partial_urls($partial_urls);
         // self::scrape_image_info_ver2($urls);                 // not exclusive to Member fragman
         self::scrape_image_info_ver3($urls);                    // exclusive to Member fragman OK
+        */
+        
+        // /* if you are using: get_lists_of_pages() version 2.5 --- 135 urls
+        self::scrape_image_info_ver3($partial_urls);            // exclusive to Member fragman OK
         // */
+        
+        // */ ----- end new -----
         
         // exit("\n-end muna-\n");
         /* obsolete
@@ -135,10 +189,14 @@ class TrekNatureAPI
                         $rec = array();
                         // https://www.treknature.com/viewphotos.php@l=5&p=249116.html
                         // https://www.treknature.com/viewphotos.php@l=5&p=249116.html
+                        
+                        // /* e.g. https://www.treknature.com/viewphotos.php?l=5&p=310970 instead of https://www.treknature.com/viewphotos.php?l=5&p=310970.html
+                        // */
+                        
                         $image_url = "https://www.treknature.com/viewphotos" . $param;
 
                         $image_url = str_replace("&amp;", "&", $image_url);
-                        echo "\nImage URL: [$image_url]";
+                        echo "\nImage URL v3: [$image_url]";
 
                         if($html2 = Functions::lookup_with_cache($image_url, $this->download_options)) {
                             $rec["page"] = $url;
@@ -248,7 +306,7 @@ class TrekNatureAPI
                                 // exit("\naaa[$image_url]bbb\n");
 
                                 $image_url = str_replace("&amp;", "&", $image_url);
-                                echo "\nImage URL: [$image_url]";
+                                echo "\nImage URL v2: [$image_url]";
 
                                 if($html2 = Functions::lookup_with_cache($image_url, $this->download_options)) {
                                     $rec["page"] = $url;
@@ -348,7 +406,7 @@ class TrekNatureAPI
                         // exit("\naaa[$image_url]bbb\n");
                         
                         $image_url = str_replace("&amp;", "&", $image_url);
-                        echo "\nImage URL: [$image_url]";
+                        echo "\nImage URL v1: [$image_url]";
                         
                         
                         if($html2 = Functions::lookup_with_cache($image_url, $this->download_options)) {
