@@ -99,7 +99,32 @@ class TrekNatureAPI
         // [133] => https://www.treknature.com/members/fragman/photos/Asia/Vietnam/Red_River_Delta/Ha_Noi/index.html
         // [134] => https://www.treknature.com/members/fragman/photos/Asia/Vietnam/South_East/Ho_Chi_Minh/index.html
         
-        return $pinale;
+        
+        // next step: get 1 - n pages
+        $final2 = array();
+        $i = 0;
+        foreach($pinale as $url) { $i++;
+            $orig_url = $url;
+            $ctr = 0;
+            while(true) { $ctr++;
+                $url = $orig_url;
+                if($ctr >= 2) {
+                    $url = str_replace("index.html", "pagePageNum.htm", $url);
+                    $url = str_replace('PageNum', $ctr, $url);
+                }
+                echo "\n proc: $url";
+                if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+                    if ( stripos( $html, "note to members" ) !== false ) break; // from fragman
+                    else $final2[] = $url;
+                }
+            }
+            // if($i >= 3) break; //debug only
+            if($i >= 50) break; // part of main operation, to remove possibility of infinite loop. As of 26Sep2022 i=28
+        }
+        
+        
+        print_r($final2); exit("-end");
+        return $final2;
         // */
         
         exit("\nmuna\n");
