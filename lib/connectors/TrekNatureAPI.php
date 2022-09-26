@@ -10,7 +10,7 @@ class TrekNatureAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->resource_agent_ids = array();
-        $this->download_options = array('download_wait_time' => 500000, 'timeout' => 900, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30); //expires in a month
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30); //expires in a month
         // $this->download_options["expire_seconds"] = false; // "expire_seconds" -- false => won't expire; 0 => expires now
         $this->image_list_page = "http://www.treknature.com/members/fragman/photos/";
         $this->image_summary_page = "http://www.treknature.com/viewphotos.php";
@@ -42,15 +42,39 @@ class TrekNatureAPI
     }
     private function access_partial_urls($partial_urls)
     {
+        // 1st step
         $final = array();
         // print_r($partial_urls);
         // https://www.treknature.com/gallery/Middle_East/Oman/index.html
-                                          // South_America/Venezuela/index.html
         foreach($partial_urls as $partial) {
             $url = "https://www.treknature.com/gallery/".$partial;
             echo "\n[$url]";
             $final[] = $url;
         }
+        // print_r($final); exit;
+        
+        // 2nd step: get 1 - n pages
+        $final2 = array();
+        $i = 0;
+        foreach($final as $url) { $i++;
+            $orig_url = $url;
+            $ctr = 0;
+            while(true) { $ctr++;
+                $url = $orig_url;
+                if($ctr >= 2) {
+                    $url = str_replace("index.html", "pagePageNum.htm", $url);
+                    $url = str_replace('PageNum', $ctr, $url);
+                }
+                echo "\n proc: $url";
+                if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+                    if ( stripos( $html, "note to members" ) !== false ) break; // from fragman
+                    else $final2[] = $url;
+                }
+            }
+            // if($i >= 50) break; //debug only
+        }
+        // print_r($final);
+        // print_r($final2); exit;        
         return $final;
     }
     function get_all_taxa()
@@ -104,7 +128,7 @@ class TrekNatureAPI
                     
                     foreach($arr[1] as $block) {
                         
-                        if ( stripos( $block, ">fragman</a>" ) !== false ) {}
+                        if ( stripos( $block, ">fragman</a>" ) !== false ) {} // from fragman
                         else continue; // not from fragman
                         
                         
@@ -187,6 +211,7 @@ class TrekNatureAPI
             // if($page >= 10) break; //debug
             $page++;
         } //end main foreach()
+        
     }
     private function get_sciname_from_desc($html)
     {
@@ -201,7 +226,7 @@ class TrekNatureAPI
     
     
     private function scrape_image_info()
-    {
+    {   exit("\nObsolete, since the weird 'Note to Members...' message started to appear.\n");
         // as of 30Dec2014 there are 1-187 pages. e.g. http://www.treknature.com/members/fragman/photos/page2.htm
         $page = 1; //debug original value is 1;
         while(true) {
