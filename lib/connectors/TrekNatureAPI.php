@@ -119,11 +119,11 @@ class TrekNatureAPI
                 }
             }
             // if($i >= 3) break; //debug only
-            if($i >= 50) break; // part of main operation, to remove possibility of infinite loop. As of 26Sep2022 i=28
+            if($i >= 150) break; // part of main operation, to remove possibility of infinite loop. As of 26Sep2022 i=135
         }
         
         
-        print_r($final2); exit("-end");
+        print_r($final2); //exit("-end-");
         return $final2;
         // */
         
