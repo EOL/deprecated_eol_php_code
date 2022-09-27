@@ -693,7 +693,8 @@ class TrekNatureAPI
         $sciname = str_replace(" ssp.", " ssp. ", $sciname);
         $sciname = trim(Functions::remove_whitespace($sciname));
         
-        if(substr($sciname, -3) == " sp") $sciname = substr($sciname, 0, strlen($sciname)-3); # e.g. "Penstemon sp" should be "Penstemon" only
+        if(substr($sciname, -3) == " sp")      $sciname = substr($sciname, 0, strlen($sciname)-3); # e.g. "Penstemon sp" should be "Penstemon" only
+        if(substr($sciname, -8) == " species") $sciname = substr($sciname, 0, strlen($sciname)-8); # e.g. "Utricularia species"
         
         elseif($sciname == "Homeria blooming after fire") return "Homeria";
         elseif($sciname == "Homeria after fire") return "Homeria";
