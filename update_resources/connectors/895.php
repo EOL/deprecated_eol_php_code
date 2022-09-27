@@ -23,18 +23,16 @@ agent   1       1       1       1
 895	Mon 2022-09-26 07:14:36 AM	        {"agent.tab":1, "media_resource.tab":1470, "taxon.tab":1038, "time_elapsed":false} - salvaged OK, acceptable
 895	Mon 2022-09-26 01:52:59 PM	        {"agent.tab":1, "media_resource.tab":1844, "taxon.tab":1263, "time_elapsed":false}
 -> improved coverage, but will still check for false taxon names e.g. 'butterfly'
+895	Tue 2022-09-27 01:13:32 AM	        {"agent.tab":1, "media_resource.tab":1844, "taxon.tab":1259, "time_elapsed":false}
 
-
+Partner website seems lacking maintenance:
 https://www.treknature.com/viewphotos.php@l=5&p=262614.html
 https://www.treknature.com/viewphotos.php@l=5&p=259574.html
-
 https://www.treknature.com/viewphotos.php@l=5&p=251406.html
 https://www.treknature.com/viewphotos.php?l=5&p=259117.html
-
 https://www.treknature.com/viewphotos.php?l=5&p=129698.html
 https://www.treknature.com/viewphotos.php@l=5&p=129698.html
 https://www.treknature.com/viewphotos.php@l=5&p=310596.html
-
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
