@@ -212,6 +212,7 @@ class TrekNatureAPI
 
                     foreach($arrx[1] as $param) {
                         $rec = array();
+                        $rec["image_id"] = '';
                         // https://www.treknature.com/viewphotos.php@l=5&p=249116.html
                         // https://www.treknature.com/viewphotos.php@l=5&p=249116.html
                         
