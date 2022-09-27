@@ -257,6 +257,8 @@ class TrekNatureAPI
                         if($rec) self::process_record($rec);
                         else echo "\ninvestigate no image details [$image_url]\n";
 
+                        if(!@$rec["image_id"]) continue;
+
                         //additional records
                         if(in_array($rec["image_id"], array("258161","238990","213710","212647","212559","120397","48044", "231718"))) {
                             if    ($rec["image_id"] == "258161") $rec["sciname"] = "Cistus creticus";
