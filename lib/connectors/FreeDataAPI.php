@@ -17,6 +17,11 @@ class FreeDataAPI
         $this->folder = $folder; //now used for all
         $this->download_options = array('cache' => 1, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*28); //expires in 28 days
 
+        /*
+        $path = CONTENT_RESOURCE_LOCAL_PATH . "$folder/";
+        if(!is_dir($path)) mkdir($path);
+        */
+        
         $this->print_header = true; //for all
         //----------------------------
         $this->destination['reef-life-survey'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
@@ -177,6 +182,9 @@ class FreeDataAPI
 
     function process_rec_MarylandBio($rec)
     {   // 26 cols total: Kingdom,Class,OrderName,Family,Genus,Species,Author,Subspecies,Species_ID,Species_URL,Common_Name,RecordID,Month,Day,Year,County,QuadID,QuadName,QuatLat1,QuadLon1,QuadLat2,QuadLat3,Location,LocID,LocLat,LocLon
+                       // Kingdom,Class,OrderName,Family,Genus,Species,Author,Subspecies,Species_ID,Species_URL,Common_Name,RecordID,Month,Day,Year,County,QuadID,QuadName,QuatLat1,QuadLon1,QuadLat2,QuadLat3,Location,LocID,LocLat,LocLon,PersonID,FirstName,LastName
+                       // as of Sep 27 2022 or even before this date
+
         $scientificName = trim($rec['Genus'].' '.$rec['Species'].' '.$rec['Subspecies']);
         $date = self::maryland_date($rec);
         
@@ -189,10 +197,9 @@ class FreeDataAPI
             $rek['decimalLatitude'] = $rec['LocLat'];
             $rek['decimalLongitude'] = $rec['LocLon'];
         }
-        elseif($county = $rec['County'])
-        {
-            if($this->country_lat_lon[$county]['lat'] && $this->country_lat_lon[$county]['lon'])
-            {
+        elseif($county = $rec['County']) {
+            if(in_array($county, array('iNat Obscured'))) return false;
+            if($this->country_lat_lon[$county]['lat'] && $this->country_lat_lon[$county]['lon']) {
                 $rek['decimalLatitude'] = $this->country_lat_lon[$county]['lat'];
                 $rek['decimalLongitude'] = $this->country_lat_lon[$county]['lon'];
             }
