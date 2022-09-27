@@ -1,5 +1,13 @@
 <?php
 namespace php_active_record;
+
+exit("\nObsolete, will terminate.\n");
+// These resources: 120 176 341 342 343 344 346
+// are now all obsolete.
+// We are now only using this one resource: [NMNH images from GBIF export]
+// https://opendata.eol.org/dataset/nmnh-images/resource/13c70e17-9983-4cc8-8e16-f446bd168726
+
+
 /* connector for National Museum of Natural History Image Collection - part of 120 176 341 342 343 344 346
 estimated execution time: 33 secs.
 Connector reads the XML provided by partner and 
