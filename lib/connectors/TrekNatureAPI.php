@@ -685,6 +685,33 @@ class TrekNatureAPI
         elseif(is_numeric(stripos($sciname, "Stilt"))) return "Recurvirostridae";
         elseif(is_numeric(stripos($sciname, "fungi"))) return "Fungi";
 
+        /* ========== start Below here is as of Sep 27, 2022 ========== */
+        $sciname = str_replace(" var.", " var. ", $sciname);
+        $sciname = str_replace(" ssp.", " ssp. ", $sciname);
+        $sciname = trim(Functions::remove_whitespace($sciname));
+        if($sciname == "Penstemon sp") return "Penstemon";
+        elseif($sciname == "Homeria blooming after fire") return "Homeria";
+        elseif($sciname == "Homeria after fire") return "Homeria";
+        elseif($sciname == "Spotted deer") return "Axis axis";
+        elseif($sciname == "Indian stone-curlew") return "Burhinus indicus";
+        elseif($sciname == "Black buck") return "Antilope cervicapra";
+        elseif($sciname == "Black bucks") return "Antilope cervicapra";
+        elseif($sciname == "Female nilgai") return "Boselaphus tragocamelus";
+        elseif($sciname == "Indian wild ass") return "Equus hemionus khur";
+        elseif($sciname == "Chestnut-bellied sandgrouse") return "Pterocles exustus";
+        elseif($sciname == "Spotted owlet") return "Athene brama";
+        elseif($sciname == "Calochortus ambiguus pollination") return "Calochortus ambiguus";
+        elseif($sciname == "Indian skittering frog") return "Euphlyctis cyanophlyctis";
+        elseif($sciname == "Autumn is almost here") return "Acer rubrum";
+        elseif($sciname == "Sunset and cormorants") return "Phalacrocoracidae";
+        elseif($sciname == "Peucedanum junceum left and Foeniculum") return "Peucedanum junceum";
+        elseif($sciname == "Ixiolirion tataricum and Alyssum") return "Ixiolirion tataricum";
+        elseif($sciname == "Iris palaestina and Anemone corinaria") return "Anemone corinaria";
+        /* an example of 2 species in 1 image:
+        Iris_palaestina_and_Anemone_corinaria    https://www.treknature.com/members/fragman/photos/Middle_East/Israel/Haifa/Haifa/index.html Iris palaestina and Anemone corinaria
+        */
+        /* ========== end Below here is as of Sep 27, 2022 ========== */
+
         $exclude_exact_match = array("alpine blooming", "eggs", "desert bloom", "saline", "Indian Forest", "spring", "Red Sea in winter", "caterpillar on caper", "spring in West Australia", "Hamamat Main", "Lake Towada", "desert snow", "succulent", "Mt Hermon Fritillary");
         foreach($exclude_exact_match as $str) {
             if($sciname == $str) return false;
@@ -742,9 +769,10 @@ class TrekNatureAPI
     private function clean_str($str)
     {
         $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011", "	", ""), " ", trim($str));
-        $str = str_ireplace(array("    "), " ", trim($str));
-        $str = str_ireplace(array("   "), " ", trim($str));
-        $str = str_ireplace(array("  "), " ", trim($str));
+        // $str = str_ireplace(array("    "), " ", trim($str));
+        // $str = str_ireplace(array("   "), " ", trim($str));
+        // $str = str_ireplace(array("  "), " ", trim($str));
+        $str = Functions::remove_whitespace($str);
         return $str;
     }
 }
