@@ -39,7 +39,9 @@ class MetaRecodingAPI
         if(in_array($this->resource_id, array('201_meta_recoded', 'cotr_meta_recoded'))) self::task_eventDate_as_row_in_MoF($tables);
         
         // /* task is to move MoF cols as MoF child rows
-        if(in_array($this->resource_id, array('cotr_meta_recoded_final'))) self::task_move_MoF_cols_2_MoF_children($tables);
+        if(in_array($this->resource_id, array('cotr_meta_recoded_final'))) {
+            self::task_move_MoF_cols_2_MoF_children($tables);
+        }
         // */
         
         /* task 3: occurrenceRemarks
@@ -289,7 +291,9 @@ class MetaRecodingAPI
                     - measurementValue
                     - parentMeasurementID
                 */
-                $child_flds = array('http://semanticscience.org/resource/SIO_000770', 'http://purl.obolibrary.org/obo/STATO_0000035', 'http://purl.obolibrary.org/obo/OBI_0000235', 'http://semanticscience.org/resource/SIO_000769', 'http://purl.obolibrary.org/obo/STATO_0000231');
+                $child_flds = array('http://semanticscience.org/resource/SIO_000770', 'http://purl.obolibrary.org/obo/STATO_0000035', 
+                    'http://purl.obolibrary.org/obo/OBI_0000235', 'http://semanticscience.org/resource/SIO_000769', 
+                    'http://purl.obolibrary.org/obo/STATO_0000231');
                 foreach($child_flds as $mType) {
                     if($mValue = @$rec[$mType]) { //create a new row (child row)
                         $m2 = new \eol_schema\MeasurementOrFact_specific();
