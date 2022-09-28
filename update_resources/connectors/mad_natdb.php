@@ -26,6 +26,9 @@ natdb	                Sun 2022-09-18 11:06:37 AM	{"MoA":212962, "occurrence_spec
 natdb_meta_recoded_1	Sun 2022-09-18 11:08:30 AM	{"MoA":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":112.25, "min":1.87, "hr":0.03}}
 natdb_meta_recoded	    Sun 2022-09-18 11:10:16 AM	{"MoA":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":106.05, "min":1.77, "hr":0.03}}
 
+natdb	                Wed 2022-09-28 12:06:09 PM	{"MoA":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":341.96, "min":5.7, "hr":0.09}}
+natdb_meta_recoded_1	Wed 2022-09-28 12:08:06 PM	{"MoA":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":116.18, "min":1.94, "hr":0.03}}
+natdb_meta_recoded	    Wed 2022-09-28 12:09:50 PM	{"MoA":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":104.3, "min":1.74, "hr":0.03}}
 
 Now includes other steps (metadata recoding) after main connector:
 php5.6 mad_natdb.php jenkins
