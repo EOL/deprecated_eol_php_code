@@ -441,15 +441,18 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
         }
         
         //CCP only
-        elseif(in_array($resource_id, array('678_meta_recoded', 'ECSEML_meta_recoded', 'fwater_marine_image_bank_meta_recoded'))) $excluded_rowtypes = array('http://eol.org/schema/media/document');
-        
+        elseif(in_array($resource_id, array('678_meta_recoded', 'ECSEML_meta_recoded', 'fwater_marine_image_bank_meta_recoded'))) {
+            $excluded_rowtypes = array('http://eol.org/schema/media/document');
+        }
         //occurrence2MoF only
-        elseif(in_array($resource_id, array('Carrano_2006_meta_recoded', 'plant_growth_form_meta_recoded'))) $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence');
-
-        
-        
+        elseif(in_array($resource_id, array('Carrano_2006_meta_recoded', 'plant_growth_form_meta_recoded'))) {
+            $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence');
+        }
+            
         //CCP and occurrence2MoF
-        elseif(in_array($resource_id, array('circa_meta_recoded', '201_meta_recoded_2'))) $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/occurrence');
+        elseif(in_array($resource_id, array('circa_meta_recoded', '201_meta_recoded_2'))) {
+            $excluded_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/occurrence');
+        }
         
         else $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
         /* works but just testing. COMMENT IN REAL OPERATION
@@ -458,8 +461,13 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
     }
     
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
-    if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final'))) Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd row 'false' means not delete working dir
-    else                                                                         Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //rest goes here
+    
+    if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final'))) {
+        Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd row 'false' means not delete working dir
+    }
+    else {
+        Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //rest goes here
+    }
 }
 function run_utility($resource_id)
 {
