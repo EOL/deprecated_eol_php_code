@@ -31,10 +31,10 @@ Now includes other steps (metadata recoding) after main connector:
 php5.6 mad_natdb.php jenkins
     -> generates natdb.tar.gz
 php5.6 resource_utility.php jenkins '{"resource_id": "natdb_meta_recoded_1", "task": "metadata_recoding"}'
-    -> occurrenceRemarks
+    -> occurrenceRemarks - moved from Occurrence to MoF's measurementRemarks
     -> generates natdb_meta_recoded_1.tar.gz
 php5.6 resource_utility.php jenkins '{"resource_id": "natdb_meta_recoded", "task": "metadata_recoding"}'
-    -> lifeStage
+    -> lifeStage - moved from MoF to Occurrence's lifeStage
     -> generates natdb_meta_recoded.tar.gz
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

@@ -120,8 +120,18 @@ class MetaRecodingAPI
     
     private function task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false($tables) //for DATA-1875: recoding unrecognized fields
     {
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'task_occurrence2MoF');
+        /* old 
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'task_occurrence2MoF'); // generates $this->{$fld_name}[$occurrenceID]
         self::write_occurrence2MoF();
+        */
+        
+        // /* new: the new row in MoF will be now child records. With the correct implementation of being child records:
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_occurrence2MoF');
+            // generates $this->oID_with_True_mOfTaxon_mID[$occurrenceID] = $measurementID
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'task_occurrence2MoF');
+            // generates $this->{$fld_name}[$occurrenceID]
+        self::write_occurrence2MoF();
+        // */
     }
     private function task_45($tables)
     {
@@ -278,6 +288,15 @@ class MetaRecodingAPI
             
             // if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue; //debug only
             // if($occurrenceID != 'b33cb50b7899db1686454eb60113ca25_692') continue; //debug only - has both eventDate and occurrenceRemarks
+
+
+            //===========================================================================================================================================================
+            if($what == 'task_occurrence2MoF') { // New: as of Sep 28, 2022
+                if($measurementOfTaxon == 'true') {
+                    $this->oID_with_True_mOfTaxon_mID[$occurrenceID] = $measurementID;
+                }
+                continue;
+            }
             //===========================================================================================================================================================
             if($what == 'move_cols_2child_rows') {
                 /*
@@ -530,10 +549,12 @@ class MetaRecodingAPI
         // /* Per Jen: https://eol-jira.bibalex.org/browse/DATA-1863?focusedCommentId=65399&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65399
         // - MeasurementOfTaxon should be blank for child records.
         // - MeasurementOfTaxon should be 'false' if to represent additional metadata.
+        /*
         if($rec['http://eol.org/schema/measurementOfTaxon'] == '') {
             if(@$rec['http://eol.org/schema/parentMeasurementID']) {} //means a child record
-            else $rec['http://eol.org/schema/measurementOfTaxon'] = 'false';
+            else $rec['http://eol.org/schema/measurementOfTaxon'] = 'false'; --- wrong directive, thus commented
         }
+        */
         if(@$rec['http://eol.org/schema/parentMeasurementID']) $rec['http://eol.org/schema/measurementOfTaxon'] = ''; //means a child record
         // */
         
@@ -634,7 +655,7 @@ class MetaRecodingAPI
             }
             elseif($what == 'task_occurrence2MoF') { //exit("\n111\n");
                 /*OCCURRENCES
-                Recode as MoF records of with MeasurementOfTaxon=false:
+                Recode as MoF records with MeasurementOfTaxon=false:
                 */
                 $fields = array('http://rs.tdwg.org/dwc/terms/basisOfRecord', 'http://rs.tdwg.org/dwc/terms/catalogNumber',
                                 'http://rs.tdwg.org/dwc/terms/collectionCode', 'http://rs.tdwg.org/dwc/terms/countryCode',
@@ -679,11 +700,27 @@ class MetaRecodingAPI
             foreach($this->{$fld_name} as $oID => $val) {
                 $m2 = new \eol_schema\MeasurementOrFact();
                 $rek = array();
+                /* old --- I can't believe I'm still using measurementOfTaxon false here...
                 $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$oID|$fld|$val");
                 $rek['http://rs.tdwg.org/dwc/terms/occurrenceID'] = $oID;
                 $rek['http://rs.tdwg.org/dwc/terms/measurementType'] = 'http://rs.tdwg.org/dwc/terms/'.pathinfo($fld, PATHINFO_BASENAME);
                 $rek['http://rs.tdwg.org/dwc/terms/measurementValue'] = $val;
-                $rek['http://eol.org/schema/measurementOfTaxon'] = 'false';
+                $rek['http://eol.org/schema/measurementOfTaxon'] = 'false'; --- fix this, investigate first though...
+                */
+                
+                // /* new --- no more measurementOfTaxon == 'false'
+                $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$oID|$fld|$val");
+                $rek['http://rs.tdwg.org/dwc/terms/measurementType'] = 'http://rs.tdwg.org/dwc/terms/'.pathinfo($fld, PATHINFO_BASENAME);
+                $rek['http://rs.tdwg.org/dwc/terms/measurementValue'] = $val;
+                if($parentMeasurementID = @$this->oID_with_True_mOfTaxon_mID[$oID]) {
+                    $rek['http://eol.org/schema/parentMeasurementID'] = $parentMeasurementID;
+                }
+                else {
+                    print_r($rek);
+                    exit("\nCannot proceed, parentMeasurementID not found.\n");
+                }
+                // */
+                
                 $uris = array_keys($rek);
                 foreach($uris as $uri) {
                     $field = pathinfo($uri, PATHINFO_BASENAME);
