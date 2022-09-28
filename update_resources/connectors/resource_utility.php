@@ -101,6 +101,9 @@ circa_meta_recoded	Thu 2021-01-21 02:30:10 AM	{"agent.tab":1, "measurement_or_fa
 
 -------------------------- END of Unrecognized_fields --------------------------
 
+-------------------------- START MoF child records fixing --------------------------
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "xxx", "task": "fix_MoF_child_records"}'
+-------------------------- END MoF child records fixing --------------------------
 
 
 
@@ -364,9 +367,16 @@ elseif($task == 'metadata_recoding') {
     }
     elseif($resource_id == 'plant_growth_form_meta_recoded') { //task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false
         $dwca_file = "https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/archive.zip";
+        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/plant_growth_form_SOURCE.zip";
+        // https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/c89bb549-12de-437d-821e-fe92c2829854/download/copy-of-new-full-habit-sheet.xlsx
+        // https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/8f244e41-2ed8-48dd-9dd0-8e1338d4d77b/download/nmnhplantgrowthformdata.xlsx
+        // https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/plantgrowthformmetarecoded.tar.gz
+        exit("\nMoF child records, needs fixing. Todo.\n");
     }
     elseif($resource_id == 'circa_meta_recoded') { //CCP and occurrence2MoF
-        $dwca_file = "https://opendata.eol.org/dataset/b4a77ad4-7f80-434f-a68f-aaabdfda3bb8/resource/9bc2fcb5-61c9-44d1-a691-df5287218ed8/download/archive.zip";
+        // $dwca_file = "https://opendata.eol.org/dataset/b4a77ad4-7f80-434f-a68f-aaabdfda3bb8/resource/9bc2fcb5-61c9-44d1-a691-df5287218ed8/download/archive.zip";
+        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/local_circa.tar.gz";
+        exit("\nObsolete anyway. Replaced by [https://opendata.eol.org/dataset/harvard-museum-of-comparative-zoology/resource/c70577a3-7ba7-472f-b3de-bf3043beebfd]\n");
     }
     // */
     
