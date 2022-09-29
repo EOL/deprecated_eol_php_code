@@ -367,12 +367,12 @@ elseif($task == 'metadata_recoding') {
         $dwca_file = "https://opendata.eol.org/dataset/a4408d81-175e-4d0e-9111-c2d4742ebd9b/resource/194f10d4-3187-4be5-ac49-4518f57a1ff2/download/archive.zip";
     }
     elseif($resource_id == 'plant_growth_form_meta_recoded') { //task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false
+        exit("\nThis was fixed already as of Sep 29, 2022 (fix_MoF_child_records). Unless will be reported with issues.\n");
         $dwca_file = "https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/plantgrowthformmetarecoded.tar.gz";
         $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/plantgrowthformmetarecoded.tar.gz";
         // https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/c89bb549-12de-437d-821e-fe92c2829854/download/copy-of-new-full-habit-sheet.xlsx
         // https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/8f244e41-2ed8-48dd-9dd0-8e1338d4d77b/download/nmnhplantgrowthformdata.xlsx
         // https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/plantgrowthformmetarecoded.tar.gz
-        exit("\nMoF child records, needs fixing. Todo.\n");
     }
     elseif($resource_id == 'circa_meta_recoded') { //CCP and occurrence2MoF
         // $dwca_file = "https://opendata.eol.org/dataset/b4a77ad4-7f80-434f-a68f-aaabdfda3bb8/resource/9bc2fcb5-61c9-44d1-a691-df5287218ed8/download/archive.zip";
@@ -388,6 +388,9 @@ elseif($task == 'fix_MoF_child_records') { // 1st client for this task
     if($resource_id == 'Plant_Growth_Form') {
         if(Functions::is_production())  $dwca_file = "https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/plantgrowthformmetarecoded.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/plantgrowthformmetarecoded.tar.gz";
+        /* I just ran this locally. And uploaded the local result (Plant_Growth_Form.tar.gz) to: https://opendata.eol.org/dataset/habitdata/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59
+        Interestingly CKAN renamed the filename to: "plantgrowthform.tar.gz".
+        */
     }
     else exit("\nresource_id not initialized for this task [$task].\n");
     $resource_id .= '_fxMoFchild';
