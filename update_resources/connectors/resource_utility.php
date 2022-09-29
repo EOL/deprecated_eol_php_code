@@ -401,7 +401,8 @@ else exit("\nERROR: task not yet initialized. Will terminate.\n");
 process_resource_url($dwca_file, $resource_id, $task, $timestart);
 
 // /* add testing for undefined childen in MoF - utility only
-if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final')) || $task == 'fix_MoF_child_records') {
+if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final')) || 
+    in_array($task, array('fix_MoF_child_records', 'metadata_recoding'))) {
     run_utility($resource_id);
     recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id."/"); //we can now delete folder after run_utility() - DWCADiagnoseAPI
 }
@@ -506,7 +507,8 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
     
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     
-    if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final')) || $task == 'fix_MoF_child_records') {
+    if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final')) || 
+        in_array($task, array('fix_MoF_child_records', 'metadata_recoding'))) {
         Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd row 'false' means not delete working dir
     }
     else Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //rest goes here
