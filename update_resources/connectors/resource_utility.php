@@ -102,7 +102,7 @@ circa_meta_recoded	Thu 2021-01-21 02:30:10 AM	{"agent.tab":1, "measurement_or_fa
 -------------------------- END of Unrecognized_fields --------------------------
 
 -------------------------- START MoF child records fixing --------------------------
-php update_resources/connectors/resource_utility.php _ '{"resource_id": "xxx", "task": "fix_MoF_child_records"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "Plant_Growth_Form_fxMoFchild", "task": "fix_MoF_child_records"}'
 -------------------------- END MoF child records fixing --------------------------
 
 
@@ -248,6 +248,7 @@ elseif($task == 'change_measurementIDs') {
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26_ENV.tar.gz";
     }
 }
+
 elseif($task == 'metadata_recoding') {
     if($resource_id == '692_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/692.tar.gz";
@@ -366,8 +367,8 @@ elseif($task == 'metadata_recoding') {
         $dwca_file = "https://opendata.eol.org/dataset/a4408d81-175e-4d0e-9111-c2d4742ebd9b/resource/194f10d4-3187-4be5-ac49-4518f57a1ff2/download/archive.zip";
     }
     elseif($resource_id == 'plant_growth_form_meta_recoded') { //task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false
-        $dwca_file = "https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/archive.zip";
-        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/plant_growth_form_SOURCE.zip";
+        $dwca_file = "https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/plantgrowthformmetarecoded.tar.gz";
+        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/plantgrowthformmetarecoded.tar.gz";
         // https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/c89bb549-12de-437d-821e-fe92c2829854/download/copy-of-new-full-habit-sheet.xlsx
         // https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/8f244e41-2ed8-48dd-9dd0-8e1338d4d77b/download/nmnhplantgrowthformdata.xlsx
         // https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/plantgrowthformmetarecoded.tar.gz
@@ -381,6 +382,14 @@ elseif($task == 'metadata_recoding') {
     // */
     
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
+}
+
+elseif($task == 'fix_MoF_child_records') { // 1st client for this task
+    if($resource_id == 'Plant_Growth_Form_fxMoFchild') {
+        if(Functions::is_production())  $dwca_file = "https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/plantgrowthformmetarecoded.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/plantgrowthformmetarecoded.tar.gz";
+    }
+    else exit("\nresource_id not initialized for this task [$task].\n");
 }
 
 else exit("\nERROR: task not yet initialized. Will terminate.\n");
@@ -427,6 +436,14 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
         */
         $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
         $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
+    }
+
+    elseif($task == 'fix_MoF_child_records') {
+        $preferred_rowtypes = array();
+        $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact');
+        /* These below will be processed in FixMoFChildRecordsAPI.php which will be called from DwCA_Utility.php
+        http://rs.tdwg.org/dwc/terms/measurementorfact
+        */
     }
 
     elseif($task == 'metadata_recoding') {

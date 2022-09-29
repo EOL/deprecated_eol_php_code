@@ -161,6 +161,7 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             */
+            // if(stripos($this->resource_id, "_fxMoFchild") !== false) break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == 'wikipedia_en_traits_tmp4') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '26_MoF_normalized') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == '26_delta') break; //all extensions will be processed elsewhere. debug only, during dev only
@@ -429,6 +430,12 @@ class DwCA_Utility
             $func = new MetaRecodingAPI($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+        if(stripos($this->resource_id, "_fxMoFchild") !== false) {
+            require_library('connectors/FixMoFChildRecordsAPI');
+            $func = new FixMoFChildRecordsAPI($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+        
         if(in_array($this->resource_id, array("parent_BV_consolid8", "TS_consolid8", "parent_TS_consolid8"))) {
             require_library('connectors/SDR_Consolid8API');
             $func = new SDR_Consolid8API($this->archive_builder, $this->resource_id);
