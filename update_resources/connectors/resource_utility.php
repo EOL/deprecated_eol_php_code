@@ -410,8 +410,12 @@ if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final')) || $
 if($task == 'fix_MoF_child_records') {
     $source         = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz";
     $destination    = str_replace("_fxMoFchild", "", $source);
-    if(Functions::file_rename($source, $destination)) echo "\nFinal step (rename) OK [$destination].\n";
-    else                                              echo "\nERROR: Final step (rename), unsuccessful [$destination].\n";
+    if(Functions::file_rename($source, $destination)) {
+        echo "\nFinal step (rename) OK.\n";
+        echo "\n - source: [$source]";
+        echo "\n - destination: [$destination]\n";
+    }
+    else echo "\nERROR: Final step (rename), unsuccessful [$destination].\n";
 }
 
 /* Start Functions */
