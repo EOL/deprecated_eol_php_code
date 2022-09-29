@@ -10,15 +10,15 @@ class FixMoFChildRecordsAPI
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
-    {   
+    {   /* from copied template - was never used here
         require_library('connectors/TraitGeneric'); 
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-        /* START DATA-1841 terms remapping */
+        // START DATA-1841 terms remapping
         $this->func->initialize_terms_remapping(60*60*24); //param is $expire_seconds. 0 means expire now.
-        /* END DATA-1841 terms remapping */
+        // END DATA-1841 terms remapping
+        */
         
         $tables = $info['harvester']->tables;
-        
         // if(in_array($this->resource_id, array('some resource id'))) {
         if(true) {
             self::fix_child_records_if_needed($tables);
@@ -32,7 +32,6 @@ class FixMoFChildRecordsAPI
             // generates $this->oID_with_True_mOfTaxon_mID[$occurrenceID] = $measurementID
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'check_all_rows');
     }
-    
     private function process_measurementorfact($meta, $what)
     {   //print_r($meta);
         echo "\nprocess_measurementorfact...[$what]\n"; $i = 0;
@@ -142,9 +141,7 @@ class FixMoFChildRecordsAPI
                         exit("\nparentID not found.\n");
                     }
                 }
-                else {
-                    $m = self::write_MoF_rec($rec);
-                }
+                else $m = self::write_MoF_rec($rec); // rest of the un-changed carry-over MoF records
             }
             //===========================================================================================================================================================
             // if($i >= 10) break; //debug only
