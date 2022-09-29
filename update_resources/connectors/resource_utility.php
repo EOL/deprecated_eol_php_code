@@ -519,7 +519,10 @@ function run_utility($resource_id)
     require_library('connectors/DWCADiagnoseAPI');
     $func = new DWCADiagnoseAPI();
 
-    $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'parentMeasurementID', 'measurement_or_fact_specific.tab');
+    if(in_array($resource_id, array('201_meta_recoded_2'))) $MoF_file = 'measurement_or_fact.tab';
+    else                                                    $MoF_file = 'measurement_or_fact_specific.tab'; //rest goes here
+    
+    $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'parentMeasurementID', $MoF_file);
     echo "\nTotal undefined parents MoF [$resource_id]: " . count($undefined_parents)."\n";
     // ===================================== */
 }
