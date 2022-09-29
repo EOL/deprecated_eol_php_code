@@ -16,6 +16,9 @@ cotr	Sun 2021-10-10 06:43:18 AM	        {"MoF.tab":56481, "occurrence_specific.t
 cotr	Wed 2021-11-10 06:43:11 AM	        {"MoF.tab":56481, "occurrence_specific.tab":33335, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":69.73999999999999, "min":1.16, "hr":0.02}}
 cotr	Mon 2021-11-22 10:27:51 AM	        {"MoF.tab":55004, "occurrence_specific.tab":31858, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":68.48999999999999, "min":1.14, "hr":0.02}}
 cotr	Tue 2021-11-23 11:32:12 PM	        {"MoF.tab":55004, "occurrence_specific.tab":31858, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":88.56999999999999, "min":1.48, "hr":0.02}}
+
+cotr_meta_recoded_final	Thu 2022-09-29 12:00:02 PM	{"measurement_or_fact_specific.tab":53008, "occurrence.tab":31858, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":36, "min":0.6, "hr":0.01}}
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/CoralTraitsAPI');
