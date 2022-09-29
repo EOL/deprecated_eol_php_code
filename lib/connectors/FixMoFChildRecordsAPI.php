@@ -117,10 +117,11 @@ class FixMoFChildRecordsAPI
                     - measurementValue
                     - parentMeasurementID
                 */
-                if($measurementOfTaxon != 'true' && $parentMeasurementID == ''){
-                    print_r($rec); exit("\nInvestigate rec: mOfTaxon parentID\n");
+                if($measurementOfTaxon == 'true' && $parentMeasurementID != ''){
+                    print_r($rec); exit("\nInvestigate rec: mOfTaxon true, parentID not blank\n");
                 }
-                if($measurementOfTaxon != 'true' && $parentMeasurementID != '') { // criteria to fix child record
+                
+                if($measurementOfTaxon != 'true') { // criteria to fix child record
                     if($parentMeasurementID = @$this->oID_with_True_mOfTaxon_mID[$occurrenceID]) {
                         $m2 = new \eol_schema\MeasurementOrFact_specific();
                         $rek = array();
@@ -134,6 +135,7 @@ class FixMoFChildRecordsAPI
                             $m2->$field = $rek[$uri];
                         }
                         $this->archive_builder->write_object_to_file($m2);
+                        @$this->debug['fxMoFchild']++;
                     }
                     else {
                         print_r($rec);

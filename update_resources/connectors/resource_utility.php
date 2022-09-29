@@ -102,7 +102,7 @@ circa_meta_recoded	Thu 2021-01-21 02:30:10 AM	{"agent.tab":1, "measurement_or_fa
 -------------------------- END of Unrecognized_fields --------------------------
 
 -------------------------- START MoF child records fixing --------------------------
-php update_resources/connectors/resource_utility.php _ '{"resource_id": "Plant_Growth_Form_fxMoFchild", "task": "fix_MoF_child_records"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "Plant_Growth_Form", "task": "fix_MoF_child_records"}'
 -------------------------- END MoF child records fixing --------------------------
 
 
@@ -385,18 +385,19 @@ elseif($task == 'metadata_recoding') {
 }
 
 elseif($task == 'fix_MoF_child_records') { // 1st client for this task
-    if($resource_id == 'Plant_Growth_Form_fxMoFchild') {
+    if($resource_id == 'Plant_Growth_Form') {
         if(Functions::is_production())  $dwca_file = "https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/plantgrowthformmetarecoded.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/plantgrowthformmetarecoded.tar.gz";
     }
     else exit("\nresource_id not initialized for this task [$task].\n");
+    $resource_id .= '_fxMoFchild';
 }
 
 else exit("\nERROR: task not yet initialized. Will terminate.\n");
 process_resource_url($dwca_file, $resource_id, $task, $timestart);
 
 // /* add testing for undefined childen in MoF - utility only
-if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final'))) {
+if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final')) || $task == 'fix_MoF_child_records') {
     run_utility($resource_id);
     recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id."/"); //we can now delete folder after run_utility() - DWCADiagnoseAPI
 }
@@ -489,11 +490,18 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
     
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     
-    if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final'))) {
+    if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final')) || $task == 'fix_MoF_child_records') {
         Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd row 'false' means not delete working dir
     }
     else {
         Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //rest goes here
+    }
+    
+    if($task == 'fix_MoF_child_records') {
+        $source         = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "tar.gz";
+        $destination    = str_replace("_fxMoFchild", "", $source);
+        if(Functions::file_rename($source, $destination)) echo "\nFinal step (rename) OK.\n";
+        else                                              echo "\nERROR: Final step (rename), unsuccessful.\n";
     }
 }
 function run_utility($resource_id)
@@ -506,5 +514,4 @@ function run_utility($resource_id)
     echo "\nTotal undefined parents MoF [$resource_id]: " . count($undefined_parents)."\n";
     // ===================================== */
 }
-
 ?>
