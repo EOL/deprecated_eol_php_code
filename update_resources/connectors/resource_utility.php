@@ -403,6 +403,14 @@ if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final')) || $
 }
 // */
 
+if($task == 'fix_MoF_child_records') {
+    $source         = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz";
+    $destination    = str_replace("_fxMoFchild", "", $source);
+    if(Functions::file_rename($source, $destination)) echo "\nFinal step (rename) OK [$destination].\n";
+    else                                              echo "\nERROR: Final step (rename), unsuccessful [$destination].\n";
+}
+
+/* Start Functions */
 function process_resource_url($dwca_file, $resource_id, $task, $timestart)
 {
     require_library('connectors/DwCA_Utility');
@@ -493,16 +501,7 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
     if(in_array($resource_id, array('26_ENV_final', 'cotr_meta_recoded_final')) || $task == 'fix_MoF_child_records') {
         Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd row 'false' means not delete working dir
     }
-    else {
-        Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //rest goes here
-    }
-    
-    if($task == 'fix_MoF_child_records') {
-        $source         = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "tar.gz";
-        $destination    = str_replace("_fxMoFchild", "", $source);
-        if(Functions::file_rename($source, $destination)) echo "\nFinal step (rename) OK.\n";
-        else                                              echo "\nERROR: Final step (rename), unsuccessful.\n";
-    }
+    else Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //rest goes here
 }
 function run_utility($resource_id)
 {
