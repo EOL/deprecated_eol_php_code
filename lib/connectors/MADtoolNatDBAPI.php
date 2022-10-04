@@ -174,10 +174,16 @@ class MADtoolNatDBAPI
                     $rek['occurrenceID'] = '';
                     $rek['measurementOfTaxon'] = 'child';
                     $rek["parentMeasurementID"] = $measurementID;
-                    if($samplesize > 1) {
-                        $mType_var = 'http://eol.org/schema/terms/SampleSize';
-                        $mValue_var = $samplesize;
-                        $this->func->add_string_types($rek, $mValue_var, $mType_var, "child");
+                    if(!$measurementID) {
+                        // print_r($rek); exit("\ncannot be blank parentID 1\n");
+                        @$this->debug['child with no parent ID 1']++;
+                    }
+                    else {
+                        if($samplesize > 1) {
+                            $mType_var = 'http://eol.org/schema/terms/SampleSize';
+                            $mValue_var = $samplesize;
+                            $this->func->add_string_types($rek, $mValue_var, $mType_var, "child");
+                        }
                     }
                     // */
                     
@@ -219,13 +225,20 @@ class MADtoolNatDBAPI
                                 $rek["catnum"] = ''; //can be blank coz there'll be no occurrence for child measurements anyway.
                                 $rek['occur']['occurrenceID'] = ''; //child measurements don't have occurrenceID
                                 $rek['parentMeasurementID'] = $measurementID;
-                                $mType_var = $m['mType'];
-                                $mValue_var = $m['mValue'];
-                                if($val = $m['info']['mu']) $rek['measurementUnit'] = $val;
-                                if($val = $m['info']['mr']) $rek['measurementRemarks'] = $val;
-                                $rek['referenceID'] = self::generate_reference($dataset);
-                                $rek = self::further_adjustments($rek, $mValue_var);
-                                $this->func->pre_add_string_types($rek, $mValue_var, $mType_var, "child"); //3
+                                if(!$measurementID) {
+                                    // print_r($rek); exit("\ncannot be blank parentID 2\n");
+                                    @$this->debug['child with no parent ID 2']++;
+                                }
+                                else {
+                                    $mType_var = $m['mType'];
+                                    $mValue_var = $m['mValue'];
+                                    if($val = $m['info']['mu']) $rek['measurementUnit'] = $val;
+                                    if($val = $m['info']['mr']) $rek['measurementRemarks'] = $val;
+                                    $rek['referenceID'] = self::generate_reference($dataset);
+                                    $rek = self::further_adjustments($rek, $mValue_var);
+                                    $this->func->pre_add_string_types($rek, $mValue_var, $mType_var, "child"); //3
+                                }
+                                
                             }
                         }
                     }
@@ -259,12 +272,18 @@ class MADtoolNatDBAPI
                 $rek['occurrenceID'] = '';
                 $rek['measurementOfTaxon'] = 'child';
                 $rek["parentMeasurementID"] = $measurementID;
-                foreach($rec as $value => $record) {
-                    $mType_var = $mType;
-                    $mValue_var = $value;
-                    $rek['measurementUnit'] = $record['r']['mu'];
-                    $rek['measurementRemarks'] = $record['r']['md'];
-                    $this->func->add_string_types($rek, $mValue_var, $mType_var, "child");
+                if(!$measurementID) {
+                    // print_r($rek); exit("\ncannot be blank parentID 3\n");
+                    @$this->debug['child with no parent ID 3']++;
+                }
+                else {
+                    foreach($rec as $value => $record) {
+                        $mType_var = $mType;
+                        $mValue_var = $value;
+                        $rek['measurementUnit'] = $record['r']['mu'];
+                        $rek['measurementRemarks'] = $record['r']['md'];
+                        $this->func->add_string_types($rek, $mValue_var, $mType_var, "child");
+                    }
                 }
             }
         }
