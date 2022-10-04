@@ -48,7 +48,7 @@ class TraitGeneric
             else {
                 $measurementOfTaxon = 'false'; // should not go here OBSOLETE
                 print_r($rec);
-                exit("\n[TraitGeneric.php] [$this->resource_id]: Should not go here xyz\n");
+                exit("\nERROR: [TraitGeneric.php] [$this->resource_id]: Should not go here xyz\n");
             }
         }
         if(@$rec['parentMeasurementID']) $measurementOfTaxon = 'child'; //means a child record
@@ -96,7 +96,7 @@ class TraitGeneric
             if(!$m->parentMeasurementID) {
                 print_r($rec);
                 print_r($m);
-                exit("\n[TraitGeneric.php] [$this->resource_id] Investigate: no parentID for a mOfTaxon that is not 'true'\n");
+                exit("\nERROR: [TraitGeneric.php] [$this->resource_id] Investigate: no parentID for a mOfTaxon that is not 'true'\n");
             }
         }
         
