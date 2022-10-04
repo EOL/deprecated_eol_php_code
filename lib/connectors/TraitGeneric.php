@@ -15,7 +15,7 @@ minimum cols on a child record in MoF
     - parentMeasurementID
 -------------------------------------------------------------------------
 - MeasurementOfTaxon should be blank for child records.
-- MeasurementOfTaxon should be 'false' if to represent additional metadata.
+- MeasurementOfTaxon should be 'false' if to represent additional metadata. OBSOLETE
 -------------------------------------------------------------------------
 */
 class TraitGeneric
@@ -42,10 +42,14 @@ class TraitGeneric
 
         // /* Per Jen: https://eol-jira.bibalex.org/browse/DATA-1863?focusedCommentId=65399&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65399
         // - MeasurementOfTaxon should be blank for child records.
-        // - MeasurementOfTaxon should be 'false' if to represent additional metadata.
+        // - MeasurementOfTaxon should be 'false' if to represent additional metadata. OBSOLETE
         if($measurementOfTaxon == '') {
             if(@$rec['parentMeasurementID']) $measurementOfTaxon = 'child'; //means a child record
-            else $measurementOfTaxon = 'false';
+            else {
+                $measurementOfTaxon = 'false'; // should not go here OBSOLETE
+                print_r($rec);
+                exit("\n[TraitGeneric.php] [$this->resource_id]: Should not go here xyz\n");
+            }
         }
         if(@$rec['parentMeasurementID']) $measurementOfTaxon = 'child'; //means a child record
         // */
@@ -87,6 +91,13 @@ class TraitGeneric
             if($val = @$rec['bibliographicCitation'])   $m->bibliographicCitation = $val;
             if($val = @$rec['contributor'])             $m->contributor = $val;
             if($val = @$rec['referenceID'])             $m->referenceID = $val;
+        }
+        else {
+            if(!$m->parentMeasurementID) {
+                print_r($rec);
+                print_r($m);
+                exit("\n[TraitGeneric.php] [$this->resource_id] Investigate: no parentID for a mOfTaxon that is not 'true'\n");
+            }
         }
         
         // start arbitrary fields here ---------------------------
