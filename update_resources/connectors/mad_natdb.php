@@ -31,6 +31,12 @@ natdb_meta_recoded_1	Wed 2022-09-28 12:08:06 PM	{"MoA":212962, "occurrence_speci
 natdb_meta_recoded	    Wed 2022-09-28 12:09:50 PM	{"MoA":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":104.3, "min":1.74, "hr":0.03}}
 natdb_meta_recoded	    Thu 2022-09-29 10:40:07 AM	{"MoA":212962, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":105.41, "min":1.76, "hr":0.03}}
 
+Below is expected decrease in MoF. After fixing legacy connector MADtoolNatDBAPI.php
+natdb	                Mon 2022-10-03 10:57:23 PM	{"MoA":211530, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":331.22, "min":5.52, "hr":0.09}}
+natdb_meta_recoded_1	Mon 2022-10-03 10:59:14 PM	{"MoA":211530, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":109.52, "min":1.83, "hr":0.03}}
+natdb_meta_recoded	    Mon 2022-10-03 11:01:05 PM	{"MoA":211530, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":108.04, "min":1.8, "hr":0.03}}
+
+
 Now includes other steps (metadata recoding) after main connector:
 php5.6 mad_natdb.php jenkins
     -> generates natdb.tar.gz

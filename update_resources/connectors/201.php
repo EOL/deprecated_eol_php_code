@@ -34,13 +34,17 @@ php5.6 resource_utility.php jenkins '{"resource_id": "201_meta_recoded_2", "task
 201_meta_recoded_2	Thu 2021-06-03 10:12:23 AM	{"agent.tab":29, "measurement_or_fact.tab":290917, "media_resource.tab":204028, "occurrence_specific.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":212.65, "min":3.54, "hr":0.06}}
 
 201	Fri 2021-06-04 03:06:12 AM	    {"measurement_or_fact.tab":195703, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":491.96, "min":8.199999999999999, "hr":0.14}}
+201	Mon 2022-10-03 11:12:32 PM	    {"measurement_or_fact.tab":195703, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":502.04, "min":8.369999999999999, "hr":0.14}}
+
 201_meta_recoded	Fri 2021-06-04 03:09:46 AM	{"measurement_or_fact_specific.tab":148096, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":212.97, "min":3.55, "hr":0.06}}
+201_meta_recoded	Wed 2022-09-28 12:03:24 PM	{"measurement_or_fact_specific.tab":148096, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":240.85, "min":4.01, "hr":0.07}}
+201_meta_recoded	Mon 2022-10-03 11:16:14 PM	{"measurement_or_fact_specific.tab":148096, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":221.33, "min":3.69, "hr":0.06}}
+
 201_meta_recoded_2	Fri 2021-06-04 03:13:18 AM	{"agent.tab":29, "measurement_or_fact.tab":290917, "media_resource.tab":204028, "occurrence_specific.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":211.77, "min":3.53, "hr":0.06}}
 201_meta_recoded_2	Tue 2021-06-08 06:18:58 AM	{"agent.tab":29, "measurement_or_fact.tab":290917, "media_resource.tab":204028, "occurrence_specific.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":220.44, "min":3.67, "hr":0.06}}
-
-201_meta_recoded	Wed 2022-09-28 12:03:24 PM	{"measurement_or_fact_specific.tab":148096, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":240.85, "min":4.01, "hr":0.07}}
 201_meta_recoded_2	Wed 2022-09-28 12:07:22 PM	{"agent.tab":29, "measurement_or_fact.tab":290917, "media_resource.tab":204028, "occurrence_specific.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":237.83, "min":3.96, "hr":0.07}}
 201_meta_recoded_2	Thu 2022-09-29 10:46:21 AM	{"agent.tab":29, "measurement_or_fact.tab":290917, "media_resource.tab":204028, "occurrence_specific.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":212.58, "min":3.54, "hr":0.06}}
+201_meta_recoded_2	Mon 2022-10-03 11:19:51 PM	{"agent.tab":29, "measurement_or_fact.tab":290917, "media_resource.tab":204028, "occurrence_specific.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":213.9, "min":3.57, "hr":0.06}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
