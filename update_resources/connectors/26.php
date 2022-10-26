@@ -235,7 +235,7 @@ $cmdline_params['what']             = @$argv[2]; //useful here
 require_library('connectors/ContributorsMapAPI');
 require_library('connectors/WormsArchiveAPI');
 $timestart = time_elapsed();
-ini_set('memory_limit','7096M'); //required
+ini_set('memory_limit','10096M'); //required. From 7096M
 
 if($cmdline_params['what'] == "taxonomy") $resource_id = "26_taxonomy";     //'taxonomy' -> used for DWH
 else {                                                                      //'media_objects' is for original resource = 26
