@@ -80,6 +80,10 @@ class GloBIDataAPI extends Globi_Refuted_Records
         $this->initialize_report(); //for refuted records;
         $tables = $info['harvester']->tables; 
         
+        // /* New filter: specific taxon to remove: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=67098&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67098
+        $this->exclude_taxonIDs["NCBI:32644"] = '';
+        // */
+        
         // /* New per Jen:
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'build info 2'); //generates $this->exclude_taxonIDs
         // */
