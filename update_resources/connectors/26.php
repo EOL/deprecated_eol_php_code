@@ -144,7 +144,7 @@ Below expected decrease in MoF: removed MoF where measurementAccuracy = "inherit
 26_delta	        Tue 2022-09-20 07:57:23 PM	{"agent.tab":1893, "MoF":2173545, "Media":98246, "occur":647793, "ref":741350, "taxon.tab":386382, "vernacular_name.tab":79720, "time_elapsed":{"sec":2819.33, "min":46.99, "hr":0.78}}
 26_delta_new	    Tue 2022-09-20 08:35:37 PM	{"agent.tab":1893, "MoF":2151796, "Media":98246, "occur":645202, "ref":741350, "taxon.tab":386382, "vernacular_name.tab":79720, "time_elapsed":{"sec":2292.95, "min":38.22, "hr":0.64}}
 26_MoF_normalized	Tue 2022-09-20 09:14:22 PM	{"agent.tab":1893, "MoF":2151549, "Media":98246, "occur":645202, "ref":741350, "taxon.tab":386382, "vernacular_name.tab":79720, "time_elapsed":{"sec":2313.89, "min":38.56, "hr":0.64}}
-
+26_MoF_normalized	Wed 2022-10-26 04:45:50 PM	{"agent.tab":1898, "MoF":2180412, "Media":98575, "occur":647545, "ref":744105, "taxon.tab":387245, "vernacular_name.tab":79752, "time_elapsed":{"sec":2512.61, "min":41.88, "hr":0.7}}
 
 -rw-r--r-- 1 root      root       150939877 Aug 28 16:56 WoRMS.tar.gz
 -rw-r--r-- 1 root      root       150949430 Aug 28 16:16 26_delta_new.tar.gz
