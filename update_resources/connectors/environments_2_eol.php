@@ -139,6 +139,9 @@ wikipedia_en_traits_tmp3	Wed 2022-09-14 05:51:59 PM	{"MoF.tab":259433, "occurren
 wikipedia_en_traits_tmp4	Wed 2022-09-14 05:56:58 PM	{"MoF.tab":259433, "occurrence.tab":259433, "taxon.tab":171837, "time_elapsed":{"sec":296.06, "min":4.93, "hr":0.08}}
 wikipedia_en_traits_tmp4	Wed 2022-09-14 06:00:58 PM	{"MoF.tab":259433, "occurrence.tab":259433, "taxon.tab":171838, "time_elapsed":{"sec":535.86, "min":8.93, "hr":0.15}}
 -> this batch Sep 14, final resource has a slight decrease in nos. Still very acceptable.
+wikipedia_en_traits_tmp4	Wed 2022-10-26 04:57:19 PM	{"MoF.tab":219379, "occurrence.tab":219379, "taxon.tab":162502, "time_elapsed":{"sec":325.58, "min":5.43, "hr":0.09}}
+wikipedia_en_traits_tmp4	Wed 2022-10-26 05:00:45 PM	{"MoF.tab":219379, "occurrence.tab":219379, "taxon.tab":162503, "time_elapsed":{"sec":532.1, "min":8.87, "hr":0.15}}
+-> this batch Oct 26 has expected decrease when 'well' and others are deliberately removed in MoF
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
