@@ -47,7 +47,7 @@ php5.6 remove_taxa_without_MoF.php jenkins '{"resource_id": "617_ENV"}'
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"World Register of Marine Species", "resource_id":"26", "subjects":"Habitat"}'
 
 --------------------------------------------------------------------------------------------------------------------
-================================================== Pensoft annotator END ================================================== Wikipedia English
+================================================== Pensoft annotator END ================================ Wikipedia English
 Started using Pensoft:
 617_ENV	            Thu 2020-11-05 07:49:33 AM	{"MoF.tab":176794, "occurrence.tab":176794, "taxon.tab":411865, "time_elapsed":false}
 wikipedia_en_traits	Thu 2020-11-05 07:52:07 AM	{"MoF.tab":176794, "occurrence.tab":176794, "taxon.tab":91492, "time_elapsed":false}
@@ -278,7 +278,7 @@ php5.6 rem_marine_terr_desc.php jenkins '{"resource_id":"wikipedia_en_traits_tmp
 #LAST STEP: copy wikipedia_en_traits_tmp3.tar.gz to wikipedia_en_traits.tar.gz OK
 cd /html/eol_php_code/applications/content_server/resources
 cp wikipedia_en_traits_tmp3.tar.gz wikipedia_en_traits.tar.gz 
-===================================================================================================================== AmphibiaWeb
+====================================================================================================== AmphibiaWeb
 21_ENV	Wed 2020-12-02 07:01:55 PM	{"agent.tab":743, "MoF":2202, "media_resource.tab":8138, "occurrence.tab":2202, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
 START differentiate Wikipedia EN and other resources when treated by Pensoft. Expected increase in MoF
 21_ENV	Wed 2020-12-02 08:18:37 PM	{"agent.tab":743, "MoF":2468, "media_resource.tab":8138, "occurrence.tab":2468, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
@@ -289,7 +289,7 @@ started removing 'salt water' and its descendants:
 XML from partnet refreshed:
 21	Tue 2020-12-15 06:35:57 PM	    {"agent.tab":834,             "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":12.54, "min":0.21, "hr":0}}
 21_ENV	Tue 2020-12-15 06:38:14 PM	{"agent.tab":834, "MoF":2097, "media_resource.tab":8454, "occurrence.tab":2097, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":136.82, "min":2.28, "hr":0.04}}
-with the new "terms_to_remove" list (Unlike AntWeb, AmphibiaWeb is not affected.)
+with the new "terms_to_remove" list (Unlike AntWeb, AmphibiaWeb (21) is not affected.)
 21	Thu 2020-12-17 03:47:05 AM	    {"agent.tab":834,             "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":12.57, "min":0.21, "hr":0}}
 21_ENV	Thu 2020-12-17 03:48:10 AM	{"agent.tab":834, "MoF":2097, "media_resource.tab":8454, "occurrence.tab":2097, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":64.89, "min":1.08, "hr":0.02}}
 removed 'sea' - expected decrease in MoF
@@ -315,7 +315,8 @@ first contributor is a column, the rest go as child MoF.
 21_ENV	Wed 2021-06-09 02:17:14 AM	{"agent.tab":777, "MoF.tab":3021, "media_resource.tab":8454, "occurrence.tab":2094, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":90.63, "min":1.51, "hr":0.03}}
 after DATA-1893:
 21_ENV	Wed 2021-10-13 10:30:40 AM	{"agent.tab":777, "MoF.tab":3015, "media_resource.tab":8454, "occurrence.tab":2091, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":117.84, "min":1.96, "hr":0.03}}
-===================================================================================================================== WoRMS
+21_ENV	Wed 2022-10-26 07:45:29 AM	{"agent.tab":777, "MoF.tab":4266, "media_resource.tab":8454, "occurrence.tab":2941, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2320, "time_elapsed":{"sec":241.92, "min":4.03, "hr":0.07}}
+========================================================================================================= WoRMS
 HOW TO RUN:
 php5.6 26.php jenkins
 #generates 26.tar.gz
@@ -385,7 +386,7 @@ after DATA-1893:
 
 26_ENV	        Wed 2021-10-20 05:43:23 AM	{"agent.tab":1813, "measurement_or_fact_specific.tab":2526290, "media_resource.tab":94660, "occurrence_specific.tab":2151130, "reference.tab":703450, "taxon.tab":377647, "vernacular_name.tab":85681, "time_elapsed":{"sec":5240.29, "min":87.34, "hr":1.46}}
 26_ENV_final	Wed 2021-10-20 06:44:02 AM	{"agent.tab":1813, "measurement_or_fact_specific.tab":2526290, "media_resource.tab":94660, "occurrence.tab":2151130,          "reference.tab":703450, "taxon.tab":377647, "vernacular_name.tab":85681, "time_elapsed":{"sec":3240.83, "min":54.01, "hr":0.9}}
-===================================================================================================================== WoRMS end
+=========================================================================================================== WoRMS end
 
 20_ENV	Wed 2022-01-05 08:09:41 AM	{"agent.tab":2031, "MoF.tab":9771, "media.tab":28979, "occur.tab":9771, "reference.tab":1420, "taxon.tab":8830, "time_elapsed":{"sec":26703.6, "min":445.06, "hr":7.42}}
 20_ENV	Wed 2022-01-12 03:28:32 AM	{"agent.tab":2031, "MoF.tab":9771, "media.tab":28979, "occur.tab":9771, "reference.tab":1420, "taxon.tab":8830, "time_elapsed":{"sec":52.31, "min":0.87, "hr":0.01}}

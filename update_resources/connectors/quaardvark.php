@@ -10,6 +10,9 @@ STILL IN THE WORKS:
 22_cleaned_MoF_habitat	Wed 2022-04-13 07:07:11 AM	{"agent.tab":78, "MoF.tab":67589, "media.tab":11333, "occur.tab":67134, "taxon.tab":11044, "time_elapsed":{"sec":71.15, "min":1.19, "hr":0.02}} eol-archive
 START PROPER FILTER OF marine+terrestrial in MoF Habitat records: now only contradicting Habitat records are removed
 22_cleaned_MoF_habitat	Mon 2022-05-09 06:14:14 AM	{"agent.tab":78, "MoF.tab":74713, "media.tab":11333, "occur.tab":74189, "taxon.tab":11044, "time_elapsed":{"sec":73.62, "min":1.23, "hr":0.02}}
+22_cleaned_MoF_habitat	Thu 2022-10-27 01:44:51 AM	{"agent.tab":78, "MoF.tab":74713, "media.tab":11333, "occur.tab":74189, "taxon.tab":11044, "time_elapsed":{"sec":56.81, "min":0.95, "hr":0.02}}
+
+Note: Quaardvark path doesn't use Pensoft annotations.
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/QuaardvarkAPI');
