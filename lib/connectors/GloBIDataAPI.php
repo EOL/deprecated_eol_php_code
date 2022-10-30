@@ -24,6 +24,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
                                                    'Heliamphora', 'Nepenthes', 'Philcoxia', 'Pinguicula', 'Roridula', 'Sarracenia', 'Stylidium', 'Triphyophyllum', 'Utricularia');
         $this->preferred_term_table = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GloBI/reverse_assocs.csv';
         $this->excluded_ranks = array('class', 'infraclass', 'infrakingdom', 'infraorder', 'infraphylum', 'kingdom', 'order', 'phylum', 'subclass', 'subkingdom', 'suborder', 'subphylum', 'subtribe', 'superclass', 'superfamily', 'superkingdom', 'superorder', 'superphylum', 'division', 'domain', 'grandorder', 'parvorder', 'realm', 'subdivision', 'tribe');
+        
+        $this->debug = array();
     }
     /*================================================================= STARTS HERE ======================================================================*/
     private function get_preferred_term_info()
@@ -85,7 +87,11 @@ class GloBIDataAPI extends Globi_Refuted_Records
         // */
         
         // /* New per Jen:
+        echo "\nexclude_taxonIDs 1: ".count($this->exclude_taxonIDs)."\n";
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'build info 2'); //generates $this->exclude_taxonIDs
+        echo "\nexclude_taxonIDs 2: ".count($this->exclude_taxonIDs)."\n";
+        if(isset($this->exclude_taxonIDs["NCBI:32644"])) print("\nGood...will proceed.\n");
+        else exit("\nSomething is wrong...will terminate.\n");
         // */
         
         //step 1 is build info list
@@ -101,11 +107,15 @@ class GloBIDataAPI extends Globi_Refuted_Records
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'create extension'); //primarily to copy occurrence AND implement $this->toDeleteOccurrenceIDS
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'create extension');
         
-        $tmp = array_keys($this->debug['hierarchy without kingdom']);
-        $this->debug['hierarchy without kingdom'] = '';
-        $this->debug['does not have kingdom'] = ''; //value removed coz too long in Jenkins output. Comment this line if you want to check taxa without kingdom.
-        print_r($this->debug);
-        sort($tmp); print_r($tmp);
+        if(@$this->debug['hierarchy without kingdom']) {
+            $tmp = array_keys($this->debug['hierarchy without kingdom']);
+            $this->debug['hierarchy without kingdom'] = '';
+            $this->debug['does not have kingdom'] = ''; //value removed coz too long in Jenkins output. Comment this line if you want to check taxa without kingdom.
+            print_r($this->debug);
+            if($tmp) {
+                sort($tmp); print_r($tmp);
+            }
+        }
         //backup report with timestamp
         $source = CONTENT_RESOURCE_LOCAL_PATH.'interactions.tsv';
         $destination = CONTENT_RESOURCE_LOCAL_PATH.'interactions_'.date("Y_m_d_H_i").'.tsv';

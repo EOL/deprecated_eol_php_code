@@ -320,8 +320,17 @@ else { //old - manually picked the URL
     exit("\nERROR: cannot get the DwCA URL from partner site.\n");
     $dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
     $dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.1-SNAPSHOT-darwin-core-aggregated.zip'; //started using 21Jan2022
-    // $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 }
+
+/* if u want to overwrite and run locally: only during dev
+$dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
+$dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.1-SNAPSHOT-darwin-core-aggregated.zip';
+*/
+
+// /* FORCE assignment until new index from Jorrit becomes available
+$dwca = "https://editors.eol.org/other_files/temp/eol-globi-datasets-1.1-SNAPSHOT-darwin-core-aggregated.zip";
+// */
+
 $func = new DwCA_Utility($resource_id, $dwca);
 
 // worked in 1.0 but caused memory leak in 1.1 because latter is now a large DwCA and reference is a big file.
@@ -405,5 +414,6 @@ function get_latest_globi_snapshot()
         echo "\nOK same URLs detected. Will proceed.\n";
         return $sought_file2;
     }
+    else exit("\nDIFFERENT URLs detected. Will NOT proceed.\n");
 }
 ?>
