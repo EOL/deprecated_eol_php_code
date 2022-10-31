@@ -39,13 +39,14 @@ class AntWebAPI
         require_library('connectors/Pensoft2EOLAPI');
         $this->pensoft = new Pensoft2EOLAPI($param);
         $this->pensoft->initialize_remaps_deletions_adjustments();
-        /* to test if these 4 variables are populated.
-        echo("\n".count($this->pensoft->remapped_terms)."\n");
-        echo("\n".count($this->pensoft->mRemarks)."\n");
-        echo("\n".count($this->pensoft->delete_MoF_with_these_labels)."\n");
-        echo("\n".count($this->pensoft->delete_MoF_with_these_uris)."\n");
-        exit;
-        */
+        // /* to test if these 4 variables are populated.
+        echo "\n From Pensoft Annotator:"
+        echo("\n remapped_terms: "              .count($this->pensoft->remapped_terms)."\n");
+        echo("\n mRemarks: "                    .count($this->pensoft->mRemarks)."\n");
+        echo("\n delete_MoF_with_these_labels: ".count($this->pensoft->delete_MoF_with_these_labels)."\n");
+        echo("\n delete_MoF_with_these_uris: "  .count($this->pensoft->delete_MoF_with_these_uris)."\n");
+        // exit;
+        // */
         $this->descendants_of_aquatic = $this->pensoft->get_descendants_of_habitat_group('aquatic'); //Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65426&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65426
         // print_r($this->descendants_of_aquatic); exit;("\n");
         // */
@@ -693,6 +694,8 @@ class AntWebAPI
         if($biology = @$rek['Biology']) {
             if($biology_uris = self::use_pensoft_annotator_to_get_envo_uri($biology)) { $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
                 // print_r($biology_uris); exit;
+                $this->debug['biology recognized by Pensoft'][$biology] = $biology_uris;
+                
                 /*Array(
                     [canopy] => http://purl.obolibrary.org/obo/ENVO_01001240
                     [pasture] => http://purl.obolibrary.org/obo/ENVO_00000266
@@ -757,7 +760,7 @@ class AntWebAPI
                             }
                             else {
                                 if($habitat_uris = self::use_pensoft_annotator_to_get_envo_uri($habitat)) {
-                                    // $this->debug['habitats recognized by Pensoft'][$habitat] = '';
+                                    $this->debug['habitats recognized by Pensoft'][$habitat] = $habitat_uris;
                                     foreach($habitat_uris as $mValue) {
                                         if(!$mValue) continue;
                                         $save['measurementRemarks'] = $habitat;
@@ -770,7 +773,7 @@ class AntWebAPI
                         }
                         else {
                             if($habitat_uris = self::use_pensoft_annotator_to_get_envo_uri($habitat)) {
-                                // $this->debug['habitats recognized by Pensoft'][$habitat] = '';
+                                $this->debug['habitats recognized by Pensoft'][$habitat] = $habitat_uris;
                                 foreach($habitat_uris as $mValue) {
                                     if(!$mValue) continue;
                                     $save['measurementRemarks'] = $habitat;
