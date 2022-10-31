@@ -74,7 +74,10 @@ globi_associations	        Mon 2022-06-27 04:27:46 PM	{"association.tab":8023468
 globi_associations_final	Mon 2022-06-27 10:05:38 PM	{"association.tab":7867153, "occurrence_specific.tab":15097697, "reference.tab":8102860, "taxon.tab":421428, "time_elapsed":{"sec":39971.63, "min":666.19, "hr":11.1}}
 globi_associations_delta	Tue 2022-06-28 09:04:28 AM	{"association.tab":7867153, "occurrence_specific.tab":15097697, "reference.tab":7792945, "taxon.tab":337341, "time_elapsed":{"sec":21721.61, "min":362.03, "hr":6.03}}
 
-
+below removed associations for NCBI:32644 (unidentified): https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=67098&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67098
+globi_associations	Sun 2022-10-30 05:33:20 AM	        {"association.tab":8183356, "occurrence_specific.tab":15421727, "reference.tab":8266485, "taxon.tab":422129, "time_elapsed":{"sec":24341.1, "min":405.69, "hr":6.76}}
+globi_associations_final	Sun 2022-10-30 11:33:56 AM	{"association.tab":8025536, "occurrence_specific.tab":15421586, "reference.tab":8266485, "taxon.tab":422129, "time_elapsed":{"sec":45977.57, "min":766.29, "hr":12.77}}
+globi_associations_delta	Sun 2022-10-30 06:02:50 PM	{"association.tab":8025536, "occurrence_specific.tab":15421586, "reference.tab":7956621, "taxon.tab":338043, "time_elapsed":{"sec":22556.47, "min":375.94, "hr":6.27}}
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020
