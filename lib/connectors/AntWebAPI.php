@@ -40,7 +40,7 @@ class AntWebAPI
         $this->pensoft = new Pensoft2EOLAPI($param);
         $this->pensoft->initialize_remaps_deletions_adjustments();
         // /* to test if these 4 variables are populated.
-        echo "\n From Pensoft Annotator:"
+        echo "\n From Pensoft Annotator:";
         echo("\n remapped_terms: "              .count($this->pensoft->remapped_terms)."\n");
         echo("\n mRemarks: "                    .count($this->pensoft->mRemarks)."\n");
         echo("\n delete_MoF_with_these_labels: ".count($this->pensoft->delete_MoF_with_these_labels)."\n");
