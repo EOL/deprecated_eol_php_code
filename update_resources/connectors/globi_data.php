@@ -330,9 +330,9 @@ $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-c
 $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.1-SNAPSHOT-darwin-core-aggregated.zip';
 */
 
-// /* FORCE assignment until new index from Jorrit becomes available
+/* FORCE assignment until new index from Jorrit becomes available
 $dwca = "https://editors.eol.org/other_files/temp/eol-globi-datasets-1.1-SNAPSHOT-darwin-core-aggregated.zip";
-// */
+*/
 
 $func = new DwCA_Utility($resource_id, $dwca);
 
