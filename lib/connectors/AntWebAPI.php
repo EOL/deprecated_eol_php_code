@@ -62,6 +62,9 @@ class AntWebAPI
         $func = new AntWebDataAPI(false, false, false);
         $this->habitat_map = $func->initialize_habitat_mapping();
         $this->uri_values = $func->initialize_mapping();
+        if($this->uri_values["United States Virgin Islands"] == "https://www.wikidata.org/entity/Q11703") print("\nEOL Terms file consolidated OK.\n");
+        else print("\nERROR: EOL Terms file NOT consolidated!\n");
+        // exit;
         // */
         
         $options = $this->download_options;

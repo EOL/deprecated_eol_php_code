@@ -2641,7 +2641,17 @@ class Functions
         
         echo "\nBosnia and Herzegovina: ".$mappings['Bosnia and Herzegovina']."\n";
         echo "\nAntarctic: ".$mappings['Antarctic']."\n";
+        echo "\nmappings count 1: ".count($mappings)."\n";
+        $mappings = self::consolidate_with_EOL_Terms_File($mappings); // New: (Nov 1, 2022) consolidate URIs with the EOL Terms file.
+        echo "\nmappings count 2: ".count($mappings)."\n";
         return $mappings;
+    }
+    private static function consolidate_with_EOL_Terms_File($mappings)
+    {
+        require_library('connectors/Functions_Pensoft');
+        $func = new Functions_Pensoft();
+        $ret = $func->consolidate_with_EOL_Terms($mappings);
+        return $ret;
     }
     private static function add_two_arrays($arr1, $arr2)
     {

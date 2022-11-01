@@ -56,5 +56,39 @@ class Functions_Pensoft
         else exit("\nInvestigate: EOL terms file not accessible.\n");
         return $final;
     }
+    function consolidate_with_EOL_Terms($mappings) # called from Functions.php
+    {
+        $download_options = array('expire_seconds' => 60*60*24); //expires 1 day
+        $allowed_terms_URIs = self::get_allowed_value_type_URIs_from_EOL_terms_file($download_options);
+        echo ("\nallowed_terms_URIs from EOL terms file: [".count($allowed_terms_URIs)."]\n");
+        /*
+        FROM Functions.php USED BY CONNECTORS:
+        [Côte d'Ivoirereturn] => http://www.geonames.org/2287781
+        [United States Virgin Islands] => http://www.wikidata.org/entity/Q11703
+        [Netherlands Antillesreturn] => https://www.wikidata.org/entity/Q25227
+
+        FROM EOL TERMS FILE:
+        [http://www.geonames.org/5854968] => 
+        [https://www.wikidata.org/entity/Q11703] => 
+        [https://www.geonames.org/149148] => 
+        */
+        // step 1: create $info from eol terms file
+        $tmp = array_keys($allowed_terms_URIs);
+        unset($allowed_terms_URIs); # to clear memory
+        foreach($tmp as $orig_uri) {
+            $arr = explode(":", $orig_uri);
+            $sub_uri = $arr[1];
+            $info[$sub_uri] = $orig_uri; # $info['//www.wikidata.org/entity/Q11703'] = 'https://www.wikidata.org/entity/Q11703'
+        }
+        // step 2: loop $mappings, search each uri
+        $ret = array();
+        foreach($mappings as $string => $uri) {
+            $arr = explode(":", $uri); // print_r($arr);
+            $sub_uri = @$arr[1]; # '//www.wikidata.org/entity/Q11703'
+            if($new_uri = @$info[$sub_uri]) $ret[$string] = $new_uri;
+            else $ret[$string] = $uri;
+        }
+        return $ret;
+    }
 }
 ?>

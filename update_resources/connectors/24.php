@@ -28,6 +28,7 @@ Tried it again after a few months, still API is down:
 24	Tue 2020-12-01 06:45:53 AM	    {"agent.tab":173, "measurement_or_fact_specific.tab":69540, "media_resource.tab":140143, "occurrence_specific.tab":46927, "taxon.tab":16470, "time_elapsed":{"sec":1410.32, "min":23.51, "hr":0.39}}
 START differentiate Wikipedia EN and other resources when treated by Pensoft. Expected increase in MoF
 24	Wed 2020-12-02 10:17:52 PM	    {"agent.tab":173, "measurement_or_fact_specific.tab":112164, "media_resource.tab":140143, "occurrence_specific.tab":71314, "taxon.tab":16470, "time_elapsed":{"sec":7478.73, "min":124.65, "hr":2.08}}
+24	Mon 2022-10-31 10:39:53 PM	    {"agent.tab":173, "measurement_or_fact_specific.tab":95234,  "media_resource.tab":140143, "occurrence_specific.tab":60013, "taxon.tab":16470, "time_elapsed":{"sec":39876.56, "min":664.61, "hr":11.08}}
 
 On Nov 23, 2020 we creted a new connector that will scrape the site.
 So we saved the last DwCA for posterity.
