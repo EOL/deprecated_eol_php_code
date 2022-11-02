@@ -399,9 +399,7 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                     
                     // /* New: exclude non-English text
                     if($lang = @$rec['http://purl.org/dc/terms/language']) {
-                        if($lang == "") {}
-                        elseif($lang == "en") {}
-                        elseif($lang != "en") continue;
+                        if($lang && $lang != "en") continue;
                     }
                     // */
                 }
