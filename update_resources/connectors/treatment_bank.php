@@ -69,6 +69,31 @@ TreatmentBank_ENV	Wed 2022-10-26 07:10:14 PM	        {"MoF.tab":1865825, "occur.
 TreatmentBank_adjustment_01	Wed 2022-10-26 08:07:19 PM	{"MoF.tab":1865787, "occur.tab":1865787, "taxon.tab":597036, "time_elapsed":{"sec":1527.32, "min":25.46, "hr":0.42}}
 
 *** Last step: TreatmentBank_adjustment_01.tar.gz is renamed to TreatmentBank_final.tar.gz
+
+You uploaded: TreatmentBank.tar.gz
+This archive is Valid
+Statistics
+http://rs.tdwg.org/dwc/terms/taxon:
+    Total: 597053
+http://eol.org/schema/media/document:
+    Total by type:
+        http://purl.org/dc/dcmitype/Text: 1192522
+    Total by license:
+        Public Domain: 1192522
+    Total by subject:
+        http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses: 1192522
+    Total by language:
+        en: 1135562
+        de: 37070
+        es: 794
+        fr: 16482
+        it: 1712
+        pt: 892
+        nl: 10
+    Total by format:
+        text/html: 1192522
+    Total: 1192522
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/TreatmentBankAPI');

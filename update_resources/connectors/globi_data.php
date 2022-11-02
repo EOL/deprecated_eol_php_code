@@ -84,30 +84,6 @@ globi_associations	Tue 2022-11-01 04:22:27 AM	        {"association.tab":8927060
 globi_associations_final	Tue 2022-11-01 10:44:15 AM	{"association.tab":8767900, "occurrence_specific.tab":16909699, "reference.tab":9028116, "taxon.tab":427500, "time_elapsed":{"sec":46957.42, "min":782.62, "hr":13.04}}
 globi_associations_delta	Tue 2022-11-01 05:48:33 PM	{"association.tab":8767900, "occurrence_specific.tab":16909699, "reference.tab":8701965, "taxon.tab":340625, "time_elapsed":{"sec":24545.2, "min":409.09, "hr":6.82}}
 
-You uploaded: TreatmentBank.tar.gz
-This archive is Valid
-Statistics
-http://rs.tdwg.org/dwc/terms/taxon:
-    Total: 597053
-http://eol.org/schema/media/document:
-    Total by type:
-        http://purl.org/dc/dcmitype/Text: 1192522
-    Total by license:
-        Public Domain: 1192522
-    Total by subject:
-        http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses: 1192522
-    Total by language:
-        en: 1135562
-        de: 37070
-        es: 794
-        fr: 16482
-        it: 1712
-        pt: 892
-        nl: 10
-    Total by format:
-        text/html: 1192522
-    Total: 1192522
-
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020
