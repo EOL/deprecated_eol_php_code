@@ -78,6 +78,11 @@ below removed associations for NCBI:32644 (unidentified): https://eol-jira.bibal
 globi_associations	Sun 2022-10-30 05:33:20 AM	        {"association.tab":8183356, "occurrence_specific.tab":15421727, "reference.tab":8266485, "taxon.tab":422129, "time_elapsed":{"sec":24341.1, "min":405.69, "hr":6.76}}
 globi_associations_final	Sun 2022-10-30 11:33:56 AM	{"association.tab":8025536, "occurrence_specific.tab":15421586, "reference.tab":8266485, "taxon.tab":422129, "time_elapsed":{"sec":45977.57, "min":766.29, "hr":12.77}}
 globi_associations_delta	Sun 2022-10-30 06:02:50 PM	{"association.tab":8025536, "occurrence_specific.tab":15421586, "reference.tab":7956621, "taxon.tab":338043, "time_elapsed":{"sec":22556.47, "min":375.94, "hr":6.27}}
+
+below big data increase from Jorrit but also removed 19 taxa uidentified series
+globi_associations	Tue 2022-11-01 04:22:27 AM	        {"association.tab":8927060, "occurrence_specific.tab":16909838, "reference.tab":9028116, "taxon.tab":427500, "time_elapsed":{"sec":24049.83, "min":400.83, "hr":6.68}}
+globi_associations_final	Tue 2022-11-01 10:44:15 AM	{"association.tab":8767900, "occurrence_specific.tab":16909699, "reference.tab":9028116, "taxon.tab":427500, "time_elapsed":{"sec":46957.42, "min":782.62, "hr":13.04}}
+globi_associations_delta	Tue 2022-11-01 05:48:33 PM	{"association.tab":8767900, "occurrence_specific.tab":16909699, "reference.tab":8701965, "taxon.tab":340625, "time_elapsed":{"sec":24545.2, "min":409.09, "hr":6.82}}
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020

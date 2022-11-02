@@ -87,6 +87,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
         # from: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=67104&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67104
         $excluded_unidentified_taxa = array("GBIF:102484797", "NCBI:47299", "NCBI:10535", "NCBI:694448", "GBIF:104159016", "EOL_V2:11783218", "NCBI:1214906", "NCBI:11309", "NCBI:2355", "NCBI:12054", "NCBI:10291", "NCBI:47173", "NCBI:47174", "NCBI:1654823", "NCBI:1631194", "NCBI:1631195", "NCBI:31931", "NCBI:1856564");
         foreach($excluded_unidentified_taxa as $id) $this->exclude_taxonIDs[$id] = '';
+        # To do: create a script that detects taxon names with 'unidentified' string and include its taxon ID here.
+        # Instead of manually doing it.
         // */
         
         // /* New per Jen:
