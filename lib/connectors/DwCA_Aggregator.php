@@ -282,6 +282,7 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                 $rec[$term] = $tmp[$k];
                 $k++;
             }
+            $rec = array_map('trim', $rec);
             // print_r($rec); exit("\ndebug...\n");
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/taxonID] => Q140
@@ -395,6 +396,14 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
             if($this->resource_id == "TreatmentBank") {
                 if($what == "document") {
                     $rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses";
+                    
+                    // /* New: exclude non-English text
+                    if($lang = @$rec['http://purl.org/dc/terms/language']) {
+                        if($lang == "") {}
+                        elseif($lang == "en") {}
+                        elseif($lang != "en") continue;
+                    }
+                    // */
                 }
                 
                 // to have a unique media object identifier
