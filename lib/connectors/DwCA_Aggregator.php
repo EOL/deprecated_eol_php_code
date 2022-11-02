@@ -402,6 +402,13 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                         if($lang && $lang != "en") continue;
                     }
                     // */
+                    
+                    // /* remove taxonomic/nomenclature line from description
+                    if($description = @$rec['http://purl.org/dc/terms/description']) {
+                        $rec['http://purl.org/dc/terms/description'] = $this->remove_taxon_lines_from_desc($description);
+                    }
+                    // */
+                    
                 }
                 
                 // to have a unique media object identifier

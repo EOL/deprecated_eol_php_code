@@ -24,5 +24,34 @@ class DwCA_Aggregator_Functions
         // exit("\nstop muna\n");
         return $bibliographicCitation;
     }
+    function remove_taxon_lines_from_desc($html) /* created for TreatmentBank - https://eol-jira.bibalex.org/browse/DATA-1916 */
+    {
+        if(preg_match_all("/<p>(.*?)<\/p>/ims", $html, $arr)) {
+            $rows = $arr[1];
+            $final = array();
+            foreach($rows as $row) {
+                $row = strip_tags($row);
+                if(stripos($row, "locality:") !== false) {  //string is found
+                    $final[] = $row;
+                    continue;
+                }
+                if(strlen($row) <= 50) continue;
+                if(stripos($row, "[not") !== false) continue; //string is found
+                if(stripos($row, "(in part)") !== false) continue; //string is found
+                if(stripos($row, "[? Not") !== false) continue; //string is found
+                if(stripos($row, "Nomenclature") !== false) continue; //string is found
+                if(stripos($row, "discarded]") !== false) continue; //string is found
+                if(stripos($row, "♂") !== false) continue; //string is found
+                if(stripos($row, "♀") !== false) continue; //string is found
+                $final[] = $row;
+            }
+            if($final) {
+                // print_r($final); // echo "\ntotal: [".count($final)."]\n";
+                $ret = implode("\n", $final);
+                return $ret;
+            }
+        }
+        return $html;
+    }
 }
 ?>
