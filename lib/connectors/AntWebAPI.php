@@ -697,7 +697,7 @@ class AntWebAPI
         if($biology = @$rek['Biology']) {
             if($biology_uris = self::use_pensoft_annotator_to_get_envo_uri($biology)) { $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
                 // print_r($biology_uris); exit;
-                $this->debug['biology recognized by Pensoft'][$biology] = $biology_uris;
+                // $this->debug['biology recognized by Pensoft'][$biology] = $biology_uris; #good debug
                 
                 /*Array(
                     [canopy] => http://purl.obolibrary.org/obo/ENVO_01001240
@@ -763,7 +763,7 @@ class AntWebAPI
                             }
                             else {
                                 if($habitat_uris = self::use_pensoft_annotator_to_get_envo_uri($habitat)) {
-                                    $this->debug['habitats recognized by Pensoft'][$habitat] = $habitat_uris;
+                                    // $this->debug['habitats recognized by Pensoft'][$habitat] = $habitat_uris; #good debug
                                     foreach($habitat_uris as $mValue) {
                                         if(!$mValue) continue;
                                         $save['measurementRemarks'] = $habitat;
@@ -776,7 +776,7 @@ class AntWebAPI
                         }
                         else {
                             if($habitat_uris = self::use_pensoft_annotator_to_get_envo_uri($habitat)) {
-                                $this->debug['habitats recognized by Pensoft'][$habitat] = $habitat_uris;
+                                // $this->debug['habitats recognized by Pensoft'][$habitat] = $habitat_uris; #good debug
                                 foreach($habitat_uris as $mValue) {
                                     if(!$mValue) continue;
                                     $save['measurementRemarks'] = $habitat;
