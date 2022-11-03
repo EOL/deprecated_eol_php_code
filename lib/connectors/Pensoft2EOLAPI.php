@@ -675,7 +675,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     */
     public function retrieve_annotation($id, $desc)
     {
-        $orig_batch_length = 1990; //orig with hard limit 2000
+        $orig_batch_length = 1900; // ideal for now 1900 so it does not give the max string error.
         $batch_length = $orig_batch_length;
         // $desc = "-12345- -678910- -1112131415- -1617181920- -2122- -2324- -252627- -28- -2930-";
         $len = strlen($desc);
@@ -713,9 +713,19 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     }
     private function retrieve_partial($id, $desc, $loop)
     {   // echo "\n[$id]\n";
+        // echo("\nstrlen: ".strlen($desc)."\n"); // good debug
         if($arr = self::retrieve_json($id, 'partial', $desc)) {
             // if($loop == 29) { print_r($arr['data']); //exit; }
-            self::select_envo($arr['data']);
+            
+            if(isset($arr['data'])) self::select_envo($arr['data']);
+            else {
+                echo "\n-=-=-=-=-=-=-=111\n";
+                print_r($arr);
+                echo("\n[---$id---]\n[---$desc---]\n");
+                echo("\n[".$arr['text'][0]."]\n");
+                exit("\nInvestigate: might need to decrease orig_batch_length variable.\n");
+            }
+            
             // echo("\nretrieved partial OK\n"); //good debug
         }
         else {
@@ -724,7 +734,14 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 // echo("\nSaved partial OK\n"); //good debug
                 /* now start access newly created. The var $this->results will now be populated. */
                 if($arr = self::retrieve_json($id, 'partial', $desc)) {
-                    self::select_envo($arr['data']);
+                    if(isset($arr['data'])) self::select_envo($arr['data']);
+                    else {
+                        echo "\n-=-=-=-=-=-=-=222\n";
+                        print_r($arr);
+                        echo("\n222[---$id---]\n[---$desc---]\n[---$json---]\n");
+                        echo("\n[".$arr['text'][0]."]\n");
+                        exit("\nInvestigate: might need to decrease orig_batch_length variable.\n");
+                    }
                     // echo("\nretrieved (newly created) partial OK\n"); //good debug
                 }
                 else {
@@ -987,6 +1004,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         // echo "\nfile = [$file]\n"; //good debug
         if(is_file($file)) {
             $json = file_get_contents($file); // echo "\nRetrieved OK [$id]";
+            // echo "\nfile: [$file]\n"; // good debug
             return json_decode($json, true);
         }
     }
