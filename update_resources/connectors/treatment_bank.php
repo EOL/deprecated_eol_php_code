@@ -100,43 +100,29 @@ require_library('connectors/TreatmentBankAPI');
 // $GLOBALS["ENV_DEBUG"] = false;
 $timestart = time_elapsed();
 
-$orig_batch_length = 4;
+/* Important function for Pensoft. Used as retrieve_annotation() in Pensoft2EOLAPI.php
+$orig_batch_length = 5; //4;
 $batch_length = $orig_batch_length;
-$desc = "12345 678910 1112131415 1617181920";
+$desc = "-12345- -678910- -1112131415- -====================================================================- -1617181920- -2122- -2324- -252627- -28- -2930-";
 $len = strlen($desc);
 $loops = $len/$batch_length; echo("\nloops: [$loops]\n");
 $loops = ceil($loops);
 $ctr = 0;
 // sleep(0.5);
 for($loop = 1; $loop <= $loops; $loop++) { //echo "\n[$loop of $loops]";
-    // $str = substr($desc, $ctr, $batch_length);
-
     // block check start
-    $i = 20;
+    $i = 100;
     $new_b_l = $batch_length;
-    $passYN = false;
     for($x = 1; $x <= $i; $x++) {
         $char_ahead = substr($desc, $ctr+$new_b_l, 1); //print("\nchar_ahead: [$char_ahead]");
-        if($char_ahead == " ") {
+        if($char_ahead == " " || $char_ahead == "") {
             $batch_length = $new_b_l;
             $str = substr($desc, $ctr, $batch_length);
-            $passYN = true;
-            break;
-        }
-        elseif($char_ahead == "") {
-            $batch_length = $new_b_l;
-            $str = substr($desc, $ctr, $batch_length);
-            $passYN = true;
             break;
         }
         $new_b_l++;
     }
     // block check end
-
-    // if(!$passYN) $str = substr($desc, $ctr, $batch_length);
-    // else {
-    //     
-    // }
 
     $str = utf8_encode($str);
     // self::retrieve_partial($id, $str, $loop);
@@ -145,8 +131,7 @@ for($loop = 1; $loop <= $loops; $loop++) { //echo "\n[$loop of $loops]";
     $batch_length = $orig_batch_length;
 }
 exit("\n-end test-\n");
-
-
+*/
 
 /* test only
 $str = "903E305AF00D922FFF7B0AC2D6C4F88A.taxon_-_903E305AF00D922FFF7B0AC2D6C4F88A.text			alpine	ENVO_01000340	envo	";

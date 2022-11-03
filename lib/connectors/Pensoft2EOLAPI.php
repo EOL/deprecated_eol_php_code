@@ -647,6 +647,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             fclose($f);
         }
     }
+    /* OBSOLETE: had a hard limit of 2000. Replaced by one below.
     public function retrieve_annotation($id, $desc)
     {
         $len = strlen($desc);
@@ -666,6 +667,45 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             $ctr = $ctr + 2000;
         }
         // print_r($this->results); exit("\n[$loops]\n");
+        if(isset($this->results)) return $this->results; //the return value is used in AntWebAPI.php
+    }
+    */
+    public function retrieve_annotation($id, $desc)
+    {
+        $orig_batch_length = 1990; //orig with hard limit 2000
+        $batch_length = $orig_batch_length;
+        // $desc = "-12345- -678910- -1112131415- -1617181920- -2122- -2324- -252627- -28- -2930-";
+        $len = strlen($desc);
+        $loops = $len/$batch_length; //echo("\nloops: [$loops]\n");
+        $loops = ceil($loops);
+        $ctr = 0;
+        sleep(0.5);
+        for($loop = 1; $loop <= $loops; $loop++) { //echo "\n[$loop of $loops]";
+            // ----- block check start -----
+            $i = 100;
+            $new_b_l = $batch_length;
+            for($x = 1; $x <= $i; $x++) {
+                $char_ahead = substr($desc, $ctr+$new_b_l, 1); //print("\nchar_ahead: [$char_ahead]");
+                if($char_ahead == " " || $char_ahead == "") {
+                    $batch_length = $new_b_l;
+                    $str = substr($desc, $ctr, $batch_length);
+                    break;
+                }
+                $new_b_l++;
+            }
+            // ----- block check end -----
+
+            // /* sub main operation
+            $str = utf8_encode($str);
+            if($this->includeOntologiesYN)  $id = md5($str.$this->ontologies); //for now only for those SI PDFs/epubs
+            else                            $id = md5($str); //orig, the rest goes here...
+            self::retrieve_partial($id, $str, $loop);
+            // */
+            
+            $ctr = $ctr + $batch_length;
+            // echo "\nbatch $loop: [$str][$ctr][$batch_length]\n"; //good debug
+            $batch_length = $orig_batch_length;
+        } //end outer for loop
         if(isset($this->results)) return $this->results; //the return value is used in AntWebAPI.php
     }
     private function retrieve_partial($id, $desc, $loop)
