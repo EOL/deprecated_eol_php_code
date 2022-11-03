@@ -728,8 +728,9 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                     // echo("\nretrieved (newly created) partial OK\n"); //good debug
                 }
                 else {
-                    // echo("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n"); //should not go here. Previously exit().
+                    echo("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n"); //should not go here. Previously exit().
                     @$this->debug["Should not go here, since record should be created now"]++;
+                    exit("\nstop muna\n");
                 }
             }
             else {
