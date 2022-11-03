@@ -377,15 +377,15 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             
             // if($taxonID != 'Q1000262') continue; //debug only
             
-            /* debug only
-            if($this->param['resource_id'] == "TreatmentBank_ENV") { //total 596261 objects in media tab
-                // if($i >= 1 && $i <= 400000) {}
-                // if($i >= 500000 && $i <= 600000) {} //1st cache --- done
-                // if($i >= 385000 && $i <= 400000) {} //1st cache
-                if($i >= 480000 && $i <= 500000) {} //2nd cache
+            // /* debug only
+            if($this->param['resource_id'] == "TreatmentBank_ENV") { //total 1135562 objects in media tab
+                $m = 378521; 
+                // if($i >= 1 &&    $i < $m) {}
+                // if($i >= $m &&   $i < $m*2) {}
+                if($i >= $m*2 && $i < $m*3) {}
                 else continue; 
             }
-            */
+            // */
             
             // print_r($this->allowed_subjects); exit;
             if(self::valid_record($rec)) {
