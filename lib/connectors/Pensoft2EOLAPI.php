@@ -239,6 +239,9 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             mkdir($this->json_temp_path['metadata']);
         }
         echo "\nHow many times Pensoft Annotator is run: [$this->pensoft_run_cnt]\n";
+        
+        $index = "Should not go here, since record should be created now";
+        if($val = @$this->debug[$index]) echo "\n$index : [$val]\n";
     }
     private function run_utility($resource_id)
     {
@@ -725,8 +728,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                     // echo("\nretrieved (newly created) partial OK\n"); //good debug
                 }
                 else {
-                    // exit("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n");
-                    echo("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n"); //should not go here. Previously exit().
+                    // echo("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n"); //should not go here. Previously exit().
+                    @$this->debug["Should not go here, since record should be created now"]++;
                 }
             }
             else {

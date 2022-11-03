@@ -68,6 +68,10 @@ TreatmentBank_adjustment_01	Tue 2022-09-20 08:24:35 PM	{"MoF.tab":1865787, "occu
 TreatmentBank_ENV	Wed 2022-10-26 07:10:14 PM	        {"MoF.tab":1865825, "occur.tab":1865825, "taxon.tab":597053, "time_elapsed":{"sec":33205.82, "min":553.43, "hr":9.22}}
 TreatmentBank_adjustment_01	Wed 2022-10-26 08:07:19 PM	{"MoF.tab":1865787, "occur.tab":1865787, "taxon.tab":597036, "time_elapsed":{"sec":1527.32, "min":25.46, "hr":0.42}}
 
+Below start of getting only 'en' English descriptions:
+TreatmentBank	Thu 2022-11-03 07:00:50 AM	{"media_resource.tab":1135562, "taxon.tab":597053, "time_elapsed":{"sec":77206, "min":1286.77, "hr":21.45}}
+
+
 *** Last step: TreatmentBank_adjustment_01.tar.gz is renamed to TreatmentBank_final.tar.gz
 
 You uploaded: TreatmentBank.tar.gz
