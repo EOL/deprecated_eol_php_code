@@ -106,7 +106,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $this->ontologies = "envo";
         /* from DATA-1853 - exclude ranks */
         $this->excluded_ranks = array('class', 'infraclass', 'infrakingdom', 'infraorder', 'infraphylum', 'kingdom', 'order', 'phylum', 'subclass', 'subkingdom', 'suborder', 'subphylum', 'subtribe', 'superclass', 'superfamily', 'superkingdom', 'superorder', 'superphylum', 'division', 'domain', 'grandorder', 'parvorder', 'realm', 'subdivision', 'tribe');
-        $this->pensoft_service = "http://api.pensoft.net/annotator?text=MY_DESC&ontologies=MY_ONTOLOGIES";
+        $this->pensoft_service = "https://api.pensoft.net/annotator?text=MY_DESC&ontologies=MY_ONTOLOGIES";
         /* DATA-1893: new patterns for all textmined resources: life history ontology */
         $this->new_patterns_4textmined_resources = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/life_history.txt";
     }
@@ -1001,6 +1001,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     private function retrieve_json($id, $what, $desc)
     {
         $file = self::retrieve_path($id, $what);
+        $this->to_delete_file = $file;
         echo "\nfile = [$file]\n"; //good debug
         if(is_file($file)) {
             $json = file_get_contents($file); // echo "\nRetrieved OK [$id]";
