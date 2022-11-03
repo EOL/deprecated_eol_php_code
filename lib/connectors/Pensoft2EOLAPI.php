@@ -704,7 +704,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             $str = utf8_encode($str);
             if($this->includeOntologiesYN)  $id = md5($str.$this->ontologies); //for now only for those SI PDFs/epubs
             else                            $id = md5($str); //orig, the rest goes here...
-            self::retrieve_partial($id, $str, $loop);
+            if($str) self::retrieve_partial($id, $str, $loop);
             // */
             
             $ctr = $ctr + $batch_length;
@@ -721,7 +721,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             
             if(isset($arr['data'])) self::select_envo($arr['data']);
             else {
-                echo "\n-=-=-=-=-=-=-=111\n";
+                echo "\n-=-=-=-=-=-=-=111\n[".$this->to_delete_file."]\n";
                 print_r($arr);
                 echo("\n[---$id---]\n[---$desc---]\n");
                 echo("\n[".$arr['text'][0]."]\n");
@@ -738,7 +738,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 if($arr = self::retrieve_json($id, 'partial', $desc)) {
                     if(isset($arr['data'])) self::select_envo($arr['data']);
                     else {
-                        echo "\n-=-=-=-=-=-=-=222\n";
+                        echo "\n-=-=-=-=-=-=-=222\n[".$this->to_delete_file."]\n";
                         print_r($arr);
                         echo("\n222[---$id---]\n[---$desc---]\n[---$json---]\n");
                         echo("\n[".$arr['text'][0]."]\n");
