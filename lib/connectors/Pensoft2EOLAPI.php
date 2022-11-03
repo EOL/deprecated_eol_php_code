@@ -1001,7 +1001,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     private function retrieve_json($id, $what, $desc)
     {
         $file = self::retrieve_path($id, $what);
-        // echo "\nfile = [$file]\n"; //good debug
+        echo "\nfile = [$file]\n"; //good debug
         if(is_file($file)) {
             $json = file_get_contents($file); // echo "\nRetrieved OK [$id]";
             // echo "\nfile: [$file]\n"; // good debug
