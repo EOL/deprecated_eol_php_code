@@ -109,6 +109,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $this->pensoft_service = "https://api.pensoft.net/annotator?text=MY_DESC&ontologies=MY_ONTOLOGIES";
         /* DATA-1893: new patterns for all textmined resources: life history ontology */
         $this->new_patterns_4textmined_resources = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/life_history.txt";
+        
+        $this->to_delete_file = "";
     }
     public function initialize_remaps_deletions_adjustments()
     {
@@ -747,7 +749,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 else {
                     echo("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n"); //should not go here. Previously exit().
                     @$this->debug["Should not go here, since record should be created now"]++;
-                    exit("\nstop muna\n");
+                    exit("\nstop muna\n[".$this->to_delete_file."]\n");
                 }
             }
             else {
@@ -1002,7 +1004,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     {
         $file = self::retrieve_path($id, $what);
         $this->to_delete_file = $file;
-        echo "\nfile = [$file]\n"; //good debug
+        // echo "\nfile = [$file]\n"; //good debug
         if(is_file($file)) {
             $json = file_get_contents($file); // echo "\nRetrieved OK [$id]";
             // echo "\nfile: [$file]\n"; // good debug
