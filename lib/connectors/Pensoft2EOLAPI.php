@@ -699,7 +699,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 $new_b_l++;
             }
             // ----- block check end -----
-
+            if(!isset($str)) echo "\nINVESTIGATE: str var not defined. [$id][$desc]\n";
             // /* sub main operation
             $str = utf8_encode($str);
             if($this->includeOntologiesYN)  $id = md5($str.$this->ontologies); //for now only for those SI PDFs/epubs
