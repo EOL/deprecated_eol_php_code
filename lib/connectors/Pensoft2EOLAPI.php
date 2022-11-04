@@ -906,12 +906,15 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                                     if(ctype_lower($before_needle[0])) {} //continue
                                     else { // word before needle is alpha and capital letter
                                         $possible_sciname = $before_needle." ".$lbl;
+                                        
+                                        /* commented Nov 4, 2022. Will investigate soon.
                                         if(self::is_valid_taxon($possible_sciname)) {
                                             // echo "\nNot a valid geonames: lbl: [$lbl] | possible_sciname: [$possible_sciname] | context: [$rek[context]]\n";  //good debug
                                             // print_r($rek); //good debug
                                             continue;
                                         }
                                         else {} //continue
+                                        */
                                     }
                                 }
                             }
