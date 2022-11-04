@@ -377,11 +377,11 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             
             // if($taxonID != 'Q1000262') continue; //debug only
             
-            // /* debug only
+            // /* debug only --- range ranges caching cache
             if($this->param['resource_id'] == "TreatmentBank_ENV") { //total 1135562 objects in media tab
                 $m = 378521; 
-                // if($i >= 1 &&    $i < $m) {}
-                if($i >= $m &&   $i < $m*2) {}
+                if($i >= 1 &&    $i < $m) {}
+                // if($i >= $m &&   $i < $m*2) {}
                 // if($i >= $m*2 && $i < $m*3) {}
                 else continue; 
             }
