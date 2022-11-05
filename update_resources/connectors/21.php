@@ -17,12 +17,16 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 # - generates at one time 21_final.tar.gz (OBSOLETE - Vangelis tagger)
 # - latest, generates 21_ENV.tar.gz  (CURRENT OK - Pensoft Annotator)
 
+21	Wed 2022-10-26 07:41:27 AM	{"agent.tab":777, "media_resource.tab":8454, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2320, "time_elapsed":{"sec":15.74, "min":0.26, "hr":0}}
+21	Fri 2022-11-04 03:25:00 AM	{"agent.tab":777, "media_resource.tab":8454, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2320, "time_elapsed":{"sec":15.92, "min":0.27, "hr":0}}
+
 21_ENV	Wed 2021-10-13 10:30:40 AM	{"agent.tab":777, "MoF.tab":3015, "media_resource.tab":8454, "occurrence.tab":2091, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":117.84, "min":1.96, "hr":0.03}}
 21_ENV	Thu 2022-01-13 08:00:09 PM	{"agent.tab":777, "MoF.tab":3015, "media_resource.tab":8454, "occurrence.tab":2091, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":73.35, "min":1.22, "hr":0.02}}
 21_cleaned_MoF_habitat	Wed 2022-04-{"agent.tab":777, "MoF.tab":3015, "media_resource.tab":8454, "occurrence.tab":2091, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":18.52, "min":0.31, "hr":0.01}}
 -> no excluded MoF habitat values
 21_ENV	Wed 2022-10-26 07:45:29 AM	{"agent.tab":777, "MoF.tab":4266, "media_resource.tab":8454, "occurrence.tab":2941, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2320, "time_elapsed":{"sec":241.92, "min":4.03, "hr":0.07}}
-
+Below start of intelligent API boundary - no 2000 hard-limit.
+21_ENV	Fri 2022-11-04 04:15:25 AM	{"agent.tab":777, "MoF.tab":4241, "media_resource.tab":8454, "occurrence.tab":2934, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2320, "time_elapsed":{"sec":3024.48, "min":50.41, "hr":0.84}}
 */
 
 $timestart = microtime(1);
