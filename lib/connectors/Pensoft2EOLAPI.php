@@ -380,9 +380,9 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             // /* debug only --- range ranges caching cache
             if($this->param['resource_id'] == "TreatmentBank_ENV") { //total 1135562 objects in media tab
                 $m = 378521; 
-                if($i >= 1 &&    $i < $m) {}
+                // if($i >= 1 &&    $i < $m) {}
                 // if($i >= $m &&   $i < $m*2) {}
-                // if($i >= $m*2 && $i < $m*3) {}
+                if($i >= $m*2 && $i < $m*3) {}
                 else continue; 
             }
             // */
@@ -687,7 +687,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         sleep(0.5);
         for($loop = 1; $loop <= $loops; $loop++) { //echo "\n[$loop of $loops]";
             // ----- block check start -----
-            $i = 100;
+            $i = 200;
             $new_b_l = $batch_length;
             for($x = 1; $x <= $i; $x++) {
                 $char_ahead = substr($desc, $ctr+$new_b_l, 1); //print("\nchar_ahead: [$char_ahead]");
@@ -699,7 +699,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 $new_b_l++;
             }
             // ----- block check end -----
-            if(!isset($str)) echo "\nINVESTIGATE: str var not defined. [$id][$desc]\n";
+            if(!isset($str)) echo "\nINVESTIGATE: str var not defined. [$id]\n[$desc]\n";
             // /* sub main operation
             $str = utf8_encode($str);
             if($this->includeOntologiesYN)  $id = md5($str.$this->ontologies); //for now only for those SI PDFs/epubs
