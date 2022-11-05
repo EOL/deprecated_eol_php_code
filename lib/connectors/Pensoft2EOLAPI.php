@@ -677,6 +677,9 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     */
     public function retrieve_annotation($id, $desc)
     {
+        $desc = str_replace("....", "", $desc);
+        $desc = str_replace("----", "", $desc);
+        
         $orig_batch_length = 1900; // ideal for now 1900 so it does not give the max string error.
         $batch_length = $orig_batch_length;
         // $desc = "-12345- -678910- -1112131415- -1617181920- -2122- -2324- -252627- -28- -2930-";
@@ -699,13 +702,17 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 $new_b_l++;
             }
             // ----- block check end -----
-            if(!isset($str)) echo "\nINVESTIGATE: str var not defined. [$id]\n[$desc]\n";
-            // /* sub main operation
-            $str = utf8_encode($str);
-            if($this->includeOntologiesYN)  $id = md5($str.$this->ontologies); //for now only for those SI PDFs/epubs
-            else                            $id = md5($str); //orig, the rest goes here...
-            if($str) self::retrieve_partial($id, $str, $loop);
-            // */
+            if(!isset($str)) {
+                echo "\nINVESTIGATE: str var not defined. [$id]\n[$desc]\n";
+            }
+            else {
+                // /* sub main operation
+                $str = utf8_encode($str);
+                if($this->includeOntologiesYN)  $id = md5($str.$this->ontologies); //for now only for those SI PDFs/epubs
+                else                            $id = md5($str); //orig, the rest goes here...
+                if($str) self::retrieve_partial($id, $str, $loop);
+                // */
+            }
             
             $ctr = $ctr + $batch_length;
             // echo "\nbatch $loop: [$str][$ctr][$batch_length]\n"; //good debug
