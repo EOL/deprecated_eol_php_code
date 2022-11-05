@@ -681,6 +681,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $desc = str_replace("----", "", $desc);
         $desc = str_replace("????", "", $desc);
         $desc = str_replace("000000", "", $desc);
+        $desc = str_replace("����", "", $desc);
         
         $orig_batch_length = 1900; // ideal for now 1900 so it does not give the max string error.
         $batch_length = $orig_batch_length;
