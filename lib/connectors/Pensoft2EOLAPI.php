@@ -380,9 +380,9 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             // /* debug only --- range ranges caching cache
             if($this->param['resource_id'] == "TreatmentBank_ENV") { //total 1135562 objects in media tab
                 $m = 378521; 
-                // if($i >= 1 &&    $i < $m) {}
+                if($i >= 1 &&    $i < $m) {}
                 // if($i >= $m &&   $i < $m*2) {}
-                if($i >= $m*2 && $i < $m*3) {}
+                // if($i >= $m*2 && $i < $m*3) {}
                 else continue; 
             }
             // */
@@ -679,6 +679,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     {
         $desc = str_replace("....", "", $desc);
         $desc = str_replace("----", "", $desc);
+        $desc = str_replace("????", "", $desc);
+        $desc = str_replace("000000", "", $desc);
         
         $orig_batch_length = 1900; // ideal for now 1900 so it does not give the max string error.
         $batch_length = $orig_batch_length;
