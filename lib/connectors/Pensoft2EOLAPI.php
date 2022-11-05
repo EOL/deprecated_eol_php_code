@@ -687,7 +687,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         sleep(0.5);
         for($loop = 1; $loop <= $loops; $loop++) { //echo "\n[$loop of $loops]";
             // ----- block check start -----
-            $i = 200;
+            $i = 100;
             $new_b_l = $batch_length;
             for($x = 1; $x <= $i; $x++) {
                 $char_ahead = substr($desc, $ctr+$new_b_l, 1); //print("\nchar_ahead: [$char_ahead]");
