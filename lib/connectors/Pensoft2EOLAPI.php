@@ -381,8 +381,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             if($this->param['resource_id'] == "TreatmentBank_ENV") { //total 1135562 objects in media tab
                 $m = 378521; 
                 // if($i >= 1 &&    $i < $m) {}
-                // if($i >= $m &&   $i < $m*2) {}
-                if($i >= $m*2 && $i < $m*3) {}
+                if($i >= $m &&   $i < $m*2) {}
+                // if($i >= $m*2 && $i < $m*3) {}
                 else continue; 
             }
             // */
@@ -749,7 +749,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 else {
                     echo("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n"); //should not go here. Previously exit().
                     @$this->debug["Should not go here, since record should be created now"]++;
-                    exit("\nstop muna\n[".$this->to_delete_file."]\n");
+                    // exit("\nstop muna\n[".$this->to_delete_file."]\n");
                 }
             }
             else {
