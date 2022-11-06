@@ -672,7 +672,7 @@ class Functions_Memoirs
             }
         }
         else {
-            exit("\n================\n -- nothing to save B...\n[$id]\n[$desc]\n[$loop]\n================\n"); //doesn't go here. Previously exit()
+            exit("\n================\n -- nothing to save B...\n[$id]\n[$desc]\n================\n"); //doesn't go here. Previously exit()
         }
     }
     private function select_envo($arr, $desc)
