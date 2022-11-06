@@ -764,7 +764,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 }
             }
             else {
-                echo("\n================\n -- nothing to save...\n[$id]\n[$desc]\n[$loop]\n================\n"); //doesn't go here. Previously exit()
+                echo("\n================\n -- nothing to save A...\n[$id]\n[$desc]\n[$loop]\n================\n"); //doesn't go here. Previously exit()
             }
         }
     }
