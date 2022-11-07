@@ -24,7 +24,7 @@ $page_id = '59914358';
 
 $search = "brachypterous";
 // $search = "saproxylic";
-$func->PublicationSearch($search); exit("\n-end search-\n");
+$func->PublicationSearch($search); exit("\n--- end PublicationSearch($search) ---\n");
 
 $idtype = 'bhl';
 $item_id = '269395';
