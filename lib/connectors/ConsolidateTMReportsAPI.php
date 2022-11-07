@@ -5,6 +5,7 @@ class ConsolidateTMReportsAPI
 {
     function __construct($folder, $SearchTerm)
     {
+        $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
@@ -12,10 +13,17 @@ class ConsolidateTMReportsAPI
         $this->DATA_FOLDER = "/Volumes/AKiTiO4/python_apps/textmine_data/data_BHL/";
         $this->report_files = array("saproxylic_scinames.tsv", 
                                     "scinames_list_saproxylic/names_from_tables_or_lists.tsv");
+
+        $this->term_uri['saproxylic'] = "http://eol.org/schema/terms/saproxylic";
+        $this->mtype_uri['saproxylic'] = "http://eol.org/schema/terms/TrophicGuild";
     }
 
     function get_all_taxa()
     {
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        $this->func->initialize_terms_remapping(); //for DATA-1841 terms remapping
+        
         foreach($this->report_files as $tsv) {
             self::process_report($this->DATA_FOLDER.$tsv);
         }
@@ -66,11 +74,20 @@ class ConsolidateTMReportsAPI
             if(isset($this->taxon_ids[$taxon_id])) return;
             $this->taxon_ids[$taxon_id] = '';
             $this->archive_builder->write_object_to_file($taxon);
-            
-            // self::add_string_types($taxon_id, "Habitat", $habitat, "http://purl.obolibrary.org/obo/RO_0002303");
-            
+
+            // add trait
+            $mType = $this->term_uri[$this->SearchTerm];
+            $mValue = $this->mtype_uri[$this->SearchTerm];
+            $measurementOfTaxon = "true";
+            $rek = array();
+            $rek["taxon_id"] = $taxon_id;
+            $rek["catnum"] = md5($taxon_id."_".$this->SearchTerm);
+            $this->func->add_string_types($rek, $mValue, $mType, $measurementOfTaxon);
         }
+        
+        
     }
+    /*
     private function add_string_types($taxon_id, $label, $value, $mtype)
     {
         $catnum = "h";
@@ -96,5 +113,6 @@ class ConsolidateTMReportsAPI
         $this->occurrence_ids[$occurrence_id] = $o;
         return $o;
     }
+    */
 }
 ?>

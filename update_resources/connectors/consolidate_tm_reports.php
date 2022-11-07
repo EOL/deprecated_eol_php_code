@@ -10,7 +10,7 @@ $timestart = time_elapsed();
 $cmdline_params['jenkins_or_cron']  = @$argv[1]; //irrelevant here
 $SearchTerm                         = @$argv[2]; //useful here
 
-$resource_id = "textmined_".$SearchTerm;
+$resource_id = "".$SearchTerm;
 $func = new ConsolidateTMReportsAPI($resource_id, $SearchTerm);
 $func->get_all_taxa();
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param false means not delete folder
