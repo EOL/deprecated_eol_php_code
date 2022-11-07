@@ -25,6 +25,7 @@ class AntWebDataAPI
         $this->download_options = array("timeout" => 60*60, "expire_seconds" => 60*60*24*25, 'download_attempts' => 2, 'delay_in_minutes' => 0.5);
         // $this->download_options['expire_seconds'] = false; //comment in normal operation
         $this->ant_habitat_mapping_file = "https://github.com/eliagbayani/EOL-connector-data-files/blob/master/AntWeb/ant habitats mapping.xlsx?raw=true";
+        $this->investigate = array("http://purl.obolibrary.org/obo/ENVO_01000680", "http://purl.obolibrary.org/obo/ENVO_01000477");
     }
     public function initialize_mapping()
     {
@@ -100,6 +101,7 @@ class AntWebDataAPI
                 if($country = @$rec['country']) {
                     if($country_uri = self::get_country_uri($country)) {
                         if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
+                        if(in_array($country_uri, $this->investigate)) exit("\nhuli ka A\n");
                         self::add_string_types($rec, $country_uri, "http://eol.org/schema/terms/Present", "true");
                     }
                     else $this->debug['undefined country'][$country] = '';
@@ -108,6 +110,7 @@ class AntWebDataAPI
                 if($habitat = @$rec['habitat']) {
                     if($habitat_uri = @$this->uri_values[$habitat]) {
                         if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
+                        if(in_array($habitat_uri, $this->investigate)) exit("\nhuli ka B\n");
                         self::add_string_types($rec, $habitat_uri, "http://purl.obolibrary.org/obo/RO_0002303", "true");
                     }
                     elseif($val = @$habitat_map[$habitat]) {
@@ -118,6 +121,7 @@ class AntWebDataAPI
                             if(!$habitat_uri) continue;
                             if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
                             $rec['measurementRemarks'] = $habitat;
+                            if(in_array($habitat_uri, $this->investigate)) exit("\nhuli ka C\n");
                             self::add_string_types($rec, $habitat_uri, "http://purl.obolibrary.org/obo/RO_0002303", "true");
                         }
                     }

@@ -30,6 +30,7 @@ class AntWebAPI
         $this->bibliographicCitation = "AntWeb. Version 8.45.1. California Academy of Science, online at https://www.antweb.org. Accessed ".date("d F Y").".";
         //remove across all textmined resources: cloud, cut
         $this->remove_across_all_resources = array('http://purl.obolibrary.org/obo/ENVO_01000760', 'http://purl.obolibrary.org/obo/ENVO_00000474');
+        $this->investigate = array("http://purl.obolibrary.org/obo/ENVO_01000680", "http://purl.obolibrary.org/obo/ENVO_01000477");
     }
     function start()
     {
@@ -708,6 +709,8 @@ class AntWebAPI
                     if(!$mValue) continue;
                     $save['measurementRemarks'] = ""; //No need to put measurementRemarks coming from Biology. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65452&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65452
                     $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                    
+                    if(in_array($mValue, $this->investigate)) exit("\nhuli ka 1\n");
                     $this->func->add_string_types($save, $mValue, $mType, "true");
                 }
             }
@@ -721,6 +724,7 @@ class AntWebAPI
                     if($mValue = self::get_country_uri($country)) {
                         $save['measurementRemarks'] = $country;
                         $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                        if(in_array($mValue, $this->investigate)) exit("\nhuli ka 2\n");
                         $this->func->add_string_types($save, $mValue, $mType, "true");
                     }
                     else $this->debug['undefined country'][$country] = '';
@@ -729,6 +733,7 @@ class AntWebAPI
                     if($mValue = @$this->uri_values[$habitat]) {
                         $save['measurementRemarks'] = $habitat;
                         $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                        if(in_array($mValue, $this->investigate)) exit("\nhuli ka 3\n");
                         $this->func->add_string_types($save, $mValue, $mType, "true");
                     }
                     /* Original. Worked for the longest time. But it doesn't differentiate with e.g. 'port of entry' without URI;
@@ -758,6 +763,7 @@ class AntWebAPI
                                     if(!$mValue) continue;
                                     $save['measurementRemarks'] = $habitat;
                                     $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                                    if(in_array($mValue, $this->investigate)) exit("\nhuli ka 4\n");
                                     $this->func->add_string_types($save, $mValue, $mType, "true");
                                 }
                             }
@@ -768,6 +774,7 @@ class AntWebAPI
                                         if(!$mValue) continue;
                                         $save['measurementRemarks'] = $habitat;
                                         $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                                        if(in_array($mValue, $this->investigate)) exit("\nhuli ka 5\n");
                                         $this->func->add_string_types($save, $mValue, $mType, "true");
                                     }
                                 }
@@ -781,6 +788,7 @@ class AntWebAPI
                                     if(!$mValue) continue;
                                     $save['measurementRemarks'] = $habitat;
                                     $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                                    if(in_array($mValue, $this->investigate)) exit("\nhuli ka 6\n");
                                     $this->func->add_string_types($save, $mValue, $mType, "true");
                                 }
                             }
