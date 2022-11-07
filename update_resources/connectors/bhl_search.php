@@ -4,6 +4,10 @@ namespace php_active_record;
 Note: ConvertioAPI.php - for converting PDF to text.
 
 Part - consists of multiple pages
+
+BHL API: 
+https://about.biodiversitylibrary.org/tools-and-services/developer-and-data-tools/#APIs
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -24,17 +28,23 @@ $page_id = '59914358';
 
 $search = "brachypterous";
 // $search = "saproxylic";
+// /* works OK
 $func->PublicationSearch($search); exit("\n--- end PublicationSearch($search) ---\n");
+// */
 
 $idtype = 'bhl';
 $item_id = '269395';
 $item_id = '262632';
 $item_id = '292464';
-$func->GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype)); exit; //with OcrText and with multiple pages
+$func->GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype)); exit("\n--- end GetItemMetadata() ---\n"); //with OcrText and with multiple pages
 // https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=285968&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
 // https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=135948&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
                    // https://www.biodiversitylibrary.org/itempdf/135948
                    // https://www.biodiversitylibrary.org/item/135948
+
+https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=292464&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
+https://www.biodiversitylibrary.org/api3?op=GetTitleMetadata&id=177982&idtype=bhl&items=t&format=xml&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
+
 
 $part_id = '263683';
 // $part_id = '241705'; //has external URL

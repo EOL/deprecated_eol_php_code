@@ -27,10 +27,6 @@ class ConsolidateTMReportsAPI
         foreach($this->report_files as $tsv) {
             self::process_report($this->DATA_FOLDER.$tsv);
         }
-        // self::process_files("species");
-        // self::process_genera_files();
-        // self::add_higher_level_taxa_to_archive();
-        // $this->create_archive();
         $this->archive_builder->finalize(TRUE);
     }
     private function process_report($file)
