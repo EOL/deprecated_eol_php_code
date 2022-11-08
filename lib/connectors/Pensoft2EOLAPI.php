@@ -946,7 +946,9 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             //     [http://purl.obolibrary.org/obo/ENVO_01000204] => array("lbl" => "tropical", "ontology" => "envo");
             // )
             if(!isset($this->allowed_terms_URIs[$rek['id']])) {
-                echo "\n-----------------\nhulix ka! NOT FOUND IN EOL TERMS FILE\n"; print_r($rek); echo "-----------------\n";
+                echo "\nEOL Terms file: ".count($this->allowed_terms_URIs)."\n";
+                echo "\n-----------------\nhulix ka! NOT FOUND IN EOL TERMS FILE: [".$rek['id']."]\n"; 
+                // print_r($rek); echo "-----------------\n";
                 continue;
             }
             // ----- New: Nov 8, 2022 - EOL Terms file ----- END */
