@@ -939,7 +939,18 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 }
             }
             // */
-            
+
+            // /* ----- New: Nov 8, 2022 - EOL Terms file ----- START
+            // print_r($this->results);
+            // Array(
+            //     [http://purl.obolibrary.org/obo/ENVO_01000204] => array("lbl" => "tropical", "ontology" => "envo");
+            // )
+            if(!isset($this->allowed_terms_URIs[$rek['id']])) {
+                echo "\n-----------------\nhulix ka! NOT FOUND IN EOL TERMS FILE\n"; print_r($rek); echo "-----------------\n";
+                continue;
+            }
+            // ----- New: Nov 8, 2022 - EOL Terms file ----- END */
+
             //============= below this point is where $this->results is populated =============
             if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN
                 if(ctype_lower(substr($rek['lbl'],0,1))) { //bec. references has a lot like 'Urban C.' which are authors.
