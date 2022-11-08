@@ -37,7 +37,14 @@ class AntWebDataAPI
         return $this->uri_values;
     }
     function start($harvester, $row_type)
-    {   
+    {
+        // /* New: strict use of URIs only from EOL terms file
+        require_library('connectors/Functions_Pensoft');
+        $func = new Functions_Pensoft();
+        $this->allowed_terms_URIs = $func->get_allowed_value_type_URIs_from_EOL_terms_file($this->download_options);
+        echo ("\nallowed_terms_URIs from EOL terms file: [".count($this->allowed_terms_URIs)."]\n");
+        // */
+        
         self::initialize_mapping();
         // print_r($this->taxon_ids); exit;
         $genus_list = self::get_all_genus($harvester->process_row_type($row_type));
@@ -113,7 +120,7 @@ class AntWebDataAPI
                         if(in_array($habitat_uri, $this->investigate)) exit("\nhuli ka B\n");
                         self::add_string_types($rec, $habitat_uri, "http://purl.obolibrary.org/obo/RO_0002303", "true");
                     }
-                    elseif($val = @$habitat_map[$habitat]) {
+                    elseif($val = @$habitat_map[$habitat]) { # use Pensoft here if still problematic
                         // echo "\nmapping OK [$val][$habitat]\n"; //good debug info
                         $habitat_uris = explode(";", $val);
                         $habitat_uris = array_map('trim', $habitat_uris);
@@ -122,7 +129,11 @@ class AntWebDataAPI
                             if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
                             $rec['measurementRemarks'] = $habitat;
                             if(in_array($habitat_uri, $this->investigate)) exit("\nhuli ka C\n");
-                            self::add_string_types($rec, $habitat_uri, "http://purl.obolibrary.org/obo/RO_0002303", "true");
+                            
+                            if(isset($this->allowed_terms_URIs[$habitat_uri])) {
+                                self::add_string_types($rec, $habitat_uri, "http://purl.obolibrary.org/obo/RO_0002303", "true");
+                            }
+                            else echo "\nNot in EOL terms file [$habitat_uri]\n";
                         }
                     }
                     // else $this->debug['undefined habitat'][$habitat] = ''; //commented so that build text will not be too long.
