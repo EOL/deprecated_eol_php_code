@@ -25,6 +25,11 @@ class BHL_Download_API //extends Functions_Memoirs
         &pageSize=<the maximum number of results to return per page (default = 100)>
         &apikey=<API key value>
         */
+        // /* New: pages maintenance
+        $this->pages_ocr_repo = $this->save_dir."/pages_ocr_".$searchterm;
+        if(!is_dir($this->pages_ocr_repo)) mkdir($this->pages_ocr_repo);
+        // */
+        
         if(strlen($searchterm) < 10) exit("\nSearch term is too short: [$searchterm]\n");
         $this->needle = $searchterm;
         
@@ -286,7 +291,11 @@ class BHL_Download_API //extends Functions_Memoirs
                 foreach($obj->Pages as $page) { //print_r($page); exit;
                     // /* working Ok but not needed atm
                     if(stripos($page->OcrText, $needle) !== false) { //string is found
-                        echo "\nFound OK $needle in page $page->PageID.\n";
+                        echo "\nFound OK 1 $needle in page $page->PageID.\n";
+                        
+                        self::save_page_ocr($page);
+                        
+                        
                         if($names = self::get_names_for_PageID($page->PageID)) { //print_r($names); exit;
                             /*Array(
                                 [0] => stdClass Object(
@@ -379,7 +388,7 @@ class BHL_Download_API //extends Functions_Memoirs
                 /* a page has an [OcrText] */
                 if($needle) { //if a value for needle is passed
                     if(stripos($obj->OcrText, $needle) !== false) { //string is found
-                        echo "\nFound OK $needle in page $page_id.\n";
+                        echo "\nFound OK 2 $needle in page $page_id.\n";
                         // print_r($obj); exit;
                     }
                     else echo "\nNo $needle in page $page_id.\n";
@@ -442,6 +451,36 @@ class BHL_Download_API //extends Functions_Memoirs
         // $text = str_replace("- \n", "", $text); //not a good idea
         fwrite($f, $text."\n");
         fwrite($f, "=============== end of file ==============\n\n");
+        fclose($f);
+    }
+    private function save_page_ocr($page)
+    {   // print_r($page); exit;
+        /*stdClass Object(
+            [PageID] => 60852629
+            [ItemID] => 292464
+            [TextSource] => OCR
+            [PageUrl] => https://www.biodiversitylibrary.org/page/60852629
+            [ThumbnailUrl] => https://www.biodiversitylibrary.org/pagethumb/60852629
+            [FullSizeImageUrl] => https://www.biodiversitylibrary.org/pageimage/60852629
+            [OcrUrl] => https://www.biodiversitylibrary.org/pagetext/60852629
+            [OcrText] => Preface 
+        In August 2004, the city of Brisbane, Australia, was host to one of the largest recent ...
+            [PageTypes] => Array(
+                    [0] => stdClass Object(
+                            [PageTypeName] => Text
+                        )
+                )
+            [PageNumbers] => Array
+                ()
+        )
+        */
+        $f = Functions::file_open($this->pages_ocr_repo."/".$page->PageID.".txt", "w");
+        $title = "PageID: ".$page->PageID;
+        $pad = Functions::format_number_with_leading_zeros("", strlen($title));
+        fwrite($f, "$pad "."ItemID: $page->ItemID"."\n");
+        fwrite($f, $title."\n");
+        fwrite($f, "$pad\n\n");
+        fwrite($f, $page->OcrText."\n");
         fclose($f);
     }
     private function write_part_info($obj)

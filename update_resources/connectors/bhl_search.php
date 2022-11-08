@@ -27,7 +27,7 @@ $page_id = '59914358';
 // $func->GetPageMetadata(array('page_id'=>$page_id)); exit;
 
 $search = "brachypterous";
-// $search = "saproxylic";
+$search = "saproxylic";
 // /* works OK
 $func->PublicationSearch($search); exit("\n--- end PublicationSearch($search) ---\n");
 // */
@@ -42,8 +42,8 @@ $func->GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype)); exit("\n-
                    // https://www.biodiversitylibrary.org/itempdf/135948
                    // https://www.biodiversitylibrary.org/item/135948
 
-https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=292464&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
-https://www.biodiversitylibrary.org/api3?op=GetTitleMetadata&id=177982&idtype=bhl&items=t&format=xml&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
+// https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=292464&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
+// https://www.biodiversitylibrary.org/api3?op=GetTitleMetadata&id=177982&idtype=bhl&items=t&format=xml&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
 
 
 $part_id = '263683';
