@@ -29,6 +29,8 @@ with the new "terms_to_remove" list
 24	Thu 2022-06-09 11:13:21 PM	{"agent.tab":173, "measurement_or_fact_specific.tab":96412, "media_resource.tab":140143, "occurrence_specific.tab":60873, "taxon.tab":16470, "time_elapsed":{"sec":3525.04, "min":58.75, "hr":0.98}}
 24	Wed 2022-10-26 01:03:46 PM	{"agent.tab":173, "measurement_or_fact_specific.tab":95234, "media_resource.tab":140143, "occurrence_specific.tab":60013, "taxon.tab":16470, "time_elapsed":{"sec":12819.9, "min":213.67, "hr":3.56}}
 24	Tue 2022-11-01 02:28:48 PM	{"agent.tab":173, "measurement_or_fact_specific.tab":95234, "media_resource.tab":140143, "occurrence_specific.tab":60013, "taxon.tab":16470, "time_elapsed":{"sec":19342.15, "min":322.37, "hr":5.37}}
+Below start of removing all MoF term URIs that are now in EOL Terms File:
+24	Tue 2022-11-08 09:45:01 AM	{"agent.tab":173, "measurement_or_fact_specific.tab":89324, "media_resource.tab":140143, "occurrence_specific.tab":58339, "taxon.tab":16470, "time_elapsed":{"sec":3440.87, "min":57.35, "hr":0.96}}
 
 # From Jen: it looks like we can discard this filter from both AntWeb and AmphibiaWeb. DATA-1870
 php5.6 rem_marine_terr_desc.php jenkins '{"resource_id":"24"}'
