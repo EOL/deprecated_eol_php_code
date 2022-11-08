@@ -26,7 +26,7 @@ class BHL_Download_API //extends Functions_Memoirs
         &apikey=<API key value>
         */
         // /* New: pages maintenance
-        $this->pages_ocr_repo = $this->save_dir."/pages_ocr_".$searchterm;
+        $this->pages_ocr_repo = $this->save_dir."/pages_".$searchterm;
         if(!is_dir($this->pages_ocr_repo)) mkdir($this->pages_ocr_repo);
         // */
         
@@ -474,7 +474,7 @@ class BHL_Download_API //extends Functions_Memoirs
                 ()
         )
         */
-        $f = Functions::file_open($this->pages_ocr_repo."/".$page->PageID.".txt", "w");
+        $f = Functions::file_open($this->pages_ocr_repo."/page_".$page->PageID.".txt", "w");
         $title = "PageID: ".$page->PageID;
         $pad = Functions::format_number_with_leading_zeros("", strlen($title));
         fwrite($f, "$pad "."ItemID: $page->ItemID"."\n");
