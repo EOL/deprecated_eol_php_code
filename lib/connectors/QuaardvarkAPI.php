@@ -496,9 +496,16 @@ class QuaardvarkAPI
                         'Atlantic Ocean' => 'http://www.marineregions.org/mrgid/1902',
                         'Atlantic Ocean :: Introduced' => 'http://www.marineregions.org/mrgid/1902',
                         'Atlantic Ocean :: Native' => 'http://www.marineregions.org/mrgid/1902',
+                        
+                        /* replace by one below per: https://eol-jira.bibalex.org/browse/DATA-1918
                         'Australian' => 'http://www.geonames.org/2077456',
                         'Australian :: Introduced' => 'http://www.geonames.org/2077456',
                         'Australian :: Native' => 'http://www.geonames.org/2077456',
+                        */
+                        'Australian' => 'http://www.geonames.org/6255151',
+                        'Australian :: Introduced' => 'http://www.geonames.org/6255151',
+                        'Australian :: Native' => 'http://www.geonames.org/6255151',
+                        
                         'Ethiopian' => 'http://www.geonames.org/337996',
                         'Ethiopian :: Introduced' => 'http://www.geonames.org/337996',
                         'Ethiopian :: Native' => 'http://www.geonames.org/337996',
