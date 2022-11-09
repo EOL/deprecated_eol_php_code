@@ -28,15 +28,17 @@ $page_id = '59914358';
 
 $search = "brachypterous";
 $search = "saproxylic";
-// /* works OK
-$func->PublicationSearch($search); exit("\n--- end PublicationSearch($search) ---\n");
-// */
+/* works OK
+$func->PublicationSearch($search); exit("\n--- end PublicationSearch($search) ---\n"); //this generates big corpus for a given SearchTerm
+*/
 
 $idtype = 'bhl';
 $item_id = '269395';
 $item_id = '262632';
 $item_id = '292464';
-$func->GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype)); exit("\n--- end GetItemMetadata() ---\n"); //with OcrText and with multiple pages
+$item_id = '181000';
+/* an item has a TitleID and multiple [Pages] with [OcrText] */
+$func->GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype, 'needle'=>$search)); exit("\n--- end GetItemMetadata() ---\n"); 
 // https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=285968&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
 // https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=135948&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
                    // https://www.biodiversitylibrary.org/itempdf/135948
