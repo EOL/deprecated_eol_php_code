@@ -27,6 +27,8 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 21_ENV	Wed 2022-10-26 07:45:29 AM	{"agent.tab":777, "MoF.tab":4266, "media_resource.tab":8454, "occurrence.tab":2941, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2320, "time_elapsed":{"sec":241.92, "min":4.03, "hr":0.07}}
 Below start of intelligent API boundary - no 2000 hard-limit.
 21_ENV	Fri 2022-11-04 04:15:25 AM	{"agent.tab":777, "MoF.tab":4241, "media_resource.tab":8454, "occurrence.tab":2934, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2320, "time_elapsed":{"sec":3024.48, "min":50.41, "hr":0.84}}
+Below start of more strict URI filter. URI must exist in EOL terms file.
+21_ENV	Wed 2022-11-09 09:19:26 AM	{"agent.tab":777, "MoF.tab":3680, "media_resource.tab":8454, "occurrence.tab":2504, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2320, "time_elapsed":{"sec":56.82, "min":0.95, "hr":0.02}}
 */
 
 $timestart = microtime(1);
