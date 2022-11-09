@@ -244,6 +244,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         
         $index = "Should not go here, since record should be created now";
         if($val = @$this->debug[$index]) echo "\n$index : [$val]\n";
+        $index = "NOT FOUND IN EOL TERMS FILE";
+        if(isset($this->debug[$index])) print_r($this->debug[$index]);
     }
     private function run_utility($resource_id)
     {
@@ -947,7 +949,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             // )
             if(!isset($this->allowed_terms_URIs[$rek['id']])) {
                 // echo "\nEOL Terms file: ".count($this->allowed_terms_URIs)."\n";
-                echo "\nhulix ka! NOT FOUND IN EOL TERMS FILE: [".$rek['id']."]";
+                // echo "\nhulix ka! NOT FOUND IN EOL TERMS FILE: [".$rek['id']."]";
+                @$this->debug["NOT FOUND IN EOL TERMS FILE"][$rek['id']]++;
                 // print_r($rek); echo "-----------------\n";
                 continue;
             }
