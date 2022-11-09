@@ -947,7 +947,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             // )
             if(!isset($this->allowed_terms_URIs[$rek['id']])) {
                 // echo "\nEOL Terms file: ".count($this->allowed_terms_URIs)."\n";
-                // echo "\nhulix ka! NOT FOUND IN EOL TERMS FILE: [".$rek['id']."]";
+                echo "\nhulix ka! NOT FOUND IN EOL TERMS FILE: [".$rek['id']."]";
                 // print_r($rek); echo "-----------------\n";
                 continue;
             }
