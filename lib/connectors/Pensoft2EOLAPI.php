@@ -245,7 +245,9 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $index = "Should not go here, since record should be created now";
         if($val = @$this->debug[$index]) echo "\n$index : [$val]\n";
         $index = "NOT FOUND IN EOL TERMS FILE";
-        if(isset($this->debug[$index])) print_r($this->debug[$index]);
+        if(isset($this->debug[$index])) {
+            echo "\n$index:\n"; print_r($this->debug[$index]);
+        }
     }
     private function run_utility($resource_id)
     {
