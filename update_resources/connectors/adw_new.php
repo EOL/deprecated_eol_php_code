@@ -1,8 +1,6 @@
 <?php
 namespace php_active_record;
-
 /* ADW - comprehensive resource
-
 agent               : 3847
 media_resource      : 98813     79985
 reference           : 39939
@@ -38,24 +36,19 @@ occurrence.tab          [176247]
 reference.tab           [39940]
 taxon.tab               [9134]
 vernacular_name.tab     [3539]
-
-
 */
 
+exit("\nThis one seems obsolete already.\n");
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/AdwAPI');
 
 /*
 $final = array();
-foreach($arr as $l)
-{
+foreach($arr as $l) {
     $final[] = str_ireplace(array("\n"), " ", trim(Functions::remove_whitespace($l)));
 }
-
 print_r($final);
 */
-
-
 
 $timestart = time_elapsed();
 $resource_id = 1;

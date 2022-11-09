@@ -9,8 +9,8 @@ class AdwAPI
 {
     function __construct($folder = null)
     {
-        if($folder)
-        {
+        exit("\nThis one seems obsolete already.\n");
+        if($folder) {
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
