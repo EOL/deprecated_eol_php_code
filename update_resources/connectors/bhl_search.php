@@ -43,8 +43,8 @@ $func->GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype, 'needle'=>$
 */
 
 // /* 
-$item_id = '179311';
-$string = "Grynobius planus"; //"Plegaderus dissectus"; //"Paromalus flavicornis"; //"Abraeus globosus";
+$item_id = '285968'; //'135948'; //'179311';
+$string = "Epuraea rufomarginata"; //"Leptusa pulchella"; //"Grynobius planus"; //"Plegaderus dissectus"; //"Paromalus flavicornis"; //"Abraeus globosus";
 $page_id = $func->get_PageId_where_string_exists_in_ItemID($item_id, $string);
 echo "\npage_id = [$page_id]\n";
 exit("\n--- end 2nd purpose GetItemMetadata() ---\n"); 

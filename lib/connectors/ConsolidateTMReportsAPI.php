@@ -11,7 +11,8 @@ class ConsolidateTMReportsAPI
 
         $this->SearchTerm = $SearchTerm;
         $this->DATA_FOLDER = "/Volumes/AKiTiO4/python_apps/textmine_data/data_BHL/";
-        $this->report_files = array("saproxylic_scinames.tsv", 
+        $this->report_files = array("saproxylic_scinames_pages.tsv",
+                                    // "saproxylic_scinames.tsv",  --- obsolete due to attribution
                                     "scinames_list_saproxylic/names_from_tables_or_lists.tsv");
 
         $this->term_uri['saproxylic'] = "http://eol.org/schema/terms/saproxylic";
@@ -20,6 +21,9 @@ class ConsolidateTMReportsAPI
 
     function get_all_taxa()
     {
+        require_library('connectors/BHL_Download_API');
+        $this->api = new BHL_Download_API();
+        
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         $this->func->initialize_terms_remapping(); //for DATA-1841 terms remapping
@@ -60,6 +64,11 @@ class ConsolidateTMReportsAPI
             [MatchedCanonical] => Hadronyche
             [PlantOrFungi] => No
         )*/
+        
+        if(!isset($rec['PageID'])) {
+            $rec['PageID'] = $this->api->get_PageId_where_string_exists_in_ItemID($rec['ItemID'], $rec['Name']);
+        }
+        
         if($val = @$rec['CompleteNameIfAbbrev.']) $sciname = $val;
         else                                      $sciname = $rec["Name"];
         if($rec['Verified'] == "Yes" && $rec['MatchType'] == "Exact") {
@@ -78,6 +87,7 @@ class ConsolidateTMReportsAPI
             $rek = array();
             $rek["taxon_id"] = $taxon_id;
             $rek["catnum"] = md5($taxon_id."_".$this->SearchTerm);
+            if($val = $rec['PageID']) $rek["source"] = "https://www.biodiversitylibrary.org/page/".$val;
             $this->func->add_string_types($rek, $mValue, $mType, $measurementOfTaxon);
         }
         

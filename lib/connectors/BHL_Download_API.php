@@ -521,6 +521,10 @@ class BHL_Download_API //extends Functions_Memoirs
     }
     function get_PageId_where_string_exists_in_ItemID($item_id, $string)
     {
+        // /* manual adjustments due to OCR
+        if($string == "Leptusa pulchella" && $item_id == 135948) $string = "Lepcusa pulchella";
+        // */
+        
         echo "\nSearching [$string]...\n";
         $idtype = 'bhl';
         $obj = self::GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype)); // get Pages using ItemID
@@ -561,6 +565,7 @@ class BHL_Download_API //extends Functions_Memoirs
             foreach($final2 as $pageID => $length) return $pageID; // return the first pageID
         }
         else exit("\nInvestigate: string not found [$string]. Should not go here\n");
+        return false;
         exit("\nelix 1\n");
     }
     /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
