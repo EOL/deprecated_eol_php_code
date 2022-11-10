@@ -11,7 +11,7 @@ class ConsolidateTMReportsAPI
 
         $this->SearchTerm = $SearchTerm;
         $this->DATA_FOLDER = "/Volumes/AKiTiO4/python_apps/textmine_data/data_BHL/";
-        $this->report_files = array("saproxylic_scinames_pages.tsv",
+        $this->report_files = array("saproxylic_scinames_pages.tsv", //--- un-comment in real operation
                                     // "saproxylic_scinames.tsv",  --- obsolete due to attribution
                                     "scinames_list_saproxylic/names_from_tables_or_lists.tsv");
 
