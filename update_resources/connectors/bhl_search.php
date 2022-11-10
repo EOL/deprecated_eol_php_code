@@ -43,12 +43,21 @@ $func->GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype, 'needle'=>$
 */
 
 // /* 
-$item_id = '233784'; //'124942'; //'285968'; //'135948'; //'179311';
-$string = "Thamiaraea cinnamomea"; //"Platylomalus terrareginae"; //"Epuraea rufomarginata"; //"Leptusa pulchella"; //"Grynobius planus"; //"Plegaderus dissectus"; //"Paromalus flavicornis"; //"Abraeus globosus";
-$page_id = $func->get_PageId_where_string_exists_in_ItemID($item_id, $string);
+$marker = ""; 
+$start_row = "Table 1 : List of Saproxylic beetles recorded from Savernake Forest"; //"The Coleopterist, 23: 116-127"; //"Table 4—Red-listed saproxylic beetle species"; //"APPENDIX A";
+$item_id = '135948'; //'255349'; //'292464'; //'233784'; //'124942'; //'285968'; //'135948'; //'179311';
+$string = "Leptura sexguttata"; //"Eutheia linearis"; //"Philothermus tasmanicus"; //"Thamiaraea cinnamomea"; //"Platylomalus terrareginae"; //"Epuraea rufomarginata"; //"Leptusa pulchella"; //"Grynobius planus"; //"Plegaderus dissectus"; //"Paromalus flavicornis"; //"Abraeus globosus";
+$page_id = $func->get_PageId_where_string_exists_in_ItemID($item_id, $string, $marker, $start_row);
 echo "\npage_id = [$page_id]\n";
 exit("\n--- end 2nd purpose GetItemMetadata() ---\n"); 
 // */
+
+//Leptura sexguttata		part_31.txt	Table 1 : List of Saproxylic beetles recorded from Savernake Forest	135948
+
+// Platystomos albinus      part_9.txt  The Coleopterist, 23: 116-127   255349
+
+//Eutheia linearis		part_1.txt	Table 4—Red-listed saproxylic beetle species	292464
+//                                  Table 4—Red-listed saproxylic beetle species
 
 
 // https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=285968&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d

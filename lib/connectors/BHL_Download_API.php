@@ -519,7 +519,7 @@ class BHL_Download_API //extends Functions_Memoirs
         if(count($arr) > 1) return true;
         else return false;
     }
-    function get_PageId_where_string_exists_in_ItemID($item_id, $string)
+    function get_PageId_where_string_exists_in_ItemID($item_id, $string, $marker, $start_row)
     {
         // /* manual adjustments due to OCR
         if($string == "Leptusa pulchella" && $item_id == 135948) $string = "Lepcusa pulchella";
@@ -555,12 +555,13 @@ class BHL_Download_API //extends Functions_Memoirs
         echo "\nSearching [$string]...\n";
         $idtype = 'bhl';
         $obj = self::GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype)); // get Pages using ItemID
-        if($page_id = self::find_page_given_string_and_Pages_opt1($obj->Pages, $string)) return $page_id; // single row exact match on string
+        if($page_id = self::find_page_given_string_and_Pages_opt1($obj->Pages, $string, $marker, $start_row)) return $page_id; // single row exact match on string
         echo "\npage_id = [$page_id]\n";
         exit("\n-end muna dito\n");
     }
-    private function find_page_given_string_and_Pages_opt1($Pages, $string)
+    private function find_page_given_string_and_Pages_opt1($Pages, $string, $marker, $start_row)
     {
+        $met_StartRow_YN = false;
         $final = array();
         // Step 1: get all pages where string exists in any of its lines
         foreach($Pages as $page) {
@@ -568,14 +569,17 @@ class BHL_Download_API //extends Functions_Memoirs
                 $lines = explode("\n", $ocr);
                 $lines = array_map('trim', $lines);
                 foreach($lines as $line) {
+                    if(substr($line,0,strlen($start_row)) == $start_row) $met_StartRow_YN = true;
                     if(stripos($line, $string) !== false) { //string is found
-                        $final[$page->PageID][] = $line;
-                        print_r($page);
+                        if($met_StartRow_YN) $final[$page->PageID][] = $line;
+                        // $final[$page->PageID][] = $line;
+                        // print_r($page);
                     }
                 }
             }
         }
-        print_r($final);
+        if($final) print_r($final);
+        else exit("\nNothing as early as here...\n");
         /*Array( obsolete
             [47086871] => Abraeus globosus 14
             [47086833] => Histeridae: Abraeus globosus (Hoffmann), Paromalus flavicornis (Herbst). Ptilidae:
@@ -592,22 +596,30 @@ class BHL_Download_API //extends Functions_Memoirs
                     [1] => Thamiaraea cinnamomea (Grav.) 2
                 )
         )*/
-        // Step 2: strlen() the line
-        $final2 = array();
-        if($final) {
-            // foreach($final as $pageID => $line) $final2[$pageID] = strlen($line);
-            foreach($final as $pageID => $lines) {
-                foreach($lines as $line) $final2[$pageID][] = strlen($line);
+        if($marker) { // meaning there is a marker e.g. "*"
+            exit("\nShould not go here for now...\n");
+            /* Choose the PageID where sciname has the marker e.g. '54154969' in sample above.
+               No case with markers for now. That's why I didn't put the necessary code for it yet. */
+        }
+        else { // choose the smallest strlen
+            // Step 2: strlen() the line
+            $final2 = array();
+            if($final) {
+                // foreach($final as $pageID => $line) $final2[$pageID] = strlen($line);
+                foreach($final as $pageID => $lines) {
+                    foreach($lines as $line) $final2[$pageID][] = strlen($line);
+                }
+                print_r($final2);
             }
-            print_r($final2);
+            // Step 3: return the first index key which is the pageID
+            if($final2) {
+                asort($final2);
+                print_r($final2);
+                foreach($final2 as $pageID => $length) return $pageID; // return the first pageID
+            }
+            else exit("\nInvestigate: string not found [$string]. Should not go here\n");
         }
-        // Step 3: return the first index key which is the pageID
-        if($final2) {
-            asort($final2);
-            print_r($final2);
-            foreach($final2 as $pageID => $length) return $pageID; // return the first pageID
-        }
-        else exit("\nInvestigate: string not found [$string]. Should not go here\n");
+        
         return false;
         exit("\nelix 1\n");
     }
