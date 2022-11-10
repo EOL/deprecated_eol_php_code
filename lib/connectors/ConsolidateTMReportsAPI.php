@@ -16,10 +16,10 @@ class ConsolidateTMReportsAPI
                                     "scinames_list_saproxylic/names_from_tables_or_lists.tsv"
                                     );
 
-        $this->report_files = array("scinames_list_saproxylic/names_from_tables_or_lists.tsv",
-                                    "saproxylic_scinames_pages.tsv" //--- un-comment in real operation
-                                    // "saproxylic_scinames.tsv",  --- obsolete due to attribution
-                                    );
+        // $this->report_files = array("scinames_list_saproxylic/names_from_tables_or_lists.tsv",
+        //                             "saproxylic_scinames_pages.tsv" //--- un-comment in real operation
+        //                             // "saproxylic_scinames.tsv",  --- obsolete due to attribution
+        //                             );
 
         $this->term_uri['saproxylic'] = "http://eol.org/schema/terms/saproxylic";
         $this->mtype_uri['saproxylic'] = "http://eol.org/schema/terms/TrophicGuild";
