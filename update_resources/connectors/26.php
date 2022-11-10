@@ -146,10 +146,18 @@ Below expected decrease in MoF: removed MoF where measurementAccuracy = "inherit
 26_MoF_normalized	Tue 2022-09-20 09:14:22 PM	{"agent.tab":1893, "MoF":2151549, "Media":98246, "occur":645202, "ref":741350, "taxon.tab":386382, "vernacular_name.tab":79720, "time_elapsed":{"sec":2313.89, "min":38.56, "hr":0.64}}
 26_MoF_normalized	Wed 2022-10-26 04:45:50 PM	{"agent.tab":1898, "MoF":2180412, "Media":98575, "occur":647545, "ref":744105, "taxon.tab":387245, "vernacular_name.tab":79752, "time_elapsed":{"sec":2512.61, "min":41.88, "hr":0.7}}
 
+Below start of removing all MoF term URIs that are not in EOL Terms File:
+
 26_ENV_final	    Tue 2022-11-08 09:54:26 PM	{"agent.tab":1901, "MoF":2608723, "Media":98829, "occur":2187458, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":3102.67, "min":51.71, "hr":0.86}}
 26_delta	        Tue 2022-11-08 10:40:09 PM	{"agent.tab":1901, "MoF":2210150, "Media":98829, "occur":651427, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2687.03, "min":44.78, "hr":0.75}}
 26_delta_new	    Tue 2022-11-08 11:14:58 PM	{"agent.tab":1901, "MoF":2188507, "Media":98829, "occur":648863, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2088.54, "min":34.81, "hr":0.58}}
 26_MoF_normalized	Tue 2022-11-08 11:50:54 PM	{"agent.tab":1901, "MoF":2188265, "Media":98829, "occur":648863, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2146.01, "min":35.77, "hr":0.6}}
+
+26_ENV_final	    Wed 2022-11-09 12:20:57 PM	{"agent.tab":1901, "MoF":2608723, "Media":98829, "occur":2187458, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":3171.89, "min":52.86, "hr":0.88}}
+26_delta	        Wed 2022-11-09 01:07:18 PM	{"agent.tab":1901, "MoF":2210150, "Media":98829, "occur":651427, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2724.59, "min":45.41, "hr":0.76}}
+26_delta_new	    Wed 2022-11-09 01:42:47 PM	{"agent.tab":1901, "MoF":2188507, "Media":98829, "occur":648863, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2127.96, "min":35.47, "hr":0.59}}
+26_MoF_normalized	Wed 2022-11-09 02:19:11 PM	{"agent.tab":1901, "MoF":2188265, "Media":98829, "occur":648863, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2174.33, "min":36.24, "hr":0.6}}
+
 
 
 -rw-r--r-- 1 root      root       150939877 Aug 28 16:56 WoRMS.tar.gz
