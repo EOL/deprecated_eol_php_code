@@ -54,7 +54,7 @@ class ConsolidateTMReportsAPI
     }
 
     private function write_taxon($rec)
-    {   /*Array(
+    {   /*Array( --- obsolete 
             [Name] => Hadronyche
             [InternalFile] => part_1.txt
             [ItemID] => 292464
@@ -64,7 +64,28 @@ class ConsolidateTMReportsAPI
             [MatchedCanonical] => Hadronyche
             [PlantOrFungi] => No
         )*/
-        
+        /* --- current types
+        Array( --- saproxylic_scinames_pages.tsv
+            [Name] => Symmerus nobilis
+            [InternalFile] => page_29453147.txt
+            [PageID] => 29453147
+            [CompleteNameIfAbbrev.] => 
+            [Verified] => Yes
+            [MatchType] => Exact
+            [MatchedCanonical] => Symmerus nobilis
+            [PlantOrFungi] => No
+        )
+        Array( --- scinames_list_saproxylic/names_from_tables_or_lists.tsv
+            [Name] => Abraeus globosus
+            [Marker] => 
+            [InternalFile] => part_33.txt
+            [ItemID] => 181000
+            [Verified] => Yes
+            [MatchType] => Exact
+            [MatchedCanonical] => Abraeus globosus
+            [PlantOrFungi] => No
+        )*/
+        // print_r($rec); exit;
         if(!isset($rec['PageID'])) {
             $rec['PageID'] = $this->api->get_PageId_where_string_exists_in_ItemID($rec['ItemID'], $rec['Name']);
         }

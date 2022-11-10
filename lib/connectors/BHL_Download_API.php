@@ -523,6 +523,33 @@ class BHL_Download_API //extends Functions_Memoirs
     {
         // /* manual adjustments due to OCR
         if($string == "Leptusa pulchella" && $item_id == 135948) $string = "Lepcusa pulchella";
+        if($string == "Epuraea rufomarginata" && $item_id == 285968) $string = "Epnraea rnfomarginata";
+        if($string == "Rhyzodiastes mirabilis" && $item_id == 124942) $string = "Rhyzodiastes mirabitis";
+        if($string == "Platylomalus terrareginae" && $item_id == 124942) $string = "Plat\'lonialits terrareginae";
+        if($string == "Platylomalus saucius" && $item_id == 124942) $string = "Platvlomalus saucius";
+        if($string == "Prosopocoilus torresensis" && $item_id == 124942) $string = "Prosopocoilus lorresensis";
+        if($string == "Mastachilus australasicus" && $item_id == 124942) $string = "Mastachilus uustralasicus";
+        if($string == "Galbodema mannerheimi" && $item_id == 124942) $string = "Galhodema mannerheimi";
+        if($string == "Trichalus ater" && $item_id == 124942) $string = "Triehalus ater";
+        if($string == "Sphaerarthrum rubriceps" && $item_id == 124942) $string = "Snhaerarthrum rubriceps";
+        if($string == "Shoguna termitiformis" && $item_id == 124942) $string = "Shoguna lermitiformis";
+        if($string == "Aphanocephalus poropterus" && $item_id == 124942) $string = "Anhanocephalus poropterus";
+        if($string == "Stenotarsus pisoniae" && $item_id == 124942) $string = "Stenatarsus pisoniae";
+        if($string == "Tentablabus fulvus" && $item_id == 124942) $string = "Tentablabus fulvtis";
+        if($string == "Archaeoglenes australis" && $item_id == 124942) $string = "Archaeoglenes auslralis";
+        if($string == "Paraphanes nitidus" && $item_id == 124942) $string = "Paraphanes nilidus";
+        if($string == "Morpholycus flabellicornis" && $item_id == 124942) $string = "Morpholvcus flabellicornis";
+        if($string == "Commista latifrons" && $item_id == 124942) $string = "Commisla latifrons";
+        
+
+        // Epnraea bignttata (Thunberg) 
+        // Epnraea distincta (Grimmer) 
+        // Epnraea marsneli Reitter 
+        // Epnraea rnfomarginata (Steph.)
+        // 
+        // Epuraea biguttata    part_14.txt 235285
+        // Epuraea distincta    part_14.txt 235285
+        // Epuraea marsueli part_14.txt 235285        
         // */
         
         echo "\nSearching [$string]...\n";
@@ -542,21 +569,37 @@ class BHL_Download_API //extends Functions_Memoirs
                 $lines = array_map('trim', $lines);
                 foreach($lines as $line) {
                     if(stripos($line, $string) !== false) { //string is found
-                        $final[$page->PageID] = $line;
-                        // print_r($page);
+                        $final[$page->PageID][] = $line;
+                        print_r($page);
                     }
                 }
             }
         }
         print_r($final);
-        /*Array(
+        /*Array( obsolete
             [47086871] => Abraeus globosus 14
             [47086833] => Histeridae: Abraeus globosus (Hoffmann), Paromalus flavicornis (Herbst). Ptilidae:
+        )*/
+        /*Array( new format of the array()
+            [54154962] => Array(
+                    [0] => Thamiaraea cinnamomea
+                )
+            [54154963] => Array(
+                    [0] => Thamiaraea cinnamomea
+                )
+            [54154969] => Array(
+                    [0] => Thamiaraea cinnamomea (Grav.)*
+                    [1] => Thamiaraea cinnamomea (Grav.) 2
+                )
         )*/
         // Step 2: strlen() the line
         $final2 = array();
         if($final) {
-            foreach($final as $pageID => $line) $final2[$pageID] = strlen($line);
+            // foreach($final as $pageID => $line) $final2[$pageID] = strlen($line);
+            foreach($final as $pageID => $lines) {
+                foreach($lines as $line) $final2[$pageID][] = strlen($line);
+            }
+            print_r($final2);
         }
         // Step 3: return the first index key which is the pageID
         if($final2) {
