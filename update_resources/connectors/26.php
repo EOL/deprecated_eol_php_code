@@ -152,12 +152,8 @@ Below start of removing all MoF term URIs that are not in EOL Terms File:
 26_delta	        Tue 2022-11-08 10:40:09 PM	{"agent.tab":1901, "MoF":2210150, "Media":98829, "occur":651427, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2687.03, "min":44.78, "hr":0.75}}
 26_delta_new	    Tue 2022-11-08 11:14:58 PM	{"agent.tab":1901, "MoF":2188507, "Media":98829, "occur":648863, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2088.54, "min":34.81, "hr":0.58}}
 26_MoF_normalized	Tue 2022-11-08 11:50:54 PM	{"agent.tab":1901, "MoF":2188265, "Media":98829, "occur":648863, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2146.01, "min":35.77, "hr":0.6}}
-
-26_ENV_final	    Wed 2022-11-09 12:20:57 PM	{"agent.tab":1901, "MoF":2608723, "Media":98829, "occur":2187458, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":3171.89, "min":52.86, "hr":0.88}}
-26_delta	        Wed 2022-11-09 01:07:18 PM	{"agent.tab":1901, "MoF":2210150, "Media":98829, "occur":651427, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2724.59, "min":45.41, "hr":0.76}}
-26_delta_new	    Wed 2022-11-09 01:42:47 PM	{"agent.tab":1901, "MoF":2188507, "Media":98829, "occur":648863, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2127.96, "min":35.47, "hr":0.59}}
 26_MoF_normalized	Wed 2022-11-09 02:19:11 PM	{"agent.tab":1901, "MoF":2188265, "Media":98829, "occur":648863, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2174.33, "min":36.24, "hr":0.6}}
-
+26_MoF_normalized	Thu 2022-11-10 03:52:55 AM	{"agent.tab":1901, "MoF":2188265, "Media":98829, "occur":648863, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2172.75, "min":36.21, "hr":0.6}}
 
 
 -rw-r--r-- 1 root      root       150939877 Aug 28 16:56 WoRMS.tar.gz
