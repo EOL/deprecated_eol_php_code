@@ -273,7 +273,7 @@ class BHL_Download_API //extends Functions_Memoirs
         &apikey=<API key value>
         */
         $item_id = $params['item_id']; $idtype = $params['idtype']; $method = "GetItemMetadata";
-        $needle = $params['needle'];
+        $needle = @$params['needle'];
         
         $url = $this->Endpoint."?op=$method&id=$item_id&idtype=$idtype&pages=t&ocr=t&parts=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -283,6 +283,8 @@ class BHL_Download_API //extends Functions_Memoirs
                 // print_r($obj); exit("\n-end GetItemMetadata-\n");
                 echo "\nItemID: ".$obj->ItemID."\n";
                 echo "\nItemID has total pages: ".count($obj->Pages)."\n";
+                
+                if(!isset($params['needle'])) return $obj;
                 
                 self::write_item_info($obj);
                 
@@ -516,6 +518,50 @@ class BHL_Download_API //extends Functions_Memoirs
         $arr = explode(" ", trim($name));
         if(count($arr) > 1) return true;
         else return false;
+    }
+    function get_PageId_where_string_exists_in_ItemID($item_id, $string)
+    {
+        echo "\nSearching [$string]...\n";
+        $idtype = 'bhl';
+        $obj = self::GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype)); // get Pages using ItemID
+        if($page_id = self::find_page_given_string_and_Pages_opt1($obj->Pages, $string)) return $page_id; // single row exact match on string
+        echo "\npage_id = [$page_id]\n";
+        exit("\n-end muna dito\n");
+    }
+    private function find_page_given_string_and_Pages_opt1($Pages, $string)
+    {
+        $final = array();
+        // Step 1: get all pages where string exists in any of its lines
+        foreach($Pages as $page) {
+            if($ocr = @$page->OcrText) {
+                $lines = explode("\n", $ocr);
+                $lines = array_map('trim', $lines);
+                foreach($lines as $line) {
+                    if(stripos($line, $string) !== false) { //string is found
+                        $final[$page->PageID] = $line;
+                        // print_r($page);
+                    }
+                }
+            }
+        }
+        print_r($final);
+        /*Array(
+            [47086871] => Abraeus globosus 14
+            [47086833] => Histeridae: Abraeus globosus (Hoffmann), Paromalus flavicornis (Herbst). Ptilidae:
+        )*/
+        // Step 2: strlen() the line
+        $final2 = array();
+        if($final) {
+            foreach($final as $pageID => $line) $final2[$pageID] = strlen($line);
+        }
+        // Step 3: return the first index key which is the pageID
+        if($final2) {
+            asort($final2);
+            print_r($final2);
+            foreach($final2 as $pageID => $length) return $pageID; // return the first pageID
+        }
+        else exit("\nInvestigate: string not found [$string]. Should not go here\n");
+        exit("\nelix 1\n");
     }
     /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     /* seems not used

@@ -25,6 +25,7 @@ $page_id = "48619917";
 $page_id = "52894691";
 $page_id = '59914358';
 // $func->GetPageMetadata(array('page_id'=>$page_id)); exit;
+// e.g. https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=47086871&ocr=t&names=t&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
 
 $search = "brachypterous";
 $search = "saproxylic";
@@ -37,8 +38,19 @@ $item_id = '269395';
 $item_id = '262632';
 $item_id = '292464';
 $item_id = '181000';
-/* an item has a TitleID and multiple [Pages] with [OcrText] */
+/* an item has a TitleID and multiple [Pages] with [OcrText] --- works OK inside BHL_Download_API.php
 $func->GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>$idtype, 'needle'=>$search)); exit("\n--- end GetItemMetadata() ---\n"); 
+*/
+
+// /* 
+$item_id = '179311';
+$string = "Grynobius planus"; //"Plegaderus dissectus"; //"Paromalus flavicornis"; //"Abraeus globosus";
+$page_id = $func->get_PageId_where_string_exists_in_ItemID($item_id, $string);
+echo "\npage_id = [$page_id]\n";
+exit("\n--- end 2nd purpose GetItemMetadata() ---\n"); 
+// */
+
+
 // https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=285968&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
 // https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=135948&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
                    // https://www.biodiversitylibrary.org/itempdf/135948
