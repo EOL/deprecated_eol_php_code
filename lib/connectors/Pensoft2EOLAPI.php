@@ -711,16 +711,17 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             }
             // ----- block check end -----
             if(!isset($str)) {
-                echo "\nINVESTIGATE: str var not defined. [$id]\n[$desc]\n";
+                echo "\nINVESTIGATE: str var not defined. [$id]\n[$desc]\n"; // rare case where char_ahead has always a value
+                $str = substr($desc, $ctr, $batch_length);
+                echo "\nWill now proceed with: [$id]\n[$str]\n";
             }
-            else {
-                // /* sub main operation
-                $str = utf8_encode($str);
-                if($this->includeOntologiesYN)  $id = md5($str.$this->ontologies); //for now only for those SI PDFs/epubs
-                else                            $id = md5($str); //orig, the rest goes here...
-                if($str) self::retrieve_partial($id, $str, $loop);
-                // */
-            }
+            
+            // /* sub main operation
+            $str = utf8_encode($str);
+            if($this->includeOntologiesYN)  $id = md5($str.$this->ontologies); //for now only for those SI PDFs/epubs
+            else                            $id = md5($str); //orig, the rest goes here...
+            if($str) self::retrieve_partial($id, $str, $loop);
+            // */
             
             $ctr = $ctr + $batch_length;
             // echo "\nbatch $loop: [$str][$ctr][$batch_length]\n"; //good debug
