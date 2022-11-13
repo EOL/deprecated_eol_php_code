@@ -98,7 +98,7 @@ class ConsolidateTMReportsAPI
         
         if($val = @$rec['CompleteNameIfAbbrev.']) $sciname = $val;
         else                                      $sciname = $rec["Name"];
-        if($rec['Verified'] == "Yes" && $rec['MatchType'] == "Exact") {
+        if($rec['Verified'] == "Yes" && $rec['MatchType'] == "Exact" && $rec['PlantOrFungi'] == "No") {
             $taxon_id = md5($rec["Name"]);
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID         = $taxon_id;
@@ -114,6 +114,10 @@ class ConsolidateTMReportsAPI
             $rek = array();
             $rek["taxon_id"] = $taxon_id;
             $rek["catnum"] = md5($taxon_id."_".$this->SearchTerm);
+            
+            if($val = @$rec['Sentence']) $rek['measurementRemarks'] = $val;
+            if($val = @$rec['Title']) $rek['measurementRemarks'] = $val;
+            
             if($val = $rec['PageID']) $rek["source"] = "https://www.biodiversitylibrary.org/page/".$val;
             $this->func->add_string_types($rek, $mValue, $mType, $measurementOfTaxon);
         }
