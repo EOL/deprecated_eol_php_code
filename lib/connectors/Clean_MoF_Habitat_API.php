@@ -421,7 +421,7 @@ class Clean_MoF_Habitat_API
         foreach($arr as $item) $final[$item] = '';
         return $final;
     }
-    private function get_descendants_info()
+    function get_descendants_info()
     {
         $options = $this->download_options;
         $options['expire_seconds'] = 60*60*24*1; //1 day expires
@@ -511,6 +511,7 @@ class Clean_MoF_Habitat_API
                    [6] =>  https://www.gbif.org/dataset/2f23ac81-674e-4e4e-982f-73f49ccdb9df
                )
         */
+        return $this->descendants; //used in CladeSpecificFilters4Habitats_API.php
     }
 
     /* copied template
