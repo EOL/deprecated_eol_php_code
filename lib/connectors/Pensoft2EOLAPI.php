@@ -381,7 +381,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             
             // if($taxonID != 'Q1000262') continue; //debug only
             
-            // /* debug only --- range ranges caching cache
+            /* debug only --- range ranges caching cache
             if($this->param['resource_id'] == "TreatmentBank_ENV") { //total 1135562 objects in media tab
                 $m = 378521; # can run 3 connectors. Comment 2 rows and un-comment 1 row.
                 // if($i >= 1 &&    $i < $m) {}
@@ -389,7 +389,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 // if($i >= $m*2 && $i < $m*3) {}
                 else continue; 
             }
-            // */
+            */
             
             // print_r($this->allowed_subjects); exit;
             if(self::valid_record($rec)) {
