@@ -743,7 +743,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 print_r($arr);
                 echo("\n[---$id---]\n[---$desc---]\n");
                 echo("\n[".$arr['text'][0]."]\n");
-                exit("\nInvestigate: might need to decrease orig_batch_length variable.\n");
+                exit("\nInvestigate: might need to decrease orig_batch_length variable.\n".strlen($desc)."\n");
             }
             
             // echo("\nretrieved partial OK\n"); //good debug
@@ -760,7 +760,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                         print_r($arr);
                         echo("\n222[---$id---]\n[---$desc---]\n[---$json---]\n");
                         echo("\n[".$arr['text'][0]."]\n");
-                        exit("\nInvestigate: might need to decrease orig_batch_length variable.\n");
+                        echo("\nInvestigate: might need to decrease orig_batch_length variable.\n".strlen($desc)."\n");
+                        return;
                     }
                     // echo("\nretrieved (newly created) partial OK\n"); //good debug
                 }
