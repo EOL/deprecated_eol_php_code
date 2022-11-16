@@ -386,8 +386,9 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                                                            //total 841539                       '617_ENV'          $m = 284000;
                 $m = 284000; # can run 3 connectors. Comment 2 rows and un-comment 1 row.
                 // if($i >= 1 &&    $i < $m) {}
-                if($i >= $m &&   $i < $m*2) {}
+                // if($i >= $m &&   $i < $m*2) {}
                 // if($i >= $m*2 && $i < $m*3) {}
+                if($i >= 700000 && $i < $m*3) {}
                 else continue; 
             }
             // */
