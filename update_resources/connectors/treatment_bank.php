@@ -71,6 +71,9 @@ TreatmentBank_adjustment_01	Wed 2022-10-26 08:07:19 PM	{"MoF.tab":1865787, "occu
 Below start of getting only 'en' English descriptions:
 TreatmentBank	Thu 2022-11-03 07:00:50 AM	{"media_resource.tab":1135562, "taxon.tab":597053, "time_elapsed":{"sec":77206, "min":1286.77, "hr":21.45}}
 
+Below start of strict URI; only those found in EOL Terms file are allowed:
+TreatmentBank_ENV	Wed 2022-11-16 06:41:27 AM	        {"MoF.tab":1679030, "occur.tab":1679030, "taxon.tab":597053, "time_elapsed":{"sec":13429.07, "min":223.82, "hr":3.73}}
+TreatmentBank_adjustment_01	Wed 2022-11-16 07:04:20 AM	{"MoF.tab":1678993, "occur.tab":1678993, "taxon.tab":597036, "time_elapsed":{"sec":1196.84, "min":19.95, "hr":0.33}}
 
 *** Last step: TreatmentBank_adjustment_01.tar.gz is renamed to TreatmentBank_final.tar.gz
 
