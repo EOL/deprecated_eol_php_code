@@ -15,31 +15,6 @@ class CladeSpecificFilters4Habitats_API
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
     {
-        /* START DATA-1841 terms remapping --- copied template
-        require_library('connectors/TraitGeneric');
-        $func = new TraitGeneric(false, false); //params are false and false bec. we just need to access 1 function.
-        $this->remapped_terms = $func->initialize_terms_remapping(60*60*24);
-        echo "\nremapped_terms local: ".count($this->remapped_terms)."\n";
-        END DATA-1841 terms remapping */
-        /* copied template
-        $tables = $info['harvester']->tables;
-        self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], $ret);
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'info'); //generates this->oID_taxonID_info
-        self::process_measurementorfact_info($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]); //to get $this->occurrence_id_2delete
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write'); //this is to exclude taxonID = EOL:11584278 (undescribed)
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]); //fix source links bec. of obsolete taxonIDs
-        */
-        /* start customize --- copied template
-        if($this->resource_id == 'xxx') self::process_reference($tables['http://eol.org/schema/reference/reference'][0]);
-        */
-        
-        /* not used here. Info from terms.yml is formatted differently here.
-        require_library('connectors/Functions_Pensoft');
-        $func = new Functions_Pensoft();
-        $this->allowed_terms_URIs = $func->get_allowed_value_type_URIs_from_EOL_terms_file($this->download_options); print_r($this->allowed_terms_URIs);
-        echo ("\nallowed_terms_URIs from EOL terms file: [".count($this->allowed_terms_URIs)."]\n");
-        */
-
         // /* use external func for computation of descendants
         require_library('connectors/DH_v1_1_postProcessing');
         $this->func = new DH_v1_1_postProcessing(1);
@@ -84,15 +59,29 @@ class CladeSpecificFilters4Habitats_API
         $this->occur_Maxillopoda[$occurrenceID]
         */
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'classify_MoF');
+        /* generates: $this->to_delete_occurID */
         echo "\n to_delete_occurID: ".count($this->to_delete_occurID)."\n";
-        exit("\nstop muna...\n");
+        
+        unset($this->Insecta);
+        unset($this->Arachnida);
+        unset($this->Malacostraca);
+        unset($this->Maxillopoda);
+        unset($this->occur_Insecta);
+        unset($this->occur_Arachnida);
+        unset($this->occur_Malacostraca);
+        unset($this->occur_Maxillopoda);
+        
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_occurrence');
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_MoF');
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'write_taxa');
+        // exit("\nstop muna...\n");
     }
     private function process_table($meta, $task)
     {   //print_r($meta);
         echo "\n\nRunning $task..."; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 300000) == 0) echo "\n".number_format($i);
-            /* ----- writing headers for the report -----
+            /* ----- writing headers for the report ----- copied template
             if($task == "write_MoF" && $i == 1) {
                 $file = CONTENT_RESOURCE_LOCAL_PATH.$this->resource_id."_MoF_removed.txt";
                 $fhandle = Functions::file_open($file, "w");
@@ -227,8 +216,61 @@ class CladeSpecificFilters4Habitats_API
                 }
             }
             //===================================================================================================================
+            if($task == 'write_occurrence') {
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => d72e5d93a891c80dc422db176d0337ec_TreatmentB
+                    [http://rs.tdwg.org/dwc/terms/taxonID] => DB5AFC3EC73E5732C0D8E33CFDC6FD63.taxon
+                )*/
+                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                if(!isset($this->to_delete_occurID[$occurrenceID])) { // saving
+                    $o = new \eol_schema\Occurrence_specific();
+                    $uris = array_keys($rec);
+                    foreach($uris as $uri) {
+                        $field = pathinfo($uri, PATHINFO_BASENAME);
+                        $o->$field = $rec[$uri];
+                    }
+                    $this->archive_builder->write_object_to_file($o);
+                    $this->taxa_has_occurrence[$taxonID] = '';
+                }
+            }
             //===================================================================================================================
+            if($task == 'write_MoF') {
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/measurementID] => 6f6a469d65e8a77862a74235a2e0534c_TreatmentB
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => d72e5d93a891c80dc422db176d0337ec_TreatmentB
+                    [http://eol.org/schema/measurementOfTaxon] => true
+                    [http://rs.tdwg.org/dwc/terms/measurementType] => http://eol.org/schema/terms/Present
+                    [http://rs.tdwg.org/dwc/terms/measurementValue] => http://www.geonames.org/4736286
+                    [http://rs.tdwg.org/dwc/terms/measurementRemarks] => source text: "texas"
+                    [http://purl.org/dc/terms/source] => http://treatment.plazi.org/id/DB5AFC3EC73E5732C0D8E33CFDC6FD63
+                    [http://purl.org/dc/terms/bibliographicCitation] => Hespenheide, Henry A. (2019): A Review of the Genus Laemosaccus Schönherr, 1826 (Coleoptera: Curculionidae: Mesoptiliinae) from Baja California and America North of Mexico: Diversity and Mimicry. The Coleopterists Bulletin 73 (4): 905-939, DOI: 10.1649/0010-065X-73.4.905, URL: http://dx.doi.org/10.1649/0010-065x-73.4.905
+                )*/
+                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                // $parentMeasurementID = @$rec['http://eol.org/schema/parentMeasurementID']; // not implemented
+                if(!isset($this->to_delete_occurID[$occurrenceID])) { // saving
+                    $o = new \eol_schema\MeasurementOrFact_specific();
+                    $uris = array_keys($rec);
+                    foreach($uris as $uri) {
+                        $field = pathinfo($uri, PATHINFO_BASENAME);
+                        $o->$field = $rec[$uri];
+                    }
+                    $this->archive_builder->write_object_to_file($o);
+                }
+            }
             //===================================================================================================================
+            if($task == 'write_taxa') {
+                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                if(isset($this->taxa_has_occurrence[$taxonID])) { // saving
+                    $o = new \eol_schema\Taxon();
+                    $uris = array_keys($rec);
+                    foreach($uris as $uri) {
+                        $field = pathinfo($uri, PATHINFO_BASENAME);
+                        $o->$field = $rec[$uri];
+                    }
+                    $this->archive_builder->write_object_to_file($o);
+                }
+            }
             //===================================================================================================================
             //===================================================================================================================
             //===================================================================================================================
