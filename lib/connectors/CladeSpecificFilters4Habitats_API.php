@@ -220,7 +220,7 @@ class CladeSpecificFilters4Habitats_API
                     Habitat=Reasonably Aquatic
                     */
                     if(isset($this->occur_Maxillopoda[$occurrenceID])) {
-                        if(self::is_mValue_Reasonably_Aquatic($m_Value)) {}
+                        if(self::is_mValue_Reasonably_Aquatic($mValue)) {}
                         else $this->to_delete_occurID[$occurrenceID] = '';
                     }
                     
