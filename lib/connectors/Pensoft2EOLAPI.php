@@ -743,7 +743,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 print_r($arr);
                 echo("\n[---$id---]\n[---$desc---]\n");
                 echo("\n[".$arr['text'][0]."]\n");
-                exit("\nInvestigate: might need to decrease orig_batch_length variable.\n".strlen($desc)."\n");
+                echo("\nInvestigate: might need to decrease orig_batch_length variable.\n".strlen($desc)."\n");
+                return;
             }
             
             // echo("\nretrieved partial OK\n"); //good debug
