@@ -55,7 +55,7 @@ class CladeSpecificFilters4Habitats_API
         $this->descendants_of_terrestrial = self::get_descendants_of_term('http://purl.obolibrary.org/obo/ENVO_00000446', "terrestrial");
         $this->descendants_of_coastalLand = self::get_descendants_of_term('http://purl.obolibrary.org/obo/ENVO_00000303', "coastal_land");
         $this->descendants_of_freshwater = self::get_descendants_of_term('http://purl.obolibrary.org/obo/ENVO_00000873', "freshwater");
-        exit;
+        // exit;
         /* as of Nov 16, 2022
         Descendants of marine (http://purl.obolibrary.org/obo/ENVO_00000447): 147
         Descendants of terrestrial (http://purl.obolibrary.org/obo/ENVO_00000446): 1567
@@ -69,9 +69,24 @@ class CladeSpecificFilters4Habitats_API
         */
         
         $tables = $info['harvester']->tables;
-        self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'build_occurID_taxonID_info'); //gen $this->occurID_taxonID_info
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'classify_taxa');
+        /* generates:
+        $this->Insecta[$taxonID]
+        $this->Arachnida[$taxonID]
+        $this->Malacostraca[$taxonID]
+        $this->Maxillopoda[$taxonID]
+        */
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'classify_occurrence');
+        /* generates:
+        $this->occur_Insecta[$occurrence_id]
+        $this->occur_Arachnida[$occurrence_id]
+        $this->occur_Malacostraca[$occurrence_id]
+        $this->occur_Maxillopoda[$occurrence_id]
+        */
+        
+        /* copied template
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'build_measurement_occurrence_info');
-
+        */
         // exit("\nstop muna...\n");
     }
     private function get_descendants_of_term($term, $label)
@@ -81,7 +96,7 @@ class CladeSpecificFilters4Habitats_API
         $this_descendants = self::re_orient($descendants_of_term); unset($descendants_of_term);
         $this_descendants[$term] = ''; // inclusive
         echo "\nDescendants of $label ($term): ".count($this_descendants)."\n";
-        print_r($this_descendants);
+        // print_r($this_descendants);
         return $this_descendants;
     }
     private function process_table($meta, $task)
@@ -89,20 +104,20 @@ class CladeSpecificFilters4Habitats_API
         echo "\n\nRunning $task..."; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 300000) == 0) echo "\n".number_format($i);
-            // /* ----- writing headers for the report -----
+            /* ----- writing headers for the report -----
             if($task == "write_MoF" && $i == 1) {
                 $file = CONTENT_RESOURCE_LOCAL_PATH.$this->resource_id."_MoF_removed.txt";
                 $fhandle = Functions::file_open($file, "w");
-                // /* build headers array
+                // build headers array
                 foreach($meta->fields as $field) {
                     if(!$field['term']) continue;
                     @$fields[] = pathinfo($field['term'], PATHINFO_FILENAME);
                 }
-                // */
+                // 
                 print_r($fields);
                 fwrite($fhandle, implode("\t", $fields)."\n");
             }
-            // ----- end ----- */
+            ----- end ----- */
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
@@ -115,9 +130,62 @@ class CladeSpecificFilters4Habitats_API
             }
             // print_r($rec); exit;
             //===================================================================================================================
-            if($task == 'build_occurID_taxonID_info') {
+            if($task == 'classify_taxa') {
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/taxonID] => DB5AFC3EC73E5732C0D8E33CFDC6FD63.taxon
+                    [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => 
+                    [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 
+                    [http://rs.tdwg.org/dwc/terms/originalNameUsageID] => 
+                    [http://rs.tdwg.org/dwc/terms/scientificName] => Laemosaccus rileyi Hespenheide 2019
+                    [http://rs.tdwg.org/dwc/terms/namePublishedIn] => 
+                    [http://rs.tdwg.org/dwc/terms/kingdom] => Animalia
+                    [http://rs.tdwg.org/dwc/terms/phylum] => Arthropoda
+                    [http://rs.tdwg.org/dwc/terms/class] => Insecta
+                    [http://rs.tdwg.org/dwc/terms/order] => Coleoptera
+                    [http://rs.tdwg.org/dwc/terms/family] => Curculionidae
+                    [http://rs.tdwg.org/dwc/terms/genus] => Laemosaccus
+                    [http://rs.tdwg.org/dwc/terms/taxonRank] => species
+                    [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => Hespenheide 2019
+                    [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => 
+                    [http://rs.tdwg.org/dwc/terms/nomenclaturalStatus] => 
+                    [http://purl.org/dc/terms/references] => http://treatment.plazi.org/id/DB5AFC3EC73E5732C0D8E33CFDC6FD63
+                    [http://rs.gbif.org/terms/1.0/canonicalName] => Laemosaccus rileyi
+                )*/
+                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                $class = $rec['http://rs.tdwg.org/dwc/terms/class'];
+                $family = $rec['http://rs.tdwg.org/dwc/terms/family'];
+                
+                // class = Insecta                          ---> Habitat=Reasonably Terrestrial
+                if($class == 'Insecta') $this->Insecta[$taxonID] = '';
+                // class = Arachnida AND family NOT =       ---> Habitat=Reasonably Terrestrial
+                if($class == 'Arachnida' && !in_array($family, array('Halacaridae', 'Selenoribatidae', 'Fortuyniidae', 'Ameronothridae', 'Pontarachnidae', 'Hyadesiidae'))) {
+                    $this->Arachnida[$taxonID] = '';
+                }
+                // class = Malacostraca AND family NOT =    ---> Habitat=Reasonably Aquatic
+                if($class == 'Malacostraca' && !in_array($family, array('Talitridae', 'Philosciidae', 'Trichoniscidae', 'Scleropactidae', 'Trachelipodidae', 'Armadillidae', 'Styloniscidae', 'Armadillidiidae', 'Porcellionidae', 'Eubelidae', 'Agnaridae', 'Pudeoniscidae', 'Platyarthridae', 'Bathytropidae', 'Olibrinidae', 'Oniscidae', 'Detonidae', 'Halophilosciidae', 'Scyphacidae', 'Cylisticidae', 'Mesoniscidae', 'Rhyscotidae', 'Spelaeoniscidae', 'Stenoniscidae'))) {
+                    $this->Malacostraca[$taxonID] = '';
+                }
+                // class = Maxillopoda                      ---> Habitat=Reasonably Aquatic
+                if($class == 'Maxillopoda') $this->Maxillopoda[$taxonID] = '';
+                
+                
             }
             //===================================================================================================================
+            if($task == 'classify_occurrence') {
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => d72e5d93a891c80dc422db176d0337ec_TreatmentB
+                    [http://rs.tdwg.org/dwc/terms/taxonID] => DB5AFC3EC73E5732C0D8E33CFDC6FD63.taxon
+                )*/
+                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                if(isset($this->Insecta[$taxonID])) $this->occur_Insecta[$occurrence_id] = '';
+                if(isset($this->Arachnida[$taxonID])) $this->occur_Arachnida[$occurrence_id] = '';
+                if(isset($this->Malacostraca[$taxonID])) $this->occur_Malacostraca[$occurrence_id] = '';
+                if(isset($this->Maxillopoda[$taxonID])) $this->occur_Maxillopoda[$occurrence_id] = '';
+            }
+            
+            
+            
             //===================================================================================================================
             //===================================================================================================================
             //===================================================================================================================
