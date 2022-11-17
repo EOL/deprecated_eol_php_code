@@ -743,7 +743,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 print_r($arr);
                 echo("\n[---$id---]\n[---$desc---]\n");
                 echo("\n[".$arr['text'][0]."]\n");
-                echo("\nInvestigate: might need to decrease orig_batch_length variable.\n".strlen($desc)."\n");
+                echo("\nInvestigate: might need to decrease orig_batch_length variable.\n strlen: ".strlen($desc)."\n");
                 return;
             }
             
@@ -761,19 +761,19 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                         print_r($arr);
                         echo("\n222[---$id---]\n[---$desc---]\n[---$json---]\n");
                         echo("\n[".$arr['text'][0]."]\n");
-                        echo("\nInvestigate: might need to decrease orig_batch_length variable.\n".strlen($desc)."\n");
+                        echo("\nInvestigate: might need to decrease orig_batch_length variable.\n strlen: ".strlen($desc)."\n");
                         return;
                     }
                     // echo("\nretrieved (newly created) partial OK\n"); //good debug
                 }
                 else {
-                    echo("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n"); //should not go here. Previously exit().
+                    echo("\nShould not go here, since record should be created now.\n[$id]\n[$desc]\n[$json]\n strlen: ".strlen($desc)."\n"); //should not go here. Previously exit().
                     @$this->debug["Should not go here, since record should be created now"]++;
                     // exit("\nstop muna\n[".$this->to_delete_file."]\n");
                 }
             }
             else {
-                echo("\n================\n -- nothing to save A...\n[$id]\n[$desc]\n[$loop]\n================\n"); //doesn't go here. Previously exit()
+                echo("\n================\n -- nothing to save A...\n[$id]\n[$desc]\n[$loop] strlen: ".strlen($desc)."\n================\n"); //doesn't go here. Previously exit()
                 // /* for debug only: to investigate further
                 $file = self::build_path($id, 'partial');
                 echo "\nfile: [$file]\n";
