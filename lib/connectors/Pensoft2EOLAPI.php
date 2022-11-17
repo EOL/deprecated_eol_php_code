@@ -388,7 +388,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 // if($i >= 1 &&    $i < $m) {}
                 // if($i >= $m &&   $i < $m*2) {}
                 // if($i >= $m*2 && $i < $m*3) {}
-                if($i >= 720000 && $i < $m*3) {}
+                if($i >= 640000 && $i < 720000) {}
                 else continue; 
             }
             // */
