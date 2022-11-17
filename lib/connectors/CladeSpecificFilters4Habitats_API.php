@@ -78,26 +78,14 @@ class CladeSpecificFilters4Habitats_API
         */
         self::process_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'classify_occurrence');
         /* generates:
-        $this->occur_Insecta[$occurrence_id]
-        $this->occur_Arachnida[$occurrence_id]
-        $this->occur_Malacostraca[$occurrence_id]
-        $this->occur_Maxillopoda[$occurrence_id]
+        $this->occur_Insecta[$occurrenceID]
+        $this->occur_Arachnida[$occurrenceID]
+        $this->occur_Malacostraca[$occurrenceID]
+        $this->occur_Maxillopoda[$occurrenceID]
         */
-        
-        /* copied template
-        self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'build_measurement_occurrence_info');
-        */
-        // exit("\nstop muna...\n");
-    }
-    private function get_descendants_of_term($term, $label)
-    {
-        $descendants_of_term = $this->func->get_descendants_of_taxID($term, false, $this->descendants);
-        echo "\nDescendants of $label ($term): ".count($descendants_of_term)."\n"; //print_r($descendants_of_term);
-        $this_descendants = self::re_orient($descendants_of_term); unset($descendants_of_term);
-        $this_descendants[$term] = ''; // inclusive
-        echo "\nDescendants of $label ($term): ".count($this_descendants)."\n";
-        // print_r($this_descendants);
-        return $this_descendants;
+        self::process_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'classify_MoF');
+        echo "\n to_delete_occurID: ".count($this->to_delete_occurID)."\n";
+        exit("\nstop muna...\n");
     }
     private function process_table($meta, $task)
     {   //print_r($meta);
@@ -167,8 +155,6 @@ class CladeSpecificFilters4Habitats_API
                 }
                 // class = Maxillopoda                      ---> Habitat=Reasonably Aquatic
                 if($class == 'Maxillopoda') $this->Maxillopoda[$taxonID] = '';
-                
-                
             }
             //===================================================================================================================
             if($task == 'classify_occurrence') {
@@ -178,15 +164,68 @@ class CladeSpecificFilters4Habitats_API
                 )*/
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
-                if(isset($this->Insecta[$taxonID])) $this->occur_Insecta[$occurrence_id] = '';
-                if(isset($this->Arachnida[$taxonID])) $this->occur_Arachnida[$occurrence_id] = '';
-                if(isset($this->Malacostraca[$taxonID])) $this->occur_Malacostraca[$occurrence_id] = '';
-                if(isset($this->Maxillopoda[$taxonID])) $this->occur_Maxillopoda[$occurrence_id] = '';
+                if(isset($this->Insecta[$taxonID])) $this->occur_Insecta[$occurrenceID] = '';
+                if(isset($this->Arachnida[$taxonID])) $this->occur_Arachnida[$occurrenceID] = '';
+                if(isset($this->Malacostraca[$taxonID])) $this->occur_Malacostraca[$occurrenceID] = '';
+                if(isset($this->Maxillopoda[$taxonID])) $this->occur_Maxillopoda[$occurrenceID] = '';
             }
-            
-            
-            
             //===================================================================================================================
+            if($task == 'classify_MoF') {
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/measurementID] => 6f6a469d65e8a77862a74235a2e0534c_TreatmentB
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => d72e5d93a891c80dc422db176d0337ec_TreatmentB
+                    [http://eol.org/schema/measurementOfTaxon] => true
+                    [http://rs.tdwg.org/dwc/terms/measurementType] => http://eol.org/schema/terms/Present
+                    [http://rs.tdwg.org/dwc/terms/measurementValue] => http://www.geonames.org/4736286
+                    [http://rs.tdwg.org/dwc/terms/measurementRemarks] => source text: "texas"
+                    [http://purl.org/dc/terms/source] => http://treatment.plazi.org/id/DB5AFC3EC73E5732C0D8E33CFDC6FD63
+                    [http://purl.org/dc/terms/bibliographicCitation] => Hespenheide, Henry A. (2019): A Review of the Genus Laemosaccus Schönherr, 1826 (Coleoptera: Curculionidae: Mesoptiliinae) from Baja California and America North of Mexico: Diversity and Mimicry. The Coleopterists Bulletin 73 (4): 905-939, DOI: 10.1649/0010-065X-73.4.905, URL: http://dx.doi.org/10.1649/0010-065x-73.4.905
+                )*/
+                $habitat_trait = 'http://purl.obolibrary.org/obo/RO_0002303';
+                $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
+                $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                if($mType == $habitat_trait) { // is a habitat trait record
+                    /*
+                    class = Insecta
+                    Habitat=Reasonably Terrestrial
+                    */
+                    if(isset($this->occur_Insecta[$occurrenceID])) {
+                        if(self::is_mValue_Reasonably_Terrestrial($mValue)) {}
+                        else $this->to_delete_occurID[$occurrenceID] = '';
+                    }
+                    
+                    
+                    /*
+                    class = Arachnida AND family NOT = Halacaridae, Selenoribatidae, Fortuyniidae, Ameronothridae, Pontarachnidae, or Hyadesiidae
+                    Habitat=Reasonably Terrestrial
+                    */
+                    if(isset($this->occur_Arachnida[$occurrenceID])) {
+                        if(self::is_mValue_Reasonably_Terrestrial($mValue)) {}
+                        else $this->to_delete_occurID[$occurrenceID] = '';
+                    }
+                    
+                    /*
+                    class = Malacostraca AND family NOT = Talitridae, Philosciidae, Trichoniscidae, Scleropactidae, Trachelipodidae, Armadillidae, Styloniscidae, Armadillidiidae, Porcellionidae, Eubelidae, Agnaridae, Pudeoniscidae, Platyarthridae, Bathytropidae, Olibrinidae, Oniscidae, Detonidae, Halophilosciidae, Scyphacidae, Cylisticidae, Mesoniscidae, Rhyscotidae, Spelaeoniscidae, Stenoniscidae
+                    Habitat=Reasonably Aquatic
+                    */
+                    if(isset($this->occur_Malacostraca[$occurrenceID])) {
+                        if(self::is_mValue_Reasonably_Aquatic($mValue)) {}
+                        else $this->to_delete_occurID[$occurrenceID] = '';
+                    }
+                    
+
+                    /*
+                    class = Maxillopoda
+                    Habitat=Reasonably Aquatic
+                    */
+                    if(isset($this->occur_Maxillopoda[$occurrenceID])) {
+                        if(self::is_mValue_Reasonably_Aquatic($m_Value)) {}
+                        else $this->to_delete_occurID[$occurrenceID] = '';
+                    }
+                    
+                }
+            }
             //===================================================================================================================
             //===================================================================================================================
             //===================================================================================================================
@@ -197,6 +236,43 @@ class CladeSpecificFilters4Habitats_API
         }
         if(isset($fhandle)) fclose($fhandle);
     }
+    private function is_mValue_Reasonably_Terrestrial($mValue)
+    {
+        // $this->descendants_of_marine
+        // $this->descendants_of_terrestrial
+        // $this->descendants_of_coastalLand
+        // $this->descendants_of_freshwater
+        
+        // Reasonably Terrestrial: Excluding all children of marine, http://purl.obolibrary.org/obo/ENVO_00000447, 
+        // except for children of coastal land, http://purl.obolibrary.org/obo/ENVO_00000303
+        if(isset($this->descendants_of_coastalLand[$mValue])) return true;
+        if(isset($this->descendants_of_marine[$mValue])) return false;
+        return true;
+    }
+    private function is_mValue_Reasonably_Aquatic($mValue)
+    {
+        // Reasonably Aquatic: Excluding all children of terrestrial, http://purl.obolibrary.org/obo/ENVO_00000446, 
+        // except for children of coastal land, http://purl.obolibrary.org/obo/ENVO_00000303
+        if(isset($this->descendants_of_coastalLand[$mValue])) return true;
+        if(isset($this->descendants_of_terrestrial[$mValue])) return false;
+        return true;
+    }
+    private function get_descendants_of_term($term, $label)
+    {
+        $descendants_of_term = $this->func->get_descendants_of_taxID($term, false, $this->descendants);
+        echo "\nDescendants of $label ($term): ".count($descendants_of_term)."\n"; //print_r($descendants_of_term);
+        $this_descendants = self::re_orient($descendants_of_term); unset($descendants_of_term);
+        $this_descendants[$term] = ''; // inclusive
+        echo "\nDescendants of $label ($term): ".count($this_descendants)."\n";
+        // print_r($this_descendants);
+        return $this_descendants;
+    }
+    private function re_orient($arr)
+    {
+        foreach($arr as $item) $final[$item] = '';
+        return $final;
+    }
+    /* copied template 1st level
     private function is_mValue_descendant_of_marine($mValue)
     {
         if(isset($this->descendants_of_marine[$mValue])) return true;
@@ -212,13 +288,8 @@ class CladeSpecificFilters4Habitats_API
         if($mType == 'http://purl.obolibrary.org/obo/RO_0002303') return true;
         else return false;
     }
-    private function re_orient($arr)
-    {
-        foreach($arr as $item) $final[$item] = '';
-        return $final;
-    }
-
-    /* copied template
+    */
+    /* copied template 2nd level
     private function process_measurementorfact($meta)
     {   //print_r($meta);
         $i = 0;
