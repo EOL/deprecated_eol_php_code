@@ -142,6 +142,15 @@ wikipedia_en_traits_tmp4	Wed 2022-09-14 06:00:58 PM	{"MoF.tab":259433, "occurren
 wikipedia_en_traits_tmp4	Wed 2022-10-26 04:57:19 PM	{"MoF.tab":219379, "occurrence.tab":219379, "taxon.tab":162502, "time_elapsed":{"sec":325.58, "min":5.43, "hr":0.09}}
 wikipedia_en_traits_tmp4	Wed 2022-10-26 05:00:45 PM	{"MoF.tab":219379, "occurrence.tab":219379, "taxon.tab":162503, "time_elapsed":{"sec":532.1, "min":8.87, "hr":0.15}}
 -> this batch Oct 26 has expected decrease when 'well' and others are deliberately removed in MoF
+Below with strict EOL terms file filter
+617_ENV	Fri 2022-11-18 10:58:36 PM	                    {"MoF.tab":218225, "occurrence.tab":218225, "taxon.tab":442781, "time_elapsed":{"sec":2900.23, "min":48.34, "hr":0.81}}
+wikipedia_en_traits_FTG	Fri 2022-11-18 11:12:18 PM	    {"MoF.tab":217553, "occurrence.tab":217553, "taxon.tab":442781, "time_elapsed":{"sec":808.16, "min":13.47, "hr":0.22}}
+wikipedia_en_traits_tmp1	Fri 2022-11-18 11:15:25 PM	{"MoF.tab":217553, "occurrence.tab":217553, "taxon.tab":164469, "time_elapsed":false}
+wikipedia_en_traits_tmp2	Fri 2022-11-18 11:18:17 PM	{"MoF.tab":217553, "occurrence.tab":217553, "taxon.tab":164469, "time_elapsed":false}
+wikipedia_en_traits_tmp3	Fri 2022-11-18 11:21:08 PM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":161956, "time_elapsed":{"sec":170.3, "min":2.84, "hr":0.05}}
+wikipedia_en_traits_tmp4	Fri 2022-11-18 11:24:48 PM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162220, "time_elapsed":{"sec":217.87, "min":3.63, "hr":0.06}}
+wikipedia_en_traits_tmp4	Fri 2022-11-18 11:27:53 PM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162221, "time_elapsed":{"sec":402.94, "min":6.72, "hr":0.11}}
+
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
