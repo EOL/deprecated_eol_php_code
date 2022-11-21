@@ -160,26 +160,47 @@ class BHL_Download_API //extends Functions_Memoirs
         $file = $this->save_dir."/entities_".$needle.".jsonl";
         $f = Functions::file_open($file, "w");
         /* write start */
-        $w = '{"label": "TERM_POS", "pattern": "'.$needle.'"}';             fwrite($f, $w."\n");
-        $w = '{"label": "TERM_POS", "pattern": "'.ucfirst($needle).'"}';    fwrite($f, $w."\n");
-        $w = '{"label": "TERM_NEG", "pattern": "not '.$needle.'"}';         fwrite($f, $w."\n");
-        $w = '{"label": "TERM_NEG", "pattern": "non-'.$needle.'"}';         fwrite($f, $w."\n");
-        $w = '{"label": "TERM_NEG", "pattern": "none '.$needle.'"}';        fwrite($f, $w."\n");
-        $w = '{"label": "TERM_NEG", "pattern": "not entirely '.$needle.'"}';    fwrite($f, $w."\n");
-        $w = '{"label": "TERM_NEG", "pattern": "not exclusively '.$needle.'"}'; fwrite($f, $w."\n");
-        /* write names */
-        foreach($names as $name) {
-            if(self::taxon_is_species_level($name)) $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
-            else                                    $w = '{"label": "GNRD_HLT", "pattern": "'.$name.'"}';
-            fwrite($f, $w."\n");
-        }
-        /* write static entries in jsonl */
         $lines = array();
+        $lines[] = '{"label": "TERM_POS", "pattern": "'.$needle.'"}';
+        $lines[] = '{"label": "TERM_POS", "pattern": "'.ucfirst($needle).'"}';
+        $lines[] = '{"label": "TERM_POS_OTHER", "pattern": "other '.$needle.'"   , "_comment_": "new"}';
+        $lines[] = '{"label": "TERM_POS_OTHER", "pattern": "other rare '.$needle.'"   , "_comment_": "new"}';
+        $lines[] = '{"label": "TERM_POS_COMPARISON", "pattern": "more rare '.$needle.'"   , "_comment_": "new"}';
+        $lines[] = '{"label": "TERM_POS_DIRECT", "pattern": "is '.$needle.'"           , "_comment_": "new"}';
+        $lines[] = '{"label": "TERM_POS_DIRECT", "pattern": "is a '.$needle.'"         , "_comment_": "new"}';
+        $lines[] = '{"label": "TERM_POS_DIRECT", "pattern": "is a typical '.$needle.'" , "_comment_": "new"}';
+        $lines[] = '{"label": "TERM_POS_DIRECT", "pattern": "are '.$needle.'"          , "_comment_": "new"}';
+        $lines[] = '{"label": "TERM_POS_ENUM", "pattern": "list of '.$needle.'"  , "_comment_": "new"}';
+        $lines[] = '{"label": "TERM_POS_ENUM", "pattern": "List of '.$needle.'"  , "_comment_": "new"}';
+        $lines[] = '{"label": "TERM_POS_GROUP", "pattern": "entirely '.$needle.'"      , "_comment_": "new"}';
+        $lines[] = '{"label": "TERM_POS_GROUP", "pattern": "exclusively '.$needle.'"   , "_comment_": "new"}';
+        $lines[] = '{"label": "INCLUDING_PHRASE", "pattern": "including"        , "_comment_": "new"}';
+        $lines[] = '{"label": "INCLUDING_PHRASE", "pattern": "includes"         , "_comment_": "new"}';
+        $lines[] = '{"label": "INCLUDING_PHRASE", "pattern": "like"             , "_comment_": "new"}';
+        $lines[] = '{"label": "INCLUDING_PHRASE", "pattern": "such as"          , "_comment_": "new"}';
+        $lines[] = '{"label": "INCLUDING_PHRASE", "pattern": "for example"      , "_comment_": "new"}';
+        $lines[] = '{"label": "INCLUDING_PHRASE", "pattern": "e.g."             , "_comment_": "new"}';
+        $lines[] = '{"label": "OTHER_TERMS", "pattern": "predator"              , "_comment_": "new"}';
+        $lines[] = '{"label": "OTHER_TERMS", "pattern": "herbivorous"           , "_comment_": "new"}';
+        $lines[] = '{"label": "OTHER_TERMS", "pattern": "brachypterous"         , "_comment_": "new"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "of other species"                   , "_comment_": "new"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "of herbivorous species"             , "_comment_": "new"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "of predators of '.$needle.' species" , "_comment_": "new"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "its host"                           , "_comment_": "new"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "assemblages in"                     , "_comment_": "new"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "for '.$needle.' inveretebrates"      , "_comment_": "new"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "associates"                         , "_comment_": "new"}';
+        $lines[] = '{"label": "EXCEPTION_PHRASE", "pattern": "with the exception of"                , "_comment_": "new"}';
+        $lines[] = '{"label": "TERM_NEG", "pattern": "not '.$needle.'"}';
+        $lines[] = '{"label": "TERM_NEG", "pattern": "non-'.$needle.'"}';
+        $lines[] = '{"label": "TERM_NEG", "pattern": "none '.$needle.'"}';
+        $lines[] = '{"label": "TERM_NEG", "pattern": "not entirely '.$needle.'"}';
+        $lines[] = '{"label": "TERM_NEG", "pattern": "not exclusively '.$needle.'"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "species complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "group"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "subgroup"}';
-        $lines[] = '{"label": "NAME_POSTFIX", "pattern": "sp._n."}';
+        $lines[] = '{"label": "NAME_POSTFIX", "pattern": "species nova"}';
         $lines[] = '{"label": "AUX_POS", "pattern": "is"}';
         $lines[] = '{"label": "AUX_POS", "pattern": "are"}';
         $lines[] = '{"label": "AUX_NEG", "pattern": "is not"}';
@@ -190,7 +211,24 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "GROUP_POS", "pattern": "All"}';
         $lines[] = '{"label": "GROUP_NEG", "pattern": "not all"}';
         $lines[] = '{"label": "GROUP_NEG", "pattern": "Not all"}';
+        $lines[] = '{"label": "GNRD_HLT", "pattern": "beetles"}';
+        $lines[] = '{"label": "GNRD_HLT", "pattern": "insects"}';
+        $lines[] = '{"label": "GNRD_HLT", "pattern": "invertebrates"}';
         foreach($lines as $w) fwrite($f, $w."\n");
+
+        /* write static entries in jsonl --- seems abandoned already
+        $lines = array();
+        $lines[] = '{"label": "NAME_POSTFIX", "pattern": "sp._n."}';
+        foreach($lines as $w) fwrite($f, $w."\n");
+        */
+        
+        /* write names */
+        foreach($names as $name) {
+            if(self::taxon_is_species_level($name)) $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
+            else                                    $w = '{"label": "GNRD_HLT", "pattern": "'.$name.'"}';
+            fwrite($f, $w."\n");
+        }
+        
         fclose($f);
     }
     private function generate_corpus_doc($item_ids)
