@@ -35,10 +35,10 @@ $page_id = '59914358';
 
 $search = "saproxylic";
 $search = "brachypterous";
-/* works OK - main program
-$func->PublicationSearch($search); exit("\n--- end PublicationSearch($search) ---\n"); //this generates big corpus for a given SearchTerm
-*/
-exit("\n---end PublicationSearch($search) ---\n");
+// /* works OK - main program
+$func->PublicationSearch($search); //this generates big corpus for a given SearchTerm
+// */
+exit("\n--- end PublicationSearch($search) ---\n");
 
 /* an item has a TitleID and multiple [Pages] with [OcrText] --- works OK inside BHL_Download_API.php
 $idtype = 'bhl';
