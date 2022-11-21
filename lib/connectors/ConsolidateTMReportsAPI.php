@@ -11,15 +11,11 @@ class ConsolidateTMReportsAPI
 
         $this->SearchTerm = $SearchTerm;
         $this->DATA_FOLDER = "/Volumes/AKiTiO4/python_apps/textmine_data/data_BHL/";
-        $this->report_files = array("saproxylic_scinames_pages.tsv", //--- un-comment in real operation
-                                    // "saproxylic_scinames.tsv",  --- obsolete due to attribution
-                                    "scinames_list_saproxylic/names_from_tables_or_lists.tsv"
+        $this->report_files = array($SearchTerm."_scinames_pages.tsv", //--- un-comment in real operation
+                                    // "saproxylic_scinames.tsv",  --- obsolete due to attribution; replaced by saproxylic_scinames_pages.tsv
+                                    "scinames_list_".$SearchTerm."/names_from_tables_or_lists.tsv"
                                     );
 
-        // $this->report_files = array("scinames_list_saproxylic/names_from_tables_or_lists.tsv",
-        //                             "saproxylic_scinames_pages.tsv" //--- un-comment in real operation
-        //                             // "saproxylic_scinames.tsv",  --- obsolete due to attribution
-        //                             );
 
         $this->term_uri['saproxylic'] = "http://eol.org/schema/terms/saproxylic";
         $this->mtype_uri['saproxylic'] = "http://eol.org/schema/terms/TrophicGuild";

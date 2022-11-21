@@ -13,11 +13,35 @@ Step 1:
 php bhl_search.php
 -> run PublicationSearch()
 -> enter term in this .php file "saproxylic" or "brachypterous"
+-> this will generate in /resources/reports/BHL/
+    - file [entities_brachypterous.jsonl]
+    - file [corpus_brachypterous.txt]
+    - folder [pages_brachypterous]
+
+Step:
+Copy these 2:   - file [corpus_brachypterous.txt]
+                - folder [pages_brachypterous]
+To:             /textmine_data_brachypterous/data_BHL/
+
+Step:
+Copy this:  - file [entities_brachypterous.jsonl]
+To:         /textmine_data_archive/data_text/
 
 Step 2:
 python process_entities_file.py
 -> enter term in this .py file "saproxylic" or "brachypterous"
--> this will flag entities file which names are "plant or fungi"
+-> this will flag the entities file [entities_brachypterous.jsonl] which names are "plant or fungi".
+And generates a new file [entities_brachypterous_upd.jsonl]
+-> you can then copy [entities_brachypterous_upd.jsonl] to [entities_brachypterous.jsonl]. Overwritting the latter.
+
+Step: copy [entities_brachypterous.jsonl] to: /textmine_data_brachypterous/data_BHL/entities_brachypterous.jsonl
+
+
+Step 3:
+python divide_corpus.py
+-> generate /parts_brachypterous/part_xxx.txt
+
+
 
 */
 
@@ -35,9 +59,36 @@ $page_id = '59914358';
 
 $search = "saproxylic";
 $search = "brachypterous";
-// /* works OK - main program
-$func->PublicationSearch($search); //this generates big corpus for a given SearchTerm
+$search = "detritivore";
+/*
+Hi Katja,
+Can I use these as synonyms for the term 'detritivore'?
+detritivorous   detrivores  detritophages   detritus feeders    detritus eaters
+Thanks.
+*/
+// $search = "detritivorous";
+// $search = "detrivore";
+// $search = "detrivores";
+// $search = "detritophage";
+// $search = "detritus feeder";
+// $search = "detritus eater";
+
+// $search = "coprophagous"; // coprophagous/coprophage
+// $search = "coprophage"; // coprophagous/coprophage
+
+// /* new block
+$searches = array('androviviparous', 'oviparous', 'ovoviviparous', 'viviparous');
+$searches = array('oviparous', 'ovoviviparous');
+$searches = array('viviparous');
+foreach($searches as $search) {
+    $func = new BHL_Download_API();
+    $func->PublicationSearch($search);
+}
 // */
+
+/* works OK - main program
+$func->PublicationSearch($search); //this generates big corpus for a given SearchTerm
+*/
 exit("\n--- end PublicationSearch($search) ---\n");
 
 /* an item has a TitleID and multiple [Pages] with [OcrText] --- works OK inside BHL_Download_API.php

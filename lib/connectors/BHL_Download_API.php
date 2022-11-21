@@ -30,7 +30,9 @@ class BHL_Download_API //extends Functions_Memoirs
         if(!is_dir($this->pages_ocr_repo)) mkdir($this->pages_ocr_repo);
         // */
         
+        /* comment so script can accept 'detrivore'
         if(strlen($searchterm) < 10) exit("\nSearch term is too short: [$searchterm]\n");
+        */
         $this->needle = $searchterm;
         
         $this->corpus_file = $this->save_dir."/corpus_".$searchterm.".txt";
@@ -224,6 +226,9 @@ class BHL_Download_API //extends Functions_Memoirs
         
         /* write names */
         foreach($names as $name) {
+            // /* manual adjustments due to OCR - works OK
+            // if($name == "Eminoculus)\ dorsum") $name = "Eminoculus dorsum";
+            // */
             if(self::taxon_is_species_level($name)) $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
             else                                    $w = '{"label": "GNRD_HLT", "pattern": "'.$name.'"}';
             fwrite($f, $w."\n");
