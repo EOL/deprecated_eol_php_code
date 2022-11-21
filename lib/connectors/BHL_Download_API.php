@@ -297,7 +297,6 @@ class BHL_Download_API //extends Functions_Memoirs
                         
                         self::save_page_ocr($page);
                         
-                        
                         if($names = self::get_names_for_PageID($page->PageID)) { //print_r($names); exit;
                             /*Array(
                                 [0] => stdClass Object(

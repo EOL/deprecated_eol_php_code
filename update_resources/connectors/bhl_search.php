@@ -33,8 +33,8 @@ $page_id = '59914358';
 // $func->GetPageMetadata(array('page_id'=>$page_id)); exit;
 // e.g. https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=47086871&ocr=t&names=t&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
 
-$search = "brachypterous";
 $search = "saproxylic";
+$search = "brachypterous";
 /* works OK - main program
 $func->PublicationSearch($search); exit("\n--- end PublicationSearch($search) ---\n"); //this generates big corpus for a given SearchTerm
 */
