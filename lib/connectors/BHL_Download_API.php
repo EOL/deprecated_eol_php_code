@@ -10,7 +10,7 @@ class BHL_Download_API //extends Functions_Memoirs
 {
     function __construct() {
         $this->api_key = BHL_API_KEY;
-        $this->download_options = array('resource_id' => "BHL", 'timeout' => 172800, 'expire_seconds' => false, 'download_wait_time' => 2000000);
+        $this->download_options = array('resource_id' => "BHL", 'timeout' => 172800, 'expire_seconds' => false, 'download_wait_time' => 1000000);
         // $this->download_options['expire_seconds'] = 60*60*24*30*6;
         $this->Endpoint = "https://www.biodiversitylibrary.org/api3";
         $this->save_dir = CONTENT_RESOURCE_LOCAL_PATH."reports/BHL";
