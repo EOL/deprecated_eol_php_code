@@ -10,7 +10,7 @@ class ConsolidateTMReportsAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
         $this->SearchTerm = $SearchTerm;
-        $this->DATA_FOLDER = "/Volumes/AKiTiO4/python_apps/textmine_data/data_BHL/";
+        $this->DATA_FOLDER = "/Volumes/AKiTiO4/python_apps/textmine_data_".$SearchTerm."/data_BHL/";
         $this->report_files = array($SearchTerm."_scinames_pages.tsv", //--- un-comment in real operation
                                     // "saproxylic_scinames.tsv",  --- obsolete due to attribution; replaced by saproxylic_scinames_pages.tsv
                                     "scinames_list_".$SearchTerm."/names_from_tables_or_lists.tsv"
@@ -50,6 +50,13 @@ class ConsolidateTMReportsAPI
                 }
                 // print_r($rec); exit;
                 $rec = array_map('trim', $rec);
+                
+                // /* force-deletion of taxa. An after-NLP filtering based here: https://eol-jira.bibalex.org/browse/DATA-1900?focusedCommentId=67148&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67148
+                if(stripos($file, "saproxylic_scinames_pages.tsv") !== false) { //string is found
+                    if(in_array($rec['Name'], array("Adscita statices", "Lasius brunneus", "Aleurostictus nobilis", "Cryptocephalus querceti"))) continue;
+                }
+                // */
+                
                 self::write_taxon($rec);
             }
         }
