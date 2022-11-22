@@ -78,8 +78,10 @@ Thanks.
 
 // /* new block
 $searches = array('androviviparous', 'oviparous', 'ovoviviparous', 'viviparous');
-$searches = array('oviparous', 'ovoviviparous');
-$searches = array('viviparous');
+// $searches = array('oviparous', 'ovoviviparous', "epigeic", "fossorial", "cursorial");
+// $searches = array('viviparous', "xylophagous", "carnivorous", "detritivorous");
+$searches = array("ectoparasitic", "kleptoparasitic", "necrophagous", "parasitic", "predatory", "saprotrophic", "omnivorous");
+// "coprophagous"
 foreach($searches as $search) {
     $func = new BHL_Download_API();
     $func->PublicationSearch($search);
