@@ -41,6 +41,8 @@ Step 3:
 python divide_corpus.py
 -> generate /parts_brachypterous/part_xxx.txt
 
+Step 4:
+python textmine_loop_page.py
 
 
 */
@@ -68,9 +70,10 @@ $search = "detritivore";
 $searches = array('oviparous', 'ovoviviparous', "epigeic");
 // $searches = array('viviparous', "xylophagous", "carnivorous");
 // $searches = array("predatory", "saprotrophic", "omnivorous");
-// androviviparous coprophagous ectoparasitic kleptoparasitic necrophagous detritivorous
-// $searches = array("parasitic");  with errors
-// $searches = array("cursorial", "fossorial");
+$searches = array("cursorial", "parasitic", "fossorial");
+// $searches = array("parasitic");  //with errors
+
+// androviviparous coprophagous ectoparasitic kleptoparasitic necrophagous detritivorous DONE
 
 foreach($searches as $search) {
     $func = new BHL_Download_API();

@@ -551,7 +551,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $str = json_encode($arr);
         if(stripos($str, $needle) !== false) return true; //string is found
         else {
-            exit("\nyyy\n$str\nxxx\nInvestigate: needle ($needle) not found in Part metadata\n");
+            // exit("\nyyy\n$str\nxxx\nInvestigate: needle ($needle) not found in Part metadata\n"); //one-time this was un-commented
             return false;
         }
     }
