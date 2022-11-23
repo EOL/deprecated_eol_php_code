@@ -60,30 +60,17 @@ $page_id = '59914358';
 $search = "saproxylic";
 $search = "brachypterous";
 $search = "detritivore";
-/*
-Hi Katja,
-Can I use these as synonyms for the term 'detritivore'?
-detritivorous   detrivores  detritophages   detritus feeders    detritus eaters
-Thanks.
-*/
-// $search = "detritivorous";
-// $search = "detrivore";
-// $search = "detrivores";
-// $search = "detritophage";
-// $search = "detritus feeder";
-// $search = "detritus eater";
 
 // $search = "coprophagous"; // coprophagous/coprophage
 // $search = "coprophage"; // coprophagous/coprophage
 
 // /* new block
-$searches = array('androviviparous', 'oviparous', 'ovoviviparous', 'viviparous');
-// $searches = array('oviparous', 'ovoviviparous', "epigeic", "fossorial");
+$searches = array('oviparous', 'ovoviviparous', "epigeic");
 // $searches = array('viviparous', "xylophagous", "carnivorous");
-$searches = array("predatory", "saprotrophic", "omnivorous");
-// "coprophagous" ectoparasitic kleptoparasitic necrophagous detritivorous
+// $searches = array("predatory", "saprotrophic", "omnivorous");
+// androviviparous coprophagous ectoparasitic kleptoparasitic necrophagous detritivorous
 // $searches = array("parasitic");  with errors
-$searches = array("cursorial");
+// $searches = array("cursorial", "fossorial");
 
 foreach($searches as $search) {
     $func = new BHL_Download_API();
