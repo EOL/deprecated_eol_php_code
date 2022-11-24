@@ -67,13 +67,19 @@ $search = "detritivore";
 // $search = "coprophage"; // coprophagous/coprophage
 
 // /* new block
-$searches = array('oviparous', 'ovoviviparous', "epigeic");
-// $searches = array('viviparous', "xylophagous", "carnivorous");
-// $searches = array("predatory", "saprotrophic", "omnivorous");
-$searches = array("cursorial", "parasitic", "fossorial");
-// $searches = array("parasitic");  //with errors
+// $searches = array("carnivorous", "omnivorous"); ???
+// $searches = array("predatory", "saprotrophic");
+$searches = array("parasitic", "fossorial");
 
-// androviviparous coprophagous ectoparasitic kleptoparasitic necrophagous detritivorous DONE
+// $searches = array("parasitic");  //with errors but now fixed -> "Investigate: needle ($needle) not found in Part metadata"
+
+// androviviparous coprophagous ectoparasitic kleptoparasitic necrophagous detritivorous cursorial 
+// viviparous oviparous xylophagous  ovoviviparous epigeic DONE
+
+// https://www.biodiversitylibrary.org/api3?op=PublicationSearch&searchterm=viviparous&searchtype=F&page=3231&pageSize=100&format=json&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
+// https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=68831&idtype=bhl&pages=t&ocr=t&parts=t&format=json&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
+
+
 
 foreach($searches as $search) {
     $func = new BHL_Download_API();

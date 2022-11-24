@@ -142,7 +142,9 @@ class BHL_Download_API //extends Functions_Memoirs
                 echo "\nRecords: ".count($objects->Result)."\n";
                 $results = $objects->Result;
             }
-        }
+            else $results = false; // api call reached the last page and no longer returning a response for the new page.
+        } // end while($results)
+        
         /* -----start evaluation----- */
         // print_r($this->breakdown);
         $arr_Part = array_keys($this->breakdown['Part']);   echo "\nPart: ".count($arr_Part)."\n";
