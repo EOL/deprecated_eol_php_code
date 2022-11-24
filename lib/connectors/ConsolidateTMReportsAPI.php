@@ -51,7 +51,7 @@ class ConsolidateTMReportsAPI
                 // print_r($rec); exit;
                 $rec = array_map('trim', $rec);
                 
-                // /* force-deletion of taxa. An after-NLP filtering based here: https://eol-jira.bibalex.org/browse/DATA-1900?focusedCommentId=67148&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67148
+                // /* manual force-deletion (exclude) of taxa. An after-NLP filtering based here: https://eol-jira.bibalex.org/browse/DATA-1900?focusedCommentId=67148&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67148
                 if(stripos($file, "saproxylic_scinames_pages.tsv") !== false) { //string is found
                     if(in_array($rec['Name'], array("Adscita statices", "Lasius brunneus", "Aleurostictus nobilis", "Cryptocephalus querceti"))) continue;
                 }
