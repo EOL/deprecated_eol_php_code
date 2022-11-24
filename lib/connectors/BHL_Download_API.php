@@ -340,17 +340,18 @@ class BHL_Download_API //extends Functions_Memoirs
                     if(stripos($page->OcrText, $needle) !== false) { //string is found
                         echo "\nFound OK 1 $needle in page $page->PageID.\n";
                         
-                        self::save_page_ocr($page);
-                        
-                        if($names = self::get_names_for_PageID($page->PageID)) { //print_r($names); exit;
-                            /*Array(
-                                [0] => stdClass Object(
-                                        [NameFound] => Araneae
-                                        [NameConfirmed] => Araneae
-                                        [NameCanonical] => Araneae
-                                    )
-                            */
-                            foreach($names as $name) $this->namez[$name->NameFound] = '';
+                        $page_saved = self::save_page_ocr($page);
+                        if($page_saved) {
+                            if($names = self::get_names_for_PageID($page->PageID)) { //print_r($names); exit;
+                                /*Array(
+                                    [0] => stdClass Object(
+                                            [NameFound] => Araneae
+                                            [NameConfirmed] => Araneae
+                                            [NameCanonical] => Araneae
+                                        )
+                                */
+                                foreach($names as $name) $this->namez[$name->NameFound] = '';
+                            }
                         }
                     }
                     // else echo "\nNo $needle in page $page->PageID.\n";
@@ -361,15 +362,24 @@ class BHL_Download_API //extends Functions_Memoirs
         }
         // exit("\ncha2\n");
     }
-    private function get_names_for_PageID($page_id)
+    private function get_names_for_PageID($page_id, $what = "names")
     {
         if($ret = self::GetPageMetadata(array('page_id'=>$page_id))) {
             $page_info = $ret->Result[0];
             // print_r($page_info); exit("\neee\n");
-            if($names = $page_info->Names) {
-                // print_r($names); //exit;
-                echo "\nNames in PageID $page_id: ".count($names)."\n";
-                return $names;
+            if($what == "names") {
+                if($names = $page_info->Names) {
+                    // print_r($names); //exit;
+                    echo "\nNames in PageID $page_id: ".count($names)."\n";
+                    return $names;
+                }
+            }
+            if($what == "page_numbers") {
+                if($page_numbers = $page_info->PageNumbers) {
+                    // print_r($page_numbers); exit("\nok page numbers\n");
+                    echo "\nPageNumbers in PageID $page_id: ".count($page_numbers)."\n";
+                    return $page_numbers;
+                }
             }
         }
     }
@@ -520,6 +530,36 @@ class BHL_Download_API //extends Functions_Memoirs
                 ()
         )
         */
+        // /* 1st criteria: exclude pages that are "Table of Contents" or even partly.
+        // <PageTypes>
+        //     <PageType>
+        //         <PageTypeName>Table of Contents</PageTypeName>
+        //     </PageType>
+        // </PageTypes>
+        if($PageTypes = @$page->PageTypes) {
+            foreach($PageTypes as $PageType) {
+                if($PageType->PageTypeName == 'Table of Contents') {
+                    return;
+                    print_r($page); exit("\nhuli ka - may Table of Contents\n");
+                }
+            }
+        }
+        // */
+        // /* 2nd criteria: exclude pages that don't have PageNumbers only if the next PageID also doesn't have PageNumbers
+        if(!$page->PageNumbers) {
+            if(self::get_names_for_PageID($page->PageID+1, "page_numbers")) {
+                // exit("\nmay page nos ang sunod\n");
+            }
+            else {
+                // exit("\nwala pag nos ang kasunod\n");
+                return;
+            }
+        }
+        // */
+        
+        
+        
+        
         $f = Functions::file_open($this->pages_ocr_repo."/page_".$page->PageID.".txt", "w");
         $title = "PageID: ".$page->PageID;
         $pad = Functions::format_number_with_leading_zeros("", strlen($title));
@@ -528,6 +568,7 @@ class BHL_Download_API //extends Functions_Memoirs
         fwrite($f, "$pad\n\n");
         fwrite($f, $page->OcrText."\n");
         fclose($f);
+        return true;
     }
     private function write_part_info($obj)
     {
