@@ -200,6 +200,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "TERM_NEG", "pattern": "none '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not entirely '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not exclusively '.$needle.'"}';
+        $lines[] = '{"label": "TERM_NEG", "pattern": "in part '.$needle.'" , "_comment2_": "new2"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "species complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "group"}';
@@ -211,6 +212,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "AUX_NEG", "pattern": "is negatively"}';
         $lines[] = '{"label": "AUX_NEG", "pattern": "are not"}';
         $lines[] = '{"label": "AUX_NEG", "pattern": "are negatively"}';
+        $lines[] = '{"label": "AUX_NEG", "pattern": "no longer" , "_comment2_": "new2"}';
         $lines[] = '{"label": "GROUP_POS", "pattern": "all"}';
         $lines[] = '{"label": "GROUP_POS", "pattern": "All"}';
         $lines[] = '{"label": "GROUP_NEG", "pattern": "not all"}';

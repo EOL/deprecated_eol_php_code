@@ -64,23 +64,20 @@ $page_id = '59914358';
 
 
 $search = "saproxylic";
-$search = "brachypterous";
-$search = "detritivore";
 
 // $search = "coprophagous"; // coprophagous/coprophage
 // $search = "coprophage"; // coprophagous/coprophage
 
 // /* new block
 $searches = array("parasitic");
-$searches = array("fossorial");
 $searches = array("carnivorous");
 $searches = array("omnivorous");
+// last batch done: fossorial
 
 // $searches = array("parasitic");  //with errors but now fixed -> "Investigate: needle ($needle) not found in Part metadata"
 // androviviparous coprophagous ectoparasitic kleptoparasitic necrophagous detritivorous cursorial DONE
 // viviparous oviparous xylophagous  ovoviviparous epigeic predatory saprotrophic DONE
-
-$searches = array('androviviparous', 'coprophagous', 'ectoparasitic', 'kleptoparasitic', 'necrophagous', 'detritivorous', 'cursorial', 'viviparous', 'oviparous', 'xylophagous', 'ovoviviparous', 'epigeic', 'predatory', 'saprotrophic');
+// $searches = array('androviviparous', 'coprophagous', 'ectoparasitic', 'kleptoparasitic', 'necrophagous', 'detritivorous', 'cursorial', 'viviparous', 'oviparous', 'xylophagous', 'ovoviviparous', 'epigeic', 'predatory', 'saprotrophic');
 foreach($searches as $search) {
     $func = new BHL_Download_API();
     $func->PublicationSearch($search);
