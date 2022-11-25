@@ -342,7 +342,7 @@ class BHL_Download_API //extends Functions_Memoirs
                         
                         $page_saved = self::save_page_ocr($page);
                         if($page_saved) {
-                            if($names = self::get_names_for_PageID($page->PageID)) { //print_r($names); exit;
+                            if($names = self::get_INFO_for_PageID($page->PageID, "names")) { //print_r($names); exit;
                                 /*Array(
                                     [0] => stdClass Object(
                                             [NameFound] => Araneae
@@ -362,21 +362,19 @@ class BHL_Download_API //extends Functions_Memoirs
         }
         // exit("\ncha2\n");
     }
-    private function get_names_for_PageID($page_id, $what = "names")
+    private function get_INFO_for_PageID($page_id, $what = "names")
     {
         if($ret = self::GetPageMetadata(array('page_id'=>$page_id))) {
             $page_info = $ret->Result[0];
             // print_r($page_info); exit("\neee\n");
             if($what == "names") {
-                if($names = $page_info->Names) {
-                    // print_r($names); //exit;
+                if($names = @$page_info->Names) { // print_r($names); //exit;
                     echo "\nNames in PageID $page_id: ".count($names)."\n";
                     return $names;
                 }
             }
             if($what == "page_numbers") {
-                if($page_numbers = $page_info->PageNumbers) {
-                    // print_r($page_numbers); exit("\nok page numbers\n");
+                if($page_numbers = @$page_info->PageNumbers) { // print_r($page_numbers); exit("\nok page numbers\n");
                     echo "\nPageNumbers in PageID $page_id: ".count($page_numbers)."\n";
                     return $page_numbers;
                 }
@@ -530,6 +528,7 @@ class BHL_Download_API //extends Functions_Memoirs
                 ()
         )
         */
+        # TWO (2) CRITERIAS TO EXCLUDE PAGES:
         // /* 1st criteria: exclude pages that are "Table of Contents" or even partly.
         // <PageTypes>
         //     <PageType>
@@ -539,7 +538,7 @@ class BHL_Download_API //extends Functions_Memoirs
         if($PageTypes = @$page->PageTypes) {
             foreach($PageTypes as $PageType) {
                 if($PageType->PageTypeName == 'Table of Contents') {
-                    return;
+                    return false;
                     print_r($page); exit("\nhuli ka - may Table of Contents\n");
                 }
             }
@@ -547,13 +546,8 @@ class BHL_Download_API //extends Functions_Memoirs
         // */
         // /* 2nd criteria: exclude pages that don't have PageNumbers only if the next PageID also doesn't have PageNumbers
         if(!$page->PageNumbers) {
-            if(self::get_names_for_PageID($page->PageID+1, "page_numbers")) {
-                // exit("\nmay page nos ang sunod\n");
-            }
-            else {
-                // exit("\nwala pag nos ang kasunod\n");
-                return;
-            }
+            if(self::get_INFO_for_PageID($page->PageID+1, "page_numbers")) {}   // next PageID has PageNumbers
+            else return false;                                                  // next PageID doesn't have PageNumbers
         }
         // */
         
