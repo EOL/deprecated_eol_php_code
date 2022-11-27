@@ -553,7 +553,12 @@ class BHL_Download_API //extends Functions_Memoirs
         }
         // */
         
-        
+        // /* manual OCR adjustments - made for coprophagous
+        $ocr = $page->OcrText;
+        if(stripos($ocr, "Scarabceus") !== false) { //string is found
+            $ocr = str_replace("Scarabceus", "Scarabaeus", $ocr)
+        }
+        // */
         
         
         $f = Functions::file_open($this->pages_ocr_repo."/page_".$page->PageID.".txt", "w");
@@ -562,7 +567,7 @@ class BHL_Download_API //extends Functions_Memoirs
         fwrite($f, "$pad "."ItemID: $page->ItemID"."\n");
         fwrite($f, $title."\n");
         fwrite($f, "$pad\n\n");
-        fwrite($f, $page->OcrText."\n");
+        fwrite($f, $ocr."\n");
         fclose($f);
         return true;
     }
