@@ -60,7 +60,7 @@ $page_id = '59914358';
 // e.g. 
 // https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=40563865&ocr=t&names=t&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
 // https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=40563869&ocr=t&names=t&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
-// https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=40563559&ocr=t&names=t&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
+// https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=14778558&ocr=t&names=t&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
 
 
 $search = "saproxylic";
@@ -70,14 +70,14 @@ $search = "saproxylic";
 
 // /* new block
 $searches = array("parasitic");
-$searches = array("carnivorous");
-$searches = array("omnivorous");
-// last batch done: fossorial
+// last batch DONE: fossorial omnivorous carnivorous
 
 // $searches = array("parasitic");  //with errors but now fixed -> "Investigate: needle ($needle) not found in Part metadata"
 // androviviparous coprophagous ectoparasitic kleptoparasitic necrophagous detritivorous cursorial DONE
 // viviparous oviparous xylophagous  ovoviviparous epigeic predatory saprotrophic DONE
-// $searches = array('androviviparous', 'coprophagous', 'ectoparasitic', 'kleptoparasitic', 'necrophagous', 'detritivorous', 'cursorial', 'viviparous', 'oviparous', 'xylophagous', 'ovoviviparous', 'epigeic', 'predatory', 'saprotrophic');
+// $searches = array('androviviparous', 'coprophagous', 'ectoparasitic', 'kleptoparasitic', 'necrophagous', 'detritivorous', 
+// 'cursorial', 'viviparous', 'oviparous', 'xylophagous', 'ovoviviparous', 'epigeic', 'predatory', 'saprotrophic');
+
 foreach($searches as $search) {
     $func = new BHL_Download_API();
     $func->PublicationSearch($search);
