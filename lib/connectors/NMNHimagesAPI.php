@@ -103,7 +103,7 @@ class NMNHimagesAPI
                     // [acceptedscientificname] => Hemicaranx amblyrhynchus (Cuvier, 1833)
                     // [verbatimscientificname] => Hemicaranx amblyrhynchus
                     // [license] => CC0_1_0
-                    @$this->debug['license'][$rec['license']]++; //= '';
+                    @$this->debug['license'][$what][$rec['license']]++; //= '';
                 }
             }
             elseif($what == 'multimedia') {
@@ -301,6 +301,8 @@ class NMNHimagesAPI
         @$this->debug['references values'][$rec['references']]++; //= ''; //for stats
 
         if(!$rec['type'] || !$rec['format']) return false;
+
+        @$this->debug['license'][$what][$rec['license']]++; //= ''; //for stats
         
         $type_info['StillImage'] = 'http://purl.org/dc/dcmitype/StillImage';
         $type_info['MovingImage'] = 'http://purl.org/dc/dcmitype/MovingImage';
