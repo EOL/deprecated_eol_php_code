@@ -318,7 +318,10 @@ class NMNHimagesAPI
             // else return false;
         }
         
-        if(!in_array($rec['license'], array('http://creativecommons.org/publicdomain/zero/1.0/'))) return false;
+        // if(!in_array($rec['license'], array('http://creativecommons.org/publicdomain/zero/1.0/'))) return false;
+        if(stripos($rec['license'], "publicdomain") !== false) {} //string is found
+        else return false;
+            
         /*[license] => Array(
                     [occurrence] => Array(
                             [CC0_1_0] => 5643763
@@ -341,7 +344,7 @@ class NMNHimagesAPI
         // $mr->Owner          = '';
         // $mr->rights         = '';
         $mr->title          = $rec['title'];
-        $mr->UsageTerms     = 'http://creativecommons.org/licenses/publicdomain/';
+        $mr->UsageTerms     = $rec['license']; //'http://creativecommons.org/licenses/publicdomain/';
         // $mr->audience       = 'Everyone';
         $mr->description    = $rec['description'];
         // $mr->LocationCreated = '';
