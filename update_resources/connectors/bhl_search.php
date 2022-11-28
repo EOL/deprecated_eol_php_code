@@ -37,14 +37,11 @@ And generates a new file [entities_brachypterous_upd.jsonl]
 Step: copy [entities_brachypterous.jsonl] to: /textmine_data_brachypterous/data_BHL/entities_brachypterous.jsonl
 
 
-Step 3:
-python divide_corpus.py
+Step 3: python divide_corpus.py
 -> generate /parts_brachypterous/part_xxx.txt
 
-Step 4:
-python textmine_loop_page.py
-
-
+Step 4: python textmine_loop_page.py
+Step 5: python append_scinames.py
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -69,15 +66,13 @@ $search = "saproxylic";
 // $search = "coprophage"; // coprophagous/coprophage
 
 // /* new block
-$searches = array("parasitic");
-// last batch DONE: fossorial omnivorous carnivorous
-
 // $searches = array("parasitic");  //with errors but now fixed -> "Investigate: needle ($needle) not found in Part metadata"
-// androviviparous coprophagous ectoparasitic kleptoparasitic necrophagous detritivorous cursorial DONE
+// androviviparous ectoparasitic kleptoparasitic necrophagous detritivorous cursorial DONE
 // viviparous oviparous xylophagous  ovoviviparous epigeic predatory saprotrophic DONE
-// $searches = array('androviviparous', 'coprophagous', 'ectoparasitic', 'kleptoparasitic', 'necrophagous', 'detritivorous', 
-// 'cursorial', 'viviparous', 'oviparous', 'xylophagous', 'ovoviviparous', 'epigeic', 'predatory', 'saprotrophic');
-
+// $searches = array('androviviparous', 'coprophagous', 'ectoparasitic', 'kleptoparasitic', 'necrophagous', 'detritivorous', DONE
+// 'cursorial', 'viviparous', 'oviparous', 'xylophagous', 'ovoviviparous', 'epigeic', 'predatory', 'saprotrophic' DONE
+// fossorial omnivorous carnivorous parasitic DONE
+$searches = array("coprophagous");
 foreach($searches as $search) {
     $func = new BHL_Download_API();
     $func->PublicationSearch($search);

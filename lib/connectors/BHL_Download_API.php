@@ -194,13 +194,16 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "assemblages in"                     , "_comment_": "new"}';
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "for '.$needle.' inveretebrates"      , "_comment_": "new"}';
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "associates"                         , "_comment_": "new"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "from that of"           , "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "of fruit eating"        , "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "to another species"     , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "EXCEPTION_PHRASE", "pattern": "with the exception of"                , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "non-'.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "none '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not entirely '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not exclusively '.$needle.'"}';
-        $lines[] = '{"label": "TERM_NEG", "pattern": "in part '.$needle.'" , "_comment2_": "new2"}';
+        $lines[] = '{"label": "TERM_NEG", "pattern": "in part '.$needle.'" , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "species complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "group"}';
@@ -212,7 +215,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "AUX_NEG", "pattern": "is negatively"}';
         $lines[] = '{"label": "AUX_NEG", "pattern": "are not"}';
         $lines[] = '{"label": "AUX_NEG", "pattern": "are negatively"}';
-        $lines[] = '{"label": "AUX_NEG", "pattern": "no longer" , "_comment2_": "new2"}';
+        $lines[] = '{"label": "AUX_NEG", "pattern": "no longer" , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "GROUP_POS", "pattern": "all"}';
         $lines[] = '{"label": "GROUP_POS", "pattern": "All"}';
         $lines[] = '{"label": "GROUP_NEG", "pattern": "not all"}';
@@ -220,6 +223,10 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "GNRD_HLT", "pattern": "beetles"}';
         $lines[] = '{"label": "GNRD_HLT", "pattern": "insects"}';
         $lines[] = '{"label": "GNRD_HLT", "pattern": "invertebrates"}';
+        
+        
+        
+        
         foreach($lines as $w) fwrite($f, $w."\n");
 
         /* write static entries in jsonl --- seems abandoned already
@@ -230,11 +237,28 @@ class BHL_Download_API //extends Functions_Memoirs
         
         /* write names */
         foreach($names as $name) {
-            // /* manual adjustments due to OCR - works OK
-            // if($name == "Eminoculus)\ dorsum") $name = "Eminoculus dorsum";
+            // /* manual adjustments
+            if(in_array($name, array('Older larvae may'))) continue;
+            $name = str_replace(" larvae", "", $name);
+            $name = str_replace(" larva", "", $name);
             // */
-            if(self::taxon_is_species_level($name)) $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
-            else                                    $w = '{"label": "GNRD_HLT", "pattern": "'.$name.'"}';
+            
+            if(self::taxon_is_species_level($name)) {
+                $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
+                // /* manual made for coprophagous
+                if(in_array($name, array('Canthon lewis', 'Icetus mitioris coeli'))) $w = str_replace("GNRD_SLT", "not_GNRD_SLT", $w);
+                // */
+            }
+            else {
+                if(in_array($name, array('Coprophagous'))) {
+                    // deleted: a genus
+                    // {"label": "GNRD_HLT", "pattern": "Coprophagous"}
+                }
+                else {
+                    $w = '{"label": "GNRD_HLT", "pattern": "'.$name.'"}';
+                }
+                
+            }
             fwrite($f, $w."\n");
         }
         
@@ -556,8 +580,19 @@ class BHL_Download_API //extends Functions_Memoirs
         // /* manual OCR adjustments - made for coprophagous
         $ocr = $page->OcrText;
         if(stripos($ocr, "Scarabceus") !== false) { //string is found
-            $ocr = str_replace("Scarabceus", "Scarabaeus", $ocr)
+            $ocr = str_replace("Scarabceus", "Scarabaeus", $ocr);
         }
+        $ocr = str_replace("Mnsca domestica", "Musca domestica", $ocr);
+        $ocr = str_replace("PachyJomera femoralis", "Pachylomera femoralis", $ocr);
+        $ocr = str_replace("Stoinoxys calcitrans", "Stornoxys calcitrans", $ocr);
+        $ocr = str_replace("Mesemhrinu meridiana", "Mesembrina meridiana", $ocr);
+        $ocr = str_replace("Aphodiifes protogmis", "Aphodiites protogaeus", $ocr);
+        $ocr = str_replace("Catharsius lux", "Catharsius dux", $ocr);
+        $ocr = str_replace("Scarabceus", "Scarabaeus", $ocr);
+        $ocr = str_replace("Sphedanolestis aterrimus", "Sphedanolestes aterrimus", $ocr);
+        $ocr = str_replace("Sisyphus schsefferi", "Sisyphus schaefferi", $ocr);
+        $ocr = str_replace("Scarahxus", "Scarabaeus", $ocr);
+        $ocr = str_replace("Phyuostomiis hastatus", "Phyllostomus hastatus", $ocr);
         // */
         
         
