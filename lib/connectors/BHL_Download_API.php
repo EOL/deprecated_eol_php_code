@@ -16,6 +16,88 @@ class BHL_Download_API //extends Functions_Memoirs
         $this->save_dir = CONTENT_RESOURCE_LOCAL_PATH."reports/BHL";
         if(!is_dir($this->save_dir)) mkdir($this->save_dir);
     }
+    function complete_name($searchName, $method = "PublicationSearch")
+    {
+        $page = 0;
+        $results = true;
+        $this->breakdown = array();
+        while($results) { $page++;
+            $url = $this->Endpoint."?op=$method&searchterm=$searchName&searchtype=F&page=$page&pageSize=100&format=json&apikey=".$this->api_key;
+            if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+                $objects = json_decode($json);
+                // print_r($objects); exit;
+                $results = $objects->Result;
+                
+                // =======================
+                $i = 0; $Part_count = 0; $Item_count = 0;
+                foreach($objects->Result as $obj) { $i++;
+                    // /*
+                    if($obj->BHLType == 'Part') { $Part_count++;
+                        // print_r($obj); exit("\n111\n");
+                        /*stdClass Object(
+                            [BHLType] => Part
+                            [FoundIn] => Both
+                            [Volume] => 10
+                            [Authors] => Array(
+                                    [0] => stdClass Object(
+                                            [Name] => Turner, Clive Richard
+                                        )
+                                )
+                            [PartUrl] => https://www.biodiversitylibrary.org/part/94623
+                            [PartID] => 94623
+                            [Genre] => Article
+                            [Title] => Some observations of Geotrupidae (Coleoptera: Scarabaeoidea) in Devon
+                            [ContainerTitle] => British Journal of Entomology And Natural History
+                            [Date] => 1997
+                            [PageRange] => 33--34
+                        )*/
+                        $type = 'part';
+                        $part_id = $obj->PartID; echo("\nPartID: [$part_id] $Part_count\n");
+                        $idtype = 'bhl';
+                        $PartObject = self::GetPartMetadata(array('part_id'=>$part_id, 'idtype'=>$idtype, 'ResultOnly'=>True)); //no OCR text yet, but with multiple pages
+                        if($PartObject) {
+                            if($complete_name = self::proc_PartObject($PartObject, $searchName)) return $complete_name;
+                            // exit("\nditox1\n");
+                        }
+                    }
+                }
+                // =======================
+            }
+            else $results = false; // api call reached the last page and no longer returning a response for the new page.
+        } // end while($results)
+    }
+    private function proc_PartObject($objs, $searchName)
+    {
+        foreach($objs->Result as $obj) { //1 object result only
+            // print_r($obj->Pages); // not used atm.
+            // print_r($obj->Names);
+            /*Array(
+                [0] => stdClass Object(
+                        [NameFound] => A. granarius
+                        [NameConfirmed] => 
+                        [NameCanonical] => 
+                    )
+                [1] => stdClass Object(
+                        [NameFound] => Atalanta granarius
+                        [NameConfirmed] => 
+                        [NameCanonical] => 
+                    )
+            */
+            foreach($obj->Names as $n) {
+                $arr1 = explode(" ", $searchName);
+                $arr2 = explode(" ", $n->NameFound);
+                if(@$arr1[1] == @$arr2[1]) {
+                    if(strlen($arr2[0]) < 3) continue;
+                    if($arr1[0] == substr($arr2[0],0,1).".") {
+                        return $n->NameFound;
+                        // print_r($n); exit("\nfound you\n");
+                    }
+                }
+            }
+            // exit("\nditox2\n");
+        }
+    }
+    
     function PublicationSearch($searchterm, $method = "PublicationSearch")
     {   /*
         https://www.biodiversitylibrary.org/api3?op=PublicationSearch
@@ -224,9 +306,6 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "GNRD_HLT", "pattern": "insects"}';
         $lines[] = '{"label": "GNRD_HLT", "pattern": "invertebrates"}';
         
-        
-        
-        
         foreach($lines as $w) fwrite($f, $w."\n");
 
         /* write static entries in jsonl --- seems abandoned already
@@ -244,20 +323,28 @@ class BHL_Download_API //extends Functions_Memoirs
             // */
             
             if(self::taxon_is_species_level($name)) {
+                /* not needed, too many calls
+                if(substr($name,1,2) == ". ") {
+                    if($complete_name = self::complete_name($name)) {
+                        $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'", "complete_name": "'.$complete_name.'"}';
+                    }
+                    else $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
+                }
+                else $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
+                */
                 $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
                 // /* manual made for coprophagous
                 if(in_array($name, array('Canthon lewis', 'Icetus mitioris coeli'))) $w = str_replace("GNRD_SLT", "not_GNRD_SLT", $w);
                 // */
             }
             else {
-                if(in_array($name, array('Coprophagous'))) {
+                if(in_array($name, array('Coprophagous', $needle))) {
                     // deleted: a genus
                     // {"label": "GNRD_HLT", "pattern": "Coprophagous"}
                 }
                 else {
                     $w = '{"label": "GNRD_HLT", "pattern": "'.$name.'"}';
                 }
-                
             }
             fwrite($f, $w."\n");
         }
@@ -285,6 +372,9 @@ class BHL_Download_API //extends Functions_Memoirs
         $url = $this->Endpoint."?op=$method&id=$part_id&idtype=$idtype&pages=t&names=t&parts=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $objs = json_decode($json);
+            
+            if(@$params['ResultOnly']) return $objs; // used in func complete_name()
+            
             // print_r($objs); exit("\nelix1\n");
             echo "\nCount: ".count($objs->Result)."\n";
             // exit("\nexit GetPartMetadata()\n");

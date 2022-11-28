@@ -21,7 +21,6 @@ nmnh_images	Mon 2021-10-25 01:45:07 AM	{"agent.tab":1297, "media_resource.tab":3
 nmnh_images	Mon 2021-10-25 05:13:05 AM	{"agent.tab":1295, "media_resource.tab":380510, "taxon.tab":68462, "time_elapsed":{"sec":1175.73, "min":19.6, "hr":0.33}}
 nmnh_images	Fri 2022-01-14 08:16:11 AM	{"agent.tab":1328, "media_resource.tab":391395, "taxon.tab":70370, "time_elapsed":{"sec":1141.38, "min":19.02, "hr":0.32}}
 nmnh_images	Tue 2022-07-19 03:53:41 AM	{"agent.tab":1346, "media_resource.tab":450266, "taxon.tab":89524, "time_elapsed":{"sec":1536.04, "min":25.6, "hr":0.43}} consistent inc. OK
-
 less: with 'TAX CRT' or 'Taxa CRT' in description
 less: blank StillImage value --- 101 recs below
 [rec_type] => Array(
@@ -30,6 +29,11 @@ less: blank StillImage value --- 101 recs below
                     [] => 101
                 )
         )
+
+nmnh_images	Mon 2022-11-28 04:42:22 AM	{"agent.tab":1356, "media_resource.tab":456528, "taxon.tab":90294, "time_elapsed":{"sec":1469.41, "min":24.49, "hr":0.41}}
+Below start of only publicdomain licensed media is allowed:
+nmnh_images	Mon 2022-11-28 08:54:38 AM	{"agent.tab":453,  "media_resource.tab":274757, "taxon.tab":57940, "time_elapsed":{"sec":1399.95, "min":23.33, "hr":0.39}}
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NMNHimagesAPI');

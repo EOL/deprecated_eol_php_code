@@ -50,7 +50,17 @@ require_library('connectors/BHL_Download_API');
 $timestart = time_elapsed();
 
 $func = new BHL_Download_API();
-$page_id = "52894701";
+
+/* new method --- works OK
+// $str = "A. scybalarius";
+// $str = "G. stercorosus";
+// $str = "G. pyrenaeus";
+$str = "G. vernalis";
+$complete = $func->complete_name($str); 
+exit("\n[$complete]\nstop muna\n");
+*/
+
+/*
 $page_id = "52894691";
 $page_id = '59914358';
 // $func->GetPageMetadata(array('page_id'=>$page_id)); exit;
@@ -58,12 +68,9 @@ $page_id = '59914358';
 // https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=40563865&ocr=t&names=t&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
 // https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=40563869&ocr=t&names=t&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
 // https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=14778558&ocr=t&names=t&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
-
+*/
 
 $search = "saproxylic";
-
-// $search = "coprophagous"; // coprophagous/coprophage
-// $search = "coprophage"; // coprophagous/coprophage
 
 // /* new block
 // $searches = array("parasitic");  //with errors but now fixed -> "Investigate: needle ($needle) not found in Part metadata"
