@@ -302,7 +302,7 @@ class NMNHimagesAPI
 
         if(!$rec['type'] || !$rec['format']) return false;
 
-        @$this->debug['license'][$what][$rec['license']]++; //= ''; //for stats
+        @$this->debug['license']['media object'][$rec['license']]++; //= ''; //for stats
         
         $type_info['StillImage'] = 'http://purl.org/dc/dcmitype/StillImage';
         $type_info['MovingImage'] = 'http://purl.org/dc/dcmitype/MovingImage';
@@ -318,7 +318,17 @@ class NMNHimagesAPI
             // else return false;
         }
         
-        
+        if(!in_array($rec['license'], array('http://creativecommons.org/publicdomain/zero/1.0/'))) return false;
+        /*[license] => Array(
+                    [occurrence] => Array(
+                            [CC0_1_0] => 5643763
+                        )
+                    [media object] => Array(
+                            [http://creativecommons.org/publicdomain/zero/1.0/] => 804933
+                            [Usage Conditions Apply] => 249329
+                        )
+                )
+        */
         $mr = new \eol_schema\MediaResource();
         $mr->taxonID        = $taxonID;
         $mr->identifier     = md5($rec['identifier']);
