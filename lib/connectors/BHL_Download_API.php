@@ -52,7 +52,7 @@ class BHL_Download_API //extends Functions_Memoirs
                             [PageRange] => 33--34
                         )*/
                         $type = 'part';
-                        $part_id = $obj->PartID; echo("\nPartID: [$part_id] $Part_count\n");
+                        $part_id = $obj->PartID; debug("\nPartID: [$part_id] $Part_count\n");
                         $idtype = 'bhl';
                         $PartObject = self::GetPartMetadata(array('part_id'=>$part_id, 'idtype'=>$idtype, 'ResultOnly'=>True)); //no OCR text yet, but with multiple pages
                         if($PartObject) {
@@ -279,6 +279,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "from that of"           , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "of fruit eating"        , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "to another species"     , "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "and in"                 , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "EXCEPTION_PHRASE", "pattern": "with the exception of"                , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "non-'.$needle.'"}';
@@ -315,6 +316,7 @@ class BHL_Download_API //extends Functions_Memoirs
         */
         
         /* write names */
+        $names[] = "Pachylomera femoralis"; //manually added for coprophagous
         foreach($names as $name) {
             // /* manual adjustments
             if(in_array($name, array('Older larvae may'))) continue;
@@ -334,7 +336,8 @@ class BHL_Download_API //extends Functions_Memoirs
                 */
                 $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
                 // /* manual made for coprophagous
-                if(in_array($name, array('Canthon lewis', 'Icetus mitioris coeli'))) $w = str_replace("GNRD_SLT", "not_GNRD_SLT", $w);
+                
+                if(in_array($name, array('Canthon lewis', 'Icetus mitioris coeli', 'E. von', 'Ali- cata', 'Ali¬ cata'))) $w = str_replace("GNRD_SLT", "not_GNRD_SLT", $w);
                 // */
             }
             else {
@@ -683,6 +686,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $ocr = str_replace("Sisyphus schsefferi", "Sisyphus schaefferi", $ocr);
         $ocr = str_replace("Scarahxus", "Scarabaeus", $ocr);
         $ocr = str_replace("Phyuostomiis hastatus", "Phyllostomus hastatus", $ocr);
+        $ocr = str_replace("no logner", "no longer", $ocr);
         // */
         
         

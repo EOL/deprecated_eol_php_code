@@ -55,7 +55,7 @@ $func = new BHL_Download_API();
 // $str = "A. scybalarius";
 // $str = "G. stercorosus";
 // $str = "G. pyrenaeus";
-$str = "G. vernalis";
+$str = "T. nasuta"; //"E. von";//"G. vernalis";//"G. stercorosus";//"G. pyrenaeus";
 $complete = $func->complete_name($str); 
 exit("\n[$complete]\nstop muna\n");
 */
