@@ -299,6 +299,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "AUX_NEG", "pattern": "are not"}';
         $lines[] = '{"label": "AUX_NEG", "pattern": "are negatively"}';
         $lines[] = '{"label": "AUX_NEG", "pattern": "no longer" , "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "AUX_NEG", "pattern": "may have been" , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "GROUP_POS", "pattern": "all"}';
         $lines[] = '{"label": "GROUP_POS", "pattern": "All"}';
         $lines[] = '{"label": "GROUP_NEG", "pattern": "not all"}';
@@ -686,9 +687,11 @@ class BHL_Download_API //extends Functions_Memoirs
         $ocr = str_replace("Sisyphus schsefferi", "Sisyphus schaefferi", $ocr);
         $ocr = str_replace("Scarahxus", "Scarabaeus", $ocr);
         $ocr = str_replace("Phyuostomiis hastatus", "Phyllostomus hastatus", $ocr);
+        # Below non-names:
         $ocr = str_replace("no logner", "no longer", $ocr);
+        $ocr = str_replace("The Scarah&id(Z are all strictly coprophagous", "The Scarabaeidae are all strictly coprophagous", $ocr);
+        $ocr = str_replace("In no section", " . In no section", $ocr);
         // */
-        
         
         $f = Functions::file_open($this->pages_ocr_repo."/page_".$page->PageID.".txt", "w");
         $title = "PageID: ".$page->PageID;
