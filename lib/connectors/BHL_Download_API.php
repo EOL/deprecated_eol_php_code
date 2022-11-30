@@ -229,16 +229,18 @@ class BHL_Download_API //extends Functions_Memoirs
         
         /* -----start evaluation----- */
         // print_r($this->breakdown);
-        $arr_Part = array_keys($this->breakdown['Part']);   echo "\nPart: ".count($arr_Part)."\n";
-        $arr_Item = array_keys($this->breakdown['Item']);   echo "\nItem: ".count($arr_Item)."\n";
-        if(array_intersect($arr_Part, $arr_Item) == $arr_Part) { //$arr_Part is a subset of $arr_Item
-            echo "\nOK Part is a subset of Item n=".count($arr_Item)."\n";
-            // self::generate_corpus_doc($arr_Item); //was never used
+        if(isset($this->breakdown['Part'])) {
+            $arr_Part = array_keys($this->breakdown['Part']);   echo "\nPart: ".count($arr_Part)."\n";
+            $arr_Item = array_keys($this->breakdown['Item']);   echo "\nItem: ".count($arr_Item)."\n";
+            if(array_intersect($arr_Part, $arr_Item) == $arr_Part) { //$arr_Part is a subset of $arr_Item
+                echo "\nOK Part is a subset of Item n=".count($arr_Item)."\n";
+                // self::generate_corpus_doc($arr_Item); //was never used
+            }
+            else echo "\nPart is not a subset of Item - Investigate\n";
+            echo "\nscientificNames found: ".count($this->namez)."\n"; //print_r($this->namez);
+            self::write_scinames($this->namez, $this->needle);
         }
-        else echo "\nPart is not a subset of Item - Investigate\n";
-        
-        echo "\nscientificNames found: ".count($this->namez)."\n"; //print_r($this->namez);
-        self::write_scinames($this->namez, $this->needle);
+        else print("\nsearchterm not found in BHL [$searchterm]\n");
     }
     private function write_scinames($names, $needle)
     {
