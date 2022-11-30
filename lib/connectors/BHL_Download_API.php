@@ -280,6 +280,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "of fruit eating"        , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "to another species"     , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "and in"                 , "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "and those of"           , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "EXCEPTION_PHRASE", "pattern": "with the exception of"                , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "non-'.$needle.'"}';
@@ -294,6 +295,10 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "NAME_POSTFIX", "pattern": "species nova"}';
         $lines[] = '{"label": "AUX_POS", "pattern": "is"}';
         $lines[] = '{"label": "AUX_POS", "pattern": "are"}';
+        $lines[] = '{"label": "AUX_POS_GROUP", "pattern": "is entirely", "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "AUX_POS_GROUP", "pattern": "are entirely", "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "AUX_POS_GROUP", "pattern": "is exclusively", "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "AUX_POS_GROUP", "pattern": "are exclusively", "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "AUX_NEG", "pattern": "is not"}';
         $lines[] = '{"label": "AUX_NEG", "pattern": "is negatively"}';
         $lines[] = '{"label": "AUX_NEG", "pattern": "are not"}';
@@ -307,6 +312,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "GNRD_HLT", "pattern": "beetles"}';
         $lines[] = '{"label": "GNRD_HLT", "pattern": "insects"}';
         $lines[] = '{"label": "GNRD_HLT", "pattern": "invertebrates"}';
+        $lines[] = '{"label": "GNRD_HLT", "pattern": "larvae", "_comment2_": "coprophagous"}';
         
         foreach($lines as $w) fwrite($f, $w."\n");
 
