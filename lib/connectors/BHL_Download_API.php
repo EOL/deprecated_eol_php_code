@@ -281,6 +281,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "to another species"     , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "and in"                 , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "and those of"           , "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "agents of the"          , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "EXCEPTION_PHRASE", "pattern": "with the exception of"                , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "non-'.$needle.'"}';
@@ -288,6 +289,9 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "TERM_NEG", "pattern": "not entirely '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not exclusively '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "in part '.$needle.'" , "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "TERM_NEG", "pattern": "probably '.$needle.'" , "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "TERM_NEG", "pattern": "believed to be '.$needle.'" , "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "TERM_NEG", "pattern": "appears to be '.$needle.'" , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "species complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "group"}';
@@ -324,6 +328,8 @@ class BHL_Download_API //extends Functions_Memoirs
         
         /* write names */
         $names[] = "Pachylomera femoralis"; //manually added for coprophagous
+        $names[] = "O. laevis";
+        $names[] = "Scarabaeus laticollis";
         foreach($names as $name) {
             // /* manual adjustments
             if(in_array($name, array('Older larvae may'))) continue;
@@ -697,6 +703,8 @@ class BHL_Download_API //extends Functions_Memoirs
         $ocr = str_replace("no logner", "no longer", $ocr);
         $ocr = str_replace("The Scarah&id(Z are all strictly coprophagous", "The Scarabaeidae are all strictly coprophagous", $ocr);
         $ocr = str_replace("In no section", " . In no section", $ocr);
+        $ocr = str_replace("insects, and I soon", "insects. And I soon", $ocr);
+        $ocr = str_replace(".—", " . ", $ocr);
         // */
         
         $f = Functions::file_open($this->pages_ocr_repo."/page_".$page->PageID.".txt", "w");
