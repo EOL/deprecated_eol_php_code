@@ -42,6 +42,9 @@ Step 3: python divide_corpus.py
 
 Step 4: python textmine_loop_page.py
 Step 5: python append_scinames.py
+Step 6: start table-list type assertions
+- assertion_lists.py
+- process_list_types.py
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -69,12 +72,16 @@ $page_id = '59914358';
 */
 
 $search = "saproxylic";
+/*
+coprophagous - single-sentence done, table-list running...
+androviviparous - not found in BHL
 
+*/
 // /* new block
-$searches = array("androviviparous", "oviparous", "ovoviviparous", "viviparous", "ectoparasitic", "kleptoparasitic", 
-"necrophagous", "parasitic", "predatory", "saprotrophic", "xylophagous", "carnivorous", "detritivorous", "omnivorous", 
-"epigeic", "fossorial", "cursorial", "coprophagous"); // 18 new terms
-// $searches = array("coprophagous");
+$searches = array("oviparous", "ovoviviparous", "viviparous", "ectoparasitic", "kleptoparasitic", 
+"necrophagous", "parasitic", "predatory", "saprotrophic", "carnivorous", "detritivorous", "omnivorous", 
+"epigeic", "fossorial", "cursorial");
+$searches = array("xylophagous");
 foreach($searches as $search) {
     $func = new BHL_Download_API();
     $func->PublicationSearch($search);
