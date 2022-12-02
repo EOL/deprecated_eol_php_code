@@ -717,7 +717,12 @@ class BHL_Download_API //extends Functions_Memoirs
         // /* made for xylophagous
         $ocr = str_replace("Cryplocercus punclutatus", "Cryptocercus punctulatus", $ocr);
         $ocr = str_replace("Cryplocercus pimctulatus", "Cryptocercus punctulatus", $ocr);
-        $ocr = str_replace("C. punctiilatus", "C. punctulatus", $ocr);
+        $ocr = str_replace("C. punctiilatus", "C. punctulatus", $ocr);                      # page_3278620.txt
+        $ocr = str_replace("Trichomyia urtica", "Trichomyia urbica", $ocr);
+        $ocr = str_replace("Calliprobola speciosa", "Caliprobola speciosa", $ocr);          # page_56478702.txt
+        $ocr = str_replace("Xylo' pertha", "Xylopertha", $ocr); # Xylopertha piceae         # page_58388530.txt
+        $ocr = str_replace("Hijlocurus africaniis", "Hylocurus africanus", $ocr);           # page_8894336.txt
+        $ocr = str_replace("Kofoidia loricidata", "Kofoidia loriculata", $ocr);             # page_9058040.txt
         // */
         
         $f = Functions::file_open($this->pages_ocr_repo."/page_".$page->PageID.".txt", "w");
