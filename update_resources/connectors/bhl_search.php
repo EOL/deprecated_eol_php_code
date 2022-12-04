@@ -55,7 +55,7 @@ $GLOBALS['ENV_DEBUG'] = true; //false;
 
 $func = new BHL_Download_API();
 
-// /* new method --- works OK
+/* new method --- works OK
 $str = "A. scybalarius";
 // $str = "G. stercorosus";
 // $str = "G. pyrenaeus"; 
@@ -69,7 +69,7 @@ $str = "T. stenostyla"; $pageID = "53086539";
 
 $complete = $func->complete_name($str, $pageID); 
 exit("\n[$complete]\nstop muna\n");
-// */
+*/
 
 /*
 $page_id = "52894691";
@@ -90,6 +90,7 @@ $searches = array("oviparous", "ovoviviparous", "viviparous", "ectoparasitic", "
 "necrophagous", "parasitic", "predatory", "saprotrophic", "carnivorous", "detritivorous", "omnivorous", 
 "epigeic", "fossorial", "cursorial");
 $searches = array("xylophagous");
+$searches = array("coprophagous");
 foreach($searches as $search) {
     $func = new BHL_Download_API();
     $func->PublicationSearch($search);

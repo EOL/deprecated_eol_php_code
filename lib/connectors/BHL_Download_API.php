@@ -360,6 +360,14 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "TERM_NEG", "pattern": "probably '.$needle.'" , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "believed to be '.$needle.'" , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "appears to be '.$needle.'" , "_comment2_": "coprophagous"}';
+
+        // if(in_array($needle, array('coprophagous'))) {
+        if(true) { # apply to all 18 new terms
+            $lines[] = '{"label": "TERM_NEG", "pattern": "'.ucfirst($needle).' Behavior" , "_comment2_": "coprophagous"}';
+            $lines[] = '{"label": "TERM_NEG", "pattern": "'.$needle.' behavior" , "_comment2_": "coprophagous"}';
+        }
+
+        
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "species complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "group"}';
@@ -780,6 +788,10 @@ class BHL_Download_API //extends Functions_Memoirs
         $ocr = str_replace("In no section", " . In no section", $ocr);
         $ocr = str_replace("insects, and I soon", "insects. And I soon", $ocr);
         $ocr = str_replace(".—", " . ", $ocr);
+        # Specific pageIDs
+        if($page->PageID == 10370256) {
+            $ocr = str_replace("Sarcophaga, etc., the house-fly, Musca domestica", "Sarcophaga, etc. The house-fly, Musca domestica", $ocr);
+        }
         // */
         
         // /* made for xylophagous
