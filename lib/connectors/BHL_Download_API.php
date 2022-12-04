@@ -16,8 +16,72 @@ class BHL_Download_API //extends Functions_Memoirs
         $this->save_dir = CONTENT_RESOURCE_LOCAL_PATH."reports/BHL";
         if(!is_dir($this->save_dir)) mkdir($this->save_dir);
     }
-    function complete_name($searchName, $method = "PublicationSearch")
+    private function complete_name_using_pageID($pageID, $searchName)
     {
+        if($names = self::get_INFO_for_PageID($pageID, "names")) {
+            // print_r($names); exit("\nstop muna\n");
+            foreach($names as $n) {
+                $arr1 = explode(" ", $searchName);
+                $arr2 = explode(" ", $n->NameFound);
+                if(@$arr1[1] == @$arr2[1]) {
+                    if(strlen($arr2[0]) < 3) continue;
+                    if($arr1[0] == substr($arr2[0],0,1).".") {
+                        return $n->NameFound;
+                        // print_r($n); exit("\nfound you\n");
+                    }
+                }
+            }
+        }
+    }
+    private function complete_name_using_Pages($pages, $searchName)
+    {
+        $total_pages = count($pages); $i = 0;
+        foreach($pages as $page) { $i++;
+            debug("\n$i of $total_pages\n");
+            // print_r($page); exit;
+            /*stdClass Object(
+                [PageID] => 48710420
+                [ItemID] => 191352
+                [TextSource] => OCR
+                [PageUrl] => https://www.biodiversitylibrary.org/page/48710420
+                [ThumbnailUrl] => https://www.biodiversitylibrary.org/pagethumb/48710420
+                [FullSizeImageUrl] => https://www.biodiversitylibrary.org/pageimage/48710420
+                [OcrUrl] => https://www.biodiversitylibrary.org/pagetext/48710420
+                [OcrText] => 
+                [PageTypes] => Array(
+                        [0] => stdClass Object(
+                                [PageTypeName] => Cover
+                            )
+                    )
+                [PageNumbers] => Array
+                    ()
+            )*/
+            $PageID = $page->PageID;
+            if($name = self::complete_name_using_pageID($PageID, $searchName)) {
+                debug("\n[$name]\n");
+                return $name;
+            }
+        }
+    }
+    function complete_name($searchName, $pageID = false, $method = "PublicationSearch")
+    {
+        if($pageID) {
+            if($complete_name = self::complete_name_using_pageID($pageID, $searchName)) return $complete_name;
+            else {
+                $page_info = self::get_INFO_for_PageID($pageID, "metadata");
+                // print_r($page_info); exit("\n111\n");
+                $item_id = $page_info->ItemID;
+                debug("\n[$searchName] not found in page [$pageID]\nWill try searching entire itemID [$item_id]...\n");
+                // exit("\nItemID: [$item_id]\n");
+                $ret = self::GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>"bhl", 'ResultOnly'=>true));
+                if($pages = @$ret->Result[0]->Pages) {
+                    if($name = self::complete_name_using_Pages($pages, $searchName)) return $name;
+                }
+            }
+        }
+
+        debug("\nWILL NOW GO TO THE ORIGINAL SCHEME...\n");
+        
         $page = 0;
         $results = true;
         $this->breakdown = array();
@@ -462,6 +526,9 @@ class BHL_Download_API //extends Functions_Memoirs
         $url = $this->Endpoint."?op=$method&id=$item_id&idtype=$idtype&pages=t&ocr=t&parts=t&format=json&apikey=".$this->api_key;
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $objs = json_decode($json); //print_r($objs); exit;
+            
+            if(@$params['ResultOnly']) return $objs; // used in func complete_name()
+            
             if(count($objs->Result) > 1) exit("\nThis item_id $item_id has multiple results.\n");
             foreach($objs->Result as $obj) { //just 1 object but with multiple pages
                 // print_r($obj); exit("\n-end GetItemMetadata-\n");
@@ -508,16 +575,17 @@ class BHL_Download_API //extends Functions_Memoirs
             // print_r($page_info); exit("\neee\n");
             if($what == "names") {
                 if($names = @$page_info->Names) { // print_r($names); //exit;
-                    echo "\nNames in PageID $page_id: ".count($names)."\n";
+                    debug("\nNames in PageID $page_id: ".count($names)."\n");
                     return $names;
                 }
             }
-            if($what == "page_numbers") {
+            elseif($what == "page_numbers") {
                 if($page_numbers = @$page_info->PageNumbers) { // print_r($page_numbers); exit("\nok page numbers\n");
                     echo "\nPageNumbers in PageID $page_id: ".count($page_numbers)."\n";
                     return $page_numbers;
                 }
             }
+            elseif($what == "metadata") return $page_info;
         }
     }
     function GetTitleMetadata($params)

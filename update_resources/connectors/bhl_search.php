@@ -51,24 +51,32 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/BHL_Download_API');
 // ini_set('memory_limit','12096M'); //this can be removed and choose a caching solution. But let us try this first.
 $timestart = time_elapsed();
+$GLOBALS['ENV_DEBUG'] = true; //false;
 
 $func = new BHL_Download_API();
 
-/* new method --- works OK
-// $str = "A. scybalarius";
+// /* new method --- works OK
+$str = "A. scybalarius";
 // $str = "G. stercorosus";
-// $str = "G. pyrenaeus";
-$str = "T. nasuta"; //"E. von";//"G. vernalis";//"G. stercorosus";//"G. pyrenaeus";
-$complete = $func->complete_name($str); 
+// $str = "G. pyrenaeus"; 
+// http://localhost/eol_php_code/update_resources/connectors/complete_BHL_name.php?name=A.%20scybalarius&pageID=2292623
+$pageID = '2292623';
+
+// $str = "O. laevis"; $pageID = "18358496";
+$str = "L. guerini"; $pageID = "48710788";
+$str = "T. termopsidis"; $pageID = "1371191";
+$str = "T. stenostyla"; $pageID = "53086539";
+
+$complete = $func->complete_name($str, $pageID); 
 exit("\n[$complete]\nstop muna\n");
-*/
+// */
 
 /*
 $page_id = "52894691";
 $page_id = '59914358';
 // $func->GetPageMetadata(array('page_id'=>$page_id)); exit;
 // e.g. 
-// https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=40563865&ocr=t&names=t&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
+// https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=18358496&ocr=t&names=t&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
 */
 
 $search = "saproxylic";
