@@ -326,6 +326,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "TERM_POS_ENUM", "pattern": "List of '.$needle.'"  , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_POS_GROUP", "pattern": "entirely '.$needle.'"      , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_POS_GROUP", "pattern": "exclusively '.$needle.'"   , "_comment_": "new"}';
+        $lines[] = '{"label": "TERM_POS_GROUP", "pattern": "species are '.$needle.'"   , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "INCLUDING_PHRASE", "pattern": "including"        , "_comment_": "new"}';
         $lines[] = '{"label": "INCLUDING_PHRASE", "pattern": "includes"         , "_comment_": "new"}';
         $lines[] = '{"label": "INCLUDING_PHRASE", "pattern": "like"             , "_comment_": "new"}';
@@ -366,7 +367,7 @@ class BHL_Download_API //extends Functions_Memoirs
             $lines[] = '{"label": "TERM_NEG", "pattern": "'.ucfirst($needle).' Behavior" , "_comment2_": "coprophagous"}';
             $lines[] = '{"label": "TERM_NEG", "pattern": "'.$needle.' behavior" , "_comment2_": "coprophagous"}';
         }
-
+        $lines[] = '{"label": "TERM_NEG", "pattern": "or '.$needle.'" , "_comment2_": "coprophagous"}';
         
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "species complex"}';
@@ -385,8 +386,10 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "AUX_NEG", "pattern": "are negatively"}';
         $lines[] = '{"label": "AUX_NEG", "pattern": "no longer" , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "AUX_NEG", "pattern": "may have been" , "_comment2_": "coprophagous"}';
-        $lines[] = '{"label": "GROUP_POS", "pattern": "all"}';
-        $lines[] = '{"label": "GROUP_POS", "pattern": "All"}';
+        $lines[] = '{"label": "GROUP_POS", "pattern": "all"  , "_comment_": "was never used"}';
+        $lines[] = '{"label": "GROUP_POS", "pattern": "All"  , "_comment_": "was never used"}';
+        $lines[] = '{"label": "GROUP_POS_DESC", "pattern": "species of" , "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "GROUP_POS_DESC", "pattern": "Species of" , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "GROUP_NEG", "pattern": "not all"}';
         $lines[] = '{"label": "GROUP_NEG", "pattern": "Not all"}';
         $lines[] = '{"label": "GNRD_HLT", "pattern": "beetles"}';
