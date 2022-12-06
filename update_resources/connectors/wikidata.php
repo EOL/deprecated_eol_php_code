@@ -109,9 +109,25 @@ wikimedia_comnames	Sat 2022-09-10 04:57:15 PM	{"taxon.tab":154455, "vernacular_n
 
 71_delta	Wed 2022-07-13 10:04:30 PM	{"agent.tab":788702, "media_resource.tab":1248218, "taxon.tab":154018, "time_elapsed":{"sec":1257.01, "min":20.95, "hr":0.35}}
 71_delta	Sat 2022-09-10 05:37:07 PM	{"agent.tab":800385, "media_resource.tab":1263636, "taxon.tab":154455, "time_elapsed":{"sec":1299.87, "min":21.66, "hr":0.36}}
+----------------------
+71	Mon 2022-12-05 07:00:42 PM	{"agent.tab":799148, "media_resource.tab":1263927, "taxon.tab":153843, "vernacular_name.tab":1004436, "time_elapsed":{"sec":290748.99, "min":4845.82, "hr":80.76, "day":3.37}}
+wikimedia_comnames	Mon 2022-12-05 07:08:32 PM	{"taxon.tab":153843, "vernacular_name.tab":1004436, "time_elapsed":false}
+71	Mon 2022-12-05 07:27:00 PM	{"agent.tab":799148, "media_resource.tab":1263927, "taxon.tab":153851, "vernacular_name.tab":1004436, "time_elapsed":{"sec":1568.01, "min":26.13, "hr":0.44}}
+71_new	Mon 2022-12-05 07:29:07 PM	{"agent.tab":799148, "media_resource.tab":1263927, "taxon.tab":153843, "time_elapsed":false}
+wikimedia_comnames	Mon 2022-12-05 07:35:59 PM	{"taxon.tab":153851, "vernacular_name.tab":1004436, "time_elapsed":{"sec":409, "min":6.82, "hr":0.11}}
+wikimedia_comnames	Mon 2022-12-05 07:43:20 PM	{"taxon.tab":153853, "vernacular_name.tab":1004436, "time_elapsed":{"sec":849.78, "min":14.16, "hr":0.24}}
+wikimedia_comnames	Mon 2022-12-05 07:50:40 PM	{"taxon.tab":153854, "vernacular_name.tab":1004436, "time_elapsed":{"sec":1290.23, "min":21.5, "hr":0.36}}
+71	Mon 2022-12-05 07:53:56 PM	{"agent.tab":799148, "media_resource.tab":1263927, "taxon.tab":153853, "vernacular_name.tab":1004436, "time_elapsed":{"sec":3183.46, "min":53.06, "hr":0.88}}
+71_delta	Mon 2022-12-05 08:08:00 PM	{"agent.tab":799148, "media_resource.tab":1263927, "taxon.tab":153843, "time_elapsed":{"sec":1028.27, "min":17.14, "hr":0.29}}
+71	Mon 2022-12-05 08:21:44 PM	{"agent.tab":799148, "media_resource.tab":1263927, "taxon.tab":153854, "vernacular_name.tab":1004436, "time_elapsed":{"sec":4852.01, "min":80.87, "hr":1.35}}
+71_delta	Mon 2022-12-05 08:28:05 PM	{"agent.tab":799148, "media_resource.tab":1263927, "taxon.tab":153851, "time_elapsed":{"sec":1204.73, "min":20.08, "hr":0.33}}
+71_delta	Mon 2022-12-05 08:47:51 PM	{"agent.tab":799148, "media_resource.tab":1263927, "taxon.tab":153853, "time_elapsed":{"sec":2390.86, "min":39.85, "hr":0.66}}
+71_delta	Mon 2022-12-05 09:07:49 PM	{"agent.tab":799148, "media_resource.tab":1263927, "taxon.tab":153854, "time_elapsed":{"sec":3588.89, "min":59.81, "hr":1}}
 
 
-wikidata-hierarchy	Tue 2022-02-08 10:02:56 AM	{"taxon.tab":3365727, "time_elapsed":{"sec":353281.95, "min":5888.03, "hr":98.13, "day":4.09}}
+
+--------------------------
+wikidata-hierarchy	        Tue 2022-02-08 10:02:56 AM	{"taxon.tab":3365727, "time_elapsed":{"sec":353281.95, "min":5888.03, "hr":98.13, "day":4.09}}
 wikidata-hierarchy-final	Mon 2022-02-14 08:48:27 AM	{"taxon.tab":3365214, "time_elapsed":{"sec":5338.23, "min":88.97, "hr":1.48}}
 wikidata-hierarchy-final	Wed 2022-02-16 01:41:50 AM	{"taxon.tab":3365214, "time_elapsed":{"sec":5814.62, "min":96.91, "hr":1.62}}
 

@@ -437,19 +437,16 @@ class BHL_Download_API //extends Functions_Memoirs
                 if(in_array($name, array('Canthon lewis', 'Icetus mitioris coeli', 'E. von', 'Ali- cata', 'Ali¬ cata'))) {
                     $w = str_replace("GNRD_SLT", "not_GNRD_SLT", $w);
                 }
-                if(in_array($name, array('Xylophagous'))) {
-                    $w = str_replace("GNRD_HLT", "not_GNRD_HLT", $w);
-                }
                 // */
             }
-            else {
-                if(in_array($name, array('Coprophagous', $needle))) {
-                    // deleted: a genus
+            else { # higher-level taxa
+                
+                if(in_array($name, array($needle, "Coprophagous", "Xylophagous"))) {
+                    // deleted an entry e.g.:
                     // {"label": "GNRD_HLT", "pattern": "Coprophagous"}
+                    continue;
                 }
-                else {
-                    $w = '{"label": "GNRD_HLT", "pattern": "'.$name.'"}';
-                }
+                else $w = '{"label": "GNRD_HLT", "pattern": "'.$name.'"}';
             }
             fwrite($f, $w."\n");
         }
