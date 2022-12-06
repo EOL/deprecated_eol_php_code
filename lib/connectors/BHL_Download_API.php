@@ -364,8 +364,8 @@ class BHL_Download_API //extends Functions_Memoirs
 
         // if(in_array($needle, array('coprophagous'))) {
         if(true) { # apply to all 18 new terms
-            $lines[] = '{"label": "TERM_NEG", "pattern": "'.ucfirst($needle).' Behavior" , "_comment2_": "coprophagous"}';
             $lines[] = '{"label": "TERM_NEG", "pattern": "'.$needle.' behavior" , "_comment2_": "coprophagous"}';
+            $lines[] = '{"label": "TERM_NEG", "pattern": "'.$needle.' behaviour" , "_comment2_": "coprophagous"}';
         }
         $lines[] = '{"label": "TERM_NEG", "pattern": "or '.$needle.'" , "_comment2_": "coprophagous"}';
         
