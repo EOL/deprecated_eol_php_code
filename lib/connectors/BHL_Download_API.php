@@ -389,7 +389,9 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "GROUP_POS", "pattern": "all"  , "_comment_": "was never used"}';
         $lines[] = '{"label": "GROUP_POS", "pattern": "All"  , "_comment_": "was never used"}';
         $lines[] = '{"label": "GROUP_POS_DESC", "pattern": "species of" , "_comment2_": "coprophagous"}';
-        $lines[] = '{"label": "GROUP_POS_DESC", "pattern": "Species of" , "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "GROUP_NEG_DESC", "pattern": "most species of" , "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "GROUP_NEG_DESC", "pattern": "some species of" , "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "GROUP_NEG_DESC", "pattern": "not all species of" , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "GROUP_NEG", "pattern": "not all"}';
         $lines[] = '{"label": "GROUP_NEG", "pattern": "Not all"}';
         $lines[] = '{"label": "GNRD_HLT", "pattern": "beetles"}';
@@ -430,9 +432,14 @@ class BHL_Download_API //extends Functions_Memoirs
                 else $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
                 */
                 $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
-                // /* manual made for coprophagous
                 
-                if(in_array($name, array('Canthon lewis', 'Icetus mitioris coeli', 'E. von', 'Ali- cata', 'Ali¬ cata'))) $w = str_replace("GNRD_SLT", "not_GNRD_SLT", $w);
+                // /* manual made for coprophagous
+                if(in_array($name, array('Canthon lewis', 'Icetus mitioris coeli', 'E. von', 'Ali- cata', 'Ali¬ cata'))) {
+                    $w = str_replace("GNRD_SLT", "not_GNRD_SLT", $w);
+                }
+                if(in_array($name, array('Xylophagous'))) {
+                    $w = str_replace("GNRD_HLT", "not_GNRD_HLT", $w);
+                }
                 // */
             }
             else {
