@@ -79,18 +79,18 @@ $page_id = '59914358';
 // https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=18358496&ocr=t&names=t&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
 */
 
-$search = "saproxylic";
 /*
-coprophagous - single-sentence done, table-list running...
-androviviparous - not found in BHL
+saproxylic      - 1st term
+coprophagous    - single-sentence done, table-list running...
+androviviparous - 1of18 not found in BHL
 
 */
 // /* new block
 $searches = array("oviparous", "ovoviviparous", "viviparous", "ectoparasitic", "kleptoparasitic", 
 "necrophagous", "parasitic", "predatory", "saprotrophic", "carnivorous", "detritivorous", "omnivorous", 
 "epigeic", "fossorial", "cursorial");
-$searches = array("xylophagous");
-$searches = array("coprophagous");
+$searches = array("coprophagous"); # 2of18
+$searches = array("xylophagous"); # 3of18
 foreach($searches as $search) {
     $func = new BHL_Download_API();
     $func->PublicationSearch($search);
