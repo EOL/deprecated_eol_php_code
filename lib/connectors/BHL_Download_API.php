@@ -314,7 +314,6 @@ class BHL_Download_API //extends Functions_Memoirs
         /* write start */
         $lines = array();
         $lines[] = '{"label": "TERM_POS", "pattern": "'.$needle.'"}';
-        $lines[] = '{"label": "TERM_POS", "pattern": "'.ucfirst($needle).'"}';
         $lines[] = '{"label": "TERM_POS_OTHER", "pattern": "other '.$needle.'"   , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_POS_OTHER", "pattern": "other rare '.$needle.'"   , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_POS_COMPARISON", "pattern": "more rare '.$needle.'"   , "_comment_": "new"}';
@@ -368,6 +367,7 @@ class BHL_Download_API //extends Functions_Memoirs
             $lines[] = '{"label": "TERM_NEG", "pattern": "'.$needle.' behaviour" , "_comment2_": "coprophagous"}';
         }
         $lines[] = '{"label": "TERM_NEG", "pattern": "or '.$needle.'" , "_comment2_": "coprophagous"}';
+        $lines[] = '{"label": "TERM_NEG", "pattern": "mostly '.$needle.'" , "_comment2_": "coprophagous"}';
         
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "species complex"}';
