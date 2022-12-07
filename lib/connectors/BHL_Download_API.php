@@ -434,7 +434,7 @@ class BHL_Download_API //extends Functions_Memoirs
                 $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
                 
                 // /* manual made for coprophagous
-                if(in_array($name, array('Canthon lewis', 'Icetus mitioris coeli', 'E. von', 'Ali- cata', 'Ali¬ cata'))) {
+                if(in_array($name, array('Canthon lewis', 'Icetus mitioris coeli', 'E. von', 'Ali- cata', 'Ali¬ cata', 'H. von'))) {
                     $w = str_replace("GNRD_SLT", "not_GNRD_SLT", $w);
                 }
                 // */
