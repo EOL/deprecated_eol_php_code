@@ -561,7 +561,7 @@ class BHL_Download_API //extends Functions_Memoirs
                     if(stripos($page->OcrText, $needle) !== false) { //string is found
                         echo "\nFound OK 1 $needle in page $page->PageID.\n";
                         
-                        $page_saved = self::save_page_ocr($page);
+                        $page_saved = self::save_page_ocr($page, $needle);
                         if($page_saved) {
                             if($names = self::get_INFO_for_PageID($page->PageID, "names")) { //print_r($names); exit;
                                 /*Array(
@@ -729,7 +729,7 @@ class BHL_Download_API //extends Functions_Memoirs
         fwrite($f, "=============== end of file ==============\n\n");
         fclose($f);
     }
-    private function save_page_ocr($page)
+    private function save_page_ocr($page, $needle)
     {   // print_r($page); exit;
         /*stdClass Object(
             [PageID] => 60852629
@@ -807,9 +807,18 @@ class BHL_Download_API //extends Functions_Memoirs
         $ocr = str_replace("C. punctiilatus", "C. punctulatus", $ocr);                      # page_3278620.txt
         $ocr = str_replace("Trichomyia urtica", "Trichomyia urbica", $ocr);
         $ocr = str_replace("Calliprobola speciosa", "Caliprobola speciosa", $ocr);          # page_56478702.txt
-        $ocr = str_replace("Xylo' pertha", "Xylopertha", $ocr); # Xylopertha piceae         # page_58388530.txt
+        // $ocr = str_replace("Xylo' ", "Xylo- ", $ocr); # Xylopertha piceae         # page_58388530.txt
+        // $ocr = str_replace("Xylo' pertha", "Xylopertha", $ocr); # Xylopertha piceae         # page_58388530.txt
         $ocr = str_replace("Hijlocurus africaniis", "Hylocurus africanus", $ocr);           # page_8894336.txt
         $ocr = str_replace("Kofoidia loricidata", "Kofoidia loriculata", $ocr);             # page_9058040.txt
+
+        // page_58388530.txt
+        $ocr = str_replace("and Xylo'", "and ", $ocr);
+        $ocr = str_replace("pertha piceae Oliv.", "Xylopertha piceae Oliv.", $ocr);
+        // Some xylophagous Bostrychidae, like Xyloperthodes nitidipennis Murray and Xylo' 
+        // pertha piceae Oliv., usually show no distinct gallery type but may change their breeding 
+        
+
         // */
         
         $f = Functions::file_open($this->pages_ocr_repo."/page_".$page->PageID.".txt", "w");

@@ -55,7 +55,7 @@ $GLOBALS['ENV_DEBUG'] = true; //false;
 
 $func = new BHL_Download_API();
 
-/* new method --- works OK
+// /* new method --- works OK
 $str = "A. scybalarius";
 // $str = "G. stercorosus";
 // $str = "G. pyrenaeus"; 
@@ -66,10 +66,11 @@ $pageID = '2292623';
 $str = "L. guerini"; $pageID = "48710788";
 $str = "T. termopsidis"; $pageID = "1371191";
 $str = "T. stenostyla"; $pageID = "53086539";
-
+$str = "T. termopsidis"; $pageID = "1371191";
+// http://localhost/eol_php_code/update_resources/connectors/complete_BHL_name.php?name=T. termopsidis&pageID=1371191
 $complete = $func->complete_name($str, $pageID); 
 exit("\n[$complete]\nstop muna\n");
-*/
+// */
 
 /*
 $page_id = "52894691";
