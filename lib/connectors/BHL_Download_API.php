@@ -317,6 +317,8 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "TERM_POS_OTHER", "pattern": "other '.$needle.'"   , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_POS_OTHER", "pattern": "other rare '.$needle.'"   , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_POS_OTHER", "pattern": "+"   , "_comment_": "xylophagous"}';
+        $lines[] = '{"label": "TERM_POS_OTHER", "pattern": "yeasts"   , "_comment_": "xylophagous"}';
+        $lines[] = '{"label": "TERM_POS_OTHER", "pattern": "specimens of"   , "_comment_": "xylophagous"}';
         $lines[] = '{"label": "TERM_POS_COMPARISON", "pattern": "more rare '.$needle.'"   , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_POS_DIRECT", "pattern": "is '.$needle.'"           , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_POS_DIRECT", "pattern": "is a '.$needle.'"         , "_comment_": "new"}';
@@ -354,6 +356,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "EXCEPTION_PHRASE", "pattern": "with the exception of"                , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "non-'.$needle.'"}';
+        $lines[] = '{"label": "TERM_NEG", "pattern": "non'.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "none '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not entirely '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not exclusively '.$needle.'"}';
