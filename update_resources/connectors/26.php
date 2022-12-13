@@ -236,6 +236,12 @@ echo "\n[$error_no]\n";
 if($error_no == 0) echo "\nAccess OK\n";
 else echo "Error access";
 exit;
+
+From .tmproj file:
+	<string>../web/cp_new/WoRMS/Feb2020/metastats-2.tsv</string>
+	<string>../01 EOL Projects ++/JIRA/DATA-1827 WoRMS</string>
+	<string>../web/cp_new/WoRMS</string>
+    <key>../web/cp_new/WoRMS/WoRMS_native_intro_mapping.txt</key>
 */
 
 /* e.g. php 26.php jenkins taxonomy */
