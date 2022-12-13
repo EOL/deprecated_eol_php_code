@@ -77,6 +77,7 @@ class WormsArchiveAPI extends ContributorsMapAPI
         $this->BsD_URI['width'] = 'http://purl.obolibrary.org/obo/VT_0015039';
         $this->BsD_URI['wingspan'] = 'http://www.wikidata.org/entity/Q245097';
         $this->BsD_URI['bell diameter'] = 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25285';
+        $this->BsD_URI['prosome length'] = 'http://eol.org/schema/terms/ProsomeLength';
         // NaN,ignore
         $this->mUnit['mm'] = 'http://purl.obolibrary.org/obo/UO_0000016';
         $this->mUnit['cm'] = 'http://purl.obolibrary.org/obo/UO_0000015';
