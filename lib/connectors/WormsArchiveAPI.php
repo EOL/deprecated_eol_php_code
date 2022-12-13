@@ -280,6 +280,14 @@ class WormsArchiveAPI extends ContributorsMapAPI
                 if($parts[0]) $field = $parts[0];
                 if(@$parts[1]) $field = $parts[1];
 
+                // /* manual adjustments
+                if($class == "agent") { # test detected
+                    if($field == "term_homepage") {
+                        if($val = @$rec[$key]) $rec[$key] = str_replace("&amp;", "&", $val);
+                    }
+                }
+                // */
+
                 $c->$field = $rec[$key];
                 if($field == "taxonID") $c->$field = self::get_worms_taxon_id($c->$field);
             }
