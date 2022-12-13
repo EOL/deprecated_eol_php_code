@@ -316,6 +316,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "TERM_POS", "pattern": "'.$needle.'"}';
         $lines[] = '{"label": "TERM_POS_OTHER", "pattern": "other '.$needle.'"   , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_POS_OTHER", "pattern": "other rare '.$needle.'"   , "_comment_": "new"}';
+        $lines[] = '{"label": "TERM_POS_OTHER", "pattern": "+"   , "_comment_": "xylophagous"}';
         $lines[] = '{"label": "TERM_POS_COMPARISON", "pattern": "more rare '.$needle.'"   , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_POS_DIRECT", "pattern": "is '.$needle.'"           , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_POS_DIRECT", "pattern": "is a '.$needle.'"         , "_comment_": "new"}';
@@ -368,7 +369,7 @@ class BHL_Download_API //extends Functions_Memoirs
         }
         $lines[] = '{"label": "TERM_NEG", "pattern": "or '.$needle.'" , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "mostly '.$needle.'" , "_comment2_": "coprophagous"}';
-        
+        $lines[] = '{"label": "TERM_NEG", "pattern": "most species are '.$needle.'"   , "_comment2_": "xylophagous"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "species complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "group"}';
@@ -413,7 +414,13 @@ class BHL_Download_API //extends Functions_Memoirs
             $names[] = "O. laevis";
             $names[] = "Scarabaeus laticollis";
         }
+        if($needle == "xylophagous") {
+            $names[] = "S. esakii";
+            $names[] = "Calobata (= Rainieria ) calceata";
+        }     
         
+
+
         foreach($names as $name) {
             // /* manual adjustments
             if(in_array($name, array('Older larvae may'))) continue;
@@ -807,10 +814,12 @@ class BHL_Download_API //extends Functions_Memoirs
         $ocr = str_replace("C. punctiilatus", "C. punctulatus", $ocr);                      # page_3278620.txt
         $ocr = str_replace("Trichomyia urtica", "Trichomyia urbica", $ocr);
         $ocr = str_replace("Calliprobola speciosa", "Caliprobola speciosa", $ocr);          # page_56478702.txt
-        // $ocr = str_replace("Xylo' ", "Xylo- ", $ocr); # Xylopertha piceae         # page_58388530.txt
-        // $ocr = str_replace("Xylo' pertha", "Xylopertha", $ocr); # Xylopertha piceae         # page_58388530.txt
+        // $ocr = str_replace("Xylo' ", "Xylo- ", $ocr); # Xylopertha piceae                # page_58388530.txt
+        // $ocr = str_replace("Xylo' pertha", "Xylopertha", $ocr); # Xylopertha piceae      # page_58388530.txt
         $ocr = str_replace("Hijlocurus africaniis", "Hylocurus africanus", $ocr);           # page_8894336.txt
         $ocr = str_replace("Kofoidia loricidata", "Kofoidia loriculata", $ocr);             # page_9058040.txt
+        $ocr = str_replace("Caliprobola speciosa", "Calliprobola speciosa", $ocr);          # page_56478702.txt
+
 
         // page_58388530.txt
         $ocr = str_replace("and Xylo'", "and ", $ocr);
