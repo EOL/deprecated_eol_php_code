@@ -65,8 +65,9 @@ $pageID = '2292623';
 // $str = "O. laevis"; $pageID = "18358496";
 $str = "L. guerini"; $pageID = "48710788";
 $str = "T. termopsidis"; $pageID = "1371191";
-$str = "T. stenostyla"; $pageID = "53086539";
-$str = "T. termopsidis"; $pageID = "1371191";
+// $str = "T. stenostyla"; $pageID = "53086539"; # wala talaga nito
+// $str = "T. termopsidis"; $pageID = "1371191";
+$str = "S. esakii"; $pageID = "40516545";
 // http://localhost/eol_php_code/update_resources/connectors/complete_BHL_name.php?name=T. termopsidis&pageID=1371191
 $complete = $func->complete_name($str, $pageID); 
 exit("\n[$complete]\nstop muna\n");
