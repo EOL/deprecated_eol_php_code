@@ -38,7 +38,7 @@ foreach($xml->taxon as $t)
     if(true)
     {
         $do_count = sizeof($t->dataObject);
-        if($do_count > 0)//true operation
+        if($do_count > 0)//true operation # -test eli-
         {
             $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
             $t_dc = $t->children("http://purl.org/dc/elements/1.1/");
