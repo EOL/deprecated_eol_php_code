@@ -5,6 +5,7 @@ estimated execution time:
 There is already a published data for this resource. This connector modifies the resource 6.xml in Beast.
 Partner is un-responsive for a while so we decided to just adjust the resource XML ourselves.
 This connector will just change all text objects with subject #Description to #TaxonBiology.
+-test 3-
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
