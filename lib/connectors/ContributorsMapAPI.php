@@ -101,21 +101,21 @@ class ContributorsMapAPI
                         $persid = trim($arr2[1]);
                         if(preg_match("/\>(.*?)xxx/ims", $str.'xxx', $arr3)) {
                             $name = trim($arr3[1]);
-                            $final[$name] = "http://www.marinespecies.org/imis.php?module=person&persid=".$persid;
+                            $final[$name] = "https://www.marinespecies.org/imis.php?module=person&persid=".$persid;
                             
                             // /* generate another name for some un-matched names used in WoRMS
                             $new_name = self::format_remove_middle_initial($name);
-                            $final[$new_name] = "http://www.marinespecies.org/imis.php?module=person&persid=".$persid;
+                            $final[$new_name] = "https://www.marinespecies.org/imis.php?module=person&persid=".$persid;
                             // */
 
                             // /* generate another name: FROM: "de Voogd, Nicole" TO: "Nicole de Voogd"
                             $new_name = self::interchange_firstName_first($new_name);
-                            $final[$new_name] = "http://www.marinespecies.org/imis.php?module=person&persid=".$persid;
+                            $final[$new_name] = "https://www.marinespecies.org/imis.php?module=person&persid=".$persid;
                             // */
                             
                             // /* generate another name: FROM: "Cuvelier, Daphne" TO: "Daphne Cuvelier"
                             $new_name = self::interchange_firstName_first($name);
-                            $final[$new_name] = "http://www.marinespecies.org/imis.php?module=person&persid=".$persid;
+                            $final[$new_name] = "https://www.marinespecies.org/imis.php?module=person&persid=".$persid;
                             // */
                             
                         }
