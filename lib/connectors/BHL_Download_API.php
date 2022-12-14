@@ -374,6 +374,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "TERM_NEG", "pattern": "or '.$needle.'" , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "mostly '.$needle.'" , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "most species are '.$needle.'"   , "_comment2_": "xylophagous"}';
+        $lines[] = '{"label": "TERM_NEG", "pattern": "more '.$needle.'" , "_comment2_": "xylophagous"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "species complex"}';
         $lines[] = '{"label": "SPECIES_REF_NEG", "pattern": "group"}';
@@ -422,6 +423,8 @@ class BHL_Download_API //extends Functions_Memoirs
             $names[] = "S. esakii";
             $names[] = "Calobata (= Rainieria ) calceata";
             $names[] = "Leucotermes lucifugus";
+            $names[] = "Rinotus purpureus";
+            $names[] = "Dohrnia simplex";
         }     
         
 
