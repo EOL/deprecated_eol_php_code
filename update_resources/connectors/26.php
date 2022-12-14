@@ -155,6 +155,17 @@ Below start of removing all MoF term URIs that are not in EOL Terms File:
 26_MoF_normalized	Wed 2022-11-09 02:19:11 PM	{"agent.tab":1901, "MoF":2188265, "Media":98829, "occur":648863, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2174.33, "min":36.24, "hr":0.6}}
 26_MoF_normalized	Thu 2022-11-10 03:52:55 AM	{"agent.tab":1901, "MoF":2188265, "Media":98829, "occur":648863, "reference":746822, "taxon.tab":388204, "vernacular_name.tab":79759, "time_elapsed":{"sec":2172.75, "min":36.21, "hr":0.6}}
 
+Maybe below is the start of excluding those not in EOL Terms File hmmm... Thus the big decrease in MoF.
+26	                Tue 2022-12-13 09:53:20 PM	{"agent.tab":1907, "measurement_or_fact_specific.tab":2263783, "media_resource.tab":99527, "occurrence_specific.tab":1750236, "reference.tab":749425, "taxon.tab":389009, "vernacular_name.tab":79770, "time_elapsed":{"sec":3206.94, "min":53.45, "hr":0.89}}
+26_meta_recoded_1	Tue 2022-12-13 10:36:04 PM	{"agent.tab":1907, "measurement_or_fact_specific.tab":2134460, "media_resource.tab":99527, "occurrence.tab":1750236, "reference.tab":749425, "taxon.tab":389009, "vernacular_name.tab":79770, "time_elapsed":{"sec":2481.48, "min":41.36, "hr":0.69}}
+26_meta_recoded	    Tue 2022-12-13 11:20:27 PM	{"agent.tab":1907, "measurement_or_fact_specific.tab":2074412, "media_resource.tab":99527, "occurrence_specific.tab":1750236, "reference.tab":749425, "taxon.tab":389009, "vernacular_name.tab":79770, "time_elapsed":{"sec":2618.12, "min":43.64, "hr":0.73}}
+26_ENV	            Wed 2022-12-14 12:10:51 AM	{"agent.tab":1907, "measurement_or_fact_specific.tab":1852967, "media_resource.tab":99527, "occurrence_specific.tab":1528791, "reference.tab":749425, "taxon.tab":389009, "vernacular_name.tab":79770, "time_elapsed":{"sec":2979.53, "min":49.66, "hr":0.83}}
+26_ENV_final	    Wed 2022-12-14 12:52:58 AM	{"agent.tab":1907, "MoF":1852967, "Media":99527, "occur.tab":1528791, "reference.tab":749425, "taxon.tab":389009, "vernacular_name.tab":79770, "time_elapsed":{"sec":2483.11, "min":41.39, "hr":0.69}}
+26_delta	        Wed 2022-12-14 01:30:38 AM	{"agent.tab":1907, "MoF":1553037, "Media":99527, "occur.tab":487022, "reference.tab":749425, "taxon.tab":389009, "vernacular_name.tab":79770, "time_elapsed":{"sec":2217.83, "min":36.96, "hr":0.62}}
+26_delta_new	    Wed 2022-12-14 02:00:44 AM	{"agent.tab":1907, "MoF":1532493, "Media":99527, "occur.tab":484479, "reference.tab":749425, "taxon.tab":389009, "vernacular_name.tab":79770, "time_elapsed":{"sec":1805.03, "min":30.08, "hr":0.5}}
+26_MoF_normalized	Wed 2022-12-14 02:31:22 AM	{"agent.tab":1907, "MoF":1532254, "Media":99527, "occur.tab":484479, "reference.tab":749425, "taxon.tab":389009, "vernacular_name.tab":79770, "time_elapsed":{"sec":1827.71, "min":30.46, "hr":0.51}}
+-> 26_ENV is the start of trimming down MoF. Which is expected.
+
 
 -rw-r--r-- 1 root      root       150939877 Aug 28 16:56 WoRMS.tar.gz
 -rw-r--r-- 1 root      root       150949430 Aug 28 16:16 26_delta_new.tar.gz
