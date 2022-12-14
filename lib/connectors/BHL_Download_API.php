@@ -353,6 +353,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "agents of the"          , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "of the family"          , "_comment3_": "xylophagous"}';
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "of the genus"          , "_comment3_": "xylophagous"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "with another"          , "_comment3_": "xylophagous"}';
         $lines[] = '{"label": "EXCEPTION_PHRASE", "pattern": "with the exception of"                , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "non-'.$needle.'"}';
@@ -411,7 +412,7 @@ class BHL_Download_API //extends Functions_Memoirs
         foreach($lines as $w) fwrite($f, $w."\n");
         */
         
-        /* write names */
+        /* manually added names mainly due to OCR */
         if($needle == "coprophagous") {
             $names[] = "Pachylomera femoralis"; //manually added for coprophagous
             $names[] = "O. laevis";
@@ -420,6 +421,7 @@ class BHL_Download_API //extends Functions_Memoirs
         if($needle == "xylophagous") {
             $names[] = "S. esakii";
             $names[] = "Calobata (= Rainieria ) calceata";
+            $names[] = "Leucotermes lucifugus";
         }     
         
 
@@ -822,6 +824,8 @@ class BHL_Download_API //extends Functions_Memoirs
         $ocr = str_replace("Hijlocurus africaniis", "Hylocurus africanus", $ocr);           # page_8894336.txt
         $ocr = str_replace("Kofoidia loricidata", "Kofoidia loriculata", $ocr);             # page_9058040.txt
         $ocr = str_replace("Caliprobola speciosa", "Calliprobola speciosa", $ocr);          # page_56478702.txt
+        $ocr = str_replace("piinctiilatus", "punctulatus", $ocr);   # C. punctulatus
+        $ocr = str_replace("aitstralis", "australis", $ocr);        # P. australis
 
 
         // page_58388530.txt
@@ -830,7 +834,11 @@ class BHL_Download_API //extends Functions_Memoirs
         // Some xylophagous Bostrychidae, like Xyloperthodes nitidipennis Murray and Xylo' 
         // pertha piceae Oliv., usually show no distinct gallery type but may change their breeding 
         
-
+        // page_19266048.txt
+        $ocr = str_replace("Langelandia anophtlial", "Langelandia anophthal", $ocr);
+        // Langelandia anophtlialma
+        // Langelandia anophthalma
+        // Langelandia anophtlial-ma --- with next line
         // */
         
         $f = Functions::file_open($this->pages_ocr_repo."/page_".$page->PageID.".txt", "w");
