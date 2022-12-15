@@ -119,21 +119,21 @@ echo "\n$string\n";
 exit("\n");
 */
 
-/* un-comment in real operation - MAIN OPERATION - this generates the whole repository. Processes many docs per repository.
+// /* un-comment in real operation - MAIN OPERATION - this generates the whole repository. Processes many docs per repository.
 require_library('connectors/Functions_Memoirs');
 require_library('connectors/ParseListTypeAPI');
 require_library('connectors/SmithsonianPDFsAPI');
 $func = new SmithsonianPDFsAPI($resource_id);
 $func->start();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder
-*/
+// */
 
 /* BELOW HERE IS WHEN YOU WANT TO PROCESS ONE FILE AT A TIME. DURING DEV. 
 used during dev (one file at a time using param $txt_filename):
 php update_resources/connectors/process_SI_pdfs.php 
 -> runs after parse_unstructured_text.php is run.
 */
-// /* ========================== during dev: processing associations ==========================
+/* ========================== during dev: processing associations ==========================
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0614/SCtZ-0614_tagged.txt";  $pdf_id = "SCtZ-0614";
 // $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0439/SCtZ-0439_tagged.txt";  $pdf_id = "SCtZ-0439";
 // $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCTZ-0156/SCTZ-0156_tagged.txt";  $pdf_id = "SCTZ-0156";
@@ -149,7 +149,7 @@ $func->initialize();
 $func->process_a_txt_file($txt_filename, $pdf_id, array());
 $func->archive_builder_finalize();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder
-// ========================== END: processing associations ========================== */
+========================== END: processing associations ========================== */
 
 /* ========================== during dev: processing LIST-TYPE ==========================
 $txt_filename = "/Volumes/AKiTiO4/other_files/Smithsonian/epub_10088_5097/SCtZ-0011/SCtZ-0011_descriptions_LT.txt";  $pdf_id = "SCtZ-0011";
