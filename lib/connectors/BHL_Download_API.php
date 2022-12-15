@@ -79,7 +79,7 @@ class BHL_Download_API //extends Functions_Memoirs
                 }
             }
         }
-
+        debug("\nUsing API:\n-- Not found in page [$pageID]\n-- Not found in entire itemID [$item_id]\n");
         debug("\nWILL NOW GO TO THE ORIGINAL SCHEME...\n");
         
         $page = 0;
@@ -425,6 +425,7 @@ class BHL_Download_API //extends Functions_Memoirs
             $names[] = "Leucotermes lucifugus";
             $names[] = "Rinotus purpureus";
             $names[] = "Dohrnia simplex";
+            $names[] = "Langelandia anophthalma";
         }     
         
 
@@ -829,7 +830,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $ocr = str_replace("Caliprobola speciosa", "Calliprobola speciosa", $ocr);          # page_56478702.txt
         $ocr = str_replace("piinctiilatus", "punctulatus", $ocr);   # C. punctulatus
         $ocr = str_replace("aitstralis", "australis", $ocr);        # P. australis
-
+        $ocr = str_replace("Strombo phorus ericius", "Strombophorus ericius", $ocr);
 
         // page_58388530.txt
         $ocr = str_replace("and Xylo'", "and ", $ocr);
