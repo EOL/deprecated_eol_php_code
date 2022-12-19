@@ -335,6 +335,8 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "INCLUDING_PHRASE", "pattern": "such as"          , "_comment_": "new"}';
         $lines[] = '{"label": "INCLUDING_PHRASE", "pattern": "for example"      , "_comment_": "new"}';
         $lines[] = '{"label": "INCLUDING_PHRASE", "pattern": "e.g."             , "_comment_": "new"}';
+        $lines[] = '{"label": "INCLUDING_PHRASE", "pattern": "one of these"     , "_comment_": "new"}';
+        $lines[] = '{"label": "INCLUDING_PHRASE", "pattern": "in particular"    , "_comment_": "new"}';
         $lines[] = '{"label": "OTHER_TERMS", "pattern": "predator"              , "_comment_": "new"}';
         $lines[] = '{"label": "OTHER_TERMS", "pattern": "herbivorous"           , "_comment_": "new"}';
         $lines[] = '{"label": "OTHER_TERMS", "pattern": "brachypterous"         , "_comment_": "new"}';
@@ -805,6 +807,12 @@ class BHL_Download_API //extends Functions_Memoirs
         $ocr = str_replace("Sisyphus schsefferi", "Sisyphus schaefferi", $ocr);
         $ocr = str_replace("Scarahxus", "Scarabaeus", $ocr);
         $ocr = str_replace("Phyuostomiis hastatus", "Phyllostomus hastatus", $ocr);
+        $ocr = str_replace("Geoi rapes douei", "Geotrupes douei", $ocr);
+        $ocr = str_replace("Afeuchus sacer", "Ateuchus sacer", $ocr);
+        $ocr = str_replace("Gynmopleurus mopsus", "Gymnopleurus mopsus", $ocr);
+        $ocr = str_replace("Gymnopleurus stiirmi", "Gymnopleurus sturmi", $ocr);
+        $ocr = str_replace("Geoti'upes", "Geotrupes douei", $ocr);
+
         # Below non-names:
         $ocr = str_replace("no logner", "no longer", $ocr);
         $ocr = str_replace("The Scarah&id(Z are all strictly coprophagous", "The Scarabaeidae are all strictly coprophagous", $ocr);
