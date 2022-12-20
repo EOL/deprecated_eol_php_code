@@ -1381,6 +1381,18 @@ class WormsArchiveAPI extends ContributorsMapAPI
     {   // http://www.marinespecies.org/aphia.php?p=sourcedetails&id=154106
         $path = trim($path);
         if(substr($path, 0, 10) == "aphia.php?") return "http://www.marinespecies.org/" . $path;
+        elseif(stripos($path, "marineregions.org/gazetteer.php?p=details&id=") !== false) { //string is found
+            /* per: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=67177&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67177
+            http://www.marineregions.org/gazetteer.php?p=details&id=3314
+            to the equivalent in this form:
+            http://www.marineregions.org/mrgid/3314
+            */
+            if(preg_match("/id=(.*?)elix/ims", $path."elix", $arr)) {
+                $id = $arr[1];
+                return "http://www.marineregions.org/mrgid/".$id;
+            }
+            else exit("\nShould not go here. Code Elix_100.\n");
+        }
         else return $path;
     }
     private function get_branch_ids_to_prune()
