@@ -548,20 +548,28 @@ wikipedia-uk	Wed 2022-06-08 11:38:47 AM	    {"media_resource.tab":49269, "taxon.
 wikipedia-uk	Sun 2022-07-17 03:22:12 AM	    {"media_resource.tab":51593, "taxon.tab":52698, "time_elapsed":{"sec":220.46, "min":3.67, "hr":0.06}}
 wikipedia-uk	Fri 2022-09-16 10:13:19 PM	    {"media_resource.tab":53160, "taxon.tab":54166, "time_elapsed":{"sec":146.25, "min":2.44, "hr":0.04}}
 wikipedia-uk	Tue 2022-12-13 06:26:21 AM	    {"media_resource.tab":53179, "taxon.tab":0, "time_elapsed":{"sec":75.07, "min":1.25, "hr":0.02}}
+wikipedia-uk	Tue 2022-12-20 09:16:38 AM	    {"media_resource.tab":53179, "taxon.tab":54172, "time_elapsed":{"sec":144.42, "min":2.41, "hr":0.04}}
+-> fixed the zero (0) taxa by just re-running the connector: http://160.111.248.39:8081/job/Wikipedia%20in%20different%20languages/job/Wikipedia%20-%20uk/
+with the option to force run with 6 connectors:
+# for multiple conn run (six conn)
+php5.6 run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"uk",  "cont_2next_lang":"N", "six_coverage":"1st"}'
+
 
 wikipedia-hy	Tuesday 2019-11-05 03:27:00 AM	{"media_resource.tab":6951,"taxon.tab":6345,"time_elapsed":{"sec":7314.49,"min":121.91,"hr":2.03}}
 wikipedia-hy	Monday 2020-02-24 11:01:45 AM	{"media_resource.tab":7099,"taxon.tab":6491,"time_elapsed":{"sec":6913.5,"min":115.23,"hr":1.92}}
 wikipedia-hy	Sunday 2020-04-26 04:12:34 AM	{"media_resource.tab":6688, "taxon.tab":6234, "time_elapsed":{"sec":6220.27, "min":103.67, "hr":1.73}}
 wikipedia-hy	Sunday 2020-05-10 10:27:22 PM	{"media_resource.tab":6407, "taxon.tab":6061, "time_elapsed":{"sec":1451.56, "min":24.19, "hr":0.4}} New
 wikipedia-hy	Sunday 2020-08-09 08:12:39 AM	{"media_resource.tab":3867, "taxon.tab":6155, "time_elapsed":{"sec":6146.61, "min":102.44, "hr":1.71}} will monitor big drop in media, but will accept for now.
-wikipedia-hy	Sat 2022-06-11 04:15:39 AM	  {"media_resource.tab":4054, "taxon.tab":6381, "time_elapsed":{"sec":9.18, "min":0.15, "hr":0}}
+wikipedia-hy	Sat 2022-06-11 04:15:39 AM	    {"media_resource.tab":4054, "taxon.tab":6381, "time_elapsed":{"sec":9.18, "min":0.15, "hr":0}}
+wikipedia-hy	Wed 2022-12-07 07:56:28 PM	    {"media_resource.tab":4071, "taxon.tab":6392, "time_elapsed":{"sec":8.96, "min":0.15, "hr":0}}
 
 wikipedia-mrj	Thursday 2020-02-20 05:20:36 AM	{"media_resource.tab":5713,"taxon.tab":5402,"time_elapsed":{"sec":6659.51,"min":110.99,"hr":1.85}}
 wikipedia-mrj	Monday 2020-02-24 11:22:46 AM	{"media_resource.tab":5713,"taxon.tab":5402,"time_elapsed":{"sec":1255.3,"min":20.92,"hr":0.35}}
 wikipedia-mrj	Sunday 2020-04-26 06:01:08 AM	{"media_resource.tab":3852, "taxon.tab":2969, "time_elapsed":{"sec":6503.9, "min":108.4, "hr":1.81}}
 wikipedia-mrj	Sunday 2020-05-10 10:50:30 PM	{"media_resource.tab":3835, "taxon.tab":2966, "time_elapsed":{"sec":1378.54, "min":22.98, "hr":0.38}} New
 wikipedia-mrj	Sunday 2020-08-09 09:56:05 AM	{"media_resource.tab":2465, "taxon.tab":2967, "time_elapsed":{"sec":6197.48, "min":103.29, "hr":1.72}} will monitor big drop in media, but will accept for now.
-wikipedia-mrj	Tue 2022-06-07 08:25:33 AM	  {"media_resource.tab":2480, "taxon.tab":2998, "time_elapsed":{"sec":4.83, "min":0.08, "hr":0}} consistent OK
+wikipedia-mrj	Tue 2022-06-07 08:25:33 AM	    {"media_resource.tab":2480, "taxon.tab":2998, "time_elapsed":{"sec":4.83, "min":0.08, "hr":0}} consistent OK
+wikipedia-mrj	Sun 2022-09-11 03:40:50 AM	    {"media_resource.tab":2485, "taxon.tab":3001, "time_elapsed":{"sec":5.31, "min":0.09, "hr":0}}
 
 wikipedia-pms	Monday 2020-02-24 11:59:54 AM	{"media_resource.tab":5563,"taxon.tab":5039,"time_elapsed":{"sec":1028.46,"min":17.14,"hr":0.29}}
 wikipedia-pms	Sunday 2020-04-26 07:26:50 AM	{"media_resource.tab":5564, "taxon.tab":5040, "time_elapsed":{"sec":5135.19, "min":85.59, "hr":1.43}}
