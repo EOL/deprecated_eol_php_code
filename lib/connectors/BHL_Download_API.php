@@ -420,6 +420,7 @@ class BHL_Download_API //extends Functions_Memoirs
             $names[] = "Pachylomera femoralis"; //manually added for coprophagous
             $names[] = "O. laevis";
             $names[] = "Scarabaeus laticollis";
+            $names[] = "A. egyptiorum";
         }
         if($needle == "xylophagous") {
             $names[] = "S. esakii";
@@ -812,6 +813,8 @@ class BHL_Download_API //extends Functions_Memoirs
         $ocr = str_replace("Gynmopleurus mopsus", "Gymnopleurus mopsus", $ocr);
         $ocr = str_replace("Gymnopleurus stiirmi", "Gymnopleurus sturmi", $ocr);
         $ocr = str_replace("Geoti'upes", "Geotrupes douei", $ocr);
+        $ocr = str_replace("A. Eyypti", "A. egypti", $ocr);
+        $ocr = str_replace("A. Laticollis", "A. laticollis", $ocr);
 
         # Below non-names:
         $ocr = str_replace("no logner", "no longer", $ocr);
