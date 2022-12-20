@@ -90,5 +90,21 @@ class Functions_Pensoft
         }
         return $ret;
     }
+
+    functions WoRMS_URL_format($path) # called from Pensoft2EOLAPI.php for now.
+    {
+        if(stripos($path, "marineregions.org/gazetteer.php?p=details&id=") !== false) { //string is found
+            /* per: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=67177&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67177
+            http://www.marineregions.org/gazetteer.php?p=details&id=3314
+            to the equivalent in this form:
+            http://www.marineregions.org/mrgid/3314
+            */
+            if(preg_match("/id=(.*?)elix/ims", $path."elix", $arr)) {
+                $id = $arr[1];
+                return "http://www.marineregions.org/mrgid/".$id;
+            }
+        }
+        return $path;
+    }
 }
 ?>

@@ -644,6 +644,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 }
                 // */
                 
+                $uri = WoRMS_URL_format($uri); # can be general, for all resources
+
                 // /* for all resources: exclude terms not in EOL terms file
                 if(!isset($this->allowed_terms_URIs[$uri])) {
                     // echo "\n-----------------\nhuli ka! NOT FOUND IN EOL TERMS FILE\n"; print_r($rek); print_r($ret); print_r($arr); echo "-----------------\n";
@@ -799,6 +801,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         */
         foreach($arr as $rek) {
             // /* general for all:
+            $rek['id'] = WoRMS_URL_format($rek['id']); # can be general, for all resources
+
             if($rek['ontology'] == "eol-geonames") { //per https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65861&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65861
                 if(stripos($rek['id'], "ENVO_") !== false) continue; //string is found
                 if(in_array($rek['lbl'], array('jordan', 'guinea', 'washington'))) continue; //always remove
