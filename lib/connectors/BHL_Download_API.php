@@ -420,7 +420,7 @@ class BHL_Download_API //extends Functions_Memoirs
             $names[] = "Pachylomera femoralis"; //manually added for coprophagous
             $names[] = "O. laevis";
             $names[] = "Scarabaeus laticollis";
-            $names[] = "A. egyptiorum";
+            $names[] = "A. aegyptiorum";
         }
         if($needle == "xylophagous") {
             $names[] = "S. esakii";
@@ -440,6 +440,10 @@ class BHL_Download_API //extends Functions_Memoirs
             $name = str_replace(" larva", "", $name);
             // */
             
+            // for coprophagous
+            $name = str_replace("Mesemhrina", "Mesembrina", $name);
+            $name = str_replace("Onthophagiis", "Onthophagus", $name);
+
             if(self::taxon_is_species_level($name)) {
                 /* not needed, too many calls
                 if(substr($name,1,2) == ". ") {
@@ -453,7 +457,7 @@ class BHL_Download_API //extends Functions_Memoirs
                 $w = '{"label": "GNRD_SLT", "pattern": "'.$name.'"}';
                 
                 // /* manual made for coprophagous
-                if(in_array($name, array('Canthon lewis', 'Icetus mitioris coeli', 'E. von', 'Ali- cata', 'Ali¬ cata', 'H. von'))) {
+                if(in_array($name, array('Canthon lewis', 'Icetus mitioris coeli', 'E. von', 'Ali- cata', 'Ali¬ cata', 'H. von', 'Scarabosus sacer'))) {
                     $w = str_replace("GNRD_SLT", "not_GNRD_SLT", $w);
                 }
                 // */
@@ -813,8 +817,11 @@ class BHL_Download_API //extends Functions_Memoirs
         $ocr = str_replace("Gynmopleurus mopsus", "Gymnopleurus mopsus", $ocr);
         $ocr = str_replace("Gymnopleurus stiirmi", "Gymnopleurus sturmi", $ocr);
         $ocr = str_replace("Geoti'upes", "Geotrupes douei", $ocr);
-        $ocr = str_replace("A. Eyypti", "A. egypti", $ocr);
+        $ocr = str_replace("A. Eyypti", "A. aegypti", $ocr);
         $ocr = str_replace("A. Laticollis", "A. laticollis", $ocr);
+        $ocr = str_replace("Mesemhrina", "Mesembrina", $ocr);
+        $ocr = str_replace("Onthophagiis", "Onthophagus", $ocr);
+        
 
         # Below non-names:
         $ocr = str_replace("no logner", "no longer", $ocr);
