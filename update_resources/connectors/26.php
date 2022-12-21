@@ -165,7 +165,7 @@ Maybe below is the start of excluding those not in EOL Terms File hmmm... Thus t
 26_delta_new	    Wed 2022-12-14 02:00:44 AM	{"agent.tab":1907, "MoF":1532493, "Media":99527, "occur.tab":484479, "reference.tab":749425, "taxon.tab":389009, "vernacular_name.tab":79770, "time_elapsed":{"sec":1805.03, "min":30.08, "hr":0.5}}
 26_MoF_normalized	Wed 2022-12-14 02:31:22 AM	{"agent.tab":1907, "MoF":1532254, "Media":99527, "occur.tab":484479, "reference.tab":749425, "taxon.tab":389009, "vernacular_name.tab":79770, "time_elapsed":{"sec":1827.71, "min":30.46, "hr":0.51}}
 -> 26_ENV is the start of trimming down MoF. Which is expected.
-
+26_MoF_normalized	Tue 2022-12-20 10:53:25 AM	{"agent.tab":1907, "MoF":1532254, "Media":99527, "occur.tab":484479, "reference.tab":749425, "taxon.tab":389009, "vernacular_name.tab":79770, "time_elapsed":{"sec":1771.55, "min":29.53, "hr":0.49}}
 
 -rw-r--r-- 1 root      root       150939877 Aug 28 16:56 WoRMS.tar.gz
 -rw-r--r-- 1 root      root       150949430 Aug 28 16:16 26_delta_new.tar.gz
