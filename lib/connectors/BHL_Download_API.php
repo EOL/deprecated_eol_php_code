@@ -356,6 +356,8 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "of the family"          , "_comment3_": "xylophagous"}';
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "of the genus"          , "_comment3_": "xylophagous"}';
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "with another"          , "_comment3_": "xylophagous"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "while"                 , "_comment3_": "xylophagous"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "whilst"                , "_comment3_": "xylophagous"}';
         $lines[] = '{"label": "EXCEPTION_PHRASE", "pattern": "with the exception of"                , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "non-'.$needle.'"}';
@@ -429,6 +431,8 @@ class BHL_Download_API //extends Functions_Memoirs
             $names[] = "Rinotus purpureus";
             $names[] = "Dohrnia simplex";
             $names[] = "Langelandia anophthalma";
+            $names[] = "Pentarthrum carmichaeli";
+            $names[] = "Xylopertha picea";
         }     
         
 
@@ -443,6 +447,7 @@ class BHL_Download_API //extends Functions_Memoirs
             // for coprophagous
             $name = str_replace("Mesemhrina", "Mesembrina", $name);
             $name = str_replace("Onthophagiis", "Onthophagus", $name);
+            $name = str_replace("Calliprobola speciosa", "Caliprobola speciosa", $name);
 
             if(self::taxon_is_species_level($name)) {
                 /* not needed, too many calls
@@ -845,10 +850,13 @@ class BHL_Download_API //extends Functions_Memoirs
         // $ocr = str_replace("Xylo' pertha", "Xylopertha", $ocr); # Xylopertha piceae      # page_58388530.txt
         $ocr = str_replace("Hijlocurus africaniis", "Hylocurus africanus", $ocr);           # page_8894336.txt
         $ocr = str_replace("Kofoidia loricidata", "Kofoidia loriculata", $ocr);             # page_9058040.txt
-        $ocr = str_replace("Caliprobola speciosa", "Calliprobola speciosa", $ocr);          # page_56478702.txt
         $ocr = str_replace("piinctiilatus", "punctulatus", $ocr);   # C. punctulatus
         $ocr = str_replace("aitstralis", "australis", $ocr);        # P. australis
         $ocr = str_replace("Strombo phorus ericius", "Strombophorus ericius", $ocr);
+        $ocr = str_replace("Ips sexdcntatus", "Ips sexdentatus", $ocr);
+        $ocr = str_replace("Carmichaeli", "carmichaeli", $ocr);
+        $ocr = str_replace("Xylopertha piceae", "Xylopertha picea", $ocr);
+
 
         // page_58388530.txt
         $ocr = str_replace("and Xylo'", "and ", $ocr);
