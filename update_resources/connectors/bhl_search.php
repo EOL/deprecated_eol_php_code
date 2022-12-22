@@ -68,7 +68,8 @@ $str = "T. termopsidis"; $pageID = "1371191";
 $str = "T. stenostyla"; $pageID = "53086539"; # wala talaga nito
 // $str = "T. termopsidis"; $pageID = "1371191";
 // $str = "S. esakii"; $pageID = "40516545";
-// $str = "P. tristanensis"; $pageID = "58628413"; # wrong genus was found
+$str = "P. tristanensis"; $pageID = "58628413"; # wrong genus was found
+$str = "A. egyptiorum"; $pageID = "25337279";
 
 // http://localhost/eol_php_code/update_resources/connectors/complete_BHL_name.php?name=T. termopsidis&pageID=1371191
 $complete = $func->complete_name($str, $pageID); 
