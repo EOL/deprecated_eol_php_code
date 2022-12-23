@@ -358,6 +358,7 @@ class BHL_Download_API //extends Functions_Memoirs
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "with another"          , "_comment3_": "xylophagous"}';
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "while"                 , "_comment3_": "xylophagous"}';
         $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "whilst"                , "_comment3_": "xylophagous"}';
+        $lines[] = '{"label": "OF_REDIRECT_PHRASE", "pattern": "larvae of"             , "_comment2_": "coprophagous"}';
         $lines[] = '{"label": "EXCEPTION_PHRASE", "pattern": "with the exception of"                , "_comment_": "new"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "not '.$needle.'"}';
         $lines[] = '{"label": "TERM_NEG", "pattern": "non-'.$needle.'"}';
