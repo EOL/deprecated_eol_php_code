@@ -63,6 +63,17 @@ class BHL_Download_API //extends Functions_Memoirs
             }
         }
     }
+    function get_Item_Volume_via_PageID($pageID)
+    {
+        $page_info = self::get_INFO_for_PageID($pageID, "metadata");
+        // print_r($page_info);
+        // echo "\n[".$page_info->ItemID."]\n";
+        $item_id = $page_info->ItemID;
+        $ret = self::GetItemMetadata(array('item_id'=>$item_id, 'idtype'=>"bhl", 'ResultOnly'=>true));
+        // print_r($ret);
+        if($volume = @$ret->Result[0]->Volume) return $volume;
+        // exit("\n111\n");
+    }
     function complete_name($searchName, $pageID = false, $method = "PublicationSearch")
     {
         if($pageID) {

@@ -55,7 +55,7 @@ $GLOBALS['ENV_DEBUG'] = true; //false;
 
 $func = new BHL_Download_API();
 
-// /* new method --- works OK
+/* new method --- works OK
 $str = "A. scybalarius";
 // $str = "G. stercorosus";
 // $str = "G. pyrenaeus"; 
@@ -74,6 +74,12 @@ $str = "A. egyptiorum"; $pageID = "25337279";
 // http://localhost/eol_php_code/update_resources/connectors/complete_BHL_name.php?name=T. termopsidis&pageID=1371191
 $complete = $func->complete_name($str, $pageID); 
 exit("\n[$complete]\n-end abbrev search-\n");
+*/
+
+// /* new method
+$pageID = "25337279";
+$volume = $func->get_Item_Volume_via_PageID($pageID);
+exit("\n[$volume]\n-end get_Item_Volume_via_PageID() -\n");
 // */
 
 /*
@@ -81,7 +87,7 @@ $page_id = "52894691";
 $page_id = '59914358';
 // $func->GetPageMetadata(array('page_id'=>$page_id)); exit;
 // e.g. 
-// https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=18358496&ocr=t&names=t&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
+// https://www.biodiversitylibrary.org/api3?op=GetPageMetadata&pageid=25337279&ocr=t&names=t&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
 */
 
 /*
@@ -133,7 +139,7 @@ exit("\n--- end 2nd purpose GetItemMetadata() ---\n");
 
 
 // https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=285968&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
-// https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=135948&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
+// https://www.biodiversitylibrary.org/api3?op=GetItemMetadata&id=81638&apikey=4ae9b497-37bf-4186-a91c-91f92b2f6e7d
                    // https://www.biodiversitylibrary.org/itempdf/135948
                    // https://www.biodiversitylibrary.org/item/135948
 
