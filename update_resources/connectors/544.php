@@ -48,6 +48,7 @@ Start getting publicdomain as well:
 544	Friday 2020-06-05 12:34:53 AM	{"agent.tab":481, "media_resource.tab":24921, "taxon.tab":21917, "vernacular_name.tab":8101, "time_elapsed":false}
 544	Friday 2020-06-05 12:35:29 AM	{"agent.tab":481, "media_resource.tab":24921, "taxon.tab":12839, "vernacular_name.tab":8101, "time_elapsed":{"sec":78000.21, "min":1300, "hr":21.67}}
 544	Sat 2022-02-19 08:54:21 PM	    {"agent.tab":575, "media_resource.tab":32551, "taxon.tab":14261, "vernacular_name.tab":7445, "time_elapsed":{"sec":302323.2, "min":5038.72, "hr":83.98, "day":3.5}}
+544	Tue 2022-12-27 05:46:31 AM	    {"agent.tab":3215, "media_resource.tab":32534, "taxon.tab":14245, "vernacular_name.tab":7445, "time_elapsed":{"sec":3957.24, "min":65.95, "hr":1.1}}
 */
 
 ini_set('error_reporting', E_ALL);
@@ -140,6 +141,16 @@ function remove_bhl_images_already_existing_in_eol_group($resource_id)
     print "\n\n from text file: " . count($do_ids);
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
     $xml_string = Functions::get_remote_file($resource_path, array('timeout' => 240, 'download_attempts' => 5));
+
+    // /* save un-cleaned XML for investigation
+    $uncleaned_xml = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_uncleaned.xml";
+    if(!($WRITE = Functions::file_open($uncleaned_xml, "w"))) return;
+    fwrite($WRITE, $xml_string);
+    fclose($WRITE);
+    exit("\nTerminated, for investigation.\n");
+    // */
+
+
     $xml_string = Functions::remove_invalid_bytes_in_XML($xml_string);
     $xml = simplexml_load_string($xml_string);
     $i = 0;
