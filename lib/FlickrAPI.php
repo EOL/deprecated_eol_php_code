@@ -51,6 +51,7 @@ $GLOBALS['expire_seconds'] = 60*60*24*20; //0 -> expires now, false -> doesn't e
 // $GLOBALS['expire_seconds'] = false; //may use false permanently. Will check again next month to confirm. 
 // ON 2ND THOUGHT IT SHOULD ALWAYS BE false. Since mostly only new photos are what we're after. Very seldom, a photo gets updated in its lifetime.
 $GLOBALS['expire_seconds'] = 60*60*24*30*3; //maybe quarterly is the way to go moving forward.
+$GLOBALS['expire_seconds'] = false;
 
 // these two variables are used to limit the number of photos per taxon for Flickr photostream resources, if needed (e.g. Smithsonian Wild's photostream)
 $GLOBALS['taxa'] = array();
@@ -252,7 +253,8 @@ class FlickrAPI
             elseif(preg_match("/^taxonomy:common=(.+)$/i", $string, $arr))  {
                 /* DATA-1804 - vernaculars removed from Flickr Group (resource_id = 15) */
                 if($GLOBALS['resource_id'] != 15) {
-                    $parameters["commonNames"][] = new \SchemaCommonName(array("name" => trim($arr[1])));
+                    // $parameters["commonNames"][] = new \SchemaCommonName(array("name" => trim($arr[1]))); # orig for the longest time
+                    if($val = Functions::conv_to_utf8(trim(@$arr[1]))) $parameters["commonNames"][] = new \SchemaCommonName(array("name" => $val));
                 }
             }
             
