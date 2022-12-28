@@ -71,11 +71,12 @@ if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOK
 $photo_id = 5860461193;
 $photo_id = 6070544906;
 // $photo_id = 37971173321;
+$photo_id = 24313678004;
 $photo = FlickrAPI::photos_get_info($photo_id, "0ab954923d");
 $p = $photo->photo;
 $photo->bhl_addtl = FlickrAPI::add_additional_BHL_meta($p);
 
-// print_r($photo);
+print_r($photo);
 echo "\n".$photo->photo->id;
 
 // print_r($photo->bhl_addtl);
@@ -84,6 +85,7 @@ echo "\n".$photo->photo->id;
 exit("\nelix\n");
 ----- end */
 
+/* ---------- START first part commented just for now
 // create new _temp file
 if(!($resource_file = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", "w+"))) return;
 
@@ -110,6 +112,7 @@ fclose($resource_file);
 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
 // exit("\nstop here first\n");
+---------- END */
 
 remove_bhl_images_already_existing_in_eol_group($resource_id);
 Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate 544.gz.xml, otherwise remain commented
@@ -142,16 +145,18 @@ function remove_bhl_images_already_existing_in_eol_group($resource_id)
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
     $xml_string = Functions::get_remote_file($resource_path, array('timeout' => 240, 'download_attempts' => 5));
 
-    // /* save un-cleaned XML for investigation
+    /* save un-cleaned XML for investigation
     $uncleaned_xml = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_uncleaned.xml";
     if(!($WRITE = Functions::file_open($uncleaned_xml, "w"))) return;
     fwrite($WRITE, $xml_string);
     fclose($WRITE);
     exit("\nTerminated, for investigation.\n");
-    // */
+    */
 
-
+    /* removes even those valid special chars like e.g. <commonName>North Island kōwhai</commonName>
     $xml_string = Functions::remove_invalid_bytes_in_XML($xml_string);
+    */
+
     $xml = simplexml_load_string($xml_string);
     $i = 0;
     $total = count($xml->taxon);
