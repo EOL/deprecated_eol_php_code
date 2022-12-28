@@ -50,6 +50,7 @@ Start getting publicdomain as well:
 544	Sat 2022-02-19 08:54:21 PM	    {"agent.tab":575, "media_resource.tab":32551, "taxon.tab":14261, "vernacular_name.tab":7445, "time_elapsed":{"sec":302323.2, "min":5038.72, "hr":83.98, "day":3.5}}
 544	Tue 2022-12-27 05:46:31 AM	    {"agent.tab":3215, "media_resource.tab":32534, "taxon.tab":14245, "vernacular_name.tab":7445, "time_elapsed":{"sec":3957.24, "min":65.95, "hr":1.1}}
 544	Tue 2022-12-27 09:10:41 PM	    {"agent.tab":3224, "media_resource.tab":32534, "taxon.tab":14251, "vernacular_name.tab":7492, "time_elapsed":{"sec":149.3, "min":2.49, "hr":0.04}}
+544	Wed 2022-12-28 04:44:13 AM	    {"agent.tab":3230, "media_resource.tab":33118, "taxon.tab":14324, "vernacular_name.tab":7723, "time_elapsed":{"sec":26521.54, "min":442.03, "hr":7.37}}
 */
 
 ini_set('error_reporting', E_ALL);
