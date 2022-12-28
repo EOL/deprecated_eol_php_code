@@ -62,6 +62,17 @@ class FlickrAPI
 {
     public static function get_all_eol_photos($auth_token = "", $resource_file = null, $user_id = NULL, $start_date = NULL, $end_date = NULL, $resource_id = NULL)
     {
+        // /* new to avoid excess API calls
+        if($start_date) {
+            $tmp_year = trim(substr($start_date, 0, 4));
+            if($tmp_year) {
+                $current_year_minus_2 = date("Y") - 2; # current year minus 2
+                if($tmp_year < $current_year_minus_2) $GLOBALS['expire_seconds'] = false;          # doesn't expire
+                else                                  $GLOBALS['expire_seconds'] = 60*60*24*30*3;  # expires quaterly
+            }
+        }
+        // */
+
         $GLOBALS['resource_id'] = $resource_id;
         self::create_cache_path();
         $all_taxa = array();
@@ -700,7 +711,7 @@ class FlickrAPI
     }
     public static function is_sciname_synonym($sciname)
     {
-        $expire_seconds = false;
+        $expire_seconds = false; # false doesn't expire
         /* debug
         if($sciname == "Falco chrysaetos") $expire_seconds = true;
         else                               $expire_seconds = false;
@@ -723,7 +734,15 @@ class FlickrAPI
     }
     public static function get_photostream_photos($auth_token = "", $resource_file = null, $user_id = NULL, $start_year = NULL, $months_to_be_broken_down = NULL, 
                                                   $max_photos_per_taxon = NULL, $resource_id = NULL)
-    {
+    {   
+        // /* new to avoid excess API calls
+        if($start_year) {
+            $current_year_minus_2 = date("Y") - 2; # current year minus 2
+            if($start_year < $current_year_minus_2) $GLOBALS['expire_seconds'] = false;          # doesn't expire
+            else                                    $GLOBALS['expire_seconds'] = 60*60*24*30*3;  # expires quaterly
+        }
+        // */
+
         if($user_id == FLICKR_BHL_ID) {
             $file = CONTENT_RESOURCE_LOCAL_PATH.'bhl_images_with_box_coordinates.txt';
             if(file_exists($file)) unlink($file);
