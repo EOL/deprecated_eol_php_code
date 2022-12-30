@@ -14,7 +14,7 @@ class CypherQueryAPI
     {
         /* add: 'resource_id' => "eol_api_v3" ;if you want to add the cache inside a folder [eol_api_v3] inside [eol_cache] */
         $this->download_options = array(
-            'resource_id'        => 'eol_api_v3',  //resource_id here is just a folder name in cache
+            'resource_id'        => 'cypher_query',  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30, //maybe 1 month to expire
             'download_wait_time' => 750000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
 
