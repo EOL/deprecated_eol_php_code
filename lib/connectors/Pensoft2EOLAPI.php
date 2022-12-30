@@ -59,7 +59,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         */
         /*-----------------------Paths----------------------*/
         if(Functions::is_production()) $this->root_path = '/html/Pensoft_annotator/';
-        else                           $this->root_path = '/Library/WebServer/Documents/Pensoft_annotator/';
+        else                           $this->root_path = '/opt/homebrew/var/www/Pensoft_annotator/';
         
         if($this->param['resource_id'] == '617_ENV') {} //Wikipedia EN
         else { //rest of the resources

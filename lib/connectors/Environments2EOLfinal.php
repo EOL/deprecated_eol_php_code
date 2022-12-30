@@ -18,11 +18,11 @@ class Environments2EOLfinal extends ContributorsMapAPI
         $this->debug = array();
         /* OLD - Vangelis
         if(Functions::is_production()) $this->root_path = '/u/scripts/vangelis_tagger/';
-        else                           $this->root_path = '/Library/WebServer/Documents/vangelis_tagger/';
+        else                           $this->root_path = '/opt/homebrew/var/www/vangelis_tagger/';
         */
         // /* NEW - Pensoft
         if(Functions::is_production()) $this->root_path = '/html/Pensoft_annotator/';
-        else                           $this->root_path = '/Library/WebServer/Documents/Pensoft_annotator/';
+        else                           $this->root_path = '/opt/homebrew/var/www/Pensoft_annotator/';
         
         if($resource_id == '617_ENV') {} //Wikipedia EN
         else { //rest of the resources
@@ -40,7 +40,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
         
         // /* Utility: reports for WoRMS
         if(Functions::is_production()) $this->source_tsv = '/html/Pensoft_annotator/26/eol_tags/eol_tags_noParentTerms.tsv';
-        else                           $this->source_tsv = '/Library/WebServer/Documents/Pensoft_annotator/26/eol_tags/eol_tags_noParentTerms.tsv';
+        else                           $this->source_tsv = '/opt/homebrew/var/www/Pensoft_annotator/26/eol_tags/eol_tags_noParentTerms.tsv';
         // */
     }
     function report_for_WoRMS() //https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65762&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65762

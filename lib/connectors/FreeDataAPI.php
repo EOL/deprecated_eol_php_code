@@ -47,7 +47,7 @@ class FreeDataAPI
         
         /*
         GBIF occurrence extension:
-        file:///Library/WebServer/Documents/cp/GBIF_dwca/atlantic_cod/meta.xml
+        file:///opt/homebrew/var/www/cp/GBIF_dwca/atlantic_cod/meta.xml
         */
     }
 

@@ -26,7 +26,7 @@ class Environments2EOLAPI
         */
         /*-----------------------Paths----------------------*/
         if(Functions::is_production()) $this->root_path = '/u/scripts/vangelis_tagger/';
-        else                           $this->root_path = '/Library/WebServer/Documents/vangelis_tagger/';
+        else                           $this->root_path = '/opt/homebrew/var/www/vangelis_tagger/';
         $this->eol_tagger_path      = $this->root_path.'eol_tagger/';
         $this->text_data_path       = $this->root_path.'test_text_data/';
         $this->eol_scripts_path     = $this->root_path.'eol_scripts/';

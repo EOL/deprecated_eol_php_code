@@ -38,7 +38,7 @@ And it worked, it generated a cleaner text version of the PDF file.
 
 *I no longer did use and continue installation of https://github.com/spatie/pdf-to-text
 It is still in:
-/Library/WebServer/Documents/pdf-to-text-1.4.0:
+/opt/homebrew/var/www/pdf-to-text-1.4.0:
 ===========================================================================================================================================
 During initial exploring:
 

@@ -2593,8 +2593,8 @@ class EOLv2MetadataAPI
         }
         else {
             $wget_path = '/opt/local/bin/wget';
-            $target_folder = '/Library/WebServer/Documents/cp_new/services.eol.org_xml/';
-            $target_folder2 = '/Library/WebServer/Documents/cp_new/services.eol.org_dwca/';
+            $target_folder = '/opt/homebrew/var/www/cp_new/services.eol.org_xml/';
+            $target_folder2 = '/opt/homebrew/var/www/cp_new/services.eol.org_dwca/';
         }
 
 
@@ -2607,7 +2607,7 @@ class EOLv2MetadataAPI
         foreach($ids as $id) {
             $i++; echo "\n $i of $total - [$id] ";
             $p = array();
-            // /opt/local/bin/wget --tries=1 -O /Library/WebServer/Documents/cp_new/services.eol.org_xml/eli.xml "http://services.eol.org/resources/eli.xml" 2>&1
+            // /opt/local/bin/wget --tries=1 -O /opt/homebrew/var/www/cp_new/services.eol.org_xml/eli.xml "http://services.eol.org/resources/eli.xml" 2>&1
             // /* working OK, temporarily commented
             foreach($possible as $extension) {
                 $filename = $id.$extension;
@@ -2678,7 +2678,7 @@ class EOLv2MetadataAPI
     }
     function test_xml_files()
     {
-        $target_folder = '/Library/WebServer/Documents/cp_new/services.eol.org_xml/';
+        $target_folder = '/opt/homebrew/var/www/cp_new/services.eol.org_xml/';
         $ids = self::get_resource_ids();
         foreach($ids as $id) {
             $filename = $id.".xml";

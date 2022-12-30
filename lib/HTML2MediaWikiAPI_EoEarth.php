@@ -4,7 +4,7 @@ class HTML2MediaWikiAPI_EoEarth
 {
     public function __construct()
     {
-        $this->root = str_replace('eol_php_code/', '', DOC_ROOT); // e.g. /Library/WebServer/Documents/
+        $this->root = str_replace('eol_php_code/', '', DOC_ROOT); // e.g. /opt/homebrew/var/www/
         $this->temp['html'] = DOC_ROOT . '/public/tmp/eoe/temp_a.html';
         $this->temp['wiki'] = DOC_ROOT . '/public/tmp/eoe/temp_a.wiki';
     
@@ -16,8 +16,8 @@ class HTML2MediaWikiAPI_EoEarth
         $this->only_nav_menu = false;
         $this->exclude_nav_menu = false;
         
-        $this->temp['eli'] = "/Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc7ef702fc2ba812af54/eli.html";
-        $this->temp['eli'] = "/Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/152610/eli.html";
+        $this->temp['eli'] = "/opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc7ef702fc2ba812af54/eli.html";
+        $this->temp['eli'] = "/opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/view/article/152610/eli.html";
         
         $this->mediawiki_main_folder = "eoearth";
         $this->problematic_titles = false;
@@ -31,23 +31,23 @@ class HTML2MediaWikiAPI_EoEarth
         return; 
         /*
         [Food Security (Food security)]
-         destination:/Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/topics/view/54424/index.html
+         destination:/opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/topics/view/54424/index.html
          - sources:
-           --- /Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc7ef702fc2ba812af13/index.html
-           --- /Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/topics/view/54260/index.html
+           --- /opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc7ef702fc2ba812af13/index.html
+           --- /opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/topics/view/54260/index.html
 
-         destination:/Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbf17b7896bb431f6a5ac5/index-topic=51cbfc7ef702fc2ba812afb4.html
+         destination:/opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbf17b7896bb431f6a5ac5/index-topic=51cbfc7ef702fc2ba812afb4.html
          - sources:
-           --- /Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc7ef702fc2ba812afb4/index.html
+           --- /opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc7ef702fc2ba812afb4/index.html
         */
         
         /*
         $sought_title = "Food Security";
-        $destination = "/Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbf17b7896bb431f6a5ac5/index-topic=51cbfc7ef702fc2ba812afb4.html";
+        $destination = "/opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbf17b7896bb431f6a5ac5/index-topic=51cbfc7ef702fc2ba812afb4.html";
         $sources = array();
-        $sources[] = "/Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc7ef702fc2ba812afb4/index.html";
-        // $sources[] = "/Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/151437/index.html";
-        // $sources[] = "/Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbed527896bb431f69165e/index.html";
+        $sources[] = "/opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc7ef702fc2ba812afb4/index.html";
+        // $sources[] = "/opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/view/article/151437/index.html";
+        // $sources[] = "/opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbed527896bb431f69165e/index.html";
         
         foreach($sources as $source) self::update_title_in_raw_html($sought_title, $source, $destination);
         exit;
@@ -596,7 +596,7 @@ class HTML2MediaWikiAPI_EoEarth
                             if(filesize($temp_wiki_file))
                             {
                                 self::adjust_generated_wiki($temp_wiki_file, $val);
-                                echo "\n [$val] generating wiki...";                    shell_exec("php /Library/WebServer/Documents/" . $this->mediawiki_main_folder . "/maintenance/edit.php -s 'Quick edit' -m " . $val . " < " . $temp_wiki_file);
+                                echo "\n [$val] generating wiki...";                    shell_exec("php /opt/homebrew/var/www/" . $this->mediawiki_main_folder . "/maintenance/edit.php -s 'Quick edit' -m " . $val . " < " . $temp_wiki_file);
                                 self::save_process($val.$url, $this->save_options);
                             }
                             else
@@ -1498,7 +1498,7 @@ class HTML2MediaWikiAPI_EoEarth
         // less, likely                                                     <span class="reference"><sup class="plainlinksneverexpand" id="ref_1"><a class="external autonumber" href="index.html#endnote_1" rel="nofollow" title="#endnote_1">[1]</a></sup></span>.&rdquo; 
         // various <a href="../155686/index.html" title="Region">regions</a><span class="reference"><sup class="plainlinksneverexpand" id="ref_2"><a class="external autonumber" href="index.html#endnote_2" rel="nofollow" title="#endnote_2">[2]</a></sup></span>.</p>
         
-        //--start fix contents of <li></li> to remove carriage return e.g. file:///Library/WebServer/Documents/EncyclopediaOfEarth/www.eoearth.org/view/article/51cbed437896bb431f690f17/index.html
+        //--start fix contents of <li></li> to remove carriage return e.g. file:///opt/homebrew/var/www/EncyclopediaOfEarth/www.eoearth.org/view/article/51cbed437896bb431f690f17/index.html
         if(preg_match_all("/<li>(.*?)<\/li>/ims", $html, $arr))
         {
             foreach($arr[1] as $t) $html = str_replace("<li>$t</li>", "<li>".self::clean_html($t)."</li>", $html);
@@ -2854,7 +2854,7 @@ class HTML2MediaWikiAPI_EoEarth
                 foreach(array_keys($destinations) as $destination)
                 {
                     $orig_destination = $destination;
-                    // $destination = str_ireplace("/Library/WebServer/Documents//EncyclopediaOfEarth/www.", "www.", $destination); //uncomment for Peter's report
+                    // $destination = str_ireplace("/opt/homebrew/var/www//EncyclopediaOfEarth/www.", "www.", $destination); //uncomment for Peter's report
                     $str2 = "";
                     $str2 .= "\n destination:$destination";                                                        //comment for Peter's report
                     $str2 .= "\n - sources:";
@@ -2868,7 +2868,7 @@ class HTML2MediaWikiAPI_EoEarth
                             foreach(array_keys($sources) as $source)
                             {
                                 $i++;
-                                // $source = str_ireplace("/Library/WebServer/Documents//EncyclopediaOfEarth/www.", "www.", $source); //uncomment for Peter's report
+                                // $source = str_ireplace("/opt/homebrew/var/www//EncyclopediaOfEarth/www.", "www.", $source); //uncomment for Peter's report
                                 if(self::print_this_Peter($source)) $str3 .= "\n   --- $source";
                                 if($i == 5) break;
                             }
@@ -2877,7 +2877,7 @@ class HTML2MediaWikiAPI_EoEarth
                         {
                             foreach(array_keys($sources) as $source)
                             {
-                                // $source = str_ireplace("/Library/WebServer/Documents//EncyclopediaOfEarth/www.", "www.", $source); //uncomment for Peter's report
+                                // $source = str_ireplace("/opt/homebrew/var/www//EncyclopediaOfEarth/www.", "www.", $source); //uncomment for Peter's report
                                 if(self::print_this_Peter($source)) $str3 .= "\n   --- $source";
                             }
                         }

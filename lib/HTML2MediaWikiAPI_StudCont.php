@@ -4,7 +4,7 @@ class HTML2MediaWikiAPI_StudCont
 {
     public function __construct()
     {
-        $this->root = str_replace('eol_php_code/', '', DOC_ROOT); // e.g. /Library/WebServer/Documents/
+        $this->root = str_replace('eol_php_code/', '', DOC_ROOT); // e.g. /opt/homebrew/var/www/
         $this->temp['html'] = DOC_ROOT . '/public/tmp/studcont/temp_a.html';
         $this->temp['wiki'] = DOC_ROOT . '/public/tmp/studcont/temp_a.wiki';
         
@@ -18,8 +18,8 @@ class HTML2MediaWikiAPI_StudCont
         $this->exclude_nav_menu = false;
 
         /*
-        $this->temp['eli'] = "/Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc7ef702fc2ba812af54/eli.html";
-        $this->temp['eli'] = "/Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/152610/eli.html";
+        $this->temp['eli'] = "/opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc7ef702fc2ba812af54/eli.html";
+        $this->temp['eli'] = "/opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/view/article/152610/eli.html";
         */
         
         $this->mediawiki_main_folder = "StudentContributions";
@@ -167,7 +167,7 @@ class HTML2MediaWikiAPI_StudCont
                             if(filesize($temp_wiki_file))
                             {
                                 self::adjust_generated_wiki($temp_wiki_file, $val);
-                                echo "\n [$val] generating wiki...";                    shell_exec("php /Library/WebServer/Documents/" . $this->mediawiki_main_folder . "/maintenance/edit.php -s 'Quick edit' -m " . $val . " < " . $temp_wiki_file);
+                                echo "\n [$val] generating wiki...";                    shell_exec("php /opt/homebrew/var/www/" . $this->mediawiki_main_folder . "/maintenance/edit.php -s 'Quick edit' -m " . $val . " < " . $temp_wiki_file);
                                 self::save_process($val.$url, $this->save_options);
                             }
                             else echo "\nzero file size:[$val][$url]\n";
@@ -1031,7 +1031,7 @@ class HTML2MediaWikiAPI_StudCont
         // less, likely                                                     <span class="reference"><sup class="plainlinksneverexpand" id="ref_1"><a class="external autonumber" href="index.html#endnote_1" rel="nofollow" title="#endnote_1">[1]</a></sup></span>.&rdquo; 
         // various <a href="../155686/index.html" title="Region">regions</a><span class="reference"><sup class="plainlinksneverexpand" id="ref_2"><a class="external autonumber" href="index.html#endnote_2" rel="nofollow" title="#endnote_2">[2]</a></sup></span>.</p>
         
-        //--start fix contents of <li></li> to remove carriage return e.g. file:///Library/WebServer/Documents/EncyclopediaOfEarth/www.eoearth.org/view/article/51cbed437896bb431f690f17/index.html
+        //--start fix contents of <li></li> to remove carriage return e.g. file:///opt/homebrew/var/www/EncyclopediaOfEarth/www.eoearth.org/view/article/51cbed437896bb431f690f17/index.html
         if(preg_match_all("/<li>(.*?)<\/li>/ims", $html, $arr))
         {
             foreach($arr[1] as $t) $html = str_replace("<li>$t</li>", "<li>".self::clean_html($t)."</li>", $html);
@@ -2118,7 +2118,7 @@ class HTML2MediaWikiAPI_StudCont
         $article_title_of_destination = self::get_title_tag($destination);
         
         // $sought_title = "Temperature";
-        // $source = "/Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc7ef702fc2ba812af54/index.html";
+        // $source = "/opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc7ef702fc2ba812af54/index.html";
         
         echo "\n updating HTML [$sought_title][$source][$article_title_of_destination]\n";
         
@@ -2330,12 +2330,12 @@ class HTML2MediaWikiAPI_StudCont
 
     /*
     *3 diff algae pages:
-    file:///Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbece57896bb431f68e513/index-topic=51cbfc79f702fc2ba8129ebf.html
-    file:///Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbece57896bb431f68e513/index-topic=51cbfc64f702fc2ba8125f78.html
-    file:///Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc79f702fc2ba8129ebf/index.html
+    file:///opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbece57896bb431f68e513/index-topic=51cbfc79f702fc2ba8129ebf.html
+    file:///opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbece57896bb431f68e513/index-topic=51cbfc64f702fc2ba8125f78.html
+    file:///opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc79f702fc2ba8129ebf/index.html
     *2 diff wildlife pages:
-    file:///Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc79f702fc2ba812a05b/index.html
-    file:///Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbef477896bb431f69d50c/index-topic=51cbfc64f702fc2ba8125f78.html
+    file:///opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc79f702fc2ba812a05b/index.html
+    file:///opt/homebrew/var/www//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbef477896bb431f69d50c/index-topic=51cbfc64f702fc2ba8125f78.html
     */
 
 }

@@ -1397,7 +1397,7 @@ class DHSmasherOutputAPI
         [acronym] => gbif
         [taxon_id] => 3260806
     )
-    found: [/Library/WebServer/Documents//cp/dynamic_hierarchy/smasher/backbone-current/Taxon.tsv]Array
+    found: [/opt/homebrew/var/www//cp/dynamic_hierarchy/smasher/backbone-current/Taxon.tsv]Array
     (
         [taxonID] => 3260806
         [datasetID] => 0938172b-2086-439c-a1dd-c21cb0109ed5

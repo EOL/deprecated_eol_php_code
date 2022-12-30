@@ -25,7 +25,7 @@ class FreshDataBisonAPI
         $this->solr_taxa_api = "http://services.itis.gov/?wt=json&q=tsn:";
         
         /*
-        GBIF occurrence extension   : file:///Library/WebServer/Documents/cp/GBIF_dwca/atlantic_cod/meta.xml
+        GBIF occurrence extension   : file:///opt/homebrew/var/www/cp/GBIF_dwca/atlantic_cod/meta.xml
         DWC terms                   : http://rs.tdwg.org/dwc/terms/index.htm#Occurrence
         */
     }

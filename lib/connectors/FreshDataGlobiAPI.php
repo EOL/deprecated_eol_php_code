@@ -14,7 +14,7 @@ class FreshDataGlobiAPI
         $this->print_header = true;
         
         /*
-        GBIF occurrence extension   : file:///Library/WebServer/Documents/cp/GBIF_dwca/atlantic_cod/meta.xml
+        GBIF occurrence extension   : file:///opt/homebrew/var/www/cp/GBIF_dwca/atlantic_cod/meta.xml
         DWC terms                   : http://rs.tdwg.org/dwc/terms/index.htm#Occurrence
         */
     }

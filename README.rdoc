@@ -118,7 +118,7 @@ the line should be:
 The simplest approach is to provide a symbolic link in your Apache
 DocumentRoot, e.g.:
 
-  sudo ln -s $ROOT/eol_php_code /Library/WebServer/Documents/eol_php_code
+  sudo ln -s $ROOT/eol_php_code /opt/homebrew/var/www/eol_php_code
 
 This will allow you to test the local install using:
 

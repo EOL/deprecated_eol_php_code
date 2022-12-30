@@ -12,7 +12,7 @@ require_library('connectors/FreeDataAPI');
 $timestart = time_elapsed();
 
 /* local - during development
-$local_path = "/Library/WebServer/Documents/cp/FreshData/eMammal";
+$local_path = "/opt/homebrew/var/www/cp/FreshData/eMammal";
 */
 
 // /* remote - actual
