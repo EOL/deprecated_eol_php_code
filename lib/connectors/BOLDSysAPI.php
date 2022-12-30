@@ -52,7 +52,6 @@ class BOLDSysAPI
         $this->SAVED_SEQUENCES_FILE   = $this->TEMP_FILE_PATH . "taxa_sequences.txt";
         $this->phylum_without_sequence = array();
         $this->download_options = array('timeout' => 15000, 'download_attempts' => 5, 'expire_seconds' => 5184000);  // 40 mins. timeout; expire 2 months
-        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
     }
     
     /* Some stats as of Aug 22, 2013

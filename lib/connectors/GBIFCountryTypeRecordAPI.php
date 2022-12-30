@@ -81,7 +81,7 @@ class GBIFCountryTypeRecordAPI
         }
         else {
             $this->download_options['resource_id'] = "gbif";
-            $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";
+            $this->download_options['cache_path'] = "/Volumes/Crucial_2TB/eol_cache/";
         }
 
         // for iDigBio

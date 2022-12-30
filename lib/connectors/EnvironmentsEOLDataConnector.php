@@ -29,7 +29,7 @@ class EnvironmentsEOLDataConnector
         }
         else {
             $this->species_list_export = "http://localhost/cp/Environments/eol_env_annotations_noParentTerms.tar.gz";   //local
-            $this->download_options['cache_path'] = '/Volumes/Thunderbolt4/eol_cache/'; //used in Functions.php for all general cache
+            $this->download_options['cache_path'] = '/Volumes/Crucial_2TB/eol_cache/'; //used in Functions.php for all general cache
         }
         
         $this->file['marine_terms'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Environments/marine_terms.csv";

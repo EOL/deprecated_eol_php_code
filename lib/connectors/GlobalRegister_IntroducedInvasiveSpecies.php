@@ -38,7 +38,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
         }
         else {
             // $this->download_options['resource_id'] = "gbif";
-            // $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";
             $this->dwca_folder = CONTENT_RESOURCE_LOCAL_PATH.'ISSG/';
         }
         $this->comparison_file = CONTENT_RESOURCE_LOCAL_PATH.'dataset_comparison.txt';

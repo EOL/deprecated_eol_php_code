@@ -17,7 +17,7 @@ class CachingTemplateAPI_AndreasKay
         $this->expire_seconds_specific = $this->download_options['expire_seconds'];
 
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_php_cache/";
-        else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";      //used in Functions.php for all general cache
+        else                           $this->download_options['cache_path'] = "/Volumes/Crucial_2TB/eol_cache/";      //used in Functions.php for all general cache
         $this->main_path = $this->download_options['cache_path'].$this->download_options['resource_id']."/";
         if(!is_dir($this->main_path)) mkdir($this->main_path);
         $this->api['simple text'] = "https://gnrd.globalnames.org/name_finder.json?text=PLUS_SEPARATED_STRINGS";

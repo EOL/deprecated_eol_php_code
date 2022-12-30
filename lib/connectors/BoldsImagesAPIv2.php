@@ -35,7 +35,6 @@ class BoldsImagesAPIv2
         // $this->OLD_MASTER_LIST = "https://opendata.eol.org/u/7597512/BOLDS/hl_master_list 2011 09 25.txt";
         
         $this->download_options = array('cache' => 1, 'timeout' => 2400, 'download_attempts' => 2);
-        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
     }
 
     function get_all_taxa($data_dump_url = false)
