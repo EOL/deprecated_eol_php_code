@@ -152,18 +152,18 @@ function prepare_jenkins($argv, $root)
             }
             else { //means Jenkins in Mac mini is running
                 $GLOBALS['ENV_NAME'] = 'jenkins_development';
-                $cache_path = '/Volumes/MacMini_HD2/cache_LiteratureEditor/';   //for mac mini
+                $cache_path = '/Volumes/Crucial_2TB/cache_LiteratureEditor/';   //for mac mini
             }
         }
         else { //means NOT Jenkins
             if($root != "/opt/homebrew/var/www/eol_php_code/") $cache_path = '/var/www/html/cache_LiteratureEditor/';        //for archive
-            else                                                      $cache_path = '/Volumes/MacMini_HD2/cache_LiteratureEditor/'; //for mac mini
+            else                                                      $cache_path = '/Volumes/Crucial_2TB/cache_LiteratureEditor/'; //for mac mini
         }
     }
     else {
         // echo "\ngoes here 04\n"; //very good debug - to use when working with dwc_validator_jenkins
         if($root != "/opt/homebrew/var/www/eol_php_code/") $cache_path = '/var/www/html/cache_LiteratureEditor/';        //for archive
-        else                                                      $cache_path = '/Volumes/MacMini_HD2/cache_LiteratureEditor/'; //for mac mini
+        else                                                      $cache_path = '/Volumes/Crucial_2TB/cache_LiteratureEditor/'; //for mac mini
     }
     return array($root, $cache_path);
 }
@@ -180,12 +180,12 @@ function prepare_jenkins($argv, $root)
             }
             else { //means Jenkins in Mac mini is running
                 $GLOBALS['ENV_NAME'] = 'jenkins_development';
-                define('CACHE_PATH', '/Volumes/MacMini_HD2/cache_LiteratureEditor/');   //for mac mini
+                define('CACHE_PATH', '/Volumes/Crucial_2TB/cache_LiteratureEditor/');   //for mac mini
             }
         }
         else { //means NOT Jenkins
             if($root != "/opt/homebrew/var/www/eol_php_code/") define('CACHE_PATH', '/var/www/html/cache_LiteratureEditor/');        //for archive
-            else                                                      define('CACHE_PATH', '/Volumes/MacMini_HD2/cache_LiteratureEditor/'); //for mac mini
+            else                                                      define('CACHE_PATH', '/Volumes/Crucial_2TB/cache_LiteratureEditor/'); //for mac mini
         }
     }
     return $root;
