@@ -160,7 +160,7 @@ class WoRMS_post_process
     function lookup_WoRMS_mismapped_subgenera() //utility
     {   
         /* Part 1 */
-        $source = '/Library/WebServer/Documents/eol_php_code/tmp2/26/taxon.tab'; $i = 0;
+        $source = '/opt/homebrew/var/www/eol_php_code/tmp2/26/taxon.tab'; $i = 0;
         foreach(new FileIterator($source) as $line_number => $line) {
             $line = explode("\t", $line); $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($i == 1) $fields = $line;

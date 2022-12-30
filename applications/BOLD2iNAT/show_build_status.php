@@ -22,15 +22,15 @@ else {
     // echo "<pre>"; print_r($params); echo "</pre><hr>elix"; //good debug
     /* Array(  [task] => xls2dwca_job_1
                [uuid] => 1574952226
-               [destination] => /Library/WebServer/Documents/eol_php_code//applications/specimen_image_export/temp/1574952226.xls
-               [true_root] => /Library/WebServer/Documents/eol_php_code/)
+               [destination] => /opt/homebrew/var/www/eol_php_code//applications/specimen_image_export/temp/1574952226.xls
+               [true_root] => /opt/homebrew/var/www/eol_php_code/)
 
 Array
 (
-    [true_root] => /Library/WebServer/Documents/eol_php_code/
+    [true_root] => /opt/homebrew/var/www/eol_php_code/
     [uuid] => 
     [json] => {"Proj":"KANB", "Taxon":"Pomacentrinae", "Dept":"FISH", "Lic":"CreativeCommons – Attribution Non-Commercial (by-nc)", "Lic_yr":"", "Lic_inst":"", "Lic_cont":""}
-    [destination] => /Library/WebServer/Documents/eol_php_code//applications/specimen_image_export/
+    [destination] => /opt/homebrew/var/www/eol_php_code//applications/specimen_image_export/
 )
 
     */

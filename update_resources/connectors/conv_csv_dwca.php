@@ -27,13 +27,13 @@ The meta.xml provided is not reflective of the extensions in the DwCA. This reso
 Accepted wrong CSV in debug array:
 [wrong csv 2] => Array(
             [reference] => Array(
-                    [/Library/WebServer/Documents/eol_php_code/tmp/dir_97723/dwca/reference.txt] => Array(
+                    [/opt/homebrew/var/www/eol_php_code/tmp/dir_97723/dwca/reference.txt] => Array(
                             [16] => Array([19] => )
                             [6] => Array([19] => )
             [document] => Array(
-                    [/Library/WebServer/Documents/eol_php_code/tmp/dir_97723/dwca/image.txt] => Array(
+                    [/opt/homebrew/var/www/eol_php_code/tmp/dir_97723/dwca/image.txt] => Array(
                             [9] => Array([11] => )
-                    [/Library/WebServer/Documents/eol_php_code/tmp/dir_97723/dwca/description.txt] => Array(
+                    [/opt/homebrew/var/www/eol_php_code/tmp/dir_97723/dwca/description.txt] => Array(
                             [9] => Array([14] => )
 */
 $resources[809] = array('dwca' => "http://bio.acousti.ca/dwca.zip", 'bigfileYN' => false);

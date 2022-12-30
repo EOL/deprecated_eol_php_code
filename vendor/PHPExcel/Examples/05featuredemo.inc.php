@@ -30,7 +30,7 @@ error_reporting(E_ALL);
 
 /** Include PHPExcel */
 // require_once dirname(__FILE__) . '/../Classes/PHPExcel.php';
-require_once '/Library/WebServer/Documents/eol_php_code/vendor/PHPExcel/Classes/PHPExcel.php'; //by Eli
+require_once '/opt/homebrew/var/www/eol_php_code/vendor/PHPExcel/Classes/PHPExcel.php'; //by Eli
 
 // Create new PHPExcel object
 echo date('H:i:s') , " Create new PHPExcel object" , EOL;
@@ -284,7 +284,7 @@ $objDrawing = new PHPExcel_Worksheet_Drawing();
 $objDrawing->setName('Logo');
 $objDrawing->setDescription('Logo');
 // $objDrawing->setPath('./images/officelogo.jpg');
-$objDrawing->setPath('/Library/WebServer/Documents/eol_php_code/vendor/PHPExcel/Examples/images/officelogo.jpg');
+$objDrawing->setPath('/opt/homebrew/var/www/eol_php_code/vendor/PHPExcel/Examples/images/officelogo.jpg');
 
 $objDrawing->setHeight(36);
 $objDrawing->setWorksheet($objPHPExcel->getActiveSheet());
@@ -295,7 +295,7 @@ $objDrawing = new PHPExcel_Worksheet_Drawing();
 $objDrawing->setName('Paid');
 $objDrawing->setDescription('Paid');
 // $objDrawing->setPath('./images/paid.png');
-$objDrawing->setPath('/Library/WebServer/Documents/eol_php_code/vendor/PHPExcel/Examples/images/paid.png');
+$objDrawing->setPath('/opt/homebrew/var/www/eol_php_code/vendor/PHPExcel/Examples/images/paid.png');
 
 $objDrawing->setCoordinates('B15');
 $objDrawing->setOffsetX(110);
@@ -310,7 +310,7 @@ $objDrawing = new PHPExcel_Worksheet_Drawing();
 $objDrawing->setName('PHPExcel logo');
 $objDrawing->setDescription('PHPExcel logo');
 // $objDrawing->setPath('./images/phpexcel_logo.gif');
-$objDrawing->setPath('/Library/WebServer/Documents/eol_php_code/vendor/PHPExcel/Examples/images/phpexcel_logo.gif');
+$objDrawing->setPath('/opt/homebrew/var/www/eol_php_code/vendor/PHPExcel/Examples/images/phpexcel_logo.gif');
 
 $objDrawing->setHeight(36);
 $objDrawing->setCoordinates('D24');
@@ -382,7 +382,7 @@ $objDrawing = new PHPExcel_Worksheet_Drawing();
 $objDrawing->setName('Terms and conditions');
 $objDrawing->setDescription('Terms and conditions');
 // $objDrawing->setPath('./images/termsconditions.jpg');
-$objDrawing->setPath('/Library/WebServer/Documents/eol_php_code/vendor/PHPExcel/Examples/images/termsconditions.jpg');
+$objDrawing->setPath('/opt/homebrew/var/www/eol_php_code/vendor/PHPExcel/Examples/images/termsconditions.jpg');
 
 $objDrawing->setCoordinates('B14');
 $objDrawing->setWorksheet($objPHPExcel->getActiveSheet());

@@ -21,8 +21,8 @@ else {
     // echo "<pre>"; print_r($params); echo "</pre><hr>"; //good debug
     /* Array(  [task] => xls2dwca_job_1
                [uuid] => 1574952226
-               [destination] => /Library/WebServer/Documents/eol_php_code//applications/specimen_export/temp/1574952226.xls
-               [true_root] => /Library/WebServer/Documents/eol_php_code/)
+               [destination] => /opt/homebrew/var/www/eol_php_code//applications/specimen_export/temp/1574952226.xls
+               [true_root] => /opt/homebrew/var/www/eol_php_code/)
     */
     /* Delete temp files */
     $dirname = pathinfo($params['destination'], PATHINFO_DIRNAME).'/'; //obsolete

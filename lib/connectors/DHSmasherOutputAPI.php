@@ -1129,7 +1129,7 @@ class DHSmasherOutputAPI
     }
     
     private function adjust_filename($url)
-    {   // /Library/WebServer/Documents/eol_php_code/
+    {   // /opt/homebrew/var/www/eol_php_code/
         // http://localhost/cp/dynamic_hierarchy/smasher/EOLDynamicHierarchyDraftAug2017/dwh_taxa.txt
         $url = str_ireplace("http://localhost", "", $url);
         return str_replace("eol_php_code/", "", DOC_ROOT).$url;

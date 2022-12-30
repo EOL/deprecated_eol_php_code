@@ -36,7 +36,7 @@ date_default_timezone_set('Europe/London');
 
 /** Include PHPExcel */
 // require_once '../Classes/PHPExcel.php';
-require_once '/Library/WebServer/Documents/eol_php_code/vendor/PHPExcel/Classes/PHPExcel.php'; //by Eli
+require_once '/opt/homebrew/var/www/eol_php_code/vendor/PHPExcel/Classes/PHPExcel.php'; //by Eli
 
 
 
@@ -72,7 +72,7 @@ echo date('H:i:s') , " Add a drawing to the header" , EOL;
 $objDrawing = new PHPExcel_Worksheet_HeaderFooterDrawing();
 $objDrawing->setName('PHPExcel logo');
 // $objDrawing->setPath('./images/phpexcel_logo.gif');
-$objDrawing->setPath('/Library/WebServer/Documents/eol_php_code/vendor/PHPExcel/Examples/images/phpexcel_logo.gif');
+$objDrawing->setPath('/opt/homebrew/var/www/eol_php_code/vendor/PHPExcel/Examples/images/phpexcel_logo.gif');
 
 $objDrawing->setHeight(36);
 $objPHPExcel->getActiveSheet()->getHeaderFooter()->addImage($objDrawing, PHPExcel_Worksheet_HeaderFooter::IMAGE_HEADER_LEFT);

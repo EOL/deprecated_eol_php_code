@@ -323,7 +323,7 @@ class ContentArchiveValidator
 
                         //--------------------------------------added Apr 7, 2018
                         /* $temp_dir value at this point is:
-                        [/Library/WebServer/Documents/eol_php_code/applications/content_server/tmp/34b9691942ddfd05b2feda198493316f.xlsx]
+                        [/opt/homebrew/var/www/eol_php_code/applications/content_server/tmp/34b9691942ddfd05b2feda198493316f.xlsx]
                         Should delete (.xls or .xlsx and .tar.gz) and the temp folder
                         */
                         Functions::delete_if_exists($temp_dir);                                         //this deletes filename.xlsx or .xls

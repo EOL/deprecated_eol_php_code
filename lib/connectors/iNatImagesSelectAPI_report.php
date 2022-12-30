@@ -32,7 +32,7 @@ class iNatImagesSelectAPI
         }
         else {
             $this->cache_path = '/Volumes/AKiTiO4/web/cp/iNat_image_DwCA/cache_image_score/';
-            $this->temp_image_repo = "/Library/WebServer/Documents/eol_php_code/applications/blur_detection_opencv_eol/eol_images/";
+            $this->temp_image_repo = "/opt/homebrew/var/www/eol_php_code/applications/blur_detection_opencv_eol/eol_images/";
         }
         if(!is_dir($this->cache_path)) mkdir($this->cache_path);
         $this->agent_ids = array();
@@ -365,7 +365,7 @@ class iNatImagesSelectAPI
         
         // /* deletion was moved here instead:
         if(file_exists($arr['local'])) unlink($arr['local']); //delete temp downloaded image e.g. 17796c5772dbfc3e53d48e881fbb3c1e.jpeg
-        // e.g. "/Library/WebServer/Documents/eol_php_code/applications/blur_detection_opencv_eol/eol_images/f02b40a842171a27faaafa617331dce9.jpg"
+        // e.g. "/opt/homebrew/var/www/eol_php_code/applications/blur_detection_opencv_eol/eol_images/f02b40a842171a27faaafa617331dce9.jpg"
         // */
         
         // /* step 1: delete previous old 16 files --- deletion was moved here instead:
@@ -381,10 +381,10 @@ class iNatImagesSelectAPI
     {   /*Array(
             [score] => 19.909014155363817
             [url] => http://localhost/other_files/iNat_imgs/original_11.jpg
-            [local] => /Library/WebServer/Documents/eol_php_code/applications/blur_detection_opencv_eol/eol_images/f02b40a842171a27faaafa617331dce9.jpg
+            [local] => /opt/homebrew/var/www/eol_php_code/applications/blur_detection_opencv_eol/eol_images/f02b40a842171a27faaafa617331dce9.jpg
         )*/
         /*Array(
-            [dirname] => /Library/WebServer/Documents/eol_php_code/applications/blur_detection_opencv_eol/eol_images
+            [dirname] => /opt/homebrew/var/www/eol_php_code/applications/blur_detection_opencv_eol/eol_images
             [basename] => f02b40a842171a27faaafa617331dce9.jpg
             [extension] => jpg
             [filename] => f02b40a842171a27faaafa617331dce9
@@ -442,7 +442,7 @@ class iNatImagesSelectAPI
             $arr = array("score" => trim($output), "url" => $url, "local" => $target); // print_r($arr);
             /* won't be deleted here anymore:
             unlink($target); //delete temp downloaded image e.g. 17796c5772dbfc3e53d48e881fbb3c1e.jpeg
-            e.g. "/Library/WebServer/Documents/eol_php_code/applications/blur_detection_opencv_eol/eol_images/f02b40a842171a27faaafa617331dce9.jpg"
+            e.g. "/opt/homebrew/var/www/eol_php_code/applications/blur_detection_opencv_eol/eol_images/f02b40a842171a27faaafa617331dce9.jpg"
             */
             return $arr;
         }

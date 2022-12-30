@@ -133,7 +133,7 @@ function get_all_6_connectors()
 
 function get_next_lang_after($needle)
 {   // echo "\n". DOC_ROOT;
-    // /Library/WebServer/Documents/eol_php_code/
+    // /opt/homebrew/var/www/eol_php_code/
     $tsv = DOC_ROOT. "update_resources/connectors/all_wikipedias_main.tsv";
     $txt = file_get_contents($tsv);
     $rows = explode("\n", $txt);

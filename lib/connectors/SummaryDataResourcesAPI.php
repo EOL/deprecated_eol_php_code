@@ -1672,15 +1672,15 @@ class SummaryDataResourcesAPI
         }
         else { //local development only
             /*
-            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',   //for eoldynamichierarchyv1.zip
-                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/',
+            $info = Array('archive_path' => '/opt/homebrew/var/www/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',   //for eoldynamichierarchyv1.zip
+                          'temp_dir' => '/opt/homebrew/var/www/eol_php_code/tmp/dir_52635/',
                           'tables' => Array('taxa' => 'taxa.txt')); */
-            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',                         //for eoldynamichierarchywithlandmarks.zip
-                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
+            $info = Array('archive_path' => '/opt/homebrew/var/www/eol_php_code/tmp/dir_77578/',                         //for eoldynamichierarchywithlandmarks.zip
+                          'temp_dir' => '/opt/homebrew/var/www/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
 
             $info = Array('archive_path' => '/Volumes/AKiTiO4/web/cp/summary data resources/DH/eoldynamichierarchywithlandmarks/', //for eoldynamichierarchywithlandmarks.zip
-                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
+                          'temp_dir' => '/opt/homebrew/var/www/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
 
             // $this->info_path = $info;
@@ -3141,10 +3141,10 @@ class SummaryDataResourcesAPI
             $this->main_paths = $info;
         }
         else { //local development only
-            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
-                          'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
+            $info = Array('archive_path' => '/opt/homebrew/var/www/eol_php_code/tmp/dir_53125/carnivora_sample',
+                          'temp_dir'     => '/opt/homebrew/var/www/eol_php_code/tmp/dir_53125/');
             $info = Array('archive_path' => '/Volumes/AKiTiO4/web/cp/summary data resources/carnivora_sample',
-                          'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
+                          'temp_dir'     => '/opt/homebrew/var/www/eol_php_code/tmp/dir_53125/');
             $this->main_paths = $info;
         }
     }

@@ -614,12 +614,12 @@ class NatureServeAPI
         $details_xml = Functions::lookup_with_cache($url, $options); //default expires in 25 days
         $xml = simplexml_load_string($details_xml);
         foreach($xml->image as $image) {
-            // User Warning: Undefined property `mediaResourceID` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
-            // User Warning: Undefined property `mimeType` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
-            // User Warning: Undefined property `locality` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
-            // User Warning: Undefined property `additionalInformationURL` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
-            // User Warning: Undefined property `fileURL` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
-            // User Warning: Undefined property `rightsHolder` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
+            // User Warning: Undefined property `mediaResourceID` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /opt/homebrew/var/www/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
+            // User Warning: Undefined property `mimeType` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /opt/homebrew/var/www/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
+            // User Warning: Undefined property `locality` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /opt/homebrew/var/www/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
+            // User Warning: Undefined property `additionalInformationURL` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /opt/homebrew/var/www/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
+            // User Warning: Undefined property `fileURL` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /opt/homebrew/var/www/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
+            // User Warning: Undefined property `rightsHolder` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /opt/homebrew/var/www/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
             
             $dc = $image->children("http://purl.org/dc/terms/");
             if($dc->rights != 'Public Domain') continue;

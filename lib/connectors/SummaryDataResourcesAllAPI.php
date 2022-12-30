@@ -167,14 +167,14 @@ class SummaryDataResourcesAllAPI
             if(!($info = self::setup_working_dir())) return;
         }
         else { //local development only
-            // $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
-            //               'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
+            // $info = Array('archive_path' => '/opt/homebrew/var/www/eol_php_code/tmp/dir_53125/carnivora_sample',
+            //               'temp_dir'     => '/opt/homebrew/var/www/eol_php_code/tmp/dir_53125/');
             $info = Array('archive_path' => $this->trait_bank_folder,
-                          'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/not being used/'); //this field not being used ATM.
+                          'temp_dir'     => '/opt/homebrew/var/www/eol_php_code/tmp/not being used/'); //this field not being used ATM.
         }
         */
         $info = Array('archive_path' => $this->trait_bank_folder,
-                      'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/not being used/'); //this field not being used ATM.
+                      'temp_dir'     => '/opt/homebrew/var/www/eol_php_code/tmp/not being used/'); //this field not being used ATM.
         $this->main_paths = $info;
     }
     //==================================================================================================
@@ -2865,16 +2865,16 @@ class SummaryDataResourcesAllAPI
         }
         else { //local development only
             /*
-            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',   //for eoldynamichierarchyv1.zip
-                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/',
+            $info = Array('archive_path' => '/opt/homebrew/var/www/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',   //for eoldynamichierarchyv1.zip
+                          'temp_dir' => '/opt/homebrew/var/www/eol_php_code/tmp/dir_52635/',
                           'tables' => Array('taxa' => 'taxa.txt'));
             $info = Array('archive_path' => '/Volumes/AKiTiO4/web/cp/summary data resources/DH/eoldynamichierarchywithlandmarks/',   //for eoldynamichierarchywithlandmarks.zip
-                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
+                          'temp_dir' => '/opt/homebrew/var/www/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
             */
             /* //latest active DH ver.
             $info = Array('archive_path' => '/Volumes/AKiTiO4/d_w_h/EOL Dynamic Hierarchy Active Version/DH_v1_1/',
-                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/xxx/',
+                          'temp_dir' => '/opt/homebrew/var/www/eol_php_code/tmp/xxx/',
                           'tables' => Array('taxa' => 'taxon.tab'));
             */
             if(!($info = self::extract_DH())) return;

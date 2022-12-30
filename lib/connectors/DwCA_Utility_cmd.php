@@ -4,7 +4,7 @@ namespace php_active_record;
               [generate_cmd_gbif.php] - for GBIF backbone pruning
 Processes any DwCA taxon extension (taxon.tab/txt/tsv).
 Using the parentNameUsageID, generates a new DwCA with a new taxon column: http://rs.tdwg.org/dwc/terms/higherClassification
-User Warning: Undefined property `rights` on eol_schema\Taxon as defined by `http://rs.tdwg.org/dwc/xsd/tdwg_dwcterms.xsd` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 168
+User Warning: Undefined property `rights` on eol_schema\Taxon as defined by `http://rs.tdwg.org/dwc/xsd/tdwg_dwcterms.xsd` in /opt/homebrew/var/www/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 168
 */
 class DwCA_Utility_cmd
 {

@@ -56,7 +56,7 @@ class TryDatabaseAPI
         
         if(!($info = self::start())) return;    //uncomment in real operation
         /* only during development so to skip the zip-extracting portion.
-        $info = Array("temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_37276/",
+        $info = Array("temp_dir" => "/opt/homebrew/var/www/eol_php_code/tmp/dir_37276/",
                       "tables"   => Array(
                             "process_reference" => "TRY reference map.csv", //the one needs massaging...
                             "measurements"      => "TRY_measurements.csv",

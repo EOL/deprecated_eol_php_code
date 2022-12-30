@@ -35,7 +35,7 @@ define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 
 /** Include PHPExcel */
 // require_once '../Classes/PHPExcel.php'; //orig
-require_once '/Library/WebServer/Documents/eol_php_code/vendor/PHPExcel/Classes/PHPExcel.php'; //by Eli
+require_once '/opt/homebrew/var/www/eol_php_code/vendor/PHPExcel/Classes/PHPExcel.php'; //by Eli
 
 // Create new PHPExcel object
 echo date('H:i:s') , " Create new PHPExcel object" , EOL;

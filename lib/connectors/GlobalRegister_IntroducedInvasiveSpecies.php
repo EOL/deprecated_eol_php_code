@@ -768,8 +768,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
 
         /* development only -- no longer used since DwCAs are quite small enough.
         $paths = Array (
-            'archive_path' => "/Library/WebServer/Documents/eol_php_code/tmp/flora_dir_29170/",
-            'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/flora_dir_29170/"
+            'archive_path' => "/opt/homebrew/var/www/eol_php_code/tmp/flora_dir_29170/",
+            'temp_dir' => "/opt/homebrew/var/www/eol_php_code/tmp/flora_dir_29170/"
         );
         */
         

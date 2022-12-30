@@ -37,7 +37,7 @@ if($second[0] == "(" && substr($second, -1) == ")") {
 exit("\n-end test-\n");
 */
 /*
-$arr = file('/Library/WebServer/Documents/eol_php_code/somewhat.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$arr = file('/opt/homebrew/var/www/eol_php_code/somewhat.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 print_r($arr);
 $arr = array_map('trim', $arr); print_r($arr);
 exit("\n-end test-\n");

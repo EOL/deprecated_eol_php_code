@@ -1402,9 +1402,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 // 285. [Geraniaceae][tc_id = 285]
                 // [Geraniaceae]
                 // Total:[1212423]
-                // [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_animalia/]
-                // [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_incertae/]
-                // [4676] found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_others/]
+                // [4676] NOT found in [/opt/homebrew/var/www/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_animalia/]
+                // [4676] NOT found in [/opt/homebrew/var/www/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_incertae/]
+                // [4676] found in [/opt/homebrew/var/www/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_others/]
                 //  -- will use API as source 01 -- 411 > 50000 
 
                 // $m = 100000;

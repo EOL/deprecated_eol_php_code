@@ -144,7 +144,7 @@ function prepare_jenkins($argv, $root)
         // echo "\ngoes here 01\n";
         if($jenkins_or_cron == "jenkins") {
             // echo "\ngoes here 02\n";
-            if($root != "/Library/WebServer/Documents/eol_php_code/") { //means Jenkins in eol-archive is running
+            if($root != "/opt/homebrew/var/www/eol_php_code/") { //means Jenkins in eol-archive is running
                 // echo "\ngoes here 03\n";
                 $GLOBALS['ENV_NAME'] = 'jenkins_production';
                 $cache_path = '/html/cache_LiteratureEditor/';  //for archive
@@ -156,13 +156,13 @@ function prepare_jenkins($argv, $root)
             }
         }
         else { //means NOT Jenkins
-            if($root != "/Library/WebServer/Documents/eol_php_code/") $cache_path = '/var/www/html/cache_LiteratureEditor/';        //for archive
+            if($root != "/opt/homebrew/var/www/eol_php_code/") $cache_path = '/var/www/html/cache_LiteratureEditor/';        //for archive
             else                                                      $cache_path = '/Volumes/MacMini_HD2/cache_LiteratureEditor/'; //for mac mini
         }
     }
     else {
         // echo "\ngoes here 04\n"; //very good debug - to use when working with dwc_validator_jenkins
-        if($root != "/Library/WebServer/Documents/eol_php_code/") $cache_path = '/var/www/html/cache_LiteratureEditor/';        //for archive
+        if($root != "/opt/homebrew/var/www/eol_php_code/") $cache_path = '/var/www/html/cache_LiteratureEditor/';        //for archive
         else                                                      $cache_path = '/Volumes/MacMini_HD2/cache_LiteratureEditor/'; //for mac mini
     }
     return array($root, $cache_path);
@@ -173,7 +173,7 @@ function prepare_jenkins($argv, $root)
 {
     if($jenkins_or_cron = @$argv[1]) {
         if($jenkins_or_cron == "jenkins") {
-            if($root != "/Library/WebServer/Documents/eol_php_code/") { //means Jenkins in eol-archive is running
+            if($root != "/opt/homebrew/var/www/eol_php_code/") { //means Jenkins in eol-archive is running
                 $GLOBALS['ENV_NAME'] = 'jenkins_production';
                 define('CACHE_PATH', '/html/cache_LiteratureEditor/');  //for archive
                 return '/html/eol_php_code/';
@@ -184,7 +184,7 @@ function prepare_jenkins($argv, $root)
             }
         }
         else { //means NOT Jenkins
-            if($root != "/Library/WebServer/Documents/eol_php_code/") define('CACHE_PATH', '/var/www/html/cache_LiteratureEditor/');        //for archive
+            if($root != "/opt/homebrew/var/www/eol_php_code/") define('CACHE_PATH', '/var/www/html/cache_LiteratureEditor/');        //for archive
             else                                                      define('CACHE_PATH', '/Volumes/MacMini_HD2/cache_LiteratureEditor/'); //for mac mini
         }
     }

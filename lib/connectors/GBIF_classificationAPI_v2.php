@@ -314,8 +314,8 @@ class GBIF_classificationAPI_v2
         if($dwca == 'gbif_classification_pre') { //files here are manually moved to this destination, everytime a new version of gbif_classification_pre.tar.gz comes.
             print_r($paths); exit("\n[gbif_classification_pre]\n");
             $paths = Array(
-                "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification_pre/",
-                "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification_pre/"
+                "archive_path" => "/opt/homebrew/var/www/eol_php_code/tmp/gbif_dir_classification_pre/",
+                "temp_dir" => "/opt/homebrew/var/www/eol_php_code/tmp/gbif_dir_classification_pre/"
             );
         }
         if($dwca == 'DH0.9') { //files here are manually moved to this destination:

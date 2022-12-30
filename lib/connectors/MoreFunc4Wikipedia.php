@@ -48,7 +48,7 @@ class MoreFunc4Wikipedia
     }
     function get_next_lang_after($needle)
     {   // echo "\n". DOC_ROOT;
-        // /Library/WebServer/Documents/eol_php_code/
+        // /opt/homebrew/var/www/eol_php_code/
         $tsv = $this->all_wikipedias_tsv;
         $txt = file_get_contents($tsv);
         $rows = explode("\n", $txt);

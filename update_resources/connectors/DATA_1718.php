@@ -8,7 +8,7 @@ $timestart = time_elapsed();
 
 /*
 $url1 = "http://media.eol.org/content/2012/11/08/08/28694_orig.jpg";
-$url2 = "/Library/WebServer/Documents/eol_php_code/tmp/tmp_72243.file.pdf";
+$url2 = "/opt/homebrew/var/www/eol_php_code/tmp/tmp_72243.file.pdf";
 echo "\n$url1 - ".pathinfo($url1, PATHINFO_BASENAME);
 echo "\n$url2 - ".pathinfo($url2, PATHINFO_FILENAME);
 print_r(pathinfo($url1));

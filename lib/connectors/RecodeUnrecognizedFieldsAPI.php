@@ -176,7 +176,7 @@ class RecodeUnrecognizedFieldsAPI
                             [3] => http://rs.tdwg.org/dwc/terms/eventID
                         )
                 )
-            [DwCA] => /Library/WebServer/Documents/eol_php_code/applications/content_server/resources/copepod_sizes_Archive.zip
+            [DwCA] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources/copepod_sizes_Archive.zip
         )*/
         foreach($found['tables'] as $rowtype => $uri_fields) {
             // echo "\n$rowtype\n"; print_r($fields); continue; //debug only

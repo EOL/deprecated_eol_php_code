@@ -203,7 +203,7 @@ cp -r EOL_media_tmp_mp4 /extra/other_files
     }
     private function convert_mov_2_mp4() //a utility
     {
-        $path = '/Library/WebServer/Documents/eol_php_code/EOL_media_tmp/';
+        $path = '/opt/homebrew/var/www/eol_php_code/EOL_media_tmp/';
         $dir_to_process = $path;
         if($dir = opendir($dir_to_process)) {
             while(false !== ($subdir = readdir($dir))) {

@@ -199,7 +199,7 @@ foreach($final as $lifedesk) {
     if(Functions::url_exists($info[$lifedesk]['xml_path'])) {
         $infox = $func1->get_taxa_from_EOL_XML($info[$lifedesk]['xml_path']);
         $taxa_from_orig_LifeDesk_XML = $infox['taxa_from_EOL_XML'];
-        $path                        = $infox['xml_path']; //e.g. '/Library/WebServer/Documents/eol_php_code/tmp/dir_50900/anagetext.xml'
+        $path                        = $infox['xml_path']; //e.g. '/opt/homebrew/var/www/eol_php_code/tmp/dir_50900/anagetext.xml'
         // print_r($infox); exit;
         convert_xml_2_dwca($path, "EOL_".$lifedesk); //convert XML to DwCA
         $cont_compile = true;

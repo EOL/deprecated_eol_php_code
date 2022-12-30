@@ -295,20 +295,20 @@ class GBIF_classificationAPI
         /* local when developing, and when running reports and final version: gbif_classification.tar.gz
         if($dwca == 'backbone_dwca') { //for main operation - gbif classification
             $paths = Array(
-                'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_gbif_backbone/',
-                'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_gbif_backbone/'
+                'archive_path' => '/opt/homebrew/var/www/eol_php_code/tmp/gbif_dir_gbif_backbone/',
+                'temp_dir' => '/opt/homebrew/var/www/eol_php_code/tmp/gbif_dir_gbif_backbone/'
             );
         }
         if($dwca == 'gbif_classification_pre') { //files here are manually moved to this destination, everytime a new version of gbif_classification_pre.tar.gz comes.
             $paths = Array(
-                "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification_pre/",
-                "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification_pre/"
+                "archive_path" => "/opt/homebrew/var/www/eol_php_code/tmp/gbif_dir_classification_pre/",
+                "temp_dir" => "/opt/homebrew/var/www/eol_php_code/tmp/gbif_dir_classification_pre/"
             );
         }
         if($dwca == 'DH0.9') { //files here are manually moved to this destination:
             $paths = Array(
-                // 'archive_path' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/",
-                // 'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"
+                // 'archive_path' => "/opt/homebrew/var/www/eol_php_code/tmp/gbif_dir_DH09/",
+                // 'temp_dir' => "/opt/homebrew/var/www/eol_php_code/tmp/gbif_dir_DH09/"
                 
                 'archive_path' => "/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks/",
                 'temp_dir' => "/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks/"

@@ -199,7 +199,7 @@ class WormsArchiveAPI extends ContributorsMapAPI
         // print_r($paths); exit;
         // */
         /* for development only
-        $paths = Array("archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/WORMS_dir_89994/", "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/WORMS_dir_89994/");
+        $paths = Array("archive_path" => "/opt/homebrew/var/www/eol_php_code/tmp/WORMS_dir_89994/", "temp_dir" => "/opt/homebrew/var/www/eol_php_code/tmp/WORMS_dir_89994/");
         */
         
         $archive_path = $paths['archive_path'];

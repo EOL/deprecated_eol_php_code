@@ -25,11 +25,11 @@ class EOL_DH_API
         }
         else { //local development only
             /*
-            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',   //for eoldynamichierarchyv1.zip
-                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/',
+            $info = Array('archive_path' => '/opt/homebrew/var/www/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',   //for eoldynamichierarchyv1.zip
+                          'temp_dir' => '/opt/homebrew/var/www/eol_php_code/tmp/dir_52635/',
                           'tables' => Array('taxa' => 'taxa.txt')); */
-            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_86040/',                         //for eoldynamichierarchywithlandmarks.zip
-                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_86040/',
+            $info = Array('archive_path' => '/opt/homebrew/var/www/eol_php_code/tmp/dir_86040/',                         //for eoldynamichierarchywithlandmarks.zip
+                          'temp_dir' => '/opt/homebrew/var/www/eol_php_code/tmp/dir_86040/',
                           'tables' => Array('taxa' => 'taxa.txt'));
         }
         // print_r($info);

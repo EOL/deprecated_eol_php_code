@@ -32,8 +32,8 @@ class MovieFilesAPI
         */
         // /* local when developing
         $paths = Array(
-            "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_60894_mov/",
-            "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_60894_mov/"
+            "archive_path" => "/opt/homebrew/var/www/eol_php_code/tmp/dir_60894_mov/",
+            "temp_dir" => "/opt/homebrew/var/www/eol_php_code/tmp/dir_60894_mov/"
         );
         // */
         return $paths;

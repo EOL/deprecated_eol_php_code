@@ -23,7 +23,7 @@ run_diagnostics($resource_id);
 */
 
 /* stats:
-counting: [/Library/WebServer/Documents/eol_php_code/applications/content_server/resources/DH_v1_1_postproc/taxon.tab] total: [2338864]
+counting: [/opt/homebrew/var/www/eol_php_code/applications/content_server/resources/DH_v1_1_postproc/taxon.tab] total: [2338864]
 */
 //############################################################ end main
 
