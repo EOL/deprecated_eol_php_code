@@ -14,18 +14,6 @@ class NatlChecklistReplacementAPI
             'expire_seconds'     => 60*60*24*30*3, //expires quarterly
             'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'cache' => 1);
         
-        /* from copied template
-        if(Functions::is_production()) {
-            $this->service["backbone_dwca"] = "http://rs.gbif.org/datasets/backbone/backbone-current.zip";
-            $this->service["gbif_classification"] = "https://editors.eol.org/eol_php_code/applications/content_server/resources/gbif_classification.tar.gz";
-        }
-        else {
-            $this->service["backbone_dwca"] = "http://localhost/cp/GBIF_Backbone_Archive/backbone-current.zip";
-            $this->service["gbif_classification"] = "/Volumes/MacMini_HD2/work_temp/gbif_classification.tar.gz";
-        }
-        $this->log_file = CONTENT_RESOURCE_LOCAL_PATH.'xxx.txt';
-        */
-        
         /* Generated respectively from gbif.org. Will receive email when download is complete. Will last in GBIF for 6 months starting now Oct 23, 2019
         https://www.gbif.org/occurrence/search?country=AI
         https://www.gbif.org/occurrence/search?country=AW

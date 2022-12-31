@@ -643,10 +643,7 @@ class GBIFoccurrenceAPI
         return $to_be_saved;
     }
     function save_ids_to_text_from_many_folders() //a utility
-    {   /*
-        $dir_to_process = "/Volumes/MacMini_HD2/batch_parts/map_data_batch2/";
-        $text_file      = "/Volumes/MacMini_HD2/batch_parts/taxon_concept_IDS.txt";
-        */
+    {   
         $dir_to_process = $this->save_path['map_data'];
         $text_file = "/Volumes/Thunderbolt4/map_data_zip/final_taxon_concept_IDS.txt";
         
