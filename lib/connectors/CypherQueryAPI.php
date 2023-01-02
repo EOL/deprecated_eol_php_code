@@ -15,10 +15,10 @@ class CypherQueryAPI
         /* add: 'resource_id' => "eol_api_v3" ;if you want to add the cache inside a folder [eol_api_v3] inside [eol_cache] */
         $this->download_options = array(
             'resource_id'        => 'cypher_query',  //resource_id here is just a folder name in cache
-            'expire_seconds'     => 60*60*24*30, //maybe 1 month to expire
+            'expire_seconds'     => false, //60*60*24*30, //maybe 1 month to expire
             'download_wait_time' => 750000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
 
-        $this->expire_seconds_4cypher_query = 60*60*24; //1 day expires. Used when resource(s) get re-harvested to get latest score based on Trait records.
+        $this->expire_seconds_4cypher_query = false; //60*60*24; //1 day expires. Default false, other value on demand.
         $this->expire_seconds_4cypher_query = $this->download_options['expire_seconds'];
 
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_php_cache/";
@@ -37,14 +37,16 @@ class CypherQueryAPI
 
     function query_trait_db($input)
     {
-        $arr = self::retrieve_trait_data($tc_id);
-        return $arr;
+        $json = self::retrieve_trait_data($input);
+
+        $obj = json_decode($json);
+        print_r($obj);
+        // return @$obj->data[0][0];
     }
-    private function retrieve_trait_data($tc_id)
+    private function retrieve_trait_data($input)
     {
-        $filename = self::generate_path_filename($tc_id);
-        // if(file_exists($filename)) {
-        if(false) {
+        $filename = self::generate_path_filename($input);
+        if(file_exists($filename)) {
             if($GLOBALS['ENV_DEBUG']) echo "\nCypher cache already exists. [$filename]\n";
             
             // $this->download_options['expire_seconds'] = 60; //debug only - force assign --- test success
@@ -59,78 +61,65 @@ class CypherQueryAPI
         }
         else {
             if($GLOBALS['ENV_DEBUG']) echo "\nRun cypher query...\n";
-            self::run_cypher_query($tc_id, $filename);
+            self::run_cypher_query($input, $filename);
             return self::retrieve_json($filename);
         }
     }
     private function retrieve_json($filename)
     {
         $json = file_get_contents($filename);
-        return json_decode($json, true);
+        return $json; //json_decode($json, true);
     }
-    private function run_cypher_query($tc_id, $filename)
-    {
-        /* copied template
-        $saved = array();
-        # total traits
-        $qry = "MATCH (t:Trait)<-[:trait]-(p:Page), (t)-[:supplier]->(r:Resource), (t)-[:predicate]->(pred:Term) WHERE p.page_id = ".$tc_id." OPTIONAL MATCH (t)-[:units_term]->(units:Term) RETURN COUNT(pred.name) LIMIT 5";
-        $saved['total traits'] = self::run_query($qry);
-        # total measurementTypes
-        $qry = "MATCH (t:Trait)<-[:trait]-(p:Page), (t)-[:supplier]->(r:Resource), (t)-[:predicate]->(pred:Term) WHERE p.page_id = ".$tc_id." OPTIONAL MATCH (t)-[:units_term]->(units:Term) RETURN COUNT(DISTINCT pred.name) LIMIT 5";
-        $saved['total mtypes'] = self::run_query($qry);
-        // print_r($saved); exit;
-        */
-
-        $citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
-        $citation = urlencode($citation);
-        $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
-        (t)-[:predicate]->(pred:Term)
-        WHERE t.citation="'.$citation.'"
-        OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-        OPTIONAL MATCH (t)-[:units_term]->(units:Term)
-        OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
-        OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
-        OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
-        OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-        RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
-        LIMIT 10';
-
-        /*
-        $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
-        (t)-[:predicate]->(pred:Term)
-        WHERE t.source="https://doi.org/10.1111/j.1469-185X.1984.tb00411.x"
-        OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-        OPTIONAL MATCH (t)-[:units_term]->(units:Term)
-        OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
-        OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
-        OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
-        OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-        RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
-        LIMIT 10';
-        */
+    private function run_cypher_query($input, $filename)
+    {   /*
+        Array(
+            [params] => Array(
+                    [citation] => the quick brown fox
+                )
+            [type] => wikidata_base_qry_citation
+        )
+        Array(
+            [params] => Array(
+                    [source] => https://doi.org/10.1111/j.1469-185X.1984.tb00411.x
+                )
+            [type] => wikidata_base_qry_source
+        )*/
+        
+        if($input['type'] == "wikidata_base_qry_citation") {
+            $citation = urlencode($input['params']['citation']);
+            $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
+            (t)-[:predicate]->(pred:Term)
+            WHERE t.citation="'.$citation.'"
+            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
+            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
+            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
+            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
+            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
+            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+            LIMIT 10';    
+        }
+        elseif($input['type'] == "wikidata_base_qry_source") {
+            $source = urlencode($input['params']['source']);
+            $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
+            (t)-[:predicate]->(pred:Term)
+            WHERE t.source="'.$source.'"
+            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
+            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
+            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
+            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
+            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
+            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+            LIMIT 10';
+        }
+        else exit("\nERROR: Undefiend query.\n");
 
         $json = self::run_query($qry);
-        $saved['tcid'] = $json;
 
         $WRITE = Functions::file_open($filename, "w");
-        fwrite($WRITE, json_encode($saved)); fclose($WRITE);
+        fwrite($WRITE, $json); fclose($WRITE);
         if($GLOBALS['ENV_DEBUG']) echo "\nSaved OK [$filename]\n";
-    }
-    private function query_maker()
-    {   /*
-        MATCH (t:Trait)<[:trait|inferred_trait]-(p:Page),
-        (t)-[:predicate]>(pred:Term)
-        WHERE t.citation="J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature"
-        OPTIONAL MATCH (t)-[:object_term]>(obj:Term)
-        OPTIONAL MATCH (t)-[:units_term]>(units:Term)
-        OPTIONAL MATCH (t)-[:lifestage_term]>(stage:Term)
-        OPTIONAL MATCH (t)-[:sex_term]>(sex:Term)
-        OPTIONAL MATCH (t)-[:statistical_method_term]>(stat:Term)
-        OPTIONAL MATCH (t)-[:metadata]>(ref:MetaData)[:predicate]>(:Term
-        {name:"reference"}
-        )
-        RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
-        LIMIT 10 */
     }
     private function run_query($qry)
     {
@@ -150,15 +139,15 @@ class CypherQueryAPI
         // return @$obj->data[0][0];
         return $json;
     }
-    private function generate_path_filename($tc_id)
+    private function generate_path_filename($input)
     {
         $main_path = $this->main_path;
-        $md5 = md5($tc_id);
+        $md5 = md5(json_encode($input));
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
         if(!file_exists($main_path . $cache1))           mkdir($main_path . $cache1);
         if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
-        $filename = $main_path . "$cache1/$cache2/$tc_id.json";
+        $filename = $main_path . "$cache1/$cache2/$md5.json";
         return $filename;
     }
 }
