@@ -35,19 +35,16 @@ class CypherQueryAPI
         $this->debug = array();
     }
 
-    function process_all_eol_taxa_using_DH($path, $purpose = 'main', $range = array()) //rows = 1,906,685 -> rank 'species' and with EOLid
+    function query_trait_db($input)
     {
-        self::api_using_tc_id($taxon_concept_id, $rek['scientificName']);
-    }
-    private function get_trait_totals($tc_id)
-    {
-        $arr = self::retrieve_trait_totals($tc_id);
+        $arr = self::retrieve_trait_data($tc_id);
         return $arr;
     }
-    private function retrieve_trait_totals($tc_id)
+    private function retrieve_trait_data($tc_id)
     {
         $filename = self::generate_path_filename($tc_id);
-        if(file_exists($filename)) {
+        // if(file_exists($filename)) {
+        if(false) {
             if($GLOBALS['ENV_DEBUG']) echo "\nCypher cache already exists. [$filename]\n";
             
             // $this->download_options['expire_seconds'] = 60; //debug only - force assign --- test success
@@ -73,17 +70,67 @@ class CypherQueryAPI
     }
     private function run_cypher_query($tc_id, $filename)
     {
+        /* copied template
         $saved = array();
-        /* total traits */
+        # total traits
         $qry = "MATCH (t:Trait)<-[:trait]-(p:Page), (t)-[:supplier]->(r:Resource), (t)-[:predicate]->(pred:Term) WHERE p.page_id = ".$tc_id." OPTIONAL MATCH (t)-[:units_term]->(units:Term) RETURN COUNT(pred.name) LIMIT 5";
         $saved['total traits'] = self::run_query($qry);
-        /* total measurementTypes */
+        # total measurementTypes
         $qry = "MATCH (t:Trait)<-[:trait]-(p:Page), (t)-[:supplier]->(r:Resource), (t)-[:predicate]->(pred:Term) WHERE p.page_id = ".$tc_id." OPTIONAL MATCH (t)-[:units_term]->(units:Term) RETURN COUNT(DISTINCT pred.name) LIMIT 5";
         $saved['total mtypes'] = self::run_query($qry);
         // print_r($saved); exit;
+        */
+
+        $citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
+        $citation = urlencode($citation);
+        $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
+        (t)-[:predicate]->(pred:Term)
+        WHERE t.citation="'.$citation.'"
+        OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+        OPTIONAL MATCH (t)-[:units_term]->(units:Term)
+        OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
+        OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
+        OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
+        OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
+        RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+        LIMIT 10';
+
+        /*
+        $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
+        (t)-[:predicate]->(pred:Term)
+        WHERE t.source="https://doi.org/10.1111/j.1469-185X.1984.tb00411.x"
+        OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+        OPTIONAL MATCH (t)-[:units_term]->(units:Term)
+        OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
+        OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
+        OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
+        OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
+        RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+        LIMIT 10';
+        */
+
+        $json = self::run_query($qry);
+        $saved['tcid'] = $json;
+
         $WRITE = Functions::file_open($filename, "w");
         fwrite($WRITE, json_encode($saved)); fclose($WRITE);
         if($GLOBALS['ENV_DEBUG']) echo "\nSaved OK [$filename]\n";
+    }
+    private function query_maker()
+    {   /*
+        MATCH (t:Trait)<[:trait|inferred_trait]-(p:Page),
+        (t)-[:predicate]>(pred:Term)
+        WHERE t.citation="J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature"
+        OPTIONAL MATCH (t)-[:object_term]>(obj:Term)
+        OPTIONAL MATCH (t)-[:units_term]>(units:Term)
+        OPTIONAL MATCH (t)-[:lifestage_term]>(stage:Term)
+        OPTIONAL MATCH (t)-[:sex_term]>(sex:Term)
+        OPTIONAL MATCH (t)-[:statistical_method_term]>(stat:Term)
+        OPTIONAL MATCH (t)-[:metadata]>(ref:MetaData)[:predicate]>(:Term
+        {name:"reference"}
+        )
+        RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+        LIMIT 10 */
     }
     private function run_query($qry)
     {
@@ -95,14 +142,13 @@ class CypherQueryAPI
         $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`cat '.$in_file.'`"';
         */
         $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
-        
-        
-        
-        $cmd .= ' 2>/dev/null'; //this will throw away the output
+        // $cmd .= ' 2>/dev/null'; //this will throw away the output
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
+        echo "\n[$output]\n";
         $json = file_get_contents($destination);
-        $obj = json_decode($json);
-        return @$obj->data[0][0];
+        // $obj = json_decode($json);
+        // return @$obj->data[0][0];
+        return $json;
     }
     private function generate_path_filename($tc_id)
     {
