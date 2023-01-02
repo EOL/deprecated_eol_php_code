@@ -135,6 +135,8 @@ class CypherQueryAPI
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
         echo "\n[$output]\n";
         $json = file_get_contents($destination);
+        unlink($in_file);
+        unlink($destination);
         // $obj = json_decode($json);
         // return @$obj->data[0][0];
         return $json;
