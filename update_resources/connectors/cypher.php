@@ -18,21 +18,21 @@ $arr = json_decode($params['json'], true);
 ====================================================
 */
 
-/* good example
+// /* good example
 $source = "https://doi.org/10.1111/j.1469-185X.1984.tb00411.x";
 $input["params"] = array("source" => $source);
 $input["type"] = "wikidata_base_qry_source";
 $input["per_page"] = 100; // 100 finished ok
 $func->query_trait_db($input);
-*/
+// */
 
-// /* good example
+/* good example
 $citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
 $input["params"] = array("citation" => $citation);
 $input["type"] = "wikidata_base_qry_citation";
 $input["per_page"] = 500; // 500 worked ok
 $func->query_trait_db($input);
-// */
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

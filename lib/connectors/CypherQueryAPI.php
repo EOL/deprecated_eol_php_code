@@ -80,6 +80,9 @@ class CypherQueryAPI
             $skip += $this->per_page;
             if($total < $this->per_page) break;
         }
+        print("\n-----Processing ends-----\n");
+        print_r($input);
+        print("\nReport file: ".$this->tsv_file."\n");
     }
     private function query_maker($input)
     {
