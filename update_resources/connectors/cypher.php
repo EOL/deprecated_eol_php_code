@@ -30,7 +30,7 @@ $func->query_trait_db($input);
 $citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
 $input["params"] = array("citation" => $citation);
 $input["type"] = "wikidata_base_qry_citation";
-$input["per_page"] = 100;
+$input["per_page"] = 500;
 $func->query_trait_db($input);
 // */
 
