@@ -54,7 +54,7 @@ class CypherQueryAPI
         
         foreach($obj->data as $rec) {
             fwrite($WRITE, implode("\t", $rec)."\n");
-            print("-[".$rec[0]."]-"); // just a visual record lookup during runtime.
+            print("-[".$rec[0]."]-[".$rec[9]."]"); // just a visual record lookup during runtime.
         }
         fclose($WRITE);
     }
@@ -72,6 +72,7 @@ class CypherQueryAPI
             $json = self::retrieve_trait_data($input, $filename);
             $obj = json_decode($json); //print_r($obj);
             if($total = count(@$obj->data)) {
+                // print_r($obj); exit; //good debug
                 self::write_tsv($obj, $filename, $skip);
             }
             print("\n".$total."");
