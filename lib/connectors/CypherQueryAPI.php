@@ -54,7 +54,8 @@ class CypherQueryAPI
         
         foreach($obj->data as $rec) {
             fwrite($WRITE, implode("\t", $rec)."\n");
-            print("-[".$rec[0]."]-[".$rec[9]."]"); // just a visual record lookup during runtime.
+            // print("-[".$rec[0]."]-[".$rec[9]."]"); // just a visual record lookup during runtime.
+            print("-[".$rec[0]."]"); // just a visual record lookup during runtime.
         }
         fclose($WRITE);
     }
