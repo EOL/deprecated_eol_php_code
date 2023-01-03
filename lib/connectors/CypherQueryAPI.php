@@ -71,8 +71,9 @@ class CypherQueryAPI
             $filename = self::generate_path_filename($input); // exit("\n[$filename\n");
             $json = self::retrieve_trait_data($input, $filename);
             $obj = json_decode($json); //print_r($obj);
-            self::write_tsv($obj, $filename, $skip);
-            $total = count(@$obj->data);
+            if($total = count(@$obj->data)) {
+                self::write_tsv($obj, $filename, $skip);
+            }
             print("\n".$total."");
             $skip += $this->per_page;
             if($total < $this->per_page) break;
@@ -117,7 +118,13 @@ class CypherQueryAPI
         return $input;
     }
     private function retrieve_trait_data($input, $filename)
-    {
+    {   
+        // /* a security block that prevents from creating blank cache files
+        if(file_exists($filename)) {
+            if(filesize($filename) == 0) unlink($filename); //this means this file was left hanging after program is terminated (ctrl+c).
+        }
+        // */
+
         if(file_exists($filename)) {
             debug("\nCypher cache already exists. [$filename]\n");
             
