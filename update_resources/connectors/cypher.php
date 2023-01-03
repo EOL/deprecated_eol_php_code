@@ -9,18 +9,20 @@ require_library('connectors/CypherQueryAPI');
 $resource_id = 'eol';
 $func = new CypherQueryAPI($resource_id);
 
-/* copied template - but works OK
+/* copied template - not used but works OK
+====================================================
 // print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $params['json']              = @$argv[2]; //useful here
 $arr = json_decode($params['json'], true);
-print_r($arr);
+====================================================
 */
 
 // /* good example
 $source = "https://doi.org/10.1111/j.1469-185X.1984.tb00411.x";
 $input["params"] = array("source" => $source);
 $input["type"] = "wikidata_base_qry_source";
+$input["per_page"] = 100;
 $func->query_trait_db($input);
 // */
 
@@ -28,6 +30,7 @@ $func->query_trait_db($input);
 $citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
 $input["params"] = array("citation" => $citation);
 $input["type"] = "wikidata_base_qry_citation";
+$input["per_page"] = 100;
 $func->query_trait_db($input);
 */
 

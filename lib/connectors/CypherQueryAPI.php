@@ -42,7 +42,7 @@ class CypherQueryAPI
     }
     private function write_tsv($obj, $filename, $skip)
     {
-        // print_r($obj); 
+        // print_r($obj); exit;
         // exit("\n".$tsv_file."\n");
         if($skip == 0) {
             $base = pathinfo($filename, PATHINFO_FILENAME); //e.g. "e54dbf6839f325a6a0d5095e82bc5e70"
@@ -52,17 +52,16 @@ class CypherQueryAPI
         }
         else $WRITE = Functions::file_open($this->tsv_file, "a");
         
-        foreach($obj->data as $rec) fwrite($WRITE, implode("\t", $rec)."\n"); 
+        foreach($obj->data as $rec) {
+            fwrite($WRITE, implode("\t", $rec)."\n");
+            print("-[".$rec[0]."]-"); // just a visual record lookup during runtime.
+        }
         fclose($WRITE);
     }
     function query_trait_db($input)
     {
-        /* test
-        $json = self::retrieve_trait_data($input);
-        $obj = json_decode($json);
-        print_r($obj);
-        // return @$obj->data[0][0];
-        */
+        if($val = @$input["per_page"]) $this->per_page = $val;
+        if(isset($input["per_page"])) unset($input["per_page"]); // unset so that initial queries made won't get wasted. Where there is no $input["per_page"] yet.
 
         $skip = 0;
         while(true) {
