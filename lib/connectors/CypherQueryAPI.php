@@ -68,7 +68,7 @@ class CypherQueryAPI
         while(true) {
             $input['skip'] = $skip;
             $input['limit'] = $this->per_page;
-            print_r($input);
+            $input = self::query_maker($input);
             $filename = self::generate_path_filename($input); // exit("\n[$filename\n");
             $json = self::retrieve_trait_data($input, $filename);
             $obj = json_decode($json); //print_r($obj);
@@ -78,6 +78,44 @@ class CypherQueryAPI
             $skip += $this->per_page;
             if($total < $this->per_page) break;
         }
+    }
+    private function query_maker($input)
+    {
+        $skip = $input['skip'];
+        $limit = $input['limit'];
+        if($input['type'] == "wikidata_base_qry_citation") {
+            $citation = urlencode($input['params']['citation']);
+            $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
+            (t)-[:predicate]->(pred:Term)
+            WHERE t.citation="'.$citation.'"
+            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
+            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
+            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
+            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
+            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
+            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+            ORDER BY p.canonical 
+            SKIP '.$skip.' LIMIT '.$limit;
+        }
+        elseif($input['type'] == "wikidata_base_qry_source") {
+            $source = urlencode($input['params']['source']);
+            $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
+            (t)-[:predicate]->(pred:Term)
+            WHERE t.source="'.$source.'"
+            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
+            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
+            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
+            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
+            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
+            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+            ORDER BY p.canonical 
+            SKIP '.$skip.' LIMIT '.$limit;
+        }
+        else exit("\nERROR: Undefiend query.\n");
+        $input['query'] = $qry;
+        return $input;
     }
     private function retrieve_trait_data($input, $filename)
     {
@@ -119,46 +157,7 @@ class CypherQueryAPI
                 )
             [type] => wikidata_base_qry_source
         )*/
-        
-        // print_r($input); //exit;
-        $skip = $input['skip'];
-        $limit = $input['limit'];
-        // ORDER BY p.canonical 
-
-        if($input['type'] == "wikidata_base_qry_citation") {
-            $citation = urlencode($input['params']['citation']);
-            $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
-            (t)-[:predicate]->(pred:Term)
-            WHERE t.citation="'.$citation.'"
-            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
-            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
-            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
-            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
-            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
-            ORDER BY p.canonical 
-            SKIP '.$skip.' LIMIT '.$limit;
-        }
-        elseif($input['type'] == "wikidata_base_qry_source") {
-            $source = urlencode($input['params']['source']);
-            $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
-            (t)-[:predicate]->(pred:Term)
-            WHERE t.source="'.$source.'"
-            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
-            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
-            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
-            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
-            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
-            ORDER BY p.canonical 
-            SKIP '.$skip.' LIMIT '.$limit;
-        }
-        else exit("\nERROR: Undefiend query.\n");
-
-        $json = self::run_query($qry);
-
+        $json = self::run_query($input['query']);
         $WRITE = Functions::file_open($filename, "w");
         fwrite($WRITE, $json); fclose($WRITE);
         debug("\nSaved OK [$filename]\n");
@@ -186,7 +185,7 @@ class CypherQueryAPI
     }
     private function generate_path_filename($input)
     {
-        // print_r($input);
+        print_r($input); //exit("\nthis is to be md5 hashed\n");
         $main_path = $this->main_path;
         $md5 = md5(json_encode($input));
         $cache1 = substr($md5, 0, 2);
