@@ -68,10 +68,10 @@ class CypherQueryAPI
         while(true) {
             $input['skip'] = $skip;
             $input['limit'] = $this->per_page;
-            // print_r($input);
+            print_r($input);
             $filename = self::generate_path_filename($input); // exit("\n[$filename\n");
             $json = self::retrieve_trait_data($input, $filename);
-            $obj = json_decode($json); // print_r($obj);
+            $obj = json_decode($json); //print_r($obj);
             self::write_tsv($obj, $filename, $skip);
             $total = count(@$obj->data);
             print("\n".$total."");
@@ -120,7 +120,7 @@ class CypherQueryAPI
             [type] => wikidata_base_qry_source
         )*/
         
-        print_r($input); //exit;
+        // print_r($input); //exit;
         $skip = $input['skip'];
         $limit = $input['limit'];
         // ORDER BY p.canonical 
