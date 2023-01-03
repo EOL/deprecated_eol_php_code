@@ -3,7 +3,7 @@ namespace php_active_record;
 /* https://eol-jira.bibalex.org/browse/COLLAB-1006 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = false; //orig value should be -> false ... especially in eol-archive server
+$GLOBALS['ENV_DEBUG'] = true; //orig value should be -> false ... especially in eol-archive server
 
 require_library('connectors/CypherQueryAPI');
 $resource_id = 'eol';
@@ -17,20 +17,19 @@ $arr = json_decode($params['json'], true);
 print_r($arr);
 */
 
-/* good example
+// /* good example
 $input["params"] = array("source" => "https://doi.org/10.1111/j.1469-185X.1984.tb00411.x");
 $input["type"] = "wikidata_base_qry_source";
-print_r($input); 
+// print_r($input);
 $func->query_trait_db($input);
-*/
+// */
 
-// /* good example
+/* good example
 $citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
 $input["params"] = array("citation" => $citation);
 $input["type"] = "wikidata_base_qry_citation";
-print_r($input); 
 $func->query_trait_db($input);
-// */
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

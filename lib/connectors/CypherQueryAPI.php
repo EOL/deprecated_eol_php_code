@@ -25,6 +25,10 @@ class CypherQueryAPI
         else                           $this->download_options['cache_path'] = "/Volumes/Crucial_2TB/eol_cache/";      //used in Functions.php for all general cache
         $this->main_path = $this->download_options['cache_path'].$this->download_options['resource_id']."/";
         if(!is_dir($this->main_path)) mkdir($this->main_path);
+
+        $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/";
+        if(!is_dir($this->report_path)) mkdir($this->report_path);
+
         
         /* not used atm.
         // for creating archives
@@ -32,20 +36,51 @@ class CypherQueryAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         */
 
-        $this->basename = "cypher_".date('YmdHis');
+        $this->basename = "cypher_".date('Y_m_d_His');
+        $this->per_page = 100;
         $this->debug = array();
     }
-
+    private function write_tsv($obj, $filename, $skip)
+    {
+        // print_r($obj); 
+        // exit("\n".$tsv_file."\n");
+        if($skip == 0) {
+            $base = pathinfo($filename, PATHINFO_FILENAME); //e.g. "e54dbf6839f325a6a0d5095e82bc5e70"
+            $this->tsv_file = $this->report_path."/".$base.".tsv";    
+            $WRITE = Functions::file_open($this->tsv_file, "w");
+            fwrite($WRITE, implode("\t", $obj->columns)."\n"); 
+        }
+        else $WRITE = Functions::file_open($this->tsv_file, "a");
+        
+        foreach($obj->data as $rec) fwrite($WRITE, implode("\t", $rec)."\n"); 
+        fclose($WRITE);
+    }
     function query_trait_db($input)
     {
+        /* test
         $json = self::retrieve_trait_data($input);
         $obj = json_decode($json);
         print_r($obj);
         // return @$obj->data[0][0];
+        */
+
+        $skip = 0;
+        while(true) {
+            $input['skip'] = $skip;
+            $input['limit'] = $this->per_page;
+            // print_r($input);
+            $filename = self::generate_path_filename($input); // exit("\n[$filename\n");
+            $json = self::retrieve_trait_data($input, $filename);
+            $obj = json_decode($json); // print_r($obj);
+            self::write_tsv($obj, $filename, $skip);
+            $total = count(@$obj->data);
+            print("\n".$total."");
+            $skip += $this->per_page;
+            if($total < $this->per_page) break;
+        }
     }
-    private function retrieve_trait_data($input)
+    private function retrieve_trait_data($input, $filename)
     {
-        $filename = self::generate_path_filename($input);
         if(file_exists($filename)) {
             debug("\nCypher cache already exists. [$filename]\n");
             
@@ -56,7 +91,7 @@ class CypherQueryAPI
             if($this->expire_seconds_4cypher_query === false)              return self::retrieve_json($filename); //doesn't expire
             
             debug("\nCache expired. Will run cypher now...\n");
-            self::run_cypher_query($tc_id, $filename);
+            self::run_cypher_query($input, $filename);
             return self::retrieve_json($filename);
         }
         else {
@@ -85,6 +120,11 @@ class CypherQueryAPI
             [type] => wikidata_base_qry_source
         )*/
         
+        print_r($input); //exit;
+        $skip = $input['skip'];
+        $limit = $input['limit'];
+        // ORDER BY p.canonical 
+
         if($input['type'] == "wikidata_base_qry_citation") {
             $citation = urlencode($input['params']['citation']);
             $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
@@ -97,7 +137,8 @@ class CypherQueryAPI
             OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
             OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
             RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
-            LIMIT 10';    
+            ORDER BY p.canonical 
+            SKIP '.$skip.' LIMIT '.$limit;
         }
         elseif($input['type'] == "wikidata_base_qry_source") {
             $source = urlencode($input['params']['source']);
@@ -111,7 +152,8 @@ class CypherQueryAPI
             OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
             OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
             RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
-            LIMIT 10';
+            ORDER BY p.canonical 
+            SKIP '.$skip.' LIMIT '.$limit;
         }
         else exit("\nERROR: Undefiend query.\n");
 
@@ -132,6 +174,7 @@ class CypherQueryAPI
         */
         $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
         // $cmd .= ' 2>/dev/null'; //this will throw away the output
+        sleep(2); //delay 2 seconds
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
         echo "\n[$output]\n";
         $json = file_get_contents($destination);
@@ -143,6 +186,7 @@ class CypherQueryAPI
     }
     private function generate_path_filename($input)
     {
+        // print_r($input);
         $main_path = $this->main_path;
         $md5 = md5(json_encode($input));
         $cache1 = substr($md5, 0, 2);
