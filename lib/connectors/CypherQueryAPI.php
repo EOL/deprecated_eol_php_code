@@ -25,20 +25,20 @@ class CypherQueryAPI
         else                           $this->download_options['cache_path'] = "/Volumes/Crucial_2TB/eol_cache/";      //used in Functions.php for all general cache
         $this->main_path = $this->download_options['cache_path'].$this->download_options['resource_id']."/";
         if(!is_dir($this->main_path)) mkdir($this->main_path);
-                
+        
+        /* not used atm.
         // for creating archives
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        
+        */
+
         $this->basename = "cypher_".date('YmdHis');
-        
         $this->debug = array();
     }
 
     function query_trait_db($input)
     {
         $json = self::retrieve_trait_data($input);
-
         $obj = json_decode($json);
         print_r($obj);
         // return @$obj->data[0][0];
@@ -47,7 +47,7 @@ class CypherQueryAPI
     {
         $filename = self::generate_path_filename($input);
         if(file_exists($filename)) {
-            if($GLOBALS['ENV_DEBUG']) echo "\nCypher cache already exists. [$filename]\n";
+            debug("\nCypher cache already exists. [$filename]\n");
             
             // $this->download_options['expire_seconds'] = 60; //debug only - force assign --- test success
             
@@ -55,12 +55,12 @@ class CypherQueryAPI
             if($file_age_in_seconds < $this->expire_seconds_4cypher_query) return self::retrieve_json($filename); //not yet expired
             if($this->expire_seconds_4cypher_query === false)              return self::retrieve_json($filename); //doesn't expire
             
-            if($GLOBALS['ENV_DEBUG']) echo "\nCache expired. Will run cypher now...\n";
+            debug("\nCache expired. Will run cypher now...\n");
             self::run_cypher_query($tc_id, $filename);
             return self::retrieve_json($filename);
         }
         else {
-            if($GLOBALS['ENV_DEBUG']) echo "\nRun cypher query...\n";
+            debug("\nRun cypher query...\n");
             self::run_cypher_query($input, $filename);
             return self::retrieve_json($filename);
         }
@@ -119,7 +119,7 @@ class CypherQueryAPI
 
         $WRITE = Functions::file_open($filename, "w");
         fwrite($WRITE, $json); fclose($WRITE);
-        if($GLOBALS['ENV_DEBUG']) echo "\nSaved OK [$filename]\n";
+        debug("\nSaved OK [$filename]\n");
     }
     private function run_query($qry)
     {
