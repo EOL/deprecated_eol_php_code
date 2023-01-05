@@ -21,9 +21,9 @@ class Protisten_deAPI
         // $this->download_options['user_agent'] = 'User-Agent: curl/7.39.0'; // did not work here, but worked OK in USDAfsfeisAPI.php
         $this->download_options['user_agent'] = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'; //worked OK!!!
         
-        $this->page['main'] = 'http://www.protisten.de/gallery_ALL/Galerie001.html';
-        $this->page['pre_url'] = 'http://www.protisten.de/gallery_ALL/Galerie';
-        $this->page['image_page_url'] = 'http://www.protisten.de/gallery_ALL/';
+        $this->page['main'] = 'http://www.protisten.de/gallery-ALL/Galerie001.html';
+        $this->page['pre_url'] = 'http://www.protisten.de/gallery-ALL/Galerie';
+        $this->page['image_page_url'] = 'http://www.protisten.de/gallery-ALL/';
         /* Google sheet used: This is sciname mapping to EOL PageID. Initiated by Wolfgang Bettighofer.
         https://docs.google.com/spreadsheets/d/1QnT-o-t4bVp-BP4jFFA-Alr4PlIj7fAD6RRb5iC6BYA/edit#gid=0
         */
@@ -41,8 +41,8 @@ class Protisten_deAPI
     }
     private function process_one_batch($filename)
     {   
-        // $url = 'http://www.protisten.de/gallery_ALL/Galerie022.html'; //debug only - force
-                // http://www.protisten.de/gallery_ALL/Galerie001.html
+        // $url = 'http://www.protisten.de/gallery-ALL/Galerie022.html'; //debug only - force
+                // http://www.protisten.de/gallery-ALL/Galerie001.html
         $url = $this->page['pre_url'].$filename;
         echo "\nProcessing ".$url."\n";
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -103,7 +103,7 @@ class Protisten_deAPI
                 if(preg_match("/<img src=\"(.*?)\"/ims", $arr[1], $arr2)) $m['image'] = $arr2[1];
                 /*
                 e.g. value is:                     "pics/Acanthoceras_040-125_P6020240-251-totale_ODB.jpg"
-                http://www.protisten.de/gallery_ALL/pics/Acanthoceras_040-125_P6020240-251-totale_ODB.jpg
+                http://www.protisten.de/gallery-ALL/pics/Acanthoceras_040-125_P6020240-251-totale_ODB.jpg
                 */
             }
             if(preg_match("/MARK 13\:(.*?)<\/td>/ims", $html, $arr)) {
