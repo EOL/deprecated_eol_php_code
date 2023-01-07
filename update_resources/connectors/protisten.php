@@ -31,6 +31,8 @@ protisten	Wed 2021-03-24 12:53:16 PM	{"agent.tab":1, "media_resource.tab":1930, 
 protisten	Wed 2021-11-10 02:44:59 AM	{"agent.tab":1, "media_resource.tab":1976, "taxon.tab":1148, "time_elapsed":{"sec":2758, "min":45.97, "hr":0.77}}
 protisten	Wed 2021-11-24 11:05:53 AM	{"agent.tab":1, "media_resource.tab":2078, "taxon.tab":1165, "time_elapsed":{"sec":2740.74, "min":45.68, "hr":0.76}}
 protisten	Thu 2022-11-10 02:57:43 AM	{"agent.tab":1, "media_resource.tab":2079, "taxon.tab":1165, "time_elapsed":{"sec":3523.42, "min":58.72, "hr":0.98}}
+protisten	Mon 2023-01-02 08:47:01 AM	{"agent.tab":1, "media_resource.tab":2366, "taxon.tab":1249, "time_elapsed":{"sec":4037.13, "min":67.29, "hr":1.12}}
+protisten	Thu 2023-01-05 01:54:01 PM	{"agent.tab":1, "media_resource.tab":2366, "taxon.tab":1249, "time_elapsed":{"sec":3988.45, "min":66.47, "hr":1.11}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
