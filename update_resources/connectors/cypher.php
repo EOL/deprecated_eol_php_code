@@ -15,11 +15,8 @@ https://quickstatements.toolforge.org/#/v1=
 
 Q4115189|P4000|Q13184|S854|"https://eol.org/pages/1109554"
 
-
-test.qs
-
+-------------------------------------------------------------
 Hi Jen,
-
 Update:
 I'm able to add 2 traits using an input file with these 2 rows:
 Q4115189|P4000|Q13184|S854|"https://eol.org/pages/1109554"
@@ -41,14 +38,8 @@ All steps can be done by running a script that will do these:
 So pasting of actual spreadsheet data to forms by users can actually be avoided.
 But this assumes that we already have mapping of EOL entities (taxa, predicates, values) to WikiData IDs.
 Anyway some values can be plain strings/numbers. Like the [reference URL] above.
-
 Thanks.
-
-
-
-
-
-
+-------------------------------------------------------------
 curl https://quickstatements.toolforge.org/api.php \
 	-d action=import \
 	-d submit=1 \
@@ -56,11 +47,22 @@ curl https://quickstatements.toolforge.org/api.php \
 	-d "batchname=Eli batch3" \
 	--data-raw 'token=$2y$10$dEhijZQf/c3kTQGFAlUKj.JMs2Qdb4N/UUl/eFOyHVZ1sAu6vVGnS' \
 	--data-urlencode data@test.qs
-    
     {"status":"OK","debug":{"format":"v1","temporary":false,"openpage":0},"batch_id":108278}
+	-> used in initial review
 
 https://quickstatements.toolforge.org/api.php?action=import&submit=1&username=Eagbayani&token=%242y%2410%24dEhijZQf%2Fc3kTQGFAlUKj.JMs2Qdb4N%2FUUl%2FeFOyHVZ1sAu6vVGnS&format=v1&data=Q4115189%7CP4000%7CQ13184%7CS854%7C%22https%3A%2F%2Feol.org%2Fpages%2F1109554%22&batchname=Eli_batch1
 {"status":"OK","debug":{"format":"v1","temporary":false,"openpage":0},"batch_id":108266}
+
+Hi Katja,
+Thanks for guide on how to use identifier-map for taxa mappings.
+https://eol-jira.bibalex.org/browse/COLLAB-1006?focusedCommentId=67209&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67209
+And yes, for those blank p.canonical I will generate a separate EOL-id, wikidata-id file mapping based on identifier-map for every processed query.
+
+Hi Jen,
+Yes, I should be able to parse a bibliographicCitation string for its difference parts:
+	title (P1476), volume (P478), page(s) (P304), publication date (P577) and/or even the "author name string" (? P50 pls confirm)  
+May not be 100% accurate all the time, depending on the structure of the string.
+But for those bibcites structured correctly, we should be able to get its parts correctly as well.
 
 https://quickstatements.toolforge.org/api.php
 	?action=import
