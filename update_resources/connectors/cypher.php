@@ -56,13 +56,83 @@ https://quickstatements.toolforge.org/api.php?action=import&submit=1&username=Ea
 Hi Katja,
 Thanks for guide on how to use identifier-map for taxa mappings.
 https://eol-jira.bibalex.org/browse/COLLAB-1006?focusedCommentId=67209&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67209
-And yes, for those blank p.canonical I will generate a separate EOL-id, wikidata-id file mapping based on identifier-map for every processed query.
+And yes, for those blank p.canonical I will generate a separate EOL-id, wikidata-id file mapping 
+based on identifier-map for every processed query.
 
 Hi Jen,
-Yes, I should be able to parse a bibliographicCitation string for its difference parts:
-	title (P1476), volume (P478), page(s) (P304), publication date (P577) and/or even the "author name string" (? P50 pls confirm)  
-May not be 100% accurate all the time, depending on the structure of the string.
-But for those bibcites structured correctly, we should be able to get its parts correctly as well.
+Yes, I should be able to parse bibliographicCitation string and get its difference parts if needed.
+One of the three options mentioned by Katja, AnyStyle looks promising. 
+I'm actually using it now and it should serve our purpose.
+https://github.com/inukshuk/anystyle
+{code = "Just a test"}
+$ ruby run.rb "Paul, C.R.C. and Smith, A.B., 1984. The early radiation and phylogeny of echinoderms. Biological Reviews, 59(4), pp.443-481. https://doi.org/10.1111/j.1469-185X.1984.tb00411.x"
+[{:author=>
+   [{:family=>"Paul", :given=>"C.R.C."}, {:family=>"Smith", :given=>"A.B."}],
+  :date=>["1984"],
+  :title=>["The early radiation and phylogeny of echinoderms"],
+  :volume=>["59"],
+  :pages=>["443–481"],
+  :url=>["https://doi.org/10.1111/j.1469-185X.1984.tb00411.x"],
+  :type=>"article-journal",
+  :"container-title"=>["Biological Reviews"],
+  :issue=>["4"],
+  :doi=>["10.1111/j.1469-185X.1984.tb00411.x"]}]
+{code}
+
+
+Hi Jen,
+Please correct if I misunderstood the reference algorithm.
+Using t.source, t.citation, ref.literal
+
+* if t.source is DOI, OR t.citation string has DOI
+	** use that as Reference -- DOI (P356)
+	** follow USING DOI below
+* else: No DOI to use.
+	** if t.citation is 'significant'
+		*** create an item using t.citation if it doesn't exist yet. If exists, use it.
+		*** then link to it via stated in (P248)
+	** else: insignificant non-DOI sources
+		*** parse t.citation string and get different parts. 
+		*** use whatever is available, as Reference
+			**** author (P50)
+			**** publisher (P123) 
+			**** place of publication (P291)
+			**** page(s) (P304)
+			**** issue (P433)
+			**** volume	(P478)
+			**** publication date (P577)
+			**** chapter (P792)
+			**** title (P1476) 
+			**** ? editor (P98)
+		*** else: if t.source is non-Wikidata URL and worthy as wikidata source, use it as
+			**** reference URL (P854) or retrieved (P813)
+
+USING DOI:
+Check if DOI already exists.
+e.g. DOI https://doi.org/10.1111/j.1469-185X.1984.tb00411.x
+use service: https://sourcemd.toolforge.org/index_old.php?id=10.1111%2Fj.1469-185X.1984.tb00411.x&doit=Check+source
+* if exists:
+	** then link to it via stated in (P248)
+	** e.g. this case: https://www.wikidata.org/wiki/Q56079384
+	** P248 -- Q56079384
+* else:
+	** create an item.
+	** then link to it via stated in (P248)
+
+It will be easier if we can already add possible WikiData items that we will need before hand.
+Thanks.
+
+
+ruby run.rb "Paul, C.R.C. and Smith, A.B., 1984. The early radiation and phylogeny of echinoderms. Biological Reviews, 59(4), pp.443-481. https://doi.org/10.1111/j.1469-185X.1984.tb00411.x"
+
+-------------------------------
+Polar Bear - Catalogue of Life - Reference - DOI
+
+DOI: 
+https://www.wikidata.org/wiki/Property:P356
+
+
+
 
 https://quickstatements.toolforge.org/api.php
 	?action=import
