@@ -37,6 +37,12 @@ class WikiDataMtceAPI
             print_r($obj);
             $wikidata_id = $obj->search[0]->id; # e.g. Q56079384
             echo "\nwikidata_id: [$wikidata_id]\n";
+
+            https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
+            https://www.wikidata.org/w/api.php?action=wbgetentities&format=xml&ids=Q56079384
+            https://www.wikidata.org/w/api.php?action=wbgetentities&format=xml&ids=Q56079384
+            searching using wikidata entity id
+
         }
     }
     private function get_info_from_citation($citation, $what)
