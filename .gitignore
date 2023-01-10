@@ -226,3 +226,5 @@ update_resources/connectors/terminal_inat_images_select.out
 terminal.out
 terminal.out.txt
 applications/content_server/resources_3
+update_resources/connectors/helpers/anystyle/biblio.txt
+update_resources/connectors/test.qs

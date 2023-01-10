@@ -110,7 +110,28 @@ Using t.source, t.citation, ref.literal
 USING DOI:
 Check if DOI already exists.
 e.g. DOI https://doi.org/10.1111/j.1469-185X.1984.tb00411.x
-use service: https://sourcemd.toolforge.org/index_old.php?id=10.1111%2Fj.1469-185X.1984.tb00411.x&doit=Check+source
+use service: 
+https://sourcemd.toolforge.org/index_old.php?id=10.1111%2Fj.1469-185X.1984.tb00411.x&doit=Check+source
+
+https://doi.org/10.1007/978-3-662-02899-5
+
+https://sourcemd.toolforge.org/index_old.php?id=10.1007/978-3-662-02899-5&doit=Check+source
+
+en:Flowering Plants · Dicotyledons
+DOI [P356]	:	"10.1007/978-3-662-02899-5"
+instance of [P31]	:	scholarly article [Q13442814]
+title [P1476]	:	en:"Flowering Plants · Dicotyledons"
+publication date [P577] :	1993
+
+CREATE
+LAST	P356	"10.1007/978-3-662-02899-5"
+LAST	P31	Q13442814
+LAST	P1476	en:"Flowering Plants · Dicotyledons"
+LAST	Len	"Flowering Plants · Dicotyledons"
+LAST	P577	+1993-00-00T00:00:00Z/9
+
+
+
 * if exists:
 	** then link to it via stated in (P248)
 	** e.g. this case: https://www.wikidata.org/wiki/Q56079384
