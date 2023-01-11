@@ -17,7 +17,7 @@ class WikiDataMtceAPI
             'download_wait_time' => 750000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
 
         $this->anystyle_parse_prog = "ruby ".DOC_ROOT. "update_resources/connectors/helpers/anystyle/run.rb";
-        $this->wikidata_api['search title'] = "https://www.wikidata.org/w/api.php?action=wbsearchentities&language=en&format=json&search=MY_TITLE";
+        $this->wikidata_api['search string'] = "https://www.wikidata.org/w/api.php?action=wbsearchentities&language=en&format=json&search=MY_TITLE";
         $this->wikidata_api['search entity ID'] = "https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=ENTITY_ID";
         $this->crossref_api['search citation'] = "http://api.crossref.org/works?query.bibliographic=MY_CITATION&rows=2";
         $this->debug = array();
@@ -25,8 +25,8 @@ class WikiDataMtceAPI
 
     function create_item_if_does_not_exist($citation)
     {
-        $ret = self::crossref_citation($citation);
-        exit("\n-end muna\n");
+        // $ret = self::crossref_citation($citation);
+        // exit("\n-end muna\n");
         $citation_obj = self::get_info_from_citation($citation, 'all');
         self::does_title_exist_in_wikidata($citation_obj, $citation);
         echo ("\n-end muna-\n");
@@ -40,11 +40,37 @@ class WikiDataMtceAPI
         }
 
     }
+    function get_WD_entity_object($taxon)
+    {
+        echo "\n[$taxon]\n";
+        $url = str_replace("MY_TITLE", urlencode($taxon), $this->wikidata_api['search string']);
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            print("\n$json\n");
+            $obj = json_decode($json); //print_r($obj);
+
+            if($wikidata_id = @$obj->search[0]->id) { # e.g. Q56079384
+                // echo "\nTitle exists: [$title]\n";
+                echo "\nwikidata_id: [$wikidata_id]\n";
+                if($taxon_obj = self::get_wikidata_entity_info($wikidata_id, 'all')) {
+                    print_r($taxon_obj);
+                    $instance_of = @$taxon_obj->entities->$wikidata_id->claims->P31[0]->mainsnak->datavalue->value->id;
+                    // exit("\n[$instance_of]\n");
+                    if($instance_of == 'Q16521') # instance_of -> taxon
+                    {
+                        echo "\nvalid taxon\n";
+                    }
+                }
+            }
+
+
+
+        }
+    }
     private function does_title_exist_in_wikidata($citation_obj, $citation)
     {
         $title = $citation_obj[0]->title[0];
         echo "\n[$title]\n";
-        $url = str_replace("MY_TITLE", urlencode($title), $this->wikidata_api['search title']);
+        $url = str_replace("MY_TITLE", urlencode($title), $this->wikidata_api['search string']);
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             print("\n$json\n");
             $obj = json_decode($json); // print_r($obj);
@@ -118,7 +144,7 @@ class WikiDataMtceAPI
             $obj = json_decode($json); // print_r($obj);
 
             if($what == 'all') return $obj;
-            elseif($what == 'DOI') return $obj->entities->$wikidata_id->claims->P356[0]->mainsnak->datavalue->value;
+            elseif($what == 'DOI') return @$obj->entities->$wikidata_id->claims->P356[0]->mainsnak->datavalue->value;
             else exit("\nERROR: Specify return item.\n");
         }
         else echo "\nShould not go here.\n";
