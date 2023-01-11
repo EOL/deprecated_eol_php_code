@@ -35,12 +35,17 @@ class WikiDataMtceAPI
         $url = str_replace("MY_TITLE", urlencode($title), $this->wikidata_api['search title']);
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             print("\n$json\n");
-            $obj = json_decode($json);
-            print_r($obj);
-            $wikidata_id = $obj->search[0]->id; # e.g. Q56079384
-            echo "\nwikidata_id: [$wikidata_id]\n";
-            $DOI = self::get_wikidata_entity_info($wikidata_id, 'DOI');
-            echo "\nDOI: [$DOI]\n";
+            $obj = json_decode($json); // print_r($obj);
+            if($wikidata_id = @$obj->search[0]->id) { # e.g. Q56079384
+                echo "\nTitle exists: [$title]\n";
+                echo "\nwikidata_id: [$wikidata_id]\n";
+                if($DOI = self::get_wikidata_entity_info($wikidata_id, 'DOI')) {
+                    echo "\nhas DOI: [$DOI]\n";
+                }
+            }
+            else {
+                echo "\nTitle does not exist. [$title]\n";
+            }
 
         }
     }
@@ -65,7 +70,7 @@ class WikiDataMtceAPI
         $json = shell_exec($this->anystyle_parse_prog . ' "'.$citation.'"');
         $json = substr(trim($json), 1, -1); # remove first and last char
         $json = str_replace("\\", "", $json); # remove "\" from converted json from Ruby
-        $obj = json_decode($json); //print_r($obj);
+        $obj = json_decode($json); print_r($obj);
         if($what == 'all') return $obj;
         elseif($what == 'title') return $obj[0]->title[0];
         echo ("\n-end muna-\n");
