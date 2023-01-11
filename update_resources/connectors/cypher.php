@@ -166,9 +166,9 @@ https://quickstatements.toolforge.org/api.php
 	&batchname=Eli_batch2
 
 shell_exec("curl $latest_itis_url -o ".dirname(__FILE__)."/itis.tar.gz");
-
-
 */
+
+/* working - good test
 $param = "Q4115189|P4000|Q13184|S854|".'"https://eol.org/pages/1109554"';
 // [sandbox]  [has fruit type]  [berry] [reference URL] [-value-]
 $param = "Q4115189|P9714|Q155";
@@ -184,6 +184,7 @@ $param = urlencode($param);
 $pre_url = "https://quickstatements.toolforge.org/#/v1=";
 $url = $pre_url.$param;
 exit("\n[$url]\n");
+*/
 
 /* copied template - not used but works OK
 ====================================================
@@ -204,6 +205,7 @@ $func->query_trait_db($input);
 
 // /* good example
 $citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
+$citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34";
 $input["params"] = array("citation" => $citation);
 $input["type"] = "wikidata_base_qry_citation";
 $input["per_page"] = 500; // 500 worked ok
