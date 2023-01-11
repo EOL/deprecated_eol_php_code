@@ -4,6 +4,7 @@ namespace php_active_record;
 ---------------------------------------------------------------------------
 sample of citations already in WikiData:
 https://www.wikidata.org/wiki/Q56079384 ours
+https://www.wikidata.org/wiki/Q56079384 someones
 
 */
 class WikiDataMtceAPI
@@ -17,6 +18,7 @@ class WikiDataMtceAPI
 
         $this->anystyle_parse_prog = "ruby ".DOC_ROOT. "update_resources/connectors/helpers/anystyle/run.rb";
         $this->wikidata_api['search title'] = "https://www.wikidata.org/w/api.php?action=wbsearchentities&language=en&format=json&search=MY_TITLE";
+        $this->wikidata_api['search entity ID'] = "https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=ENTITY_ID";
 
         $this->debug = array();
     }
@@ -37,13 +39,26 @@ class WikiDataMtceAPI
             print_r($obj);
             $wikidata_id = $obj->search[0]->id; # e.g. Q56079384
             echo "\nwikidata_id: [$wikidata_id]\n";
-
-            https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
-            https://www.wikidata.org/w/api.php?action=wbgetentities&format=xml&ids=Q56079384
-            https://www.wikidata.org/w/api.php?action=wbgetentities&format=xml&ids=Q56079384
-            searching using wikidata entity id
+            $DOI = self::get_wikidata_entity_info($wikidata_id, 'DOI');
+            echo "\nDOI: [$DOI]\n";
 
         }
+    }
+    private function get_wikidata_entity_info($wikidata_id, $what = 'all')
+    {
+        // https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
+        // https://www.wikidata.org/w/api.php?action=wbgetentities&format=xml&ids=Q56079384
+        // searching using wikidata entity id
+        $url = str_replace("ENTITY_ID", $wikidata_id, $this->wikidata_api['search entity ID']);
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) { // print("\n$json\n");
+            $obj = json_decode($json); // print_r($obj);
+
+            if($what == 'all') return $obj;
+            elseif($what == 'DOI') return $obj->entities->$wikidata_id->claims->P356[0]->mainsnak->datavalue->value;
+            else exit("\nERROR: Specify return item.\n");
+        }
+        else echo "\nShould not go here.\n";
+
     }
     private function get_info_from_citation($citation, $what)
     {
