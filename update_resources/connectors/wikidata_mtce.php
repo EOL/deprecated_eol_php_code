@@ -46,8 +46,20 @@ curl https://quickstatements.toolforge.org/api.php \
 	-d "batchname=Eli batch3" \
 	--data-raw 'token=$2y$10$dEhijZQf/c3kTQGFAlUKj.JMs2Qdb4N/UUl/eFOyHVZ1sAu6vVGnS' \
 	--data-urlencode data@test.qs
+
     {"status":"OK","debug":{"format":"v1","temporary":false,"openpage":0},"batch_id":108278}
 	-> used in initial review
+
+curl https://quickstatements.toolforge.org/api.php \
+	-d action=import \
+	-d submit=1 \
+	-d username=EOLTraits \
+	-d "batchname=BATCH 1" \
+	--data-raw 'token=$2y$10$hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy' \
+	--data-urlencode data@test.qs
+
+https://quickstatements.toolforge.org/api.php?action=import&submit=1&username=EOLTraits&token=%242y%2410%24hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy&format=v1&data=Q4115189%7CP9714%7CP155&compress=0&batchname=eol_traits_sbox_1
+
 
 https://quickstatements.toolforge.org/api.php?action=import&submit=1&username=Eagbayani&token=%242y%2410%24dEhijZQf%2Fc3kTQGFAlUKj.JMs2Qdb4N%2FUUl%2FeFOyHVZ1sAu6vVGnS&format=v1&data=Q4115189%7CP4000%7CQ13184%7CS854%7C%22https%3A%2F%2Feol.org%2Fpages%2F1109554%22&batchname=Eli_batch1
 {"status":"OK","debug":{"format":"v1","temporary":false,"openpage":0},"batch_id":108266}

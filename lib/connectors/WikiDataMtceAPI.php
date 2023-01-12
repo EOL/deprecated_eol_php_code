@@ -21,6 +21,14 @@ class WikiDataMtceAPI
         $this->wikidata_api['search entity ID'] = "https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=ENTITY_ID";
         $this->crossref_api['search citation'] = "http://api.crossref.org/works?query.bibliographic=MY_CITATION&rows=2";
         $this->debug = array();
+        // /* unique temp file
+        $last_digit = (string) rand();
+        $last_digit = substr((string) rand(), -2);
+        $this->temp_file = DOC_ROOT . "/tmp/" . date("Y_m_d_H_i_s_") . $last_digit . ".qs";
+        $this->temp_file = DOC_ROOT . "/tmp/test.qs";
+        // */
+        // exit("\n".QUICKSTATEMENTS_EOLTRAITS_TOKEN."\n");
+
     }
 
     function create_citation_if_does_not_exist($citation)
@@ -71,6 +79,7 @@ class WikiDataMtceAPI
     private function does_title_exist_in_wikidata($citation_obj, $citation)
     {
         $title = $citation_obj[0]->title[0];
+        $title = self::manual_fix_title($title); #important
         echo "\n[$title]\n";
         $url = str_replace("MY_TITLE", urlencode($title), $this->wikidata_api['search string']);
         if($json = Functions::lookup_with_cache($url, $this->download_options)) { // print("\n$json\n");
@@ -79,50 +88,77 @@ class WikiDataMtceAPI
                 echo "\nTitle exists: [$title]\n";
                 echo "\nwikidata_id: [$wikidata_id]\n";
                 $DOI = self::get_wikidata_entity_info($wikidata_id, 'DOI');
-                return array("title" => $title, "wikidata_id" => wikidata_id, "DOI" => $DOI);
+                return array("title" => $title, "wikidata_id" => $wikidata_id, "DOI" => $DOI);
             }
             else return false;
         }
     }
+    private function manual_fix_title($str)
+    {
+        if(substr($str, -(strlen("(Orthoptera: Tettigoniidae")))) return $str.")";
+        return $str;
+    }
     private function create_WD_reference_item($citation_obj, $citation)
     {
         /*
-        author (P50)
+        author (P2093)                  -> use P50 only if author is an entity
         publisher (P123)
         place of publication (P291)
         page(s) (P304)
-        issue (P433)
+        issue (P433)                    -> disregard, since an issue should have a statement. Required by Wikidata.
         volume (P478)
         publication date (P577)
         chapter (P792)
         title (P1476)
         */
         $obj = $citation_obj[0];
+
+        // /* manual fixes
+        if($val = @$obj->title[0]) $obj->title[0] = self::manual_fix_title($val);
+        // */
+
         print_r($obj); //exit;
 
         $rows = array();
         $rows[] = 'CREATE';
-        if($dois = @$obj->doi) $rows[] = "LAST|P31|Q13442814"; // instance of -> scholarly article
-        else                   $rows[] = "LAST|P31|Q55915575"; // instance of -> scholarly work
 
-        if($authors = @$obj->author)                 $rows = self::prep_for_adding($authors, 'P50', $rows);
-        if($publishers = @$obj->publisher)           $rows = self::prep_for_adding($publishers, 'P123', $rows);
-        if($place_of_publications = @$obj->location) $rows = self::prep_for_adding($place_of_publications, 'P291', $rows);
-        if($pages = @$obj->pages)                    $rows = self::prep_for_adding($pages, 'P304', $rows);
-        if($issues = @$obj->issue)                   $rows = self::prep_for_adding($issues, 'P433', $rows);
-        if($volumes = @$obj->volume)                 $rows = self::prep_for_adding($volumes, 'P478', $rows);
-        if($publication_dates = @$obj->date)         $rows = self::prep_for_adding($publication_dates, 'P577', $rows);
-        if($chapters = @$obj->chapter)               $rows = self::prep_for_adding($chapters, 'P792', $rows); //No 'chapter' parsed by AnyStyle. Eli should do his own parsing.
-        if($titles = @$obj->title)                   $rows = self::prep_for_adding($titles, 'P1476', $rows);
-        // Others:
-        if($dois = @$obj->doi)                       $rows = self::prep_for_adding($dois, 'P356', $rows);
-        if($reference_URLs = @$obj->url)             $rows = self::prep_for_adding($reference_URLs, 'P854', $rows);
-
-        // /* Eli's choice: will take Jen's approval first -> https://www.wikidata.org/wiki/Property:P1683
-        $rows = self::prep_for_adding(array($citation), 'P1683', $rows);
+        // /* first two entries: label and description
+        # LAST TAB Lfr TAB "Le croissant magnifique!"
+        if($title = @$obj->title[0]) {
+            $rows[] = 'LAST|Len|' .'"'.$title.'"';
+            $rows[] = 'LAST|Den|' .'"'.$citation.'"';
+        }
         // */
 
+        // /* scholarly xxx
+        if($dois = @$obj->doi) $rows[] = "LAST|P31|Q13442814"; // instance of -> scholarly article
+        else                   $rows[] = "LAST|P31|Q55915575"; // instance of -> scholarly work
+        // */
+
+        if($authors = @$obj->author)                 $rows = self::prep_for_adding($authors, 'P2093', $rows); #ok use P50 if author is an entity
+        if($publishers = @$obj->publisher)           $rows = self::prep_for_adding($publishers, 'P123', $rows);
+        if($place_of_publications = @$obj->location) $rows = self::prep_for_adding($place_of_publications, 'P291', $rows);
+        if($pages = @$obj->pages)                    $rows = self::prep_for_adding($pages, 'P304', $rows); #ok
+        // if($issues = @$obj->issue)                   $rows = self::prep_for_adding($issues, 'P433', $rows); #ok
+        if($volumes = @$obj->volume)                 $rows = self::prep_for_adding($volumes, 'P478', $rows); #ok
+        if($publication_dates = @$obj->date)         $rows = self::prep_for_adding($publication_dates, 'P577', $rows); #ok
+        if($chapters = @$obj->chapter)               $rows = self::prep_for_adding($chapters, 'P792', $rows); //No 'chapter' parsed by AnyStyle. Eli should do his own parsing.
+        if($titles = @$obj->title)                   $rows = self::prep_for_adding($titles, 'P1476', $rows); #ok
+        // Others:
+        if($dois = @$obj->doi)                       $rows = self::prep_for_adding($dois, 'P356', $rows); #ok
+        if($reference_URLs = @$obj->url)             $rows = self::prep_for_adding($reference_URLs, 'P854', $rows);
+
+        /* Eli's choice: will take Jen's approval first -> https://www.wikidata.org/wiki/Property:P1683 -> WikiData says won't use it here.
+        $rows = self::prep_for_adding(array($citation), 'P1683', $rows);
+        */
+
         print_r($rows);
+        $WRITE = Functions::file_open($this->temp_file, "w");
+        foreach($rows as $row) {
+            fwrite($WRITE, $row."\n");
+        }
+        fclose($WRITE);
+
         /* Reminders:
         CREATE
         LAST	P31	Q13442814
@@ -133,19 +169,66 @@ class WikiDataMtceAPI
         */
         
     }
+    private function format_string($str)
+    {   /*
+        If submitting to the API, use 
+            "%09" instead of the TAB symbol, 
+            "%2B" instead of the "+" symbol, 
+            "%3A" instead of the ":" symbol, and 
+            "%2F" instead of the "/" symbol.
+        */
+        $str = str_replace("\t", "%09", $str);
+        $str = str_replace("+", "%2B", $str);
+        $str = str_replace(":", "%3A", $str);
+        $str = str_replace("/", "%2F", $str);
+        return $str;
+        // return urlencode($str);
+    }
+    private function format_publication_date($str)
+    {   # +1839-00-00T00:00:00Z/9
+        if(strlen($str) == 4) {
+            return "+".$str."-00-00T00:00:00Z/9";
+        }
+        else {
+            $vdate = strtotime($str);
+            $p1 = date("Y-m-d", $vdate);
+            $p2 = date("H:i:s", $vdate);
+            $final = $p1."T".$p2."Z/9";
+            return $final;
+        }
+    }
     private function prep_for_adding($recs, $property, $rows)
     {
-        if($property == 'P50') {
+        if($property == 'P2093') { # P50 is if author is an entity
             foreach($recs as $rec) {
                 $name = "";
                 if($family = @$rec->family) $name .= "$family, ";
                 if($given = @$rec->given) $name .= "$given";
-                $rows[] = "LAST|$property|$name";
+                $rows[] = "LAST|$property|" . '"'.self::format_string($name).'"';
             }
         }
+        elseif($property == 'P577') {
+            foreach($recs as $val) {
+                $rows[] = "LAST|$property|" . self::format_publication_date($val);
+            }
+        }
+        
+        elseif($property == 'P1476') { #title
+            foreach($recs as $val) {
+                $rows[] = "LAST|$property|en:" .'"'.$val.'"';
+            }
+        }
+
         else { // the rest goes here
             foreach($recs as $val) {
-                $rows[] = "LAST|$property|$val";
+
+                if(in_array($property, array('P1476', 'P1683'))) {
+                    $lang = "en:";
+                    $val = self::format_string($val);
+                }
+                else $lang = "";
+
+                $rows[] = "LAST|$property|$lang" . '"'.$val.'"';
             }
         }
         return $rows;
