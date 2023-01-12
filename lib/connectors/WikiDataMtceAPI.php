@@ -34,7 +34,15 @@ class WikiDataMtceAPI
         */
 
         $citation_obj = self::parse_citation_using_anystyle($citation, 'all');
-        self::does_title_exist_in_wikidata($citation_obj, $citation);
+        if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) {
+            print_r($ret);
+        }
+        else {
+            $title = $citation_obj[0]->title[0];
+            echo "\nTitle does not exist. [$title]\n";
+            self::create_WD_reference_item($citation_obj, $citation);
+        }
+        ;
         echo ("\n-end muna-\n");
     }
     function get_WD_entity_object($taxon)
@@ -54,13 +62,10 @@ class WikiDataMtceAPI
                     // exit("\n[$instance_of]\n");
                     if($instance_of == 'Q16521') # instance_of -> taxon
                     {
-                        echo "\nvalid taxon\n";
+                        echo "\n ivalid taxon\n";
                     }
                 }
             }
-
-
-
         }
     }
     private function does_title_exist_in_wikidata($citation_obj, $citation)
@@ -68,21 +73,15 @@ class WikiDataMtceAPI
         $title = $citation_obj[0]->title[0];
         echo "\n[$title]\n";
         $url = str_replace("MY_TITLE", urlencode($title), $this->wikidata_api['search string']);
-        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            print("\n$json\n");
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) { // print("\n$json\n");
             $obj = json_decode($json); // print_r($obj);
             if($wikidata_id = @$obj->search[0]->id) { # e.g. Q56079384
                 echo "\nTitle exists: [$title]\n";
                 echo "\nwikidata_id: [$wikidata_id]\n";
-                if($DOI = self::get_wikidata_entity_info($wikidata_id, 'DOI')) {
-                    echo "\nhas DOI: [$DOI]\n";
-                }
+                $DOI = self::get_wikidata_entity_info($wikidata_id, 'DOI');
+                return array("title" => $title, "wikidata_id" => wikidata_id, "DOI" => $DOI);
             }
-            else {
-                echo "\nTitle does not exist. [$title]\n";
-                self::create_WD_reference_item($citation_obj, $citation);
-            }
-
+            else return false;
         }
     }
     private function create_WD_reference_item($citation_obj, $citation)
@@ -99,24 +98,31 @@ class WikiDataMtceAPI
         title (P1476)
         */
         $obj = $citation_obj[0];
-        print_r($obj); exit;
-        if($authors = @$obj->author)                 self::prep_for_adding($authors, 'P50');
-        if($publishers = @$obj->publisher)           self::prep_for_adding($publishers, 'P123');
-        if($place_of_publications = @$obj->location) self::prep_for_adding($place_of_publications, 'P291');
-        if($pages = @$obj->pages)                    self::prep_for_adding($pages, 'P304');
-        if($issue = @$obj->issue)                    self::prep_for_adding($issues, 'P433');
-        if($volumes = @$obj->volume)                 self::prep_for_adding($volumes, 'P478');
-        if($publication_dates = @$obj->date)         self::prep_for_adding($publication_dates, 'P577');
-        if($chapters = @$obj->chapter)               self::prep_for_adding($chapters, 'P792'); //No 'chapter' parsed by AnyStyle. Eli should do his own parsing.
-        if($titles = @$obj->title)                   self::prep_for_adding($titles, 'P1476');
+        print_r($obj); //exit;
+
+        $rows = array();
+        $rows[] = 'CREATE';
+        if($dois = @$obj->doi) $rows[] = "LAST|P31|Q13442814"; // instance of -> scholarly article
+        else                   $rows[] = "LAST|P31|Q55915575"; // instance of -> scholarly work
+
+        if($authors = @$obj->author)                 $rows = self::prep_for_adding($authors, 'P50', $rows);
+        if($publishers = @$obj->publisher)           $rows = self::prep_for_adding($publishers, 'P123', $rows);
+        if($place_of_publications = @$obj->location) $rows = self::prep_for_adding($place_of_publications, 'P291', $rows);
+        if($pages = @$obj->pages)                    $rows = self::prep_for_adding($pages, 'P304', $rows);
+        if($issues = @$obj->issue)                   $rows = self::prep_for_adding($issues, 'P433', $rows);
+        if($volumes = @$obj->volume)                 $rows = self::prep_for_adding($volumes, 'P478', $rows);
+        if($publication_dates = @$obj->date)         $rows = self::prep_for_adding($publication_dates, 'P577', $rows);
+        if($chapters = @$obj->chapter)               $rows = self::prep_for_adding($chapters, 'P792', $rows); //No 'chapter' parsed by AnyStyle. Eli should do his own parsing.
+        if($titles = @$obj->title)                   $rows = self::prep_for_adding($titles, 'P1476', $rows);
         // Others:
-        if($dois = @$obj->doi)                       self::prep_for_adding($dois, 'P356');
-        if($reference_URLs = @$obj->url)             self::prep_for_adding($reference_URLs, 'P854');
+        if($dois = @$obj->doi)                       $rows = self::prep_for_adding($dois, 'P356', $rows);
+        if($reference_URLs = @$obj->url)             $rows = self::prep_for_adding($reference_URLs, 'P854', $rows);
 
         // /* Eli's choice: will take Jen's approval first -> https://www.wikidata.org/wiki/Property:P1683
-        self::prep_for_adding(array($citation), 'P1683');
+        $rows = self::prep_for_adding(array($citation), 'P1683', $rows);
         // */
 
+        print_r($rows);
         /* Reminders:
         CREATE
         LAST	P31	Q13442814
@@ -125,11 +131,24 @@ class WikiDataMtceAPI
         scholarly article   https://www.wikidata.org/wiki/Q13442814 for anything with a DOI and 
         scholarly work      https://www.wikidata.org/wiki/Q55915575 for all other items we create for sources.
         */
-
+        
     }
-    private function prep_for_adding($x, $y)
+    private function prep_for_adding($recs, $property, $rows)
     {
-
+        if($property == 'P50') {
+            foreach($recs as $rec) {
+                $name = "";
+                if($family = @$rec->family) $name .= "$family, ";
+                if($given = @$rec->given) $name .= "$given";
+                $rows[] = "LAST|$property|$name";
+            }
+        }
+        else { // the rest goes here
+            foreach($recs as $val) {
+                $rows[] = "LAST|$property|$val";
+            }
+        }
+        return $rows;
     }
     private function get_wikidata_entity_info($wikidata_id, $what = 'all')
     {
