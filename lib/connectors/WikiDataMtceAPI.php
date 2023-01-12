@@ -23,22 +23,19 @@ class WikiDataMtceAPI
         $this->debug = array();
     }
 
-    function create_item_if_does_not_exist($citation)
+    function create_citation_if_does_not_exist($citation)
     {
-        // $ret = self::crossref_citation($citation);
-        // exit("\n-end muna\n");
-        $citation_obj = self::get_info_from_citation($citation, 'all');
+        /* Crossref is not reliable. It always gets a DOI for most citations. https://apps.crossref.org/simpleTextQuery/
+        $ret = self::crossref_citation($citation);
+        print_r($ret);
+        echo "\n DOI: ".$ret->message->items[0]->DOI."\n";
+        echo "\n items: ".count($ret->message->items);
+        exit("\n-end muna\n");
+        */
+
+        $citation_obj = self::parse_citation_using_anystyle($citation, 'all');
         self::does_title_exist_in_wikidata($citation_obj, $citation);
         echo ("\n-end muna-\n");
-    }
-    private function crossref_citation($citation)
-    {
-        $url = str_replace("MY_CITATION", urlencode($citation), $this->crossref_api['search citation']);
-        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            // print("\n$json\n");
-            $obj = json_decode($json); print_r($obj);
-        }
-
     }
     function get_WD_entity_object($taxon)
     {
@@ -150,7 +147,7 @@ class WikiDataMtceAPI
         else echo "\nShould not go here.\n";
 
     }
-    private function get_info_from_citation($citation, $what)
+    private function parse_citation_using_anystyle($citation, $what)
     {
         $json = shell_exec($this->anystyle_parse_prog . ' "'.$citation.'"');
         $json = substr(trim($json), 1, -1); # remove first and last char
@@ -160,5 +157,14 @@ class WikiDataMtceAPI
         elseif($what == 'title') return $obj[0]->title[0];
         echo ("\n-end muna-\n");
     }
+    /* working func but not used, since Crossref is not used, unreliable.
+    private function crossref_citation($citation)
+    {
+        $url = str_replace("MY_CITATION", urlencode($citation), $this->crossref_api['search citation']);
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) { // print("\n$json\n");
+            $obj = json_decode($json);
+            return $obj;
+        }
+    } */
 }
 ?>
