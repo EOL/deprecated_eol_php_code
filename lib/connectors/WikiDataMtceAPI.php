@@ -6,6 +6,9 @@ sample of citations already in WikiData:
 https://www.wikidata.org/wiki/Q56079384 ours
 https://www.wikidata.org/wiki/Q56079384 someones
 
+Manual check of citations/references:
+https://apps.crossref.org/simpleTextQuery/
+
 */
 class WikiDataMtceAPI
 {
@@ -95,7 +98,7 @@ class WikiDataMtceAPI
     }
     private function manual_fix_title($str)
     {
-        if(substr($str, -(strlen("(Orthoptera: Tettigoniidae")))) return $str.")";
+        if(substr($str, -(strlen("(Orthoptera: Tettigoniidae"))) == "(Orthoptera: Tettigoniidae") return $str.")";
         return $str;
     }
     private function create_WD_reference_item($citation_obj, $citation)
@@ -144,6 +147,17 @@ class WikiDataMtceAPI
         if($publication_dates = @$obj->date)         $rows = self::prep_for_adding($publication_dates, 'P577', $rows); #ok
         if($chapters = @$obj->chapter)               $rows = self::prep_for_adding($chapters, 'P792', $rows); //No 'chapter' parsed by AnyStyle. Eli should do his own parsing.
         if($titles = @$obj->title)                   $rows = self::prep_for_adding($titles, 'P1476', $rows); #ok
+
+        /* Eli's initiative atm.
+        // So for starters, I added another property 'type of reference' (P3865)
+        if($type = @$obj->type)                      $rows = self::prep_for_adding(array($type), 'P3865', $rows); #ok
+        */
+
+        // /* Eli's initiative but close to Jen's "published in" (P1433) proposal
+        if($containers = @$obj->{"container-title"})      $rows = self::prep_for_adding($containers, 'P1433', $rows); #ok
+        
+        // */
+
         // Others:
         if($dois = @$obj->doi)                       $rows = self::prep_for_adding($dois, 'P356', $rows); #ok
         if($reference_URLs = @$obj->url)             $rows = self::prep_for_adding($reference_URLs, 'P854', $rows);
@@ -219,10 +233,19 @@ class WikiDataMtceAPI
             }
         }
 
+        /* to do: Eli
+        elseif($property == 'P1433') { # "published in" - value needs to be an entity. E.g. 'Ecotropica'
+            foreach($recs as $val) {
+                $rows[] = "LAST|$property|en:" .'"'.$val.'"';
+            }
+        }
+        */
+        
+
         else { // the rest goes here
             foreach($recs as $val) {
 
-                if(in_array($property, array('P1476', 'P1683'))) {
+                if(in_array($property, array('P1476', 'P1683', 'P3865'))) {
                     $lang = "en:";
                     $val = self::format_string($val);
                 }
