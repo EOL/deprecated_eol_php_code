@@ -292,26 +292,15 @@ class WikiDataMtceAPI
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '129IRvjoFLUs8kVzjdchT_ImlCGGXIdVKYkKwIv7ld0U';
-        $params['range']         = 'measurementTypes!A1:A38'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'measurementTypes!A1:B9'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $arr = $func->access_google_sheet($params);
+
         //start massage array
         foreach($arr as $item) $final[$item[0]] = '';
         $final = array_keys($final);
         print_r($final); exit;
         return $final;
         // */
-
-        require_library('connectors/GoogleClientAPI');
-        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
-        $params['spreadsheetID'] = '1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg'; //same spreadsheet for ver 1.0 and ver 1.1 and ver 2.0 (TRAM-991)
-        $params['range']         = 'gnparser failures!B2:D1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-        $params['range']         = '1.1 gnparser failures!B2:D1000'; //for TRAM-991
-        // Resource taxonID scientificName  canonical   problem category    notes
-        $arr = $func->access_google_sheet($params);
-        //start massage array
-        foreach($arr as $item) $final[$item[0]] = $item[2];
-        print_r($final); exit;
-        return $final;
 
 
 
