@@ -32,6 +32,8 @@ class WikiDataMtceAPI
         // */
         // exit("\n".QUICKSTATEMENTS_EOLTRAITS_TOKEN."\n");
 
+        /* https://docs.google.com/spreadsheets/d/129IRvjoFLUs8kVzjdchT_ImlCGGXIdVKYkKwIv7ld0U/edit#gid=0 */
+
     }
 
     function create_citation_if_does_not_exist($citation)
@@ -83,7 +85,7 @@ class WikiDataMtceAPI
     {
         $title = $citation_obj[0]->title[0];
         $title = self::manual_fix_title($title); #important
-        echo "\n[$title]\n";
+        echo "\nsearch title: [$title]\n";
         $url = str_replace("MY_TITLE", urlencode($title), $this->wikidata_api['search string']);
         if($json = Functions::lookup_with_cache($url, $this->download_options)) { // print("\n$json\n");
             $obj = json_decode($json); // print_r($obj);
@@ -282,6 +284,40 @@ class WikiDataMtceAPI
         elseif($what == 'title') return $obj[0]->title[0];
         echo ("\n-end muna-\n");
     }
+
+
+    function get_WD_entity_mappings()
+    {   
+        // /*
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '129IRvjoFLUs8kVzjdchT_ImlCGGXIdVKYkKwIv7ld0U';
+        $params['range']         = 'measurementTypes!A1:A38'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        //start massage array
+        foreach($arr as $item) $final[$item[0]] = '';
+        $final = array_keys($final);
+        print_r($final); exit;
+        return $final;
+        // */
+
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg'; //same spreadsheet for ver 1.0 and ver 1.1 and ver 2.0 (TRAM-991)
+        $params['range']         = 'gnparser failures!B2:D1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = '1.1 gnparser failures!B2:D1000'; //for TRAM-991
+        // Resource taxonID scientificName  canonical   problem category    notes
+        $arr = $func->access_google_sheet($params);
+        //start massage array
+        foreach($arr as $item) $final[$item[0]] = $item[2];
+        print_r($final); exit;
+        return $final;
+
+
+
+    }
+
+
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
     {
