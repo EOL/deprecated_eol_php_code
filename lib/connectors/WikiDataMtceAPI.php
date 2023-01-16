@@ -289,10 +289,10 @@ class WikiDataMtceAPI
     function get_WD_entity_mappings()
     {   
         // /*
-        require_library('connectors/GoogleClientAPI2023');
-        $func = new GoogleClientAPI2023(); //get_declared_classes(); will give you how to access all available classes
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '129IRvjoFLUs8kVzjdchT_ImlCGGXIdVKYkKwIv7ld0U';
-        $params['range']         = 'measurementTypes!A1:C9'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'measurementTypes!A1:C10'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $arr = $func->access_google_sheet($params);
 
         //start massage array

@@ -1,8 +1,7 @@
 <?php
 namespace php_active_record;
 
-// require_once DOC_ROOT . '/vendor/google_client_library/autoload.php';
-require_once __DIR__ . '/../../vendor/google_client_library/autoload.php';
+require_once __DIR__ . '/../../vendor/google_client_lib_2023/autoload.php';
 
 
 /* connector: [google_client.php]  */
@@ -11,84 +10,55 @@ class GoogleClientAPI
 {
     function __construct()
     {
-        if(!defined('APPLICATION_NAME')) define('APPLICATION_NAME', 'Google Sheets API PHP Quickstart');
-        /* moved to autoload.php above by Eli
-        define('CREDENTIALS_PATH',    '../../vendor/google_client_library/json/sheets.googleapis.com-php-quickstart.json');
-        define('CLIENT_SECRET_PATH',  '../../vendor/google_client_library/json/client_secret.json');
-        */
-        // If modifying these scopes, delete your previously saved credentials
-        // at ~/.credentials/sheets.googleapis.com-php-quickstart.json
+        if(Functions::is_production()) $this->cache_path = '/extra/other_files/wikidata_cache/';
+        else                           $this->cache_path = '/Volumes/Crucial_2TB/wikidata_cache/';
+        if(!is_dir($this->cache_path)) mkdir($this->cache_path);
 
-        if(!defined('SCOPES')) define('SCOPES', implode(' ', array(\Google_Service_Sheets::SPREADSHEETS_READONLY)));
-        if (php_sapi_name() != 'cli') {throw new Exception('This application must be run on the command line.');}
     }
 
     function access_google_sheet($params)
     {
-        // Get the API client and construct the service object.
-        $client = self::getClient();
+        // /*
+        require_library('connectors/CacheMngtAPI');
+        $this->func = new CacheMngtAPI($this->cache_path);
+        // */
+        
+        // /* New solution:
+        $md5_id = md5(json_encode($params));
+        if($records = $this->func->retrieve_json_obj($md5_id, false)) echo "\nCACHE EXISTS.\n"; //2nd param false means returned value is an array()
+        else {
+            echo "\nNO CACHE YET\n";
+            $records = self::do_the_google_thing($params);
+            $json = json_encode($records);
+            $this->func->save_json($md5_id, $json);
+            // $arr_rek = json_decode($json, true);                    //just for testing
+            // print_r($rek); print_r($arr_rek); exit("\ntest...\n");  //just for testing
+        }
+        // */
+        return $records;   
+    }
+
+    private function do_the_google_thing($params)
+    {
+        //Reading data from spreadsheet.
+        $client = new \Google_Client();
+        $client->setApplicationName('Google Sheets and PHP');
+        $client->setScopes([\Google_Service_Sheets::SPREADSHEETS]);
+        $client->setAccessType('offline');
+        $client->setAuthConfig(__DIR__ . '/../../vendor/google_client_lib_2023/json/credentials.json');
         $service = new \Google_Service_Sheets($client);
+
+        /*
+        $spreadsheetId = "129IRvjoFLUs8kVzjdchT_ImlCGGXIdVKYkKwIv7ld0U"; //It is present in your URL
+        $get_range = "measurementTypes!A1:B9";
+        Note:  Sheet name is found in the bottom of your sheet and range can be an example
+        "A2: B10" or “A2: C50" or “B1: B10" etc.
+        */
+
+        //Request to get data from spreadsheet.
         $response = $service->spreadsheets_values->get($params['spreadsheetID'], $params['range']);
         $values = $response->getValues();
         return $values;
-    }
-
-    /*
-     * Returns an authorized API client.
-     * @return Google_Client the authorized client object
-    */
-    function getClient()
-    {
-        $client = new \Google_Client();
-        $client->setApplicationName(APPLICATION_NAME);
-        $client->setScopes(SCOPES);
-        $client->setAuthConfig(CLIENT_SECRET_PATH);
-        $client->setAccessType('offline');
-
-        // Load previously authorized credentials from a file.
-        $credentialsPath = self::expandHomeDirectory(CREDENTIALS_PATH);
-        if (file_exists($credentialsPath)) {
-        $accessToken = json_decode(file_get_contents($credentialsPath), true);
-        } else 
-        {
-            // Request authorization from the user.
-            $authUrl = $client->createAuthUrl();
-            printf("Open the following link in your browser:\n%s\n", $authUrl);
-            print 'Enter verification code: ';
-            $authCode = trim(fgets(STDIN));
-
-            // Exchange authorization code for an access token.
-            $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
-
-            // Store the credentials to disk.
-            if(!file_exists(dirname($credentialsPath)))  mkdir(dirname($credentialsPath), 0700, true);
-            file_put_contents($credentialsPath, json_encode($accessToken));
-            printf("Credentials saved to %s\n", $credentialsPath);
-        }
-        $client->setAccessToken($accessToken);
-
-        // Refresh the token if it's expired.
-        if ($client->isAccessTokenExpired()) 
-        {
-            $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-            file_put_contents($credentialsPath, json_encode($client->getAccessToken()));
-        }
-        return $client;
-    }
-
-    /*
-    * Expands the home directory alias '~' to the full path.
-    * @param string $path the path to expand.
-    * @return string the expanded path.
-    */
-    function expandHomeDirectory($path) 
-    {
-        $homeDirectory = getenv('HOME');
-        if(empty($homeDirectory)) 
-        {
-            $homeDirectory = getenv('HOMEDRIVE') . getenv('HOMEPATH');
-        }
-        return str_replace('~', realpath($homeDirectory), $path);
     }
 
 }
