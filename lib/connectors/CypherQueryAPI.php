@@ -55,7 +55,7 @@ class CypherQueryAPI
         foreach($obj->data as $rec) {
             fwrite($WRITE, implode("\t", $rec)."\n");
             // print("-[".$rec[0]."]-[".$rec[9]."]"); // just a visual record lookup during runtime.
-            print("-[".$rec[0]."]"); // just a visual record lookup during runtime.
+            // print("-[".$rec[0]."]"); // just a visual record lookup during runtime. good debug
         }
         fclose($WRITE);
     }
@@ -76,12 +76,12 @@ class CypherQueryAPI
                 // print_r($obj); exit; //good debug
                 self::write_tsv($obj, $filename, $skip);
             }
-            print("\n".$total."");
+            print("\n No. of rows: ".$total."\n");
             $skip += $this->per_page;
             if($total < $this->per_page) break;
         }
         print("\n-----Processing ends-----\n");
-        print_r($input);
+        // print_r($input); //good debug
         print("\nReport file: ".$this->tsv_file."\n");
     }
     private function query_maker($input)
@@ -186,7 +186,7 @@ class CypherQueryAPI
         // $cmd .= ' 2>/dev/null'; //this will throw away the output
         sleep(2); //delay 2 seconds
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
-        echo "\n[$output]\n";
+        echo "\n[$output]\n"; //good debug
         $json = file_get_contents($destination);
         unlink($in_file);
         unlink($destination);
@@ -196,7 +196,7 @@ class CypherQueryAPI
     }
     private function generate_path_filename($input)
     {
-        print_r($input); //exit("\nthis is to be md5 hashed\n");
+        // print_r($input); //exit("\nthis is to be md5 hashed\n"); //good debug
         $main_path = $this->main_path;
         $md5 = md5(json_encode($input));
         $cache1 = substr($md5, 0, 2);

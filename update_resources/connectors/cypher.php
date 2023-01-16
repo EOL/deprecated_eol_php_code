@@ -169,7 +169,7 @@ https://quickstatements.toolforge.org/api.php
 shell_exec("curl $latest_itis_url -o ".dirname(__FILE__)."/itis.tar.gz");
 */
 
-// /* working - good test
+/* working - good test
 $param = "Q4115189|P4000|Q13184|S854|".'"https://eol.org/pages/1109554"';
 // [sandbox]  [has fruit type]  [berry] [reference URL] [-value-]
 $param = "Q4115189|P9714|Q155";
@@ -185,7 +185,7 @@ $param = urlencode($param);
 $pre_url = "https://quickstatements.toolforge.org/#/v1=";
 $url = $pre_url.$param;
 exit("\n[$url]\n");
-// */
+*/
 
 /* copied template - not used but works OK
 ====================================================

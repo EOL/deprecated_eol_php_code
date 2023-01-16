@@ -299,7 +299,7 @@ class WikiDataMtceAPI
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '129IRvjoFLUs8kVzjdchT_ImlCGGXIdVKYkKwIv7ld0U';
-        $params['range']         = 'measurementTypes!A1:C11'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'measurementTypes!A1:C12'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $arr = $func->access_google_sheet($params);
 
         //start massage array
