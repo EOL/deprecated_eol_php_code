@@ -296,14 +296,14 @@ class WikiDataMtceAPI
         $arr = $func->access_google_sheet($params);
 
         //start massage array
-        $keys = array_keys($arr);
-        print_r($keys);
-        foreach($arr as $item) $final[$item[0]] = array("a" => $item[1], "b" => $item[2]);
+        $i = 0;
+        foreach($arr as $item) { $i++;
+            $item = array_map('trim', $item);
+            if($i == 1) $labels = array("a" => $item[1], "b" => $item[2]);
+            else        $final[$item[0]] = array($labels['a'] => $item[1], $labels['b'] => $item[2]);
+        }
         print_r($final);
-
         // */
-
-
 
     }
 
