@@ -44,7 +44,7 @@ class WikiDataMtceAPI
     function create_WD_traits($input)
     {   
         // /* lookup spreadsheet for mapping
-        self::get_WD_entity_mappings();
+        $this->map = self::get_WD_entity_mappings();
         // */
         // /* report file to process
         $tmp = md5(json_encode($input));
@@ -88,12 +88,18 @@ class WikiDataMtceAPI
         )*/
         print_r($rec); //exit;
         if($taxon_entity_id = self::is_instance_of_taxon($rec['p.canonical'])) {
+            $final = array();
             $final['taxon_entity'] = $taxon_entity_id;
-            // $final['predicate_entity'] = 
+            $final['predicate_entity'] = $this->map['measurementTypes'][$rec["pred.name"]]["property"];
+            $final['object_entity'] = $this->map['measurementValues'][$rec["obj.name"]]["property"];
+            $title = self::parse_citation_using_anystyle($rec['t.citation'], 'title');
+            $title = self::manual_fix_title($title);
+            $final['P1433'] = self::get_WD_entity_object($title, 'entity_id'); //published in
+
+            if($final['taxon_entity'] && $final['predicate_entity'] && $final['object_entity']) self::create_WD_taxon_trait($final);
         }
         else echo "\nNot a taxon: [".$rec['p.canonical']."]\n";
-        
-        print_r($final);
+        // print_r($final);
     }
     function create_citation_if_does_not_exist($citation)
     {
@@ -117,13 +123,18 @@ class WikiDataMtceAPI
         ;
         echo ("\n-end muna-\n");
     }
-    function get_WD_entity_object($string)
+    function get_WD_entity_object($string, $what = 'all')
     {
         $url = str_replace("MY_TITLE", urlencode($string), $this->wikidata_api['search string']);
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             // print("\n$json\n");
-            $obj = json_decode($json); //print_r($obj);
-            return $obj;
+            $obj = json_decode($json); //print_r($obj); exit;
+            if($what == 'all') return $obj;
+            elseif($what == 'entity_id') return $obj->search[0]->id;
+            // {
+            //     return $obj->search[0]->id;
+            //     print_r($obj); exit;
+            // }
         }
         return false;
     }
@@ -168,6 +179,38 @@ class WikiDataMtceAPI
     {
         if(substr($str, -(strlen("(Orthoptera: Tettigoniidae"))) == "(Orthoptera: Tettigoniidae") return $str.")";
         return $str;
+    }
+    private function create_WD_taxon_trait($r)
+    {
+        print_r($r); //exit("\nxxx\n");
+        /*Array(
+            [taxon_entity] => Q10397859
+            [predicate_entity] => https://www.wikidata.org/wiki/Property:P9566
+            [object_entity] => https://www.wikidata.org/wiki/Q101029366
+            [P1433] => Q116180473
+        )*/
+        $rows = array();
+        $row = $r['taxon_entity']."|".self::get_property_from_uri($r['predicate_entity'])."|".self::get_property_from_uri($r['object_entity']);
+        if($published_in = $r['P1433']) $row .= "|S1433|".$published_in;
+        
+        $rows[] = $row;
+        
+        print_r($rows);
+        $WRITE = Functions::file_open($this->temp_file, "w");
+        foreach($rows as $row) {
+            fwrite($WRITE, $row."\n");
+        }
+        fclose($WRITE);
+
+
+    }
+    private function get_property_from_uri($uri)
+    {
+        $basename = pathinfo($uri, PATHINFO_BASENAME);
+        $parts = explode(":", $basename);
+        if($val = @$parts[1]) return $val;
+        else return $basename;
+
     }
     private function create_WD_reference_item($citation_obj, $citation)
     {
@@ -364,7 +407,8 @@ class WikiDataMtceAPI
             $arr = $func->access_google_sheet($params);    
             $final[$sheet] = self::massage_google_sheet_results($arr);
         }
-        print_r($final); exit;
+        // print_r($final); exit;
+        return $final;
     }
     private function massage_google_sheet_results($arr)
     {   //start massage array
