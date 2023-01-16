@@ -24,12 +24,15 @@ class WikiDataMtceAPI
         $this->wikidata_api['search entity ID'] = "https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=ENTITY_ID";
         $this->crossref_api['search citation'] = "http://api.crossref.org/works?query.bibliographic=MY_CITATION&rows=2";
         $this->debug = array();
+        
         // /* unique temp file
         $last_digit = (string) rand();
         $last_digit = substr((string) rand(), -2);
         $this->temp_file = DOC_ROOT . "/tmp/" . date("Y_m_d_H_i_s_") . $last_digit . ".qs";
         $this->temp_file = DOC_ROOT . "/tmp/test.qs";
+        if(file_exists($this->temp_file)) unlink($this->temp_file);
         // */
+
         // exit("\n".QUICKSTATEMENTS_EOLTRAITS_TOKEN."\n");
 
         /* https://docs.google.com/spreadsheets/d/129IRvjoFLUs8kVzjdchT_ImlCGGXIdVKYkKwIv7ld0U/edit#gid=0 */
@@ -66,7 +69,7 @@ class WikiDataMtceAPI
                 $rec = array_map('trim', $rec);
                 // print_r($rec); //exit;
                 self::write_trait_2wikidata($rec);
-                if($i >= 3) break; //debug
+                if($i >= 7) break; //debug
             }
         }
     }
@@ -192,8 +195,10 @@ class WikiDataMtceAPI
         $rows = array();
         $row = $r['taxon_entity']."|".self::get_property_from_uri($r['predicate_entity'])."|".self::get_property_from_uri($r['object_entity']);
         if($published_in = $r['P1433']) $row .= "|S1433|".$published_in;
+        // if($published_in = $r['P1433']) $row .= "|S1433|".$published_in; //deliberately entered twice
         
         $rows[] = $row;
+
         print_r($rows);
         $WRITE = Functions::file_open($this->temp_file, "a");
         foreach($rows as $row) {
