@@ -128,7 +128,7 @@ $url = $pre_url.$param;
 exit("\n[$url]\n");
 */
 
-// /*
+/*
 $citation = "Paul, C.R.C. and Smith, A.B., 1984. The early radiation and phylogeny of echinoderms. Biological Reviews, 59(4), pp.443-481.";
 $citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34";
 
@@ -137,7 +137,17 @@ $citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation
 // $citation = "Henry, Meghan, et al. The 2020 Annual Homeless Assessment Report (AHAR) to Congress. U.S. Dept. of Housing and Urban Development, Jan. 2021, https://www.huduser.gov/portal/sites/default/files/pdf/2020-AHAR-Part-1.pdf.";
 // $citation = "The Big Lebowski. Directed by Joel Coen, performances by Jeff Bridges and Julianne Moore, Polygram Filmed Entertainment, 1998. Las Vegas, Nevada";
 $func->create_citation_if_does_not_exist($citation);
+*/
+
+// /* create traits
+$citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34"; # 1st group
+$input = array();
+$input["params"] = array("citation" => $citation);
+$input["type"] = "wikidata_base_qry_citation";
+$input["per_page"] = 500; // 500 worked ok
+$func->create_WD_traits($input);
 // */
+
 
 /* works OK
 $taxon = "Abaxisotima acuminata";

@@ -34,8 +34,67 @@ class WikiDataMtceAPI
 
         /* https://docs.google.com/spreadsheets/d/129IRvjoFLUs8kVzjdchT_ImlCGGXIdVKYkKwIv7ld0U/edit#gid=0 */
 
-    }
+        // /* report filename - generated from CypherQueryAPI.php
+        $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/";
+        if(!is_dir($this->report_path)) mkdir($this->report_path);
 
+        // */        
+
+    }
+    function create_WD_traits($input)
+    {   
+        // /* lookup spreadsheet for mapping
+        self::get_WD_entity_mappings();
+        // */
+        // /* report file to process
+        $tmp = md5(json_encode($input));
+        $this->tsv_file = $this->report_path."/".$tmp.".tsv"; // echo "\n$this->tsv_file\n";
+        // */
+        $i = 0;
+        foreach(new FileIterator($this->tsv_file) as $line => $row) {
+            // $row = Functions::conv_to_utf8($row);
+            $i++;
+            if($i == 1) $fields = explode("\t", $row);
+            else {
+                if(!$row) continue;
+                $tmp = explode("\t", $row);
+                $rec = array(); $k = 0;
+                foreach($fields as $field) {
+                    $rec[$field] = $tmp[$k];
+                    $k++;
+                }
+                $rec = array_map('trim', $rec);
+                // print_r($rec); //exit;
+                self::write_trait_2wikidata($rec);
+                if($i >= 2) break; //debug
+            }
+        }
+    }
+    private function write_trait_2wikidata($rec)
+    {
+        /*Array(
+            [p.canonical] => Viadana semihamata
+            [p.page_id] => 46941724
+            [pred.name] => behavioral circadian rhythm
+            [stage.name] => adult
+            [sex.name] => 
+            [stat.name] => 
+            [obj.name] => nocturnal
+            [t.measurement] => 
+            [units.name] => 
+            [t.source] => 
+            [t.citation] => Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34
+            [ref.literal] => 
+        )*/
+        print_r($rec); //exit;
+        if($taxon_entity_id = self::is_instance_of_taxon($rec['p.canonical'])) {
+            $final['taxon_entity'] = $taxon_entity_id;
+            // $final['predicate_entity'] = 
+        }
+        else echo "\nNot a taxon: [".$rec['p.canonical']."]\n";
+        
+        print_r($final);
+    }
     function create_citation_if_does_not_exist($citation)
     {
         /* Crossref is not reliable. It always gets a DOI for most citations. https://apps.crossref.org/simpleTextQuery/
@@ -82,7 +141,7 @@ class WikiDataMtceAPI
                 // exit("\n[$instance_of]\n");
                 if($instance_of == 'Q16521') # instance_of -> taxon
                 {
-                    return true;
+                    return $wikidata_id;
                 }
             }
         }
@@ -295,23 +354,29 @@ class WikiDataMtceAPI
 
     function get_WD_entity_mappings()
     {   
-        // /*
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '129IRvjoFLUs8kVzjdchT_ImlCGGXIdVKYkKwIv7ld0U';
-        $params['range']         = 'measurementTypes!A1:C12'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-        $arr = $func->access_google_sheet($params);
-
-        //start massage array
+        
+        $sheets = array("measurementTypes", "measurementValues", "metadata");
+        foreach($sheets as $sheet) {
+            $params['range']         = $sheet.'!A1:C100'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+            $arr = $func->access_google_sheet($params);    
+            $final[$sheet] = self::massage_google_sheet_results($arr);
+        }
+        print_r($final); exit;
+    }
+    private function massage_google_sheet_results($arr)
+    {   //start massage array
         $i = 0;
         foreach($arr as $item) { $i++;
             $item = array_map('trim', $item);
             if($i == 1) $labels = array("a" => $item[1], "b" => $item[2]);
             else        $final[$item[0]] = array($labels['a'] => $item[1], $labels['b'] => $item[2]);
         }
-        print_r($final);
+        // print_r($final);
+        return $final;
         // */
-
     }
 
 

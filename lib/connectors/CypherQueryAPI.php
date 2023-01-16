@@ -43,7 +43,6 @@ class CypherQueryAPI
     private function write_tsv($obj, $filename, $skip)
     {
         // print_r($obj); exit;
-        // exit("\n".$tsv_file."\n");
         if($skip == 0) {
             $base = pathinfo($filename, PATHINFO_FILENAME); //e.g. "e54dbf6839f325a6a0d5095e82bc5e70"
             // $this->tsv_file = $this->report_path."/".$base.".tsv"; //working but moved up    
@@ -61,7 +60,7 @@ class CypherQueryAPI
     }
     function query_trait_db($input)
     {
-        // /*
+        // /* report filename
         $tmp = md5(json_encode($input));
         $this->tsv_file = $this->report_path."/".$tmp.".tsv";
         // */
