@@ -3,8 +3,7 @@ namespace php_active_record;
 
 require_once __DIR__ . '/../../vendor/google_client_lib_2023/autoload.php';
 
-
-/* connector: [google_client.php]  */
+/* sample connector: [google_client.php] */
 
 class GoogleClientAPI
 {
@@ -14,8 +13,8 @@ class GoogleClientAPI
         else                           $this->cache_path = '/Volumes/Crucial_2TB/wikidata_cache/';
         if(!is_dir($this->cache_path)) mkdir($this->cache_path);
 
+        $this->credentials_json_path = __DIR__ . '/../../vendor/google_client_lib_2023/json/credentials.json';
     }
-
     function access_google_sheet($params)
     {
         // /*
@@ -31,13 +30,10 @@ class GoogleClientAPI
             $records = self::do_the_google_thing($params);
             $json = json_encode($records);
             $this->func->save_json($md5_id, $json);
-            // $arr_rek = json_decode($json, true);                    //just for testing
-            // print_r($rek); print_r($arr_rek); exit("\ntest...\n");  //just for testing
         }
         // */
         return $records;   
     }
-
     private function do_the_google_thing($params)
     {
         //Reading data from spreadsheet.
@@ -45,7 +41,7 @@ class GoogleClientAPI
         $client->setApplicationName('Google Sheets and PHP');
         $client->setScopes([\Google_Service_Sheets::SPREADSHEETS]);
         $client->setAccessType('offline');
-        $client->setAuthConfig(__DIR__ . '/../../vendor/google_client_lib_2023/json/credentials.json');
+        $client->setAuthConfig($this->credentials_json_path);
         $service = new \Google_Service_Sheets($client);
 
         /*
@@ -60,6 +56,5 @@ class GoogleClientAPI
         $values = $response->getValues();
         return $values;
     }
-
 }
 ?>

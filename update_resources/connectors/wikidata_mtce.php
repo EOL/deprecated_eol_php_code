@@ -147,9 +147,16 @@ $obj = $func->get_WD_entity_object($taxon);
 print_r($obj);
 */
 
-// /* spreadsheet lookup
-$func->get_WD_entity_mappings();
+// /* works OK
+$taxon = "Abaxisotima acuminata";
+if($func->is_instance_of_taxon($taxon)) echo "\n[$taxon] is a valid taxon.\n";
+else                                    echo "\n[$taxon] is not a taxon.\n";
+
 // */
+
+/* spreadsheet lookup - works OK!
+$func->get_WD_entity_mappings();
+*/
 
 
 /* copied template - not used but works OK

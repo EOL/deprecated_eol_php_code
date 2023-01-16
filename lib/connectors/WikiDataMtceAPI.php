@@ -58,28 +58,35 @@ class WikiDataMtceAPI
         ;
         echo ("\n-end muna-\n");
     }
-    function get_WD_entity_object($taxon)
+    function get_WD_entity_object($string)
     {
-        echo "\n[$taxon]\n";
-        $url = str_replace("MY_TITLE", urlencode($taxon), $this->wikidata_api['search string']);
+        $url = str_replace("MY_TITLE", urlencode($string), $this->wikidata_api['search string']);
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            print("\n$json\n");
+            // print("\n$json\n");
             $obj = json_decode($json); //print_r($obj);
+            return $obj;
+        }
+        return false;
+    }
+    function is_instance_of_taxon($taxon)
+    {
+        echo "\ntaxon: [$taxon]\n";
+        $obj = self::get_WD_entity_object($taxon);
 
-            if($wikidata_id = @$obj->search[0]->id) { # e.g. Q56079384
-                // echo "\nTitle exists: [$title]\n";
-                echo "\nwikidata_id: [$wikidata_id]\n";
-                if($taxon_obj = self::get_wikidata_entity_info($wikidata_id, 'all')) {
-                    print_r($taxon_obj);
-                    $instance_of = @$taxon_obj->entities->$wikidata_id->claims->P31[0]->mainsnak->datavalue->value->id;
-                    // exit("\n[$instance_of]\n");
-                    if($instance_of == 'Q16521') # instance_of -> taxon
-                    {
-                        echo "\n ivalid taxon\n";
-                    }
+        if($wikidata_id = @$obj->search[0]->id) { # e.g. Q56079384
+            // echo "\nTitle exists: [$title]\n";
+            echo "\nwikidata_id: [$wikidata_id]\n";
+            if($taxon_obj = self::get_wikidata_entity_info($wikidata_id, 'all')) {
+                // print_r($taxon_obj);
+                $instance_of = @$taxon_obj->entities->$wikidata_id->claims->P31[0]->mainsnak->datavalue->value->id;
+                // exit("\n[$instance_of]\n");
+                if($instance_of == 'Q16521') # instance_of -> taxon
+                {
+                    return true;
                 }
             }
         }
+        return false;
     }
     private function does_title_exist_in_wikidata($citation_obj, $citation)
     {
