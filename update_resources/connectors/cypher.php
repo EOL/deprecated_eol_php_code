@@ -207,6 +207,7 @@ $func->query_trait_db($input);
 // /* good example
 $citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
 $citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34"; # 1st group
+$input = array();
 $input["params"] = array("citation" => $citation);
 $input["type"] = "wikidata_base_qry_citation";
 $input["per_page"] = 500; // 500 worked ok

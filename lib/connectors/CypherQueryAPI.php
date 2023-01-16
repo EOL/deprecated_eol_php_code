@@ -46,7 +46,7 @@ class CypherQueryAPI
         // exit("\n".$tsv_file."\n");
         if($skip == 0) {
             $base = pathinfo($filename, PATHINFO_FILENAME); //e.g. "e54dbf6839f325a6a0d5095e82bc5e70"
-            $this->tsv_file = $this->report_path."/".$base.".tsv";    
+            // $this->tsv_file = $this->report_path."/".$base.".tsv"; //working but moved up    
             $WRITE = Functions::file_open($this->tsv_file, "w");
             fwrite($WRITE, implode("\t", $obj->columns)."\n"); 
         }
@@ -61,6 +61,11 @@ class CypherQueryAPI
     }
     function query_trait_db($input)
     {
+        // /*
+        $tmp = md5(json_encode($input));
+        $this->tsv_file = $this->report_path."/".$tmp.".tsv";
+        // */
+
         if($val = @$input["per_page"]) $this->per_page = $val;
         if(isset($input["per_page"])) unset($input["per_page"]); // unset so that initial queries made won't get wasted. Where there is no $input["per_page"] yet.
 
