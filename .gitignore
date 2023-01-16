@@ -228,3 +228,4 @@ terminal.out.txt
 applications/content_server/resources_3
 update_resources/connectors/helpers/anystyle/biblio.txt
 update_resources/connectors/test.qs
+vendor/google_client_lib_2023/json/credentials.json
