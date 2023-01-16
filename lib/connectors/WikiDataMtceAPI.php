@@ -97,7 +97,11 @@ class WikiDataMtceAPI
             $final['object_entity'] = $this->map['measurementValues'][$rec["obj.name"]]["property"];
             $title = self::parse_citation_using_anystyle($rec['t.citation'], 'title');
             $title = self::manual_fix_title($title);
-            $final['P1433'] = self::get_WD_entity_object($title, 'entity_id'); //published in
+
+            // /* when to use 'published in' and 'stated in' ? TODO
+            // $final['P1433'] = self::get_WD_entity_object($title, 'entity_id'); //published in
+            $final['P248'] = self::get_WD_entity_object($title, 'entity_id'); //stated in
+            // */
 
             if($final['taxon_entity'] && $final['predicate_entity'] && $final['object_entity']) self::create_WD_taxon_trait($final);
         }
@@ -195,7 +199,7 @@ class WikiDataMtceAPI
         $rows = array();
         $row = $r['taxon_entity']."|".self::get_property_from_uri($r['predicate_entity'])."|".self::get_property_from_uri($r['object_entity']);
         if($published_in = $r['P1433']) $row .= "|S1433|".$published_in;
-        // if($published_in = $r['P1433']) $row .= "|S1433|".$published_in; //deliberately entered twice
+        if($stated_in = $r['P248']) $row .= "|S248|".$stated_in;
         
         $rows[] = $row;
 
