@@ -66,7 +66,7 @@ class WikiDataMtceAPI
                 $rec = array_map('trim', $rec);
                 // print_r($rec); //exit;
                 self::write_trait_2wikidata($rec);
-                if($i >= 2) break; //debug
+                if($i >= 3) break; //debug
             }
         }
     }
@@ -194,15 +194,12 @@ class WikiDataMtceAPI
         if($published_in = $r['P1433']) $row .= "|S1433|".$published_in;
         
         $rows[] = $row;
-        
         print_r($rows);
-        $WRITE = Functions::file_open($this->temp_file, "w");
+        $WRITE = Functions::file_open($this->temp_file, "a");
         foreach($rows as $row) {
             fwrite($WRITE, $row."\n");
         }
         fclose($WRITE);
-
-
     }
     private function get_property_from_uri($uri)
     {
