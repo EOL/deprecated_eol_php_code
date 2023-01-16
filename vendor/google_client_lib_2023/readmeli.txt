@@ -1,6 +1,6 @@
-This folder /google_client_lib_2023/ came from the webroot/google_client_lib_2023/ folder.
+This folder /google_client_lib_2023/ came from the webroot/google_client_lib_2023/vendor/ folder.
 It was created by Composer, when I installed Google Client Library.
-I then renamed this to /google_client_library/ and placed it in eol_php_code/vendor/google_client_lib_2023
+I then renamed this to /google_client_lib_2023/ and placed it in eol_php_code/vendor/google_client_lib_2023
 The original /vendor/ folder is in the webroot/google_client_lib_2023.
 
 This is for the PHP client to access Google Sheets.

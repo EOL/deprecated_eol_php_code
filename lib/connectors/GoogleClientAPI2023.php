@@ -10,9 +10,35 @@ class GoogleClientAPI2023
 {
     function __construct()
     {
+        if(Functions::is_production()) $this->cache_path = '/extra/other_files/wikidata_cache/';
+        else                           $this->cache_path = '/Volumes/Crucial_2TB/wikidata_cache/';
+        if(!is_dir($this->cache_path)) mkdir($this->cache_path);
+
     }
 
     function access_google_sheet($params)
+    {
+        // /*
+        require_library('connectors/CacheMngtAPI');
+        $this->func = new CacheMngtAPI($this->cache_path);
+        // */
+        
+        // /* New solution:
+        $md5_id = md5(json_encode($params));
+        if($records = $this->func->retrieve_json_obj($md5_id, false)) echo "\nCACHE EXISTS.\n"; //2nd param false means returned value is an array()
+        else {
+            echo "\nNO CACHE YET\n";
+            $records = self::do_the_google_thing($params);
+            $json = json_encode($records);
+            $this->func->save_json($md5_id, $json);
+            // $arr_rek = json_decode($json, true);                    //just for testing
+            // print_r($rek); print_r($arr_rek); exit("\ntest...\n");  //just for testing
+        }
+        // */
+        return $records;   
+    }
+
+    private function do_the_google_thing($params)
     {
         //Reading data from spreadsheet.
         $client = new \Google_Client();
@@ -34,8 +60,6 @@ class GoogleClientAPI2023
         $values = $response->getValues();
         return $values;
     }
-
-
 
 }
 ?>
