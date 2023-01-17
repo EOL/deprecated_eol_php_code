@@ -45,13 +45,14 @@ class WikiDataMtceAPI
 
     }
     function create_WD_traits($input)
-    {   
+    {   //print_r($input); exit("\nstop 2\n");
         // /* lookup spreadsheet for mapping
         $this->map = self::get_WD_entity_mappings();
         // */
         // /* report file to process
         $tmp = md5(json_encode($input));
         $this->tsv_file = $this->report_path."/".$tmp.".tsv"; // echo "\n$this->tsv_file\n";
+        $this->tsv_file = $this->report_path."/".$tmp."_".$input["trait kind"].".tsv";
         // */
         $i = 0;
         foreach(new FileIterator($this->tsv_file) as $line => $row) {
@@ -67,13 +68,13 @@ class WikiDataMtceAPI
                     $k++;
                 }
                 $rec = array_map('trim', $rec);
-                // print_r($rec); //exit;
-                self::write_trait_2wikidata($rec);
-                if($i >= 7) break; //debug
+                // print_r($rec); exit("\nelix1\n");
+                self::write_trait_2wikidata($rec, $input['trait kind']);
+                if($i >= 2) break; //debug
             }
         }
     }
-    private function write_trait_2wikidata($rec)
+    private function write_trait_2wikidata($rec, $trait_kind)
     {
         /*Array(
             [p.canonical] => Viadana semihamata
@@ -89,7 +90,7 @@ class WikiDataMtceAPI
             [t.citation] => Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34
             [ref.literal] => 
         )*/
-        print_r($rec); //exit;
+        // print_r($rec); exit("\nstop 1\n");
         if($taxon_entity_id = self::is_instance_of_taxon($rec['p.canonical'])) {
             $final = array();
             $final['taxon_entity'] = $taxon_entity_id;
@@ -98,10 +99,18 @@ class WikiDataMtceAPI
             $title = self::parse_citation_using_anystyle($rec['t.citation'], 'title');
             $title = self::manual_fix_title($title);
 
-            // /* when to use 'published in' and 'stated in' ? TODO
-            // $final['P1433'] = self::get_WD_entity_object($title, 'entity_id'); //published in
-            $final['P248'] = self::get_WD_entity_object($title, 'entity_id'); //stated in
-            // */
+            /* when to use 'published in' ? TODO --> right now Eli did it manually e.g. 'published in' https://www.wikidata.org/wiki/Q116180473
+            $final['P1433'] = self::get_WD_entity_object($title, 'entity_id'); //published in --- was not advised to use for now
+            */
+
+            /* The property to connect taxon to publication: If practical, "stated in" (P248) for regular records 
+            and "inferred from" (P3452) for branch-painted records. 
+            Eli, the corresponding part of your queries is [:trait|inferred_trait]. 
+            If the queries were separated into a version using [:trait] and one using [:inferred_trait], 
+            we could distinguish between regular records (P248) and branch painted records (P3452). */
+            if    ($trait_kind == "trait")          $final['P248']  = self::get_WD_entity_object($title, 'entity_id'); //"stated in" (P248)
+            elseif($trait_kind == "inferred_trait") $final['P3452'] = self::get_WD_entity_object($title, 'entity_id'); //"inferred from" (P3452) 
+            else exit("\nUndefined trait kind.\n");
 
             if($final['taxon_entity'] && $final['predicate_entity'] && $final['object_entity']) self::create_WD_taxon_trait($final);
         }
@@ -124,7 +133,11 @@ class WikiDataMtceAPI
         */
 
         $citation_obj = self::parse_citation_using_anystyle($citation, 'all');
-        if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) print_r($ret); //orig un-comment in real operation
+        if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) { //orig un-comment in real operation
+            print_r($ret);
+            return $ret['wikidata_id'];
+            exit("\nditox\n");
+        }
         // if(false) {}
         else {
             $title = $citation_obj[0]->title[0];
@@ -141,11 +154,12 @@ class WikiDataMtceAPI
             // print("\n$json\n");
             $obj = json_decode($json); //print_r($obj); exit;
             if($what == 'all') return $obj;
-            elseif($what == 'entity_id') return $obj->search[0]->id;
-            // {
-            //     return $obj->search[0]->id;
-            //     print_r($obj); exit;
-            // }
+            elseif($what == 'entity_id') {
+                // print_r($obj);
+                echo "\nentity found for string: [$string]";
+                echo "\nentity ID found is: [".$obj->search[0]->id."]\n";
+                return $obj->search[0]->id;
+            }
         }
         return false;
     }
@@ -202,8 +216,10 @@ class WikiDataMtceAPI
         )*/
         $rows = array();
         $row = $r['taxon_entity']."|".self::get_property_from_uri($r['predicate_entity'])."|".self::get_property_from_uri($r['object_entity']);
-        if($published_in = $r['P1433']) $row .= "|S1433|".$published_in;
-        if($stated_in = $r['P248']) $row .= "|S248|".$stated_in;
+        
+        if($stated_in     = @$r['P248'])  $row .= "|S248|".$stated_in;
+        if($inferred_from = @$r['P3452']) $row .= "|S3452|".$inferred_from;
+        if($published_in  = @$r['P1433']) $row .= "|S1433|".$published_in; // seems not used, nor has implementation rules
         
         $rows[] = $row;
 
@@ -301,10 +317,10 @@ class WikiDataMtceAPI
 
         print_r($rows);
         $WRITE = Functions::file_open($this->temp_file, "w");
-        foreach($rows as $row) {
-            fwrite($WRITE, $row."\n");
-        }
+        foreach($rows as $row) fwrite($WRITE, $row."\n");
         fclose($WRITE);
+
+        /* NEXT TODO: is the exec_shell command to trigger QuickStatements */
 
         /* Reminders:
         CREATE
