@@ -17,7 +17,7 @@ class WikiDataMtceAPI
         $this->download_options = array(
             'resource_id'        => 'wikidata',  //resource_id here is just a folder name in cache
             'expire_seconds'     => false, //60*60*24*30, //maybe 1 month to expire
-            'download_wait_time' => 750000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
+            'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
 
         $this->anystyle_parse_prog = "ruby ".DOC_ROOT. "update_resources/connectors/helpers/anystyle/run.rb";
         $this->wikidata_api['search string'] = "https://www.wikidata.org/w/api.php?action=wbsearchentities&language=en&format=json&search=MY_TITLE";
@@ -70,7 +70,7 @@ class WikiDataMtceAPI
                 $rec = array_map('trim', $rec);
                 // print_r($rec); exit("\nelix1\n");
                 self::write_trait_2wikidata($rec, $input['trait kind']);
-                if($i >= 7) break; //debug
+                // if($i >= 7) break; //debug
             }
         }
     }
@@ -169,16 +169,10 @@ class WikiDataMtceAPI
         $obj = self::get_WD_entity_object($taxon);
 
         if($wikidata_id = @$obj->search[0]->id) { # e.g. Q56079384
-            // echo "\nTitle exists: [$title]\n";
-            echo "\nwikidata_id: [$wikidata_id]\n";
-            if($taxon_obj = self::get_wikidata_entity_info($wikidata_id, 'all')) {
-                // print_r($taxon_obj);
-                $instance_of = @$taxon_obj->entities->$wikidata_id->claims->P31[0]->mainsnak->datavalue->value->id;
-                // exit("\n[$instance_of]\n");
-                if($instance_of == 'Q16521') # instance_of -> taxon
-                {
-                    return $wikidata_id;
-                }
+            echo "\nwikidata_id for '$taxon': [$wikidata_id]\n";
+            if($taxon_obj = self::get_wikidata_entity_info($wikidata_id, 'all')) { //print_r($taxon_obj);
+                $instance_of = @$taxon_obj->entities->$wikidata_id->claims->P31[0]->mainsnak->datavalue->value->id; //exit("\n[$instance_of]\n");
+                if($instance_of == 'Q16521') return $wikidata_id; # instance_of -> taxon
             }
         }
         return false;
