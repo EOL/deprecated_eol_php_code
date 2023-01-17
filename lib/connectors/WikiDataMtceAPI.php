@@ -70,7 +70,7 @@ class WikiDataMtceAPI
                 $rec = array_map('trim', $rec);
                 // print_r($rec); exit("\nelix1\n");
                 self::write_trait_2wikidata($rec, $input['trait kind']);
-                if($i >= 2) break; //debug
+                if($i >= 7) break; //debug
             }
         }
     }
@@ -136,7 +136,7 @@ class WikiDataMtceAPI
         if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) { //orig un-comment in real operation
             print_r($ret);
             return $ret['wikidata_id'];
-            exit("\nditox\n");
+            // exit("\nditox\n");
         }
         // if(false) {}
         else {
