@@ -211,7 +211,15 @@ $input = array();
 $input["params"] = array("citation" => $citation);
 $input["type"] = "wikidata_base_qry_citation";
 $input["per_page"] = 500; // 500 worked ok
+
+$input["trait kind"] = "trait";
 $func->query_trait_db($input);
+
+$input["trait kind"] = "inferred_trait";
+$func->query_trait_db($input);
+
+
+
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;

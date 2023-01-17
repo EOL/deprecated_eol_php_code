@@ -60,9 +60,10 @@ class CypherQueryAPI
     }
     function query_trait_db($input)
     {
+        // print_r($input); exit;
         // /* report filename
         $tmp = md5(json_encode($input));
-        $this->tsv_file = $this->report_path."/".$tmp.".tsv";
+        $this->tsv_file = $this->report_path."/".$tmp."_".$input["trait kind"].".tsv";
         // */
 
         if($val = @$input["per_page"]) $this->per_page = $val;
@@ -83,6 +84,7 @@ class CypherQueryAPI
             print("\n No. of rows: ".$total."\n");
             $skip += $this->per_page;
             if($total < $this->per_page) break;
+            // break; //debug only
         }
         print("\n-----Processing ends-----\n");
         // print_r($input); //good debug
@@ -94,9 +96,11 @@ class CypherQueryAPI
         $limit = $input['limit'];
         if($input['type'] == "wikidata_base_qry_citation") {
             $citation = urlencode($input['params']['citation']);
+            
+            /* old
             $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
             (t)-[:predicate]->(pred:Term)
-            WHERE t.citation="'.$citation.'"
+            WHERE t.citation = "'.$citation.'"
             OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
             OPTIONAL MATCH (t)-[:units_term]->(units:Term)
             OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
@@ -106,12 +110,31 @@ class CypherQueryAPI
             RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
             ORDER BY p.canonical 
             SKIP '.$skip.' LIMIT '.$limit;
+            */
+
+            // /* new
+            if(    $input['trait kind'] == 'trait')          $qry = 'MATCH (t:Trait)<-[:trait]-(p:Page), ';
+            elseif($input['trait kind'] == 'inferred_trait') $qry = 'MATCH (t:Trait)<-[:inferred_trait]-(p:Page), ';
+            $qry .= '(t)-[:predicate]->(pred:Term)
+            WHERE t.citation = "'.$citation.'"
+            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
+            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
+            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
+            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
+            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
+            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+            ORDER BY p.canonical 
+            SKIP '.$skip.' LIMIT '.$limit;
+            // */
         }
         elseif($input['type'] == "wikidata_base_qry_source") {
             $source = urlencode($input['params']['source']);
-            $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
-            (t)-[:predicate]->(pred:Term)
-            WHERE t.source="'.$source.'"
+            // $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
+            if(    $input['trait kind'] == 'trait')          $qry = 'MATCH (t:Trait)<-[:trait]-(p:Page), ';
+            elseif($input['trait kind'] == 'inferred_trait') $qry = 'MATCH (t:Trait)<-[:inferred_trait]-(p:Page), ';
+            $qry .= '(t)-[:predicate]->(pred:Term)
+            WHERE t.source = "'.$source.'"
             OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
             OPTIONAL MATCH (t)-[:units_term]->(units:Term)
             OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
@@ -188,7 +211,7 @@ class CypherQueryAPI
         */
         $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
         // $cmd .= ' 2>/dev/null'; //this will throw away the output
-        sleep(2); //delay 2 seconds
+        sleep(5); //delay 2 seconds
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
         echo "\n[$output]\n"; //good debug
         $json = file_get_contents($destination);

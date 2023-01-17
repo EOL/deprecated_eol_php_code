@@ -119,7 +119,8 @@ class WikiDataMtceAPI
         */
 
         $citation_obj = self::parse_citation_using_anystyle($citation, 'all');
-        if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) {
+        // if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) { //orig un-comment in real operation
+        if(false) {
             print_r($ret);
         }
         else {
@@ -237,22 +238,34 @@ class WikiDataMtceAPI
         if($val = @$obj->title[0]) $obj->title[0] = self::manual_fix_title($val);
         // */
 
-        print_r($obj); //exit;
+        // print_r($obj); exit("\nstop muna\n");
 
         $rows = array();
         $rows[] = 'CREATE';
+
+        // /* scholarly ?
+        // The "instance of" classifications: To keep things simple, we could use "scholarly article" if the reference parsers tell us it's a journal article, 
+        // and "scholarly work" for everything else.
+        $publication_types = array("article-journal", "chapter", "book");
+        if(in_array(@$obj->type, $publication_types)) {}
+        else exit("\nUndefined publication type.\n");
+        if(stripos(@$obj->type, 'journal') !== false) $scholarly = "scholarly article";
+        else                                          $scholarly = "scholarly work";
+        // */
+
 
         // /* first two entries: label and description
         # LAST TAB Lfr TAB "Le croissant magnifique!"
         if($title = @$obj->title[0]) {
             $rows[] = 'LAST|Len|' .'"'.$title.'"';
-            $rows[] = 'LAST|Den|' .'"'.$citation.'"';
+            $rows[] = 'LAST|Den|' .'"'.self::build_description($obj, $scholarly).'"';
         }
         // */
 
         // /* scholarly xxx
-        if($dois = @$obj->doi) $rows[] = "LAST|P31|Q13442814"; // instance of -> scholarly article
-        else                   $rows[] = "LAST|P31|Q55915575"; // instance of -> scholarly work
+        // if($dois = @$obj->doi) $rows[] = "LAST|P31|Q13442814"; // instance of -> scholarly article //old
+        if($scholarly == "scholarly article") $rows[] = "LAST|P31|Q13442814"; // instance of -> scholarly article
+        else                                  $rows[] = "LAST|P31|Q55915575"; // instance of -> scholarly work
         // */
 
         if($authors = @$obj->author)                 $rows = self::prep_for_adding($authors, 'P2093', $rows); #ok use P50 if author is an entity
@@ -428,7 +441,44 @@ class WikiDataMtceAPI
         return $final;
         // */
     }
+    private function build_description($obj, $scholarly)
+    {   /* To construct the Description of a publication entity: use the "instance of" value for the item (scholarly article or scholarly work) 
+        and the string "by [author]" if there is a single author, "by [author & author]" if there are 2 authors, and "by [author et al.]" 
+        if there are more then 2 authors. eg: https://www.wikidata.org/wiki/Q116180473
+        stdClass Object(
+            [author] => Array(
+                    [0] => stdClass Object(
+                            [family] => Fornoff
+                            [given] => Felix
+                        )
+                    [1] => stdClass Object(
+                            [family] => Dechmann
+                            [given] => Dina
+                        )
+                    [2] => stdClass Object(
+                            [family] => Wikelski
+                            [given] => Martin
+                        )
+                )
+            [type] => article-journal
+        )
+        */
+        $i = 0;
+        foreach($obj->author as $a) { $i++;
+            $author[$i] = $a->family;
+            if($given = @$a->given) $author[$i] .= ", " . $given;
+        }
 
+        if(count($obj->author) == 1)        $str = $author[1];
+        elseif(count($obj->author) == 2)    $str = $author[1]. " and ".$author[2];
+        elseif(count($obj->author) > 2)     $str = $author[1]." et al.";
+        
+        return $scholarly . " by " . $str;
+
+
+
+
+    }
 
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
