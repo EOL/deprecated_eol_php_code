@@ -129,14 +129,19 @@ exit("\n[$url]\n");
 */
 
 // /*
-// $citation = "Paul, C.R.C. and Smith, A.B., 1984. The early radiation and phylogeny of echinoderms. Biological Reviews, 59(4), pp.443-481.";
-$citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34";
+$t_citation = "Paul, C.R.C. and Smith, A.B., 1984. The early radiation and phylogeny of echinoderms. Biological Reviews, 59(4), pp.443-481.";
+$t_source = "https://doi.org/10.1111/j.1469-185X.1984.tb00411.x";
 
-// $citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
+// $t_citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34";
+// $t_source = ""; //none
+
+// $t_citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
+// $t_source = ""; //none
 
 // $citation = "Henry, Meghan, et al. The 2020 Annual Homeless Assessment Report (AHAR) to Congress. U.S. Dept. of Housing and Urban Development, Jan. 2021, https://www.huduser.gov/portal/sites/default/files/pdf/2020-AHAR-Part-1.pdf.";
 // $citation = "The Big Lebowski. Directed by Joel Coen, performances by Jeff Bridges and Julianne Moore, Polygram Filmed Entertainment, 1998. Las Vegas, Nevada";
-$func->create_citation_if_does_not_exist($citation);
+
+$func->create_citation_if_does_not_exist($t_citation, $t_source);
 // */
 
 /* create traits

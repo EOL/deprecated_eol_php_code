@@ -108,7 +108,7 @@ class WikiDataMtceAPI
         else echo "\nNot a taxon: [".$rec['p.canonical']."]\n";
         // print_r($final);
     }
-    function create_citation_if_does_not_exist($citation)
+    function create_citation_if_does_not_exist($citation, $t_source)
     {
         /* Crossref is not reliable. It always gets a DOI for most citations. https://apps.crossref.org/simpleTextQuery/
         $ret = self::crossref_citation($citation);
@@ -118,17 +118,20 @@ class WikiDataMtceAPI
         exit("\n-end muna\n");
         */
 
+        /*
+        Searching for an existing publication entity: if t.source is a doi, or a wikidata url, use that to identify the entity. 
+        If not, proceed to parsing.
+        */
+
         $citation_obj = self::parse_citation_using_anystyle($citation, 'all');
-        // if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) { //orig un-comment in real operation
-        if(false) {
-            print_r($ret);
-        }
+        if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) print_r($ret); //orig un-comment in real operation
+        // if(false) {}
         else {
             $title = $citation_obj[0]->title[0];
             echo "\nTitle does not exist. [$title]\n";
             self::create_WD_reference_item($citation_obj, $citation);
         }
-        ;
+        
         echo ("\n-end muna-\n");
     }
     function get_WD_entity_object($string, $what = 'all')
@@ -466,7 +469,9 @@ class WikiDataMtceAPI
         $i = 0;
         foreach($obj->author as $a) { $i++;
             $author[$i] = $a->family;
+            /* working OK - if we want to add the given name
             if($given = @$a->given) $author[$i] .= ", " . $given;
+            */
         }
 
         if(count($obj->author) == 1)        $str = $author[1];
@@ -474,10 +479,6 @@ class WikiDataMtceAPI
         elseif(count($obj->author) > 2)     $str = $author[1]." et al.";
         
         return $scholarly . " by " . $str;
-
-
-
-
     }
 
     /* working func but not used, since Crossref is not used, unreliable.
