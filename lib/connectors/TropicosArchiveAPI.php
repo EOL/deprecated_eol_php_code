@@ -780,6 +780,7 @@ class TropicosArchiveAPI
         $options['cache'] = 1;
         $options['expire_seconds'] = $expire_seconds; //25 days
         $local = Functions::save_remote_file_to_local($url, $options);
+        echo "\nfilename: [$local]\n";
         $handle = fopen($local, "r");
         if ($handle) {
             while (($line = fgets($handle)) !== false) {
