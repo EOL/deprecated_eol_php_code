@@ -784,29 +784,29 @@ class TropicosArchiveAPI
         ini_set('display_errors', true);
         $GLOBALS['ENV_DEBUG'] = true;
         
-
-        $local = Functions::save_remote_file_to_local($url, $options);
-        echo "\nfilename: [$local]\n";
-        $handle = fopen($local, "r");
-        if ($handle) {
-            while (($line = fgets($handle)) !== false) {
-                $line = str_replace("\n", "", $line);
-                $a = explode("\t", $line); $a = array_map('trim', $a);
-                
-                /* OK but changed in strategy...
-                if($val = @$a[1]) $this->uri_values[$a[0]] = $val;
-                */
-                if(@$this->uri_values[$a[0]]) {} //has a value already. Coz some mapping docs have double entries for a string and the last one is blank.
-                else $this->uri_values[$a[0]] = @$a[1];
-                
-                /* not needed anymore
-                $this->ctrys_with_diff_name[] = $a[0]; //what goes here is e.g. 'Burma Rep.', if orig ctry name is 'Burma' and Tropicos calls it differently e.g. 'Burma Rep.'.
-                */
-            }
-            fclose($handle);
-        } 
-        else echo "\nCannot read!\n";
-        unlink($local);
+        if($local = Functions::save_remote_file_to_local($url, $options)) {
+            echo "\nfilename: [$local]\n";
+            $handle = fopen($local, "r");
+            if ($handle) {
+                while (($line = fgets($handle)) !== false) {
+                    $line = str_replace("\n", "", $line);
+                    $a = explode("\t", $line); $a = array_map('trim', $a);
+                    
+                    /* OK but changed in strategy...
+                    if($val = @$a[1]) $this->uri_values[$a[0]] = $val;
+                    */
+                    if(@$this->uri_values[$a[0]]) {} //has a value already. Coz some mapping docs have double entries for a string and the last one is blank.
+                    else $this->uri_values[$a[0]] = @$a[1];
+                    
+                    /* not needed anymore
+                    $this->ctrys_with_diff_name[] = $a[0]; //what goes here is e.g. 'Burma Rep.', if orig ctry name is 'Burma' and Tropicos calls it differently e.g. 'Burma Rep.'.
+                    */
+                }
+                fclose($handle);
+            } 
+            else echo "\nCannot read!\n";
+            unlink($local);    
+        }
         if($return_d_value) return $this->uri_values;
     }
     public function data_1841_terms_remapping($mappings, $remapped_terms)
