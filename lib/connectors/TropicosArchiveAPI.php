@@ -779,6 +779,7 @@ class TropicosArchiveAPI
         $options = $this->download_options;
         $options['cache'] = 1;
         $options['expire_seconds'] = $expire_seconds; //25 days
+        $options['expire_seconds'] = 3; //3 seconds
 
         ini_set('error_reporting', E_ALL);
         ini_set('display_errors', true);
@@ -803,11 +804,15 @@ class TropicosArchiveAPI
                     */
                 }
                 fclose($handle);
+                if($return_d_value) return $this->uri_values;
             } 
             else echo "\nCannot read!\n";
             unlink($local);    
         }
-        if($return_d_value) return $this->uri_values;
+        else echo "\nERROR: save_remote_file_to_local() is not returning anything.\n";
+        // if($return_d_value) return $this->uri_values; //moved inside, was outside for the longest time
+        if(isset($this->uri_values)) return $this->uri_values;
+        else return array();
     }
     public function data_1841_terms_remapping($mappings, $remapped_terms)
     {
