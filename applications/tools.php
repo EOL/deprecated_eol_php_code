@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 include_once(dirname(__FILE__) . "/../config/environment.php");
-$GLOBALS['ENV_DEBUG'] = false;
+$GLOBALS['ENV_DEBUG'] = true; //false orig
 
 
 echo '<a href="' . WEB_ROOT .'/applications/dwc_validator/">Archive and Spreadsheet Validator (orig)</a> | <br>';
