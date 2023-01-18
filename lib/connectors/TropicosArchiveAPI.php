@@ -779,6 +779,12 @@ class TropicosArchiveAPI
         $options = $this->download_options;
         $options['cache'] = 1;
         $options['expire_seconds'] = $expire_seconds; //25 days
+
+        ini_set('error_reporting', E_ALL);
+        ini_set('display_errors', true);
+        $GLOBALS['ENV_DEBUG'] = true;
+        
+
         $local = Functions::save_remote_file_to_local($url, $options);
         echo "\nfilename: [$local]\n";
         $handle = fopen($local, "r");
