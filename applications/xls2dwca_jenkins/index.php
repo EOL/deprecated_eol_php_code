@@ -1,5 +1,5 @@
 <?php
-print "<hr>testing...1<hr>";
+print "<hr>testing...1<hr>"; exit;
 ?>
 
 <form action="form_result.php" method="post" enctype="multipart/form-data">
