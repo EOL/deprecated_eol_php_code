@@ -804,15 +804,14 @@ class TropicosArchiveAPI
                     */
                 }
                 fclose($handle);
-                if($return_d_value) return $this->uri_values;
             } 
             else echo "\nCannot read!\n";
             unlink($local);    
         }
         else echo "\nERROR: save_remote_file_to_local() is not returning anything.\n";
-        // if($return_d_value) return $this->uri_values; //moved inside, was outside for the longest time
-        if(isset($this->uri_values)) return $this->uri_values;
-        else return array();
+        if($return_d_value) {
+            if(isset($this->uri_values)) return $this->uri_values;
+        }
     }
     public function data_1841_terms_remapping($mappings, $remapped_terms)
     {
