@@ -69,7 +69,9 @@ class WikiDataMtceAPI
                 }
                 $rec = array_map('trim', $rec);
                 // print_r($rec); exit("\nelix1\n");
-                self::write_trait_2wikidata($rec, $input['trait kind']);
+                if($rec['p.canonical'] && $rec['pred.name'] && $rec['obj.name']) {
+                    self::write_trait_2wikidata($rec, $input['trait kind']);
+                }
                 // if($i >= 7) break; //debug
             }
         }
