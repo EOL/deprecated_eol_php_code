@@ -62,7 +62,7 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
         
         if(Functions::file_rename($newfile, "temp/Trait_template.xlsx")) echo "\nSUCCESS: Update of template spreadsheet is successful.\n";
         else echo "ERROR: Cannot update template spreadsheet";
-        echo "<p><a href='index.php'>Back to menu</a>";
+        echo "<p><a href='main.php'>Back to menu</a>";
     }
     else exit("<hr>$file_type<hr>Invalid file. Should be (.xlsx) file.<br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 }

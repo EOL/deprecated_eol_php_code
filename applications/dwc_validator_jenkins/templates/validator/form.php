@@ -8,7 +8,7 @@ $GLOBALS['ENV_DEBUG'] = true;
 ?>
 
 
-<!--- <form name="validator_form" action="index.php" method="post" enctype="multipart/form-data"> --->
+<!--- <form name="validator_form" action="main.php" method="post" enctype="multipart/form-data"> --->
 
 <form name="validator_form" action="form_result.php" method="post" enctype="multipart/form-data">
 <table align="center">
@@ -28,7 +28,7 @@ $GLOBALS['ENV_DEBUG'] = true;
             <br/>
             <input type="submit" value="Submit">
             <br/><br/>
-            You might also want to try our <a href='../validator/index.php'>XML validator</a>
+            You might also want to try our <a href='../validator/main.php'>XML validator</a>
         </td>
     </tr>
 </table>

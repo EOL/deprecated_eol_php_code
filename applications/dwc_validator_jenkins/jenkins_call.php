@@ -23,7 +23,7 @@ $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
 $json = json_encode($parameters, true);
 
 $params['uuid'] = time();
-$cmd = PHP_PATH.' index.php jenkins ' . "'" . $json . "'";
+$cmd = PHP_PATH.' main.php jenkins ' . "'" . $json . "'";
 
 $cmd .= " 2>&1";
 $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);

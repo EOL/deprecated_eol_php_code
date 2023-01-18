@@ -83,7 +83,7 @@ class dwc_validator_controller extends ControllerBase
                 unlink($parameters['dwca_upload']['tmp_name']);
                 return;
             }
-            render_template("validator/index", $final);
+            render_template("validator/main", $final);
         }
     }
     private static function show_results($p)
@@ -139,7 +139,7 @@ class dwc_validator_controller extends ControllerBase
             }
             // else echo "<hr>No $topic<hr>";
         }
-        echo " <a href='index.php'>Back to main</a><br>";
+        echo " <a href='main.php'>Back to main</a><br>";
     }
     private static function add_errors_to_json($errors, &$json, $index)
     {

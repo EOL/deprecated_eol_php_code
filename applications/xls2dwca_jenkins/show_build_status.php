@@ -1,6 +1,6 @@
 <?php
 $postfix = "_xls2dwca";
-$str = "Copy 'Build status' and send to <i>eagbayani@eol.org</i>. &nbsp; Or you can try it again when system resources are free. &nbsp; <a href='index.php'>&lt;&lt; Back to main</a>";
+$str = "Copy 'Build status' and send to <i>eagbayani@eol.org</i>. &nbsp; Or you can try it again when system resources are free. &nbsp; <a href='main.php'>&lt;&lt; Back to main</a>";
 // the $build_status should come from the status for uuid in question not just the currently last_build
 $build_status = $ctrler->get_last_build_console_text($task, $params['uuid'].$postfix);
 if($ctrler->did_build_fail($build_status)) {
@@ -35,9 +35,9 @@ else {
                 You can save this file to your computer.<br><br>
                 This file will be stored on our server for a week, after which it will be removed.<br><br>
                 You can also use this URL in our 
-                <a href='../dwc_validator/index.php' target='_blank'>Archive Validator</a> to ensure its contents are valid.
-                <a href='../dwc_validator/index.php?file_url=$final_archive_gzip_url' target='_blank'>Click here</a> to validate now.<br><br>
-                Thank you. &nbsp;<a href='index.php'>Try another</a>";
+                <a href='../dwc_validator/main.php' target='_blank'>Archive Validator</a> to ensure its contents are valid.
+                <a href='../dwc_validator/main.php?file_url=$final_archive_gzip_url' target='_blank'>Click here</a> to validate now.<br><br>
+                Thank you. &nbsp;<a href='main.php'>Try another</a>";
             echo "<br>=======================================================<br><br>";
         }
         else {
@@ -64,6 +64,6 @@ else {
     else echo "<hr><b>Build status:</b><pre>Preparing files...</pre><hr>";
 }
 if($build_status) {
-    if($ctrler->is_build_aborted($build_status)) echo "<p>Process aborted. &nbsp; <a href='index.php'>&lt;&lt; Back to main</a>";
+    if($ctrler->is_build_aborted($build_status)) echo "<p>Process aborted. &nbsp; <a href='main.php'>&lt;&lt; Back to main</a>";
 }
 ?>

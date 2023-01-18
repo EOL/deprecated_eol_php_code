@@ -10,7 +10,7 @@ if(@$_FILES['dwca_upload']) $_POST['dwca_upload'] = $_FILES['dwca_upload'];
 $parameters =& $_GET;
 if(!$parameters) $parameters =& $_POST;
 
-/* from original copied script (index.php)
+/* from original copied script (main.php)
 require_once("controllers/validator.php");
 $validator_controller = new dwc_validator_controller();
 */

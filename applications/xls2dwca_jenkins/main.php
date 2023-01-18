@@ -46,5 +46,5 @@
 </form>
 <hr>
 <?php 
-require_once("../../../tools.php") 
+require_once("../tools.php") 
 ?>
