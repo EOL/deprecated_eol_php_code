@@ -42,4 +42,7 @@
     </table>
 </form>
 <hr>
-<?php require_once("../tools.php") ?>
+<?php 
+echo "<hr>Testing...<hr>"
+// require_once("../tools.php") 
+?>
