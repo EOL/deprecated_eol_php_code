@@ -1,5 +1,5 @@
 <?php
-print "<hr>testing...1<hr>"; exit;
+print "<hr>testing...1<hr>"; //exit;
 ?>
 
 <form action="form_result.php" method="post" enctype="multipart/form-data">
@@ -47,6 +47,6 @@ print "<hr>testing...1<hr>"; exit;
 </form>
 <hr>
 <?php 
-echo "<hr>Testing...2<hr>"
-// require_once("../tools.php") 
+echo "<hr>Testing...2<hr>";
+require_once("../tools.php") 
 ?>
