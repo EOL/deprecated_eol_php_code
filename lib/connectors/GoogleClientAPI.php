@@ -15,18 +15,26 @@ class GoogleClientAPI
 
         $this->credentials_json_path = __DIR__ . '/../../vendor/google_client_lib_2023/json/credentials.json';
     }
-    function access_google_sheet($params)
+    function access_google_sheet($params, $use_cache_YN = true)
     {
         // /*
         require_library('connectors/CacheMngtAPI');
         $this->func = new CacheMngtAPI($this->cache_path);
         // */
-        
+
         // /* New solution:
         $md5_id = md5(json_encode($params));
-        if($records = $this->func->retrieve_json_obj($md5_id, false)) echo "\nCACHE EXISTS.\n"; //2nd param false means returned value is an array()
+        if($use_cache_YN) {
+            if($records = $this->func->retrieve_json_obj($md5_id, false)) echo "\nCACHE EXISTS.\n"; //2nd param false means returned value is an array()
+            else {
+                echo "\nNO CACHE YET\n";
+                $records = self::do_the_google_thing($params);
+                $json = json_encode($records);
+                $this->func->save_json($md5_id, $json);
+            }
+        }
         else {
-            echo "\nNO CACHE YET\n";
+            echo "\nCACHE FORCE-EXPIRE\n";
             $records = self::do_the_google_thing($params);
             $json = json_encode($records);
             $this->func->save_json($md5_id, $json);

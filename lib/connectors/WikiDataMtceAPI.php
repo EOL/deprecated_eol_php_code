@@ -129,6 +129,10 @@ class WikiDataMtceAPI
         exit("\n-end muna\n");
         */
 
+        // /* lookup spreadsheet for mapping
+        $this->map = self::get_WD_entity_mappings();
+        // */
+        
         /*
         Searching for an existing publication entity: if t.source is a doi, or a wikidata url, use that to identify the entity. 
         If not, proceed to parsing.
@@ -138,7 +142,6 @@ class WikiDataMtceAPI
         if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) { //orig un-comment in real operation
             print_r($ret);
             return $ret['wikidata_id'];
-            // exit("\nditox\n");
         }
         // if(false) {}
         else {
@@ -279,8 +282,8 @@ class WikiDataMtceAPI
 
         // /* scholarly xxx
         // if($dois = @$obj->doi) $rows[] = "LAST|P31|Q13442814"; // instance of -> scholarly article //old
-        if($scholarly == "scholarly article") $rows[] = "LAST|P31|Q13442814"; // instance of -> scholarly article
-        else                                  $rows[] = "LAST|P31|Q55915575"; // instance of -> scholarly work
+        if($scholarly == "scholarly article") $rows[] = "LAST|P31|Q13442814 /* scholarly article */"; // instance of -> scholarly article
+        else                                  $rows[] = "LAST|P31|Q55915575 /* scholarly work */"; // instance of -> scholarly work
         // */
 
         if($authors = @$obj->author)                 $rows = self::prep_for_adding($authors, 'P2093', $rows); #ok use P50 if author is an entity
@@ -293,14 +296,12 @@ class WikiDataMtceAPI
         if($chapters = @$obj->chapter)               $rows = self::prep_for_adding($chapters, 'P792', $rows); //No 'chapter' parsed by AnyStyle. Eli should do his own parsing.
         if($titles = @$obj->title)                   $rows = self::prep_for_adding($titles, 'P1476', $rows); #ok
 
-        /* Eli's initiative atm.
-        // So for starters, I added another property 'type of reference' (P3865)
+        // /* Eli's initiative, but was given a go signal -> property 'type of reference' (P3865)
         if($type = @$obj->type)                      $rows = self::prep_for_adding(array($type), 'P3865', $rows); #ok
-        */
+        // */
 
         // /* Eli's initiative but close to Jen's "published in" (P1433) proposal
         if($containers = @$obj->{"container-title"})      $rows = self::prep_for_adding($containers, 'P1433', $rows); #ok
-        
         // */
 
         // Others:
@@ -317,6 +318,9 @@ class WikiDataMtceAPI
         fclose($WRITE);
 
         /* NEXT TODO: is the exec_shell command to trigger QuickStatements */
+        exit("\nUnder construction...\n");
+        self::use_report_sent_exportfile_2quickstatements();
+        
 
         /* Reminders:
         CREATE
@@ -326,7 +330,6 @@ class WikiDataMtceAPI
         scholarly article   https://www.wikidata.org/wiki/Q13442814 for anything with a DOI and 
         scholarly work      https://www.wikidata.org/wiki/Q55915575 for all other items we create for sources.
         */
-        
     }
     private function format_string($str)
     {   /*
@@ -371,20 +374,31 @@ class WikiDataMtceAPI
                 $rows[] = "LAST|$property|" . self::format_publication_date($val);
             }
         }
-        
         elseif($property == 'P1476') { #title
             foreach($recs as $val) {
                 $rows[] = "LAST|$property|en:" .'"'.$val.'"';
             }
         }
-
-        /* to do: Eli
-        elseif($property == 'P1433') { # "published in" - value needs to be an entity. E.g. 'Ecotropica'
+        
+        elseif($property == 'P3865') { #type - reference type
             foreach($recs as $val) {
-                $rows[] = "LAST|$property|en:" .'"'.$val.'"';
+                // $rows[] = "LAST|$property|".$this->map["other values"][$val]['entity']. " /* $val */";
+                if($entity_id = @$this->map["other values"][$val]['entity']) {
+                    if($property == @$this->map["other values"][$val]['field']) $rows[] = "LAST|$property|$entity_id". " /* $val */";
+                }
+
             }
         }
-        */
+
+        // /* to do: Eli
+        elseif($property == 'P1433') { # "published in" - value needs to be an entity. E.g. 'Ecotropica'
+            foreach($recs as $val) {
+                if($entity_id = @$this->map["other values"][$val]['entity']) {
+                    if($property == @$this->map["other values"][$val]['field']) $rows[] = "LAST|$property|$entity_id". " /* $val */";
+                }
+            }
+        }
+        // */
         
 
         else { // the rest goes here
@@ -427,20 +441,24 @@ class WikiDataMtceAPI
         elseif($what == 'title') return $obj[0]->title[0];
         echo ("\n-end muna-\n");
     }
-
-
     function get_WD_entity_mappings()
     {   
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '129IRvjoFLUs8kVzjdchT_ImlCGGXIdVKYkKwIv7ld0U';
-        
-        $sheets = array("measurementTypes", "measurementValues", "metadata");
+        // /* group 1
+        $sheets = array("measurementTypes", "measurementValues", "metadata", "other values");
         foreach($sheets as $sheet) {
             $params['range']         = $sheet.'!A1:C100'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-            $arr = $func->access_google_sheet($params);    
+            $arr = $func->access_google_sheet($params); //2nd param false means cache expires
             $final[$sheet] = self::massage_google_sheet_results($arr);
         }
+        // */
+
+        // /* group 2
+
+        // */
+
         // print_r($final); exit;
         return $final;
     }

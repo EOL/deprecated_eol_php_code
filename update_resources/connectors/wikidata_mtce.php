@@ -128,12 +128,12 @@ $url = $pre_url.$param;
 exit("\n[$url]\n");
 */
 
-/*
+// /*
 $t_citation = "Paul, C.R.C. and Smith, A.B., 1984. The early radiation and phylogeny of echinoderms. Biological Reviews, 59(4), pp.443-481.";
 $t_source = "https://doi.org/10.1111/j.1469-185X.1984.tb00411.x";
 
-// $t_citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34";
-// $t_source = ""; //none
+$t_citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34";
+$t_source = ""; //none
 
 // $t_citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
 // $t_source = ""; //none
@@ -142,9 +142,9 @@ $t_source = "https://doi.org/10.1111/j.1469-185X.1984.tb00411.x";
 // $citation = "The Big Lebowski. Directed by Joel Coen, performances by Jeff Bridges and Julianne Moore, Polygram Filmed Entertainment, 1998. Las Vegas, Nevada";
 
 $func->create_citation_if_does_not_exist($t_citation, $t_source);
-*/
+// */
 
-// /* create traits
+/* create traits
 $citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34"; # 1st group
 $input = array();
 $input["params"] = array("citation" => $citation);
@@ -153,7 +153,7 @@ $input["per_page"] = 500; // 500 worked ok
 $input["trait kind"] = "trait";
 $input["trait kind"] = "inferred_trait";
 $func->create_WD_traits($input);
-// */
+*/
 
 
 /* works OK
