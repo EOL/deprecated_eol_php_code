@@ -128,7 +128,7 @@ $url = $pre_url.$param;
 exit("\n[$url]\n");
 */
 
-// /*
+/*
 $t_citation = "Paul, C.R.C. and Smith, A.B., 1984. The early radiation and phylogeny of echinoderms. Biological Reviews, 59(4), pp.443-481.";
 $t_source = "https://doi.org/10.1111/j.1469-185X.1984.tb00411.x";
 
@@ -142,7 +142,7 @@ $t_source = ""; //none
 // $citation = "The Big Lebowski. Directed by Joel Coen, performances by Jeff Bridges and Julianne Moore, Polygram Filmed Entertainment, 1998. Las Vegas, Nevada";
 
 $func->create_citation_if_does_not_exist($t_citation, $t_source);
-// */
+*/
 
 /* create traits
 $citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34"; # 1st group
@@ -150,10 +150,16 @@ $input = array();
 $input["params"] = array("citation" => $citation);
 $input["type"] = "wikidata_base_qry_citation";
 $input["per_page"] = 500; // 500 worked ok
-$input["trait kind"] = "trait";
+$input["trait kind"] = "trait"; //only 2 recs here
 $input["trait kind"] = "inferred_trait";
 $func->create_WD_traits($input);
 */
+// /*
+$func->divide_exportfile_send_2quickstatements();
+// */
+// last error was: 2023_01_19 8
+
+
 
 
 /* works OK
@@ -172,6 +178,16 @@ else                                    echo "\n[$taxon] is not a taxon.\n";
 $func->get_WD_entity_mappings();
 */
 
+/* parse citations: source bibliographicCitation
+$refs = array();
+$refs[] = "https://doi.org/10.1007/978-3-662-02604-5_50 C. N. PAGE. 1990. Ginkgoaceae. In: The families and genera of vascular plants. Volume I; Pteridophytes and Gymnosperms. K. Kubitzki, K. U. Kramer and P. S. Green, eds.";
+$refs[] = "https://doi.org/10.1007/978-3-662-02604-5_54 C. N. PAGE. 1990. Araucariaceae. In: The families and genera of vascular plants. Volume I; Pteridophytes and Gymnosperms. K. Kubitzki, K. U. Kramer and P. S. Green, eds.";
+$refs[] = "https://doi.org/10.1007/978-3-662-03531-3_1 Kubitzki, K. 1998. Conspectus of families treated in this volume. In: The families and genera of vascular plants. Volume IV; Flowering Plants - Monocotyledons. Alismatanae and Commelinanae (except Gramineae). K. Kubitzki, ed.";
+$refs[] = "https://doi.org/10.1007/978-3-319-15332-2 E.A. Kellogg. 2015. The families and genera of vascular plants. Volume XIII; Flowering Plants: Monocots - Poaceae. K. Kubitzki, ed. Springer Nature.";
+$refs[] = "https://doi.org/10.1007/978-3-662-02899-5 K. Kubitzki, J.G. Rohwer and V. Bittrich eds. 1993. The families and genera of vascular plants. Volume II; Flowering Plants: Dicotyledons. Magnoliid, Hamamelid and Caryophyllid families. Springer Nature.";
+$refs[] = "https://www.wikidata.org/entity/Q116222930 Brusca, R.C. and Brusca, G.J., 2003. Invertebrates. 2nd. Sunderland, Mass.: Sinauer Associates, 936 pp.";
+$func->utility_parse_refs($refs);
+*/
 
 /* copied template - not used but works OK
 ====================================================

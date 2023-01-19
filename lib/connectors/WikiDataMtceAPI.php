@@ -29,8 +29,10 @@ class WikiDataMtceAPI
         $last_digit = (string) rand();
         $last_digit = substr((string) rand(), -2);
         $this->temp_file = DOC_ROOT . "/tmp/" . date("Y_m_d_H_i_s_") . $last_digit . ".qs";
-        $this->temp_file = DOC_ROOT . "/tmp/test.qs";
-        if(file_exists($this->temp_file)) unlink($this->temp_file);
+        $this->temp_file = DOC_ROOT . "/tmp/big_export.qs"; //test.qs
+        $this->temp_export = DOC_ROOT . "/tmp/temp_export.qs";
+
+        // if(file_exists($this->temp_file)) unlink($this->temp_file); //un-comment in real operation
         // */
 
         // exit("\n".QUICKSTATEMENTS_EOLTRAITS_TOKEN."\n");
@@ -40,7 +42,7 @@ class WikiDataMtceAPI
         // /* report filename - generated from CypherQueryAPI.php
         $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/";
         if(!is_dir($this->report_path)) mkdir($this->report_path);
-        // */        
+        // */
     }
     function create_WD_traits($input)
     {   //print_r($input); exit("\nstop 2\n");
@@ -58,6 +60,9 @@ class WikiDataMtceAPI
             $i++;
             if($i == 1) $fields = explode("\t", $row);
             else {
+
+                // if($i <= 20) continue;
+
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
                 $rec = array(); $k = 0;
@@ -70,9 +75,66 @@ class WikiDataMtceAPI
                 if($rec['p.canonical'] && $rec['pred.name'] && $rec['obj.name']) {
                     self::write_trait_2wikidata($rec, $input['trait kind']);
                 }
-                // if($i >= 7) break; //debug
+                // if($i >= 20) break; //debug
             }
         }
+
+        /* Under construction */
+        self::divide_exportfile_send_2quickstatements();
+    }
+    function divide_exportfile_send_2quickstatements()
+    {
+        $i = 0;
+        $batch_name = date("Y_m_d");
+        $batch_num = 0;
+        $WRITE = Functions::file_open($this->temp_export, "w");
+        foreach(new FileIterator($this->temp_file) as $line => $row) {
+            if($row) $i++;
+            echo "\n".$row;
+            fwrite($WRITE, $row."\n");
+            if(($i % 3) == 0) { $batch_num++;
+                echo "\n-----";
+                fclose($WRITE);
+                self::run_quickstatements_api($batch_name, $batch_num); 
+                sleep(30);
+                // self::run_quickstatements_api($batch_name, $batch_num); 
+                // exit;
+
+                // if($batch_num == 1200) exit;
+                $WRITE = Functions::file_open($this->temp_export, "w"); //initialize again                
+                // sleep(3);
+            }
+        }
+        fclose($WRITE);
+        self::run_quickstatements_api($batch_name, $batch_num);
+
+
+        /*
+        QUICKSTATEMENTS_EOLTRAITS_TOKEN
+        curl https://quickstatements.toolforge.org/api.php \
+        -d action=import \
+        -d submit=1 \
+        -d username=EOLTraits \
+        -d "batchname=THE NAME OF THE BATCH" \
+        --data-raw 'token=$2y$10$hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy' \
+        --data-urlencode data@test.qs
+
+        */
+
+    }
+    private function run_quickstatements_api($batch_name, $batch_num)
+    {
+        $batchname = "$batch_name $batch_num";
+        $cmd = "curl https://quickstatements.toolforge.org/api.php";
+        $cmd .= " -d action=import ";
+        $cmd .= " -d submit=1 ";
+        $cmd .= " -d username=EOLTraits ";
+        $cmd .= " -d 'batchname=".$batchname."' ";
+        $cmd .= " --data-raw 'token=".QUICKSTATEMENTS_EOLTRAITS_TOKEN."' ";
+        $cmd .= " --data-urlencode data@".$this->temp_export." ";
+        echo "\n$cmd\n";
+        $output = shell_exec($cmd);
+        echo "\n[$output]\n";
     }
     private function write_trait_2wikidata($rec, $trait_kind)
     {
@@ -315,7 +377,6 @@ class WikiDataMtceAPI
 
         /* NEXT TODO: is the exec_shell command to trigger QuickStatements */
         exit("\nUnder construction...\n");
-        self::use_report_sent_exportfile_2quickstatements();
         
 
         /* Reminders:
@@ -495,7 +556,15 @@ class WikiDataMtceAPI
 
         return $scholarly . " by " . $str;
     }
-
+    function utility_parse_refs($refs)
+    {
+        foreach($refs as $ref) {
+            $obj = self::parse_citation_using_anystyle($ref, 'all');
+            // print_r($obj); exit;
+            $obj = $obj[0];
+            echo "\n[".$obj->type."][$ref]";
+        }
+    }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
     {
