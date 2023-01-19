@@ -40,9 +40,7 @@ class WikiDataMtceAPI
         // /* report filename - generated from CypherQueryAPI.php
         $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/";
         if(!is_dir($this->report_path)) mkdir($this->report_path);
-
         // */        
-
     }
     function create_WD_traits($input)
     {   //print_r($input); exit("\nstop 2\n");
@@ -257,7 +255,6 @@ class WikiDataMtceAPI
         // */
 
         // print_r($obj); exit("\nstop muna\n");
-
         $rows = array();
         $rows[] = 'CREATE';
 
@@ -270,7 +267,6 @@ class WikiDataMtceAPI
         if(stripos(@$obj->type, 'journal') !== false) $scholarly = "scholarly article";
         else                                          $scholarly = "scholarly work";
         // */
-
 
         // /* first two entries: label and description
         # LAST TAB Lfr TAB "Le croissant magnifique!"
@@ -379,28 +375,25 @@ class WikiDataMtceAPI
                 $rows[] = "LAST|$property|en:" .'"'.$val.'"';
             }
         }
-        
         elseif($property == 'P3865') { #type - reference type
             foreach($recs as $val) {
                 // $rows[] = "LAST|$property|".$this->map["other values"][$val]['entity']. " /* $val */";
                 if($entity_id = @$this->map["other values"][$val]['entity']) {
                     if($property == @$this->map["other values"][$val]['field']) $rows[] = "LAST|$property|$entity_id". " /* $val */";
+                    else exit("\nUndefined reference type [$val]\n");
                 }
-
             }
         }
-
         // /* to do: Eli
         elseif($property == 'P1433') { # "published in" - value needs to be an entity. E.g. 'Ecotropica'
             foreach($recs as $val) {
                 if($entity_id = @$this->map["other values"][$val]['entity']) {
                     if($property == @$this->map["other values"][$val]['field']) $rows[] = "LAST|$property|$entity_id". " /* $val */";
+                    else exit("\nUndefined 'published in' [$val]\n");
                 }
             }
         }
-        // */
-        
-
+        // */        
         else { // the rest goes here
             foreach($recs as $val) {
 
@@ -429,7 +422,6 @@ class WikiDataMtceAPI
             else exit("\nERROR: Specify return item.\n");
         }
         else echo "\nShould not go here.\n";
-
     }
     private function parse_citation_using_anystyle($citation, $what)
     {
@@ -454,11 +446,6 @@ class WikiDataMtceAPI
             $final[$sheet] = self::massage_google_sheet_results($arr);
         }
         // */
-
-        // /* group 2
-
-        // */
-
         // print_r($final); exit;
         return $final;
     }
@@ -494,8 +481,7 @@ class WikiDataMtceAPI
                         )
                 )
             [type] => article-journal
-        )
-        */
+        ) */
         $i = 0;
         foreach($obj->author as $a) { $i++;
             $author[$i] = $a->family;
@@ -503,11 +489,10 @@ class WikiDataMtceAPI
             if($given = @$a->given) $author[$i] .= ", " . $given;
             */
         }
-
         if(count($obj->author) == 1)        $str = $author[1];
         elseif(count($obj->author) == 2)    $str = $author[1]. " and ".$author[2];
         elseif(count($obj->author) > 2)     $str = $author[1]." et al.";
-        
+
         return $scholarly . " by " . $str;
     }
 
