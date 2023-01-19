@@ -30,6 +30,8 @@ class WikiDataMtceAPI
         $last_digit = substr((string) rand(), -2);
         $this->temp_file = DOC_ROOT . "/tmp/" . date("Y_m_d_H_i_s_") . $last_digit . ".qs";
         $this->temp_file = DOC_ROOT . "/tmp/big_export.qs"; //nocturnal group
+        $this->temp_file = DOC_ROOT . "/tmp/big_export_nocturnal.qs"; //nocturnal group
+
         // $this->temp_file = DOC_ROOT . "/tmp/big_export_2.qs"; //J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature
         $this->temp_export = DOC_ROOT . "/tmp/temp_export.qs";
 
@@ -45,10 +47,9 @@ class WikiDataMtceAPI
         if(!is_dir($this->report_path)) mkdir($this->report_path);
         // */
 
-        // /* report filename - generated from CypherQueryAPI.php
-        $this->report_not_taxon_or_no_wikidata = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/unprocessed_taxa.txt";
-        if(file_exists($this->report_not_taxon_or_no_wikidata)) unlink($this->report_not_taxon_or_no_wikidata); //un-comment in real operation
-
+        // /* report for Katja - taxonomic mappings for the trait statements we send to WikiData
+        $this->taxonomic_mappings = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/taxonomic_mappings_for_review.txt";
+        if(file_exists($this->taxonomic_mappings)) unlink($this->taxonomic_mappings); //un-comment in real operation
         // */
         
 
@@ -148,8 +149,7 @@ class WikiDataMtceAPI
         echo "\n[$output]\n";
     }
     private function write_trait_2wikidata($rec, $trait_kind)
-    {
-        /*Array(
+    {       /*Array(
             [p.canonical] => Viadana semihamata
             [p.page_id] => 46941724
             [pred.name] => behavioral circadian rhythm
@@ -164,7 +164,10 @@ class WikiDataMtceAPI
             [ref.literal] => 
         )*/
         // print_r($rec); exit("\nstop 1\n");
-        if($taxon_entity_id = self::is_instance_of_taxon($rec['p.canonical'])) {
+        if($wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) {
+            $taxon_entity_id = $wikidata_obj->id;
+            self::write_taxonomic_mapping($rec, $wikidata_obj);
+
             $final = array();
             $final['taxon_entity'] = $taxon_entity_id;
 
@@ -248,26 +251,23 @@ class WikiDataMtceAPI
     {
         $text_file = $this->report_not_taxon_or_no_wikidata;
         echo "\nSearch taxon: [$taxon]\n";
-        $obj = self::get_WD_entity_object($taxon);
+        $ret = self::get_WD_entity_object($taxon);
 
-
-
-        if($wikidata_id = @$obj->search[0]->id) { # e.g. Q56079384
-            echo "\nwikidata_id for '$taxon': [$wikidata_id]\n";
-            if($taxon_obj = self::get_wikidata_entity_info($wikidata_id, 'all')) { //print_r($taxon_obj);
-                $instance_of = @$taxon_obj->entities->$wikidata_id->claims->P31[0]->mainsnak->datavalue->value->id; //exit("\n[$instance_of]\n");
-                if($instance_of == 'Q16521') return $wikidata_id; # instance_of -> taxon
-                elseif($instance_of == 'Q310890') return $wikidata_id; # instance_of -> monotypic taxon
-                else {
-                    echo "\nNot instance of a taxon\n";
-                    self::write_2text_file($text_file, $taxon."\t"."not instance_of taxon");
+        // print_r($objs); exit;
+        foreach($ret->search as $obj) {
+            if($wikidata_id = @$obj->id) { # e.g. Q56079384
+                echo "\npossible ID for '$taxon': [$wikidata_id]\n";
+                if($taxon_obj = self::get_wikidata_entity_info($wikidata_id, 'all')) { //print_r($taxon_obj);
+                    $instance_of = @$taxon_obj->entities->$wikidata_id->claims->P31[0]->mainsnak->datavalue->value->id; //exit("\n[$instance_of]\n");
+                    if    ($instance_of == 'Q16521')  return $obj; //$wikidata_id; # instance_of -> taxon
+                    elseif($instance_of == 'Q310890') return $obj; //$wikidata_id; # instance_of -> monotypic taxon
                 }
-            }
-        }
-        else {
-            echo "\nNot found in WikiData\n";
-            self::write_2text_file($text_file, $taxon."\t"."not in WikiData");    
-        }
+            }    
+        } //foreach
+        echo "\nNot found in WikiData\n";
+        self::write_2text_file($text_file, $taxon."\t"."not in WikiData");
+        // echo "\nNot instance of a taxon\n";
+        // self::write_2text_file($text_file, $taxon."\t"."not instance_of taxon");
         return false;
     }
     private function does_title_exist_in_wikidata($citation_obj, $citation)
@@ -599,6 +599,32 @@ class WikiDataMtceAPI
             $obj = $obj[0];
             echo "\n[".$obj->type."][$ref]";
         }
+    }
+    private function write_taxonomic_mapping($rec, $wikidata_obj)
+    {   /*Array(
+            [p.canonical] => Viadana semihamata
+            [p.page_id] => 46941724
+            [pred.name] => behavioral circadian rhythm
+            [stage.name] => adult
+            [sex.name] => 
+            [stat.name] => 
+            [obj.name] => nocturnal
+            [t.measurement] => 
+            [units.name] => 
+            [t.source] => 
+            [t.citation] => Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34
+            [ref.literal] => 
+        )
+        Katja needs:
+        EOL resource ID (the source of the trait record), EOL name & pageID and the WikiData name & ID.
+        */
+        $final[] = $rec['p.canonical'];
+        $final[] = $rec['p.page_id'];
+        $final[] = $wikidata_obj->display->label->value;
+        $final[] = $wikidata_obj->display->description->value;
+        $final[] = $wikidata_obj->id;
+        
+        print_r($rec); print_r($wikidata_obj); print_r($final); exit;
     }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)

@@ -144,7 +144,7 @@ $t_source = ""; //none
 $func->create_citation_if_does_not_exist($t_citation, $t_source);
 */
 
-/* create traits
+// /* create traits
 $citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34"; # 1st group
 // $citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
 $input = array();
@@ -154,7 +154,7 @@ $input["per_page"] = 500; // 500 worked ok
 $input["trait kind"] = "trait"; //only 2 recs here
 $input["trait kind"] = "inferred_trait";
 $func->create_WD_traits($input);
-*/
+// */
 /*
 $func->divide_exportfile_send_2quickstatements();
 */
@@ -169,11 +169,11 @@ $obj = $func->get_WD_entity_object($taxon);
 print_r($obj);
 */
 
-// /* works OK
+/* works OK
 $taxon = "Alison";
 if($func->is_instance_of_taxon($taxon)) echo "\n[$taxon] is a valid taxon.\n";
 else                                    echo "\n[$taxon] is not a taxon.\n";
-// */
+*/
 
 /* spreadsheet lookup - works OK!
 $func->get_WD_entity_mappings();
