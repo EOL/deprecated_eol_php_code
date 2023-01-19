@@ -29,7 +29,8 @@ class WikiDataMtceAPI
         $last_digit = (string) rand();
         $last_digit = substr((string) rand(), -2);
         $this->temp_file = DOC_ROOT . "/tmp/" . date("Y_m_d_H_i_s_") . $last_digit . ".qs";
-        $this->temp_file = DOC_ROOT . "/tmp/big_export.qs"; //test.qs
+        $this->temp_file = DOC_ROOT . "/tmp/big_export.qs"; //nocturnal group
+        // $this->temp_file = DOC_ROOT . "/tmp/big_export_2.qs"; //J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature
         $this->temp_export = DOC_ROOT . "/tmp/temp_export.qs";
 
         // if(file_exists($this->temp_file)) unlink($this->temp_file); //un-comment in real operation
@@ -43,6 +44,14 @@ class WikiDataMtceAPI
         $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/";
         if(!is_dir($this->report_path)) mkdir($this->report_path);
         // */
+
+        // /* report filename - generated from CypherQueryAPI.php
+        $this->report_not_taxon_or_no_wikidata = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/unprocessed_taxa.txt";
+        if(file_exists($this->report_not_taxon_or_no_wikidata)) unlink($this->report_not_taxon_or_no_wikidata); //un-comment in real operation
+
+        // */
+        
+
     }
     function create_WD_traits($input)
     {   //print_r($input); exit("\nstop 2\n");
@@ -80,7 +89,9 @@ class WikiDataMtceAPI
         }
 
         /* Under construction */
+        /* un-comment in real operation. Now I wanted to check the big export file first before proceeding.
         self::divide_exportfile_send_2quickstatements();
+        */
     }
     function divide_exportfile_send_2quickstatements()
     {
@@ -156,8 +167,13 @@ class WikiDataMtceAPI
         if($taxon_entity_id = self::is_instance_of_taxon($rec['p.canonical'])) {
             $final = array();
             $final['taxon_entity'] = $taxon_entity_id;
-            $final['predicate_entity'] = $this->map['measurementTypes'][$rec["pred.name"]]["property"];
-            $final['object_entity'] = $this->map['measurementValues'][$rec["obj.name"]]["property"];
+
+            if($val = @$this->map['measurementTypes'][$rec["pred.name"]]["property"]) $final['predicate_entity'] = $val;
+            else echo "\nUndefined pred.name: [".$rec["pred.name"]."] \n";
+            
+            if($val = @$this->map['measurementValues'][$rec["obj.name"]]["property"]) $final['object_entity'] = $val;
+            else echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n";
+            
             $title = self::parse_citation_using_anystyle($rec['t.citation'], 'title');
             $title = self::manual_fix_title($title);
 
@@ -174,7 +190,7 @@ class WikiDataMtceAPI
             elseif($trait_kind == "inferred_trait") $final['P3452'] = self::get_WD_entity_object($title, 'entity_id'); //"inferred from" (P3452) 
             else exit("\nUndefined trait kind.\n");
 
-            if($final['taxon_entity'] && $final['predicate_entity'] && $final['object_entity']) self::create_WD_taxon_trait($final);
+            if($final['taxon_entity'] && @$final['predicate_entity'] && @$final['object_entity']) self::create_WD_taxon_trait($final);
         }
         else echo "\nNot a taxon: [".$rec['p.canonical']."]\n";
         // print_r($final);
@@ -230,15 +246,27 @@ class WikiDataMtceAPI
     }
     function is_instance_of_taxon($taxon)
     {
-        echo "\ntaxon: [$taxon]\n";
+        $text_file = $this->report_not_taxon_or_no_wikidata;
+        echo "\nSearch taxon: [$taxon]\n";
         $obj = self::get_WD_entity_object($taxon);
+
+
 
         if($wikidata_id = @$obj->search[0]->id) { # e.g. Q56079384
             echo "\nwikidata_id for '$taxon': [$wikidata_id]\n";
             if($taxon_obj = self::get_wikidata_entity_info($wikidata_id, 'all')) { //print_r($taxon_obj);
                 $instance_of = @$taxon_obj->entities->$wikidata_id->claims->P31[0]->mainsnak->datavalue->value->id; //exit("\n[$instance_of]\n");
                 if($instance_of == 'Q16521') return $wikidata_id; # instance_of -> taxon
+                elseif($instance_of == 'Q310890') return $wikidata_id; # instance_of -> monotypic taxon
+                else {
+                    echo "\nNot instance of a taxon\n";
+                    self::write_2text_file($text_file, $taxon."\t"."not instance_of taxon");
+                }
             }
+        }
+        else {
+            echo "\nNot found in WikiData\n";
+            self::write_2text_file($text_file, $taxon."\t"."not in WikiData");    
         }
         return false;
     }
@@ -555,6 +583,13 @@ class WikiDataMtceAPI
         elseif(count($obj->author) > 2)     $str = $author[1]." et al.";
 
         return $scholarly . " by " . $str;
+    }
+    private function write_2text_file($text_file, $row)
+    {
+        $WRITE = Functions::file_open($text_file, "a");
+        fwrite($WRITE, $row."\n");
+        fclose($WRITE);
+
     }
     function utility_parse_refs($refs)
     {
