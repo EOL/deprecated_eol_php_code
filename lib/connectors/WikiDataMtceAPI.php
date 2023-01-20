@@ -29,7 +29,6 @@ class WikiDataMtceAPI
         $last_digit = (string) rand();
         $last_digit = substr((string) rand(), -2);
         $this->temp_file = DOC_ROOT . "/tmp/" . date("Y_m_d_H_i_s_") . $last_digit . ".qs";
-        $this->temp_file = DOC_ROOT . "/tmp/big_export.qs"; //nocturnal group
         $this->temp_file = DOC_ROOT . "/tmp/big_export_nocturnal.qs"; //nocturnal group
 
         // $this->temp_file = DOC_ROOT . "/tmp/big_export_2.qs"; //J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature
@@ -47,9 +46,24 @@ class WikiDataMtceAPI
         if(!is_dir($this->report_path)) mkdir($this->report_path);
         // */
 
+        
+        // /* 
+        $this->report_not_taxon_or_no_wikidata = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/unprocessed_taxa.txt";
+        if(file_exists($this->report_not_taxon_or_no_wikidata)) unlink($this->report_not_taxon_or_no_wikidata); //un-comment in real operation
+        // */
+
+
+
         // /* report for Katja - taxonomic mappings for the trait statements we send to WikiData
         $this->taxonomic_mappings = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/taxonomic_mappings_for_review.txt";
         if(file_exists($this->taxonomic_mappings)) unlink($this->taxonomic_mappings); //un-comment in real operation
+        $final[] = 'EOL name';
+        $final[] = 'pageID';
+        $final[] = 'WikiData name';
+        $final[] = 'ID';
+        $final[] = 'Description';
+        $this->WRITE = Functions::file_open($this->taxonomic_mappings, "w");
+        fwrite($this->WRITE, implode("\t", $final)."\n");
         // */
         
 
@@ -89,8 +103,7 @@ class WikiDataMtceAPI
             }
         }
 
-        /* Under construction */
-        /* un-comment in real operation. Now I wanted to check the big export file first before proceeding.
+        /* un-comment in real operation. Now I wanted to check first the big export file first before proceeding.
         self::divide_exportfile_send_2quickstatements();
         */
     }
@@ -119,8 +132,6 @@ class WikiDataMtceAPI
         }
         fclose($WRITE);
         self::run_quickstatements_api($batch_name, $batch_num);
-
-
         /*
         QUICKSTATEMENTS_EOLTRAITS_TOKEN
         curl https://quickstatements.toolforge.org/api.php \
@@ -130,9 +141,7 @@ class WikiDataMtceAPI
         -d "batchname=THE NAME OF THE BATCH" \
         --data-raw 'token=$2y$10$hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy' \
         --data-urlencode data@test.qs
-
         */
-
     }
     private function run_quickstatements_api($batch_name, $batch_num)
     {
@@ -618,13 +627,14 @@ class WikiDataMtceAPI
         Katja needs:
         EOL resource ID (the source of the trait record), EOL name & pageID and the WikiData name & ID.
         */
+        $final = array();
         $final[] = $rec['p.canonical'];
         $final[] = $rec['p.page_id'];
         $final[] = $wikidata_obj->display->label->value;
-        $final[] = $wikidata_obj->display->description->value;
         $final[] = $wikidata_obj->id;
-        
-        print_r($rec); print_r($wikidata_obj); print_r($final); exit;
+        $final[] = $wikidata_obj->display->description->value;
+        fwrite($this->WRITE, implode("\t", $final)."\n");
+        // print_r($rec); print_r($wikidata_obj); print_r($final); exit;
     }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
