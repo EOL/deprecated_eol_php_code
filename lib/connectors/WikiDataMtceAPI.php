@@ -105,7 +105,7 @@ class WikiDataMtceAPI
                 if($rec['pred.name'] && $rec['obj.name']) { //$rec['p.canonical'] && 
                     self::write_trait_2wikidata($rec, $input['trait kind']);
                 }
-                if($i >= 20) break; //debug
+                // if($i >= 20) break; //debug
             }
         }
 
@@ -598,6 +598,16 @@ class WikiDataMtceAPI
         // Jimenezia 41766 Jimenezia Q14632906 genus of crustaceans Q116270045
         if($page_id == 41766 && $canonical == "Jimenezia") {
             $ret = array("i" => "Q116270045", "c" => "Jimenezia");
+            if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
+        }
+        // Caroliniella 46941873 Caroliniella Q15869235 genus of insects Q116270111
+        elseif($page_id == 46941873 && $canonical == "Caroliniella") {
+            $ret = array("i" => "Q116270111", "c" => "Caroliniella");
+            if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
+        }
+        // Ceraia 45959 Ceraia Q2393841 genus of plants Q13581136
+        elseif($page_id == 45959 && $canonical == "Ceraia") {
+            $ret = array("i" => "Q13581136", "c" => "Ceraia");
             if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
         }
         // */
