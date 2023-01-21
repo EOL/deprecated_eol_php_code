@@ -143,7 +143,7 @@ class WikiDataMtceAPI
         // if(false) {}
         elseif($rec['p.canonical'] && $wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) $rec['how'] = 'name search';
         else {
-
+            $text_file = $this->report_not_taxon_or_no_wikidata;
             if($ret = @$this->taxonMap_all[$rec['p.page_id']]) {
                 // print_r($rec); print_r($ret); exit("\nhuli ka\n");
                 $rec['p.canonical'] = $ret['c'];
@@ -153,7 +153,6 @@ class WikiDataMtceAPI
                     $str = implode("|", array($rec['p.canonical'], $rec['p.page_id']));
                     self::write_2text_file($text_file, $str."\t"."ignored record**");
                 }
-    
             }
             else {
                 // print_r($rec); exit("\nCannot proceed with this record 11.\n");
@@ -599,10 +598,13 @@ class WikiDataMtceAPI
     private function get_wikidata_obj_using_EOL_pageID($page_id, $canonical)
     {
         if($ret = @$this->taxonMap[$page_id]) {
+            /* never use this since p.canonical in query sometimes really is blank
             if($canonical == $ret['c']) {
                 if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
             }
             else exit("\nInvestigate not equal: [$canonical] [".$ret['c']."]\n");
+            */
+            if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
         }
     }
 
