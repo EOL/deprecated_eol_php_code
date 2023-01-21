@@ -59,6 +59,7 @@ class WikiDataMtceAPI
         $final[] = 'WikiData name';
         $final[] = 'ID';
         $final[] = 'Description';
+        $final[] = 'Mapped';
         $this->WRITE = Functions::file_open($this->taxonomic_mappings, "w");
         fwrite($this->WRITE, implode("\t", $final)."\n");
         // */
@@ -70,6 +71,7 @@ class WikiDataMtceAPI
         require_library('connectors/IdentifierMapAPI');
         $func = new IdentifierMapAPI(); //get_declared_classes(); will give you how to access all available classes
         $this->taxonMap = $func->read_identifier_map_to_var(array("resource_id" => 1072));
+        $this->taxonMap_all = $func->read_identifier_map_to_var(array("resource_id" => 'all'));
         echo "\ntaxonMap: ".count($this->taxonMap)."\n";
         // exit("\nelix1\n");
         // */
@@ -79,8 +81,8 @@ class WikiDataMtceAPI
         // */
         // /* report file to process
         $tmp = md5(json_encode($input));
-        $this->tsv_file = $this->report_path."/".$tmp.".tsv"; // echo "\n$this->tsv_file\n";
-        $this->tsv_file = $this->report_path."/".$tmp."_".$input["trait kind"].".tsv";
+        // $this->tsv_file = $this->report_path."/".$tmp.".tsv"; //obsolete
+        $this->tsv_file = $this->report_path."/".$tmp."_".$input["trait kind"].".tsv"; //exit("\n".$this->tsv_file."\n");
         // */
         $i = 0;
         foreach(new FileIterator($this->tsv_file) as $line => $row) {
@@ -100,70 +102,16 @@ class WikiDataMtceAPI
                 }
                 $rec = array_map('trim', $rec);
                 // print_r($rec); exit("\nelix1\n");
-                if($rec['p.canonical'] && $rec['pred.name'] && $rec['obj.name']) {
+                if($rec['pred.name'] && $rec['obj.name']) { //$rec['p.canonical'] && 
                     self::write_trait_2wikidata($rec, $input['trait kind']);
                 }
-                // if($i >= 20) break; //debug
+                if($i >= 2) break; //debug
             }
         }
 
         /* un-comment in real operation. Now I wanted to check first the big export file first before proceeding.
         self::divide_exportfile_send_2quickstatements();
         */
-    }
-    function divide_exportfile_send_2quickstatements()
-    {
-        /* last to process: 2023_01_20 733
-        */
-        exit;
-
-        $i = 0;
-        $batch_name = date("Y_m_d");
-        $batch_num = 0;
-        $WRITE = Functions::file_open($this->temp_export, "w");
-        foreach(new FileIterator($this->temp_file) as $line => $row) {
-            if($row) $i++;
-            echo "\n".$row;
-            fwrite($WRITE, $row."\n");
-            if(($i % 3) == 0) { $batch_num++;
-                echo "\n-----";
-                fclose($WRITE);
-                self::run_quickstatements_api($batch_name, $batch_num); 
-                sleep(30);
-                // self::run_quickstatements_api($batch_name, $batch_num); 
-                // exit;
-
-                // if($batch_num == 1200) exit;
-                $WRITE = Functions::file_open($this->temp_export, "w"); //initialize again                
-                // sleep(3);
-            }
-        }
-        fclose($WRITE);
-        self::run_quickstatements_api($batch_name, $batch_num);
-        /*
-        QUICKSTATEMENTS_EOLTRAITS_TOKEN
-        curl https://quickstatements.toolforge.org/api.php \
-        -d action=import \
-        -d submit=1 \
-        -d username=EOLTraits \
-        -d "batchname=THE NAME OF THE BATCH" \
-        --data-raw 'token=$2y$10$hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy' \
-        --data-urlencode data@test.qs
-        */
-    }
-    private function run_quickstatements_api($batch_name, $batch_num)
-    {
-        $batchname = "$batch_name $batch_num";
-        $cmd = "curl https://quickstatements.toolforge.org/api.php";
-        $cmd .= " -d action=import ";
-        $cmd .= " -d submit=1 ";
-        $cmd .= " -d username=EOLTraits ";
-        $cmd .= " -d 'batchname=".$batchname."' ";
-        $cmd .= " --data-raw 'token=".QUICKSTATEMENTS_EOLTRAITS_TOKEN."' ";
-        $cmd .= " --data-urlencode data@".$this->temp_export." ";
-        echo "\n$cmd\n";
-        $output = shell_exec($cmd);
-        echo "\n[$output]\n";
     }
     private function write_trait_2wikidata($rec, $trait_kind)
     {       /*Array(
@@ -186,17 +134,27 @@ class WikiDataMtceAPI
             $entity_id = $ret[0];
             $wikidata_obj = $ret[1];
             $wikidata_obj = $wikidata_obj->entities->$entity_id;
-            print_r($wikidata_obj);
-            exit("\nelix3\n");
+
+            @$wikidata_obj->display->label->value        = $wikidata_obj->labels->en->value;
+            @$wikidata_obj->display->description->value  = $wikidata_obj->descriptions->en->value;
+            $rec['how'] = 'identifier-map';
+            // print_r($wikidata_obj); exit("\nelix3\n");
         }
         // if(false) {}
-        elseif($wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) {}
+        elseif($rec['p.canonical'] && $wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) $rec['how'] = 'name search';
+        else {
+
+            if($ret = @$this->taxonMap_all[$rec['p.page_id']]) {
+                print_r($rec); print_r($ret); exit("\nhuli ka\n");
+            }
+            else {
+                print_r($rec); exit("\nCannot proceed with this record.\n");
+            }
+
+        }
 
         if($wikidata_obj) {
-            print_r($wikidata_obj);
-            exit("\nelix4\n");
-
-
+            // print_r($wikidata_obj); exit("\nelix4\n");
 
             $taxon_entity_id = $wikidata_obj->id;
             self::write_taxonomic_mapping($rec, $wikidata_obj);
@@ -626,6 +584,7 @@ class WikiDataMtceAPI
         $final[] = $wikidata_obj->display->label->value;
         $final[] = $wikidata_obj->id;
         $final[] = $wikidata_obj->display->description->value;
+        $final[] = $rec['how'];
         fwrite($this->WRITE, implode("\t", $final)."\n");
         // print_r($rec); print_r($wikidata_obj); print_r($final); exit;
     }
@@ -635,7 +594,7 @@ class WikiDataMtceAPI
             if($canonical == $ret['c']) {
                 if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
             }
-            else exit("\nInvestiage not equal: [$canonical] [".$ret['c']."]\n");
+            else exit("\nInvestigate not equal: [$canonical] [".$ret['c']."]\n");
         }
     }
 
@@ -670,6 +629,61 @@ class WikiDataMtceAPI
         }
         else echo "\nShould not go here.\n";
     }
+    function divide_exportfile_send_2quickstatements()
+    {
+        /* last to process: 2023_01_20 733
+        */
+        exit;
+
+        $i = 0;
+        $batch_name = date("Y_m_d");
+        $batch_num = 0;
+        $WRITE = Functions::file_open($this->temp_export, "w");
+        foreach(new FileIterator($this->temp_file) as $line => $row) {
+            if($row) $i++;
+            echo "\n".$row;
+            fwrite($WRITE, $row."\n");
+            if(($i % 3) == 0) { $batch_num++;
+                echo "\n-----";
+                fclose($WRITE);
+                self::run_quickstatements_api($batch_name, $batch_num); 
+                sleep(30);
+                // self::run_quickstatements_api($batch_name, $batch_num); 
+                // exit;
+
+                // if($batch_num == 1200) exit;
+                $WRITE = Functions::file_open($this->temp_export, "w"); //initialize again                
+                // sleep(3);
+            }
+        }
+        fclose($WRITE);
+        self::run_quickstatements_api($batch_name, $batch_num);
+        /*
+        QUICKSTATEMENTS_EOLTRAITS_TOKEN
+        curl https://quickstatements.toolforge.org/api.php \
+        -d action=import \
+        -d submit=1 \
+        -d username=EOLTraits \
+        -d "batchname=THE NAME OF THE BATCH" \
+        --data-raw 'token=$2y$10$hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy' \
+        --data-urlencode data@test.qs
+        */
+    }
+    private function run_quickstatements_api($batch_name, $batch_num)
+    {
+        $batchname = "$batch_name $batch_num";
+        $cmd = "curl https://quickstatements.toolforge.org/api.php";
+        $cmd .= " -d action=import ";
+        $cmd .= " -d submit=1 ";
+        $cmd .= " -d username=EOLTraits ";
+        $cmd .= " -d 'batchname=".$batchname."' ";
+        $cmd .= " --data-raw 'token=".QUICKSTATEMENTS_EOLTRAITS_TOKEN."' ";
+        $cmd .= " --data-urlencode data@".$this->temp_export." ";
+        echo "\n$cmd\n";
+        $output = shell_exec($cmd);
+        echo "\n[$output]\n";
+    }
+
 
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
