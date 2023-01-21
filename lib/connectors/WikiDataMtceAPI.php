@@ -46,13 +46,10 @@ class WikiDataMtceAPI
         if(!is_dir($this->report_path)) mkdir($this->report_path);
         // */
 
-        
         // /* 
         $this->report_not_taxon_or_no_wikidata = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/unprocessed_taxa.txt";
         if(file_exists($this->report_not_taxon_or_no_wikidata)) unlink($this->report_not_taxon_or_no_wikidata); //un-comment in real operation
         // */
-
-
 
         // /* report for Katja - taxonomic mappings for the trait statements we send to WikiData
         $this->taxonomic_mappings = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/taxonomic_mappings_for_review.txt";
@@ -65,11 +62,18 @@ class WikiDataMtceAPI
         $this->WRITE = Functions::file_open($this->taxonomic_mappings, "w");
         fwrite($this->WRITE, implode("\t", $final)."\n");
         // */
-        
-
     }
     function create_WD_traits($input)
     {   //print_r($input); exit("\nstop 2\n");
+
+        // /* use identifier-map for taxon mapping - EOL page ID to WikiData entity ID
+        require_library('connectors/IdentifierMapAPI');
+        $func = new IdentifierMapAPI(); //get_declared_classes(); will give you how to access all available classes
+        $this->taxonMap = $func->read_identifier_map_to_var(array("resource_id" => 1072));
+        echo "\ntaxonMap: ".count($this->taxonMap)."\n";
+        // exit("\nelix1\n");
+        // */
+
         // /* lookup spreadsheet for mapping
         $this->map = self::get_WD_entity_mappings();
         // */
@@ -177,7 +181,23 @@ class WikiDataMtceAPI
             [ref.literal] => 
         )*/
         // print_r($rec); exit("\nstop 1\n");
-        if($wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) {
+
+        if($ret = self::get_wikidata_obj_using_EOL_pageID($rec['p.page_id'], $rec['p.canonical'])) {
+            $entity_id = $ret[0];
+            $wikidata_obj = $ret[1];
+            $wikidata_obj = $wikidata_obj->entities->$entity_id;
+            print_r($wikidata_obj);
+            exit("\nelix3\n");
+        }
+        // if(false) {}
+        elseif($wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) {}
+
+        if($wikidata_obj) {
+            print_r($wikidata_obj);
+            exit("\nelix4\n");
+
+
+
             $taxon_entity_id = $wikidata_obj->id;
             self::write_taxonomic_mapping($rec, $wikidata_obj);
 
@@ -194,7 +214,7 @@ class WikiDataMtceAPI
             $title = self::manual_fix_title($title);
 
             /* when to use 'published in' ? TODO --> right now Eli did it manually e.g. 'published in' https://www.wikidata.org/wiki/Q116180473
-            $final['P1433'] = self::get_WD_entity_object($title, 'entity_id'); //published in --- was not advised to use for now
+            $final['P1433'] = self::get_WD_obj_using_string($title, 'entity_id'); //published in --- was not advised to use for now
             */
 
             /* The property to connect taxon to publication: If practical, "stated in" (P248) for regular records 
@@ -202,8 +222,8 @@ class WikiDataMtceAPI
             Eli, the corresponding part of your queries is [:trait|inferred_trait]. 
             If the queries were separated into a version using [:trait] and one using [:inferred_trait], 
             we could distinguish between regular records (P248) and branch painted records (P3452). */
-            if    ($trait_kind == "trait")          $final['P248']  = self::get_WD_entity_object($title, 'entity_id'); //"stated in" (P248)
-            elseif($trait_kind == "inferred_trait") $final['P3452'] = self::get_WD_entity_object($title, 'entity_id'); //"inferred from" (P3452) 
+            if    ($trait_kind == "trait")          $final['P248']  = self::get_WD_obj_using_string($title, 'entity_id'); //"stated in" (P248)
+            elseif($trait_kind == "inferred_trait") $final['P3452'] = self::get_WD_obj_using_string($title, 'entity_id'); //"inferred from" (P3452) 
             else exit("\nUndefined trait kind.\n");
 
             if($final['taxon_entity'] && @$final['predicate_entity'] && @$final['object_entity']) self::create_WD_taxon_trait($final);
@@ -244,33 +264,17 @@ class WikiDataMtceAPI
         
         echo ("\n-end muna-\n");
     }
-    function get_WD_entity_object($string, $what = 'all')
-    {
-        $url = str_replace("MY_TITLE", urlencode($string), $this->wikidata_api['search string']);
-        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            // print("\n$json\n");
-            $obj = json_decode($json); //print_r($obj); exit;
-            if($what == 'all') return $obj;
-            elseif($what == 'entity_id') {
-                // print_r($obj);
-                echo "\nentity found for string: [$string]";
-                echo "\nentity ID found is: [".$obj->search[0]->id."]\n";
-                return $obj->search[0]->id;
-            }
-        }
-        return false;
-    }
     function is_instance_of_taxon($taxon)
     {
         $text_file = $this->report_not_taxon_or_no_wikidata;
         echo "\nSearch taxon: [$taxon]\n";
-        $ret = self::get_WD_entity_object($taxon);
+        $ret = self::get_WD_obj_using_string($taxon);
 
         // print_r($objs); exit;
         foreach($ret->search as $obj) {
             if($wikidata_id = @$obj->id) { # e.g. Q56079384
                 echo "\npossible ID for '$taxon': [$wikidata_id]\n";
-                if($taxon_obj = self::get_wikidata_entity_info($wikidata_id, 'all')) { //print_r($taxon_obj);
+                if($taxon_obj = self::get_WD_obj_using_id($wikidata_id, 'all')) { //print_r($taxon_obj);
                     $instance_of = @$taxon_obj->entities->$wikidata_id->claims->P31[0]->mainsnak->datavalue->value->id; //exit("\n[$instance_of]\n");
                     if    ($instance_of == 'Q16521')  return $obj; //$wikidata_id; # instance_of -> taxon
                     elseif($instance_of == 'Q310890') return $obj; //$wikidata_id; # instance_of -> monotypic taxon
@@ -294,7 +298,7 @@ class WikiDataMtceAPI
             if($wikidata_id = @$obj->search[0]->id) { # e.g. Q56079384
                 echo "\nTitle exists: [$title]\n";
                 echo "\nwikidata_id: [$wikidata_id]\n";
-                $DOI = self::get_wikidata_entity_info($wikidata_id, 'DOI');
+                $DOI = self::get_WD_obj_using_id($wikidata_id, 'DOI');
                 return array("title" => $title, "wikidata_id" => $wikidata_id, "DOI" => $DOI);
             }
             else return false;
@@ -510,21 +514,6 @@ class WikiDataMtceAPI
         }
         return $rows;
     }
-    private function get_wikidata_entity_info($wikidata_id, $what = 'all')
-    {
-        // https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
-        // https://www.wikidata.org/w/api.php?action=wbgetentities&format=xml&ids=Q56079384
-        // searching using wikidata entity id
-        $url = str_replace("ENTITY_ID", $wikidata_id, $this->wikidata_api['search entity ID']);
-        if($json = Functions::lookup_with_cache($url, $this->download_options)) { // print("\n$json\n");
-            $obj = json_decode($json); // print_r($obj);
-
-            if($what == 'all') return $obj;
-            elseif($what == 'DOI') return @$obj->entities->$wikidata_id->claims->P356[0]->mainsnak->datavalue->value;
-            else exit("\nERROR: Specify return item.\n");
-        }
-        else echo "\nShould not go here.\n";
-    }
     private function parse_citation_using_anystyle($citation, $what)
     {
         $json = shell_exec($this->anystyle_parse_prog . ' "'.$citation.'"');
@@ -640,6 +629,48 @@ class WikiDataMtceAPI
         fwrite($this->WRITE, implode("\t", $final)."\n");
         // print_r($rec); print_r($wikidata_obj); print_r($final); exit;
     }
+    private function get_wikidata_obj_using_EOL_pageID($page_id, $canonical)
+    {
+        if($ret = @$this->taxonMap[$page_id]) {
+            if($canonical == $ret['c']) {
+                if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
+            }
+            else exit("\nInvestiage not equal: [$canonical] [".$ret['c']."]\n");
+        }
+    }
+
+    function get_WD_obj_using_string($string, $what = 'all')
+    {
+        $url = str_replace("MY_TITLE", urlencode($string), $this->wikidata_api['search string']);
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            // print("\n$json\n");
+            $obj = json_decode($json); //print_r($obj); exit;
+            if($what == 'all') return $obj;
+            elseif($what == 'entity_id') {
+                // print_r($obj);
+                echo "\nentity found for string: [$string]";
+                echo "\nentity ID found is: [".$obj->search[0]->id."]\n";
+                return $obj->search[0]->id;
+            }
+        }
+        return false;
+    }
+    private function get_WD_obj_using_id($wikidata_id, $what = 'all')
+    {
+        // https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
+        // https://www.wikidata.org/w/api.php?action=wbgetentities&format=xml&ids=Q56079384
+        // searching using wikidata entity id
+        $url = str_replace("ENTITY_ID", $wikidata_id, $this->wikidata_api['search entity ID']);
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) { // print("\n$json\n");
+            $obj = json_decode($json); // print_r($obj);
+
+            if($what == 'all') return $obj;
+            elseif($what == 'DOI') return @$obj->entities->$wikidata_id->claims->P356[0]->mainsnak->datavalue->value;
+            else exit("\nERROR: Specify return item.\n");
+        }
+        else echo "\nShould not go here.\n";
+    }
+
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
     {

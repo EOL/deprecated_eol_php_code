@@ -30,7 +30,7 @@ class IdentifierMapAPI
         // if($local_file = Functions::save_remote_file_to_local($this->identifier_map_url, $options)) { //working - un-comment in real operation
         if(true) {
             $local_file = "/Volumes/AKiTiO4/eol_php_code_tmp/tmp_22859.file.gz";
-            echo "\n".filesize($local_file)."\n";
+            echo "\nfilesize [$local_file]: ".filesize($local_file)."\n";
             $destination = pathinfo($local_file, PATHINFO_DIRNAME);
             /* working OK - un-comment in real operation
             $cmd = "cd ".$destination;
@@ -75,7 +75,7 @@ class IdentifierMapAPI
                 if($resource_id == 'all') {}
                 elseif($resource_id == $rec['resource_id']) {
                     // print_r($rec); exit;
-                    $final[$rec['page_id']] = $rec['resource_pk'];
+                    $final[$rec['page_id']] = array('i' => $rec['resource_pk'], 'c' => $rec['preferred_canonical_for_page']);
                     /* debug
                     if($rec['page_id'] == 16251768) {
                         print_r($rec); exit;
