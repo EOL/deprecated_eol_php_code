@@ -109,6 +109,10 @@ class WikiDataMtceAPI
     }
     function divide_exportfile_send_2quickstatements()
     {
+        /* last to process: 2023_01_20 733
+        */
+        exit;
+
         $i = 0;
         $batch_name = date("Y_m_d");
         $batch_num = 0;
