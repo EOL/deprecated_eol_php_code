@@ -30,11 +30,11 @@ class WikiDataMtceAPI
         $last_digit = substr((string) rand(), -2);
         $this->temp_file = DOC_ROOT . "/tmp/" . date("Y_m_d_H_i_s_") . $last_digit . ".qs";
         $this->temp_file = DOC_ROOT . "/tmp/big_export_nocturnal.qs"; //nocturnal group
+        if(file_exists($this->temp_file)) unlink($this->temp_file); //un-comment in real operation
 
         // $this->temp_file = DOC_ROOT . "/tmp/big_export_2.qs"; //J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature
         $this->temp_export = DOC_ROOT . "/tmp/temp_export.qs";
 
-        // if(file_exists($this->temp_file)) unlink($this->temp_file); //un-comment in real operation
         // */
 
         // exit("\n".QUICKSTATEMENTS_EOLTRAITS_TOKEN."\n");
