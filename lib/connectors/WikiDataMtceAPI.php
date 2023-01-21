@@ -105,7 +105,7 @@ class WikiDataMtceAPI
                 if($rec['pred.name'] && $rec['obj.name']) { //$rec['p.canonical'] && 
                     self::write_trait_2wikidata($rec, $input['trait kind']);
                 }
-                if($i >= 2) break; //debug
+                // if($i >= 20) break; //debug
             }
         }
 
@@ -145,10 +145,20 @@ class WikiDataMtceAPI
         else {
 
             if($ret = @$this->taxonMap_all[$rec['p.page_id']]) {
-                print_r($rec); print_r($ret); exit("\nhuli ka\n");
+                // print_r($rec); print_r($ret); exit("\nhuli ka\n");
+                $rec['p.canonical'] = $ret['c'];
+                if($wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) $rec['how'] = 'name search thru identifier-map';
+                else {
+                    // print_r($rec); exit("\nCannot proceed with this record 22.\n");
+                    $str = implode("|", array($rec['p.canonical'], $rec['p.page_id']));
+                    self::write_2text_file($text_file, $str."\t"."ignored record**");
+                }
+    
             }
             else {
-                print_r($rec); exit("\nCannot proceed with this record.\n");
+                // print_r($rec); exit("\nCannot proceed with this record 11.\n");
+                $str = implode("|", array($rec['p.canonical'], $rec['p.page_id']));
+                self::write_2text_file($text_file, $str."\t"."ignored record*");
             }
 
         }
@@ -225,7 +235,7 @@ class WikiDataMtceAPI
     function is_instance_of_taxon($taxon)
     {
         $text_file = $this->report_not_taxon_or_no_wikidata;
-        echo "\nSearch taxon: [$taxon]\n";
+        echo "\nSearching taxon... [$taxon]\n";
         $ret = self::get_WD_obj_using_string($taxon);
 
         // print_r($objs); exit;
@@ -241,8 +251,6 @@ class WikiDataMtceAPI
         } //foreach
         echo "\nNot found in WikiData\n";
         self::write_2text_file($text_file, $taxon."\t"."not in WikiData");
-        // echo "\nNot instance of a taxon\n";
-        // self::write_2text_file($text_file, $taxon."\t"."not instance_of taxon");
         return false;
     }
     private function does_title_exist_in_wikidata($citation_obj, $citation)
