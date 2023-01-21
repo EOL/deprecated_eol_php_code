@@ -105,7 +105,7 @@ class WikiDataMtceAPI
                 if($rec['pred.name'] && $rec['obj.name']) { //$rec['p.canonical'] && 
                     self::write_trait_2wikidata($rec, $input['trait kind']);
                 }
-                // if($i >= 20) break; //debug
+                if($i >= 20) break; //debug
             }
         }
 
@@ -249,7 +249,7 @@ class WikiDataMtceAPI
             }    
         } //foreach
         echo "\nNot found in WikiData\n";
-        self::write_2text_file($text_file, $taxon."\t"."not in WikiData");
+        // self::write_2text_file($text_file, $taxon."\t"."not in WikiData"); //moved
         return false;
     }
     private function does_title_exist_in_wikidata($citation_obj, $citation)
@@ -399,19 +399,16 @@ class WikiDataMtceAPI
         */
     }
     private function format_string($str)
-    {   /*
-        If submitting to the API, use 
+    {   /* If submitting to the API, use 
             "%09" instead of the TAB symbol, 
             "%2B" instead of the "+" symbol, 
             "%3A" instead of the ":" symbol, and 
-            "%2F" instead of the "/" symbol.
-        */
+            "%2F" instead of the "/" symbol. */
         $str = str_replace("\t", "%09", $str);
         $str = str_replace("+", "%2B", $str);
         $str = str_replace(":", "%3A", $str);
         $str = str_replace("/", "%2F", $str);
         return $str;
-        // return urlencode($str);
     }
     private function format_publication_date($str)
     {   # +1839-00-00T00:00:00Z/9
@@ -597,22 +594,30 @@ class WikiDataMtceAPI
     }
     private function get_wikidata_obj_using_EOL_pageID($page_id, $canonical)
     {
-        if($ret = @$this->taxonMap[$page_id]) {
-            /* never use this since p.canonical in query sometimes really is blank
-            if($canonical == $ret['c']) {
-                if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
-            }
-            else exit("\nInvestigate not equal: [$canonical] [".$ret['c']."]\n");
-            */
+        // /* manual fix
+        // Jimenezia 41766 Jimenezia Q14632906 genus of crustaceans Q116270045
+        if($page_id == 41766 && $canonical == "Jimenezia") {
+            $ret = array("i" => "Q116270045", "c" => "Jimenezia");
             if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
+        }
+        // */
+        else { //orig
+            if($ret = @$this->taxonMap[$page_id]) {
+                /* never use this since p.canonical in query sometimes really is blank. And identifier-map can do the connection.
+                if($canonical == $ret['c']) {
+                    if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
+                }
+                else exit("\nInvestigate not equal: [$canonical] [".$ret['c']."]\n");
+                */
+                if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
+            }    
         }
     }
 
     function get_WD_obj_using_string($string, $what = 'all')
     {
         $url = str_replace("MY_TITLE", urlencode($string), $this->wikidata_api['search string']);
-        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            // print("\n$json\n");
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) { // print("\n$json\n");
             $obj = json_decode($json); //print_r($obj); exit;
             if($what == 'all') return $obj;
             elseif($what == 'entity_id') {

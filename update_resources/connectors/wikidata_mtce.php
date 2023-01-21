@@ -156,18 +156,18 @@ $input["trait kind"] = "trait"; //only 2 recs here
 $input["trait kind"] = "inferred_trait";
 $func->create_WD_traits($input);
 // */
-// /*
+/*
 $func->divide_exportfile_send_2quickstatements();
-// */
+*/
 // running... 2023_01_19 70
 
 
 
 
 /* works OK
-$taxon = "Abaxisotima acuminata";
-$obj = $func->get_WD_entity_object($taxon);
-print_r($obj);
+$taxon = "Jimenezia";
+$obj = $func->get_WD_obj_using_string($taxon, 'all');
+print_r($obj); exit("\n-end test-\n");
 */
 
 /* works OK
