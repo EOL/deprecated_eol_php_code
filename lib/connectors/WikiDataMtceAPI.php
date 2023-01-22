@@ -34,8 +34,7 @@ class WikiDataMtceAPI
         $last_digit = (string) rand();
         $last_digit = substr((string) rand(), -2);
         $this->temp_file = $this->report_path . date("Y_m_d_H_i_s_") . $last_digit . ".qs";
-        $this->temp_file = $this->report_path."big_export_nocturnal.qs"; //nocturnal group
-        $this->temp_file = $this->report_path."big_export_2.qs"; //J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature
+        $this->temp_file = $this->report_path."export_file.qs"; //nocturnal group
         if(file_exists($this->temp_file)) unlink($this->temp_file); //un-comment in real operation
         // */
         
@@ -83,16 +82,10 @@ class WikiDataMtceAPI
             $i++;
             if($i == 1) $fields = explode("\t", $row);
             else {
-
-                // if($i <= 20) continue;
-
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
                 $rec = array(); $k = 0;
-                foreach($fields as $field) {
-                    $rec[$field] = $tmp[$k];
-                    $k++;
-                }
+                foreach($fields as $field) { $rec[$field] = $tmp[$k]; $k++; }
                 $rec = array_map('trim', $rec);
                 // print_r($rec); exit("\nelix1\n");
                 if($rec['pred.name'] && $rec['obj.name']) { //$rec['p.canonical'] && 
@@ -101,7 +94,6 @@ class WikiDataMtceAPI
                 // if($i >= 20) break; //debug
             }
         }
-
         /* un-comment in real operation. Now I wanted to check first the big export file first before proceeding.
         self::divide_exportfile_send_2quickstatements();
         */
@@ -122,7 +114,6 @@ class WikiDataMtceAPI
             [ref.literal] => 
         )*/
         // print_r($rec); exit("\nstop 1\n");
-
         if($ret = self::get_wikidata_obj_using_EOL_pageID($rec['p.page_id'], $rec['p.canonical'])) {
             $entity_id = $ret[0];
             $wikidata_obj = $ret[1];
@@ -152,7 +143,6 @@ class WikiDataMtceAPI
                 $str = implode("|", array($rec['p.canonical'], $rec['p.page_id']));
                 self::write_2text_file($text_file, $str."\t"."ignored record*");
             }
-
         }
 
         if($wikidata_obj) {
@@ -649,7 +639,7 @@ class WikiDataMtceAPI
     }
     function divide_exportfile_send_2quickstatements()
     {
-        /* last to process: 2023_01_20 733
+        /* last to process:
         */
         exit;
 
