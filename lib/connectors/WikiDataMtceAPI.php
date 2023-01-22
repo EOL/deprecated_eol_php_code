@@ -22,23 +22,23 @@ class WikiDataMtceAPI
         $this->wikidata_api['search entity ID'] = "https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=ENTITY_ID";
         $this->crossref_api['search citation'] = "http://api.crossref.org/works?query.bibliographic=MY_CITATION&rows=2";
         $this->debug = array();
-        
-        // /* unique temp file
-        $last_digit = (string) rand();
-        $last_digit = substr((string) rand(), -2);
-        $this->temp_file = DOC_ROOT . "/tmp/" . date("Y_m_d_H_i_s_") . $last_digit . ".qs";
-        $this->temp_file = DOC_ROOT . "/tmp/big_export_nocturnal.qs"; //nocturnal group
-        if(file_exists($this->temp_file)) unlink($this->temp_file); //un-comment in real operation
-
-        // $this->temp_file = DOC_ROOT . "/tmp/big_export_2.qs"; //J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature
-        $this->temp_export = DOC_ROOT . "/tmp/temp_export.qs";
-        // */
+                
+        $this->tmp_batch_export = DOC_ROOT . "/tmp/temp_export.qs";
 
         // /* report filename - generated from CypherQueryAPI.php
         $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/";
         if(!is_dir($this->report_path)) mkdir($this->report_path);
         // */
 
+        // /* unique export file
+        $last_digit = (string) rand();
+        $last_digit = substr((string) rand(), -2);
+        $this->temp_file = $this->report_path . date("Y_m_d_H_i_s_") . $last_digit . ".qs";
+        $this->temp_file = $this->report_path."big_export_nocturnal.qs"; //nocturnal group
+        $this->temp_file = $this->report_path."big_export_2.qs"; //J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature
+        if(file_exists($this->temp_file)) unlink($this->temp_file); //un-comment in real operation
+        // */
+        
         // /* 
         $this->report_not_taxon_or_no_wikidata = $this->report_path."unprocessed_taxa.txt";
         if(file_exists($this->report_not_taxon_or_no_wikidata)) unlink($this->report_not_taxon_or_no_wikidata); //un-comment in real operation
@@ -656,7 +656,7 @@ class WikiDataMtceAPI
         $i = 0;
         $batch_name = date("Y_m_d");
         $batch_num = 0;
-        $WRITE = Functions::file_open($this->temp_export, "w");
+        $WRITE = Functions::file_open($this->tmp_batch_export, "w");
         foreach(new FileIterator($this->temp_file) as $line => $row) {
             if($row) $i++;
             echo "\n".$row;
@@ -670,7 +670,7 @@ class WikiDataMtceAPI
                 // exit;
 
                 // if($batch_num == 1200) exit;
-                $WRITE = Functions::file_open($this->temp_export, "w"); //initialize again                
+                $WRITE = Functions::file_open($this->tmp_batch_export, "w"); //initialize again                
                 // sleep(3);
             }
         }
@@ -696,7 +696,7 @@ class WikiDataMtceAPI
         $cmd .= " -d username=EOLTraits ";
         $cmd .= " -d 'batchname=".$batchname."' ";
         $cmd .= " --data-raw 'token=".QUICKSTATEMENTS_EOLTRAITS_TOKEN."' ";
-        $cmd .= " --data-urlencode data@".$this->temp_export." ";
+        $cmd .= " --data-urlencode data@".$this->tmp_batch_export." ";
         echo "\n$cmd\n";
         $output = shell_exec($cmd);
         echo "\n[$output]\n";
