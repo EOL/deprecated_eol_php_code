@@ -129,7 +129,7 @@ class WikiDataMtceAPI
             [ref.literal] => 
         )*/
         // print_r($rec); exit("\nstop 1\n");
-        if($ret = self::get_wikidata_obj_using_EOL_pageID($rec['p.page_id'], $rec['p.canonical'])) {
+        if($ret = self::get_wikidata_obj_using_EOL_pageID($rec['p.page_id'], $rec['p.canonical'])) { //1st option
             $entity_id = $ret[0];
             $wikidata_obj = $ret[1];
             $wikidata_obj = $wikidata_obj->entities->$entity_id;
@@ -139,24 +139,23 @@ class WikiDataMtceAPI
             $rec['how'] = 'identifier-map';
             // print_r($wikidata_obj); exit("\nelix3\n");
         }
-        // if(false) {}
-        elseif($rec['p.canonical'] && $wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) $rec['how'] = 'name search';
         else {
             $text_file = $this->report_not_taxon_or_no_wikidata;
             if($ret = @$this->taxonMap_all[$rec['p.page_id']]) {
                 // print_r($rec); print_r($ret); exit("\nhuli ka\n");
                 $rec['p.canonical'] = $ret['c'];
-                if($wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) $rec['how'] = 'name search thru identifier-map';
+                if($wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) $rec['how'] = 'name search thru identifier-map'; //2nd option
                 else {
                     // print_r($rec); exit("\nCannot proceed with this record 22.\n");
                     $str = implode("\t", array($rec['p.canonical'], $rec['p.page_id'], "**"));
-                    self::write_2text_file($text_file, $str."\n"); //."ignored record**"
+                    self::write_2text_file($text_file, $str); //."ignored record**"
                 }
             }
+            elseif($rec['p.canonical'] && $wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) $rec['how'] = 'name search'; //prev. 2nd option. Now 3rd.
             else {
                 // print_r($rec); exit("\nCannot proceed with this record 11.\n");
-                $str = implode("|", array($rec['p.canonical'], $rec['p.page_id'], "*"));
-                self::write_2text_file($text_file, $str."\n"); //."ignored record*"
+                $str = implode("\t", array($rec['p.canonical'], $rec['p.page_id'], "*"));
+                self::write_2text_file($text_file, $str); //."ignored record*"
             }
         }
 
