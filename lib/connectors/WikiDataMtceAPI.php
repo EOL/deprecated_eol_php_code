@@ -46,7 +46,7 @@ class WikiDataMtceAPI
         // */
         
         // /* 
-        $this->report_not_taxon_or_no_wikidata = $this->report_path."unprocessed_taxa.txt";
+        $this->report_not_taxon_or_no_wikidata = $this->report_path."unprocessed_taxa.tsv";
         if(file_exists($this->report_not_taxon_or_no_wikidata)) unlink($this->report_not_taxon_or_no_wikidata); //un-comment in real operation
         $final = array();
         $final[] = 'EOL name';
@@ -57,7 +57,7 @@ class WikiDataMtceAPI
         // */
 
         // /* report for Katja - taxonomic mappings for the trait statements we send to WikiData
-        $this->taxonomic_mappings = $this->report_path."taxonomic_mappings_for_review.txt";
+        $this->taxonomic_mappings = $this->report_path."taxonomic_mappings_for_review.tsv";
         if(file_exists($this->taxonomic_mappings)) unlink($this->taxonomic_mappings); //un-comment in real operation
         $final = array();
         $final[] = 'EOL name';
@@ -89,7 +89,7 @@ class WikiDataMtceAPI
         // orig
         // $tmp = md5(json_encode($input));
         // $this->tsv_file = $this->report_path."/".$tmp."_".$input["trait kind"].".tsv"; //exit("\n".$this->tsv_file."\n");
-        $this->tsv_file = $this->report_path."/".$input["trait kind"].".tsv"; //exit("\n".$this->tsv_file."\n");
+        $this->tsv_file = $this->report_path."/".$input["trait kind"]."_qry.tsv"; //exit("\n".$this->tsv_file."\n");
         // */
         $i = 0;
         foreach(new FileIterator($this->tsv_file) as $line => $row) {

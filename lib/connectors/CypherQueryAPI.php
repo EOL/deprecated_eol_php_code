@@ -53,7 +53,7 @@ class CypherQueryAPI
         $tmp = md5(json_encode($input));
         $this->tsv_file = $this->report_path."/".$tmp."_".$input["trait kind"].".tsv";
         */
-        $this->tsv_file = $this->report_path."/".$input["trait kind"].".tsv";
+        $this->tsv_file = $this->report_path."/".$input["trait kind"]."_qry.tsv";
         // */
 
         if($val = @$input["per_page"]) $this->per_page = $val;
