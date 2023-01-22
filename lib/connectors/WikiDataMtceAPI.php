@@ -25,10 +25,17 @@ class WikiDataMtceAPI
                 
         $this->tmp_batch_export = DOC_ROOT . "/tmp/temp_export.qs";
 
-        // /* report filename - generated from CypherQueryAPI.php
-        $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/";
-        if(!is_dir($this->report_path)) mkdir($this->report_path);
         // */
+    }
+    private function initialize_path($input)
+    {
+        $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/"; //generated from CypherQueryAPI.php
+        if(!is_dir($this->report_path)) mkdir($this->report_path);
+        $tmp = md5(json_encode($input));
+        $this->report_path .= "$tmp/";
+        if(!is_dir($this->report_path)) mkdir($this->report_path);
+
+        /* the next are the 3 files to be generated: */
 
         // /* unique export file
         $last_digit = (string) rand();
@@ -41,11 +48,18 @@ class WikiDataMtceAPI
         // /* 
         $this->report_not_taxon_or_no_wikidata = $this->report_path."unprocessed_taxa.txt";
         if(file_exists($this->report_not_taxon_or_no_wikidata)) unlink($this->report_not_taxon_or_no_wikidata); //un-comment in real operation
+        $final = array();
+        $final[] = 'EOL name';
+        $final[] = 'pageID';
+        $WRITE = Functions::file_open($this->report_not_taxon_or_no_wikidata, "w");
+        fwrite($WRITE, implode("\t", $final)."\n");
+        fclose($WRITE);
         // */
 
         // /* report for Katja - taxonomic mappings for the trait statements we send to WikiData
         $this->taxonomic_mappings = $this->report_path."taxonomic_mappings_for_review.txt";
         if(file_exists($this->taxonomic_mappings)) unlink($this->taxonomic_mappings); //un-comment in real operation
+        $final = array();
         $final[] = 'EOL name';
         $final[] = 'pageID';
         $final[] = 'WikiData name';
@@ -54,11 +68,11 @@ class WikiDataMtceAPI
         $final[] = 'Mapped';
         $this->WRITE = Functions::file_open($this->taxonomic_mappings, "w");
         fwrite($this->WRITE, implode("\t", $final)."\n");
-        // */
     }
+
     function create_WD_traits($input)
     {   //print_r($input); exit("\nstop 2\n");
-
+        self::initialize_path($input);
         // /* use identifier-map for taxon mapping - EOL page ID to WikiData entity ID
         require_library('connectors/IdentifierMapAPI');
         $func = new IdentifierMapAPI(); //get_declared_classes(); will give you how to access all available classes
@@ -72,9 +86,10 @@ class WikiDataMtceAPI
         $this->map = self::get_WD_entity_mappings();
         // */
         // /* report file to process
-        $tmp = md5(json_encode($input));
-        // $this->tsv_file = $this->report_path."/".$tmp.".tsv"; //obsolete
-        $this->tsv_file = $this->report_path."/".$tmp."_".$input["trait kind"].".tsv"; //exit("\n".$this->tsv_file."\n");
+        // orig
+        // $tmp = md5(json_encode($input));
+        // $this->tsv_file = $this->report_path."/".$tmp."_".$input["trait kind"].".tsv"; //exit("\n".$this->tsv_file."\n");
+        $this->tsv_file = $this->report_path."/".$input["trait kind"].".tsv"; //exit("\n".$this->tsv_file."\n");
         // */
         $i = 0;
         foreach(new FileIterator($this->tsv_file) as $line => $row) {
@@ -134,14 +149,14 @@ class WikiDataMtceAPI
                 if($wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) $rec['how'] = 'name search thru identifier-map';
                 else {
                     // print_r($rec); exit("\nCannot proceed with this record 22.\n");
-                    $str = implode("|", array($rec['p.canonical'], $rec['p.page_id']));
-                    self::write_2text_file($text_file, $str."\t"."ignored record**");
+                    $str = implode("\t", array($rec['p.canonical'], $rec['p.page_id'], "**"));
+                    self::write_2text_file($text_file, $str."\n"); //."ignored record**"
                 }
             }
             else {
                 // print_r($rec); exit("\nCannot proceed with this record 11.\n");
-                $str = implode("|", array($rec['p.canonical'], $rec['p.page_id']));
-                self::write_2text_file($text_file, $str."\t"."ignored record*");
+                $str = implode("|", array($rec['p.canonical'], $rec['p.page_id'], "*"));
+                self::write_2text_file($text_file, $str."\n"); //."ignored record*"
             }
         }
 
@@ -536,7 +551,6 @@ class WikiDataMtceAPI
         $WRITE = Functions::file_open($text_file, "a");
         fwrite($WRITE, $row."\n");
         fclose($WRITE);
-
     }
     function utility_parse_refs($refs)
     {
@@ -565,8 +579,15 @@ class WikiDataMtceAPI
         Katja needs:
         EOL resource ID (the source of the trait record), EOL name & pageID and the WikiData name & ID.
         */
+        $canonical = "";
+        if($canonical = $rec['p.canonical']) {}
+        else {
+            if($ret = @$this->taxonMap_all[$rec['p.page_id']]) {
+                $canonical = $ret['c'];
+            }
+        }
         $final = array();
-        $final[] = $rec['p.canonical'];
+        $final[] = $canonical;
         $final[] = $rec['p.page_id'];
         $final[] = $wikidata_obj->display->label->value;
         $final[] = $wikidata_obj->id;

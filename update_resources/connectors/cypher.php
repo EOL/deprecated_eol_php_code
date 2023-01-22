@@ -5,10 +5,6 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true; //orig value should be -> false ... especially in eol-archive server
 
-require_library('connectors/CypherQueryAPI');
-$resource_id = 'eol';
-$func = new CypherQueryAPI($resource_id);
-
 /*
 Q37887397 TAB P214 TAB "96480189"
 https://quickstatements.toolforge.org/#/v1=
@@ -196,6 +192,10 @@ $arr = json_decode($params['json'], true);
 ====================================================
 */
 
+require_library('connectors/CypherQueryAPI');
+$resource_id = 'eol';
+$func = new CypherQueryAPI($resource_id);
+
 /* good example
 $source = "https://doi.org/10.1111/j.1469-185X.1984.tb00411.x";
 $input["params"] = array("source" => $source);
@@ -206,8 +206,10 @@ $func->query_trait_db($input);
 
 // /* good example
 // $citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
-$citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34"; # 1st group
 // $citation = "Paul, C.R.C. and Smith, A.B., 1984. The early radiation and phylogeny of echinoderms. Biological Reviews, 59(4), pp.443-481.";
+
+$citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34"; # 1st group
+
 $input = array();
 $input["params"] = array("citation" => $citation);
 $input["type"] = "wikidata_base_qry_citation";

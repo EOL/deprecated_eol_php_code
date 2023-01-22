@@ -26,9 +26,6 @@ class CypherQueryAPI
         $this->main_path = $this->download_options['cache_path'].$this->download_options['resource_id']."/";
         if(!is_dir($this->main_path)) mkdir($this->main_path);
 
-        $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/";
-        if(!is_dir($this->report_path)) mkdir($this->report_path);
-
         /* not used atm.
         // for creating archives
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
@@ -39,30 +36,24 @@ class CypherQueryAPI
         $this->per_page = 100;
         $this->debug = array();
     }
-    private function write_tsv($obj, $filename, $skip)
+    private function initialize_path($input)
     {
-        // print_r($obj); exit;
-        if($skip == 0) {
-            $base = pathinfo($filename, PATHINFO_FILENAME); //e.g. "e54dbf6839f325a6a0d5095e82bc5e70"
-            // $this->tsv_file = $this->report_path."/".$base.".tsv"; //working but moved up    
-            $WRITE = Functions::file_open($this->tsv_file, "w");
-            fwrite($WRITE, implode("\t", $obj->columns)."\n"); 
-        }
-        else $WRITE = Functions::file_open($this->tsv_file, "a");
-        
-        foreach($obj->data as $rec) {
-            fwrite($WRITE, implode("\t", $rec)."\n");
-            // print("-[".$rec[0]."]-[".$rec[9]."]"); // just a visual record lookup during runtime.
-            // print("-[".$rec[0]."]"); // just a visual record lookup during runtime. good debug
-        }
-        fclose($WRITE);
+        $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/";
+        if(!is_dir($this->report_path)) mkdir($this->report_path);
+        $tmp = md5(json_encode($input));
+        $this->report_path .= "$tmp/";
+        if(!is_dir($this->report_path)) mkdir($this->report_path);
     }
     function query_trait_db($input)
     {
         // print_r($input); exit;
+        self::initialize_path($input);
         // /* report filename
+        /* orig working
         $tmp = md5(json_encode($input));
         $this->tsv_file = $this->report_path."/".$tmp."_".$input["trait kind"].".tsv";
+        */
+        $this->tsv_file = $this->report_path."/".$input["trait kind"].".tsv";
         // */
 
         if($val = @$input["per_page"]) $this->per_page = $val;
@@ -231,6 +222,24 @@ class CypherQueryAPI
         if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
         $filename = $main_path . "$cache1/$cache2/$md5.json";
         return $filename;
+    }
+    private function write_tsv($obj, $filename, $skip)
+    {
+        // print_r($obj); exit;
+        if($skip == 0) {
+            $base = pathinfo($filename, PATHINFO_FILENAME); //e.g. "e54dbf6839f325a6a0d5095e82bc5e70"
+            // $this->tsv_file = $this->report_path."/".$base.".tsv"; //working but moved up    
+            $WRITE = Functions::file_open($this->tsv_file, "w");
+            fwrite($WRITE, implode("\t", $obj->columns)."\n"); 
+        }
+        else $WRITE = Functions::file_open($this->tsv_file, "a");
+        
+        foreach($obj->data as $rec) {
+            fwrite($WRITE, implode("\t", $rec)."\n");
+            // print("-[".$rec[0]."]-[".$rec[9]."]"); // just a visual record lookup during runtime.
+            // print("-[".$rec[0]."]"); // just a visual record lookup during runtime. good debug
+        }
+        fclose($WRITE);
     }
 }
 ?>
