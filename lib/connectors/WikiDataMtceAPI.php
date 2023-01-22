@@ -2,13 +2,11 @@
 namespace php_active_record;
 /* connector: [xxx.php]
 ---------------------------------------------------------------------------
-sample of citations already in WikiData:
-https://www.wikidata.org/wiki/Q56079384 ours
-https://www.wikidata.org/wiki/Q56079384 someones
+sample of citations already in WikiData:    https://www.wikidata.org/wiki/Q56079384 ours
+Manual check of citations/references:       https://apps.crossref.org/simpleTextQuery/
 
-Manual check of citations/references:
-https://apps.crossref.org/simpleTextQuery/
-
+exit("\n".QUICKSTATEMENTS_EOLTRAITS_TOKEN."\n");
+https://docs.google.com/spreadsheets/d/129IRvjoFLUs8kVzjdchT_ImlCGGXIdVKYkKwIv7ld0U/edit#gid=0
 */
 class WikiDataMtceAPI
 {
@@ -34,12 +32,7 @@ class WikiDataMtceAPI
 
         // $this->temp_file = DOC_ROOT . "/tmp/big_export_2.qs"; //J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature
         $this->temp_export = DOC_ROOT . "/tmp/temp_export.qs";
-
         // */
-
-        // exit("\n".QUICKSTATEMENTS_EOLTRAITS_TOKEN."\n");
-
-        /* https://docs.google.com/spreadsheets/d/129IRvjoFLUs8kVzjdchT_ImlCGGXIdVKYkKwIv7ld0U/edit#gid=0 */
 
         // /* report filename - generated from CypherQueryAPI.php
         $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/";
@@ -47,12 +40,12 @@ class WikiDataMtceAPI
         // */
 
         // /* 
-        $this->report_not_taxon_or_no_wikidata = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/unprocessed_taxa.txt";
+        $this->report_not_taxon_or_no_wikidata = $this->report_path."unprocessed_taxa.txt";
         if(file_exists($this->report_not_taxon_or_no_wikidata)) unlink($this->report_not_taxon_or_no_wikidata); //un-comment in real operation
         // */
 
         // /* report for Katja - taxonomic mappings for the trait statements we send to WikiData
-        $this->taxonomic_mappings = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/taxonomic_mappings_for_review.txt";
+        $this->taxonomic_mappings = $this->report_path."taxonomic_mappings_for_review.txt";
         if(file_exists($this->taxonomic_mappings)) unlink($this->taxonomic_mappings); //un-comment in real operation
         $final[] = 'EOL name';
         $final[] = 'pageID';
