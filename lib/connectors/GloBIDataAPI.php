@@ -750,6 +750,13 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 [http://eol.org/schema/reference/referenceID] => 
             )*/
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+
+            // /* forced assign a rank so it can be included in $this->excluded_ranks routine below. Partner didn't assign a rank.
+            if($taxonID == "http://taxon-concept.plazi.org/id/Animalia/Malacostraca_Latreille_1802") {
+                $rec['http://rs.tdwg.org/dwc/terms/taxonRank'] = 'class';
+            }
+            // */
+
             if($what == 'build info') {
                 $kingdom = $rec['http://rs.tdwg.org/dwc/terms/kingdom'];
                 if(isset($this->taxonIDS[$taxonID])) {
