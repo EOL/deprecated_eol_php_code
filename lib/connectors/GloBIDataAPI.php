@@ -91,12 +91,25 @@ class GloBIDataAPI extends Globi_Refuted_Records
         # Instead of manually doing it.
         // */
         
-        GBIF:2436436	http://www.gbif.org/species/2436436			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	species		
-        EOL:327955	http://eol.org/pages/327955			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	species		
-        WD:Q15978631	https://www.wikidata.org/wiki/Q15978631			Homo sapiens								species		
-        NBN:NHMSYS0000376773	https://data.nbn.org.uk/Taxa/NHMSYS0000376773			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	species		
-        ITIS:180092	http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=180092			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	
-        WORMS:1455977	https://www.marinespecies.org/aphia.php?p=taxdetails&id=1455977			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	species		
+        // /* Remove all associations for Homo sapiens: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=67241&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67241
+        # GBIF:2436436	http://www.gbif.org/species/2436436			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	species		
+        # EOL:327955	http://eol.org/pages/327955			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	species		
+        # WD:Q15978631	https://www.wikidata.org/wiki/Q15978631			Homo sapiens								species		
+        # NBN:NHMSYS0000376773	https://data.nbn.org.uk/Taxa/NHMSYS0000376773			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	species		
+        # ITIS:180092	http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=180092			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	
+        # WORMS:1455977	https://www.marinespecies.org/aphia.php?p=taxdetails&id=1455977			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	species		
+
+        # Hmm instead of the 6 Homo sapiens above, I removed the 7 covid names below instead:
+        # GBIF:9207297	http://www.gbif.org/species/9207297			Severe acute respiratory syndrome-related coronavirus					Nidovirales	Coronaviridae	Betacoronavirus	species		
+        # NCBI:694009	https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=694009			Severe acute respiratory syndrome-related coronavirus		Orthornavirae	Pisuviricota	Pisoniviricetes	Nidovirales	Coronaviridae	Betacoronavirus	species		
+        # NCBI:1003835	https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1003835			Severe fever with thrombocytopenia syndrome virus		Orthornavirae	Negarnaviricota	Ellioviricetes	Bunyavirales	Phenuiviridae	Bandavirus			
+        # NCBI:2697049	https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=2697049			Severe acute respiratory syndrome coronavirus 2		Orthornavirae	Pisuviricota	Pisoniviricetes	Nidovirales	Coronaviridae	Betacoronavirus			
+        # GBIF:10069196	http://www.gbif.org/species/10069196			Severe acute respiratory syndrome-related coronavirus					Nidovirales	Coronaviridae	Betacoronavirus	species		
+        # INAT_TAXON:1081492	https://inaturalist.org/taxa/1081492			Severe acute respiratory syndrome-related coronavirus 2								
+        # 24843470				Betacoronavirus Severe acute respiratory syndrome-related coronavirus		Viruses	Phylum not assigned	Class not assigned	NidoviraleCoronaviridae		species		
+        $excluded_unidentified_taxa = array("GBIF:9207297", "NCBI:694009", "NCBI:1003835", "NCBI:2697049", "GBIF:10069196", "INAT_TAXON:1081492", "24843470");
+        foreach($excluded_unidentified_taxa as $id) $this->exclude_taxonIDs[$id] = '';
+        // */
 
         // /* New per Jen:
         echo "\nexclude_taxonIDs 1: ".count($this->exclude_taxonIDs)."\n";
