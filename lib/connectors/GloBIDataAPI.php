@@ -91,6 +91,13 @@ class GloBIDataAPI extends Globi_Refuted_Records
         # Instead of manually doing it.
         // */
         
+        GBIF:2436436	http://www.gbif.org/species/2436436			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	species		
+        EOL:327955	http://eol.org/pages/327955			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	species		
+        WD:Q15978631	https://www.wikidata.org/wiki/Q15978631			Homo sapiens								species		
+        NBN:NHMSYS0000376773	https://data.nbn.org.uk/Taxa/NHMSYS0000376773			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	species		
+        ITIS:180092	http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=180092			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	
+        WORMS:1455977	https://www.marinespecies.org/aphia.php?p=taxdetails&id=1455977			Homo sapiens		Animalia	Chordata	Mammalia	Primates	Hominidae	Homo	species		
+
         // /* New per Jen:
         echo "\nexclude_taxonIDs 1: ".count($this->exclude_taxonIDs)."\n";
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'build info 2'); //generates $this->exclude_taxonIDs
@@ -98,6 +105,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
         if(isset($this->exclude_taxonIDs["NCBI:32644"])) print("\nGood...will proceed.\n");
         else exit("\nSomething is wrong...will terminate.\n");
         // */
+
+
         
         //step 1 is build info list
         self::process_reference($tables['http://eol.org/schema/reference/reference'][0], 'build info'); //includes a carry-over portion

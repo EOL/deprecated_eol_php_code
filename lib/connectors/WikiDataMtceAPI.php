@@ -657,11 +657,18 @@ class WikiDataMtceAPI
         }
         else echo "\nShould not go here.\n";
     }
-    function divide_exportfile_send_2quickstatements()
+    function divide_exportfile_send_2quickstatements($input)
     {
         /* last to process:
         */
-        exit;
+        // exit;
+        
+        // /* set the paths
+        $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/"; //generated from CypherQueryAPI.php
+        $tmp = md5(json_encode($input));
+        $this->report_path .= "$tmp/";
+        $this->temp_file = $this->report_path."export_file.qs"; //unique export file
+        // */
 
         $i = 0;
         $batch_name = date("Y_m_d");
@@ -669,6 +676,11 @@ class WikiDataMtceAPI
         $WRITE = Functions::file_open($this->tmp_batch_export, "w");
         foreach(new FileIterator($this->temp_file) as $line => $row) {
             if($row) $i++;
+            
+            // /* use this block to exclude already run: manually done
+            if($i < 2250) continue;
+            // */
+
             echo "\n".$row;
             fwrite($WRITE, $row."\n");
             if(($i % 3) == 0) { $batch_num++;
@@ -712,6 +724,15 @@ class WikiDataMtceAPI
         echo "\n[$output]\n";
     }
 
+    /* the one used for citation, manually run in terminal:
+    curl https://quickstatements.toolforge.org/api.php \
+            -d action=import \
+            -d submit=1 \
+            -d username=EOLTraits \
+            -d "batchname=BATCH 1" \
+            --data-raw 'token=$2y$10$hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy' \
+            --data-urlencode data@test.qs        
+    */
 
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
