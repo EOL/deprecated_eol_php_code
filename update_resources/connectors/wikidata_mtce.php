@@ -153,14 +153,14 @@ $input["params"] = array("citation" => $citation);
 $input["type"] = "wikidata_base_qry_citation";
 $input["per_page"] = 500; // 500 worked ok
 $input["trait kind"] = "trait"; //only 2 recs here
-$input["trait kind"] = "inferred_trait";
-// $func->create_WD_traits($input);
+// $input["trait kind"] = "inferred_trait";
+$func->create_WD_traits($input);
 // */
-// /*
 
-$func->divide_exportfile_send_2quickstatements($input);
+// /*
+// $func->divide_exportfile_send_2quickstatements($input);
 // */
-// running... 2023_01_19 70
+
 
 
 

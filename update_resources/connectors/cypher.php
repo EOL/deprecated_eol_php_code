@@ -215,11 +215,11 @@ $input["params"] = array("citation" => $citation);
 $input["type"] = "wikidata_base_qry_citation";
 $input["per_page"] = 500; // 500 worked ok
 
-$input["trait kind"] = "trait";
+$input["trait kind"] = "trait"; //2 records only
 $func->query_trait_db($input);
 
-$input["trait kind"] = "inferred_trait";
-$func->query_trait_db($input);
+// $input["trait kind"] = "inferred_trait";
+// $func->query_trait_db($input);
 
 // */
 
