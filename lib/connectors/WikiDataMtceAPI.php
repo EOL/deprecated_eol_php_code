@@ -269,6 +269,7 @@ class WikiDataMtceAPI
     private function manual_fix_title($str)
     {
         if(substr($str, -(strlen("(Orthoptera: Tettigoniidae"))) == "(Orthoptera: Tettigoniidae") return $str.")";
+        elseif(substr($str, -(strlen("Lampyridae (Coleoptera"))) == "Lampyridae (Coleoptera") return $str.")";
         return $str;
     }
     private function create_WD_taxon_trait($r)

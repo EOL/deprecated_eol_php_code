@@ -209,7 +209,7 @@ $func->query_trait_db($input);
 // $citation = "Paul, C.R.C. and Smith, A.B., 1984. The early radiation and phylogeny of echinoderms. Biological Reviews, 59(4), pp.443-481.";
 
 $citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34"; # 1st group
-
+$citation = "McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867"; # 2nd group
 $input = array();
 $input["params"] = array("citation" => $citation);
 $input["type"] = "wikidata_base_qry_citation";
@@ -218,10 +218,23 @@ $input["per_page"] = 500; // 500 worked ok
 $input["trait kind"] = "trait"; //2 records only
 $func->query_trait_db($input);
 
-// $input["trait kind"] = "inferred_trait";
+$input["trait kind"] = "inferred_trait";
+$func->query_trait_db($input);
+// */
+
+/* with resource_id 
+$resource_id = 1054;
+$input = array();
+$input["params"] = array("resource_id" => $resource_id);
+$input["type"] = "wikidata_base_qry_resourceID";
+$input["per_page"] = 500; // 500 worked ok
+
+// $input["trait kind"] = "trait"; //2 records only
 // $func->query_trait_db($input);
 
-// */
+$input["trait kind"] = "inferred_trait";
+$func->query_trait_db($input);
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
