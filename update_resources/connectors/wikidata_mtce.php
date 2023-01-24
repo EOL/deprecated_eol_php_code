@@ -129,7 +129,7 @@ $url = $pre_url.$param;
 exit("\n[$url]\n");
 */
 
-// /*
+/*
 // $t_citation = "Paul, C.R.C. and Smith, A.B., 1984. The early radiation and phylogeny of echinoderms. Biological Reviews, 59(4), pp.443-481.";
 // $t_source = "https://doi.org/10.1111/j.1469-185X.1984.tb00411.x";
 // $t_citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
@@ -147,11 +147,11 @@ $t_citation = "L. Desutter-Grandcolas. 1995. Toward the Knowledge of the Evoluti
 $t_source = "https://doi.org/10.2307/3503472";
 
 $func->create_citation_if_does_not_exist($t_citation, $t_source); exit("\n- end create_citation_if_does_not_exist() -\n");
-// */
+*/
 
 // /* create traits
 $citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34"; # 1st group
-$citation = "McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867"; //2nd group
+// $citation = "McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867"; //2nd group
 $input = array();
 $input["params"] = array("citation" => $citation);
 $input["type"] = "wikidata_base_qry_citation";

@@ -27,7 +27,7 @@ class IdentifierMapAPI
         $options['timeout'] = 60*60*60*3; //3 hrs
         $resource_id = $input['resource_id'];
 
-        // if($local_file = Functions::save_remote_file_to_local($this->identifier_map_url, $options)) { //working - un-comment in real operation
+        // if($local_file = Functions::save_remote_file_to_local($this->identifier_map_url, $options)) { exit("\nlocal: [$local_file\n"); //working - un-comment in real operation
         if(true) {
             $local_file = "/Volumes/AKiTiO4/eol_php_code_tmp/tmp_22859.file.gz";
             echo "\nfilesize [$local_file]: ".filesize($local_file)."\n";

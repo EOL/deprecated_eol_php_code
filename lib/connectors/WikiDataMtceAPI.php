@@ -602,18 +602,44 @@ class WikiDataMtceAPI
         // Jimenezia 41766 Jimenezia Q14632906 genus of crustaceans Q116270045
         if($page_id == 41766 && $canonical == "Jimenezia") {
             $ret = array("i" => "Q116270045", "c" => "Jimenezia");
+            $this->download_options['expire_seconds'] = true;
             if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
+            $this->download_options['expire_seconds'] = false;
         }
         // Caroliniella 46941873 Caroliniella Q15869235 genus of insects Q116270111
         elseif($page_id == 46941873 && $canonical == "Caroliniella") {
             $ret = array("i" => "Q116270111", "c" => "Caroliniella");
+            $this->download_options['expire_seconds'] = true;
             if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
+            $this->download_options['expire_seconds'] = false;
         }
         // Ceraia 45959 Ceraia Q2393841 genus of plants Q13581136
         elseif($page_id == 45959 && $canonical == "Ceraia") {
             $ret = array("i" => "Q13581136", "c" => "Ceraia");
+            $this->download_options['expire_seconds'] = true;
             if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
+            $this->download_options['expire_seconds'] = false;
         }
+        elseif($page_id == 494881 && $canonical == "Ceraia dentata") self::fix_further($page_id, $canonical, "Q10445580");
+        elseif($page_id == 47177312 && $canonical == "Drepanophyllum") self::fix_further($page_id, $canonical, "Q10476638");
+        elseif($page_id == 47179232 && $canonical == "Lamprophyllum") self::fix_further($page_id, $canonical, "Q10553675");
+        elseif($page_id == 46207 && $canonical == "Montana") self::fix_further($page_id, $canonical, "Q10588738");
+        elseif($page_id == 45912 && $canonical == "Platyphyllum") self::fix_further($page_id, $canonical, "Q10633517");
+        elseif($page_id == 497268 && $canonical == "Psyrana sondaica") self::fix_further($page_id, $canonical, "Q10645422");
+        elseif($page_id == 46238 && $canonical == "Pterophylla") self::fix_further($page_id, $canonical, "Q10645731");
+        elseif($page_id == 857000 && $canonical == "Typhoptera unicolor") self::fix_further($page_id, $canonical, "Q10707441");
+        elseif($page_id == 59571 && $canonical == "Xiphophyllum") self::fix_further($page_id, $canonical, "Q10722856");
+        elseif($page_id == 45836 && $canonical == "Zichya") self::fix_further($page_id, $canonical, "Q10724602");
+        elseif($page_id == 52766840 && $canonical == "Dendrobia") self::fix_further($page_id, $canonical, "Q116327677");
+        elseif($page_id == 34781706 && $canonical == "Dicorypha") self::fix_further($page_id, $canonical, "Q13572701");
+        elseif($page_id == 856709 && $canonical == "Phyllophora speciosa") self::fix_further($page_id, $canonical, "Q13582231");
+        elseif($page_id == 87504 && $canonical == "Platenia") self::fix_further($page_id, $canonical, "Q14113863");
+        elseif($page_id == 63359 && $canonical == "Albertisiella") self::fix_further($page_id, $canonical, "Q14589678");
+        elseif($page_id == 74142 && $canonical == "Baetica") self::fix_further($page_id, $canonical, "Q14594580");
+        elseif($page_id == 87690 && $canonical == "Ceresia") self::fix_further($page_id, $canonical, "Q14624705");
+        elseif($page_id == 76249 && $canonical == "Ebneria") self::fix_further($page_id, $canonical, "Q14626974");
+        elseif($page_id == 19733 && $canonical == "Macrochiton") self::fix_further($page_id, $canonical, "Q15262438");
+        elseif($page_id == 46941515 && $canonical == "Odontura") self::fix_further($page_id, $canonical, "Q2014752");
         // */
         else { //orig
             if($ret = @$this->taxonMap[$page_id]) {
@@ -627,7 +653,16 @@ class WikiDataMtceAPI
             }    
         }
     }
-
+    private function fix_further($page_id, $canonical, $new_WD_id)
+    {
+        $ret = array("i" => $new_WD_id, "c" => $canonical);
+        $this->download_options['expire_seconds'] = true;
+        if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) {
+            $this->download_options['expire_seconds'] = false;
+            return array($ret['i'], $obj);
+        }
+        $this->download_options['expire_seconds'] = false;
+    }
     function get_WD_obj_using_string($string, $what = 'all')
     {
         $url = str_replace("MY_TITLE", urlencode($string), $this->wikidata_api['search string']);
@@ -649,7 +684,9 @@ class WikiDataMtceAPI
         // https://www.wikidata.org/w/api.php?action=wbgetentities&format=xml&ids=Q56079384
         // searching using wikidata entity id
         $url = str_replace("ENTITY_ID", $wikidata_id, $this->wikidata_api['search entity ID']);
-        if($json = Functions::lookup_with_cache($url, $this->download_options)) { // print("\n$json\n");
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60; //only used when wikidata.org is updated. And you cannot pinpoint which records are upated.
+        if($json = Functions::lookup_with_cache($url, $options)) { // print("\n$json\n");
             $obj = json_decode($json); // print_r($obj);
 
             if($what == 'all') return $obj;
