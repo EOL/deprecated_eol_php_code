@@ -149,7 +149,7 @@ $t_source = "https://doi.org/10.2307/3503472";
 $func->create_citation_if_does_not_exist($t_citation, $t_source); exit("\n- end create_citation_if_does_not_exist() -\n");
 */
 
-// /* create traits
+/* create traits
 $citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34"; # 1st group
 // $citation = "McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867"; //2nd group
 $input = array();
@@ -160,7 +160,7 @@ $input["trait kind"] = "trait"; //only 2 recs here
 // $input["trait kind"] = "inferred_trait";
 // $func->create_WD_traits($input); exit("\n-end create_WD_traits() -\n");
 $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
-// */
+*/
 
 // /* run all resources
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";

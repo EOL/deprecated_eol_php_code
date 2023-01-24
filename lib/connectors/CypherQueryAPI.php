@@ -260,5 +260,59 @@ class CypherQueryAPI
         }
         fclose($WRITE);
     }
+    function run_all_resources($spreadsheet)
+    {
+        $spreadsheet = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/resources/".$spreadsheet;
+        $i = 0;
+        foreach(new FileIterator($spreadsheet) as $line_number => $line) { $i++;
+            if(!$line) continue;
+            $row = str_getcsv($line);
+            if(!$row) continue;
+            if($i == 1) { $fields = $row; $count = count($fields); continue;}
+            else { //main records
+                $values = $row; $k = 0; $rec = array();
+                foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
+                $rec = array_map('trim', $rec); //important step
+                print_r($rec); //exit;
+                self::run_resource_query($rec);
+                break; //process just first record
+            }
+        }
+    }
+    private function run_resource_query($rec)
+    {   /* Array(
+        [r.resource_id] => 1054
+        [trait.source] => https://www.wikidata.org/entity/Q116263059
+        [trait.citation] => McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867
+        )*/
+
+        /* option 1
+        $citation = $rec['trait.citation'];
+        $input = array();
+        $input["params"] = array("citation" => $citation);
+        $input["type"] = "wikidata_base_qry_citation";
+        $input["per_page"] = 500; // 500 worked ok
+        
+        $input["trait kind"] = "trait";
+        $this->query_trait_db($input);
+        
+        // $input["trait kind"] = "inferred_trait";
+        // $this->query_trait_db($input);
+        */
+
+        // /* option 2
+        $source = $rec['trait.source'];
+        $input["params"] = array("source" => $source);
+        $input["type"] = "wikidata_base_qry_source";
+        $input["per_page"] = 500; // 500 finished ok
+
+        $input["trait kind"] = "trait";
+        $this->query_trait_db($input);
+        
+        // $input["trait kind"] = "inferred_trait";
+        // $this->query_trait_db($input);
+        // */
+    }
+
 }
 ?>

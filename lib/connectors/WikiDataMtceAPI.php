@@ -774,12 +774,14 @@ class WikiDataMtceAPI
             if(!$line) continue;
             $row = str_getcsv($line);
             if(!$row) continue;
-            if($i == 1) { $fields = $row; $count = count($fields); }
+            if($i == 1) { $fields = $row; $count = count($fields); continue;}
             else { //main records
                 $values = $row; $k = 0; $rec = array();
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
                 $rec = array_map('trim', $rec); //important step
-                print_r($rec); exit;
+                print_r($rec); //exit;
+                break; //process just first record
+
             }
         }
     }
