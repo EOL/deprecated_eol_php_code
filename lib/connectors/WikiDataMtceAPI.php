@@ -600,26 +600,12 @@ class WikiDataMtceAPI
     {
         // /* manual fix
         // Jimenezia 41766 Jimenezia Q14632906 genus of crustaceans Q116270045
-        if($page_id == 41766 && $canonical == "Jimenezia") {
-            $ret = array("i" => "Q116270045", "c" => "Jimenezia");
-            $this->download_options['expire_seconds'] = true;
-            if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
-            $this->download_options['expire_seconds'] = false;
-        }
+        if($page_id == 41766 && $canonical == "Jimenezia") self::fix_further($page_id, $canonical, "Q116270045");
         // Caroliniella 46941873 Caroliniella Q15869235 genus of insects Q116270111
-        elseif($page_id == 46941873 && $canonical == "Caroliniella") {
-            $ret = array("i" => "Q116270111", "c" => "Caroliniella");
-            $this->download_options['expire_seconds'] = true;
-            if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
-            $this->download_options['expire_seconds'] = false;
-        }
+        elseif($page_id == 46941873 && $canonical == "Caroliniella") self::fix_further($page_id, $canonical, "Q116270111");
         // Ceraia 45959 Ceraia Q2393841 genus of plants Q13581136
-        elseif($page_id == 45959 && $canonical == "Ceraia") {
-            $ret = array("i" => "Q13581136", "c" => "Ceraia");
-            $this->download_options['expire_seconds'] = true;
-            if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
-            $this->download_options['expire_seconds'] = false;
-        }
+        elseif($page_id == 45959 && $canonical == "Ceraia") self::fix_further($page_id, $canonical, "Q13581136");
+        /* next batch */
         elseif($page_id == 494881 && $canonical == "Ceraia dentata") self::fix_further($page_id, $canonical, "Q10445580");
         elseif($page_id == 47177312 && $canonical == "Drepanophyllum") self::fix_further($page_id, $canonical, "Q10476638");
         elseif($page_id == 47179232 && $canonical == "Lamprophyllum") self::fix_further($page_id, $canonical, "Q10553675");
