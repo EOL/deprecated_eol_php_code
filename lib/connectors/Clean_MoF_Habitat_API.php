@@ -257,9 +257,18 @@ class Clean_MoF_Habitat_API
                 }
                 
                 /* ========== START customize ========== */
+
+                /*
+                (1) Please remove any record with
+                measurementMethod = "inherited from urn:lsid:marinespecies.org:taxname:2687, Carnivora"
+                They've got some funny ideas about marine bears and minks...
+
+                (2) Could you please filter out records where measurement method = "inherited from urn:lsid:marinespecies.org:taxname:146142, Bryozoa"
+                */
                 if($this->resource_id == "26_delta_new") { //per: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66931&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66931
                     $measurementMethod = $rec['http://rs.tdwg.org/dwc/terms/measurementMethod'];
                     if($measurementMethod == "inherited from urn:lsid:marinespecies.org:taxname:2687, Carnivora") $this->occurrenceIDs_2delete[$occurrenceID] = '';
+                    if($measurementMethod == "inherited from urn:lsid:marinespecies.org:taxname:146142, Bryozoa") $this->occurrenceIDs_2delete[$occurrenceID] = '';
                 }
                 /* ========== END customize ========== */
             }
