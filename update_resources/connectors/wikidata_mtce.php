@@ -137,8 +137,8 @@ exit("\n[$url]\n");
 // $citation = "Henry, Meghan, et al. The 2020 Annual Homeless Assessment Report (AHAR) to Congress. U.S. Dept. of Housing and Urban Development, Jan. 2021, https://www.huduser.gov/portal/sites/default/files/pdf/2020-AHAR-Part-1.pdf.";
 // $citation = "The Big Lebowski. Directed by Joel Coen, performances by Jeff Bridges and Julianne Moore, Polygram Filmed Entertainment, 1998. Las Vegas, Nevada";
 
-$t_citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34";
-$t_source = ""; //none
+// $t_citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34";
+// $t_source = ""; //none
 
 $t_citation = "McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867";
 $t_source = "https://www.wikidata.org/entity/Q116263059"; //none
@@ -165,7 +165,9 @@ $func->create_WD_traits($input); exit("\n-end create_WD_traits() -\n");
 // $func->divide_exportfile_send_2quickstatements($input);
 // */
 
-
+/* run all resources
+circadian_rythm_resources_sans_pantheria.csv
+*/
 
 /* works OK
 $taxon = "Jimenezia";
@@ -194,14 +196,6 @@ $refs[] = "https://www.wikidata.org/entity/Q116222930 Brusca, R.C. and Brusca, G
 $func->utility_parse_refs($refs);
 */
 
-/* copied template - not used but works OK
-====================================================
-// print_r($argv);
-$params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
-$params['json']              = @$argv[2]; //useful here
-$arr = json_decode($params['json'], true);
-====================================================
-*/
 
 
 $elapsed_time_sec = time_elapsed() - $timestart;

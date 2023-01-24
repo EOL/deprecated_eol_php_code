@@ -579,6 +579,7 @@ class WikiDataMtceAPI
         Katja needs:
         EOL resource ID (the source of the trait record), EOL name & pageID and the WikiData name & ID.
         */
+        // print_r($rec);
         $canonical = "";
         if($canonical = $rec['p.canonical']) {}
         else {
@@ -591,7 +592,7 @@ class WikiDataMtceAPI
         $final[] = $rec['p.page_id'];
         $final[] = $wikidata_obj->display->label->value;
         $final[] = $wikidata_obj->id;
-        $final[] = $wikidata_obj->display->description->value;
+        $final[] = @$wikidata_obj->display->description->value;
         $final[] = $rec['how'];
         fwrite($this->WRITE, implode("\t", $final)."\n");
         // print_r($rec); print_r($wikidata_obj); print_r($final); exit;
@@ -600,32 +601,34 @@ class WikiDataMtceAPI
     {
         // /* manual fix
         // Jimenezia 41766 Jimenezia Q14632906 genus of crustaceans Q116270045
-        if($page_id == 41766 && $canonical == "Jimenezia") self::fix_further($page_id, $canonical, "Q116270045");
+        if($page_id == 41766 && $canonical == "Jimenezia") return self::fix_further($page_id, $canonical, "Q116270045");
         // Caroliniella 46941873 Caroliniella Q15869235 genus of insects Q116270111
-        elseif($page_id == 46941873 && $canonical == "Caroliniella") self::fix_further($page_id, $canonical, "Q116270111");
+        elseif($page_id == 46941873 && $canonical == "Caroliniella") return self::fix_further($page_id, $canonical, "Q116270111");
         // Ceraia 45959 Ceraia Q2393841 genus of plants Q13581136
-        elseif($page_id == 45959 && $canonical == "Ceraia") self::fix_further($page_id, $canonical, "Q13581136");
+        elseif($page_id == 45959 && $canonical == "Ceraia") return self::fix_further($page_id, $canonical, "Q13581136");
         /* next batch */
-        elseif($page_id == 494881 && $canonical == "Ceraia dentata") self::fix_further($page_id, $canonical, "Q10445580");
-        elseif($page_id == 47177312 && $canonical == "Drepanophyllum") self::fix_further($page_id, $canonical, "Q10476638");
-        elseif($page_id == 47179232 && $canonical == "Lamprophyllum") self::fix_further($page_id, $canonical, "Q10553675");
-        elseif($page_id == 46207 && $canonical == "Montana") self::fix_further($page_id, $canonical, "Q10588738");
-        elseif($page_id == 45912 && $canonical == "Platyphyllum") self::fix_further($page_id, $canonical, "Q10633517");
-        elseif($page_id == 497268 && $canonical == "Psyrana sondaica") self::fix_further($page_id, $canonical, "Q10645422");
-        elseif($page_id == 46238 && $canonical == "Pterophylla") self::fix_further($page_id, $canonical, "Q10645731");
-        elseif($page_id == 857000 && $canonical == "Typhoptera unicolor") self::fix_further($page_id, $canonical, "Q10707441");
-        elseif($page_id == 59571 && $canonical == "Xiphophyllum") self::fix_further($page_id, $canonical, "Q10722856");
-        elseif($page_id == 45836 && $canonical == "Zichya") self::fix_further($page_id, $canonical, "Q10724602");
-        elseif($page_id == 52766840 && $canonical == "Dendrobia") self::fix_further($page_id, $canonical, "Q116327677");
-        elseif($page_id == 34781706 && $canonical == "Dicorypha") self::fix_further($page_id, $canonical, "Q13572701");
-        elseif($page_id == 856709 && $canonical == "Phyllophora speciosa") self::fix_further($page_id, $canonical, "Q13582231");
-        elseif($page_id == 87504 && $canonical == "Platenia") self::fix_further($page_id, $canonical, "Q14113863");
-        elseif($page_id == 63359 && $canonical == "Albertisiella") self::fix_further($page_id, $canonical, "Q14589678");
-        elseif($page_id == 74142 && $canonical == "Baetica") self::fix_further($page_id, $canonical, "Q14594580");
-        elseif($page_id == 87690 && $canonical == "Ceresia") self::fix_further($page_id, $canonical, "Q14624705");
-        elseif($page_id == 76249 && $canonical == "Ebneria") self::fix_further($page_id, $canonical, "Q14626974");
-        elseif($page_id == 19733 && $canonical == "Macrochiton") self::fix_further($page_id, $canonical, "Q15262438");
-        elseif($page_id == 46941515 && $canonical == "Odontura") self::fix_further($page_id, $canonical, "Q2014752");
+        elseif($page_id == 494881 && $canonical == "Ceraia dentata") return self::fix_further($page_id, $canonical, "Q10445580");
+        elseif($page_id == 47177312 && $canonical == "Drepanophyllum") return self::fix_further($page_id, $canonical, "Q10476638");
+        elseif($page_id == 47179232) return self::fix_further($page_id, $canonical, "Q10553675");
+        // Lamprophyllum 47179232 Lamprophyllum Schimp. ex Broth. (1907) non Miers (1855) Q17294325 later homonym, use Schimperobryum identifier-map Q10553675
+        elseif($page_id == 46207 && $canonical == "Montana") return self::fix_further($page_id, $canonical, "Q10588738");
+        elseif($page_id == 45912 && $canonical == "Platyphyllum") return self::fix_further($page_id, $canonical, "Q10633517");
+        elseif($page_id == 497268 && $canonical == "Psyrana sondaica") return self::fix_further($page_id, $canonical, "Q10645422");
+        elseif($page_id == 46238 && $canonical == "Pterophylla") return self::fix_further($page_id, $canonical, "Q10645731");
+        elseif($page_id == 857000 && $canonical == "Typhoptera unicolor") return self::fix_further($page_id, $canonical, "Q10707441");
+        elseif($page_id == 59571 && $canonical == "Xiphophyllum") return self::fix_further($page_id, $canonical, "Q10722856");
+        elseif($page_id == 45836 && $canonical == "Zichya") return self::fix_further($page_id, $canonical, "Q10724602");
+        elseif($page_id == 52766840) return self::fix_further($page_id, $canonical, "Q116327677");
+        // Dendrobia 52766840 Dendrobianthe Q98228381 name search thru identifier-map Q116327677
+        elseif($page_id == 34781706 && $canonical == "Dicorypha") return self::fix_further($page_id, $canonical, "Q13572701");
+        elseif($page_id == 856709 && $canonical == "Phyllophora speciosa") return self::fix_further($page_id, $canonical, "Q13582231");
+        elseif($page_id == 87504 && $canonical == "Platenia") return self::fix_further($page_id, $canonical, "Q14113863");
+        elseif($page_id == 63359 && $canonical == "Albertisiella") return self::fix_further($page_id, $canonical, "Q14589678");
+        elseif($page_id == 74142 && $canonical == "Baetica") return self::fix_further($page_id, $canonical, "Q14594580");
+        elseif($page_id == 87690 && $canonical == "Ceresia") return self::fix_further($page_id, $canonical, "Q14624705");
+        elseif($page_id == 76249 && $canonical == "Ebneria") return self::fix_further($page_id, $canonical, "Q14626974");
+        elseif($page_id == 19733 && $canonical == "Macrochiton") return self::fix_further($page_id, $canonical, "Q15262438");
+        elseif($page_id == 46941515 && $canonical == "Odontura") return self::fix_further($page_id, $canonical, "Q2014752");
         // */
         else { //orig
             if($ret = @$this->taxonMap[$page_id]) {
@@ -671,7 +674,7 @@ class WikiDataMtceAPI
         // searching using wikidata entity id
         $url = str_replace("ENTITY_ID", $wikidata_id, $this->wikidata_api['search entity ID']);
         $options = $this->download_options;
-        $options['expire_seconds'] = 60; //only used when wikidata.org is updated. And you cannot pinpoint which records are upated.
+        // $options['expire_seconds'] = 60; //only used when wikidata.org is updated. And you cannot pinpoint which records are upated.
         if($json = Functions::lookup_with_cache($url, $options)) { // print("\n$json\n");
             $obj = json_decode($json); // print_r($obj);
 
