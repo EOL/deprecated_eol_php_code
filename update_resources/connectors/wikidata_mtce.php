@@ -157,17 +157,15 @@ $input["params"] = array("citation" => $citation);
 $input["type"] = "wikidata_base_qry_citation";
 $input["per_page"] = 500; // 500 worked ok
 $input["trait kind"] = "trait"; //only 2 recs here
-$input["trait kind"] = "inferred_trait";
-$func->create_WD_traits($input); exit("\n-end create_WD_traits() -\n");
+// $input["trait kind"] = "inferred_trait";
+// $func->create_WD_traits($input); exit("\n-end create_WD_traits() -\n");
+$func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
 // */
 
-// /*
-// $func->divide_exportfile_send_2quickstatements($input);
+// /* run all resources
+$spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
+$func->run_all_resources($spreadsheet);
 // */
-
-/* run all resources
-circadian_rythm_resources_sans_pantheria.csv
-*/
 
 /* works OK
 $taxon = "Jimenezia";

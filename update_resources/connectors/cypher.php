@@ -204,7 +204,7 @@ $input["per_page"] = 100; // 100 finished ok
 $func->query_trait_db($input);
 */
 
-// /* good example
+/* good example
 // $citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
 // $citation = "Paul, C.R.C. and Smith, A.B., 1984. The early radiation and phylogeny of echinoderms. Biological Reviews, 59(4), pp.443-481.";
 
@@ -220,9 +220,9 @@ $func->query_trait_db($input);
 
 $input["trait kind"] = "inferred_trait";
 $func->query_trait_db($input);
-// */
+*/
 
-/* with resource_id 
+/* with resource_id --- query has an error
 $resource_id = 1054;
 $input = array();
 $input["params"] = array("resource_id" => $resource_id);
@@ -235,6 +235,11 @@ $input["per_page"] = 500; // 500 worked ok
 $input["trait kind"] = "inferred_trait";
 $func->query_trait_db($input);
 */
+
+// /* run all resources
+$spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
+$func->run_all_resources($spreadsheet);
+// */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

@@ -704,9 +704,9 @@ class WikiDataMtceAPI
         foreach(new FileIterator($this->temp_file) as $line => $row) {
             if($row) $i++;
             
-            // /* use this block to exclude already run: manually done
-            if($i < 2250) continue;
-            // */
+            /* use this block to exclude already run: manually done
+            if($i < 8) continue;
+            */
 
             echo "\n".$row;
             fwrite($WRITE, $row."\n");
@@ -715,8 +715,9 @@ class WikiDataMtceAPI
                 fclose($WRITE);
                 self::run_quickstatements_api($batch_name, $batch_num); 
                 sleep(30);
-                // self::run_quickstatements_api($batch_name, $batch_num); 
-                // exit;
+                /* sometimes running it twice is needed to remove the error
+                self::run_quickstatements_api($batch_name, $batch_num); 
+                */
 
                 // if($batch_num == 1200) exit;
                 $WRITE = Functions::file_open($this->tmp_batch_export, "w"); //initialize again                
@@ -760,7 +761,28 @@ class WikiDataMtceAPI
             --data-raw 'token=$2y$10$hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy' \
             --data-urlencode data@test.qs        
     */
-
+    function run_all_resources($spreadsheet)
+    {
+        /* works ok if you don't need to format/clean the entire row.
+        $file = Functions::file_open($this->text_path[$type], "r");
+        while(!feof($file)) { $row = fgetcsv($file); }
+        fclose($file);
+        */
+        $spreadsheet = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/resources/".$spreadsheet;
+        $i = 0;
+        foreach(new FileIterator($spreadsheet) as $line_number => $line) { $i++;
+            if(!$line) continue;
+            $row = str_getcsv($line);
+            if(!$row) continue;
+            if($i == 1) { $fields = $row; $count = count($fields); }
+            else { //main records
+                $values = $row; $k = 0; $rec = array();
+                foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
+                $rec = array_map('trim', $rec); //important step
+                print_r($rec); exit;
+            }
+        }
+    }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
     {
