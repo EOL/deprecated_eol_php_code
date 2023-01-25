@@ -84,6 +84,15 @@ globi_associations	Tue 2022-11-01 04:22:27 AM	        {"association.tab":8927060
 globi_associations_final	Tue 2022-11-01 10:44:15 AM	{"association.tab":8767900, "occurrence_specific.tab":16909699, "reference.tab":9028116, "taxon.tab":427500, "time_elapsed":{"sec":46957.42, "min":782.62, "hr":13.04}}
 globi_associations_delta	Tue 2022-11-01 05:48:33 PM	{"association.tab":8767900, "occurrence_specific.tab":16909699, "reference.tab":8701965, "taxon.tab":340625, "time_elapsed":{"sec":24545.2, "min":409.09, "hr":6.82}}
 
+removed covid associations below:
+globi_associations	        Mon 2023-01-23 01:02:56 AM	{"association.tab":2654750, "occurrence_specific.tab":10922455, "reference.tab":9357578, "taxon.tab":429727, "time_elapsed":{"sec":16530.09, "min":275.5, "hr":4.59}}
+globi_associations_final	Mon 2023-01-23 05:04:14 AM	{"association.tab":2521697, "occurrence_specific.tab":10922302, "reference.tab":9357578, "taxon.tab":429727, "time_elapsed":{"sec":31008.27, "min":516.8, "hr":8.61}}
+globi_associations_delta	Mon 2023-01-23 09:26:33 AM	{"association.tab":2521697, "occurrence_specific.tab":10922302, "reference.tab":9004684, "taxon.tab":340661, "time_elapsed":{"sec":15254.89, "min":254.25, "hr":4.24}}
+
+globi_associations	        Mon 2023-01-23 10:52:40 PM	{"association.tab":2654749, "occurrence_specific.tab":10922454, "reference.tab":9357578, "taxon.tab":429727, "time_elapsed":{"sec":15231.97, "min":253.87, "hr":4.23}}
+globi_associations_final	Tue 2023-01-24 02:52:10 AM	{"association.tab":2521696, "occurrence_specific.tab":10922301, "reference.tab":9357578, "taxon.tab":429727, "time_elapsed":{"sec":29602.08, "min":493.37, "hr":8.22}}
+globi_associations_delta	Wed 2023-01-25 09:11:01 AM	{"association.tab":2521696, "occurrence_specific.tab":10922301, "reference.tab":9004684, "taxon.tab":340661, "time_elapsed":{"sec":15536.25, "min":258.94, "hr":4.32}}
+
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020

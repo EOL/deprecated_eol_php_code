@@ -27,16 +27,20 @@ class WikiDataMtceAPI
 
         // */
     }
+    private function generate_report_path($input)
+    {
+        $path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/"; //generated from CypherQueryAPI.php
+        if(!is_dir($path)) mkdir($path);
+        $tmp = md5(json_encode($input));
+        $path .= "$tmp/";
+        if(!is_dir($path)) mkdir($path);
+        return $path;
+    }
     private function initialize_path($input)
     {
-        $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/"; //generated from CypherQueryAPI.php
-        if(!is_dir($this->report_path)) mkdir($this->report_path);
-        $tmp = md5(json_encode($input));
-        $this->report_path .= "$tmp/";
-        if(!is_dir($this->report_path)) mkdir($this->report_path);
-        // exit("\nreport_path: ]$this->report_path\n");
+        $this->report_path = self::generate_report_path($input);
 
-        /* the next are the 3 files to be generated: */
+        /* Next are the 3 files to be generated: */
 
         // /* unique export file
         $last_digit = (string) rand();
@@ -110,6 +114,7 @@ class WikiDataMtceAPI
                 // if($i >= 20) break; //debug
             }
         }
+        echo "\nreport path: ".$input["trait kind"].":"."$this->report_path\n";
         /* un-comment in real operation. Now I wanted to check first the big export file first before proceeding.
         self::divide_exportfile_send_2quickstatements();
         */
@@ -807,12 +812,18 @@ class WikiDataMtceAPI
         $input["per_page"] = 500; // 500 worked ok
 
         $input["trait kind"] = "trait"; //only 2 recs here
-        self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
-        echo "\nreport path: ".$input["trait kind"].":"."$this->report_path\n";
+        $path = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path]\n";
 
         $input["trait kind"] = "inferred_trait";
-        self::create_WD_traits($input); exit("\n-end create_WD_traits() -\n");
-        echo "\nreport path: ".$input["trait kind"].":"."$this->report_path\n";
+        $path = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path]\n";
+        exit;
+
+
+        // $input["trait kind"] = "trait"; //only 2 recs here
+        // self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
+
+        // $input["trait kind"] = "inferred_trait";
+        // self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
 
         // $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
 
