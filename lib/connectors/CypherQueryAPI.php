@@ -220,7 +220,7 @@ class CypherQueryAPI
         */
         $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
         // $cmd .= ' 2>/dev/null'; //this will throw away the output
-        sleep(5); //delay 2 seconds
+        sleep(10); //delay 2 seconds
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
         echo "\n[$output]\n"; //good debug
         $json = file_get_contents($destination);
@@ -273,9 +273,9 @@ class CypherQueryAPI
                 $values = $row; $k = 0; $rec = array();
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
                 $rec = array_map('trim', $rec); //important step
-                print_r($rec); //exit;
+                // print_r($rec); exit;
                 self::run_resource_query($rec);
-                break; //process just first record
+                // break; //process just first record
             }
         }
     }
@@ -286,32 +286,38 @@ class CypherQueryAPI
         [trait.citation] => McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867
         )*/
 
-        /* option 1
-        $citation = $rec['trait.citation'];
-        $input = array();
-        $input["params"] = array("citation" => $citation);
-        $input["type"] = "wikidata_base_qry_citation";
-        $input["per_page"] = 500; // 500 worked ok
-        
-        $input["trait kind"] = "trait";
-        $this->query_trait_db($input);
-        
-        // $input["trait kind"] = "inferred_trait";
-        // $this->query_trait_db($input);
-        */
+        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE;
+        else $use_citation = FALSE; //the rest goes here.
 
-        // /* option 2
-        $source = $rec['trait.source'];
-        $input["params"] = array("source" => $source);
-        $input["type"] = "wikidata_base_qry_source";
-        $input["per_page"] = 500; // 500 finished ok
+        if($use_citation) {
+            // /* option 1
+            $citation = $rec['trait.citation'];
+            $input = array();
+            $input["params"] = array("citation" => $citation);
+            $input["type"] = "wikidata_base_qry_citation";
+            $input["per_page"] = 500; // 500 worked ok
+            
+            $input["trait kind"] = "trait";
+            $this->query_trait_db($input);
+            
+            $input["trait kind"] = "inferred_trait";
+            $this->query_trait_db($input);
+            // */
+        }
+        else {
+            // /* option 2
+            $source = $rec['trait.source'];
+            $input["params"] = array("source" => $source);
+            $input["type"] = "wikidata_base_qry_source";
+            $input["per_page"] = 500; // 500 finished ok
 
-        $input["trait kind"] = "trait";
-        $this->query_trait_db($input);
-        
-        // $input["trait kind"] = "inferred_trait";
-        // $this->query_trait_db($input);
-        // */
+            $input["trait kind"] = "trait";
+            $this->query_trait_db($input);
+            
+            $input["trait kind"] = "inferred_trait";
+            $this->query_trait_db($input);
+            // */
+        }
     }
 
 }

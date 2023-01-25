@@ -34,6 +34,7 @@ class WikiDataMtceAPI
         $tmp = md5(json_encode($input));
         $this->report_path .= "$tmp/";
         if(!is_dir($this->report_path)) mkdir($this->report_path);
+        // exit("\nreport_path: ]$this->report_path\n");
 
         /* the next are the 3 files to be generated: */
 
@@ -629,6 +630,10 @@ class WikiDataMtceAPI
         elseif($page_id == 76249 && $canonical == "Ebneria") return self::fix_further($page_id, $canonical, "Q14626974");
         elseif($page_id == 19733 && $canonical == "Macrochiton") return self::fix_further($page_id, $canonical, "Q15262438");
         elseif($page_id == 46941515 && $canonical == "Odontura") return self::fix_further($page_id, $canonical, "Q2014752");
+        /* start 2nd */
+        // Callopisma	46719434
+        elseif($page_id == 46719434) return self::fix_further($page_id, $canonical, "Q18582462");
+        
         // */
         else { //orig
             if($ret = @$this->taxonMap[$page_id]) {
@@ -780,10 +785,37 @@ class WikiDataMtceAPI
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
                 $rec = array_map('trim', $rec); //important step
                 print_r($rec); //exit;
+                self::run_resource_traits($rec);
                 break; //process just first record
 
             }
         }
+    }
+    private function run_resource_traits($rec)
+    {   /*Array(
+            [r.resource_id] => 1054
+            [trait.source] => https://www.wikidata.org/entity/Q116263059
+            [trait.citation] => McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867
+        )*/
+        // print_r($rec); exit;
+        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran
+
+        $citation = $rec['trait.citation'];
+        $input = array();
+        $input["params"] = array("citation" => $citation);
+        $input["type"] = "wikidata_base_qry_citation";
+        $input["per_page"] = 500; // 500 worked ok
+
+        $input["trait kind"] = "trait"; //only 2 recs here
+        self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
+        echo "\nreport path: ".$input["trait kind"].":"."$this->report_path\n";
+
+        $input["trait kind"] = "inferred_trait";
+        self::create_WD_traits($input); exit("\n-end create_WD_traits() -\n");
+        echo "\nreport path: ".$input["trait kind"].":"."$this->report_path\n";
+
+        // $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
+
     }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
