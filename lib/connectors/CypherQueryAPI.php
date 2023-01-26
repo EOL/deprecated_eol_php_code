@@ -276,8 +276,8 @@ class CypherQueryAPI
                 // print_r($rec); exit;
 
                 // /* good way to run 1 resource for investigation
-                // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
-                if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') continue; //2nd group
+                if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
+                // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') continue; //2nd group
                 // */
 
                 self::run_resource_query($rec);

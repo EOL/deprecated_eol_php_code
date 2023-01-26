@@ -817,8 +817,8 @@ class WikiDataMtceAPI
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran. Our very first.
 
         // /* good way to run 1 resource for investigation
-        // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
-        if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
+        if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
+        // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
         // */
 
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE;
@@ -840,21 +840,23 @@ class WikiDataMtceAPI
         }
 
 
-        $input["trait kind"] = "trait"; //only 2 recs here
+        $input["trait kind"] = "trait";
         $path = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path]\n";
+        $file1 = $path.$input['trait kind']."_qry.tsv";
 
         $input["trait kind"] = "inferred_trait";
         $path = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path]\n";
+        $file2 = $path.$input['trait kind']."_qry.tsv";
         // exit;
 
 
-        $input["trait kind"] = "trait"; //only 2 recs here
-        if(file_exists($path.$input['trait kind']."_qry.tsv")) self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
-        else echo "\nNo query results yet: ".$input['trait kind']."\n";
+        $input["trait kind"] = "trait";
+        if(file_exists($file1)) self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
+        else echo "\n[$file1]\nNo query results yet: ".$input['trait kind']."\n";
 
         $input["trait kind"] = "inferred_trait";
-        if(file_exists($path.$input['trait kind']."_qry.tsv")) self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
-        else echo "\nNo query results yet: ".$input['trait kind']."\n";
+        if(file_exists($file2)) self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
+        else echo "\n[$file2]\nNo query results yet: ".$input['trait kind']."\n";
 
         // $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
 
