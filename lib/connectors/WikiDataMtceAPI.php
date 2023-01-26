@@ -814,10 +814,12 @@ class WikiDataMtceAPI
             [trait.citation] => McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867
         )*/
         // print_r($rec); exit;
-        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran
+        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran. Our very first.
 
-        if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return;
-        
+        // /* good way to run 1 resource for investigation
+        // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
+        if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
+        // */
 
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE;
         else $use_citation = FALSE; //the rest goes here.

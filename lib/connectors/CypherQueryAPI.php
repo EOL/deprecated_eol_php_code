@@ -275,7 +275,10 @@ class CypherQueryAPI
                 $rec = array_map('trim', $rec); //important step
                 // print_r($rec); exit;
 
-                if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') continue;
+                // /* good way to run 1 resource for investigation
+                // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
+                if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') continue; //2nd group
+                // */
 
                 self::run_resource_query($rec);
                 // break; //process just first record
@@ -290,7 +293,7 @@ class CypherQueryAPI
         )*/
 
         print_r($rec);
-        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE;
+        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE; //our very first one
         else $use_citation = FALSE; //the rest goes here.
 
         if($use_citation) {
