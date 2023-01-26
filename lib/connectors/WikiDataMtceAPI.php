@@ -78,13 +78,16 @@ class WikiDataMtceAPI
     function create_WD_traits($input)
     {   //print_r($input); exit("\nstop 2\n");
         self::initialize_path($input);
+
         // /* use identifier-map for taxon mapping - EOL page ID to WikiData entity ID
-        require_library('connectors/IdentifierMapAPI');
-        $func = new IdentifierMapAPI(); //get_declared_classes(); will give you how to access all available classes
-        $this->taxonMap = $func->read_identifier_map_to_var(array("resource_id" => 1072));
-        $this->taxonMap_all = $func->read_identifier_map_to_var(array("resource_id" => 'all'));
-        echo "\ntaxonMap: ".count($this->taxonMap)."\n";
-        // exit("\nelix1\n");
+        if(!isset($this->taxonMap) && !isset($this->taxonMap_all)) {
+            require_library('connectors/IdentifierMapAPI');
+            $func = new IdentifierMapAPI(); //get_declared_classes(); will give you how to access all available classes
+            $this->taxonMap = $func->read_identifier_map_to_var(array("resource_id" => 1072));
+            $this->taxonMap_all = $func->read_identifier_map_to_var(array("resource_id" => 'all'));
+            echo "\ntaxonMap: ".count($this->taxonMap)."\n";
+            // exit("\nelix1\n");    
+        }
         // */
 
         // /* lookup spreadsheet for mapping
@@ -791,7 +794,8 @@ class WikiDataMtceAPI
                 $rec = array_map('trim', $rec); //important step
                 print_r($rec); //exit;
                 self::run_resource_traits($rec);
-                break; //process just first record
+                // break; //process just first record
+                if($i >= 3) break; //debug only
 
             }
         }
@@ -816,14 +820,14 @@ class WikiDataMtceAPI
 
         $input["trait kind"] = "inferred_trait";
         $path = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path]\n";
-        exit;
+        // exit;
 
 
-        // $input["trait kind"] = "trait"; //only 2 recs here
-        // self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
+        $input["trait kind"] = "trait"; //only 2 recs here
+        self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
 
-        // $input["trait kind"] = "inferred_trait";
-        // self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
+        $input["trait kind"] = "inferred_trait";
+        self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
 
         // $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
 
