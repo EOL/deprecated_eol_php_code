@@ -120,7 +120,9 @@ class WikiDataMtceAPI
             }
         }
         echo "\nreport path: ".$input["trait kind"].":"."$this->report_path\n";
-        /* un-comment in real operation. Now I wanted to check first the big export file first before proceeding.
+        self::show_totals();
+
+        /* un-comment in real operation. Now I commented bec. I want to check first the big export file first before proceeding.
         self::divide_exportfile_send_2quickstatements();
         */
     }
@@ -183,7 +185,10 @@ class WikiDataMtceAPI
             else echo "\nUndefined pred.name: [".$rec["pred.name"]."] \n";
             
             if($val = @$this->map['measurementValues'][$rec["obj.name"]]["property"]) $final['object_entity'] = $val;
-            else echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n";
+            else {
+                echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n";
+                $this->debug['undefined obj.name'][$rec["obj.name"]] = '';
+            }
             
             $title = self::parse_citation_using_anystyle($rec['t.citation'], 'title');
             $title = self::manual_fix_title($title);
@@ -797,9 +802,10 @@ class WikiDataMtceAPI
                 print_r($rec); //exit;
                 self::run_resource_traits($rec);
                 // break; //process just first record
-                if($i >= 10) break; //debug only
+                if($i >= 3) break; //debug only
             }
         }
+        print_r($this->debug);
     }
     private function run_resource_traits($rec)
     {   /*Array(
@@ -810,11 +816,27 @@ class WikiDataMtceAPI
         // print_r($rec); exit;
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran
 
-        $citation = $rec['trait.citation'];
-        $input = array();
-        $input["params"] = array("citation" => $citation);
-        $input["type"] = "wikidata_base_qry_citation";
-        $input["per_page"] = 500; // 500 worked ok
+        if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return;
+        
+
+        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE;
+        else $use_citation = FALSE; //the rest goes here.
+        
+        if($use_citation) {
+            $citation = $rec['trait.citation'];
+            $input = array();
+            $input["params"] = array("citation" => $citation);
+            $input["type"] = "wikidata_base_qry_citation";
+            $input["per_page"] = 500; // 500 worked ok    
+        }
+        else {
+            $source = $rec['trait.source'];
+            $input = array();
+            $input["params"] = array("source" => $source);
+            $input["type"] = "wikidata_base_qry_source";
+            $input["per_page"] = 500; // 500 finished ok
+        }
+
 
         $input["trait kind"] = "trait"; //only 2 recs here
         $path = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path]\n";
@@ -826,12 +848,22 @@ class WikiDataMtceAPI
 
         $input["trait kind"] = "trait"; //only 2 recs here
         if(file_exists($path.$input['trait kind']."_qry.tsv")) self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
+        else echo "\nNo query results yet: ".$input['trait kind']."\n";
 
         $input["trait kind"] = "inferred_trait";
         if(file_exists($path.$input['trait kind']."_qry.tsv")) self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
+        else echo "\nNo query results yet: ".$input['trait kind']."\n";
 
         // $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
 
+    }
+    private function show_totals()
+    {
+        $files = $this->report_path."*.*";
+        foreach (glob($files) as $file) {
+            $total = shell_exec("wc -l < ".escapeshellarg($file));
+            $total = trim($total);  echo "\n$file: [$total]\n";
+        }
     }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)

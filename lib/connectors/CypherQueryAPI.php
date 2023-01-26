@@ -274,6 +274,9 @@ class CypherQueryAPI
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
                 $rec = array_map('trim', $rec); //important step
                 // print_r($rec); exit;
+
+                if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') continue;
+
                 self::run_resource_query($rec);
                 // break; //process just first record
             }
@@ -286,6 +289,7 @@ class CypherQueryAPI
         [trait.citation] => McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867
         )*/
 
+        print_r($rec);
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE;
         else $use_citation = FALSE; //the rest goes here.
 
