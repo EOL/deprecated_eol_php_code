@@ -23,7 +23,7 @@ class WikiDataMtceAPI
         $this->crossref_api['search citation'] = "http://api.crossref.org/works?query.bibliographic=MY_CITATION&rows=2";
         $this->debug = array();
                 
-        $this->tmp_batch_export = DOC_ROOT . "/tmp/temp_export.qs";
+        // $this->tmp_batch_export = DOC_ROOT . "/tmp/temp_export.qs"; //moved
 
         // */
     }
@@ -41,6 +41,8 @@ class WikiDataMtceAPI
         $this->report_path = self::generate_report_path($input);
 
         /* Next are the 3 files to be generated: */
+
+        $this->tmp_batch_export = $this->report_path . "/temp_export.qs";
 
         // /* unique export file
         $last_digit = (string) rand();
@@ -795,8 +797,7 @@ class WikiDataMtceAPI
                 print_r($rec); //exit;
                 self::run_resource_traits($rec);
                 // break; //process just first record
-                if($i >= 3) break; //debug only
-
+                if($i >= 10) break; //debug only
             }
         }
     }
@@ -824,10 +825,10 @@ class WikiDataMtceAPI
 
 
         $input["trait kind"] = "trait"; //only 2 recs here
-        self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
+        if(file_exists($path.$input['trait kind']."_qry.tsv")) self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
 
         $input["trait kind"] = "inferred_trait";
-        self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
+        if(file_exists($path.$input['trait kind']."_qry.tsv")) self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
 
         // $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
 
