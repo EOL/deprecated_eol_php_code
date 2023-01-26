@@ -220,7 +220,7 @@ class CypherQueryAPI
         */
         $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
         // $cmd .= ' 2>/dev/null'; //this will throw away the output
-        sleep(10); //delay 2 seconds
+        sleep(20); //delay 2 seconds
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
         echo "\n[$output]\n"; //good debug
         $json = file_get_contents($destination);
@@ -275,10 +275,11 @@ class CypherQueryAPI
                 $rec = array_map('trim', $rec); //important step
                 // print_r($rec); exit;
 
-                // /* good way to run 1 resource for investigation
-                if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
+                /* good way to run 1 resource for investigation
+                // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') continue; //1st group
                 // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') continue; //2nd group
-                // */
+                if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') continue; //3rd group
+                */
 
                 self::run_resource_query($rec);
                 // break; //process just first record
@@ -295,6 +296,11 @@ class CypherQueryAPI
         print_r($rec);
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE; //our very first one
         else $use_citation = FALSE; //the rest goes here.
+
+
+        /* just testing queries if both via citation and via source is the same:
+        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116263059') $use_citation = TRUE;
+        */
 
         if($use_citation) {
             // /* option 1

@@ -176,7 +176,6 @@ class WikiDataMtceAPI
             // print_r($wikidata_obj); exit("\nelix4\n");
 
             $taxon_entity_id = $wikidata_obj->id;
-            self::write_taxonomic_mapping($rec, $wikidata_obj);
 
             $final = array();
             $final['taxon_entity'] = $taxon_entity_id;
@@ -184,7 +183,9 @@ class WikiDataMtceAPI
             if($val = @$this->map['measurementTypes'][$rec["pred.name"]]["property"]) $final['predicate_entity'] = $val;
             else echo "\nUndefined pred.name: [".$rec["pred.name"]."] \n";
             
-            if($val = @$this->map['measurementValues'][$rec["obj.name"]]["property"]) $final['object_entity'] = $val;
+            if($val = @$this->map['measurementValues'][$rec["obj.name"]]["wikiData term"]) {
+                if($val != "DISCARD") $final['object_entity'] = $val;
+            }
             else {
                 echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n";
                 $this->debug['undefined obj.name'][$rec["obj.name"]] = '';
@@ -206,7 +207,10 @@ class WikiDataMtceAPI
             elseif($trait_kind == "inferred_trait") $final['P3452'] = self::get_WD_obj_using_string($title, 'entity_id'); //"inferred from" (P3452) 
             else exit("\nUndefined trait kind.\n");
 
-            if($final['taxon_entity'] && @$final['predicate_entity'] && @$final['object_entity']) self::create_WD_taxon_trait($final);
+            if($final['taxon_entity'] && @$final['predicate_entity'] && @$final['object_entity']) {
+                self::create_WD_taxon_trait($final);                    //writes export_file.qs
+                self::write_taxonomic_mapping($rec, $wikidata_obj);     //writes taxonomic_mappings_for_review.tsv
+            }
         }
         else echo "\nNot a taxon: [".$rec['p.canonical']."]\n";
         // print_r($final);
@@ -796,13 +800,15 @@ class WikiDataMtceAPI
             if(!$row) continue;
             if($i == 1) { $fields = $row; $count = count($fields); continue;}
             else { //main records
+                /*
+                if($i < 4) continue;
+                */
                 $values = $row; $k = 0; $rec = array();
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
                 $rec = array_map('trim', $rec); //important step
-                print_r($rec); //exit;
                 self::run_resource_traits($rec);
                 // break; //process just first record
-                if($i >= 3) break; //debug only
+                // if($i >= 3) break; //debug only
             }
         }
         print_r($this->debug);
@@ -816,11 +822,13 @@ class WikiDataMtceAPI
         // print_r($rec); exit;
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran. Our very first.
 
-        // /* good way to run 1 resource for investigation
-        if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
-        // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
-        // */
+        /* good way to run 1 resource for investigation
+        // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
+        if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
+        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
+        */
 
+        print_r($rec); //exit;
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE;
         else $use_citation = FALSE; //the rest goes here.
         
@@ -839,7 +847,6 @@ class WikiDataMtceAPI
             $input["per_page"] = 500; // 500 finished ok
         }
 
-
         $input["trait kind"] = "trait";
         $path = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path]\n";
         $file1 = $path.$input['trait kind']."_qry.tsv";
@@ -848,7 +855,6 @@ class WikiDataMtceAPI
         $path = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path]\n";
         $file2 = $path.$input['trait kind']."_qry.tsv";
         // exit;
-
 
         $input["trait kind"] = "trait";
         if(file_exists($file1)) self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
