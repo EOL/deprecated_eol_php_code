@@ -95,16 +95,19 @@ class WikiDataMtceAPI
         // /* lookup spreadsheet for mapping
         $this->map = self::get_WD_entity_mappings();
         // */
+        
         // /* report file to process
         // orig
         // $tmp = md5(json_encode($input));
         // $this->tsv_file = $this->report_path."/".$tmp."_".$input["trait kind"].".tsv"; //exit("\n".$this->tsv_file."\n");
         $this->tsv_file = $this->report_path."/".$input["trait kind"]."_qry.tsv"; //exit("\n".$this->tsv_file."\n");
         // */
+
+        $total = shell_exec("wc -l < ".escapeshellarg($this->tsv_file)); $total = trim($total);
+
         $i = 0;
-        foreach(new FileIterator($this->tsv_file) as $line => $row) {
+        foreach(new FileIterator($this->tsv_file) as $line => $row) { $i++; echo "\n$i of $total traits\n";
             // $row = Functions::conv_to_utf8($row);
-            $i++;
             if($i == 1) $fields = explode("\t", $row);
             else {
                 if(!$row) continue;
@@ -747,15 +750,14 @@ class WikiDataMtceAPI
             if(($i % 3) == 0) { $batch_num++;
                 echo "\n-----";
                 fclose($WRITE);
-                self::run_quickstatements_api($batch_name, $batch_num); 
-                sleep(30);
+                self::run_quickstatements_api($batch_name, $batch_num);
+                echo "\nsleep 30 seconds...\n"; sleep(30);
                 /* sometimes running it twice is needed to remove the error
                 self::run_quickstatements_api($batch_name, $batch_num); 
                 */
 
                 // if($batch_num == 1200) exit;
                 $WRITE = Functions::file_open($this->tmp_batch_export, "w"); //initialize again                
-                // sleep(3);
             }
         }
         fclose($WRITE);
@@ -803,8 +805,9 @@ class WikiDataMtceAPI
         fclose($file);
         */
         $spreadsheet = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/resources/".$spreadsheet;
+        $total = shell_exec("wc -l < ".escapeshellarg($spreadsheet)); $total = trim($total);
         $i = 0;
-        foreach(new FileIterator($spreadsheet) as $line_number => $line) { $i++;
+        foreach(new FileIterator($spreadsheet) as $line_number => $line) { $i++; echo "\n$i of $total resources\n";
             if(!$line) continue;
             $row = str_getcsv($line);
             if(!$row) continue;
