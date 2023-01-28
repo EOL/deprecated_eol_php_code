@@ -181,7 +181,10 @@ class WikiDataMtceAPI
             $final['taxon_entity'] = $taxon_entity_id;
 
             if($val = @$this->map['measurementTypes'][$rec["pred.name"]]["property"]) $final['predicate_entity'] = $val;
-            else echo "\nUndefined pred.name: [".$rec["pred.name"]."] \n";
+            else {
+                echo "\nUndefined pred.name: [".$rec["pred.name"]."] \n";
+                $this->debug['undefined pred.name'][$rec["pred.name"]] = '';
+            }
             
             if($val = @$this->map['measurementValues'][$rec["obj.name"]]["wikiData term"]) {
                 if($val != "DISCARD") $final['object_entity'] = $val;
@@ -205,7 +208,7 @@ class WikiDataMtceAPI
             we could distinguish between regular records (P248) and branch painted records (P3452). */
             if    ($trait_kind == "trait")          $final['P248']  = self::get_WD_obj_using_string($title, 'entity_id'); //"stated in" (P248)
             elseif($trait_kind == "inferred_trait") $final['P3452'] = self::get_WD_obj_using_string($title, 'entity_id'); //"inferred from" (P3452) 
-            else exit("\nUndefined trait kind.\n");
+            else exit("\nUndefined trait_kind.\n");
 
             if($final['taxon_entity'] && @$final['predicate_entity'] && @$final['object_entity']) {
                 self::create_WD_taxon_trait($final);                    //writes export_file.qs
@@ -290,6 +293,7 @@ class WikiDataMtceAPI
     {
         if(substr($str, -(strlen("(Orthoptera: Tettigoniidae"))) == "(Orthoptera: Tettigoniidae") return $str.")";
         elseif(substr($str, -(strlen("Lampyridae (Coleoptera"))) == "Lampyridae (Coleoptera") return $str.")";
+        elseif(substr($str, -(strlen("Oriental Swallowtail Moths (Lepidoptera: Epicopeiidae"))) == "Oriental Swallowtail Moths (Lepidoptera: Epicopeiidae") return $str.")";
         return $str;
     }
     private function create_WD_taxon_trait($r)
@@ -684,9 +688,15 @@ class WikiDataMtceAPI
             if($what == 'all') return $obj;
             elseif($what == 'entity_id') {
                 // print_r($obj);
-                echo "\nentity found for string: [$string]";
-                echo "\nentity ID found is: [".$obj->search[0]->id."]\n";
-                return $obj->search[0]->id;
+                if($val = @$obj->search[0]->id) {
+                    echo "\nentity found for string: [$string]";
+                    echo "\nentity ID found is: [".$obj->search[0]->id."]\n";
+                    return $obj->search[0]->id;    
+                }
+                else {
+                    print_r($obj);
+                    echo("\n[".$string."]\nTitle not found. Investigate\n");
+                }
             }
         }
         return false;
@@ -803,6 +813,11 @@ class WikiDataMtceAPI
                 /*
                 if($i < 4) continue;
                 */
+                // /* during dev only
+                if($i % 2 == 0) {} //even
+                else {continue;} //odd
+                // */
+
                 $values = $row; $k = 0; $rec = array();
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
                 $rec = array_map('trim', $rec); //important step

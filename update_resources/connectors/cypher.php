@@ -196,13 +196,29 @@ require_library('connectors/CypherQueryAPI');
 $resource_id = 'eol';
 $func = new CypherQueryAPI($resource_id);
 
-/* good example
+// /* good example
 $source = "https://doi.org/10.1111/j.1469-185X.1984.tb00411.x";
-$input["params"] = array("source" => $source);
-$input["type"] = "wikidata_base_qry_source";
-$input["per_page"] = 100; // 100 finished ok
-$func->query_trait_db($input);
-*/
+$source = "https://doi.org/10.1073/pnas.1907847116";
+
+$sources = array();
+$sources[] = "https%3A%2F%2Fdoi.org%2F10.1073%2Fpnas.1907847116";
+$sources[] = "https%3A%2F%2Fwww.delta-intkey.com%2Fbritin%2Flep%2Fwww%2Fendromid.htm"
+$sources[] = "https%3A%2F%2Fwww.wikidata.org%2Fentity%2FQ116262527";
+$sources[] = "https%3A%2F%2Fdoi.org%2F10.1111%2Fj.1365-2311.1985.tb00736.x";
+$sources[] = "https%3A%2F%2Fdoi.org%2F10.1007%2F978-1-4020-6359-6_1885";
+foreach($sources as $source) { $source = urldecode($source); echo "\n[$source]\n"; 
+	$input["params"] = array("source" => $source);
+	$input["type"] = "wikidata_base_qry_source";
+	$input["per_page"] = 500; // 500 finished ok
+	
+	$input["trait kind"] = "trait";
+	$func->query_trait_db($input);
+	
+	$input["trait kind"] = "inferred_trait";
+	$func->query_trait_db($input);	
+}
+exit("\n-end-\n");
+// */
 
 /* good example
 // $citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
@@ -236,10 +252,28 @@ $input["trait kind"] = "inferred_trait";
 $func->query_trait_db($input);
 */
 
+// /*
+$sources = array();
+$sources[] = "https%3A%2F%2Fdoi.org%2F10.1073%2Fpnas.1907847116";
+$sources[] = "https%3A%2F%2Fwww.delta-intkey.com%2Fbritin%2Flep%2Fwww%2Fendromid.htm"
+$sources[] = "https%3A%2F%2Fwww.wikidata.org%2Fentity%2FQ116262527";
+$sources[] = "https%3A%2F%2Fdoi.org%2F10.1111%2Fj.1365-2311.1985.tb00736.x";
+$sources[] = "https%3A%2F%2Fdoi.org%2F10.1007%2F978-1-4020-6359-6_1885";
+foreach($sources as $source) { $source = urldecode($source); echo "\n[$source\n"; }
+exit("\nend test\n");
+// */
+// Heppner, J. B., Heppner, J. B., Tzanakakis, M. E., Tzanakakis, M. E., Tzanakakis, M. E., Lawrence, P. O., … Heppner, J. B. (2008). Oriental Swallowtail Moths (Lepidoptera: Epicopeiidae). Encyclopedia of Entomology, 2693–2693. doi:10.1007/978-1-4020-6359-6_1885
+
 // /* run all resources
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $func->run_all_resources($spreadsheet);
 // */
+
+/*
+Saved OK [/Volumes/Crucial_2TB/eol_cache/cypher_query/b7/17/b7172623b0095c0271e738f4eebc6fbc.json]
+Saved OK [/Volumes/Crucial_2TB/eol_cache/cypher_query/60/69/6069cfe15ad7643e22e33ee52149f6d8.json]
+ No. of rows: 0
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
