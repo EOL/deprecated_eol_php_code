@@ -106,7 +106,7 @@ class WikiDataMtceAPI
         $total = shell_exec("wc -l < ".escapeshellarg($this->tsv_file)); $total = trim($total);
 
         $i = 0;
-        foreach(new FileIterator($this->tsv_file) as $line => $row) { $i++; echo "\n$i of $total traits\n";
+        foreach(new FileIterator($this->tsv_file) as $line => $row) { $i++; echo $this->progress; echo "\n$i of $total traits\n";
             // $row = Functions::conv_to_utf8($row);
             if($i == 1) $fields = explode("\t", $row);
             else {
@@ -807,7 +807,7 @@ class WikiDataMtceAPI
         $spreadsheet = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/resources/".$spreadsheet;
         $total = shell_exec("wc -l < ".escapeshellarg($spreadsheet)); $total = trim($total);
         $i = 0;
-        foreach(new FileIterator($spreadsheet) as $line_number => $line) { $i++; echo "\n$i of $total resources\n";
+        foreach(new FileIterator($spreadsheet) as $line_number => $line) { $i++; $this->progress = "\n$i of $total resources\n";
             if(!$line) continue;
             $row = str_getcsv($line);
             if(!$row) continue;
