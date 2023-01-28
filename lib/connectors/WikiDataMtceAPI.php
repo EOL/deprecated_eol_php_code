@@ -814,8 +814,8 @@ class WikiDataMtceAPI
                 if($i < 4) continue;
                 */
                 // /* during dev only
-                if($i % 2 == 0) {} //even
-                else {continue;} //odd
+                if($i % 2 == 0) {echo "\n[EVEN]\n";} //even
+                else {echo "\n[ODD]\n"; continue;} //odd
                 // */
 
                 $values = $row; $k = 0; $rec = array();
@@ -838,8 +838,8 @@ class WikiDataMtceAPI
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran. Our very first.
 
         /* good way to run 1 resource for investigation
-        // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
-        if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
+        if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
+        // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
         // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
         */
 

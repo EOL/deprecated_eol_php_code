@@ -202,7 +202,7 @@ $source = "https://doi.org/10.1073/pnas.1907847116";
 
 $sources = array();
 $sources[] = "https%3A%2F%2Fdoi.org%2F10.1073%2Fpnas.1907847116";
-$sources[] = "https%3A%2F%2Fwww.delta-intkey.com%2Fbritin%2Flep%2Fwww%2Fendromid.htm"
+$sources[] = "https%3A%2F%2Fwww.delta-intkey.com%2Fbritin%2Flep%2Fwww%2Fendromid.htm";
 $sources[] = "https%3A%2F%2Fwww.wikidata.org%2Fentity%2FQ116262527";
 $sources[] = "https%3A%2F%2Fdoi.org%2F10.1111%2Fj.1365-2311.1985.tb00736.x";
 $sources[] = "https%3A%2F%2Fdoi.org%2F10.1007%2F978-1-4020-6359-6_1885";
@@ -251,18 +251,6 @@ $input["per_page"] = 500; // 500 worked ok
 $input["trait kind"] = "inferred_trait";
 $func->query_trait_db($input);
 */
-
-// /*
-$sources = array();
-$sources[] = "https%3A%2F%2Fdoi.org%2F10.1073%2Fpnas.1907847116";
-$sources[] = "https%3A%2F%2Fwww.delta-intkey.com%2Fbritin%2Flep%2Fwww%2Fendromid.htm"
-$sources[] = "https%3A%2F%2Fwww.wikidata.org%2Fentity%2FQ116262527";
-$sources[] = "https%3A%2F%2Fdoi.org%2F10.1111%2Fj.1365-2311.1985.tb00736.x";
-$sources[] = "https%3A%2F%2Fdoi.org%2F10.1007%2F978-1-4020-6359-6_1885";
-foreach($sources as $source) { $source = urldecode($source); echo "\n[$source\n"; }
-exit("\nend test\n");
-// */
-// Heppner, J. B., Heppner, J. B., Tzanakakis, M. E., Tzanakakis, M. E., Tzanakakis, M. E., Lawrence, P. O., … Heppner, J. B. (2008). Oriental Swallowtail Moths (Lepidoptera: Epicopeiidae). Encyclopedia of Entomology, 2693–2693. doi:10.1007/978-1-4020-6359-6_1885
 
 // /* run all resources
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
