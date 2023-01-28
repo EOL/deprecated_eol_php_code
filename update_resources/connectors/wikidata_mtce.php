@@ -162,10 +162,10 @@ $input["trait kind"] = "trait"; //only 2 recs here
 $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
 */
 
-// /* run all resources
+/* run all resources
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $func->run_all_resources($spreadsheet);
-// */
+*/
 
 /* works OK
 $taxon = "Jimenezia";
@@ -183,7 +183,44 @@ else                                    echo "\n[$taxon] is not a taxon.\n";
 $func->get_WD_entity_mappings();
 */
 
-/* parse citations: source bibliographicCitation
+// /*
+$doi = "10.1073/pnas.1907847116";
+$doi = "https://doi.org/10.2307/3503472";
+$doi = "https://doi.org/10.1007/978-1-4020-6359-6_1885"; //no WikiData yet
+$id = $func->get_WD_entityID_for_DOI($doi);
+exit("\n[$id]\n");
+// */
+
+/* this entry created the entity: https://www.wikidata.org/wiki/Q116459937 using SourceMD + QuickStatements
+https://sourcemd.toolforge.org/index_old.php
+
+CREATE
+LAST	P356	"10.1007/978-1-4020-6359-6_1885"
+LAST	P31	Q13442814
+LAST	P1476	en:"Oriental Swallowtail Moths (Lepidoptera: Epicopeiidae)"
+LAST	Len	"Oriental Swallowtail Moths (Lepidoptera: Epicopeiidae)"
+LAST	P304	"2693-2693"
+LAST	P577	+2008-00-00T00:00:00Z/9
+LAST	P2093	"John B. Heppner"	P1545	"1"
+LAST	P2093	"John B. Heppner"	P1545	"2"
+LAST	P2093	"Minos E. Tzanakakis"	P1545	"3"
+LAST	P2093	"Minos E. Tzanakakis"	P1545	"4"
+LAST	P2093	"Minos E. Tzanakakis"	P1545	"5"
+LAST	P2093	"Pauline O. Lawrence"	P1545	"6"
+LAST	P2093	"John L. Capinera"	P1545	"7"
+LAST	P2093	"Rod Nagoshi"	P1545	"8"
+LAST	P2093	"Günter Gerlach"	P1545	"9"
+LAST	P2093	"Hugh Smith"	P1545	"10"
+LAST	P2093	"John L. Capinera"	P1545	"11"
+LAST	P2093	"John B. Heppner"	P1545	"12"
+LAST	P2093	"John B. Heppner"	P1545	"13"
+LAST	P2093	"James L. Nation"	P1545	"14"
+LAST	P2093	"Alan A. Berryman"	P1545	"15"
+LAST	P2093	"Simon R. Leather"	P1545	"16"
+LAST	P2093	"John B. Heppner"	P1545	"17"
+*/
+
+/* parse citations: source bibliographicCitation - a utility for Jen
 $refs = array();
 $refs[] = "https://doi.org/10.1007/978-3-662-02604-5_50 C. N. PAGE. 1990. Ginkgoaceae. In: The families and genera of vascular plants. Volume I; Pteridophytes and Gymnosperms. K. Kubitzki, K. U. Kramer and P. S. Green, eds.";
 $refs[] = "https://doi.org/10.1007/978-3-662-02604-5_54 C. N. PAGE. 1990. Araucariaceae. In: The families and genera of vascular plants. Volume I; Pteridophytes and Gymnosperms. K. Kubitzki, K. U. Kramer and P. S. Green, eds.";

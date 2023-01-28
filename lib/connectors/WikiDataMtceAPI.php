@@ -21,11 +21,32 @@ class WikiDataMtceAPI
         $this->wikidata_api['search string'] = "https://www.wikidata.org/w/api.php?action=wbsearchentities&language=en&format=json&search=MY_TITLE";
         $this->wikidata_api['search entity ID'] = "https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=ENTITY_ID";
         $this->crossref_api['search citation'] = "http://api.crossref.org/works?query.bibliographic=MY_CITATION&rows=2";
+        $this->sourcemd_api['search DOI'] = "https://sourcemd.toolforge.org/index_old.php?id=MY_DOI&doit=Check+source";
         $this->debug = array();
-                
         // $this->tmp_batch_export = DOC_ROOT . "/tmp/temp_export.qs"; //moved
 
         // */
+    }
+    function get_WD_entityID_for_DOI($doi)
+    {
+        $doi = str_ireplace("https://doi.org/", "", $doi);
+        $doi = str_ireplace("http://doi.org/", "", $doi);
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24; //1 day expires
+        $url = str_replace("MY_DOI", urlencode($doi), $this->sourcemd_api['search DOI']);
+        if($html = Functions::lookup_with_cache($url, $options)) {
+            /*
+                <p>Other sources with these identifiers exist:
+                <a href='//www.wikidata.org/wiki/Q90856597' target='_blank'>Q90856597</a>
+                </p>
+                <p>Trying to update values of Q90856597; this will not change existing ones.</p>
+            */
+            if(preg_match("/www.wikidata.org\/wiki\/(.*?)\'/ims", $html, $arr)) {
+                $id = $arr[1];
+                return $id;
+                exit("\n[$id\n");
+            }
+        }
     }
     private function generate_report_path($input)
     {
@@ -209,8 +230,11 @@ class WikiDataMtceAPI
             Eli, the corresponding part of your queries is [:trait|inferred_trait]. 
             If the queries were separated into a version using [:trait] and one using [:inferred_trait], 
             we could distinguish between regular records (P248) and branch painted records (P3452). */
+            /* orig
             if    ($trait_kind == "trait")          $final['P248']  = self::get_WD_obj_using_string($title, 'entity_id'); //"stated in" (P248)
-            elseif($trait_kind == "inferred_trait") $final['P3452'] = self::get_WD_obj_using_string($title, 'entity_id'); //"inferred from" (P3452) 
+            elseif($trait_kind == "inferred_trait") $final['P3452'] = self::get_WD_obj_using_string($title, 'entity_id'); //"inferred from" (P3452)
+            */
+            start here...
             else exit("\nUndefined trait_kind.\n");
 
             if($final['taxon_entity'] && @$final['predicate_entity'] && @$final['object_entity']) {
@@ -768,7 +792,7 @@ class WikiDataMtceAPI
         -d action=import \
         -d submit=1 \
         -d username=EOLTraits \
-        -d "batchname=THE NAME OF THE BATCH" \
+        -d "batchname=create new item 1" \
         --data-raw 'token=$2y$10$hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy' \
         --data-urlencode data@test.qs
         */

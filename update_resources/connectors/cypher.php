@@ -196,7 +196,7 @@ require_library('connectors/CypherQueryAPI');
 $resource_id = 'eol';
 $func = new CypherQueryAPI($resource_id);
 
-// /* good example
+/* good example
 $source = "https://doi.org/10.1111/j.1469-185X.1984.tb00411.x";
 $source = "https://doi.org/10.1073/pnas.1907847116";
 
@@ -218,7 +218,7 @@ foreach($sources as $source) { $source = urldecode($source); echo "\n[$source]\n
 	$func->query_trait_db($input);	
 }
 exit("\n-end-\n");
-// */
+*/
 
 /* good example
 // $citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
