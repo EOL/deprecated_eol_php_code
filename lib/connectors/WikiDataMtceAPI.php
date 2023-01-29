@@ -96,6 +96,11 @@ class WikiDataMtceAPI
         $final[] = 'Mapped';
         $this->WRITE = Functions::file_open($this->taxonomic_mappings, "w");
         fwrite($this->WRITE, implode("\t", $final)."\n");
+
+        /* export file for new citation in WikiData */
+        $this->citation_export_file = $this->report_path."citation_export_file.tsv";
+        if(file_exists($this->citation_export_file)) unlink($this->citation_export_file); //un-comment in real operation
+
     }
 
     function create_WD_traits($input)
@@ -233,9 +238,16 @@ class WikiDataMtceAPI
             /* orig
             if    ($trait_kind == "trait")          $final['P248']  = self::get_WD_obj_using_string($title, 'entity_id'); //"stated in" (P248)
             elseif($trait_kind == "inferred_trait") $final['P3452'] = self::get_WD_obj_using_string($title, 'entity_id'); //"inferred from" (P3452)
-            */
-            start here...
             else exit("\nUndefined trait_kind.\n");
+            */
+
+            // print_r($rec); exit("\nstop muna\n");
+            // /* new scheme
+            $citation_WD_id = self::get_WD_id_of_citation($rec);
+            if    ($trait_kind == "trait")          $final['P248']  = $citation_WD_id; //"stated in" (P248)
+            elseif($trait_kind == "inferred_trait") $final['P3452'] = $citation_WD_id; //"inferred from" (P3452)
+            else exit("\nUndefined trait_kind.\n");
+            // */
 
             if($final['taxon_entity'] && @$final['predicate_entity'] && @$final['object_entity']) {
                 self::create_WD_taxon_trait($final);                    //writes export_file.qs
@@ -272,7 +284,8 @@ class WikiDataMtceAPI
         // if(false) {}
         else {
             $title = $citation_obj[0]->title[0];
-            echo "\nTitle does not exist. [$title]\n";
+            $title = self::manual_fix_title($title);
+            echo "\nTitle does not exist (A). [$title]\n";
             self::create_WD_reference_item($citation_obj, $citation);
         }
         
@@ -321,6 +334,9 @@ class WikiDataMtceAPI
         if(substr($str, -(strlen("(Orthoptera: Tettigoniidae"))) == "(Orthoptera: Tettigoniidae") return $str.")";
         elseif(substr($str, -(strlen("Lampyridae (Coleoptera"))) == "Lampyridae (Coleoptera") return $str.")";
         elseif(substr($str, -(strlen("Oriental Swallowtail Moths (Lepidoptera: Epicopeiidae"))) == "Oriental Swallowtail Moths (Lepidoptera: Epicopeiidae") return $str.")";
+        elseif(substr($str, -(strlen("Valdivian Archaic Moths (Lepidoptera: Heterobathmiidae"))) == "Valdivian Archaic Moths (Lepidoptera: Heterobathmiidae") return $str.")";
+        elseif(substr($str, -(strlen("xxxx"))) == "xxxx") return $str.")";
+        elseif(substr($str, -(strlen("xxxx"))) == "xxxx") return $str.")";        
         return $str;
     }
     private function create_WD_taxon_trait($r)
@@ -404,33 +420,35 @@ class WikiDataMtceAPI
         // */
 
         if($authors = @$obj->author)                 $rows = self::prep_for_adding($authors, 'P2093', $rows); #ok use P50 if author is an entity
-        if($publishers = @$obj->publisher)           $rows = self::prep_for_adding($publishers, 'P123', $rows);
-        if($place_of_publications = @$obj->location) $rows = self::prep_for_adding($place_of_publications, 'P291', $rows);
-        if($pages = @$obj->pages)                    $rows = self::prep_for_adding($pages, 'P304', $rows); #ok
+        if($publishers = @$obj->publisher)           $rows = self::prep_for_adding($publishers, 'P123', $rows, "publisher");
+        if($place_of_publications = @$obj->location) $rows = self::prep_for_adding($place_of_publications, 'P291', $rows, "place of publication");
+        if($pages = @$obj->pages)                    $rows = self::prep_for_adding($pages, 'P304', $rows, "page(s)"); #ok
         // if($issues = @$obj->issue)                   $rows = self::prep_for_adding($issues, 'P433', $rows); #ok
-        if($volumes = @$obj->volume)                 $rows = self::prep_for_adding($volumes, 'P478', $rows); #ok
-        if($publication_dates = @$obj->date)         $rows = self::prep_for_adding($publication_dates, 'P577', $rows); #ok
-        if($chapters = @$obj->chapter)               $rows = self::prep_for_adding($chapters, 'P792', $rows); //No 'chapter' parsed by AnyStyle. Eli should do his own parsing.
-        if($titles = @$obj->title)                   $rows = self::prep_for_adding($titles, 'P1476', $rows); #ok
+        if($volumes = @$obj->volume)                 $rows = self::prep_for_adding($volumes, 'P478', $rows, "volume"); #ok
+        if($publication_dates = @$obj->date)         $rows = self::prep_for_adding($publication_dates, 'P577', $rows, "publication date"); #ok
+        if($chapters = @$obj->chapter)               $rows = self::prep_for_adding($chapters, 'P792', $rows, "chapter"); //No 'chapter' parsed by AnyStyle. Eli should do his own parsing.
+        if($titles = @$obj->title)                   $rows = self::prep_for_adding($titles, 'P1476', $rows, "title"); #ok
 
         // /* Eli's initiative, but was given a go signal -> property 'type of reference' (P3865)
         if($type = @$obj->type)                      $rows = self::prep_for_adding(array($type), 'P3865', $rows); #ok
         // */
 
         // /* Eli's initiative but close to Jen's "published in" (P1433) proposal
-        if($containers = @$obj->{"container-title"})      $rows = self::prep_for_adding($containers, 'P1433', $rows); #ok
+        if($containers = @$obj->{"container-title"})      $rows = self::prep_for_adding($containers, 'P1433', $rows, "published in"); #ok
         // */
 
         // Others:
-        if($dois = @$obj->doi)                       $rows = self::prep_for_adding($dois, 'P356', $rows); #ok
+        if($dois = @$obj->doi)                       $rows = self::prep_for_adding($dois, 'P356', $rows, "DOI"); #ok
+        /* seems no instructions to use this yet:
         if($reference_URLs = @$obj->url)             $rows = self::prep_for_adding($reference_URLs, 'P854', $rows);
+        */
 
         /* Eli's choice: will take Jen's approval first -> https://www.wikidata.org/wiki/Property:P1683 -> WikiData says won't use it here.
         $rows = self::prep_for_adding(array($citation), 'P1683', $rows);
         */
 
         print_r($rows);
-        $WRITE = Functions::file_open($this->temp_file, "w");
+        $WRITE = Functions::file_open($this->citation_export_file, "w");
         foreach($rows as $row) fwrite($WRITE, $row."\n");
         fclose($WRITE);
 
@@ -472,7 +490,7 @@ class WikiDataMtceAPI
             return $final;
         }
     }
-    private function prep_for_adding($recs, $property, $rows)
+    private function prep_for_adding($recs, $property, $rows, $comment = "")
     {
         if($property == 'P2093') { # P50 is if author is an entity
             foreach($recs as $rec) {
@@ -520,7 +538,7 @@ class WikiDataMtceAPI
                 }
                 else $lang = "";
 
-                $rows[] = "LAST|$property|$lang" . '"'.$val.'"';
+                $rows[] = "LAST|$property|$lang" . '"'.$val.'"' . " /* $comment */";
             }
         }
         return $rows;
@@ -532,7 +550,15 @@ class WikiDataMtceAPI
         $json = str_replace("\\", "", $json); # remove "\" from converted json from Ruby
         $obj = json_decode($json); //print_r($obj);
         if($what == 'all') return $obj;
-        elseif($what == 'title') return $obj[0]->title[0];
+        elseif($what == 'title') {
+            if($val = @$obj[0]->title[0]) return $val;
+            else {
+                echo "\n-----------------------\n";
+                print_r($obj); echo "\ncitation:[$citation]\ntitle:[$what]\n";
+                return "-no title-";
+                exit("\nwill see\n-----------------------\n");
+            }
+        }
         echo ("\n-end muna-\n");
     }
     function get_WD_entity_mappings()
@@ -864,10 +890,14 @@ class WikiDataMtceAPI
         // print_r($rec); exit;
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran. Our very first.
 
-        /* good way to run 1 resource for investigation
-        if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
+        // /* good way to run 1 resource for investigation
+        // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
         // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
-        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
+        if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
+        // */
+
+        /* during dev only
+        if($rec['trait.source'] == 'https://doi.org/10.1073/pnas.1907847116') return; //exclude
         */
 
         print_r($rec); //exit;
@@ -917,6 +947,62 @@ class WikiDataMtceAPI
             $total = trim($total);  echo "\n$file: [$total]\n";
         }
     }
+    private function get_WD_id_of_citation($rec)
+    {   /*Array(
+        [p.canonical] => Alecton
+        [p.page_id] => 20365964
+        [pred.name] => behavioral circadian rhythm
+        [stage.name] => adult
+        [sex.name] => 
+        [stat.name] => 
+        [obj.name] => diurnal
+        [t.measurement] => 
+        [units.name] => 
+        [t.source] => https://www.wikidata.org/entity/Q116263059
+        [t.citation] => McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867
+        [ref.literal] => 
+        [how] => identifier-map
+        )*/
+        if(preg_match("/wikidata.org\/entity\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) return $arr[1];                   //is WikiData entity
+        elseif(stripos($rec['t.source'], "/doi.org/") !== false) { //string is found    //https://doi.org/10.1002/ajpa.20957    //is DOI
+            if($val = self::get_WD_entityID_for_DOI($rec['t.source'])) return $val;
+            else { //has DOI no WikiData yet
+                echo "\n---------------------\n"; print_r($rec);
+                echo "\nhas DOI but not in WikiData yet\n";
+                echo "\n---------------------\n";
+                self::create_WD_for_citation($rec['t.citation'], $rec['t.source']);
+                // exit;
+
+            }
+        }
+        else { //https://www.delta-intkey.com/britin/lep/www/endromid.htm
+            return "";
+            print_r($rec);
+            exit("\nno design yet\n");
+        }               
+    }
+    function create_WD_for_citation($citation, $t_source)
+    {
+        /* lookup spreadsheet for mapping                 --- copied template
+        $this->map = self::get_WD_entity_mappings();
+        */
+        
+        $citation_obj = self::parse_citation_using_anystyle($citation, 'all');
+        if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) { //orig un-comment in real operation
+            print_r($ret);
+            return $ret['wikidata_id'];
+        }
+        // if(false) {}
+        else {
+            $title = $citation_obj[0]->title[0];
+            $title = self::manual_fix_title($title);
+            echo "\nTitle does not exist (B). [$title]\n";
+            self::create_WD_reference_item($citation_obj, $citation);
+        }
+        
+        echo ("\n-end muna-\n");
+    }
+
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
     {

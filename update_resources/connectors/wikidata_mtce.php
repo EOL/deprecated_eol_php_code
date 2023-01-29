@@ -129,7 +129,7 @@ $url = $pre_url.$param;
 exit("\n[$url]\n");
 */
 
-/*
+// /*
 // $t_citation = "Paul, C.R.C. and Smith, A.B., 1984. The early radiation and phylogeny of echinoderms. Biological Reviews, 59(4), pp.443-481.";
 // $t_source = "https://doi.org/10.1111/j.1469-185X.1984.tb00411.x";
 // $t_citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
@@ -146,8 +146,13 @@ $t_source = "https://www.wikidata.org/entity/Q116263059"; //none
 $t_citation = "L. Desutter-Grandcolas. 1995. Toward the Knowledge of the Evolutionary Biology of Phalangopsid Crickets (Orthoptera: Grylloidea: Phalangopsidae): Data, Questions and Evolutionary Scenarios. Journal of Orthoptera Research, No. 4 (Aug., 1995), pp. 163-175";
 $t_source = "https://doi.org/10.2307/3503472";
 
-$func->create_citation_if_does_not_exist($t_citation, $t_source); exit("\n- end create_citation_if_does_not_exist() -\n");
-*/
+
+$t_source = "https://doi.org/10.1007/978-1-4020-6359-6_3929";
+$t_citation = "Heppner J.B. (2008) Valdivian Archaic Moths (Lepidoptera: Heterobathmiidae). In: Capinera J.L. (eds) Encyclopedia of Entomology. Springer, Dordrecht. https://doi.org/10.1007/978-1-4020-6359-6_3929";
+
+// $func->create_citation_if_does_not_exist($t_citation, $t_source); exit("\n- end create_citation_if_does_not_exist() -\n");
+$func->create_WD_for_citation($t_citation, $t_source); exit("\n- end create_WD_for_citation() -\n");
+// */
 
 /* create traits
 $citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34"; # 1st group
@@ -162,10 +167,10 @@ $input["trait kind"] = "trait"; //only 2 recs here
 $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
 */
 
-/* run all resources
+// /* run all resources
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $func->run_all_resources($spreadsheet);
-*/
+// */
 
 /* works OK
 $taxon = "Jimenezia";
@@ -183,13 +188,13 @@ else                                    echo "\n[$taxon] is not a taxon.\n";
 $func->get_WD_entity_mappings();
 */
 
-// /*
+/*
 $doi = "10.1073/pnas.1907847116";
 $doi = "https://doi.org/10.2307/3503472";
 $doi = "https://doi.org/10.1007/978-1-4020-6359-6_1885"; //no WikiData yet
 $id = $func->get_WD_entityID_for_DOI($doi);
 exit("\n[$id]\n");
-// */
+*/
 
 /* this entry created the entity: https://www.wikidata.org/wiki/Q116459937 using SourceMD + QuickStatements
 https://sourcemd.toolforge.org/index_old.php
