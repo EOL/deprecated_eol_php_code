@@ -150,8 +150,8 @@ $t_source = "https://doi.org/10.2307/3503472";
 $t_source = "https://doi.org/10.1007/978-1-4020-6359-6_3929";
 $t_citation = "Heppner J.B. (2008) Valdivian Archaic Moths (Lepidoptera: Heterobathmiidae). In: Capinera J.L. (eds) Encyclopedia of Entomology. Springer, Dordrecht. https://doi.org/10.1007/978-1-4020-6359-6_3929";
 
-// $func->create_citation_if_does_not_exist($t_citation, $t_source); exit("\n- end create_citation_if_does_not_exist() -\n");
-$func->create_WD_for_citation($t_citation, $t_source); exit("\n- end create_WD_for_citation() -\n");
+$func->create_citation_if_does_not_exist($t_citation, $t_source); exit("\n- end create_citation_if_does_not_exist() -\n");
+// $func->create_WD_for_citation($t_citation, $t_source); exit("\n- end create_WD_for_citation() -\n");
 // */
 
 /* create traits

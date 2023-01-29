@@ -25,7 +25,14 @@ class WikiDataMtceAPI
         $this->debug = array();
         // $this->tmp_batch_export = DOC_ROOT . "/tmp/temp_export.qs"; //moved
 
-        // */
+        
+        /* export file for new citation in WikiData */
+        $this->citation_export_file = DOC_ROOT. "temp/citation_export_file.tsv";
+
+        
+        
+
+
     }
     function get_WD_entityID_for_DOI($doi)
     {
@@ -96,11 +103,6 @@ class WikiDataMtceAPI
         $final[] = 'Mapped';
         $this->WRITE = Functions::file_open($this->taxonomic_mappings, "w");
         fwrite($this->WRITE, implode("\t", $final)."\n");
-
-        /* export file for new citation in WikiData */
-        $this->citation_export_file = $this->report_path."citation_export_file.tsv";
-        if(file_exists($this->citation_export_file)) unlink($this->citation_export_file); //un-comment in real operation
-
     }
 
     function create_WD_traits($input)
@@ -318,7 +320,9 @@ class WikiDataMtceAPI
         $title = self::manual_fix_title($title); #important
         echo "\nsearch title: [$title]\n";
         $url = str_replace("MY_TITLE", urlencode($title), $this->wikidata_api['search string']);
-        if($json = Functions::lookup_with_cache($url, $this->download_options)) { // print("\n$json\n");
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24;
+        if($json = Functions::lookup_with_cache($url, $options)) { // print("\n$json\n");
             $obj = json_decode($json); // print_r($obj);
             if($wikidata_id = @$obj->search[0]->id) { # e.g. Q56079384
                 echo "\nTitle exists: [$title]\n";
@@ -818,9 +822,9 @@ class WikiDataMtceAPI
         -d action=import \
         -d submit=1 \
         -d username=EOLTraits \
-        -d "batchname=create new item 1" \
+        -d "batchname=for DOI 10.1007/978-1-4020-6359-6_3929" \
         --data-raw 'token=$2y$10$hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy' \
-        --data-urlencode data@test.qs
+        --data-urlencode data@citation_export_file.qs
         */
     }
     private function run_quickstatements_api($batch_name, $batch_num)
@@ -975,6 +979,7 @@ class WikiDataMtceAPI
 
             }
         }
+        elseif($rec['t.source'] && $rec['t.citation']) exit("\nNo case like this yet.\n");
         else { //https://www.delta-intkey.com/britin/lep/www/endromid.htm
             return "";
             print_r($rec);
@@ -987,6 +992,8 @@ class WikiDataMtceAPI
         $this->map = self::get_WD_entity_mappings();
         */
         
+        if(stripos($t_source, "/doi.org/") !== false) echo "\n==========\nLet SourceMD generate the export file, since this has a DOI.\n==========\n";
+
         $citation_obj = self::parse_citation_using_anystyle($citation, 'all');
         if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) { //orig un-comment in real operation
             print_r($ret);
