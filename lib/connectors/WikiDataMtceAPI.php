@@ -904,9 +904,9 @@ class WikiDataMtceAPI
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran. Our very first.
 
         // /* good way to run 1 resource for investigation
-        // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
+        if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
         // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
-        if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
+        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
         // */
 
         /* during dev only
