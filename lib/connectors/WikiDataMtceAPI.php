@@ -218,7 +218,7 @@ class WikiDataMtceAPI
             }
             
             if($val = @$this->map['measurementValues'][$rec["obj.name"]]["wikiData term"]) {
-                if($val != "DISCARD") $final['object_entity'] = $val;
+                if($val != "DISCARD" && $val != "") $final['object_entity'] = $val;
             }
             else {
                 echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n";
@@ -587,9 +587,11 @@ class WikiDataMtceAPI
         foreach($arr as $item) { $i++;
             $item = array_map('trim', $item);
             if($i == 1) $labels = array("a" => $item[1], "b" => $item[2]);
-            else        $final[$item[0]] = array($labels['a'] => $item[1], $labels['b'] => $item[2]);
+            else {
+                if($property = @$item[2]) $final[$item[0]] = array($labels['a'] => $item[1], $labels['b'] => $property);
+            }
         }
-        // print_r($final);
+        // print_r($final); exit;
         return $final;
         // */
     }
