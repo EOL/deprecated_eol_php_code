@@ -129,7 +129,7 @@ $url = $pre_url.$param;
 exit("\n[$url]\n");
 */
 
-// /*
+/*
 // $t_citation = "Paul, C.R.C. and Smith, A.B., 1984. The early radiation and phylogeny of echinoderms. Biological Reviews, 59(4), pp.443-481.";
 // $t_source = "https://doi.org/10.1111/j.1469-185X.1984.tb00411.x";
 // $t_citation = "J. Kuijt, B. Hansen. 2014. The families and genera of vascular plants. Volume XII; Flowering Plants: Eudicots - Santalales, Balanophorales. K. Kubitzki (ed). Springer Nature";
@@ -152,7 +152,7 @@ $t_citation = "Heppner J.B. (2008) Valdivian Archaic Moths (Lepidoptera: Heterob
 
 $func->create_citation_if_does_not_exist($t_citation, $t_source); exit("\n- end create_citation_if_does_not_exist() -\n");
 // $func->create_WD_for_citation($t_citation, $t_source); exit("\n- end create_WD_for_citation() -\n");
-// */
+*/
 
 /* create traits
 $citation = "Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34"; # 1st group
@@ -236,6 +236,11 @@ $refs[] = "https://www.wikidata.org/entity/Q116222930 Brusca, R.C. and Brusca, G
 $func->utility_parse_refs($refs);
 */
 
+/* utility - run down of all citations. Create WD item for those not in WikiData yet.
+$spreadsheet = "circadian_rythm_resources_sans_pantheria.csv"; exit("\nAll DOIs for this CSV already has a WD entry.\n"); //done for this csv
+$func->run_down_all_citations($spreadsheet);
+exit("\n- end run_down_all_citations() -\n");
+*/
 
 
 $elapsed_time_sec = time_elapsed() - $timestart;

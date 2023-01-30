@@ -27,11 +27,7 @@ class WikiDataMtceAPI
 
         
         /* export file for new citation in WikiData */
-        $this->citation_export_file = DOC_ROOT. "temp/citation_export_file.tsv";
-
-        
-        
-
+        $this->citation_export_file = DOC_ROOT. "temp/citation_export_file.qs";
 
     }
     function get_WD_entityID_for_DOI($doi)
@@ -39,7 +35,7 @@ class WikiDataMtceAPI
         $doi = str_ireplace("https://doi.org/", "", $doi);
         $doi = str_ireplace("http://doi.org/", "", $doi);
         $options = $this->download_options;
-        $options['expire_seconds'] = 60*60*24; //1 day expires
+        $options['expire_seconds'] = false; //never expires. But set this to zero (0) if you've created a new WD item for a DOI.
         $url = str_replace("MY_DOI", urlencode($doi), $this->sourcemd_api['search DOI']);
         if($html = Functions::lookup_with_cache($url, $options)) {
             /*
@@ -824,7 +820,7 @@ class WikiDataMtceAPI
         -d action=import \
         -d submit=1 \
         -d username=EOLTraits \
-        -d "batchname=for DOI 10.1007/978-1-4020-6359-6_3929" \
+        -d "batchname=for DOI 10.1111/j.1365-2311.1965.tb02304.x" \
         --data-raw 'token=$2y$10$hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy' \
         --data-urlencode data@citation_export_file.qs
         */
@@ -899,12 +895,12 @@ class WikiDataMtceAPI
         // /* good way to run 1 resource for investigation
         // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
         // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
-        if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
+        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
         // */
 
-        /* during dev only
+        // /* during dev only
         if($rec['trait.source'] == 'https://doi.org/10.1073/pnas.1907847116') return; //exclude
-        */
+        // */
 
         print_r($rec); //exit;
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE;
@@ -970,6 +966,7 @@ class WikiDataMtceAPI
         [how] => identifier-map
         )*/
         if(preg_match("/wikidata.org\/entity\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) return $arr[1];                   //is WikiData entity
+        if(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) return $arr[1];                   //is WikiData entity
         elseif(stripos($rec['t.source'], "/doi.org/") !== false) { //string is found    //https://doi.org/10.1002/ajpa.20957    //is DOI
             if($val = self::get_WD_entityID_for_DOI($rec['t.source'])) return $val;
             else { //has DOI no WikiData yet
@@ -1011,7 +1008,52 @@ class WikiDataMtceAPI
         
         echo ("\n-end muna-\n");
     }
+    function run_down_all_citations($spreadsheet)
+    {
+        $spreadsheet = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/resources/".$spreadsheet;
+        $total = shell_exec("wc -l < ".escapeshellarg($spreadsheet)); $total = trim($total);
+        $i = 0;
+        foreach(new FileIterator($spreadsheet) as $line_number => $line) { $i++; echo "\n$i of $total resources\n";
+            if(!$line) continue;
+            $row = str_getcsv($line);
+            if(!$row) continue;
+            if($i == 1) { $fields = $row; $count = count($fields); continue;}
+            else { //main records
+                // /* during dev only
+                if($i % 2 == 0) {echo "\n[EVEN]\n"; continue;} //even
+                else {echo "\n[ODD]\n"; } //odd
+                // */
+                $values = $row; $k = 0; $rec = array();
+                foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
+                $rec = array_map('trim', $rec); //important step
+                print_r($rec); //exit;
+                self::check_if_citation_exists_create_export_if_not($rec);
+            }
+        }
+    }
+    private function check_if_citation_exists_create_export_if_not($rec)
+    {   /*Array(
+            [r.resource_id] => 1054
+            [trait.source] => https://www.wikidata.org/entity/Q116263059
+            [trait.citation] => McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867
+        )*/
+        $t_source = $rec['trait.source'];
+        $t_citation = $rec['trait.citation'];
 
+        if(preg_match("/wikidata.org\/entity\/(.*?)elix/ims", $t_source."elix", $arr)) return $arr[1];                   //is WikiData entity
+        elseif(stripos($t_source, "/doi.org/") !== false) { //string is found    //https://doi.org/10.1002/ajpa.20957    //is DOI
+            if($val = self::get_WD_entityID_for_DOI($t_source)) return $val;
+            else { //has DOI no WikiData yet
+                echo "\n---------------------\n"; print_r($rec);
+                echo "\nhas DOI but not in WikiData yet\n";
+                echo "\n---------------------\n";
+                self::create_WD_for_citation($t_citation, $t_source);
+                exit("\nelix1\n");
+            }
+        }
+
+
+    }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
     {
