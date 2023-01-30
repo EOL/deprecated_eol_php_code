@@ -869,8 +869,8 @@ class WikiDataMtceAPI
                 if($i < 4) continue;
                 */
                 // /* during dev only
-                if($i % 2 == 0) {echo "\n[EVEN]\n";} //even
-                else {echo "\n[ODD]\n"; continue;} //odd
+                if($i % 2 == 0) {echo "\n[EVEN]\n"; continue;} //even
+                else {echo "\n[ODD]\n"; } //odd
                 // */
 
                 $values = $row; $k = 0; $rec = array();
@@ -1019,10 +1019,10 @@ class WikiDataMtceAPI
             if(!$row) continue;
             if($i == 1) { $fields = $row; $count = count($fields); continue;}
             else { //main records
-                // /* during dev only
+                /* during dev only
                 if($i % 2 == 0) {echo "\n[EVEN]\n"; continue;} //even
                 else {echo "\n[ODD]\n"; } //odd
-                // */
+                */
                 $values = $row; $k = 0; $rec = array();
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
                 $rec = array_map('trim', $rec); //important step
