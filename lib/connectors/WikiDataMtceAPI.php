@@ -683,7 +683,7 @@ class WikiDataMtceAPI
         $final[] = $wikidata_obj->id;
         $final[] = @$wikidata_obj->display->description->value;
         $final[] = $rec['how'];
-        fwrite($this->WRITE, implode("\t", $final)."\n");
+        if($final[0]) fwrite($this->WRITE, implode("\t", $final)."\n");
         // print_r($rec); print_r($wikidata_obj); print_r($final); exit;
     }
     private function get_wikidata_obj_using_EOL_pageID($page_id, $canonical)
@@ -954,11 +954,16 @@ class WikiDataMtceAPI
     }
     private function show_totals()
     {
+        $WRITE = Functions::file_open($this->report_path."readme.txt", "w");
         $files = $this->report_path."*.*";
         foreach (glob($files) as $file) {
-            $total = shell_exec("wc -l < ".escapeshellarg($file));
-            $total = trim($total);  echo "\n$file: [$total]\n";
+            $total = shell_exec("wc -l < ".escapeshellarg($file)); $total = trim($total);
+            $basename = pathinfo($file, PATHINFO_BASENAME);
+            if(in_array($basename, array("unprocessed_taxa.tsv", "taxonomic_mappings_for_review.tsv", "inferred_trait_qry.tsv"))) $total--;
+            echo "\n$basename: [$total]\n";
+            fwrite($WRITE, "$basename: [$total]"."\n");
         }
+        fclose($WRITE);
     }
     private function get_WD_id_of_citation($rec)
     {   /*Array(

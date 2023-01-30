@@ -167,10 +167,13 @@ $input["trait kind"] = "trait"; //only 2 recs here
 $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
 */
 
-/* run all resources
+// print_r(pathinfo("/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/2b2b74fb3966af72c6eb34ec9855f626/export_file.qs"));
+// exit;
+
+// /* run all resources
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $func->run_all_resources($spreadsheet);
-*/
+// */
 
 /* works OK
 $taxon = "Jimenezia";
