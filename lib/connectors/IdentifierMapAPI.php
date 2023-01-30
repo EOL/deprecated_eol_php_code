@@ -31,6 +31,7 @@ class IdentifierMapAPI
         if(true) {
             $local_file = "/Volumes/AKiTiO4/eol_php_code_tmp/tmp_22859.file.gz";
             echo "\nfilesize [$local_file]: ".filesize($local_file)."\n";
+            print_r($input);
             $destination = pathinfo($local_file, PATHINFO_DIRNAME);
             /* working OK - un-comment in real operation
             $cmd = "cd ".$destination;

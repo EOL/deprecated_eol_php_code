@@ -239,7 +239,6 @@ class WikiDataMtceAPI
             else exit("\nUndefined trait_kind.\n");
             */
 
-            // print_r($rec); exit("\nstop muna\n");
             // /* new scheme
             $citation_WD_id = self::get_WD_id_of_citation($rec);
             if    ($trait_kind == "trait")          $final['P248']  = $citation_WD_id; //"stated in" (P248)
@@ -279,7 +278,6 @@ class WikiDataMtceAPI
             print_r($ret);
             return $ret['wikidata_id'];
         }
-        // if(false) {}
         else {
             $title = $citation_obj[0]->title[0];
             $title = self::manual_fix_title($title);
@@ -974,23 +972,17 @@ class WikiDataMtceAPI
                 echo "\nhas DOI but not in WikiData yet\n";
                 echo "\n---------------------\n";
                 self::create_WD_for_citation($rec['t.citation'], $rec['t.source']);
-                // exit;
-
             }
         }
         elseif($rec['t.source'] && $rec['t.citation']) exit("\nNo case like this yet.\n");
         else { //https://www.delta-intkey.com/britin/lep/www/endromid.htm
             return "";
             print_r($rec);
-            exit("\nno design yet\n");
+            exit("\nNo design yet.\n");
         }               
     }
     function create_WD_for_citation($citation, $t_source)
     {
-        /* lookup spreadsheet for mapping                 --- copied template
-        $this->map = self::get_WD_entity_mappings();
-        */
-        
         if(stripos($t_source, "/doi.org/") !== false) echo "\n==========\nLet SourceMD generate the export file, since this has a DOI.\n==========\n";
 
         $citation_obj = self::parse_citation_using_anystyle($citation, 'all');
@@ -998,7 +990,6 @@ class WikiDataMtceAPI
             print_r($ret);
             return $ret['wikidata_id'];
         }
-        // if(false) {}
         else {
             $title = $citation_obj[0]->title[0];
             $title = self::manual_fix_title($title);
