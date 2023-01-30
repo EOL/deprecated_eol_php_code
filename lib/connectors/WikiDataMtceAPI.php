@@ -99,6 +99,27 @@ class WikiDataMtceAPI
         $final[] = 'Mapped';
         $this->WRITE = Functions::file_open($this->taxonomic_mappings, "w");
         fwrite($this->WRITE, implode("\t", $final)."\n");
+
+        // /* 
+        $this->discarded_rows = $this->report_path."discarded_rows.tsv";
+        if(file_exists($this->discarded_rows)) unlink($this->discarded_rows); //un-comment in real operation
+        $final = array();
+        $final[] = 'p.canonical';
+        $final[] = 'p.page_id';
+        $final[] = 'pred.name';
+        $final[] = 'stage.name';
+        $final[] = 'sex.name'; 
+        $final[] = 'stat.name';
+        $final[] = 'obj.name';
+        $final[] = 't.measurement';
+        $final[] = 'units.name';
+        $final[] = 't.source';
+        $final[] = 't.citation';
+        $final[] = 'ref.literal';
+        $WRITE = Functions::file_open($this->discarded_rows, "w");
+        fwrite($WRITE, implode("\t", $final)."\n");
+        fclose($WRITE);
+        // */
     }
 
     function create_WD_traits($input)
@@ -168,7 +189,7 @@ class WikiDataMtceAPI
         */
     }
     private function write_trait_2wikidata($rec, $trait_kind)
-    {       /*Array(
+    {   /*Array(
             [p.canonical] => Viadana semihamata
             [p.page_id] => 46941724
             [pred.name] => behavioral circadian rhythm
@@ -180,6 +201,20 @@ class WikiDataMtceAPI
             [units.name] => 
             [t.source] => 
             [t.citation] => Fornoff, Felix; Dechmann, Dina; Wikelski, Martin. 2012. Observation of movement and activity via radio-telemetry reveals diurnal behavior of the neotropical katydid Philophyllia Ingens (Orthoptera: Tettigoniidae). Ecotropica, 18 (1):27-34
+            [ref.literal] => 
+        )
+        Array(
+            [p.canonical] => Acantoluzarida
+            [p.page_id] => 73906
+            [pred.name] => habitat
+            [stage.name] => adult
+            [sex.name] => 
+            [stat.name] => 
+            [obj.name] => litter layer
+            [t.measurement] => 
+            [units.name] => 
+            [t.source] => https://doi.org/10.2307/3503472
+            [t.citation] => L. Desutter-Grandcolas. 1995. Toward the Knowledge of the Evolutionary Biology of Phalangopsid Crickets (Orthoptera: Grylloidea: Phalangopsidae): Data, Questions and Evolutionary Scenarios. Journal of Orthoptera Research, No. 4 (Aug., 1995), pp. 163-175
             [ref.literal] => 
         )*/
         // print_r($rec); exit("\nstop 1\n");
@@ -229,6 +264,11 @@ class WikiDataMtceAPI
             
             if($val = @$this->map['measurementValues'][$rec["obj.name"]]["wikiData term"]) {
                 if($val != "DISCARD" && $val != "") $final['object_entity'] = $val;
+                else {
+                    $WRITE = Functions::file_open($this->discarded_rows, "a");
+                    fwrite($WRITE, implode("\t", $rec)."\n");
+                    fclose($WRITE);            
+                }
             }
             else {
                 echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n";
@@ -309,7 +349,7 @@ class WikiDataMtceAPI
                     if    ($instance_of == 'Q16521')  return $obj; //$wikidata_id; # instance_of -> taxon
                     elseif($instance_of == 'Q310890') return $obj; //$wikidata_id; # instance_of -> monotypic taxon
                     elseif($instance_of) { //meaning not blank
-                        $label = $func->get_WD_obj_using_id($instance_of, 'label');
+                        $label = self::get_WD_obj_using_id($instance_of, 'label');
                         echo("\nCheck if instance of what: [$label]\n");
                         if(stripos($label, "taxon") !== false) return $obj; //string is found
                         else return false;
@@ -683,7 +723,7 @@ class WikiDataMtceAPI
         $final[] = $wikidata_obj->id;
         $final[] = @$wikidata_obj->display->description->value;
         $final[] = $rec['how'];
-        if($final[0]) fwrite($this->WRITE, implode("\t", $final)."\n");
+        fwrite($this->WRITE, implode("\t", $final)."\n");
         // print_r($rec); print_r($wikidata_obj); print_r($final); exit;
     }
     private function get_wikidata_obj_using_EOL_pageID($page_id, $canonical)
@@ -904,8 +944,8 @@ class WikiDataMtceAPI
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran. Our very first.
 
         // /* good way to run 1 resource for investigation
-        if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
-        // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
+        // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
+        if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
         // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
         // */
 
@@ -959,7 +999,8 @@ class WikiDataMtceAPI
         foreach (glob($files) as $file) {
             $total = shell_exec("wc -l < ".escapeshellarg($file)); $total = trim($total);
             $basename = pathinfo($file, PATHINFO_BASENAME);
-            if(in_array($basename, array("unprocessed_taxa.tsv", "taxonomic_mappings_for_review.tsv", "inferred_trait_qry.tsv"))) $total--;
+            if($basename == "readme.txt") continue;
+            if(in_array($basename, array("unprocessed_taxa.tsv", "taxonomic_mappings_for_review.tsv", "inferred_trait_qry.tsv", "trait_qry.tsv", "discarded_rows.tsv"))) $total--;
             echo "\n$basename: [$total]\n";
             fwrite($WRITE, "$basename: [$total]"."\n");
         }

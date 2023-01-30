@@ -218,6 +218,7 @@ foreach($sources as $source) { $source = urldecode($source); echo "\n[$source]\n
 	$func->query_trait_db($input);	
 }
 exit("\n-end-\n");
+
 */
 
 /* good example
