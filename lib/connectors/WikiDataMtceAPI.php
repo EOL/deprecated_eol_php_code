@@ -112,7 +112,6 @@ class WikiDataMtceAPI
             $this->taxonMap = $func->read_identifier_map_to_var(array("resource_id" => 1072));
             $this->taxonMap_all = $func->read_identifier_map_to_var(array("resource_id" => 'all'));
             echo "\ntaxonMap: ".count($this->taxonMap)."\n";
-            // exit("\nelix1\n");    
         }
         // */
 
@@ -121,9 +120,6 @@ class WikiDataMtceAPI
         // */
         
         // /* report file to process
-        // orig
-        // $tmp = md5(json_encode($input));
-        // $this->tsv_file = $this->report_path."/".$tmp."_".$input["trait kind"].".tsv"; //exit("\n".$this->tsv_file."\n");
         $this->tsv_file = $this->report_path."/".$input["trait kind"]."_qry.tsv"; //exit("\n".$this->tsv_file."\n");
         // */
 
@@ -143,10 +139,14 @@ class WikiDataMtceAPI
                 if($i >= 80000 && $i <= 100000) {}
                 else continue;
                 */
-                // /* during caching period only
+                /* during caching period only
                 if($i >= 100000 && $i <= 120000) {}
                 else continue;
-                // */
+                */
+                /* during caching period only
+                if($i >= 120000 && $i <= 140000) {}
+                else continue;
+                */
 
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
@@ -224,7 +224,7 @@ class WikiDataMtceAPI
             if($val = @$this->map['measurementTypes'][$rec["pred.name"]]["property"]) $final['predicate_entity'] = $val;
             else {
                 echo "\nUndefined pred.name: [".$rec["pred.name"]."] \n";
-                $this->debug['undefined pred.name'][$rec["pred.name"]] = '';
+                $this->debug['undefined measurementTypes pred.name'][$rec["pred.name"]] = '';
             }
             
             if($val = @$this->map['measurementValues'][$rec["obj.name"]]["wikiData term"]) {
@@ -232,7 +232,7 @@ class WikiDataMtceAPI
             }
             else {
                 echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n";
-                $this->debug['undefined obj.name'][$rec["obj.name"]] = '';
+                $this->debug['undefined measurementValues obj.name'][$rec["obj.name"]] = '';
             }
             
             $title = self::parse_citation_using_anystyle($rec['t.citation'], 'title');
@@ -282,11 +282,6 @@ class WikiDataMtceAPI
         $this->map = self::get_WD_entity_mappings();
         // */
         
-        /*
-        Searching for an existing publication entity: if t.source is a doi, or a wikidata url, use that to identify the entity. 
-        If not, proceed to parsing.
-        */
-
         $citation_obj = self::parse_citation_using_anystyle($citation, 'all');
         if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) { //orig un-comment in real operation
             print_r($ret);
@@ -297,9 +292,7 @@ class WikiDataMtceAPI
             $title = self::manual_fix_title($title);
             echo "\nTitle does not exist (A). [$title]\n";
             self::create_WD_reference_item($citation_obj, $citation);
-        }
-        
-        echo ("\n-end muna-\n");
+        }        
     }
     function is_instance_of_taxon($taxon)
     {
@@ -467,7 +460,6 @@ class WikiDataMtceAPI
         /* NEXT TODO: is the exec_shell command to trigger QuickStatements */
         exit("\nUnder construction...\n");
         
-
         /* Reminders:
         CREATE
         LAST	P31	Q13442814
