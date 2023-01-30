@@ -167,10 +167,10 @@ $input["trait kind"] = "trait"; //only 2 recs here
 $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
 */
 
-// /* run all resources
+/* run all resources
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $func->run_all_resources($spreadsheet);
-// */
+*/
 
 /* works OK
 $taxon = "Jimenezia";
@@ -234,6 +234,15 @@ $refs[] = "https://doi.org/10.1007/978-3-319-15332-2 E.A. Kellogg. 2015. The fam
 $refs[] = "https://doi.org/10.1007/978-3-662-02899-5 K. Kubitzki, J.G. Rohwer and V. Bittrich eds. 1993. The families and genera of vascular plants. Volume II; Flowering Plants: Dicotyledons. Magnoliid, Hamamelid and Caryophyllid families. Springer Nature.";
 $refs[] = "https://www.wikidata.org/entity/Q116222930 Brusca, R.C. and Brusca, G.J., 2003. Invertebrates. 2nd. Sunderland, Mass.: Sinauer Associates, 936 pp.";
 $func->utility_parse_refs($refs);
+*/
+
+/*
+$label = $func->get_WD_obj_using_id("Q248924", 'label'); //Q310890 Q16521
+echo("\n[$label]\n");
+if(stripos($label, "taxon") !== false) { //string is found
+	echo "\n OK instance of $label\n";
+}
+else echo "\n WRONG instance of $label\n";
 */
 
 /* utility - run down of all citations. Create WD item for those not in WikiData yet.

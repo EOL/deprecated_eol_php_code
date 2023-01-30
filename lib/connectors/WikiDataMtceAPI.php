@@ -308,6 +308,12 @@ class WikiDataMtceAPI
                     $instance_of = @$taxon_obj->entities->$wikidata_id->claims->P31[0]->mainsnak->datavalue->value->id; //exit("\n[$instance_of]\n");
                     if    ($instance_of == 'Q16521')  return $obj; //$wikidata_id; # instance_of -> taxon
                     elseif($instance_of == 'Q310890') return $obj; //$wikidata_id; # instance_of -> monotypic taxon
+                    elseif($instance_of) { //meaning not blank
+                        $label = $func->get_WD_obj_using_id($instance_of, 'label');
+                        echo("\nCheck if instance of what: [$label]\n");
+                        if(stripos($label, "taxon") !== false) return $obj; //string is found
+                        else return false;
+                    }
                 }
             }    
         } //foreach
@@ -760,7 +766,7 @@ class WikiDataMtceAPI
         }
         return false;
     }
-    private function get_WD_obj_using_id($wikidata_id, $what = 'all')
+    function get_WD_obj_using_id($wikidata_id, $what = 'all')
     {
         // https://www.wikidata.org/w/api.php?action=help&modules=wbgetentities
         // https://www.wikidata.org/w/api.php?action=wbgetentities&format=xml&ids=Q56079384
@@ -772,7 +778,8 @@ class WikiDataMtceAPI
             $obj = json_decode($json); // print_r($obj);
 
             if($what == 'all') return $obj;
-            elseif($what == 'DOI') return @$obj->entities->$wikidata_id->claims->P356[0]->mainsnak->datavalue->value;
+            elseif($what == 'DOI')   return @$obj->entities->$wikidata_id->claims->P356[0]->mainsnak->datavalue->value;
+            elseif($what == 'label') return @$obj->entities->$wikidata_id->labels->en->value;
             else exit("\nERROR: Specify return item.\n");
         }
         else echo "\nShould not go here.\n";
