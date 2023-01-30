@@ -134,6 +134,20 @@ class WikiDataMtceAPI
             // $row = Functions::conv_to_utf8($row);
             if($i == 1) $fields = explode("\t", $row);
             else {
+
+                /* during caching period only                   --- mainly for API lookup using WD taxon entity ID.
+                if($i >= 58000 && $i <= 80000) {}
+                else continue;
+                */
+                /* during caching period only
+                if($i >= 80000 && $i <= 100000) {}
+                else continue;
+                */
+                // /* during caching period only
+                if($i >= 100000 && $i <= 120000) {}
+                else continue;
+                // */
+
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
                 $rec = array(); $k = 0;
@@ -866,10 +880,10 @@ class WikiDataMtceAPI
                 /*
                 if($i < 4) continue;
                 */
-                // /* during dev only
+                /* during dev only
                 if($i % 2 == 0) {echo "\n[EVEN]\n"; continue;} //even
                 else {echo "\n[ODD]\n"; } //odd
-                // */
+                */
 
                 $values = $row; $k = 0; $rec = array();
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
@@ -893,12 +907,12 @@ class WikiDataMtceAPI
         // /* good way to run 1 resource for investigation
         // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
         // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
-        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
+        if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
         // */
 
-        // /* during dev only
+        /* during dev only
         if($rec['trait.source'] == 'https://doi.org/10.1073/pnas.1907847116') return; //exclude
-        // */
+        */
 
         print_r($rec); //exit;
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE;
