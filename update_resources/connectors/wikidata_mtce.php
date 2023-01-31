@@ -170,10 +170,10 @@ $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_expo
 // print_r(pathinfo("/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/2b2b74fb3966af72c6eb34ec9855f626/export_file.qs"));
 // exit;
 
-// /* run all resources
+/* run all resources
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $func->run_all_resources($spreadsheet);
-// */
+*/
 
 /* works OK
 $taxon = "Jimenezia";
@@ -181,11 +181,12 @@ $obj = $func->get_WD_obj_using_string($taxon, 'all');
 print_r($obj); exit("\n-end test-\n");
 */
 
-/* works OK
+// /* works OK
 $taxon = "Alison";
+$taxon = "Gadus";
 if($func->is_instance_of_taxon($taxon)) echo "\n[$taxon] is a valid taxon.\n";
 else                                    echo "\n[$taxon] is not a taxon.\n";
-*/
+// */
 
 /* spreadsheet lookup - works OK!
 $func->get_WD_entity_mappings();

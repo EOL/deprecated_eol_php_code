@@ -153,21 +153,28 @@ class WikiDataMtceAPI
             else {
 
                 /* during caching period only                   --- mainly for API lookup using WD taxon entity ID.
-                if($i >= 58000 && $i <= 80000) {}
+                if($i >= 66800 && $i <= 80000) {}
+                else continue;
+                */
+                // /* during caching period only
+                if($i >= 91130 && $i <= 100000) {}
+                else continue;
+                // */
+                /* during caching period only
+                if($i >= 108810 && $i <= 120000) {}
                 else continue;
                 */
                 /* during caching period only
-                if($i >= 80000 && $i <= 100000) {}
+                if($i >= 140000) {}
                 else continue;
                 */
+
+                
                 /* during caching period only
-                if($i >= 100000 && $i <= 120000) {}
+                if($i >= 6120 && $i <= 167001) {}
                 else continue;
                 */
-                /* during caching period only
-                if($i >= 120000 && $i <= 140000) {}
-                else continue;
-                */
+
 
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
@@ -336,29 +343,28 @@ class WikiDataMtceAPI
     }
     function is_instance_of_taxon($taxon)
     {
-        $text_file = $this->report_not_taxon_or_no_wikidata;
         echo "\nSearching taxon... [$taxon]\n";
-        $ret = self::get_WD_obj_using_string($taxon);
-
-        // print_r($objs); exit;
+        $ret = self::get_WD_obj_using_string($taxon); //print_r($ret); exit;
         foreach($ret->search as $obj) {
             if($wikidata_id = @$obj->id) { # e.g. Q56079384
-                echo "\npossible ID for '$taxon': [$wikidata_id]\n";
-                if($taxon_obj = self::get_WD_obj_using_id($wikidata_id, 'all')) { //print_r($taxon_obj);
+                // print_r($obj); exit;
+                $found = $obj->display->label->value;
+                if($found != $taxon) continue;
+                echo "\npossible ID for '$taxon' '$found': [$wikidata_id]\n";
+                if($taxon_obj = self::get_WD_obj_using_id($wikidata_id, 'all')) { //print_r($taxon_obj->entities->$wikidata_id->labels); exit;
                     $instance_of = @$taxon_obj->entities->$wikidata_id->claims->P31[0]->mainsnak->datavalue->value->id; //exit("\n[$instance_of]\n");
                     if    ($instance_of == 'Q16521')  return $obj; //$wikidata_id; # instance_of -> taxon
                     elseif($instance_of == 'Q310890') return $obj; //$wikidata_id; # instance_of -> monotypic taxon
                     elseif($instance_of) { //meaning not blank
                         $label = self::get_WD_obj_using_id($instance_of, 'label');
-                        echo("\nCheck if instance of what: [$label]\n");
+                        echo("\nIs instance of what?: [$label]\n");
                         if(stripos($label, "taxon") !== false) return $obj; //string is found
-                        else return false;
+                        // else return false; --- don't stop here, let the loop finish.
                     }
                 }
             }    
         } //foreach
         echo "\nNot found in WikiData\n";
-        // self::write_2text_file($text_file, $taxon."\t"."not in WikiData"); //moved
         return false;
     }
     private function does_title_exist_in_wikidata($citation_obj, $citation)
@@ -945,8 +951,9 @@ class WikiDataMtceAPI
 
         // /* good way to run 1 resource for investigation
         // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
-        if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
-        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
+        // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
+        if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
+        // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //205501 traits
         // */
 
         /* during dev only
