@@ -152,26 +152,35 @@ class WikiDataMtceAPI
             if($i == 1) $fields = explode("\t", $row);
             else {
 
-                /* during caching period only                   --- mainly for API lookup using WD taxon entity ID.
-                if($i >= 66800 && $i <= 80000) {}
+                /* during caching period only                   --- mainly for API lookup using WD taxon entity ID. 198187 traits
+                if($i >= 78641 && $i <= 80000) {}
                 else continue;
                 */
-                /* during caching period only
-                if($i >= 91130 && $i <= 100000) {}
+                /* during caching period only           DONE
+                if($i >= 97863 && $i <= 100000) {}
                 else continue;
                 */
-                /* during caching period only
-                if($i >= 108810 && $i <= 120000) {}
+                /* during caching period only           DONE
+                if($i >= 117951 && $i <= 120000) {}
                 else continue;
                 */
-                /* during caching period only
-                if($i >= 140000) {}
+                /* during caching period only               running...
+                if($i >= 150772 && $i <= 160000) {}
                 else continue;
                 */
 
+                // if($i >= 160000 && $i <= 170000) {}      running...
+                // else continue;
+
+                // if($i >= 170000 && $i <= 180000) {}      running...
+                // else continue;
+
+                if($i >= 180000 && $i <= 199000) {}
+                else continue;
+
                 
                 /* during caching period only
-                if($i >= 6120 && $i <= 167001) {}
+                if($i >= 17900) {} //of 260001 traits
                 else continue;
                 */
 
@@ -906,7 +915,7 @@ class WikiDataMtceAPI
             --data-raw 'token=$2y$10$hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy' \
             --data-urlencode data@test.qs        
     */
-    function run_all_resources($spreadsheet)
+    function run_all_resources($spreadsheet, $task)
     {
         /* works ok if you don't need to format/clean the entire row.
         $file = Functions::file_open($this->text_path[$type], "r");
@@ -933,14 +942,14 @@ class WikiDataMtceAPI
                 $values = $row; $k = 0; $rec = array();
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
                 $rec = array_map('trim', $rec); //important step
-                self::run_resource_traits($rec);
+                self::run_resource_traits($rec, $task);
                 // break; //process just first record
                 // if($i >= 3) break; //debug only
             }
         }
         print_r($this->debug);
     }
-    private function run_resource_traits($rec)
+    private function run_resource_traits($rec, $task)
     {   /*Array(
             [r.resource_id] => 1054
             [trait.source] => https://www.wikidata.org/entity/Q116263059
@@ -950,9 +959,14 @@ class WikiDataMtceAPI
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran. Our very first.
 
         // /* good way to run 1 resource for investigation
-        // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
-        if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
-        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
+        // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //row 1
+        // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //row 2
+        if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3
+        // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_1885') return; //row 4
+        // if($rec['trait.source'] != 'https://www.delta-intkey.com/britin/lep/www/endromid.htm') return; //row 5
+        // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_3929') return; //row 6
+        
+
         // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //205501 traits
         // */
 
@@ -979,21 +993,29 @@ class WikiDataMtceAPI
             $input["per_page"] = 500; // 500 finished ok
         }
 
+
         $input["trait kind"] = "trait";
         $path = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path]\n";
         $file1 = $path.$input['trait kind']."_qry.tsv";
+        $this->tmp_batch_export = $path . "/temp_export.qs";
 
         $input["trait kind"] = "inferred_trait";
         $path = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path]\n";
         $file2 = $path.$input['trait kind']."_qry.tsv";
-        // exit;
+        $this->tmp_batch_export = $path . "/temp_export.qs";
 
         $input["trait kind"] = "trait";
-        if(file_exists($file1)) self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
+        if(file_exists($file1)) {
+            if($task == 'generate trait reports') self::create_WD_traits($input);
+            // elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
+        }
         else echo "\n[$file1]\nNo query results yet: ".$input['trait kind']."\n";
 
         $input["trait kind"] = "inferred_trait";
-        if(file_exists($file2)) self::create_WD_traits($input); //exit("\n-end create_WD_traits() -\n");
+        if(file_exists($file2)) {
+            if($task == 'generate trait reports') self::create_WD_traits($input);
+            // elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
+        }
         else echo "\n[$file2]\nNo query results yet: ".$input['trait kind']."\n";
 
         // $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
@@ -1007,10 +1029,18 @@ class WikiDataMtceAPI
             $total = shell_exec("wc -l < ".escapeshellarg($file)); $total = trim($total);
             $basename = pathinfo($file, PATHINFO_BASENAME);
             if($basename == "readme.txt") continue;
+
+            if($basename == "inferred_trait_qry.tsv") $which_file = $basename;
+            if($basename == "trait_qry.tsv")          $which_file = $basename;
+
             if(in_array($basename, array("unprocessed_taxa.tsv", "taxonomic_mappings_for_review.tsv", "inferred_trait_qry.tsv", "trait_qry.tsv", "discarded_rows.tsv"))) $total--;
             echo "\n$basename: [$total]\n";
             fwrite($WRITE, "$basename: [$total]"."\n");
         }
+        fwrite($WRITE, "\nNumber of rows"."\n");
+        fwrite($WRITE, "--------------"."\n");
+        fwrite($WRITE, "[export_file.qs] == [taxonomic_mappings_for_review.tsv]"."\n");
+        fwrite($WRITE, "[export_file.qs] + [unprocessed_taxa.tsv] + [discarded_rows.tsv] = [$which_file]"."\n");
         fclose($WRITE);
     }
     private function get_WD_id_of_citation($rec)
@@ -1030,7 +1060,7 @@ class WikiDataMtceAPI
         [how] => identifier-map
         )*/
         if(preg_match("/wikidata.org\/entity\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) return $arr[1];                   //is WikiData entity
-        if(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) return $arr[1];                   //is WikiData entity
+        if(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) return $arr[1];                     //is WikiData entity
         elseif(stripos($rec['t.source'], "/doi.org/") !== false) { //string is found    //https://doi.org/10.1002/ajpa.20957    //is DOI
             if($val = self::get_WD_entityID_for_DOI($rec['t.source'])) return $val;
             else { //has DOI no WikiData yet
@@ -1041,6 +1071,8 @@ class WikiDataMtceAPI
             }
         }
         elseif($rec['t.source'] && $rec['t.citation']) exit("\nNo case like this yet.\n");
+        elseif($rec['t.source'] && !$rec['t.citation']) exit("\n huli ka\n");
+
         else { //https://www.delta-intkey.com/britin/lep/www/endromid.htm
             return "";
             print_r($rec);

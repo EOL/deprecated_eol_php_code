@@ -172,7 +172,8 @@ $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_expo
 
 // /* run all resources
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
-$func->run_all_resources($spreadsheet);
+$func->run_all_resources($spreadsheet, 'generate trait reports'); //generate trait reports
+// $func->run_all_resources($spreadsheet, 'create WD traits'); //read export file and send to QuickStatements
 // */
 
 /* works OK
@@ -183,7 +184,7 @@ print_r($obj); exit("\n-end test-\n");
 
 /* works OK
 $taxon = "Alison";
-$taxon = "Gadus";
+$taxon = "Gadus"; $taxon = "Parendacustes pahangi";
 if($func->is_instance_of_taxon($taxon)) echo "\n[$taxon] is a valid taxon.\n";
 else                                    echo "\n[$taxon] is not a taxon.\n";
 */
