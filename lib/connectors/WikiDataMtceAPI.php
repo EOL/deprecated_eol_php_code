@@ -156,10 +156,10 @@ class WikiDataMtceAPI
                 if($i >= 66800 && $i <= 80000) {}
                 else continue;
                 */
-                // /* during caching period only
+                /* during caching period only
                 if($i >= 91130 && $i <= 100000) {}
                 else continue;
-                // */
+                */
                 /* during caching period only
                 if($i >= 108810 && $i <= 120000) {}
                 else continue;
@@ -349,7 +349,7 @@ class WikiDataMtceAPI
             if($wikidata_id = @$obj->id) { # e.g. Q56079384
                 // print_r($obj); exit;
                 $found = $obj->display->label->value;
-                if($found != $taxon) continue;
+                if($found != $taxon) continue; //string should match to proceed
                 echo "\npossible ID for '$taxon' '$found': [$wikidata_id]\n";
                 if($taxon_obj = self::get_WD_obj_using_id($wikidata_id, 'all')) { //print_r($taxon_obj->entities->$wikidata_id->labels); exit;
                     $instance_of = @$taxon_obj->entities->$wikidata_id->claims->P31[0]->mainsnak->datavalue->value->id; //exit("\n[$instance_of]\n");
@@ -951,8 +951,8 @@ class WikiDataMtceAPI
 
         // /* good way to run 1 resource for investigation
         // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //1st group
-        // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
-        if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
+        if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //2nd group
+        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //3rd group
         // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //205501 traits
         // */
 
