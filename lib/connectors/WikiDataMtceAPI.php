@@ -152,7 +152,7 @@ class WikiDataMtceAPI
             if($i == 1) $fields = explode("\t", $row);
             else {
                 
-                // if($i >= 18050 && $i <= 50000) {}      //315501 running...
+                // if($i >= 18050 && $i <= 50000) {}      //315501 running... caching
                 // else continue;
                 // if($i >= 50000 && $i <= 100000) {}      //315501 running...
                 // else continue;
@@ -959,7 +959,7 @@ class WikiDataMtceAPI
                             echo "\n[$cmd]\n";
                             $out = shell_exec($cmd);
                             // echo "\n[$out]\n"; //displays nothing
-                            self::delete_folder_contents($path, array("inferred_trait_qry.tsv", "trait_qry.tsv"));
+                            self::delete_folder_contents($path."/", array("inferred_trait_qry.tsv", "trait_qry.tsv"));
                         }    
                     }
 
@@ -970,16 +970,6 @@ class WikiDataMtceAPI
             }
         }
         print_r($this->debug);
-    }
-    private function delete_folder_contents($path, $exemptions)
-    {
-        $files = $path."*.*";
-        foreach (glob($files) as $file) {
-            $basename = pathinfo($file, PATHINFO_BASENAME);
-            if(in_array($basename, $exemptions)) continue;
-            if(stripos($file, "/reports/cypher/") !== false) echo "\ndelete $file\n";
-            // unlink($file);
-        }
     }
     private function run_resource_traits($rec, $task)
     {   /*Array(
@@ -1173,6 +1163,15 @@ class WikiDataMtceAPI
         }
 
 
+    }
+    private function delete_folder_contents($path, $exemptions)
+    {
+        $files = $path."*.*";
+        foreach (glob($files) as $file) {
+            $basename = pathinfo($file, PATHINFO_BASENAME);
+            if(in_array($basename, $exemptions)) continue;
+            if(stripos($file, "/reports/cypher/") !== false) unlink($file); //echo "\ndelete $file";
+        }
     }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
