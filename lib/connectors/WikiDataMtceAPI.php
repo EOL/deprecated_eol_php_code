@@ -151,38 +151,20 @@ class WikiDataMtceAPI
             // $row = Functions::conv_to_utf8($row);
             if($i == 1) $fields = explode("\t", $row);
             else {
-
-                /* during caching period only                   --- mainly for API lookup using WD taxon entity ID. 198187 traits
-                if($i >= 78641 && $i <= 80000) {}
-                else continue;
-                */
-                /* during caching period only           DONE
-                if($i >= 97863 && $i <= 100000) {}
-                else continue;
-                */
-                /* during caching period only           DONE
-                if($i >= 117951 && $i <= 120000) {}
-                else continue;
-                */
-                /* during caching period only               running...
-                if($i >= 150772 && $i <= 160000) {}
-                else continue;
-                */
-
-                // if($i >= 160000 && $i <= 170000) {}      running...
-                // else continue;
-
-                // if($i >= 170000 && $i <= 180000) {}      running...
-                // else continue;
-
-                if($i >= 180000 && $i <= 199000) {}
-                else continue;
-
                 
-                /* during caching period only
-                if($i >= 17900) {} //of 260001 traits
+                // if($i >= 18050 && $i <= 50000) {}      //315501 running...
+                // else continue;
+                // if($i >= 50000 && $i <= 100000) {}      //315501 running...
+                // else continue;
+                // if($i >= 100000 && $i <= 150000) {}      //315501 running...
+                // else continue;
+                // if($i >= 150000 && $i <= 200000) {}      //315501 running...
+                // else continue;
+                // if($i >= 200000 && $i <= 250000) {}      //315501 running...
+                // else continue;
+                if($i >= 250000 && $i <= 300000) {}      //315501 running...
                 else continue;
-                */
+
 
 
                 if(!$row) continue;
@@ -776,8 +758,19 @@ class WikiDataMtceAPI
         /* start 2nd */
         // Callopisma	46719434
         elseif($page_id == 46719434) return self::fix_further($page_id, $canonical, "Q18582462");
+
+        /* start 3rd
+        Hi Eli,
+        Just a couple of taxonomic mapping corrections for this one:
+        EOL name pageID WikiData name oldID Description Mapped newID
+        Also, for the following, your mappings are fine, but I had to fix the wikidata parent relationships. 
+        Although the descriptions say "species of orthopterans," they were actually attached to a crustacean parent:
+        Arachnomimus nietneri 605124 Arachnopsis nietneri Q63249464 species of orthopterans identifier-map 
+        Arachnopsita cavicola 605061 Arachnopsis cavicola Q63249466 species of orthopterans identifier-map */
+        elseif($page_id == 36073 && $canonical == "Rumea") return self::fix_further($page_id, $canonical, "Q13985115");
+        elseif($page_id == 605108 && $canonical == "Laranda annulata") return self::fix_further($page_id, $canonical, "Q116520562");
         
-        // */
+        
         else { //orig
             if($ret = @$this->taxonMap[$page_id]) {
                 /* never use this since p.canonical in query sometimes really is blank. And identifier-map can do the connection.
@@ -793,7 +786,7 @@ class WikiDataMtceAPI
     private function fix_further($page_id, $canonical, $new_WD_id)
     {
         $ret = array("i" => $new_WD_id, "c" => $canonical);
-        $this->download_options['expire_seconds'] = true;
+        $this->download_options['expire_seconds'] = true; //means cache expires now, same if value is 0 zero.
         if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) {
             $this->download_options['expire_seconds'] = false;
             return array($ret['i'], $obj);
@@ -961,13 +954,13 @@ class WikiDataMtceAPI
         // /* good way to run 1 resource for investigation
         // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //row 1
         // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //row 2
-        if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3
+        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3
         // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_1885') return; //row 4
         // if($rec['trait.source'] != 'https://www.delta-intkey.com/britin/lep/www/endromid.htm') return; //row 5
         // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_3929') return; //row 6
         
 
-        // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //205501 traits
+        if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //205501 traits
         // */
 
         /* during dev only
