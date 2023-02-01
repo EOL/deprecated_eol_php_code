@@ -162,9 +162,8 @@ class WikiDataMtceAPI
                 // else continue;
                 // if($i >= 200000 && $i <= 250000) {}      //315501 running...
                 // else continue;
-                if($i >= 250000 && $i <= 300000) {}      //315501 running...
-                else continue;
-
+                // if($i >= 250000 && $i <= 300000) {}      //315501 running...
+                // else continue;
 
 
                 if(!$row) continue;
@@ -924,9 +923,6 @@ class WikiDataMtceAPI
             if(!$row) continue;
             if($i == 1) { $fields = $row; $count = count($fields); continue;}
             else { //main records
-                /*
-                if($i < 4) continue;
-                */
                 /* during dev only
                 if($i % 2 == 0) {echo "\n[EVEN]\n"; continue;} //even
                 else {echo "\n[ODD]\n"; } //odd
@@ -935,12 +931,55 @@ class WikiDataMtceAPI
                 $values = $row; $k = 0; $rec = array();
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
                 $rec = array_map('trim', $rec); //important step
-                self::run_resource_traits($rec, $task);
+                $paths = self::run_resource_traits($rec, $task);
+
+                if($task == 'generate trait reports') { //move 2 folder to /row_x_traitSource/here
+                    print_r($paths); 
+                    /*Array(
+                    [0] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/26781a84311d6d09f25971b21516b796/
+                    [1] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/bf64239ace12e4bd48f16387713bc309/
+                    )
+                    mv ~/Downloads/MyFile.txt ~/Documents/Work/MyFile.txt
+                    */
+                    if($paths) {
+                        $real_row = $i - 1; echo "\nrow: $real_row\n";
+                        $destination = $real_row."_".$rec['r.resource_id'];
+                        $destination = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$destination;
+                        if(!is_dir($destination)) mkdir($destination);
+                        else {
+                            /* stripos search is used just to be sure you can safely remove that folder */
+                            if(stripos($destination, "/reports/cypher/") !== false) recursive_rmdir($destination); //string is found
+                            mkdir($destination);
+                        }
+                        foreach($paths as $path) {
+                            $path = substr($path, 0, -1);
+                            $cmd = "cp -R $path $destination"; //worked OK
+                            // $cmd = "mv $path $destination"; //
+                            $cmd .= " 2>&1";
+                            echo "\n[$cmd]\n";
+                            $out = shell_exec($cmd);
+                            // echo "\n[$out]\n"; //displays nothing
+                            self::delete_folder_contents($path, array("inferred_trait_qry.tsv", "trait_qry.tsv"));
+                        }    
+                    }
+
+
+                }
                 // break; //process just first record
                 // if($i >= 3) break; //debug only
             }
         }
         print_r($this->debug);
+    }
+    private function delete_folder_contents($path, $exemptions)
+    {
+        $files = $path."*.*";
+        foreach (glob($files) as $file) {
+            $basename = pathinfo($file, PATHINFO_BASENAME);
+            if(in_array($basename, $exemptions)) continue;
+            if(stripos($file, "/reports/cypher/") !== false) echo "\ndelete $file\n";
+            // unlink($file);
+        }
     }
     private function run_resource_traits($rec, $task)
     {   /*Array(
@@ -957,10 +996,9 @@ class WikiDataMtceAPI
         // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3
         // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_1885') return; //row 4
         // if($rec['trait.source'] != 'https://www.delta-intkey.com/britin/lep/www/endromid.htm') return; //row 5
-        // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_3929') return; //row 6
+        if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_3929') return; //row 6
         
-
-        if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //205501 traits
+        // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //316001 traits
         // */
 
         /* during dev only
@@ -988,14 +1026,14 @@ class WikiDataMtceAPI
 
 
         $input["trait kind"] = "trait";
-        $path = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path]\n";
-        $file1 = $path.$input['trait kind']."_qry.tsv";
-        $this->tmp_batch_export = $path . "/temp_export.qs";
+        $path1 = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path1]\n";
+        $file1 = $path1.$input['trait kind']."_qry.tsv";
+        $this->tmp_batch_export = $path1 . "/temp_export.qs";
 
         $input["trait kind"] = "inferred_trait";
-        $path = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path]\n";
-        $file2 = $path.$input['trait kind']."_qry.tsv";
-        $this->tmp_batch_export = $path . "/temp_export.qs";
+        $path2 = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path2]\n";
+        $file2 = $path2.$input['trait kind']."_qry.tsv";
+        $this->tmp_batch_export = $path2 . "/temp_export.qs";
 
         $input["trait kind"] = "trait";
         if(file_exists($file1)) {
@@ -1012,7 +1050,7 @@ class WikiDataMtceAPI
         else echo "\n[$file2]\nNo query results yet: ".$input['trait kind']."\n";
 
         // $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
-
+        return array($path1, $path2);
     }
     private function show_totals()
     {
