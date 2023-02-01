@@ -931,6 +931,14 @@ class WikiDataMtceAPI
                 $values = $row; $k = 0; $rec = array();
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
                 $rec = array_map('trim', $rec); //important step
+
+                // /*
+                $real_row = $i - 1;
+                if(!in_array($real_row, array(1,2,4,6,7,8,9,10))) continue; //dev only
+                // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas
+                echo "\nrow: $real_row\n";
+                // */
+
                 $paths = self::run_resource_traits($rec, $task);
 
                 if($task == 'generate trait reports') { //copy 2 folders to /rowNum_resourceID/
@@ -938,10 +946,6 @@ class WikiDataMtceAPI
                     [0] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/26781a84311d6d09f25971b21516b796/
                     [1] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/bf64239ace12e4bd48f16387713bc309/
                     )*/
-                    $real_row = $i - 1;
-                    if(!in_array($real_row, array(1,2,4,6))) continue; //dev only
-                    echo "\nrow: $real_row\n";
-
                     if($paths) { print_r($paths);
                         $destination = $real_row."_".$rec['r.resource_id'];
                         $destination = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$destination;
@@ -978,9 +982,9 @@ class WikiDataMtceAPI
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran. Our very first.
 
         // /* good way to run 1 resource for investigation
-        // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //row 1                     
+        // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //row 1                     ready for QuickStatements           
         // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //row 2
-        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3                        still caching...
+        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3                        ready to run
         // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_1885') return; //row 4
         // if($rec['trait.source'] != 'https://www.delta-intkey.com/britin/lep/www/endromid.htm') return; //row 5       will be ignored...
         // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_3929') return; //row 6
