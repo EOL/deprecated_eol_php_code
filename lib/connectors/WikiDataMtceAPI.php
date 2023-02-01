@@ -253,23 +253,40 @@ class WikiDataMtceAPI
             $final = array();
             $final['taxon_entity'] = $taxon_entity_id;
 
-            if($val = @$this->map['measurementTypes'][$rec["pred.name"]]["property"]) $final['predicate_entity'] = $val;
+            $discarded_already_YN = false;
+            if($val = @$this->map['measurementTypes'][$rec["pred.name"]]["property"]) {
+                if($val != "DISCARD") $final['predicate_entity'] = $val;
+                else {
+                    $WRITE = Functions::file_open($this->discarded_rows, "a");
+                    fwrite($WRITE, implode("\t", $rec)."\tdiscard pred."."\n"); fclose($WRITE);
+                    $discarded_already_YN = true;
+                }                
+            }
             else {
                 echo "\nUndefined pred.name: [".$rec["pred.name"]."] \n";
                 $this->debug['undefined measurementTypes pred.name'][$rec["pred.name"]] = '';
+
+                $WRITE = Functions::file_open($this->discarded_rows, "a");
+                fwrite($WRITE, implode("\t", $rec)."\tundef. pred."."\n"); fclose($WRITE);
+                $discarded_already_YN = true;
             }
             
             if($val = @$this->map['measurementValues'][$rec["obj.name"]]["wikiData term"]) {
-                if($val != "DISCARD" && $val != "") $final['object_entity'] = $val;
+                if($val != "DISCARD") $final['object_entity'] = $val;
                 else {
-                    $WRITE = Functions::file_open($this->discarded_rows, "a");
-                    fwrite($WRITE, implode("\t", $rec)."\n");
-                    fclose($WRITE);            
+                    if(!$discarded_already_YN) {
+                        $WRITE = Functions::file_open($this->discarded_rows, "a");
+                        fwrite($WRITE, implode("\t", $rec)."\tdiscard obj."."\n"); fclose($WRITE);
+                    }
                 }
             }
             else {
                 echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n";
                 $this->debug['undefined measurementValues obj.name'][$rec["obj.name"]] = '';
+                if(!$discarded_already_YN) {
+                    $WRITE = Functions::file_open($this->discarded_rows, "a");
+                    fwrite($WRITE, implode("\t", $rec)."\tundef obj."."\n"); fclose($WRITE);                
+                }
             }
             
             $title = self::parse_citation_using_anystyle($rec['t.citation'], 'title');
@@ -616,7 +633,7 @@ class WikiDataMtceAPI
         $sheets = array("measurementTypes", "measurementValues", "metadata", "other values");
         foreach($sheets as $sheet) {
             $params['range']         = $sheet.'!A1:C100'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-            $arr = $func->access_google_sheet($params); //2nd param false means cache expires
+            $arr = $func->access_google_sheet($params, false); //2nd param false means cache expires
             $final[$sheet] = self::massage_google_sheet_results($arr);
         }
         // */
@@ -934,8 +951,9 @@ class WikiDataMtceAPI
 
                 // /*
                 $real_row = $i - 1;
-                if(!in_array($real_row, array(1,2,4,6,7,8,9,10))) continue; //dev only
+                // if(!in_array($real_row, array(1,2,4,6,7,8,9,10))) continue; //dev only
                 // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas
+                if(!in_array($real_row, array(6,7,8))) continue; //dev only
                 echo "\nrow: $real_row\n";
                 // */
 
@@ -945,10 +963,21 @@ class WikiDataMtceAPI
                     /*Array(
                     [0] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/26781a84311d6d09f25971b21516b796/
                     [1] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/bf64239ace12e4bd48f16387713bc309/
+
+                    trait path:          [/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/95f89fd54344bb1630126a64b9cff1e3/]
+                    inferred_trait path: [/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/da23f9319bb205e88bcdeab285f494d7/]
                     )*/
                     if($paths) { print_r($paths);
-                        $destination = $real_row."_".$rec['r.resource_id'];
+
+                        // https://doi.org/10.1007/978-1-4020-6359-6_3929
+                        // http://doi.org/10.1098/rspb.2011.0134
+                        $source = str_ireplace("https://", "", $rec['trait.source']);
+                        $source = str_ireplace("http://", "", $source);
+                        $source = str_ireplace("/", "_", $source);
+                        
+                        $destination = $real_row."_".$rec['r.resource_id']."_".$source;
                         $destination = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$destination;
+                        // exit("\ndestination: [$destination\n");
                         if(!is_dir($destination)) mkdir($destination);
                         else { //delete and re-create the destination folder
                             /* stripos search is used just to be sure you can safely remove that folder */
@@ -1026,19 +1055,23 @@ class WikiDataMtceAPI
         $file2 = $path2.$input['trait kind']."_qry.tsv";
         $this->tmp_batch_export = $path2 . "/temp_export.qs";
 
+        // exit("\n$file1\n$file2\nxxx\n");
+
         $input["trait kind"] = "trait";
         if(file_exists($file1)) {
             if($task == 'generate trait reports') self::create_WD_traits($input);
             // elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
         }
-        else echo "\n[$file1]\nNo query results yet: ".$input['trait kind']."\n";
+        else exit("\n[$file1]\nNo query results yet: ".$input['trait kind']."\n");
 
+        // /* un-comment in real operation
         $input["trait kind"] = "inferred_trait";
         if(file_exists($file2)) {
             if($task == 'generate trait reports') self::create_WD_traits($input);
             // elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
         }
-        else echo "\n[$file2]\nNo query results yet: ".$input['trait kind']."\n";
+        else exit("\n[$file2]\nNo query results yet: ".$input['trait kind']."\n");
+        // */
 
         // $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
         return array($path1, $path2);
