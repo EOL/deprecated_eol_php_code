@@ -933,20 +933,17 @@ class WikiDataMtceAPI
                 $rec = array_map('trim', $rec); //important step
                 $paths = self::run_resource_traits($rec, $task);
 
-                if($task == 'generate trait reports') { //move 2 folder to /row_x_traitSource/here
-                    print_r($paths); 
+                if($task == 'generate trait reports') { //copy 2 folders to /rowNum_resourceID/
                     /*Array(
                     [0] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/26781a84311d6d09f25971b21516b796/
                     [1] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/bf64239ace12e4bd48f16387713bc309/
-                    )
-                    mv ~/Downloads/MyFile.txt ~/Documents/Work/MyFile.txt
-                    */
-                    if($paths) {
+                    )*/
+                    if($paths) { print_r($paths);
                         $real_row = $i - 1; echo "\nrow: $real_row\n";
                         $destination = $real_row."_".$rec['r.resource_id'];
                         $destination = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$destination;
                         if(!is_dir($destination)) mkdir($destination);
-                        else {
+                        else { //delete and re-create the destination folder
                             /* stripos search is used just to be sure you can safely remove that folder */
                             if(stripos($destination, "/reports/cypher/") !== false) recursive_rmdir($destination); //string is found
                             mkdir($destination);
@@ -954,11 +951,8 @@ class WikiDataMtceAPI
                         foreach($paths as $path) {
                             $path = substr($path, 0, -1);
                             $cmd = "cp -R $path $destination"; //worked OK
-                            // $cmd = "mv $path $destination"; //
-                            $cmd .= " 2>&1";
-                            echo "\n[$cmd]\n";
-                            $out = shell_exec($cmd);
-                            // echo "\n[$out]\n"; //displays nothing
+                            $cmd .= " 2>&1"; // echo "\n[$cmd]\n";
+                            shell_exec($cmd);
                             self::delete_folder_contents($path."/", array("inferred_trait_qry.tsv", "trait_qry.tsv"));
                         }    
                     }
@@ -983,9 +977,9 @@ class WikiDataMtceAPI
         // /* good way to run 1 resource for investigation
         // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //row 1
         // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //row 2
-        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3
+        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3                        still caching...
         // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_1885') return; //row 4
-        // if($rec['trait.source'] != 'https://www.delta-intkey.com/britin/lep/www/endromid.htm') return; //row 5
+        // if($rec['trait.source'] != 'https://www.delta-intkey.com/britin/lep/www/endromid.htm') return; //row 5       will be ignored...
         if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_3929') return; //row 6
         
         // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //316001 traits
@@ -1161,8 +1155,6 @@ class WikiDataMtceAPI
                 exit("\nelix1\n");
             }
         }
-
-
     }
     private function delete_folder_contents($path, $exemptions)
     {
