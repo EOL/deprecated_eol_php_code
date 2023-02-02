@@ -954,7 +954,7 @@ class WikiDataMtceAPI
                 // /*
                 $real_row = $i - 1;
                 // if(!in_array($real_row, array(1,2,4,6,7,8,9,10))) continue; //dev only
-                // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas
+                // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas   | row 5 ignore deltakey
                 if(!in_array($real_row, array(1,2,4))) continue; //dev only
                 echo "\nrow: $real_row\n";
                 // */
@@ -1116,7 +1116,7 @@ class WikiDataMtceAPI
         [how] => identifier-map
         )*/
         if(preg_match("/wikidata.org\/entity\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) return $arr[1];                   //is WikiData entity
-        if(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) return $arr[1];                     //is WikiData entity
+        elseif(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) return $arr[1];                     //is WikiData entity
         elseif(stripos($rec['t.source'], "/doi.org/") !== false) { //string is found    //https://doi.org/10.1002/ajpa.20957    //is DOI
             if($val = self::get_WD_entityID_for_DOI($rec['t.source'])) return $val;
             else { //has DOI no WikiData yet
@@ -1186,6 +1186,7 @@ class WikiDataMtceAPI
         $t_citation = $rec['trait.citation'];
 
         if(preg_match("/wikidata.org\/entity\/(.*?)elix/ims", $t_source."elix", $arr)) return $arr[1];                   //is WikiData entity
+        elseif(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $t_source."elix", $arr)) return $arr[1];                 //is WikiData entity
         elseif(stripos($t_source, "/doi.org/") !== false) { //string is found    //https://doi.org/10.1002/ajpa.20957    //is DOI
             if($val = self::get_WD_entityID_for_DOI($t_source)) return $val;
             else { //has DOI no WikiData yet
