@@ -886,7 +886,9 @@ class WikiDataMtceAPI
                 */
 
                 // if($batch_num == 1200) exit;
-                $WRITE = Functions::file_open($this->tmp_batch_export, "w"); //initialize again                
+                $WRITE = Functions::file_open($this->tmp_batch_export, "w"); //initialize again
+
+                // break; //just the first 3 rows //debug only
             }
         }
         fclose($WRITE);
@@ -951,11 +953,11 @@ class WikiDataMtceAPI
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
                 $rec = array_map('trim', $rec); //important step
 
-                // /*
+                // /* takbo
                 $real_row = $i - 1;
                 // if(!in_array($real_row, array(1,2,4,6,7,8,9,10))) continue; //dev only
                 // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas   | row 5 ignore deltakey
-                if(!in_array($real_row, array(1,2,4))) continue; //dev only
+                if(!in_array($real_row, array(2,4))) continue; //dev only
                 echo "\nrow: $real_row\n";
                 // */
 
@@ -990,7 +992,7 @@ class WikiDataMtceAPI
                             $cmd = "cp -R $path $destination"; //worked OK
                             $cmd .= " 2>&1"; // echo "\n[$cmd]\n";
                             shell_exec($cmd);
-                            self::delete_folder_contents($path."/", array("inferred_trait_qry.tsv", "trait_qry.tsv"));
+                            self::delete_folder_contents($path."/", array("inferred_trait_qry.tsv", "trait_qry.tsv", "export_file.qs"));
                         }    
                     }
                 }
