@@ -158,7 +158,7 @@ class WikiDataMtceAPI
                 // else continue;
                 // if($i >= 100000 && $i <= 150000) {}      //403648 running...
                 // else continue;
-                // if($i >= 150000 && $i <= 200000) {}      //403648 running...
+                // if($i >= 178900 && $i <= 200000) {}      //403648 running...
                 // else continue;
                 // if($i >= 200000 && $i <= 250000) {}      //403648 running...
                 // else continue;
@@ -631,10 +631,11 @@ class WikiDataMtceAPI
         elseif($what == 'title') {
             if($val = @$obj[0]->title[0]) return $val;
             else {
-                echo "\n-----------------------\n";
-                print_r($obj); echo "\ncitation:[$citation]\ntitle:[$what]\n";
+                echo "\n---------- no title -------------\n";
+                // print_r($obj); 
+                echo "\ncitation:[$citation]\ntitle:[$what]\n";
+                echo "\n---------- end -------------\n";
                 return "-no title-";
-                exit("\nwill see\n-----------------------\n");
             }
         }
         echo ("\n-end muna-\n");
@@ -978,7 +979,7 @@ class WikiDataMtceAPI
                 $real_row = $i - 1;
                 // if(!in_array($real_row, array(1,2,4,6,7,8,9,10))) continue; //dev only
                 // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas   | row 5 ignore deltakey
-                if(!in_array($real_row, array(6,7,8,9,10))) continue; //dev only
+                if(!in_array($real_row, array(12,13,14,15,16,17,18,19,20))) continue; //dev only
                 echo "\nrow: $real_row\n";
                 // */
 
@@ -1088,7 +1089,7 @@ class WikiDataMtceAPI
             if($task == 'generate trait reports') self::create_WD_traits($input);
             elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
         }
-        else exit("\n[$file1]\nNo query results yet: ".$input['trait kind']."\n");
+        else echo "\n[$file1]\nNo query results yet: ".$input['trait kind']."\n";
 
         // /* un-comment in real operation
         $input["trait kind"] = "inferred_trait";
@@ -1096,7 +1097,7 @@ class WikiDataMtceAPI
             if($task == 'generate trait reports') self::create_WD_traits($input);
             elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
         }
-        else exit("\n[$file2]\nNo query results yet: ".$input['trait kind']."\n");
+        else echo "\n[$file2]\nNo query results yet: ".$input['trait kind']."\n";
         // */
 
         // $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
