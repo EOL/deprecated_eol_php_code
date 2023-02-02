@@ -152,17 +152,19 @@ class WikiDataMtceAPI
             if($i == 1) $fields = explode("\t", $row);
             else {
                 
-                // if($i >= 18050 && $i <= 50000) {}      //315501 running... caching
+                // if($i >= 18050 && $i <= 50000) {}        //403648 running... caching
                 // else continue;
-                // if($i >= 50000 && $i <= 100000) {}      //315501 running...
+                // if($i >= 50000 && $i <= 100000) {}       //403648 running...
                 // else continue;
-                // if($i >= 100000 && $i <= 150000) {}      //315501 running...
+                // if($i >= 100000 && $i <= 150000) {}      //403648 running...
                 // else continue;
-                // if($i >= 150000 && $i <= 200000) {}      //315501 running...
+                // if($i >= 150000 && $i <= 200000) {}      //403648 running...
                 // else continue;
-                // if($i >= 200000 && $i <= 250000) {}      //315501 running...
+                // if($i >= 200000 && $i <= 250000) {}      //403648 running...
                 // else continue;
-                // if($i >= 250000 && $i <= 300000) {}      //315501 running...
+                // if($i >= 250000 && $i <= 300000) {}      //403648 running...
+                // else continue;
+                // if($i >= 300000) {}                      //403648 running...
                 // else continue;
 
 
@@ -953,12 +955,13 @@ class WikiDataMtceAPI
                 $real_row = $i - 1;
                 // if(!in_array($real_row, array(1,2,4,6,7,8,9,10))) continue; //dev only
                 // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas
-                if(!in_array($real_row, array(6,7,8))) continue; //dev only
+                if(!in_array($real_row, array(1,2,4))) continue; //dev only
                 echo "\nrow: $real_row\n";
                 // */
 
                 $paths = self::run_resource_traits($rec, $task);
 
+                /*############################### START #####################################*/ //to do: can move to its own function
                 if($task == 'generate trait reports') { //copy 2 folders to /rowNum_resourceID/
                     /*Array(
                     [0] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/26781a84311d6d09f25971b21516b796/
@@ -968,7 +971,6 @@ class WikiDataMtceAPI
                     inferred_trait path: [/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/da23f9319bb205e88bcdeab285f494d7/]
                     )*/
                     if($paths) { print_r($paths);
-
                         // https://doi.org/10.1007/978-1-4020-6359-6_3929
                         // http://doi.org/10.1098/rspb.2011.0134
                         $source = str_ireplace("https://", "", $rec['trait.source']);
@@ -976,8 +978,7 @@ class WikiDataMtceAPI
                         $source = str_ireplace("/", "_", $source);
                         
                         $destination = $real_row."_".$rec['r.resource_id']."_".$source;
-                        $destination = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$destination;
-                        // exit("\ndestination: [$destination\n");
+                        $destination = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$destination; // exit("\ndestination: [$destination\n");
                         if(!is_dir($destination)) mkdir($destination);
                         else { //delete and re-create the destination folder
                             /* stripos search is used just to be sure you can safely remove that folder */
@@ -992,9 +993,8 @@ class WikiDataMtceAPI
                             self::delete_folder_contents($path."/", array("inferred_trait_qry.tsv", "trait_qry.tsv"));
                         }    
                     }
-
-
                 }
+                /*############################### END #####################################*/
                 // break; //process just first record
                 // if($i >= 3) break; //debug only
             }
@@ -1008,17 +1008,18 @@ class WikiDataMtceAPI
             [trait.citation] => McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867
         )*/
         // print_r($rec); exit;
-        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran. Our very first.
+        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran. Our very first. Done QuickStatements OK
 
         // /* good way to run 1 resource for investigation
         // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //row 1                     ready for QuickStatements           
-        // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //row 2
-        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3                        ready to run
-        // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_1885') return; //row 4
+        // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //row 2                                ready for QuickStatements
+        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3                        running...
+        // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_1885') return; //row 4                 ready for QuickStatements
         // if($rec['trait.source'] != 'https://www.delta-intkey.com/britin/lep/www/endromid.htm') return; //row 5       will be ignored...
-        // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_3929') return; //row 6
+
+        // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_3929') return; //row 6 and 7,8,9,10    will fix latest review...
         
-        // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //316001 traits
+        // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //403648 traits     caching 7 connectors
         // */
 
         /* during dev only
@@ -1060,7 +1061,7 @@ class WikiDataMtceAPI
         $input["trait kind"] = "trait";
         if(file_exists($file1)) {
             if($task == 'generate trait reports') self::create_WD_traits($input);
-            // elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
+            elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
         }
         else exit("\n[$file1]\nNo query results yet: ".$input['trait kind']."\n");
 
@@ -1068,7 +1069,7 @@ class WikiDataMtceAPI
         $input["trait kind"] = "inferred_trait";
         if(file_exists($file2)) {
             if($task == 'generate trait reports') self::create_WD_traits($input);
-            // elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
+            elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
         }
         else exit("\n[$file2]\nNo query results yet: ".$input['trait kind']."\n");
         // */
