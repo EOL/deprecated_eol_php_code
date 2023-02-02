@@ -1009,6 +1009,8 @@ class WikiDataMtceAPI
         )*/
         // print_r($rec); exit;
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //already ran. Our very first. Done QuickStatements OK
+        if($rec['trait.source'] == 'https://www.wikidata.org/wiki/Q116180473') return; //already ran. Our very first. Done QuickStatements OK
+        
 
         // /* good way to run 1 resource for investigation
         // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //row 1                     ready for QuickStatements           
@@ -1028,6 +1030,7 @@ class WikiDataMtceAPI
 
         print_r($rec); //exit;
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE;
+        elseif($rec['trait.source'] == 'https://www.wikidata.org/wiki/Q116180473') $use_citation = TRUE;
         else $use_citation = FALSE; //the rest goes here.
         
         if($use_citation) {
@@ -1116,7 +1119,7 @@ class WikiDataMtceAPI
         [how] => identifier-map
         )*/
         if(preg_match("/wikidata.org\/entity\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) return $arr[1];                   //is WikiData entity
-        elseif(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) return $arr[1];                     //is WikiData entity
+        elseif(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) return $arr[1];                 //is WikiData entity
         elseif(stripos($rec['t.source'], "/doi.org/") !== false) { //string is found    //https://doi.org/10.1002/ajpa.20957    //is DOI
             if($val = self::get_WD_entityID_for_DOI($rec['t.source'])) return $val;
             else { //has DOI no WikiData yet
