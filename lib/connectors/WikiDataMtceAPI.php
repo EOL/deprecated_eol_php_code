@@ -217,6 +217,20 @@ class WikiDataMtceAPI
             [ref.literal] => 
         )*/
         // print_r($rec); exit("\nstop 1\n");
+
+        /* Generally just exclude these taxa:
+        Also, please remove the records for the following taxon. It is mismapped on EOL, and the taxon we want is not in WikiData. We could create it, but I can't find a good external reference for it, so I think it's best to skip it for now.
+        Angolania mira 46777128 Rudebeckia mira Q2095315 species of insect identifier-map
+        */
+        $text_file = $this->report_not_taxon_or_no_wikidata;
+        if(in_array($rec['p.page_id'], array(46777128))) {
+            $str = implode("\t", array($rec['p.canonical'], $rec['p.page_id'], "***"));
+            self::write_2text_file($text_file, $str); //."excluded record***"
+            return;
+        }
+
+
+
         if($ret = self::get_wikidata_obj_using_EOL_pageID($rec['p.page_id'], $rec['p.canonical'])) { //1st option
             $entity_id = $ret[0];
             $wikidata_obj = $ret[1];
@@ -228,7 +242,6 @@ class WikiDataMtceAPI
             // print_r($wikidata_obj); exit("\nelix3\n");
         }
         else {
-            $text_file = $this->report_not_taxon_or_no_wikidata;
             if($ret = @$this->taxonMap_all[$rec['p.page_id']]) {
                 // print_r($rec); print_r($ret); exit("\nhuli ka\n");
                 $rec['p.canonical'] = $ret['c'];
@@ -322,7 +335,7 @@ class WikiDataMtceAPI
             }
         }
         else echo "\nNot a taxon: [".$rec['p.canonical']."]\n";
-        // print_r($final);
+        // print_r($final); return;
     }
     function create_citation_if_does_not_exist($citation, $t_source)
     {
@@ -788,6 +801,14 @@ class WikiDataMtceAPI
         elseif($page_id == 36073 && $canonical == "Rumea") return self::fix_further($page_id, $canonical, "Q13985115");
         elseif($page_id == 605108 && $canonical == "Laranda annulata") return self::fix_further($page_id, $canonical, "Q116520562");
         
+        /* start 4th
+        Hi Eli, Here are the corrections for this batch:
+        EOL name pageID WikiData name ID Description Mapped newID */
+        elseif($page_id == 8110438 && $canonical == "Anchieta") return self::fix_further($page_id, $canonical, "Q17378097");
+        elseif($page_id == 4129498 && $canonical == "Acmonotus") return self::fix_further($page_id, $canonical, "Q116590983");
+        elseif($page_id == 610427 && $canonical == "Conocephalus borneensis") return self::fix_further($page_id, $canonical, "Q10458337");
+        elseif($page_id == 46941980 && $canonical == "Conocephalus dubius") return self::fix_further($page_id, $canonical, "Q10458358");
+        elseif($page_id == 8110538 && $canonical == "Nivella") return self::fix_further($page_id, $canonical, "Q18116894");
         
         else { //orig
             if($ret = @$this->taxonMap[$page_id]) {
@@ -957,7 +978,7 @@ class WikiDataMtceAPI
                 $real_row = $i - 1;
                 // if(!in_array($real_row, array(1,2,4,6,7,8,9,10))) continue; //dev only
                 // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas   | row 5 ignore deltakey
-                if(!in_array($real_row, array(2,4))) continue; //dev only
+                if(!in_array($real_row, array(6,7,8,9,10))) continue; //dev only
                 echo "\nrow: $real_row\n";
                 // */
 
@@ -1049,7 +1070,6 @@ class WikiDataMtceAPI
             $input["type"] = "wikidata_base_qry_source";
             $input["per_page"] = 500; // 500 finished ok
         }
-
 
         $input["trait kind"] = "trait";
         $path1 = self::generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path1]\n";
