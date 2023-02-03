@@ -10,10 +10,10 @@ elseif($_POST) {
     /*
     if($username != 'nmnh_fishes') echo "\nWrong Username\n";
     if($password != 'fishes2020') echo "\nWrong Password\n";
-    if($password != 'fishes2020' || $username != 'nmnh_fishes') exit("\n<a href='index.php'>Try again</a>\n");
+    if($password != 'fishes2020' || $username != 'nmnh_fishes') exit("\n<a href='main.php'>Try again</a>\n");
     */
-    // if(!in_array(strtolower($username), array('nmnh_fishes', 'smithsonian_marinegeo', 'sercfisheries'))) exit("\n<a href='index.php'>Un-authorized username. Try again</a>\n");
-    if(!in_array(strtolower($username), array('eagbayani', 'smithsonian_marinegeo', 'hakaiinstitute', '@mare-madeira', 'mare-madeira'))) exit("\n<a href='index.php'>Un-authorized username. Try again</a>\n");
+    // if(!in_array(strtolower($username), array('nmnh_fishes', 'smithsonian_marinegeo', 'sercfisheries'))) exit("\n<a href='main.php'>Un-authorized username. Try again</a>\n");
+    if(!in_array(strtolower($username), array('eagbayani', 'smithsonian_marinegeo', 'hakaiinstitute', '@mare-madeira', 'mare-madeira'))) exit("\n<a href='main.php'>Un-authorized username. Try again</a>\n");
 }
 
 // if(!isset($auth_code)) {
@@ -68,13 +68,13 @@ if($ret = curl_post_request($url, $arr)) {
      "scope":"write login",
      "created_at":1575989930}
      
-    <form name='fn' action="http://localhost/eol_php_code/applications/BOLD2iNAT_csv/index.php" method="post">
-    <form name='fn' action="https://editors.eol.org/eol_php_code/applications/BOLD2iNAT_csv/index.php" method="post">
+    <form name='fn' action="http://localhost/eol_php_code/applications/BOLD2iNAT_csv/main.php" method="post">
+    <form name='fn' action="https://editors.eol.org/eol_php_code/applications/BOLD2iNAT_csv/main.php" method="post">
     */
 
     ?>
     Please wait, loading ...
-    <form name='fn' action="https://editors.eol.org/eol_php_code/applications/BOLD2iNAT_csv/index.php" method="post">
+    <form name='fn' action="https://editors.eol.org/eol_php_code/applications/BOLD2iNAT_csv/main.php" method="post">
       <input type='hidden' name='inat_response' value='<?php echo $ret ?>'>
       <!--- <input type='submit'> --->
     </form>

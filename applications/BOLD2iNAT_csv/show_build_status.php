@@ -1,7 +1,7 @@
 <?php
 $job_name = 'xls2dwca_job';
 $postfix = "_xls2dwca";
-$str = "Copy 'Build status' and send to <i>eagbayani@eol.org</i>. &nbsp; <a href='index.php'>&lt;&lt; Back to main</a>";
+$str = "Copy 'Build status' and send to <i>eagbayani@eol.org</i>. &nbsp; <a href='main.php'>&lt;&lt; Back to main</a>";
 // the $build_status should come from the status for uuid in question not just the currently last_build
 $build_status = $ctrler->get_last_build_console_text($task, $params['uuid'].$postfix);
 if($ctrler->did_build_fail($build_status)) {
@@ -62,7 +62,7 @@ Array
             // print_r($params);
             echo "Process done.<br><br>
                 <a href='../../../other_files/KatieO_CSV/summary/".$params['Proj_and_Taxon'].".tsv'>See summary report.</a><br><br>
-                <a href='index.php'>Back to menu</a>";
+                <a href='main.php'>Back to menu</a>";
             echo "<br>=======================================================<br><br>";
         }
         else {
@@ -83,6 +83,6 @@ else {
     else echo "<hr><b>Build status:</b><pre>Preparing files...</pre><hr>";
 }
 if($build_status) {
-    if($ctrler->is_build_aborted($build_status)) echo "<p>Process aborted. &nbsp; <a href='index.php'>&lt;&lt; Back to main</a>";
+    if($ctrler->is_build_aborted($build_status)) echo "<p>Process aborted. &nbsp; <a href='main.php'>&lt;&lt; Back to main</a>";
 }
 ?>
