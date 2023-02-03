@@ -276,11 +276,12 @@ class CypherQueryAPI
                 $rec = array_map('trim', $rec); //important step
                 // print_r($rec); exit;
 
-                /* good way to run 1 resource for investigation
+                // /* good way to run 1 resource for investigation
                 // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') continue; //1st group
                 // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') continue; //2nd group
-                if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') continue; //3rd group
-                */
+                // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') continue; //3rd group
+                // if($rec['trait.source'] != 'https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2') continue; //row 12
+                // */
 
                 self::run_resource_query($rec);
                 // break; //process just first record
