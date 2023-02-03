@@ -281,6 +281,7 @@ class CypherQueryAPI
                 // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') continue; //2nd group
                 // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') continue; //3rd group
                 // if($rec['trait.source'] != 'https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2') continue; //row 12
+                // if($rec['trait.source'] != 'https://doi.org/10.1007/s00049-005-0325-5') continue; //row 18
                 // */
 
                 self::run_resource_query($rec);
