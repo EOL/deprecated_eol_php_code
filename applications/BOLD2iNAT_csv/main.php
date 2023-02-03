@@ -72,7 +72,10 @@ else {
             <td>
                 <table align='center'>
                 <tr align="center">
-                    <td width="50%" bgcolor='blue'><img src='https://marinegeo.si.edu/sites/all/themes/si_marinegeo/logo.png' height='40'></td>
+                    <!--- old logo
+                    https://marinegeo.si.edu/sites/all/themes/si_marinegeo/logo.png
+                    --->
+                    <td width="50%" bgcolor='blue'><img src='https://marinegeo.si.edu/sites/default/files/images/marineGEO-logo.png' height='40'></td>
                     <td width="50%"><img src='https://static.inaturalist.org/sites/1-logo.svg?1573071870' height='25'></td>
                 </tr>
                 <tr align="center">
