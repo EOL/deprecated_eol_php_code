@@ -253,10 +253,21 @@ $input["trait kind"] = "inferred_trait";
 $func->query_trait_db($input);
 */
 
-// /* run all resources
+/* run all resources
+exit("\npnas is running...\n");
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $func->run_all_resources($spreadsheet);
+*/
+
+// /* ancestry query
+$id = "Q3282257";
+// $id = "Q199788"; //Gadus morhua
+$arr = $func->get_ancestry_of_taxon($id);
+$arr = array_reverse($arr);
+print_r($arr);
+exit("\n-end-\n");
 // */
+
 
 /*
 Saved OK [/Volumes/Crucial_2TB/eol_cache/cypher_query/b7/17/b7172623b0095c0271e738f4eebc6fbc.json]
