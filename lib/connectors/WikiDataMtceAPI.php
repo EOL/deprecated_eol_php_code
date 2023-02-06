@@ -152,10 +152,16 @@ class WikiDataMtceAPI
             if($i == 1) $fields = explode("\t", $row);
             else {
 
-                /* caching only
-                if($i >= 343395 && $i <= 345000) {}      //403648 running... caching...
+                // /* caching only
+                
+                if($i >= 129281 && $i <= 135000) {}      //198187 running... caching... fpnas
                 else continue;
-                */
+
+                // if($i >= 135000 && $i <= 140000) {}      //198187 running... caching... fpnas
+                // else continue;
+                // if($i >= 140000 && $i <= 150000) {}      //198187 running... caching... fpnas
+                // else continue;
+                // */
 
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
@@ -899,7 +905,7 @@ class WikiDataMtceAPI
             elseif($what == 'label') return @$obj->entities->$wikidata_id->labels->en->value;
             else exit("\nERROR: Specify return item.\n");
         }
-        else exist("\nShould not go here.\n");
+        else exit("\nShould not go here.\n");
     }
     function divide_exportfile_send_2quickstatements($input)
     {
@@ -1070,13 +1076,13 @@ class WikiDataMtceAPI
         // /* good way to run 1 resource for investigation
         // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //row 1                     QuickStatements done           
         // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //row 2                                QuickStatements done
-        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3                        running...
+        if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3                        running...
         // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_1885') return; //row 4                 QuickStatements done
         // if($rec['trait.source'] != 'https://www.delta-intkey.com/britin/lep/www/endromid.htm') return; //row 5       will be ignored...
 
         // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_3929') return; //row 6 and 7,8,9,10    QuickStatements DONE...
         
-        if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //403648 traits     caching 7 connectors
+        // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //403648 traits     caching 7 connectors
         // */
 
         /* during dev only
