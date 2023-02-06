@@ -151,24 +151,11 @@ class WikiDataMtceAPI
             // $row = Functions::conv_to_utf8($row);
             if($i == 1) $fields = explode("\t", $row);
             else {
-                
-                // if($i >= 18050 && $i <= 50000) {}        //403648 running... caching DONE
-                // else continue;
-                // if($i >= 50000 && $i <= 100000) {}       //403648 running...
-                // else continue;
-                // if($i >= 100000 && $i <= 150000) {}      //403648 running...
-                // else continue;
-                // if($i >= 178900 && $i <= 200000) {}      //403648 running...
-                // else continue;
-                // if($i >= 200000 && $i <= 250000) {}      //403648 running...
-                // else continue;
-                // if($i >= 250000 && $i <= 300000) {}      //403648 running...
-                // else continue;
-                // if($i >= 300000 && $i <= 350000) {}      //403648 running...
-                // else continue;
-                // if($i >= 350000 && $i <= 375000) {}      //403648 running...
-                // else continue;
 
+                /* caching only
+                if($i >= 343395 && $i <= 345000) {}      //403648 running... caching...
+                else continue;
+                */
 
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
@@ -223,15 +210,17 @@ class WikiDataMtceAPI
         /* Generally just exclude these taxa:
         Also, please remove the records for the following taxon. It is mismapped on EOL, and the taxon we want is not in WikiData. We could create it, but I can't find a good external reference for it, so I think it's best to skip it for now.
         Angolania mira 46777128 Rudebeckia mira Q2095315 species of insect identifier-map
+
+        Also, please discard the data records for the following taxa. These WikiData nodes are mismapped on EOL, and the correct taxa are not in WikiData.
+        Pacifica 44068029 Tarenna subg. Pacifica Q93182914 identifier-map
+        Vesta 4220900 Vesta Q95742196 identifier-map 
         */
         $text_file = $this->report_not_taxon_or_no_wikidata;
-        if(in_array($rec['p.page_id'], array(46777128))) {
+        if(in_array($rec['p.page_id'], array(46777128, 44068029, 4220900))) {
             $str = implode("\t", array($rec['p.canonical'], $rec['p.page_id'], "***"));
             self::write_2text_file($text_file, $str); //."excluded record***"
             return;
         }
-
-
 
         if($ret = self::get_wikidata_obj_using_EOL_pageID($rec['p.page_id'], $rec['p.canonical'])) { //1st option
             $entity_id = $ret[0];
@@ -813,6 +802,19 @@ class WikiDataMtceAPI
         elseif($page_id == 46941980 && $canonical == "Conocephalus dubius") return self::fix_further($page_id, $canonical, "Q10458358");
         elseif($page_id == 8110538 && $canonical == "Nivella") return self::fix_further($page_id, $canonical, "Q18116894");
         
+        // /* start 5th
+        // Here are the corrections for this sample:
+        // EOL name pageID WikiData name ID Description Mapped new ID
+        elseif($page_id == 63424 && $canonical == "Aptera") return self::fix_further($page_id, $canonical, "Q10416319");
+        elseif($page_id == 106546 && $canonical == "Moluchia") return self::fix_further($page_id, $canonical, "Q10587867");
+        elseif($page_id == 13289391 && $canonical == "Cladodes") return self::fix_further($page_id, $canonical, "Q10748947");
+        elseif($page_id == 63535 && $canonical == "Chorisia") return self::fix_further($page_id, $canonical, "Q116653554");
+        elseif($page_id == 613523) return self::fix_further($page_id, $canonical, "Q11842489");
+        elseif($page_id == 106616) return self::fix_further($page_id, $canonical, "Q18117252");
+        elseif($page_id == 47113898) return self::fix_further($page_id, $canonical, "Q2899669");
+        elseif($page_id == 63415) return self::fix_further($page_id, $canonical, "Q3014241");        
+        // */
+
         else { //orig
             if($ret = @$this->taxonMap[$page_id]) {
                 /* never use this since p.canonical in query sometimes really is blank. And identifier-map can do the connection.
@@ -821,7 +823,32 @@ class WikiDataMtceAPI
                 }
                 else exit("\nInvestigate not equal: [$canonical] [".$ret['c']."]\n");
                 */
+
+                /* use to refresh WikiData desc, etc.
+                --- Also, for the following, your mappings are fine, but I had to fix the wikidata parent relationships. Although the descriptions say "species of orthopterans," they were actually attached to a crustacean parent:
+                Arachnomimus nietneri 605124 Arachnopsis nietneri Q63249464 species of orthopterans identifier-map 
+                Arachnopsita cavicola 605061 Arachnopsis cavicola Q63249466 species of orthopterans identifier-map
+
+                --- The following mappings are fine now, but I had to fix things on WikiData:
+                Acmonotus incusifer 8110730 Acmonotus incusifer Q2780863 species of insect identifier-map fixed parent on WikiData
+                Nigrimacula xizangensis 46942518 Nigrimacula xizangensis Q98515360 species of fungus name search thru identifier-map fixed description on WikiData
+
+                --- Furthermore, I fixed the WikiData parent relationships and/or descriptions for the following taxa. Their mappings are now fine:
+                Biolleya alaris 1075434 Biolleya alaris Q10429764 species of mantises identifier-map
+                Chorisia reducta 1074475 Chorisia reducta Q10450998 species of insect identifier-map
+                Pseudoplatia 106725 Pseudoplatia Q14192681 genus of insects identifier-map
+                Pseudoplatia atra 1076363 Pseudoplatia atra Q10644039 species of insect identifier-map
+                Glyptotermes satsumensis 12027215 Glyptotermes satsumensis Q114661130 species of insect name search thru identifier-map
+                Reticulitermes flaviceps 12027027 Reticulitermes flaviceps Q114661162 species of insect name search thru identifier-map
+                Periaciculitermes 46938881 Periaciculitermes Q113480781 genus of insects name search thru identifier-map
+                Acanthotermes 3837089 Acanthotermes Q114797700 genus of insect name search thru identifier-map
+                Nasutitermes parvonasutus 12027274 Nasutitermes parvonasutus Q114661268 species of insect name search thru identifier-map
+                Biolleya 106650 Biolleya Q18117214 genus of mantises identifier-map */
+                if(in_array($page_id, array(605124,605061,8110730,46942518,1075434,1074475,106725,1076363,12027215,12027027,
+                    46938881,3837089,12027274,106650))) $this->download_options['expire_seconds'] = true;
+
                 if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
+                $this->download_options['expire_seconds'] = false;
             }    
         }
     }
@@ -872,7 +899,7 @@ class WikiDataMtceAPI
             elseif($what == 'label') return @$obj->entities->$wikidata_id->labels->en->value;
             else exit("\nERROR: Specify return item.\n");
         }
-        else echo "\nShould not go here.\n";
+        else exist("\nShould not go here.\n");
     }
     function divide_exportfile_send_2quickstatements($input)
     {
@@ -979,10 +1006,10 @@ class WikiDataMtceAPI
 
                 // /* takbo
                 $real_row = $i - 1;
-                if(in_array($real_row, array(1,2,4,5,11))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
+                if(in_array($real_row, array(1,2,4,5,11,6,7,8,9,10))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
 
                 // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas   | 
-                // if(!in_array($real_row, array(6,7,8,9,10))) continue; //dev only - currently running QuickStatements
+                // if(!in_array($real_row, array(6,7,8,9,10))) continue; //dev only - QuickStatements done
                 // if(!in_array($real_row, array(12,13,14,15,16,17,18,19,20))) continue; //dev only
                 echo "\nrow: $real_row\n";
                 // */
@@ -1047,9 +1074,9 @@ class WikiDataMtceAPI
         // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_1885') return; //row 4                 QuickStatements done
         // if($rec['trait.source'] != 'https://www.delta-intkey.com/britin/lep/www/endromid.htm') return; //row 5       will be ignored...
 
-        // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_3929') return; //row 6 and 7,8,9,10    ready for QuickStatements...
+        // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_3929') return; //row 6 and 7,8,9,10    QuickStatements DONE...
         
-        // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //403648 traits     caching 7 connectors
+        if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //403648 traits     caching 7 connectors
         // */
 
         /* during dev only
