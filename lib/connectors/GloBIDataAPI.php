@@ -808,6 +808,12 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 $taxonRank = $rec['http://rs.tdwg.org/dwc/terms/taxonRank'];
                 if(in_array($taxonRank, $this->excluded_ranks)) $this->exclude_taxonIDs[$taxonID] = '';
                 // */
+
+                // /* New per Jen: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=67316&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67316
+                $scientificName = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+                if(stripos($scientificName, "http:") !== false) $this->exclude_taxonIDs[$taxonID] = ''; //string is found
+                if(stripos($scientificName, "https:") !== false) $this->exclude_taxonIDs[$taxonID] = ''; //string is found
+                // */
             }
             elseif($what == 'create extension') { //process_taxon()
                 if(isset($this->taxonIDhasOccurrence[$taxonID])) {
