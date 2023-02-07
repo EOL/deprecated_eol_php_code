@@ -152,16 +152,14 @@ class WikiDataMtceAPI
             if($i == 1) $fields = explode("\t", $row);
             else {
 
-                // /* caching only
-                
-                if($i >= 129281 && $i <= 135000) {}      //198187 running... caching... fpnas
-                else continue;
-
+                /* caching only
+                // if($i >= 129281 && $i <= 135000) {}      //198187 running... caching... fpnas
+                // else continue;
                 // if($i >= 135000 && $i <= 140000) {}      //198187 running... caching... fpnas
                 // else continue;
                 // if($i >= 140000 && $i <= 150000) {}      //198187 running... caching... fpnas
                 // else continue;
-                // */
+                */
 
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
