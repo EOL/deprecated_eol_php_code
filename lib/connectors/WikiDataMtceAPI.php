@@ -1014,12 +1014,15 @@ class WikiDataMtceAPI
                 $real_row = $i - 1;
                 if(in_array($real_row, array(1,2,4,5,11,6,7,8,9,10))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
 
-                // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas   | 
+                // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
                 // if(!in_array($real_row, array(6,7,8,9,10))) continue; //dev only - QuickStatements done
                 // if(!in_array($real_row, array(12,13,14,15,16,17,18,19,20))) continue; //dev only
                 
                 // if(!in_array($real_row, array(13))) continue; //dev only
                 // if(!in_array($real_row, array(14,15,16,17,18,19,20))) continue; //dev only
+                if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only
+                // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
+
 
                 echo "\nrow: $real_row\n";
                 // */
@@ -1077,17 +1080,15 @@ class WikiDataMtceAPI
         if($rec['trait.source'] == 'https://www.wikidata.org/wiki/Q116180473') return; //already ran. Our very first. Done QuickStatements OK
         
 
-        // /* good way to run 1 resource for investigation
+        /* good way to run 1 resource for investigation
         // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //row 1                     QuickStatements done           
         // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //row 2                                QuickStatements done
-        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3                        running...
+        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3                        running... fpnas 198187
         // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_1885') return; //row 4                 QuickStatements done
         // if($rec['trait.source'] != 'https://www.delta-intkey.com/britin/lep/www/endromid.htm') return; //row 5       will be ignored...
-
         // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_3929') return; //row 6 and 7,8,9,10    QuickStatements DONE...
-        
         // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //403648 traits     caching 7 connectors
-        // */
+        */
 
         /* during dev only
         if($rec['trait.source'] == 'https://doi.org/10.1073/pnas.1907847116') return; //exclude
