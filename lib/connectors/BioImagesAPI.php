@@ -47,7 +47,7 @@ class BioImagesAPI
 
     function get_all_taxa()
     {
-        if($temp_filepath = Functions::save_remote_file_to_local($this->data_dump_url, array('cache' => 1, 'expire_seconds' => false, 'timeout' => 4800, 'download_attempts' => 2, 'delay_in_minutes' => 3)))
+        if($temp_filepath = Functions::save_remote_file_to_local($this->data_dump_url, array('cache' => 1, 'expire_seconds' => 60*60*24*30, 'timeout' => 4800, 'download_attempts' => 2, 'delay_in_minutes' => 3)))
         {
             //start - remove bom --------------
             $contents = file_get_contents($temp_filepath);
