@@ -335,26 +335,5 @@ class CypherQueryAPI
             // */
         }
     }
-
-    function get_ancestry_of_taxon($id) //$id is taxon ID e.g. Q3282257
-    {
-        $qry = 'SELECT ?itemLabel
-        WHERE{
-            wd:'.$id.' wdt:P171* ?item
-            SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-        }';
-        $url = "https://query.wikidata.org/sparql?query=";
-        $url .= urlencode($qry);
-        if($xml = Functions::lookup_with_cache($url)) { // print("\n$json\n");
-            // print_r($xml);
-            //<literal xml:lang='en'>Gadus morhua</literal>
-            if(preg_match_all("/<literal xml\:lang=\'en\'>(.*?)<\/literal>/ims", $xml, $arr)) {
-                // print_r($arr[1]);
-                return $arr[1];
-            }
-
-        }    
-    }
-
 }
 ?>

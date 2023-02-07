@@ -97,6 +97,7 @@ class WikiDataMtceAPI
         $final[] = 'ID';
         $final[] = 'Description';
         $final[] = 'Mapped';
+        $final[] = 'Ancestry';
         $this->WRITE = Functions::file_open($this->taxonomic_mappings, "w");
         fwrite($this->WRITE, implode("\t", $final)."\n");
 
@@ -747,6 +748,7 @@ class WikiDataMtceAPI
         $final[] = $wikidata_obj->id;
         $final[] = @$wikidata_obj->display->description->value;
         $final[] = $rec['how'];
+        $final[] = self::get_pipe_delimited_ancestry($wikidata_obj->id);
         fwrite($this->WRITE, implode("\t", $final)."\n");
         // print_r($rec); print_r($wikidata_obj); print_r($final); exit;
     }
@@ -1015,6 +1017,10 @@ class WikiDataMtceAPI
                 // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas   | 
                 // if(!in_array($real_row, array(6,7,8,9,10))) continue; //dev only - QuickStatements done
                 // if(!in_array($real_row, array(12,13,14,15,16,17,18,19,20))) continue; //dev only
+                
+                // if(!in_array($real_row, array(13))) continue; //dev only
+                // if(!in_array($real_row, array(14,15,16,17,18,19,20))) continue; //dev only
+
                 echo "\nrow: $real_row\n";
                 // */
 
@@ -1074,7 +1080,7 @@ class WikiDataMtceAPI
         // /* good way to run 1 resource for investigation
         // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //row 1                     QuickStatements done           
         // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') return; //row 2                                QuickStatements done
-        if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3                        running...
+        // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') return; //row 3                        running...
         // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_1885') return; //row 4                 QuickStatements done
         // if($rec['trait.source'] != 'https://www.delta-intkey.com/britin/lep/www/endromid.htm') return; //row 5       will be ignored...
 
@@ -1267,6 +1273,36 @@ class WikiDataMtceAPI
             if(in_array($basename, $exemptions)) continue;
             if(stripos($file, "/reports/cypher/") !== false) unlink($file); //echo "\ndelete $file";
         }
+    }
+    private function get_pipe_delimited_ancestry($WD_id)
+    {
+        $str = "";
+        if(!$WD_id) return "";
+        if($arr = self::get_ancestry_of_taxon($WD_id)) {
+            $arr = array_reverse($arr);
+            $str = implode("|", $arr);
+            // print_r($arr);
+            echo "\n$str\n";    
+        }
+        return $str;
+    }
+    function get_ancestry_of_taxon($id) //$id is taxon ID e.g. Q3282257
+    {
+        $qry = 'SELECT ?itemLabel
+        WHERE{
+            wd:'.$id.' wdt:P171* ?item
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+        }';
+        $url = "https://query.wikidata.org/sparql?query=";
+        $url .= urlencode($qry);
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($xml = Functions::lookup_with_cache($url, $options)) { // print_r($xml);
+            //<literal xml:lang='en'>Gadus morhua</literal>
+            if(preg_match_all("/<literal xml\:lang=\'en\'>(.*?)<\/literal>/ims", $xml, $arr)) { // print_r($arr[1]);
+                return $arr[1];
+            }
+        }    
     }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)

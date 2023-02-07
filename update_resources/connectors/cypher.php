@@ -259,14 +259,16 @@ $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $func->run_all_resources($spreadsheet);
 */
 
-// /* ancestry query
+/* ancestry query
 $id = "Q3282257";
 // $id = "Q199788"; //Gadus morhua
 $arr = $func->get_ancestry_of_taxon($id);
 $arr = array_reverse($arr);
+$str = implode("|", $arr);
 print_r($arr);
+echo "\n$str\n";
 exit("\n-end-\n");
-// */
+*/
 
 
 /*
