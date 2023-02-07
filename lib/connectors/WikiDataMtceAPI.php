@@ -153,14 +153,18 @@ class WikiDataMtceAPI
             if($i == 1) $fields = explode("\t", $row);
             else {
 
-                /* caching only
-                // if($i >= 129281 && $i <= 135000) {}      //198187 running... caching... fpnas
+                // /* caching only
+                // if($i >= 609 && $i <= 39800) {}      //198187 running... caching... fpnas
                 // else continue;
-                // if($i >= 135000 && $i <= 140000) {}      //198187 running... caching... fpnas
+                // if($i >= 39800 && $i <= 39800*2) {}      //198187 running... caching... fpnas
                 // else continue;
-                // if($i >= 140000 && $i <= 150000) {}      //198187 running... caching... fpnas
+                // if($i >= 39800*2 && $i <= 39800*3) {}      //198187 running... caching... fpnas
                 // else continue;
-                */
+                // if($i >= 39800*3 && $i <= 39800*4) {}      //198187 running... caching... fpnas
+                // else continue;
+                if($i >= 39800*4 && $i <= 39800*5) {}      //198187 running... caching... fpnas
+                else continue;
+                // */
 
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
@@ -300,8 +304,15 @@ class WikiDataMtceAPI
                 }
             }
             
-            $title = self::parse_citation_using_anystyle($rec['t.citation'], 'title');
-            $title = self::manual_fix_title($title);
+            // /* this block prevents from running ruby all the time.
+            if($title = $this->is_the_title) {}
+            else {
+                $title = self::parse_citation_using_anystyle($rec['t.citation'], 'title'); //dito ginamit
+                $title = self::manual_fix_title($title);
+                $this->is_the_title = $title;
+            }
+            if(!$title) exit("\nShould not go here...\n");
+            // */
 
             /* when to use 'published in' ? TODO --> right now Eli did it manually e.g. 'published in' https://www.wikidata.org/wiki/Q116180473
             $final['P1433'] = self::get_WD_obj_using_string($title, 'entity_id'); //published in --- was not advised to use for now
@@ -619,6 +630,7 @@ class WikiDataMtceAPI
     }
     private function parse_citation_using_anystyle($citation, $what)
     {
+        echo("\n----------\nthis runs ruby...[$what]\n----------\n"); //comment in real operation
         $json = shell_exec($this->anystyle_parse_prog . ' "'.$citation.'"');
         $json = substr(trim($json), 1, -1); # remove first and last char
         $json = str_replace("\\", "", $json); # remove "\" from converted json from Ruby
@@ -748,7 +760,9 @@ class WikiDataMtceAPI
         $final[] = $wikidata_obj->id;
         $final[] = @$wikidata_obj->display->description->value;
         $final[] = $rec['how'];
+        // /*
         $final[] = self::get_pipe_delimited_ancestry($wikidata_obj->id);
+        // */
         fwrite($this->WRITE, implode("\t", $final)."\n");
         // print_r($rec); print_r($wikidata_obj); print_r($final); exit;
     }
@@ -1010,19 +1024,23 @@ class WikiDataMtceAPI
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
                 $rec = array_map('trim', $rec); //important step
 
+                $this->is_the_title = false;
+
                 // /* takbo
                 $real_row = $i - 1;
                 if(in_array($real_row, array(1,2,4,5,11,6,7,8,9,10))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
 
-                // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
-                // if(!in_array($real_row, array(6,7,8,9,10))) continue; //dev only - QuickStatements done
-                // if(!in_array($real_row, array(12,13,14,15,16,17,18,19,20))) continue; //dev only
-                
-                // if(!in_array($real_row, array(13))) continue; //dev only
-                // if(!in_array($real_row, array(14,15,16,17,18,19,20))) continue; //dev only
-                if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only
-                // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
+                if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
 
+                // row 12 -- needs to query by citation
+                // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only
+                
+
+                // if(!in_array($real_row, array(21,22,23))) continue; //dev only
+                // if(!in_array($real_row, array(24,25,26))) continue; //dev only
+                // if(!in_array($real_row, array(27,28,29,30))) continue; //dev only
+
+                // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
 
                 echo "\nrow: $real_row\n";
                 // */
@@ -1087,7 +1105,7 @@ class WikiDataMtceAPI
         // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_1885') return; //row 4                 QuickStatements done
         // if($rec['trait.source'] != 'https://www.delta-intkey.com/britin/lep/www/endromid.htm') return; //row 5       will be ignored...
         // if($rec['trait.source'] != 'https://doi.org/10.1007/978-1-4020-6359-6_3929') return; //row 6 and 7,8,9,10    QuickStatements DONE...
-        // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //403648 traits     caching 7 connectors
+        // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //403648 traits     7 connectors
         */
 
         /* during dev only
