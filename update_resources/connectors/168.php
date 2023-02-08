@@ -13,12 +13,18 @@ From resource_utility.php
 */
 
 /*
+These 2 images should now be for BI-taxon-118153 and not BI-taxon-127589
+BI-image-58316	BI-taxon-127589	http://purl.org/dc/dcmitype/StillImage	image/jpeg		Dorsal view	Longitude (deg): -1.2. Latitude (deg): 51.4. Longitude (deg/min): 1Â° 10' W. Latitude (deg/min): 51Â° 20' N. Vice county name: Berks. Vice county no.: 22. Country: England. Stage: Imago. Identified by: Malcolm Storey. Comment: Entered house on hot sunny day. Category: standard photograph or close-up. Photographic equipment used: Nikon D100 dSLR with Tamron SP T90 AF Macro 1:1 lens.	http://www.discoverlife.org/mp/20p?img=I_MWS60624&res=mx	http://www.bioimages.org.uk/html/../image.php?id=58316			en	Everyone	http://creativecommons.org/licenses/by-nc-sa/3.0/			fd27e41d78ff05c48d1f010deaaf3cde
+BI-image-58315	BI-taxon-127589	http://purl.org/dc/dcmitype/StillImage	image/jpeg		Ventral view	Longitude (deg): -1.2. Latitude (deg): 51.4. Longitude (deg/min): 1Â° 10' W. Latitude (deg/min): 51Â° 20' N. Vice county name: Berks. Vice county no.: 22. Country: England. Stage: Imago. Identified by: Malcolm Storey. Comment: Entered house on hot sunny day. Category: standard photograph or close-up. Photographic equipment used: Nikon D100 dSLR with Tamron SP T90 AF Macro 1:1 lens.	http://www.discoverlife.org/mp/20p?img=I_MWS60623&res=mx	http://www.bioimages.org.uk/html/../image.php?id=58315			en	Everyone	http://creativecommons.org/licenses/by-nc-sa/3.0/			fd27e41d78ff05c48d1f010deaaf3cde
+*/
+  
+/*
 ### last run April 14 2018
 ### this will generate 168.tar.gz
 #php5.6 168.php jenkins
 For now only resource_utility.php is used to update the legacy 168.tar.gz.
 */
-exit("\nLegacy connector must be updated first. Tried running it and it generated far less fewer than normal. So I stopped running it until investigated.\n");
+// exit("\nLegacy connector must be updated first. Tried running it and it generated far less fewer than normal. So I stopped running it until investigated.\n");
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/BioImagesAPI');

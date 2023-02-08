@@ -22,6 +22,7 @@ class BioImagesAPI
         else                           $this->data_dump_url = "http://localhost/eol_php_code/tmp2/Malcolm_Storey_images.txt";
 
         $this->original_resource = "http://opendata.eol.org/dataset/b0846bb0-7b81-40c7-8878-fb71f830ed17/resource/4444b435-c5e9-4d9e-b9ac-e6da8fd3fc55/download/168nov2010.xml.gz";
+        $this->original_resource = "https://opendata.eol.org/dataset/a39f10aa-409f-42cd-a0df-8a5cd225cc51/resource/3092817a-1b5c-4922-820a-a8263ea38769/download/168nov2010.xml.gz";
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
