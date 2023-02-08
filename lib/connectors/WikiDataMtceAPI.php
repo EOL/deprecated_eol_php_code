@@ -175,8 +175,8 @@ class WikiDataMtceAPI
 
 
 
-                if($i >= 20269 && $i <= 103648) {}      //403648 running... caching... 
-                else continue;
+                // if($i >= 20269 && $i <= 103648) {}      //403648 running... caching... 
+                // else continue;
                 // if($i >= 103648 && $i <= 203648) {}      //403648 running... caching...
                 // else continue;
                 // if($i >= 203648 && $i <= 303648) {}      //403648 running... caching...
@@ -1054,13 +1054,12 @@ class WikiDataMtceAPI
                 if(in_array($real_row, array(1,2,4,5,11,6,7,8,9,10))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
                 //---------------------------------------------------------------
                 // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
-
                 // row 12 -- needs to query by citation
                 // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only -- for QuickStatements
-                
                 // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
+                // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
+                if(!in_array($real_row, array(25))) continue;
 
-                if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
 
                 echo "\nrow: $real_row\n";
                 // */
