@@ -170,10 +170,18 @@ class WikiDataMtceAPI
                 // else continue;
                 // if($i >= 109400 && $i <= 119400) {}      //198187 running... caching... fpnas
                 // else continue;
+                // if($i >= 69600 && $i <= 79600) {}      //198187 running... caching... fpnas
+                // else continue;
 
 
 
-                // if($i >= 5618 && $i <= 403648) {}      //403648 running... caching... 
+                if($i >= 20269 && $i <= 103648) {}      //403648 running... caching... 
+                else continue;
+                // if($i >= 103648 && $i <= 203648) {}      //403648 running... caching...
+                // else continue;
+                // if($i >= 203648 && $i <= 303648) {}      //403648 running... caching...
+                // else continue;
+                // if($i >= 303648 && $i <= 403648) {}      //403648 running... caching...
                 // else continue;
 
 
@@ -1050,9 +1058,9 @@ class WikiDataMtceAPI
                 // row 12 -- needs to query by citation
                 // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only -- for QuickStatements
                 
-                if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
+                // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
 
-                // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
+                if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
 
                 echo "\nrow: $real_row\n";
                 // */
