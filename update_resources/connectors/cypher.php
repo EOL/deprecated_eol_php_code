@@ -253,11 +253,11 @@ $input["trait kind"] = "inferred_trait";
 $func->query_trait_db($input);
 */
 
-/* run all resources
+// /* run all resources
 exit("\npnas is running...\n");
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $func->run_all_resources($spreadsheet);
-*/
+// */
 
 /* ancestry query
 $id = "Q3282257";

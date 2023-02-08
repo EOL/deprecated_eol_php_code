@@ -280,7 +280,7 @@ class CypherQueryAPI
                 // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') continue; //1st group
                 // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') continue; //2nd group
                 // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') continue; //3rd group
-                // if($rec['trait.source'] != 'https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2') continue; //row 12
+                if($rec['trait.source'] != 'https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2') continue; //row 12
                 // if($rec['trait.source'] != 'https://doi.org/10.1007/s00049-005-0325-5') continue; //row 18
                 // */
 
@@ -298,8 +298,8 @@ class CypherQueryAPI
 
         print_r($rec);
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE; //our very first one
+        elseif($rec['trait.source'] == 'https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2') $use_citation = TRUE;            
         else $use_citation = FALSE; //the rest goes here.
-
 
         /* just testing queries if both via citation and via source is the same:
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116263059') $use_citation = TRUE;
