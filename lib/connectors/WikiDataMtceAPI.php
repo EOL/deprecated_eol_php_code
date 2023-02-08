@@ -165,15 +165,12 @@ class WikiDataMtceAPI
                 // if($i >= 162474 && $i <= 199000) {}      //198187 running... caching... fpnas
                 // else continue;
                 // */
-
-                // if($i >= 149200 && $i <= 159200) {}      //198187 running... caching... fpnas
+                // if($i >= 149200 && $i <= 159200) {}      //198187 running... caching... fpnas DONE
                 // else continue;
-                // if($i >= 109400 && $i <= 119400) {}      //198187 running... caching... fpnas
+                // if($i >= 109400 && $i <= 119400) {}      //198187 running... caching... fpnas DONE
                 // else continue;
-                // if($i >= 69600 && $i <= 79600) {}      //198187 running... caching... fpnas
+                // if($i >= 69600 && $i <= 79600) {}      //198187 running... caching... fpnas DONE
                 // else continue;
-
-
 
                 // if($i >= 20269 && $i <= 103648) {}      //403648 running... caching... 
                 // else continue;
@@ -183,6 +180,14 @@ class WikiDataMtceAPI
                 // else continue;
                 // if($i >= 303648 && $i <= 403648) {}      //403648 running... caching...
                 // else continue;
+
+                if($i >= 403648-50000 && $i <= 403648) {}      //403648 running... caching...
+                else continue;
+
+                // if($i >= 303648-40000 && $i <= 303648) {}      //403648 running... caching...
+                // else continue;
+
+
 
 
 
@@ -194,6 +199,11 @@ class WikiDataMtceAPI
                 // print_r($rec); exit("\nelix1\n");
                 if($rec['pred.name'] && $rec['obj.name']) { //$rec['p.canonical'] && 
                     self::write_trait_2wikidata($rec, $input['trait kind']);
+                }
+                else {
+                    //discarded rows
+                    $WRITE = Functions::file_open($this->discarded_rows, "a");
+                    fwrite($WRITE, implode("\t", $rec)."\tdiscard obj."."\n"); fclose($WRITE);
                 }
                 // if($i >= 20) break; //debug
             }
@@ -1057,9 +1067,8 @@ class WikiDataMtceAPI
                 // row 12 -- needs to query by citation
                 // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only -- for QuickStatements
                 // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
-                // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
-                if(!in_array($real_row, array(25))) continue;
-
+                if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
+                // if(!in_array($real_row, array(26,27))) continue;
 
                 echo "\nrow: $real_row\n";
                 // */
