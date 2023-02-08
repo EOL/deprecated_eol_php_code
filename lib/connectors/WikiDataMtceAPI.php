@@ -154,17 +154,29 @@ class WikiDataMtceAPI
             else {
 
                 // /* caching only
-                // if($i >= 609 && $i <= 39800) {}      //198187 running... caching... fpnas
+                // if($i >= 4339 && $i <= 39800) {}      //198187 running... caching... fpnas
                 // else continue;
-                // if($i >= 39800 && $i <= 39800*2) {}      //198187 running... caching... fpnas
+                // if($i >= 42951 && $i <= 79600) {}      //198187 running... caching... fpnas
                 // else continue;
-                // if($i >= 39800*2 && $i <= 39800*3) {}      //198187 running... caching... fpnas
+                // if($i >= 83294 && $i <= 119400) {}      //198187 running... caching... fpnas
                 // else continue;
-                // if($i >= 39800*3 && $i <= 39800*4) {}      //198187 running... caching... fpnas
+                // if($i >= 122647 && $i <= 159200) {}      //198187 running... caching... fpnas
                 // else continue;
-                if($i >= 39800*4 && $i <= 39800*5) {}      //198187 running... caching... fpnas
-                else continue;
+                // if($i >= 162474 && $i <= 199000) {}      //198187 running... caching... fpnas
+                // else continue;
                 // */
+
+                // if($i >= 149200 && $i <= 159200) {}      //198187 running... caching... fpnas
+                // else continue;
+                // if($i >= 109400 && $i <= 119400) {}      //198187 running... caching... fpnas
+                // else continue;
+
+
+
+                // if($i >= 5618 && $i <= 403648) {}      //403648 running... caching... 
+                // else continue;
+
+
 
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
@@ -867,7 +879,10 @@ class WikiDataMtceAPI
                 if(in_array($page_id, array(605124,605061,8110730,46942518,1075434,1074475,106725,1076363,12027215,12027027,
                     46938881,3837089,12027274,106650))) $this->download_options['expire_seconds'] = true;
 
-                if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
+                if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) {
+                    $this->download_options['expire_seconds'] = false;
+                    return array($ret['i'], $obj);
+                }
                 $this->download_options['expire_seconds'] = false;
             }    
         }
@@ -1029,16 +1044,13 @@ class WikiDataMtceAPI
                 // /* takbo
                 $real_row = $i - 1;
                 if(in_array($real_row, array(1,2,4,5,11,6,7,8,9,10))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
-
-                if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
+                //---------------------------------------------------------------
+                // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
 
                 // row 12 -- needs to query by citation
-                // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only
+                // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only -- for QuickStatements
                 
-
-                // if(!in_array($real_row, array(21,22,23))) continue; //dev only
-                // if(!in_array($real_row, array(24,25,26))) continue; //dev only
-                // if(!in_array($real_row, array(27,28,29,30))) continue; //dev only
+                if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
 
                 // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
 
@@ -1108,9 +1120,6 @@ class WikiDataMtceAPI
         // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') return; //403648 traits     7 connectors
         */
 
-        /* during dev only
-        if($rec['trait.source'] == 'https://doi.org/10.1073/pnas.1907847116') return; //exclude
-        */
 
         print_r($rec); //exit;
         if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE;
