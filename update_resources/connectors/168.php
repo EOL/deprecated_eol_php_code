@@ -8,9 +8,13 @@ namespace php_active_record;
 Ran some tests if legacy connector still works: Not anymore, generates less records than usual
 168	Sun 2021-01-31 08:50:38 PM	    {"agent.tab":107, "media_resource.tab":120280, "taxon.tab":7304, "time_elapsed":{"sec":1183.39, "min":19.72, "hr":0.33}} - MacMini
 
+168	Wed 2023-02-08 03:30:21 AM	    {"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22938, "time_elapsed":{"sec":171.51, "min":2.86, "hr":0.05}}
+168	Thu 2023-02-09 05:33:41 AM	    {"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22938, "time_elapsed":{"sec":134.1, "min":2.24, "hr":0.04}}
+
 From resource_utility.php
 168_meta_recoded	Thu 2021-01-14 07:53:44 AM	{"agent.tab":98,  "media_resource.tab":129821, "taxon.tab":22302, "time_elapsed":{"sec":74.27, "min":1.24, "hr":0.02}} - eol-archive
 168_meta_recoded	Wed 2023-02-08 03:31:38 AM	{"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22938, "time_elapsed":{"sec":75.23, "min":1.25, "hr":0.02}}
+168_meta_recoded	Thu 2023-02-09 05:34:55 AM	{"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22938, "time_elapsed":{"sec":71.92, "min":1.2, "hr":0.02}}
 */
 
 /*
