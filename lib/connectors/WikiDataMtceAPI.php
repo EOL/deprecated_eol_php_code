@@ -153,25 +153,6 @@ class WikiDataMtceAPI
             if($i == 1) $fields = explode("\t", $row);
             else {
 
-                // /* caching only
-                // if($i >= 4339 && $i <= 39800) {}      //198187 running... caching... fpnas
-                // else continue;
-                // if($i >= 42951 && $i <= 79600) {}      //198187 running... caching... fpnas
-                // else continue;
-                // if($i >= 83294 && $i <= 119400) {}      //198187 running... caching... fpnas
-                // else continue;
-                // if($i >= 122647 && $i <= 159200) {}      //198187 running... caching... fpnas
-                // else continue;
-                // if($i >= 162474 && $i <= 199000) {}      //198187 running... caching... fpnas DONE
-                // else continue;
-                // */
-                // if($i >= 149200 && $i <= 159200) {}      //198187 running... caching... fpnas DONE
-                // else continue;
-                // if($i >= 109400 && $i <= 119400) {}      //198187 running... caching... fpnas DONE
-                // else continue;
-                // if($i >= 69600 && $i <= 79600) {}      //198187 running... caching... fpnas DONE
-                // else continue;
-
                 // if($i >= 20269 && $i <= 103648) {}      //403648 running... caching... 
                 // else continue;
                 // if($i >= 103648 && $i <= 203648) {}      //403648 running... caching...
@@ -181,13 +162,14 @@ class WikiDataMtceAPI
                 // if($i >= 303648 && $i <= 403648) {}      //403648 running... caching...
                 // else continue;
 
-                if($i >= 403648-50000 && $i <= 403648) {}      //403648 running... caching...
-                else continue;
+                // if($i >= 403648-50000 && $i <= 403648) {}      //403648 running... caching...
+                // else continue;
                 // if($i >= 303648-40000 && $i <= 303648) {}      //403648 running... caching...
                 // else continue;
-
-
-
+                // if($i >= 203648-30000 && $i <= 203648) {}      //403648 running... caching...
+                // else continue;
+                // if($i >= 103648-20000 && $i <= 103648) {}      //403648 running... caching...
+                // else continue;
 
 
                 if(!$row) continue;
@@ -252,9 +234,12 @@ class WikiDataMtceAPI
         Also, please discard the data records for the following taxa. These WikiData nodes are mismapped on EOL, and the correct taxa are not in WikiData.
         Pacifica 44068029 Tarenna subg. Pacifica Q93182914 identifier-map
         Vesta 4220900 Vesta Q95742196 identifier-map 
+
+        Also, please discard the data records for this one. There is no good match on wikidata:
+        Macroglossinae 51482088 Macroglossinae Q134858 subfamily of insects name search thru identifier-map
         */
         $text_file = $this->report_not_taxon_or_no_wikidata;
-        if(in_array($rec['p.page_id'], array(46777128, 44068029, 4220900))) {
+        if(in_array($rec['p.page_id'], array(46777128, 44068029, 4220900, 51482088))) {
             $str = implode("\t", array($rec['p.canonical'], $rec['p.page_id'], "***"));
             self::write_2text_file($text_file, $str); //."excluded record***"
             return;
@@ -864,6 +849,18 @@ class WikiDataMtceAPI
         elseif($page_id == 63415) return self::fix_further($page_id, $canonical, "Q3014241");        
         // */
 
+        // /* start 6th
+        // Hi Eli, here are the corrections for the latest batch: 
+        // EOL name pageID WikiData name ID Description Mapped newID
+        elseif($page_id == 33347) return self::fix_further($page_id, $canonical, "Q1500089");        
+        elseif($page_id == 42152) return self::fix_further($page_id, $canonical, "Q577045");        
+        elseif($page_id == 42159) return self::fix_further($page_id, $canonical, "Q15402210");        
+        elseif($page_id == 46324029) return self::fix_further($page_id, $canonical, "Q28929960");        
+        elseif($page_id == 1019571) return self::fix_further($page_id, $canonical, "Q22718");        
+        elseif($page_id == 85361) return self::fix_further($page_id, $canonical, "Q14340053");                
+        elseif($page_id == 80873) return self::fix_further($page_id, $canonical, "Q2746790");        
+        // */
+
         else { //orig
             if($ret = @$this->taxonMap[$page_id]) {
                 /* never use this since p.canonical in query sometimes really is blank. And identifier-map can do the connection.
@@ -892,9 +889,29 @@ class WikiDataMtceAPI
                 Periaciculitermes 46938881 Periaciculitermes Q113480781 genus of insects name search thru identifier-map
                 Acanthotermes 3837089 Acanthotermes Q114797700 genus of insect name search thru identifier-map
                 Nasutitermes parvonasutus 12027274 Nasutitermes parvonasutus Q114661268 species of insect name search thru identifier-map
-                Biolleya 106650 Biolleya Q18117214 genus of mantises identifier-map */
+                Biolleya 106650 Biolleya Q18117214 genus of mantises identifier-map 
+                
+                --- For the following taxa, I had to fix the parent mappings on wikidata. They are fine now:
+                Tropidia albistylum 750237 Tropidia albistylum Q14347049 species of insect identifier-map
+                Tropidia calcarata 750234 Tropidia calcarata Q14347046 species of insect identifier-map
+                Tropidia coloradensis 750235 Tropidia coloradensis Q14347044 species of insect identifier-map
+                Tropidia flavimana 752307 Tropidia flavimana Q14522255 species of insect identifier-map
+                Tropidia incana 750236 Tropidia incana Q14347042 species of insect identifier-map
+                Tropidia incerta 751037 Tropidia incerta Q14522249 species of insect identifier-map
+                Tropidia insularis 752306 Tropidia insularis Q14522254 species of insect identifier-map
+                Tropidia longa 751036 Tropidia longa Q14522248 species of insect identifier-map
+                Tropidia mamillata 750233 Tropidia mamillata Q14347039 species of insect identifier-map
+                Tropidia montana 748552 Tropidia montana Q14347034 species of insect identifier-map
+                Tropidia namorana 751034 Tropidia namorana Q14522247 species of insect identifier-map
+                Tropidia notata 752305 Tropidia notata Q14522252 species of insect identifier-map
+                Tropidia pulchra 752304 Tropidia pulchra Q14522251 species of insect identifier-map
+                Tropidia pygmaea 750232 Tropidia pygmaea Q14347037 species of insect identifier-map
+                Tropidia quadrata 750231 Tropidia quadrata Q10828257 species of insect identifier-map
+                Tropidia rostrata 748910 Tropidia rostrata Q14522246 species of insect identifier-map
+                Tropidia rubricornis 752302 Tropidia rubricornis Q14522250 species of insect identifier-map */
                 if(in_array($page_id, array(605124,605061,8110730,46942518,1075434,1074475,106725,1076363,12027215,12027027,
-                    46938881,3837089,12027274,106650))) $this->download_options['expire_seconds'] = true;
+                    46938881,3837089,12027274,106650, 750237, 750234, 750235, 752307, 750236, 751037, 752306, 751036, 750233, 
+                    748552, 751034, 752305, 752304, 750232, 750231, 748910, 752302))) $this->download_options['expire_seconds'] = true;
 
                 if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) {
                     $this->download_options['expire_seconds'] = false;
@@ -1062,11 +1079,11 @@ class WikiDataMtceAPI
                 $real_row = $i - 1;
                 if(in_array($real_row, array(1,2,4,5,11,6,7,8,9,10))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
                 //---------------------------------------------------------------
-                // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
+                if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
                 // row 12 -- zero results for query by citation and source
                 // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only -- for QuickStatements
                 // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
-                if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
+                // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
 
                 echo "\nrow: $real_row\n";
                 // */
