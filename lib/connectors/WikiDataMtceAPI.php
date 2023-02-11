@@ -153,23 +153,16 @@ class WikiDataMtceAPI
             if($i == 1) $fields = explode("\t", $row);
             else {
 
-                // if($i >= 20269 && $i <= 103648) {}      //403648 running... caching... 
+                // if($i >= 168104 && $i <= 168104+5000) {}      //403648 running... caching...
                 // else continue;
-                // if($i >= 103648 && $i <= 203648) {}      //403648 running... caching...
+                // if($i >= 168104+5000 && $i <= 168104+5000+5000) {}      //403648 running... caching...
                 // else continue;
-                // if($i >= 203648 && $i <= 303648) {}      //403648 running... caching...
+                // if($i >= 168104+5000+5000 && $i <= 168104+5000+5000+5000) {}      //403648 running... caching...
                 // else continue;
-                // if($i >= 303648 && $i <= 403648) {}      //403648 running... caching...
+                // if($i >= 168104+5000+5000+5000 && $i <= 168104+5000+5000+5000+5000) {}      //403648 running... caching...
                 // else continue;
-
-                // if($i >= 403648-50000 && $i <= 403648) {}      //403648 running... caching...
-                // else continue;
-                // if($i >= 303648-40000 && $i <= 303648) {}      //403648 running... caching...
-                // else continue;
-                // if($i >= 203648-30000 && $i <= 203648) {}      //403648 running... caching...
-                // else continue;
-                // if($i >= 103648-20000 && $i <= 103648) {}      //403648 running... caching...
-                // else continue;
+                if($i >= 168104+5000+5000+5000+5000) {}      //403648 running... caching...
+                else continue;
 
 
                 if(!$row) continue;
@@ -1079,11 +1072,11 @@ class WikiDataMtceAPI
                 $real_row = $i - 1;
                 if(in_array($real_row, array(1,2,4,5,11,6,7,8,9,10))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
                 //---------------------------------------------------------------
-                if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
+                // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
                 // row 12 -- zero results for query by citation and source
                 // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only -- for QuickStatements
                 // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
-                // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
+                if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
 
                 echo "\nrow: $real_row\n";
                 // */
