@@ -66,7 +66,7 @@ class CypherQueryAPI
             $input = self::query_maker($input);
             $filename = self::generate_path_filename($input); // exit("\n[$filename\n");
             $json = self::retrieve_trait_data($input, $filename);
-            $obj = json_decode($json); //print_r($obj);
+            $obj = json_decode($json); print_r($obj); exit("\nstop query muna\n");
             if($total = count(@$obj->data)) {
                 // print_r($obj); exit; //good debug
                 self::write_tsv($obj, $filename, $skip);
@@ -113,12 +113,13 @@ class CypherQueryAPI
             OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
             OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
             OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+            OPTIONAL MATCH (t)-[:metadata]->(stopNode:MetaData)-[:predicate]->(stop:Term {name:"stops at"})
+            RETURN DISTINCT p.canonical, p.page_id, p.rank, stop.name, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
             ORDER BY p.canonical 
             SKIP '.$skip.' LIMIT '.$limit;
             // */
         }
-        elseif($input['type'] == "wikidata_base_qry_source") {
+        elseif($input['type'] == "wikidata_base_qry_source") { //exit("\ngoes here...\n");
             $source = urlencode($input['params']['source']);
             // $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
             if(    $input['trait kind'] == 'trait')          $qry = 'MATCH (t:Trait)<-[:trait]-(p:Page), ';
@@ -131,10 +132,12 @@ class CypherQueryAPI
             OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
             OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
             OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+            OPTIONAL MATCH (t)-[:metadata]->(stopNode:MetaData)-[:predicate]->(stop:Term {name:"stops at"})
+            RETURN DISTINCT p.canonical, p.page_id, p.rank, stop.name, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
             ORDER BY p.canonical 
             SKIP '.$skip.' LIMIT '.$limit;
         }
+        /* this wasn't used
         elseif($input['type'] == "wikidata_base_qry_resourceID") {
             $resource_id = urlencode($input['params']['resource_id']);
             // $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
@@ -152,7 +155,7 @@ class CypherQueryAPI
             RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
             ORDER BY p.canonical 
             SKIP '.$skip.' LIMIT '.$limit;
-        }
+        } */
 
         else exit("\nERROR: Undefiend query.\n");
         $input['query'] = $qry;
@@ -220,10 +223,10 @@ class CypherQueryAPI
         */
         $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
         // $cmd .= ' 2>/dev/null'; //this will throw away the output
-        echo "\nSleep 60 secs...\n";
-        sleep(60); //delay 2 seconds
+        // echo "\nSleep 60 secs...\n"; sleep(60); //delay 2 seconds
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
         echo "\n[$output]\n"; //good debug
+        echo "\nSleep 60 secs...\n"; sleep(60); //delay 2 seconds
         $json = file_get_contents($destination);
         unlink($in_file);
         unlink($destination);
@@ -279,8 +282,8 @@ class CypherQueryAPI
                 // /* good way to run 1 resource for investigation
                 // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') continue; //1st group
                 // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') continue; //2nd group
-                // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') continue; //3rd group
-                if($rec['trait.source'] != 'https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2') continue; //row 12
+                if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') continue; //3rd group
+                // if($rec['trait.source'] != 'https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2') continue; //row 12
                 // if($rec['trait.source'] != 'https://doi.org/10.1007/s00049-005-0325-5') continue; //row 18
                 // */
 
