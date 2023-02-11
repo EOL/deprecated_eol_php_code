@@ -66,7 +66,7 @@ class CypherQueryAPI
             $input = self::query_maker($input);
             $filename = self::generate_path_filename($input); // exit("\n[$filename\n");
             $json = self::retrieve_trait_data($input, $filename);
-            $obj = json_decode($json); print_r($obj); exit("\nstop query muna\n");
+            $obj = json_decode($json); //print_r($obj); //exit("\nstop query muna\n");
             if($total = count(@$obj->data)) {
                 // print_r($obj); exit; //good debug
                 self::write_tsv($obj, $filename, $skip);
@@ -223,10 +223,9 @@ class CypherQueryAPI
         */
         $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
         // $cmd .= ' 2>/dev/null'; //this will throw away the output
-        // echo "\nSleep 60 secs...\n"; sleep(60); //delay 2 seconds
+        echo "\nSleep 60 secs...\n"; sleep(60); //delay 2 seconds
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
         echo "\n[$output]\n"; //good debug
-        echo "\nSleep 60 secs...\n"; sleep(60); //delay 2 seconds
         $json = file_get_contents($destination);
         unlink($in_file);
         unlink($destination);
