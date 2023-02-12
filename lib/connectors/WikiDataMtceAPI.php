@@ -161,8 +161,8 @@ class WikiDataMtceAPI
                 // else continue;
                 // if($i >= 168104+5000+5000+5000 && $i <= 168104+5000+5000+5000+5000) {}      //403648 running... caching...
                 // else continue;
-                if($i >= 168104+5000+5000+5000+5000) {}      //403648 running... caching...
-                else continue;
+                // if($i >= 168104+5000+5000+5000+5000) {}      //403648 running... caching...
+                // else continue;
 
 
                 if(!$row) continue;
