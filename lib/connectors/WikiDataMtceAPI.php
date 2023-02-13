@@ -1074,7 +1074,7 @@ class WikiDataMtceAPI
                 //---------------------------------------------------------------
                 // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
                 // row 12 -- zero results for query by citation and source
-                // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only -- for QuickStatements
+                // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only --  QuickStatements Done
                 // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
                 if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
 

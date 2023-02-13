@@ -66,7 +66,7 @@ class CypherQueryAPI
             $input = self::query_maker($input);
             $filename = self::generate_path_filename($input); // exit("\n[$filename\n");
             $json = self::retrieve_trait_data($input, $filename);
-            $obj = json_decode($json); //print_r($obj); //exit("\nstop query muna\n");
+            $obj = json_decode($json); //print_r($obj); return; //exit("\nstop query muna\n");
             if($total = count(@$obj->data)) {
                 // print_r($obj); exit; //good debug
                 self::write_tsv($obj, $filename, $skip);
@@ -103,43 +103,10 @@ class CypherQueryAPI
             */
 
             // /* new
-            if(    $input['trait kind'] == 'trait')          $qry = 'MATCH (t:Trait)<-[:trait]-(p:Page), ';
-            elseif($input['trait kind'] == 'inferred_trait') $qry = 'MATCH (t:Trait)<-[:inferred_trait]-(p:Page), ';
-            $qry .= '(t)-[:predicate]->(pred:Term)
-            WHERE t.citation = "'.$citation.'"
-            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
-            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
-            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
-            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
-            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-            OPTIONAL MATCH (t)-[:metadata]->(stopNode:MetaData)-[:predicate]->(stop:Term {name:"stops at"})
-            RETURN DISTINCT p.canonical, p.page_id, p.rank, stop.name, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
-            ORDER BY p.canonical 
-            SKIP '.$skip.' LIMIT '.$limit;
-            // */
-        }
-        elseif($input['type'] == "wikidata_base_qry_source") { //exit("\ngoes here...\n");
-            $source = urlencode($input['params']['source']);
-            // $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
             if(    $input['trait kind'] == 'trait') {
                 $qry = 'MATCH (t:Trait)<-[:trait]-(p:Page), ';
             $qry .= '(t)-[:predicate]->(pred:Term)
-            WHERE t.source = "'.$source.'"
-            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
-            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
-            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
-            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
-            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
-            ORDER BY p.canonical 
-            SKIP '.$skip.' LIMIT '.$limit;
-            }
-            elseif($input['trait kind'] == 'inferred_trait') {
-                $qry = 'MATCH (t:Trait)<-[:inferred_trait]-(p:Page), ';
-            $qry .= '(t)-[:predicate]->(pred:Term)
-            WHERE t.source = "'.$source.'"
+            WHERE t.citation = "'.$citation.'"
             OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
             OPTIONAL MATCH (t)-[:units_term]->(units:Term)
             OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
@@ -150,8 +117,28 @@ class CypherQueryAPI
             ORDER BY p.canonical 
             SKIP '.$skip.' LIMIT '.$limit;    
             }
-
-            /*
+            elseif($input['trait kind'] == 'inferred_trait') {
+                $qry = 'MATCH (t:Trait)<-[:inferred_trait]-(p:Page), ';
+            $qry .= '(t)-[:predicate]->(pred:Term)
+            WHERE t.citation = "'.$citation.'"
+            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
+            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
+            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
+            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
+            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
+            RETURN DISTINCT p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+            ORDER BY p.canonical 
+            SKIP '.$skip.' LIMIT '.$limit;
+            }
+            // */
+        }
+        elseif($input['type'] == "wikidata_base_qry_source") { //exit("\ngoes here...\n");
+            $source = urlencode($input['params']['source']);
+            // $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
+            if(    $input['trait kind'] == 'trait') {
+                $qry = 'MATCH (t:Trait)<-[:trait]-(p:Page), ';
+            // /* ORIG CACHED
             $qry .= '(t)-[:predicate]->(pred:Term)
             WHERE t.source = "'.$source.'"
             OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
@@ -160,12 +147,46 @@ class CypherQueryAPI
             OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
             OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
             OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-            OPTIONAL MATCH (t)-[:metadata]->(stopNode:MetaData)-[:predicate]->(stop:Term {name:"stops at"})
-            RETURN DISTINCT p.canonical, p.page_id, p.rank, stop.name, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
             ORDER BY p.canonical 
             SKIP '.$skip.' LIMIT '.$limit;
-            */
+            // */
+            }
+            elseif($input['trait kind'] == 'inferred_trait') {
+                $qry = 'MATCH (t:Trait)<-[:inferred_trait]-(p:Page), ';
+            // /* ORIG CACHED - recently added t.eol_pk, p.rank
+            $qry .= '(t)-[:predicate]->(pred:Term)
+            WHERE t.source = "'.$source.'"
+            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
+            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
+            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
+            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
+            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
+            RETURN DISTINCT p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+            ORDER BY p.canonical 
+            SKIP '.$skip.' LIMIT '.$limit;
+            // */
+
+            // $qry .= '(t)-[:predicate]->(pred:Term)
+            // WHERE t.source = "'.$source.'"
+            // OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+            // OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
+            // OPTIONAL MATCH (t)-[:metadata]->(stopNode:MetaData)-[:predicate]->(stop:Term {name:"stops at"})
+            // RETURN DISTINCT p.canonical, p.page_id, p.rank, stop.name
+            // ORDER BY p.canonical 
+            // SKIP '.$skip.' LIMIT '.$limit;
+
+
+            }
+
         }
+        elseif($input['type'] == "traits_stop_at") {
+            $qry = 'MATCH (t)-[:metadata]->(stopNode:MetaData)-[:predicate]->(stop:Term {name:"stops at"})
+            RETURN DISTINCT t.eol_pk, stop.name SKIP '.$skip.' LIMIT '.$limit;
+        }
+
+
         /* this wasn't used
         elseif($input['type'] == "wikidata_base_qry_resourceID") {
             $resource_id = urlencode($input['params']['resource_id']);
@@ -331,13 +352,25 @@ class CypherQueryAPI
                 $rec = array_map('trim', $rec); //important step
                 // print_r($rec); exit;
 
-                // /* good way to run 1 resource for investigation
+                /* good way to run 1 resource for investigation
                 // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') continue; //1st group
-                // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') continue; //2nd group
-                // if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') continue; //3rd group
+                // if($rec['trait.source'] != 'https://doi.org/10.2307/3503472') continue; //2nd group                     stop.name OK
+                if($rec['trait.source'] != 'https://doi.org/10.1073/pnas.1907847116') continue; //3rd group
                 // if($rec['trait.source'] != 'https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2') continue; //row 12
                 // if($rec['trait.source'] != 'https://doi.org/10.1007/s00049-005-0325-5') continue; //row 18
-                if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') continue; //row 31 403648 traits
+                // if($rec['trait.source'] != 'https://doi.org/10.1111/j.1365-2311.1965.tb02304.x') continue; //row 31 403648 traits
+                */
+
+                // /* takbo
+                $real_row = $i - 1;
+                if(!in_array($real_row, array(3,1,2,4,6,7,8,9,10))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
+                //---------------------------------------------------------------
+                // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
+                // row 12 -- zero results for query by citation and source
+                // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only --  QuickStatements Done
+                // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
+                // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
+                echo "\nrow: $real_row\n";
                 // */
 
                 self::run_resource_query($rec);
@@ -391,5 +424,41 @@ class CypherQueryAPI
             // */
         }
     }
+
+    function get_traits_stop_at($input)
+    {
+        /* didn't use it here
+        self::initialize_path($input);
+        */
+        $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/";
+        // /* report filename
+        $this->tsv_file = $this->report_path."/".$input["type"]."_qry.tsv";
+        // */
+
+        if($val = @$input["per_page"]) $this->per_page = $val;
+        if(isset($input["per_page"])) unset($input["per_page"]); // unset so that initial queries made won't get wasted. Where there is no $input["per_page"] yet.
+        $skip = 0;
+        while(true) {
+            $input['skip'] = $skip;
+            $input['limit'] = $this->per_page;
+            $input = self::query_maker($input);
+            $filename = self::generate_path_filename($input); //exit("\n[$filename]\n");
+            $json = self::retrieve_trait_data($input, $filename);
+            $obj = json_decode($json); //print_r($obj); return; //exit("\nstop query muna\n");
+            if($total = count(@$obj->data)) {
+                // print_r($obj); exit; //good debug
+                self::write_tsv($obj, $filename, $skip);
+            }
+            print("\n No. of rows: ".$total."\n");
+            $skip += $this->per_page;
+            if($total < $this->per_page) break;
+            // break; //debug only
+        }
+        print("\nfilename: [$filename]\n-----Processing ends-----\n");
+        print_r($input); //good debug
+        print("\nReport file: ".$this->tsv_file."\n");
+    }
+
+
 }
 ?>
