@@ -216,7 +216,38 @@ class BioImagesAPI
         }
         return $agent_ids;
     }
+    private function download_img_then_use_local_file_as_path($url)
+    {   // "http://www.discoverlife.org/mp/20p?img=I_MWS10894&res=mx"
+        $destination_folder = "/Volumes/Crucial_2TB/DiscoverLife_images/";
 
+        if(preg_match("/discoverlife.org\/mp\/20p\?img\=I_MWS(.*?)\&res\=mx/ims", $url, $arr)) {
+            $img_id = $arr[1];
+            $filename = self::generate_path_filename($url, $destination_folder, $img_id);
+            if(file_exists($filename)) {
+                if(filesize($filename) > 0) return $filename;
+                else {
+                    unlink($filename);
+                    //download routine
+                }
+            }
+            else {
+                //download routine
+            }
+        }
+
+
+        
+    }
+    private function generate_path_filename($url, $main_path, $img_id)
+    {
+        $md5 = md5($url);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($main_path . $cache1))           mkdir($main_path . $cache1);
+        if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
+        $filename = $main_path . "$cache1/$cache2/$img_id.jpg";
+        return $filename;
+    }
     private function get_images($row, $col, $reference_ids, $agent_ids)
     {
         if(!$row[$col['DiscoverLife URL']]) return;
