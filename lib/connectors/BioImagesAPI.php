@@ -216,27 +216,44 @@ class BioImagesAPI
         }
         return $agent_ids;
     }
-    private function download_img_then_use_local_file_as_path($url)
+    function download_img_then_use_local_file_as_path($url)
     {   // "http://www.discoverlife.org/mp/20p?img=I_MWS10894&res=mx"
-        $destination_folder = "/Volumes/Crucial_2TB/DiscoverLife_images/";
-
+        $destination_folder = "/Volumes/Crucial_2TB/DiscoverLife_images/";  //local Mac Studio
+        $destination_folder = "/html/other_files/DiscoverLife_images/";     //eol-archive
         if(preg_match("/discoverlife.org\/mp\/20p\?img\=I_MWS(.*?)\&res\=mx/ims", $url, $arr)) {
             $img_id = $arr[1];
-            $filename = self::generate_path_filename($url, $destination_folder, $img_id);
+            $filename = self::generate_path_filename($url, $destination_folder, $img_id); echo "\nlocal: [$filename]\n";
             if(file_exists($filename)) {
-                if(filesize($filename) > 0) return $filename;
+                if(filesize($filename) > 0) return self::convert_local_filename_to_media_url($filename);
                 else {
                     unlink($filename);
-                    //download routine
+                    if($media_url = self::download_DL_image($url, $filename)) return $media_url;
                 }
             }
             else {
-                //download routine
+                if($media_url = self::download_DL_image($url, $filename)) return $media_url;
             }
         }
-
-
-        
+        else return $url; //nothing changed in $url
+    }
+    private function download_DL_image($url, $filename)
+    {   // wget -O sample.jpg "https://www.discoverlife.org/mp/20p?img=I_MWS71571&res=mx" --no-check-certificate -nc
+        $cmd = 'wget -O '.$filename.' "'.$url.'" --no-check-certificate -nc';
+        sleep(5);
+        $output = shell_exec($cmd);
+        // echo "\nTerminal: [$output]\n";
+        if(filesize($filename) > 0) return self::convert_local_filename_to_media_url($filename);
+        else {
+            exit("\nInvestiagate DL image\n[$url]\nstops here...\n");
+        }
+    }
+    private function convert_local_filename_to_media_url($filename)
+    {   // local filename: [/Volumes/Crucial_2TB/DiscoverLife_images/e5/c7/10894.jpg // exit("\nlocal filename: [$filename\nstop muna\n");
+        if(preg_match("/DiscoverLife_images\/(.*?)elix/ims", $filename."elix", $arr)) {
+            return "https://editors.eol.org/other_files/DiscoverLife_images/".$arr[1];
+        }
+        else exit("\nShould not go here...\n");
+        // https://editors.eol.org/other_files/DiscoverLife_images/eli.html --> to check
     }
     private function generate_path_filename($url, $main_path, $img_id)
     {
@@ -263,7 +280,7 @@ class BioImagesAPI
         $mr->CVterm = '';
         $mr->title = (string) self::clean_str(utf8_encode($row[$col['Title']]));
         $mr->UsageTerms = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
-        $mr->accessURI = $row[$col['DiscoverLife URL']];
+        $mr->accessURI =self::download_img_then_use_local_file_as_path($row[$col['DiscoverLife URL']]);
         $mr->creator = '';
         $mr->CreateDate = '';
         $mr->modified = '';

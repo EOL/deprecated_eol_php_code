@@ -28,6 +28,16 @@ require_library('connectors/BioImagesAPI');
 $timestart = time_elapsed();
 $resource_id = 168;
 $func = new BioImagesAPI($resource_id, false, true);
+// /* main operation
 $func->get_all_taxa();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //2nd param False - not a big file | 3rd param True - can delete working folder
+// */
+
+/* test func
+$url = "http://www.discoverlife.org/mp/20p?img=I_MWS10894&res=mx";
+$url = "http://www.discoverlife.org/mp/20p?img=I_MWS46466&res=mx";
+$url = "http://www.discoverlife.org/mp/20p?img=I_MWS17704&res=mx";
+$media_url = $func->download_img_then_use_local_file_as_path($url);
+echo "\nmedia_url: [$media_url]\n";
+*/
 ?>
