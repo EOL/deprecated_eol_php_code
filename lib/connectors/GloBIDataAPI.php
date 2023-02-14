@@ -814,6 +814,10 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 if(stripos($scientificName, "http:") !== false) $this->exclude_taxonIDs[$taxonID] = ''; //string is found
                 if(stripos($scientificName, "https:") !== false) $this->exclude_taxonIDs[$taxonID] = ''; //string is found
                 // */
+
+                // /* remove sciname Animalia Metazoa: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=67344&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67344
+                if(in_array($scientificName, array("Animalia", "Metazoa"))) $this->exclude_taxonIDs[$taxonID] = '';
+                // */
             }
             elseif($what == 'create extension') { //process_taxon()
                 if(isset($this->taxonIDhasOccurrence[$taxonID])) {
