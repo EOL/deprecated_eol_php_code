@@ -371,7 +371,7 @@ class CypherQueryAPI
                 // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
                 // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
 
-                if(!in_array($real_row, array(13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,3))) continue; //dev only --  caching...
+                if(!in_array($real_row, array(13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,3,31))) continue; //dev only --  caching...
 
 
                 echo "\nrow: $real_row\n";
