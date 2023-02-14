@@ -130,7 +130,7 @@ class CypherQueryAPI
             RETURN DISTINCT p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
             ORDER BY p.canonical 
             SKIP '.$skip.' LIMIT '.$limit;
-            }
+            } //t.eol_pk, p.rank,
             // */
         }
         elseif($input['type'] == "wikidata_base_qry_source") { //exit("\ngoes here...\n");
@@ -166,17 +166,7 @@ class CypherQueryAPI
             RETURN DISTINCT p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
             ORDER BY p.canonical 
             SKIP '.$skip.' LIMIT '.$limit;
-            // */
-
-            // $qry .= '(t)-[:predicate]->(pred:Term)
-            // WHERE t.source = "'.$source.'"
-            // OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-            // OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-            // OPTIONAL MATCH (t)-[:metadata]->(stopNode:MetaData)-[:predicate]->(stop:Term {name:"stops at"})
-            // RETURN DISTINCT p.canonical, p.page_id, p.rank, stop.name
-            // ORDER BY p.canonical 
-            // SKIP '.$skip.' LIMIT '.$limit;
-
+            // */ //t.eol_pk, p.rank,
 
             }
 

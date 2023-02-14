@@ -230,9 +230,13 @@ class WikiDataMtceAPI
 
         Also, please discard the data records for this one. There is no good match on wikidata:
         Macroglossinae 51482088 Macroglossinae Q134858 subfamily of insects name search thru identifier-map
+
+        Also, please remove the records associated with these taxa:
+        47071476, 69177,...
         */
         $text_file = $this->report_not_taxon_or_no_wikidata;
-        if(in_array($rec['p.page_id'], array(46777128, 44068029, 4220900, 51482088))) {
+        if(in_array($rec['p.page_id'], array(46777128, 44068029, 4220900, 51482088, 47071476, 69177, 94325, 53448, 46793443, 58457, 
+            4774732, 19758, 250532, 60994119, 60992489))) {
             $str = implode("\t", array($rec['p.canonical'], $rec['p.page_id'], "***"));
             self::write_2text_file($text_file, $str); //."excluded record***"
             return;
@@ -991,7 +995,7 @@ class WikiDataMtceAPI
         elseif($page_id == 68287) return self::fix_further($page_id, $canonical, "Q7660579");        
         elseif($page_id == 48746) return self::fix_further($page_id, $canonical, "Q7901166");        
         elseif($page_id == 68512) return self::fix_further($page_id, $canonical, "Q8045501");        
-        */
+        // */
 
 
         else { //orig
@@ -1025,26 +1029,27 @@ class WikiDataMtceAPI
                 Biolleya 106650 Biolleya Q18117214 genus of mantises identifier-map 
                 
                 --- For the following taxa, I had to fix the parent mappings on wikidata. They are fine now:
-                Tropidia albistylum 750237 Tropidia albistylum Q14347049 species of insect identifier-map
-                Tropidia calcarata 750234 Tropidia calcarata Q14347046 species of insect identifier-map
-                Tropidia coloradensis 750235 Tropidia coloradensis Q14347044 species of insect identifier-map
-                Tropidia flavimana 752307 Tropidia flavimana Q14522255 species of insect identifier-map
-                Tropidia incana 750236 Tropidia incana Q14347042 species of insect identifier-map
-                Tropidia incerta 751037 Tropidia incerta Q14522249 species of insect identifier-map
-                Tropidia insularis 752306 Tropidia insularis Q14522254 species of insect identifier-map
-                Tropidia longa 751036 Tropidia longa Q14522248 species of insect identifier-map
-                Tropidia mamillata 750233 Tropidia mamillata Q14347039 species of insect identifier-map
-                Tropidia montana 748552 Tropidia montana Q14347034 species of insect identifier-map
-                Tropidia namorana 751034 Tropidia namorana Q14522247 species of insect identifier-map
-                Tropidia notata 752305 Tropidia notata Q14522252 species of insect identifier-map
-                Tropidia pulchra 752304 Tropidia pulchra Q14522251 species of insect identifier-map
-                Tropidia pygmaea 750232 Tropidia pygmaea Q14347037 species of insect identifier-map
-                Tropidia quadrata 750231 Tropidia quadrata Q10828257 species of insect identifier-map
-                Tropidia rostrata 748910 Tropidia rostrata Q14522246 species of insect identifier-map
-                Tropidia rubricornis 752302 Tropidia rubricornis Q14522250 species of insect identifier-map */
+                750237, 750234,...
+                
+                And I had to fix parent relationships for the following taxa on wikiData, so their mappings are now fine:
+                
+                */
                 if(in_array($page_id, array(605124,605061,8110730,46942518,1075434,1074475,106725,1076363,12027215,12027027,
                     46938881,3837089,12027274,106650, 750237, 750234, 750235, 752307, 750236, 751037, 752306, 751036, 750233, 
-                    748552, 751034, 752305, 752304, 750232, 750231, 748910, 752302))) $this->download_options['expire_seconds'] = true;
+                    748552, 751034, 752305, 752304, 750232, 750231, 748910, 752302 
+                    /* processed already - row 3
+                    , 358896, 360755, 358900, 358899, 358898, 30590798, 377869, 556910, 556911, 556912, 551240, 551241, 551242, 551248, 551249, 
+                    551250, 551251, 555189, 934145, 46780822, 46780821, 564333, 30561671, 392421, 412763, 412764, 412768, 412770, 48888452, 
+                    504950, 477553, 954445, 953190, 959429, 60993017, 49826113, 49825866, 49825865, 52755932, 60776369, 618515, 481992, 618514, 
+                    615798, 615797, 618161, 608210, 618158, 481310, 618159, 618157, 617959, 617961, 481590, 616020, 615796, 615786, 615785, 615775, 
+                    615774, 615776, 615816, 615815, 615791, 615790, 615792, 615825, 615824, 615821, 615820, 615819, 618516, 618630, 618519, 618632, 
+                    618631, 618634, 481991, 618633, 618636, 618635, 618638, 618637, 618640, 618639, 618641, 618644, 618643, 618648, 618647, 618646, 
+                    618645, 618651, 618649, 618650, 618652, 608212, 618654, 618653, 618656, 618655, 618657, 618659, 618658, 618662, 618661, 618660, 
+                    618664, 618663, 618666, 618665, 618668, 618667, 618670, 618669, 618671, 618673, 618674, 618675, 608215, 618676, 618679, 618678, 
+                    618677, 618681, 618680, 618683, 481990, 618682, 618685, 618684, 618687, 618686, 618689, 618688, 618690, 618694, 618693, 618691, 
+                    481234, 481233, 613722, 613721, 613720, 481235, 481989, 613015, 613719, 481510, 618113, 618116, 618115, 618111, 481236, 616773, 
+                    616772, 616764, 51858464, 484812, 484811, 468969 */
+                    ))) $this->download_options['expire_seconds'] = true;
 
                 if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) {
                     $this->download_options['expire_seconds'] = false;
