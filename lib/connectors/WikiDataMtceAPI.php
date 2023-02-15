@@ -1224,54 +1224,7 @@ class WikiDataMtceAPI
                 // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
                 // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
 
-                circadian_rythm_resources_sans_pantheria.csv
-                https://eol-jira.bibalex.org/secure/attachment/75035/circadian_rythm_resources_sans_pantheria.csv
-                This is the first document we processed and continue to process as we have not finished all the items in it.
-                This has 31 rows/items, below is the status of each as of this monthly report's writing.
-                You can find the export file and other report files for each finished item in OpenData.
-                https://opendata.eol.org/dataset/1054_www-wikidata-org-entity-q116263059
-
-                Each item will undergo these steps:
-                1. run cypher query, generate the export file.
-                2. submit for taxonomic review (by Katja).
-                3. implement taxonomic corrections.
-                4. send export file to QuickStatements.
-                5. QuickStatements writes traits to WikiData.
-
-                Status:
-                rows 1,2,4,6,7,8,9,10,11 - all traits in these are now in WikiData.
-                rows 13,14,15,16,17,18,19,20 - all traits in these are now in WikiData.
-                rows 21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
-                row 3 - taxonomic corrections implemented, to be sent to QuickStatements.
-                row 5 - will be ignored for now.
-                row 12 - was run but no records returned. Will investigate more. Will inform Jen.
-                row 31 - for taxonomic review
-
-                To do:
-                All items will undergo a cleaning phase. Even for those whose traits are already in WikiData.
-                For the painted records, we'll want to filter out some of the higher taxa, above species. 
-                We aren't so picky on EOL, but for wikidata, we don't want to say "Lepidoptera are noctural" 
-                just because MOST Lepidoptera are nocturnal. More here.
-                https://eol-jira.bibalex.org/browse/COLLAB-1006?focusedCommentId=67333&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67333
-
-
-
-                Each query we process will generate 4 files:
-                inferred_trait_qry.tsv – the query result in tsv format. Another variation of this file is trait_qry.tsv for regular records not branch-painted records.
-                taxonomic_mappings_for_review.tsv – taxa for review. Used identifier-map to link taxa to WikiData entities.
-                export_file.qs – the QuickStatement export file. Taxa is from #2.
-                unprocessed_taxa.tsv – taxa not able to link to WikiData programmatically.
-                Note:
-                Number of rows of #2 & #3 should be equal.
-                Number of rows of #2 + #4 should be equal to number of rows of #1.
-
-
-
-
-
-
-
-
+                
 
                 echo "\nrow: $real_row\n";
                 // */
