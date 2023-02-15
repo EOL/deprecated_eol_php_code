@@ -52,7 +52,7 @@
         <tr align="left">
             <td><small>
             <?php 
-            echo "<a href='../specimen_image_export/'>Specimen Image Export Tool</a>";
+            echo "<a href='../specimen_image_export/main.php'>Specimen Image Export Tool</a>";
             ?>
             </small></td>
         </tr>
