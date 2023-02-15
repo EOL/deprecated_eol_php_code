@@ -106,7 +106,7 @@
             </td>
         </tr>
         <tr align="left">
-            <td><small><?php echo "<a href='../specimen_export/main.php'>Specimen Export Tool</a> | <a href='../BOLD2iNAT/'>BOLDS-to-iNaturalist Tool</a>"; ?><small></td>
+            <td><small><?php echo "<a href='../specimen_export/main.php'>Specimen Export Tool</a> | <a href='../BOLD2iNAT/main.php'>BOLDS-to-iNaturalist Tool</a>"; ?><small></td>
             <!---
             <td><small><?php echo "<a href='../specimen_export/main.php'>Specimen Export Tool</a>"; ?><small></td>
             --->
