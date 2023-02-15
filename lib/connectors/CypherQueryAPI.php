@@ -71,7 +71,7 @@ class CypherQueryAPI
                 // print_r($obj); exit; //good debug
                 self::write_tsv($obj, $filename, $skip);
             }
-            print("\n No. of rows: ".$total."\n");
+            print("\n No. of rows: ".$total." | row#: ".$this->real_row."\n");
             $skip += $this->per_page;
             if($total < $this->per_page) break;
             // break; //debug only
@@ -363,7 +363,7 @@ class CypherQueryAPI
 
                 if(!in_array($real_row, array(13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,3,31))) continue; //dev only --  caching...
 
-
+                $this->real_row = $real_row;
                 echo "\nrow: $real_row\n";
                 // */
 
