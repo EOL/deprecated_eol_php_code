@@ -25,7 +25,7 @@
 </tr>
 </table>
 <table border="0" cellpadding="0" cellspacing="0" align="center"><tr><td><font size="2">
-<a href="../xls2EOL/index.php">Content Partner &gt;&gt; </a>
+<a href="../xls2EOL/main.php">Content Partner &gt;&gt; </a>
 </font></td></tr></table>
 
 </form>

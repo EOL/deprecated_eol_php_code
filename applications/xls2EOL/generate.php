@@ -34,7 +34,7 @@ $validate = $_GET['validate'];
 if($validate == 'on')
 {    
     print"<hr><p>
-    <form name='validator_form' action='http://services.eol.org/eol_php_code/applications/validator/index.php' method='post'>
+    <form name='validator_form' action='http://services.eol.org/eol_php_code/applications/validator/main.php' method='post'>
     <input type='hidden' size='30' name='file_url' value='$url'>
     <input type='submit' value='Click here to Validate >> '>
     </td></form>
