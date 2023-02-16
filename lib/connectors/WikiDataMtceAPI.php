@@ -251,8 +251,15 @@ class WikiDataMtceAPI
                 exit("\n[$trait_kind]\nNo t.eol_pk\n");
             }
             if(isset($this->stop_node_query[$t_eol_pk]) && self::rank_is_above_species($rec['p.rank'])) {
+                // /*
                 $WRITE = Functions::file_open($this->discarded_rows, "a");
                 fwrite($WRITE, implode("\t", $rec)."\tstop_node"."\n"); fclose($WRITE);
+                // */
+                // /* report for Jen
+                $WRITE = Functions::file_open($this->removed_traits_stop_node, "a");
+                $merged = array_merge(array(0 => $this->real_row), $rec);
+                fwrite($WRITE, implode("\t", $merged)."\tstop_node"."\n"); fclose($WRITE);
+                // */                
                 return;
             }    
         }
@@ -1013,7 +1020,6 @@ class WikiDataMtceAPI
         elseif($page_id == 68512) return self::fix_further($page_id, $canonical, "Q8045501");        
         // */
 
-
         else { //orig
             if($ret = @$this->taxonMap[$page_id]) {
                 /* never use this since p.canonical in query sometimes really is blank. And identifier-map can do the connection.
@@ -1223,6 +1229,30 @@ class WikiDataMtceAPI
         // exit("\n-end-\n");
         // */
 
+        // /*
+        $this->removed_traits_stop_node = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/removed_traits_stop_node.tsv";
+        if(file_exists($this->removed_traits_stop_node)) unlink($this->removed_traits_stop_node); //un-comment in real operation
+        $final = array();
+        $final[] = 'row';
+        $final[] = 'p.canonical';
+        $final[] = 'p.page_id';
+        $final[] = 't.eol_pk';
+        $final[] = 'p.rank';
+        $final[] = 'pred.name';
+        $final[] = 'stage.name';
+        $final[] = 'sex.name'; 
+        $final[] = 'stat.name';
+        $final[] = 'obj.name';
+        $final[] = 't.measurement';
+        $final[] = 'units.name';
+        $final[] = 't.source';
+        $final[] = 't.citation';
+        $final[] = 'ref.literal';
+        $WRITE = Functions::file_open($this->removed_traits_stop_node, "w");
+        fwrite($WRITE, implode("\t", $final)."\n");
+        fclose($WRITE);
+        // */
+        
 
         $spreadsheet = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/resources/".$spreadsheet;
         $total = shell_exec("wc -l < ".escapeshellarg($spreadsheet)); $total = trim($total);
@@ -1249,14 +1279,14 @@ class WikiDataMtceAPI
                 $this->real_row = $real_row;
                 // if(in_array($real_row, array(1,2,4,5,6,7,8,9,10,11))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
                 //---------------------------------------------------------------
-                // if(!in_array($real_row, array(1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20))) continue; //dev only  --- for testing
+                if(!in_array($real_row, array(1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30))) continue; //dev only  --- for testing
                 // if(!in_array($real_row, array(20))) continue; //dev only  --- for testing
 
                 // if(!in_array($real_row, array(11))) continue; //dev only  --- our very first
                 // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
                 // row 12 -- zero results for query by citation and source
                 // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only --  QuickStatements Done
-                if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
+                // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
                 // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
                 echo "\nrow: $real_row\n";
                 // */
@@ -1318,8 +1348,8 @@ class WikiDataMtceAPI
             [trait.citation] => McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867
         )*/
         // print_r($rec); exit;
-        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //row 11 already ran. Our very first. Done QuickStatements OK
-        if($rec['trait.source'] == 'https://www.wikidata.org/wiki/Q116180473') return; //row 11 already ran. Our very first. Done QuickStatements OK
+        // if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') return; //row 11 already ran. Our very first. Done QuickStatements OK
+        // if($rec['trait.source'] == 'https://www.wikidata.org/wiki/Q116180473') return; //row 11 already ran. Our very first. Done QuickStatements OK
         
         // /* good way to run 1 resource for investigation
         // if($rec['trait.source'] != 'https://www.wikidata.org/entity/Q116263059') return; //row 1                     QuickStatements done           
@@ -1545,7 +1575,7 @@ class WikiDataMtceAPI
     private function rank_is_above_species($rank)
     {
         if(!$rank) return false;
-        if(in_array($rank, array("species", "subspecies"))) return false;
+        if(in_array($rank, array("species", "subspecies", "infraspecies"))) return false;
         return true; //the rest is true
     }
     /* working func but not used, since Crossref is not used, unreliable.
