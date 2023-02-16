@@ -280,10 +280,10 @@ class BioImagesAPI
         $mr->CVterm = '';
         $mr->title = (string) self::clean_str(utf8_encode($row[$col['Title']]));
         $mr->UsageTerms = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
-        /*
+        // /*
         $mr->accessURI = self::download_img_then_use_local_file_as_path($row[$col['DiscoverLife URL']]);
-        */
-        $mr->accessURI = $row[$col['DiscoverLife URL']];
+        // */
+        // $mr->accessURI = $row[$col['DiscoverLife URL']];
         $mr->creator = '';
         $mr->CreateDate = '';
         $mr->modified = '';
