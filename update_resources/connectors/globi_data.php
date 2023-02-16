@@ -96,6 +96,16 @@ globi_associations_delta	Wed 2023-01-25 09:11:01 AM	{"association.tab":2521696, 
 globi_associations	        Mon 2023-02-06 07:36:39 AM	{"association.tab":2642728, "occurrence_specific.tab":10913611, "reference.tab":9357578, "taxon.tab":429727, "time_elapsed":{"sec":15285.85, "min":254.76, "hr":4.25}}
 globi_associations_final	Mon 2023-02-06 11:43:28 AM	{"association.tab":2511024, "occurrence_specific.tab":10913458, "reference.tab":9357578, "taxon.tab":429727, "time_elapsed":{"sec":30095.84, "min":501.6, "hr":8.36}}
 globi_associations_delta	Mon 2023-02-06 04:05:06 PM	{"association.tab":2511024, "occurrence_specific.tab":10913458, "reference.tab":9004684, "taxon.tab":340661, "time_elapsed":{"sec":15218.73, "min":253.65, "hr":4.23}}
+
+below with Animalia and Metazoa associations removed:
+globi_associations	        Tue 2023-02-14 03:52:11 PM	{"association.tab":3640774, "occurrence_specific.tab":13005590, "reference.tab":10407513, "taxon.tab":336401, "time_elapsed":{"sec":17580.58, "min":293.01, "hr":4.88}}
+globi_associations_final	Tue 2023-02-14 08:33:53 PM	{"association.tab":3498886, "occurrence_specific.tab":13005415, "reference.tab":10407513, "taxon.tab":336401, "time_elapsed":{"sec":34482.14, "min":574.7, "hr":9.58}}
+globi_associations_delta	Wed 2023-02-15 01:35:28 AM	{"association.tab":3498886, "occurrence_specific.tab":13005415, "reference.tab":10053973, "taxon.tab":336401, "time_elapsed":{"sec":17528.5, "min":292.14, "hr":4.87}}
+
+below with Animalia and Metazoa associations added again:
+
+
+
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020
