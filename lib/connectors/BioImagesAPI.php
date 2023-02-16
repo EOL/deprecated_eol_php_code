@@ -51,7 +51,7 @@ class BioImagesAPI
 
     function get_all_taxa()
     {
-        if($temp_filepath = Functions::save_remote_file_to_local($this->data_dump_url, array('cache' => 1, 'expire_seconds' => 60*60*24*30, 'timeout' => 4800, 'download_attempts' => 2, 'delay_in_minutes' => 3)))
+        if($temp_filepath = Functions::save_remote_file_to_local($this->data_dump_url, array('cache' => 1, 'expire_seconds' => 60*60*24, 'timeout' => 4800, 'download_attempts' => 2, 'delay_in_minutes' => 3)))
         {
             //start - remove bom --------------
             $contents = file_get_contents($temp_filepath);
@@ -280,7 +280,10 @@ class BioImagesAPI
         $mr->CVterm = '';
         $mr->title = (string) self::clean_str(utf8_encode($row[$col['Title']]));
         $mr->UsageTerms = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
-        $mr->accessURI =self::download_img_then_use_local_file_as_path($row[$col['DiscoverLife URL']]);
+        /*
+        $mr->accessURI = self::download_img_then_use_local_file_as_path($row[$col['DiscoverLife URL']]);
+        */
+        $mr->accessURI = $row[$col['DiscoverLife URL']];
         $mr->creator = '';
         $mr->CreateDate = '';
         $mr->modified = '';
