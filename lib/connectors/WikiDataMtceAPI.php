@@ -107,6 +107,8 @@ class WikiDataMtceAPI
         $final = array();
         $final[] = 'p.canonical';
         $final[] = 'p.page_id';
+        $final[] = 't.eol_pk';
+        $final[] = 'p.rank';
         $final[] = 'pred.name';
         $final[] = 'stage.name';
         $final[] = 'sex.name'; 
@@ -241,7 +243,20 @@ class WikiDataMtceAPI
             self::write_2text_file($text_file, $str); //."excluded record***"
             return;
         }
-
+        // /* stop node query
+        if($trait_kind == "inferred_trait") {
+            if($t_eol_pk = $rec['t.eol_pk']) {}
+            else {
+                print_r($rec);
+                exit("\n[$trait_kind]\nNo t.eol_pk\n");
+            }
+            if(isset($this->stop_node_query[$t_eol_pk]) && self::rank_is_above_species($rec['p.rank'])) {
+                $WRITE = Functions::file_open($this->discarded_rows, "a");
+                fwrite($WRITE, implode("\t", $rec)."\tstop_node"."\n"); fclose($WRITE);
+                return;
+            }    
+        }
+        // */
         if($ret = self::get_wikidata_obj_using_EOL_pageID($rec['p.page_id'], $rec['p.canonical'])) { //1st option
             $entity_id = $ret[0];
             $wikidata_obj = $ret[1];
@@ -668,7 +683,7 @@ class WikiDataMtceAPI
         $sheets = array("measurementTypes", "measurementValues", "metadata", "other values");
         foreach($sheets as $sheet) {
             $params['range']         = $sheet.'!A1:C100'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-            $arr = $func->access_google_sheet($params, false); //2nd param false means cache expires
+            $arr = $func->access_google_sheet($params); //2nd param false means cache expires
             $final[$sheet] = self::massage_google_sheet_results($arr);
         }
         // */
@@ -772,7 +787,8 @@ class WikiDataMtceAPI
         $final[] = @$wikidata_obj->display->description->value;
         $final[] = $rec['how'];
         // /*
-        $final[] = self::get_pipe_delimited_ancestry($wikidata_obj->id);
+        // $final[] = self::get_pipe_delimited_ancestry($wikidata_obj->id); //working OK
+        $final[] = "-ancestry-";
         // */
         fwrite($this->WRITE, implode("\t", $final)."\n");
         // print_r($rec); print_r($wikidata_obj); print_r($final); exit;
@@ -1193,6 +1209,21 @@ class WikiDataMtceAPI
         while(!feof($file)) { $row = fgetcsv($file); }
         fclose($file);
         */
+        // /* stop node query
+        require_library('connectors/CypherQueryAPI');
+        $resource_id = 'eol';
+        $func = new CypherQueryAPI($resource_id);
+        $input = array();
+        $input["params"] = array();
+        $input["type"] = "traits_stop_at";
+        $input["per_page"] = 500; // 500 worked ok
+        $this->stop_node_query = $func->get_traits_stop_at($input);
+        echo "\nstop_node_query: ".count($this->stop_node_query)."\n"; //exit;
+        unset($func);
+        // exit("\n-end-\n");
+        // */
+
+
         $spreadsheet = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/resources/".$spreadsheet;
         $total = shell_exec("wc -l < ".escapeshellarg($spreadsheet)); $total = trim($total);
         $i = 0;
@@ -1215,20 +1246,29 @@ class WikiDataMtceAPI
 
                 // /* takbo
                 $real_row = $i - 1;
-                if(in_array($real_row, array(1,2,4,5,6,7,8,9,10,11))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
+                $this->real_row = $real_row;
+                // if(in_array($real_row, array(1,2,4,5,6,7,8,9,10,11))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
                 //---------------------------------------------------------------
+                // if(!in_array($real_row, array(1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20))) continue; //dev only  --- for testing
+                // if(!in_array($real_row, array(20))) continue; //dev only  --- for testing
+
                 // if(!in_array($real_row, array(11))) continue; //dev only  --- our very first
-                if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
+                // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
                 // row 12 -- zero results for query by citation and source
                 // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only --  QuickStatements Done
-                // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
+                if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
                 // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
-
-                
-
                 echo "\nrow: $real_row\n";
                 // */
                 
+                /* status
+                rows 1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20 - all traits from these are now in WikiData.
+                rows 3,21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
+                row 5 - will be ignored for now (delta-key).
+                row 12 - was run but no records returned. Will investigate more. Will inform Jen. (1038 https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2)
+                row 31 - for taxonomic review
+                */
+
                 $paths = self::run_resource_traits($rec, $task);
 
                 /*############################### START #####################################*/ //to do: can move to its own function
@@ -1501,6 +1541,12 @@ class WikiDataMtceAPI
                 return $arr[1];
             }
         }    
+    }
+    private function rank_is_above_species($rank)
+    {
+        if(!$rank) return false;
+        if(in_array($rank, array("species", "subspecies"))) return false;
+        return true; //the rest is true
     }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
