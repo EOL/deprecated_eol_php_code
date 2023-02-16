@@ -111,6 +111,20 @@ class GloBIDataAPI extends Globi_Refuted_Records
         foreach($excluded_unidentified_taxa as $id) $this->exclude_taxonIDs[$id] = '';
         // */
 
+        // /* remove scinames Animalia & Metazoa: Eli found manually 8 scientificNames:
+        // taxonID|furtherInformationURL|referenceID|parentNameUsageID|scientificName
+        // http://taxon-concept.plazi.org/id/Metazoa/Pseudevoplitusroraimensis_Grazia_2002|http://taxon-concept.plazi.org/id/Metazoa/Pseudevoplitusroraimensis_Grazia_2002|||Metazoa||Metazoa||||||||
+        // NCBI:33208|https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=33208|||Metazoa||Metazoa||||||kingdom||
+        // http://taxon-concept.plazi.org/id/Animalia/Sympetrum_Newman_1833|http://taxon-concept.plazi.org/id/Animalia/Sympetrum_Newman_1833|||Animalia||Animalia||||||||
+        // EOL:1|http://eol.org/pages/1|||Animalia||Animalia||||||kingdom||
+        // ITIS:202423|http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=202423|||Animalia||Animalia||||||kingdom||
+        // GBIF:1|http://www.gbif.org/species/1|||Animalia||Animalia||||||kingdom||
+        // INAT_TAXON:1|https://inaturalist.org/taxa/1|||Animalia||Animalia||||||kingdom||
+        // NBN:NBNSYS0100001342|https://data.nbn.org.uk/Taxa/NBNSYS0100001342|||Animalia||Animalia||||||kingdom||
+        $excluded_unidentified_taxa = array("http://taxon-concept.plazi.org/id/Metazoa/Pseudevoplitusroraimensis_Grazia_2002", "NCBI:33208", "http://taxon-concept.plazi.org/id/Animalia/Sympetrum_Newman_1833", "EOL:1", "ITIS:202423", "GBIF:1", "INAT_TAXON:1", "NBN:NBNSYS0100001342");
+        foreach($excluded_unidentified_taxa as $id) $this->exclude_taxonIDs[$id] = '';
+        // */
+
         // /* New per Jen:
         echo "\nexclude_taxonIDs 1: ".count($this->exclude_taxonIDs)."\n";
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'build info 2'); //generates $this->exclude_taxonIDs
@@ -815,7 +829,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 if(stripos($scientificName, "https:") !== false) $this->exclude_taxonIDs[$taxonID] = ''; //string is found
                 // */
 
-                // /* remove sciname Animalia Metazoa: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=67344&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67344
+                // /* remove scinames Animalia & Metazoa: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=67344&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67344
                 if(in_array($scientificName, array("Animalia", "Metazoa"))) $this->exclude_taxonIDs[$taxonID] = '';
                 // */
             }
