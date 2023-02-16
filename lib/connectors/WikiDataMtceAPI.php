@@ -259,6 +259,8 @@ class WikiDataMtceAPI
                 $WRITE = Functions::file_open($this->removed_traits_stop_node, "a");
                 $merged = array_merge(array(0 => $this->real_row), $rec);
                 fwrite($WRITE, implode("\t", $merged)."\tstop_node"."\n"); fclose($WRITE);
+                $this->debug['stop_node_query'][$this->real_row] = '';
+                $this->debug['stop_node_query_rank'][$rec['p.rank']] = '';
                 // */                
                 return;
             }    
