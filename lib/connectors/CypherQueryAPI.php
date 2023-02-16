@@ -438,10 +438,11 @@ class CypherQueryAPI
             $input = self::query_maker($input);
             $filename = self::generate_path_filename($input); //exit("\n[$filename]\n");
             $json = self::retrieve_trait_data($input, $filename);
-            $obj = json_decode($json); //print_r($obj); return; //exit("\nstop query muna\n");
+            $obj = json_decode($json); //print_r($obj); //return; //exit("\nstop query muna\n");
             if($total = count(@$obj->data)) {
                 // print_r($obj); exit; //good debug
                 self::write_tsv($obj, $filename, $skip);
+                foreach($obj->data as $r) $info[$r[0]] = '';
             }
             print("\n No. of rows: ".$total."\n");
             $skip += $this->per_page;
@@ -451,6 +452,7 @@ class CypherQueryAPI
         print("\nfilename: [$filename]\n-----Processing ends-----\n");
         print_r($input); //good debug
         print("\nReport file: ".$this->tsv_file."\n");
+        return $info;
     }
 
 
