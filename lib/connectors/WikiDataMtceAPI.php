@@ -1362,8 +1362,8 @@ class WikiDataMtceAPI
         // */
 
         print_r($rec); //exit;
-        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE;
-        elseif($rec['trait.source'] == 'https://www.wikidata.org/wiki/Q116180473') $use_citation = TRUE;
+        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = false; //orig TRUE;
+        elseif($rec['trait.source'] == 'https://www.wikidata.org/wiki/Q116180473') $use_citation = false; //orig TRUE;
         else $use_citation = FALSE; //the rest goes here.
         
         if($use_citation) {
