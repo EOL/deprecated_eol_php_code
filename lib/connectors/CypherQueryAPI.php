@@ -382,7 +382,7 @@ class CypherQueryAPI
         )*/
 
         print_r($rec);
-        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = TRUE; //our very first one
+        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = false; //TRUE; //our very first one, orig true
         elseif($rec['trait.source'] == 'https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2') $use_citation = TRUE;            
         else $use_citation = FALSE; //the rest goes here.
 
