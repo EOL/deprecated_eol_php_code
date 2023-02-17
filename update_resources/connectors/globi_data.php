@@ -107,7 +107,9 @@ globi_associations	        Wed 2023-02-15 04:10:37 PM	{"association.tab":3640790
 globi_associations_final	Wed 2023-02-15 08:52:09 PM	{"association.tab":3498902, "occurrence_specific.tab":13005432, "reference.tab":10407513, "taxon.tab":336401, "time_elapsed":{"sec":34464.21, "min":574.4, "hr":9.57}}
 globi_associations_delta	Thu 2023-02-16 01:51:18 AM	{"association.tab":3498902, "occurrence_specific.tab":13005432, "reference.tab":10053973, "taxon.tab":336401, "time_elapsed":{"sec":17472.31, "min":291.21, "hr":4.85}}
 
-
+globi_associations	        Thu 2023-02-16 09:37:34 AM	{"association.tab":3640774, "occurrence_specific.tab":13005590, "reference.tab":10407513, "taxon.tab":336401, "time_elapsed":{"sec":17854.32, "min":297.57, "hr":4.96}}
+globi_associations_final	Thu 2023-02-16 02:24:15 PM	{"association.tab":3498886, "occurrence_specific.tab":13005415, "reference.tab":10407513, "taxon.tab":336401, "time_elapsed":{"sec":35055.89, "min":584.26, "hr":9.74}}
+globi_associations_delta	Thu 2023-02-16 07:30:02 PM	{"association.tab":3498886, "occurrence_specific.tab":13005415, "reference.tab":10053973, "taxon.tab":336401, "time_elapsed":{"sec":17764.45, "min":296.07, "hr":4.93}}
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
