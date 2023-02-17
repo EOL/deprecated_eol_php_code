@@ -74,7 +74,10 @@ class WikiDataMtceAPI
 
         // /* unique export file
         $this->temp_file = $this->report_path."export_file.qs";
-        if(file_exists($this->temp_file)) unlink($this->temp_file); //un-comment in real operation
+        if(file_exists($this->temp_file)) unlink($this->temp_file);
+
+        $this->temp_removal_file = $this->report_path."export_removal_file.qs";
+        if(file_exists($this->temp_removal_file)) unlink($this->temp_removal_file);
         // */
         
         // /* 
