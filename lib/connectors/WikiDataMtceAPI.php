@@ -68,11 +68,12 @@ class WikiDataMtceAPI
 
         $this->tmp_batch_export = $this->report_path . "/temp_export.qs";
 
+        // $last_digit = (string) rand();
+        // $last_digit = substr((string) rand(), -2);
+        // $this->temp_file = $this->report_path . date("Y_m_d_H_i_s_") . $last_digit . ".qs";
+
         // /* unique export file
-        $last_digit = (string) rand();
-        $last_digit = substr((string) rand(), -2);
-        $this->temp_file = $this->report_path . date("Y_m_d_H_i_s_") . $last_digit . ".qs";
-        $this->temp_file = $this->report_path."export_file.qs"; //nocturnal group
+        $this->temp_file = $this->report_path."export_file.qs";
         if(file_exists($this->temp_file)) unlink($this->temp_file); //un-comment in real operation
         // */
         
