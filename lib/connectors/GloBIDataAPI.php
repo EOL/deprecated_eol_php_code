@@ -832,6 +832,14 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 // /* remove scinames Animalia & Metazoa: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=67344&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67344
                 if(in_array($scientificName, array("Animalia", "Metazoa"))) $this->exclude_taxonIDs[$taxonID] = '';
                 // */
+
+                // /* Eli's initiative: exclude all higher than species level taxa from Plazi
+                // http://taxon-concept.plazi.org/id/Animalia/Syngnathinae_Bonaparte_1831	http://taxon-concept.plazi.org/id/Animalia/Syngnathinae_Bonaparte_1831			Syngnathinae		Animalia	Chordata	Actinopterygii	Syngnathiformes	Syngnathidae	Syngnathinae			
+                if(stripos($taxonID, "plazi.") !== false) { //from Plazi //string is found
+                    if(stripos($scientificName, " ") !== false) {} //has space, meaning species or lower level //string is found
+                    else $this->exclude_taxonIDs[$taxonID] = ''; //doesn't have space, meaning a higher than species level -> then it must be excluded for associations
+                }
+                // */
             }
             elseif($what == 'create extension') { //process_taxon()
                 if(isset($this->taxonIDhasOccurrence[$taxonID])) {
