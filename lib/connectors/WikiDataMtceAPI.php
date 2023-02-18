@@ -306,6 +306,8 @@ class WikiDataMtceAPI
                 }
             }
         }
+        
+        // next: find the missing 41 = 1113 - 1072
 
         if($wikidata_obj) {
             // print_r($wikidata_obj); exit("\nelix4\n");
@@ -1150,7 +1152,7 @@ class WikiDataMtceAPI
         }
         else exit("\nShould not go here.\n");
     }
-    function divide_exportfile_send_2quickstatements($input)
+    function divide_exportfile_send_2quickstatements($input, $remove_traits_YN = false)
     {
         /* last to process:
         */
@@ -1160,7 +1162,8 @@ class WikiDataMtceAPI
         $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/"; //generated from CypherQueryAPI.php
         $tmp = md5(json_encode($input));
         $this->report_path .= "$tmp/";
-        $this->temp_file = $this->report_path."export_file.qs"; //unique export file
+        if($remove_traits_YN)   $this->temp_file = $this->report_path."export_removal_file.qs"; //
+        else                    $this->temp_file = $this->report_path."export_file.qs"; //orig
         // */
 
         $i = 0;
@@ -1215,8 +1218,8 @@ class WikiDataMtceAPI
         $cmd .= " --data-raw 'token=".QUICKSTATEMENTS_EOLTRAITS_TOKEN."' ";
         $cmd .= " --data-urlencode data@".$this->tmp_batch_export." ";
         echo "\n$cmd\n";
-        $output = shell_exec($cmd);
-        echo "\n[$output]\n";
+        // $output = shell_exec($cmd);
+        // echo "\n[$output]\n";
     }
 
     /* the one used for citation, manually run in terminal:
@@ -1311,7 +1314,7 @@ class WikiDataMtceAPI
                 echo "\nrow: $real_row\n";
                 // */
                 
-                /* status
+                /* status Feb 18, 2023
                 rows 1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20 - all traits from these are now in WikiData.
                 rows 3,21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
                 row 5 - will be ignored for now (delta-key).
@@ -1425,6 +1428,7 @@ class WikiDataMtceAPI
         if(file_exists($file2)) {
             if($task == 'generate trait reports') self::create_WD_traits($input);
             elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
+            elseif($task == 'remove WD traits') self::divide_exportfile_send_2quickstatements($input, true); //2nd param remove_traits_YN
         }
         else echo "\n[$file2]\nNo query results yet: ".$input['trait kind']."\n";
         // */
