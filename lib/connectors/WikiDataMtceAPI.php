@@ -247,6 +247,8 @@ class WikiDataMtceAPI
             self::write_2text_file($text_file, $str); //."excluded record***"
             return;
         }
+        $discarded_already_YN = false;
+        $this->removal_YN = false;
         // /* stop node query
         if($trait_kind == "inferred_trait") {
             if($t_eol_pk = $rec['t.eol_pk']) {}
@@ -265,8 +267,10 @@ class WikiDataMtceAPI
                 fwrite($WRITE, implode("\t", $merged)."\tstop_node"."\n"); fclose($WRITE);
                 $this->debug['stop_node_query'][$this->real_row] = '';
                 $this->debug['stop_node_query_rank'][$rec['p.rank']] = '';
-                // */                
-                return;
+                // */
+                // return;
+                $discarded_already_YN = true;
+                $this->removal_YN = true;
             }    
         }
         // */
@@ -287,15 +291,19 @@ class WikiDataMtceAPI
                 if($wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) $rec['how'] = 'name search thru identifier-map'; //2nd option
                 else {
                     // print_r($rec); exit("\nCannot proceed with this record 22.\n");
-                    $str = implode("\t", array($rec['p.canonical'], $rec['p.page_id'], "**"));
-                    self::write_2text_file($text_file, $str); //."ignored record**"
+                    if(!$this->removal_YN) {
+                        $str = implode("\t", array($rec['p.canonical'], $rec['p.page_id'], "**"));
+                        self::write_2text_file($text_file, $str); //."ignored record**"
+                    }
                 }
             }
             elseif($rec['p.canonical'] && $wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) $rec['how'] = 'name search'; //prev. 2nd option. Now 3rd.
             else {
                 // print_r($rec); exit("\nCannot proceed with this record 11.\n");
-                $str = implode("\t", array($rec['p.canonical'], $rec['p.page_id'], "*"));
-                self::write_2text_file($text_file, $str); //."ignored record*"
+                if(!$this->removal_YN) {
+                    $str = implode("\t", array($rec['p.canonical'], $rec['p.page_id'], "*"));
+                    self::write_2text_file($text_file, $str); //."ignored record*"
+                }
             }
         }
 
@@ -307,7 +315,7 @@ class WikiDataMtceAPI
             $final = array();
             $final['taxon_entity'] = $taxon_entity_id;
 
-            $discarded_already_YN = false;
+            // $discarded_already_YN = false; --- moved up
             if($val = @$this->map['measurementTypes'][$rec["pred.name"]]["property"]) {
                 if($val != "DISCARD") $final['predicate_entity'] = $val;
                 else {
@@ -377,7 +385,9 @@ class WikiDataMtceAPI
 
             if($final['taxon_entity'] && @$final['predicate_entity'] && @$final['object_entity']) {
                 self::create_WD_taxon_trait($final);                    //writes export_file.qs
-                self::write_taxonomic_mapping($rec, $wikidata_obj);     //writes taxonomic_mappings_for_review.tsv
+                if(!$this->removal_YN) {
+                    self::write_taxonomic_mapping($rec, $wikidata_obj);     //writes taxonomic_mappings_for_review.tsv
+                }
             }
         }
         else echo "\nNot a taxon: [".$rec['p.canonical']."]\n";
@@ -483,8 +493,12 @@ class WikiDataMtceAPI
         $rows[] = $row;
 
         print_r($rows);
-        $WRITE = Functions::file_open($this->temp_file, "a");
+        if($this->removal_YN)   $WRITE = Functions::file_open($this->temp_removal_file, "a");
+        else                    $WRITE = Functions::file_open($this->temp_file, "a"); //orig
         foreach($rows as $row) {
+            if($this->removal_YN) { //Q10397859|P9566|Q101029366 ---> remove the reference part of the export
+                $row = self::remove_reference_part($row); }
+            // else {}              //Q10397859|P9566|Q101029366|S3452|Q116180473 ---> orig, with the reference part
             fwrite($WRITE, $row."\n");
         }
         fclose($WRITE);
@@ -800,8 +814,8 @@ class WikiDataMtceAPI
         $final[] = @$wikidata_obj->display->description->value;
         $final[] = $rec['how'];
         // /*
-        $final[] = self::get_pipe_delimited_ancestry($wikidata_obj->id); //working OK
-        // $final[] = "-ancestry-";
+        // $final[] = self::get_pipe_delimited_ancestry($wikidata_obj->id); //working OK
+        $final[] = "-ancestry-";
         // */
         fwrite($this->WRITE, implode("\t", $final)."\n");
         // print_r($rec); print_r($wikidata_obj); print_r($final); exit;
@@ -1286,7 +1300,7 @@ class WikiDataMtceAPI
                 // if(in_array($real_row, array(1,2,4,5,6,7,8,9,10,11))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
                 //---------------------------------------------------------------
                 // if(!in_array($real_row, array(1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30))) continue; //dev only  --- for testing
-                if(!in_array($real_row, array(1))) continue; //dev only  --- for testing
+                if(!in_array($real_row, array(11))) continue; //dev only  --- for testing
 
                 // if(!in_array($real_row, array(11))) continue; //dev only  --- our very first
                 // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
@@ -1583,6 +1597,12 @@ class WikiDataMtceAPI
         if(!$rank) return false;
         if(in_array($rank, array("species", "subspecies", "infraspecies"))) return false;
         return true; //the rest is true
+    }
+    private function remove_reference_part($row)
+    {
+        $pos = strpos($row, "|S");
+        if(!$pos) exit("\nNeed to investigate.\n");
+        return substr($row, 0, $pos);
     }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)

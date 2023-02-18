@@ -55,8 +55,10 @@ curl https://quickstatements.toolforge.org/api.php \
 	-d action=import \
 	-d submit=1 \
 	-d username=EOLTraits \
-	-d "batchname=BATCH 1" \
+	-d "batchname=Removal 1" \
 	--data-raw 'token=$2y$10$hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy' \
+	--data-urlencode data@removal.qs
+
 	--data-urlencode data@test.qs
 
 https://quickstatements.toolforge.org/api.php?action=import&submit=1&username=EOLTraits&token=%242y%2410%24hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy&format=v1&data=Q4115189%7CP9714%7CP155&compress=0&batchname=eol_traits_sbox_1
