@@ -1106,7 +1106,9 @@ class WikiDataMtceAPI
     private function fix_further($page_id, $canonical, $new_WD_id)
     {
         $ret = array("i" => $new_WD_id, "c" => $canonical);
+        /* un-comment this only when row 31 taxonomic corrections are done
         $this->download_options['expire_seconds'] = true; //means cache expires now, same if value is 0 zero.
+        */
         if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) {
             $this->download_options['expire_seconds'] = false;
             return array($ret['i'], $obj);
@@ -1184,7 +1186,7 @@ class WikiDataMtceAPI
                 echo "\n-----";
                 fclose($WRITE);
                 self::run_quickstatements_api($batch_name, $batch_num);
-                echo "\nsleep 30 seconds...\n"; sleep(30);
+                echo "\nsleep 60*3 seconds...\n"; sleep(60*3);
                 /* sometimes running it twice is needed to remove the error
                 self::run_quickstatements_api($batch_name, $batch_num); 
                 */
@@ -1219,8 +1221,8 @@ class WikiDataMtceAPI
         $cmd .= " --data-raw 'token=".QUICKSTATEMENTS_EOLTRAITS_TOKEN."' ";
         $cmd .= " --data-urlencode data@".$this->tmp_batch_export." ";
         echo "\n$cmd\n";
-        // $output = shell_exec($cmd);
-        // echo "\n[$output]\n";
+        $output = shell_exec($cmd);
+        echo "\n[$output]\n";
     }
 
     /* the one used for citation, manually run in terminal:
@@ -1607,7 +1609,7 @@ class WikiDataMtceAPI
     {
         $pos = strpos($row, "|S");
         if(!$pos) exit("\nNeed to investigate.\n");
-        return substr($row, 0, $pos);
+        return "-".substr($row, 0, $pos);
     }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
