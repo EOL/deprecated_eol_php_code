@@ -1186,7 +1186,7 @@ class WikiDataMtceAPI
                 echo "\n-----";
                 fclose($WRITE);
                 self::run_quickstatements_api($batch_name, $batch_num);
-                echo "\nsleep 60*3 seconds...\n"; sleep(60*3);
+                $secs = 60*3; echo "\nSleep $secs seconds..."; sleep($secs); echo " Continue...\n";
                 /* sometimes running it twice is needed to remove the error
                 self::run_quickstatements_api($batch_name, $batch_num); 
                 */
