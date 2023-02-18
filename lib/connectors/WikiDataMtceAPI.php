@@ -1165,6 +1165,7 @@ class WikiDataMtceAPI
         if($remove_traits_YN)   $this->temp_file = $this->report_path."export_removal_file.qs"; //
         else                    $this->temp_file = $this->report_path."export_file.qs"; //orig
         // */
+        if(!file_exists($this->temp_file)) exit("\nInvestigate. File does not exist: [$this->temp_file\n");
 
         $i = 0;
         $batch_name = date("Y_m_d");
@@ -1353,7 +1354,7 @@ class WikiDataMtceAPI
                             $cmd = "cp -R $path $destination"; //worked OK
                             $cmd .= " 2>&1"; // echo "\n[$cmd]\n";
                             shell_exec($cmd);
-                            self::delete_folder_contents($path."/", array("inferred_trait_qry.tsv", "trait_qry.tsv", "export_file.qs"));
+                            self::delete_folder_contents($path."/", array("inferred_trait_qry.tsv", "trait_qry.tsv", "export_file.qs", "export_removal_file.qs"));
                         }    
                     }
                 }
