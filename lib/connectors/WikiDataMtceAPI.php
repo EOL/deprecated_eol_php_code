@@ -1305,7 +1305,9 @@ class WikiDataMtceAPI
                 // if(in_array($real_row, array(1,2,4,5,6,7,8,9,10,11))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
                 //---------------------------------------------------------------
                 // if(!in_array($real_row, array(1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30))) continue; //dev only  --- for testing
-                if(!in_array($real_row, array(11))) continue; //dev only  --- for testing
+                if(!in_array($real_row, array(11))) continue; //dev only  --- for removal running...
+                // if(!in_array($real_row, array(13,17,19,20))) continue; //dev only  --- for removal
+                // if(!in_array($real_row, array(20))) continue; //dev only  --- for removal
 
                 // if(!in_array($real_row, array(11))) continue; //dev only  --- our very first
                 // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
