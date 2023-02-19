@@ -840,6 +840,12 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     else $this->exclude_taxonIDs[$taxonID] = ''; //doesn't have space, meaning a higher than species level -> then it must be excluded for associations
                 }
                 // */
+
+                // /* what the heck, let us remove all those 1-word scientificNames. Assuming they are higher-level taxa.
+                    if(stripos($scientificName, " ") !== false) {} //has space, meaning species or lower level //string is found
+                    else $this->exclude_taxonIDs[$taxonID] = ''; //doesn't have space, meaning a higher than species level -> then it must be excluded for associations
+                // */
+
             }
             elseif($what == 'create extension') { //process_taxon()
                 if(isset($this->taxonIDhasOccurrence[$taxonID])) {
