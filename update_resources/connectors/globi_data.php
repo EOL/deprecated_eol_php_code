@@ -111,6 +111,11 @@ globi_associations	        Thu 2023-02-16 09:37:34 AM	{"association.tab":3640774
 globi_associations_final	Thu 2023-02-16 02:24:15 PM	{"association.tab":3498886, "occurrence_specific.tab":13005415, "reference.tab":10407513, "taxon.tab":336401, "time_elapsed":{"sec":35055.89, "min":584.26, "hr":9.74}}
 globi_associations_delta	Thu 2023-02-16 07:30:02 PM	{"association.tab":3498886, "occurrence_specific.tab":13005415, "reference.tab":10053973, "taxon.tab":336401, "time_elapsed":{"sec":17764.45, "min":296.07, "hr":4.93}}
 
+All single-word scientificNames from Plazi were removed - associations removed.
+globi_associations	        Fri 2023-02-17 03:31:23 PM	{"association.tab":3638127, "occurrence_specific.tab":13046741, "reference.tab":10506147, "taxon.tab":336533, "time_elapsed":{"sec":17999.04, "min":299.98, "hr":5}}
+globi_associations_final	Fri 2023-02-17 08:10:50 PM	{"association.tab":3496568, "occurrence_specific.tab":13046567, "reference.tab":10506147, "taxon.tab":336533, "time_elapsed":{"sec":34766.06, "min":579.43, "hr":9.66}}
+globi_associations_delta	Sat 2023-02-18 01:12:12 AM	{"association.tab":3496568, "occurrence_specific.tab":13046567, "reference.tab":10151728, "taxon.tab":336533, "time_elapsed":{"sec":17500.48, "min":291.67, "hr":4.86}}
+
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020
