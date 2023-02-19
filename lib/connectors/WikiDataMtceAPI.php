@@ -1279,7 +1279,6 @@ class WikiDataMtceAPI
         fclose($WRITE);
         // */
         
-
         $spreadsheet = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/resources/".$spreadsheet;
         $total = shell_exec("wc -l < ".escapeshellarg($spreadsheet)); $total = trim($total);
         $i = 0;
