@@ -12,6 +12,8 @@ Ran some tests if legacy connector still works: Not anymore, generates less reco
 168	Thu 2023-02-09 05:33:41 AM	    {"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22938, "time_elapsed":{"sec":134.1, "min":2.24, "hr":0.04}}
 168	Thu 2023-02-16 10:12:13 AM	    {"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22937, "time_elapsed":{"sec":115.79, "min":1.93, "hr":0.03}}
 168	Wed 2023-02-22 05:24:03 AM	    {"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22937, "time_elapsed":{"sec":238.83, "min":3.98, "hr":0.07}}
+Below removed < 200 bytes size images (blank images) - Eli's initiative.
+168	Wed 2023-02-22 06:38:53 AM	    {"agent.tab":121, "media_resource.tab":144699, "taxon.tab":22937, "time_elapsed":{"sec":122.13, "min":2.04, "hr":0.03}}
 
 From resource_utility.php
 168_meta_recoded	Thu 2021-01-14 07:53:44 AM	{"agent.tab":98,  "media_resource.tab":129821, "taxon.tab":22302, "time_elapsed":{"sec":74.27, "min":1.24, "hr":0.02}} - eol-archive
@@ -19,6 +21,8 @@ From resource_utility.php
 168_meta_recoded	Thu 2023-02-09 05:34:55 AM	{"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22938, "time_elapsed":{"sec":71.92, "min":1.2, "hr":0.02}}
 168_meta_recoded	Thu 2023-02-16 10:13:29 AM	{"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22937, "time_elapsed":{"sec":74.1, "min":1.24, "hr":0.02}}
 168_meta_recoded	Wed 2023-02-22 05:25:17 AM	{"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22937, "time_elapsed":{"sec":73.24, "min":1.22, "hr":0.02}}
+Below removed < 200 bytes size images (blank images) - Eli's initiative.
+168_meta_recoded	Wed 2023-02-22 06:40:06 AM	{"agent.tab":121, "media_resource.tab":144699, "taxon.tab":22937, "time_elapsed":{"sec":71.15, "min":1.19, "hr":0.02}}
 */
 
 /*

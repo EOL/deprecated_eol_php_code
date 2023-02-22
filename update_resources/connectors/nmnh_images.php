@@ -32,8 +32,8 @@ less: blank StillImage value --- 101 recs below
 
 nmnh_images	Mon 2022-11-28 04:42:22 AM	{"agent.tab":1356, "media_resource.tab":456528, "taxon.tab":90294, "time_elapsed":{"sec":1469.41, "min":24.49, "hr":0.41}}
 Below start of only publicdomain licensed media is allowed:
-nmnh_images	Mon 2022-11-28 08:54:38 AM	{"agent.tab":453,  "media_resource.tab":274757, "taxon.tab":57940, "time_elapsed":{"sec":1399.95, "min":23.33, "hr":0.39}}
-
+nmnh_images	Mon 2022-11-28 08:54:38 AM	{"agent.tab":453, "media_resource.tab":274757, "taxon.tab":57940, "time_elapsed":{"sec":1399.95, "min":23.33, "hr":0.39}}
+nmnh_images	Tue 2023-02-21 12:49:43 PM	{"agent.tab":452, "media_resource.tab":279631, "taxon.tab":60230, "time_elapsed":{"sec":1374.83, "min":22.91, "hr":0.38}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NMNHimagesAPI');
