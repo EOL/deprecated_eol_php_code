@@ -224,7 +224,7 @@ class BioImagesAPI
             $img_id = $arr[1];
             $filename = self::generate_path_filename($url, $destination_folder, $img_id); debug("\nlocal: [$filename]\n");
             if(file_exists($filename)) {
-                if(filesize($filename) > 200) return self::convert_local_filename_to_media_url($filename); //at least 200 bytes
+                if(filesize($filename) > 0) return self::convert_local_filename_to_media_url($filename);
                 else {
                     unlink($filename);
                     if($media_url = self::download_DL_image($url, $filename)) return $media_url;
