@@ -11,12 +11,14 @@ Ran some tests if legacy connector still works: Not anymore, generates less reco
 168	Wed 2023-02-08 03:30:21 AM	    {"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22938, "time_elapsed":{"sec":171.51, "min":2.86, "hr":0.05}}
 168	Thu 2023-02-09 05:33:41 AM	    {"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22938, "time_elapsed":{"sec":134.1, "min":2.24, "hr":0.04}}
 168	Thu 2023-02-16 10:12:13 AM	    {"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22937, "time_elapsed":{"sec":115.79, "min":1.93, "hr":0.03}}
+168	Wed 2023-02-22 05:24:03 AM	    {"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22937, "time_elapsed":{"sec":238.83, "min":3.98, "hr":0.07}}
 
 From resource_utility.php
 168_meta_recoded	Thu 2021-01-14 07:53:44 AM	{"agent.tab":98,  "media_resource.tab":129821, "taxon.tab":22302, "time_elapsed":{"sec":74.27, "min":1.24, "hr":0.02}} - eol-archive
 168_meta_recoded	Wed 2023-02-08 03:31:38 AM	{"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22938, "time_elapsed":{"sec":75.23, "min":1.25, "hr":0.02}}
 168_meta_recoded	Thu 2023-02-09 05:34:55 AM	{"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22938, "time_elapsed":{"sec":71.92, "min":1.2, "hr":0.02}}
 168_meta_recoded	Thu 2023-02-16 10:13:29 AM	{"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22937, "time_elapsed":{"sec":74.1, "min":1.24, "hr":0.02}}
+168_meta_recoded	Wed 2023-02-22 05:25:17 AM	{"agent.tab":121, "media_resource.tab":144845, "taxon.tab":22937, "time_elapsed":{"sec":73.24, "min":1.22, "hr":0.02}}
 */
 
 /*
