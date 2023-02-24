@@ -33,7 +33,8 @@ class CypherQueryAPI
         */
 
         $this->basename = "cypher_".date('Y_m_d_His');
-        $this->per_page = 100;
+        $this->per_page = 500; //100;
+        $this->per_page_2 = 1000;
         $this->debug = array();
     }
     private function initialize_path($input)
@@ -155,6 +156,8 @@ class CypherQueryAPI
             elseif($input['trait kind'] == 'inferred_trait') {
                 $qry = 'MATCH (t:Trait)<-[:inferred_trait]-(p:Page), ';
             // /* ORIG CACHED - recently added t.eol_pk, p.rank
+
+            if($this->with_DISTINCT_YN) {
             $qry .= '(t)-[:predicate]->(pred:Term)
             WHERE t.source = "'.$source.'"
             OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
@@ -166,7 +169,22 @@ class CypherQueryAPI
             RETURN DISTINCT p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
             ORDER BY p.canonical 
             SKIP '.$skip.' LIMIT '.$limit;
-            // */ //t.eol_pk, p.rank,
+            // */ //t.eol_pk, p.rank,    
+            }
+            else {
+                $qry .= '(t)-[:predicate]->(pred:Term)
+                WHERE t.source = "'.$source.'"
+                OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+                OPTIONAL MATCH (t)-[:units_term]->(units:Term)
+                OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
+                OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
+                OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
+                OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
+                RETURN p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+                ORDER BY p.canonical 
+                SKIP '.$skip.' LIMIT '.$limit; // no DISTINCT
+                // */ //t.eol_pk, p.rank,    
+            }
 
             }
 
@@ -263,7 +281,7 @@ class CypherQueryAPI
         */
         $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
         // $cmd .= ' 2>/dev/null'; //this will throw away the output
-        $secs = 60*2; echo "\nSleep $secs secs..."; sleep($secs); echo " Continue...\n"; //delay 2 seconds
+        $secs = 60; echo "\nSleep $secs secs..."; sleep($secs); echo " Continue...\n"; //delay 2 seconds
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
         // echo "\nTerminal out: [$output]\n"; //good debug
         $json = file_get_contents($destination);
@@ -353,6 +371,8 @@ class CypherQueryAPI
 
                 // /* takbo
                 $real_row = $i - 1;
+                if($real_row == 31) $this->with_DISTINCT_YN = false;
+                else                $this->with_DISTINCT_YN = true; //the rest goes here
                 // if(!in_array($real_row, array(3,1,2,4,6,7,8,9,10))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
                 //---------------------------------------------------------------
                 // if(!in_array($real_row, array(11))) continue; // our very first
@@ -397,7 +417,10 @@ class CypherQueryAPI
             $input = array();
             $input["params"] = array("citation" => $citation);
             $input["type"] = "wikidata_base_qry_citation";
-            $input["per_page"] = 500; // 500 worked ok
+            // $input["per_page"] = 500; // 500 worked ok
+            if($this->with_DISTINCT_YN) $input["per_page"] = $this->per_page;
+            else                        $input["per_page"] = $this->per_page_2; //1000
+
             
             $input["trait kind"] = "trait";
             $this->query_trait_db($input);
@@ -411,7 +434,9 @@ class CypherQueryAPI
             $source = $rec['trait.source'];
             $input["params"] = array("source" => $source);
             $input["type"] = "wikidata_base_qry_source";
-            $input["per_page"] = 500; // 500 finished ok
+            // $input["per_page"] = 500; // 500 finished ok
+            if($this->with_DISTINCT_YN) $input["per_page"] = $this->per_page;
+            else                        $input["per_page"] = $this->per_page_2; //1000
 
             $input["trait kind"] = "trait";
             $this->query_trait_db($input);
