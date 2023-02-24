@@ -279,7 +279,14 @@ class CypherQueryAPI
         /* worked in eol-archive but may need to add: /bin/cat instead of just 'cat'
         $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`cat '.$in_file.'`"';
         */
+
+        /* worked OK in MacStudio terminal
         $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
+        */
+
+        $cmd = '/opt/homebrew/bin/wget -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
+
+        
         // $cmd .= ' 2>/dev/null'; //this will throw away the output
         $secs = 60; echo "\nSleep $secs secs..."; sleep($secs); echo " Continue...\n"; //delay 2 seconds
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
