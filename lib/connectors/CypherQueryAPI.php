@@ -315,6 +315,15 @@ class CypherQueryAPI
         else $WRITE = Functions::file_open($this->tsv_file, "a");
         
         foreach($obj->data as $rec) {
+            // /* new block for without DISTINCT
+            if(!$this->with_DISTINCT_YN) {
+                $json_rec = json_encode($rec);
+                $md5 = md5($json_rec);
+                if(isset($this->unique_row[$md5])) continue;
+                else $this->unique_row[$md5] = '';
+            }
+            // */
+
             fwrite($WRITE, implode("\t", $rec)."\n");
             // print("-[".$rec[0]."]-[".$rec[9]."]"); // just a visual record lookup during runtime.
             // print("-[".$rec[0]."]"); // just a visual record lookup during runtime. good debug
@@ -373,6 +382,7 @@ class CypherQueryAPI
                 $real_row = $i - 1;
                 if($real_row == 31) $this->with_DISTINCT_YN = false;
                 else                $this->with_DISTINCT_YN = true; //the rest goes here
+                $this->unique_row = array();
                 // if(!in_array($real_row, array(3,1,2,4,6,7,8,9,10))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
                 //---------------------------------------------------------------
                 // if(!in_array($real_row, array(11))) continue; // our very first
