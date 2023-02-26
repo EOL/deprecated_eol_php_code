@@ -239,6 +239,8 @@ class WikiDataMtceAPI
 
         Also, please remove the records associated with these taxa:
         47071476, 69177,...
+
+        3_1051_doi.org_10.1073_pnas.1907847116_remove.txt
         */
         $text_file = $this->report_not_taxon_or_no_wikidata;
         if(in_array($rec['p.page_id'], array(46777128, 44068029, 4220900, 51482088, 47071476, 69177, 94325, 53448, 46793443, 58457, 
@@ -1042,6 +1044,10 @@ class WikiDataMtceAPI
         elseif($page_id == 68512) return self::fix_further($page_id, $canonical, "Q8045501");        
         // */
 
+        /* 8th 3_1051_doi.org_10.1073_pnas.1907847116_IDcorrections.txt
+        
+        */
+
         else { //orig
             if($ret = @$this->taxonMap[$page_id]) {
                 /* never use this since p.canonical in query sometimes really is blank. And identifier-map can do the connection.
@@ -1076,7 +1082,8 @@ class WikiDataMtceAPI
                 750237, 750234,...
                 
                 And I had to fix parent relationships for the following taxa on wikiData, so their mappings are now fine:
-                
+
+                3_1051_doi.org_10.1073_pnas.1907847116_fixedOnWikiData.txt
                 */
                 if(in_array($page_id, array(605124,605061,8110730,46942518,1075434,1074475,106725,1076363,12027215,12027027,
                     46938881,3837089,12027274,106650, 750237, 750234, 750235, 752307, 750236, 751037, 752306, 751036, 750233, 
