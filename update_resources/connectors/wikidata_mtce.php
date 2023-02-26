@@ -176,9 +176,9 @@ $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_expo
 
 // /* run all resources
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
-// $func->run_all_resources($spreadsheet, 'generate trait reports'); //generate trait reports
+$func->run_all_resources($spreadsheet, 'generate trait reports'); //generate trait reports
 // $func->run_all_resources($spreadsheet, 'create WD traits'); //read export file and send to QuickStatements
-$func->run_all_resources($spreadsheet, 'remove WD traits'); //read export file and send to QuickStatements - only for those traits in WD already.
+// $func->run_all_resources($spreadsheet, 'remove WD traits'); //read export file and send to QuickStatements - only for those traits in WD already.
 // */
 
 /* works OK

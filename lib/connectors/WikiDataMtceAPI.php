@@ -826,228 +826,7 @@ class WikiDataMtceAPI
     }
     private function get_wikidata_obj_using_EOL_pageID($page_id, $canonical)
     {
-        // /* manual fix
-        // Jimenezia 41766 Jimenezia Q14632906 genus of crustaceans Q116270045
-        if($page_id == 41766 && $canonical == "Jimenezia") return self::fix_further($page_id, $canonical, "Q116270045");
-        // Caroliniella 46941873 Caroliniella Q15869235 genus of insects Q116270111
-        elseif($page_id == 46941873 && $canonical == "Caroliniella") return self::fix_further($page_id, $canonical, "Q116270111");
-        // Ceraia 45959 Ceraia Q2393841 genus of plants Q13581136
-        elseif($page_id == 45959 && $canonical == "Ceraia") return self::fix_further($page_id, $canonical, "Q13581136");
-        /* next batch */
-        elseif($page_id == 494881 && $canonical == "Ceraia dentata") return self::fix_further($page_id, $canonical, "Q10445580");
-        elseif($page_id == 47177312 && $canonical == "Drepanophyllum") return self::fix_further($page_id, $canonical, "Q10476638");
-        elseif($page_id == 47179232) return self::fix_further($page_id, $canonical, "Q10553675");
-        // Lamprophyllum 47179232 Lamprophyllum Schimp. ex Broth. (1907) non Miers (1855) Q17294325 later homonym, use Schimperobryum identifier-map Q10553675
-        elseif($page_id == 46207 && $canonical == "Montana") return self::fix_further($page_id, $canonical, "Q10588738");
-        elseif($page_id == 45912 && $canonical == "Platyphyllum") return self::fix_further($page_id, $canonical, "Q10633517");
-        elseif($page_id == 497268 && $canonical == "Psyrana sondaica") return self::fix_further($page_id, $canonical, "Q10645422");
-        elseif($page_id == 46238 && $canonical == "Pterophylla") return self::fix_further($page_id, $canonical, "Q10645731");
-        elseif($page_id == 857000 && $canonical == "Typhoptera unicolor") return self::fix_further($page_id, $canonical, "Q10707441");
-        elseif($page_id == 59571 && $canonical == "Xiphophyllum") return self::fix_further($page_id, $canonical, "Q10722856");
-        elseif($page_id == 45836 && $canonical == "Zichya") return self::fix_further($page_id, $canonical, "Q10724602");
-        elseif($page_id == 52766840) return self::fix_further($page_id, $canonical, "Q116327677");
-        // Dendrobia 52766840 Dendrobianthe Q98228381 name search thru identifier-map Q116327677
-        elseif($page_id == 34781706 && $canonical == "Dicorypha") return self::fix_further($page_id, $canonical, "Q13572701");
-        elseif($page_id == 856709 && $canonical == "Phyllophora speciosa") return self::fix_further($page_id, $canonical, "Q13582231");
-        elseif($page_id == 87504 && $canonical == "Platenia") return self::fix_further($page_id, $canonical, "Q14113863");
-        elseif($page_id == 63359 && $canonical == "Albertisiella") return self::fix_further($page_id, $canonical, "Q14589678");
-        elseif($page_id == 74142 && $canonical == "Baetica") return self::fix_further($page_id, $canonical, "Q14594580");
-        elseif($page_id == 87690 && $canonical == "Ceresia") return self::fix_further($page_id, $canonical, "Q14624705");
-        elseif($page_id == 76249 && $canonical == "Ebneria") return self::fix_further($page_id, $canonical, "Q14626974");
-        elseif($page_id == 19733 && $canonical == "Macrochiton") return self::fix_further($page_id, $canonical, "Q15262438");
-        elseif($page_id == 46941515 && $canonical == "Odontura") return self::fix_further($page_id, $canonical, "Q2014752");
-        /* start 2nd */
-        // Callopisma	46719434
-        elseif($page_id == 46719434) return self::fix_further($page_id, $canonical, "Q18582462");
-
-        /* start 3rd
-        Hi Eli,
-        Just a couple of taxonomic mapping corrections for this one:
-        EOL name pageID WikiData name oldID Description Mapped newID
-        Also, for the following, your mappings are fine, but I had to fix the wikidata parent relationships. 
-        Although the descriptions say "species of orthopterans," they were actually attached to a crustacean parent:
-        Arachnomimus nietneri 605124 Arachnopsis nietneri Q63249464 species of orthopterans identifier-map 
-        Arachnopsita cavicola 605061 Arachnopsis cavicola Q63249466 species of orthopterans identifier-map */
-        elseif($page_id == 36073 && $canonical == "Rumea") return self::fix_further($page_id, $canonical, "Q13985115");
-        elseif($page_id == 605108 && $canonical == "Laranda annulata") return self::fix_further($page_id, $canonical, "Q116520562");
-        
-        /* start 4th
-        Hi Eli, Here are the corrections for this batch:
-        EOL name pageID WikiData name ID Description Mapped newID */
-        elseif($page_id == 8110438 && $canonical == "Anchieta") return self::fix_further($page_id, $canonical, "Q17378097");
-        elseif($page_id == 4129498 && $canonical == "Acmonotus") return self::fix_further($page_id, $canonical, "Q116590983");
-        elseif($page_id == 610427 && $canonical == "Conocephalus borneensis") return self::fix_further($page_id, $canonical, "Q10458337");
-        elseif($page_id == 46941980 && $canonical == "Conocephalus dubius") return self::fix_further($page_id, $canonical, "Q10458358");
-        elseif($page_id == 8110538 && $canonical == "Nivella") return self::fix_further($page_id, $canonical, "Q18116894");
-        
-        // /* start 5th
-        // Here are the corrections for this sample:
-        // EOL name pageID WikiData name ID Description Mapped new ID
-        elseif($page_id == 63424 && $canonical == "Aptera") return self::fix_further($page_id, $canonical, "Q10416319");
-        elseif($page_id == 106546 && $canonical == "Moluchia") return self::fix_further($page_id, $canonical, "Q10587867");
-        elseif($page_id == 13289391 && $canonical == "Cladodes") return self::fix_further($page_id, $canonical, "Q10748947");
-        elseif($page_id == 63535 && $canonical == "Chorisia") return self::fix_further($page_id, $canonical, "Q116653554");
-        elseif($page_id == 613523) return self::fix_further($page_id, $canonical, "Q11842489");
-        elseif($page_id == 106616) return self::fix_further($page_id, $canonical, "Q18117252");
-        elseif($page_id == 47113898) return self::fix_further($page_id, $canonical, "Q2899669");
-        elseif($page_id == 63415) return self::fix_further($page_id, $canonical, "Q3014241");        
-        // */
-
-        // /* start 6th
-        // Hi Eli, here are the corrections for the latest batch: 
-        // EOL name pageID WikiData name ID Description Mapped newID
-        elseif($page_id == 33347) return self::fix_further($page_id, $canonical, "Q1500089");        
-        elseif($page_id == 42152) return self::fix_further($page_id, $canonical, "Q577045");        
-        elseif($page_id == 42159) return self::fix_further($page_id, $canonical, "Q15402210");        
-        elseif($page_id == 46324029) return self::fix_further($page_id, $canonical, "Q28929960");        
-        elseif($page_id == 1019571) return self::fix_further($page_id, $canonical, "Q22718");        
-        elseif($page_id == 85361) return self::fix_further($page_id, $canonical, "Q14340053");                
-        elseif($page_id == 80873) return self::fix_further($page_id, $canonical, "Q2746790");        
-        // */
-
-        // /* start 7th
-        // EOL name pageID WikiData name ID Description Mapped newID
-        elseif($page_id == 70351) return self::fix_further($page_id, $canonical, "Q10295328");        
-        elseif($page_id == 95899) return self::fix_further($page_id, $canonical, "Q10328362");        
-        elseif($page_id == 59667) return self::fix_further($page_id, $canonical, "Q10349191");        
-        elseif($page_id == 96115) return self::fix_further($page_id, $canonical, "Q10355327");        
-        elseif($page_id == 47125964) return self::fix_further($page_id, $canonical, "Q10382280");        
-        elseif($page_id == 78228) return self::fix_further($page_id, $canonical, "Q10382761");        
-        elseif($page_id == 93022) return self::fix_further($page_id, $canonical, "Q10390097");        
-        elseif($page_id == 52973) return self::fix_further($page_id, $canonical, "Q10554573");        
-        elseif($page_id == 38415) return self::fix_further($page_id, $canonical, "Q10638147");        
-        elseif($page_id == 66129) return self::fix_further($page_id, $canonical, "Q10766916");        
-        elseif($page_id == 48941) return self::fix_further($page_id, $canonical, "Q10794248");        
-        elseif($page_id == 67836) return self::fix_further($page_id, $canonical, "Q10794751");        
-        elseif($page_id == 47112260) return self::fix_further($page_id, $canonical, "Q10795249");        
-        elseif($page_id == 96435) return self::fix_further($page_id, $canonical, "Q113474262");        
-        elseif($page_id == 49082) return self::fix_further($page_id, $canonical, "Q116741523");        
-        elseif($page_id == 504250) return self::fix_further($page_id, $canonical, "Q116741907");        
-        elseif($page_id == 505096) return self::fix_further($page_id, $canonical, "Q116742047");        
-        elseif($page_id == 96366) return self::fix_further($page_id, $canonical, "Q116754894");        
-        elseif($page_id == 20127) return self::fix_further($page_id, $canonical, "Q116755186");        
-        elseif($page_id == 75073) return self::fix_further($page_id, $canonical, "Q116765826");        
-        elseif($page_id == 59544) return self::fix_further($page_id, $canonical, "Q116765894");        
-        elseif($page_id == 19348) return self::fix_further($page_id, $canonical, "Q11841399");        
-        elseif($page_id == 20474) return self::fix_further($page_id, $canonical, "Q1310909");        
-        elseif($page_id == 69434) return self::fix_further($page_id, $canonical, "Q1312949");        
-        elseif($page_id == 48480) return self::fix_further($page_id, $canonical, "Q1314183");        
-        elseif($page_id == 504065) return self::fix_further($page_id, $canonical, "Q13380125");        
-        elseif($page_id == 526546) return self::fix_further($page_id, $canonical, "Q13433763");        
-        elseif($page_id == 938537) return self::fix_further($page_id, $canonical, "Q13471348");        
-        elseif($page_id == 51531833) return self::fix_further($page_id, $canonical, "Q13528408");        
-        elseif($page_id == 48901) return self::fix_further($page_id, $canonical, "Q13614984");        
-        elseif($page_id == 47173024) return self::fix_further($page_id, $canonical, "Q13635467");        
-        elseif($page_id == 60211) return self::fix_further($page_id, $canonical, "Q1366893");        
-        elseif($page_id == 60199) return self::fix_further($page_id, $canonical, "Q1367031");        
-        elseif($page_id == 46790277) return self::fix_further($page_id, $canonical, "Q1368348");        
-        elseif($page_id == 34000) return self::fix_further($page_id, $canonical, "Q1375382");        
-        elseif($page_id == 47750) return self::fix_further($page_id, $canonical, "Q13845641");        
-        elseif($page_id == 48437) return self::fix_further($page_id, $canonical, "Q13845696");        
-        elseif($page_id == 47108535) return self::fix_further($page_id, $canonical, "Q13845838");        
-        elseif($page_id == 19185) return self::fix_further($page_id, $canonical, "Q13846252");        
-        elseif($page_id == 17444) return self::fix_further($page_id, $canonical, "Q13846329");        
-        elseif($page_id == 33654) return self::fix_further($page_id, $canonical, "Q13846373");        
-        elseif($page_id == 46794143) return self::fix_further($page_id, $canonical, "Q13846399");        
-        elseif($page_id == 48019) return self::fix_further($page_id, $canonical, "Q13847367");        
-        elseif($page_id == 47914) return self::fix_further($page_id, $canonical, "Q13847396");        
-        elseif($page_id == 94758) return self::fix_further($page_id, $canonical, "Q13860318");        
-        elseif($page_id == 51542262) return self::fix_further($page_id, $canonical, "Q13861512");        
-        elseif($page_id == 46794281) return self::fix_further($page_id, $canonical, "Q13862024");        
-        elseif($page_id == 47173020) return self::fix_further($page_id, $canonical, "Q13863677");        
-        elseif($page_id == 48045) return self::fix_further($page_id, $canonical, "Q13863767");        
-        elseif($page_id == 17332) return self::fix_further($page_id, $canonical, "Q13891892");        
-        elseif($page_id == 94841) return self::fix_further($page_id, $canonical, "Q13900127");        
-        elseif($page_id == 47286) return self::fix_further($page_id, $canonical, "Q14072134");        
-        elseif($page_id == 53106) return self::fix_further($page_id, $canonical, "Q140725");        
-        elseif($page_id == 64389) return self::fix_further($page_id, $canonical, "Q142172");        
-        elseif($page_id == 186119) return self::fix_further($page_id, $canonical, "Q14515049");        
-        elseif($page_id == 33183) return self::fix_further($page_id, $canonical, "Q14839546");        
-        elseif($page_id == 88845) return self::fix_further($page_id, $canonical, "Q15911567");        
-        elseif($page_id == 20288) return self::fix_further($page_id, $canonical, "Q1592101");        
-        elseif($page_id == 47141435) return self::fix_further($page_id, $canonical, "Q15958275");        
-        elseif($page_id == 47114988) return self::fix_further($page_id, $canonical, "Q16460123");        
-        elseif($page_id == 96397) return self::fix_further($page_id, $canonical, "Q1755645");        
-        elseif($page_id == 50683) return self::fix_further($page_id, $canonical, "Q1755652");        
-        elseif($page_id == 64427) return self::fix_further($page_id, $canonical, "Q1756618");        
-        elseif($page_id == 18973) return self::fix_further($page_id, $canonical, "Q1758756");        
-        elseif($page_id == 20669) return self::fix_further($page_id, $canonical, "Q1762176");        
-        elseif($page_id == 32854) return self::fix_further($page_id, $canonical, "Q1762462");        
-        elseif($page_id == 19072) return self::fix_further($page_id, $canonical, "Q1762543");        
-        elseif($page_id == 32696) return self::fix_further($page_id, $canonical, "Q1765121");        
-        elseif($page_id == 46795449) return self::fix_further($page_id, $canonical, "Q1766048");        
-        elseif($page_id == 48294) return self::fix_further($page_id, $canonical, "Q18095508");        
-        elseif($page_id == 46728) return self::fix_further($page_id, $canonical, "Q18095596");        
-        elseif($page_id == 1101) return self::fix_further($page_id, $canonical, "Q184616");        
-        elseif($page_id == 96058) return self::fix_further($page_id, $canonical, "Q18521654");        
-        elseif($page_id == 48398) return self::fix_further($page_id, $canonical, "Q18522086");        
-        elseif($page_id == 68900) return self::fix_further($page_id, $canonical, "Q18522872");        
-        elseif($page_id == 53489) return self::fix_further($page_id, $canonical, "Q19587087");        
-        elseif($page_id == 52755861) return self::fix_further($page_id, $canonical, "Q21225997");        
-        elseif($page_id == 49833917) return self::fix_further($page_id, $canonical, "Q21441018");        
-        elseif($page_id == 35726) return self::fix_further($page_id, $canonical, "Q2296986");        
-        elseif($page_id == 47141346) return self::fix_further($page_id, $canonical, "Q2338910");        
-        elseif($page_id == 19925) return self::fix_further($page_id, $canonical, "Q2375613");        
-        elseif($page_id == 66918) return self::fix_further($page_id, $canonical, "Q255793");        
-        elseif($page_id == 58409) return self::fix_further($page_id, $canonical, "Q261238");        
-        elseif($page_id == 48732) return self::fix_further($page_id, $canonical, "Q27487");        
-        elseif($page_id == 48709) return self::fix_further($page_id, $canonical, "Q290858");        
-        elseif($page_id == 34507) return self::fix_further($page_id, $canonical, "Q3012860");        
-        elseif($page_id == 52757390) return self::fix_further($page_id, $canonical, "Q3026314");        
-        elseif($page_id == 19053) return self::fix_further($page_id, $canonical, "Q3054035");        
-        elseif($page_id == 19088) return self::fix_further($page_id, $canonical, "Q311218");        
-        elseif($page_id == 52755763) return self::fix_further($page_id, $canonical, "Q33193672");        
-        elseif($page_id == 34351) return self::fix_further($page_id, $canonical, "Q3528716");        
-        elseif($page_id == 50695) return self::fix_further($page_id, $canonical, "Q3546350");        
-        elseif($page_id == 48432) return self::fix_further($page_id, $canonical, "Q3552124");        
-        elseif($page_id == 19187) return self::fix_further($page_id, $canonical, "Q3841274");        
-        elseif($page_id == 17454) return self::fix_further($page_id, $canonical, "Q420732");        
-        elseif($page_id == 72340) return self::fix_further($page_id, $canonical, "Q45083329");        
-        elseif($page_id == 57050) return self::fix_further($page_id, $canonical, "Q4735447");        
-        elseif($page_id == 46659) return self::fix_further($page_id, $canonical, "Q4748282");        
-        elseif($page_id == 59196) return self::fix_further($page_id, $canonical, "Q4754294");        
-        elseif($page_id == 47459) return self::fix_further($page_id, $canonical, "Q4861441");        
-        elseif($page_id == 51532738) return self::fix_further($page_id, $canonical, "Q5019528");        
-        elseif($page_id == 74194) return self::fix_further($page_id, $canonical, "Q5099175");        
-        elseif($page_id == 68213) return self::fix_further($page_id, $canonical, "Q5184177");        
-        elseif($page_id == 94571) return self::fix_further($page_id, $canonical, "Q5188748");        
-        elseif($page_id == 20342) return self::fix_further($page_id, $canonical, "Q522255");        
-        elseif($page_id == 47136755) return self::fix_further($page_id, $canonical, "Q5227610");        
-        elseif($page_id == 52756989) return self::fix_further($page_id, $canonical, "Q5315942");        
-        elseif($page_id == 93658) return self::fix_further($page_id, $canonical, "Q5376348");        
-        elseif($page_id == 47119522) return self::fix_further($page_id, $canonical, "Q5377547");        
-        elseif($page_id == 34289) return self::fix_further($page_id, $canonical, "Q5383575");        
-        elseif($page_id == 37672) return self::fix_further($page_id, $canonical, "Q5405867");        
-        elseif($page_id == 51533327) return self::fix_further($page_id, $canonical, "Q5406528");        
-        elseif($page_id == 33895) return self::fix_further($page_id, $canonical, "Q5414644");        
-        elseif($page_id == 93636) return self::fix_further($page_id, $canonical, "Q5558933");        
-        elseif($page_id == 40369) return self::fix_further($page_id, $canonical, "Q5567274");        
-        elseif($page_id == 35099) return self::fix_further($page_id, $canonical, "Q5573498");        
-        elseif($page_id == 48495) return self::fix_further($page_id, $canonical, "Q591966");        
-        elseif($page_id == 48488) return self::fix_further($page_id, $canonical, "Q6521398");        
-        elseif($page_id == 20463) return self::fix_further($page_id, $canonical, "Q6696928");        
-        elseif($page_id == 60622) return self::fix_further($page_id, $canonical, "Q6725468");        
-        elseif($page_id == 58500) return self::fix_further($page_id, $canonical, "Q6823514");        
-        elseif($page_id == 35014) return self::fix_further($page_id, $canonical, "Q6868917");        
-        elseif($page_id == 58116) return self::fix_further($page_id, $canonical, "Q6901524");        
-        elseif($page_id == 60994095) return self::fix_further($page_id, $canonical, "Q6963796");        
-        elseif($page_id == 57093) return self::fix_further($page_id, $canonical, "Q6992942");        
-        elseif($page_id == 48850) return self::fix_further($page_id, $canonical, "Q7075694");        
-        elseif($page_id == 93786) return self::fix_further($page_id, $canonical, "Q7116123");        
-        elseif($page_id == 34052) return self::fix_further($page_id, $canonical, "Q7131966");        
-        elseif($page_id == 60994373) return self::fix_further($page_id, $canonical, "Q7135170");        
-        elseif($page_id == 35679) return self::fix_further($page_id, $canonical, "Q7189540");        
-        elseif($page_id == 47136024) return self::fix_further($page_id, $canonical, "Q7402621");        
-        elseif($page_id == 94016) return self::fix_further($page_id, $canonical, "Q7563144");        
-        elseif($page_id == 68287) return self::fix_further($page_id, $canonical, "Q7660579");        
-        elseif($page_id == 48746) return self::fix_further($page_id, $canonical, "Q7901166");        
-        elseif($page_id == 68512) return self::fix_further($page_id, $canonical, "Q8045501");        
-        // */
-
-        /* 8th 3_1051_doi.org_10.1073_pnas.1907847116_IDcorrections.txt
-        
-        */
-
+        if($val = self::pageID_has_manual_fix($page_id, $canonical)) return $val;
         else { //orig
             if($ret = @$this->taxonMap[$page_id]) {
                 /* never use this since p.canonical in query sometimes really is blank. And identifier-map can do the connection.
@@ -1113,9 +892,9 @@ class WikiDataMtceAPI
     private function fix_further($page_id, $canonical, $new_WD_id)
     {
         $ret = array("i" => $new_WD_id, "c" => $canonical);
-        /* un-comment this only when row 31 taxonomic corrections are done
+        // /* un-comment this only when row 31 taxonomic corrections are done
         $this->download_options['expire_seconds'] = true; //means cache expires now, same if value is 0 zero.
-        */
+        // */
         if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) {
             $this->download_options['expire_seconds'] = false;
             return array($ret['i'], $obj);
@@ -1228,9 +1007,11 @@ class WikiDataMtceAPI
         $cmd .= " -d 'batchname=".$batchname."' ";
         $cmd .= " --data-raw 'token=".QUICKSTATEMENTS_EOLTRAITS_TOKEN."' ";
         $cmd .= " --data-urlencode data@".$this->tmp_batch_export." ";
-        echo "\n$cmd\n";
+        echo "\n$cmd\n"; exit;
+        /* un-comment in real operation
         $output = shell_exec($cmd);
         echo "\n[$output]\n";
+        */
     }
 
     /* the one used for citation, manually run in terminal:
@@ -1620,6 +1401,497 @@ class WikiDataMtceAPI
         $pos = strpos($row, "|S");
         if(!$pos) exit("\nNeed to investigate.\n");
         return "-".substr($row, 0, $pos);
+    }
+    private function pageID_has_manual_fix($page_id, $canonical) //manual fix
+    {
+        // Jimenezia 41766 Jimenezia Q14632906 genus of crustaceans Q116270045
+        if($page_id == 41766 && $canonical == "Jimenezia") return self::fix_further($page_id, $canonical, "Q116270045");
+        // Caroliniella 46941873 Caroliniella Q15869235 genus of insects Q116270111
+        elseif($page_id == 46941873 && $canonical == "Caroliniella") return self::fix_further($page_id, $canonical, "Q116270111");
+        // Ceraia 45959 Ceraia Q2393841 genus of plants Q13581136
+        elseif($page_id == 45959 && $canonical == "Ceraia") return self::fix_further($page_id, $canonical, "Q13581136");
+        /* next batch */
+        elseif($page_id == 494881 && $canonical == "Ceraia dentata") return self::fix_further($page_id, $canonical, "Q10445580");
+        elseif($page_id == 47177312 && $canonical == "Drepanophyllum") return self::fix_further($page_id, $canonical, "Q10476638");
+        elseif($page_id == 47179232) return self::fix_further($page_id, $canonical, "Q10553675");
+        // Lamprophyllum 47179232 Lamprophyllum Schimp. ex Broth. (1907) non Miers (1855) Q17294325 later homonym, use Schimperobryum identifier-map Q10553675
+        elseif($page_id == 46207 && $canonical == "Montana") return self::fix_further($page_id, $canonical, "Q10588738");
+        elseif($page_id == 45912 && $canonical == "Platyphyllum") return self::fix_further($page_id, $canonical, "Q10633517");
+        elseif($page_id == 497268 && $canonical == "Psyrana sondaica") return self::fix_further($page_id, $canonical, "Q10645422");
+        elseif($page_id == 46238 && $canonical == "Pterophylla") return self::fix_further($page_id, $canonical, "Q10645731");
+        elseif($page_id == 857000 && $canonical == "Typhoptera unicolor") return self::fix_further($page_id, $canonical, "Q10707441");
+        elseif($page_id == 59571 && $canonical == "Xiphophyllum") return self::fix_further($page_id, $canonical, "Q10722856");
+        elseif($page_id == 45836 && $canonical == "Zichya") return self::fix_further($page_id, $canonical, "Q10724602");
+        elseif($page_id == 52766840) return self::fix_further($page_id, $canonical, "Q116327677");
+        // Dendrobia 52766840 Dendrobianthe Q98228381 name search thru identifier-map Q116327677
+        elseif($page_id == 34781706 && $canonical == "Dicorypha") return self::fix_further($page_id, $canonical, "Q13572701");
+        elseif($page_id == 856709 && $canonical == "Phyllophora speciosa") return self::fix_further($page_id, $canonical, "Q13582231");
+        elseif($page_id == 87504 && $canonical == "Platenia") return self::fix_further($page_id, $canonical, "Q14113863");
+        elseif($page_id == 63359 && $canonical == "Albertisiella") return self::fix_further($page_id, $canonical, "Q14589678");
+        elseif($page_id == 74142 && $canonical == "Baetica") return self::fix_further($page_id, $canonical, "Q14594580");
+        elseif($page_id == 87690 && $canonical == "Ceresia") return self::fix_further($page_id, $canonical, "Q14624705");
+        elseif($page_id == 76249 && $canonical == "Ebneria") return self::fix_further($page_id, $canonical, "Q14626974");
+        elseif($page_id == 19733 && $canonical == "Macrochiton") return self::fix_further($page_id, $canonical, "Q15262438");
+        elseif($page_id == 46941515 && $canonical == "Odontura") return self::fix_further($page_id, $canonical, "Q2014752");
+        /* start 2nd */
+        // Callopisma	46719434
+        elseif($page_id == 46719434) return self::fix_further($page_id, $canonical, "Q18582462");
+
+        /* start 3rd
+        Hi Eli,
+        Just a couple of taxonomic mapping corrections for this one:
+        EOL name pageID WikiData name oldID Description Mapped newID
+        Also, for the following, your mappings are fine, but I had to fix the wikidata parent relationships. 
+        Although the descriptions say "species of orthopterans," they were actually attached to a crustacean parent:
+        Arachnomimus nietneri 605124 Arachnopsis nietneri Q63249464 species of orthopterans identifier-map 
+        Arachnopsita cavicola 605061 Arachnopsis cavicola Q63249466 species of orthopterans identifier-map */
+        elseif($page_id == 36073 && $canonical == "Rumea") return self::fix_further($page_id, $canonical, "Q13985115");
+        elseif($page_id == 605108 && $canonical == "Laranda annulata") return self::fix_further($page_id, $canonical, "Q116520562");
+        
+        /* start 4th
+        Hi Eli, Here are the corrections for this batch:
+        EOL name pageID WikiData name ID Description Mapped newID */
+        elseif($page_id == 8110438 && $canonical == "Anchieta") return self::fix_further($page_id, $canonical, "Q17378097");
+        elseif($page_id == 4129498 && $canonical == "Acmonotus") return self::fix_further($page_id, $canonical, "Q116590983");
+        elseif($page_id == 610427 && $canonical == "Conocephalus borneensis") return self::fix_further($page_id, $canonical, "Q10458337");
+        elseif($page_id == 46941980 && $canonical == "Conocephalus dubius") return self::fix_further($page_id, $canonical, "Q10458358");
+        elseif($page_id == 8110538 && $canonical == "Nivella") return self::fix_further($page_id, $canonical, "Q18116894");
+        
+        // /* start 5th
+        // Here are the corrections for this sample:
+        // EOL name pageID WikiData name ID Description Mapped new ID
+        elseif($page_id == 63424 && $canonical == "Aptera") return self::fix_further($page_id, $canonical, "Q10416319");
+        elseif($page_id == 106546 && $canonical == "Moluchia") return self::fix_further($page_id, $canonical, "Q10587867");
+        elseif($page_id == 13289391 && $canonical == "Cladodes") return self::fix_further($page_id, $canonical, "Q10748947");
+        elseif($page_id == 63535 && $canonical == "Chorisia") return self::fix_further($page_id, $canonical, "Q116653554");
+        elseif($page_id == 613523) return self::fix_further($page_id, $canonical, "Q11842489");
+        elseif($page_id == 106616) return self::fix_further($page_id, $canonical, "Q18117252");
+        elseif($page_id == 47113898) return self::fix_further($page_id, $canonical, "Q2899669");
+        elseif($page_id == 63415) return self::fix_further($page_id, $canonical, "Q3014241");        
+        // */
+
+        // /* start 6th
+        // Hi Eli, here are the corrections for the latest batch: 
+        // EOL name pageID WikiData name ID Description Mapped newID
+        elseif($page_id == 33347) return self::fix_further($page_id, $canonical, "Q1500089");        
+        elseif($page_id == 42152) return self::fix_further($page_id, $canonical, "Q577045");        
+        elseif($page_id == 42159) return self::fix_further($page_id, $canonical, "Q15402210");        
+        elseif($page_id == 46324029) return self::fix_further($page_id, $canonical, "Q28929960");        
+        elseif($page_id == 1019571) return self::fix_further($page_id, $canonical, "Q22718");        
+        elseif($page_id == 85361) return self::fix_further($page_id, $canonical, "Q14340053");                
+        elseif($page_id == 80873) return self::fix_further($page_id, $canonical, "Q2746790");        
+        // */
+
+        // /* start 7th
+        // EOL name pageID WikiData name ID Description Mapped newID
+        elseif($page_id == 70351) return self::fix_further($page_id, $canonical, "Q10295328");        
+        elseif($page_id == 95899) return self::fix_further($page_id, $canonical, "Q10328362");        
+        elseif($page_id == 59667) return self::fix_further($page_id, $canonical, "Q10349191");        
+        elseif($page_id == 96115) return self::fix_further($page_id, $canonical, "Q10355327");        
+        elseif($page_id == 47125964) return self::fix_further($page_id, $canonical, "Q10382280");        
+        elseif($page_id == 78228) return self::fix_further($page_id, $canonical, "Q10382761");        
+        elseif($page_id == 93022) return self::fix_further($page_id, $canonical, "Q10390097");        
+        elseif($page_id == 52973) return self::fix_further($page_id, $canonical, "Q10554573");        
+        elseif($page_id == 38415) return self::fix_further($page_id, $canonical, "Q10638147");        
+        elseif($page_id == 66129) return self::fix_further($page_id, $canonical, "Q10766916");        
+        elseif($page_id == 48941) return self::fix_further($page_id, $canonical, "Q10794248");        
+        elseif($page_id == 67836) return self::fix_further($page_id, $canonical, "Q10794751");        
+        elseif($page_id == 47112260) return self::fix_further($page_id, $canonical, "Q10795249");        
+        elseif($page_id == 96435) return self::fix_further($page_id, $canonical, "Q113474262");        
+        elseif($page_id == 49082) return self::fix_further($page_id, $canonical, "Q116741523");        
+        elseif($page_id == 504250) return self::fix_further($page_id, $canonical, "Q116741907");        
+        elseif($page_id == 505096) return self::fix_further($page_id, $canonical, "Q116742047");        
+        elseif($page_id == 96366) return self::fix_further($page_id, $canonical, "Q116754894");        
+        elseif($page_id == 20127) return self::fix_further($page_id, $canonical, "Q116755186");        
+        elseif($page_id == 75073) return self::fix_further($page_id, $canonical, "Q116765826");        
+        elseif($page_id == 59544) return self::fix_further($page_id, $canonical, "Q116765894");        
+        elseif($page_id == 19348) return self::fix_further($page_id, $canonical, "Q11841399");        
+        elseif($page_id == 20474) return self::fix_further($page_id, $canonical, "Q1310909");        
+        elseif($page_id == 69434) return self::fix_further($page_id, $canonical, "Q1312949");        
+        elseif($page_id == 48480) return self::fix_further($page_id, $canonical, "Q1314183");        
+        elseif($page_id == 504065) return self::fix_further($page_id, $canonical, "Q13380125");        
+        elseif($page_id == 526546) return self::fix_further($page_id, $canonical, "Q13433763");        
+        elseif($page_id == 938537) return self::fix_further($page_id, $canonical, "Q13471348");        
+        elseif($page_id == 51531833) return self::fix_further($page_id, $canonical, "Q13528408");        
+        elseif($page_id == 48901) return self::fix_further($page_id, $canonical, "Q13614984");        
+        elseif($page_id == 47173024) return self::fix_further($page_id, $canonical, "Q13635467");        
+        elseif($page_id == 60211) return self::fix_further($page_id, $canonical, "Q1366893");        
+        elseif($page_id == 60199) return self::fix_further($page_id, $canonical, "Q1367031");        
+        elseif($page_id == 46790277) return self::fix_further($page_id, $canonical, "Q1368348");        
+        elseif($page_id == 34000) return self::fix_further($page_id, $canonical, "Q1375382");        
+        elseif($page_id == 47750) return self::fix_further($page_id, $canonical, "Q13845641");        
+        elseif($page_id == 48437) return self::fix_further($page_id, $canonical, "Q13845696");        
+        elseif($page_id == 47108535) return self::fix_further($page_id, $canonical, "Q13845838");        
+        elseif($page_id == 19185) return self::fix_further($page_id, $canonical, "Q13846252");        
+        elseif($page_id == 17444) return self::fix_further($page_id, $canonical, "Q13846329");        
+        elseif($page_id == 33654) return self::fix_further($page_id, $canonical, "Q13846373");        
+        elseif($page_id == 46794143) return self::fix_further($page_id, $canonical, "Q13846399");        
+        elseif($page_id == 48019) return self::fix_further($page_id, $canonical, "Q13847367");        
+        elseif($page_id == 47914) return self::fix_further($page_id, $canonical, "Q13847396");        
+        elseif($page_id == 94758) return self::fix_further($page_id, $canonical, "Q13860318");        
+        elseif($page_id == 51542262) return self::fix_further($page_id, $canonical, "Q13861512");        
+        elseif($page_id == 46794281) return self::fix_further($page_id, $canonical, "Q13862024");        
+        elseif($page_id == 47173020) return self::fix_further($page_id, $canonical, "Q13863677");        
+        elseif($page_id == 48045) return self::fix_further($page_id, $canonical, "Q13863767");        
+        elseif($page_id == 17332) return self::fix_further($page_id, $canonical, "Q13891892");        
+        elseif($page_id == 94841) return self::fix_further($page_id, $canonical, "Q13900127");        
+        elseif($page_id == 47286) return self::fix_further($page_id, $canonical, "Q14072134");        
+        elseif($page_id == 53106) return self::fix_further($page_id, $canonical, "Q140725");        
+        elseif($page_id == 64389) return self::fix_further($page_id, $canonical, "Q142172");        
+        elseif($page_id == 186119) return self::fix_further($page_id, $canonical, "Q14515049");        
+        elseif($page_id == 33183) return self::fix_further($page_id, $canonical, "Q14839546");        
+        elseif($page_id == 88845) return self::fix_further($page_id, $canonical, "Q15911567");        
+        elseif($page_id == 20288) return self::fix_further($page_id, $canonical, "Q1592101");        
+        elseif($page_id == 47141435) return self::fix_further($page_id, $canonical, "Q15958275");        
+        elseif($page_id == 47114988) return self::fix_further($page_id, $canonical, "Q16460123");        
+        elseif($page_id == 96397) return self::fix_further($page_id, $canonical, "Q1755645");        
+        elseif($page_id == 50683) return self::fix_further($page_id, $canonical, "Q1755652");        
+        elseif($page_id == 64427) return self::fix_further($page_id, $canonical, "Q1756618");        
+        elseif($page_id == 18973) return self::fix_further($page_id, $canonical, "Q1758756");        
+        elseif($page_id == 20669) return self::fix_further($page_id, $canonical, "Q1762176");        
+        elseif($page_id == 32854) return self::fix_further($page_id, $canonical, "Q1762462");        
+        elseif($page_id == 19072) return self::fix_further($page_id, $canonical, "Q1762543");        
+        elseif($page_id == 32696) return self::fix_further($page_id, $canonical, "Q1765121");        
+        elseif($page_id == 46795449) return self::fix_further($page_id, $canonical, "Q1766048");        
+        elseif($page_id == 48294) return self::fix_further($page_id, $canonical, "Q18095508");        
+        elseif($page_id == 46728) return self::fix_further($page_id, $canonical, "Q18095596");        
+        elseif($page_id == 1101) return self::fix_further($page_id, $canonical, "Q184616");        
+        elseif($page_id == 96058) return self::fix_further($page_id, $canonical, "Q18521654");        
+        elseif($page_id == 48398) return self::fix_further($page_id, $canonical, "Q18522086");        
+        elseif($page_id == 68900) return self::fix_further($page_id, $canonical, "Q18522872");        
+        elseif($page_id == 53489) return self::fix_further($page_id, $canonical, "Q19587087");        
+        elseif($page_id == 52755861) return self::fix_further($page_id, $canonical, "Q21225997");        
+        elseif($page_id == 49833917) return self::fix_further($page_id, $canonical, "Q21441018");        
+        elseif($page_id == 35726) return self::fix_further($page_id, $canonical, "Q2296986");        
+        elseif($page_id == 47141346) return self::fix_further($page_id, $canonical, "Q2338910");        
+        elseif($page_id == 19925) return self::fix_further($page_id, $canonical, "Q2375613");        
+        elseif($page_id == 66918) return self::fix_further($page_id, $canonical, "Q255793");        
+        elseif($page_id == 58409) return self::fix_further($page_id, $canonical, "Q261238");        
+        elseif($page_id == 48732) return self::fix_further($page_id, $canonical, "Q27487");        
+        elseif($page_id == 48709) return self::fix_further($page_id, $canonical, "Q290858");        
+        elseif($page_id == 34507) return self::fix_further($page_id, $canonical, "Q3012860");        
+        elseif($page_id == 52757390) return self::fix_further($page_id, $canonical, "Q3026314");        
+        elseif($page_id == 19053) return self::fix_further($page_id, $canonical, "Q3054035");        
+        elseif($page_id == 19088) return self::fix_further($page_id, $canonical, "Q311218");        
+        elseif($page_id == 52755763) return self::fix_further($page_id, $canonical, "Q33193672");        
+        elseif($page_id == 34351) return self::fix_further($page_id, $canonical, "Q3528716");        
+        elseif($page_id == 50695) return self::fix_further($page_id, $canonical, "Q3546350");        
+        elseif($page_id == 48432) return self::fix_further($page_id, $canonical, "Q3552124");        
+        elseif($page_id == 19187) return self::fix_further($page_id, $canonical, "Q3841274");        
+        elseif($page_id == 17454) return self::fix_further($page_id, $canonical, "Q420732");        
+        elseif($page_id == 72340) return self::fix_further($page_id, $canonical, "Q45083329");        
+        elseif($page_id == 57050) return self::fix_further($page_id, $canonical, "Q4735447");        
+        elseif($page_id == 46659) return self::fix_further($page_id, $canonical, "Q4748282");        
+        elseif($page_id == 59196) return self::fix_further($page_id, $canonical, "Q4754294");        
+        elseif($page_id == 47459) return self::fix_further($page_id, $canonical, "Q4861441");        
+        elseif($page_id == 51532738) return self::fix_further($page_id, $canonical, "Q5019528");        
+        elseif($page_id == 74194) return self::fix_further($page_id, $canonical, "Q5099175");        
+        elseif($page_id == 68213) return self::fix_further($page_id, $canonical, "Q5184177");        
+        elseif($page_id == 94571) return self::fix_further($page_id, $canonical, "Q5188748");        
+        elseif($page_id == 20342) return self::fix_further($page_id, $canonical, "Q522255");        
+        elseif($page_id == 47136755) return self::fix_further($page_id, $canonical, "Q5227610");        
+        elseif($page_id == 52756989) return self::fix_further($page_id, $canonical, "Q5315942");        
+        elseif($page_id == 93658) return self::fix_further($page_id, $canonical, "Q5376348");        
+        elseif($page_id == 47119522) return self::fix_further($page_id, $canonical, "Q5377547");        
+        elseif($page_id == 34289) return self::fix_further($page_id, $canonical, "Q5383575");        
+        elseif($page_id == 37672) return self::fix_further($page_id, $canonical, "Q5405867");        
+        elseif($page_id == 51533327) return self::fix_further($page_id, $canonical, "Q5406528");        
+        elseif($page_id == 33895) return self::fix_further($page_id, $canonical, "Q5414644");        
+        elseif($page_id == 93636) return self::fix_further($page_id, $canonical, "Q5558933");        
+        elseif($page_id == 40369) return self::fix_further($page_id, $canonical, "Q5567274");        
+        elseif($page_id == 35099) return self::fix_further($page_id, $canonical, "Q5573498");        
+        elseif($page_id == 48495) return self::fix_further($page_id, $canonical, "Q591966");        
+        elseif($page_id == 48488) return self::fix_further($page_id, $canonical, "Q6521398");        
+        elseif($page_id == 20463) return self::fix_further($page_id, $canonical, "Q6696928");        
+        elseif($page_id == 60622) return self::fix_further($page_id, $canonical, "Q6725468");        
+        elseif($page_id == 58500) return self::fix_further($page_id, $canonical, "Q6823514");        
+        elseif($page_id == 35014) return self::fix_further($page_id, $canonical, "Q6868917");        
+        elseif($page_id == 58116) return self::fix_further($page_id, $canonical, "Q6901524");        
+        elseif($page_id == 60994095) return self::fix_further($page_id, $canonical, "Q6963796");        
+        elseif($page_id == 57093) return self::fix_further($page_id, $canonical, "Q6992942");        
+        elseif($page_id == 48850) return self::fix_further($page_id, $canonical, "Q7075694");        
+        elseif($page_id == 93786) return self::fix_further($page_id, $canonical, "Q7116123");        
+        elseif($page_id == 34052) return self::fix_further($page_id, $canonical, "Q7131966");        
+        elseif($page_id == 60994373) return self::fix_further($page_id, $canonical, "Q7135170");        
+        elseif($page_id == 35679) return self::fix_further($page_id, $canonical, "Q7189540");        
+        elseif($page_id == 47136024) return self::fix_further($page_id, $canonical, "Q7402621");        
+        elseif($page_id == 94016) return self::fix_further($page_id, $canonical, "Q7563144");        
+        elseif($page_id == 68287) return self::fix_further($page_id, $canonical, "Q7660579");        
+        elseif($page_id == 48746) return self::fix_further($page_id, $canonical, "Q7901166");        
+        elseif($page_id == 68512) return self::fix_further($page_id, $canonical, "Q8045501");        
+        // */
+
+        // /* 8th 3_1051_doi.org_10.1073_pnas.1907847116_IDcorrections.txt
+        elseif($page_id == 82652) return self::fix_further($page_id, $canonical, "Q100235039");
+        elseif($page_id == 113330) return self::fix_further($page_id, $canonical, "Q101565221");
+        elseif($page_id == 47112513) return self::fix_further($page_id, $canonical, "Q102178582");
+        elseif($page_id == 842360) return self::fix_further($page_id, $canonical, "Q10314139");
+        elseif($page_id == 54637) return self::fix_further($page_id, $canonical, "Q10323376");
+        elseif($page_id == 32776) return self::fix_further($page_id, $canonical, "Q10344400");
+        elseif($page_id == 22169378) return self::fix_further($page_id, $canonical, "Q10407903");
+        elseif($page_id == 21424531) return self::fix_further($page_id, $canonical, "Q10410031");
+        elseif($page_id == 8109968) return self::fix_further($page_id, $canonical, "Q10412501");
+        elseif($page_id == 22308) return self::fix_further($page_id, $canonical, "Q10413723");
+        elseif($page_id == 46929833) return self::fix_further($page_id, $canonical, "Q10422313");
+        elseif($page_id == 74441) return self::fix_further($page_id, $canonical, "Q10425062");
+        elseif($page_id == 6899471) return self::fix_further($page_id, $canonical, "Q10442864");
+        elseif($page_id == 28816) return self::fix_further($page_id, $canonical, "Q10443962");
+        elseif($page_id == 839412) return self::fix_further($page_id, $canonical, "Q10455892");
+        elseif($page_id == 839410) return self::fix_further($page_id, $canonical, "Q10455893");
+        elseif($page_id == 74833) return self::fix_further($page_id, $canonical, "Q10462692");
+        elseif($page_id == 22115) return self::fix_further($page_id, $canonical, "Q10470864");
+        elseif($page_id == 5623723) return self::fix_further($page_id, $canonical, "Q10473175");
+        elseif($page_id == 30530) return self::fix_further($page_id, $canonical, "Q10476144");
+        elseif($page_id == 835382) return self::fix_further($page_id, $canonical, "Q10494736");
+        elseif($page_id == 22174) return self::fix_further($page_id, $canonical, "Q10495627");
+        elseif($page_id == 4216784) return self::fix_further($page_id, $canonical, "Q10500261");
+        elseif($page_id == 22168513) return self::fix_further($page_id, $canonical, "Q10508361");
+        elseif($page_id == 8991405) return self::fix_further($page_id, $canonical, "Q10518629");
+        elseif($page_id == 74657) return self::fix_further($page_id, $canonical, "Q10527815");
+        elseif($page_id == 4215905) return self::fix_further($page_id, $canonical, "Q10536543");
+        elseif($page_id == 8991532) return self::fix_further($page_id, $canonical, "Q10536716");
+        elseif($page_id == 22170374) return self::fix_further($page_id, $canonical, "Q10547115");
+        elseif($page_id == 74809) return self::fix_further($page_id, $canonical, "Q10569803");
+        elseif($page_id == 8988845) return self::fix_further($page_id, $canonical, "Q10571178");
+        elseif($page_id == 28918) return self::fix_further($page_id, $canonical, "Q10579930");
+        elseif($page_id == 3695518) return self::fix_further($page_id, $canonical, "Q10599771");
+        elseif($page_id == 31365) return self::fix_further($page_id, $canonical, "Q10607086");
+        elseif($page_id == 30292) return self::fix_further($page_id, $canonical, "Q10612822");
+        elseif($page_id == 47113385) return self::fix_further($page_id, $canonical, "Q10618443");
+        elseif($page_id == 22168729) return self::fix_further($page_id, $canonical, "Q10621902");
+        elseif($page_id == 29038) return self::fix_further($page_id, $canonical, "Q10623335");
+        elseif($page_id == 3701881) return self::fix_further($page_id, $canonical, "Q10632549");
+        elseif($page_id == 8989422) return self::fix_further($page_id, $canonical, "Q10634740");
+        elseif($page_id == 46927287) return self::fix_further($page_id, $canonical, "Q10645509");
+        elseif($page_id == 47170857) return self::fix_further($page_id, $canonical, "Q10663139");
+        elseif($page_id == 3698011) return self::fix_further($page_id, $canonical, "Q10672202");
+        elseif($page_id == 74401) return self::fix_further($page_id, $canonical, "Q10678715");
+        elseif($page_id == 8108401) return self::fix_further($page_id, $canonical, "Q10687455");
+        elseif($page_id == 46930775) return self::fix_further($page_id, $canonical, "Q10694890");
+        elseif($page_id == 17944025) return self::fix_further($page_id, $canonical, "Q10703502");
+        elseif($page_id == 84735) return self::fix_further($page_id, $canonical, "Q107035685");
+        elseif($page_id == 107127) return self::fix_further($page_id, $canonical, "Q10716861");
+        elseif($page_id == 81238) return self::fix_further($page_id, $canonical, "Q107456831");
+        elseif($page_id == 433050) return self::fix_further($page_id, $canonical, "Q10747949");
+        elseif($page_id == 434577) return self::fix_further($page_id, $canonical, "Q10768049");
+        elseif($page_id == 737606) return self::fix_further($page_id, $canonical, "Q10784980");
+        elseif($page_id == 737593) return self::fix_further($page_id, $canonical, "Q10785015");
+        elseif($page_id == 737591) return self::fix_further($page_id, $canonical, "Q10785026");
+        elseif($page_id == 5631523) return self::fix_further($page_id, $canonical, "Q108072664");
+        elseif($page_id == 47121615) return self::fix_further($page_id, $canonical, "Q109984523");
+        elseif($page_id == 30279692) return self::fix_further($page_id, $canonical, "Q110481917");
+        elseif($page_id == 29101) return self::fix_further($page_id, $canonical, "Q111049444");
+        elseif($page_id == 91255) return self::fix_further($page_id, $canonical, "Q113196190");
+        elseif($page_id == 44294) return self::fix_further($page_id, $canonical, "Q113648031");
+        elseif($page_id == 82623) return self::fix_further($page_id, $canonical, "Q116810162");
+        elseif($page_id == 41688) return self::fix_further($page_id, $canonical, "Q116821295");
+        elseif($page_id == 47480861) return self::fix_further($page_id, $canonical, "Q116865952");
+        elseif($page_id == 114644) return self::fix_further($page_id, $canonical, "Q116872609");
+        elseif($page_id == 30932) return self::fix_further($page_id, $canonical, "Q116877939");
+        elseif($page_id == 31364) return self::fix_further($page_id, $canonical, "Q116877957");
+        elseif($page_id == 31297) return self::fix_further($page_id, $canonical, "Q116878086");
+        elseif($page_id == 36668) return self::fix_further($page_id, $canonical, "Q116885622");
+        elseif($page_id == 17550) return self::fix_further($page_id, $canonical, "Q116886460");
+        elseif($page_id == 49325) return self::fix_further($page_id, $canonical, "Q1194683");
+        elseif($page_id == 644) return self::fix_further($page_id, $canonical, "Q1262432");
+        elseif($page_id == 7499) return self::fix_further($page_id, $canonical, "Q1338907");
+        elseif($page_id == 573) return self::fix_further($page_id, $canonical, "Q1342305");
+        elseif($page_id == 14775) return self::fix_further($page_id, $canonical, "Q13429521");
+        elseif($page_id == 32420) return self::fix_further($page_id, $canonical, "Q13430644");
+        elseif($page_id == 86810) return self::fix_further($page_id, $canonical, "Q13458222");
+        elseif($page_id == 86783) return self::fix_further($page_id, $canonical, "Q13462377");
+        elseif($page_id == 46818891) return self::fix_further($page_id, $canonical, "Q13469842");
+        elseif($page_id == 86730) return self::fix_further($page_id, $canonical, "Q13474829");
+        elseif($page_id == 83927) return self::fix_further($page_id, $canonical, "Q13635209");
+        elseif($page_id == 84160) return self::fix_further($page_id, $canonical, "Q13635288");
+        elseif($page_id == 84205) return self::fix_further($page_id, $canonical, "Q13635352");
+        elseif($page_id == 84203) return self::fix_further($page_id, $canonical, "Q13637085");
+        elseif($page_id == 36564465) return self::fix_further($page_id, $canonical, "Q13744315");
+        elseif($page_id == 106469) return self::fix_further($page_id, $canonical, "Q13748208");
+        elseif($page_id == 264161) return self::fix_further($page_id, $canonical, "Q13855951");
+        elseif($page_id == 1071413) return self::fix_further($page_id, $canonical, "Q13857162");
+        elseif($page_id == 14867) return self::fix_further($page_id, $canonical, "Q13954374");
+        elseif($page_id == 40060) return self::fix_further($page_id, $canonical, "Q1407835");
+        elseif($page_id == 256525) return self::fix_further($page_id, $canonical, "Q14229598");
+        elseif($page_id == 571) return self::fix_further($page_id, $canonical, "Q1423466");
+        elseif($page_id == 28537) return self::fix_further($page_id, $canonical, "Q14262202");
+        elseif($page_id == 797081) return self::fix_further($page_id, $canonical, "Q14388576");
+        elseif($page_id == 728761) return self::fix_further($page_id, $canonical, "Q14389884");
+        elseif($page_id == 51623347) return self::fix_further($page_id, $canonical, "Q14426020");
+        elseif($page_id == 33490) return self::fix_further($page_id, $canonical, "Q14437617");
+        elseif($page_id == 2721893) return self::fix_further($page_id, $canonical, "Q14492588");
+        elseif($page_id == 2720548) return self::fix_further($page_id, $canonical, "Q14492788");
+        elseif($page_id == 47141823) return self::fix_further($page_id, $canonical, "Q14505543");
+        elseif($page_id == 87086) return self::fix_further($page_id, $canonical, "Q14505678");
+        elseif($page_id == 84022) return self::fix_further($page_id, $canonical, "Q14506410");
+        elseif($page_id == 56043) return self::fix_further($page_id, $canonical, "Q14506725");
+        elseif($page_id == 3771486) return self::fix_further($page_id, $canonical, "Q14507943");
+        elseif($page_id == 54652) return self::fix_further($page_id, $canonical, "Q14508052");
+        elseif($page_id == 16341249) return self::fix_further($page_id, $canonical, "Q14509491");
+        elseif($page_id == 3774308) return self::fix_further($page_id, $canonical, "Q14512208");
+        elseif($page_id == 73034) return self::fix_further($page_id, $canonical, "Q14520256");
+        elseif($page_id == 87012) return self::fix_further($page_id, $canonical, "Q14524047");
+        elseif($page_id == 434913) return self::fix_further($page_id, $canonical, "Q14527679");
+        elseif($page_id == 3781838) return self::fix_further($page_id, $canonical, "Q14533419");
+        elseif($page_id == 16366450) return self::fix_further($page_id, $canonical, "Q14533421");
+        elseif($page_id == 47154178) return self::fix_further($page_id, $canonical, "Q14535976");
+        elseif($page_id == 808068) return self::fix_further($page_id, $canonical, "Q14536256");
+        elseif($page_id == 3783564) return self::fix_further($page_id, $canonical, "Q14536536");
+        elseif($page_id == 4160790) return self::fix_further($page_id, $canonical, "Q14536771");
+        elseif($page_id == 5853306) return self::fix_further($page_id, $canonical, "Q14536777");
+        elseif($page_id == 5326444) return self::fix_further($page_id, $canonical, "Q14537054");
+        elseif($page_id == 3780173) return self::fix_further($page_id, $canonical, "Q14538809");
+        elseif($page_id == 16373313) return self::fix_further($page_id, $canonical, "Q14539188");
+        elseif($page_id == 47121744) return self::fix_further($page_id, $canonical, "Q14563153");
+        elseif($page_id == 773459) return self::fix_further($page_id, $canonical, "Q14587757");
+        elseif($page_id == 55125) return self::fix_further($page_id, $canonical, "Q14589259");
+        elseif($page_id == 80389) return self::fix_further($page_id, $canonical, "Q14599580");
+        elseif($page_id == 800583) return self::fix_further($page_id, $canonical, "Q14602311");
+        elseif($page_id == 800646) return self::fix_further($page_id, $canonical, "Q14602336");
+        elseif($page_id == 84054) return self::fix_further($page_id, $canonical, "Q14603809");
+        elseif($page_id == 806044) return self::fix_further($page_id, $canonical, "Q14607852");
+        elseif($page_id == 56525) return self::fix_further($page_id, $canonical, "Q14608344");
+        elseif($page_id == 54621) return self::fix_further($page_id, $canonical, "Q14617726");
+        elseif($page_id == 80038) return self::fix_further($page_id, $canonical, "Q14621184");
+        elseif($page_id == 81322) return self::fix_further($page_id, $canonical, "Q14621845");
+        elseif($page_id == 107139) return self::fix_further($page_id, $canonical, "Q14630090");
+        elseif($page_id == 107137) return self::fix_further($page_id, $canonical, "Q14640167");
+        elseif($page_id == 47130826) return self::fix_further($page_id, $canonical, "Q14660135");
+        elseif($page_id == 84841) return self::fix_further($page_id, $canonical, "Q14661213");
+        elseif($page_id == 56195) return self::fix_further($page_id, $canonical, "Q14665518");
+        elseif($page_id == 78389) return self::fix_further($page_id, $canonical, "Q14666836");
+        elseif($page_id == 84894) return self::fix_further($page_id, $canonical, "Q14673416");
+        elseif($page_id == 83034) return self::fix_further($page_id, $canonical, "Q14676383");
+        elseif($page_id == 80439) return self::fix_further($page_id, $canonical, "Q14676880");
+        elseif($page_id == 83407) return self::fix_further($page_id, $canonical, "Q14693989");
+        elseif($page_id == 24509) return self::fix_further($page_id, $canonical, "Q14698663");
+        elseif($page_id == 84510) return self::fix_further($page_id, $canonical, "Q14707812");
+        elseif($page_id == 816821) return self::fix_further($page_id, $canonical, "Q14718847");
+        elseif($page_id == 643) return self::fix_further($page_id, $canonical, "Q1472961");
+        elseif($page_id == 22107900) return self::fix_further($page_id, $canonical, "Q14729619");
+        elseif($page_id == 762023) return self::fix_further($page_id, $canonical, "Q14730735");
+        elseif($page_id == 28215) return self::fix_further($page_id, $canonical, "Q14741419");
+        elseif($page_id == 54966) return self::fix_further($page_id, $canonical, "Q14743309");
+        elseif($page_id == 734221) return self::fix_further($page_id, $canonical, "Q14743808");
+        elseif($page_id == 22188) return self::fix_further($page_id, $canonical, "Q14866807");
+        elseif($page_id == 47129211) return self::fix_further($page_id, $canonical, "Q15122277");
+        elseif($page_id == 83198) return self::fix_further($page_id, $canonical, "Q15622097");
+        elseif($page_id == 937) return self::fix_further($page_id, $canonical, "Q156438");
+        elseif($page_id == 3686408) return self::fix_further($page_id, $canonical, "Q15790917");
+        elseif($page_id == 463) return self::fix_further($page_id, $canonical, "Q1582901");
+        elseif($page_id == 81994) return self::fix_further($page_id, $canonical, "Q15951484");
+        elseif($page_id == 29266) return self::fix_further($page_id, $canonical, "Q15974387");
+        elseif($page_id == 86404) return self::fix_further($page_id, $canonical, "Q15975683");
+        elseif($page_id == 47140510) return self::fix_further($page_id, $canonical, "Q16267123");
+        elseif($page_id == 612) return self::fix_further($page_id, $canonical, "Q1640214");
+        elseif($page_id == 79226) return self::fix_further($page_id, $canonical, "Q16530948");
+        elseif($page_id == 3781048) return self::fix_further($page_id, $canonical, "Q16879537");
+        elseif($page_id == 47149297) return self::fix_further($page_id, $canonical, "Q16920987");
+        elseif($page_id == 85408) return self::fix_further($page_id, $canonical, "Q17127022");
+        elseif($page_id == 30514) return self::fix_further($page_id, $canonical, "Q17376180");
+        elseif($page_id == 81445) return self::fix_further($page_id, $canonical, "Q17379709");
+        elseif($page_id == 83905) return self::fix_further($page_id, $canonical, "Q17379814");
+        elseif($page_id == 83045) return self::fix_further($page_id, $canonical, "Q17389431");
+        elseif($page_id == 54986) return self::fix_further($page_id, $canonical, "Q17469943");
+        elseif($page_id == 478) return self::fix_further($page_id, $canonical, "Q1778576");
+        elseif($page_id == 28668) return self::fix_further($page_id, $canonical, "Q18096869");
+        elseif($page_id == 13304780) return self::fix_further($page_id, $canonical, "Q18099148");
+        elseif($page_id == 8988372) return self::fix_further($page_id, $canonical, "Q18099269");
+        elseif($page_id == 13188784) return self::fix_further($page_id, $canonical, "Q18099495");
+        elseif($page_id == 16205311) return self::fix_further($page_id, $canonical, "Q18099552");
+        elseif($page_id == 45606) return self::fix_further($page_id, $canonical, "Q18100136");
+        elseif($page_id == 3694790) return self::fix_further($page_id, $canonical, "Q18100166");
+        elseif($page_id == 2644718) return self::fix_further($page_id, $canonical, "Q18102322");
+        elseif($page_id == 3774495) return self::fix_further($page_id, $canonical, "Q18103566");
+        elseif($page_id == 30898) return self::fix_further($page_id, $canonical, "Q18103811");
+        elseif($page_id == 31591) return self::fix_further($page_id, $canonical, "Q18105679");
+        elseif($page_id == 8987675) return self::fix_further($page_id, $canonical, "Q18106827");
+        elseif($page_id == 4216581) return self::fix_further($page_id, $canonical, "Q18107031");
+        elseif($page_id == 84437) return self::fix_further($page_id, $canonical, "Q18108407");
+        elseif($page_id == 78803) return self::fix_further($page_id, $canonical, "Q18108661");
+        elseif($page_id == 80319) return self::fix_further($page_id, $canonical, "Q18112300");
+        elseif($page_id == 83868) return self::fix_further($page_id, $canonical, "Q18113120");
+        elseif($page_id == 35213) return self::fix_further($page_id, $canonical, "Q1850316");
+        elseif($page_id == 55242) return self::fix_further($page_id, $canonical, "Q1945214");
+        elseif($page_id == 7016) return self::fix_further($page_id, $canonical, "Q19753048");
+        elseif($page_id == 54656) return self::fix_further($page_id, $canonical, "Q20087604");
+        elseif($page_id == 1033630) return self::fix_further($page_id, $canonical, "Q20203623");
+        elseif($page_id == 943) return self::fix_further($page_id, $canonical, "Q2061605");
+        elseif($page_id == 8994610) return self::fix_further($page_id, $canonical, "Q20722035");
+        elseif($page_id == 29241) return self::fix_further($page_id, $canonical, "Q20722155");
+        elseif($page_id == 31071) return self::fix_further($page_id, $canonical, "Q2082751");
+        elseif($page_id == 46719377) return self::fix_further($page_id, $canonical, "Q21218574");
+        elseif($page_id == 3704277) return self::fix_further($page_id, $canonical, "Q21224568");
+        elseif($page_id == 5097008) return self::fix_further($page_id, $canonical, "Q21347238");
+        elseif($page_id == 46544456) return self::fix_further($page_id, $canonical, "Q21365364");
+        elseif($page_id == 46914963) return self::fix_further($page_id, $canonical, "Q21397027");
+        elseif($page_id == 74726) return self::fix_further($page_id, $canonical, "Q21446038");
+        elseif($page_id == 29754) return self::fix_further($page_id, $canonical, "Q21446053");
+        elseif($page_id == 8994966) return self::fix_further($page_id, $canonical, "Q21446941");
+        elseif($page_id == 20262608) return self::fix_further($page_id, $canonical, "Q21447384");
+        elseif($page_id == 46703889) return self::fix_further($page_id, $canonical, "Q21447882");
+        elseif($page_id == 430) return self::fix_further($page_id, $canonical, "Q2213084");
+        elseif($page_id == 9019) return self::fix_further($page_id, $canonical, "Q235715");
+        elseif($page_id == 2760712) return self::fix_further($page_id, $canonical, "Q2378643");
+        elseif($page_id == 539) return self::fix_further($page_id, $canonical, "Q26371");
+        elseif($page_id == 16353917) return self::fix_further($page_id, $canonical, "Q2672470");
+        elseif($page_id == 588) return self::fix_further($page_id, $canonical, "Q270322");
+        elseif($page_id == 1300082) return self::fix_further($page_id, $canonical, "Q27584");
+        elseif($page_id == 2639659) return self::fix_further($page_id, $canonical, "Q2859194");
+        elseif($page_id == 8636894) return self::fix_further($page_id, $canonical, "Q29589409");
+        elseif($page_id == 47258349) return self::fix_further($page_id, $canonical, "Q2967349");
+        elseif($page_id == 74758) return self::fix_further($page_id, $canonical, "Q3024203");
+        elseif($page_id == 36178) return self::fix_further($page_id, $canonical, "Q311557");
+        elseif($page_id == 3778998) return self::fix_further($page_id, $canonical, "Q3140382");
+        elseif($page_id == 5420912) return self::fix_further($page_id, $canonical, "Q3372605");
+        elseif($page_id == 811709) return self::fix_further($page_id, $canonical, "Q3472427");
+        elseif($page_id == 403438) return self::fix_further($page_id, $canonical, "Q3719480");
+        elseif($page_id == 33079) return self::fix_further($page_id, $canonical, "Q3925224");
+        elseif($page_id == 31087) return self::fix_further($page_id, $canonical, "Q4039297");
+        elseif($page_id == 28536) return self::fix_further($page_id, $canonical, "Q4118912");
+        elseif($page_id == 79905) return self::fix_further($page_id, $canonical, "Q4119162");
+        elseif($page_id == 83887) return self::fix_further($page_id, $canonical, "Q4119182");
+        elseif($page_id == 27117) return self::fix_further($page_id, $canonical, "Q4119489");
+        elseif($page_id == 27129) return self::fix_further($page_id, $canonical, "Q4119772");
+        elseif($page_id == 32335) return self::fix_further($page_id, $canonical, "Q4119869");
+        elseif($page_id == 55410) return self::fix_further($page_id, $canonical, "Q4119871");
+        elseif($page_id == 83913) return self::fix_further($page_id, $canonical, "Q4744317");
+        elseif($page_id == 55387) return self::fix_further($page_id, $canonical, "Q4789865");
+        elseif($page_id == 3687841) return self::fix_further($page_id, $canonical, "Q50377635");
+        elseif($page_id == 47184374) return self::fix_further($page_id, $canonical, "Q5058609");
+        elseif($page_id == 3693165) return self::fix_further($page_id, $canonical, "Q50696181");
+        elseif($page_id == 4220239) return self::fix_further($page_id, $canonical, "Q50751487");
+        elseif($page_id == 3692712) return self::fix_further($page_id, $canonical, "Q50797875");
+        elseif($page_id == 28137) return self::fix_further($page_id, $canonical, "Q5176196");
+        elseif($page_id == 14159) return self::fix_further($page_id, $canonical, "Q5409506");
+        elseif($page_id == 1331870) return self::fix_further($page_id, $canonical, "Q55019430");
+        elseif($page_id == 74548) return self::fix_further($page_id, $canonical, "Q5522425");
+        elseif($page_id == 8994719) return self::fix_further($page_id, $canonical, "Q55261773");
+        elseif($page_id == 3694893) return self::fix_further($page_id, $canonical, "Q5770788");
+        elseif($page_id == 3740990) return self::fix_further($page_id, $canonical, "Q59773326");
+        elseif($page_id == 24763049) return self::fix_further($page_id, $canonical, "Q61945417");
+        elseif($page_id == 25447878) return self::fix_further($page_id, $canonical, "Q63490279");
+        elseif($page_id == 39078) return self::fix_further($page_id, $canonical, "Q64785368");
+        elseif($page_id == 20659926) return self::fix_further($page_id, $canonical, "Q66940109");
+        elseif($page_id == 806581) return self::fix_further($page_id, $canonical, "Q6805274");
+        elseif($page_id == 74849) return self::fix_further($page_id, $canonical, "Q6994314");
+        elseif($page_id == 818719) return self::fix_further($page_id, $canonical, "Q7635464");
+        elseif($page_id == 22126) return self::fix_further($page_id, $canonical, "Q775953");
+        elseif($page_id == 16328737) return self::fix_further($page_id, $canonical, "Q777562");
+        elseif($page_id == 25451242) return self::fix_further($page_id, $canonical, "Q93635058");
+        elseif($page_id == 60654) return self::fix_further($page_id, $canonical, "Q95699606");
+        elseif($page_id == 74479) return self::fix_further($page_id, $canonical, "Q10411662");
+        elseif($page_id == 74908) return self::fix_further($page_id, $canonical, "Q10518152");
+        elseif($page_id == 22780) return self::fix_further($page_id, $canonical, "Q10526748");
+        elseif($page_id == 47134257) return self::fix_further($page_id, $canonical, "Q10819953");
+        elseif($page_id == 30911) return self::fix_further($page_id, $canonical, "Q113687359");
+        elseif($page_id == 106340) return self::fix_further($page_id, $canonical, "Q16314237");
+        elseif($page_id == 47107320) return self::fix_further($page_id, $canonical, "Q18106744");
+        elseif($page_id == 448) return self::fix_further($page_id, $canonical, "Q21440769");
+        elseif($page_id == 47143491) return self::fix_further($page_id, $canonical, "Q4118997");
+        elseif($page_id == 84278) return self::fix_further($page_id, $canonical, "Q7107602");
+        else return false;
+        // */
     }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
