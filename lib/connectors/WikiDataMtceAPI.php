@@ -1157,7 +1157,7 @@ class WikiDataMtceAPI
                 
                 // /* new block
                 if($real_row == 31) {
-                    $this->removed_from_row_31 = get_all_ids_from_Katja_row31('remove');
+                    $this->removed_from_row_31 = self::get_all_ids_from_Katja_row31('remove');
                 }
                 else {
                     if(isset($this->removed_from_row_31)) unset($this->removed_from_row_31);

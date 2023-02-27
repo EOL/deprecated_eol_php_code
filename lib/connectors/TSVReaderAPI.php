@@ -41,7 +41,7 @@ class TSVReaderAPI
                 // if($i >= 20) break; //debug
             }
         } //end foreach()
-        echo "\n[$str]\n";
+        // echo "\n[$str]\n"; //good debug
         if($task == "comma_sep_pageID") return $ids;
     } //end func
 }
