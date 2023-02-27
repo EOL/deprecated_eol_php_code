@@ -314,8 +314,10 @@ class CypherQueryAPI
     {
         // print_r($obj); exit;
         if($skip == 0) {
+            /* working but moved up
             $base = pathinfo($filename, PATHINFO_FILENAME); //e.g. "e54dbf6839f325a6a0d5095e82bc5e70"
-            // $this->tsv_file = $this->report_path."/".$base.".tsv"; //working but moved up    
+            $this->tsv_file = $this->report_path."/".$base.".tsv"; //working but moved up
+            */
             $WRITE = Functions::file_open($this->tsv_file, "w");
             fwrite($WRITE, implode("\t", $obj->columns)."\n"); 
         }
@@ -323,11 +325,13 @@ class CypherQueryAPI
         
         foreach($obj->data as $rec) {
             // /* new block for without DISTINCT
-            if(!$this->with_DISTINCT_YN) {
-                $json_rec = json_encode($rec);
-                $md5 = md5($json_rec);
-                if(isset($this->unique_row[$md5])) continue;
-                else $this->unique_row[$md5] = '';
+            if(isset($this->with_DISTINCT_YN)) { //bec this func is being used by others e.g. get_traits_stop_at()
+                if(!$this->with_DISTINCT_YN) {
+                    $json_rec = json_encode($rec);
+                    $md5 = md5($json_rec);
+                    if(isset($this->unique_row[$md5])) continue;
+                    else $this->unique_row[$md5] = '';
+                }    
             }
             // */
 
