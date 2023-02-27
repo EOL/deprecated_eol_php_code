@@ -434,10 +434,8 @@ class CypherQueryAPI
             $input = array();
             $input["params"] = array("citation" => $citation);
             $input["type"] = "wikidata_base_qry_citation";
-            // $input["per_page"] = 500; // 500 worked ok
-            if($this->with_DISTINCT_YN) $input["per_page"] = $this->per_page;
+            if($this->with_DISTINCT_YN) $input["per_page"] = $this->per_page; //500 orig
             else                        $input["per_page"] = $this->per_page_2; //1000
-
             
             $input["trait kind"] = "trait";
             $this->query_trait_db($input);
@@ -451,8 +449,7 @@ class CypherQueryAPI
             $source = $rec['trait.source'];
             $input["params"] = array("source" => $source);
             $input["type"] = "wikidata_base_qry_source";
-            // $input["per_page"] = 500; // 500 finished ok
-            if($this->with_DISTINCT_YN) $input["per_page"] = $this->per_page;
+            if($this->with_DISTINCT_YN) $input["per_page"] = $this->per_page; //500 orig
             else                        $input["per_page"] = $this->per_page_2; //1000
 
             $input["trait kind"] = "trait";
