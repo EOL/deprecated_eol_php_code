@@ -24,10 +24,12 @@ class WikiDataMtceAPI
         $this->sourcemd_api['search DOI'] = "https://sourcemd.toolforge.org/index_old.php?id=MY_DOI&doit=Check+source";
         $this->debug = array();
         // $this->tmp_batch_export = DOC_ROOT . "/tmp/temp_export.qs"; //moved
-
         
         /* export file for new citation in WikiData */
         $this->citation_export_file = DOC_ROOT. "temp/citation_export_file.qs";
+
+        $this->per_page = 500;
+        $this->per_page_2 = 1000;
 
     }
     function get_WD_entityID_for_DOI($doi)
@@ -1130,6 +1132,10 @@ class WikiDataMtceAPI
                 // /* takbo
                 $real_row = $i - 1;
                 $this->real_row = $real_row;
+
+                if($real_row == 31) $this->with_DISTINCT_YN = false;
+                else                $this->with_DISTINCT_YN = true; //the rest goes here
+
                 // if(in_array($real_row, array(1,2,4,5,6,7,8,9,10,11))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
                 //---------------------------------------------------------------
                 // if(!in_array($real_row, array(1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30))) continue; //dev only  --- for testing
@@ -1236,14 +1242,16 @@ class WikiDataMtceAPI
             $input = array();
             $input["params"] = array("citation" => $citation);
             $input["type"] = "wikidata_base_qry_citation";
-            $input["per_page"] = 500; // 500 worked ok    
+            if($this->with_DISTINCT_YN) $input["per_page"] = $this->per_page; //500 orig
+            else                        $input["per_page"] = $this->per_page_2; //1000
         }
         else {
             $source = $rec['trait.source'];
             $input = array();
             $input["params"] = array("source" => $source);
             $input["type"] = "wikidata_base_qry_source";
-            $input["per_page"] = 500; // 500 finished ok
+            if($this->with_DISTINCT_YN) $input["per_page"] = $this->per_page; //500 orig
+            else                        $input["per_page"] = $this->per_page_2; //1000
         }
 
         $input["trait kind"] = "trait";
