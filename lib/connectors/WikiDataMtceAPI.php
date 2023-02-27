@@ -1459,12 +1459,10 @@ class WikiDataMtceAPI
         if($which == 'remove')              $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_remove.txt";
         elseif($which == 'IDcorrections')   $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_IDcorrections.txt";
         elseif($which == 'fixedOnWikiData') $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_fixedOnWikiData.txt";
-
         else exit("\nUndefined report.\n");
-        // $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_fixedOnWikiData.txt";
         $tsv_file = $path.$tsv_file;
         $ids = $func->read_tsv($tsv_file, "comma_sep_pageID");
-        echo "\nids: ".count($ids)."\n"; exit("\nstop muna 1\n");
+        echo "\nPage IDs ($which): ".count($ids)."\n"; exit("\nstop muna 1\n");
         return $ids;
     }
     private function pageID_has_manual_fix($page_id, $canonical) //manual fix
