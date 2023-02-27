@@ -35,9 +35,6 @@ class TSVReaderAPI
 
                 }
 
-                
-
-
                 // if($i >= 20) break; //debug
             }
         } //end foreach()
