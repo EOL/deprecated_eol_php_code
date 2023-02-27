@@ -243,8 +243,17 @@ class WikiDataMtceAPI
         3_1051_doi.org_10.1073_pnas.1907847116_remove.txt
         */
         $text_file = $this->report_not_taxon_or_no_wikidata;
+        /* replaced by isset() instead of this in_array()
         if(in_array($rec['p.page_id'], array(46777128, 44068029, 4220900, 51482088, 47071476, 69177, 94325, 53448, 46793443, 58457, 
-            4774732, 19758, 250532, 60994119, 60992489))) {
+            4774732, 19758, 250532, 60994119, 60992489))) */
+        
+        $arr = array(46777128, 44068029, 4220900, 51482088, 47071476, 69177, 94325, 53448, 46793443, 58457, 
+            4774732, 19758, 250532, 60994119, 60992489);
+        
+        if(isset($this->removed_from_row_31)) $arr = array_merge($arr, $this->removed_from_row_31);
+
+        foreach($arr as $id) $remove[$id] = '';
+        if(isset($remove[$rec['p.page_id']])) {
             $str = implode("\t", array($rec['p.canonical'], $rec['p.page_id'], "***"));
             self::write_2text_file($text_file, $str); //."excluded record***"
             return;
@@ -879,6 +888,36 @@ class WikiDataMtceAPI
                     618677, 618681, 618680, 618683, 481990, 618682, 618685, 618684, 618687, 618686, 618689, 618688, 618690, 618694, 618693, 618691, 
                     481234, 481233, 613722, 613721, 613720, 481235, 481989, 613015, 613719, 481510, 618113, 618116, 618115, 618111, 481236, 616773, 
                     616772, 616764, 51858464, 484812, 484811, 468969 */
+
+                    // /* 3_1051_doi.org_10.1073_pnas.1907847116_fixedOnWikiData.txt
+                    , 2760570, 85991, 86309, 78449, 80730, 43780, 2760430, 46929030, 31372, 3702020, 65243, 46908205, 22493, 24993781, 
+                    49812967, 24994246, 52765863, 46933152, 46933155, 52765019, 8986625, 12037264, 3359777, 51858464, 433055, 799776, 1544463, 799774, 799773, 
+                    712198, 744406, 756359, 756355, 756354, 799772, 799771, 712195, 799770, 712196, 1544460, 712193, 799769, 799764, 799765, 
+                    799762, 712192, 436582, 712189, 756352, 799758, 799757, 799756, 737669, 799753, 712190, 756347, 22044290, 707397, 769306, 
+                    783424, 769304, 783421, 744640, 744642, 744641, 817538, 817321, 423034, 808077, 816950, 805818, 719593, 775690, 719594, 
+                    784931, 776935, 434651, 775493, 789510, 802758, 802107, 802108, 761121, 788756, 1540258, 22106523, 761916, 22106524, 22106525, 
+                    771194, 709111, 789388, 761288, 761237, 796995, 435579, 761285, 789667, 809658, 827888, 827887, 827886, 720035, 733484, 
+                    770945, 720034, 733485, 733483, 428252, 770944, 719909, 720033, 770942, 771075, 433286, 734101, 711270, 813198, 51861809, 
+                    714477, 750237, 750234, 750235, 752307, 750236, 751037, 752306, 751036, 750233, 748552, 751034, 752305, 752304, 750232, 
+                    750231, 748910, 752302, 822370, 824295, 46821980, 1279203, 1279202, 1253602, 1274572, 1274574, 1261881, 1262883, 1261880, 1273632, 
+                    52595018, 52594963, 52595023, 52595050, 52594962, 52594972, 52595007, 52595001, 52594961, 52595019, 52594973, 52595034, 12067809, 46835466, 1066456, 
+                    1066455, 1066453, 1066381, 1066379, 1066378, 1066376, 857768, 621563, 16334091, 16334120, 16334098, 16334124, 16334084, 16334079, 12063048, 
+                    16334101, 16334121, 12063050, 16334117, 16334125, 16334126, 13801017, 16334111, 16334122, 16334127, 16334119, 16334092, 16334123, 16334086, 52603821, 
+                    16334129, 16334094, 16334130, 16334106, 16334131, 16334132, 16334099, 16334096, 16334102, 16334100, 16334116, 3770364, 16334133, 16334134, 16334118, 
+                    16334110, 16334078, 12063049, 16334081, 16334136, 16334137, 16334138, 16334104, 16334139, 16334105, 16334140, 16334093, 16334141, 16334109, 16334142, 
+                    16334080, 16334143, 16334144, 16334145, 16334146, 16334112, 16334088, 16334090, 16334113, 16334095, 16334147, 16345625, 16341160, 13908514, 16341156, 
+                    16341175, 16341162, 3772730, 16341163, 16341164, 3772727, 16341158, 16341155, 16341166, 16341176, 16341167, 16341168, 16341169, 16341178, 16341159, 
+                    16341170, 16341171, 16341172, 16341173, 16341174, 16370447, 16373725, 52605207, 52605204, 52605208, 52605206, 484181, 402839, 49995371, 627804, 
+                    858078, 627801, 588085, 160879, 161170, 1080470, 46928498, 52762444, 29021012, 22184122, 22182898, 22182900, 4285744, 22167058, 22167061, 
+                    22167059, 22167060, 30288974, 30288972, 28741467, 30288975, 52759648, 30287872, 30287873, 30287289, 30284245, 982786, 240862, 235999, 30281286, 
+                    12037313, 240806, 240384, 46924680, 30279362, 52429333, 30278460, 30278512, 30277278, 30277019, 46925129, 30289941, 236658, 46921298, 46920905, 
+                    46916189, 46914359, 46919001, 3698996, 3698997, 8997656, 9000502, 9001861, 46913499, 9002112, 9002118, 3705362, 3687848, 29562198, 46908982, 
+                    2943354, 9006162, 3692976, 608270, 52760615, 22132374, 34742449, 46927193, 52496552, 839901, 838729, 836672, 839276, 837140, 836671, 
+                    836670, 838879, 837367, 841231, 841263, 837471, 837237, 837470, 837463, 837461, 837462, 837459, 837457, 837236, 837458, 
+                    837267, 837454, 837453, 837444, 837443, 837439, 837437, 837436, 837435, 837222, 837456, 837434, 837433, 837432, 837234, 
+                    837430, 837428, 837568, 837427, 837233, 839257, 839258, 839254, 839255, 837949, 839253, 46926297, 46925634, 44124598, 13804487, 
+                    13804488, 12038066, 13804490, 13804491, 13804492, 36175, 25452243, 22106526
+                    // */
                     ))) $this->download_options['expire_seconds'] = true;
 
                 if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) {
@@ -893,7 +932,7 @@ class WikiDataMtceAPI
     {
         $ret = array("i" => $new_WD_id, "c" => $canonical);
         // /* un-comment this only when row 31 taxonomic corrections are done
-        $this->download_options['expire_seconds'] = true; //means cache expires now, same if value is 0 zero.
+        $this->download_options['expire_seconds'] = 60*60*24; //true means cache expires now, same if value is 0 zero.
         // */
         if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) {
             $this->download_options['expire_seconds'] = false;
@@ -1096,7 +1135,7 @@ class WikiDataMtceAPI
                 // if(!in_array($real_row, array(1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30))) continue; //dev only  --- for testing
                 // if(!in_array($real_row, array(11))) continue; //dev only  --- for removal DONE...
                 // if(!in_array($real_row, array(20))) continue; //dev only  --- for removal DONE...
-                if(!in_array($real_row, array(13))) continue; //dev only  --- for removal running... to cont.
+                // if(!in_array($real_row, array(13))) continue; //dev only  --- for removal running... to cont.
                 // if(!in_array($real_row, array(17,19))) continue; //dev only  --- for removal running... pending
 
                 // if(!in_array($real_row, array(11))) continue; //dev only  --- our very first
@@ -1104,7 +1143,7 @@ class WikiDataMtceAPI
                 // row 12 -- zero results for query by citation and source
                 // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only --  QuickStatements Done
                 // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
-                // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
+                if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
                 echo "\nrow: $real_row\n";
                 // */
                 
@@ -1115,6 +1154,15 @@ class WikiDataMtceAPI
                 row 12 - was run but no records returned. Will investigate more. Will inform Jen. (1038 https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2)
                 row 31 - for taxonomic review
                 */
+                
+                // /* new block
+                if($real_row == 31) {
+                    $this->removed_from_row_31 = get_all_ids_from_Katja_row31('remove');
+                }
+                else {
+                    if(isset($this->removed_from_row_31)) unset($this->removed_from_row_31);
+                }
+                // */
 
                 $paths = self::run_resource_traits($rec, $task);
 
@@ -1401,6 +1449,23 @@ class WikiDataMtceAPI
         $pos = strpos($row, "|S");
         if(!$pos) exit("\nNeed to investigate.\n");
         return "-".substr($row, 0, $pos);
+    }
+    private function get_all_ids_from_Katja_row31($which)
+    {
+        require_library('connectors/TSVReaderAPI');
+        $func = new TSVReaderAPI();
+        $path = "/Users/eliagbayani/Desktop/COLLAB-1006/z_from_Katja/";
+
+        if($which == 'remove')              $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_remove.txt";
+        elseif($which == 'IDcorrections')   $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_IDcorrections.txt";
+        elseif($which == 'fixedOnWikiData') $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_fixedOnWikiData.txt";
+
+        else exit("\nUndefined report.\n");
+        // $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_fixedOnWikiData.txt";
+        $tsv_file = $path.$tsv_file;
+        $ids = $func->read_tsv($tsv_file, "comma_sep_pageID");
+        echo "\nids: ".count($ids)."\n"; exit("\nstop muna 1\n");
+        return $ids;
     }
     private function pageID_has_manual_fix($page_id, $canonical) //manual fix
     {
