@@ -1462,7 +1462,7 @@ class WikiDataMtceAPI
         else exit("\nUndefined report.\n");
         $tsv_file = $path.$tsv_file;
         $ids = $func->read_tsv($tsv_file, "comma_sep_pageID");
-        echo "\nPage IDs ($which): ".count($ids)."\n"; exit("\nstop muna 1\n");
+        echo "\nPage IDs ($which): ".count($ids)."\n"; //exit("\nstop muna 1\n");
         return $ids;
     }
     private function pageID_has_manual_fix($page_id, $canonical) //manual fix
