@@ -290,6 +290,8 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	Sat 2022-07-16 11:53:18 AM	    {"media_resource.tab":837742, "taxon.tab":440902, "time_elapsed":{"sec":989.94, "min":16.5, "hr":0.27}}
 80	Thu 2022-09-08 08:26:01 PM	    {"media_resource.tab":841539, "taxon.tab":442781, "time_elapsed":{"sec":972.88, "min":16.21, "hr":0.27}} consistent OK
 80	Tue 2022-12-06 06:30:04 PM	    {"media_resource.tab":847228, "taxon.tab":442775, "time_elapsed":{"sec":977.44, "min":16.29, "hr":0.27}}
+80	Sat 2023-02-25 04:30:38 PM	    {"media_resource.tab":847222, "taxon.tab":442796, "time_elapsed":{"sec":1001.36, "min":16.69, "hr":0.28}}
+
 
 wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
 wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
