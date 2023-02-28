@@ -891,7 +891,7 @@ class WikiDataMtceAPI
                     481234, 481233, 613722, 613721, 613720, 481235, 481989, 613015, 613719, 481510, 618113, 618116, 618115, 618111, 481236, 616773, 
                     616772, 616764, 51858464, 484812, 484811, 468969 */
 
-                    // /* 3_1051_doi.org_10.1073_pnas.1907847116_fixedOnWikiData.txt
+                    /* 3_1051_doi.org_10.1073_pnas.1907847116_fixedOnWikiData.txt
                     , 2760570, 85991, 86309, 78449, 80730, 43780, 2760430, 46929030, 31372, 3702020, 65243, 46908205, 22493, 24993781, 
                     49812967, 24994246, 52765863, 46933152, 46933155, 52765019, 8986625, 12037264, 3359777, 51858464, 433055, 799776, 1544463, 799774, 799773, 
                     712198, 744406, 756359, 756355, 756354, 799772, 799771, 712195, 799770, 712196, 1544460, 712193, 799769, 799764, 799765, 
@@ -918,8 +918,7 @@ class WikiDataMtceAPI
                     836670, 838879, 837367, 841231, 841263, 837471, 837237, 837470, 837463, 837461, 837462, 837459, 837457, 837236, 837458, 
                     837267, 837454, 837453, 837444, 837443, 837439, 837437, 837436, 837435, 837222, 837456, 837434, 837433, 837432, 837234, 
                     837430, 837428, 837568, 837427, 837233, 839257, 839258, 839254, 839255, 837949, 839253, 46926297, 46925634, 44124598, 13804487, 
-                    13804488, 12038066, 13804490, 13804491, 13804492, 36175, 25452243, 22106526
-                    // */
+                    13804488, 12038066, 13804490, 13804491, 13804492, 36175, 25452243, 22106526 */
                     ))) $this->download_options['expire_seconds'] = true;
 
                 if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) {
@@ -933,9 +932,9 @@ class WikiDataMtceAPI
     private function fix_further($page_id, $canonical, $new_WD_id)
     {
         $ret = array("i" => $new_WD_id, "c" => $canonical);
-        // /* un-comment this only when row 31 taxonomic corrections are done
+        /* un-comment this only when row 31 taxonomic corrections are done
         $this->download_options['expire_seconds'] = 60*60*24; //true means cache expires now, same if value is 0 zero.
-        // */
+        */
         if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) {
             $this->download_options['expire_seconds'] = false;
             return array($ret['i'], $obj);
@@ -1141,7 +1140,7 @@ class WikiDataMtceAPI
                 // if(!in_array($real_row, array(1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30))) continue; //dev only  --- for testing
                 // if(!in_array($real_row, array(11))) continue; //dev only  --- for removal DONE...
                 // if(!in_array($real_row, array(20))) continue; //dev only  --- for removal DONE...
-                // if(!in_array($real_row, array(13))) continue; //dev only  --- for removal running... to cont.
+                if(!in_array($real_row, array(13))) continue; //dev only  --- for removal running... to cont.
                 // if(!in_array($real_row, array(17,19))) continue; //dev only  --- for removal running... pending
 
                 // if(!in_array($real_row, array(11))) continue; //dev only  --- our very first
@@ -1149,10 +1148,15 @@ class WikiDataMtceAPI
                 // row 12 -- zero results for query by citation and source
                 // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only --  QuickStatements Done
                 // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
-                if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
+                // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
                 echo "\nrow: $real_row\n";
                 // */
-                
+
+                /* status Feb 28, 2023
+                rows 3 - taxonomic corrections implemented, to be sent to QuickStatements.
+                rows 21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
+                rows 31 - taxonomic corrections implemented, to be sent to QuickStatements.
+                */
                 /* status Feb 18, 2023
                 rows 1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20 - all traits from these are now in WikiData.
                 rows 3,21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
