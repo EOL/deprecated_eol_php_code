@@ -48,7 +48,9 @@ For diagnostics:
     ps --help simple
     ps -r 
         -> very helpful, if u want to check current running processes
-    cat terminal_inat_images_select.txt
+    
+    cd /var/www/html/eol_php_code/update_resources/connectors/
+    cat terminal_inat_images_select.out
         -> to see progress, very convenient
     ps -p 319348
         -> to investigate a running PID
