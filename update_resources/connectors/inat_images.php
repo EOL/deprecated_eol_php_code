@@ -27,8 +27,7 @@ gbifID	abstract	accessRights	accrualMethod	accrualPeriodicity	accrualPolicy	alte
 
 inat_images	Thu 2022-03-03 07:23:52 AM	{"agent.tab":228535, "media_resource.tab":10,836,311, "taxon.tab":290388, "time_elapsed":{"sec":29208.32, "min":486.81, "hr":8.11}}
 -> with 150 limit per taxon
-inat_images_100limit	Sun 2022-03-06 0{"agent.tab":194651, "media_resource.tab":8742707, "taxon.tab":290388, "time_elapsed":{"sec":26243.11, "min":437.39, "hr":7.29}}
--> with 100 limit per taxon
+
 inat_images_75limit	Tue 2022-03-08 07:22{"agent.tab":172958, "media_resource.tab":7452488, "taxon.tab":290388, "time_elapsed":{"sec":41403.1, "min":690.05, "hr":11.5}}
 inat_images_40limit	Tue 2022-03-08 03:02{"agent.tab":133245, "media_resource.tab":5144786, "taxon.tab":290388, "time_elapsed":{"sec":26667.94, "min":444.47, "hr":7.41}}
 inat_images_20limit	Wed 2022-03-09 05:21{"agent.tab":100022, "media_resource.tab":3292778, "taxon.tab":290388, "time_elapsed":{"sec":20674.17, "min":344.57, "hr":5.74}}
@@ -37,9 +36,15 @@ inat_images_20limit	Wed 2022-03-09 05:21{"agent.tab":100022, "media_resource.tab
 inat_images_3Mcap   Sat 2022-04-23 07:55:09 AM  {"agent.tab":97617, "media_resource.tab":2999999, "taxon.tab":290388, "time_elapsed":{"sec":683328.96, "min":11388.82, "hr":189.81, "day":7.91}}
 inat_images_3Mcap	Sun 2022-04-24 05:18:00 PM	{"agent.tab":97617, "media_resource.tab":3000000, "taxon.tab":290388, "time_elapsed":{"sec":23040.35, "min":384.01, "hr":6.4}}
 inat_images_3Mcap	Tue 2022-04-26 03:19:11 AM	{"agent.tab":97617, "media_resource.tab":3000000, "taxon.tab":290388, "time_elapsed":{"sec":10971.61, "min":182.86, "hr":3.05}}
+=================================== combo eventually being used:
+inat_images_100limit	Sun 2022-03-06 0{"agent.tab":194651,  "media_resource.tab":8742707, "taxon.tab":290388, "time_elapsed":{"sec":26243.11, "min":437.39, "hr":7.29}}
+inat_images_100limit	Tue 2023-02-28 1{"agent.tab":230904, "media_resource.tab":10826457, "taxon.tab":334729, "time_elapsed":{"sec":69921.37, "min":1165.36, "hr":19.42}}
+-> with 100 limit per taxon
+
 100-select-20
 inat_images_3Mcap_2	Sun 2022-04-24 09:52:43 AM	{"agent.tab":97678, "media_resource.tab":3000000, "taxon.tab":290388, "time_elapsed":{"sec":26738.75, "min":445.65, "hr":7.43}}
 inat_images_3Mcap_2	Mon 2022-04-25 11:35:25 PM	{"agent.tab":97678, "media_resource.tab":3000000, "taxon.tab":290388, "time_elapsed":{"sec":13667.16, "min":227.79, "hr":3.8}}
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
