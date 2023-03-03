@@ -1047,10 +1047,11 @@ class WikiDataMtceAPI
         $cmd .= " -d 'batchname=".$batchname."' ";
         $cmd .= " --data-raw 'token=".QUICKSTATEMENTS_EOLTRAITS_TOKEN."' ";
         $cmd .= " --data-urlencode data@".$this->tmp_batch_export." ";
-        echo "\n$cmd\n"; exit;
+        echo "\n$cmd\n"; //exit;
         /* un-comment in real operation
         $output = shell_exec($cmd);
         echo "\n[$output]\n";
+        // exit("\nstop munax\n");
         */
     }
 
@@ -1138,10 +1139,7 @@ class WikiDataMtceAPI
                 // if(in_array($real_row, array(1,2,4,5,6,7,8,9,10,11))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
                 //---------------------------------------------------------------
                 // if(!in_array($real_row, array(1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30))) continue; //dev only  --- for testing
-                // if(!in_array($real_row, array(11))) continue; //dev only  --- for removal DONE...
-                // if(!in_array($real_row, array(20))) continue; //dev only  --- for removal DONE...
-                if(!in_array($real_row, array(13))) continue; //dev only  --- for removal running... to cont.
-                // if(!in_array($real_row, array(17,19))) continue; //dev only  --- for removal running... pending
+                // if(!in_array($real_row, array(11,13,17,19,20))) continue; //dev only  --- for removal DONE
 
                 // if(!in_array($real_row, array(11))) continue; //dev only  --- our very first
                 // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
@@ -1149,14 +1147,18 @@ class WikiDataMtceAPI
                 // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only --  QuickStatements Done
                 // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
                 // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
-                echo "\nrow: $real_row\n";
                 // */
 
                 /* status Feb 28, 2023
                 rows 3 - taxonomic corrections implemented, to be sent to QuickStatements.
                 rows 21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
                 rows 31 - taxonomic corrections implemented, to be sent to QuickStatements.
+                22 - 12306
+                23 - 6484
                 */
+                if(!in_array($real_row, array(30))) continue; //done 21 24 25 26 27 28 29
+                echo "\nrow: $real_row\n";
+
                 /* status Feb 18, 2023
                 rows 1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20 - all traits from these are now in WikiData.
                 rows 3,21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
