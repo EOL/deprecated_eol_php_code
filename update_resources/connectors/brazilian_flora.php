@@ -11,6 +11,22 @@ BF	Monday 2019-10-14 04:19:54 AM	{"measurement_or_fact_specific.tab":413020,"occ
 BF	Monday 2019-11-25 09:20:28 AM	{"measurement_or_fact_specific.tab":413020, "occurrence_specific.tab":404891, "reference.tab":55234, "taxon.tab":122658, "vernacular_name.tab":9124,"time_elapsed":{"sec":454.81,"min":7.58,"hr":0.13}}
 BF	Tue 2021-01-05 11:18:15 PM	    {"measurement_or_fact_specific.tab":413020, "occurrence_specific.tab":404891, "reference.tab":55234, "taxon.tab":122658, "vernacular_name.tab":9124, "time_elapsed":{"sec":643.33, "min":10.72, "hr":0.18}}
 BF	Tue 2021-01-26 08:11:48 PM	    {"measurement_or_fact_specific.tab":413020, "occurrence_specific.tab":404891, "reference.tab":55234, "taxon.tab":122658, "vernacular_name.tab":9124, "time_elapsed":{"sec":589.04, "min":9.82, "hr":0.16}}
+BF	Wed 2022-12-14 08:58:21 AM	    {"measurement_or_fact_specific.tab":413020, "occurrence_specific.tab":404891, "reference.tab":55234, "taxon.tab":122658, "vernacular_name.tab":9124, "time_elapsed":{"sec":621.19, "min":10.35, "hr":0.17}}
+BF	Tue 2023-02-14 08:58:20 AM	    {"measurement_or_fact_specific.tab":413020, "occurrence_specific.tab":404891, "reference.tab":55234, "taxon.tab":122658, "vernacular_name.tab":9124, "time_elapsed":{"sec":619.08, "min":10.32, "hr":0.17}}
+*/
+
+/*
+latest status: https://eol-jira.bibalex.org/browse/DATA-1919?focusedCommentId=67375&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67375
+Hi Jen,
+We've been refreshing BrazilianFlora monthly for quite sometime now.
+But at some point the source file became un-available.
+wget http://ipt.jbrj.gov.br/jbrj/archive.do?r=lista_especies_flora_brasil -O lista_especies_flora_brasil.zip
+
+And our connector just kept on using the last downloaded version.
+Here is the latest numbers now:
+{"MoF":413020, "occurrence":404891, "reference.tab":55234, "taxon.tab":122658, "vernacular_name.tab":9124}
+[OpenData|https://opendata.eol.org/dataset/brazilian-flora/resource/04e94dff-d997-4e3f-946c-2c4bf5173256]
+Thanks.
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
