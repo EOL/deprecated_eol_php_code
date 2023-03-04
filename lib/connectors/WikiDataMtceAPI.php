@@ -511,6 +511,13 @@ class WikiDataMtceAPI
         if($this->removal_YN)   $WRITE = Functions::file_open($this->temp_removal_file, "a");
         else                    $WRITE = Functions::file_open($this->temp_file, "a"); //orig
         foreach($rows as $row) {
+
+            // /* new: make unique
+            $md5 = md5($row);
+            if(isset($this->unique_row[$md5])) continue;
+            else $this->unique_row[$md5] = '';
+            // */
+
             if($this->removal_YN) { //Q10397859|P9566|Q101029366 ---> remove the reference part of the export
                 $row = self::remove_reference_part($row); }
             // else {}              //Q10397859|P9566|Q101029366|S3452|Q116180473 ---> orig, with the reference part
@@ -1132,6 +1139,7 @@ class WikiDataMtceAPI
                 // /* takbo
                 $real_row = $i - 1;
                 $this->real_row = $real_row;
+                $this->unique_row = array();
 
                 if($real_row == 31) $this->with_DISTINCT_YN = false;
                 else                $this->with_DISTINCT_YN = true; //the rest goes here
@@ -1156,8 +1164,8 @@ class WikiDataMtceAPI
                 22 - 12306
                 23 - 6484
                 */
-                if(!in_array($real_row, array(30))) continue; //done 21 24 25 26 27 28 29
-                echo "\nrow: $real_row\n";
+                if(!in_array($real_row, array(23))) continue; //done 21 24 25 26 27 28 29 30
+                echo "\nrow: $real_row\n"; //exit;
 
                 /* status Feb 18, 2023
                 rows 1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20 - all traits from these are now in WikiData.
@@ -1310,8 +1318,8 @@ class WikiDataMtceAPI
         }
         fwrite($WRITE, "\nNumber of rows"."\n");
         fwrite($WRITE, "--------------"."\n");
-        fwrite($WRITE, "[export_file.qs] == [taxonomic_mappings_for_review.tsv]"."\n");
-        fwrite($WRITE, "[export_file.qs] + [unprocessed_taxa.tsv] + [discarded_rows.tsv] = [$which_file]"."\n");
+        fwrite($WRITE, "[export_file.qs] => unique rows, for export to Quickstatements"."\n");
+        fwrite($WRITE, "[taxonomic_mappings_for_review.tsv] + [unprocessed_taxa.tsv] + [discarded_rows.tsv] = [$which_file]"."\n");
         fclose($WRITE);
     }
     private function get_WD_id_of_citation($rec)
