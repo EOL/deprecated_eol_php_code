@@ -324,7 +324,7 @@ class CypherQueryAPI
         else $WRITE = Functions::file_open($this->tsv_file, "a");
         
         foreach($obj->data as $rec) {
-            // /* new block for without DISTINCT
+            // /* new block for without DISTINCT --- working
             if(isset($this->with_DISTINCT_YN)) { //bec this func is being used by others e.g. get_traits_stop_at()
                 if(!$this->with_DISTINCT_YN) {
                     $json_rec = json_encode($rec);
@@ -334,7 +334,7 @@ class CypherQueryAPI
                 }    
             }
             // */
-
+            // print_r($rec);
             fwrite($WRITE, implode("\t", $rec)."\n");
             // print("-[".$rec[0]."]-[".$rec[9]."]"); // just a visual record lookup during runtime.
             // print("-[".$rec[0]."]"); // just a visual record lookup during runtime. good debug
@@ -405,7 +405,9 @@ class CypherQueryAPI
                 // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
 
                 // if(!in_array($real_row, array(13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,3,31))) continue; //dev only --  caching...
-                if(!in_array($real_row, array(31))) continue; // two biggest 3,31
+                // if(!in_array($real_row, array(31))) continue; // two biggest 3,31
+
+                if(!in_array($real_row, array(23))) continue; //during dev, investigates...
 
                 $this->real_row = $real_row;
                 echo "\nrow: $real_row\n";
