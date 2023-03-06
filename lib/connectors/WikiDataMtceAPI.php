@@ -522,6 +522,8 @@ class WikiDataMtceAPI
                 $row = self::remove_reference_part($row); }
             // else {}              //Q10397859|P9566|Q101029366|S3452|Q116180473 ---> orig, with the reference part
             fwrite($WRITE, $row."\n");
+
+            if(!$this->removal_YN) @$this->grand_total_export_file++; //total lines for export_file.qs for all rows
         }
         fclose($WRITE);
     }
@@ -1161,10 +1163,10 @@ class WikiDataMtceAPI
                 rows 3 - taxonomic corrections implemented, to be sent to QuickStatements.
                 rows 21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
                 rows 31 - taxonomic corrections implemented, to be sent to QuickStatements.
-                22 - 12306
+                22 - 6153
                 */
-                if(!in_array($real_row, array(22,3,31))) continue;
-                // if(!in_array($real_row, array())) continue; //done 21 24 25 26 27 28 29 30 23
+                // if(!in_array($real_row, array(22,3,31))) continue;
+                if(!in_array($real_row, array(21,23,24,25,26,27,28,29,30))) continue; //done 21 23 24 25 26 27 28 29 30
                 echo "\nrow: $real_row\n"; //exit;
 
                 /* status Feb 18, 2023
@@ -1225,6 +1227,7 @@ class WikiDataMtceAPI
             }
         }
         print_r($this->debug);
+        echo "\ngrand_total_export_file: ".$this->grand_total_export_file."\n";
     }
     private function run_resource_traits($rec, $task)
     {   /*Array(
