@@ -64,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_27438/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_27438/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_99493/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_99493/'
         );
         */
         
@@ -482,6 +482,11 @@ class DwCA_Utility
         if(in_array($this->resource_id, array("TreatmentBank_adjustment_01"))) { //calls a generic utility
             require_library('connectors/DwCA_Rem_Taxa_Adjust_MoF_API');
             $func = new DwCA_Rem_Taxa_Adjust_MoF_API($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+        if(in_array($this->resource_id, array("Brazilian_Flora"))) { //calls a generic utility
+            require_library('connectors/Mov_TaxaRef_2MOF_API');
+            $func = new Mov_TaxaRef_2MOF_API($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
         

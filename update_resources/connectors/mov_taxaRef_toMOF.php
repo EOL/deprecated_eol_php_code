@@ -23,7 +23,7 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
 {
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
-    $preferred_rowtypes = array('http://rs.gbif.org/terms/1.0/VernacularName' ,'http://eol.org/schema/reference/Reference', 'http://rs.tdwg.org/dwc/terms/Occurrence');
+    $preferred_rowtypes = array('http://rs.gbif.org/terms/1.0/vernacularname' ,'http://eol.org/schema/reference/reference', 'http://rs.tdwg.org/dwc/terms/occurrence');
     $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
     /* These two (2) files will be processed in Mov_TaxaRef_2MOF_API.php which will be called from DwCA_Utility.php */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
