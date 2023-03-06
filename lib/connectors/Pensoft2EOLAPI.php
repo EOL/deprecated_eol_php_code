@@ -1052,6 +1052,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         // echo "\nfile = [$file]\n"; //good debug
         if(is_file($file)) {
             $json = file_get_contents($file); // echo "\nRetrieved OK [$id]";
+            echo "-R-"; //R for retrieved
             // echo "\nfile: [$file]\n"; // good debug
             return json_decode($json, true);
         }
@@ -1076,7 +1077,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $cmd = 'curl -s GET "'.$uri.'"';
         $cmd .= " 2>&1";
         // sleep(2); //temporary
-        $json = shell_exec($cmd);
+        $json = shell_exec($cmd); echo "-C-"; //C for curl 
         // echo "\n$desc\n---------"; // echo "\n$json\n-------------\n"; //exit("\n111\n");
         return $json;
     }

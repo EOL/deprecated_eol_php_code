@@ -11,6 +11,7 @@ class Environments2EOLAPI
 {
     function __construct($param)
     {
+        exit("\nObsolete: Vangelis tagger 1.\n");
         $this->param = $param; // print_r($param); exit;
         if($param['resource_id'] == '617_ENV') $this->modulo = 50000; //Wikipedia EN
         else                                   $this->modulo = 1000;
