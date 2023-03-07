@@ -253,11 +253,11 @@ $input["trait kind"] = "inferred_trait";
 $func->query_trait_db($input);
 */
 
-// /* run all resources
+/* run all resources
 // exit("\npnas is running...\n");
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $func->run_all_resources($spreadsheet);
-// */
+*/
 
 /*
 $input = array();
@@ -269,12 +269,24 @@ print_r($arr);
 exit("\n-end-\n");
 */
 
-
 /*
 Saved OK [/Volumes/Crucial_2TB/eol_cache/cypher_query/b7/17/b7172623b0095c0271e738f4eebc6fbc.json]
 Saved OK [/Volumes/Crucial_2TB/eol_cache/cypher_query/60/69/6069cfe15ad7643e22e33ee52149f6d8.json]
  No. of rows: 0
 */
+
+// /* for individual resource IDs
+// $this->with_DISTINCT_YN = false;
+$input = array();
+$input["params"] = array("resource_id" => 753);
+$input["type"] = "wikidata_base_qry_resourceID";
+$input["per_page"] = 1000;
+$input["trait kind"] = "trait"; //print_r($input); exit;
+$func->query_trait_db($input);
+
+// $input["trait kind"] = "inferred_trait";
+// $this->query_trait_db($input);
+// */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
