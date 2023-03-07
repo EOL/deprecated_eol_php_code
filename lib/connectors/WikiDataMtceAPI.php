@@ -1189,39 +1189,13 @@ class WikiDataMtceAPI
                 }
                 // */
 
+                // print_r($rec); exit("\ntask: [$task]\n");
+
                 $paths = self::run_resource_traits($rec, $task);
 
                 /*############################### START #####################################*/ //to do: can move to its own function
                 if($task == 'generate trait reports') { //copy 2 folders to /rowNum_resourceID/
-                    /*Array(
-                    [0] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/26781a84311d6d09f25971b21516b796/
-                    [1] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/bf64239ace12e4bd48f16387713bc309/
-                    trait path:          [/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/95f89fd54344bb1630126a64b9cff1e3/]
-                    inferred_trait path: [/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/da23f9319bb205e88bcdeab285f494d7/]
-                    )*/
-                    if($paths) { print_r($paths);
-                        // https://doi.org/10.1007/978-1-4020-6359-6_3929
-                        // http://doi.org/10.1098/rspb.2011.0134
-                        $source = str_ireplace("https://", "", $rec['trait.source']);
-                        $source = str_ireplace("http://", "", $source);
-                        $source = str_ireplace("/", "_", $source);
-                        
-                        $destination = $real_row."_".$rec['r.resource_id']."_".$source;
-                        $destination = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$destination; // exit("\ndestination: [$destination\n");
-                        if(!is_dir($destination)) mkdir($destination);
-                        else { //delete and re-create the destination folder
-                            /* stripos search is used just to be sure you can safely remove that folder */
-                            if(stripos($destination, "/reports/cypher/") !== false) recursive_rmdir($destination); //string is found
-                            mkdir($destination);
-                        }
-                        foreach($paths as $path) {
-                            $path = substr($path, 0, -1);
-                            $cmd = "cp -R $path $destination"; //worked OK
-                            $cmd .= " 2>&1"; // echo "\n[$cmd]\n";
-                            shell_exec($cmd);
-                            self::delete_folder_contents($path."/", array("inferred_trait_qry.tsv", "trait_qry.tsv", "export_file.qs", "export_removal_file.qs"));
-                        }    
-                    }
+                    self::copy_2_folders_to_rowNum_resourceID($paths, $rec, $real_row);
                 }
                 /*############################### END #####################################*/
                 // break; //process just first record
@@ -1230,6 +1204,37 @@ class WikiDataMtceAPI
         }
         print_r($this->debug);
         echo "\ngrand_total_export_file: ".$this->grand_total_export_file."\n";
+    }
+    private function copy_2_folders_to_rowNum_resourceID($paths, $rec, $real_row)
+    {   /*Array(
+        [0] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/26781a84311d6d09f25971b21516b796/
+        [1] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/bf64239ace12e4bd48f16387713bc309/
+        trait path:          [/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/95f89fd54344bb1630126a64b9cff1e3/]
+        inferred_trait path: [/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/da23f9319bb205e88bcdeab285f494d7/]
+        )*/
+        if($paths) { print_r($paths);
+            // https://doi.org/10.1007/978-1-4020-6359-6_3929
+            // http://doi.org/10.1098/rspb.2011.0134
+            $source = str_ireplace("https://", "", $rec['trait.source']);
+            $source = str_ireplace("http://", "", $source);
+            $source = str_ireplace("/", "_", $source);
+            
+            $destination = $real_row."_".$rec['r.resource_id']."_".$source;
+            $destination = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$destination; // exit("\ndestination: [$destination\n");
+            if(!is_dir($destination)) mkdir($destination);
+            else { //delete and re-create the destination folder
+                /* stripos search is used just to be sure you can safely remove that folder */
+                if(stripos($destination, "/reports/cypher/") !== false) recursive_rmdir($destination); //string is found
+                mkdir($destination);
+            }
+            foreach($paths as $path) {
+                $path = substr($path, 0, -1);
+                $cmd = "cp -R $path $destination"; //worked OK
+                $cmd .= " 2>&1"; // echo "\n[$cmd]\n";
+                shell_exec($cmd);
+                self::delete_folder_contents($path."/", array("inferred_trait_qry.tsv", "trait_qry.tsv", "export_file.qs", "export_removal_file.qs"));
+            }    
+        }
     }
     private function run_resource_traits($rec, $task)
     {   /*Array(
