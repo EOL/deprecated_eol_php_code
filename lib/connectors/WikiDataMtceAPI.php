@@ -1191,7 +1191,6 @@ class WikiDataMtceAPI
                     /*Array(
                     [0] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/26781a84311d6d09f25971b21516b796/
                     [1] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/bf64239ace12e4bd48f16387713bc309/
-
                     trait path:          [/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/95f89fd54344bb1630126a64b9cff1e3/]
                     inferred_trait path: [/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/cypher/da23f9319bb205e88bcdeab285f494d7/]
                     )*/
@@ -1374,7 +1373,6 @@ class WikiDataMtceAPI
             echo "\nTitle does not exist (B). [$title]\n";
             self::create_WD_reference_item($citation_obj, $citation);
         }
-        
         echo ("\n-end muna-\n");
     }
     function run_down_all_citations($spreadsheet)
