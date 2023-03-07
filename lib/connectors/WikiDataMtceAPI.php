@@ -1159,14 +1159,17 @@ class WikiDataMtceAPI
                 // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
                 // */
 
+                /* status Mar 7
+                rows 21,22,23,24,25,26,27,28,29,30 - all traits from these are now in WikiData.
+                rows 3 and 31 left un-written
+                */
+
                 /* status Feb 28, 2023
                 rows 3 - taxonomic corrections implemented, to be sent to QuickStatements.
                 rows 21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
                 rows 31 - taxonomic corrections implemented, to be sent to QuickStatements.
-                22 - 6153
                 */
-                // if(!in_array($real_row, array(22,3,31))) continue;
-                if(!in_array($real_row, array(21,23,24,25,26,27,28,29,30))) continue; //done 21 23 24 25 26 27 28 29 30
+
                 echo "\nrow: $real_row\n"; //exit;
 
                 /* status Feb 18, 2023
