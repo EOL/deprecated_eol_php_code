@@ -191,7 +191,6 @@ $params['json']              = @$argv[2]; //useful here
 $arr = json_decode($params['json'], true);
 ====================================================
 */
-
 require_library('connectors/CypherQueryAPI');
 $resource_id = 'eol';
 $func = new CypherQueryAPI($resource_id);
@@ -273,6 +272,13 @@ exit("\n-end-\n");
 Saved OK [/Volumes/Crucial_2TB/eol_cache/cypher_query/b7/17/b7172623b0095c0271e738f4eebc6fbc.json]
 Saved OK [/Volumes/Crucial_2TB/eol_cache/cypher_query/60/69/6069cfe15ad7643e22e33ee52149f6d8.json]
  No. of rows: 0
+*/
+
+
+/*
+1070940
+https://query.wikidata.org/sparql?query=SELECT ?s WHERE {VALUES ?id {"3393129"} ?s wdt:P1566 ?id }
+https://stackoverflow.com/questions/74244994/query-multiple-geonameids-in-sparql-query-on-wikidata
 */
 
 // /* for individual resource IDs
