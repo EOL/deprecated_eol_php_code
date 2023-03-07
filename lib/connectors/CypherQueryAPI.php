@@ -195,25 +195,40 @@ class CypherQueryAPI
         }
 
 
-        /* this wasn't used
         elseif($input['type'] == "wikidata_base_qry_resourceID") {
+
             $resource_id = urlencode($input['params']['resource_id']);
-            // $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
-            if(    $input['trait kind'] == 'trait')          $qry = 'MATCH (t:Trait)<-[:trait]-(p:Page), ';
-            elseif($input['trait kind'] == 'inferred_trait') $qry = 'MATCH (t:Trait)<-[:inferred_trait]-(p:Page), ';
-            $qry .= '(t)-[:predicate]->(pred:Term)
-            WHERE r.resource_id = ".$resource_id."
-            OPTIONAL MATCH (t)-[:supplier]->(r:Resource)
-            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
-            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
-            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
-            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
-            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
-            ORDER BY p.canonical 
-            SKIP '.$skip.' LIMIT '.$limit;
-        } */
+            if($input['trait kind'] == 'trait') {
+                $qry = 'MATCH (t:Trait)<-[:trait]-(p:Page), ';
+                $qry .= '(t)-[:predicate]->(pred:Term)
+                WHERE t.source = "'.$resource_id.'"
+                OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+                OPTIONAL MATCH (t)-[:units_term]->(units:Term)
+                OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
+                OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
+                OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
+                OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
+                RETURN p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+                ORDER BY p.canonical 
+                SKIP '.$skip.' LIMIT '.$limit;
+            }
+            elseif($input['trait kind'] == 'inferred_trait') {
+                $qry = 'MATCH (t:Trait)<-[:inferred_trait]-(p:Page), ';
+                $qry .= '(t)-[:predicate]->(pred:Term)
+                WHERE t.source = "'.$resource_id.'"
+                OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+                OPTIONAL MATCH (t)-[:units_term]->(units:Term)
+                OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
+                OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
+                OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
+                OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
+                RETURN p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+                ORDER BY p.canonical 
+                SKIP '.$skip.' LIMIT '.$limit;
+            }
+
+
+        }
 
         else exit("\nERROR: Undefiend query.\n");
         $input['query'] = $qry;
