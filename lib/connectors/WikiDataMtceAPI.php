@@ -1073,14 +1073,8 @@ class WikiDataMtceAPI
             --data-raw 'token=$2y$10$hz0sJt78sWQZavuLhlvNBev9ACNiUK3zFaF9Mu.WJFURYPXb6LmNy' \
             --data-urlencode data@test.qs        
     */
-    function run_all_resources($spreadsheet, $task)
+    private function prep_stop_node_query()
     {
-        /* works ok if you don't need to format/clean the entire row.
-        $file = Functions::file_open($this->text_path[$type], "r");
-        while(!feof($file)) { $row = fgetcsv($file); }
-        fclose($file);
-        */
-        // /* stop node query
         require_library('connectors/CypherQueryAPI');
         $resource_id = 'eol';
         $func = new CypherQueryAPI($resource_id);
@@ -1092,7 +1086,16 @@ class WikiDataMtceAPI
         echo "\nstop_node_query: ".count($this->stop_node_query)."\n"; //exit;
         unset($func);
         // exit("\n-end-\n");
-        // */
+    }
+    function run_all_resources($spreadsheet, $task)
+    {
+        /* works ok if you don't need to format/clean the entire row.
+        $file = Functions::file_open($this->text_path[$type], "r");
+        while(!feof($file)) { $row = fgetcsv($file); }
+        fclose($file);
+        */
+
+        self::prep_stop_node_query();
 
         // /*
         $this->removed_traits_stop_node = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/removed_traits_stop_node.tsv";
@@ -1154,6 +1157,8 @@ class WikiDataMtceAPI
                 // row 12 -- zero results for query by citation and source
                 // if(!in_array($real_row, array(31))) continue; // biggest 403648
                 // */
+
+                if(!in_array($real_row, array(21))) continue; // dev time
 
                 /* status Mar 7
                 rows 21,22,23,24,25,26,27,28,29,30 - all traits from these are now in WikiData.
