@@ -1146,17 +1146,13 @@ class WikiDataMtceAPI
                 if($real_row == 31) $this->with_DISTINCT_YN = false;
                 else                $this->with_DISTINCT_YN = true; //the rest goes here
 
-                // if(in_array($real_row, array(1,2,4,5,6,7,8,9,10,11))) continue; //DONE ALREADY | row 5 ignore deltakey | 11 our very first
                 //---------------------------------------------------------------
-                // if(!in_array($real_row, array(1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30))) continue; //dev only  --- for testing
                 // if(!in_array($real_row, array(11,13,17,19,20))) continue; //dev only  --- for removal all DONE
-
                 // if(!in_array($real_row, array(11))) continue; //dev only  --- our very first
                 // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
+                // row 5 ignore deltakey
                 // row 12 -- zero results for query by citation and source
-                // if(!in_array($real_row, array(13,14,15,16,17,18,19,20))) continue; //dev only --  QuickStatements Done
-                // if(!in_array($real_row, array(21,22,23,24,25,26,27,28,29,30))) continue; //dev only -- ready for review, with ancestry
-                // if(!in_array($real_row, array(31))) continue; // 7 connectors 403648
+                // if(!in_array($real_row, array(31))) continue; // biggest 403648
                 // */
 
                 /* status Mar 7
@@ -1170,8 +1166,6 @@ class WikiDataMtceAPI
                 rows 31 - taxonomic corrections implemented, to be sent to QuickStatements.
                 */
 
-                echo "\nrow: $real_row\n"; //exit;
-
                 /* status Feb 18, 2023
                 rows 1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20 - all traits from these are now in WikiData.
                 rows 3,21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
@@ -1179,7 +1173,8 @@ class WikiDataMtceAPI
                 row 12 - was run but no records returned. Will investigate more. Will inform Jen. (1038 https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2)
                 row 31 - for taxonomic review
                 */
-                
+
+                echo "\nrow: $real_row\n"; //exit;
                 // /* new block
                 if($real_row == 31) {
                     $this->removed_from_row_31 = self::get_all_ids_from_Katja_row31('remove');
