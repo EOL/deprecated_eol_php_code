@@ -452,12 +452,13 @@ class CypherQueryAPI
         else {
             // /* option 2
             $source = $rec['trait.source'];
+            $input = array();
             $input["params"] = array("source" => $source);
             $input["type"] = "wikidata_base_qry_source";
             if($this->with_DISTINCT_YN) $input["per_page"] = $this->per_page; //500 orig
             else                        $input["per_page"] = $this->per_page_2; //1000
 
-            $input["trait kind"] = "trait";
+            $input["trait kind"] = "trait"; //print_r($input); exit;
             $this->query_trait_db($input);
             
             $input["trait kind"] = "inferred_trait";
