@@ -424,8 +424,8 @@ class CypherQueryAPI
         [trait.citation] => McDermott, F. (1964). The Taxonomy of the Lampyridae (Coleoptera). Transactions of the American Entomological Society (1890-), 90(1), 1-72. Retrieved January 29, 2021, from http://www.jstor.org/stable/25077867
         )*/
 
-        print_r($rec);
-        if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = false; //TRUE; //our very first one, orig true
+        print_r($rec); //exit("\nstop 1\n");
+            if($rec['trait.source'] == 'https://www.wikidata.org/entity/Q116180473') $use_citation = false; //TRUE; //our very first one, orig true
         elseif($rec['trait.source'] == 'https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2') $use_citation = TRUE;            
         else $use_citation = FALSE; //the rest goes here.
 
@@ -465,10 +465,8 @@ class CypherQueryAPI
             // */
         }
     }
-
     function get_traits_stop_at($input)
-    {
-        /* didn't use it here
+    {   /* didn't use it here
         self::initialize_path($input);
         */
         $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/";
@@ -501,7 +499,5 @@ class CypherQueryAPI
         print("\nReport file: ".$this->tsv_file."\n");
         return $info;
     }
-
-
 }
 ?>
