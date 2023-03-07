@@ -72,7 +72,7 @@ class CypherQueryAPI
                 // print_r($obj); exit; //good debug
                 self::write_tsv($obj, $filename, $skip);
             }
-            print("\n No. of rows: ".$total." | $skip | row#: ".$this->real_row."\n");
+            print("\n No. of rows: ".$total." | $skip | row#: ".@$this->real_row."\n");
             $skip += $this->per_page;
             if($total < $this->per_page) break;
             // break; //debug only
@@ -194,14 +194,13 @@ class CypherQueryAPI
             RETURN DISTINCT t.eol_pk, stop.name SKIP '.$skip.' LIMIT '.$limit;
         }
 
-
         elseif($input['type'] == "wikidata_base_qry_resourceID") {
+            $this->with_DISTINCT_YN = false;
 
             $resource_id = urlencode($input['params']['resource_id']);
             if($input['trait kind'] == 'trait') {
-                $qry = 'MATCH (t:Trait)<-[:trait]-(p:Page), ';
+                $qry = 'MATCH (t:Trait)<-[:trait]-(p:Page), (t)-[:supplier]->(:Resource {resource_id: '.$resource_id.'}), ';
                 $qry .= '(t)-[:predicate]->(pred:Term)
-                WHERE t.source = "'.$resource_id.'"
                 OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
                 OPTIONAL MATCH (t)-[:units_term]->(units:Term)
                 OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
@@ -213,9 +212,8 @@ class CypherQueryAPI
                 SKIP '.$skip.' LIMIT '.$limit;
             }
             elseif($input['trait kind'] == 'inferred_trait') {
-                $qry = 'MATCH (t:Trait)<-[:inferred_trait]-(p:Page), ';
+                $qry = 'MATCH (t:Trait)<-[:inferred_trait]-(p:Page), (t)-[:supplier]->(:Resource {resource_id: '.$resource_id.'}), ';
                 $qry .= '(t)-[:predicate]->(pred:Term)
-                WHERE t.source = "'.$resource_id.'"
                 OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
                 OPTIONAL MATCH (t)-[:units_term]->(units:Term)
                 OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
@@ -226,8 +224,6 @@ class CypherQueryAPI
                 ORDER BY p.canonical 
                 SKIP '.$skip.' LIMIT '.$limit;
             }
-
-
         }
 
         else exit("\nERROR: Undefiend query.\n");
@@ -297,10 +293,10 @@ class CypherQueryAPI
 
         /* worked OK in MacStudio terminal
         $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
-        */
-
+           worked OK in MacStudio terminal and jenkins
         $cmd = '/opt/homebrew/bin/wget -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
-
+        */
+        $cmd = WGET_PATH.' -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
         
         // $cmd .= ' 2>/dev/null'; //this will throw away the output
         $secs = 60; echo "\nSleep $secs secs..."; sleep($secs); echo " Continue...\n"; //delay 2 seconds
@@ -327,7 +323,7 @@ class CypherQueryAPI
     }
     private function write_tsv($obj, $filename, $skip)
     {
-        // print_r($obj); exit;
+        // print_r($obj); exit("\n".$this->with_DISTINCT_YN."\n");
         if($skip == 0) {
             /* working but moved up
             $base = pathinfo($filename, PATHINFO_FILENAME); //e.g. "e54dbf6839f325a6a0d5095e82bc5e70"
