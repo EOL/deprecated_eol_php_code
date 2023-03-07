@@ -207,7 +207,7 @@ class CypherQueryAPI
                 OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
                 OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
                 OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-                RETURN p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+                RETURN p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, obj.uri, t.measurement, units.name, t.source, t.citation, ref.literal
                 ORDER BY p.canonical 
                 SKIP '.$skip.' LIMIT '.$limit;
             }
@@ -220,7 +220,7 @@ class CypherQueryAPI
                 OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
                 OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
                 OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-                RETURN p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+                RETURN p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, obj.name, obj.uri, t.measurement, units.name, t.source, t.citation, ref.literal
                 ORDER BY p.canonical 
                 SKIP '.$skip.' LIMIT '.$limit;
             }
@@ -323,7 +323,7 @@ class CypherQueryAPI
     }
     private function write_tsv($obj, $filename, $skip)
     {
-        // print_r($obj); exit("\n".$this->with_DISTINCT_YN."\n");
+        // print_r($obj); exit("\nelix\n".$this->with_DISTINCT_YN."\n");
         if($skip == 0) {
             /* working but moved up
             $base = pathinfo($filename, PATHINFO_FILENAME); //e.g. "e54dbf6839f325a6a0d5095e82bc5e70"
