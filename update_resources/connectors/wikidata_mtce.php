@@ -174,7 +174,7 @@ $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_expo
 
 // Q16757851|P9566|Q101029366|S3452|Q90856597 /*Pseudohemihyalea edwardsii|diel cycle|nocturnal|inferred from|Phylogenomics reveals the... */
 
-// /* run all resources
+// /* run all resources - main operation
 // exit;
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $func->run_all_resources($spreadsheet, 'generate trait reports'); //generate trait reports
