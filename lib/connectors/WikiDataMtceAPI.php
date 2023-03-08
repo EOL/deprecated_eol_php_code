@@ -180,11 +180,13 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 foreach($fields as $field) { $rec[$field] = $tmp[$k]; $k++; }
                 $rec = array_map('trim', $rec);
 
-                // /* new block, started with per resource ID process e.g.
-                continue here...
+                // /* -------------------- new block, started with per resource ID process e.g. 753 822
                 $rec['p.canonical'] = strip_tags($rec['p.canonical']);
-                // */
-
+                if(stripos($this->spreadsheet, "resources_list.csv") !== false) { //string is found
+                    if($rec = $this->adjust_record($rec)) {}
+                    else continue; // invalid pred.name for this resource
+                }
+                // -------------------- */
 
                 // print_r($rec); exit("\nelix1\n");
                 if($rec['pred.name'] && $rec['obj.name']) { //$rec['p.canonical'] && 
@@ -1102,7 +1104,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         while(!feof($file)) { $row = fgetcsv($file); }
         fclose($file);
         */
-
+        $this->spreadsheet = $spreadsheet;
         self::prep_stop_node_query();
 
         // /*
@@ -1146,7 +1148,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 $values = $row; $k = 0; $rec = array();
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
                 $rec = array_map('trim', $rec); //important step
-
+                // print_r($rec); exit;
                 $this->is_the_title = false;
 
                 // /* takbo
@@ -1160,6 +1162,12 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
                     $this->with_DISTINCT_YN = false;
+                    /*Array(
+                        [r.resource_id] => 753
+                        [trait.source] => 
+                        [trait.citation] => 
+                    )*/
+                    $this->eol_resource_id = $rec['r.resource_id']; // e.g. 753 822
                 }
 
                 //---------------------------------------------------------------

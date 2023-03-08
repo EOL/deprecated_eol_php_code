@@ -23,9 +23,10 @@ class WikiDataMtce_ResourceAPI
             http://eol.org/schema/terms/NativeRange
             http://eol.org/schema/terms/Present
         */
-        $this->resourceID_mTypes[753] = array('native range includes', 'endemic to');
-        $this->resourceID_mTypes[822] = array('native range includes', 'geographic distribution');
+        $this->resourceID_mTypes[753] = array('native range includes', 'native range', 'endemic to');
+        $this->resourceID_mTypes[822] = array('native range includes', 'native range', 'geographic distribution');
         $this->mType_label_uri['native range includes']   = 'http://eol.org/schema/terms/NativeRange';
+        $this->mType_label_uri['native range']            = 'http://eol.org/schema/terms/NativeRange';
         $this->mType_label_uri['endemic to']              = 'http://eol.org/terms/endemic';
         $this->mType_label_uri['geographic distribution'] = 'http://eol.org/schema/terms/Present';
     }
@@ -85,7 +86,26 @@ class WikiDataMtce_ResourceAPI
         // $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_exportfile_send_2quickstatements() -\n");
         return array($path1, $path2);
     }
-
+    function adjust_record($rec)
+    {   /*Array(
+            [p.canonical] => Amphisolenia schauinslandi
+            [p.page_id] => 48894874
+            [pred.name] => native range includes
+            [stage.name] => 
+            [sex.name] => 
+            [stat.name] => 
+            [obj.name] => Rio Grande Do Sul
+            [obj.uri] => https://www.geonames.org/3451133
+            [t.measurement] => 
+            [units.name] => 
+            [t.source] => http://reflora.jbrj.gov.br/reflora/floradobrasil/FB111250
+            [t.citation] => Brazil Flora G (2019). Brazilian Flora 2020 project - Projeto Flora do Brasil 2020. Version 393.206. Instituto de Pesquisas Jardim Botanico do Rio de Janeiro. Checklist dataset https://doi.org/10.15468/1mtkaw accessed via GBIF.org on 2023-02-14
+            [ref.literal] => Balech, E.. . Los Dinoflagelados del Atlantico Sudoccidental. Publ. Espec. Instituto Español de Oceanografia, Madrid,,.
+        )*/
+        if(!in_array($rec['pred.name'], $this->resourceID_mTypes[$this->eol_resource_id])) return false;
+        // print_r($rec); exit("\nstop1\n");
+        return $rec;
+    }
 
     function xxx()
     {
