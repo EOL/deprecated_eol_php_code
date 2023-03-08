@@ -369,6 +369,9 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 }
             }
             else {
+
+                start here to look-up obj.name = "Rio Grande Do Norte" where obj.uri = "http://www.geonames.org/3390290" => get WD ID sparql lookup
+
                 echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n"; print_r($rec);
                 $this->debug['undefined measurementValues obj.name'][$rec["obj.name"]] = '';
                 if(!$discarded_already_YN) {
