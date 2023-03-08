@@ -282,16 +282,16 @@ https://stackoverflow.com/questions/74244994/query-multiple-geonameids-in-sparql
 */
 
 // /* for individual resource IDs
-// $this->with_DISTINCT_YN = false;
 $input = array();
-$input["params"] = array("resource_id" => 753);
+$input["params"] = array("resource_id" => 822); // 753
 $input["type"] = "wikidata_base_qry_resourceID";
 $input["per_page"] = 1000;
+
 $input["trait kind"] = "trait"; //print_r($input); exit;
 $func->query_trait_db($input);
 
-// $input["trait kind"] = "inferred_trait";
-// $this->query_trait_db($input);
+$input["trait kind"] = "inferred_trait";
+$func->query_trait_db($input);
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
