@@ -1154,7 +1154,6 @@ class WikiDataMtceAPI
                     $this->with_DISTINCT_YN = false;
                 }
 
-
                 //---------------------------------------------------------------
                 // if(!in_array($real_row, array(11,13,17,19,20))) continue; //dev only  --- for removal all DONE
                 // if(!in_array($real_row, array(11))) continue; //dev only  --- our very first
@@ -1164,44 +1163,40 @@ class WikiDataMtceAPI
                 // if(!in_array($real_row, array(31))) continue; // biggest 403648
                 // */
 
-
                 if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
                     if(!in_array($real_row, array(21))) continue; // dev time
+                    /* status Mar 7
+                    rows 21,22,23,24,25,26,27,28,29,30 - all traits from these are now in WikiData.
+                    rows 3 and 31 left un-written
+                
+                    status Feb 28, 2023
+                    rows 3 - taxonomic corrections implemented, to be sent to QuickStatements.
+                    rows 21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
+                    rows 31 - taxonomic corrections implemented, to be sent to QuickStatements.
+                    
+                    status Feb 18, 2023
+                    rows 1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20 - all traits from these are now in WikiData.
+                    rows 3,21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
+                    row 5 - will be ignored for now (delta-key).
+                    row 12 - was run but no records returned. Will investigate more. Will inform Jen. (1038 https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2)
+                    row 31 - for taxonomic review
+                    */
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
                     if(!in_array($real_row, array(1))) continue; // Flora do Brasil
                     // if(!in_array($real_row, array(2))) continue; // Kubitzki et al
                 }
 
-
-                /* status Mar 7
-                rows 21,22,23,24,25,26,27,28,29,30 - all traits from these are now in WikiData.
-                rows 3 and 31 left un-written
-                */
-
-                /* status Feb 28, 2023
-                rows 3 - taxonomic corrections implemented, to be sent to QuickStatements.
-                rows 21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
-                rows 31 - taxonomic corrections implemented, to be sent to QuickStatements.
-                */
-
-                /* status Feb 18, 2023
-                rows 1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20 - all traits from these are now in WikiData.
-                rows 3,21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
-                row 5 - will be ignored for now (delta-key).
-                row 12 - was run but no records returned. Will investigate more. Will inform Jen. (1038 https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2)
-                row 31 - for taxonomic review
-                */
-
                 echo "\nrow: $real_row\n"; //exit;
-                // /* new block
-                if($real_row == 31) {
-                    $this->removed_from_row_31 = self::get_all_ids_from_Katja_row31('remove');
+
+                if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
+                    // /* new block
+                    if($real_row == 31) $this->removed_from_row_31 = self::get_all_ids_from_Katja_row31('remove');
+                    else {
+                        if(isset($this->removed_from_row_31)) unset($this->removed_from_row_31);
+                    }
+                    // */
                 }
-                else {
-                    if(isset($this->removed_from_row_31)) unset($this->removed_from_row_31);
-                }
-                // */
 
                 // print_r($rec); exit("\ntask: [$task]\n");
 
