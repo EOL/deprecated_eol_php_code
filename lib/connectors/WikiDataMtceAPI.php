@@ -1,14 +1,13 @@
 <?php
 namespace php_active_record;
-/* connector: [xxx.php]
+/* connector: [wikidata_mtce.php]
 ---------------------------------------------------------------------------
 sample of citations already in WikiData:    https://www.wikidata.org/wiki/Q56079384 ours
 Manual check of citations/references:       https://apps.crossref.org/simpleTextQuery/
-
 exit("\n".QUICKSTATEMENTS_EOLTRAITS_TOKEN."\n");
 https://docs.google.com/spreadsheets/d/129IRvjoFLUs8kVzjdchT_ImlCGGXIdVKYkKwIv7ld0U/edit#gid=0
 */
-class WikiDataMtceAPI
+class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 {
     function __construct($folder = null, $query = null)
     {
