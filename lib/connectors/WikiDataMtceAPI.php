@@ -52,7 +52,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             }
         }
     }
-    private function generate_report_path($input)
+    function generate_report_path($input)
     {
         $path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/"; //generated from CypherQueryAPI.php
         if(!is_dir($path)) mkdir($path);
