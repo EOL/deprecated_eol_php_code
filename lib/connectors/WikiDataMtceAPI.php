@@ -29,7 +29,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
         $this->per_page = 500;
         $this->per_page_2 = 1000;
-
+        $this->resourceID_mTypes[753] = array('native range includes', 'native range', 'endemic to');
+        $this->resourceID_mTypes[822] = array('native range includes', 'native range', 'geographic distribution');
     }
     function get_WD_entityID_for_DOI($doi)
     {
@@ -368,7 +369,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 }
             }
             else {
-                echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n";
+                echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n"; print_r($rec);
                 $this->debug['undefined measurementValues obj.name'][$rec["obj.name"]] = '';
                 if(!$discarded_already_YN) {
                     $WRITE = Functions::file_open($this->discarded_rows, "a");
@@ -744,7 +745,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $sheets = array("measurementTypes", "measurementValues", "metadata", "other values");
         foreach($sheets as $sheet) {
             $params['range']         = $sheet.'!A1:C100'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-            $arr = $func->access_google_sheet($params); //2nd param false means cache expires
+            $arr = $func->access_google_sheet($params, false); //2nd param false means cache expires
             $final[$sheet] = self::massage_google_sheet_results($arr);
         }
         // */
@@ -1390,7 +1391,10 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 self::create_WD_for_citation($rec['t.citation'], $rec['t.source']);
             }
         }
-        elseif($rec['t.source'] && $rec['t.citation']) exit("\nNo case like this yet.\n");
+        elseif($rec['t.source'] && $rec['t.citation']) {
+            print_r($rec);
+            exit("\nNo case like this yet.\n");
+        }
         elseif($rec['t.source'] && !$rec['t.citation']) exit("\n huli ka\n");
 
         else { //https://www.delta-intkey.com/britin/lep/www/endromid.htm

@@ -5,9 +5,8 @@ called from WikiDataMtceAPI.php
 */
 class WikiDataMtce_ResourceAPI
 {
-    function __construct($resource_id = false)
+    function __construct()
     {
-        // $this->resource_id = $resource_id;
         // $this->download_options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 60*60*1);
 
         /*
@@ -23,8 +22,6 @@ class WikiDataMtce_ResourceAPI
             http://eol.org/schema/terms/NativeRange
             http://eol.org/schema/terms/Present
         */
-        $this->resourceID_mTypes[753] = array('native range includes', 'native range', 'endemic to');
-        $this->resourceID_mTypes[822] = array('native range includes', 'native range', 'geographic distribution');
         $this->mType_label_uri['native range includes']   = 'http://eol.org/schema/terms/NativeRange';
         $this->mType_label_uri['native range']            = 'http://eol.org/schema/terms/NativeRange';
         $this->mType_label_uri['endemic to']              = 'http://eol.org/terms/endemic';
