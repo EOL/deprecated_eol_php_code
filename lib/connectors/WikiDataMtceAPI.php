@@ -56,6 +56,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
     {
         $path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/"; //generated from CypherQueryAPI.php
         if(!is_dir($path)) mkdir($path);
+        // exit("\n[".json_encode($input)."]\n");
+        // exit("\n".strlen(json_encode($input))."\n");
         $tmp = md5(json_encode($input));
         $path .= "$tmp/";
         if(!is_dir($path)) mkdir($path);
@@ -177,6 +179,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 $rec = array(); $k = 0;
                 foreach($fields as $field) { $rec[$field] = $tmp[$k]; $k++; }
                 $rec = array_map('trim', $rec);
+                $rec['p.canonical'] = strip_tags($rec['p.canonical']);
                 // print_r($rec); exit("\nelix1\n");
                 if($rec['pred.name'] && $rec['obj.name']) { //$rec['p.canonical'] && 
                     self::write_trait_2wikidata($rec, $input['trait kind']);
@@ -1303,14 +1306,15 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
         // exit("\n$file1\n$file2\nxxx\n");
 
+        // /*
         $input["trait kind"] = "trait";
         if(file_exists($file1)) {
             if($task == 'generate trait reports') self::create_WD_traits($input);
             elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
         }
         else echo "\n[$file1]\nNo query results yet: ".$input['trait kind']."\n";
-
-        // /* un-comment in real operation
+        // */
+        // /*
         $input["trait kind"] = "inferred_trait";
         if(file_exists($file2)) {
             if($task == 'generate trait reports') self::create_WD_traits($input);

@@ -9,6 +9,26 @@ class WikiDataMtce_ResourceAPI
     {
         // $this->resource_id = $resource_id;
         // $this->download_options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 60*60*1);
+
+        /*
+        name: native range includes     uri: http://eol.org/schema/terms/NativeRange
+        name: endemic to                uri: http://eol.org/terms/endemic
+        name: geographic distribution   uri: http://eol.org/schema/terms/Present
+
+        Flora do Brasil: 753
+            measurementTypes to use:        
+            http://eol.org/schema/terms/NativeRange
+            http://eol.org/terms/endemic        
+        Kubitzki et al: 822
+            measurementTypes to use:
+            http://eol.org/schema/terms/NativeRange
+            http://eol.org/schema/terms/Present
+        */
+
+
+        $this->resourceID_mTypes[753] = array('native range includes', 'endemic to');
+        $this->resourceID_mTypes[822] = array('native range includes', 'geographic distribution');
+
     }
 
     function run_1_resource_traits($rec, $task)
@@ -24,11 +44,15 @@ class WikiDataMtce_ResourceAPI
         */
 
         $input = array();
-        $input["params"] = array("resource_id" => $rec['r.resource_id']);
+        $input["params"] = array("resource_id" => (int) $rec['r.resource_id']);
         $input["type"] = "wikidata_base_qry_resourceID";
         $input["per_page"] = $this->per_page_2; //1000
         
         $input["trait kind"] = "trait";
+
+        // $json = json_encode($input);
+        // print_r($input); exit("\n[$json]\nstop muna2\n");
+
         $path1 = $this->generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path1]\n";
         $file1 = $path1.$input['trait kind']."_qry.tsv";
         $this->tmp_batch_export = $path1 . "/temp_export.qs";
@@ -38,16 +62,18 @@ class WikiDataMtce_ResourceAPI
         $file2 = $path2.$input['trait kind']."_qry.tsv";
         $this->tmp_batch_export = $path2 . "/temp_export.qs";
 
+        print_r($input);
         // exit("\n$file1\n$file2\nxxx\n");
 
+        // /*
         $input["trait kind"] = "trait";
         if(file_exists($file1)) {
-            if($task == 'generate trait reports') self::create_WD_traits($input);
+            if($task == 'generate trait reports') $this->create_WD_traits($input);
             elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
         }
         else echo "\n[$file1]\nNo query results yet: ".$input['trait kind']."\n";
-
-        // /* un-comment in real operation
+        // */
+        // /*
         $input["trait kind"] = "inferred_trait";
         if(file_exists($file2)) {
             if($task == 'generate trait reports') self::create_WD_traits($input);

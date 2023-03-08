@@ -41,6 +41,8 @@ class CypherQueryAPI
     {
         $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/";
         if(!is_dir($this->report_path)) mkdir($this->report_path);
+        // exit("\n[".json_encode($input)."]\n");
+        // exit("\n".strlen(json_encode($input))."\n");
         $tmp = md5(json_encode($input));
         $this->report_path .= "$tmp/";
         if(!is_dir($this->report_path)) mkdir($this->report_path);
@@ -76,6 +78,7 @@ class CypherQueryAPI
             $skip += $this->per_page;
             if($total < $this->per_page) break;
             // break; //debug only
+            if($skip == 2000) break; //debug only
         }
         print("\n-----Processing ends-----\n");
         // print_r($input); //good debug

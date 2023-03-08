@@ -6,6 +6,7 @@ $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true; //orig value should be -> false ... especially in eol-archive server
 ini_set('memory_limit','15096M'); //15096M
 
+require_library('connectors/WikiDataMtce_ResourceAPI');
 require_library('connectors/WikiDataMtceAPI');
 $func = new WikiDataMtceAPI();
 
