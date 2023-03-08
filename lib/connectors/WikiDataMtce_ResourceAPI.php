@@ -14,7 +14,6 @@ class WikiDataMtce_ResourceAPI
         name: native range includes     uri: http://eol.org/schema/terms/NativeRange
         name: endemic to                uri: http://eol.org/terms/endemic
         name: geographic distribution   uri: http://eol.org/schema/terms/Present
-
         Flora do Brasil: 753
             measurementTypes to use:        
             http://eol.org/schema/terms/NativeRange
@@ -24,11 +23,11 @@ class WikiDataMtce_ResourceAPI
             http://eol.org/schema/terms/NativeRange
             http://eol.org/schema/terms/Present
         */
-
-
         $this->resourceID_mTypes[753] = array('native range includes', 'endemic to');
         $this->resourceID_mTypes[822] = array('native range includes', 'geographic distribution');
-
+        $this->mType_label_uri['native range includes']   = 'http://eol.org/schema/terms/NativeRange';
+        $this->mType_label_uri['endemic to']              = 'http://eol.org/terms/endemic';
+        $this->mType_label_uri['geographic distribution'] = 'http://eol.org/schema/terms/Present';
     }
 
     function run_1_resource_traits($rec, $task)

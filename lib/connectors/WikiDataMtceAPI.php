@@ -179,7 +179,13 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 $rec = array(); $k = 0;
                 foreach($fields as $field) { $rec[$field] = $tmp[$k]; $k++; }
                 $rec = array_map('trim', $rec);
+
+                // /* new block, started with per resource ID process e.g.
+                continue here...
                 $rec['p.canonical'] = strip_tags($rec['p.canonical']);
+                // */
+
+
                 // print_r($rec); exit("\nelix1\n");
                 if($rec['pred.name'] && $rec['obj.name']) { //$rec['p.canonical'] && 
                     self::write_trait_2wikidata($rec, $input['trait kind']);
