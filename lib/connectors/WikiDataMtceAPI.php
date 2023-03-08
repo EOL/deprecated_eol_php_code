@@ -1146,8 +1146,14 @@ class WikiDataMtceAPI
                 $this->real_row = $real_row;
                 $this->unique_row = array();
 
-                if($real_row == 31) $this->with_DISTINCT_YN = false;
-                else                $this->with_DISTINCT_YN = true; //the rest goes here
+                if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
+                    if($real_row == 31) $this->with_DISTINCT_YN = false;
+                    else                $this->with_DISTINCT_YN = true; //the rest goes here
+                }
+                elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
+                    $this->with_DISTINCT_YN = false;
+                }
+
 
                 //---------------------------------------------------------------
                 // if(!in_array($real_row, array(11,13,17,19,20))) continue; //dev only  --- for removal all DONE
@@ -1158,7 +1164,15 @@ class WikiDataMtceAPI
                 // if(!in_array($real_row, array(31))) continue; // biggest 403648
                 // */
 
-                if(!in_array($real_row, array(21))) continue; // dev time
+
+                if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
+                    if(!in_array($real_row, array(21))) continue; // dev time
+                }
+                elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
+                    if(!in_array($real_row, array(1))) continue; // Flora do Brasil
+                    // if(!in_array($real_row, array(2))) continue; // Kubitzki et al
+                }
+
 
                 /* status Mar 7
                 rows 21,22,23,24,25,26,27,28,29,30 - all traits from these are now in WikiData.
@@ -1191,7 +1205,12 @@ class WikiDataMtceAPI
 
                 // print_r($rec); exit("\ntask: [$task]\n");
 
-                $paths = self::run_resource_traits($rec, $task);
+                if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
+                    $paths = self::run_resource_traits($rec, $task);
+                }
+                elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
+                    $paths = self::run_1_resource_traits($rec, $task);
+                }
 
                 /*############################### START #####################################*/ //to do: can move to its own function
                 if($task == 'generate trait reports') { //copy 2 folders to /rowNum_resourceID/
