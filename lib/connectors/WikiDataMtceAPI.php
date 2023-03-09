@@ -368,16 +368,27 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     }
                 }
             }
-            else {
+            else { // mapping not found in spreadsheet
 
-                // start here to look-up obj.name = "Rio Grande Do Norte" where obj.uri = "http://www.geonames.org/3390290" => get WD ID sparql lookup
-
-                echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n"; print_r($rec);
-                $this->debug['undefined measurementValues obj.name'][$rec["obj.name"]] = '';
-                if(!$discarded_already_YN) {
-                    $WRITE = Functions::file_open($this->discarded_rows, "a");
-                    fwrite($WRITE, implode("\t", $rec)."\tundef obj."."\n"); fclose($WRITE);                
+                // /* look-up obj.name = "Rio Grande Do Norte" where obj.uri = "http://www.geonames.org/3390290" => get WD ID sparql lookup
+                if(in_array($rec['pred.name'], array('native range includes', 'native range'))) {
+                    if(stripos($rec['obj.uri'], "geonames.org") !== false) { //string is found
+                        if($val = $this->lookup_geonames_4_WD($rec)) $final['object_entity'] = $val;
+                    }
                 }
+                // */
+                elseif(1 == 2) {} // other cases, put here...
+
+                if(@$final['object_entity']) {}
+                else {
+                    echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n"; print_r($rec);
+                    $this->debug['undefined measurementValues obj.name'][$rec["obj.name"]] = '';
+                    if(!$discarded_already_YN) {
+                        $WRITE = Functions::file_open($this->discarded_rows, "a");
+                        fwrite($WRITE, implode("\t", $rec)."\tundef obj."."\n"); fclose($WRITE);                
+                    }    
+                }
+
             }
             
             // /* this block prevents from running ruby all the time.
