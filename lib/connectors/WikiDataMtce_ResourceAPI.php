@@ -99,8 +99,6 @@ class WikiDataMtce_ResourceAPI
             [t.citation] => Brazil Flora G (2019). Brazilian Flora 2020 project - Projeto Flora do Brasil 2020. Version 393.206. Instituto de Pesquisas Jardim Botanico do Rio de Janeiro. Checklist dataset https://doi.org/10.15468/1mtkaw accessed via GBIF.org on 2023-02-14
             [ref.literal] => Balech, E.. . Los Dinoflagelados del Atlantico Sudoccidental. Publ. Espec. Instituto Español de Oceanografia, Madrid,,.
         )*/
-        if(!in_array($rec['pred.name'], $this->resourceID_mTypes[$this->eol_resource_id])) return false;
-        // print_r($rec); exit("\nstop1\n");
         return $rec;
     }
     function lookup_geonames_4_WD($rec)

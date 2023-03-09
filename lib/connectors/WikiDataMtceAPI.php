@@ -115,13 +115,16 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $final = array();
         $final[] = 'p.canonical';
         $final[] = 'p.page_id';
-        $final[] = 't.eol_pk';
-        $final[] = 'p.rank';
+        if($input["trait kind"] == "inferred_trait") {
+            $final[] = 't.eol_pk';
+            $final[] = 'p.rank';    
+        }
         $final[] = 'pred.name';
         $final[] = 'stage.name';
         $final[] = 'sex.name'; 
         $final[] = 'stat.name';
         $final[] = 'obj.name';
+        if($input['type'] == "wikidata_base_qry_resourceID") $final[] = 'obj.uri';
         $final[] = 't.measurement';
         $final[] = 'units.name';
         $final[] = 't.source';
@@ -184,8 +187,15 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 // /* -------------------- new block, started with per resource ID process e.g. 753 822
                 $rec['p.canonical'] = strip_tags($rec['p.canonical']);
                 if(stripos($this->spreadsheet, "resources_list.csv") !== false) { //string is found
-                    if($rec = $this->adjust_record($rec)) {}
-                    else continue; // invalid pred.name for this resource
+                    if(!in_array($rec['pred.name'], $this->resourceID_mTypes[$this->eol_resource_id])) { //invalid pred.name for this resource
+                        //discarded rows
+                        $WRITE = Functions::file_open($this->discarded_rows, "a");
+                        fwrite($WRITE, implode("\t", $rec)."\tinvalid pred for this resource"."\n"); fclose($WRITE);
+                        continue;
+                    }
+                    else {
+                        $rec = $this->adjust_record($rec);
+                    }
                 }
                 // -------------------- */
 
@@ -343,12 +353,24 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
             // $discarded_already_YN = false; --- moved up
             if($val = @$this->map['measurementTypes'][$rec["pred.name"]]["property"]) {
+
+                // /* 2nd version
+                if($val == "DISCARD" || !$val) {
+                    $WRITE = Functions::file_open($this->discarded_rows, "a");
+                    fwrite($WRITE, implode("\t", $rec)."\tdiscard pred."."\n"); fclose($WRITE);
+                    $discarded_already_YN = true;
+                }
+                else $final['predicate_entity'] = $val;
+                // */
+
+                /* 1st version
                 if($val != "DISCARD") $final['predicate_entity'] = $val;
                 else {
                     $WRITE = Functions::file_open($this->discarded_rows, "a");
                     fwrite($WRITE, implode("\t", $rec)."\tdiscard pred."."\n"); fclose($WRITE);
                     $discarded_already_YN = true;
-                }                
+                }
+                */               
             }
             else {
                 echo "\nUndefined pred.name: [".$rec["pred.name"]."] \n";
@@ -357,6 +379,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 $WRITE = Functions::file_open($this->discarded_rows, "a");
                 fwrite($WRITE, implode("\t", $rec)."\tundef. pred."."\n"); fclose($WRITE);
                 $discarded_already_YN = true;
+                // exit("\nhuli ka 1\n");
             }
             
             if($val = @$this->map['measurementValues'][$rec["obj.name"]]["wikiData term"]) {
@@ -371,7 +394,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             else { // mapping not found in spreadsheet
 
                 // /* look-up obj.name = "Rio Grande Do Norte" where obj.uri = "http://www.geonames.org/3390290" => get WD ID sparql lookup
-                if(in_array($rec['pred.name'], array('native range includes', 'native range'))) {
+                if(in_array($rec['pred.name'], array('native range includes', 'native range', 'endemic to', 'geographic distribution'))) {
                     if(stripos($rec['obj.uri'], "geonames.org/") !== false) { //string is found
                         if($val = $this->lookup_geonames_4_WD($rec)) $final['object_entity'] = $val;
                     }
@@ -382,10 +405,10 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 // */
                 elseif(1 == 2) {} // other cases, put here...
 
-                if(@$final['object_entity']) {}
+                if($val = @$final['object_entity']) {} //@$this->debug['object_entity']['count'][$val]++; //good stats
                 else {
                     echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n"; print_r($rec);
-                    $this->debug['undefined measurementValues obj.name'][$rec["obj.name"]] = '';
+                    $this->debug['undefined measurementValues obj.name'][$rec['pred.name']][$rec["obj.name"]] = $rec["obj.uri"];
                     if(!$discarded_already_YN) {
                         $WRITE = Functions::file_open($this->discarded_rows, "a");
                         fwrite($WRITE, implode("\t", $rec)."\tundef obj."."\n"); fclose($WRITE);                
@@ -1143,13 +1166,16 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $final[] = 'row';
         $final[] = 'p.canonical';
         $final[] = 'p.page_id';
-        $final[] = 't.eol_pk';
-        $final[] = 'p.rank';
+        if($input["trait kind"] == "inferred_trait") {
+            $final[] = 't.eol_pk';
+            $final[] = 'p.rank';
+        }
         $final[] = 'pred.name';
         $final[] = 'stage.name';
         $final[] = 'sex.name'; 
         $final[] = 'stat.name';
         $final[] = 'obj.name';
+        if($input['type'] == "wikidata_base_qry_resourceID") $final[] = 'obj.uri';
         $final[] = 't.measurement';
         $final[] = 'units.name';
         $final[] = 't.source';
