@@ -900,8 +900,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $final[] = @$wikidata_obj->display->description->value;
         $final[] = $rec['how'];
         // /*
-        // $final[] = self::get_pipe_delimited_ancestry($wikidata_obj->id); //working OK
-        $final[] = "-ancestry-";
+        $final[] = self::get_pipe_delimited_ancestry($wikidata_obj->id); //working OK
+        // $final[] = "-ancestry-";
         // */
         fwrite($this->WRITE, implode("\t", $final)."\n");
         // print_r($rec); print_r($wikidata_obj); print_r($final); exit;
@@ -1166,16 +1166,18 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $final[] = 'row';
         $final[] = 'p.canonical';
         $final[] = 'p.page_id';
-        if($input["trait kind"] == "inferred_trait") {
+        // if($input["trait kind"] == "inferred_trait") {
             $final[] = 't.eol_pk';
             $final[] = 'p.rank';
-        }
+        // }
         $final[] = 'pred.name';
         $final[] = 'stage.name';
         $final[] = 'sex.name'; 
         $final[] = 'stat.name';
         $final[] = 'obj.name';
-        if($input['type'] == "wikidata_base_qry_resourceID") $final[] = 'obj.uri';
+        // if($input['type'] == "wikidata_base_qry_resourceID") {
+            $final[] = 'obj.uri';
+        // }
         $final[] = 't.measurement';
         $final[] = 'units.name';
         $final[] = 't.source';
