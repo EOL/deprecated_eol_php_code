@@ -372,9 +372,12 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
                 // /* look-up obj.name = "Rio Grande Do Norte" where obj.uri = "http://www.geonames.org/3390290" => get WD ID sparql lookup
                 if(in_array($rec['pred.name'], array('native range includes', 'native range'))) {
-                    if(stripos($rec['obj.uri'], "geonames.org") !== false) { //string is found
+                    if(stripos($rec['obj.uri'], "geonames.org/") !== false) { //string is found
                         if($val = $this->lookup_geonames_4_WD($rec)) $final['object_entity'] = $val;
                     }
+                    // [obj.uri] => https://www.wikidata.org/entity/Q375816 https://www.wikidata.org/wiki/Q375816
+                    elseif(stripos($rec['obj.uri'], "wikidata.org/entity/") !== false) $final['object_entity'] = $rec['obj.uri']; //string is found
+                    elseif(stripos($rec['obj.uri'], "wikidata.org/wiki/") !== false) $final['object_entity'] = $rec['obj.uri']; //string is found
                 }
                 // */
                 elseif(1 == 2) {} // other cases, put here...
@@ -394,7 +397,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             // /* this block prevents from running ruby all the time.
             if($title = $this->is_the_title) {}
             else {
-                $title = self::parse_citation_using_anystyle($rec['t.citation'], 'title'); //dito ginamit
+                $title = self::parse_citation_using_anystyle($rec['t.citation'], 'title', 1); //dito ginamit
                 $title = self::manual_fix_title($title);
                 $this->is_the_title = $title;
             }
@@ -447,7 +450,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $this->map = self::get_WD_entity_mappings();
         // */
         
-        $citation_obj = self::parse_citation_using_anystyle($citation, 'all');
+        $citation_obj = self::parse_citation_using_anystyle($citation, 'all', 2);
         if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) { //orig un-comment in real operation
             print_r($ret);
             return $ret['wikidata_id'];
@@ -741,9 +744,9 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         }
         return $rows;
     }
-    private function parse_citation_using_anystyle($citation, $what)
+    private function parse_citation_using_anystyle($citation, $what, $series)
     {
-        echo("\n----------\nthis runs ruby...[$what]\n----------\n"); //comment in real operation
+        echo("\n----------\nthis runs ruby...[$what][$series]\n----------\n"); //comment in real operation
         $json = shell_exec($this->anystyle_parse_prog . ' "'.$citation.'"');
         $json = substr(trim($json), 1, -1); # remove first and last char
         $json = str_replace("\\", "", $json); # remove "\" from converted json from Ruby
@@ -834,7 +837,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
     function utility_parse_refs($refs)
     {
         foreach($refs as $ref) {
-            $obj = self::parse_citation_using_anystyle($ref, 'all');
+            $obj = self::parse_citation_using_anystyle($ref, 'all', 3);
             // print_r($obj); exit;
             $obj = $obj[0];
             echo "\n[".$obj->type."][$ref]";
@@ -1053,7 +1056,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
             echo "\n".$row;
             fwrite($WRITE, $row."\n");
-            if(($i % 3) == 0) { $batch_num++;
+            if(($i % 6) == 0) { $batch_num++; // % 3
                 echo "\n-----";
                 fclose($WRITE);
                 self::run_quickstatements_api($batch_name, $batch_num);
@@ -1417,8 +1420,12 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             }
         }
         elseif($rec['t.source'] && $rec['t.citation']) {
-            print_r($rec);
-            if($val = self::create_WD_for_citation($rec['t.citation'], $rec['t.source'])) return $val;
+            // print_r($rec); //good debug
+            if($val = @$this->memory_citation_WD_id[$rec['t.citation']]) return $val;
+            if($val = self::create_WD_for_citation($rec['t.citation'], $rec['t.source'])) {
+                $this->memory_citation_WD_id[$rec['t.citation']] = $val;
+                return $val;
+            }
             exit("\nNo case like this yet.\n");
         }
         elseif($rec['t.source'] && !$rec['t.citation']) exit("\n huli ka\n");
@@ -1433,7 +1440,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
     {
         if(stripos($t_source, "/doi.org/") !== false) echo "\n==========\nLet SourceMD generate the export file, since this has a DOI.\n==========\n";
 
-        $citation_obj = self::parse_citation_using_anystyle($citation, 'all');
+        $citation_obj = self::parse_citation_using_anystyle($citation, 'all', 4);
         if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) { //orig un-comment in real operation
             print_r($ret);
             return $ret['wikidata_id'];

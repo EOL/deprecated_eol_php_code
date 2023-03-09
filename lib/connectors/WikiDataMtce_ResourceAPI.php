@@ -103,7 +103,45 @@ class WikiDataMtce_ResourceAPI
         // print_r($rec); exit("\nstop1\n");
         return $rec;
     }
-
+    function lookup_geonames_4_WD($rec)
+    {   /*Array(
+            [p.canonical] => Closterium turgidum giganteum
+            [p.page_id] => 51840488
+            [pred.name] => native range includes
+            [stage.name] => 
+            [sex.name] => 
+            [stat.name] => 
+            [obj.name] => Bahia
+            [obj.uri] => https://www.geonames.org/3471168
+            [t.measurement] => 
+            [units.name] => 
+            [t.source] => http://reflora.jbrj.gov.br/reflora/floradobrasil/FB107192
+            [t.citation] => Brazil Flora G (2019). Brazilian Flora 2020 project - Projeto Flora do Brasil 2020. Version 393.206. Instituto de Pesquisas Jardim Botanico do Rio de Janeiro. Checklist dataset https://doi.org/10.15468/1mtkaw accessed via GBIF.org on 2023-02-14
+            [ref.literal] => OLIVEIRA, I.B.; BICUDO, C.E.M. & MOURA, C.W.N.. . Iheringia, Ser. Bot.,(),.
+            [how] => identifier-map
+        )*/
+        if(preg_match("/geonames.org\/(.*?)elix/ims", $rec['obj.uri']."elix", $arr)) {
+            $geonames_id = $arr[1];
+            if($WD_entity = self::get_WD_id_using_geonames($geonames_id)) return $WD_entity;
+        }
+    }
+    private function get_WD_id_using_geonames($geonames_id) //$geonames_id e.g. 3471168 for "Bahia"
+    {
+        // https://query.wikidata.org/sparql?query=SELECT ?s WHERE {VALUES ?id {"3393129"} ?s wdt:P1566 ?id }
+        $qry = 'SELECT ?s WHERE {VALUES ?id {"'.$geonames_id.'"} ?s wdt:P1566 ?id }';
+        $url = "https://query.wikidata.org/sparql?query=";
+        $url .= urlencode($qry);
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($xml = Functions::lookup_with_cache($url, $options)) { // print_r($xml);
+            // <uri>http://www.wikidata.org/entity/Q43255</uri>
+            // exit("\n".$xml."\n");
+            if(preg_match("/<uri>(.*?)<\/uri>/ims", $xml, $arr)) { // print_r($arr[1]);
+                return $arr[1];
+            }
+            else exit("\nmay prob.\n");
+        }    
+    }
     function xxx()
     {
         $url = "http://www.marinespecies.org/imis.php?module=person&show=search&fulllist=1";
