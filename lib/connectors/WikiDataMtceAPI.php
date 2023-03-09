@@ -370,7 +370,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             }
             else {
 
-                start here to look-up obj.name = "Rio Grande Do Norte" where obj.uri = "http://www.geonames.org/3390290" => get WD ID sparql lookup
+                // start here to look-up obj.name = "Rio Grande Do Norte" where obj.uri = "http://www.geonames.org/3390290" => get WD ID sparql lookup
 
                 echo "\nUndefined obj.name: [".$rec["obj.name"]."] \n"; print_r($rec);
                 $this->debug['undefined measurementValues obj.name'][$rec["obj.name"]] = '';
@@ -1035,7 +1035,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 echo "\n-----";
                 fclose($WRITE);
                 self::run_quickstatements_api($batch_name, $batch_num);
-                $secs = 60*3; echo "\nSleep $secs seconds..."; sleep($secs); echo " Continue...\n";
+                $secs = 60*1; echo "\nSleep $secs seconds..."; sleep($secs); echo " Continue...\n";
                 /* sometimes running it twice is needed to remove the error
                 self::run_quickstatements_api($batch_name, $batch_num); 
                 */
@@ -1071,11 +1071,11 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $cmd .= " --data-raw 'token=".QUICKSTATEMENTS_EOLTRAITS_TOKEN."' ";
         $cmd .= " --data-urlencode data@".$this->tmp_batch_export." ";
         echo "\n$cmd\n"; //exit;
-        /* un-comment in real operation
+        // /* un-comment in real operation
         $output = shell_exec($cmd);
         echo "\n[$output]\n";
         // exit("\nstop munax\n");
-        */
+        // */
     }
 
     /* the one used for citation, manually run in terminal:
@@ -1177,14 +1177,14 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 //---------------------------------------------------------------
                 // if(!in_array($real_row, array(11,13,17,19,20))) continue; //dev only  --- for removal all DONE
                 // if(!in_array($real_row, array(11))) continue; //dev only  --- our very first
-                // if(!in_array($real_row, array(3))) continue; //dev only  --- fpnas 198187
+                // if(!in_array($real_row, array(3))) continue; //  --- fpnas 198187
                 // row 5 ignore deltakey
                 // row 12 -- zero results for query by citation and source
                 // if(!in_array($real_row, array(31))) continue; // biggest 403648
                 // */
 
                 if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
-                    if(!in_array($real_row, array(21))) continue; // dev time
+                    if(!in_array($real_row, array(3))) continue; // to QuickStatements
                     /* status Mar 7
                     rows 21,22,23,24,25,26,27,28,29,30 - all traits from these are now in WikiData.
                     rows 3 and 31 left un-written
