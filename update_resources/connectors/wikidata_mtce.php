@@ -175,12 +175,12 @@ $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_expo
 
 // Q16757851|P9566|Q101029366|S3452|Q90856597 /*Pseudohemihyalea edwardsii|diel cycle|nocturnal|inferred from|Phylogenomics reveals the... */
 
-// /* run all resources - main operation
+// /* run all resources - MAIN OPERATION
 // exit;
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
-// $spreadsheet = "resources_list.csv"; //run per resource
-// $func->run_all_resources($spreadsheet, 'generate trait reports'); //generate trait reports
-$func->run_all_resources($spreadsheet, 'create WD traits'); //read export file and send to QuickStatements
+$spreadsheet = "resources_list.csv"; //run per resource
+$func->run_all_resources($spreadsheet, 'generate trait reports'); //generate trait reports
+// $func->run_all_resources($spreadsheet, 'create WD traits'); //read export file and send to QuickStatements
 // $func->run_all_resources($spreadsheet, 'remove WD traits'); //read export file and send to QuickStatements - only for those traits in WD already.
 // */
 
@@ -258,8 +258,9 @@ if(stripos($label, "taxon") !== false) { //string is found
 else echo "\n WRONG instance of $label\n";
 */
 
-/* utility - run down of all citations. Create WD item for those not in WikiData yet.
-$spreadsheet = "circadian_rythm_resources_sans_pantheria.csv"; exit("\nAll DOIs for this CSV already has a WD entry.\n"); //done for this csv
+/* utility - run down of all citations. Create WD item for those not in WikiData yet. Works OK!
+// $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv"; exit("\nAll DOIs for this CSV already has a WD entry.\n"); //DONE for this csv
+$spreadsheet = "resources_list.csv";
 $func->run_down_all_citations($spreadsheet);
 exit("\n- end run_down_all_citations() -\n");
 */
