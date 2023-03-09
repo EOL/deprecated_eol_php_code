@@ -640,6 +640,17 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         scholarly article   https://www.wikidata.org/wiki/Q13442814 for anything with a DOI and 
         scholarly work      https://www.wikidata.org/wiki/Q55915575 for all other items we create for sources.
         */
+        
+        // CREATE
+        // LAST|Len|"Brazilian Flora 2020 project - Projeto Flora do Brasil 2020"
+        // LAST|Den|"scholarly article by G"
+        // LAST|P31|Q13442814 /* scholarly article */
+        // LAST|P2093|"G, Brazil Flora"
+        // LAST|P478|"393" /* volume */
+        // LAST|P577|+2019-00-00T00:00:00Z/9
+        // LAST|P1476|en:"Brazilian Flora 2020 project - Projeto Flora do Brasil 2020"
+        // LAST|P356|"10.15468/1mtkaw" /* DOI */
+        
     }
     private function format_string($str)
     {   /* If submitting to the API, use 
@@ -1391,11 +1402,12 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 echo "\n---------------------\n"; print_r($rec);
                 echo "\nhas DOI but not in WikiData yet\n";
                 echo "\n---------------------\n";
-                self::create_WD_for_citation($rec['t.citation'], $rec['t.source']);
+                if($val = self::create_WD_for_citation($rec['t.citation'], $rec['t.source'])) return $val;
             }
         }
         elseif($rec['t.source'] && $rec['t.citation']) {
             print_r($rec);
+            if($val = self::create_WD_for_citation($rec['t.citation'], $rec['t.source'])) return $val;
             exit("\nNo case like this yet.\n");
         }
         elseif($rec['t.source'] && !$rec['t.citation']) exit("\n huli ka\n");
@@ -1442,7 +1454,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
                 $rec = array_map('trim', $rec); //important step
                 print_r($rec); //exit;
-                self::check_if_citation_exists_create_export_if_not($rec);
+                if($rec['trait.source']) self::check_if_citation_exists_create_export_if_not($rec);
             }
         }
     }
@@ -1466,6 +1478,10 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 self::create_WD_for_citation($t_citation, $t_source);
                 exit("\nelix1\n");
             }
+        }
+        else { // e.g. trait.source = "http://reflora.jbrj.gov.br/reflora/floradobrasil/FB104295"
+            self::create_WD_for_citation($t_citation, $t_source);
+            exit("\nelix2\n");
         }
     }
     private function delete_folder_contents($path, $exemptions)
