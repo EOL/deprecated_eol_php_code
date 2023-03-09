@@ -78,7 +78,7 @@ class CypherQueryAPI
             $skip += $this->per_page;
             if($total < $this->per_page) break;
             // break; //debug only
-            if($skip == 2000) break; //debug only
+            // if($skip == 2000) break; //debug only
         }
         print("\n-----Processing ends-----\n");
         // print_r($input); //good debug

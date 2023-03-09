@@ -126,6 +126,11 @@ class WikiDataMtce_ResourceAPI
     private function get_WD_id_using_geonames($geonames_id) //$geonames_id e.g. 3471168 for "Bahia"
     {
         // https://query.wikidata.org/sparql?query=SELECT ?s WHERE {VALUES ?id {"3393129"} ?s wdt:P1566 ?id }
+
+        // https://www.geonames.org/3451133
+        // https://query.wikidata.org/sparql?query=SELECT ?s WHERE {VALUES ?id {"3451133"} ?s wdt:P1566 ?id }
+        // http://www.wikidata.org/entity/Q40030
+
         $qry = 'SELECT ?s WHERE {VALUES ?id {"'.$geonames_id.'"} ?s wdt:P1566 ?id }';
         $url = "https://query.wikidata.org/sparql?query=";
         $url .= urlencode($qry);
