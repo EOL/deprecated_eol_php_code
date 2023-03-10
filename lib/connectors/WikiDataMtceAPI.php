@@ -165,18 +165,10 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             // $row = Functions::conv_to_utf8($row);
             if($i == 1) $fields = explode("\t", $row);
             else {
-
-                // if($i >= 168104 && $i <= 168104+5000) {}      //403648 running... caching...
-                // else continue;
-                // if($i >= 168104+5000 && $i <= 168104+5000+5000) {}      //403648 running... caching...
-                // else continue;
-                // if($i >= 168104+5000+5000 && $i <= 168104+5000+5000+5000) {}      //403648 running... caching...
-                // else continue;
-                // if($i >= 168104+5000+5000+5000 && $i <= 168104+5000+5000+5000+5000) {}      //403648 running... caching...
-                // else continue;
-                // if($i >= 168104+5000+5000+5000+5000) {}      //403648 running... caching...
-                // else continue;
-
+                // /* caching - comment in real operation
+                if($i >= 80000 && $i <= 95000) {}
+                else continue;
+                // */
 
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
