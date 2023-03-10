@@ -392,7 +392,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 }
             }
             else { // mapping not found in spreadsheet
-
+                // exit("\njust checking...\n");
                 // /* look-up obj.name = "Rio Grande Do Norte" where obj.uri = "http://www.geonames.org/3390290" => get WD ID sparql lookup
                 if(in_array($rec['pred.name'], array('native range includes', 'native range', 'endemic to', 'geographic distribution'))) {
                     if(stripos($rec['obj.uri'], "geonames.org/") !== false) { //string is found
@@ -1564,10 +1564,11 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $options['expire_seconds'] = false;
         if($xml = Functions::lookup_with_cache($url, $options)) { // print_r($xml);
             //<literal xml:lang='en'>Gadus morhua</literal>
-            if(preg_match_all("/<literal xml\:lang=\'en\'>(.*?)<\/literal>/ims", $xml, $arr)) { // print_r($arr[1]);
-                return $arr[1];
-            }
-        }    
+            if(preg_match_all("/<literal xml\:lang=\'en\'>(.*?)<\/literal>/ims", $xml, $arr)) return $arr[1]; // print_r($arr[1]);
+        }
+        else {  //give server time to breathe
+            $secs = 60*5; echo "\nsleep $secs\n"; sleep($secs);
+        }
     }
     private function rank_is_above_species($rank)
     {
