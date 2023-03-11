@@ -165,8 +165,11 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             // $row = Functions::conv_to_utf8($row);
             if($i == 1) $fields = explode("\t", $row);
             else {
+                // exit("\nditox na\n");
                 // /* caching - comment in real operation
-                if($i >= 80000 && $i <= 95000) {}
+                // if($i >= 76600 && $i <= 133500) {}
+                // if($i >= 133500 && $i <= 1000000) {}
+                if($i >= 180000 && $i <= 1000000) {}
                 else continue;
                 // */
 
@@ -1071,7 +1074,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
             echo "\n".$row;
             fwrite($WRITE, $row."\n");
-            if(($i % 6) == 0) { $batch_num++; // % 3
+            if(($i % 15) == 0) { $batch_num++; // % 3
                 echo "\n-----";
                 fclose($WRITE);
                 self::run_quickstatements_api($batch_name, $batch_num);
