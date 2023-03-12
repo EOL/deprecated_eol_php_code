@@ -249,7 +249,7 @@ else {
 
     /* good debug: March 12, 2023
     $arr = $func->get_object('Q1130386');
-    print_r($arr); exit("\n-stop-\n");
+    print_r($arr); exit("\n-stop-\n"); // confirms the new common names exists
     */
 
     // 7th param is false means running ver2
