@@ -666,6 +666,15 @@ class WikiDataAPI extends WikipediaAPI
                 $taxon_name  = trim((string) @$arr->claims->P225[0]->mainsnak->datavalue->value); //has a taxon name
             }
             // */
+
+            // /* force use of API - March 12, 2023
+            if($Q_id == 'Q1130386') {
+                $arr = self::get_object($Q_id);
+                $arr = $arr->entities->$Q_id; $Q_id = $arr->id;
+                $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
+                $taxon_name  = trim((string) @$arr->claims->P225[0]->mainsnak->datavalue->value); //has a taxon name
+            }
+            // */
             
             // echo("\ninstance_of: [$instance_of]\n"); //debug only
             $taxonRank = self::get_taxon_rank(@$arr->claims); //use @ bec. needed for last rec
@@ -3159,6 +3168,12 @@ class WikiDataAPI extends WikipediaAPI
             $options = self::even_odd_expiration($options);
         }
         // */
+
+        // /* manual - force expire e.g. Q1130386 - Jen's new vernacular - https://eol-jira.bibalex.org/browse/DATA-1919?focusedCommentId=67367&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67367
+        // https://www.wikidata.org/wiki/Special:EntityData/Q1130386.json
+        if($id == 'Q1130386') $options['expire_seconds'] = 0; //expires now
+        // */
+
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
             
