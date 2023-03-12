@@ -246,6 +246,12 @@ else {
         }
     }
     $func = new WikiDataAPI($resource_id, "en", "wikimedia", array(), false, false, false);
+
+    /* good debug: March 12, 2023
+    $arr = $func->get_object('Q1130386');
+    print_r($arr); exit("\n-stop-\n");
+    */
+
     // 7th param is false means running ver2
     // ******************************************************************************************* */
 }
