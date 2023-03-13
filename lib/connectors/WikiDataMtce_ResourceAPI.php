@@ -180,8 +180,14 @@ class WikiDataMtce_ResourceAPI
         $r[] = $rec['obj.name'];            //=> SãO Paulo
         $r[] = $rec['obj.uri'];             //=> https://www.geonames.org/3448433
         $r[] = $final['object_entity'];     //=> http://www.wikidata.org/entity/Q175
-        $WRITE = Functions::file_open($this->predicate_object_mapping, "a");
-        fwrite($WRITE, implode("\t", $r)."\n"); fclose($WRITE); //exit("\nxxx\n");
+        $r = array_map('trim', $r);
+
+        $md5 = md5(json_encode($r));
+        if(!isset($this->unique_pred_obj[$md5])) {
+            $WRITE = Functions::file_open($this->predicate_object_mapping, "a");
+            fwrite($WRITE, implode("\t", $r)."\n"); fclose($WRITE);
+            $this->unique_pred_obj[$md5] = '';
+        }
     }
     function xxx()
     {
