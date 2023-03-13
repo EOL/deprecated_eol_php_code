@@ -179,11 +179,12 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             if($i == 1) $fields = explode("\t", $row);
             else {
 
-                /* caching - comment in real operation
-                if($i >= 393000 && $i <= 395000) {}
-                // if($i >= 395000 && $i <= 450000) {}
+                // /* caching - comment in real operation
+                // if($i >= 1 && $i <= 7560) {}
+                // if($i >= 7560 && $i <= 7560*2) {}
+                if($i >= 7560*2 && $i <= 7560*3) {}
                 else continue;
-                */
+                // */
 
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
@@ -215,7 +216,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     $WRITE = Functions::file_open($this->discarded_rows, "a");
                     fwrite($WRITE, implode("\t", $rec)."\tdiscard obj."."\n"); fclose($WRITE);
                 }
-                if($i >= 200) break; //debug
+                // if($i >= 500) break; //debug
             }
         }
         echo "\nreport path: ".$input["trait kind"].":"."$this->report_path\n";
@@ -681,8 +682,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         fclose($WRITE);
 
         // /* new: so it continues...
-        // $this->debug[]
-        // return "-to be assigned-";
+        $this->debug['citation not matched WD'][$t_source][$citation] = '';
+        return "-to be assigned-";
         // */
 
         /* NEXT TODO: is the exec_shell command to trigger QuickStatements */
@@ -1131,7 +1132,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
             echo "\n".$row;
             fwrite($WRITE, $row."\n");
-            if(($i % 15) == 0) { $batch_num++; // % 3
+            if(($i % 20) == 0) { $batch_num++; // % 3
                 echo "\n-----";
                 fclose($WRITE);
                 self::run_quickstatements_api($batch_name, $batch_num);
@@ -1498,13 +1499,17 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 echo "\n---------------------\n"; print_r($rec);
                 echo "\nhas DOI but not in WikiData yet\n";
                 echo "\n---------------------\n";
-                if($val = self::create_WD_for_citation($rec['t.citation'], $rec['t.source'])) return $val;
+                if($val = @$this->memory_citation_WD_id[$rec['t.citation']]) return $val;
+                if($val = self::create_WD_for_citation($rec['t.citation'], $rec['t.source'], 1)) {
+                    $this->memory_citation_WD_id[$rec['t.citation']] = $val;
+                    return $val;
+                }
             }
         }
         elseif($rec['t.source'] && $rec['t.citation']) {
             // print_r($rec); //good debug
             if($val = @$this->memory_citation_WD_id[$rec['t.citation']]) return $val;
-            if($val = self::create_WD_for_citation($rec['t.citation'], $rec['t.source'])) {
+            if($val = self::create_WD_for_citation($rec['t.citation'], $rec['t.source'], 2)) {
                 $this->memory_citation_WD_id[$rec['t.citation']] = $val;
                 return $val;
             }
@@ -1518,10 +1523,10 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             exit("\nNo design yet.\n");
         }               
     }
-    function create_WD_for_citation($citation, $t_source)
+    function create_WD_for_citation($citation, $t_source, $series)
     {
         if(stripos($t_source, "/doi.org/") !== false) echo "\n==========\nLet SourceMD generate the export file, since this has a DOI. Use export as supplement, if possible.\n==========\n";
-
+        echo "\ncreate_WD_for_citation series [$series]\n";
         $citation_obj = self::parse_citation_using_anystyle($citation, 'all', 4);
         if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) { //orig un-comment in real operation
             print_r($ret);
@@ -1575,12 +1580,12 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 echo "\n---------------------\n"; print_r($rec);
                 echo "\nhas DOI but not in WikiData yet\n";
                 echo "\n---------------------\n";
-                self::create_WD_for_citation($t_citation, $t_source);
+                self::create_WD_for_citation($t_citation, $t_source, 3);
                 exit("\nelix1\n");
             }
         }
         else { // e.g. trait.source = "http://reflora.jbrj.gov.br/reflora/floradobrasil/FB104295"
-            self::create_WD_for_citation($t_citation, $t_source);
+            self::create_WD_for_citation($t_citation, $t_source, 4);
             exit("\nelix2\n");
         }
     }
