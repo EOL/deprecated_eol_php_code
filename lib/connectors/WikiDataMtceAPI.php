@@ -215,7 +215,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     $WRITE = Functions::file_open($this->discarded_rows, "a");
                     fwrite($WRITE, implode("\t", $rec)."\tdiscard obj."."\n"); fclose($WRITE);
                 }
-                // if($i >= 20) break; //debug
+                if($i >= 200) break; //debug
             }
         }
         echo "\nreport path: ".$input["trait kind"].":"."$this->report_path\n";
@@ -404,6 +404,9 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 if(in_array($rec['pred.name'], array('native range includes', 'native range', 'endemic to', 'geographic distribution'))) {
                     if(stripos($rec['obj.uri'], "geonames.org/") !== false) { //string is found
                         if($val = $this->lookup_geonames_4_WD($rec)) $final['object_entity'] = $val;
+                        else {
+                            $this->debug['No WD entity'][$rec['obj.name']][$rec['obj.uri']] = '';
+                        }
                     }
                     // [obj.uri] => https://www.wikidata.org/entity/Q375816 https://www.wikidata.org/wiki/Q375816
                     elseif(stripos($rec['obj.uri'], "wikidata.org/entity/") !== false) $final['object_entity'] = $rec['obj.uri']; //string is found
@@ -490,7 +493,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             $title = $citation_obj[0]->title[0];
             $title = self::manual_fix_title($title);
             echo "\nTitle does not exist (A). [$title]\n";
-            self::create_WD_reference_item($citation_obj, $citation);
+            self::create_WD_reference_item($citation_obj, $citation, $t_source);
         }        
     }
     function is_instance_of_taxon($taxon)
@@ -526,7 +529,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         echo "\nsearch title: [$title]\n";
         $url = str_replace("MY_TITLE", urlencode($title), $this->wikidata_api['search string']);
         $options = $this->download_options;
-        $options['expire_seconds'] = 60*60*24;
+        $options['expire_seconds'] = 60*60*24; //orig 1 day //0;
         if($json = Functions::lookup_with_cache($url, $options)) { // print("\n$json\n");
             $obj = json_decode($json); // print_r($obj);
             if($wikidata_id = @$obj->search[0]->id) { # e.g. Q56079384
@@ -594,7 +597,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         else return $basename;
 
     }
-    private function create_WD_reference_item($citation_obj, $citation)
+    private function create_WD_reference_item($citation_obj, $citation, $t_source)
     {
         /*
         author (P2093)                  -> use P50 only if author is an entity
@@ -622,7 +625,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         // and "scholarly work" for everything else.
         $publication_types = array("article-journal", "chapter", "book");
         if(in_array(@$obj->type, $publication_types)) {}
-        else exit("\nUndefined publication type.\n");
+        else echo("\nUndefined publication type. [".@$obj->type."]\nWill terminate.\n");
         if(stripos(@$obj->type, 'journal') !== false) $scholarly = "scholarly article";
         else                                          $scholarly = "scholarly work";
         // */
@@ -661,6 +664,9 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
         // Others:
         if($dois = @$obj->doi)                       $rows = self::prep_for_adding($dois, 'P356', $rows, "DOI"); #ok
+        else { //check if t.source is DOI, if yes use it | New: Mar 13, 2023
+            if($dois = $this->get_doi_from_tsource($t_source)) $rows = self::prep_for_adding($dois, 'P356', $rows, "DOI");
+        }
         /* seems no instructions to use this yet:
         if($reference_URLs = @$obj->url)             $rows = self::prep_for_adding($reference_URLs, 'P854', $rows);
         */
@@ -674,8 +680,13 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         foreach($rows as $row) fwrite($WRITE, $row."\n");
         fclose($WRITE);
 
+        // /* new: so it continues...
+        // $this->debug[]
+        // return "-to be assigned-";
+        // */
+
         /* NEXT TODO: is the exec_shell command to trigger QuickStatements */
-        exit("\nUnder construction...\n");
+        exit("\n[$t_source]\n[$citation]\nUnder construction...\n");
         
         /* Reminders:
         CREATE
@@ -695,6 +706,39 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         // LAST|P577|+2019-00-00T00:00:00Z/9
         // LAST|P1476|en:"Brazilian Flora 2020 project - Projeto Flora do Brasil 2020"
         // LAST|P356|"10.15468/1mtkaw" /* DOI */
+
+
+        // created...
+        // [t.source] => https://doi.org/10.1007/978-3-662-02604-5_58
+        // [t.citation] => C. N. PAGE. 1990. Pinaceae. In: The families and genera of vascular plants. Volume I; Pteridophytes and Gymnosperms. K. Kubitzki, K. U. Kramer and P. S. Green, eds.
+        // https://www.wikidata.org/wiki/Q117088084
+        // CREATE
+        // LAST|Len|"Pinaceae. In: The families and genera of vascular plants"
+        // LAST|Den|"scholarly work by PAGE"
+        // LAST|P31|Q55915575 /* scholarly work */
+        // LAST|P2093|"PAGE, C.N."
+        // LAST|P478|"I" /* volume */
+        // LAST|P577|+1990-00-00T00:00:00Z/9
+        // LAST|P1476|en:"Pinaceae. In: The families and genera of vascular plants"
+        // LAST|P356|"10.1007/978-3-662-02604-5_58" /* DOI */
+
+        // to be created...
+        // [t.source] => https://doi.org/10.1007/978-3-540-31051-8
+        // [t.citation] => J.W. Kadereit, C. Jeffrey, K. Kubitzki (eds). 2007. The families and genera of vascular plants. Volume VIII; Flowering Plants; Eudicots; Asterales. Springer Nature.
+        // CREATE
+        // LAST|Len|"The families and genera of vascular plants"
+        // LAST|Den|"scholarly work by Kadereit et al."
+        // LAST|P31|Q55915575 /* scholarly work */
+        // LAST|P2093|"Kadereit, J.W."
+        // LAST|P2093|"Jeffrey, C."
+        // LAST|P2093|"Kubitzki, K."
+        // LAST|P123|"Flowering Plants; Eudicots; Asterales. Springer Nature" /* publisher */
+        // LAST|P478|"VIII" /* volume */
+        // LAST|P577|+2007-00-00T00:00:00Z/9
+        // LAST|P1476|en:"The families and genera of vascular plants"
+        // LAST|P3865|Q55915575 /* book */
+        // LAST|P356|"10.1007/978-3-540-31051-8" /* DOI */
+    
         
     }
     private function format_string($str)
@@ -1264,8 +1308,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     */
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
-                    if(!in_array($real_row, array(1))) continue; // Flora do Brasil
-                    // if(!in_array($real_row, array(2))) continue; // Kubitzki et al
+                    // if(!in_array($real_row, array(1))) continue; // Flora do Brasil
+                    if(!in_array($real_row, array(2))) continue; // Kubitzki et al
                 }
 
                 echo "\nrow: $real_row\n"; //exit;
@@ -1426,6 +1470,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         fwrite($WRITE, "\nNumber of rows"."\n");
         fwrite($WRITE, "--------------"."\n");
         fwrite($WRITE, "[export_file.qs] => unique rows, for export to Quickstatements"."\n");
+        fwrite($WRITE, "[predicate_object_for_review.tsv] => unique rows, for review of predicate and object mapping"."\n");
         fwrite($WRITE, "[taxonomic_mappings_for_review.tsv] + [unprocessed_taxa.tsv] + [discarded_rows.tsv] = [$which_file]"."\n");
         fclose($WRITE);
     }
@@ -1475,7 +1520,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
     }
     function create_WD_for_citation($citation, $t_source)
     {
-        if(stripos($t_source, "/doi.org/") !== false) echo "\n==========\nLet SourceMD generate the export file, since this has a DOI.\n==========\n";
+        if(stripos($t_source, "/doi.org/") !== false) echo "\n==========\nLet SourceMD generate the export file, since this has a DOI. Use export as supplement, if possible.\n==========\n";
 
         $citation_obj = self::parse_citation_using_anystyle($citation, 'all', 4);
         if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) { //orig un-comment in real operation
@@ -1486,7 +1531,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             $title = $citation_obj[0]->title[0];
             $title = self::manual_fix_title($title);
             echo "\nTitle does not exist (B). [$title]\n";
-            self::create_WD_reference_item($citation_obj, $citation);
+            self::create_WD_reference_item($citation_obj, $citation, $t_source);
         }
         echo ("\n-end muna-\n");
     }
