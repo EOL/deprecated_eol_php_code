@@ -537,6 +537,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 echo "\nTitle exists: [$title]\n";
                 echo "\nwikidata_id: [$wikidata_id]\n";
                 $DOI = self::get_WD_obj_using_id($wikidata_id, 'DOI');
+                $this->debug['matched citation in WD'][$citation_obj[0]->title[0]] = '';
                 return array("title" => $title, "wikidata_id" => $wikidata_id, "DOI" => $DOI);
             }
             else return false;
@@ -1497,7 +1498,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             if($val = self::get_WD_entityID_for_DOI($rec['t.source'])) return $val;
             else { //has DOI no WikiData yet
                 echo "\n---------------------\n"; print_r($rec);
-                echo "\nhas DOI but not in WikiData yet\n";
+                echo "\nhas DOI but not in WikiData yet 111\n";
                 echo "\n---------------------\n";
                 if($val = @$this->memory_citation_WD_id[$rec['t.citation']]) return $val;
                 if($val = self::create_WD_for_citation($rec['t.citation'], $rec['t.source'], 1)) {
@@ -1578,7 +1579,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             if($val = self::get_WD_entityID_for_DOI($t_source)) return $val;
             else { //has DOI no WikiData yet
                 echo "\n---------------------\n"; print_r($rec);
-                echo "\nhas DOI but not in WikiData yet\n";
+                echo "\nhas DOI but not in WikiData yet 222\n";
                 echo "\n---------------------\n";
                 self::create_WD_for_citation($t_citation, $t_source, 3);
                 exit("\nelix1\n");
