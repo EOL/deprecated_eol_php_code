@@ -134,6 +134,18 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         fwrite($WRITE, implode("\t", $final)."\n");
         fclose($WRITE);
         // */
+
+        // /* report for Jen - predicate_object_mapping
+        $this->predicate_object_mapping = $this->report_path."predicate_object_for_review.tsv";
+        if(file_exists($this->predicate_object_mapping)) unlink($this->predicate_object_mapping); //un-comment in real operation
+        $final = array();
+        $final[] = 'pred.name';
+        $final[] = 'pred.entity';
+        $final[] = 'obj.name';
+        $final[] = 'obj.uri';
+        $final[] = 'obj.entity';
+        $this->WRITE = Functions::file_open($this->predicate_object_mapping, "w");
+        fwrite($this->WRITE, implode("\t", $final)."\n");
     }
 
     function create_WD_traits($input)
@@ -445,6 +457,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
             if($final['taxon_entity'] && @$final['predicate_entity'] && @$final['object_entity']) {
                 self::create_WD_taxon_trait($final);                    //writes export_file.qs
+                $this->write_predicate_object_mapping($rec, $final);
                 if(!$this->removal_YN) {
                     self::write_taxonomic_mapping($rec, $wikidata_obj);     //writes taxonomic_mappings_for_review.tsv
                 }
@@ -1404,7 +1417,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             if($basename == "inferred_trait_qry.tsv") $which_file = $basename;
             if($basename == "trait_qry.tsv")          $which_file = $basename;
 
-            if(in_array($basename, array("unprocessed_taxa.tsv", "taxonomic_mappings_for_review.tsv", "inferred_trait_qry.tsv", "trait_qry.tsv", "discarded_rows.tsv"))) $total--;
+            if(in_array($basename, array("unprocessed_taxa.tsv", "taxonomic_mappings_for_review.tsv", "inferred_trait_qry.tsv", "trait_qry.tsv", 
+                "discarded_rows.tsv", "predicate_object_for_review.tsv"))) $total--;
             echo "\n$basename: [$total]\n";
             fwrite($WRITE, "$basename: [$total]"."\n");
         }
