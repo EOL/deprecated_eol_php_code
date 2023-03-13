@@ -145,6 +145,44 @@ class WikiDataMtce_ResourceAPI
             else exit("\nmay prob.\n");
         }    
     }
+    function write_predicate_object_mapping($rec, $final)
+    {
+        echo "\n-----111-----\n";
+        print_r($final);
+        print_r($rec);
+        echo "\n-----222-----\n";
+        /*
+        Array(
+            [taxon_entity] => Q15564123
+            [predicate_entity] => https://www.wikidata.org/wiki/Property:P9714
+            [object_entity] => http://www.wikidata.org/entity/Q175
+            [P248] => Q117034902
+        )
+        Array(
+            [p.canonical] => Mikania vitifolia
+            [p.page_id] => 6183527
+            [pred.name] => native range includes
+            [stage.name] => 
+            [sex.name] => 
+            [stat.name] => 
+            [obj.name] => SãO Paulo
+            [obj.uri] => https://www.geonames.org/3448433
+            [t.measurement] => 
+            [units.name] => 
+            [t.source] => http://reflora.jbrj.gov.br/reflora/floradobrasil/FB5449
+            [t.citation] => Brazil Flora G (2019). Brazilian Flora 2020 project - Projeto Flora do Brasil 2020. Version 393.206. Instituto de Pesquisas Jardim Botanico do Rio de Janeiro. Checklist dataset https://doi.org/10.15468/1mtkaw accessed via GBIF.org on 2023-02-14
+            [ref.literal] => Ritter, M.R. & Miotto, S.T.S.. 2005. Hoehnea,32(3):309-359,2005.
+            [how] => identifier-map
+        )*/
+        $r = array();
+        $r[] = $rec['pred.name'];           //=> native range includes
+        $r[] = $final['predicate_entity'];  //=> https://www.wikidata.org/wiki/Property:P9714
+        $r[] = $rec['obj.name'];            //=> SãO Paulo
+        $r[] = $rec['obj.uri'];             //=> https://www.geonames.org/3448433
+        $r[] = $final['object_entity'];     //=> http://www.wikidata.org/entity/Q175
+        $WRITE = Functions::file_open($this->predicate_object_mapping, "a");
+        fwrite($WRITE, implode("\t", $r)."\n"); fclose($WRITE); //exit("\nxxx\n");
+    }
     function xxx()
     {
         $url = "http://www.marinespecies.org/imis.php?module=person&show=search&fulllist=1";
