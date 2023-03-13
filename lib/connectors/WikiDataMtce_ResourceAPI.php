@@ -146,13 +146,8 @@ class WikiDataMtce_ResourceAPI
         }    
     }
     function write_predicate_object_mapping($rec, $final)
-    {
-        echo "\n-----111-----\n";
-        print_r($final);
-        print_r($rec);
-        echo "\n-----222-----\n";
-        /*
-        Array(
+    {   // echo "\n-----111-----\n"; print_r($final); print_r($rec); echo "\n-----222-----\n"; //good debug
+        /*Array(
             [taxon_entity] => Q15564123
             [predicate_entity] => https://www.wikidata.org/wiki/Property:P9714
             [object_entity] => http://www.wikidata.org/entity/Q175
