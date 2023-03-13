@@ -144,8 +144,9 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $final[] = 'obj.name';
         $final[] = 'obj.uri';
         $final[] = 'obj.entity';
-        $this->WRITE = Functions::file_open($this->predicate_object_mapping, "w");
-        fwrite($this->WRITE, implode("\t", $final)."\n");
+        $WRITE = Functions::file_open($this->predicate_object_mapping, "w");
+        fwrite($WRITE, implode("\t", $final)."\n");
+        fclose($WRITE);
     }
 
     function create_WD_traits($input)
