@@ -165,13 +165,12 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             // $row = Functions::conv_to_utf8($row);
             if($i == 1) $fields = explode("\t", $row);
             else {
-                // exit("\nditox na\n");
-                // /* caching - comment in real operation
-                // if($i >= 76600 && $i <= 133500) {}
-                // if($i >= 133500 && $i <= 1000000) {}
-                if($i >= 180000 && $i <= 1000000) {}
+
+                /* caching - comment in real operation
+                if($i >= 393000 && $i <= 395000) {}
+                // if($i >= 395000 && $i <= 450000) {}
                 else continue;
-                // */
+                */
 
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
@@ -535,7 +534,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         elseif(substr($str, -(strlen("xxxx"))) == "xxxx") return $str.")";        
         return $str;
     }
-    private function create_WD_taxon_trait($r)
+    private function create_WD_taxon_trait($r) // creates export_file.qs
     {
         print_r($r); //exit("\nxxx\n");
         /*Array(
