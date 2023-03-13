@@ -73,7 +73,7 @@ class WikiDataMtce_ResourceAPI
         // /*
         $input["trait kind"] = "inferred_trait";
         if(file_exists($file2)) {
-            if($task == 'generate trait reports') self::create_WD_traits($input);
+            if($task == 'generate trait reports') $this->create_WD_traits($input);
             elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
             elseif($task == 'remove WD traits') self::divide_exportfile_send_2quickstatements($input, true); //2nd param remove_traits_YN
         }
@@ -121,6 +121,10 @@ class WikiDataMtce_ResourceAPI
         if(preg_match("/geonames.org\/(.*?)elix/ims", $rec['obj.uri']."elix", $arr)) {
             $geonames_id = $arr[1];
             if($WD_entity = self::get_WD_id_using_geonames($geonames_id)) return $WD_entity;
+            else {
+                // print_r($rec); exit;
+                return false;
+            }
         }
     }
     private function get_WD_id_using_geonames($geonames_id) //$geonames_id e.g. 3471168 for "Bahia"
@@ -142,8 +146,15 @@ class WikiDataMtce_ResourceAPI
             if(preg_match("/<uri>(.*?)<\/uri>/ims", $xml, $arr)) { // print_r($arr[1]);
                 return $arr[1];
             }
-            else exit("\nmay prob.\n");
-        }    
+            else {
+                echo("\nInvestigate:\n[$geonames_id]\n$url\n$xml\nmay prob1.\n");
+                $this->debug['unmapped'][$geonames_id][$url] = '';
+                return false;
+            }
+        }
+        echo("\nInvestigate:\n[$geonames_id]\n$url\nmay prob2.\n");
+        $this->debug['unmapped'][$geonames_id][$url] = '';
+        return false;
     }
     function write_predicate_object_mapping($rec, $final)
     {   // echo "\n-----111-----\n"; print_r($final); print_r($rec); echo "\n-----222-----\n"; //good debug
@@ -182,6 +193,14 @@ class WikiDataMtce_ResourceAPI
             $WRITE = Functions::file_open($this->predicate_object_mapping, "a");
             fwrite($WRITE, implode("\t", $r)."\n"); fclose($WRITE);
             $this->unique_pred_obj[$md5] = '';
+        }
+    }
+    function get_doi_from_tsource($tsource)
+    {   // [t.source] => https://doi.org/10.1007/978-3-662-02604-5_58
+        if(stripos($tsource, "/doi.org/") !== false) { //string is found
+            $final = str_ireplace("https://doi.org/", "", $tsource);
+            $final = str_ireplace("http://doi.org/", "", $final);
+            if($final) return array($final);
         }
     }
     function xxx()
