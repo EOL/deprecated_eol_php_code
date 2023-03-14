@@ -148,9 +148,11 @@ wikipedia_en_traits_FTG	Fri 2022-11-18 11:12:18 PM	    {"MoF.tab":217553, "occur
 wikipedia_en_traits_tmp1	Fri 2022-11-18 11:15:25 PM	{"MoF.tab":217553, "occurrence.tab":217553, "taxon.tab":164469, "time_elapsed":false}
 wikipedia_en_traits_tmp2	Fri 2022-11-18 11:18:17 PM	{"MoF.tab":217553, "occurrence.tab":217553, "taxon.tab":164469, "time_elapsed":false}
 wikipedia_en_traits_tmp3	Fri 2022-11-18 11:21:08 PM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":161956, "time_elapsed":{"sec":170.3, "min":2.84, "hr":0.05}}
+
 wikipedia_en_traits_tmp4	Fri 2022-11-18 11:24:48 PM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162220, "time_elapsed":{"sec":217.87, "min":3.63, "hr":0.06}}
 wikipedia_en_traits_tmp4	Fri 2022-11-18 11:27:53 PM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162221, "time_elapsed":{"sec":402.94, "min":6.72, "hr":0.11}}
-
+wikipedia_en_traits_tmp4	Mon 2023-03-13 04:05:46 AM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162222, "time_elapsed":{"sec":458.19, "min":7.64, "hr":0.13}}
+currently running...as of Mar 14, 2023.
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
