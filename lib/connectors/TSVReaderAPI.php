@@ -9,7 +9,13 @@ class TSVReaderAPI
     {
     }
     function read_tsv($tsv_file, $task)
-    {   $i = 0; $str = ""; $ids = array();
+    {   $i = 0;  
+
+        if($task == "array_of_pageIDs")             $ids = array();
+        elseif($task == "IDcorrections_pair")       $pairs = array();
+        elseif($task == "IDcorrections_syntax")     {}
+        elseif($task == "comm_sep_IDs")             $str = "";
+        
         foreach(new FileIterator($tsv_file) as $line => $row) { $i++;
             // $row = Functions::conv_to_utf8($row);
             if($i == 1) $fields = explode("\t", $row);
@@ -21,24 +27,31 @@ class TSVReaderAPI
                 $rec = array_map('trim', $rec);
                 // print_r($rec); exit("\nelix1\n");
 
-                $pageID = $rec['pageID'];
                 if($task == "array_of_pageIDs") {
-                    $str .= "$pageID, ";
-                    if($i % 15 == 0) $str .= "\n";
+                    $pageID = $rec['pageID'];
                     $ids[] = $pageID;
+                }
+                elseif($task == "IDcorrections_pair") {
+                    $pageID = $rec['pageID'];
+                    $newID = $rec['newID'];
+                    $pairs[] = array($pageID, $newID);
                 }
                 elseif($task == "IDcorrections_syntax") {
                     // elseif($page_id == 70351) return self::fix_further($page_id, $canonical, "Q10295328");
+                    $pageID = $rec['pageID'];
                     $newID = $rec['newID'];
                     $row = 'elseif($page_id == '.$pageID.') return self::fix_further($page_id, $canonical, "'.$newID.'");';
-                    echo "\n$row";
+                    echo "\n$row";                
                 }
-
+                elseif($task == "comm_sep_IDs") { // no case scenario yet
+                    $str .= "$pageID, ";
+                    if($i % 15 == 0) $str .= "\n";
+                }
                 // if($i >= 20) break; //debug
             }
         } //end foreach()
-        // echo "\n[$str]\n"; //good debug
         if($task == "array_of_pageIDs") return $ids;
+        elseif($task == "comm_sep_IDs") {echo "\n[$str]\n"; exit("\nNo return value.\n");}
     } //end func
 }
 ?>
