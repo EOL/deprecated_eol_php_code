@@ -114,6 +114,7 @@ wikimedia_comnames	Fri 2023-02-24 06:11:01 PM	{"taxon.tab":154527, "vernacular_n
 71_delta	Sat 2022-09-10 05:37:07 PM	{"agent.tab":800385, "media_resource.tab":1263636, "taxon.tab":154455, "time_elapsed":{"sec":1299.87, "min":21.66, "hr":0.36}}
 71_delta	Mon 2022-12-05 09:07:49 PM	{"agent.tab":799148, "media_resource.tab":1263927, "taxon.tab":153854, "time_elapsed":{"sec":3588.89, "min":59.81, "hr":1}}
 71_delta	Fri 2023-02-24 07:29:26 PM	{"agent.tab":808872, "media_resource.tab":1276265, "taxon.tab":154527, "time_elapsed":{"sec":3688.85, "min":61.48, "hr":1.02}}
+71_delta	Tue 2023-03-14 08:32:19 PM	{"agent.tab":838397, "media_resource.tab":1321583, "taxon.tab":166733, "time_elapsed":{"sec":4057.66, "min":67.63, "hr":1.13}}
 
 --------------------------
 wikidata-hierarchy	        Tue 2022-02-08 10:02:56 AM	{"taxon.tab":3365727, "time_elapsed":{"sec":353281.95, "min":5888.03, "hr":98.13, "day":4.09}}

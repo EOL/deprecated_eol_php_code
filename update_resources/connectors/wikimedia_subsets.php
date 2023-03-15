@@ -41,6 +41,9 @@ wikimedia_comnames	Thu 2022-07-07 05:01:16 AM	    {"taxon.tab":110157, "vernacul
 wikimedia_comnames	Wed 2022-07-13 06:01:04 PM	    {"taxon.tab":154018, "vernacular_name.tab":973908, "time_elapsed":{"sec":1292.89, "min":21.55, "hr":0.36}}
 wikimedia_comnames	Wed 2022-07-13 09:26:10 PM	    {"taxon.tab":154018, "vernacular_name.tab":973908, "time_elapsed":{"sec":404.65, "min":6.74, "hr":0.11}}
 -> first run using new scheme, no more or limited API calls consistent OK
+wikimedia_comnames	Fri 2023-02-24 06:11:01 PM	{"taxon.tab":154527, "vernacular_name.tab":1004878}
+wikimedia_comnames	Fri 2023-03-10 01:55:16 PM	{"taxon.tab":154534, "vernacular_name.tab":1004885}
+wikimedia_comnames	Tue 2023-03-14 07:05:47 PM	{"taxon.tab":166733, "vernacular_name.tab":1051497, "time_elapsed":{"sec":1427.04, "min":23.78, "hr":0.4}}
 
 Hi Jen,
 Using March 9 dump which finished March 10 included new records but not our missing Arabic common name.
