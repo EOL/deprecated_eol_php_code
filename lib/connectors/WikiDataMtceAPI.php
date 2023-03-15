@@ -180,9 +180,17 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             else {
 
                 // /* caching - comment in real operation
-                // if($i >= 1 && $i <= 7560) {}
-                // if($i >= 7560 && $i <= 7560*2) {}
-                if($i >= 7560*2 && $i <= 7560*3) {}
+                // if($i >= 1 && $i <= 104250) {}           done
+                // if($i >= 104250 && $i <= 104250*2) {}    done
+                // if($i >= 223634 && $i <= 312750) {}      divided below
+                // if($i >= 316350 && $i <= 417000) {}      divided below
+
+                // if($i >= 223634 && $i <= 223634+44558) {}                done
+
+                // if($i >= 347000 && $i <= 400000) {}
+                // if($i >= 468000 && $i <= 487000) {}
+                // if($i >= 488000 && $i <= 510000) {}
+                if($i >= 511000 && $i <= 545000) {}
                 else continue;
                 // */
 
@@ -530,7 +538,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         echo "\nsearch title: [$title]\n";
         $url = str_replace("MY_TITLE", urlencode($title), $this->wikidata_api['search string']);
         $options = $this->download_options;
-        $options['expire_seconds'] = 60*60*24; //orig 1 day //0;
+        $options['expire_seconds'] = 60*60*24; //orig 1 day //But set this to zero (0) if you've created a new WD item.
         if($json = Functions::lookup_with_cache($url, $options)) { // print("\n$json\n");
             $obj = json_decode($json); // print_r($obj);
             if($wikidata_id = @$obj->search[0]->id) { # e.g. Q56079384
@@ -1282,7 +1290,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 }
 
                 //---------------------------------------------------------------
-                // if(!in_array($real_row, array(11,13,17,19,20))) continue; //dev only  --- for removal all DONE
+                // if(!in_array($real_row, array(11,13,17,19,20))) continue; //dev only  --- for removal all DONE. 21 also has for remove but no need to run remove script.
                 // if(!in_array($real_row, array(11))) continue; //dev only  --- our very first
                 // if(!in_array($real_row, array(3))) continue; //  --- fpnas 198187
                 // row 5 ignore deltakey
@@ -1318,13 +1326,18 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
                 if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
                     // /* new block
-                    if($real_row == 31) $this->removed_from_row_31 = self::get_all_ids_from_Katja_row31('remove');
+                    if($real_row == 31) $this->removed_from_row_31 = self::get_all_ids_from_Katja_row31('remove', 1);
                     else {
                         if(isset($this->removed_from_row_31)) unset($this->removed_from_row_31);
                     }
                     // */
                 }
-
+                elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
+                     $arr1 = self::get_all_ids_from_Katja_row31('remove', 1); // remove routine should be for ALL resources - By Eli.
+                     $arr2 = self::get_all_ids_from_Katja_row31('remove', 2); // remove routine should be for ALL resources - By Eli.
+                     $this->removed_from_row_31 = array_merge($arr1, $arr2);
+                     unset($arr1); unset($arr2);
+                }
                 // print_r($rec); exit("\ntask: [$task]\n");
 
                 if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
@@ -1516,7 +1529,9 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             }
             exit("\nNo case like this yet.\n");
         }
-        elseif($rec['t.source'] && !$rec['t.citation']) exit("\n huli ka\n");
+        elseif($rec['t.source'] && !$rec['t.citation']) {
+            print_r($rec); exit("\n huli ka\n");
+        }
 
         else { //https://www.delta-intkey.com/britin/lep/www/endromid.htm
             return "";
@@ -1639,23 +1654,40 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
     private function remove_reference_part($row)
     {
         $pos = strpos($row, "|S");
-        if(!$pos) exit("\nNeed to investigate.\n");
-        return "-".substr($row, 0, $pos);
+        if(!$pos) {
+            exit("\nNeed to investigate 123.\nrow: [$row]\n");
+            return "-".$row;
+        }
+        else return "-".substr($row, 0, $pos);
     }
-    private function get_all_ids_from_Katja_row31($which)
+    private function get_all_ids_from_Katja_row31($which, $series)
     {
         require_library('connectors/TSVReaderAPI');
         $func = new TSVReaderAPI();
         $path = "/Users/eliagbayani/Desktop/COLLAB-1006/z_from_Katja/";
 
-        if($which == 'remove')              $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_remove.txt";
-        elseif($which == 'IDcorrections')   $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_IDcorrections.txt";
-        elseif($which == 'fixedOnWikiData') $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_fixedOnWikiData.txt";
-        else exit("\nUndefined report.\n");
+        if($series == 1) {
+            if($which == 'remove')              $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_remove.txt";            //needed for all resources
+            elseif($which == 'IDcorrections')   $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_IDcorrections.txt";     //implemented already - pasted
+            elseif($which == 'fixedOnWikiData') $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_fixedOnWikiData.txt";   //implemented already - pasted
+            else exit("\nUndefined report.\n");    
+            $tsv_file = "3_1051Review/".$tsv_file;
+        }
+        if($series == 2) {
+            if($which == 'remove')              $tsv_file = "FloraDoBrasil_remove.txt";             //needed for all resources
+            elseif($which == 'IDcorrections')   $tsv_file = "FloraDoBrasil_corrections.txt";        //implemented already - pasted
+            elseif($which == 'fixedOnWikiData') $tsv_file = "FloraDoBrasil_fixedOnWikiData.txt";    //implemented already - pasted
+            else exit("\nUndefined report.\n");    
+            $tsv_file = "FloraDoBrasilTaxonomyReview/".$tsv_file;
+        }
+
         $tsv_file = $path.$tsv_file;
-        $ids = $func->read_tsv($tsv_file, "comma_sep_pageID");
-        echo "\nPage IDs ($which): ".count($ids)."\n"; //exit("\nstop muna 1\n");
-        return $ids;
+
+        if($which == 'remove') {
+            $ids = $func->read_tsv($tsv_file, "array_of_pageIDs");
+            echo "\nPage IDs ($which)(series $series): ".count($ids)."\n"; //exit("\nstop muna 1\n");
+            return $ids;    
+        }
     }
     private function pageID_has_manual_fix($page_id, $canonical) //manual fix
     {
@@ -2147,6 +2179,13 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         elseif($page_id == 84278) return self::fix_further($page_id, $canonical, "Q7107602");
         else return false;
         // */
+
+        // /* FloraDoBrasil_corrections.txt
+
+        // */
+
+
+
     }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
