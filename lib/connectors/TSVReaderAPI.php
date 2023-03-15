@@ -22,24 +22,23 @@ class TSVReaderAPI
                 // print_r($rec); exit("\nelix1\n");
 
                 $pageID = $rec['pageID'];
-                if($task == "comma_sep_pageID") {
+                if($task == "array_of_pageIDs") {
                     $str .= "$pageID, ";
                     if($i % 15 == 0) $str .= "\n";
                     $ids[] = $pageID;
                 }
-                elseif($task == "IDcorrections") {
+                elseif($task == "IDcorrections_syntax") {
                     // elseif($page_id == 70351) return self::fix_further($page_id, $canonical, "Q10295328");
                     $newID = $rec['newID'];
                     $row = 'elseif($page_id == '.$pageID.') return self::fix_further($page_id, $canonical, "'.$newID.'");';
                     echo "\n$row";
-
                 }
 
                 // if($i >= 20) break; //debug
             }
         } //end foreach()
         // echo "\n[$str]\n"; //good debug
-        if($task == "comma_sep_pageID") return $ids;
+        if($task == "array_of_pageIDs") return $ids;
     } //end func
 }
 ?>

@@ -13,14 +13,14 @@ $path = "/Users/eliagbayani/Desktop/COLLAB-1006/z_from_Katja/";
 $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_remove.txt";
 // $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_fixedOnWikiData.txt";
 $tsv_file = $path.$tsv_file;
-$ids = $func->read_tsv($tsv_file, "comma_sep_pageID");
+$ids = $func->read_tsv($tsv_file, "array_of_pageIDs");
 echo "\nids: ".count($ids)."\n";
 // */
 
 /*
 $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_IDcorrections.txt";
 $tsv_file = $path.$tsv_file;
-$func->read_tsv($tsv_file, "IDcorrections");
+$func->read_tsv($tsv_file, "IDcorrections_syntax");
 */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
