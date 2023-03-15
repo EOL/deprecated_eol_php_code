@@ -187,10 +187,10 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
                 // if($i >= 223634 && $i <= 223634+44558) {}                done
 
-                // if($i >= 347000 && $i <= 400000) {}
-                // if($i >= 468000 && $i <= 487000) {}
+                // if($i >= 354000 && $i <= 400000) {}
+                if($i >= 475000 && $i <= 487000) {}
                 // if($i >= 488000 && $i <= 510000) {}
-                if($i >= 511000 && $i <= 545000) {}
+                // if($i >= 515000 && $i <= 579000) {}
                 else continue;
                 // */
 
@@ -1053,6 +1053,11 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     837430, 837428, 837568, 837427, 837233, 839257, 839258, 839254, 839255, 837949, 839253, 46926297, 46925634, 44124598, 13804487, 
                     13804488, 12038066, 13804490, 13804491, 13804492, 36175, 25452243, 22106526 */
                     ))) $this->download_options['expire_seconds'] = true;
+                
+                // /* to use a file instead: FloraDoBrasil_fixedOnWikiData.txt
+                $fixedOnWikiData_arr = self::get_all_ids_from_Katja_row31('fixedOnWikiData', 2);
+                if(in_array($page_id, $fixedOnWikiData_arr)) $this->download_options['expire_seconds'] = true;
+                // */
 
                 if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) {
                     $this->download_options['expire_seconds'] = false;
@@ -1655,7 +1660,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
     {
         $pos = strpos($row, "|S");
         if(!$pos) {
-            exit("\nNeed to investigate 123.\nrow: [$row]\n");
+            echo("\nNeed to investigate 123.\nrow: [$row]\n");
             return "-".$row;
         }
         else return "-".substr($row, 0, $pos);
@@ -1684,6 +1689,16 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $tsv_file = $path.$tsv_file;
 
         if($which == 'remove') {
+            $ids = $func->read_tsv($tsv_file, "array_of_pageIDs");
+            echo "\nPage IDs ($which)(series $series): ".count($ids)."\n"; //exit("\nstop muna 1\n");
+            return $ids;    
+        }
+        elseif($which == 'IDcorrections') {
+            $pairs = $func->read_tsv($tsv_file, "IDcorrections_pair");
+            echo "\nPage ID New ID pair: ($which)(series $series): ".count($pairs)."\n"; //exit("\nstop muna 1\n");
+            return $pairs;    
+        }
+        elseif($which == 'fixedOnWikiData') {
             $ids = $func->read_tsv($tsv_file, "array_of_pageIDs");
             echo "\nPage IDs ($which)(series $series): ".count($ids)."\n"; //exit("\nstop muna 1\n");
             return $ids;    
@@ -2177,15 +2192,20 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         elseif($page_id == 448) return self::fix_further($page_id, $canonical, "Q21440769");
         elseif($page_id == 47143491) return self::fix_further($page_id, $canonical, "Q4118997");
         elseif($page_id == 84278) return self::fix_further($page_id, $canonical, "Q7107602");
-        else return false;
+        // else return false; //commented now since there are items below it
         // */
 
         // /* FloraDoBrasil_corrections.txt
-
+        $pairs = self::get_all_ids_from_Katja_row31('IDcorrections', 2); // ID corrections should only for specific resource
+        // ditox eli
+        foreach($pairs as $pair) {
+            $sought_pageID = $pair[0];
+            $newID = $pair[1];
+            if($page_id == $sought_pageID) return self::fix_further($page_id, $canonical, $newID);
+        }
         // */
 
-
-
+        return false;
     }
     /* working func but not used, since Crossref is not used, unreliable.
     private function crossref_citation($citation)
