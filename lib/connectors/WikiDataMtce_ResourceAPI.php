@@ -62,7 +62,7 @@ class WikiDataMtce_ResourceAPI
         print_r($input);
         // exit("\n$file1\n$file2\nxxx\n");
 
-        // /*
+        // /* UN-COMMENT IN REAL OPERATION
         $input["trait kind"] = "trait";
         if(file_exists($file1)) {
             if($task == 'generate trait reports') $this->create_WD_traits($input);
@@ -70,7 +70,7 @@ class WikiDataMtce_ResourceAPI
         }
         else echo "\n[$file1]\nNo query results yet: ".$input['trait kind']."\n";
         // */
-        // /*
+        // /* UN-COMMENT IN REAL OPERATION
         $input["trait kind"] = "inferred_trait";
         if(file_exists($file2)) {
             if($task == 'generate trait reports') $this->create_WD_traits($input);
