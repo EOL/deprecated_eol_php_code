@@ -33,7 +33,9 @@ class TSVReaderAPI
                 }
                 elseif($task == "IDcorrections_pair") {
                     $pageID = $rec['pageID'];
-                    $newID = $rec['newID'];
+                    if(    $val = @$rec['newID']) $newID = $val;
+                    elseif($val = @$rec['NewID']) $newID = $val;
+                    else exit("\nNo new ID. [$tsv_file\n");
                     $pairs[] = array($pageID, $newID);
                 }
                 elseif($task == "IDcorrections_syntax") {
@@ -51,6 +53,7 @@ class TSVReaderAPI
             }
         } //end foreach()
         if($task == "array_of_pageIDs") return $ids;
+        elseif($task == "IDcorrections_pair") return $pairs;
         elseif($task == "comm_sep_IDs") {echo "\n[$str]\n"; exit("\nNo return value.\n");}
     } //end func
 }
