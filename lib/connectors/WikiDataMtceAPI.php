@@ -1479,10 +1479,12 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             echo "\n$basename: [$total]\n";
             fwrite($WRITE, "$basename: [$total]"."\n");
         }
-        fwrite($WRITE, "\nNumber of rows"."\n");
-        fwrite($WRITE, "--------------"."\n");
+        fwrite($WRITE, "\nNotes"."\n");
+        fwrite($WRITE, "-----"."\n");
         fwrite($WRITE, "[export_file.qs] => unique rows, for export to Quickstatements"."\n");
         fwrite($WRITE, "[predicate_object_for_review.tsv] => unique rows, for review of predicate and object mapping"."\n");
+        fwrite($WRITE, "\nNumber of rows"."\n");
+        fwrite($WRITE, "--------------"."\n");
         fwrite($WRITE, "[taxonomic_mappings_for_review.tsv] + [unprocessed_taxa.tsv] + [discarded_rows.tsv] = [$which_file]"."\n");
         fclose($WRITE);
     }
