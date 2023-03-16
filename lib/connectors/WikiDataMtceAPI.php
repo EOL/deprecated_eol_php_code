@@ -180,17 +180,9 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             else {
 
                 // /* caching - comment in real operation
-                // if($i >= 1 && $i <= 104250) {}           done
-                // if($i >= 104250 && $i <= 104250*2) {}    done
-                // if($i >= 223634 && $i <= 312750) {}      divided below
-                // if($i >= 316350 && $i <= 417000) {}      divided below
-
-                // if($i >= 223634 && $i <= 223634+44558) {}                done
-
-                // if($i >= 354000 && $i <= 400000) {}
-                if($i >= 475000 && $i <= 487000) {}
-                // if($i >= 488000 && $i <= 510000) {}
-                // if($i >= 515000 && $i <= 579000) {}
+                if($i >= 1 && $i <= 400000) {}
+                // if($i >= 400000 && $i <= 579000) {}
+                // if($i >= 579000 && $i <= 1000000) {}
                 else continue;
                 // */
 
