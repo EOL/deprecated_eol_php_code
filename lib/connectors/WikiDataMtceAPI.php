@@ -179,12 +179,12 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             if($i == 1) $fields = explode("\t", $row);
             else {
 
-                // /* caching - comment in real operation
-                if($i >= 1 && $i <= 400000) {}
-                // if($i >= 400000 && $i <= 579000) {}
-                // if($i >= 579000 && $i <= 1000000) {}
+                /* caching - comment in real operation
+                if($i >= 564000 && $i <= 565000) {}
+                if($i >= 572000 && $i <= 573000) {}
+                if($i >= 573000 && $i <= 575000) {}
                 else continue;
-                // */
+                */
 
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
@@ -486,7 +486,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         // */
         
         $citation_obj = self::parse_citation_using_anystyle($citation, 'all', 2);
-        if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) { //orig un-comment in real operation
+        if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation, $t_source)) { //orig un-comment in real operation
             print_r($ret);
             return $ret['wikidata_id'];
         }
@@ -523,7 +523,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         echo "\nNot found in WikiData\n";
         return false;
     }
-    private function does_title_exist_in_wikidata($citation_obj, $citation)
+    private function does_title_exist_in_wikidata($citation_obj, $citation, $t_source)
     {
         $title = $citation_obj[0]->title[0];
         $title = self::manual_fix_title($title); #important
@@ -537,7 +537,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 echo "\nTitle exists: [$title]\n";
                 echo "\nwikidata_id: [$wikidata_id]\n";
                 $DOI = self::get_WD_obj_using_id($wikidata_id, 'DOI');
-                $this->debug['matched citation in WD'][$citation_obj[0]->title[0]] = '';
+                $this->debug['matched citation in WD'][$citation_obj[0]->title[0]][$wikidata_id][$t_source][$citation] = '';
                 return array("title" => $title, "wikidata_id" => $wikidata_id, "DOI" => $DOI);
             }
             else return false;
@@ -683,7 +683,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         fclose($WRITE);
 
         // /* new: so it continues...
-        $this->debug['citation not matched WD'][$t_source][$citation] = '';
+        $this->debug['citation not matched in WD'][$t_source][$citation] = '';
         return "-to be assigned-";
         // */
 
@@ -1138,7 +1138,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
             echo "\n".$row;
             fwrite($WRITE, $row."\n");
-            if(($i % 20) == 0) { $batch_num++; // % 3
+            if(($i % 25) == 0) { $batch_num++; // % 3
                 echo "\n-----";
                 fclose($WRITE);
                 self::run_quickstatements_api($batch_name, $batch_num);
@@ -1315,8 +1315,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     */
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
-                    // if(!in_array($real_row, array(1))) continue; // Flora do Brasil
-                    if(!in_array($real_row, array(2))) continue; // Kubitzki et al
+                    if(!in_array($real_row, array(1))) continue; // Flora do Brasil
+                    // if(!in_array($real_row, array(2))) continue; // Kubitzki et al
                 }
 
                 echo "\nrow: $real_row\n"; //exit;
@@ -1515,6 +1515,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     $this->memory_citation_WD_id[$rec['t.citation']] = $val;
                     return $val;
                 }
+                $this->memory_citation_WD_id[$rec['t.citation']] = 'un-mapped to WD';
             }
         }
         elseif($rec['t.source'] && $rec['t.citation']) {
@@ -1541,7 +1542,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         if(stripos($t_source, "/doi.org/") !== false) echo "\n==========\nLet SourceMD generate the export file, since this has a DOI. Use export as supplement, if possible.\n==========\n";
         echo "\ncreate_WD_for_citation series [$series]\n";
         $citation_obj = self::parse_citation_using_anystyle($citation, 'all', 4);
-        if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation)) { //orig un-comment in real operation
+        if($ret = self::does_title_exist_in_wikidata($citation_obj, $citation, $t_source)) { //orig un-comment in real operation
             print_r($ret);
             return $ret['wikidata_id'];
         }
