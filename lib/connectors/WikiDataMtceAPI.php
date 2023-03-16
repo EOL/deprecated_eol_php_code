@@ -1660,7 +1660,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         }
         else return "-".substr($row, 0, $pos);
     }
-    private function get_all_ids_from_Katja_row31($which, $series)
+    function get_all_ids_from_Katja_row31($which, $series)
     {
         require_library('connectors/TSVReaderAPI');
         $func = new TSVReaderAPI();
@@ -2192,7 +2192,6 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
         // /* FloraDoBrasil_corrections.txt
         $pairs = self::get_all_ids_from_Katja_row31('IDcorrections', 2); // ID corrections should only for specific resource
-        // ditox eli
         foreach($pairs as $pair) {
             $sought_pageID = $pair[0];
             $newID = $pair[1];
