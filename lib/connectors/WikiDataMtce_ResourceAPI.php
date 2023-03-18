@@ -216,7 +216,7 @@ class WikiDataMtce_ResourceAPI
             // return $arr[1];
         }
         elseif(stripos($rec['t.source'], "/doi.org/") !== false) { //string is found    //https://doi.org/10.1002/ajpa.20957    //is DOI
-            if($val = self::get_WD_entityID_for_DOI($rec['t.source'])) {
+            if($val = $this->get_WD_entityID_for_DOI($rec['t.source'])) {
                 $this->debug2['citation mapped to WD: all*'][$rec['t.source']][$rec['t.citation']][$val] = '';
                 // return $val;
             }
