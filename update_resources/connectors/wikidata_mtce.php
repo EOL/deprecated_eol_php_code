@@ -175,14 +175,14 @@ $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_expo
 
 // Q16757851|P9566|Q101029366|S3452|Q90856597 /*Pseudohemihyalea edwardsii|diel cycle|nocturnal|inferred from|Phylogenomics reveals the... */
 
-/* run all resources - MAIN OPERATION
+// /* run all resources - MAIN OPERATION
 // exit;
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $spreadsheet = "resources_list.csv"; //run per resource
 $func->run_all_resources($spreadsheet, 'generate trait reports'); //generate trait reports
 // $func->run_all_resources($spreadsheet, 'create WD traits'); //read export file and send to QuickStatements
 // $func->run_all_resources($spreadsheet, 'remove WD traits'); //read export file and send to QuickStatements - only for those traits in WD already.
-*/
+// */
 
 /* works OK
 $taxon = "Jimenezia";
@@ -265,7 +265,7 @@ $func->run_down_all_citations($spreadsheet);
 exit("\n- end run_down_all_citations() -\n");
 */
 
-// /*
+/* utility: check files sent by Katja - for corrections and mapping
 echo "\n-----------------------------\n";
 $fixedOnWikiData_arr = $func->get_all_ids_from_Katja_row31('fixedOnWikiData', 2);
 echo "\nfixedOnWikiData_arr: ".count($fixedOnWikiData_arr)."\n";
@@ -283,8 +283,7 @@ echo "\n-----------------------------\n";
 $pairs = $func->get_all_ids_from_Katja_row31('IDcorrections', 2); // ID corrections should only for specific resource
 echo "\npairs: ".count($pairs)."\n";
 print_r($pairs);
-
-// */
+*/
 
 
 $elapsed_time_sec = time_elapsed() - $timestart;
