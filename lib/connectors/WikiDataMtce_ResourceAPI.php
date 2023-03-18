@@ -63,6 +63,7 @@ class WikiDataMtce_ResourceAPI
         // exit("\n$file1\n$file2\nxxx\n");
 
         // /* UN-COMMENT IN REAL OPERATION
+        $this->unique_pred_obj = array();
         $input["trait kind"] = "trait";
         if(file_exists($file1)) {
             if($task == 'generate trait reports') $this->create_WD_traits($input);
@@ -71,6 +72,7 @@ class WikiDataMtce_ResourceAPI
         else echo "\n[$file1]\nNo query results yet: ".$input['trait kind']."\n";
         // */
         // /* UN-COMMENT IN REAL OPERATION
+        $this->unique_pred_obj = array();
         $input["trait kind"] = "inferred_trait";
         if(file_exists($file2)) {
             if($task == 'generate trait reports') $this->create_WD_traits($input);
@@ -202,6 +204,22 @@ class WikiDataMtce_ResourceAPI
             $final = str_ireplace("http://doi.org/", "", $final);
             if($final) return array($final);
         }
+    }
+    function log_citations_mapped_2WD_all($rec)
+    {
+        if(preg_match("/wikidata.org\/entity\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) {                    //is WikiData entity
+            $this->debug['citation mapped to WD: all'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
+            return $arr[1];
+        }
+        elseif(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) {                  //is WikiData entity
+            $this->debug['citation mapped to WD: all'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
+            return $arr[1];
+        }
+        elseif(stripos($rec['t.source'], "/doi.org/") !== false) { //string is found    //https://doi.org/10.1002/ajpa.20957    //is DOI
+            if($val = self::get_WD_entityID_for_DOI($rec['t.source'])) {
+                $this->debug['citation mapped to WD: all*'][$rec['t.source']][$rec['t.citation']][$val] = '';
+                return $val;
+            }
     }
     function xxx()
     {

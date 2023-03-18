@@ -202,6 +202,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                         continue;
                     }
                     else {
+                        $this->log_citations_mapped_2WD_all($rec);
                         $rec = $this->adjust_record($rec);
                     }
                 }
@@ -307,7 +308,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 $WRITE = Functions::file_open($this->removed_traits_stop_node, "a");
                 $merged = array_merge(array(0 => $this->real_row), $rec);
                 fwrite($WRITE, implode("\t", $merged)."\tstop_node"."\n"); fclose($WRITE);
-                $this->debug['stop_node_query'][$this->real_row] = '';
+                $this->debug['stop_node_query rows'][$this->real_row] = '';
                 $this->debug['stop_node_query_rank'][$rec['p.rank']] = '';
                 // */
                 // return;
@@ -1315,8 +1316,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     */
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
-                    if(!in_array($real_row, array(1))) continue; // Flora do Brasil
-                    // if(!in_array($real_row, array(2))) continue; // Kubitzki et al
+                    // if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
+                    if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
                 }
 
                 echo "\nrow: $real_row\n"; //exit;
@@ -1504,10 +1505,19 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         [ref.literal] => 
         [how] => identifier-map
         )*/
-        if(preg_match("/wikidata.org\/entity\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) return $arr[1];                   //is WikiData entity
-        elseif(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) return $arr[1];                 //is WikiData entity
+        if(preg_match("/wikidata.org\/entity\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) {                    //is WikiData entity
+            $this->debug['citation mapped to WD: allowed predicates only'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
+            return $arr[1];
+        }
+        elseif(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) {                  //is WikiData entity
+            $this->debug['citation mapped to WD: allowed predicates only'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
+            return $arr[1];
+        }
         elseif(stripos($rec['t.source'], "/doi.org/") !== false) { //string is found    //https://doi.org/10.1002/ajpa.20957    //is DOI
-            if($val = self::get_WD_entityID_for_DOI($rec['t.source'])) return $val;
+            if($val = self::get_WD_entityID_for_DOI($rec['t.source'])) {
+                $this->debug['citation mapped to WD: allowed predicates only*'][$rec['t.source']][$rec['t.citation']][$val] = '';
+                return $val;
+            }
             else { //has DOI no WikiData yet
                 echo "\n---------------------\n"; print_r($rec);
                 echo "\nhas DOI but not in WikiData yet 111\n";
@@ -1556,7 +1566,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         }
         echo ("\n-end muna-\n");
     }
-    function run_down_all_citations($spreadsheet)
+    function run_down_all_citations($spreadsheet) // a utility
     {
         $spreadsheet = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/resources/".$spreadsheet;
         $total = shell_exec("wc -l < ".escapeshellarg($spreadsheet)); $total = trim($total);
