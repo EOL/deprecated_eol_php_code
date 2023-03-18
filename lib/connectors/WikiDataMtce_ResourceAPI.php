@@ -208,18 +208,19 @@ class WikiDataMtce_ResourceAPI
     function log_citations_mapped_2WD_all($rec)
     {
         if(preg_match("/wikidata.org\/entity\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) {                    //is WikiData entity
-            $this->debug['citation mapped to WD: all'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
-            return $arr[1];
+            $this->debug2['citation mapped to WD: all'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
+            // return $arr[1];
         }
         elseif(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) {                  //is WikiData entity
-            $this->debug['citation mapped to WD: all'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
-            return $arr[1];
+            $this->debug2['citation mapped to WD: all'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
+            // return $arr[1];
         }
         elseif(stripos($rec['t.source'], "/doi.org/") !== false) { //string is found    //https://doi.org/10.1002/ajpa.20957    //is DOI
             if($val = self::get_WD_entityID_for_DOI($rec['t.source'])) {
-                $this->debug['citation mapped to WD: all*'][$rec['t.source']][$rec['t.citation']][$val] = '';
-                return $val;
+                $this->debug2['citation mapped to WD: all*'][$rec['t.source']][$rec['t.citation']][$val] = '';
+                // return $val;
             }
+        }
     }
     function xxx()
     {

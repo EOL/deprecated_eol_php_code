@@ -1354,7 +1354,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 // if($i >= 3) break; //debug only
             }
         }
-        print_r($this->debug);
+        print_r($this->debug); print_r($this->debug2);
         echo "\ngrand_total_export_file: ".$this->grand_total_export_file."\n";
     }
     private function copy_2_folders_to_rowNum_resourceID($paths, $rec, $real_row)
@@ -1506,16 +1506,16 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         [how] => identifier-map
         )*/
         if(preg_match("/wikidata.org\/entity\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) {                    //is WikiData entity
-            $this->debug['citation mapped to WD: allowed predicates only'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
+            $this->debug2['citation mapped to WD: allowed predicates only'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
             return $arr[1];
         }
         elseif(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) {                  //is WikiData entity
-            $this->debug['citation mapped to WD: allowed predicates only'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
+            $this->debug2['citation mapped to WD: allowed predicates only'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
             return $arr[1];
         }
         elseif(stripos($rec['t.source'], "/doi.org/") !== false) { //string is found    //https://doi.org/10.1002/ajpa.20957    //is DOI
             if($val = self::get_WD_entityID_for_DOI($rec['t.source'])) {
-                $this->debug['citation mapped to WD: allowed predicates only*'][$rec['t.source']][$rec['t.citation']][$val] = '';
+                $this->debug2['citation mapped to WD: allowed predicates only*'][$rec['t.source']][$rec['t.citation']][$val] = '';
                 return $val;
             }
             else { //has DOI no WikiData yet
