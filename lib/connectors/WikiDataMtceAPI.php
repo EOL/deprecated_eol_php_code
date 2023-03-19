@@ -1184,7 +1184,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         // /* un-comment in real operation
         $output = shell_exec($cmd);
         echo "\n[$output]\n";
-        // exit("\nstop munax\n");
+        exit("\nstop munax\n");
         // */
     }
 
@@ -1299,8 +1299,14 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 // */
 
                 if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
-                    if(!in_array($real_row, array(3))) continue; // to QuickStatements
-                    /* status Mar 7
+                    // if(!in_array($real_row, array(3))) continue; // to QuickStatements DONE
+                    if(!in_array($real_row, array(31))) continue; // to QuickStatements DONE
+                    /* 
+                    status Mar 19
+                    row 3 - all traits from this are now in WikiData
+                    row 31 left un-written
+                    
+                    status Mar 7
                     rows 21,22,23,24,25,26,27,28,29,30 - all traits from these are now in WikiData.
                     rows 3 and 31 left un-written
                 
