@@ -210,17 +210,21 @@ class WikiDataMtce_ResourceAPI
         if(preg_match("/wikidata.org\/entity\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) {                    //is WikiData entity
             $this->debug2['citation mapped to WD: all'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
             // return $arr[1];
+            return;
         }
         elseif(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) {                  //is WikiData entity
             $this->debug2['citation mapped to WD: all'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
             // return $arr[1];
+            return;
         }
         elseif(stripos($rec['t.source'], "/doi.org/") !== false) { //string is found    //https://doi.org/10.1002/ajpa.20957    //is DOI
             if($val = $this->get_WD_entityID_for_DOI($rec['t.source'])) {
-                $this->debug2['citation mapped to WD: all*'][$rec['t.source']][$rec['t.citation']][$val] = '';
+                $this->debug2['citation mapped to WD: all'][$rec['t.source']][$rec['t.citation']][$val] = '';
                 // return $val;
+                return;
             }
         }
+        $this->debug2['citation not mapped to WD: all'][$rec['t.source']][$rec['t.citation']] = '';
     }
     function xxx()
     {

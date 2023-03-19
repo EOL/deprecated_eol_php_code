@@ -195,6 +195,9 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 // /* -------------------- new block, started with per resource ID process e.g. 753 822
                 $rec['p.canonical'] = strip_tags($rec['p.canonical']);
                 if(stripos($this->spreadsheet, "resources_list.csv") !== false) { //string is found
+
+                    $this->log_citations_mapped_2WD_all($rec);
+
                     if(!in_array($rec['pred.name'], $this->resourceID_mTypes[$this->eol_resource_id])) { //invalid pred.name for this resource
                         //discarded rows
                         $WRITE = Functions::file_open($this->discarded_rows, "a");
@@ -202,7 +205,6 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                         continue;
                     }
                     else {
-                        $this->log_citations_mapped_2WD_all($rec);
                         $rec = $this->adjust_record($rec);
                     }
                 }
@@ -1506,16 +1508,16 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         [how] => identifier-map
         )*/
         if(preg_match("/wikidata.org\/entity\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) {                    //is WikiData entity
-            $this->debug2['citation mapped to WD: allowed predicates only'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
+            $this->debug2['citation mapped to WD: allowed measurementTypes only'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
             return $arr[1];
         }
         elseif(preg_match("/wikidata.org\/wiki\/(.*?)elix/ims", $rec['t.source']."elix", $arr)) {                  //is WikiData entity
-            $this->debug2['citation mapped to WD: allowed predicates only'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
+            $this->debug2['citation mapped to WD: allowed measurementTypes only'][$rec['t.source']][$rec['t.citation']][$arr[1]] = '';
             return $arr[1];
         }
         elseif(stripos($rec['t.source'], "/doi.org/") !== false) { //string is found    //https://doi.org/10.1002/ajpa.20957    //is DOI
             if($val = self::get_WD_entityID_for_DOI($rec['t.source'])) {
-                $this->debug2['citation mapped to WD: allowed predicates only*'][$rec['t.source']][$rec['t.citation']][$val] = '';
+                $this->debug2['citation mapped to WD: allowed measurementTypes only'][$rec['t.source']][$rec['t.citation']][$val] = '';
                 return $val;
             }
             else { //has DOI no WikiData yet
