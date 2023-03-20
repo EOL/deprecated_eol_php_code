@@ -1184,7 +1184,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         // /* un-comment in real operation
         $output = shell_exec($cmd);
         echo "\n[$output]\n";
-        exit("\nstop munax\n");
+        // exit("\nstop munax\n");
         // */
     }
 
@@ -1300,7 +1300,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
                 if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
                     // if(!in_array($real_row, array(3))) continue; // to QuickStatements DONE
-                    if(!in_array($real_row, array(31))) continue; // to QuickStatements DONE
+                    if(!in_array($real_row, array(31))) continue; // to QuickStatements running...
                     /* 
                     status Mar 19
                     row 3 - all traits from this are now in WikiData
@@ -1324,8 +1324,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     */
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
-                    // if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
-                    if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
+                    if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
+                    // if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
                 }
 
                 echo "\nrow: $real_row\n"; //exit;
