@@ -161,9 +161,6 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             $this->taxonMap_all = $func->read_identifier_map_to_var(array("resource_id" => 'all'));
             echo "\ntaxonMap: ".count($this->taxonMap)."";
             echo "\ntaxonMap_all: ".count($this->taxonMap_all)."\n";
-            // from: provider_ids.csv
-            // 113724451,Q10352100,1072,1095440,Posoqueria latifolia
-            // 116498583,Q50864065,1072,1095440,Posoqueria latifolia
         }
         // */
 
