@@ -50,6 +50,7 @@ For diagnostics:
         -> very helpful, if u want to check current running processes
     
     cd /var/www/html/eol_php_code/update_resources/connectors/
+    tail terminal_inat_images_select.out
     cat terminal_inat_images_select.out
         -> to see progress, very convenient
     ps -p 319348
