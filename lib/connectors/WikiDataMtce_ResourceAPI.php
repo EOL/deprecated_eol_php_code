@@ -226,6 +226,35 @@ class WikiDataMtce_ResourceAPI
         }
         $this->debug2['citation not mapped to WD: all'][$rec['t.source']][$rec['t.citation']] = '';
     }
+    function which_ret_to_use($rets, $canonical)
+    {   /*
+        1st ver:
+        Array(
+            [i] => Q50864065
+            [c] => Posoqueria latifolia
+        )
+        
+        2nd ver: used now
+        Array(
+            [0] => Array(
+                    [i] => Q10352100
+                    [c] => Posoqueria latifolia
+                )
+            [1] => Array(
+                    [i] => Q50864065
+                    [c] => Posoqueria latifolia
+                )
+        )*/
+        if(count($rets) == 1) return $rets[0];
+        else {
+            $i = -1;
+            foreach($rets as $ret) { $i++;
+                $label = $this->get_WD_obj_using_id($ret['i'], $what = 'label'); echo "\nlabel: [$label]\n";
+                if($canonical == $label) $index = $i; //return $ret;
+            }
+        }
+        return $rets[$index];
+    }
     function xxx()
     {
         $url = "http://www.marinespecies.org/imis.php?module=person&show=search&fulllist=1";
