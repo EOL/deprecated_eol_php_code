@@ -186,8 +186,15 @@ $func->run_all_resources($spreadsheet, 'generate trait reports'); //generate tra
 
 /* works OK
 $taxon = "Jimenezia";
-$obj = $func->get_WD_obj_using_string($taxon, 'all');
-print_r($obj); exit("\n-end test-\n");
+$taxon = "Posoqueria latifolia";
+// $obj = $func->get_WD_obj_using_string($taxon, 'all'); print_r($obj); 
+// $obj = $func->get_WD_obj_using_string($taxon, 'entity_id'); print_r($obj); 
+// $obj = $func->is_instance_of_taxon($taxon); print_r($obj); 
+
+$page_id = '1095440';
+$obj = $func->get_wikidata_obj_using_EOL_pageID($page_id, $taxon); print_r($obj); 
+
+exit("\n-end test-\n");
 */
 
 /* works OK
