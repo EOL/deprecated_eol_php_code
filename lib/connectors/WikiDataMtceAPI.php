@@ -157,9 +157,13 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         if(!isset($this->taxonMap) && !isset($this->taxonMap_all)) {
             require_library('connectors/IdentifierMapAPI');
             $func = new IdentifierMapAPI(); //get_declared_classes(); will give you how to access all available classes
-            $this->taxonMap = $func->read_identifier_map_to_var(array("resource_id" => 1072));
+            $this->taxonMap = $func->read_identifier_map_to_var(array("resource_id" => 1072)); //1072 is WikiData hierarchy in provider_ids.csv
             $this->taxonMap_all = $func->read_identifier_map_to_var(array("resource_id" => 'all'));
-            echo "\ntaxonMap: ".count($this->taxonMap)."\n";
+            echo "\ntaxonMap: ".count($this->taxonMap)."";
+            echo "\ntaxonMap_all: ".count($this->taxonMap_all)."\n";
+            // from: provider_ids.csv
+            // 113724451,Q10352100,1072,1095440,Posoqueria latifolia
+            // 116498583,Q50864065,1072,1095440,Posoqueria latifolia
         }
         // */
 
@@ -330,7 +334,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             // print_r($wikidata_obj); exit("\nelix3\n");
         }
         else {
-            if($ret = @$this->taxonMap_all[$rec['p.page_id']]) {
+            if($ret = @$this->taxonMap_all[$rec['p.page_id']]) { // taxonMap_all is mainly used here.
                 // print_r($rec); print_r($ret); exit("\nhuli ka\n");
                 $rec['p.canonical'] = $ret['c'];
                 if($wikidata_obj = self::is_instance_of_taxon($rec['p.canonical'])) $rec['how'] = 'name search thru identifier-map'; //2nd option
@@ -853,7 +857,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $sheets = array("measurementTypes", "measurementValues", "metadata", "other values");
         foreach($sheets as $sheet) {
             $params['range']         = $sheet.'!A1:C100'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-            $arr = $func->access_google_sheet($params, false); //2nd param false means cache expires
+            $arr = $func->access_google_sheet($params, true); //2nd param false means cache expires
             $final[$sheet] = self::massage_google_sheet_results($arr);
         }
         // */
@@ -963,11 +967,18 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         fwrite($this->WRITE, implode("\t", $final)."\n");
         // print_r($rec); print_r($wikidata_obj); print_r($final); exit;
     }
-    private function get_wikidata_obj_using_EOL_pageID($page_id, $canonical)
+    function get_wikidata_obj_using_EOL_pageID($page_id, $canonical)
     {
         if($val = self::pageID_has_manual_fix($page_id, $canonical)) return $val;
         else { //orig
-            if($ret = @$this->taxonMap[$page_id]) {
+            if($rets = @$this->taxonMap[$page_id]) { //exit("\ngoes here 2\n");
+                // /* new version. Previously $ret only not $rets.
+                print_r($rets);
+                $ret = $this->which_ret_to_use($rets, $canonical);
+                print_r($ret);
+                // exit("\ngoes here 3a\n");
+                // */
+
                 /* never use this since p.canonical in query sometimes really is blank. And identifier-map can do the connection.
                 if($canonical == $ret['c']) {
                     if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) return array($ret['i'], $obj);
@@ -1056,6 +1067,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
                 if($obj = self::get_WD_obj_using_id($ret['i'], 'all')) {
                     $this->download_options['expire_seconds'] = false;
+                    // print_r($obj); print_r($ret); exit("\ngoes here 3\n");
                     return array($ret['i'], $obj);
                 }
                 $this->download_options['expire_seconds'] = false;
