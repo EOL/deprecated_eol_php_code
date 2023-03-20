@@ -41,8 +41,7 @@ class IdentifierMapAPI
             $output = shell_exec($cmd);
             echo "\n$output\n";
             */
-            $local_file = $destination."/provider_ids.csv";
-            // exit("\n$local_file\n");
+            $local_file = $destination."/provider_ids.csv"; print("\nlocal_file: [$local_file]\n");
             $i = 0;
             foreach(new FileIterator($local_file) as $line => $row) {
                 $i++;
@@ -78,7 +77,7 @@ class IdentifierMapAPI
                 }
                 elseif($resource_id == $rec['resource_id']) {
                     // print_r($rec); exit;
-                    $final[$rec['page_id']] = array('i' => $rec['resource_pk'], 'c' => $rec['preferred_canonical_for_page']);
+                    $final[$rec['page_id']][] = array('i' => $rec['resource_pk'], 'c' => $rec['preferred_canonical_for_page']);
                     /* debug
                     if($rec['page_id'] == 16251768) {
                         print_r($rec); exit;
