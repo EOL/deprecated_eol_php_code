@@ -233,7 +233,6 @@ class WikiDataMtce_ResourceAPI
             [i] => Q50864065
             [c] => Posoqueria latifolia
         )
-        
         2nd ver: used now
         Array(
             [0] => Array(
@@ -244,7 +243,11 @@ class WikiDataMtce_ResourceAPI
                     [i] => Q50864065
                     [c] => Posoqueria latifolia
                 )
-        )*/
+        )        
+        // from: provider_ids.csv
+        // 113724451,Q10352100,1072,1095440,Posoqueria latifolia
+        // 116498583,Q50864065,1072,1095440,Posoqueria latifolia
+        */
         if(count($rets) == 1) return $rets[0];
         else {
             $i = -1;
