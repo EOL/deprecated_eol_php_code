@@ -103,13 +103,15 @@ class DwCA_RunGNParser
     }
     function run_gnparser($sciname, $type)
     {   // e.g. gnparser -f pretty "Quadrella steyermarkii (Standl.) Iltis &amp; Cornejo"
-        $cmd = 'gnparser -f pretty "'.$sciname.'"';
-        if($json = shell_exec($cmd)) { //echo "\n$json\n"; //good debug
-            if($obj = json_decode($json)) { //print_r($obj); //exit("\nstop muna\n"); //good debug
-                if($type == 'simple') return $obj->canonical->simple;
-                elseif($type == 'full') return $obj->canonical->full;
-                else exit("\nUndefined type. Will exit.\n");
-            }
+        if($sciname = trim($sciname)) {
+            $cmd = 'gnparser -f pretty "'.$sciname.'"';
+            if($json = shell_exec($cmd)) { //echo "\n$json\n"; //good debug
+                if($obj = json_decode($json)) { //print_r($obj); //exit("\nstop muna\n"); //good debug
+                    if($type == 'simple') return $obj->canonical->simple;
+                    elseif($type == 'full') return $obj->canonical->full;
+                    else exit("\nUndefined type. Will exit.\n");
+                }
+            }    
         }
     }
     function lookup_canonical_name($sciname, $type)

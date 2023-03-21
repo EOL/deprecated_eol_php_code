@@ -10,7 +10,7 @@ Future version will also include the command line gnparser option.
 As of this writing: Global Names Parser (v1.7.1) - https://parser.globalnames.org/doc/api
 
 ====================================================================
-$ nohup php run_gnparser_dwca.php _ '{"resource_id": "Brazilian_Flora"}' > terminal_BF_canonical.out 2>&1 &
+$ nohup php run_gnparser_dwca.php _ "{'resource_id': 'Brazilian_Flora'}" > terminal_BF_canonical.out 2>&1 &
 -> use 'nohup' so it continues even after logging out of the terminal
 For diagnostics:
     ps --help simple
