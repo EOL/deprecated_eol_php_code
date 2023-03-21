@@ -37,7 +37,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $doi = str_ireplace("https://doi.org/", "", $doi);
         $doi = str_ireplace("http://doi.org/", "", $doi);
         $options = $this->download_options;
-        $options['expire_seconds'] = false; //never expires. But set this to zero (0) if you've created a new WD item for a DOI.
+        $options['expire_seconds'] = 60*60*24; //false; //never expires. But set this to 24 hrs if you've created a new WD item for a DOI.
         $url = str_replace("MY_DOI", urlencode($doi), $this->sourcemd_api['search DOI']);
         if($html = Functions::lookup_with_cache($url, $options)) {
             /*
@@ -180,12 +180,18 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             if($i == 1) $fields = explode("\t", $row);
             else {
 
-                /* caching - comment in real operation
-                if($i >= 564000 && $i <= 565000) {}
-                if($i >= 572000 && $i <= 573000) {}
-                if($i >= 573000 && $i <= 575000) {}
+                // /* caching - comment in real operation   Flora 458225/6=76370.83        Kubitzki 623252 / 5 = 124650.4    divided by 6 = 103875.333333333333333
+                $m = 124651; //divided by 5
+                $m = 103876; //divided by 6
+                $m = 76371; // divided by 6
+                // if($i >= 1 && $i <= $m) {} 
+                // if($i >= $m && $i <= $m*2) {}
+                // if($i >= $m*2 && $i <= $m*3) {}
+                // if($i >= $m*3 && $i <= $m*4) {}
+                // if($i >= $m*4 && $i <= $m*5) {} 
+                if($i >= $m*5 && $i <= $m*6) {} 
                 else continue;
-                */
+                // */
 
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
@@ -968,11 +974,11 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
     {
         if($val = self::pageID_has_manual_fix($page_id, $canonical)) return $val;
         else { //orig
-            if($rets = @$this->taxonMap[$page_id]) { //exit("\ngoes here 2\n");
+            $rets = @$this->taxonMap[$page_id];
+            if($ret = $this->which_ret_to_use($rets, $canonical)) { //exit("\ngoes here 2\n");
                 // /* new version. Previously $ret only not $rets.
-                print_r($rets);
-                $ret = $this->which_ret_to_use($rets, $canonical);
-                print_r($ret);
+                // print_r($rets);
+                // print_r($ret);
                 // exit("\ngoes here 3a\n");
                 // */
 
@@ -1372,6 +1378,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             }
         }
         print_r($this->debug); print_r($this->debug2);
+        echo "\ncitation not mapped to WD: all = ".count(@$this->debug2['citation not mapped to WD: all'])."\n";
         echo "\ngrand_total_export_file: ".$this->grand_total_export_file."\n";
     }
     private function copy_2_folders_to_rowNum_resourceID($paths, $rec, $real_row)
