@@ -105,8 +105,8 @@ class DwCA_RunGNParser
     {
         // gnparser -f pretty "Quadrella steyermarkii (Standl.) Iltis &amp; Cornejo"
         $cmd = 'gnparser -f pretty "'.$sciname.'"';
-        $json = shell_exec($cmd);
-        $obj = json_decode($json); // print_r($obj); //exit;
+        $json = shell_exec($cmd); echo "\n$json\n";
+        $obj = json_decode($json); print_r($obj); exit("\nstop muna\n");
         if($type == 'simple') return $obj->canonical->simple;
         elseif($type == 'full') return $obj->canonical->full;
         else exit("\nUndefined type. Will exit.\n");
