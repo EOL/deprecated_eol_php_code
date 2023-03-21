@@ -182,7 +182,7 @@ class DwCA_Utility
             */
                 if(in_array($this->resource_id, array("368_removed_aves", "wiki_en_report"))) break; //all extensions will be processed elsewhere.
             elseif(in_array($this->resource_id, array("BF", "gbif_classification", "gbif_classification_without_ancestry", "gbif_classification_final", 
-                                                      "708"))) break; //all extensions will be processed elsewhere.
+                                                      "708", "Brazilian_Flora_with_canonical"))) break; //all extensions will be processed elsewhere.
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
@@ -476,6 +476,11 @@ class DwCA_Utility
         if(in_array($this->resource_id, array("wikidata_hierarchy"))) { //1st client is: wikidata_hierarchy
             require_library('connectors/DwCA_AssignEOLidAPI');
             $func = new DwCA_AssignEOLidAPI($this->archive_builder, $this->resource_id, $this->archive_path);
+            $func->start($info);
+        }
+        if(in_array($this->resource_id, array("Brazilian_Flora_with_canonical"))) { //1st client is: Brazilian_Flora_with_canonical
+            require_library('connectors/DwCA_RunGNParser');
+            $func = new DwCA_RunGNParser($this->archive_builder, $this->resource_id, $this->archive_path);
             $func->start($info);
         }
         
