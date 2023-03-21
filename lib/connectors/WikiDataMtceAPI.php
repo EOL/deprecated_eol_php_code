@@ -180,7 +180,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             if($i == 1) $fields = explode("\t", $row);
             else {
 
-                // /* caching - comment in real operation   Flora 458225/6=76370.83        Kubitzki 623252 / 5 = 124650.4    divided by 6 = 103875.333333333333333
+                /* caching - comment in real operation   Flora 458225/6=76370.83        Kubitzki 623252 / 5 = 124650.4    divided by 6 = 103875.333333333333333
                 $m = 124651; //divided by 5
                 $m = 103876; //divided by 6
                 $m = 76371; // divided by 6
@@ -191,7 +191,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 // if($i >= $m*4 && $i <= $m*5) {} 
                 if($i >= $m*5 && $i <= $m*6) {} 
                 else continue;
-                // */
+                */
 
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
@@ -1339,8 +1339,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     */
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
-                    if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
-                    // if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
+                    // if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
+                    if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
                 }
 
                 echo "\nrow: $real_row\n"; //exit;
