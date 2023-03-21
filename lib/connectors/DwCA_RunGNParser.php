@@ -11,6 +11,15 @@ class DwCA_RunGNParser
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*1, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->paths['wikidata_hierarchy'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/wikidata/wikidataEOLidMappings.txt';
         $this->service['GNParser'] = 'https://parser.globalnames.org/api/v1/';
+
+        /*
+        Install gnparser in command line: https://github.com/gnames/gnparser/blob/master/README.md#installation
+
+        gnparser file -f json-compact --input step3_scinames.txt --output step3_gnparsed.txt
+        gnparser name -f simple 'Tricornina (Bicornina) jordan, 1964'
+        gnparser name -f simple 'Ceroputo pilosellae Šulc, 1898'
+        gnparser name -f simple 'The Myxobacteria'
+        */
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -20,9 +29,6 @@ class DwCA_RunGNParser
         /*Array(
             [0] => http://rs.tdwg.org/dwc/terms/taxon
         )*/
-                
-        //step 2:
-        $this->unique_ids = array();
         $tbl = "http://rs.tdwg.org/dwc/terms/taxon";
         self::process_table($tables[$tbl][0], 'write_archive');
     }
@@ -30,8 +36,7 @@ class DwCA_RunGNParser
     {   //print_r($meta);
         echo "\nprocess_table: [$what] [$meta->file_uri]...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) { $i++;
-            // if(($i % 100000) == 0) 
-            echo "\n".number_format($i)." - ";
+            if(($i % 10000) == 0) echo "\n".number_format($i)." - ";
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
@@ -78,7 +83,10 @@ class DwCA_RunGNParser
                 // /* assign canonical name
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $scientificName = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
-                $rec['http://rs.tdwg.org/dwc/terms/canonicalName'] = self::lookup_canonical_name($scientificName, 'simple');
+
+                // $rec['http://rs.tdwg.org/dwc/terms/canonicalName'] = self::lookup_canonical_name($scientificName, 'simple'); //working but too many calls
+                $rec['http://rs.tdwg.org/dwc/terms/canonicalName'] = self::run_gnparser($scientificName, 'simple'); //working but too many calls
+
                 // */
 
                 // print_r($rec); exit;
@@ -90,10 +98,19 @@ class DwCA_RunGNParser
                 }
                 $this->archive_builder->write_object_to_file($o);
             }
-            if($i >= 5) break;
+            // if($i >= 5) break;
         }
     }
-
+    function run_gnparser($sciname, $type)
+    {
+        // gnparser -f pretty "Quadrella steyermarkii (Standl.) Iltis &amp; Cornejo"
+        $cmd = 'gnparser -f pretty "'.$sciname.'"';
+        $json = shell_exec($cmd);
+        $obj = json_decode($json); // print_r($obj); //exit;
+        if($type == 'simple') return $obj->canonical->simple;
+        elseif($type == 'full') return $obj->canonical->full;
+        else exit("\nUndefined type. Will exit.\n");
+    }
     function lookup_canonical_name($sciname, $type)
     {
         $obj = self::call_gnparser_service($sciname);
@@ -133,18 +150,6 @@ class DwCA_RunGNParser
             return $obj;
         }
     }
-    // function call_gnparser($sciname)
-    // {   //source https://parser.globalnames.org/doc/api
-    //     $sciname = str_replace(" ", "+", $sciname);
-    //     $sciname = str_replace("&", "%26", $sciname);
-    //     $url = $this->gnparser_api.$sciname;
-    //     $options = $this->download_options;
-    //     $options['expire_seconds'] = false;
-    //     if($json = Functions::lookup_with_cache($url, $options)) {
-    //         $arr = json_decode($json, true); // print_r($arr); exit;
-    //         return $arr;
-    //     }
-    // }
     private function get_field_from_uri($uri)
     {
         $field = pathinfo($uri, PATHINFO_BASENAME);
