@@ -8,6 +8,24 @@ This library only does the API lookup service.
 Future version will also include the command line gnparser option.
 
 As of this writing: Global Names Parser (v1.7.1) - https://parser.globalnames.org/doc/api
+
+====================================================================
+$ nohup php run_gnparser_dwca.php _ '{"resource_id": "Brazilian_Flora"}' > terminal_BF_canonical.out 2>&1 &
+-> use 'nohup' so it continues even after logging out of the terminal
+For diagnostics:
+    ps --help simple
+    ps -r 
+        -> very helpful, if u want to check current running processes
+    
+    cd /var/www/html/eol_php_code/
+    tail terminal_BF_canonical.out
+    cat terminal_BF_canonical.out
+        -> to see progress, very convenient
+    ps -p xxx
+        -> to investigate a running PID
+    kill -9 xxx
+        -> to kill a running PID
+====================================================================
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
