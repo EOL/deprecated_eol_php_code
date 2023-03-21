@@ -249,22 +249,26 @@ class WikiDataMtce_ResourceAPI
         // 116498583,Q50864065,1072,1095440,Posoqueria latifolia
         */
         if(count($rets) == 1) return $rets[0];
-        else {
-            $i = -1;
+        elseif($rets) { 
+            $i = 0; $total = count($rets);
             foreach($rets as $ret) { $i++;
-                $label = $this->get_WD_obj_using_id($ret['i'], $what = 'label'); echo "\nlabel: [$label]\n";
-                if($canonical == $label) $index = $i; //return $ret;
+                $label = $this->get_WD_obj_using_id($ret['i'], $what = 'label'); echo "\n$i of $total: label: [$label][$canonical]\n";
+                if($canonical == $label) { //return $ret;
+                    print_r($ret);
+                    return $ret;
+                }
             }
         }
-        return $rets[$index];
+        // print_r($rets);
+        // exit("\nDoes not go here.\n[$canonical]\n"); // cases like this exist
     }
+    /* copied template
     function xxx()
     {
         $url = "http://www.marinespecies.org/imis.php?module=person&show=search&fulllist=1";
         $options = $this->download_options;
         $options['expire_seconds'] = 60*60*24*30; //a month to expire
-        if($html = Functions::lookup_with_cache($url, $options)) {
-        }
-    }
+        if($html = Functions::lookup_with_cache($url, $options)) {}
+    }*/
 }
 ?>
