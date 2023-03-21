@@ -6,6 +6,8 @@ php update_resources/connectors/run_gnparser_dwca.php _ '{"resource_id": "Brazil
 
 This library only does the API lookup service.
 Future version will also include the command line gnparser option.
+
+As of this writing: Global Names Parser (v1.7.1) - https://parser.globalnames.org/doc/api
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -19,12 +21,11 @@ $timestart = time_elapsed();
 
 // print_r($argv);
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
-$param                     = json_decode(@$argv[2], true);
-// print_r($param); exit;
+$param                     = json_decode(@$argv[2], true); // print_r($param); exit;
 $resource_id = $param['resource_id'];
 
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
-$dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_3/'.$resource_id.'.tar.gz'; //during dev only
+// $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_3/'.$resource_id.'.tar.gz'; //during dev only
 
 if($resource_id == "Brazilian_Flora") $resource_id = "Brazilian_Flora_with_canonical";
 else exit("\nresource_id [$resource_id] not yet initialized. \n");

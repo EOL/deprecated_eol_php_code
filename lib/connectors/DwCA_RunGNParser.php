@@ -62,7 +62,7 @@ class DwCA_RunGNParser
                 [http://purl.org/dc/terms/modified] => 2018-08-10 11:58:06.954
             )*/
 
-            // /* caching           122658/6=20443
+            /* caching           122658/6=20443
             $m = 20443; // divided by 6
             $m = 30665; // divided by 4
             // if($i >= 1 && $i <= $m) {}
@@ -72,13 +72,13 @@ class DwCA_RunGNParser
             // if($i >= $m*4 && $i <= $m*5) {} 
             // if($i >= $m*5 && $i <= $m*6) {} 
             else continue;
-            // */
+            */
 
             if($what == 'write_archive') {
                 // /* assign canonical name
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $scientificName = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
-                $rec['http://rs.tdwg.org/dwc/terms/canonicalName'] = self::get_canonical_name($scientificName, 'simple');
+                $rec['http://rs.tdwg.org/dwc/terms/canonicalName'] = self::lookup_canonical_name($scientificName, 'simple');
                 // */
 
                 // print_r($rec); exit;
@@ -90,13 +90,13 @@ class DwCA_RunGNParser
                 }
                 $this->archive_builder->write_object_to_file($o);
             }
-            // if($i >= 5) break;
+            if($i >= 5) break;
         }
     }
 
-    function get_canonical_name($sciname, $type)
+    function lookup_canonical_name($sciname, $type)
     {
-        $obj = self::run_gnparser($sciname);
+        $obj = self::call_gnparser_service($sciname);
         if(!$obj) return;
         // print_r($obj); exit;
         /*Array(
@@ -120,7 +120,7 @@ class DwCA_RunGNParser
         elseif($type == 'full') return $obj->canonical->full;
         else exit("\nUndefined type. Will exit.\n");
     }
-    function run_gnparser($sciname)
+    private function call_gnparser_service($sciname)
     {
         $sciname = str_replace(" ", "+", $sciname);
         $sciname = str_replace("&", "%26", $sciname);
