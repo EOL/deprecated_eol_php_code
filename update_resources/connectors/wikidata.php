@@ -109,6 +109,7 @@ wikimedia_comnames	Wed 2022-07-13 09:26:10 PM	{"taxon.tab":154018, "vernacular_n
 wikimedia_comnames	Sat 2022-09-10 04:57:15 PM	{"taxon.tab":154455, "vernacular_name.tab":1004483, "time_elapsed":{"sec":434.01, "min":7.23, "hr":0.12}}
 wikimedia_comnames	Mon 2022-12-05 07:50:40 PM	{"taxon.tab":153854, "vernacular_name.tab":1004436, "time_elapsed":{"sec":1290.23, "min":21.5, "hr":0.36}}
 wikimedia_comnames	Fri 2023-02-24 06:11:01 PM	{"taxon.tab":154527, "vernacular_name.tab":1004878, "time_elapsed":{"sec":1279.15, "min":21.32, "hr":0.36}}
+wikimedia_comnames	Tue 2023-03-14 07:05:47 PM	{"taxon.tab":166733, "vernacular_name.tab":1051497, "time_elapsed":{"sec":1427.04, "min":23.78, "hr":0.4}}
 
 71_delta	Wed 2022-07-13 10:04:30 PM	{"agent.tab":788702, "media_resource.tab":1248218, "taxon.tab":154018, "time_elapsed":{"sec":1257.01, "min":20.95, "hr":0.35}}
 71_delta	Sat 2022-09-10 05:37:07 PM	{"agent.tab":800385, "media_resource.tab":1263636, "taxon.tab":154455, "time_elapsed":{"sec":1299.87, "min":21.66, "hr":0.36}}
