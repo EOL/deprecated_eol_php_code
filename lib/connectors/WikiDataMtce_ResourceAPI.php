@@ -226,7 +226,7 @@ class WikiDataMtce_ResourceAPI
         }
         $this->debug2['citation not mapped to WD: all'][$rec['t.source']][$rec['t.citation']] = '';
     }
-    function which_ret_to_use($rets, $canonical)
+    function which_ret_to_use($rets, $canonical, $page_id)
     {   /*
         1st ver:
         Array(
@@ -251,13 +251,18 @@ class WikiDataMtce_ResourceAPI
         if(count($rets) == 1) return $rets[0];
         elseif($rets) { 
             $i = 0; $total = count($rets);
+            // /* ----- 1st try: get the idential string canonical name
             foreach($rets as $ret) { $i++;
                 $label = $this->get_WD_obj_using_id($ret['i'], $what = 'label'); echo "\n$i of $total: label: [$label][$canonical]\n";
-                if($canonical == $label) { //return $ret;
+                if($canonical == $label) {
                     print_r($ret);
                     return $ret;
                 }
             }
+            // */ -----
+            // /* ----- 2nd try: get what the special dynamic hierarchy file's scientificName; where eolID matches. Per Katja: https://eol-jira.bibalex.org/browse/COLLAB-1006?focusedCommentId=67434&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67434
+            $equivalent_sciname_with_matching_eolID = get_sciname_with_this_eolID($page_id)
+            // */ -----
         }
         // print_r($rets);
         // exit("\nDoes not go here.\n[$canonical]\n"); // cases like this exist
