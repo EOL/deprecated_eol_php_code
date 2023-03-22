@@ -247,13 +247,23 @@ class WikiDataMtce_ResourceAPI
         // from: provider_ids.csv
         // 113724451,Q10352100,1072,1095440,Posoqueria latifolia
         // 116498583,Q50864065,1072,1095440,Posoqueria latifolia
+        ---------------------------------------------------------------------
+        From identifier-map:
+        113712096,Q100477061,1072,52520226,Persoonia hirsuta hirsuta
+        113712097,Q100477116,1072,52520226,Persoonia hirsuta hirsuta
+        114459187,Q110288015,1072,52520226,Persoonia hirsuta hirsuta
+        Which Wikidata entity to use?
+        Q100477061 : [Persoonia hirsuta subsp. hirsuta]
+        Q100477116 : [Persoonia hirsuta var. hirsuta]
+        Q110288015 : [Linkia hirsuta]
         */
         if(count($rets) == 1) return $rets[0];
         elseif($rets) { 
-            $i = 0; $total = count($rets);
+            $total = count($rets);
             // /* ----- 1st try: get the idential string canonical name
+            $i = 0;
             foreach($rets as $ret) { $i++;
-                $label = $this->get_WD_obj_using_id($ret['i'], $what = 'label'); echo "\n$i of $total: label: [$label][$canonical]\n";
+                $label = $this->get_WD_obj_using_id($ret['i'], $what = 'label'); echo "\n$i of $total: label: [$label][$canonical][$page_id]*\n";
                 if($canonical == $label) {
                     print_r($ret);
                     return $ret;
@@ -261,11 +271,77 @@ class WikiDataMtce_ResourceAPI
             }
             // */ -----
             // /* ----- 2nd try: get what the special dynamic hierarchy file's scientificName; where eolID matches. Per Katja: https://eol-jira.bibalex.org/browse/COLLAB-1006?focusedCommentId=67434&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67434
-            $equivalent_sciname_with_matching_eolID = get_sciname_with_this_eolID($page_id)
+            $sciname_with_matching_eolID = self::get_sciname_with_this_eolID($page_id);
+            $i = 0;
+            foreach($rets as $ret) { $i++;
+                $label = $this->get_WD_obj_using_id($ret['i'], $what = 'label'); echo "\n$i of $total: label: [$label][$canonical][$page_id]**\n";
+                if($sciname_with_matching_eolID == $label) {
+                    print_r($ret); exit("\nstop try 2\n");
+                    return $ret;
+                }
+            }
             // */ -----
+            // /* ----- 3rd try: pick between the canonical matches
+            // Q100477061 : [Persoonia hirsuta subsp. hirsuta]
+            // Q100477116 : [Persoonia hirsuta var. hirsuta]
+            // Q110288015 : [Linkia hirsuta]
+            $i = 0;
+            foreach($rets as $ret) { $i++;
+                $label = $this->get_WD_obj_using_id($ret['i'], $what = 'label'); echo "\n$i of $total: label: [$label][$canonical][$page_id]***\n";
+                $label = str_replace(array(' subsp. ', ' var. '), " ", $label);
+                if($canonical == $label) {
+                    print_r($ret); //exit("\nstop try 3\n");
+                    return $ret;
+                }
+            }
+            // */ -----
+
         }
         // print_r($rets);
         // exit("\nDoes not go here.\n[$canonical]\n"); // cases like this exist
+    }
+    function get_sciname_with_this_eolID($page_id)
+    {
+        if(isset($this->dh_eolID_sciname_info)) {
+            if($sciname = @$this->dh_eolID_sciname_info[$page_id]) return $sciname;
+        }
+        else {
+            self::loop_dh_get_eolID_sciname_info($page_id); //generates $this->dh_eolID_sciname_info
+            self::get_sciname_with_this_eolID($page_id);
+        }
+    }
+    private function loop_dh_get_eolID_sciname_info($page_id)
+    {
+        $dh_file = "/Volumes/Crucial_2TB/other_files2/dh21eolid/DH21taxaWeolIDs.txt";
+        $i = 0;
+        foreach(new FileIterator($dh_file) as $line => $row) { $i++; 
+            // $row = Functions::conv_to_utf8($row);
+            if($i == 1) $fields = explode("\t", $row);
+            else {
+                if(!$row) continue;
+                $tmp = explode("\t", $row);
+                $rec = array(); $k = 0;
+                foreach($fields as $field) { $rec[$field] = $tmp[$k]; $k++; }
+                $rec = array_map('trim', $rec);
+                // print_r($rec); exit("\n$page_id\nstop munax1\n");
+                /*Array(
+                    [taxonID] => EOL-000000000001
+                    [source] => trunk:4038af35-41da-469e-8806-40e60241bb58
+                    [furtherInformationURL] => 
+                    [acceptedNameUsageID] => 
+                    [parentNameUsageID] => 
+                    [scientificName] => Life
+                    [taxonRank] => 
+                    [taxonomicStatus] => accepted
+                    [datasetID] => trunk
+                    [canonicalName] => Life
+                    [eolID] => 2913056
+                    [Landmark] => 3
+                    [higherClassification] => 
+                )*/
+                $this->dh_eolID_sciname_info[$rec['eolID']] = $rec['canonicalName'];
+            }
+        }
     }
     /* copied template
     function xxx()
