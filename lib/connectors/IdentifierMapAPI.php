@@ -73,7 +73,7 @@ class IdentifierMapAPI
                 and use the mapping of the EOL page id (column 4) to the wikidata entity id (column 2).
                 */
                 if($resource_id == 'all') {
-                    $final[$rec['page_id']] = array('i' => $rec['resource_pk'], 'c' => $rec['preferred_canonical_for_page']);                    
+                    $final[$rec['page_id']] = array('i' => $rec['resource_pk'], 'c' => $rec['preferred_canonical_for_page']);
                 }
                 elseif($resource_id == $rec['resource_id']) {
                     // print_r($rec); exit;
