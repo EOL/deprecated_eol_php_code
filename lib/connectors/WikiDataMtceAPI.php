@@ -975,7 +975,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         if($val = self::pageID_has_manual_fix($page_id, $canonical)) return $val;
         else { //orig
             $rets = @$this->taxonMap[$page_id];
-            if($ret = $this->which_ret_to_use($rets, $canonical)) { //exit("\ngoes here 2\n");
+            if($ret = $this->which_ret_to_use($rets, $canonical, $page_id)) { //exit("\ngoes here 2\n");
                 // /* new version. Previously $ret only not $rets.
                 // print_r($rets);
                 // print_r($ret);
