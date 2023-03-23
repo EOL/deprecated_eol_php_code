@@ -313,7 +313,9 @@ class WikiDataMtce_ResourceAPI
         // exit("\nDoes not go here.\n[$canonical]\n"); // cases like this exist
     }
     function is_sciname_present_from_source($sciname)
-    {
+    {   $sciname = str_replace(array("[", "]"), "", $sciname);
+        $sciname = $this->gnparser->run_gnparser($sciname, 'simple');
+
         if(isset($this->origsource_sciname_info)) {
             if(isset($this->origsource_sciname_info[$sciname])) return true;
             else return false; //write report to Katja
