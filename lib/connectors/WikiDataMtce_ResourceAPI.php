@@ -224,7 +224,19 @@ class WikiDataMtce_ResourceAPI
                 return;
             }
         }
-        $this->debug2['citation not mapped to WD: all'][$rec['t.source']][$rec['t.citation']] = '';
+        // /* ----- new block: also not to keep on calling ruby
+        $citation = $rec['t.citation'];
+        if($citation_obj = @$this->cite_obj[$citation]) {}
+        else {
+            $citation_obj = $this->parse_citation_using_anystyle($citation, 'all', 4);
+            $this->cite_obj[$citation] = $citation_obj;
+        }
+        if($ret = $this->does_title_exist_in_wikidata($citation_obj, $citation, $t_source)) { //orig un-comment in real operation
+            // no need to return anything here.
+            // print_r($ret); return $ret['wikidata_id'];
+        }
+        else $this->debug2['citation not mapped to WD: all'][$rec['t.source']][$rec['t.citation']] = '';
+        // */ -----
     }
     function which_ret_to_use($rets, $canonical, $page_id)
     {   /*
@@ -276,7 +288,7 @@ class WikiDataMtce_ResourceAPI
             foreach($rets as $ret) { $i++;
                 $label = $this->get_WD_obj_using_id($ret['i'], $what = 'label'); echo "\n$i of $total: label: [$label][$canonical][$page_id]**\n";
                 if($sciname_with_matching_eolID == $label) {
-                    print_r($ret); exit("\nstop try 2\n");
+                    print_r($ret); //exit("\nstop try 2\n");
                     return $ret;
                 }
             }
@@ -295,7 +307,6 @@ class WikiDataMtce_ResourceAPI
                 }
             }
             // */ -----
-
         }
         // print_r($rets);
         // exit("\nDoes not go here.\n[$canonical]\n"); // cases like this exist
@@ -342,6 +353,12 @@ class WikiDataMtce_ResourceAPI
                 $this->dh_eolID_sciname_info[$rec['eolID']] = $rec['canonicalName'];
             }
         }
+    }
+    function start_print_debug($debug, $series)
+    {
+        $file = CONTENT_RESOURCE_LOCAL_PATH . "debug_".$this->eol_resource_id."_".$series.".txt";
+        $str = print_r($debug, true); //true makes print_r() output as string
+        file_put_contents($file, $str);
     }
     /* copied template
     function xxx()
