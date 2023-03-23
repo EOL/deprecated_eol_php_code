@@ -205,6 +205,16 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
                     $this->log_citations_mapped_2WD_all($rec);
 
+                    if($this->eol_resource_id == 753) { //Flora do Brasil only for now.
+                        if($this->is_sciname_present_from_source(strip_tags($rec['p.canonical']))) {}
+                        else {
+                            //discarded rows
+                            $WRITE = Functions::file_open($this->discarded_rows, "a");
+                            fwrite($WRITE, implode("\t", $rec)."\tCanonical not found from source"."\n"); fclose($WRITE);
+                            continue;
+                        }
+                    }
+
                     if(!in_array($rec['pred.name'], $this->resourceID_mTypes[$this->eol_resource_id])) { //invalid pred.name for this resource
                         //discarded rows
                         $WRITE = Functions::file_open($this->discarded_rows, "a");
@@ -1382,12 +1392,12 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 // if($i >= 3) break; //debug only
             }
         }
-        print_r($this->debug); //print_r($this->debug2);
+        // print_r($this->debug); //print_r($this->debug2);
         echo "\ncitation not mapped to WD: all = ".count(@$this->debug2['citation not mapped to WD: all'])."\n";
         echo "\ngrand_total_export_file: ".$this->grand_total_export_file."\n";
 
-        $this->start_print_debug($this->debug, 1);
-        $this->start_print_debug($this->debug2, 2);
+        if(isset($this->debug)) $this->start_print_debug($this->debug, 1, $this->eol_resource_id);
+        if(isset($this->debug2)) $this->start_print_debug($this->debug2, 2, $this->eol_resource_id);
     }
     private function copy_2_folders_to_rowNum_resourceID($paths, $rec, $real_row)
     {   /*Array(
