@@ -181,9 +181,9 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             else {
 
                 /* caching - comment in real operation   Flora 458225/6=76370.83        Kubitzki 623252 / 5 = 124650.4    divided by 6 = 103875.333333333333333
-                $m = 124651; //divided by 5
-                $m = 103876; //divided by 6
-                $m = 76371; // divided by 6
+                // $m = 124651; //divided by 5
+                $m = 103876; //divided by 6 Kubitzki
+                // $m = 76371; // divided by 6
                 // if($i >= 1 && $i <= $m) {} 
                 // if($i >= $m && $i <= $m*2) {}
                 // if($i >= $m*2 && $i <= $m*3) {}
@@ -533,7 +533,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         echo "\nNot found in WikiData\n";
         return false;
     }
-    private function does_title_exist_in_wikidata($citation_obj, $citation, $t_source)
+    function does_title_exist_in_wikidata($citation_obj, $citation, $t_source)
     {
         $title = $citation_obj[0]->title[0];
         $title = self::manual_fix_title($title); #important
@@ -831,7 +831,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         }
         return $rows;
     }
-    private function parse_citation_using_anystyle($citation, $what, $series)
+    function parse_citation_using_anystyle($citation, $what, $series)
     {
         echo("\n----------\nthis runs ruby...[$what][$series]\n----------\n"); //comment in real operation
         $json = shell_exec($this->anystyle_parse_prog . ' "'.$citation.'"');
@@ -860,7 +860,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $sheets = array("measurementTypes", "measurementValues", "metadata", "other values");
         foreach($sheets as $sheet) {
             $params['range']         = $sheet.'!A1:C100'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-            $arr = $func->access_google_sheet($params, true); //2nd param false means cache expires
+            $arr = $func->access_google_sheet($params, false); //2nd param false means cache expires
             $final[$sheet] = self::massage_google_sheet_results($arr);
         }
         // */
@@ -974,6 +974,11 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
     {
         if($val = self::pageID_has_manual_fix($page_id, $canonical)) return $val;
         else { //orig
+            /* during dev only. Investigating...
+            $page_id = 52520226;
+            $canonical = "Persoonia hirsuta hirsuta";
+            */
+
             $rets = @$this->taxonMap[$page_id];
             if($ret = $this->which_ret_to_use($rets, $canonical, $page_id)) { //exit("\ngoes here 2\n");
                 // /* new version. Previously $ret only not $rets.
@@ -1339,8 +1344,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     */
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
-                    // if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
-                    if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
+                    if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
+                    // if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
                 }
 
                 echo "\nrow: $real_row\n"; //exit;
@@ -1377,9 +1382,12 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 // if($i >= 3) break; //debug only
             }
         }
-        print_r($this->debug); print_r($this->debug2);
+        print_r($this->debug); //print_r($this->debug2);
         echo "\ncitation not mapped to WD: all = ".count(@$this->debug2['citation not mapped to WD: all'])."\n";
         echo "\ngrand_total_export_file: ".$this->grand_total_export_file."\n";
+
+        $this->start_print_debug($this->debug, 1);
+        $this->start_print_debug($this->debug2, 2);
     }
     private function copy_2_folders_to_rowNum_resourceID($paths, $rec, $real_row)
     {   /*Array(
