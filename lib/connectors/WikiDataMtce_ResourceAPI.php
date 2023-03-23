@@ -226,6 +226,7 @@ class WikiDataMtce_ResourceAPI
         }
         // /* ----- new block: also not to keep on calling ruby
         $citation = $rec['t.citation'];
+        $t_source = $rec['t.source'];
         if($citation_obj = @$this->cite_obj[$citation]) {}
         else {
             $citation_obj = $this->parse_citation_using_anystyle($citation, 'all', 4);
@@ -235,7 +236,7 @@ class WikiDataMtce_ResourceAPI
             // no need to return anything here.
             // print_r($ret); return $ret['wikidata_id'];
         }
-        else $this->debug2['citation not mapped to WD: all'][$rec['t.source']][$rec['t.citation']] = '';
+        else $this->debug2['citation not mapped to WD: all'][$t_source][$citation] = '';
         // */ -----
     }
     function which_ret_to_use($rets, $canonical, $page_id)
@@ -311,21 +312,36 @@ class WikiDataMtce_ResourceAPI
         // print_r($rets);
         // exit("\nDoes not go here.\n[$canonical]\n"); // cases like this exist
     }
+    function is_sciname_present_from_source($sciname)
+    {
+        if(isset($this->origsource_sciname_info)) {
+            if(isset($this->origsource_sciname_info[$sciname])) return true;
+            else return false; //write report to Katja
+        }
+        else {
+            self::generate_info_list('origsource_sciname_info'); //generates $this-origsource_sciname_info
+            self::is_sciname_present_from_source($sciname);
+        }
+    }
     function get_sciname_with_this_eolID($page_id)
     {
         if(isset($this->dh_eolID_sciname_info)) {
             if($sciname = @$this->dh_eolID_sciname_info[$page_id]) return $sciname;
+            else return false;
         }
         else {
-            self::loop_dh_get_eolID_sciname_info($page_id); //generates $this->dh_eolID_sciname_info
+            self::generate_info_list('dh_eolID_sciname_info'); //generates $this->dh_eolID_sciname_info
             self::get_sciname_with_this_eolID($page_id);
         }
     }
-    private function loop_dh_get_eolID_sciname_info($page_id)
+    private function generate_info_list($what)
     {
-        $dh_file = "/Volumes/Crucial_2TB/other_files2/dh21eolid/DH21taxaWeolIDs.txt";
+        if($what == 'dh_eolID_sciname_info')       $file = "/Volumes/Crucial_2TB/other_files2/dh21eolid/DH21taxaWeolIDs.txt";
+        elseif($what == 'origsource_sciname_info') $file = "/Volumes/Crucial_2TB/other_files2/Brazilian_Flora_with_canonical/taxon.tab";
+        else exit("\nUndefined file: [$file]\n");
+        echo "\nReading $file...\n";
         $i = 0;
-        foreach(new FileIterator($dh_file) as $line => $row) { $i++; 
+        foreach(new FileIterator($file) as $line => $row) { $i++;
             // $row = Functions::conv_to_utf8($row);
             if($i == 1) $fields = explode("\t", $row);
             else {
@@ -334,8 +350,8 @@ class WikiDataMtce_ResourceAPI
                 $rec = array(); $k = 0;
                 foreach($fields as $field) { $rec[$field] = $tmp[$k]; $k++; }
                 $rec = array_map('trim', $rec);
-                // print_r($rec); exit("\n$page_id\nstop munax1\n");
-                /*Array(
+                // print_r($rec); exit("\nstop muna\n");
+                /*Array( dh_eolID_sciname_info
                     [taxonID] => EOL-000000000001
                     [source] => trunk:4038af35-41da-469e-8806-40e60241bb58
                     [furtherInformationURL] => 
@@ -350,13 +366,38 @@ class WikiDataMtce_ResourceAPI
                     [Landmark] => 3
                     [higherClassification] => 
                 )*/
-                $this->dh_eolID_sciname_info[$rec['eolID']] = $rec['canonicalName'];
+                /*
+                Array( origsource_sciname_info
+                    [taxonID] => 12
+                    [furtherInformationURL] => http://reflora.jbrj.gov.br/reflora/listaBrasil/FichaPublicaTaxonUC/FichaPublicaTaxonUC.do?id=FB12
+                    [acceptedNameUsageID] => 
+                    [parentNameUsageID] => 120181
+                    [scientificName] => Agaricales
+                    [namePublishedIn] => 
+                    [kingdom] => Fungi
+                    [phylum] => Basidiomycota
+                    [class] => 
+                    [order] => Agaricales
+                    [family] => 
+                    [genus] => 
+                    [taxonRank] => order
+                    [scientificNameAuthorship] => 
+                    [taxonomicStatus] => accepted
+                    [modified] => 2018-08-10 11:58:06.954
+                    [canonicalName] => Agaricales
+                )*/
+                if($what == 'dh_eolID_sciname_info') {
+                    $this->dh_eolID_sciname_info[$rec['eolID']] = $rec['canonicalName'];
+                }
+                if($what == 'origsource_sciname_info') {
+                    $this->origsource_sciname_info[$rec['canonicalName']] = '';
+                }
             }
         }
     }
-    function start_print_debug($debug, $series)
+    function start_print_debug($debug, $series, $eol_resource_id)
     {
-        $file = CONTENT_RESOURCE_LOCAL_PATH . "debug_".$this->eol_resource_id."_".$series.".txt";
+        $file = CONTENT_RESOURCE_LOCAL_PATH . "debug_".$eol_resource_id."_".$series.".txt";
         $str = print_r($debug, true); //true makes print_r() output as string
         file_put_contents($file, $str);
     }
