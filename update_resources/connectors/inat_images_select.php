@@ -161,6 +161,8 @@ $source_dwca = 'inat_images_100limit';  //resource generated from inat_images.ph
 $resource_id = 'inat_images_3Mcap_2';   //new resource (update in DwCA_Utility.php)
 // */
 
+/*IMPORTANT: after generating from cmdline inat_images_3Mcap_2.tar.gz don't forget to chmod 775 it. */
+
 /* 3rd combo: did not materialize
 $source_dwca = 'inat_images';  //resource generated from inat_images.php (150 images per taxon) --- media_resource.tab : 10,836,311
 $resource_id = 'inat_images_3Mcap_3';   //new resource (update in DwCA_Utility.php)
