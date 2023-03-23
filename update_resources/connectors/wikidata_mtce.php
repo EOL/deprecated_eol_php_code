@@ -175,6 +175,15 @@ $func->divide_exportfile_send_2quickstatements($input); exit("\n-end divide_expo
 
 // Q16757851|P9566|Q101029366|S3452|Q90856597 /*Pseudohemihyalea edwardsii|diel cycle|nocturnal|inferred from|Phylogenomics reveals the... */
 
+/*
+require_library('connectors/DwCA_RunGNParser');
+$gnparser = new DwCA_RunGNParser(false, 'gnparser', false);
+$sciname = "[Scytonema hofmanni] UTEX B 1581";
+$sciname = str_replace(array("[", "]"), "", $sciname);
+$canonical = $gnparser->run_gnparser($sciname, 'simple');
+exit("\n[$canonical]\n[$sciname]\n");
+*/
+
 // /* run all resources - MAIN OPERATION
 // exit;
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";

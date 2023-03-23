@@ -130,6 +130,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $final[] = 't.source';
         $final[] = 't.citation';
         $final[] = 'ref.literal';
+        $final[] = 'Reason';
         $WRITE = Functions::file_open($this->discarded_rows, "w");
         fwrite($WRITE, implode("\t", $final)."\n");
         fclose($WRITE);
@@ -206,7 +207,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     $this->log_citations_mapped_2WD_all($rec);
 
                     if($this->eol_resource_id == 753) { //Flora do Brasil only for now.
-                        if($this->is_sciname_present_from_source(strip_tags($rec['p.canonical']))) {}
+                        $sn = trim(strip_tags($rec['p.canonical']));
+                        if($this->is_sciname_present_from_source($sn)) {}
                         else {
                             //discarded rows
                             $WRITE = Functions::file_open($this->discarded_rows, "a");
@@ -1310,6 +1312,10 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     else                $this->with_DISTINCT_YN = true; //the rest goes here
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
+
+                    if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
+                    // if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
+
                     $this->with_DISTINCT_YN = false;
                     /*Array(
                         [r.resource_id] => 753
@@ -1317,6 +1323,17 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                         [trait.citation] => 
                     )*/
                     $this->eol_resource_id = $rec['r.resource_id']; // e.g. 753 822
+
+                    // /* ----- initialize
+                    if($this->eol_resource_id == 753) {
+                        require_library('connectors/DwCA_RunGNParser');
+                        $this->gnparser = new DwCA_RunGNParser(false, 'gnparser', false);
+                        /*---------------------*/
+                        $this->is_sciname_present_from_source('Gadus morhua');
+                    }
+                    self::get_sciname_with_this_eolID(173); //for improved taxon matching - per Katja
+                    // */ -----
+
                 }
 
                 //---------------------------------------------------------------
@@ -1354,8 +1371,10 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     */
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
+                    /* moved above
                     if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
                     // if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
+                    */
                 }
 
                 echo "\nrow: $real_row\n"; //exit;
