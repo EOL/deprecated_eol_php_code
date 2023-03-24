@@ -37,7 +37,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $doi = str_ireplace("https://doi.org/", "", $doi);
         $doi = str_ireplace("http://doi.org/", "", $doi);
         $options = $this->download_options;
-        $options['expire_seconds'] = 60*60*24; //false; //never expires. But set this to 24 hrs if you've created a new WD item for a DOI.
+        $options['expire_seconds'] = false; //60*60*24; //false; //never expires. But set this to 24 hrs if you've created a new WD item for a DOI.
         $url = str_replace("MY_DOI", urlencode($doi), $this->sourcemd_api['search DOI']);
         if($html = Functions::lookup_with_cache($url, $options)) {
             /*
@@ -1313,8 +1313,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
 
-                    if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
-                    // if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
+                    // if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
+                    if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
 
                     $this->with_DISTINCT_YN = false;
                     /*Array(
