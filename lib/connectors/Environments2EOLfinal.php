@@ -5,7 +5,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
 {
     function __construct($archive_builder, $resource_id, $params = array())
     {
-        exit("\nObsolete: Vangelis tagger 2.\n");
+        // exit("\nObsolete: Vangelis tagger 2.\n");
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
         $this->params = $params; //print_r($params); exit("\nelix\n");
