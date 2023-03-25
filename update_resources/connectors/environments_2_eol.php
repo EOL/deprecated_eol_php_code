@@ -149,10 +149,19 @@ wikipedia_en_traits_tmp1	Fri 2022-11-18 11:15:25 PM	{"MoF.tab":217553, "occurren
 wikipedia_en_traits_tmp2	Fri 2022-11-18 11:18:17 PM	{"MoF.tab":217553, "occurrence.tab":217553, "taxon.tab":164469, "time_elapsed":false}
 wikipedia_en_traits_tmp3	Fri 2022-11-18 11:21:08 PM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":161956, "time_elapsed":{"sec":170.3, "min":2.84, "hr":0.05}}
 
+80	Tue 2022-12-06 06:30:04 PM	{"media_resource.tab":847228, "taxon.tab":442775, "time_elapsed":{"sec":977.44, "min":16.29, "hr":0.27}}
+80	Sat 2023-02-25 04:30:38 PM	{"media_resource.tab":847222, "taxon.tab":442796, "time_elapsed":{"sec":1001.36, "min":16.69, "hr":0.28}}
+80	Mon 2023-03-20 09:38:23 AM	{"media_resource.tab":859348, "taxon.tab":448895, "time_elapsed":{"sec":955.29, "min":15.92, "hr":0.27}}
+
+617_ENV	Wed 2022-10-26 04:22:35 PM	{"measurement_or_fact_specific.tab":234990, "occurrence_specific.tab":234990, "taxon.tab":442781, "time_elapsed":{"sec":31811.18, "min":530.19, "hr":8.84}}
+617_ENV	Fri 2022-11-18 10:58:36 PM	{"measurement_or_fact_specific.tab":218225, "occurrence_specific.tab":218225, "taxon.tab":442781, "time_elapsed":{"sec":2900.23, "min":48.34, "hr":0.81}}
+617_ENV	Sat 2023-03-25 04:38:50 AM	{"measurement_or_fact_specific.tab":224703, "occurrence_specific.tab":224703, "taxon.tab":448895, "time_elapsed":{"sec":7369.04, "min":122.82, "hr":2.05}}
+
 wikipedia_en_traits_tmp4	Fri 2022-11-18 11:24:48 PM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162220, "time_elapsed":{"sec":217.87, "min":3.63, "hr":0.06}}
 wikipedia_en_traits_tmp4	Fri 2022-11-18 11:27:53 PM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162221, "time_elapsed":{"sec":402.94, "min":6.72, "hr":0.11}}
 wikipedia_en_traits_tmp4	Mon 2023-03-13 04:05:46 AM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162222, "time_elapsed":{"sec":458.19, "min":7.64, "hr":0.13}}
-currently running...as of Mar 14, 2023.
+wikipedia_en_traits_tmp4	Fri 2023-03-24 10:37:23 AM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162222, "time_elapsed":{"sec":417.4, "min":6.96, "hr":0.12}}
+
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
