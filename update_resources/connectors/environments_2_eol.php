@@ -149,6 +149,7 @@ wikipedia_en_traits_tmp1	Fri 2022-11-18 11:15:25 PM	{"MoF.tab":217553, "occurren
 wikipedia_en_traits_tmp2	Fri 2022-11-18 11:18:17 PM	{"MoF.tab":217553, "occurrence.tab":217553, "taxon.tab":164469, "time_elapsed":false}
 wikipedia_en_traits_tmp3	Fri 2022-11-18 11:21:08 PM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":161956, "time_elapsed":{"sec":170.3, "min":2.84, "hr":0.05}}
 
+These 3 should increment steadily: 80, 617_ENV, wikipedia_en_traits_tmp4
 80	Tue 2022-12-06 06:30:04 PM	{"media_resource.tab":847228, "taxon.tab":442775, "time_elapsed":{"sec":977.44, "min":16.29, "hr":0.27}}
 80	Sat 2023-02-25 04:30:38 PM	{"media_resource.tab":847222, "taxon.tab":442796, "time_elapsed":{"sec":1001.36, "min":16.69, "hr":0.28}}
 80	Mon 2023-03-20 09:38:23 AM	{"media_resource.tab":859348, "taxon.tab":448895, "time_elapsed":{"sec":955.29, "min":15.92, "hr":0.27}}
@@ -161,6 +162,7 @@ wikipedia_en_traits_tmp4	Fri 2022-11-18 11:24:48 PM	{"MoF.tab":205191, "occurren
 wikipedia_en_traits_tmp4	Fri 2022-11-18 11:27:53 PM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162221, "time_elapsed":{"sec":402.94, "min":6.72, "hr":0.11}}
 wikipedia_en_traits_tmp4	Mon 2023-03-13 04:05:46 AM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162222, "time_elapsed":{"sec":458.19, "min":7.64, "hr":0.13}}
 wikipedia_en_traits_tmp4	Fri 2023-03-24 10:37:23 AM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162222, "time_elapsed":{"sec":417.4, "min":6.96, "hr":0.12}}
+wikipedia_en_traits_tmp4	Sat 2023-03-25 10:53:43 AM	{"MoF.tab":211080, "occurrence.tab":211080, "taxon.tab":165864, "time_elapsed":{"sec":231.71, "min":3.86, "hr":0.06}}
 
 
 ---------------Jenkins entry in eol-archive
