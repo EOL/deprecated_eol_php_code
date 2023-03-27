@@ -1173,7 +1173,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
             echo "\n".$row;
             fwrite($WRITE, $row."\n");
-            if(($i % 25) == 0) { $batch_num++; // % 3
+            if(($i % 5) == 0) { $batch_num++; // % 3 25 5
                 echo "\n-----";
                 fclose($WRITE);
                 self::run_quickstatements_api($batch_name, $batch_num);
@@ -1313,8 +1313,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
 
-                    // if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
-                    if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
+                    if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
+                    // if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
 
                     $this->with_DISTINCT_YN = false;
                     /*Array(

@@ -67,7 +67,7 @@ class WikiDataMtce_ResourceAPI
         $input["trait kind"] = "trait";
         if(file_exists($file1)) {
             if($task == 'generate trait reports') $this->create_WD_traits($input);
-            elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
+            elseif($task == 'create WD traits') $this->divide_exportfile_send_2quickstatements($input);
         }
         else echo "\n[$file1]\nNo query results yet: ".$input['trait kind']."\n";
         // */
@@ -76,7 +76,7 @@ class WikiDataMtce_ResourceAPI
         $input["trait kind"] = "inferred_trait";
         if(file_exists($file2)) {
             if($task == 'generate trait reports') $this->create_WD_traits($input);
-            elseif($task == 'create WD traits') self::divide_exportfile_send_2quickstatements($input);
+            elseif($task == 'create WD traits') $this->divide_exportfile_send_2quickstatements($input);
             elseif($task == 'remove WD traits') self::divide_exportfile_send_2quickstatements($input, true); //2nd param remove_traits_YN
         }
         else echo "\n[$file2]\nNo query results yet: ".$input['trait kind']."\n";
