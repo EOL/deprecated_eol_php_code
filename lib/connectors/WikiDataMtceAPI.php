@@ -1331,9 +1331,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                         /*---------------------*/
                         $this->is_sciname_present_from_source('Gadus morhua');
                     }
-                    self::get_sciname_with_this_eolID(173); //for improved taxon matching - per Katja
+                    $not_used = self::get_sciname_with_this_eolID(173); //for improved taxon matching - per Katja. Triggered early.
                     // */ -----
-
                 }
 
                 //---------------------------------------------------------------
