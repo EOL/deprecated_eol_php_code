@@ -24,8 +24,8 @@ measurements                            173768      175317  176490  176490
 42	Thursday 2018-03-08 08:05:55 PM	{"agent.tab":146,"measurement_or_fact.tab":177254,"media_resource.tab":135702,"occurrence.tab":158463,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":248126}
 42	Wednesday 2018-06-13 04:15:40 PM{"agent.tab":146,"measurement_or_fact.tab":177254,         "media_resource.tab":135702,         "occurrence.tab":158463,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":248126}
 Start: expected increase in trait (addt'l mappings from Jen) and expected decrease in vernaculars (per https://eol-jira.bibalex.org/browse/DATA-1639?focusedCommentId=63465&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63465)
-42	Thursday 2019-05-30 10:15:14 AM	{"agent.tab":146,"measurement_or_fact_specific.tab":177712,"media_resource.tab":135702,"occurrence_specific.tab":161031,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":157469} consistent OK
-42	Monday 2019-11-25 08:54:51 AM	{"agent.tab":146,"measurement_or_fact_specific.tab":177712,"media_resource.tab":135702,"occurrence_specific.tab":161031,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":157469,"time_elapsed":false} consistent OK
+42	Thursday 2019-05-30 10:15:14 AM	{"agent.tab":146,"MoF.tab":177712,"media.tab":135702,"occurrence_specific.tab":161031,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":157469} consistent OK
+42	Monday 2019-11-25 08:54:51 AM	{"agent.tab":146,"MoF.tab":177712,"media.tab":135702,"occurrence_specific.tab":161031,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":157469,"time_elapsed":false} consistent OK
 started abbreviating to see all:
 42	Monday 2020-01-27 10:18:01 AM	{"agent.tab":146, "MoF.tab":177712, "media.tab":135702, "occur.tab":161031, "reference.tab":32237, "taxon.tab":95593, "vernacular_name.tab":157469, "time_elapsed":{"sec":7116.05,"min":118.6,"hr":1.98}}
 stable run:
@@ -38,6 +38,10 @@ back contributors as column in MoF
 42_meta_recoded	Mon 2021-05-31 08:33{"agent.tab":152, "MoF.tab":167652, "media.tab":104849, "occur.tab":153496, "reference.tab":34786, "taxon.tab":97029, "vernacular_name.tab":183680, "time_elapsed":{"sec":283.66, "min":4.73, "hr":0.08}}
 42	Wed 2021-06-09 02:39:00 AM	    {"agent.tab":152, "MoF.tab":167652, "media.tab":104849, "occur.tab":153496, "reference.tab":34786, "taxon.tab":97029, "vernacular_name.tab":183680, "time_elapsed":{"sec":606.58, "min":10.11, "hr":0.17}}
 42_meta_recoded	Wed 2021-06-09 02:43{"agent.tab":152, "MoF.tab":167652, "media.tab":104849, "occur.tab":153496, "reference.tab":34786, "taxon.tab":97029, "vernacular_name.tab":183680, "time_elapsed":{"sec":293.5, "min":4.89, "hr":0.08}}
+42_meta_recoded	Mon 2022-06-13 02:44{"agent.tab":152, "MoF.tab":167652, "media.tab":104849, "occur.tab":153496, "reference.tab":34786, "taxon.tab":97029, "vernacular_name.tab":183680, "time_elapsed":{"sec":305.35, "min":5.09, "hr":0.08}}
+42_meta_recoded	Tue 2022-09-13 04:44{"agent.tab":157, "MoF.tab":170269, "media.tab":105796, "occur.tab":155929, "reference.tab":35694, "taxon.tab":98182, "vernacular_name.tab":186773, "time_elapsed":{"sec":313.35, "min":5.22, "hr":0.09}}
+42_meta_recoded	Tue 2022-12-13 04:44{"agent.tab":157, "MoF.tab":170269, "media.tab":105796, "occur.tab":155929, "reference.tab":35695, "taxon.tab":98182, "vernacular_name.tab":186773, "time_elapsed":{"sec":316.35, "min":5.27, "hr":0.09}}
+42_meta_recoded	Mon 2023-03-13 04:48{"agent.tab":157, "MoF.tab":170269, "media.tab":105796, "occur.tab":155929, "reference.tab":35695, "taxon.tab":98182, "vernacular_name.tab":186773, "time_elapsed":{"sec":322.75, "min":5.38, "hr":0.09}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
