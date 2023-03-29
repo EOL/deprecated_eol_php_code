@@ -1080,8 +1080,14 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     13804488, 12038066, 13804490, 13804491, 13804492, 36175, 25452243, 22106526 */
                     ))) $this->download_options['expire_seconds'] = true;
                 
-                // /* to use a file instead: FloraDoBrasil_fixedOnWikiData.txt
+
+                //                                                                                                  ***fixedOnWikiData***
+                /* to use a file instead: FloraDoBrasil_fixedOnWikiData.txt - DONE PROCESSED ALREADY
                 $fixedOnWikiData_arr = self::get_all_ids_from_Katja_corrections('fixedOnWikiData', 'FloraDoBrasil');
+                if(in_array($page_id, $fixedOnWikiData_arr)) $this->download_options['expire_seconds'] = true;
+                */
+                // /*
+                $fixedOnWikiData_arr = self::get_all_ids_from_Katja_corrections('fixedOnWikiData', 'Kubitzkietal');
                 if(in_array($page_id, $fixedOnWikiData_arr)) $this->download_options['expire_seconds'] = true;
                 // */
 
@@ -1173,7 +1179,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
             echo "\n".$row;
             fwrite($WRITE, $row."\n");
-            if(($i % 5) == 0) { $batch_num++; // % 3 25 5
+            if(($i % 10) == 0) { $batch_num++; // % 3 25 5
                 echo "\n-----";
                 fclose($WRITE);
                 self::run_quickstatements_api($batch_name, $batch_num);
@@ -1306,11 +1312,11 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 $real_row = $i - 1;
                 $this->real_row = $real_row;
                 $this->unique_row = array();
+                $this->eol_resource_id = @$rec['r.resource_id']; // e.g. 1051 1053 753 822
 
                 if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
                     if($real_row == 31) $this->with_DISTINCT_YN = false;
                     else                $this->with_DISTINCT_YN = true; //the rest goes here
-                    $this->eol_resource_id = @$rec['r.resource_id'];
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
 
@@ -1323,7 +1329,6 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                         [trait.source] => 
                         [trait.citation] => 
                     )*/
-                    $this->eol_resource_id = $rec['r.resource_id']; // e.g. 753 822
 
                     // /* ----- initialize
                     if($this->eol_resource_id == 753) {
@@ -1394,8 +1399,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                      $this->removed_from_row_31 = array_merge($arr1, $arr2);
                      unset($arr1); unset($arr2);
                     */
-                    // /* new implementation: from Katja
-                    if($this->eol_resource_id == 753) $this->removed_from_row_31 = self::get_all_ids_from_Katja_corrections('remove', 'FloraDoBrasil');
+                    // /* new implementation: from Katja                            ***remove***
+                        if($this->eol_resource_id == 753) $this->removed_from_row_31 = self::get_all_ids_from_Katja_corrections('remove', 'FloraDoBrasil');
                     elseif($this->eol_resource_id == 822) $this->removed_from_row_31 = self::get_all_ids_from_Katja_corrections('remove', 'Kubitzkietal');
                     else {
                         if(isset($this->removed_from_row_31)) unset($this->removed_from_row_31);
@@ -1744,22 +1749,30 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
     {
         require_library('connectors/TSVReaderAPI');
         $func = new TSVReaderAPI();
-        $path = "/Users/eliagbayani/Desktop/COLLAB-1006/z_from_Katja/";
+        $path = "/Users/eliagbayani/Desktop/COLLAB-1006/z_from_Katja/"; //          ***remove***        ***IDcorrections***     ***fixedOnWikiData***
 
         if($series == '31_1053') { //orig value 1
-            if($which == 'remove')              $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_remove.txt";            //needed for all resources
+            if($which == 'remove')              $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_remove.txt";            
             elseif($which == 'IDcorrections')   $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_IDcorrections.txt";     //implemented already - pasted
             elseif($which == 'fixedOnWikiData') $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_fixedOnWikiData.txt";   //implemented already - pasted
             else exit("\nUndefined report.\n");
             $tsv_file = "3_1051Review/".$tsv_file;
         }
         elseif($series == 'FloraDoBrasil') { //orig value 2
-            if($which == 'remove')              $tsv_file = "FloraDoBrasil_remove.txt";             //needed for all resources
+            if($which == 'remove')              $tsv_file = "FloraDoBrasil_remove.txt";             
             elseif($which == 'IDcorrections')   $tsv_file = "FloraDoBrasil_corrections.txt";        //implemented already - pasted
             elseif($which == 'fixedOnWikiData') $tsv_file = "FloraDoBrasil_fixedOnWikiData.txt";    //implemented already - pasted
             else exit("\nUndefined report.\n");
-            $tsv_file = "FloraDoBrasilTaxonomyReview/".$tsv_file;
+            $tsv_file = "FloraDoBrasilCorrections/".$tsv_file;
         }
+        elseif($series == 'Kubitzkietal') { //
+            if($which == 'remove')              $tsv_file = "KubitzkiRemove.txt";             
+            elseif($which == 'IDcorrections')   $tsv_file = "KubitzkiFixMappings.txt";        //implemented already - pasted
+            elseif($which == 'fixedOnWikiData') $tsv_file = "KubitzkiFixedOnWikiData.txt";    //implemented already - pasted
+            else exit("\nUndefined report.\n");
+            $tsv_file = "KubitzkiCorrections/".$tsv_file;
+        }
+        else exit("\nUndefined series [$series].\n");
 
         $tsv_file = $path.$tsv_file;
 
@@ -2270,8 +2283,11 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         // else return false; //commented now since there are items below it
         // */
 
-        // /* FloraDoBrasil_corrections.txt
-        $pairs = self::get_all_ids_from_Katja_corrections('IDcorrections', 'FloraDoBrasil'); // ID corrections should only for specific resource
+        // /* e.g. FloraDoBrasil_corrections.txt                                    ***IDcorrections***
+            if($this->eol_resource_id == 753) $series = 'FloraDoBrasil';
+        elseif($this->eol_resource_id == 822) $series = 'Kubitzkietal';
+        else exit("\nUndefined eol_resource_id: [$this->eol_resource_id]\n");
+        $pairs = self::get_all_ids_from_Katja_corrections('IDcorrections', $series); // ID corrections should only for specific resource
         foreach($pairs as $pair) {
             $sought_pageID = $pair[0];
             $newID = $pair[1];
