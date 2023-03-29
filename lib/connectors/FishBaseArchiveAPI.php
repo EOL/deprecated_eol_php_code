@@ -167,7 +167,7 @@ class FishBaseArchiveAPI extends ContributorsMapAPI
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
         $download_options = $this->download_options;
-        $download_options['expire_seconds'] = 60*60*24*45; // expire_seconds = every 45 days in normal operation
+        $download_options['expire_seconds'] = 60*60*24*1; // expire_seconds = every 30 days in normal operation
         if($file_contents = Functions::lookup_with_cache($this->fishbase_data, $download_options)) {
             $temp_file_path = $this->TEMP_FILE_PATH . "/fishbase.zip";
             if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
