@@ -187,7 +187,7 @@ exit("\n[$canonical]\n[$sciname]\n");
 // /* run all resources - MAIN OPERATION
 // exit;
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
-$spreadsheet = "resources_list.csv"; //run per resource
+$spreadsheet = "resources_list.csv"; //run per resource --- e.g. "Flora do Brasil" "Kubitzki et al"
 // $func->run_all_resources($spreadsheet, 'generate trait reports'); //generate trait reports
 $func->run_all_resources($spreadsheet, 'create WD traits'); //read export file and send to QuickStatements
 // $func->run_all_resources($spreadsheet, 'remove WD traits'); //read export file and send to QuickStatements - only for those traits in WD already.
