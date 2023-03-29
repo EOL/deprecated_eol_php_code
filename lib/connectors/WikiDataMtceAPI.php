@@ -1081,7 +1081,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     ))) $this->download_options['expire_seconds'] = true;
                 
                 // /* to use a file instead: FloraDoBrasil_fixedOnWikiData.txt
-                $fixedOnWikiData_arr = self::get_all_ids_from_Katja_row31('fixedOnWikiData', 'FloraDoBrasil');
+                $fixedOnWikiData_arr = self::get_all_ids_from_Katja_corrections('fixedOnWikiData', 'FloraDoBrasil');
                 if(in_array($page_id, $fixedOnWikiData_arr)) $this->download_options['expire_seconds'] = true;
                 // */
 
@@ -1381,17 +1381,26 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
                 if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
                     // /* new block
-                    if($real_row == 31) $this->removed_from_row_31 = self::get_all_ids_from_Katja_row31('remove', '31_1053');
+                    if($real_row == 31) $this->removed_from_row_31 = self::get_all_ids_from_Katja_corrections('remove', '31_1053');
                     else {
                         if(isset($this->removed_from_row_31)) unset($this->removed_from_row_31);
                     }
                     // */
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
-                     $arr1 = self::get_all_ids_from_Katja_row31('remove', '31_1053'); // remove routine should be for ALL resources - By Eli.
-                     $arr2 = self::get_all_ids_from_Katja_row31('remove', 'FloraDoBrasil'); // remove routine should be for ALL resources - By Eli.
+                    /* old implementation: from Katja
+                     $arr1 = self::get_all_ids_from_Katja_corrections('remove', '31_1053'); // remove routine should be for ALL resources - By Eli.
+                     $arr2 = self::get_all_ids_from_Katja_corrections('remove', 'FloraDoBrasil'); // remove routine should be for ALL resources - By Eli.
                      $this->removed_from_row_31 = array_merge($arr1, $arr2);
                      unset($arr1); unset($arr2);
+                    */
+                    // /* new implementation: from Katja
+                    if($this->eol_resource_id == 753) $this->removed_from_row_31 = self::get_all_ids_from_Katja_corrections('remove', 'FloraDoBrasil');
+                    elseif($this->eol_resource_id == 822) $this->removed_from_row_31 = self::get_all_ids_from_Katja_corrections('remove', 'Kubitzkietal');
+                    else {
+                        if(isset($this->removed_from_row_31)) unset($this->removed_from_row_31);
+                    }
+                    // */
                 }
                 // print_r($rec); exit("\ntask: [$task]\n");
 
@@ -1731,7 +1740,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         }
         else return "-".substr($row, 0, $pos);
     }
-    function get_all_ids_from_Katja_row31($which, $series)
+    function get_all_ids_from_Katja_corrections($which, $series)
     {
         require_library('connectors/TSVReaderAPI');
         $func = new TSVReaderAPI();
@@ -1741,14 +1750,14 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             if($which == 'remove')              $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_remove.txt";            //needed for all resources
             elseif($which == 'IDcorrections')   $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_IDcorrections.txt";     //implemented already - pasted
             elseif($which == 'fixedOnWikiData') $tsv_file = "3_1051_doi.org_10.1073_pnas.1907847116_fixedOnWikiData.txt";   //implemented already - pasted
-            else exit("\nUndefined report.\n");    
+            else exit("\nUndefined report.\n");
             $tsv_file = "3_1051Review/".$tsv_file;
         }
-        if($series == 'FloraDoBrasil') { //orig value 2
+        elseif($series == 'FloraDoBrasil') { //orig value 2
             if($which == 'remove')              $tsv_file = "FloraDoBrasil_remove.txt";             //needed for all resources
             elseif($which == 'IDcorrections')   $tsv_file = "FloraDoBrasil_corrections.txt";        //implemented already - pasted
             elseif($which == 'fixedOnWikiData') $tsv_file = "FloraDoBrasil_fixedOnWikiData.txt";    //implemented already - pasted
-            else exit("\nUndefined report.\n");    
+            else exit("\nUndefined report.\n");
             $tsv_file = "FloraDoBrasilTaxonomyReview/".$tsv_file;
         }
 
@@ -2262,7 +2271,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         // */
 
         // /* FloraDoBrasil_corrections.txt
-        $pairs = self::get_all_ids_from_Katja_row31('IDcorrections', 'FloraDoBrasil'); // ID corrections should only for specific resource
+        $pairs = self::get_all_ids_from_Katja_corrections('IDcorrections', 'FloraDoBrasil'); // ID corrections should only for specific resource
         foreach($pairs as $pair) {
             $sought_pageID = $pair[0];
             $newID = $pair[1];
