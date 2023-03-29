@@ -1173,7 +1173,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 
             echo "\n".$row;
             fwrite($WRITE, $row."\n");
-            if(($i % 5) == 0) { $batch_num++; // % 3 25 5
+            if(($i % 20) == 0) { $batch_num++; // % 3 25 5
                 echo "\n-----";
                 fclose($WRITE);
                 self::run_quickstatements_api($batch_name, $batch_num);
@@ -1203,7 +1203,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
     }
     private function run_quickstatements_api($batch_name, $batch_num)
     {
-        $batchname = "$batch_name $batch_num"; //orig
+        $batchname = "$this->eol_resource_id $batch_name $batch_num"; //orig
         // $batchname = "$batch_name $batch_num rem"; //manually for removal
         $cmd = "curl https://quickstatements.toolforge.org/api.php";
         $cmd .= " -d action=import ";
@@ -1310,6 +1310,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
                     if($real_row == 31) $this->with_DISTINCT_YN = false;
                     else                $this->with_DISTINCT_YN = true; //the rest goes here
+                    $this->eol_resource_id = @$rec['r.resource_id'];
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
 
