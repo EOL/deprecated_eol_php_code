@@ -403,6 +403,38 @@ class WikiDataMtce_ResourceAPI
         $str = print_r($debug, true); //true makes print_r() output as string
         file_put_contents($file, $str);
     }
+    function qs_export_file_adjustments() // a utility
+    {   /* this does a delete+add: in effect it replaces the property P183 to P9714
+        Given: 
+            Q91249289|P183|Q43233|S248|Q117034902
+        Generates:
+            -Q91249289|P183|Q43233
+            Q91249289|P9714|Q43233|S248|Q117034902  */
+        
+        $source_qs_file      = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/Flora_753/export_file_adjusted.qs"; //any export_file.qs
+        $destination_qs_file = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/Flora_753/export_file_final.qs";
+        $WRITE = Functions::file_open($destination_qs_file, "w");
+
+        $i = 0; $hits = 0;
+        foreach(new FileIterator($source_qs_file) as $line => $row) { $i++;
+            /*
+            9077. Q17043207|P183|Q41587|S248|Q117034902 --- x 2628
+            9078. Q91249271|P183|Q41587|S248|Q117034902 --- x 2629
+            9080. Q91249289|P183|Q43233|S248|Q117034902 --- x 2630
+            */
+            if(stripos($row, "|P183|") !== false) { $hits++; //string is found
+                echo "\n$i. ".$row; echo " --- x $hits";
+                $remove = $this->remove_reference_part($row);
+                fwrite($WRITE, $remove."\n");
+                $new = str_ireplace("|P183|", "|P9714|", $row);
+                fwrite($WRITE, $new."\n");
+            }
+        }
+        fclose($WRITE);
+        echo "\nhits: $hits\n";
+        $out = shell_exec("wc -l ".$destination_qs_file);
+        echo "\n$out\n";
+    }
     /* copied template
     function xxx()
     {

@@ -184,14 +184,14 @@ $canonical = $gnparser->run_gnparser($sciname, 'simple');
 exit("\n[$canonical]\n[$sciname]\n");
 */
 
-// /* run all resources - MAIN OPERATION
+/* run all resources - MAIN OPERATION
 // exit;
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $spreadsheet = "resources_list.csv"; //run per resource --- e.g. "Flora do Brasil" "Kubitzki et al"
 // $func->run_all_resources($spreadsheet, 'generate trait reports'); //generate trait reports
 $func->run_all_resources($spreadsheet, 'create WD traits'); //read export file and send to QuickStatements
 // $func->run_all_resources($spreadsheet, 'remove WD traits'); //read export file and send to QuickStatements - only for those traits in WD already.
-// */
+*/
 
 /* works OK
 $taxon = "Jimenezia";
@@ -301,6 +301,12 @@ echo "\npairs: ".count($pairs)."\n";
 print_r($pairs);
 */
 
+// /* utility
+// require_library('connectors/WikiDataMtce_ResourceAPI');
+// require_library('connectors/WikiDataMtceAPI');
+$func = new WikiDataMtceAPI();
+$func->qs_export_file_adjustments();
+// */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

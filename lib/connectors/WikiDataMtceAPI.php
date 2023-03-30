@@ -1736,7 +1736,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         if(in_array($rank, array("species", "subspecies", "infraspecies"))) return false;
         return true; //the rest is true
     }
-    private function remove_reference_part($row)
+    function remove_reference_part($row)
     {
         $pos = strpos($row, "|S");
         if(!$pos) {
