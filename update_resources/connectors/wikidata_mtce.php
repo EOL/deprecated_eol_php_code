@@ -301,11 +301,11 @@ echo "\npairs: ".count($pairs)."\n";
 print_r($pairs);
 */
 
-// /* utility
+/* utility --- working OK
 $func = new WikiDataMtceAPI();
-// $func->qs_export_file_adjustments();
-$func->run_any_qs_export_file();
-// */
+// $func->qs_export_file_adjustments(); //works OK --- runs independently
+// $func->run_any_qs_export_file(); //works OK --- runs independently
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
