@@ -302,10 +302,9 @@ print_r($pairs);
 */
 
 // /* utility
-// require_library('connectors/WikiDataMtce_ResourceAPI');
-// require_library('connectors/WikiDataMtceAPI');
 $func = new WikiDataMtceAPI();
-$func->qs_export_file_adjustments();
+// $func->qs_export_file_adjustments();
+$func->run_any_qs_export_file();
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;

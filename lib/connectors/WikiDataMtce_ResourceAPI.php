@@ -435,6 +435,57 @@ class WikiDataMtce_ResourceAPI
         $out = shell_exec("wc -l ".$destination_qs_file);
         echo "\n$out\n";
     }
+
+    function run_any_qs_export_file()
+    {
+        $input['report for'] = "Flora_ADJ"; //Flora 753 adjustments
+        $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/Flora_753/export_file_final.qs";
+        $this->eol_resource_id = $input['report for'];
+
+        // /* this block is similar to: function generate_report_path($input)
+        $path1 = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/"; //generated from CypherQueryAPI.php
+        if(!is_dir($path1)) mkdir($path1);
+        $tmp = $input['report for'];
+        $path1 .= "$tmp/";
+        if(!is_dir($path1)) mkdir($path1);
+        // */
+        
+        $this->tmp_batch_export = $path1 . "/temp_export.qs";
+
+        /* set the paths
+        $this->report_path = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/"; //generated from CypherQueryAPI.php
+        $tmp = md5(json_encode($input));
+        $this->report_path .= "$tmp/";
+        */
+        $this->report_path = $path1;
+
+        $i = 0;
+        $batch_name = date("Y_m_d");
+        $batch_num = 0;
+        $WRITE = Functions::file_open($this->tmp_batch_export, "w");
+        foreach(new FileIterator($input['export file']) as $line => $row) {
+            if($row) $i++;
+            
+            /* use this block to exclude already run: manually done
+            if($i < 8) continue;
+            */
+
+            echo "\n".$row;
+            fwrite($WRITE, $row."\n");
+            if(($i % 10) == 0) { $batch_num++; // % 3 25 5
+                echo "\n-----";
+                fclose($WRITE);
+                $this->run_quickstatements_api($batch_name, $batch_num);
+                $secs = 60*1; echo "\nSleep $secs seconds..."; sleep($secs); echo " Continue...\n";
+                $WRITE = Functions::file_open($this->tmp_batch_export, "w"); //initialize again
+                // break; //just the first 3 rows //debug only
+            }
+        }
+        fclose($WRITE);
+        $batch_num++;
+        $this->run_quickstatements_api($batch_name, $batch_num);
+    }
+
     /* copied template
     function xxx()
     {

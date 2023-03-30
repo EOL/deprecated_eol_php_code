@@ -1195,6 +1195,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             }
         }
         fclose($WRITE);
+        $batch_num++;
         self::run_quickstatements_api($batch_name, $batch_num);
         /*
         QUICKSTATEMENTS_EOLTRAITS_TOKEN
@@ -1207,7 +1208,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         --data-urlencode data@citation_export_file.qs
         */
     }
-    private function run_quickstatements_api($batch_name, $batch_num)
+    function run_quickstatements_api($batch_name, $batch_num)
     {
         $batchname = "$this->eol_resource_id $batch_name $batch_num"; //orig
         // $batchname = "$batch_name $batch_num rem"; //manually for removal
