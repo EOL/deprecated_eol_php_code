@@ -46,18 +46,16 @@ class WikiDataMtce_ResourceAPI
         $input["per_page"] = $this->per_page_2; //1000
         
         $input["trait kind"] = "trait";
-
         // $json = json_encode($input);
         // print_r($input); exit("\n[$json]\nstop muna2\n");
-
         $path1 = $this->generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path1]\n";
         $file1 = $path1.$input['trait kind']."_qry.tsv";
-        $this->tmp_batch_export = $path1 . "/temp_export.qs";
+        $tmp_batch_export1 = $path1 . "/temp_export.qs";
 
         $input["trait kind"] = "inferred_trait";
         $path2 = $this->generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path2]\n";
         $file2 = $path2.$input['trait kind']."_qry.tsv";
-        $this->tmp_batch_export = $path2 . "/temp_export.qs";
+        $tmp_batch_export2 = $path2 . "/temp_export.qs";
 
         print_r($input);
         // exit("\n$file1\n$file2\nxxx\n");
@@ -65,6 +63,7 @@ class WikiDataMtce_ResourceAPI
         // /* UN-COMMENT IN REAL OPERATION
         $this->unique_pred_obj = array();
         $input["trait kind"] = "trait";
+        $this->tmp_batch_export = $tmp_batch_export1;
         if(file_exists($file1)) {
             if($task == 'generate trait reports') $this->create_WD_traits($input);
             elseif($task == 'create WD traits') $this->divide_exportfile_send_2quickstatements($input);
@@ -74,6 +73,7 @@ class WikiDataMtce_ResourceAPI
         // /* UN-COMMENT IN REAL OPERATION
         $this->unique_pred_obj = array();
         $input["trait kind"] = "inferred_trait";
+        $this->tmp_batch_export = $tmp_batch_export2;
         if(file_exists($file2)) {
             if($task == 'generate trait reports') $this->create_WD_traits($input);
             elseif($task == 'create WD traits') $this->divide_exportfile_send_2quickstatements($input);
