@@ -1321,8 +1321,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
 
-                    if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
-                    // if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
+                    // if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
+                    if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
 
                     $this->with_DISTINCT_YN = false;
                     /*Array(
@@ -1428,7 +1428,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         }
         // print_r($this->debug); //print_r($this->debug2);
         echo "\ncitation not mapped to WD: all = ".count(@$this->debug2['citation not mapped to WD: all'])."\n";
-        echo "\ngrand_total_export_file: ".$this->grand_total_export_file."\n";
+        echo "\ngrand_total_export_file: ".@$this->grand_total_export_file."\n";
 
         if(isset($this->debug)) $this->start_print_debug($this->debug, 1, $this->eol_resource_id);
         if(isset($this->debug2)) $this->start_print_debug($this->debug2, 2, $this->eol_resource_id);
