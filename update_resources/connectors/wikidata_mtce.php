@@ -184,14 +184,21 @@ $canonical = $gnparser->run_gnparser($sciname, 'simple');
 exit("\n[$canonical]\n[$sciname]\n");
 */
 
-/* run all resources - MAIN OPERATION
+// /* run all resources - MAIN OPERATION
 // exit;
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $spreadsheet = "resources_list.csv"; //run per resource --- e.g. "Flora do Brasil" "Kubitzki et al"
 // $func->run_all_resources($spreadsheet, 'generate trait reports'); //generate trait reports
 $func->run_all_resources($spreadsheet, 'create WD traits'); //read export file and send to QuickStatements
 // $func->run_all_resources($spreadsheet, 'remove WD traits'); //read export file and send to QuickStatements - only for those traits in WD already.
-*/
+// */
+
+// 10
+// Q15396511|P9714|Q388614|S3452|Q117188304
+
+// 50
+// Q17208451|P9714|Q375816|S248|Q117034902
+
 
 /* works OK
 $taxon = "Jimenezia";
