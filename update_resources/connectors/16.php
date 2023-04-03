@@ -10,8 +10,9 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = 16;
 
-/* Step 1: This is now done. Run once only, everytime you want a new refresh from http://mushroomobserver.org/eol.xml
-$resource_path = 'http://mushroomobserver.org/eol.xml'; //from https://opendata.eol.org/dataset/mushroom-observer/resource/e320b637-3ffd-42e8-b08b-788b7c5156f6
+// /* Step 1: This is now done. Run once only, everytime you want a new refresh from http://mushroomobserver.org/eol.xml
+$resource_path = 'http://mushroomobserver.org/eol.xml'; //from 
+https://opendata.eol.org/dataset/mushroom-observer/resource/e320b637-3ffd-42e8-b08b-788b7c5156f6
 $download_options = array('resource_id' => $resource_id, 'cache' => 1, 'expire_seconds' => 60*60*24*30, 'download_wait_time' => 1000000, 'timeout' => 86400, 'download_attempts' => 1, 'delay_in_minutes' => 1);
 // $download_options['expire_seconds'] = 0;
 if($local_path = Functions::save_remote_file_to_local($resource_path, $download_options))
@@ -35,7 +36,7 @@ if($local_path = Functions::save_remote_file_to_local($resource_path, $download_
 }
 else exit("\nFile not found. Will terminate.\n");
 exit("\nCheck XML before proceeding.\n");
-*/
+// */
 
 /* Step 2: */
 //start creating the archive file using the generated EOL XML file above

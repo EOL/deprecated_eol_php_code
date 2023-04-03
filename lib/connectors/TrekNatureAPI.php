@@ -18,7 +18,7 @@ class TrekNatureAPI
     }
     
     private function get_lists_of_pages()
-    {
+    {   exit("\n----------\nwww.treknature.com is already offline.\n----------\n");
         /* version 1
         // https://www.treknature.com/members/page1.htm@sort_by=md.html
         // https://www.treknature.com/members/page17.htm@sort_by=md.html

@@ -17,6 +17,12 @@ namespace php_active_record;
 15_delta	Sat 2022-02-19 10:49:39 {"agent.tab":1839, "media_resource.tab":270523, "taxon.tab":79081, "time_elapsed":{"sec":167.07, "min":2.78, "hr":0.05}}
 15	    Mon 2022-02-21 01:24:32 AM	{"agent.tab":1845, "media_resource.tab":270523, "taxon.tab":79081, "time_elapsed":false}
 15_delta	Mon 2022-02-21 01:27:19 {"agent.tab":1845, "media_resource.tab":270523, "taxon.tab":79081, "time_elapsed":{"sec":166.59, "min":2.78, "hr":0.05}}
+
+15	    Mon 2023-04-03 08:05:27 AM	{"agent.tab":1834, "media_resource.tab":275767, "taxon.tab":80993, "time_elapsed":false}
+15_delta	Mon 2023-04-03 09:44:05 {"agent.tab":1834, "media_resource.tab":275767, "taxon.tab":80993, "time_elapsed":{"sec":167.4, "min":2.79, "hr":0.05}}
+
+Jenkins sched: 5,7,9,11,1,3 *
+May Jul Sep Nov Jan Mar
 */
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
