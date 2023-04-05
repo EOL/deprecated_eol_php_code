@@ -45,9 +45,11 @@ class USDAPlants2019
         $this->service['taxon_page']     = 'https://plants.usda.gov/core/profile?symbol=';
         $this->service['per_state_page'] = 'https://plants.sc.egov.usda.gov/java/stateDownload?statefips=';
         */
+
         // /* new service
         // $this->state_territory_list = 'https://plants.sc.egov.usda.gov/main.2bb5bc1d4bc87d62d061.js'; -- not used atm
         $this->service['per_location'] = 'https://plants.sc.egov.usda.gov/assets/docs/NRCSStateList/STATE_NAME_NRCS_csv.txt';
+        // e.g. https://plants.sc.egov.usda.gov/assets/docs/NRCSStateList/Alabama_NRCS_csv.txt
         $this->service['taxon_page'] = 'https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=';
         $this->growth["Forb/herb"] = "http://purl.obolibrary.org/obo/FLOPO_0022142";
         $this->growth["Graminoid"] = "http://purl.obolibrary.org/obo/FLOPO_0900036";
