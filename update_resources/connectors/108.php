@@ -2,6 +2,10 @@
 namespace php_active_record;
 /*connector for [USDA PLANTS text] http://www.eol.org/content_partners/36/resources/108
 https://opendata.eol.org/dataset/usda_plants/resource/aca53f69-b18a-40b9-adbc-34ff282874ea
+
+108	Mon 2018-03-19 08:45:37 PM	{"agent.tab":7, "media_resource.tab":3503, "taxon.tab":3503}
+108	Wed 2023-04-05 06:24:05 AM  {"agent.tab":7, "media_resource.tab":3503, "taxon.tab":3503, "time_elapsed":{"sec":10.78, "min":0.18, "hr":0}}
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

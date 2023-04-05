@@ -2,6 +2,11 @@
 namespace php_active_record;
 /*connector for [USDA PLANTS images] http://www.eol.org/content_partners/36/resources/37
 https://opendata.eol.org/dataset/usda_plants/resource/fcbdd9c9-f33f-4ec6-8c9f-218510e74d04
+
+37	Wed 2017-11-22 09:22:30 AM	{"agent.tab":261, "media_resource.tab":22103, "reference.tab":2, "taxon.tab":67357, "vernacular_name.tab":41494}
+37	Mon 2018-03-19 09:11:45 PM	{"agent.tab":261, "media_resource.tab":22103, "reference.tab":2, "taxon.tab":67357, "vernacular_name.tab":41494}
+37	Wed 2023-04-05 12:57:07 AM	{"agent.tab":261, "media_resource.tab":22103, "reference.tab":2, "taxon.tab":67357, "vernacular_name.tab":41494, "time_elapsed":false}
+37	Wed 2023-04-05 05:56:16 AM	{"agent.tab":261, "media_resource.tab":22103, "reference.tab":2, "taxon.tab":67357, "vernacular_name.tab":41494, "time_elapsed":false}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -19,7 +24,8 @@ $func->export_xml_to_archive($params, false, 0); // false => means it is NOT an 
 
 $deleteYN = true; //true means delete the DwCA folder in /resources/
 Functions::finalize_dwca_resource($resource_id, false, $deleteYN);
-Functions::set_resource_status_to_harvest_requested($resource_id);
+// Functions::set_resource_status_to_harvest_requested($resource_id); //obsolete
+
 
 // Functions::delete_if_exists($params["eol_xml_file"]);
 
