@@ -8,6 +8,7 @@ This is a generic script that will convert EOL XML to EOL DWC-A
 380	Monday 2018-03-19 09:12:30 PM	    {"agent.tab":1, "media_resource.tab":5567, "taxon.tab":3308, "vernacular_name.tab":5571}
 DATA-1889: de-duplicate common names
 380	Tue 2022-01-18 12:01:44 AM	        {"agent.tab":1, "media_resource.tab":5567, "taxon.tab":3308, "vernacular_name.tab":3308, "time_elapsed":false}
+380	Wed 2023-04-05 03:09:39 PM	        {"agent.tab":1, "media_resource.tab":5567, "taxon.tab":3308, "vernacular_name.tab":3308, "time_elapsed":false}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ConvertEOLtoDWCaAPI');
