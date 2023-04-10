@@ -21,8 +21,8 @@ class Protisten_deAPI
         // $this->download_options['user_agent'] = 'User-Agent: curl/7.39.0'; // did not work here, but worked OK in USDAfsfeisAPI.php
         $this->download_options['user_agent'] = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'; //worked OK!!!
         
-        $this->page['main'] = 'http://www.protisten.de/gallery-ALL/Galerie001.html';
-        $this->page['pre_url'] = 'http://www.protisten.de/gallery-ALL/Galerie';
+        $this->page['main']           = 'http://www.protisten.de/gallery-ALL/Galerie001.html';
+        $this->page['pre_url']        = 'http://www.protisten.de/gallery-ALL/Galerie';
         $this->page['image_page_url'] = 'http://www.protisten.de/gallery-ALL/';
         /* Google sheet used: This is sciname mapping to EOL PageID. Initiated by Wolfgang Bettighofer.
         https://docs.google.com/spreadsheets/d/1QnT-o-t4bVp-BP4jFFA-Alr4PlIj7fAD6RRb5iC6BYA/edit#gid=0
@@ -269,7 +269,7 @@ class Protisten_deAPI
         $mr->language               = 'en';
         $mr->format                 = Functions::get_mimetype($rec['image']);
         $mr->furtherInformationURL  = $rec['source_url'];
-        $mr->accessURI              = $this->page['image_page_url'].$rec['image'];
+        $mr->accessURI              = self::format_accessURI($this->page['image_page_url'].$rec['image']);
         $mr->Owner                  = "Wolfgang Bettighofer";
         $mr->UsageTerms             = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $mr->description            = @$rec["desc"];
@@ -277,6 +277,14 @@ class Protisten_deAPI
             $this->archive_builder->write_object_to_file($mr);
             $this->obj_ids[$mr->identifier] = '';
         }
+    }
+    private function format_accessURI($url)
+    {   /*
+        https://www.protisten.de/gallery-ALL/pics/Penium-polymorphum-var-polymorphum-040-200-2-B090576-593-transversal4-WPT.jpg
+        https://www.protisten.de/gallery-ARCHIVE/pics/Penium-polymorphum-var-polymorphum-040-200-2-B090576-593-transversal4-WPT.jpg
+        */
+        $url = str_replace("/gallery-ALL/pics/", "/gallery-ARCHIVE/pics/", $url);
+        return $url;
     }
     private function taxon_mapping_from_GoogleSheet()
     {
