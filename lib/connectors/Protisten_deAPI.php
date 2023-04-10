@@ -46,16 +46,21 @@ class Protisten_deAPI
         $url = $this->page['pre_url'].$filename;
         echo "\nProcessing ".$url."\n";
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-            if(preg_match("/<table border=\'0\'(.*?)<\/table>/ims", $html, $arr)) {
-                if(preg_match_all("/<td align=\'center\'(.*?)<\/td>/ims", $arr[1], $arr2)) {
+            if(preg_match_all("/<table border=\'0\'(.*?)<\/table>/ims", $html, $arr)) { //this gives 2 records, we use the 2nd one
+                $cont = $arr[1];
+                $cont = $cont[1]; // 2nd record
+                if(preg_match_all("/<td align=\'center\'(.*?)<\/td>/ims", $cont, $arr2)) {
                     $rows = $arr2[1];
-                    foreach($rows as $row) {
+                    foreach($rows as $row) { //exit("\nditox 5\n");
                         /*[0] =>  width='130' bgcolor='#A5A59B'><a href='2_Acanthoceras-spec.html'>2 images<br><img  width='100' height='100'  border='0'  
                         src='thumbs/Acanthoceras_040-125_P6020240-251_ODB.jpg'><br><i>Acanthoceras</i> spec.</a>
                         */
+                        // print_r($rows); exit;
+
                         $rec = array();
                         if(preg_match("/href=\'(.*?)\'/ims", $row, $arr)) $rec['image_page'] = $arr[1];
                         if(preg_match("/\.jpg\'>(.*?)<\/a>/ims", $row, $arr)) $rec['taxon'] = strip_tags($arr[1]);
+                        // print_r($rec); exit;
                         if(@$rec['image_page'] && @$rec['taxon']) {
                             self::parse_image_page($rec);
                         }
