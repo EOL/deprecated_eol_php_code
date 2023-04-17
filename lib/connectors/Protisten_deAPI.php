@@ -289,6 +289,9 @@ class Protisten_deAPI
         https://www.protisten.de/gallery-ARCHIVE/pics/Penium-polymorphum-var-polymorphum-040-200-2-B090576-593-transversal4-WPT.jpg
         */
         $url = str_replace("/gallery-ALL/pics/", "/gallery-ARCHIVE/pics/", $url);
+
+        // http://www.protisten.de/gallery-ALL/../gallery-ARCHIVE/pics/Cocconeis-pediculus-040-200-2-2088285-303-transversal-FUS.jpg
+        $url = str_replace("/gallery-ALL/..", "", $url);
         return $url;
     }
     private function taxon_mapping_from_GoogleSheet()
