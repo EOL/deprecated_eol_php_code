@@ -798,6 +798,9 @@ class BOLDS_DumpsServiceAPI
             $taxon->parentNameUsageID .= "_".$a['tax_division'];
         }
 
+        // /* manual 
+        if($taxon->parentNameUsageID == '1_Animalia') $taxon->parentNameUsageID = '1_Animals';
+        // */
 
         /* no data for:
         $taxon->taxonomicStatus          = '';
