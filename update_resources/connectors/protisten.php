@@ -49,6 +49,10 @@ $func->start();
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param true means to delete working resource folder
 // */
 
+/* test function
+$func->get_stable_urls_info(); exit;
+*/
+
 /* utility */
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();

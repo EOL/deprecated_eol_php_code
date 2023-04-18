@@ -27,9 +27,11 @@ class Protisten_deAPI
         /* Google sheet used: This is sciname mapping to EOL PageID. Initiated by Wolfgang Bettighofer.
         https://docs.google.com/spreadsheets/d/1QnT-o-t4bVp-BP4jFFA-Alr4PlIj7fAD6RRb5iC6BYA/edit#gid=0
         */
+        $this->stable_urls = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/protisten_de/EOL_ELI_gallery-ARCHIVE_2023-04-18.tsv";
     }
     function start()
-    {   self::taxon_mapping_from_GoogleSheet();
+    {   self::get_stable_urls_info();
+        self::taxon_mapping_from_GoogleSheet();
         self::write_agent();
         $batches = self::get_total_batches(); print_r($batches);
         foreach($batches as $filename) {
@@ -273,14 +275,30 @@ class Protisten_deAPI
         $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
         $mr->language               = 'en';
         $mr->format                 = Functions::get_mimetype($rec['image']);
-        $mr->furtherInformationURL  = $rec['source_url'];
         $mr->accessURI              = self::format_accessURI($this->page['image_page_url'].$rec['image']);
+        $mr->furtherInformationURL  = self::format_furtherInfoURL($rec['source_url'], $mr->accessURI, $mr);
         $mr->Owner                  = "Wolfgang Bettighofer";
         $mr->UsageTerms             = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $mr->description            = @$rec["desc"];
         if(!isset($this->obj_ids[$mr->identifier])) {
             $this->archive_builder->write_object_to_file($mr);
             $this->obj_ids[$mr->identifier] = '';
+        }
+    }
+    private function format_furtherInfoURL($source_url, $accessURI, $mr) //3rd param for debug only
+    {
+        /*
+        Your column D e.g.
+        https://www.protisten.de/gallery-ARCHIVE/gallery-ARCHIVE/pics/Zivkovicia-spectabilis-010-200-0-7054665-683-HHW.jpg.html
+        My media URL e.g.
+        https://www.protisten.de/gallery-ARCHIVE/pics/Zivkovicia-spectabilis-010-200-0-7054665-683-HHW.jpg
+        */
+        if($final = @$this->stable_urls_info[$accessURI]) return $final;
+        else {
+            echo "\n----------not found in Wolfgang's spreadsheet\n";
+            print_r($mr);
+            echo "\n----------\n";
+            return $source_url; //return the non-stable URL but currently working
         }
     }
     private function format_accessURI($url)
@@ -292,7 +310,48 @@ class Protisten_deAPI
 
         // http://www.protisten.de/gallery-ALL/../gallery-ARCHIVE/pics/Cocconeis-pediculus-040-200-2-2088285-303-transversal-FUS.jpg
         $url = str_replace("/gallery-ALL/..", "", $url);
+        $url = str_replace("http://", "https://", $url);
+        $url = str_replace(" ", "", $url);
         return $url;
+    }
+    function get_stable_urls_info()
+    {
+        $local_tsv = Functions::save_remote_file_to_local($this->stable_urls, $this->download_options);
+        $i = 0;
+        foreach(new FileIterator($local_tsv) as $line_number => $line) {
+            $i++;
+            $row = explode("\t", $line);
+            if($i == 1) $fields = $row;
+            else {
+                $k = -1;
+                $rec = array();
+                foreach($fields as $field) { $k++;
+                    $rec[$field] = @$row[$k];
+                }
+                $rec = array_map('trim', $rec);
+                // print_r($rec); break; exit;
+                /*Array(
+                    [Taxon] => Acanthoceras spec.
+                    [EOL page] => https://eol.org/pages/92738
+                    [furtherInfoURL] => https://www.protisten.de/gallery-ARCHIVE/Acanthoceras-spec-parch2022-2.html
+                    [mediaURL] => https://www.protisten.de/gallery-ARCHIVE/pics/Acanthoceras-040-125-P6020240-251-totale-ODB.jpg
+                    [] => 
+                )*/
+                $furtherInfoURL = $rec['furtherInfoURL'];
+                $mediaURL = $rec['mediaURL'];
+
+                // /* wrong entry from Wolfgang's spreadsheet
+                // https://www.protisten.de/gallery-ARCHIVE/gallery-ALL/pics/Vorticella-040-125-2-3189016-017-AQU.jpg
+                $mediaURL = str_replace("gallery-ALL/", "", $mediaURL);
+                // https://www.protisten.de/gallery-ARCHIVE/pics/Trachelomonas- granulosa -040-200-2-06157084-100-5-Augenfleck-ASW.jpg
+                $mediaURL = str_replace(" ", "", $mediaURL);
+                // */
+
+                $this->stable_urls_info[$mediaURL] = $furtherInfoURL;
+            }
+        }
+        unlink($local_tsv);
+        // print_r($this->stable_urls_info); echo "\n".count($this->stable_urls_info)."\n";
     }
     private function taxon_mapping_from_GoogleSheet()
     {
