@@ -296,8 +296,11 @@ class Protisten_deAPI
         if($final = @$this->stable_urls_info[$accessURI]) return $final;
         else {
             echo "\n----------not found in Wolfgang's spreadsheet\n";
-            print_r($mr);
-            echo "\n----------\n";
+            // print_r($mr);
+            // print_r($this->stable_urls_info); //good debug
+            echo "\n[".$accessURI."]\n";
+            echo "\n[".$mr->accessURI."]\n";
+            echo "\n----------\n"; //exit;
             return $source_url; //return the non-stable URL but currently working
         }
     }
@@ -338,7 +341,10 @@ class Protisten_deAPI
                     [] => 
                 )*/
                 $furtherInfoURL = $rec['furtherInfoURL'];
+                $furtherInfoURL = str_replace('"', '', $furtherInfoURL);
+
                 $mediaURL = $rec['mediaURL'];
+                $mediaURL = str_replace('"', '', $mediaURL);
 
                 // /* wrong entry from Wolfgang's spreadsheet
                 // https://www.protisten.de/gallery-ARCHIVE/gallery-ALL/pics/Vorticella-040-125-2-3189016-017-AQU.jpg
