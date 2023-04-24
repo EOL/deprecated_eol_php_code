@@ -15,7 +15,7 @@ class Kubitzki_PageNosAPI
         $folders = $path . "v*"; $i = 0;
         foreach(glob($folders) as $folder) { $i++;
 
-            if($i != 11) continue;
+            // if($i != 14) continue; //debug only - run 1x1
 
             $actual_folder = pathinfo($folder, PATHINFO_FILENAME);
             $filename = "$folder/$actual_folder.txt";
@@ -23,33 +23,36 @@ class Kubitzki_PageNosAPI
 
             if(in_array($actual_folder, array('volii1993', 'voliii1998', 'volix2007', 'volv2003', 'volvi2004', 'volvii2004', 'volviii2007'))) $start_str = "References to main entries in bold-faced print, to illustrations in italics.";            
             elseif(in_array($actual_folder, array('voliv1998'))) $start_str = "-Manually Added-";
-            elseif(in_array($actual_folder, array('volx2011', 'volxi2014', 'volxii2015'))) $start_str = "References to accepted names in bold-faced print, to synonyms in upright print, to illustrations in italics.";
+            elseif(in_array($actual_folder, array('volx2011', 'volxi2014', 'volxii2015', 'volxiv2016', 'volxv2018'))) $start_str = "References to accepted names in bold-faced print, to synonyms in upright print, to illustrations in italics.";            
+            elseif(in_array($actual_folder, array('volxiii2015'))) $start_str = "References to main entries of accepted names in bold-faced print, to synonyms in upright print, to illustrations in italics.";
 
             $end_str = "elix";
             if(in_array($actual_folder, array('volxi2014'))) $end_str = "Index 331";
             if(in_array($actual_folder, array('volxii2015'))) $end_str = "Index 213";
-
+            if(in_array($actual_folder, array('volxv2018'))) $end_str = "Index 567";
 
             $contents = file_get_contents($filename);
+            $contents = str_replace("", "", $contents);
             if(preg_match("/".preg_quote($start_str, '/')."(.*?)".$end_str."/ims", $contents.$end_str, $arr)) {
                 $rows = $arr[1];
-                $tmp = self::parse_rows($rows);
+                $tmp = self::parse_rows($rows, $actual_folder);
 
                 // /* special adjustment
-                if(in_array($actual_folder, array('volxi2014'))) {
+                if(in_array($actual_folder, array('volxi2014', 'volxii2015', 'volxiii2015', 'volxiv2016', 'volxv2018'))) {
                     $tmp = self::remove_comma_from_names($tmp);
                 }
                 // */
 
-                $this->names_page_nos_list = array_merge($this->names_page_nos_list, $tmp);
-                echo "\nCount: ".count($this->names_page_nos_list)."\n";
+                $this->names_page_nos_list = array_merge_recursive($this->names_page_nos_list, $tmp);
+                echo "\nCurrent: ".count($tmp)."\n";
+                echo "\nTotal: ".count($this->names_page_nos_list)."\n";
             }
             // exit("\n-stop-\n");
             // if($i == 1) break; //debug only
         }
         print_r($this->names_page_nos_list);
     } //end loop
-    private function parse_rows($rows)
+    private function parse_rows($rows, $actual_folder)
     {
         $rows = explode("\n", $rows);
         $rows = array_map('trim', $rows);
@@ -122,7 +125,7 @@ class Kubitzki_PageNosAPI
             $str = trim($str);
 
             $str = rtrim($str, ',');
-            $final2[$name] = $str;
+            $final2[$actual_folder][$name] = $str;
 
         }
         // print_r($final2);
