@@ -5,28 +5,36 @@ class Kubitzki_PageNosAPI
 {
     function __construct()
     {
+        $this->names_page_nos_list = array();
     }
     function start()
     {
         if(Functions::is_production()) $path = '/extra/other_files/Smithsonian/Kubitzki_et_al/'; //have not run here
         else                           $path = '/Volumes/AKiTiO4/other_files/Smithsonian/Kubitzki_et_al/';
 
-        $folders = $path . "v*";
-        foreach(glob($folders) as $folder) {
+        $folders = $path . "v*"; $i = 0;
+        foreach(glob($folders) as $folder) { $i++;
+
+            if($i != 4) continue;
+
             $actual_folder = pathinfo($folder, PATHINFO_FILENAME);
             $filename = "$folder/$actual_folder.txt";
             echo "\n$filename --- ".filesize($filename)."\n[$actual_folder]\n";
 
-            if(in_array($actual_folder, array('volii1993'))) $start_str = "References to main entries in bold-faced print, to illustrations in italics.";
+            if(in_array($actual_folder, array('volii1993', 'voliii1998', 'volix2007'))) $start_str = "References to main entries in bold-faced print, to illustrations in italics.";
+            elseif(in_array($actual_folder, array('voliv1998'))) $start_str = "-Manually Added-";
 
             $contents = file_get_contents($filename);
             if(preg_match("/".preg_quote($start_str, '/')."(.*?)elix/ims", $contents."elix", $arr)) {
                 $rows = $arr[1];
-                self::parse_rows($rows);
+                $tmp = self::parse_rows($rows);
+                $this->names_page_nos_list = array_merge($this->names_page_nos_list, $tmp);
+                echo "\nCount: ".count($this->names_page_nos_list)."\n";
             }
-            exit("\n-stop-\n");
+            // exit("\n-stop-\n");
+            // if($i == 1) break; //debug only
         }
-
+        print_r($this->names_page_nos_list);
     } //end loop
     private function parse_rows($rows)
     {
@@ -83,6 +91,7 @@ class Kubitzki_PageNosAPI
             $str = implode(", ", $nos);
             $str = trim($str);
             $str = Functions::remove_whitespace($str);
+            $str = str_replace("---", "-", $str);
             $str = str_replace("--", "-", $str);
             $str = str_replace(",,", ",", $str);
             $str = trim($str);
@@ -98,9 +107,10 @@ class Kubitzki_PageNosAPI
 
             $str = rtrim($str, ',');
             $final2[$name] = $str;
-        }
-        print_r($final2);
 
+        }
+        // print_r($final2);
+        return $final2;
     }
     private function separate_name_with_pagenos($row)
     {
