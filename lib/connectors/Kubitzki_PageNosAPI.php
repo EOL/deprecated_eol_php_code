@@ -15,19 +15,32 @@ class Kubitzki_PageNosAPI
         $folders = $path . "v*"; $i = 0;
         foreach(glob($folders) as $folder) { $i++;
 
-            if($i != 4) continue;
+            if($i != 11) continue;
 
             $actual_folder = pathinfo($folder, PATHINFO_FILENAME);
             $filename = "$folder/$actual_folder.txt";
             echo "\n$filename --- ".filesize($filename)."\n[$actual_folder]\n";
 
-            if(in_array($actual_folder, array('volii1993', 'voliii1998', 'volix2007'))) $start_str = "References to main entries in bold-faced print, to illustrations in italics.";
+            if(in_array($actual_folder, array('volii1993', 'voliii1998', 'volix2007', 'volv2003', 'volvi2004', 'volvii2004', 'volviii2007'))) $start_str = "References to main entries in bold-faced print, to illustrations in italics.";            
             elseif(in_array($actual_folder, array('voliv1998'))) $start_str = "-Manually Added-";
+            elseif(in_array($actual_folder, array('volx2011', 'volxi2014', 'volxii2015'))) $start_str = "References to accepted names in bold-faced print, to synonyms in upright print, to illustrations in italics.";
+
+            $end_str = "elix";
+            if(in_array($actual_folder, array('volxi2014'))) $end_str = "Index 331";
+            if(in_array($actual_folder, array('volxii2015'))) $end_str = "Index 213";
+
 
             $contents = file_get_contents($filename);
-            if(preg_match("/".preg_quote($start_str, '/')."(.*?)elix/ims", $contents."elix", $arr)) {
+            if(preg_match("/".preg_quote($start_str, '/')."(.*?)".$end_str."/ims", $contents.$end_str, $arr)) {
                 $rows = $arr[1];
                 $tmp = self::parse_rows($rows);
+
+                // /* special adjustment
+                if(in_array($actual_folder, array('volxi2014'))) {
+                    $tmp = self::remove_comma_from_names($tmp);
+                }
+                // */
+
                 $this->names_page_nos_list = array_merge($this->names_page_nos_list, $tmp);
                 echo "\nCount: ".count($this->names_page_nos_list)."\n";
             }
@@ -51,6 +64,9 @@ class Kubitzki_PageNosAPI
         Z. begoniifolia 516, 517
         */
         foreach($rows as $row) {
+
+            if(stripos($row, " Index") !== false) continue; //this will ignore rows like "123 Index" //string is found
+
             // $row = utf8_encode($row);
             $row = str_ireplace(array("\n", "\t", chr(9), chr(13), chr(10)), "", $row);
             $row = trim($row);
@@ -132,6 +148,18 @@ class Kubitzki_PageNosAPI
         } else {
             return 'other';
         }
+    }
+    private function remove_comma_from_names($tmp)
+    {   /*
+        [Richeria,] => 85
+        [Richeria sect. Podocalyx,] => 91
+        */
+        foreach($tmp as $name => $page_nos) {
+            $name = trim($name);
+            if(substr($name, -1) == ",") $name = substr($name,0,strlen($name)-1);
+            $final[$name] = $page_nos;
+        }
+        return $final;
     }
 
 }
