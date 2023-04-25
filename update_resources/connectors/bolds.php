@@ -46,6 +46,15 @@ if($info = $func->get_info_from_page(170890)) {
 exit("\n");
 */
 
+/* test new func
+require_library('connectors/BOLDS_DumpsServiceAPI');
+$func = new BOLDS_DumpsServiceAPI($resource_id);
+
+$func->get_parents_without_entries();
+$parent_id = $func->lookup_parentID_using_api(171636);
+exit("\n[$parent_id]\n");
+*/
+
 // /* using Dumps
 require_library('connectors/BOLDS_DumpsServiceAPI');
 $func = new BOLDS_DumpsServiceAPI($resource_id);

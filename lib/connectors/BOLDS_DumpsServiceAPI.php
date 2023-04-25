@@ -25,7 +25,7 @@ class BOLDS_DumpsServiceAPI
         $this->page['home'] = "http://www.boldsystems.org/index.php/TaxBrowser_Home";
         $this->page['sourceURL'] = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
         $this->service['phylum'] = "http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
-        $this->service["taxId"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
+        $this->service["taxId"]  = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
         $this->service["taxId2"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic&includeTree=true&taxId=";
         $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         // $this->download_options['expire_seconds'] = false;
@@ -40,9 +40,16 @@ class BOLDS_DumpsServiceAPI
         $this->with_parent_id = true; //true - will make it a point that every taxon has a parentNameUsageID
         if(Functions::is_production()) $this->BOLDS_new_path = "https://editors.eol.org/eol_connector_data_files/BOLDS_new/";
         else                           $this->BOLDS_new_path = "http://localhost/cp/BOLDS_new/";
-        
+        $this->parents_without_entries_file	 = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/BOLDSystems/parents_without_entries.tsv";
     }
-
+    function get_parents_without_entries()
+    {
+        if($contents = Functions::lookup_with_cache($this->parents_without_entries_file, $this->download_options)) {
+            $IDs = explode("\n", $contents); // print_r($IDs); 
+            echo "\nparents_without_entries: ".count($IDs)."\n";
+            foreach($IDs as $id) $this->parents_without_entries[$id] = '';
+        }
+    }
     function start_using_dump()
     {
         self::create_kingdom_taxa(); //create taxon entry for the 4 kingdoms
@@ -805,6 +812,10 @@ class BOLDS_DumpsServiceAPI
         if($taxon->parentNameUsageID == '1_Protista') $taxon->parentNameUsageID = '1_Protists';
         // */
 
+        if(isset($this->parents_without_entries[$taxon->parentNameUsageID])) {
+            $taxon->parentNameUsageID = self::lookup_parentID_using_api($taxon->taxonID);
+        }
+
         /* no data for:
         $taxon->taxonomicStatus          = '';
         $taxon->acceptedNameUsageID      = '';
@@ -813,6 +824,16 @@ class BOLDS_DumpsServiceAPI
         $this->taxon_ids[$taxon->taxonID] = '';
         $this->archive_builder->write_object_to_file($taxon);
         
+    }
+    function lookup_parentID_using_api($id)
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24*365; // 1 yr cache
+        if($json = Functions::lookup_with_cache($this->service['taxId2'].$id, $options)) {
+            $rec = json_decode($json, true);
+            // print_r($rec); //exit; //good debug
+            if($val = @$rec[$id]['parentid']) return $val;
+        }
     }
     private function create_kingdom_taxa()
     {
