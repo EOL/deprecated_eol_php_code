@@ -38,7 +38,7 @@ class Kubitzki_PageNosAPI
                 $tmp = self::parse_rows($rows, $actual_folder);
 
                 // /* special adjustment
-                if(in_array($actual_folder, array('volxi2014', 'volxii2015', 'volxiii2015', 'volxiv2016', 'volxv2018'))) {
+                if(in_array($actual_folder, array('volx2011', 'volxi2014', 'volxii2015', 'volxiii2015', 'volxiv2016', 'volxv2018'))) {
                     $tmp = self::remove_comma_from_names($tmp);
                 }
                 // */
@@ -51,6 +51,10 @@ class Kubitzki_PageNosAPI
             // if($i == 1) break; //debug only
         }
         print_r($this->names_page_nos_list);
+        if($this->names_page_nos_list['volii1993']['Acacia'] == 343) echo "\nTest passed OK"."\n";
+        if($this->names_page_nos_list['volii1993']['Selleola'] == '227, 652') echo "\nTest passed OK"."\n";
+        if($this->names_page_nos_list['volxv2018']['Z. absinthiifolia'] == 15) echo "\nTest passed OK"."\n";
+        
     } //end loop
     private function parse_rows($rows, $actual_folder)
     {
@@ -125,7 +129,7 @@ class Kubitzki_PageNosAPI
             $str = trim($str);
 
             $str = rtrim($str, ',');
-            $final2[$actual_folder][$name] = $str;
+            if(strlen($name) > 1) $final2[$actual_folder][$name] = $str;
 
         }
         // print_r($final2);
@@ -153,14 +157,27 @@ class Kubitzki_PageNosAPI
         }
     }
     private function remove_comma_from_names($tmp)
-    {   /*
+    {   /* orig - working OK, array doesn't have volume e.g. "volxv2018"
         [Richeria,] => 85
         [Richeria sect. Podocalyx,] => 91
-        */
         foreach($tmp as $name => $page_nos) {
             $name = trim($name);
             if(substr($name, -1) == ",") $name = substr($name,0,strlen($name)-1);
             $final[$name] = $page_nos;
+        }
+        return $final;
+        */
+
+        /* new - array with volume e.g. "volxv2018" - working OK */
+        $volumes = array_keys($tmp);
+        // print_r($volumes); exit;
+        foreach($volumes as $vol) {
+            $tmp = $tmp[$vol];
+            foreach($tmp as $name => $page_nos) {
+                $name = trim($name);
+                if(substr($name, -1) == ",") $name = substr($name,0,strlen($name)-1);
+                $final[$vol][$name] = $page_nos;
+            }
         }
         return $final;
     }
