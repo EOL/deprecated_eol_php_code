@@ -69,7 +69,29 @@ class WikiDataMtce_ResourceAPI
             elseif($task == 'create WD traits') $this->divide_exportfile_send_2quickstatements($input);
         }
         else echo "\n[$file1]\nNo query results yet: ".$input['trait kind']."\n";
+        
+        // with errors
+        // to be sent to QS form submit:
+        // Q309609
+        // Q17282916
+        // Q17283119
+        // Q15398398
+        // Q15497879
+        // Q2914497
+        // Q161120
+        // Q156790
+        // Q1766333
+        // Q2068761
+        // Q42750599
+        // Q2063965
+        // Q18080970
+        // Q2098767
+        // Q17295327
+        // Q15508795
+        // Q15542246
+        // Q15543941
         // */
+
         // /* UN-COMMENT IN REAL OPERATION
         $this->unique_pred_obj = array();
         $input["trait kind"] = "inferred_trait";
@@ -438,8 +460,17 @@ class WikiDataMtce_ResourceAPI
 
     function run_any_qs_export_file()
     {
+        /* 1st client
         $input['report for'] = "Flora_ADJ"; //Flora 753 adjustments
         $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/Flora_753/export_file_final.qs";
+        */
+
+        // /* 2nd client
+        $input['report for'] = "fpnas_ADJ"; //to delete all with ref Q90856597 (n = 151,862)
+        $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/fpnas_2delete/export_file_2del_ambrosia.qs";
+        $input['what'] = "to delete";
+        // */
+
         $this->eol_resource_id = $input['report for'];
 
         // /* this block is similar to: function generate_report_path($input)
@@ -467,16 +498,18 @@ class WikiDataMtce_ResourceAPI
             if($row) $i++;
             
             /* use this block to exclude already run: manually done
-            if($i < 8) continue;
+            if($i <= 3) continue;
             */
+
+            if(@$input['what'] == "to delete") $row = "-".$row;
 
             echo "\n".$row;
             fwrite($WRITE, $row."\n");
-            if(($i % 10) == 0) { $batch_num++; // % 3 25 5
+            if(($i % 25) == 0) { $batch_num++; // % 3 25 5
                 echo "\n-----";
                 fclose($WRITE);
                 $this->run_quickstatements_api($batch_name, $batch_num);
-                $secs = 60*1; echo "\nSleep $secs seconds..."; sleep($secs); echo " Continue...\n";
+                $secs = 60*1; echo "\nSleep $secs seconds...v2"; sleep($secs); echo " Continue...\n";
                 $WRITE = Functions::file_open($this->tmp_batch_export, "w"); //initialize again
                 // break; //just the first 3 rows //debug only
             }
