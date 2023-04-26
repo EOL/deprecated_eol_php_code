@@ -45,7 +45,7 @@ class BOLDS_DumpsServiceAPI
     function get_parents_without_entries()
     {
         if($contents = Functions::lookup_with_cache($this->parents_without_entries_file, $this->download_options)) {
-            $IDs = explode("\n", $contents); print_r($IDs); 
+            $IDs = explode("\n", $contents); //print_r($IDs); 
 
             $total = count($IDs);
             echo "\nparents_without_entries: ".$total."\n"; //exit;
