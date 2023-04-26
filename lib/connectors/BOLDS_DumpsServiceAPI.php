@@ -813,8 +813,10 @@ class BOLDS_DumpsServiceAPI
         if($taxon->parentNameUsageID == '1_Protista') $taxon->parentNameUsageID = '1_Protists';
         // */
 
-        if(isset($this->parents_without_entries[$taxon->parentNameUsageID])) {
-            $taxon->parentNameUsageID = self::lookup_parentID_using_api($taxon->taxonID);
+        $parentNameUsageID = (string) $taxon->parentNameUsageID;
+        $taxonID           = (string) $taxon->taxonID;
+        if(isset($this->parents_without_entries[$parentNameUsageID])) { exit("\ngoes here...\n");
+            $taxon->parentNameUsageID = self::lookup_parentID_using_api($taxonID);
         }
 
         /* no data for:
@@ -832,7 +834,7 @@ class BOLDS_DumpsServiceAPI
         $options['expire_seconds'] = 60*60*24*365; // 1 yr cache
         if($json = Functions::lookup_with_cache($this->service['taxId2'].$id, $options)) {
             $rec = json_decode($json, true);
-            // print_r($rec); //exit; //good debug
+            print_r($rec); //exit; //good debug
             if($val = @$rec[$id]['parentid']) return $val;
         }
     }
