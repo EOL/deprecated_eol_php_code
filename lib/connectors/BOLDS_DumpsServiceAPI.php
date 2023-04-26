@@ -52,6 +52,7 @@ class BOLDS_DumpsServiceAPI
     }
     function start_using_dump()
     {
+        self::get_parents_without_entries(); //generates $this->parents_without_entries
         self::create_kingdom_taxa(); //create taxon entry for the 4 kingdoms
         $phylums = array_merge($this->kingdom['Animalia'], $this->kingdom['Plantae'], $this->kingdom['Fungi'], $this->kingdom['Protista']);
         echo("\n Total phylums: ".count($phylums)."\n");
