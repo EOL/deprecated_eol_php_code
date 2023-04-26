@@ -187,9 +187,9 @@ exit("\n[$canonical]\n[$sciname]\n");
 // /* run all resources - MAIN OPERATION
 // exit;
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
-$spreadsheet = "resources_list.csv"; //run per resource --- e.g. "Flora do Brasil" "Kubitzki et al"
+$spreadsheet = "resources_list.csv"; //run per resource --- e.g. "Flora do Brasil (753)" "Kubitzki et al (822)"
 // $func->run_all_resources($spreadsheet, 'generate trait reports'); //generate trait reports
-$func->run_all_resources($spreadsheet, 'create WD traits'); //read export file and send to QuickStatements
+$func->run_all_resources($spreadsheet, 'create WD traits', 753); //read export file and send to QuickStatements
 // $func->run_all_resources($spreadsheet, 'remove WD traits'); //read export file and send to QuickStatements - only for those traits in WD already.
 // */
 
@@ -198,6 +198,9 @@ $func->run_all_resources($spreadsheet, 'create WD traits'); //read export file a
 
 // 50
 // Q17208451|P9714|Q375816|S248|Q117034902
+
+// /Volumes/OWC_Express/resources_3/reports/cypher/ad06e5acb28ba5c95518e74182a86863/export_file.qs
+// /Volumes/OWC_Express/resources_3/reports/cypher/6c401cec15f1976a46d4eb3b47cc1c48/export_file.qs
 
 
 /* works OK
@@ -308,11 +311,18 @@ echo "\npairs: ".count($pairs)."\n";
 print_r($pairs);
 */
 
-/* utility --- working OK
+/* utility --- working OK, pretty good actually.
 $func = new WikiDataMtceAPI();
 // $func->qs_export_file_adjustments(); //works OK --- runs independently
-// $func->run_any_qs_export_file(); //works OK --- runs independently
+$func->run_any_qs_export_file(); //works OK --- runs independently
 */
+
+// -Q13536186|P9566|Q101029366|S3452|Q90856597
+// https://www.wikidata.org/wiki/Q13536186
+// Q13536186|P9566|Q4284186|S248|Q105622564
+// Q13536186|P9566|Q4284186|S304|22
+
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
