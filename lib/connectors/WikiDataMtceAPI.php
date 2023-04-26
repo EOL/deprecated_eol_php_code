@@ -1183,7 +1183,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 echo "\n-----";
                 fclose($WRITE);
                 self::run_quickstatements_api($batch_name, $batch_num);
-                $secs = 60*1; echo "\nSleep $secs seconds..."; sleep($secs); echo " Continue...\n";
+                $secs = 60*1; echo "\nSleep $secs seconds...v1"; sleep($secs); echo " Continue...\n";
                 /* sometimes running it twice is needed to remove the error
                 self::run_quickstatements_api($batch_name, $batch_num); 
                 */
@@ -1250,7 +1250,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         unset($func);
         // exit("\n-end-\n");
     }
-    function run_all_resources($spreadsheet, $task)
+    function run_all_resources($spreadsheet, $task, $resource_idx = false)
     {
         /* works ok if you don't need to format/clean the entire row.
         $file = Functions::file_open($this->text_path[$type], "r");
@@ -1321,11 +1321,20 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
 
-                    if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
-                    // if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
+                    /* working but a manual step
+                    // if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
+                    if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
+                    */
+                    // /* new: now with a param $resource_idx
+                    if($resource_idx) { //if it has a value, then process only this resource ID
+                        if($rec['r.resource_id'] == $resource_idx) {} //process this resource ID
+                        else continue;    
+                    }
+                    else exit("\nWill exit for now. No resource_idx.\n");
+                    // */
 
                     $this->with_DISTINCT_YN = false;
-                    /*Array(
+                    /*print_r($rec); Array(
                         [r.resource_id] => 753
                         [trait.source] => 
                         [trait.citation] => 
