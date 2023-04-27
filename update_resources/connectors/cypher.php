@@ -281,7 +281,7 @@ https://query.wikidata.org/sparql?query=SELECT ?s WHERE {VALUES ?id {"3393129"} 
 https://stackoverflow.com/questions/74244994/query-multiple-geonameids-in-sparql-query-on-wikidata
 */
 
-// /* for individual resource IDs
+// /* for individual resource IDs --- working OK
 $input = array();
 $input["params"] = array("resource_id" => 753); // 753-Flora do Brasil | 822-Kubitzki
 $input["type"] = "wikidata_base_qry_resourceID";
