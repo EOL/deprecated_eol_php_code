@@ -184,14 +184,14 @@ $canonical = $gnparser->run_gnparser($sciname, 'simple');
 exit("\n[$canonical]\n[$sciname]\n");
 */
 
-// /* run all resources - MAIN OPERATION
+/* ========== run all resources - MAIN OPERATION
 // exit;
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $spreadsheet = "resources_list.csv"; //run per resource --- e.g. "Flora do Brasil (753)" "Kubitzki et al (822)"
 // $func->run_all_resources($spreadsheet, 'generate trait reports'); //generate trait reports
 $func->run_all_resources($spreadsheet, 'create WD traits', 753); //read export file and send to QuickStatements
 // $func->run_all_resources($spreadsheet, 'remove WD traits'); //read export file and send to QuickStatements - only for those traits in WD already.
-// */
+========== */
 
 // 10
 // Q15396511|P9714|Q388614|S3452|Q117188304
@@ -311,11 +311,11 @@ echo "\npairs: ".count($pairs)."\n";
 print_r($pairs);
 */
 
-/* utility --- working OK, pretty good actually.
+// /* utility --- working OK, pretty good actually.
 $func = new WikiDataMtceAPI();
 // $func->qs_export_file_adjustments(); //works OK --- runs independently
 $func->run_any_qs_export_file(); //works OK --- runs independently
-*/
+// */
 
 // -Q13536186|P9566|Q101029366|S3452|Q90856597
 // https://www.wikidata.org/wiki/Q13536186
