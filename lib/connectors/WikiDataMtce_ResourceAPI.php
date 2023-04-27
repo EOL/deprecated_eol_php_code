@@ -461,13 +461,19 @@ class WikiDataMtce_ResourceAPI
     function run_any_qs_export_file()
     {
         /* 1st client
-        $input['report for'] = "Flora_ADJ"; //Flora 753 adjustments
+        $input['report for'] = "Flora_ADJ"; //Flora 753 adjustments --- this does a delete+add: in effect it replaces the property P183 to P9714
         $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/Flora_753/export_file_final.qs";
         */
 
-        // /* 2nd client
+        /* 2nd client
         $input['report for'] = "fpnas_ADJ"; //to delete all with ref Q90856597 (n = 151,862)
         $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/fpnas_2delete/export_file_2del_ambrosia.qs";
+        $input['what'] = "to delete";
+        */
+
+        // /* 3rd client
+        $input['report for'] = "del_Kubitzki_inferred"; //delete all recs (n = 93,080)
+        $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/Kubitzki_inferred_2delete/export_file.qs";
         $input['what'] = "to delete";
         // */
 
