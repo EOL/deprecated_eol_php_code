@@ -48,7 +48,9 @@ class CypherQueryAPI
         if(!is_dir($this->report_path)) mkdir($this->report_path);
     }
     function query_trait_db($input)
-    {
+    {        
+        if($input['params']['source'] == "https://doi.org/10.1007/s13127-017-0350-6") $this->with_DISTINCT_YN = false;
+
         // print_r($input); exit;
         self::initialize_path($input);
         // /* report filename

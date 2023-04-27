@@ -283,8 +283,16 @@ https://stackoverflow.com/questions/74244994/query-multiple-geonameids-in-sparql
 
 // /* for individual resource IDs --- working OK
 $input = array();
+/* 1st client
 $input["params"] = array("resource_id" => 753); // 753-Flora do Brasil | 822-Kubitzki
 $input["type"] = "wikidata_base_qry_resourceID";
+*/
+
+// /* 2nd client
+$input["params"] = array("source" => "https://doi.org/10.1007/s13127-017-0350-6"); // 
+$input["type"] = "wikidata_base_qry_source";
+// */
+
 $input["per_page"] = 1000;
 
 $input["trait kind"] = "trait"; //print_r($input); exit;
