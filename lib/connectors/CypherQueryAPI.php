@@ -140,9 +140,14 @@ class CypherQueryAPI
             // */
         }
         elseif($input['type'] == "wikidata_base_qry_source") { //exit("\ngoes here...\n");
+            // /* new block
+            if($input['params']['source'] == "https://doi.org/10.1007/s13127-017-0350-6") $obj_name_uri = "obj.name, obj.uri,"; //pnas
+            else                                                                          $obj_name_uri = "obj.name,"; //orig
+            // */
+    
             $source = urlencode($input['params']['source']);
             // $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
-            if(    $input['trait kind'] == 'trait') {
+            if(    $input['trait kind'] == 'trait') { //exit("\ngoes here2...\n");
                 $qry = 'MATCH (t:Trait)<-[:trait]-(p:Page), ';
             // /* ORIG CACHED
             $qry .= '(t)-[:predicate]->(pred:Term)
@@ -153,7 +158,7 @@ class CypherQueryAPI
             OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
             OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
             OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, '.$obj_name_uri.' t.measurement, units.name, t.source, t.citation, ref.literal
             ORDER BY p.canonical 
             SKIP '.$skip.' LIMIT '.$limit;
             // */
@@ -176,7 +181,7 @@ class CypherQueryAPI
             SKIP '.$skip.' LIMIT '.$limit;
             // */ //t.eol_pk, p.rank,    
             }
-            else {
+            else { //print_r($input); exit("\ngoes here\n"); //good debug
                 $qry .= '(t)-[:predicate]->(pred:Term)
                 WHERE t.source = "'.$source.'"
                 OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
@@ -185,7 +190,7 @@ class CypherQueryAPI
                 OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
                 OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
                 OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-                RETURN p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
+                RETURN p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, '.$obj_name_uri.' t.measurement, units.name, t.source, t.citation, ref.literal
                 ORDER BY p.canonical 
                 SKIP '.$skip.' LIMIT '.$limit; // no DISTINCT
                 // */ //t.eol_pk, p.rank,    
