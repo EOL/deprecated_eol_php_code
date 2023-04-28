@@ -31,6 +31,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $this->per_page_2 = 1000;
         $this->resourceID_mTypes[753] = array('native range includes', 'native range', 'endemic to');
         $this->resourceID_mTypes[822] = array('native range includes', 'native range', 'geographic distribution');
+        $this->resourceID_mTypes['pnas'] = array('behavioral circadian rhythm');
     }
     function get_WD_entityID_for_DOI($doi)
     {
@@ -216,6 +217,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                             continue;
                         }
                     }
+
+                    // print_r($rec); exit("\nditox 1\n");
 
                     if(!in_array($rec['pred.name'], $this->resourceID_mTypes[$this->eol_resource_id])) { //invalid pred.name for this resource
                         //discarded rows
@@ -2296,12 +2299,15 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         // /* e.g. FloraDoBrasil_corrections.txt                                    ***IDcorrections***
             if($this->eol_resource_id == 753) $series = 'FloraDoBrasil';
         elseif($this->eol_resource_id == 822) $series = 'Kubitzkietal';
+        elseif($this->eol_resource_id == 'pnas') $series = false; //will have an entry here after Katja's corrections
         else exit("\nUndefined eol_resource_id: [$this->eol_resource_id]\n");
-        $pairs = self::get_all_ids_from_Katja_corrections('IDcorrections', $series); // ID corrections should only for specific resource
-        foreach($pairs as $pair) {
-            $sought_pageID = $pair[0];
-            $newID = $pair[1];
-            if($page_id == $sought_pageID) return self::fix_further($page_id, $canonical, $newID);
+        if($series) {
+            $pairs = self::get_all_ids_from_Katja_corrections('IDcorrections', $series); // ID corrections should only for specific resource
+            foreach($pairs as $pair) {
+                $sought_pageID = $pair[0];
+                $newID = $pair[1];
+                if($page_id == $sought_pageID) return self::fix_further($page_id, $canonical, $newID);
+            }    
         }
         // */
 
