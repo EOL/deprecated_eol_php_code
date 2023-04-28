@@ -51,7 +51,7 @@ class CypherQueryAPI
     {        
         if($input['params']['source'] == "https://doi.org/10.1007/s13127-017-0350-6") $this->with_DISTINCT_YN = false;
 
-        // print_r($input); exit;
+        print_r($input); //exit;
         self::initialize_path($input);
         // /* report filename
         /* orig working
