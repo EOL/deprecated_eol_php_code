@@ -476,24 +476,68 @@ class WikiDataMtce_ResourceAPI
         $out = shell_exec("wc -l ".$destination_qs_file);
         echo "\n$out\n";
     }
+    function adjust_from_S3452_to_S248() //worked OK!
+    {   /* Given:   Q10398723|P2974|Q113024778|S3452|Q113217115
+        Generate:
+                    -Q10398723|P2974|Q113024778
+                    Q10398723|P2974|Q113024778|S248|Q113217115
+        */
+        $folders = array('b564eab0404081f7381bbf76b759fedb');
+        foreach($folders as $folder) {
+
+            $source_qs_file      = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file.qs"; //any export_file.qs
+            $destination_qs_file = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_S248.qs";
+            $WRITE = Functions::file_open($destination_qs_file, "w");
+    
+            $i = 0; $hits = 0;
+            foreach(new FileIterator($source_qs_file) as $line => $row) { $i++;
+                if(stripos($row, "|S3452|") !== false) { $hits++; //string is found
+                    echo "\n$i. ".$row; echo " --- x $hits";
+                    $remove = $this->remove_S_part($row, 3452);
+                    fwrite($WRITE, $remove."\n");
+                    $new = str_ireplace("|S3452|", "|S248|", $row);
+                    fwrite($WRITE, $new."\n");
+                }
+            }
+            fclose($WRITE);
+            echo "\nhits: $hits\n";
+            $out = shell_exec("wc -l ".$destination_qs_file);
+            echo "\n$out\n";
+
+        } //end foreach
+    }
+    function remove_S_part($row, $str_2remove)
+    {
+        $pos = strpos($row, "|S".$str_2remove);
+        if(!$pos) {
+            echo("\nNeed to investigate aaa.\nrow: [$row]\n");
+            return "-".$row;
+        }
+        else return "-".substr($row, 0, $pos);
+    }
 
     function run_any_qs_export_file()
     {
-        /* 1st client
+        /* 1st client DONE
         $input['report for'] = "Flora_ADJ"; //Flora 753 adjustments --- this does a delete+add: in effect it replaces the property P183 to P9714
         $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/Flora_753/export_file_final.qs";
         */
 
-        /* 2nd client
+        /* 2nd client DONE
         $input['report for'] = "fpnas_ADJ"; //to delete all with ref Q90856597 (n = 151,862)
         $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/fpnas_2delete/export_file_2del_ambrosia.qs";
         $input['what'] = "to delete";
         */
 
-        // /* 3rd client
+        /* 3rd client RUNNING
         $input['report for'] = "del_Kubitzki_inferred"; //delete all recs (n = 93,080)
         $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/Kubitzki_inferred_2delete/export_file.qs";
         $input['what'] = "to delete";
+        */
+
+        // /* 4th RUNNING... S248 series
+        $input['report for'] = "S248";
+        $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/b564eab0404081f7381bbf76b759fedb/export_file_S248.qs";
         // */
 
         $this->eol_resource_id = $input['report for'];
