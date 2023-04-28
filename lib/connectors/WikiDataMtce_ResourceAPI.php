@@ -222,6 +222,7 @@ class WikiDataMtce_ResourceAPI
             [ref.literal] => Ritter, M.R. & Miotto, S.T.S.. 2005. Hoehnea,32(3):309-359,2005.
             [how] => identifier-map
         )*/
+        // print_r($rec);
         $r = array();
         $r[] = $rec['pred.name'];           //=> native range includes
         $r[] = $final['predicate_entity'];  //=> https://www.wikidata.org/wiki/Property:P9714
