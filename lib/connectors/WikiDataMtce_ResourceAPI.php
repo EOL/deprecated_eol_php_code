@@ -35,19 +35,37 @@ class WikiDataMtce_ResourceAPI
             [r.resource_id] => 753
             [trait.source] => 
             [trait.citation] => 
+        )
+        Array(
+            [r.resource_id] => pnas
+            [trait.source] => https://doi.org/10.1007/s13127-017-0350-6
+            [trait.citation] => 
         )*/
         /* good way to run 1 resource for investigation
         if($rec['r.resource_id'] != 753) return; // Flora do Brasil           
         */
+        
+        if(ctype_alpha($rec['r.resource_id'])) {}
+        if(ctype_digit($rec['r.resource_id'])) $rec['r.resource_id'] = (int) $rec['r.resource_id'];
+
 
         $input = array();
-        $input["params"] = array("resource_id" => (int) $rec['r.resource_id']);
+        $input["params"] = array("resource_id" => $rec['r.resource_id']);
         $input["type"] = "wikidata_base_qry_resourceID";
+
+        
+        // /* new block Apr 28, 2023
+        if($rec['r.resource_id'] == "pnas") { // https://doi.org/10.1007/s13127-017-0350-6
+            $input["params"] = array("source" => $rec['trait.source']);
+            $input["type"] = "wikidata_base_qry_source";
+        }
+        // */
+
         $input["per_page"] = $this->per_page_2; //1000
         
         $input["trait kind"] = "trait";
         // $json = json_encode($input);
-        // print_r($input); exit("\n[$json]\nstop muna2\n");
+        print_r($input); //exit("\n[$json]\nstop muna2\n");
         $path1 = $this->generate_report_path($input); echo "\n".$input["trait kind"]." path: [$path1]\n";
         $file1 = $path1.$input['trait kind']."_qry.tsv";
         $tmp_batch_export1 = $path1 . "/temp_export.qs";
