@@ -201,12 +201,11 @@ Will see how to best accomplish the 2 adjustments:
 // exit;
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $spreadsheet = "resources_list.csv"; //run per resource --- e.g. "Flora do Brasil (753)" "Kubitzki et al (822)"
-/* orig
-$func->run_all_resources($spreadsheet, 'generate trait reports'); //generate trait reports
-*/
-// $func->run_all_resources($spreadsheet, 'generate trait reports', 'pnas'); //generate trait reports
 
-$func->run_all_resources($spreadsheet, 'create WD traits', 753); //read export file and send to QuickStatements
+// $func->run_all_resources($spreadsheet, 'generate trait reports'); //generate trait reports // orig
+$func->run_all_resources($spreadsheet, 'generate trait reports', 'pnas'); //generate trait reports
+
+// $func->run_all_resources($spreadsheet, 'create WD traits', 753); //read export file and send to QuickStatements
 // $func->run_all_resources($spreadsheet, 'remove WD traits'); //read export file and send to QuickStatements - only for those traits in WD already.
 // ========== */
 
@@ -330,8 +329,12 @@ print_r($pairs);
 
 /* utility --- working OK, pretty good actually.
 $func = new WikiDataMtceAPI();
+
 // $func->qs_export_file_adjustments(); //works OK --- runs independently
+
 $func->run_any_qs_export_file(); //works OK --- runs independently
+
+// $func->adjust_from_S3452_to_S248(); //works OK --- runs independently
 */
 
 // -Q13536186|P9566|Q101029366|S3452|Q90856597
