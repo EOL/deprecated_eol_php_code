@@ -483,6 +483,11 @@ class WikiDataMtce_ResourceAPI
                     Q10398723|P2974|Q113024778|S248|Q113217115
         */
         $folders = array('b564eab0404081f7381bbf76b759fedb');
+        $folders = array('53264aeaff9f996093b9b555a5308020');
+        $folders = array('bf64239ace12e4bd48f16387713bc309');
+        $folders = array('3f63a25e04c425e41767f3a7192c964d');
+        $folders = array('ec39332ee0b39fc646c95a2b03467d43');
+        $folders = array('64becbfe6064c00e01bde4849ce1a8b3');
         foreach($folders as $folder) {
 
             $source_qs_file      = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file.qs"; //any export_file.qs
@@ -537,8 +542,21 @@ class WikiDataMtce_ResourceAPI
 
         // /* 4th RUNNING... S248 series
         $input['report for'] = "S248";
-        $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/b564eab0404081f7381bbf76b759fedb/export_file_S248.qs";
+        // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/b564eab0404081f7381bbf76b759fedb/export_file_S248.qs";
+        $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/64becbfe6064c00e01bde4849ce1a8b3/export_file_S248_trans.qs";
         // */
+
+        /* 5th
+        $input['report for'] = "del_series_31"; //delete all recs (n = 260,744)
+        $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/31_2delete/export_file.qs";
+        $input['what'] = "to delete";
+        */
+
+        /* currently being done...
+        - deletion of row 31
+        - confirmation of Flora do Brasil
+        */
+
 
         $this->eol_resource_id = $input['report for'];
 
