@@ -194,10 +194,11 @@ From User_talk:EOLTraits
 
 Will see how to best accomplish the 2 adjustments:
 --- will now use only P248. Will no longer use P3452. Have everything that is written to WD to use P248.
---- will re-run query for Kawahara et al. Generate a new export file. Will expect to be half the size of the original. Then will start writing to WD. This was the resource we've recently removed from WD.
+--- will re-run query for Kawahara et al. Generate a new export file. Will expect to be half the size of the original. 
+Then will start writing to WD. This was the resource we've recently removed from WD.
 */
 
-// /* ========== run all resources - MAIN OPERATION
+/* ========== run all resources - MAIN OPERATION
 // exit;
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $spreadsheet = "resources_list.csv"; //run per resource --- e.g. "Flora do Brasil (753)" "Kubitzki et al (822)"
@@ -207,7 +208,7 @@ $func->run_all_resources($spreadsheet, 'generate trait reports', 'pnas'); //gene
 
 // $func->run_all_resources($spreadsheet, 'create WD traits', 753); //read export file and send to QuickStatements
 // $func->run_all_resources($spreadsheet, 'remove WD traits'); //read export file and send to QuickStatements - only for those traits in WD already.
-// ========== */
+========== */
 
 // 10
 // Q15396511|P9714|Q388614|S3452|Q117188304
