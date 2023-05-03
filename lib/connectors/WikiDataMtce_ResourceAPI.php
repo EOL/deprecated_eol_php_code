@@ -449,12 +449,11 @@ class WikiDataMtce_ResourceAPI
                     $this->origsource_sciname_info[$rec['canonicalName']] = '';
                 }
                 elseif($what == 'kubitzki_pagenos') {
-                    $this->kubitzki_pagenos[$rec['ref_entity']][$rec['Taxon']] = $rec['page']; 
+                    $this->kubitzki_pagenos[$rec['ref_entity']][$rec['Taxon']] = $rec['page'];
                 }
             }
         } //end foreach()
-        if($what == 'kubitzki_pagenos') unlink($file);
-        // print_r($this->kubitzki_pagenos); exit;
+        if($what == 'kubitzki_pagenos') unlink($file); // print_r($this->kubitzki_pagenos); exit;
     }
     function start_print_debug($debug, $series, $eol_resource_id)
     {
@@ -506,7 +505,10 @@ class WikiDataMtce_ResourceAPI
         $folders = array('3f63a25e04c425e41767f3a7192c964d');
         $folders = array('ec39332ee0b39fc646c95a2b03467d43');
         $folders = array('64becbfe6064c00e01bde4849ce1a8b3');
-        $folders = array('da23f9319bb205e88bcdeab285f494d7', 'a5af381f83c7c52cde68c2a8c7372d10'); //10 & 11 rows
+        $folders = array('da23f9319bb205e88bcdeab285f494d7', 'a5af381f83c7c52cde68c2a8c7372d10'); //10 & 11 rows DONE
+        $folders = array('f6e844e9ac7eae380bdaa91b6c0385a1'); //13
+        $folders = array('27ee919870baffc5e81ba788ed7ae593'); //14
+
 
         foreach($folders as $folder) {
 
@@ -560,23 +562,22 @@ class WikiDataMtce_ResourceAPI
         $input['what'] = "to delete";
         */
 
-        // /* 4th RUNNING... S248 series
+        /* 4th RUNNING... S248 series
         $input['report for'] = "S248";
         // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/b564eab0404081f7381bbf76b759fedb/export_file_S248.qs";
         // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/64becbfe6064c00e01bde4849ce1a8b3/export_file_S248_trans.qs";
-
-        // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/a5af381f83c7c52cde68c2a8c7372d10/export_file_S248.qs"; //running
-
+        // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/a5af381f83c7c52cde68c2a8c7372d10/export_file_S248.qs"; //done
+        // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/da23f9319bb205e88bcdeab285f494d7/export_file_S248.qs"; //done
+        // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/f6e844e9ac7eae380bdaa91b6c0385a1/export_file_S248.qs"; //13 done
         $input['report for'] = "S248_b";
-        $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/da23f9319bb205e88bcdeab285f494d7/export_file_S248.qs"; //running
+        // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/27ee919870baffc5e81ba788ed7ae593/export_file_S248.qs"; //14 done
+        */
 
-        // */
-
-        /* 5th
+        // /* 5th
         $input['report for'] = "del_series_31"; //delete all recs (n = 260,744)
         $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/31_2delete/export_file.qs";
         $input['what'] = "to delete";
-        */
+        // */
 
         /* currently being done...
         - deletion of row 31
@@ -618,7 +619,7 @@ class WikiDataMtce_ResourceAPI
 
             echo "\n".$row;
             fwrite($WRITE, $row."\n");
-            if(($i % 25) == 0) { $batch_num++; // % 3 25 5
+            if(($i % 50) == 0) { $batch_num++; // % 3 25 5 --- when deleting use 50. The rest use 25
                 echo "\n-----";
                 fclose($WRITE);
                 $this->run_quickstatements_api($batch_name, $batch_num);
@@ -631,7 +632,42 @@ class WikiDataMtce_ResourceAPI
         $batch_num++;
         $this->run_quickstatements_api($batch_name, $batch_num);
     }
+    function get_genus_part($str)
+    {
+        $parts = explode(" ", $str);
+        return $parts[0];
+    }
+    function get_ancestry_given_taxon_entity($wikidata_id)
+    {   echo "\nGetting ancestry [$wikidata_id]...\n";
+        while(true) {
+            $parent_id = $this->get_WD_obj_using_id($wikidata_id, 'parent_id');            
+            if(!$parent_id) break; 
+            $name = $this->get_WD_obj_using_id($parent_id, 'label');            
+            echo "\n[$parent_id]-[$name]\n";
+            $wikidata_id = $parent_id;
+            $final[$name] = $parent_id;
+        }
+        // print_r($final);
+        // print_r(array_keys($final));
+        return $final;
 
+        // print_r($obj); --- below to get parent ID or property P171
+        // [P171] => Array(
+        //     [0] => stdClass Object(
+        //             [mainsnak] => stdClass Object(
+        //                     [snaktype] => value
+        //                     [property] => P171
+        //                     [hash] => 89fde5f5c90993da338ad22fa366982064ac41b0
+        //                     [datavalue] => stdClass Object(
+        //                             [value] => stdClass Object(
+        //                                     [entity-type] => item
+        //                                     [numeric-id] => 53476
+        //                                     [id] => Q53476
+        // echo "\n".$obj->entities->Q2020837->claims->P171[0]->mainsnak->datavalue->value->id;
+
+
+        exit("\n111\n");
+    }
     /* copied template
     function xxx()
     {
