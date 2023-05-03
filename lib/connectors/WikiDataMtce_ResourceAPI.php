@@ -377,11 +377,19 @@ class WikiDataMtce_ResourceAPI
             self::get_sciname_with_this_eolID($page_id);
         }
     }
-    private function generate_info_list($what)
+    function generate_info_list($what)
     {
         if($what == 'dh_eolID_sciname_info')       $file = "/Volumes/Crucial_2TB/other_files2/dh21eolid/DH21taxaWeolIDs.txt";
         elseif($what == 'origsource_sciname_info') $file = "/Volumes/Crucial_2TB/other_files2/Brazilian_Flora_with_canonical/taxon.tab";
+        elseif($what == 'kubitzki_pagenos')        $file = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Kubitzki/KubitzkiPages.tsv";
         else exit("\nUndefined file: [$file]\n");
+
+        // /* special step
+        if(substr($file,0,4) == "http") { //e.g. 'kubitzki_pagenos'
+            $file = Functions::save_remote_file_to_local($file, array('cache' => 1, 'expire_seconds' => 60*60*24*30));
+        }
+        // */
+
         echo "\nReading $file...\n";
         $i = 0;
         foreach(new FileIterator($file) as $line => $row) { $i++;
@@ -428,15 +436,25 @@ class WikiDataMtce_ResourceAPI
                     [taxonomicStatus] => accepted
                     [modified] => 2018-08-10 11:58:06.954
                     [canonicalName] => Agaricales
+                )
+                Array(
+                    [ref_entity] => Q116224190
+                    [Taxon] => Acrosorus
+                    [page] => 156
                 )*/
                 if($what == 'dh_eolID_sciname_info') {
                     $this->dh_eolID_sciname_info[$rec['eolID']] = $rec['canonicalName'];
                 }
-                if($what == 'origsource_sciname_info') {
+                elseif($what == 'origsource_sciname_info') {
                     $this->origsource_sciname_info[$rec['canonicalName']] = '';
                 }
+                elseif($what == 'kubitzki_pagenos') {
+                    $this->kubitzki_pagenos[$rec['ref_entity']][$rec['Taxon']] = $rec['page']; 
+                }
             }
-        }
+        } //end foreach()
+        if($what == 'kubitzki_pagenos') unlink($file);
+        // print_r($this->kubitzki_pagenos); exit;
     }
     function start_print_debug($debug, $series, $eol_resource_id)
     {
