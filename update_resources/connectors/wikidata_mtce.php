@@ -198,7 +198,7 @@ Will see how to best accomplish the 2 adjustments:
 Then will start writing to WD. This was the resource we've recently removed from WD.
 */
 
-// /* ========== run all resources - MAIN OPERATION
+/* ========== run all resources - MAIN OPERATION ==========
 // exit;
 $spreadsheet = "circadian_rythm_resources_sans_pantheria.csv";
 $spreadsheet = "resources_list.csv"; //run per resource --- e.g. "Flora do Brasil (753)" "Kubitzki et al (822)"
@@ -211,7 +211,7 @@ $func->run_all_resources($spreadsheet, 'generate trait reports', '822'); //gener
 // $func->run_all_resources($spreadsheet, 'create WD traits', 753); //read export file and send to QuickStatements
 // $func->run_all_resources($spreadsheet, 'remove WD traits'); //read export file and send to QuickStatements - only for those traits in WD already.
 exit("\n----- end main operation -----\n");
-// ========== */
+========== end ========== */
 
 // 10
 // Q15396511|P9714|Q388614|S3452|Q117188304
@@ -339,6 +339,8 @@ $func = new WikiDataMtceAPI();
 $func->run_any_qs_export_file(); //works OK --- runs independently
 
 // $func->adjust_from_S3452_to_S248(); //works OK --- runs independently
+
+// $func->get_ancestry_given_taxon_entity('Q1472074'); //test func
 // ==================== */
 
 // -Q13536186|P9566|Q101029366|S3452|Q90856597
