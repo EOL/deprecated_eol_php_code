@@ -506,8 +506,10 @@ class WikiDataMtce_ResourceAPI
         $folders = array('ec39332ee0b39fc646c95a2b03467d43');
         $folders = array('64becbfe6064c00e01bde4849ce1a8b3');
         $folders = array('da23f9319bb205e88bcdeab285f494d7', 'a5af381f83c7c52cde68c2a8c7372d10'); //10 & 11 rows DONE
-        $folders = array('f6e844e9ac7eae380bdaa91b6c0385a1'); //13
-        $folders = array('27ee919870baffc5e81ba788ed7ae593'); //14
+        $folders = array('f6e844e9ac7eae380bdaa91b6c0385a1'); //13 DONE
+        $folders = array('27ee919870baffc5e81ba788ed7ae593'); //14 DONE
+        $folders = array('e9065861b9027ed7c16932e14b7fea98'); //15
+        $folders = array('fcde2bf04c7179129e08be03f013c47e'); //16
 
 
         foreach($folders as $folder) {
@@ -648,7 +650,7 @@ class WikiDataMtce_ResourceAPI
             $parent_id = $this->get_WD_obj_using_id($wikidata_id, 'parent_id');            
             if(!$parent_id) break; 
             $name = $this->get_WD_obj_using_id($parent_id, 'label');            
-            echo "\n[$parent_id]-[$name]\n";
+            // echo "\n[$parent_id]-[$name]\n";
             $wikidata_id = $parent_id;
             $final[$name] = $parent_id;
         }
@@ -684,7 +686,7 @@ class WikiDataMtce_ResourceAPI
                 $final['P304'] = $page_nos;
             }
             else {
-                $sciname = self::get_WD_obj_using_id($final['taxon_entity'], 'label');
+                $sciname = $this->get_WD_obj_using_id($final['taxon_entity'], 'label');
                 $genus_part = $this->get_genus_part($sciname);
                 if($page_nos = @$this->kubitzki_pagenos[$citation_WD_id][$genus_part]) {
                     $final['P304'] = $page_nos;
@@ -692,7 +694,7 @@ class WikiDataMtce_ResourceAPI
                 else {
 
                     $ret = $this->get_ancestry_given_taxon_entity($final['taxon_entity']);
-                    $ancestry = array_keys($ret);
+                    $ancestry = array_keys($ret); print_r($ancestry);
                     $found_YN = false;
                     foreach($ancestry as $ancestry_name) {
                         if($page_nos = @$this->kubitzki_pagenos[$citation_WD_id][$ancestry_name]) {
@@ -707,6 +709,7 @@ class WikiDataMtce_ResourceAPI
                         $tmp = array();
                         $tmp['main'] = $final;
                         $tmp['addtl']['p.canonical'] = $rec['p.canonical'];
+                        if(!$rec['p.canonical']) $tmp['addtl']['lookup canonical'] = $this->get_WD_obj_using_id($final['taxon_entity'], 'label');
                         $tmp['addtl']['pred.name'] = $rec['pred.name'];
                         $tmp['addtl']['t.source'] = $rec['t.source'];
                         if(!in_array($tmp, $this->debug['Page nos not found'])) $this->debug['Page nos not found'][] = $tmp;    
@@ -715,7 +718,9 @@ class WikiDataMtce_ResourceAPI
                 }    
             }
         }
+        return $final;
     }
+
     /* copied template
     function xxx()
     {
