@@ -673,6 +673,49 @@ class WikiDataMtce_ResourceAPI
 
         exit("\n111\n");
     }
+    function process_page_nos_routine($rec, $final, $citation_WD_id)
+    {
+        if($page_nos = @$this->kubitzki_pagenos[$citation_WD_id][$rec['p.canonical']]) {
+            $final['P304'] = $page_nos;
+        }
+        else {
+            $genus_part = $this->get_genus_part($rec['p.canonical']);
+            if($page_nos = @$this->kubitzki_pagenos[$citation_WD_id][$genus_part]) {
+                $final['P304'] = $page_nos;
+            }
+            else {
+                $sciname = self::get_WD_obj_using_id($final['taxon_entity'], 'label');
+                $genus_part = $this->get_genus_part($sciname);
+                if($page_nos = @$this->kubitzki_pagenos[$citation_WD_id][$genus_part]) {
+                    $final['P304'] = $page_nos;
+                }
+                else {
+
+                    $ret = $this->get_ancestry_given_taxon_entity($final['taxon_entity']);
+                    $ancestry = array_keys($ret);
+                    $found_YN = false;
+                    foreach($ancestry as $ancestry_name) {
+                        if($page_nos = @$this->kubitzki_pagenos[$citation_WD_id][$ancestry_name]) {
+                            $final['P304'] = $page_nos;
+                            $found_YN = true;
+                            break;
+                        }
+                    }
+
+                    if(!$found_YN) {
+                        echo "\n-------------------------\n"; print_r($rec); print_r($final); // exit("\nPage nos. not found.\n");
+                        $tmp = array();
+                        $tmp['main'] = $final;
+                        $tmp['addtl']['p.canonical'] = $rec['p.canonical'];
+                        $tmp['addtl']['pred.name'] = $rec['pred.name'];
+                        $tmp['addtl']['t.source'] = $rec['t.source'];
+                        if(!in_array($tmp, $this->debug['Page nos not found'])) $this->debug['Page nos not found'][] = $tmp;    
+                    }
+
+                }    
+            }
+        }
+    }
     /* copied template
     function xxx()
     {
