@@ -31,7 +31,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $this->per_page_2 = 1000;
         $this->resourceID_mTypes[753] = array('native range includes', 'native range', 'endemic to');
         $this->resourceID_mTypes[822] = array('native range includes', 'native range', 'geographic distribution');
-        $this->resourceID_mTypes['pnas'] = array('behavioral circadian rhythm');
+        $this->resourceID_mTypes['pnas'] = array('behavioral circadian rhythm'); //Kawahara resource totally out
     }
     function get_WD_entityID_for_DOI($doi)
     {
