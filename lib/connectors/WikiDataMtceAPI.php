@@ -33,6 +33,207 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $this->resourceID_mTypes[822] = array('native range includes', 'native range', 'geographic distribution');
         $this->resourceID_mTypes['pnas'] = array('behavioral circadian rhythm'); //Kawahara resource totally out
     }
+    function run_all_resources($spreadsheet, $task, $resource_idx = false)
+    {
+        /* works ok if you don't need to format/clean the entire row.
+        $file = Functions::file_open($this->text_path[$type], "r");
+        while(!feof($file)) { $row = fgetcsv($file); }
+        fclose($file);
+        */
+        $this->spreadsheet = $spreadsheet;
+        self::prep_stop_node_query();
+
+        // /*
+        $this->removed_traits_stop_node = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/removed_traits_stop_node.tsv";
+        if(file_exists($this->removed_traits_stop_node)) unlink($this->removed_traits_stop_node); //un-comment in real operation
+        $final = array();
+        $final[] = 'row';
+        $final[] = 'p.canonical';
+        $final[] = 'p.page_id';
+        // if($input["trait kind"] == "inferred_trait") {
+            $final[] = 't.eol_pk';
+            $final[] = 'p.rank';
+        // }
+        $final[] = 'pred.name';
+        $final[] = 'stage.name';
+        $final[] = 'sex.name'; 
+        $final[] = 'stat.name';
+        $final[] = 'obj.name';
+        // if($input['type'] == "wikidata_base_qry_resourceID") {
+            $final[] = 'obj.uri';
+        // }
+        $final[] = 't.measurement';
+        $final[] = 'units.name';
+        $final[] = 't.source';
+        $final[] = 't.citation';
+        $final[] = 'ref.literal';
+        $WRITE = Functions::file_open($this->removed_traits_stop_node, "w");
+        fwrite($WRITE, implode("\t", $final)."\n");
+        fclose($WRITE);
+        // */
+        
+        $spreadsheet = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/resources/".$spreadsheet;
+        $total = shell_exec("wc -l < ".escapeshellarg($spreadsheet)); $total = trim($total);
+        $i = 0;
+        foreach(new FileIterator($spreadsheet) as $line_number => $line) { $i++; $this->progress = "\n$i of $total resources\n";
+            if(!$line) continue;
+            $row = str_getcsv($line);
+            if(!$row) continue;
+            if($i == 1) { $fields = $row; $count = count($fields); continue;}
+            else { //main records
+                /* during dev only
+                if($i % 2 == 0) {echo "\n[EVEN]\n"; continue;} //even
+                else {echo "\n[ODD]\n"; } //odd
+                */
+
+                $values = $row; $k = 0; $rec = array();
+                foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
+                $rec = array_map('trim', $rec); //important step
+                // print_r($rec); exit;
+                $this->is_the_title = false;
+
+                // /* takbo
+                $real_row = $i - 1;
+                $this->real_row = $real_row;
+                $this->unique_row = array();
+                $this->eol_resource_id = @$rec['r.resource_id']; // e.g. 1051 1053 753 822
+
+                if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
+                    if($real_row == 31) $this->with_DISTINCT_YN = false;
+                    else                $this->with_DISTINCT_YN = true; //the rest goes here
+                }
+                elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
+
+                    // /* special cases
+                    if($resource_idx == $this->eol_resource_id) { //Kubitzki
+                        // exit("\n".$this->eol_resource_id."\n".$resource_idx."\n111\n");
+
+                        $this->generate_info_list('kubitzki_pagenos'); // exit("\nstop munax\n");
+                    }
+                    // */
+
+                    /* working but a manual step
+                    // if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
+                    if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
+                    */
+                    // /* new: now with a param $resource_idx
+                    if($resource_idx) { //if it has a value, then process only this resource ID
+                        if($rec['r.resource_id'] == $resource_idx) {} //process this resource ID
+                        else continue;    
+                    }
+                    else exit("\nWill exit for now. No resource_idx.\n");
+                    // */
+
+                    $this->with_DISTINCT_YN = false;
+                    /*print_r($rec); Array(
+                        [r.resource_id] => 753
+                        [trait.source] => 
+                        [trait.citation] => 
+                    )*/
+
+                    // /* ----- initialize
+                    if($this->eol_resource_id == 753) {
+                        require_library('connectors/DwCA_RunGNParser');
+                        $this->gnparser = new DwCA_RunGNParser(false, 'gnparser', false);
+                        /*---------------------*/
+                        $this->is_sciname_present_from_source('Gadus morhua');
+                    }
+                    $not_used = self::get_sciname_with_this_eolID(173); //for improved taxon matching - per Katja. Triggered early.
+                    // */ -----
+                }
+
+                //---------------------------------------------------------------
+                // if(!in_array($real_row, array(11,13,17,19,20))) continue; //dev only  --- for removal all DONE. 21 also has for remove but no need to run remove script.
+                // if(!in_array($real_row, array(11))) continue; //dev only  --- our very first
+                // if(!in_array($real_row, array(3))) continue; //  --- fpnas 198187
+                // row 5 ignore deltakey
+                // row 12 -- zero results for query by citation and source
+                // if(!in_array($real_row, array(31))) continue; // biggest 403648
+                // */
+
+                if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
+                    // if(!in_array($real_row, array(3))) continue; // to QuickStatements DONE
+                    if(!in_array($real_row, array(31))) continue; // to QuickStatements running...
+                    /* 
+                    status Mar 19
+                    row 3 - all traits from this are now in WikiData
+                    row 31 left un-written
+                    
+                    status Mar 7
+                    rows 21,22,23,24,25,26,27,28,29,30 - all traits from these are now in WikiData.
+                    rows 3 and 31 left un-written
+                
+                    status Feb 28, 2023
+                    rows 3 - taxonomic corrections implemented, to be sent to QuickStatements.
+                    rows 21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
+                    rows 31 - taxonomic corrections implemented, to be sent to QuickStatements.
+                    
+                    status Feb 18, 2023
+                    rows 1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20 - all traits from these are now in WikiData.
+                    rows 3,21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
+                    row 5 - will be ignored for now (delta-key).
+                    row 12 - was run but no records returned. Will investigate more. Will inform Jen. (1038 https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2)
+                    row 31 - for taxonomic review
+                    */
+                }
+                elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
+                    /* moved above
+                    if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
+                    // if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
+                    */
+                }
+
+                echo "\nrow: $real_row\n"; //exit;
+
+                if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
+                    // /* new block
+                    if($real_row == 31) $this->removed_from_row_31 = self::get_all_ids_from_Katja_corrections('remove', '31_1053');
+                    else {
+                        if(isset($this->removed_from_row_31)) unset($this->removed_from_row_31);
+                    }
+                    // */
+                }
+                elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
+                    /* old implementation: from Katja
+                     $arr1 = self::get_all_ids_from_Katja_corrections('remove', '31_1053'); // remove routine should be for ALL resources - By Eli.
+                     $arr2 = self::get_all_ids_from_Katja_corrections('remove', 'FloraDoBrasil'); // remove routine should be for ALL resources - By Eli.
+                     $this->removed_from_row_31 = array_merge($arr1, $arr2);
+                     unset($arr1); unset($arr2);
+                    */
+                    // /* new implementation: from Katja                            ***remove***
+                        if($this->eol_resource_id == 753) $this->removed_from_row_31 = self::get_all_ids_from_Katja_corrections('remove', 'FloraDoBrasil');
+                    elseif($this->eol_resource_id == 822) $this->removed_from_row_31 = self::get_all_ids_from_Katja_corrections('remove', 'Kubitzkietal');
+                    else {
+                        if(isset($this->removed_from_row_31)) unset($this->removed_from_row_31);
+                    }
+                    // */
+                }
+                // print_r($rec); exit("\ntask: [$task]\n");
+
+                if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
+                    $paths = self::run_resource_traits($rec, $task);
+                }
+                elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
+                    $paths = self::run_1_resource_traits($rec, $task);
+                }
+
+                /*############################### START #####################################*/ //to do: can move to its own function
+                if($task == 'generate trait reports') { //copy 2 folders to /rowNum_resourceID/
+                    self::copy_2_folders_to_rowNum_resourceID($paths, $rec, $real_row);
+                }
+                /*############################### END #####################################*/
+                // break; //process just first record
+                // if($i >= 3) break; //debug only
+            }
+
+            // print_r($this->debug);
+            if(isset($this->debug)) $this->start_print_debug($this->debug, 1, $this->eol_resource_id);
+        }
+        echo "\ncitation not mapped to WD: all = ".count(@$this->debug2['citation not mapped to WD: all'])."\n";
+        echo "\ngrand_total_export_file: ".@$this->grand_total_export_file."\n";
+        if(isset($this->debug2)) $this->start_print_debug($this->debug2, 2, 'debug_2');
+
+    }
     function get_WD_entityID_for_DOI($doi)
     {
         $doi = str_ireplace("https://doi.org/", "", $doi);
@@ -1290,207 +1491,6 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         echo "\nstop_node_query: ".count($this->stop_node_query)."\n"; //exit;
         unset($func);
         // exit("\n-end-\n");
-    }
-    function run_all_resources($spreadsheet, $task, $resource_idx = false)
-    {
-        /* works ok if you don't need to format/clean the entire row.
-        $file = Functions::file_open($this->text_path[$type], "r");
-        while(!feof($file)) { $row = fgetcsv($file); }
-        fclose($file);
-        */
-        $this->spreadsheet = $spreadsheet;
-        self::prep_stop_node_query();
-
-        // /*
-        $this->removed_traits_stop_node = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/removed_traits_stop_node.tsv";
-        if(file_exists($this->removed_traits_stop_node)) unlink($this->removed_traits_stop_node); //un-comment in real operation
-        $final = array();
-        $final[] = 'row';
-        $final[] = 'p.canonical';
-        $final[] = 'p.page_id';
-        // if($input["trait kind"] == "inferred_trait") {
-            $final[] = 't.eol_pk';
-            $final[] = 'p.rank';
-        // }
-        $final[] = 'pred.name';
-        $final[] = 'stage.name';
-        $final[] = 'sex.name'; 
-        $final[] = 'stat.name';
-        $final[] = 'obj.name';
-        // if($input['type'] == "wikidata_base_qry_resourceID") {
-            $final[] = 'obj.uri';
-        // }
-        $final[] = 't.measurement';
-        $final[] = 'units.name';
-        $final[] = 't.source';
-        $final[] = 't.citation';
-        $final[] = 'ref.literal';
-        $WRITE = Functions::file_open($this->removed_traits_stop_node, "w");
-        fwrite($WRITE, implode("\t", $final)."\n");
-        fclose($WRITE);
-        // */
-        
-        $spreadsheet = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/resources/".$spreadsheet;
-        $total = shell_exec("wc -l < ".escapeshellarg($spreadsheet)); $total = trim($total);
-        $i = 0;
-        foreach(new FileIterator($spreadsheet) as $line_number => $line) { $i++; $this->progress = "\n$i of $total resources\n";
-            if(!$line) continue;
-            $row = str_getcsv($line);
-            if(!$row) continue;
-            if($i == 1) { $fields = $row; $count = count($fields); continue;}
-            else { //main records
-                /* during dev only
-                if($i % 2 == 0) {echo "\n[EVEN]\n"; continue;} //even
-                else {echo "\n[ODD]\n"; } //odd
-                */
-
-                $values = $row; $k = 0; $rec = array();
-                foreach($fields as $field) { $rec[$field] = $values[$k]; $k++; }
-                $rec = array_map('trim', $rec); //important step
-                // print_r($rec); exit;
-                $this->is_the_title = false;
-
-                // /* takbo
-                $real_row = $i - 1;
-                $this->real_row = $real_row;
-                $this->unique_row = array();
-                $this->eol_resource_id = @$rec['r.resource_id']; // e.g. 1051 1053 753 822
-
-                if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
-                    if($real_row == 31) $this->with_DISTINCT_YN = false;
-                    else                $this->with_DISTINCT_YN = true; //the rest goes here
-                }
-                elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
-
-                    // /* special cases
-                    if($resource_idx == $this->eol_resource_id) { //Kubitzki
-                        // exit("\n".$this->eol_resource_id."\n".$resource_idx."\n111\n");
-
-                        $this->generate_info_list('kubitzki_pagenos'); // exit("\nstop munax\n");
-                    }
-                    // */
-
-                    /* working but a manual step
-                    // if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
-                    if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
-                    */
-                    // /* new: now with a param $resource_idx
-                    if($resource_idx) { //if it has a value, then process only this resource ID
-                        if($rec['r.resource_id'] == $resource_idx) {} //process this resource ID
-                        else continue;    
-                    }
-                    else exit("\nWill exit for now. No resource_idx.\n");
-                    // */
-
-                    $this->with_DISTINCT_YN = false;
-                    /*print_r($rec); Array(
-                        [r.resource_id] => 753
-                        [trait.source] => 
-                        [trait.citation] => 
-                    )*/
-
-                    // /* ----- initialize
-                    if($this->eol_resource_id == 753) {
-                        require_library('connectors/DwCA_RunGNParser');
-                        $this->gnparser = new DwCA_RunGNParser(false, 'gnparser', false);
-                        /*---------------------*/
-                        $this->is_sciname_present_from_source('Gadus morhua');
-                    }
-                    $not_used = self::get_sciname_with_this_eolID(173); //for improved taxon matching - per Katja. Triggered early.
-                    // */ -----
-                }
-
-                //---------------------------------------------------------------
-                // if(!in_array($real_row, array(11,13,17,19,20))) continue; //dev only  --- for removal all DONE. 21 also has for remove but no need to run remove script.
-                // if(!in_array($real_row, array(11))) continue; //dev only  --- our very first
-                // if(!in_array($real_row, array(3))) continue; //  --- fpnas 198187
-                // row 5 ignore deltakey
-                // row 12 -- zero results for query by citation and source
-                // if(!in_array($real_row, array(31))) continue; // biggest 403648
-                // */
-
-                if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
-                    // if(!in_array($real_row, array(3))) continue; // to QuickStatements DONE
-                    if(!in_array($real_row, array(31))) continue; // to QuickStatements running...
-                    /* 
-                    status Mar 19
-                    row 3 - all traits from this are now in WikiData
-                    row 31 left un-written
-                    
-                    status Mar 7
-                    rows 21,22,23,24,25,26,27,28,29,30 - all traits from these are now in WikiData.
-                    rows 3 and 31 left un-written
-                
-                    status Feb 28, 2023
-                    rows 3 - taxonomic corrections implemented, to be sent to QuickStatements.
-                    rows 21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
-                    rows 31 - taxonomic corrections implemented, to be sent to QuickStatements.
-                    
-                    status Feb 18, 2023
-                    rows 1,2,4,6,7,8,9,10,11,13,14,15,16,17,18,19,20 - all traits from these are now in WikiData.
-                    rows 3,21,22,23,24,25,26,27,28,29,30 - taxonomic corrections implemented, to be sent to QuickStatements.
-                    row 5 - will be ignored for now (delta-key).
-                    row 12 - was run but no records returned. Will investigate more. Will inform Jen. (1038 https://doi.org/10.2994/1808-9798(2008)3[58:HTBAAD]2.0.CO;2)
-                    row 31 - for taxonomic review
-                    */
-                }
-                elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
-                    /* moved above
-                    if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
-                    // if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
-                    */
-                }
-
-                echo "\nrow: $real_row\n"; //exit;
-
-                if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
-                    // /* new block
-                    if($real_row == 31) $this->removed_from_row_31 = self::get_all_ids_from_Katja_corrections('remove', '31_1053');
-                    else {
-                        if(isset($this->removed_from_row_31)) unset($this->removed_from_row_31);
-                    }
-                    // */
-                }
-                elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
-                    /* old implementation: from Katja
-                     $arr1 = self::get_all_ids_from_Katja_corrections('remove', '31_1053'); // remove routine should be for ALL resources - By Eli.
-                     $arr2 = self::get_all_ids_from_Katja_corrections('remove', 'FloraDoBrasil'); // remove routine should be for ALL resources - By Eli.
-                     $this->removed_from_row_31 = array_merge($arr1, $arr2);
-                     unset($arr1); unset($arr2);
-                    */
-                    // /* new implementation: from Katja                            ***remove***
-                        if($this->eol_resource_id == 753) $this->removed_from_row_31 = self::get_all_ids_from_Katja_corrections('remove', 'FloraDoBrasil');
-                    elseif($this->eol_resource_id == 822) $this->removed_from_row_31 = self::get_all_ids_from_Katja_corrections('remove', 'Kubitzkietal');
-                    else {
-                        if(isset($this->removed_from_row_31)) unset($this->removed_from_row_31);
-                    }
-                    // */
-                }
-                // print_r($rec); exit("\ntask: [$task]\n");
-
-                if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
-                    $paths = self::run_resource_traits($rec, $task);
-                }
-                elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
-                    $paths = self::run_1_resource_traits($rec, $task);
-                }
-
-                /*############################### START #####################################*/ //to do: can move to its own function
-                if($task == 'generate trait reports') { //copy 2 folders to /rowNum_resourceID/
-                    self::copy_2_folders_to_rowNum_resourceID($paths, $rec, $real_row);
-                }
-                /*############################### END #####################################*/
-                // break; //process just first record
-                // if($i >= 3) break; //debug only
-            }
-
-            // print_r($this->debug);
-            if(isset($this->debug)) $this->start_print_debug($this->debug, 1, $this->eol_resource_id);
-        }
-        echo "\ncitation not mapped to WD: all = ".count(@$this->debug2['citation not mapped to WD: all'])."\n";
-        echo "\ngrand_total_export_file: ".@$this->grand_total_export_file."\n";
-        if(isset($this->debug2)) $this->start_print_debug($this->debug2, 2, 'debug_2');
-
     }
     private function copy_2_folders_to_rowNum_resourceID($paths, $rec, $real_row)
     {   /*Array(
