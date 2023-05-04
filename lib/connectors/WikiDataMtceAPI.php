@@ -96,13 +96,8 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 $real_row = $i - 1;
                 $this->real_row = $real_row;
                 $this->unique_row = array();
-                $this->eol_resource_id = @$rec['r.resource_id']; // e.g. 1051 1053 753 822
 
-                if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
-                    if($real_row == 31) $this->with_DISTINCT_YN = false;
-                    else                $this->with_DISTINCT_YN = true; //the rest goes here
-                }
-                elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
+                if(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
                     // /* new: now with a param $resource_idx
                     if($resource_idx) { //if it has a value, then process only this resource ID
                         if($rec['r.resource_id'] == $resource_idx) {} //process this resource ID
@@ -110,9 +105,18 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     }
                     else exit("\nWill exit for now. No resource_idx.\n");
                     // */
+                }
+
+                $this->eol_resource_id = @$rec['r.resource_id']; // e.g. 1051 1053 753 822
+
+                if(stripos($spreadsheet, "circadian_rythm_resources_sans_pantheria.csv") !== false) { //string is found
+                    if($real_row == 31) $this->with_DISTINCT_YN = false;
+                    else                $this->with_DISTINCT_YN = true; //the rest goes here
+                }
+                elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
 
                     // /* special cases
-                    if($this->eol_resource_id == 822) { //Kubitzki
+                    if($this->eol_resource_id == 822) { //Kubitzki 822
                         // exit("\n".$this->eol_resource_id."\n".$resource_idx."\nstopx\n");
                         $this->generate_info_list('kubitzki_pagenos'); // exit("\nstop munax\n");
                     }
@@ -126,7 +130,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     )*/
 
                     // /* ----- initialize
-                    if($this->eol_resource_id == 753) {
+                    if($this->eol_resource_id == 753) { //Flora do Brasil 753
                         require_library('connectors/DwCA_RunGNParser');
                         $this->gnparser = new DwCA_RunGNParser(false, 'gnparser', false);
                         /*---------------------*/
@@ -221,11 +225,19 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             }
 
             // print_r($this->debug);
-        }
+        } //end foreach spreadsheet row
+
         echo "\ncitation not mapped to WD: all = ".count(@$this->debug2['citation not mapped to WD: all'])."\n";
         echo "\ngrand_total_export_file: ".@$this->grand_total_export_file."\n";
-        if(isset($this->debug)) $this->start_print_debug($this->debug, 1, $this->eol_resource_id);
-        if(isset($this->debug2)) $this->start_print_debug($this->debug2, 2, 'debug_2');
+
+        if($resource_idx) {
+            if(isset($this->debug)) $this->start_print_debug($this->debug, 1, $this->eol_resource_id);
+            if(isset($this->debug2)) $this->start_print_debug($this->debug2, 2, $this->eol_resource_id);    
+        }
+        else {
+            if(isset($this->debug)) $this->start_print_debug($this->debug, 1, 'debug_1');
+            if(isset($this->debug2)) $this->start_print_debug($this->debug2, 2, 'debug_2');
+        }
     }
     function get_WD_entityID_for_DOI($doi)
     {
