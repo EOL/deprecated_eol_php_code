@@ -511,11 +511,10 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             )*/
 
             // /* NEW: add page nos. First client is Kubitzki (822)
-            if($resource_idx == 822) { //Kubitzki
+            if($resource_idx == $this->eol_resource_id) { //Kubitzki
                 $final = $this->process_page_nos_routine($rec, $final, $citation_WD_id);
             }
             // */
-
 
             if($final['taxon_entity'] && @$final['predicate_entity'] && @$final['object_entity']) {
                 // print_r($final); exit("\n222\n");
@@ -1364,12 +1363,12 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
 
                     // /* special cases
-                    if($resource_idx == 822) { //Kubitzki
-                        $this->generate_info_list('kubitzki_pagenos');
-                        // exit("\nstop munax\n");
+                    if($resource_idx == $this->eol_resource_id) { //Kubitzki
+                        // exit("\n".$this->eol_resource_id."\n".$resource_idx."\n111\n");
+
+                        $this->generate_info_list('kubitzki_pagenos'); // exit("\nstop munax\n");
                     }
                     // */
-
 
                     /* working but a manual step
                     // if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
@@ -1484,13 +1483,14 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 // break; //process just first record
                 // if($i >= 3) break; //debug only
             }
+
+            // print_r($this->debug);
+            if(isset($this->debug)) $this->start_print_debug($this->debug, 1, $this->eol_resource_id);
         }
-        // print_r($this->debug); //print_r($this->debug2);
         echo "\ncitation not mapped to WD: all = ".count(@$this->debug2['citation not mapped to WD: all'])."\n";
         echo "\ngrand_total_export_file: ".@$this->grand_total_export_file."\n";
+        if(isset($this->debug2)) $this->start_print_debug($this->debug2, 2, 'debug_2');
 
-        if(isset($this->debug)) $this->start_print_debug($this->debug, 1, $this->eol_resource_id);
-        if(isset($this->debug2)) $this->start_print_debug($this->debug2, 2, $this->eol_resource_id);
     }
     private function copy_2_folders_to_rowNum_resourceID($paths, $rec, $real_row)
     {   /*Array(
