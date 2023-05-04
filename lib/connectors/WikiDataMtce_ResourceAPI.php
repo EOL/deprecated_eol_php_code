@@ -508,8 +508,8 @@ class WikiDataMtce_ResourceAPI
         $folders = array('da23f9319bb205e88bcdeab285f494d7', 'a5af381f83c7c52cde68c2a8c7372d10'); //10 & 11 rows DONE
         $folders = array('f6e844e9ac7eae380bdaa91b6c0385a1'); //13 DONE
         $folders = array('27ee919870baffc5e81ba788ed7ae593'); //14 DONE
-        $folders = array('e9065861b9027ed7c16932e14b7fea98'); //15
-        $folders = array('fcde2bf04c7179129e08be03f013c47e'); //16
+        $folders = array('e9065861b9027ed7c16932e14b7fea98'); //15 DONE
+        $folders = array('fcde2bf04c7179129e08be03f013c47e'); //16 DONE
 
 
         foreach($folders as $folder) {
@@ -564,22 +564,26 @@ class WikiDataMtce_ResourceAPI
         $input['what'] = "to delete";
         */
 
-        /* 4th RUNNING... S248 series
+        // /* 4th RUNNING... S248 series
         $input['report for'] = "S248";
         // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/b564eab0404081f7381bbf76b759fedb/export_file_S248.qs";
         // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/64becbfe6064c00e01bde4849ce1a8b3/export_file_S248_trans.qs";
         // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/a5af381f83c7c52cde68c2a8c7372d10/export_file_S248.qs"; //done
         // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/da23f9319bb205e88bcdeab285f494d7/export_file_S248.qs"; //done
         // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/f6e844e9ac7eae380bdaa91b6c0385a1/export_file_S248.qs"; //13 done
-        $input['report for'] = "S248_b";
+        // $input['report for'] = "S248_b";
         // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/27ee919870baffc5e81ba788ed7ae593/export_file_S248.qs"; //14 done
-        */
 
-        // /* 5th
+        $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/e9065861b9027ed7c16932e14b7fea98/export_file_S248.qs"; //15 done
+        
+
+        // */
+
+        /* 5th
         $input['report for'] = "del_series_31"; //delete all recs (n = 260,744)
         $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/31_2delete/export_file.qs";
         $input['what'] = "to delete";
-        // */
+        */
 
         /* currently being done...
         - deletion of row 31
