@@ -615,11 +615,16 @@ class WikiDataMtce_ResourceAPI
             if($i <= 3) continue;
             */
 
-            if(@$input['what'] == "to delete") $row = "-".$row;
+            if(@$input['what'] == "to delete") {
+                $row = "-".$row;
+                $divisor = 50;
+            }
+            else $divisor = 25;
+            // $divisor = 5 //overwrite it
 
             echo "\n".$row;
             fwrite($WRITE, $row."\n");
-            if(($i % 50) == 0) { $batch_num++; // % 3 25 5 --- when deleting use 50. The rest use 25
+            if(($i % $divisor) == 0) { $batch_num++; // % 3 25 5 --- when deleting use 50. The rest use 25
                 echo "\n-----";
                 fclose($WRITE);
                 $this->run_quickstatements_api($batch_name, $batch_num);
