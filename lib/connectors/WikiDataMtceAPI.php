@@ -103,25 +103,19 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     else                $this->with_DISTINCT_YN = true; //the rest goes here
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
-
-                    // /* special cases
-                    if($resource_idx == $this->eol_resource_id) { //Kubitzki
-                        // exit("\n".$this->eol_resource_id."\n".$resource_idx."\n111\n");
-
-                        $this->generate_info_list('kubitzki_pagenos'); // exit("\nstop munax\n");
-                    }
-                    // */
-
-                    /* working but a manual step
-                    // if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
-                    if(!in_array($real_row, array(2))) continue; // Kubitzki et al (822)
-                    */
                     // /* new: now with a param $resource_idx
                     if($resource_idx) { //if it has a value, then process only this resource ID
                         if($rec['r.resource_id'] == $resource_idx) {} //process this resource ID
                         else continue;    
                     }
                     else exit("\nWill exit for now. No resource_idx.\n");
+                    // */
+
+                    // /* special cases
+                    if($this->eol_resource_id == 822) { //Kubitzki
+                        // exit("\n".$this->eol_resource_id."\n".$resource_idx."\nstopx\n");
+                        $this->generate_info_list('kubitzki_pagenos'); // exit("\nstop munax\n");
+                    }
                     // */
 
                     $this->with_DISTINCT_YN = false;
@@ -227,12 +221,11 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             }
 
             // print_r($this->debug);
-            if(isset($this->debug)) $this->start_print_debug($this->debug, 1, $this->eol_resource_id);
         }
         echo "\ncitation not mapped to WD: all = ".count(@$this->debug2['citation not mapped to WD: all'])."\n";
         echo "\ngrand_total_export_file: ".@$this->grand_total_export_file."\n";
+        if(isset($this->debug)) $this->start_print_debug($this->debug, 1, $this->eol_resource_id);
         if(isset($this->debug2)) $this->start_print_debug($this->debug2, 2, 'debug_2');
-
     }
     function get_WD_entityID_for_DOI($doi)
     {
@@ -712,7 +705,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             )*/
 
             // /* NEW: add page nos. First client is Kubitzki (822)
-            if($resource_idx == $this->eol_resource_id) { //Kubitzki
+            if($this->eol_resource_id == 822) { //Kubitzki
                 $final = $this->process_page_nos_routine($rec, $final, $citation_WD_id);
             }
             // */
@@ -823,7 +816,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $rows = array();
         $row = $r['taxon_entity']."|".self::get_property_from_uri($r['predicate_entity'])."|".self::get_property_from_uri($r['object_entity']);
         
-        if($stated_in     = @$r['P248'])  $row .= "|S248|".$stated_in;
+        // if($stated_in     = @$r['P248'])  $row .= "|S248|".$stated_in; //duplicate
         /* STOPPED USING THIS:
         if($inferred_from = @$r['P3452']) $row .= "|S3452|".$inferred_from;
         */
@@ -831,7 +824,9 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         if($inferred_from = @$r['P248']) $row .= "|S248|".$inferred_from;
         // */
         if($published_in  = @$r['P1433']) $row .= "|S1433|".$published_in; // seems not used, nor has implementation rules
-        
+
+        if($page_nos = @$r['P304']) $row .= "|S304|".'"'.$page_nos.'"';
+
         $rows[] = $row;
 
         print_r($rows);
