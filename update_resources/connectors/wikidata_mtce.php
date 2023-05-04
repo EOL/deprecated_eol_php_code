@@ -336,11 +336,12 @@ $func = new WikiDataMtceAPI();
 
 // $func->qs_export_file_adjustments(); //works OK --- runs independently
 
-$func->run_any_qs_export_file(); //works OK --- runs independently
+// $func->run_any_qs_export_file(); //works OK --- runs independently
 
 // $func->adjust_from_S3452_to_S248(); //works OK --- runs independently
 
-// $func->get_ancestry_given_taxon_entity('Q1472074'); //test func
+$arr = $func->get_ancestry_given_taxon_entity('Q17601063'); //test func
+print_r($arr);
 // ==================== */
 
 // -Q13536186|P9566|Q101029366|S3452|Q90856597
