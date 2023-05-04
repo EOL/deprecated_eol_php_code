@@ -186,12 +186,12 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                 // $m = 124651; //divided by 5
                 $m = 103876; //divided by 6 Kubitzki
                 // $m = 76371; // divided by 6
+                $m = ceil(112195/5); // divided by 5
                 // if($i >= 1 && $i <= $m) {} 
                 // if($i >= $m && $i <= $m*2) {}
                 // if($i >= $m*2 && $i <= $m*3) {}
                 // if($i >= $m*3 && $i <= $m*4) {}
-                // if($i >= $m*4 && $i <= $m*5) {} 
-                if($i >= $m*5 && $i <= $m*6) {} 
+                if($i >= $m*4 && $i <= $m*5) {} 
                 else continue;
                 */
 
@@ -481,11 +481,44 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             // /* new scheme
             $citation_WD_id = self::get_WD_id_of_citation($rec);
             if    ($trait_kind == "trait")          $final['P248']  = $citation_WD_id; //"stated in" (P248)
-            elseif($trait_kind == "inferred_trait") $final['P3452'] = $citation_WD_id; //"inferred from" (P3452)
+            // elseif($trait_kind == "inferred_trait") $final['P3452'] = $citation_WD_id; //"inferred from" (P3452) --- no more 3452
+            elseif($trait_kind == "inferred_trait") $final['P248'] = $citation_WD_id; //"inferred from" NOW USE 248 ONLY
             else exit("\nUndefined trait_kind.\n");
             // */
 
+            // print_r($rec); print_r($final); exit("\n111\n");
+            /*Array(
+                [p.canonical] => Aaronsohnia
+                [p.page_id] => 5107931
+                [pred.name] => native range includes
+                [stage.name] => 
+                [sex.name] => 
+                [stat.name] => 
+                [obj.name] => Northern Africa
+                [obj.uri] => http://www.geonames.org/7729887
+                [t.measurement] => 
+                [units.name] => 
+                [t.source] => https://doi.org/10.1007/978-3-540-31051-8
+                [t.citation] => J.W. Kadereit, C. Jeffrey, K. Kubitzki (eds). 2007. The families and genera of vascular plants. Volume VIII; Flowering Plants; Eudicots; Asterales. Springer Nature.
+                [ref.literal] => 
+                [how] => identifier-map
+            )
+            Array(
+                [taxon_entity] => Q2019188
+                [predicate_entity] => https://www.wikidata.org/wiki/Property:P9714
+                [object_entity] => http://www.wikidata.org/entity/Q27381
+                [P248] => Q117188019
+            )*/
+
+            // /* NEW: add page nos. First client is Kubitzki (822)
+            if($resource_idx == 822) { //Kubitzki
+                $final = $this->process_page_nos_routine($rec, $final, $citation_WD_id);
+            }
+            // */
+
+
             if($final['taxon_entity'] && @$final['predicate_entity'] && @$final['object_entity']) {
+                // print_r($final); exit("\n222\n");
                 self::create_WD_taxon_trait($final);                    //writes export_file.qs
                 $this->write_predicate_object_mapping($rec, $final);
                 if(!$this->removal_YN) {
@@ -582,16 +615,21 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
     {
         print_r($r); //exit("\nxxx\n");
         /*Array(
-            [taxon_entity] => Q10397859
-            [predicate_entity] => https://www.wikidata.org/wiki/Property:P9566
-            [object_entity] => https://www.wikidata.org/wiki/Q101029366
-            [P1433] => Q116180473
+            [taxon_entity] => Q2019188
+            [predicate_entity] => https://www.wikidata.org/wiki/Property:P9714
+            [object_entity] => http://www.wikidata.org/entity/Q27381
+            [P248] => Q117188019
         )*/
         $rows = array();
         $row = $r['taxon_entity']."|".self::get_property_from_uri($r['predicate_entity'])."|".self::get_property_from_uri($r['object_entity']);
         
         if($stated_in     = @$r['P248'])  $row .= "|S248|".$stated_in;
+        /* STOPPED USING THIS:
         if($inferred_from = @$r['P3452']) $row .= "|S3452|".$inferred_from;
+        */
+        // /* EVERYTHNIG IS NOW USING THIS:
+        if($inferred_from = @$r['P248']) $row .= "|S248|".$inferred_from;
+        // */
         if($published_in  = @$r['P1433']) $row .= "|S1433|".$published_in; // seems not used, nor has implementation rules
         
         $rows[] = $row;
@@ -875,7 +913,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
         $sheets = array("measurementTypes", "measurementValues", "metadata", "other values");
         foreach($sheets as $sheet) {
             $params['range']         = $sheet.'!A1:C100'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-            $arr = $func->access_google_sheet($params, false); //2nd param false means cache expires
+            $arr = $func->access_google_sheet($params); //2nd param false means cache expires
             $final[$sheet] = self::massage_google_sheet_results($arr);
         }
         // */
@@ -1150,6 +1188,7 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
             if($what == 'all') return $obj;
             elseif($what == 'DOI')   return @$obj->entities->$wikidata_id->claims->P356[0]->mainsnak->datavalue->value;
             elseif($what == 'label') return @$obj->entities->$wikidata_id->labels->en->value;
+            elseif($what == 'parent_id') return @$obj->entities->$wikidata_id->claims->P171[0]->mainsnak->datavalue->value->id;
             else exit("\nERROR: Specify return item.\n");
         }
         else exit("\nShould not go here.\n");
@@ -1323,6 +1362,14 @@ class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
                     else                $this->with_DISTINCT_YN = true; //the rest goes here
                 }
                 elseif(stripos($spreadsheet, "resources_list.csv") !== false) { //string is found
+
+                    // /* special cases
+                    if($resource_idx == 822) { //Kubitzki
+                        $this->generate_info_list('kubitzki_pagenos');
+                        // exit("\nstop munax\n");
+                    }
+                    // */
+
 
                     /* working but a manual step
                     // if(!in_array($real_row, array(1))) continue; // Flora do Brasil (753)
