@@ -461,7 +461,7 @@ class WikiDataMtce_ResourceAPI
         $str = print_r($debug, true); //true makes print_r() output as string
         file_put_contents($file, $str);
     }
-    function qs_export_file_adjustments() // a utility
+    function adjust_from_P183_to_P9714() // a utility
     {   /* this does a delete+add: in effect it replaces the property P183 to P9714
         Given: 
             Q91249289|P183|Q43233|S248|Q117034902
@@ -493,24 +493,23 @@ class WikiDataMtce_ResourceAPI
         $out = shell_exec("wc -l ".$destination_qs_file);
         echo "\n$out\n";
     }
-    function adjust_from_S3452_to_S248() //worked OK!
+    function adjust_from_S3452_to_S248($folders) //worked OK!
     {   /* Given:   Q10398723|P2974|Q113024778|S3452|Q113217115
         Generate:
                     -Q10398723|P2974|Q113024778
                     Q10398723|P2974|Q113024778|S248|Q113217115
         */
-        $folders = array('b564eab0404081f7381bbf76b759fedb');
-        $folders = array('53264aeaff9f996093b9b555a5308020');
-        $folders = array('bf64239ace12e4bd48f16387713bc309');
-        $folders = array('3f63a25e04c425e41767f3a7192c964d');
-        $folders = array('ec39332ee0b39fc646c95a2b03467d43');
-        $folders = array('64becbfe6064c00e01bde4849ce1a8b3');
-        $folders = array('da23f9319bb205e88bcdeab285f494d7', 'a5af381f83c7c52cde68c2a8c7372d10'); //10 & 11 rows DONE
-        $folders = array('f6e844e9ac7eae380bdaa91b6c0385a1'); //13 DONE
-        $folders = array('27ee919870baffc5e81ba788ed7ae593'); //14 DONE
-        $folders = array('e9065861b9027ed7c16932e14b7fea98'); //15 DONE
-        $folders = array('fcde2bf04c7179129e08be03f013c47e'); //16 DONE
-
+        // $folders = array('b564eab0404081f7381bbf76b759fedb');
+        // $folders = array('53264aeaff9f996093b9b555a5308020');
+        // $folders = array('bf64239ace12e4bd48f16387713bc309');
+        // $folders = array('3f63a25e04c425e41767f3a7192c964d');
+        // $folders = array('ec39332ee0b39fc646c95a2b03467d43');
+        // $folders = array('64becbfe6064c00e01bde4849ce1a8b3');
+        // $folders = array('da23f9319bb205e88bcdeab285f494d7', 'a5af381f83c7c52cde68c2a8c7372d10'); //10 & 11 rows DONE
+        // $folders = array('f6e844e9ac7eae380bdaa91b6c0385a1'); //13 DONE
+        // $folders = array('27ee919870baffc5e81ba788ed7ae593'); //14 DONE
+        // $folders = array('e9065861b9027ed7c16932e14b7fea98'); //15 DONE
+        // $folders = array('fcde2bf04c7179129e08be03f013c47e'); //16 DONE
 
         foreach($folders as $folder) {
 
@@ -545,7 +544,7 @@ class WikiDataMtce_ResourceAPI
         else return "-".substr($row, 0, $pos);
     }
 
-    function run_any_qs_export_file()
+    function run_any_qs_export_file($input)
     {
         /* 1st client DONE
         $input['report for'] = "Flora_ADJ"; //Flora 753 adjustments --- this does a delete+add: in effect it replaces the property P183 to P9714
@@ -565,7 +564,7 @@ class WikiDataMtce_ResourceAPI
         */
 
         // /* 4th RUNNING... S248 series
-        $input['report for'] = "S248";
+        // $input['report for'] = "S248";
         // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/b564eab0404081f7381bbf76b759fedb/export_file_S248.qs";
         // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/64becbfe6064c00e01bde4849ce1a8b3/export_file_S248_trans.qs";
         // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/a5af381f83c7c52cde68c2a8c7372d10/export_file_S248.qs"; //done
@@ -573,10 +572,7 @@ class WikiDataMtce_ResourceAPI
         // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/f6e844e9ac7eae380bdaa91b6c0385a1/export_file_S248.qs"; //13 done
         // $input['report for'] = "S248_b";
         // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/27ee919870baffc5e81ba788ed7ae593/export_file_S248.qs"; //14 done
-
-        $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/e9065861b9027ed7c16932e14b7fea98/export_file_S248.qs"; //15 done
-        
-
+        // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/e9065861b9027ed7c16932e14b7fea98/export_file_S248.qs"; //15 done
         // */
 
         /* 5th
@@ -584,12 +580,6 @@ class WikiDataMtce_ResourceAPI
         $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/adjustments/31_2delete/export_file.qs";
         $input['what'] = "to delete";
         */
-
-        /* currently being done...
-        - deletion of row 31
-        - confirmation of Flora do Brasil --- DONE
-        */
-
 
         $this->eol_resource_id = $input['report for'];
 
@@ -724,6 +714,31 @@ class WikiDataMtce_ResourceAPI
         }
         return $final;
     }
+
+
+
+    function prep_export_file_4deletion($folder) // a utility
+    {   /*  Given:      Q14651426|P9566|Q4284186|S3452|Q116482998
+            Generates: -Q14651426|P9566|Q4284186 */
+        
+        $source_qs_file      = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file.qs"; //any export_file.qs
+        $destination_qs_file = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_4del.qs";
+        $WRITE = Functions::file_open($destination_qs_file, "w");
+
+        $i = 0; $hits = 0;
+        foreach(new FileIterator($source_qs_file) as $line => $row) { $i++;
+            if(stripos($row, "|S") !== false) { $hits++; //string is found
+                echo "\n$i. ".$row; echo " --- x $hits";
+                $remove = $this->remove_reference_part($row);
+                fwrite($WRITE, $remove."\n");
+            }
+        }
+        fclose($WRITE);
+        echo "\nhits: $hits\n";
+        $out = shell_exec("wc -l ".$destination_qs_file);
+        echo "\n$out\n";
+    }
+
 
     /* copied template
     function xxx()

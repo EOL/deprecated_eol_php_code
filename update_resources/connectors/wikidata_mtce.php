@@ -334,15 +334,36 @@ print_r($pairs);
 // /* ==================== utility --- working OK, pretty good actually.
 $func = new WikiDataMtceAPI();
 
-// $func->qs_export_file_adjustments(); //works OK --- runs independently
+// -----------------------
+// $func->adjust_from_P183_to_P9714(); //works OK --- runs independently --- used it for 1 client only so far, Flora do Brasil
+// -----------------------
+$folder = 'b7d1eed3b50a55e116f6ce1860799580'; //17
+$folder = '235efdac07bccc11294325cdc5ba2b82'; //19
+$folder = '4db1f77b95d2b7fd9915d185d5ecc9e5'; //20
+$folders = array($folder);
+$func->adjust_from_S3452_to_S248($folders); //works OK --- runs independently
+// -----------------------
+$input['report for'] = "S248_20";
+$input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_S248.qs";
+$func->run_any_qs_export_file($input); //works OK --- runs independently
+// -----------------------
 
-// $func->run_any_qs_export_file(); //works OK --- runs independently
+// $arr = $func->get_ancestry_given_taxon_entity('Q17601063'); print_r($arr); //test func
 
-// $func->adjust_from_S3452_to_S248(); //works OK --- runs independently
+// ----------------------- works OK!
+// $folder = '010ec04622367d0f937d8e597c46ce9e'; //row 31
+// $func->prep_export_file_4deletion($folder);
+// $input['report for'] = "del_row_31";
+// $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_4del.qs"; //row 31
+// $func->run_any_qs_export_file($input); //works OK --- runs independently
 
-$arr = $func->get_ancestry_given_taxon_entity('Q17601063'); //test func
-print_r($arr);
 // ==================== */
+
+        /* currently being done...
+        - deletion of row 31
+        - confirmation of Flora do Brasil --- DONE
+        */
+
 
 // -Q13536186|P9566|Q101029366|S3452|Q90856597
 // https://www.wikidata.org/wiki/Q13536186
