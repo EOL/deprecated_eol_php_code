@@ -616,7 +616,7 @@ class WikiDataMtce_ResourceAPI
                 $divisor = 50;
             }
             else $divisor = 25;
-            // $divisor = 5 //overwrite it
+            $divisor = 50; //5; //50; //overwrite it
 
             echo "\n".$row;
             fwrite($WRITE, $row."\n");
@@ -738,6 +738,38 @@ class WikiDataMtce_ResourceAPI
         $out = shell_exec("wc -l ".$destination_qs_file);
         echo "\n$out\n";
     }
+
+    function adjust_del_row_then_add($folders) //worked OK!
+    {   /* Given:   Q2019188|P9714|Q27381|S248|Q117188019|S304|"368"
+        Generate:
+                    -Q2019188|P9714|Q27381
+                    Q2019188|P9714|Q27381|S248|Q117188019|S304|"368"
+        */
+
+        foreach($folders as $folder) {
+
+            $source_qs_file      = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file.qs"; //any export_file.qs
+            $destination_qs_file = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_DelAdd.qs";
+            $WRITE = Functions::file_open($destination_qs_file, "w");
+    
+            $i = 0; $hits = 0;
+            foreach(new FileIterator($source_qs_file) as $line => $row) { $i++;
+                if(stripos($row, "|S") !== false) { $hits++; //string is found
+                    echo "\n$i. ".$row; echo " --- x $hits";
+                    $remove = $this->remove_S_part($row, "");
+                    fwrite($WRITE, $remove."\n");
+                    $new = $row;
+                    fwrite($WRITE, $new."\n");
+                }
+            }
+            fclose($WRITE);
+            echo "\nhits: $hits\n";
+            $out = shell_exec("wc -l ".$destination_qs_file);
+            echo "\n$out\n";
+
+        } //end foreach
+    }
+
 
 
     /* copied template
