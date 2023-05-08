@@ -337,30 +337,51 @@ $func = new WikiDataMtceAPI();
 // -----------------------
 // $func->adjust_from_P183_to_P9714(); //works OK --- runs independently --- used it for 1 client only so far, Flora do Brasil
 // -----------------------
-$folder = 'b7d1eed3b50a55e116f6ce1860799580'; //17
-$folder = '235efdac07bccc11294325cdc5ba2b82'; //19
-$folder = '4db1f77b95d2b7fd9915d185d5ecc9e5'; //20
-$folders = array($folder);
-$func->adjust_from_S3452_to_S248($folders); //works OK --- runs independently
+// $folder = 'b7d1eed3b50a55e116f6ce1860799580'; //17
+// $folder = '235efdac07bccc11294325cdc5ba2b82'; //19
+// $folder = '4db1f77b95d2b7fd9915d185d5ecc9e5'; //20
+// $folder = 'e0d1a5c0bf6b3c6e12b2a63a5947bc06'; //21 done
+// $folder = '09a199e19f357dec40318e3c94810cfc'; //22 done
+
+// $folder = '963b17dddd32e409a73062283e79a806'; //23 done
+// $folder = 'f2470d48aaac4639d273cdb7f19c92ce'; //24 done
+
+// $folders = array($folder);
+// $func->adjust_from_S3452_to_S248($folders); //works OK --- runs independently
+// exit("\n-quick stop-\n");
 // -----------------------
-$input['report for'] = "S248_20";
-$input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_S248.qs";
-$func->run_any_qs_export_file($input); //works OK --- runs independently
+// $input['report for'] = "S248_24";
+// $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_S248.qs";
+// $func->run_any_qs_export_file($input); //works OK --- runs independently
+// exit("\n-end 1-\n");
 // -----------------------
 
 // $arr = $func->get_ancestry_given_taxon_entity('Q17601063'); print_r($arr); //test func
 
 // ----------------------- works OK!
 // $folder = '010ec04622367d0f937d8e597c46ce9e'; //row 31
-// $func->prep_export_file_4deletion($folder);
+// // $func->prep_export_file_4deletion($folder);
 // $input['report for'] = "del_row_31";
 // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_4del.qs"; //row 31
 // $func->run_any_qs_export_file($input); //works OK --- runs independently
 
+// -----------------------
+
+// $folder = '6c401cec15f1976a46d4eb3b47cc1c48'; //Kubitzki inferred trait | no need to adjust export_file.qs. Can proceed with write.
+$folder = '7141cc792d9cd7e39d58dd5a7262d22f'; //Kubitzki trait
+$folders = array($folder);
+// $func->adjust_del_row_then_add($folders); //works OK --- runs independently
+// exit("\n-quick stop-\n");
+
+$input['report for'] = "DelAdd_trait";
+$input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_DelAdd.qs";
+$func->run_any_qs_export_file($input); //works OK --- runs independently
 // ==================== */
 
         /* currently being done...
         - deletion of row 31
+		- DelAdd trait of Kubitzki
+		- now S248 row 23 --- DONE
         - confirmation of Flora do Brasil --- DONE
         */
 
