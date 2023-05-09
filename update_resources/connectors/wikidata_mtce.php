@@ -364,23 +364,28 @@ $func = new WikiDataMtceAPI();
 // $input['report for'] = "del_row_31";
 // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_4del.qs"; //row 31
 // $func->run_any_qs_export_file($input); //works OK --- runs independently
-
+// exit("\nsss\n");
 // -----------------------
 
-// $folder = '6c401cec15f1976a46d4eb3b47cc1c48'; //Kubitzki inferred trait | no need to adjust export_file.qs. Can proceed with write.
-$folder = '7141cc792d9cd7e39d58dd5a7262d22f'; //Kubitzki trait
+$folder = '6c401cec15f1976a46d4eb3b47cc1c48'; //Kubitzki inferred trait | no need to adjust export_file.qs. Can proceed with write.
+// $folder = '7141cc792d9cd7e39d58dd5a7262d22f'; //Kubitzki trait
 $folders = array($folder);
 // $func->adjust_del_row_then_add($folders); //works OK --- runs independently
 // exit("\n-quick stop-\n");
 
 $input['report for'] = "DelAdd_trait";
-$input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_DelAdd.qs";
+$input['report for'] = "822_inferred";
+$input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_DelAdd.qs";	//DelAdd_trait
+$input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file.qs";		//822_inferred
+
 $func->run_any_qs_export_file($input); //works OK --- runs independently
 // ==================== */
 
         /* currently being done...
-        - deletion of row 31
-		- DelAdd trait of Kubitzki
+        - deletion of row 31 --- DONE
+		- DelAdd trait of Kubitzki --- DONE
+		- inferred trait Kubitzki --- running
+
 		- now S248 row 23 --- DONE
         - confirmation of Flora do Brasil --- DONE
         */
