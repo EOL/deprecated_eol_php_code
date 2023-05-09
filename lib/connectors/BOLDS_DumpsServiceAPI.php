@@ -821,7 +821,7 @@ class BOLDS_DumpsServiceAPI
         $parentNameUsageID = (string) $taxon->parentNameUsageID;
         $taxonID           = (string) $taxon->taxonID;
         if(isset($this->parents_without_entries[$parentNameUsageID])) { print("\n----- goes here... -----\n");
-            print_r($taxon);
+            // print_r($taxon);
             $taxon->parentNameUsageID = self::lookup_parentID_using_api($taxonID);
         }
 
