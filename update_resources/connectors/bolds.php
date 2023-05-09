@@ -10,6 +10,7 @@ estimated execution time: 1 day, 6 hours in eol-archive
 81	Tuesday 2018-08-07 04:44:59 AM	{"agent.tab":1952, "measurement_or_fact.tab":54996, "media_resource.tab":503701, "occurrence.tab":54996, "taxon.tab":392567}
 81	Tuesday 2018-08-07 12:11:13 PM	{"agent.tab":1920, "measurement_or_fact.tab":54398, "media_resource.tab":502487, "occurrence.tab":54398, "taxon.tab":392563} mac mini
 81	Wed 2023-04-12 03:39:14 AM	    {"agent.tab":2815, "measurement_or_fact.tab":55996, "media_resource.tab":532518, "occurrence.tab":55996, "taxon.tab":393620, "time_elapsed":false}
+81	Tue 2023-05-09 02:33:14 AM	    {"agent.tab":2815, "measurement_or_fact.tab":56020, "media_resource.tab":533437, "occurrence.tab":56020, "taxon.tab":393644, "time_elapsed":false}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
