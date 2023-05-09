@@ -860,7 +860,7 @@ class BOLDS_DumpsServiceAPI
                 */
                 $indexes = array_keys($rec);
                 foreach($indexes as $index) {
-                    if($val = $rec[$index]['taxid']) return $val;
+                    if($val = @$rec[$index]['taxid']) return $val;
                 }
             }
         }
