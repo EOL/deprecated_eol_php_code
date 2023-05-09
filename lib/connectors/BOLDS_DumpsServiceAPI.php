@@ -840,8 +840,29 @@ class BOLDS_DumpsServiceAPI
         $options['expire_seconds'] = 60*60*24*365; // 1 yr cache
         if($json = Functions::lookup_with_cache($this->service['taxId2'].$id, $options)) {
             $rec = json_decode($json, true);
-            print_r($rec); //exit; //good debug
+            // print_r($rec); //exit; //good debug
             if($val = @$rec[$id]['parentid']) return $val;
+            else {
+                /*
+                Array
+                (
+                    [149601] => Array()
+                    [149600] => Array()
+                    [28521] => Array(
+                            [taxid] => 28521
+                            [taxon] => Polynoidae
+                            [tax_rank] => family
+                            [tax_division] => Animalia
+                            [parentid] => 25265
+                            [parentname] => Phyllodocida
+                            [taxonrep] => Polynoidae
+                        )
+                */
+                $indexes = array_keys($rec);
+                foreach($indexes as $index) {
+                    if($val = $rec[$index]['taxid']) return $val;
+                }
+            }
         }
     }
     private function create_kingdom_taxa()
