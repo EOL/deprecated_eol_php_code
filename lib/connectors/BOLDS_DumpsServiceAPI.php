@@ -45,17 +45,14 @@ class BOLDS_DumpsServiceAPI
     function get_parents_without_entries()
     {
         if($contents = Functions::lookup_with_cache($this->parents_without_entries_file, $this->download_options)) {
-            $IDs = explode("\n", $contents); //print_r($IDs); 
-
+            $IDs = explode("\n", $contents); //print_r($IDs); exit; 
+            $IDs = array_map('trim', $IDs);
             $total = count($IDs);
-            echo "\nparents_without_entries: ".$total."\n"; //exit;
-            for($i = 0; $i <= $total-1; $i++) {
-                // echo "\n$i. ".$IDs[$i]; //good debug
-                $this->parents_without_entries[$IDs[$i]] = '';
+            echo "\nparents_without_entries: ".$total."\n"; //exit("\nstop muna.\n");
+            foreach($IDs as $id) {
+                $this->parents_without_entries[$id] = '';
             }
-
-            // print_r($this->parents_without_entries);
-            // exit("\n-stop-\n[$i]\n");
+            // print_r($this->parents_without_entries); exit("\n-stop-\n");
         }
     }
     function start_using_dump()
