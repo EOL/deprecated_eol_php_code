@@ -860,9 +860,29 @@ class BOLDS_DumpsServiceAPI
                 */
                 $indexes = array_keys($rec);
                 foreach($indexes as $index) {
-                    if($val = @$rec[$index]['taxid']) return $val;
+                    if($val = @$rec[$index]['taxid']) {
+                        if(stripos($rec[$index]['taxon'], "incertae") !== false) {} //string is found
+                        else {
+                            // /* code here to add taxon entry for parent if it doesn't exist yet 
+                            self::add_taxon_if_doesnot_exist($rec[$index]);
+                            // */
+                            return $val;
+                        }
+                    }
                 }
             }
+        }
+    }
+    private function add_taxon_if_doesnot_exist($a)
+    {
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID             = $a['taxid'];
+        $taxon->scientificName      = $a['taxon'];
+        $taxon->taxonRank           = $a['tax_rank'];
+        $taxon->parentNameUsageID   = $a['parentid'];
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+                $this->taxon_ids[$taxon->taxonID] = '';
+                $this->archive_builder->write_object_to_file($taxon);
         }
     }
     private function create_kingdom_taxa()
