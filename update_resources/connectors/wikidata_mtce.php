@@ -350,7 +350,7 @@ $func = new WikiDataMtceAPI();
 // $func->adjust_from_S3452_to_S248($folders); //works OK --- runs independently
 // exit("\n-quick stop-\n");
 // -----------------------
-// $input['report for'] = "S248_24";
+// $input['report for'] = "S248_31";
 // $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_S248.qs";
 // $func->run_any_qs_export_file($input); //works OK --- runs independently
 // exit("\n-end 1-\n");
@@ -369,20 +369,27 @@ $func = new WikiDataMtceAPI();
 
 $folder = '6c401cec15f1976a46d4eb3b47cc1c48'; //Kubitzki inferred trait | no need to adjust export_file.qs. Can proceed with write.
 // $folder = '7141cc792d9cd7e39d58dd5a7262d22f'; //Kubitzki trait
+// $folder = '010ec04622367d0f937d8e597c46ce9e'; //row_31 running --- hits: 260744 -> 521488
+
 $folders = array($folder);
 // $func->adjust_del_row_then_add($folders); //works OK --- runs independently
 // exit("\n-quick stop-\n");
 
 $input['report for'] = "DelAdd_trait";
 $input['report for'] = "822_inferred";
+// $input['report for'] = "row_31";
+
 $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_DelAdd.qs";	//DelAdd_trait
-$input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file.qs";		//822_inferred
+$input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file.qs";		//822_inferred row_31
 
 $func->run_any_qs_export_file($input); //works OK --- runs independently
+exit("\n-end 02-\n");
 // ==================== */
 
         /* currently being done...
         - deletion of row 31 --- DONE
+		- now S248 row 31 --- running
+
 		- DelAdd trait of Kubitzki --- DONE
 		- inferred trait Kubitzki --- running
 
