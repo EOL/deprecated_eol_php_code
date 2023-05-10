@@ -832,20 +832,18 @@ class BOLDS_DumpsServiceAPI
         if(isset($this->taxon_ids[$taxon->taxonID])) return;
         $this->taxon_ids[$taxon->taxonID] = '';
         $this->archive_builder->write_object_to_file($taxon);
-        
     }
     function lookup_parentID_using_api($id)
     {
         $options = $this->download_options;
         $options['expire_seconds'] = 60*60*24*365; // 1 yr cache
         if($json = Functions::lookup_with_cache($this->service['taxId2'].$id, $options)) {
+            // http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic&includeTree=true&taxId=887622 --- e.g.
             $rec = json_decode($json, true);
             // print_r($rec); //exit; //good debug
             if($val = @$rec[$id]['parentid']) return $val;
             else {
-                /*
-                Array
-                (
+                /*Array(
                     [149601] => Array()
                     [149600] => Array()
                     [28521] => Array(
@@ -857,6 +855,7 @@ class BOLDS_DumpsServiceAPI
                             [parentname] => Phyllodocida
                             [taxonrep] => Polynoidae
                         )
+                    ...
                 */
                 $indexes = array_keys($rec);
                 foreach($indexes as $index) {
