@@ -822,9 +822,13 @@ class BOLDS_DumpsServiceAPI
 
         $parentNameUsageID = (string) $taxon->parentNameUsageID;
         $taxonID           = (string) $taxon->taxonID;
-        if(isset($this->parents_without_entries[$parentNameUsageID])) { print("\n----- goes here... -----\n");
+        if(isset($this->parents_without_entries[$parentNameUsageID])) { //print("\n----- goes here... -----\n");
             // print_r($taxon);
-            $taxon->parentNameUsageID = self::lookup_parentID_using_api($taxonID);
+            if($val = self::lookup_parentID_using_api($taxonID)) $taxon->parentNameUsageID = $val;
+            else {
+                $taxon->parentNameUsageID = '';
+                $this->debug['no found parent for'][$taxonID] = '';
+            }
         }
 
         /* no data for:
@@ -843,7 +847,12 @@ class BOLDS_DumpsServiceAPI
             // http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic&includeTree=true&taxId=887622 --- e.g.
             $rec = json_decode($json, true);
             // print_r($rec); //exit; //good debug
-            if($val = @$rec[$id]['parentid']) return $val;
+            if($val = @$rec[$id]['parentid']) {
+                // /* code here to add taxon entry for parent if it doesn't exist yet 
+                self::add_taxon_if_doesnot_exist($rec);
+                // */                
+                return $val;
+            }
             else {
                 /*Array(
                     [149601] => Array()
