@@ -849,7 +849,7 @@ class BOLDS_DumpsServiceAPI
             // print_r($rec); //exit; //good debug
             if($val = @$rec[$id]['parentid']) {
                 // /* code here to add taxon entry for parent if it doesn't exist yet 
-                self::add_taxon_if_doesnot_exist($rec);
+                self::add_taxon_if_doesnot_exist($rec[$id]);
                 // */                
                 return $val;
             }
