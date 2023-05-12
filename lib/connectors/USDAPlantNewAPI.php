@@ -91,7 +91,7 @@ class USDAPlantNewAPI
                 if($rec['Synonym Symbol']) continue; //meaning it is a synonym, will ignore
                 self::process_rec($rec);
             }
-            if($i > 5) break; //debug only
+            if($i > 10) break; //debug only
         }
         unlink($csv_file);
     }
@@ -119,13 +119,14 @@ class USDAPlantNewAPI
                 [Rank] => Species
                 ...and many more...even trait data
             */
+            echo "\nSymbol: ".$rec['Symbol']." | Plant ID: $obj->Id | HasImages: $obj->HasImages"; //exit;
             if($obj->HasImages > 0) {
-                echo "\nSymbol: ".$rec['Symbol']." | Plant ID: $obj->Id | HasImages: $obj->HasImages"; //exit;
                 self::get_images($obj);
                 // exit;
             }
             else {
-                print_r($obj); exit("\nhas no images!\n");
+                echo " | no images";
+                // print_r($obj); exit("\nhas no images!\n");
             }
         }
     }
