@@ -88,28 +88,51 @@ class USDAPlantNewAPI
                 }
                 $rec = array_map('trim', $rec); //important step
                 // print_r($fields); print_r($rec); exit;
-                /*Array(
-                    [Symbol] => ABAB
-                    [Synonym Symbol] => 
-                    [Scientific Name with Author] => Abutilon abutiloides (Jacq.) Garcke ex Hochr.
-                    [Common Name] => shrubby Indian mallow
-                    [Family] => Malvaceae
-                )*/
                 self::process_rec($rec);
             }
         }
         unlink($csv_file);
     }
     private function process_rec($rec)
-    {   print_r($rec);
-        // https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=ABBA
+    {   /*Array(
+        [Symbol] => ABAB
+        [Synonym Symbol] => 
+        [Scientific Name with Author] => Abutilon abutiloides (Jacq.) Garcke ex Hochr.
+        [Common Name] => shrubby Indian mallow
+        [Family] => Malvaceae
+        )*/
+        // $rec['Symbol'] = "ABBA"; //force assign
         $url = $this->serviceUrls->plantsServicesUrl.'PlantProfile?symbol='.$rec['Symbol'];
+        // https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=ABBA
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            // echo "\n$xml\n";
-            $obj = json_decode($json, true);
-            print_r($obj);
+            $obj = json_decode($json); //print_r($obj); exit;
+            /*Array( PlantProfile
+                [Id] => 65791
+                [Symbol] => ABAB
+                [ScientificName] => <i>Abutilon abutiloides</i> (Jacq.) Garcke ex Hochr.
+                [ScientificNameComponents] => 
+                [CommonName] => shrubby Indian mallow
+                [Group] => Dicot
+                [RankId] => 180
+                [Rank] => Species
+                ...and many more...even trait data
+            */
+            echo "\n$obj->Id\n$obj->NumImages\n";
+            self::get_images($obj);
             exit;
         }
+    }
+    private function get_images($obj)
+    {
+        $url = $this->serviceUrls->plantsServicesUrl.'PlantImages?plantId='.$obj->Id;
+        // https://plantsservices.sc.egov.usda.gov/api/PlantImages?plantId=15309
+        //    https://plantsservices.sc.egov.usda.gov/api/PlantImages?plantId=15309
+        //    https://plantsservices.sc.egov.usda.gov/api/PlantImages?plantId=15309
+
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            $obj = json_decode($json); print_r($obj); exit("\n111\n");
+        }
+
     }
     private function set_service_urls()
     {
