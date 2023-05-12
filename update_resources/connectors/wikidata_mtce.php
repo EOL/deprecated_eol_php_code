@@ -358,13 +358,15 @@ $func = new WikiDataMtceAPI();
 
 // $arr = $func->get_ancestry_given_taxon_entity('Q17601063'); print_r($arr); //test func
 
-// ----------------------- works OK!
-// $folder = '010ec04622367d0f937d8e597c46ce9e'; //row 31
-// // $func->prep_export_file_4deletion($folder);
-// $input['report for'] = "del_row_31";
-// $input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_4del.qs"; //row 31
-// $func->run_any_qs_export_file($input); //works OK --- runs independently
-// exit("\nsss\n");
+// ----------------------- works OK! --- for deletion
+$folder = '010ec04622367d0f937d8e597c46ce9e'; //row 31
+$folder = '6c401cec15f1976a46d4eb3b47cc1c48'; //Kubitzki inferred trait
+// $func->prep_export_file_4deletion($folder); exit;
+$input['report for'] = "del_row_31";
+$input['report for'] = "del_822_inferred";
+$input['export file'] = CONTENT_RESOURCE_LOCAL_PATH."reports/cypher/".$folder."/export_file_4del.qs"; //row 31, 822 inferred
+$func->run_any_qs_export_file($input); //works OK --- runs independently
+exit("\nsss\n");
 // -----------------------
 
 $folder = '6c401cec15f1976a46d4eb3b47cc1c48'; //Kubitzki inferred trait | no need to adjust export_file.qs. Can proceed with write.
