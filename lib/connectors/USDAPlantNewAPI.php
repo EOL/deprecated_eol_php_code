@@ -53,7 +53,7 @@ class USDAPlantNewAPI
     {
         self::set_service_urls();
         self::main();
-        // $this->archive_builder->finalize(true);
+        $this->archive_builder->finalize(true);
         // Functions::start_print_debug();
     }
     private function main()
@@ -92,7 +92,7 @@ class USDAPlantNewAPI
                 if($rec['Synonym Symbol']) continue; //meaning it is a synonym, will ignore
                 self::process_rec($rec);
             }
-            // if($i > 10) break; //debug only
+            if($i > 10) break; //debug only
         }
         unlink($csv_file);
     }
@@ -108,7 +108,7 @@ class USDAPlantNewAPI
         $url = $this->serviceUrls->plantsServicesUrl.'PlantProfile?symbol='.$rec['Symbol'];
         // https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=ABBA
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            $obj = json_decode($json); //print_r($obj); exit;
+            $profile = json_decode($json); //print_r($profile); exit;
             /*Array( PlantProfile
                 [Id] => 65791
                 [Symbol] => ABAB
@@ -120,14 +120,17 @@ class USDAPlantNewAPI
                 [Rank] => Species
                 ...and many more...even trait data
             */
-            echo "\nSymbol: ".$rec['Symbol']." | Plant ID: $obj->Id | HasImages: $obj->HasImages"; //exit;
-            if($obj->HasImages > 0) {
-                self::get_images($obj);
+            echo "\nSymbol: ".$rec['Symbol']." | Plant ID: $profile->Id | HasImages: $profile->HasImages"; //exit;
+            if($profile->HasImages > 0) {
+                if($imgs = self::get_images($profile)) {
+                    self::create_taxon_archive($rec, $profile);
+                    // self::create_media_archive($a);
+                }
                 // exit;
             }
             else {
                 echo " | no images";
-                // print_r($obj); exit("\nhas no images!\n");
+                // print_r($profile); exit("\nhas no images!\n");
             }
         }
     }
@@ -136,8 +139,9 @@ class USDAPlantNewAPI
         $url = $this->serviceUrls->plantsServicesUrl.'PlantImages?plantId='.$obj->Id;
         // https://plantsservices.sc.egov.usda.gov/api/PlantImages?plantId=15309
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            $objs = json_decode($json); //print_r($objs); exit("\n111\n");
-            echo " | No. of images: ".count($objs);
+            $imgs = json_decode($json); //print_r($objs); exit("\n111\n");
+            echo " | No. of images: ".count($imgs);
+            return $imgs;
             /*[1] => stdClass Object(
                 [ImageID] => 80
                 [StandardSizeImageLibraryPath] => /ImageLibrary/standard/abes_002_shp.jpg
@@ -162,6 +166,47 @@ class USDAPlantNewAPI
         }
 
     }
+    private function create_taxon_archive($rec, $profile)
+    {   /*Array(
+        [Symbol] => ABAB
+        [Synonym Symbol] => 
+        [Scientific Name with Author] => Abutilon abutiloides (Jacq.) Garcke ex Hochr.
+        [Common Name] => shrubby Indian mallow
+        [Family] => Malvaceae
+        )*/
+        /*Array( PlantProfile
+        [Id] => 65791
+        [Symbol] => ABAB
+        [ScientificName] => <i>Abutilon abutiloides</i> (Jacq.) Garcke ex Hochr.
+        [ScientificNameComponents] => 
+        [CommonName] => shrubby Indian mallow
+        [Group] => Dicot
+        [RankId] => 180
+        [Rank] => Species
+        ...and many more...even trait data
+        */
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID             = $profile->Id;
+        $ret = self::parse_sciname($profile->ScientificName);
+        $taxon->scientificName      = $ret['sciname'];
+        $taxon->author      = $ret['author'];
+
+        $taxon->taxonRank           = strtolower($profile->Rank);
+        if($profile->Rank != "Family") $taxon->family = $rec['Family'];
+        // $taxon->parentNameUsageID   = '';
+        /* no data for:
+        $taxon->taxonomicStatus          = '';
+        $taxon->acceptedNameUsageID      = '';
+        */
+        if(isset($this->taxon_ids[$taxon->taxonID])) return;
+        $this->taxon_ids[$taxon->taxonID] = '';
+        $this->archive_builder->write_object_to_file($taxon);
+    }
+    private function parse_sciname($name_str)
+    {   // e.g. "<i>Abutilon abutiloides</i> (Jacq.) Garcke ex Hochr."
+        preg_match
+
+    }
     private function set_service_urls()
     {
         $options = $this->download_options;
@@ -178,24 +223,6 @@ class USDAPlantNewAPI
     // ========================================================================================= copied template below
     // =========================================================================================
 
-    private function create_taxon_archive_from_dump($a)
-    {
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID             = $a['taxid'];
-        $taxon->scientificName      = $a['taxon'];
-        $taxon->taxonRank           = $a['tax_rank'];
-        
-        $ranks = array("kingdom", "phylum", "class", "order", "family", "genus");
-        foreach($ranks as $rank) $taxon->$rank = @$a['ancestry'][$rank];
-        
-        /* no data for:
-        $taxon->taxonomicStatus          = '';
-        $taxon->acceptedNameUsageID      = '';
-        */
-        if(isset($this->taxon_ids[$taxon->taxonID])) return;
-        $this->taxon_ids[$taxon->taxonID] = '';
-        $this->archive_builder->write_object_to_file($taxon);
-    }
     private function create_media_archive_from_dump()
     {
         // /* ver.2
@@ -270,7 +297,6 @@ class USDAPlantNewAPI
 
     // private function process_record($taxid)
     // {
-    //     self::create_taxon_archive($a);
     //     self::create_media_archive($a);
     //     self::create_trait_archive($a);
     // }
@@ -304,25 +330,6 @@ class USDAPlantNewAPI
             if(!isset($this->image_cap[$mr->taxonID])) $this->image_cap[$mr->taxonID] = 1;
             else                                       $this->image_cap[$mr->taxonID]++;
         }
-    }
-    private function create_taxon_archive($a)
-    {   /*                      
-        */
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID             = $a['taxid'];
-        $taxon->scientificName      = $a['taxon'];
-        $taxon->taxonRank           = $a['tax_rank'];
-        $taxon->parentNameUsageID   = $a['parentid'];
-        if($taxon->parentNameUsageID == 1) {
-            $taxon->parentNameUsageID .= "_".$a['tax_division'];
-        }
-        /* no data for:
-        $taxon->taxonomicStatus          = '';
-        $taxon->acceptedNameUsageID      = '';
-        */
-        if(isset($this->taxon_ids[$taxon->taxonID])) return;
-        $this->taxon_ids[$taxon->taxonID] = '';
-        $this->archive_builder->write_object_to_file($taxon);
     }
     private function create_trait_archive($a)
     {

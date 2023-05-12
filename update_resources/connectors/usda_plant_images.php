@@ -16,7 +16,7 @@ require_library('connectors/USDAPlantNewAPI');
 $func = new USDAPlantNewAPI($resource_id);
 $func->start();
 unset($func);
-exit("\n-stop muna-\n");
+// exit("\n-stop muna-\n");
 Functions::finalize_dwca_resource($resource_id, false);
 // */
 
