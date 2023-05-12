@@ -41,7 +41,8 @@ class USDAPlantNewAPI
 
         $this->page['home'] = "http://www.boldsystems.org/index.php/TaxBrowser_Home";
         $this->page['sourceURL'] = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
-        $this->download_options = array('cache' => 1, 'resource_id' => $this->resource_id, 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
+        $this->download_options = array('cache' => 1, 'resource_id' => $this->resource_id, 'expire_seconds' => 60*60*24*30*6, 
+        'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         // $this->download_options['expire_seconds'] = false;
         $this->debug = array();
         $this->temp_path = CONTENT_RESOURCE_LOCAL_PATH . "BOLDS_temp/";
@@ -91,7 +92,7 @@ class USDAPlantNewAPI
                 if($rec['Synonym Symbol']) continue; //meaning it is a synonym, will ignore
                 self::process_rec($rec);
             }
-            if($i > 10) break; //debug only
+            // if($i > 10) break; //debug only
         }
         unlink($csv_file);
     }
