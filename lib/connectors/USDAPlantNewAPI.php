@@ -88,8 +88,10 @@ class USDAPlantNewAPI
                 }
                 $rec = array_map('trim', $rec); //important step
                 // print_r($fields); print_r($rec); exit;
+                if($rec['Synonym Symbol']) continue; //meaning it is a synonym, will ignore
                 self::process_rec($rec);
             }
+            if($i > 5) break; //debug only
         }
         unlink($csv_file);
     }
@@ -101,7 +103,7 @@ class USDAPlantNewAPI
         [Common Name] => shrubby Indian mallow
         [Family] => Malvaceae
         )*/
-        // $rec['Symbol'] = "ABBA"; //force assign
+        // $rec['Symbol'] = "ABES"; //"ABBA"; //force assign | ABES with copyrights
         $url = $this->serviceUrls->plantsServicesUrl.'PlantProfile?symbol='.$rec['Symbol'];
         // https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=ABBA
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -117,20 +119,44 @@ class USDAPlantNewAPI
                 [Rank] => Species
                 ...and many more...even trait data
             */
-            echo "\n$obj->Id\n$obj->NumImages\n";
-            self::get_images($obj);
-            exit;
+            if($obj->HasImages > 0) {
+                echo "\nSymbol: ".$rec['Symbol']." | Plant ID: $obj->Id | HasImages: $obj->HasImages"; //exit;
+                self::get_images($obj);
+                // exit;
+            }
+            else {
+                print_r($obj); exit("\nhas no images!\n");
+            }
         }
     }
     private function get_images($obj)
     {
         $url = $this->serviceUrls->plantsServicesUrl.'PlantImages?plantId='.$obj->Id;
         // https://plantsservices.sc.egov.usda.gov/api/PlantImages?plantId=15309
-        //    https://plantsservices.sc.egov.usda.gov/api/PlantImages?plantId=15309
-        //    https://plantsservices.sc.egov.usda.gov/api/PlantImages?plantId=15309
-
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            $obj = json_decode($json); print_r($obj); exit("\n111\n");
+            $objs = json_decode($json); //print_r($objs); exit("\n111\n");
+            echo " | No. of images: ".count($objs);
+            /*[1] => stdClass Object(
+                [ImageID] => 80
+                [StandardSizeImageLibraryPath] => /ImageLibrary/standard/abes_002_shp.jpg
+                [ThumbnailSizeImageLibraryPath] => /ImageLibrary/thumbnail/abes_002_thp.jpg
+                [LargeSizeImageLibraryPath] => /ImageLibrary/large/abes_002_lhp.jpg
+                [OriginalSizeImageLibraryPath] => /ImageLibrary/original/abes_002_php.jpg
+                [Copyright] => 1            --- should not be 1
+                [CommonName] => Pedro Acevedo-Rodriguez
+                [Title] => 
+                [ImageCreationDate] => 
+                [Collection] => 
+                [InstitutionName] => Smithsonian Institution, Department of Botany
+                [ImageLocation] => United States, Virgin Islands, Saint John Co.
+                [Comment] => 
+                [EmailAddress] => RUSSELLR@si.edu
+                [LiteratureTitle] => 
+                [LiteratureYear] => 0
+                [LiteraturePlace] => 
+                [ProvidedBy] => Smithsonian Institution, Department of Botany
+                [ScannedBy] => 
+            )*/
         }
 
     }
