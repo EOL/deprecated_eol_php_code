@@ -6,6 +6,8 @@ sample of citations already in WikiData:    https://www.wikidata.org/wiki/Q56079
 Manual check of citations/references:       https://apps.crossref.org/simpleTextQuery/
 exit("\n".QUICKSTATEMENTS_EOLTRAITS_TOKEN."\n");
 https://docs.google.com/spreadsheets/d/129IRvjoFLUs8kVzjdchT_ImlCGGXIdVKYkKwIv7ld0U/edit#gid=0
+
+Kubitzki et al: https://eol-jira.bibalex.org/browse/DATA-1894
 */
 class WikiDataMtceAPI extends WikiDataMtce_ResourceAPI
 {
