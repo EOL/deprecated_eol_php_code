@@ -186,10 +186,10 @@ class USDAPlantNewAPI
         ...and many more...even trait data
         */
         $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID             = $profile->Id;
+        $taxon->taxonID                     = $profile->Id;
         $ret = self::parse_sciname($profile->ScientificName);
-        $taxon->scientificName      = $ret['sciname'];
-        $taxon->author      = $ret['author'];
+        $taxon->scientificName              = $ret['sciname'];
+        $taxon->scientificNameAuthorship    = $ret['author'];
 
         $taxon->taxonRank           = strtolower($profile->Rank);
         if($profile->Rank != "Family") $taxon->family = $rec['Family'];
@@ -201,10 +201,31 @@ class USDAPlantNewAPI
         if(isset($this->taxon_ids[$taxon->taxonID])) return;
         $this->taxon_ids[$taxon->taxonID] = '';
         $this->archive_builder->write_object_to_file($taxon);
+
+        $rec['taxonID'] = $profile->Id;
+        self::create_vernacular($rec);
+    }
+    private function create_vernacular($rec)
+    {   //print_r($rec); exit;
+        $v = new \eol_schema\VernacularName();
+        $v->taxonID         = $rec["taxonID"];
+        $v->vernacularName  = $rec['Common Name'];
+        $v->language        = "en";
+        $vernacular_id = md5("$v->taxonID|$v->vernacularName|$v->language");
+        if(!isset($this->vernacular_name_ids[$vernacular_id])) {
+           $this->vernacular_name_ids[$vernacular_id] = '';
+           $this->archive_builder->write_object_to_file($v);
+        }
     }
     private function parse_sciname($name_str)
     {   // e.g. "<i>Abutilon abutiloides</i> (Jacq.) Garcke ex Hochr."
-        preg_match
+        if(preg_match("/<i>(.*?)<\/i>/ims", $name_str, $arr)) {
+            $sciname = $arr[1];
+            // echo "\n[$name_str]\n[".$arr[1]."]\n"; exit; //good debug
+            $author = strip_tags($name_str);
+            return array('sciname' => $sciname, 'author' => $author);
+        }
+        else exit("\nNo italics\n$name_str\n");
 
     }
     private function set_service_urls()
