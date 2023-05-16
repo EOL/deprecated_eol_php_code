@@ -124,7 +124,7 @@ class USDAPlantNewAPI
             if($profile->HasImages > 0) {
                 if($imgs = self::get_images($profile)) {
                     self::create_taxon_archive($rec, $profile);
-                    // self::create_media_archive($a);
+                    self::create_media_archive($profile->Id, $imgs);
                 }
                 // exit;
             }
@@ -190,18 +190,19 @@ class USDAPlantNewAPI
         $ret = self::parse_sciname($profile->ScientificName);
         $taxon->scientificName              = $ret['sciname'];
         $taxon->scientificNameAuthorship    = $ret['author'];
-
-        $taxon->taxonRank           = strtolower($profile->Rank);
+        $taxon->taxonRank                   = strtolower($profile->Rank);
         if($profile->Rank != "Family") $taxon->family = $rec['Family'];
+        $taxon->furtherInformationURL = 'https://plants.usda.gov/home/plantProfile?symbol='.$profile->Symbol;
         // $taxon->parentNameUsageID   = '';
         /* no data for:
         $taxon->taxonomicStatus          = '';
         $taxon->acceptedNameUsageID      = '';
         */
-        if(isset($this->taxon_ids[$taxon->taxonID])) return;
-        $this->taxon_ids[$taxon->taxonID] = '';
-        $this->archive_builder->write_object_to_file($taxon);
-
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->taxon_ids[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);    
+        }
+        /* start vernaculars */
         $rec['taxonID'] = $profile->Id;
         self::create_vernacular($rec);
     }
@@ -220,13 +221,116 @@ class USDAPlantNewAPI
     private function parse_sciname($name_str)
     {   // e.g. "<i>Abutilon abutiloides</i> (Jacq.) Garcke ex Hochr."
         if(preg_match("/<i>(.*?)<\/i>/ims", $name_str, $arr)) {
-            $sciname = $arr[1];
+            $sciname = trim($arr[1]);
             // echo "\n[$name_str]\n[".$arr[1]."]\n"; exit; //good debug
             $author = strip_tags($name_str);
+            $author = trim(str_replace($sciname, "", $author));
             return array('sciname' => $sciname, 'author' => $author);
         }
         else exit("\nNo italics\n$name_str\n");
+    }
+    private function create_media_archive($taxid, $imgs)
+    {   //print_r($imgs); //exit;
+        // return;
+        foreach($imgs as $img) {
+            if($img->Copyright) continue; //proceed only if not copyrighted
+            print_r($img);
+            $mr = new \eol_schema\MediaResource();
+            // if($reference_ids) $mr->referenceID = implode("; ", $reference_ids);
+            if($agent_ids = self::format_agents($img)) $mr->agentID = implode("; ", $agent_ids);
+            $mr->taxonID                = $taxid;
+            $mr->identifier             = $img->ImageID;
+            $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
+            $mr->format                 = Functions::get_mimetype($img->LargeSizeImageLibraryPath);
+            // $mr->furtherInformationURL  = '';
+            $mr->description            = self::format_description($img);
+            $mr->UsageTerms             = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
+            $mr->Owner                  = $img->ProvidedBy;
+            // /*
+            $rights = "<p>This image is not copyrighted and may be freely used for any purpose. Please credit the artist, original publication if applicable, and the USDA-NRCS PLANTS Database. The following format is suggested and will be appreciated:</p>";
+            if($val = $img->CommonName) {
+                $rights .= "<p>$val @ USDA-NRCS PLANTS Database</p>"; 
+            }
+            $rights .= "<p>If you cite PLANTS in a bibliography, please use the following: USDA, NRCS. [insert current year here]. PLANTS Database (https://plants.sc.egov.usda.gov/, [insert current date here]). National Plant Data Team, Greensboro, NC 27401-4901 USA.</p>";
+            $mr->rights = Functions::remove_whitespace($rights);
+            // */
 
+            $tmp = $this->serviceUrls->imageLibraryUrl . $img->LargeSizeImageLibraryPath;
+            $mr->accessURI = str_replace("/ImageLibrary/ImageLibrary/", "/ImageLibrary/", $tmp);
+            // https://plants.sc.egov.usda.gov/ImageLibrary/large/abam_016_lvp.jpg
+
+            // $mr->Rating                 = '';
+            if(!isset($this->object_ids[$mr->identifier])) {
+                $this->archive_builder->write_object_to_file($mr);
+                $this->object_ids[$mr->identifier] = '';            
+                @$this->image_cap[$mr->taxonID]++;
+            }    
+        }
+    }
+    private function format_description($img)
+    {
+        $tmp = "";
+        if($val = $img->Title) $tmp .= $val.". ";
+        if($val = $img->Comment) $tmp .= $val.". ";
+        if($val = $img->CommonName) $tmp .= $val.". ";
+        if($val = $img->ProvidedBy) $tmp .= "Provided by ".$val.". ";
+        if($val = $img->ImageLocation) $tmp .= $val.". ";
+        return trim($tmp);
+    }
+    private function format_agents($img)
+    {   /*[0] => stdClass Object(
+                    [ImageID] => 157
+                    [StandardSizeImageLibraryPath] => /ImageLibrary/standard/abli_001_shp.jpg
+                    [ThumbnailSizeImageLibraryPath] => /ImageLibrary/thumbnail/abli_001_thp.jpg
+                    [LargeSizeImageLibraryPath] => /ImageLibrary/large/abli_001_lhp.jpg
+                    [OriginalSizeImageLibraryPath] => /ImageLibrary/original/abli_001_php.jpg
+                    [Copyright] => 
+                    [CommonName] => Tracey Slotta
+                    [Title] => 
+                    [ImageCreationDate] => 
+                    [Collection] => 
+                    [InstitutionName] => ARS Systematic Botany and Mycology Laboratory
+                    [ImageLocation] => United States, Texas
+                    [Comment] => 
+                    [EmailAddress] => 
+                    [LiteratureTitle] => 
+                    [LiteratureYear] => 0
+                    [LiteraturePlace] => 
+                    [ProvidedBy] => ARS Systematic Botany and Mycology Laboratory
+                    [ScannedBy] => 
+                )
+        */
+        $agent_ids = array();
+        if($agent_name = $img->InstitutionName) {
+            $tmp_ids = self::create_agent($agent_name, 'source');
+            $agent_ids = array_merge($agent_ids, $tmp_ids);
+        }
+        if($agent_name = $img->ProvidedBy) {
+            $tmp_ids = self::create_agent($agent_name, 'source');
+            $agent_ids = array_merge($agent_ids, $tmp_ids);
+        }
+        if($agent_name = $img->CommonName) {
+            $tmp_ids = self::create_agent($agent_name, 'photographer');
+            $agent_ids = array_merge($agent_ids, $tmp_ids);
+        }
+        $agent_ids = array_filter($agent_ids); //remove null arrays
+        $agent_ids = array_unique($agent_ids); //make unique
+        $agent_ids = array_values($agent_ids); //reindex key
+        return $agent_ids;
+    }
+    private function create_agent($agent_name, $role)
+    {
+        $r = new \eol_schema\Agent();
+        $r->term_name       = $agent_name;
+        $r->agentRole       = $role;
+        $r->identifier      = md5("$r->term_name|$r->agentRole");
+        $r->term_homepage   = '';
+        $agent_ids[] = $r->identifier;
+        if(!isset($this->agent_ids[$r->identifier])) {
+           $this->agent_ids[$r->identifier] = '';
+           $this->archive_builder->write_object_to_file($r);
+        }
+        return $agent_ids;
     }
     private function set_service_urls()
     {
@@ -238,34 +342,14 @@ class USDAPlantNewAPI
             // print_r($obj); print_r($this->serviceUrls);
             // "plantsServicesUrl": "https://plantsservices.sc.egov.usda.gov/api/",        TO BE USED
             // "imageLibraryUrl": "https://plants.sc.egov.usda.gov/ImageLibrary",          TO BE USED
+
+            // $this->serviceUrls->imageLibraryUrl --- for media accessURI
         }
     }
     // =========================================================================================
     // ========================================================================================= copied template below
     // =========================================================================================
 
-    private function create_media_archive_from_dump()
-    {
-        // /* ver.2
-        $tax_ids = array_keys($this->img_tax_ids);
-        echo "\ntotal taxon IDs with img: ".count($tax_ids)."\n";
-        foreach($tax_ids as $taxonID) {
-            $this->image_cap = array(); //initialize
-            
-            $md5 = md5($taxonID);
-            $cache1 = substr($md5, 0, 2);
-            $cache2 = substr($md5, 2, 2);
-            $file = $this->temp_path . "$cache1/$cache2/".$taxonID.".txt";
-            
-            foreach(new FileIterator($file) as $line_number => $line) {
-                // echo "\n$line";
-                
-                if(@$this->image_cap[$taxonID] >= 10) continue;
-                self::write_image_record($img, $taxonID);
-            }
-        }
-        // */
-    }
     private function download_and_extract_remote_file($file = false, $use_cache = false)
     {
         if(!$file) $file = $this->data_dump_url; // used when this function is called elsewhere
@@ -318,40 +402,8 @@ class USDAPlantNewAPI
 
     // private function process_record($taxid)
     // {
-    //     self::create_media_archive($a);
     //     self::create_trait_archive($a);
     // }
-    private function create_media_archive($a)
-    {   /*  
-        */        
-        self::write_image_record($img, $a['taxid']);        
-    }
-    private function write_image_record($img, $taxid)
-    {
-        $mr = new \eol_schema\MediaResource();
-        // if($reference_ids) $mr->referenceID = implode("; ", $reference_ids);
-        if($agent_ids = self::format_agents($img)) $mr->agentID = implode("; ", $agent_ids);
-        $mr->taxonID                = $taxid;
-        $mr->identifier             = $img['image'];
-        $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
-        // $mr->language               = 'en';
-        $mr->format                 = Functions::get_mimetype($img['image']);
-        $mr->furtherInformationURL  = $this->page['sourceURL'].$taxid;
-        $mr->description            = self::format_description($img);
-        $mr->UsageTerms             = self::format_license($img['copyright_license']);
-        if(!$mr->UsageTerms) return; //invalid license
-        $mr->Owner                  = self::format_rightsHolder($img);
-        $mr->rights                 = '';
-        $mr->accessURI              = "http://www.boldsystems.org/pics/".$img['image'];
-        $mr->Rating                 = $img['imagequality']; //will need to check what values they have here...
-        if(!isset($this->object_ids[$mr->identifier])) {
-            $this->archive_builder->write_object_to_file($mr);
-            $this->object_ids[$mr->identifier] = '';
-            
-            if(!isset($this->image_cap[$mr->taxonID])) $this->image_cap[$mr->taxonID] = 1;
-            else                                       $this->image_cap[$mr->taxonID]++;
-        }
-    }
     private function create_trait_archive($a)
     {
         /*            */

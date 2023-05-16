@@ -17,7 +17,7 @@ $func = new USDAPlantNewAPI($resource_id);
 $func->start();
 unset($func);
 // exit("\n-stop muna-\n");
-Functions::finalize_dwca_resource($resource_id, false);
+Functions::finalize_dwca_resource($resource_id, false, false, false);
 // */
 
 require_library('connectors/DWCADiagnoseAPI');
