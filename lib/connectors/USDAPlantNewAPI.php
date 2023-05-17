@@ -39,15 +39,18 @@ class USDAPlantNewAPI
         $this->service['URLs'] = "https://plants.usda.gov/assets/config.json";
         $this->service['plant_list'] = "https://plants.usda.gov/assets/docs/CompletePLANTSList/plantlst.txt";
 
-        $this->page['home'] = "http://www.boldsystems.org/index.php/TaxBrowser_Home";
-        $this->page['sourceURL'] = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
         $this->download_options = array('cache' => 1, 'resource_id' => 'usda_plants', 'expire_seconds' => 60*60*24*30*6, 
         'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         // $this->download_options['expire_seconds'] = false;
         $this->debug = array();
+
+        /* copied template
+        $this->page['home'] = "http://www.boldsystems.org/index.php/TaxBrowser_Home";
+        $this->page['sourceURL'] = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
         $this->temp_path = CONTENT_RESOURCE_LOCAL_PATH . "BOLDS_temp/";
         if(Functions::is_production()) $this->BOLDS_new_path = "https://editors.eol.org/eol_connector_data_files/BOLDS_new/";
         else                           $this->BOLDS_new_path = "http://localhost/cp/BOLDS_new/";
+        */
     }
     function start()
     {
@@ -91,7 +94,7 @@ class USDAPlantNewAPI
                 if($rec['Synonym Symbol']) continue; //meaning it is a synonym, will ignore
                 self::process_rec($rec);
             }
-            if($i > 10) break; //debug only
+            // if($i > 10) break; //debug only
         }
         unlink($csv_file);
     }
@@ -187,13 +190,13 @@ class USDAPlantNewAPI
         */
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                     = $profile->Id;
+        $taxon->parentNameUsageID   = self::get_parent_id($profile);
         $ret = self::parse_sciname($profile->ScientificName);
         $taxon->scientificName              = $ret['sciname'];
         $taxon->scientificNameAuthorship    = $ret['author'];
         $taxon->taxonRank                   = strtolower($profile->Rank);
         if($profile->Rank != "Family") $taxon->family = $rec['Family'];
         $taxon->furtherInformationURL = 'https://plants.usda.gov/home/plantProfile?symbol='.$profile->Symbol;
-        $taxon->parentNameUsageID   = self::get_parent_id($profile);
         /* no data for:
         $taxon->taxonomicStatus          = '';
         $taxon->acceptedNameUsageID      = '';
@@ -342,15 +345,15 @@ class USDAPlantNewAPI
     private function create_taxon_ancestry($profile)
     {
         $i = -1;
-        foreach($profile->Ancestors as $a) { $i++; print_r($a);
+        foreach($profile->Ancestors as $a) { $i++; //print_r($a);
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                     = $a->Id;
+            $taxon->parentNameUsageID   = @$profile->Ancestors[$i-1]->Id;
             $ret = self::parse_sciname($a->ScientificName);
             $taxon->scientificName              = $ret['sciname'];
             $taxon->scientificNameAuthorship    = $ret['author'];
             $taxon->taxonRank                   = strtolower($a->Rank);
             $taxon->furtherInformationURL = 'https://plants.usda.gov/home/plantProfile?symbol='.$a->Symbol;
-            $taxon->parentNameUsageID   = @$profile->Ancestors[$i-1]->Id;
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->taxon_ids[$taxon->taxonID] = '';
                 $this->archive_builder->write_object_to_file($taxon);    

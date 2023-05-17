@@ -9,7 +9,7 @@ ini_set('memory_limit','7096M');
 // $GLOBALS['ENV_DEBUG'] = false;
 $timestart = time_elapsed();
 
-$resource_id = '37_new';
+$resource_id = 'usda_plants';
 
 // /* using Dumps
 require_library('connectors/USDAPlantNewAPI');
