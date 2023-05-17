@@ -95,6 +95,7 @@ class USDAPlantNewAPI
                 self::process_rec($rec);
             }
             // if($i > 10) break; //debug only
+            // break;
         }
         unlink($csv_file);
     }
@@ -106,7 +107,7 @@ class USDAPlantNewAPI
         [Common Name] => shrubby Indian mallow
         [Family] => Malvaceae
         )*/
-        // $rec['Symbol'] = "ABES"; //"ABBA"; //force assign | ABES with copyrights
+        // $rec['Symbol'] = "ACOCC"; //"ABBA"; //force assign | ABES with copyrights | ACOCC subspecies
         $url = $this->serviceUrls->plantsServicesUrl.'PlantProfile?symbol='.$rec['Symbol'];
         // https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=ABBA
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -136,6 +137,7 @@ class USDAPlantNewAPI
                 // print_r($profile); exit("\nhas no images!\n");
             }
         }
+        else exit("\ncannot lookup\n");
     }
     private function get_images($obj)
     {
@@ -224,12 +226,22 @@ class USDAPlantNewAPI
     }
     private function parse_sciname($name_str)
     {   // e.g. "<i>Abutilon abutiloides</i> (Jacq.) Garcke ex Hochr."
-        if(preg_match("/<i>(.*?)<\/i>/ims", $name_str, $arr)) {
-            $sciname = trim($arr[1]);
-            // echo "\n[$name_str]\n[".$arr[1]."]\n"; exit; //good debug
-            $author = strip_tags($name_str);
-            $author = trim(str_replace($sciname, "", $author));
-            return array('sciname' => $sciname, 'author' => $author);
+        // <i>Achnatherum occidentale</i> (Thurb.) Barkworth ssp. <i>californicum</i> (Merr. & Burtt Davy) Barkworth
+        if(preg_match_all("/<i>(.*?)<\/i>/ims", $name_str, $arr)) {
+
+            if(count($arr[1]) == 1) {
+                $sciname = trim($arr[1][0]);
+                // echo "\n[$name_str]\n[".$arr[1]."]\n"; exit; //good debug
+                $author = strip_tags($name_str);
+                $author = trim(str_replace($sciname, "", $author));
+                return array('sciname' => $sciname, 'author' => $author);    
+            }
+            elseif(count($arr[1]) > 1) {
+                $sciname = implode(" ", $arr[1]); echo (" -[$sciname]- ");
+                return array('sciname' => $sciname, 'author' => '');    
+            }
+            else exit("\ninvestigate here...\n");
+
         }
         else exit("\nNo italics\n$name_str\n");
     }
@@ -349,9 +361,12 @@ class USDAPlantNewAPI
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                     = $a->Id;
             $taxon->parentNameUsageID   = @$profile->Ancestors[$i-1]->Id;
+            // /* old
             $ret = self::parse_sciname($a->ScientificName);
             $taxon->scientificName              = $ret['sciname'];
             $taxon->scientificNameAuthorship    = $ret['author'];
+            // */
+
             $taxon->taxonRank                   = strtolower($a->Rank);
             $taxon->furtherInformationURL = 'https://plants.usda.gov/home/plantProfile?symbol='.$a->Symbol;
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
