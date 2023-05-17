@@ -81,8 +81,7 @@ class USDAPlantNewAPI
                     echo("\nWrong CSV format for this row.\n");
                     continue;
                 }
-                $k = 0;
-                $rec = array();
+                $k = 0; $rec = array();
                 foreach($fields as $field) {
                     $rec[$field] = $values[$k];
                     $k++;
@@ -124,6 +123,7 @@ class USDAPlantNewAPI
             if($profile->HasImages > 0) {
                 if($imgs = self::get_images($profile)) {
                     self::create_taxon_archive($rec, $profile);
+                    self::create_taxon_ancestry($profile);
                     self::create_media_archive($profile->Id, $imgs);
                 }
                 // exit;
@@ -193,7 +193,7 @@ class USDAPlantNewAPI
         $taxon->taxonRank                   = strtolower($profile->Rank);
         if($profile->Rank != "Family") $taxon->family = $rec['Family'];
         $taxon->furtherInformationURL = 'https://plants.usda.gov/home/plantProfile?symbol='.$profile->Symbol;
-        // $taxon->parentNameUsageID   = '';
+        $taxon->parentNameUsageID   = self::get_parent_id($profile);
         /* no data for:
         $taxon->taxonomicStatus          = '';
         $taxon->acceptedNameUsageID      = '';
@@ -208,6 +208,7 @@ class USDAPlantNewAPI
     }
     private function create_vernacular($rec)
     {   //print_r($rec); exit;
+        if(!$rec['Common Name']) return;
         $v = new \eol_schema\VernacularName();
         $v->taxonID         = $rec["taxonID"];
         $v->vernacularName  = $rec['Common Name'];
@@ -331,6 +332,35 @@ class USDAPlantNewAPI
            $this->archive_builder->write_object_to_file($r);
         }
         return $agent_ids;
+    }
+    private function get_parent_id($profile)
+    {   // print_r($profile->Ancestors); //exit;
+        $index = count($profile->Ancestors) - 2; //to get index of immediate parent
+        // print_r($profile->Ancestors[$index]); exit("\n".$profile->Ancestors[$index]->Id."\n");
+        return $profile->Ancestors[$index]->Id;
+    }
+    private function create_taxon_ancestry($profile)
+    {
+        $i = -1;
+        foreach($profile->Ancestors as $a) { $i++; print_r($a);
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID                     = $a->Id;
+            $ret = self::parse_sciname($a->ScientificName);
+            $taxon->scientificName              = $ret['sciname'];
+            $taxon->scientificNameAuthorship    = $ret['author'];
+            $taxon->taxonRank                   = strtolower($a->Rank);
+            $taxon->furtherInformationURL = 'https://plants.usda.gov/home/plantProfile?symbol='.$a->Symbol;
+            $taxon->parentNameUsageID   = @$profile->Ancestors[$i-1]->Id;
+            if(!isset($this->taxon_ids[$taxon->taxonID])) {
+                $this->taxon_ids[$taxon->taxonID] = '';
+                $this->archive_builder->write_object_to_file($taxon);    
+            }
+            /* start vernaculars */
+            $rec = array();
+            $rec['taxonID']     = $a->Id;
+            $rec['Common Name'] = $a->CommonName;
+            self::create_vernacular($rec);
+        }
     }
     private function set_service_urls()
     {
