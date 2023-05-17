@@ -238,7 +238,7 @@ class USDAPlantNewAPI
         // return;
         foreach($imgs as $img) {
             if($img->Copyright) continue; //proceed only if not copyrighted
-            print_r($img);
+            // print_r($img);
             $mr = new \eol_schema\MediaResource();
             // if($reference_ids) $mr->referenceID = implode("; ", $reference_ids);
             if($agent_ids = self::format_agents($img)) $mr->agentID = implode("; ", $agent_ids);
