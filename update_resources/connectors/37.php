@@ -9,6 +9,7 @@ https://opendata.eol.org/dataset/usda_plants/resource/fcbdd9c9-f33f-4ec6-8c9f-21
 37	Wed 2023-04-05 05:56:16 AM	{"agent.tab":261, "media_resource.tab":22103, "reference.tab":2, "taxon.tab":67357, "vernacular_name.tab":41494, "time_elapsed":false}
 */
 
+exit("\n-----\nObsolete. This is now replaced by [usda_plant_images.php] \n-----\n");
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = 37;
