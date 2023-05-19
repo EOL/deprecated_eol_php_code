@@ -128,10 +128,15 @@ class USDAPlantNewAPI
             */
             echo "\nSymbol: ".$rec['Symbol']." | Plant ID: $profile->Id | HasImages: $profile->HasImages"; //exit;
             $this->symbol_plantID_info[$rec['Symbol']] = $profile->Id;
+            self::create_taxon_archive($rec, $profile);
+            self::create_taxon_ancestry($profile);
+
             if($profile->HasImages > 0) {
                 if($imgs = self::get_images($profile)) {
+                    /* moved up, since we are now adding synonyms as well. Some taxa have synonyms but no images.
                     self::create_taxon_archive($rec, $profile);
                     self::create_taxon_ancestry($profile);
+                    */
                     self::create_media_archive($profile->Id, $imgs);
                 }
                 // exit;
