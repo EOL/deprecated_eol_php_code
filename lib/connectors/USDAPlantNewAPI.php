@@ -305,7 +305,7 @@ class USDAPlantNewAPI
                 return array('sciname' => $sciname, 'author' => $author);    
                 */
                 // /* ver 2
-                return array('sciname' => $name_str, 'author' => '');    
+                return array('sciname' => Functions::remove_whitespace(strip_tags($name_str)), 'author' => '');    
                 // */
             }
             else exit("\ninvestigate here...\n");
