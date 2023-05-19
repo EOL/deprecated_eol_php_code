@@ -126,6 +126,14 @@ class USDAPlantNewAPI
                 [Rank] => Species
                 ...and many more...even trait data
             */
+
+            // /*
+            if(!isset($profile->Id)) {
+                self::create_taxon_archive_using_rec($rec);
+                return;
+            }
+            // */
+
             echo "\nSymbol: ".$rec['Symbol']." | Plant ID: $profile->Id | HasImages: $profile->HasImages"; //exit;
             $this->symbol_plantID_info[$rec['Symbol']] = $profile->Id;
             self::create_taxon_archive($rec, $profile);
@@ -437,6 +445,26 @@ class USDAPlantNewAPI
             self::create_vernacular($rec);
         }
     }
+
+    private function create_taxon_archive_using_rec($rec)
+    {   /*Array(
+        [Symbol] => ABAB
+        [Synonym Symbol] => 
+        [Scientific Name with Author] => Abutilon abutiloides (Jacq.) Garcke ex Hochr.
+        [Common Name] => shrubby Indian mallow
+        [Family] => Malvaceae
+        )*/
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID                     = $rec['Symbol'];
+        $ret = self::parse_sciname($rec['Scientific Name with Author']);
+        $taxon->scientificName              = $ret['sciname'];
+        $taxon->scientificNameAuthorship    = $ret['author'];    
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->taxon_ids[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);    
+        }
+    }
+
     private function set_service_urls()
     {
         $options = $this->download_options;
