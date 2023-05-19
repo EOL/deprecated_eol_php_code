@@ -13,6 +13,19 @@ $timestart = time_elapsed();
 
 $resource_id = 'usda_plants'; //this replaced the 37.tar.gz image resource from 37.php
 
+/* works OK - get authorship of subspecies or variety
+$name_str = "<i>Achnatherum occidentale</i> (Thurb.) Barkworth ssp. <i>californicum</i> (Merr. & Burtt Davy) Barkworth";
+echo "\n[".$name_str."]\n";
+if(preg_match_all("/<i>(.*?)<\/i>/ims", $name_str, $arr)) {
+    $last = end($arr[1]);
+    if(preg_match("/<i>".$last."<\/i>(.*?)elix/ims", $name_str."elix", $arr2)) {
+        $author = trim($arr2[1]);
+        echo "\n[".$author."]\n";
+    }
+}
+exit("\n-end test-\n");
+*/
+
 // /* using Dumps
 require_library('connectors/USDAPlantNewAPI');
 $func = new USDAPlantNewAPI($resource_id);

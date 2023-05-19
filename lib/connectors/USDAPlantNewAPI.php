@@ -294,7 +294,14 @@ class USDAPlantNewAPI
             }
             elseif(count($arr[1]) > 1) {
                 $sciname = implode(" ", $arr[1]); echo (" >2 words -[$sciname]- ");
-                return array('sciname' => $sciname, 'author' => '');    
+                $author = "";
+                // /* get author of subspecies or variety e.g. "<i>Achnatherum occidentale</i> (Thurb.) Barkworth ssp. <i>californicum</i> (Merr. & Burtt Davy) Barkworth"
+                $last = end($arr[1]);
+                if(preg_match("/<i>".$last."<\/i>(.*?)elix/ims", $name_str."elix", $arr2)) {
+                    $author = trim($arr2[1]); // echo "\n[".$author."]\n";
+                }
+                // */
+                return array('sciname' => $sciname, 'author' => $author);    
             }
             else exit("\ninvestigate here...\n");
 
