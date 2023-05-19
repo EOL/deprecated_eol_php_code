@@ -91,10 +91,13 @@ class USDAPlantNewAPI
                 }
                 $rec = array_map('trim', $rec); //important step
                 // print_r($fields); print_r($rec); exit;
-                if($rec['Synonym Symbol']) continue; //meaning it is a synonym, will ignore
+                if($rec['Synonym Symbol']) { //meaning it is a synonym
+                    self::write_synonym($rec);
+                    continue;
+                }
                 self::process_rec($rec);
             }
-            // if($i > 10) break; //debug only
+            if($i > 10) break; //debug only
             // break;
         }
         unlink($csv_file);
@@ -124,6 +127,7 @@ class USDAPlantNewAPI
                 ...and many more...even trait data
             */
             echo "\nSymbol: ".$rec['Symbol']." | Plant ID: $profile->Id | HasImages: $profile->HasImages"; //exit;
+            $this->symbol_plantID_info[$rec['Symbol']] = $profile->Id;
             if($profile->HasImages > 0) {
                 if($imgs = self::get_images($profile)) {
                     self::create_taxon_archive($rec, $profile);
@@ -210,6 +214,34 @@ class USDAPlantNewAPI
         /* start vernaculars */
         $rec['taxonID'] = $profile->Id;
         self::create_vernacular($rec);
+    }
+    private function write_synonym($rec)
+    {   /*Array( e.g. synonym record
+        [Symbol] => ABAB
+        [Synonym Symbol] => ABAM5
+        [Scientific Name with Author] => Abutilon americanum (L.) Sweet
+        [Common Name] => 
+        [Family] => 
+        )*/
+        if($acceptedNameUsageID = $this->symbol_plantID_info[$rec['Symbol']]) {}
+        else {
+            print_r($rec);
+            exit("\nInvestigate: no acceptedNameUsageID\n");
+        }
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID                     = $rec['Synonym Symbol'];
+        /* copied template, but does not work here
+        $ret = self::parse_sciname($profile->ScientificName);
+        $taxon->scientificName              = $ret['sciname'];
+        $taxon->scientificNameAuthorship    = $ret['author'];
+        */
+        $taxon->scientificName = $rec['Scientific Name with Author'];
+        $taxon->taxonomicStatus          = 'synonym';
+        $taxon->acceptedNameUsageID      = $acceptedNameUsageID;
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->taxon_ids[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);    
+        }
     }
     private function create_vernacular($rec)
     {   //print_r($rec); exit;
