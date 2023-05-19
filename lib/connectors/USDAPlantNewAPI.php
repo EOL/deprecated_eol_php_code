@@ -246,7 +246,7 @@ class USDAPlantNewAPI
         [Common Name] => 
         [Family] => 
         )*/
-        if($acceptedNameUsageID = $this->symbol_plantID_info[$rec['Symbol']]) {}
+        if($acceptedNameUsageID = @$this->symbol_plantID_info[$rec['Symbol']]) {}
         else {
             return; //no acceptedNameUsageID for this synonym
             print_r($rec);
