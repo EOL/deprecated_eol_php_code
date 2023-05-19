@@ -202,9 +202,19 @@ class USDAPlantNewAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                     = $profile->Id;
         $taxon->parentNameUsageID   = self::get_parent_id($profile);
-        $ret = self::parse_sciname($profile->ScientificName);
-        $taxon->scientificName              = $ret['sciname'];
-        $taxon->scientificNameAuthorship    = $ret['author'];
+
+        if($profile->ScientificName) {
+            $ret = self::parse_sciname($profile->ScientificName);
+            $taxon->scientificName              = $ret['sciname'];
+            $taxon->scientificNameAuthorship    = $ret['author'];    
+        }
+        else { //should not go here...
+            // print_r($profile); exit("\nno profile->sciname\n");
+            $ret = self::parse_sciname($rec['Scientific Name with Author']);
+            $taxon->scientificName              = $ret['sciname'];
+            $taxon->scientificNameAuthorship    = $ret['author'];    
+        }
+
         $taxon->taxonRank                   = strtolower($profile->Rank);
         if($profile->Rank != "Family") $taxon->family = $rec['Family'];
         $taxon->furtherInformationURL = 'https://plants.usda.gov/home/plantProfile?symbol='.$profile->Symbol;
@@ -275,13 +285,16 @@ class USDAPlantNewAPI
                 return array('sciname' => $sciname, 'author' => $author);    
             }
             elseif(count($arr[1]) > 1) {
-                $sciname = implode(" ", $arr[1]); echo (" -[$sciname]- ");
+                $sciname = implode(" ", $arr[1]); echo (" >2 words -[$sciname]- ");
                 return array('sciname' => $sciname, 'author' => '');    
             }
             else exit("\ninvestigate here...\n");
 
         }
-        else exit("\nNo italics\n$name_str\n");
+        else {
+            // exit("\nNo italics\n$name_str\n");
+            return array('sciname' => $name_str, 'author' => '');    
+        }
     }
     private function create_media_archive($taxid, $imgs)
     {   //print_r($imgs); //exit;
@@ -400,9 +413,15 @@ class USDAPlantNewAPI
             $taxon->taxonID                     = $a->Id;
             $taxon->parentNameUsageID   = @$profile->Ancestors[$i-1]->Id;
             // /* old
-            $ret = self::parse_sciname($a->ScientificName);
-            $taxon->scientificName              = $ret['sciname'];
-            $taxon->scientificNameAuthorship    = $ret['author'];
+            if($a->ScientificName) {
+                $ret = self::parse_sciname($a->ScientificName);
+                $taxon->scientificName              = $ret['sciname'];
+                $taxon->scientificNameAuthorship    = $ret['author'];    
+            }
+            else {
+                print_r($profile); print_r($a);
+                exit("\ninvestigate no sciname in ancestry list\n");
+            }
             // */
 
             $taxon->taxonRank                   = strtolower($a->Rank);
