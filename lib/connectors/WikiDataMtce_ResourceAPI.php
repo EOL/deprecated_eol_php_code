@@ -616,7 +616,7 @@ class WikiDataMtce_ResourceAPI
                 $divisor = 50;
             }
             else $divisor = 25;
-            $divisor = 50; //30; //5; //50; //overwrite it
+            $divisor = 30; //5; //50; //overwrite it
 
             echo "\n".$row;
             fwrite($WRITE, $row."\n");
