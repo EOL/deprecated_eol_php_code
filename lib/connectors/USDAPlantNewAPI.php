@@ -316,11 +316,26 @@ class USDAPlantNewAPI
             return array('sciname' => $name_str, 'author' => '');    
         }
     }
+    private function get_available_image_path($img)
+    {   /*
+        [StandardSizeImageLibraryPath] => /ImageLibrary/standard/abli_001_shp.jpg
+        [LargeSizeImageLibraryPath] => /ImageLibrary/large/abli_001_lhp.jpg
+        [OriginalSizeImageLibraryPath] => /ImageLibrary/original/abli_001_php.jpg
+        */
+        if($val = trim($img->LargeSizeImageLibraryPath)) return $val;
+        if($val = trim($img->StandardSizeImageLibraryPath)) return $val;
+        if($val = trim($img->OriginalSizeImageLibraryPath)) return $val;
+        return false;
+    }
     private function create_media_archive($taxid, $imgs)
     {   //print_r($imgs); //exit;
         // return;
         foreach($imgs as $img) {
             if($img->Copyright) continue; //proceed only if not copyrighted
+            // /*
+            $image_file_path = self::get_available_image_path($img);
+            if(!$image_file_path) continue; //blank path
+            // */
             // print_r($img);
             $mr = new \eol_schema\MediaResource();
             // if($reference_ids) $mr->referenceID = implode("; ", $reference_ids);
@@ -328,10 +343,10 @@ class USDAPlantNewAPI
             $mr->taxonID                = $taxid;
             $mr->identifier             = $img->ImageID;
             $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
-            $mr->format                 = Functions::get_mimetype($img->LargeSizeImageLibraryPath);
+            $mr->format                 = Functions::get_mimetype($image_file_path);
             // $mr->furtherInformationURL  = '';
             $mr->description            = self::format_description($img);
-            $mr->UsageTerms             = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
+            $mr->UsageTerms             = 'https://creativecommons.org/publicdomain/zero/1.0/'; //'http://creativecommons.org/licenses/by-nc-sa/3.0/';
             $mr->Owner                  = $img->ProvidedBy;
             // /*
             $rights = "<p>This image is not copyrighted and may be freely used for any purpose. Please credit the artist, original publication if applicable, and the USDA-NRCS PLANTS Database. The following format is suggested and will be appreciated:</p>";
@@ -342,7 +357,7 @@ class USDAPlantNewAPI
             $mr->rights = Functions::remove_whitespace($rights);
             // */
 
-            $tmp = $this->serviceUrls->imageLibraryUrl . $img->LargeSizeImageLibraryPath;
+            $tmp = $this->serviceUrls->imageLibraryUrl . $image_file_path;
             $mr->accessURI = str_replace("/ImageLibrary/ImageLibrary/", "/ImageLibrary/", $tmp);
             // https://plants.sc.egov.usda.gov/ImageLibrary/large/abam_016_lvp.jpg
 
