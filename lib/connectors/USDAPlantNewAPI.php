@@ -44,6 +44,30 @@ class USDAPlantNewAPI
         // $this->download_options['expire_seconds'] = false;
         $this->debug = array();
 
+        /*
+        GrowthHabits: http://purl.obolibrary.org/obo/FLOPO_0900032
+            e.g.    http://purl.obolibrary.org/obo/FLOPO_0900034        Shrub
+                    http://eol.org/schema/terms/subshrub                Subshrub
+        
+        NativeStatuses: 
+        http://eol.org/schema/terms/NativeRange
+            e.g.    http://www.geonames.org/5855797						Hawaii, USA
+                    Pacific Basin excluding Hawaii						Pacific Basin excluding Hawaii
+                    http://www.geonames.org/4566966						Puerto Rico
+
+        http://eol.org/schema/terms/IntroducedRange
+            e.g.    http://www.wikidata.org/entity/Q578170              Lower 48 United States of America
+                    http://www.geonames.org/4566966						Puerto Rico
+
+        http://eol.org/schema/terms/Present
+                    http://www.geonames.org/4829764							Alabama
+                    http://www.geonames.org/5332921							California
+
+                    [StateAbbr] => AK
+
+        */
+
+
         /* copied template
         $this->page['home'] = "http://www.boldsystems.org/index.php/TaxBrowser_Home";
         $this->page['sourceURL'] = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
