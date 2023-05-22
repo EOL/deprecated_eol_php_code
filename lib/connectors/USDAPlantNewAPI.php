@@ -43,7 +43,7 @@ class USDAPlantNewAPI
         'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         // $this->download_options['expire_seconds'] = false;
         $this->debug = array();
-
+        $this->github['US State list'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/USDA_Plants/US_State_list.tsv';
         /*
         GrowthHabits: http://purl.obolibrary.org/obo/FLOPO_0900032
             e.g.    http://purl.obolibrary.org/obo/FLOPO_0900034        Shrub
@@ -79,6 +79,7 @@ class USDAPlantNewAPI
     function start()
     {
         self::set_service_urls();
+        self::get_US_states_list();
         self::main();
         $this->archive_builder->finalize(true);
         // Functions::start_print_debug();
@@ -515,7 +516,28 @@ class USDAPlantNewAPI
             $this->archive_builder->write_object_to_file($taxon);    
         }
     }
-
+    private function get_US_states_list()
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24*30*12; //1 year
+        $tsv_file = Functions::save_remote_file_to_local($this->github['US State list'], $options);
+        $out = shell_exec("wc -l ".$tsv_file); echo "\nUS States/Territories: $out";
+        $i = 0;
+        foreach(new FileIterator($tsv_file) as $line_number => $line) { $i++;
+            $row = explode("\t", $line);
+            if($i == 1) $fields = $row;
+            else {
+                $k = -1;
+                $rec = array();
+                foreach($fields as $field) {
+                    $k++;
+                    $rec[$field] = @$row[$k];
+                }
+                $rec = array_map('trim', $rec);
+                print_r($rec); exit;
+            }
+        }
+    }
     private function set_service_urls()
     {
         $options = $this->download_options;
