@@ -49,6 +49,7 @@ class USDAPlantNewAPI
             e.g.    http://purl.obolibrary.org/obo/FLOPO_0900034        Shrub
                     http://eol.org/schema/terms/subshrub                Subshrub
         
+
         NativeStatuses: 
         http://eol.org/schema/terms/NativeRange
             e.g.    http://www.geonames.org/5855797						Hawaii, USA
@@ -65,8 +66,11 @@ class USDAPlantNewAPI
 
                     [StateAbbr] => AK
 
+        - Present (http://eol.org/schema/terms/Present)
+        - Native Statuses: (http://eol.org/schema/terms/NativeRange) or (http://eol.org/schema/terms/IntroducedRange)
+        - Growth Habits: (http://purl.obolibrary.org/obo/FLOPO_0900032)
+        - Durations (http://purl.obolibrary.org/obo/TO_0002725)
         */
-
 
         /* copied template
         $this->page['home'] = "http://www.boldsystems.org/index.php/TaxBrowser_Home";
@@ -525,18 +529,11 @@ class USDAPlantNewAPI
         $i = 0;
         foreach(new FileIterator($tsv_file) as $line_number => $line) { $i++;
             $row = explode("\t", $line);
-            if($i == 1) $fields = $row;
-            else {
-                $k = -1;
-                $rec = array();
-                foreach($fields as $field) {
-                    $k++;
-                    $rec[$field] = @$row[$k];
-                }
-                $rec = array_map('trim', $rec);
-                print_r($rec); exit;
-            }
+            $abbrev = $row[1];
+            $state_name = $row[0];
+            $this->area[$abbrev]['mRemarks'] = $state_name;
         }
+        unlink($tsv_file);
     }
     private function set_service_urls()
     {
