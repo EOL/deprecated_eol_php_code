@@ -255,6 +255,13 @@ class USDAPlants2019
             }
             // */
             //===========================================================================================================================================================
+
+            // /* Eli stats
+            $measurementType = $rec['http://rs.tdwg.org/dwc/terms/measurementType']; // => http://purl.obolibrary.org/obo/TO_0002725
+            $measurementValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue']; // => http://eol.org/schema/terms/perennial
+            $this->debug['breakdown'][$measurementType][$measurementValue] = '';
+            // */
+
             $o = new \eol_schema\MeasurementOrFact_specific();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
