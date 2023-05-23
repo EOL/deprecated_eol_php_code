@@ -73,17 +73,19 @@ class USDAPlantNewAPI
         */
 
         /* copied template
-        $this->page['home'] = "http://www.boldsystems.org/index.php/TaxBrowser_Home";
-        $this->page['sourceURL'] = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
         $this->temp_path = CONTENT_RESOURCE_LOCAL_PATH . "BOLDS_temp/";
         if(Functions::is_production()) $this->BOLDS_new_path = "https://editors.eol.org/eol_connector_data_files/BOLDS_new/";
         else                           $this->BOLDS_new_path = "http://localhost/cp/BOLDS_new/";
         */
     }
-    function start()
+    function initialize()
     {
         self::set_service_urls();
         self::get_US_states_list();
+    }
+    function start()
+    {
+        self::initialize();
         self::main();
         $this->archive_builder->finalize(true);
         // Functions::start_print_debug();
@@ -131,6 +133,12 @@ class USDAPlantNewAPI
         }
         unlink($csv_file);
     }
+    function lookup_profile($symbol)
+    {
+        $url = $this->serviceUrls->plantsServicesUrl.'PlantProfile?symbol='.$symbol;
+        // https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=ABBA
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) return $json;
+    }
     private function process_rec($rec)
     {   /*Array(
         [Symbol] => ABAB
@@ -140,9 +148,7 @@ class USDAPlantNewAPI
         [Family] => Malvaceae
         )*/
         // $rec['Symbol'] = "ACOCC"; //"ABBA"; //force assign | ABES with copyrights | ACOCC subspecies
-        $url = $this->serviceUrls->plantsServicesUrl.'PlantProfile?symbol='.$rec['Symbol'];
-        // https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=ABBA
-        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+        if($json = self::lookup_profile($rec['Symbol'])) {
             $profile = json_decode($json); //print_r($profile); exit;
             /*Array( PlantProfile
                 [Id] => 65791
@@ -531,7 +537,7 @@ class USDAPlantNewAPI
             $row = explode("\t", $line);
             $abbrev = $row[1];
             $state_name = $row[0];
-            $this->area[$abbrev]['mRemarks'] = $state_name;
+            $this->US_abbrev_state[$abbrev] = $state_name;
         }
         unlink($tsv_file);
     }
