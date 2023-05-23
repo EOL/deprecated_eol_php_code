@@ -19,6 +19,8 @@ class USDAPlants2019
         $this->service['per_state_page'] = 'https://plants.sc.egov.usda.gov/java/stateDownload?statefips=';
         */
 
+        $this->html['taxon_page'] = 'https://plants.usda.gov/home/plantProfile?symbol=';
+
         // /* new service
         // $this->state_territory_list = 'https://plants.sc.egov.usda.gov/main.2bb5bc1d4bc87d62d061.js'; -- not used atm
         $this->service['per_location'] = 'https://plants.sc.egov.usda.gov/assets/docs/NRCSStateList/STATE_NAME_NRCS_csv.txt';
@@ -26,16 +28,8 @@ class USDAPlants2019
         $this->service['taxon_page'] = 'https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=';
         // */
         // https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=ABPR3
-        /*
-        Other important info:
-        https://editors.eol.org/eol_php_code/applications/content_server/resources/usda.html --> old service investigation
-        https://plants.usda.gov/assets/docs/PLANTS_Help_Document.pdf#page=8 --> Source of codes and acronyms.
-        https://plantsservices.sc.egov.usda.gov/api/StateSearch --> XML of list know states and territories. But not used ATM.
-        */
-    }
-    /*================================================================= STARTS HERE ======================================================================*/
-    function initialize()
-    {   $this->area['L48']['uri'] = "http://www.wikidata.org/entity/Q578170";
+
+        $this->area['L48']['uri'] = "http://www.wikidata.org/entity/Q578170";
         $this->area['AK']['uri'] = "http://www.geonames.org/5879092";
         $this->area['HI']['uri'] = "http://www.geonames.org/5855797";
         $this->area['PR']['uri'] = "http://www.geonames.org/4566966";
@@ -70,9 +64,25 @@ class USDAPlants2019
         $this->growth["Subshrub"] = "http://eol.org/schema/terms/subshrub";
         $this->growth["Tree"] = "http://purl.obolibrary.org/obo/FLOPO_0900033";
         $this->growth["Vine"] = "http://purl.obolibrary.org/obo/FLOPO_0900035";
+
+        /*
+        Other important info:
+        https://editors.eol.org/eol_php_code/applications/content_server/resources/usda.html --> old service investigation
+        https://plants.usda.gov/assets/docs/PLANTS_Help_Document.pdf#page=8 --> Source of codes and acronyms.
+        https://plantsservices.sc.egov.usda.gov/api/StateSearch --> XML of list know states and territories. But not used ATM.
+        */
     }
+    /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
-    {   self::initialize();
+    {
+        /* works OK but was never used since this connector already uses API service for GrowthHabits, NativeStatuses
+        require_library('connectors/USDAPlantNewAPI');
+        $this->usda_new = new USDAPlantNewAPI();
+        $this->usda_new->initialize();
+        // print_r($this->usda_new->US_abbrev_state); //good debug
+        // $json = $this->usda_new->lookup_profile('ABAB'); $obj = json_decode($json); print_r($obj); exit("\n-stop muna-\n"); //good debug
+        */
+
         require_library('connectors/TraitGeneric'); 
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         /* START DATA-1841 terms remapping */
@@ -518,16 +528,19 @@ class USDAPlants2019
                 )
                 */
                 if(!$rec['Synonym Symbol'] && @$rec['Symbol']) { //echo " ".$rec['Symbol'];
-                    $rec['source_url'] = $this->service['taxon_page'].$rec['Symbol'];
-                    $rec['taxonRank'] = self::get_profile_data($rec['source_url'], 1, 'rank');
+                    $api_profile        = $this->service['taxon_page']  .$rec['Symbol'];
+                    $rec['source_url']  = $this->html['taxon_page']     .$rec['Symbol'];
+                    $rec['taxonRank'] = self::get_profile_data($api_profile, 1, 'rank');
                     self::create_taxon($rec);
+                    /* removed in this resource. Will be served by usda_plants_images.tar.gz
                     self::create_vernacular($rec);
+                    */
                     //--------------------------------------------------- Native Status
-                    if($NorI_data = self::parse_profile_page($rec['source_url'])) { //NorI = Native or Introduced
+                    if($NorI_data = self::parse_profile_page($api_profile)) { //NorI = Native or Introduced
                         self::write_NorI_measurement($NorI_data, $rec);
                     }
                     //--------------------------------------------------- Growth Habits
-                    if($growth_habits = self::get_profile_data($rec['source_url'], 1, 'GrowthHabits')) {
+                    if($growth_habits = self::get_profile_data($api_profile, 1, 'GrowthHabits')) {
                         self::write_GrowthHabits($growth_habits, $rec);
                     }
                     //--------------------------------------------------- Present data
