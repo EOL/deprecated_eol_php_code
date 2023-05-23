@@ -375,7 +375,7 @@ class USDAPlantNewAPI
             $mr->format                 = Functions::get_mimetype($image_file_path);
             // $mr->furtherInformationURL  = '';
             $mr->description            = self::format_description($img);
-            $mr->UsageTerms             = 'http://creativecommons.org/licenses/publicdomain/'; //'http://creativecommons.org/publicdomain/zero/1.0/'; //'http://creativecommons.org/licenses/by-nc-sa/3.0/';
+            $mr->UsageTerms             = 'http://creativecommons.org/publicdomain/zero/1.0/'; //'http://creativecommons.org/licenses/publicdomain/'; //'http://creativecommons.org/licenses/by-nc-sa/3.0/';
             $mr->Owner                  = $img->ProvidedBy;
             // /*
             $rights = "<p>This image is not copyrighted and may be freely used for any purpose. Please credit the artist, original publication if applicable, and the USDA-NRCS PLANTS Database. The following format is suggested and will be appreciated:</p>";
