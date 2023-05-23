@@ -81,7 +81,7 @@ class USDAPlantNewAPI
     function initialize()
     {
         self::set_service_urls();
-        self::get_US_states_list();
+        self::get_US_states_list(); //working OK, but was never used
     }
     function start()
     {
