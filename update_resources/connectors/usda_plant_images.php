@@ -7,14 +7,24 @@ usda_plants	Wed 2023-05-17 10:10:27 AM	{"agent.tab":344, "media_resource.tab":20
 usda_plants	Fri 2023-05-19 10:55:52 AM	{"agent.tab":344, "media_resource.tab":20149, "taxon.tab":93911, "vernacular_name.tab":44135, "time_elapsed":false}
 usda_plants	Fri 2023-05-19 11:59:27 AM	{"agent.tab":344, "media_resource.tab":20149, "taxon.tab":93911, "vernacular_name.tab":44135, "time_elapsed":false}
 usda_plants	Sat 2023-05-20 09:50:44 PM	{"agent.tab":344, "media_resource.tab":20149, "taxon.tab":93911, "vernacular_name.tab":44135, "time_elapsed":false}
+
+Hi Jen,
+https://plants.usda.gov/home/plantProfile?symbol=ABAN
+Question: Is it normal and should I follow it since the API provides it.
+That a valid species-level taxon (e.g. Abronia angustifolia Greene) has two synonyms. A variety and a binomial.
+- ABANA	Abronia angustifolia Greene var. arizonica (Standl.) Kearney & Peebles
+- ABTO	Abronia torreyi Standl.
+Another example: https://plants.usda.gov/home/plantProfile?symbol=ABGR
+Thanks.
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 ini_set('memory_limit','7096M');
-// $GLOBALS['ENV_DEBUG'] = false;
+$GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
-$resource_id = 'usda_plants'; //this replaced the 37.tar.gz image resource from 37.php
+$resource_id = 'usda_plant_images'; //this replaced the 37.tar.gz image resource from 37.php
 
 /* works OK - get authorship of subspecies or variety
 $name_str = "<i>Achnatherum occidentale</i> (Thurb.) Barkworth ssp. <i>californicum</i> (Merr. & Burtt Davy) Barkworth";
