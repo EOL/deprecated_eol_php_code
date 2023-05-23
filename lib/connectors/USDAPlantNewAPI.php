@@ -254,7 +254,7 @@ class USDAPlantNewAPI
 
         $taxon->taxonRank                   = strtolower($profile->Rank);
         if($profile->Rank != "Family") $taxon->family = $rec['Family'];
-        $taxon->furtherInformationURL = 'https://plants.usda.gov/home/plantProfile?symbol='.$profile->Symbol;
+        $taxon->source = 'https://plants.usda.gov/home/plantProfile?symbol='.$profile->Symbol; //furtherInformationURL
         /* no data for:
         $taxon->taxonomicStatus          = '';
         $taxon->acceptedNameUsageID      = '';
@@ -489,7 +489,7 @@ class USDAPlantNewAPI
             // */
 
             $taxon->taxonRank                   = strtolower($a->Rank);
-            $taxon->furtherInformationURL = 'https://plants.usda.gov/home/plantProfile?symbol='.$a->Symbol;
+            $taxon->source = 'https://plants.usda.gov/home/plantProfile?symbol='.$a->Symbol; //furtherInformationURL
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->taxon_ids[$taxon->taxonID] = '';
                 $this->archive_builder->write_object_to_file($taxon);    
