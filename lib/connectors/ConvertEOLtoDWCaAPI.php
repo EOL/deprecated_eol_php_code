@@ -152,6 +152,9 @@ class ConvertEOLtoDWCaAPI
             if($this->resource_id == 'TaiEOL') {
                 if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') continue; //images are already offline, so as its dc:source. So no way to get the image URL.
             }
+            if($this->resource_id == '37') { // images are now in connector: usda_plant_images.php 
+                if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') continue; //old and not updated images data, some are offline already.
+            }
             if($this->resource_id == '20') {
                 if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') {
                     // print_r($rec);
@@ -397,6 +400,10 @@ class ConvertEOLtoDWCaAPI
     }
     private function process_synonym($objects, $taxon_id)
     {
+        // /* customize
+        if($this->resource_id == '37') return array(); // synonyms are now in connector: usda_plant_images.php
+        // */
+
         $records = array();
         foreach($objects as $o) {
             if(trim((string) $o)) { //needed validation for IUCN 211.php and NMNH XML resources
@@ -412,10 +419,19 @@ class ConvertEOLtoDWCaAPI
     }
     private function process_vernacular($objects, $taxon_id)
     {
+        // /* customize
+        if($this->resource_id == '37') return array(); // vernaculars are now in connector: usda_plant_images.php
+        // */
+        
         $records = array();
         foreach($objects as $o) {
             $lang = trim((string) $o{"xml_lang"}); //not used anymore
             $lang = @$o->attributes('xml', TRUE)->lang; //works OK
+            
+            // /* customize
+            if($this->resource_id == '37') $lang = 'en';
+            // */
+
             if($val = trim((string) $o)) $records[] = array("vernacularName" => $val, "language" => $lang, "taxonID" => (string) $taxon_id);
         }
         // print_r($records);
