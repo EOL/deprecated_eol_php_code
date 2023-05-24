@@ -52,6 +52,9 @@ Good stable run: after adapting to the latest service API:
 727	Wed 2023-04-05 06:34:30 AM	                {"agent.tab":1, "MoF.tab":580185, "media.tab":5, "occur.tab":634875, "reference.tab":2, "taxon.tab":35186, "vernacular_name.tab":47481, "time_elapsed":false}
 727_meta_recoded	Wed 2023-04-05 06:42:57 AM	{"agent.tab":1, "MoF.tab":580161, "media.tab":5, "occur.tab":634875, "reference.tab":2, "taxon.tab":35186, "vernacular_name.tab":47481, "time_elapsed":{"sec":506.92, "min":8.45, "hr":0.14}}
 
+Below no more vernaculars. Vernaculars now in usda_plant_images.tar.gz
+727	Tue 2023-05-23 06:51:15 AM	                {"agent.tab":1, "MoF.tab":580185, "media.tab":5, "occur.tab":634875, "reference.tab":2, "taxon.tab":35186, "time_elapsed":false}
+727_meta_recoded	Tue 2023-05-23 06:59:37 AM	{"agent.tab":1, "MoF.tab":580161, "media.tab":5, "occur.tab":634875, "reference.tab":2, "taxon.tab":35186, "time_elapsed":{"sec":502.52, "min":8.38, "hr":0.14}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
