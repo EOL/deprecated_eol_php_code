@@ -142,13 +142,14 @@ class PolytraitsNewAPI
                     $final[$trait] = $trait_uri;
                 }
             }
-            // print_r($final); echo "".count($final)." terms\n"; exit;
+            $mTypes = array_keys($final);
+            // print_r($mTypes); print_r($final); echo "".count($final)." terms\n"; exit;
 
             /* measurementValues */
             if(preg_match_all("/>Modalities<\/td>(.*?)<\/tr><\/tbody><\/table>/ims", $html, $arr)) {
                 // print_r($arr[1]); echo "\n".count($arr[1])."\n"; exit;
-                $values = array();
-                foreach($arr[1] as $str) { //echo "\n$str\n";
+                $values = array(); $i = -1;
+                foreach($arr[1] as $str) { $i++; //echo "\n$str\n";
                     
                     if(preg_match_all("/onclick=\'expand_close(.*?)<\/table>/ims", $str, $arr2)) { //$str is entire block of all values of a mType
                         // print_r($arr2[1]); exit;
@@ -158,7 +159,6 @@ class PolytraitsNewAPI
                                 $left = '<span '; $right = '</span>'; //cannot use strip_tags()
                                 $string_value = self::remove_all_in_between_inclusive($left, $right, $string_value);
                                 $string_value = trim(str_replace("&nbsp;", "", $string_value));
-                                $values[$string_value] = '';
                             }
                             if(preg_match("/Definition<\/td>(.*?)<\/td>/ims", $str2, $arr3)) { //$str2 is for a single value
                                 $definition = trim(strip_tags($arr3[1]));
@@ -168,15 +168,14 @@ class PolytraitsNewAPI
                                 $identifier = trim(strip_tags($arr3[1]));
                                 $a['identifier'] = $identifier;
                             }
-                            $values[$string_value] = $a;
+                            $values[$mTypes[$i]][$string_value] = $a;
                             // print_r($values); echo "".count($values)." values\n"; exit("\n000\n"); //good debug per single value        
                         }
                         // print_r($values); echo "".count($values)." values\n"; exit("\n111\n"); //good debug - all values of a single mType
-
                     }
 
                 } //end foreach()
-                print_r($values); echo "".count($values)." values\n"; exit("\n222\n");
+                print_r($values); echo "".count($values)." values\n"; exit("\n222\n"); //good debug - all values of all mTypes
 
             }
         }
