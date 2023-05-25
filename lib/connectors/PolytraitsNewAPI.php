@@ -15,6 +15,8 @@ class PolytraitsNewAPI
         $this->service['taxa list'] = "http://polytraits.lifewatchgreece.eu/traitspublic_taxa.php?pageID=";
         $this->service['name info'] = "http://polytraits.lifewatchgreece.eu/taxon/SCINAME/json/?exact=1&verbose=1&assoc=0";
         $this->service['trait info'] = "http://polytraits.lifewatchgreece.eu/traits/TAXON_ID/json/?verbose=1&assoc=1";
+        $this->service['terms list'] = "http://polytraits.lifewatchgreece.eu/terms";
+
         $this->download_options = array('cache' => 1, 'resource_id' => 'polytraits', 'expire_seconds' => 60*60*24*30*6, 
         'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         // $this->download_options['expire_seconds'] = false;
@@ -23,7 +25,7 @@ class PolytraitsNewAPI
     }
     function initialize()
     {
-        // self::get_US_states_list(); //working OK, but was never used //copied template
+        self::get_terms_info();
     }
     function start()
     {
@@ -33,8 +35,7 @@ class PolytraitsNewAPI
         // Functions::start_print_debug();
     }
     private function main()
-    {
-        $pageID = 0;
+    {   $pageID = 0;
         while(true) { $pageID++;
             $url = $this->service['taxa list'].$pageID;
             if($html = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -77,7 +78,6 @@ class PolytraitsNewAPI
             $traits = json_decode($json);
             print_r($traits); exit;
         }
-
     }
     private function get_name_info($rek)
     {
@@ -103,6 +103,48 @@ class PolytraitsNewAPI
             if(count($obj) == 1) return $obj[0];
             else exit("\nInvestigate: multiple results\n");
         }
+    }
+    private function get_terms_info()
+    {   /*<table class='db_docu' id='DZ'>
+                <tr>
+                    <th colspan=2 class='traitheader'>Depth zonation (benthos)</th>
+                </tr>
+                <tbody>
+                    <tr class='mod_sub_rows'>
+                    <td class='traitdefinition' style='width:250px;'>Definition</td>
+                    <td class='traitdefinition' >The depth at which an organism occurs in the water column. Commonly defined based on ecological features of the zonation.</td>
+                    </tr>
+                    <tr class='mod_sub_rows'>
+                    <td class='traitdefinition'>Identifier</td>
+                    <td class='traitdefinition'><a href='http://polytraits.lifewatchgreece.eu/terms/DZ' target='_blank'>http://polytraits.lifewatchgreece.eu/terms/DZ</a></td>
+                    </tr>		    
+                    <tr class='mod_sub_rows'>
+                    <td class='traitdefinition'>Related terms</td>
+                    <td class='traitdefinition'>maximum bottom depth</td>
+                    </tr>
+                    <tr class='mod_sub_rows'>
+                    <td class='traitdefinition'>Additional explanations</td>
+                    <td class='traitdefinition'></td>
+                    </tr>		    
+                    <tr>
+                    <td class='trait_docu_subheader' colspan=2>Modalities</td>        
+        */
+        if($html = Functions::lookup_with_cache($this->service['terms list'], $this->download_options)) {
+            /* measurementTypes */
+            if(preg_match_all("/class=\'db_docu\'(.*?)class=\'trait_docu_subheader\'/ims", $html, $arr)) {
+                // print_r($arr[1]); echo "\n".count($arr[1]).'\n'; exit;
+                // <th colspan=2 class='traitheader'>Substrate type of settlement</th>
+                foreach($arr[1] as $str) {
+                    if(preg_match("/class=\'traitheader\'>(.*?)<\/th>/ims", $str, $arr2)) $trait = trim($arr2[1]);
+                    else exit("\nNo trait name...\n");
+                    if(preg_match("/href=\'(.*?)\'/ims", $str, $arr2)) $trait_uri = trim($arr2[1]);
+                    else exit("\nNo trait uri...\n");
+                    $final[$trait] = $trait_uri;
+                }
+            }
+        }
+        print_r($final); echo "".count($final)." terms\n"; exit;
+
     }
     // =========================================================================================
     // ========================================================================================= copied template below
