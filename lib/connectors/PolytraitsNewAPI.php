@@ -142,10 +142,64 @@ class PolytraitsNewAPI
                     $final[$trait] = $trait_uri;
                 }
             }
-        }
-        print_r($final); echo "".count($final)." terms\n"; exit;
+            // print_r($final); echo "".count($final)." terms\n"; exit;
 
+            /* measurementValues */
+            if(preg_match_all("/>Modalities<\/td>(.*?)<\/tr><\/tbody><\/table>/ims", $html, $arr)) {
+                // print_r($arr[1]); echo "\n".count($arr[1])."\n"; exit;
+                $values = array();
+                foreach($arr[1] as $str) { //echo "\n$str\n";
+                    
+                    if(preg_match_all("/onclick=\'expand_close(.*?)<\/table>/ims", $str, $arr2)) { //$str is entire block of all values of a mType
+                        // print_r($arr2[1]); exit;
+                        foreach($arr2[1] as $str2) { echo "\n$str2\n"; //good debug
+                            if(preg_match("/<td colspan=2>(.*?)<\/td>/ims", $str2, $arr3)) { //$str2 is for a single value
+                                $string_value = trim($arr3[1]);
+                                $left = '<span '; $right = '</span>'; //cannot use strip_tags()
+                                $string_value = self::remove_all_in_between_inclusive($left, $right, $string_value);
+                                $string_value = trim(str_replace("&nbsp;", "", $string_value));
+                                $values[$string_value] = '';
+                            }
+                            if(preg_match("/Definition<\/td>(.*?)<\/td>/ims", $str2, $arr3)) { //$str2 is for a single value
+                                $definition = trim(strip_tags($arr3[1]));
+                                $a['definition'] = $definition;
+                            }
+                            if(preg_match("/Identifier<\/td>(.*?)<\/td>/ims", $str2, $arr3)) { //$str2 is for a single value
+                                $identifier = trim(strip_tags($arr3[1]));
+                                $a['identifier'] = $identifier;
+                            }
+                            $values[$string_value] = $a;
+                            // print_r($values); echo "".count($values)." values\n"; exit("\n000\n"); //good debug per single value        
+                        }
+                        // print_r($values); echo "".count($values)." values\n"; exit("\n111\n"); //good debug - all values of a single mType
+
+                    }
+
+                } //end foreach()
+                print_r($values); echo "".count($values)." values\n"; exit("\n222\n");
+
+            }
+        }
     }
+
+
+    public function remove_all_in_between_inclusive($left, $right, $html, $includeRight = true)
+    {
+        if(preg_match_all("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+            foreach($arr[1] as $str) {
+                if($includeRight) { //original
+                    $substr = $left.$str.$right;
+                    $html = str_ireplace($substr, '', $html);
+                }
+                else { //meaning exclude right
+                    $substr = $left.$str.$right;
+                    $html = str_ireplace($substr, $right, $html);
+                }
+            }
+        }
+        return $html;
+    }
+
     // =========================================================================================
     // ========================================================================================= copied template below
     // =========================================================================================
