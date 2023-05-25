@@ -21,6 +21,7 @@ Thanks.
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+$timestart = time_elapsed();
 ini_set('memory_limit','7096M');
 $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
@@ -46,7 +47,8 @@ $func = new USDAPlantNewAPI($resource_id);
 $func->start();
 unset($func);
 // exit("\n-stop muna-\n");
-Functions::finalize_dwca_resource($resource_id, false, false, false);
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means delete folder
+
 // */
 
 require_library('connectors/DWCADiagnoseAPI');
