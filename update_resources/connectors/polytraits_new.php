@@ -6,7 +6,7 @@ namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 ini_set('memory_limit','7096M');
-$GLOBALS['ENV_DEBUG'] = false;
+$GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
 $resource_id = 'polytraits_new'; //this replaced the Polytraits.tar.gz resource from polytraits.php

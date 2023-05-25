@@ -13,7 +13,8 @@ class PolytraitsNewAPI
         
         $this->max_images_per_taxon = 10;
         $this->service['taxa list'] = "http://polytraits.lifewatchgreece.eu/traitspublic_taxa.php?pageID=";
-
+        $this->service['name info'] = "http://polytraits.lifewatchgreece.eu/taxon/SCINAME/json/?exact=1&verbose=1&assoc=0";
+        $this->service['trait info'] = "http://polytraits.lifewatchgreece.eu/traits/TAXON_ID/json/?verbose=1&assoc=1";
         $this->download_options = array('cache' => 1, 'resource_id' => 'polytraits', 'expire_seconds' => 60*60*24*30*6, 
         'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         // $this->download_options['expire_seconds'] = false;
@@ -52,8 +53,13 @@ class PolytraitsNewAPI
                     */
                     foreach($arr[1] as $row) {
                         if(stripos($row, "synonym of") !== false) continue; //string is found
-                        $row = "<i>".$row;
-                        echo "\n".$row;
+                        $row = "<i>".$row; //echo "\n".$row;
+                        $rek = array();
+                        if(preg_match("/<i>(.*?)<\/i>/ims", $row, $arr2))         $rek['sciname'] = trim($arr2[1]);
+                        if(preg_match("/<\/i>(.*?)elix/ims", $row."elix", $arr2)) $rek['author']  = trim($arr2[1]);
+                        if(!$rek['sciname']) exit("\nInvestigate: no sciname\n");
+                        // print_r($rek); exit;
+                        self::process_taxon($rek);
                     }
 
                 }
@@ -61,8 +67,42 @@ class PolytraitsNewAPI
             break; //debug only
             if($pageID >= 2) break; //debug only
         } //end while()
+    }
+    private function process_taxon($rek)
+    {
+        $obj = self::get_name_info($rek); // print_r($obj); exit;
 
+        $url = str_ireplace('TAXON_ID', $obj->taxonID, $this->service['trait info']);
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            $traits = json_decode($json);
+            print_r($traits); exit;
+        }
 
+    }
+    private function get_name_info($rek)
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = false; //doesn't expire
+        $url = str_ireplace('SCINAME', urlencode($rek['sciname']), $this->service['name info']);
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $obj = json_decode($json);
+            // print_r($obj); exit;
+            /*Array(
+                [0] => stdClass Object(
+                        [taxonID] => 1960
+                        [taxon] => Abarenicola pacifica
+                        [author] => Healy & Wells, 1959
+                        [validID] => 1960
+                        [valid_taxon] => Abarenicola pacifica
+                        [valid_author] => Healy & Wells, 1959
+                        [status] => accepted
+                        [source_of_synonymy] => 
+                        [rank] => Species
+                    )
+            )*/
+            if(count($obj) == 1) return $obj[0];
+            else exit("\nInvestigate: multiple results\n");
+        }
     }
     // =========================================================================================
     // ========================================================================================= copied template below
