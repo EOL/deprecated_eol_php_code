@@ -12,31 +12,62 @@ class PolytraitsNewAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         
         $this->max_images_per_taxon = 10;
-        $this->service['URLs'] = "https://plants.usda.gov/assets/config.json";
-        $this->service['plant_list'] = "https://plants.usda.gov/assets/docs/CompletePLANTSList/plantlst.txt";
+        $this->service['taxa list'] = "http://polytraits.lifewatchgreece.eu/traitspublic_taxa.php?pageID=";
 
-        $this->download_options = array('cache' => 1, 'resource_id' => 'usda_plants', 'expire_seconds' => 60*60*24*30*6, 
+        $this->download_options = array('cache' => 1, 'resource_id' => 'polytraits', 'expire_seconds' => 60*60*24*30*6, 
         'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         // $this->download_options['expire_seconds'] = false;
         $this->debug = array();
-        $this->github['US State list'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/USDA_Plants/US_State_list.tsv';
-        /*
-        */
 
     }
     function initialize()
     {
-        self::set_service_urls();
-        self::get_US_states_list(); //working OK, but was never used
+        // self::get_US_states_list(); //working OK, but was never used //copied template
     }
     function start()
     {
         self::initialize();
         self::main();
-        $this->archive_builder->finalize(true);
+        // $this->archive_builder->finalize(true);
         // Functions::start_print_debug();
     }
     private function main()
+    {
+        $pageID = 0;
+        while(true) { $pageID++;
+            $url = $this->service['taxa list'].$pageID;
+            if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+                if(preg_match_all("/<i>(.*?)<\/td>/ims", $html, $arr)) {
+                    if(count($arr[1]) == 0) break;
+                    // print_r($arr[1]); exit;
+                    /*
+                    Array(
+                        [0] =>  Abarenicola pacifica</i> Healy & Wells, 1959
+                        [1] =>  Aberrantidae</i> Wolf, 1987
+                        [2] =>  Abyssoninoe</i> Orensanz, 1990
+                        [9] =>  Aglaophamus agilis</i> (Langerhans, 1880)
+                        [10] =>  Aglaophamus circinata</i> (Verrill in Smith & Harger, 1874)
+                        [11] =>  Alciopidae</i> Ehlers, 1864<span style='color:grey;'> (subjective synonym of  
+                                <i>Alciopidae</i> according to Rouse, G.W., Pleijel, F. (2001) )</span>
+                    */
+                    foreach($arr[1] as $row) {
+                        if(stripos($row, "synonym of") !== false) continue; //string is found
+                        $row = "<i>".$row;
+                        echo "\n".$row;
+                    }
+
+                }
+            }
+            break; //debug only
+            if($pageID >= 2) break; //debug only
+        } //end while()
+
+
+    }
+    // =========================================================================================
+    // ========================================================================================= copied template below
+    // =========================================================================================
+    private function main_x()
     {
         $options = $this->download_options;
         $options['expire_seconds'] = 60*60*24*30*3; //3 months
@@ -486,20 +517,6 @@ class PolytraitsNewAPI
             $this->US_abbrev_state[$abbrev] = $state_name;
         }
         unlink($tsv_file);
-    }
-    private function set_service_urls()
-    {
-        $options = $this->download_options;
-        $options['expire_seconds'] = 60*60*24*30; //1 month
-        if($json = Functions::lookup_with_cache($this->service['URLs'], $options)) {
-            $obj = json_decode($json);
-            $this->serviceUrls = $obj->serviceUrls;
-            // print_r($obj); print_r($this->serviceUrls);
-            // "plantsServicesUrl": "https://plantsservices.sc.egov.usda.gov/api/",        TO BE USED
-            // "imageLibraryUrl": "https://plants.sc.egov.usda.gov/ImageLibrary",          TO BE USED
-
-            // $this->serviceUrls->imageLibraryUrl --- for media accessURI
-        }
     }
     // =========================================================================================
     // ========================================================================================= copied template below
