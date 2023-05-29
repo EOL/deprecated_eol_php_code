@@ -277,9 +277,19 @@ class PolytraitsNewAPI
     private function get_parentID_of_name($sciname)
     {
         $taxon_id = self::get_taxonID_of_name($sciname);
-        $ancestry = self::get_ancestry($taxon_id); // print_r($ancestry); 
+        $ancestry = self::get_ancestry($taxon_id); //print_r($ancestry); exit;
+        // /*
+        self::write_ancestry($ancestry);
+        // */
         $ret = end($ancestry); // print_r($ret); exit("\n-end ancestry-\n");
         return $ret['taxonID'];
+    }
+    private function write_ancestry($ancestry)
+    {
+        print_r($ancestry); //exit("\nxxx\n");
+        $ancestry = array_reverse($ancestry);
+        print_r($ancestry); exit("\nxxx\n");
+
     }
     private function get_taxonID_of_name($sciname)
     {
