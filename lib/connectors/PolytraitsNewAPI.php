@@ -68,7 +68,7 @@ class PolytraitsNewAPI
                     }
                 }
             }
-            break; //debug only
+            // break; //debug only
             if($pageID >= 2) break; //debug only
         } //end while()
     }
