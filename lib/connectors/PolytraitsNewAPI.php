@@ -25,7 +25,7 @@ class PolytraitsNewAPI
     }
     function initialize()
     {
-        self::get_terms_info();
+        $this->terms_info = self::get_terms_info();
     }
     function start()
     {
@@ -153,7 +153,7 @@ class PolytraitsNewAPI
                     
                     if(preg_match_all("/onclick=\'expand_close(.*?)<\/table>/ims", $str, $arr2)) { //$str is entire block of all values of a mType
                         // print_r($arr2[1]); exit;
-                        foreach($arr2[1] as $str2) { echo "\n$str2\n"; //good debug
+                        foreach($arr2[1] as $str2) { //echo "\n$str2\n"; //good debug
                             if(preg_match("/<td colspan=2>(.*?)<\/td>/ims", $str2, $arr3)) { //$str2 is for a single value
                                 $string_value = trim($arr3[1]);
                                 $left = '<span '; $right = '</span>'; //cannot use strip_tags()
@@ -175,13 +175,16 @@ class PolytraitsNewAPI
                     }
 
                 } //end foreach()
-                print_r($values); echo "".count($values)." values\n"; exit("\n222\n"); //good debug - all values of all mTypes
-
+                // print_r($values); echo "".count($values)." values\n"; //exit("\n222\n"); //good debug - all values of all mTypes
             }
         }
+        // testing:
+        if(count($values) == 48) echo "\nTotal count test OK.";
+        if($values['Substrate type of settlement']['boulders']['identifier'] == 'http://purl.obolibrary.org/obo/ENVO_01000114') echo "\nIdentifier test 1 OK.";            
+        if($values['Substrate type']['mixed']['identifier'] == 'http://polytraits.lifewatchgreece.eu/terms/SUBST_MIX') echo "\nIdentifier test 2 OK.";            
+        if($values['Body size (max)']['<2.5 mm']['identifier'] == 'http://polytraits.lifewatchgreece.eu/terms/BS_1') echo "\nIdentifier test 3 OK."; //exit;
+        return $values;
     }
-
-
     public function remove_all_in_between_inclusive($left, $right, $html, $includeRight = true)
     {
         if(preg_match_all("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
@@ -198,7 +201,6 @@ class PolytraitsNewAPI
         }
         return $html;
     }
-
     // =========================================================================================
     // ========================================================================================= copied template below
     // =========================================================================================
