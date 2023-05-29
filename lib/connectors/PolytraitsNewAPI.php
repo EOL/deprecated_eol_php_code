@@ -75,7 +75,7 @@ class PolytraitsNewAPI
     private function process_taxon($rek)
     {
         $obj = self::get_name_info($rek['sciname']); //print_r($obj); exit;
-        self::write_taxon($obj, $rek);
+        self::write_taxon($obj);
         return;
         $url = str_ireplace('TAXON_ID', $obj->taxonID, $this->service['trait info']);
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -85,7 +85,7 @@ class PolytraitsNewAPI
         exit("\nInvestigate: cannot lookup this taxonID = $obj->taxonID\n");
     }
     private function get_name_info($sciname)
-    {
+    {   if(!$sciname) return;
         $options = $this->download_options;
         $options['expire_seconds'] = false; //doesn't expire
         $url = str_ireplace('SCINAME', urlencode($sciname), $this->service['name info']);
@@ -107,7 +107,7 @@ class PolytraitsNewAPI
             )*/
             if(count($objs) == 1) return $objs[0];
             else {
-                print_r($objs); echo("\nInvestigate: multiple results\n");
+                // print_r($objs); echo("\nInvestigate: multiple results\n");
                 foreach($objs as $obj) {
                     @$status[$obj->status]++;
                 }
@@ -229,7 +229,7 @@ class PolytraitsNewAPI
     // [source_of_synonymy] => 
     // [parent] => Abarenicola
 
-    private function write_taxon($obj, $rek)
+    private function write_taxon($obj)
     {   /*stdClass Object(
             [taxonID] => 1960
             [taxon] => Abarenicola pacifica
@@ -262,7 +262,10 @@ class PolytraitsNewAPI
         $taxon->source                      = $this->taxon_page.$obj->taxonID; //furtherInformationURL
         $taxon->taxonomicStatus             = $obj->status;
         if($obj->status == 'accepted') {
-            $taxon->parentNameUsageID   = self::get_parentID_of_name($obj->taxon);
+            if(isset($obj->parentNameUsageID)) {
+                if($val = @$obj->parentNameUsageID) $taxon->parentNameUsageID = $val;
+            }
+            else                                    $taxon->parentNameUsageID = self::get_parentID_of_name($obj->taxon);
         }
 
         if(stripos($obj->status, "synonym") !== false) { //string is found
@@ -278,21 +281,52 @@ class PolytraitsNewAPI
     {
         $taxon_id = self::get_taxon_info_of_name($sciname, 'taxonID');
         $ancestry = self::get_ancestry($taxon_id); //print_r($ancestry); exit;
-        // /*
+        // /* solution for having undefined parents
         self::write_ancestry($ancestry);
         // */
         $ret = end($ancestry); // print_r($ret); exit("\n-end ancestry-\n");
-        return $ret['taxonID'];
+        if($val = @$ret['taxonID']) return $val;
     }
     private function write_ancestry($ancestry)
     {
-        print_r($ancestry); //exit("\nxxx\n");
         $ancestry = array_reverse($ancestry);
-        print_r($ancestry); exit("\nxxx\n");
+        // print_r($ancestry); //exit("\nxxx\n");
+        /*Array(
+            [0] => Array(
+                    [sciname] => Abarenicola
+                    [rank] => genus
+                    [taxonID] => 1957
+                    [profile] => stdClass Object(
+                            [taxonID] => 1957
+                            [taxon] => Abarenicola
+                            [author] => Wells, 1959
+                            [validID] => 1957
+                            [valid_taxon] => Abarenicola
+                            [valid_author] => Wells, 1959
+                            [status] => accepted
+                            [source_of_synonymy] => 
+                            [rank] => Genus
+                        )
+                )
+        */
 
+        if(!$ancestry) return;
+
+        // /* assign parentNameUsageID
+        $i = -1;
+        foreach($ancestry as $r) { $i++;
+            if(isset($ancestry[$i]['profile'])) {
+                $ancestry[$i]['profile']->parentNameUsageID = @$ancestry[$i+1]['taxonID'];
+            }
+        }
+        // */
+        // print_r($ancestry); exit("\nyyy\n");
+        foreach($ancestry as $r) {
+            if(@$r['profile']) self::write_taxon($r['profile']);
+        }
     }
     private function get_taxon_info_of_name($sciname, $what = 'all')
-    {
+    {   if(!$sciname) return;
         if($obj = self::get_name_info($sciname)) {
             if($what == 'taxonID') {
                 if($val = $obj->taxonID) return $val;
@@ -314,7 +348,7 @@ class PolytraitsNewAPI
                 $str = $arr[1];
                 $arr = explode(" > ", $str);
                 $arr = array_map('trim', $arr);
-                print_r($arr); //exit;
+                // print_r($arr); //exit;
                 /*Array(
                     [0] => Polychaeta (Class)
                     [1] => Polychaeta Palpata (Subclass)
@@ -328,9 +362,10 @@ class PolytraitsNewAPI
                     $rek = array();
                     $rek['sciname'] = trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis OK
                     $rek['rank'] = self::get_string_between("(", ")", $string);
-                    $ret = self::get_taxon_info_of_name($rek['sciname'], 'all');
-                    $rek['taxonID'] = $ret->taxonID;
-                    $rek['profile'] = $ret;
+                    if($ret = self::get_taxon_info_of_name($rek['sciname'], 'all')) {
+                        $rek['taxonID'] = $ret->taxonID;
+                        $rek['profile'] = $ret;    
+                    }
                     // print_r($ret); exit;
                     $reks[] = $rek;
                 }
