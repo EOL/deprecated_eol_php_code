@@ -16,6 +16,7 @@ class PolytraitsNewAPI
         $this->service['name info'] = "http://polytraits.lifewatchgreece.eu/taxon/SCINAME/json/?exact=1&verbose=1&assoc=0";
         $this->service['trait info'] = "http://polytraits.lifewatchgreece.eu/traits/TAXON_ID/json/?verbose=1&assoc=1";
         $this->service['terms list'] = "http://polytraits.lifewatchgreece.eu/terms";
+        $this->taxon_page = "http://polytraits.lifewatchgreece.eu/taxonpage/";
 
         $this->download_options = array('cache' => 1, 'resource_id' => 'polytraits', 'expire_seconds' => 60*60*24*30*6, 
         'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
@@ -30,8 +31,9 @@ class PolytraitsNewAPI
     {
         self::initialize();
         self::main();
-        // $this->archive_builder->finalize(true);
+        $this->archive_builder->finalize(true);
         // Functions::start_print_debug();
+        print_r($this->debug);
     }
     private function main()
     {   $pageID = 0;
@@ -50,7 +52,12 @@ class PolytraitsNewAPI
                         [11] =>  Alciopidae</i> Ehlers, 1864<span style='color:grey;'> (subjective synonym of  
                                 <i>Alciopidae</i> according to Rouse, G.W., Pleijel, F. (2001) )</span>*/
                     foreach($arr[1] as $row) {
-                        if(stripos($row, "synonym of") !== false) continue; //string is found
+                        /* this block excludes synonyms
+                        if(stripos($row, "synonym of") !== false) { //string is found
+                            continue;
+                        }
+                        // else continue; //debug only
+                        */
                         $row = "<i>".$row; //echo "\n".$row;
                         $rek = array();
                         if(preg_match("/<i>(.*?)<\/i>/ims", $row, $arr2))         $rek['sciname'] = trim($arr2[1]);
@@ -67,22 +74,25 @@ class PolytraitsNewAPI
     }
     private function process_taxon($rek)
     {
-        $obj = self::get_name_info($rek); // print_r($obj); exit;
+        $obj = self::get_name_info($rek['sciname']); //print_r($obj); exit;
+        self::write_taxon($obj, $rek);
+        return;
         $url = str_ireplace('TAXON_ID', $obj->taxonID, $this->service['trait info']);
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $traits = json_decode($json);
             print_r($traits); exit;
         }
+        exit("\nInvestigate: cannot lookup this taxonID = $obj->taxonID\n");
     }
-    private function get_name_info($rek)
+    private function get_name_info($sciname)
     {
         $options = $this->download_options;
         $options['expire_seconds'] = false; //doesn't expire
-        $url = str_ireplace('SCINAME', urlencode($rek['sciname']), $this->service['name info']);
+        $url = str_ireplace('SCINAME', urlencode($sciname), $this->service['name info']);
         if($json = Functions::lookup_with_cache($url, $options)) {
-            $obj = json_decode($json);
-            // print_r($obj); exit;
-            /*Array(
+            $objs = json_decode($json);
+            // print_r($objs); exit;
+            /* sample valid taxon Array(
                 [0] => stdClass Object(
                         [taxonID] => 1960
                         [taxon] => Abarenicola pacifica
@@ -95,8 +105,21 @@ class PolytraitsNewAPI
                         [rank] => Species
                     )
             )*/
-            if(count($obj) == 1) return $obj[0];
-            else exit("\nInvestigate: multiple results\n");
+            if(count($objs) == 1) return $objs[0];
+            else {
+                print_r($objs); echo("\nInvestigate: multiple results\n");
+                foreach($objs as $obj) {
+                    @$status[$obj->status]++;
+                }
+                print_r($status); //exit;
+                if($status['accepted'] == 1) {
+                    foreach($objs as $obj) {
+                        if($obj->status == 'accepted') return $obj; //return the only accepted taxon
+                    }
+                }
+                elseif($status['accepted'] == 0) exit("\nInvestigate: zero accepted names\n");
+                else                             exit("\nInvestigate: multiple accepted names\n");
+            }
         }
     }
     private function get_terms_info()
@@ -194,6 +217,64 @@ class PolytraitsNewAPI
             }
         }
         return $html;
+    }
+
+    // [taxon] => Abarenicola pacifica
+    // [author] => Healy & Wells, 1959
+    // [valid_taxon] => Abarenicola pacifica
+    // [valid_author] => Healy & Wells, 1959
+    // [taxonomic_status] => 
+    // [source_of_synonymy] => 
+    // [parent] => Abarenicola
+
+    private function write_taxon($obj, $rek)
+    {   /*stdClass Object(
+            [taxonID] => 1960
+            [taxon] => Abarenicola pacifica
+            [author] => Healy & Wells, 1959
+            [validID] => 1960
+            [valid_taxon] => Abarenicola pacifica
+            [valid_author] => Healy & Wells, 1959
+            [status] => accepted
+            [source_of_synonymy] => 
+            [rank] => Species
+        )
+        sample synonym taxon stdClass Object(
+            [taxonID] => 1249
+            [taxon] => Alciopidae
+            [author] => Ehlers, 1864
+            [validID] => 1249
+            [valid_taxon] => Alciopidae
+            [valid_author] => Ehlers, 1864
+            [status] => subjective synonym
+            [source_of_synonymy] => Rouse, G.W., Pleijel, F. (2001) Polychaetes. Oxford University Press,Oxford.354pp.
+            [rank] => Family
+        )*/
+        $this->debug['status values'][$obj->status] = '';
+
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID                     = $obj->taxonID;
+        $taxon->scientificName              = $obj->taxon;
+        $taxon->scientificNameAuthorship    = $obj->author;
+        $taxon->taxonRank                   = strtolower($obj->rank);
+        $taxon->source                      = $this->taxon_page.$obj->taxonID; //furtherInformationURL
+        $taxon->taxonomicStatus             = $obj->status;
+
+        if(stripos($obj->status, "synonym") !== false) { //string is found
+            $taxon->acceptedNameUsageID = self::get_taxonID_of_name($obj->valid_taxon);
+        }
+
+        // $taxon->parentNameUsageID   = ''; //not available info
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->taxon_ids[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);    
+        }
+    }
+    private function get_taxonID_of_name($sciname)
+    {
+        $obj = self::get_name_info($sciname);
+        if($val = $obj->taxonID) return $val;
+        exit("\nInvestigate: cannot locate sciname: [$sciname]\n");
     }
     // =========================================================================================
     // ========================================================================================= copied template below
@@ -331,56 +412,7 @@ class PolytraitsNewAPI
         }
 
     }
-    private function create_taxon_archive($rec, $profile)
-    {   /*Array(
-        [Symbol] => ABAB
-        [Synonym Symbol] => 
-        [Scientific Name with Author] => Abutilon abutiloides (Jacq.) Garcke ex Hochr.
-        [Common Name] => shrubby Indian mallow
-        [Family] => Malvaceae
-        )*/
-        /*Array( PlantProfile
-        [Id] => 65791
-        [Symbol] => ABAB
-        [ScientificName] => <i>Abutilon abutiloides</i> (Jacq.) Garcke ex Hochr.
-        [ScientificNameComponents] => 
-        [CommonName] => shrubby Indian mallow
-        [Group] => Dicot
-        [RankId] => 180
-        [Rank] => Species
-        ...and many more...even trait data
-        */
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID                     = $profile->Id;
-        $taxon->parentNameUsageID   = self::get_parent_id($profile);
-
-        if($profile->ScientificName) {
-            $ret = self::parse_sciname($profile->ScientificName);
-            $taxon->scientificName              = $ret['sciname'];
-            $taxon->scientificNameAuthorship    = $ret['author'];    
-        }
-        else { //should not go here...
-            // print_r($profile); exit("\nno profile->sciname\n");
-            $ret = self::parse_sciname($rec['Scientific Name with Author']);
-            $taxon->scientificName              = $ret['sciname'];
-            $taxon->scientificNameAuthorship    = $ret['author'];    
-        }
-
-        $taxon->taxonRank                   = strtolower($profile->Rank);
-        if($profile->Rank != "Family") $taxon->family = $rec['Family'];
-        $taxon->source = 'https://plants.usda.gov/home/plantProfile?symbol='.$profile->Symbol; //furtherInformationURL
-        /* no data for:
-        $taxon->taxonomicStatus          = '';
-        $taxon->acceptedNameUsageID      = '';
-        */
-        if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            $this->taxon_ids[$taxon->taxonID] = '';
-            $this->archive_builder->write_object_to_file($taxon);    
-        }
-        /* start vernaculars */
-        $rec['taxonID'] = $profile->Id;
-        self::create_vernacular($rec);
-    }
+    
     private function write_synonym($rec)
     {   /*Array( e.g. synonym record
         [Symbol] => ABAB

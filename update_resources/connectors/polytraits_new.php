@@ -17,13 +17,13 @@ require_library('connectors/PolytraitsNewAPI');
 $func = new PolytraitsNewAPI($resource_id);
 $func->start();
 unset($func);
-exit("\n-stop muna-\n");
+// exit("\n-stop muna-\n");
 Functions::finalize_dwca_resource($resource_id, false, false, false);
 // */
 
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
-if($undefined = $func->check_if_all_parents_have_entries($resource_id, true)) { //2nd param True means write to text file
+if($undefined = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'acceptedNameUsageID')) { //2nd param True means write to text file
     $arr['parents without entries'] = $undefined;
     print_r($arr);
 }
