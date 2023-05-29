@@ -21,7 +21,6 @@ class PolytraitsNewAPI
         'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         // $this->download_options['expire_seconds'] = false;
         $this->debug = array();
-
     }
     function initialize()
     {
@@ -42,16 +41,14 @@ class PolytraitsNewAPI
                 if(preg_match_all("/<i>(.*?)<\/td>/ims", $html, $arr)) {
                     if(count($arr[1]) == 0) break;
                     // print_r($arr[1]); exit;
-                    /*
-                    Array(
+                    /*Array(
                         [0] =>  Abarenicola pacifica</i> Healy & Wells, 1959
                         [1] =>  Aberrantidae</i> Wolf, 1987
                         [2] =>  Abyssoninoe</i> Orensanz, 1990
                         [9] =>  Aglaophamus agilis</i> (Langerhans, 1880)
                         [10] =>  Aglaophamus circinata</i> (Verrill in Smith & Harger, 1874)
                         [11] =>  Alciopidae</i> Ehlers, 1864<span style='color:grey;'> (subjective synonym of  
-                                <i>Alciopidae</i> according to Rouse, G.W., Pleijel, F. (2001) )</span>
-                    */
+                                <i>Alciopidae</i> according to Rouse, G.W., Pleijel, F. (2001) )</span>*/
                     foreach($arr[1] as $row) {
                         if(stripos($row, "synonym of") !== false) continue; //string is found
                         $row = "<i>".$row; //echo "\n".$row;
@@ -62,7 +59,6 @@ class PolytraitsNewAPI
                         // print_r($rek); exit;
                         self::process_taxon($rek);
                     }
-
                 }
             }
             break; //debug only
@@ -72,7 +68,6 @@ class PolytraitsNewAPI
     private function process_taxon($rek)
     {
         $obj = self::get_name_info($rek); // print_r($obj); exit;
-
         $url = str_ireplace('TAXON_ID', $obj->taxonID, $this->service['trait info']);
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $traits = json_decode($json);
@@ -173,7 +168,6 @@ class PolytraitsNewAPI
                         }
                         // print_r($values); echo "".count($values)." values\n"; exit("\n111\n"); //good debug - all values of a single mType
                     }
-
                 } //end foreach()
                 // print_r($values); echo "".count($values)." values\n"; //exit("\n222\n"); //good debug - all values of all mTypes
             }
