@@ -266,7 +266,7 @@ class PolytraitsNewAPI
         }
 
         if(stripos($obj->status, "synonym") !== false) { //string is found
-            $taxon->acceptedNameUsageID = self::get_taxonID_of_name($obj->valid_taxon);
+            $taxon->acceptedNameUsageID = self::get_taxon_info_of_name($obj->valid_taxon, 'taxonID');
         }
 
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
@@ -276,7 +276,7 @@ class PolytraitsNewAPI
     }
     private function get_parentID_of_name($sciname)
     {
-        $taxon_id = self::get_taxonID_of_name($sciname);
+        $taxon_id = self::get_taxon_info_of_name($sciname, 'taxonID');
         $ancestry = self::get_ancestry($taxon_id); //print_r($ancestry); exit;
         // /*
         self::write_ancestry($ancestry);
@@ -291,10 +291,14 @@ class PolytraitsNewAPI
         print_r($ancestry); exit("\nxxx\n");
 
     }
-    private function get_taxonID_of_name($sciname)
+    private function get_taxon_info_of_name($sciname, $what = 'all')
     {
-        $obj = self::get_name_info($sciname);
-        if($val = $obj->taxonID) return $val;
+        if($obj = self::get_name_info($sciname)) {
+            if($what == 'taxonID') {
+                if($val = $obj->taxonID) return $val;
+            }
+            elseif($what == 'all') return $obj;    
+        }
         exit("\nInvestigate: cannot locate sciname: [$sciname]\n");
     }
     function get_ancestry($taxon_id)
@@ -324,7 +328,10 @@ class PolytraitsNewAPI
                     $rek = array();
                     $rek['sciname'] = trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis OK
                     $rek['rank'] = self::get_string_between("(", ")", $string);
-                    $rek['taxonID'] = self::get_taxonID_of_name($rek['sciname']);
+                    $ret = self::get_taxon_info_of_name($rek['sciname'], 'all');
+                    $rek['taxonID'] = $ret->taxonID;
+                    $rek['profile'] = $ret;
+                    // print_r($ret); exit;
                     $reks[] = $rek;
                 }
                 // print_r($reks); exit; //good debug
