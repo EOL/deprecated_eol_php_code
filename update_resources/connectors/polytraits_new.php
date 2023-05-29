@@ -16,6 +16,7 @@ $resource_id = 'polytraits_new'; //this replaced the Polytraits.tar.gz resource 
 require_library('connectors/PolytraitsNewAPI');
 $func = new PolytraitsNewAPI($resource_id);
 $func->start();
+// $func->get_ancestry(1504); //works just test
 unset($func);
 // exit("\n-stop muna-\n");
 Functions::finalize_dwca_resource($resource_id, false, false, false);
@@ -23,11 +24,19 @@ Functions::finalize_dwca_resource($resource_id, false, false, false);
 
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
+
 if($undefined = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'acceptedNameUsageID')) { //2nd param True means write to text file
+    $arr['acceptedNameUsageID without entries'] = $undefined;
+    print_r($arr);
+}
+else echo "\nAll acceptedNameUsageID have entries OK\n";
+
+if($undefined = $func->check_if_all_parents_have_entries($resource_id, true)) { //2nd param True means write to text file
     $arr['parents without entries'] = $undefined;
     print_r($arr);
 }
 else echo "\nAll parents have entries OK\n";
+
 
 recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id);
 

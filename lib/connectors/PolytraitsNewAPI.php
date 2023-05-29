@@ -259,16 +259,25 @@ class PolytraitsNewAPI
         $taxon->taxonRank                   = strtolower($obj->rank);
         $taxon->source                      = $this->taxon_page.$obj->taxonID; //furtherInformationURL
         $taxon->taxonomicStatus             = $obj->status;
+        if($obj->status == 'accepted') {
+            $taxon->parentNameUsageID   = self::get_parentID_of_name($obj->taxon);
+        }
 
         if(stripos($obj->status, "synonym") !== false) { //string is found
             $taxon->acceptedNameUsageID = self::get_taxonID_of_name($obj->valid_taxon);
         }
 
-        // $taxon->parentNameUsageID   = ''; //not available info
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->taxon_ids[$taxon->taxonID] = '';
             $this->archive_builder->write_object_to_file($taxon);    
         }
+    }
+    private function get_parentID_of_name($sciname)
+    {
+        $taxon_id = self::get_taxonID_of_name($sciname);
+        $ancestry = self::get_ancestry($taxon_id); // print_r($ancestry); 
+        $ret = end($ancestry); // print_r($ret); exit("\n-end ancestry-\n");
+        return $ret['taxonID'];
     }
     private function get_taxonID_of_name($sciname)
     {
@@ -276,6 +285,45 @@ class PolytraitsNewAPI
         if($val = $obj->taxonID) return $val;
         exit("\nInvestigate: cannot locate sciname: [$sciname]\n");
     }
+    function get_ancestry($taxon_id)
+    {
+        if($html = Functions::lookup_with_cache($this->taxon_page.$taxon_id, $this->download_options)) {
+            $left = "<span class='taxonpath'>";
+            $right = "</span>";
+            // <span class='taxonpath'>Polychaeta (Class)  > Polychaeta Palpata (Subclass)  > Phyllodocida (Order)  > Nephtyidae (Family)  >  <i> Aglaophamus</i> (Genus) </span>
+            if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+                // print_r($arr[1]); exit;
+                $str = $arr[1];
+                $arr = explode(" > ", $str);
+                $arr = array_map('trim', $arr);
+                print_r($arr); //exit;
+                /*Array(
+                    [0] => Polychaeta (Class)
+                    [1] => Polychaeta Palpata (Subclass)
+                    [2] => Terebellida (Order)
+                    [3] => Acrocirridae (Family)
+                    [4] => <i> Acrocirrus</i> (Genus)
+                )*/
+                $reks = array();
+                foreach($arr as $string) {
+                    $string = trim(strip_tags($string));
+                    $rek = array();
+                    $rek['sciname'] = trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis OK
+                    $rek['rank'] = self::get_string_between("(", ")", $string);
+                    $rek['taxonID'] = self::get_taxonID_of_name($rek['sciname']);
+                    $reks[] = $rek;
+                }
+                // print_r($reks); exit; //good debug
+                return $reks;
+            }
+        }
+    }
+    private function get_string_between($left, $right, $string)
+    {
+        if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $string, $arr)) return strtolower(trim($arr[1]));
+        return;
+    }
+
     // =========================================================================================
     // ========================================================================================= copied template below
     // =========================================================================================
