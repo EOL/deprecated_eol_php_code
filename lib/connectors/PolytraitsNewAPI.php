@@ -39,7 +39,7 @@ class PolytraitsNewAPI
     {   $pageID = 0;
         while(true) { $pageID++;
             $url = $this->service['taxa list'].$pageID;
-            if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            if($html = Functions::lookup_with_cache($url, $this->download_options)) { // for taxa page lists...
                 if(preg_match_all("/<i>(.*?)<\/td>/ims", $html, $arr)) {
                     if(count($arr[1]) == 0) break;
                     // print_r($arr[1]); exit;
@@ -147,7 +147,9 @@ class PolytraitsNewAPI
                     <tr>
                     <td class='trait_docu_subheader' colspan=2>Modalities</td>        
         */
-        if($html = Functions::lookup_with_cache($this->service['terms list'], $this->download_options)) {
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($html = Functions::lookup_with_cache($this->service['terms list'], $options)) {
             /* measurementTypes */
             if(preg_match_all("/class=\'db_docu\'(.*?)class=\'trait_docu_subheader\'/ims", $html, $arr)) {
                 // print_r($arr[1]); echo "\n".count($arr[1]).'\n'; exit;
@@ -287,7 +289,9 @@ class PolytraitsNewAPI
     }
     function get_ancestry($taxon_id)
     {
-        if($html = Functions::lookup_with_cache($this->taxon_page.$taxon_id, $this->download_options)) {
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($html = Functions::lookup_with_cache($this->taxon_page.$taxon_id, $options)) {
             $left = "<span class='taxonpath'>";
             $right = "</span>";
             // <span class='taxonpath'>Polychaeta (Class)  > Polychaeta Palpata (Subclass)  > Phyllodocida (Order)  > Nephtyidae (Family)  >  <i> Aglaophamus</i> (Genus) </span>
