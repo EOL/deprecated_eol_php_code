@@ -29,8 +29,6 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         // http://polytraits.lifewatchgreece.eu/taxon/Clymene+leiopygos/json/?exact=1&verbose=1&assoc=0
 
 
-
-
         $this->service['trait info'] = "http://polytraits.lifewatchgreece.eu/traits/TAXON_ID/json/?verbose=1&assoc=1";
         $this->service['terms list'] = "http://polytraits.lifewatchgreece.eu/terms";
         $this->taxon_page = "http://polytraits.lifewatchgreece.eu/taxonpage/";
@@ -78,12 +76,11 @@ class PolytraitsNewAPI extends ContributorsMapAPI
                         [11] =>  Alciopidae</i> Ehlers, 1864<span style='color:grey;'> (subjective synonym of  
                                 <i>Alciopidae</i> according to Rouse, G.W., Pleijel, F. (2001) )</span>*/
                     foreach($arr[1] as $row) {
-                        /* this block excludes synonyms
+                        // /* this block excludes synonyms
                         if(stripos($row, "synonym of") !== false) { //string is found
                             continue;
                         }
-                        // else continue; //debug only
-                        */
+                        // */
                         $row = "<i>".$row; //echo "\n".$row;
                         $rek = array();
                         if(preg_match("/<i>(.*?)<\/i>/ims", $row, $arr2))         $rek['sciname'] = trim($arr2[1]);
@@ -333,7 +330,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             [source_of_synonymy] => Rouse, G.W., Pleijel, F. (2001) Polychaetes. Oxford University Press,Oxford.354pp.
             [rank] => Family
         )*/
-        $this->debug['status values'][$obj->status] = '';
+        @$this->debug['status values'][$obj->status]++;
 
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                     = $obj->taxonID;
@@ -350,8 +347,9 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         }
 
         if(stripos($obj->status, "synonym") !== false) { //string is found
-            $taxon->acceptedNameUsageID = self::get_taxon_info_of_name($obj->valid_taxon, 'taxonID');
+            // $taxon->acceptedNameUsageID = self::get_taxon_info_of_name($obj->valid_taxon, 'taxonID');
         }
+        elseif($obj->status != 'accepted') return;
 
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->taxon_ids[$taxon->taxonID] = '';
