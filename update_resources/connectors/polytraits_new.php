@@ -10,36 +10,46 @@ $timestart = time_elapsed();
 
 $resource_id = 'polytraits_new'; //this replaced the Polytraits.tar.gz resource from polytraits.php
 
-// /* using mostly API and some HTML pages
+/* using mostly API and some HTML pages */
 require_library('connectors/ContributorsMapAPI');
 require_library('connectors/PolytraitsNewAPI');
 $func = new PolytraitsNewAPI($resource_id);
 $func->start();
 
-// $func->get_ancestry(1504); //works just test
+/*
+$func->get_ancestry(1504); //works just test
+*/
 
+/*
 // http://polytraits.lifewatchgreece.eu/taxon/Clymene+leiopygos/json/?exact=1&verbose=1&assoc=0
-// $sciname = 'Clymene leiopygos';
+$sciname = 'Clymene leiopygos';
 // $sciname = 'Aricia (Scoloplos) fuscibranchis';
-// $func->get_name_info($sciname); //just test
+$func->get_name_info($sciname); //just test
+*/
+
 /*
 http://polytraits.lifewatchgreece.eu/taxon/Aricia+%28Scoloplos%29+fuscibranchis/json/?exact=1&verbose=1&assoc=0
 http://polytraits.lifewatchgreece.eu/taxon/Aricidea+%28Allia%29+claudiae/json/?exact=1&verbose=1&assoc=0
 http://polytraits.lifewatchgreece.eu/taxon/Aricidea+%28Cirrophorus%29+furcata/json/?exact=1&verbose=1&assoc=0
 http://polytraits.lifewatchgreece.eu/taxon/Autolytus+%28Autolytides%29+inermis/json/?exact=1&verbose=1&assoc=0
+
 http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+I/json/?exact=1&verbose=1&assoc=0
+Capitella sp. I [id: 1432]  -> Capitella teleta
+
 http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+Ia/json/?exact=1&verbose=1&assoc=0
+Capitella sp. Ia [id: 1434] -> Capitella sp. Ia
+
+
 http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+II/json/?exact=1&verbose=1&assoc=0
 http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+III/json/?exact=1&verbose=1&assoc=0
 http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+IIIa/json/?exact=1&verbose=1&assoc=0
 http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+M/json/?exact=1&verbose=1&assoc=0
 */
 
-
 unset($func);
 exit("\n-stop muna-\n");
 Functions::finalize_dwca_resource($resource_id, false, false, false);
-// */
+/* ----------- end main ----------- */
 
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();

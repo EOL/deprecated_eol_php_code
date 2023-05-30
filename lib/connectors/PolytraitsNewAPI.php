@@ -94,7 +94,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
                     }
                 }
             }
-            // break; //debug only
+            break; //debug only
             // if($pageID >= 2) break; //debug only
         } //end while()
     }
@@ -146,21 +146,19 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             )
         */
         foreach($traits as $t) {
+            $mValue = '';
+            $mType = '';
             $rec = array();
             $rec["taxon_id"] = $obj->taxonID;
             $json = json_encode($t); // exit("\n$json\n");
             $rec["catnum"] = mdf($json);
             $rec['measurementDeterminedDate'] = $t->value_creation_date;
-            // // $rec['measurementDeterminedBy'] = $d->party; //removed DATA-1881
-            // $rec['measurementRemarks'] = $d->annotation;
-            // $rec['source'] = "https://www.speciesplus.net/#/taxon_concepts/$taxon_id/legal";
-            
-            // if($string_uri = $this->listings_uri[$d->appendix]) {
-            //     $this->func->add_string_types($rec, $string_uri, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus", "true");
-            // }
-
-
-
+            $rec['measurementRemarks'] = $t->text_excerpt;
+            $rec['source'] = "http://polytraits.lifewatchgreece.eu"; //same value for all
+            $rec['bibliographicCitation'] = "Polytraits Team (2023). Polytraits: A database on biological traits of polychaetes.. LifewatchGreece, Hellenic Centre for Marine Research. Accessed on 2023-05-30. Available from http://polytraits.lifewatchgreece.eu";
+            $rec['contributor'] = self::get_or_add_contributor($t->value_creator, $t->text_excerpt_creator); //e.g. "https://orcid.org/0000-0001-9613-8300"
+            $rec['referenceID'] = self::get_or_add_reference($t->reference); //e.g. "1406"
+            $this->func->add_string_types($rec, $mValue, $mType, "true");
         }
     }
     function get_name_info($sciname)
