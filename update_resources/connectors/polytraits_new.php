@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
 /* 
-
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -11,8 +10,7 @@ $timestart = time_elapsed();
 
 $resource_id = 'polytraits_new'; //this replaced the Polytraits.tar.gz resource from polytraits.php
 
-
-// /* using Dumps
+// /* using mostly API and some HTML pages
 require_library('connectors/PolytraitsNewAPI');
 $func = new PolytraitsNewAPI($resource_id);
 $func->start();
@@ -36,7 +34,6 @@ if($undefined = $func->check_if_all_parents_have_entries($resource_id, true)) { 
     print_r($arr);
 }
 else echo "\nAll parents have entries OK\n";
-
 
 recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id);
 

@@ -21,6 +21,7 @@ class PolytraitsNewAPI
         $this->download_options = array('cache' => 1, 'resource_id' => 'polytraits', 'expire_seconds' => 60*60*24*30*6, 
         'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         // $this->download_options['expire_seconds'] = false;
+        if(Functions::is_production()) $this->download_options[download_wait_time] = 3000000; //3 secs.
         $this->debug = array();
     }
     function initialize()
@@ -69,7 +70,7 @@ class PolytraitsNewAPI
                 }
             }
             // break; //debug only
-            if($pageID >= 2) break; //debug only
+            // if($pageID >= 2) break; //debug only
         } //end while()
     }
     private function process_taxon($rek)
