@@ -11,6 +11,7 @@ $timestart = time_elapsed();
 $resource_id = 'polytraits_new'; //this replaced the Polytraits.tar.gz resource from polytraits.php
 
 // /* using mostly API and some HTML pages
+require_library('connectors/ContributorsMapAPI');
 require_library('connectors/PolytraitsNewAPI');
 $func = new PolytraitsNewAPI($resource_id);
 $func->start();

@@ -3,7 +3,7 @@ namespace php_active_record;
 /* connector: [polytraits_new.php]
 
 */
-class PolytraitsNewAPI
+class PolytraitsNewAPI extends ContributorsMapAPI
 {
     function __construct($folder = false)
     {
@@ -25,8 +25,16 @@ class PolytraitsNewAPI
         $this->debug = array();
     }
     function initialize()
-    {
+    {   // 1.
         $this->terms_info = self::get_terms_info();
+        // 2.
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        // 3.
+        $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 60*60*1);
+        $this->contributor_mappings = $this->get_contributor_mappings('Polytraits', $options); // print_r($this->contributor_mappings); //good debug
+        echo "\n contributor_mappings: ".count($this->contributor_mappings)."";
+        if($this->contributor_mappings['Katerina Vasileiadou'] == 'https://orcid.org/0000-0002-5057-6417') echo " - Test OK.\n";
     }
     function start()
     {
@@ -80,10 +88,63 @@ class PolytraitsNewAPI
         // return;
         $url = str_ireplace('TAXON_ID', $obj->taxonID, $this->service['trait info']);
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            $traits = json_decode($json);
-            print_r($traits); exit;
+            $traits = json_decode($json); // print_r($obj); print_r($traits); exit;
+            $taxonID = $obj->taxonID;
+            self::write_traits($obj, $traits->$taxonID);
         }
         exit("\nInvestigate: cannot lookup this taxonID = $obj->taxonID\n");
+    }
+    private function write_traits($obj, $traits)
+    {   print_r($obj); print_r($traits); //exit;
+        /*stdClass Object(
+            [taxonID] => 1960
+            [taxon] => Abarenicola pacifica
+            [author] => Healy & Wells, 1959
+            [validID] => 1960
+            [valid_taxon] => Abarenicola pacifica
+            [valid_author] => Healy & Wells, 1959
+            [status] => accepted
+            [source_of_synonymy] => 
+            [rank] => Species
+        )
+        [0] => stdClass Object(
+                [taxon] => Abarenicola pacifica
+                [author] => Healy & Wells, 1959
+                [valid_taxon] => Abarenicola pacifica
+                [valid_author] => Healy & Wells, 1959
+                [taxonomic_status] => 
+                [source_of_synonymy] => 
+                [parent] => Abarenicola
+                [trait] => Parental care/ Brood protection
+                [modality] => yes
+                [modality_abbreviation] => BP_YES
+                [traitvalue] => 1
+                [reference] => Rouse, G.W., Pleijel, F. (2001) Polychaetes. Oxford University Press,Oxford.354pp.
+                [doi] => 
+                [value_creator] => Dimitra Mavraki
+                [value_creation_date] => 2014-02-18 14:51:07
+                [text_excerpt] => p41:"In Abarenicola pacifica(as Abarenicola claparedii), the males discharge simple spermatophores into the water. These may enter the tube of a female and burst when struck by her chaetae. The fertilised eggs form an "egg tube" around the mid -region of the female"
+                [text_excerpt_creator] => Dimitra Mavraki
+                [text_excerpt_creation_date] => 2014-02-18 14:54:05
+            )
+        */
+        foreach($traits as $t) {
+            $rec = array();
+            $rec["taxon_id"] = $obj->taxonID;
+            $json = json_encode($t); // exit("\n$json\n");
+            $rec["catnum"] = mdf($json);
+            $rec['measurementDeterminedDate'] = $t->value_creation_date;
+            // // $rec['measurementDeterminedBy'] = $d->party; //removed DATA-1881
+            // $rec['measurementRemarks'] = $d->annotation;
+            // $rec['source'] = "https://www.speciesplus.net/#/taxon_concepts/$taxon_id/legal";
+            
+            // if($string_uri = $this->listings_uri[$d->appendix]) {
+            //     $this->func->add_string_types($rec, $string_uri, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus", "true");
+            // }
+
+
+
+        }
     }
     private function get_name_info($sciname)
     {   if(!$sciname) return;
