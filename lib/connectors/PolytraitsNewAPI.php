@@ -165,7 +165,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
     }
     function get_name_info($sciname)
     {   if(!$sciname) return;
-        echo "\nSearching [$sciname]...\n";
+        echo "-Searching [$sciname]-";
         $options = $this->download_options;
         $options['expire_seconds'] = false; //doesn't expire
         $url = str_ireplace('SCINAME', urlencode($sciname), $this->service['name info']);
