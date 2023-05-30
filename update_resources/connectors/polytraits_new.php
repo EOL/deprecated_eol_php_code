@@ -47,7 +47,7 @@ http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+M/json/?exact=1&verbose
 */
 
 unset($func);
-exit("\n-stop muna-\n");
+// exit("\n-stop muna-\n");
 Functions::finalize_dwca_resource($resource_id, false, false, false);
 /* ----------- end main ----------- */
 
