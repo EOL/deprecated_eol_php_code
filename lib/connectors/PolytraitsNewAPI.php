@@ -94,7 +94,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             }
             else break;
             // break; //debug only
-            // if($pageID >= 2) break; //debug only
+            if($pageID >= 2) break; //debug only
             if($contYN == false) break; //end of loop
         } //end while()
     }
@@ -102,11 +102,12 @@ class PolytraitsNewAPI extends ContributorsMapAPI
     {
         $obj = self::get_name_info($rek['sciname']); //print_r($obj); exit;
         self::write_taxon($obj);
-        return;
+        // return;
         $url = str_ireplace('TAXON_ID', $obj->taxonID, $this->service['trait info']);
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $traits = json_decode($json); // print_r($obj); print_r($traits); exit;
             $taxonID = $obj->taxonID;
+            return;
             self::write_traits($obj, $traits->$taxonID);
         }
         exit("\nInvestigate: cannot lookup this taxonID = $obj->taxonID\n");
@@ -161,6 +162,24 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             $this->func->add_string_types($rec, $mValue, $mType, "true");
         }
     }
+
+    /* to do ...
+    Curl error (http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+Ia/json/?exact=1&verbose=1&assoc=0): The requested URL returned error: 404 Not Found :: [lib/Functions.php 
+    Capitella sp. Ia [id: 1434]
+
+    Curl error (http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+II/json/?exact=1&verbose=1&assoc=0): The requested URL returned error: 404 Not Found :: [lib/Functions.php 
+    Capitella sp. II [id: 1436]
+
+    Curl error (http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+IIIa/json/?exact=1&verbose=1&assoc=0): The requested URL returned error: 404 Not Found :: [lib/Functions.php 
+    Capitella sp. IIIa [id: 1439]
+
+    Curl error (http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+M/json/?exact=1&verbose=1&assoc=0): The requested URL returned error: 404 Not Found :: [lib/Functions.php 
+    Capitella sp. M [id: 1433]
+
+    Curl error (http://polytraits.lifewatchgreece.eu/taxon/Paraonis+sp./json/?exact=1&verbose=1&assoc=0): The requested URL returned error: 404 Not Found :: [lib/Functions.php 
+    Paraonis sp. [id: 400]
+    */
+
     function get_name_info($sciname)
     {   if(!$sciname) return;
         echo "-Searching [$sciname]-";
@@ -356,6 +375,9 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             $this->archive_builder->write_object_to_file($taxon);    
         }
     }
+
+
+
     private function get_parentID_of_name($sciname)
     {
         $taxon_id = self::get_taxon_info_of_name($sciname, 'taxonID');
