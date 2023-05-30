@@ -14,6 +14,23 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         $this->max_images_per_taxon = 10;
         $this->service['taxa list'] = "http://polytraits.lifewatchgreece.eu/traitspublic_taxa.php?pageID=";
         $this->service['name info'] = "http://polytraits.lifewatchgreece.eu/taxon/SCINAME/json/?exact=1&verbose=1&assoc=0";
+        
+        // http://polytraits.lifewatchgreece.eu/taxon/Aricia+%28Scoloplos%29+fuscibranchis/json/?exact=1&verbose=1&assoc=0
+        // http://polytraits.lifewatchgreece.eu/taxon/Aricidea+%28Allia%29+claudiae/json/?exact=1&verbose=1&assoc=0
+        // http://polytraits.lifewatchgreece.eu/taxon/Aricidea+%28Cirrophorus%29+furcata/json/?exact=1&verbose=1&assoc=0
+        // http://polytraits.lifewatchgreece.eu/taxon/Autolytus+%28Autolytides%29+inermis/json/?exact=1&verbose=1&assoc=0
+        // http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+I/json/?exact=1&verbose=1&assoc=0
+        // http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+Ia/json/?exact=1&verbose=1&assoc=0
+        // http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+II/json/?exact=1&verbose=1&assoc=0
+        // http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+III/json/?exact=1&verbose=1&assoc=0
+        // http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+IIIa/json/?exact=1&verbose=1&assoc=0
+        // http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+M/json/?exact=1&verbose=1&assoc=0
+
+        // http://polytraits.lifewatchgreece.eu/taxon/Clymene+leiopygos/json/?exact=1&verbose=1&assoc=0
+
+
+
+
         $this->service['trait info'] = "http://polytraits.lifewatchgreece.eu/traits/TAXON_ID/json/?verbose=1&assoc=1";
         $this->service['terms list'] = "http://polytraits.lifewatchgreece.eu/terms";
         $this->taxon_page = "http://polytraits.lifewatchgreece.eu/taxonpage/";
@@ -77,7 +94,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
                     }
                 }
             }
-            break; //debug only
+            // break; //debug only
             // if($pageID >= 2) break; //debug only
         } //end while()
     }
@@ -85,7 +102,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
     {
         $obj = self::get_name_info($rek['sciname']); //print_r($obj); exit;
         self::write_taxon($obj);
-        // return;
+        return;
         $url = str_ireplace('TAXON_ID', $obj->taxonID, $this->service['trait info']);
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $traits = json_decode($json); // print_r($obj); print_r($traits); exit;
@@ -146,8 +163,9 @@ class PolytraitsNewAPI extends ContributorsMapAPI
 
         }
     }
-    private function get_name_info($sciname)
+    function get_name_info($sciname)
     {   if(!$sciname) return;
+        echo "\nSearching [$sciname]...\n";
         $options = $this->download_options;
         $options['expire_seconds'] = false; //doesn't expire
         $url = str_ireplace('SCINAME', urlencode($sciname), $this->service['name info']);
@@ -174,13 +192,13 @@ class PolytraitsNewAPI extends ContributorsMapAPI
                     @$status[$obj->status]++;
                 }
                 print_r($status); //exit;
-                if($status['accepted'] == 1) {
+                if(@$status['accepted'] == 1) {
                     foreach($objs as $obj) {
                         if($obj->status == 'accepted') return $obj; //return the only accepted taxon
                     }
                 }
-                elseif($status['accepted'] == 0) exit("\nInvestigate: zero accepted names\n");
-                else                             exit("\nInvestigate: multiple accepted names\n");
+                elseif(@$status['accepted'] == 0) return false; //exit("\nInvestigate: zero accepted names\n");
+                else                              exit("\nInvestigate: multiple accepted names\n");
             }
         }
     }
