@@ -63,11 +63,11 @@ class PolytraitsNewAPI extends ContributorsMapAPI
     }
     private function main()
     {   $pageID = 0;
-        while(true) { $pageID++;
+        while(true) { $pageID++; $contYN = true;
             $url = $this->service['taxa list'].$pageID;
             if($html = Functions::lookup_with_cache($url, $this->download_options)) { // for taxa page lists...
                 if(preg_match_all("/<i>(.*?)<\/td>/ims", $html, $arr)) {
-                    if(count($arr[1]) == 0) break;
+                    if(count($arr[1]) == 0) $contYN = false;
                     // print_r($arr[1]); exit;
                     /*Array(
                         [0] =>  Abarenicola pacifica</i> Healy & Wells, 1959
@@ -93,9 +93,12 @@ class PolytraitsNewAPI extends ContributorsMapAPI
                         self::process_taxon($rek);
                     }
                 }
+                else break;
             }
-            break; //debug only
+            else break;
+            // break; //debug only
             // if($pageID >= 2) break; //debug only
+            if($contYN == false) break; //end of loop
         } //end while()
     }
     private function process_taxon($rek)
