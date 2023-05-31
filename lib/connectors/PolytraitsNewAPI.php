@@ -15,20 +15,6 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         $this->service['taxa list'] = "http://polytraits.lifewatchgreece.eu/traitspublic_taxa.php?pageID=";
         $this->service['name info'] = "http://polytraits.lifewatchgreece.eu/taxon/SCINAME/json/?exact=1&verbose=1&assoc=0";
         
-        // http://polytraits.lifewatchgreece.eu/taxon/Aricia+%28Scoloplos%29+fuscibranchis/json/?exact=1&verbose=1&assoc=0
-        // http://polytraits.lifewatchgreece.eu/taxon/Aricidea+%28Allia%29+claudiae/json/?exact=1&verbose=1&assoc=0
-        // http://polytraits.lifewatchgreece.eu/taxon/Aricidea+%28Cirrophorus%29+furcata/json/?exact=1&verbose=1&assoc=0
-        // http://polytraits.lifewatchgreece.eu/taxon/Autolytus+%28Autolytides%29+inermis/json/?exact=1&verbose=1&assoc=0
-        // http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+I/json/?exact=1&verbose=1&assoc=0
-        // http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+Ia/json/?exact=1&verbose=1&assoc=0
-        // http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+II/json/?exact=1&verbose=1&assoc=0
-        // http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+III/json/?exact=1&verbose=1&assoc=0
-        // http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+IIIa/json/?exact=1&verbose=1&assoc=0
-        // http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+M/json/?exact=1&verbose=1&assoc=0
-
-        // http://polytraits.lifewatchgreece.eu/taxon/Clymene+leiopygos/json/?exact=1&verbose=1&assoc=0
-
-
         $this->service['trait info'] = "http://polytraits.lifewatchgreece.eu/traits/TAXON_ID/json/?verbose=1&assoc=1";
         $this->service['terms list'] = "http://polytraits.lifewatchgreece.eu/terms";
         $this->taxon_page = "http://polytraits.lifewatchgreece.eu/taxonpage/";
@@ -46,7 +32,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         // 3.
-        $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 0); //60*60*1
+        $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 60*60*1); //60*60*1
         $this->contributor_mappings = $this->get_contributor_mappings('Polytraits', $options); // print_r($this->contributor_mappings); //good debug
         echo "\n contributor_mappings: ".count($this->contributor_mappings)."";
         if($this->contributor_mappings['Katerina Vasileiadou'] == 'https://orcid.org/0000-0002-5057-6417') echo " - Test OK.\n";
