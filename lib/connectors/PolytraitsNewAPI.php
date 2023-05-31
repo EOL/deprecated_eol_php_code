@@ -144,7 +144,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             $obj->validID = $taxonID;
             $obj->valid_taxon = $traits[0]->valid_taxon;
             $obj->valid_author = $traits[0]->valid_author;
-            $obj->status = $traits[0]->taxonomic_status; //seems to be 'accepted'
+            $obj->status = 'accepted'; $traits[0]->taxonomic_status; //seems to be 'accepted'
             $obj->source_of_synonymy = $traits[0]->source_of_synonymy;
             $obj->rank = '';
             return $obj;
