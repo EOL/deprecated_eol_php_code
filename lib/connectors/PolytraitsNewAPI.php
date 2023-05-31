@@ -94,7 +94,8 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             }
             else break;
             // break; //debug only
-            if($pageID >= 2) break; //debug only
+            // if($pageID >= 2) break; //debug only
+            
             if($contYN == false) break; //end of loop
         } //end while()
     }
@@ -105,15 +106,17 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         // return;
         $url = str_ireplace('TAXON_ID', $obj->taxonID, $this->service['trait info']);
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            $traits = json_decode($json); // print_r($obj); print_r($traits); exit;
+            $traits = json_decode($json);
             $taxonID = $obj->taxonID;
-            return;
+            $traits = $traits->$taxonID; // print_r($obj); print_r($traits); exit;
+            $taxonID = $obj->taxonID;
+            echo "\nTraits: ".count($traits).""; return; //debug only
             self::write_traits($obj, $traits->$taxonID);
         }
         exit("\nInvestigate: cannot lookup this taxonID = $obj->taxonID\n");
     }
     private function write_traits($obj, $traits)
-    {   print_r($obj); print_r($traits); //exit;
+    {   print_r($obj); print_r($traits); exit("\nditox 1\n");
         /*stdClass Object(
             [taxonID] => 1960
             [taxon] => Abarenicola pacifica
@@ -182,7 +185,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
 
     function get_name_info($sciname)
     {   if(!$sciname) return;
-        echo "-Searching [$sciname]-";
+        // echo "-Searching [$sciname]-";
         $options = $this->download_options;
         $options['expire_seconds'] = false; //doesn't expire
         $url = str_ireplace('SCINAME', urlencode($sciname), $this->service['name info']);
