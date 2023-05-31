@@ -173,7 +173,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
                 print_r($t);
                 exit("\n[$t->trait] - no mType uri yet\n");
             }
-            if($val = @$this->terms_info[$t->trait][$t->modality]['identifier']) $mValue = $val;
+            if($val = @$this->terms_info[$t->trait][trim($t->modality)]['identifier']) $mValue = $val;
             else exit("\nInvestigate: no uri for this value: [$t->trait][$t->modality]\n");
 
             $rec = array();
