@@ -23,6 +23,15 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         // $this->download_options['expire_seconds'] = false;
         if(Functions::is_production()) $this->download_options[download_wait_time] = 4000000; //4 secs.
+
+        // /* gives curl error when calling the api
+        $this->customized_scinames['Capitella sp. Ia'] = 1434;
+        $this->customized_scinames['Capitella sp. II'] = 1436;
+        $this->customized_scinames['Capitella sp. IIIa'] = 1439;
+        $this->customized_scinames['Capitella sp. M'] = 1433;
+        $this->customized_scinames['Paraonis sp.'] = 400;
+        // */
+        
         $this->debug = array();
     }
     function initialize()
@@ -88,14 +97,8 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         } //end while()
     }
     private function process_taxon($rek)
-    {   // /* gives curl error when calling the api
-        $customized['Capitella sp. Ia'] = 1434;
-        $customized['Capitella sp. II'] = 1436;
-        $customized['Capitella sp. IIIa'] = 1439;
-        $customized['Capitella sp. M'] = 1433;
-        $customized['Paraonis sp.'] = 400;
-        // */
-        if(isset($customized[$rek['sciname']])) $obj = self::customized_obj($rek['sciname'], $customized[$rek['sciname']]);
+    {   
+        if(isset($this->customized_scinames[$rek['sciname']])) $obj = self::customized_obj($rek['sciname'], $this->customized_scinames[$rek['sciname']]);
         else { //regular, rest goes here
             $obj = self::get_name_info($rek['sciname']); //print_r($obj); exit;
         }
@@ -231,6 +234,14 @@ class PolytraitsNewAPI extends ContributorsMapAPI
 
     function get_name_info($sciname)
     {   if(!$sciname) return;
+
+        // /*
+        if(isset($this->customized_scinames[$sciname])) {
+            $obj = self::customized_obj($sciname, $this->customized_scinames[$sciname]);
+            return $obj;
+        }
+        // */
+
         // echo "-Searching [$sciname]-";
         $options = $this->download_options;
         $options['expire_seconds'] = false; //doesn't expire
