@@ -46,7 +46,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         // 3.
-        $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 60*60*1);
+        $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 0); //60*60*1
         $this->contributor_mappings = $this->get_contributor_mappings('Polytraits', $options); // print_r($this->contributor_mappings); //good debug
         echo "\n contributor_mappings: ".count($this->contributor_mappings)."";
         if($this->contributor_mappings['Katerina Vasileiadou'] == 'https://orcid.org/0000-0002-5057-6417') echo " - Test OK.\n";
