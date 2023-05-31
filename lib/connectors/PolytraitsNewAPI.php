@@ -137,7 +137,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
     private function customized_obj($sciname, $taxonID)
     {
         if($traits = self::get_traits_obj($taxonID)) {
-            $obj = new stdClass();
+            $obj = new \stdClass();
             $obj->taxonID = $taxonID;
             $obj->taxon = $traits[0]->valid_taxon;
             $obj->author = $traits[0]->valid_author;
