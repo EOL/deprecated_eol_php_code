@@ -81,15 +81,25 @@ class PolytraitsNewAPI extends ContributorsMapAPI
                 else break;
             }
             else break;
-            // break; //debug only
-            // if($pageID >= 2) break; //debug only
+            // break;                   //debug only
+            // if($pageID >= 2) break;  //debug only
 
             if($contYN == false) break; //end of loop
         } //end while()
     }
     private function process_taxon($rek)
-    {
-        $obj = self::get_name_info($rek['sciname']); //print_r($obj); exit;
+    {   // /* gives curl error when calling the api
+        $customized['Capitella sp. Ia'] = 1434;
+        $customized['Capitella sp. II'] = 1436;
+        $customized['Capitella sp. IIIa'] = 1439;
+        $customized['Capitella sp. M'] = 1433;
+        $customized['Paraonis sp.'] = 400;
+        // */
+        if(isset($customized[$rek['sciname']])) $obj = self::customized_obj($rek['sciname'], $customized[$rek['sciname']]);
+        else { //regular, rest goes here
+            $obj = self::get_name_info($rek['sciname']); //print_r($obj); exit;
+        }
+
         if(!$obj->taxonID) return;
         /*
         Curl error (http://polytraits.lifewatchgreece.eu/taxon/Capitella+sp.+Ia/json/?exact=1&verbose=1&assoc=0): The requested URL returned error: 404 Not Found :: [lib/Functions.php 
@@ -109,15 +119,36 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         */
         self::write_taxon($obj);
         // return;
-        $url = str_ireplace('TAXON_ID', $obj->taxonID, $this->service['trait info']);
-        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            $traits = json_decode($json);
-            $taxonID = $obj->taxonID;
-            $traits = $traits->$taxonID; // print_r($obj); print_r($traits); exit;
+        if($traits = self::get_traits_obj($obj->taxonID)) {
             echo "\nTraits: ".count($traits)." "; //return; //debug only
             self::write_traits($obj, $traits);
         }
-        else exit("\nInvestigate: cannot lookup this taxonID = $obj->taxonID\n");
+    }
+    private function get_traits_obj($taxonID)
+    {
+        $url = str_ireplace('TAXON_ID', $taxonID, $this->service['trait info']);
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            $traits = json_decode($json);
+            $traits = $traits->$taxonID; //print_r($traits); exit;
+            return $traits;
+        }
+        else exit("\nInvestigate: cannot lookup this taxonID = $taxonID\n");
+    }
+    private function customized_obj($sciname, $taxonID)
+    {
+        if($traits = self::get_traits_obj($taxonID)) {
+            $obj = new stdClass();
+            $obj->taxonID = $taxonID;
+            $obj->taxon = $traits[0]->valid_taxon;
+            $obj->author = $traits[0]->valid_author;
+            $obj->validID = $taxonID;
+            $obj->valid_taxon = $traits[0]->valid_taxon;
+            $obj->valid_author = $traits[0]->valid_author;
+            $obj->status = $traits[0]->taxonomic_status; //seems to be 'accepted'
+            $obj->source_of_synonymy = $traits[0]->source_of_synonymy;
+            $obj->rank = '';
+            return $obj;
+        }
     }
     private function write_traits($obj, $traits)
     {   //print_r($obj); print_r($traits); exit("\nditox 1\n");
