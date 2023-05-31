@@ -93,7 +93,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
                 else break;
             }
             else break;
-            // break; //debug only
+            break; //debug only
             // if($pageID >= 2) break; //debug only
 
             if($contYN == false) break; //end of loop
@@ -109,14 +109,13 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             $traits = json_decode($json);
             $taxonID = $obj->taxonID;
             $traits = $traits->$taxonID; // print_r($obj); print_r($traits); exit;
-            $taxonID = $obj->taxonID;
-            echo "\nTraits: ".count($traits)." "; return; //debug only
-            self::write_traits($obj, $traits->$taxonID);
+            echo "\nTraits: ".count($traits)." "; //return; //debug only
+            self::write_traits($obj, $traits);
         }
-        exit("\nInvestigate: cannot lookup this taxonID = $obj->taxonID\n");
+        else exit("\nInvestigate: cannot lookup this taxonID = $obj->taxonID\n");
     }
     private function write_traits($obj, $traits)
-    {   print_r($obj); print_r($traits); exit("\nditox 1\n");
+    {   //print_r($obj); print_r($traits); exit("\nditox 1\n");
         /*stdClass Object(
             [taxonID] => 1960
             [taxon] => Abarenicola pacifica
@@ -155,13 +154,16 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             $rec = array();
             $rec["taxon_id"] = $obj->taxonID;
             $json = json_encode($t); // exit("\n$json\n");
-            $rec["catnum"] = mdf($json);
+            $rec["catnum"] = md5($json);
             $rec['measurementDeterminedDate'] = $t->value_creation_date;
             $rec['measurementRemarks'] = $t->text_excerpt;
-            $rec['source'] = "http://polytraits.lifewatchgreece.eu"; //same value for all
+            $rec['source'] = $this->taxon_page.$obj->taxonID; //"http://polytraits.lifewatchgreece.eu"; //same value for all
             $rec['bibliographicCitation'] = "Polytraits Team (2023). Polytraits: A database on biological traits of polychaetes.. LifewatchGreece, Hellenic Centre for Marine Research. Accessed on 2023-05-30. Available from http://polytraits.lifewatchgreece.eu";
-            $rec['contributor'] = self::get_or_add_contributor($t->value_creator, $t->text_excerpt_creator); //e.g. "https://orcid.org/0000-0001-9613-8300"
-            $rec['referenceID'] = self::get_or_add_reference($t->reference); //e.g. "1406"
+            $rec['contributor'] = self::get_or_add_contributor(trim($t->value_creator), trim($t->text_excerpt_creator)); //e.g. "https://orcid.org/0000-0001-9613-8300"
+
+            if($reference_ids = self::get_or_add_reference(trim($t->reference))) $rec['referenceID'] = implode("; ", $reference_ids); //e.g. "1406"
+
+            print_r($rec); //exit;
             $this->func->add_string_types($rec, $mValue, $mType, "true");
         }
     }
@@ -378,9 +380,6 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             $this->archive_builder->write_object_to_file($taxon);    
         }
     }
-
-
-
     private function get_parentID_of_name($sciname)
     {
         $taxon_id = self::get_taxon_info_of_name($sciname, 'taxonID');
@@ -478,12 +477,33 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             }
         }
     }
+    private function get_or_add_contributor($value_creator, $text_excerpt_creator)
+    {
+        if($agent_name = $value_creator) {}
+        elseif($agent_name = $text_excerpt_creator) {}
+        else exit("\nBlank agent names\n");
+        if($agent_uri = @$this->contributor_mappings[$agent_name]) return $agent_uri;
+        else $this->debug['creator no uri yet'][$agent_name] = '';
+    }
+    private function get_or_add_reference($reference)
+    {
+        $reference_ids = array();
+        $r = new \eol_schema\Reference();
+        $r->full_reference = $reference;
+        $r->identifier = md5($r->full_reference);
+        // $r->uri = '';
+        $reference_ids[] = $r->identifier;
+        if(!isset($this->reference_ids[$r->identifier])) {
+            $this->reference_ids[$r->identifier] = '';
+            $this->archive_builder->write_object_to_file($r);
+        }
+        return array_unique($reference_ids);
+    }
     private function get_string_between($left, $right, $string)
     {
         if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $string, $arr)) return strtolower(trim($arr[1]));
         return;
     }
-
     // =========================================================================================
     // ========================================================================================= copied template below
     // =========================================================================================
