@@ -149,8 +149,16 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             )
         */
         foreach($traits as $t) {
-            $mValue = '';
-            $mType = '';
+
+            if($val = @$this->mTypes[$t->trait]) $mType = $val;
+            else {
+                print_r($this->mTypes);
+                print_r($t);
+                exit("\n[$t->trait] - no mType uri yet\n");
+            }
+            if($val = @$this->terms_info[$t->trait][$t->modality]['identifier']) $mValue = $val;
+            else exit("\nInvestigate: no uri for this value: [$obj->trait][$obj->modality]\n");
+
             $rec = array();
             $rec["taxon_id"] = $obj->taxonID;
             $json = json_encode($t); // exit("\n$json\n");
@@ -163,7 +171,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
 
             if($reference_ids = self::get_or_add_reference(trim($t->reference))) $rec['referenceID'] = implode("; ", $reference_ids); //e.g. "1406"
 
-            print_r($rec); //exit;
+            // print_r($rec); exit("\n[$mType] [$mValue]\n");
             $this->func->add_string_types($rec, $mValue, $mType, "true");
         }
     }
@@ -266,6 +274,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             }
             $mTypes = array_keys($final);
             // print_r($mTypes); print_r($final); echo "".count($final)." terms\n"; exit;
+            $this->mTypes = $final;
 
             /* measurementValues */
             if(preg_match_all("/>Modalities<\/td>(.*?)<\/tr><\/tbody><\/table>/ims", $html, $arr)) {
@@ -299,6 +308,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
                 // print_r($values); echo "".count($values)." values\n"; //exit("\n222\n"); //good debug - all values of all mTypes
             }
         }
+        // print_r($values['Substrate type of settlement']); exit; //debug
         // testing:
         if(count($values) == 48) echo "\nTotal count test OK.";
         if($values['Substrate type of settlement']['boulders']['identifier'] == 'http://purl.obolibrary.org/obo/ENVO_01000114') echo "\nIdentifier test 1 OK.";            
