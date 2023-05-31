@@ -75,7 +75,9 @@ class PolytraitsNewAPI extends ContributorsMapAPI
                         [10] =>  Aglaophamus circinata</i> (Verrill in Smith & Harger, 1874)
                         [11] =>  Alciopidae</i> Ehlers, 1864<span style='color:grey;'> (subjective synonym of  
                                 <i>Alciopidae</i> according to Rouse, G.W., Pleijel, F. (2001) )</span>*/
-                    foreach($arr[1] as $row) {
+                    $total_rows = count($arr[1]);
+                    $ctr = 0;
+                    foreach($arr[1] as $row) { $ctr++; echo "\nPage: [$pageID] $ctr of $total_rows\n";
                         // /* this block excludes synonyms
                         if(stripos($row, "synonym of") !== false) { //string is found
                             continue;
