@@ -22,7 +22,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         $this->download_options = array('cache' => 1, 'resource_id' => 'polytraits', 'expire_seconds' => 60*60*24*30*6, 
         'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         // $this->download_options['expire_seconds'] = false;
-        if(Functions::is_production()) $this->download_options[download_wait_time] = 4000000; //4 secs.
+        if(Functions::is_production()) $this->download_options['download_wait_time'] = 4000000; //4 secs.
 
         // /* gives curl error when calling the api
         $this->customized_scinames['Capitella sp. Ia'] = 1434;
