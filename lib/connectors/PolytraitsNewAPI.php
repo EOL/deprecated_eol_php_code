@@ -96,11 +96,11 @@ class PolytraitsNewAPI extends ContributorsMapAPI
                     $total_rows = count($arr[1]);
                     $ctr = 0;
                     foreach($arr[1] as $row) { $ctr++; echo "\nPage: [$pageID] $ctr of $total_rows\n";
-                        // /* this block excludes synonyms
+                        /* this block excludes synonyms
                         if(stripos($row, "synonym of") !== false) { //string is found
                             continue;
                         }
-                        // */
+                        */
                         $row = "<i>".$row; //echo "\n".$row;
                         $rek = array();
                         if(preg_match("/<i>(.*?)<\/i>/ims", $row, $arr2))         $rek['sciname'] = trim($arr2[1]);
@@ -142,7 +142,8 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             $traits = $traits->$taxonID; //print_r($traits); exit;
             return $traits;
         }
-        else exit("\nInvestigate: cannot lookup this taxonID = $taxonID\n");
+        // else exit("\nInvestigate: cannot lookup this taxonID = $taxonID\n");
+        return false;
     }
     private function customized_obj($sciname, $taxonID)
     {
