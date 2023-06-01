@@ -14,7 +14,12 @@ $dwca_file = "http://localhost/eol_php_code/applications/content_server/resource
 $resource_id = "nothing here";
 $func = new DwCA_Utility($resource_id, $dwca_file);
 $download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1); //60*60*24*1
-$func->count_records_in_dwca($download_options);
+/* a utility - works OK
+$func->count_records_in_dwca($download_options); //works OK
+*/
+$params['row_type'] = 'http://rs.tdwg.org/dwc/terms/measurementorfact';
+$params['column'] = 'http://rs.tdwg.org/dwc/terms/measurementType';
+$func->lookup_value_in_dwca($download_options, $params);
 unset($func);
 // */
 
