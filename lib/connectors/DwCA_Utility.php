@@ -79,27 +79,7 @@ class DwCA_Utility
             return false;
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
-    }
-    
-    function count_records_in_dwca($download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1))
-    {
-        if(!($info = self::start(false, $download_options))) return;
-        $temp_dir = $info['temp_dir'];
-        $harvester = $info['harvester'];
-        $tables = $info['tables'];
-        $index = $info['index'];
-
-        $totals = array();
-        foreach($index as $row_type) {
-            $count = self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type], false); //3rd param = false means count only, no archive will be generated
-            $totals[$row_type] = $count;
-        }
-        print_r($totals);
-        // remove temp dir
-        recursive_rmdir($temp_dir);
-        echo ("\n temporary directory removed: " . $temp_dir);
-    }
-    
+    }    
     function convert_archive($preferred_rowtypes = false, $excluded_rowtypes = false) //same as convert_archive_by_adding_higherClassification(); just doesn't generate higherClassification
     {   /* param $preferred_rowtypes is the option to include-only those row_types you want on your final DwCA. 1st client was DATA-1770 */
         echo "\nConverting archive to EOL DwCA...\n";
@@ -1125,6 +1105,65 @@ class DwCA_Utility
     //=====================================================================================================================
     //start OTHER functions
     //=====================================================================================================================
+    function count_records_in_dwca($download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1))
+    {
+        if(!($info = self::start(false, $download_options))) return;
+        $temp_dir = $info['temp_dir'];
+        $harvester = $info['harvester'];
+        $tables = $info['tables'];
+        $index = $info['index'];
+
+        $totals = array();
+        foreach($index as $row_type) {
+            $count = self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type], false); //3rd param = false means count only, no archive will be generated
+            $totals[$row_type] = $count;
+        }
+        print_r($totals);
+        // remove temp dir
+        recursive_rmdir($temp_dir);
+        echo ("\n temporary directory removed: " . $temp_dir);
+    }
+    function lookup_values_in_dwca($download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1), $params)
+    {
+        if(!($info = self::start(false, $download_options))) return;
+        $temp_dir = $info['temp_dir'];
+        $harvester = $info['harvester'];
+        $tables = $info['tables'];
+        $index = $info['index'];
+
+        $tables = $info['harvester']->tables; 
+        // print_r($index); print_r($tables); exit;
+
+        $row_type = $params['row_type'];
+        $column = $params['column'];
+        $meta = $tables[$row_type][0];
+
+        $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            $unique[$rec[$column]] = '';
+        }
+        // print_r($unique);
+        return $unique;
+
+        /* un-comment in real operation
+        // remove temp dir
+        recursive_rmdir($temp_dir);
+        echo ("\n temporary directory removed: " . $temp_dir);
+        */
+    }
+
     function get_uri_value($raw, $uri_values) //$raw e.g. "Philippines" ---- good func but not yet used, soon...
     {
         if($uri = @$uri_values[$raw]) return $uri;
