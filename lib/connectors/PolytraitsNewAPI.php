@@ -198,12 +198,12 @@ class PolytraitsNewAPI extends ContributorsMapAPI
 
             if($val = @$this->mTypes[$t->trait]) {
                 $mType = $val;
-                /* block that excludes mTypes not found in the old resource
+                // /* block that excludes mTypes not found in the old resource
                 if(!isset($this->old_unique_mTypes[$mType])) {
                     $this->debug['excluded mTypes'][$mType] = '';
                     return;
                 }
-                */
+                // */
             }
             else {
                 print_r($this->mTypes);
