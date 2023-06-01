@@ -19,7 +19,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         $this->service['terms list'] = "http://polytraits.lifewatchgreece.eu/terms";
         $this->taxon_page = "http://polytraits.lifewatchgreece.eu/taxonpage/";
 
-        $this->download_options = array('cache' => 1, 'resource_id' => 'polytraits', 'expire_seconds' => 60*60*24*30*6, 
+        $this->download_options = array('cache' => 1, 'resource_id' => 'polytraits', 'expire_seconds' => 60*60*24*30*6, //6 months
         'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         // $this->download_options['expire_seconds'] = false;
         if(Functions::is_production()) $this->download_options['download_wait_time'] = 4000000; //4 secs.
@@ -199,12 +199,12 @@ class PolytraitsNewAPI extends ContributorsMapAPI
 
             if($val = @$this->mTypes[$t->trait]) {
                 $mType = $val;
-                // /* block that excludes mTypes not found in the old resource
+                /* block that excludes mTypes not found in the old resource
                 if(!isset($this->old_unique_mTypes[$mType])) {
                     $this->debug['excluded mTypes'][$mType] = '';
                     return;
                 }
-                // */
+                */
             }
             else {
                 print_r($this->mTypes);
