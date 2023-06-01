@@ -81,9 +81,9 @@ class DwCA_Utility
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
     
-    function count_records_in_dwca()
+    function count_records_in_dwca($download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1))
     {
-        if(!($info = self::start())) return;
+        if(!($info = self::start(false, $download_options))) return;
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];
