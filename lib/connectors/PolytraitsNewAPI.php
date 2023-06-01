@@ -48,6 +48,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
     function initialize()
     {   // 1.
         $this->terms_info = self::get_terms_info();
+        // print_r($this->mTypes); print_r($this->terms_info); exit;
         // 2.
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
