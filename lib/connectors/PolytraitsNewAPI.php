@@ -56,6 +56,18 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         $this->contributor_mappings = $this->get_contributor_mappings('Polytraits', $options); // print_r($this->contributor_mappings); //good debug
         echo "\n contributor_mappings: ".count($this->contributor_mappings)."";
         if($this->contributor_mappings['Katerina Vasileiadou'] == 'https://orcid.org/0000-0002-5057-6417') echo " - Test OK.\n";
+        // 4.: get unique values of a column in any table in a DwCA
+        require_library('connectors/DwCA_Utility');
+        $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/Polytraits.tar.gz";
+        $resource_id = "nothing here";
+        $func = new DwCA_Utility($resource_id, $dwca_file);
+        $download_options = array("timeout" => 172800, 'expire_seconds' => 60*60*24*1); //1 day cache
+        $params['row_type'] = 'http://rs.tdwg.org/dwc/terms/measurementorfact';
+        $params['column'] = 'http://rs.tdwg.org/dwc/terms/measurementType';
+        $this->old_unique_mTypes = $func->lookup_values_in_dwca($download_options, $params); //get unique values of a column in any table in a DwCA
+        // print_r($this->old_unique_mTypes); exit("\nelix1\n");
+        echo "\nNumber of old mTypes from old resource: ".count($this->old_unique_mTypes)."\n";
+        unset($func);
     }
     function start()
     {
@@ -184,7 +196,11 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         */
         foreach($traits as $t) {
 
-            if($val = @$this->mTypes[$t->trait]) $mType = $val;
+            if($val = @$this->mTypes[$t->trait]) {
+                $mType = $val;
+                if(!isset($this->old_unique_mTypes[$mType])) return; //working OK
+                else $this->debug['excluded mTypes'][$mType] = '';
+            }
             else {
                 print_r($this->mTypes);
                 print_r($t);
