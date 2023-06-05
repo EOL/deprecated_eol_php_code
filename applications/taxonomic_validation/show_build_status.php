@@ -92,6 +92,7 @@ else {
                 [task] => xls2dwca_job_1
                 [uuid] => 1643726800
                 [destination] => /opt/homebrew/var/www/eol_php_code//applications/trait_data_import/temp/1643726800.xlsx
+                [destination] => /opt/homebrew/var/www/eol_php_code//applications/taxonomic_validation/temp/1643726800.tab
                 [true_root] => /opt/homebrew/var/www/eol_php_code/
                 [Filename_ID] => 111222
             )*/
