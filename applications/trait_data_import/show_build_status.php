@@ -49,7 +49,16 @@ else {
         // /* NEW: to accommodate Filename_ID implementation
         if($Filename_ID = @$params['Filename_ID']) {
             $rename_to = CONTENT_RESOURCE_LOCAL_PATH . "Trait_Data_Import/" . $params['Filename_ID'] . ".tar.gz";
+            /*
             Functions::file_rename($final_archive_gzip_url, $rename_to);
+            */
+            // /* New: since file_rename() above doesn't work
+            if(copy($final_archive_gzip_url, $rename_to)) {}
+            else echo "\nERRORx: cannot copy [$final_archive_gzip_url] to [$rename_to]\n";
+            if(unlink($final_archive_gzip_url)) {}
+            else echo "\nERRORx: cannot delete [$final_archive_gzip_url]\n";
+            // */
+
             $final_archive_gzip_url = $rename_to;
             $hash_post = $Filename_ID;
         }
