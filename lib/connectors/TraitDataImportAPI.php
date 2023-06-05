@@ -274,6 +274,12 @@ class TraitDataImportAPI
         $this->archive_builder->finalize(TRUE);
         Functions::finalize_dwca_resource($this->resource_id, false, true, $timestart, $path);
         
+        // /* New: initiate write permission ---- working OK
+        $tar_gz = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id.".tar.gz";
+        $out = shell_exec("chmod 775 ".$tar_gz." 2>&1; echo $?");
+        echo "\n----------\nSetting permission: [$tar_gz]\n$out\n----------\n";
+        // */
+
         // /* clear txt files
         foreach($this->input['worksheets'] as $sheet) {
             unlink(CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_".$sheet.".txt");
