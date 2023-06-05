@@ -1,3 +1,10 @@
+<?php
+namespace php_active_record;
+include_once(dirname(__FILE__) . "/../../config/environment.php");
+$browser = Functions::getBrowser(); // echo "Browser: " . $browser;
+if($browser == 'Firefox') $browser_comment = "Browse...";
+else                      $browser_comment = "Choose File"; //Safari Chrome
+?>
 <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
     <tr align="center">
         <td><b>Trait spreadsheet to DwC-A Tool</b>
@@ -17,7 +24,7 @@
                   --->
                   <li>Download to your computer the input spreadsheet template <a href="temp/Trait_template.xlsx">here</a>.</li>
                   <li>Open spreadsheet, enter your own data and save.</li>
-                  <li>Upload file using [Browse] button below.</li>
+                  <li>Upload file using [<?php echo $browser_comment ?>] button below.</li>
                 </ul>
                 </font>
             </td>
