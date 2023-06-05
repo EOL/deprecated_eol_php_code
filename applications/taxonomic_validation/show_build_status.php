@@ -52,7 +52,10 @@ else {
         if($Filename_ID = @$params['Filename_ID']) {
             // $rename_to = CONTENT_RESOURCE_LOCAL_PATH . "Trait_Data_Import/" . $params['Filename_ID'] . ".tar.gz";
             $rename_to = CONTENT_RESOURCE_LOCAL_PATH . "Taxonomic_Validation/" . $params['Filename_ID'] . ".tar.gz";
-            Functions::file_rename($final_archive_gzip_url, $rename_to);
+            // /* New: added if-then-else
+            if(Functions::file_rename($final_archive_gzip_url, $rename_to)) {}
+            else echo "\n<br>Investigate: cannot rename [$final_archive_gzip_url] to [$rename_to]<br>\n";
+            // */
             $final_archive_gzip_url = $rename_to;
             $hash_post = $Filename_ID;
         }
