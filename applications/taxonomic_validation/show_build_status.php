@@ -29,7 +29,8 @@ else {
     /* Delete temp files */
     $dirname = pathinfo($params['destination'], PATHINFO_DIRNAME).'/'; //obsolete
     // $dirname = $params['true_root'].'applications/specimen_image_export/temp/';
-    $dirname = $params['true_root'].'applications/trait_data_import/temp/';
+    // $dirname = $params['true_root'].'applications/trait_data_import/temp/';
+    $dirname = $params['true_root'].'applications/taxonomic_validation/temp/';
     $extensions = array('.xlsx', '.xls', '.zip'); //possible extensions
     foreach($extensions as $ext) {
         $tmp = $dirname.$params['uuid'].$ext;
@@ -76,7 +77,8 @@ else {
                 The Upload ID is: <b>$hash_post</b>. You will use this if you want to re-upload an updated spreadsheet.<br><br>";
                 
                 // /* NEW: Feb 21, 2022 --- invalid mValues report
-                $resources_path = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/";
+                // $resources_path = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/";
+                $resources_path = CONTENT_RESOURCE_LOCAL_PATH."Taxonomic_Validation/";
                 $filename = $resources_path.$params['uuid']."_invalid_values.txt";
                 if(file_exists($filename) && filesize($filename) > 0) {
                     $href = str_replace(DOC_ROOT, WEB_ROOT, $filename);

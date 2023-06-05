@@ -46,7 +46,9 @@ $json = '{"Filename_ID":"'.$form['Filename_ID'].'","Short_Desc":"'.$form['Short_
 $params['json'] = $json;
 // exit("\n$json\n");
    // $params['destination'] = $for_DOC_ROOT . "/applications/specimen_image_export/" . $newfile; --- copied template
-   $params['destination'] = $for_DOC_ROOT . "/applications/trait_data_import/" . $newfile;
+   // $params['destination'] = $for_DOC_ROOT . "/applications/trait_data_import/" . $newfile;
+   $params['destination'] = $for_DOC_ROOT . "/applications/taxonomic_validation/" . $newfile;
+
    //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here. So use $for_DOC_ROOT instead.
    $params['Filename_ID'] = $form['Filename_ID'];
    $params['Short_Desc'] = $form['Short_Desc'];
