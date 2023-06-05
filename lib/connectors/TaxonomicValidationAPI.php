@@ -25,12 +25,15 @@ class TaxonomicValidationAPI
         /* ============================= START for image_export ============================= */
         if($app == 'trait_data_import') {
             // $this->input['path'] = DOC_ROOT.'/applications/specimen_image_export/temp/'; //input.xlsx
-            $this->input['path'] = DOC_ROOT.'/applications/trait_data_import/temp/'; //input.xlsx
+            // $this->input['path'] = DOC_ROOT.'/applications/trait_data_import/temp/'; //input.xlsx
+            $this->input['path'] = DOC_ROOT.'/applications/taxonomic_validation/temp/'; //input.xlsx
             $dir = $this->input['path'];
             if(!is_dir($dir)) mkdir($dir);
             
             // $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO_sie/";
-            $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/";
+            // $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/";
+            $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."Taxonomic_Validation/";
+
             $dir = $this->resources['path'];
             if(!is_dir($dir)) mkdir($dir);
             
@@ -91,7 +94,9 @@ class TaxonomicValidationAPI
         $rec['clear_upload'] = "true";
         if(Functions::is_production()) $domain = "https://editors.eol.org";
         else                           $domain = "http://localhost";
-        $rec['url'] = $domain.'/eol_php_code/applications/content_server/resources/Trait_Data_Import/'.$resource_id.'.tar.gz';
+        // $rec['url'] = $domain.'/eol_php_code/applications/content_server/resources/Trait_Data_Import/'.$resource_id.'.tar.gz';
+        $rec['url'] = $domain.'/eol_php_code/applications/content_server/resources/Taxonomic_Validation/'.$resource_id.'.tar.gz';
+
         // $rec['name'] = $resource_id." name";
         // $rec['hash'] = "hash-".$resource_id;
         // $rec['revision_id'] = $resource_id;
@@ -146,7 +151,9 @@ class TaxonomicValidationAPI
         $rec['clear_upload'] = "true";
         if(Functions::is_production()) $domain = "https://editors.eol.org";
         else                           $domain = "http://localhost";
-        $rec['url'] = $domain.'/eol_php_code/applications/content_server/resources/Trait_Data_Import/'.$resource_id.'.tar.gz';
+        // $rec['url'] = $domain.'/eol_php_code/applications/content_server/resources/Trait_Data_Import/'.$resource_id.'.tar.gz';
+        $rec['url'] = $domain.'/eol_php_code/applications/content_server/resources/Taxonomic_Validation/'.$resource_id.'.tar.gz';
+
         // $rec['name'] = $resource_id." name";
         $rec['hash'] = "hash-".$resource_id;
         // $rec['revision_id'] = $resource_id;
@@ -257,7 +264,8 @@ class TaxonomicValidationAPI
     private function create_output_file($timestart)
     {
         // /* initialize DwCA
-        $path = CONTENT_RESOURCE_LOCAL_PATH . '/Trait_Data_Import/';
+        // $path = CONTENT_RESOURCE_LOCAL_PATH . '/Trait_Data_Import/';
+        $path = CONTENT_RESOURCE_LOCAL_PATH . '/Taxonomic_Validation/';
         $this->path_to_archive_directory = $path . $this->resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         // */
@@ -275,18 +283,22 @@ class TaxonomicValidationAPI
         
         // /* clear txt files
         foreach($this->input['worksheets'] as $sheet) {
-            unlink(CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_".$sheet.".txt");
+            // unlink(CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_".$sheet.".txt");
+            unlink(CONTENT_RESOURCE_LOCAL_PATH."Taxonomic_Validation/".$this->resource_id."_".$sheet.".txt");
         }
         // */
     }
     private function generate_vocabulary()
     {
-        $tsv['data'] = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_vocabulary.txt";
+        // $tsv['data'] = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_vocabulary.txt";
+        $tsv['data'] = CONTENT_RESOURCE_LOCAL_PATH."Taxonomic_Validation/".$this->resource_id."_vocabulary.txt";
+
         self::parse_tsv($tsv['data'], 'generate_vocabulary');
     }
     private function create_DwCA()
     {
-        $tsv['data'] = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_data.txt";
+        // $tsv['data'] = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_data.txt";
+        $tsv['data'] = CONTENT_RESOURCE_LOCAL_PATH."Taxonomic_Validation/".$this->resource_id."_data.txt";
         self::parse_tsv($tsv['data'], 'write_dwca');
     }
     private function parse_tsv($txtfile, $task)
