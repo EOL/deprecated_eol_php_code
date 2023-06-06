@@ -7,10 +7,14 @@ class TaxonomicValidationRules
     function __construct()
     {
     }
-    function xxx()
+    function process_user_file($input_file)
     {
-
+        // echo "\n[".$input_file."] [$this->resource_id]\n";
+        
+        exit("\n-stop muna-\n");
     }
+    /*=========================================================================*/ // COPIED TEMPLATE BELOW
+    /*=========================================================================*/
     private function initialize_file($sheet_name)
     {
         $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";

@@ -63,10 +63,12 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
             $filename = self::process_zip_file($filename);
         }
         
-        if(!$filename) $filename = 'input.xlsx'; //kinda debug mode. not used in real operation. But ok to stay un-commented.
+        if(!$filename) exit("\nNo filename: [$filename]. Will terminate.\n");
         $input_file = $this->input['path'].$filename; //e.g. $filename is 'input_Eli.xlsx'
         if(file_exists($input_file)) {
-            $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME); exit("\nEli is here...\n[".$this->resource_id."]\n");
+            $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME); // exit("\nEli is here...\n[".$this->resource_id."]\n");
+            $this->process_user_file($input_file); //calling main program
+
             /* copied template from trait_data_import tool
             self::read_input_file($input_file); //writes to text files for reading in next step.
             self::create_output_file($timestart); //generates the DwCA
