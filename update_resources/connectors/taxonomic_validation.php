@@ -3,10 +3,15 @@ namespace php_active_record;
 /* ALL THIS FROM COPIED TEMPLATE: marine_geo_image.php
 Instructions here: https://eol-jira.bibalex.org/browse/COLLAB-1004?focusedCommentId=64188&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64188
 */
-/* how to run:
+/* how to run during dev:
 $json = '{"Proj":"KANB", "Dept":"FISH", "Lic":"CreativeCommons – Attribution Non-Commercial (by-nc)", "Lic_yr":"", "Lic_inst":"", "Lic_cont":""}';
 php update_resources/connectors/marine_geo_image.php _ image_input.xlsx _ _ '$json'
 php update_resources/connectors/marine_geo_image.php _ _ 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO/image_input.xlsx' uuid001 '$json'
+
+from jenkins_call.php: 
+/opt/homebrew/opt/php@5.6/bin/php taxonomic_validation.php jenkins '1686047624.tab' _ _ '{"Filename_ID":"","Short_Desc":"test" , "timestart":"0.009732"}'
+php update_resources/connectors/taxonomic_validation.php _ '1686047624.tab' _ _ '{"Filename_ID":"","Short_Desc":"test" , "timestart":"0.009732"}']
+where 1686047624.tab is in /eol_php_code/applications/taxonomic_validation/temp/
 */
 
 // print_r(pathinfo('http://www.boldsystems.org/index.php/API_Public/specimen?container=KANB&format=tsv')); exit;
@@ -50,7 +55,7 @@ if($val = $params['json'])     $json = $val;
 else                           $json = '';
 
 $resource_id = ''; //no longer used from here
-$func = new TaxonomicValidationAPI('trait_data_import');
+$func = new TaxonomicValidationAPI('taxonomic_validation');
 // echo "\n[$timestart]\n"; exit; //[0.035333]
 $func->start($filename, $form_url, $uuid, $json);
 // Functions::get_time_elapsed($timestart);

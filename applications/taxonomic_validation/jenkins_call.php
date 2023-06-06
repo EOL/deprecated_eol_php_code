@@ -45,13 +45,13 @@ $json = '{"Filename_ID":"'.$form['Filename_ID'].'","Short_Desc":"'.$form['Short_
 
 $params['json'] = $json;
 // exit("\n$json\n");
-   // $params['destination'] = $for_DOC_ROOT . "/applications/specimen_image_export/" . $newfile; --- copied template
-   // $params['destination'] = $for_DOC_ROOT . "/applications/trait_data_import/" . $newfile;
-   $params['destination'] = $for_DOC_ROOT . "/applications/taxonomic_validation/" . $newfile;
+// $params['destination'] = $for_DOC_ROOT . "/applications/specimen_image_export/" . $newfile; --- copied template
+// $params['destination'] = $for_DOC_ROOT . "/applications/trait_data_import/" . $newfile;
+$params['destination'] = $for_DOC_ROOT . "/applications/taxonomic_validation/" . $newfile;
 
-   //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here. So use $for_DOC_ROOT instead.
-   $params['Filename_ID'] = $form['Filename_ID'];
-   $params['Short_Desc'] = $form['Short_Desc'];
+//always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here. So use $for_DOC_ROOT instead.
+$params['Filename_ID'] = $form['Filename_ID'];
+$params['Short_Desc'] = $form['Short_Desc'];
 
 /* for more debugging...
 echo "<br>newfile: [$newfile]";
@@ -78,6 +78,9 @@ else          $cmd = PHP_PATH.' trait_data_import.php jenkins ' . "'" . $newfile
 */
 if($form_url) $cmd = PHP_PATH.' taxonomic_validation.php jenkins _ ' . "'" . $form_url . "' ".$params['uuid']. " '".$params['json']."'"; //no filename but there is form_url and uuid
 else          $cmd = PHP_PATH.' taxonomic_validation.php jenkins ' . "'" . $newfile . "' _ _ ". "'".$params['json']."'";
+
+// command: [/opt/homebrew/opt/php@5.6/bin/php taxonomic_validation.php jenkins '1686047624.tab' _ _ '{"Filename_ID":"","Short_Desc":"test" , "timestart":"0.009732"}']
+exit("<br>command: [".$cmd."]<br>");
 
 $cmd .= " 2>&1";
 $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);

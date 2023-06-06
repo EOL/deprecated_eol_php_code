@@ -23,7 +23,7 @@ class TaxonomicValidationAPI
         /* ============================= END for specimen_export ============================= */
 
         /* ============================= START for image_export ============================= */
-        if($app == 'trait_data_import') {
+        if($app == 'taxonomic_validation') { //trait_data_import
             // $this->input['path'] = DOC_ROOT.'/applications/specimen_image_export/temp/'; //input.xlsx
             // $this->input['path'] = DOC_ROOT.'/applications/trait_data_import/temp/'; //input.xlsx
             $this->input['path'] = DOC_ROOT.'/applications/taxonomic_validation/temp/'; //input.xlsx
@@ -40,13 +40,44 @@ class TaxonomicValidationAPI
             $dir = $this->resources['path'].'TSVs';
             if(!is_dir($dir)) mkdir($dir);
             
+            /* copied template
             $this->input['worksheets'] = array('data', 'references', 'vocabulary'); //'data' is the 1st worksheet from Trait_template.xlsx
             $this->vocabulary_fields = array("predicate label", "predicate uri", "value label", "value uri", "units label", "units uri", "statmeth label", "statmeth uri", "sex label", "sex uri", "lifestage label", "lifestage uri");
+            */
             $this->opendata_dataset_api = 'https://opendata.eol.org/api/3/action/package_show?id=';
         }
         /* ============================= END for image_export ============================= */
     }
     function start($filename = false, $form_url = false, $uuid = false, $json = false)
+    {
+        $this->arr_json = json_decode($json, true);
+        if($val = @$this->arr_json['timestart']) $timestart = $val;               //normal operation
+        else                                     $timestart = time_elapsed();     //during dev only - command line
+        if($GLOBALS['ENV_DEBUG']) print_r($this->arr_json);
+        
+        // /* for $form_url:
+        if($form_url && $form_url != '_') $filename = self::process_form_url($form_url, $uuid); //this will download (wget) and save file in /specimen_export/temp/
+        // */
+        
+        if(pathinfo($filename, PATHINFO_EXTENSION) == "zip") { //e.g. input.xlsx.zip
+            $filename = self::process_zip_file($filename);
+        }
+        
+        if(!$filename) $filename = 'input.xlsx'; //kinda debug mode. not used in real operation. But ok to stay un-commented.
+        $input_file = $this->input['path'].$filename; //e.g. $filename is 'input_Eli.xlsx'
+        if(file_exists($input_file)) {
+            $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME);
+            self::read_input_file($input_file); //writes to text files for reading in next step.
+            self::create_output_file($timestart); //generates the DwCA
+            self::create_or_update_OpenData_resource();
+        }
+        else debug("\nInput file not found: [$input_file]\n");
+    }
+
+    /*=======================================================================================================*/ //COPIED TEMPLATE BELOW
+    /*=======================================================================================================*/
+    /*=======================================================================================================*/
+    function start_x($filename = false, $form_url = false, $uuid = false, $json = false)
     {
         /* copied template
         if($this->app == 'trait_data_import') {
@@ -57,7 +88,7 @@ class TaxonomicValidationAPI
         } */
         $this->arr_json = json_decode($json, true);
         if($val = @$this->arr_json['timestart']) $timestart = $val;               //normal operation
-        else                               $timestart = time_elapsed();     //during dev only - command line
+        else                                     $timestart = time_elapsed();     //during dev only - command line
         if($GLOBALS['ENV_DEBUG']) print_r($this->arr_json);
         
         // /* for $form_url:

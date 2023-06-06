@@ -55,7 +55,18 @@ if($form_url) { //URL is pasted.
     // */
 }
 elseif($file_type = @$_FILES["file_upload"]["type"]) {
-    if(in_array($file_type, array("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel", "application/zip"))) {
+    debug("<br>orig_file: [".$_FILES["file_upload"]["name"]."]<br>");
+    debug("<br>file type: [".$file_type."]<br>"); //exit;
+    /*
+    [taxon.tab] [application/octet-stream]
+    [taxon.tsv] [text/tab-separated-values]
+    [taxon.txt] [text/plain]
+    [taxon.csv] [text/csv]
+    */
+    $allowed_file_types = array("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel", "application/zip");
+    $allowed_file_types = array("application/octet-stream", "text/tab-separated-values", "text/plain", "text/csv");
+
+    if(in_array($file_type, $allowed_file_types)) {
         if($_FILES["file_upload"]["error"] > 0) {}
         else {
             $orig_file = $_FILES["file_upload"]["name"];
@@ -66,7 +77,8 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
             else echo "<br>uploading file - ERROR<br>";
         }
         $newfile = "temp/" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
-        
+
+        echo "<hr>file_type: [$file_type]";
         echo "<hr>orig_file: [$orig_file]";
         echo "<hr>url: [$url]";
         echo "<hr>newfile: [$newfile]<hr>";

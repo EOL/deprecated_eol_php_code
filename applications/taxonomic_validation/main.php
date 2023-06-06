@@ -80,7 +80,8 @@ else                      $browser_comment = "Choose File"; //Safari Chrome etc
     </tr>
     </form>
     <tr align="left">
-        <td><?php echo "<a href='https://opendata.eol.org/dataset/trait-spreadsheet-repository'>OpenData Resources For Uploaded Spreadsheets</a>"; ?></td>
-        <td><small><?php echo "<a href='../../../'>Tools</a>"; ?><small></td>
+        <td><?php echo "<a href='https://opendata.eol.org/dataset/trait-spreadsheet-repository'>OpenData Resources For Uploaded Spreadsheets</a>"; ?>
+         | <?php echo "<a href='../../../html/tools.html'>Tools</a>"; ?>
+        </td>
     </tr>
 </table>
