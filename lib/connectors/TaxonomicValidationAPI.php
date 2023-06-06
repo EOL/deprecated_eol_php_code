@@ -3,7 +3,7 @@ namespace php_active_record;
 /* ALL THIS FROM COPIED TEMPLATE: TraitDataImportAPI.php
 real connector now: [taxonomic_validation.php] TRAM-997: Taxonomic validation tool for the EOL DH
 */
-class TaxonomicValidationAPI
+class TaxonomicValidationAPI extends TaxonomicValidationRules
 {
     function __construct($app)
     {
@@ -66,7 +66,7 @@ class TaxonomicValidationAPI
         if(!$filename) $filename = 'input.xlsx'; //kinda debug mode. not used in real operation. But ok to stay un-commented.
         $input_file = $this->input['path'].$filename; //e.g. $filename is 'input_Eli.xlsx'
         if(file_exists($input_file)) {
-            $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME); exit("\nEli is here...\n");
+            $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME); exit("\nEli is here...\n[".$this->resource_id."]\n");
             /* copied template from trait_data_import tool
             self::read_input_file($input_file); //writes to text files for reading in next step.
             self::create_output_file($timestart); //generates the DwCA
