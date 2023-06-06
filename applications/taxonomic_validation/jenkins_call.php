@@ -80,7 +80,17 @@ if($form_url) $cmd = PHP_PATH.' taxonomic_validation.php jenkins _ ' . "'" . $fo
 else          $cmd = PHP_PATH.' taxonomic_validation.php jenkins ' . "'" . $newfile . "' _ _ ". "'".$params['json']."'";
 
 // command: [/opt/homebrew/opt/php@5.6/bin/php taxonomic_validation.php jenkins '1686047624.tab' _ _ '{"Filename_ID":"","Short_Desc":"test" , "timestart":"0.009732"}']
-exit("<br>command: [".$cmd."]<br>");
+
+echo "<pre>";print_r($params);echo "</pre>";
+/*Array(
+    [true_root] => /opt/homebrew/var/www/eol_php_code/
+    [uuid] => 1686049797
+    [json] => {"Filename_ID":"","Short_Desc":"test" , "timestart":"0.009201"}
+    [destination] => /opt/homebrew/var/www/eol_php_code//applications/taxonomic_validation/temp/1686049797.tab
+    [Filename_ID] => 
+    [Short_Desc] => test
+)*/
+// exit("<br>command: [".$cmd."]<br>");
 
 $cmd .= " 2>&1";
 $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);

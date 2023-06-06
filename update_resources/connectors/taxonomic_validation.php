@@ -8,13 +8,11 @@ $json = '{"Proj":"KANB", "Dept":"FISH", "Lic":"CreativeCommons – Attribution N
 php update_resources/connectors/marine_geo_image.php _ image_input.xlsx _ _ '$json'
 php update_resources/connectors/marine_geo_image.php _ _ 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO/image_input.xlsx' uuid001 '$json'
 
-from jenkins_call.php: 
-/opt/homebrew/opt/php@5.6/bin/php taxonomic_validation.php jenkins '1686047624.tab' _ _ '{"Filename_ID":"","Short_Desc":"test" , "timestart":"0.009732"}'
-php update_resources/connectors/taxonomic_validation.php _ '1686047624.tab' _ _ '{"Filename_ID":"","Short_Desc":"test" , "timestart":"0.009732"}']
-where 1686047624.tab is in /eol_php_code/applications/taxonomic_validation/temp/
+from jenkins_call.php: 1686049284
+/opt/homebrew/opt/php@5.6/bin/php taxonomic_validation.php jenkins '1686049284.tab' _ _ '{"Filename_ID":"","Short_Desc":"test" , "timestart":"0.009732"}'
+php update_resources/connectors/taxonomic_validation.php _ '1686049284.tab' _ _ '{"Filename_ID":"","Short_Desc":"test" , "timestart":"0.009732"}']
+where 1686049284.tab is in /eol_php_code/applications/taxonomic_validation/temp/
 */
-
-// print_r(pathinfo('http://www.boldsystems.org/index.php/API_Public/specimen?container=KANB&format=tsv')); exit;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;  //set to false in production
