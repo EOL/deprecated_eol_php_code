@@ -57,11 +57,11 @@ else {
             else echo "\n<br>ERRORx: cannot copy [$final_archive_gzip_url] to [$rename_to]<br>\n";
 
             // [/var/www/html/eol_php_code/applications/content_server/resources/Trait_Data_Import/1686023312.tar.gz] -> $final_archive_gzip_url
-            $tmp = str_replace("/var/www/html/", "/html/", $final_archive_gzip_url);
-            if(unlink($tmp)) echo "<br>Deleted OK 1: [$tmp]<br>";
+            if(unlink($final_archive_gzip_url)) echo "<br>Deleted OK 1: [$tmp]<br>";
             else {
                 echo "\n<br>ERRORx: cannot delete [$final_archive_gzip_url]<br>\n";
-                $out = shell_exec("rm -f ".$final_archive_gzip_url); echo "\nTerminal: [$out]\n";
+                $tmp = str_replace("/var/www/html/", "/html/", $final_archive_gzip_url);
+                $out = shell_exec("rm -f ".$tmp); echo "\nTerminal: [$out]\n";
                 if(is_file($final_archive_gzip_url)) echo "<br>Still not deleted [$final_archive_gzip_url]<br>";
                 else                                 echo "<br>Deleted OK 2: [$final_archive_gzip_url]<br>";
             }
