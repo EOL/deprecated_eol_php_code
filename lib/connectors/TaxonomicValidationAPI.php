@@ -281,7 +281,7 @@ class TaxonomicValidationAPI
         $this->archive_builder->finalize(TRUE);
         Functions::finalize_dwca_resource($this->resource_id, false, true, $timestart, $path);
 
-        /* New: initiate write permission ---- working OK but not needed
+        /* New: initiate write permission ---- working OK but maybe not needed
         $tar_gz = CONTENT_RESOURCE_LOCAL_PATH."Taxonomic_Validation/".$this->resource_id.".tar.gz";
         $out = shell_exec("chmod 775 ".$tar_gz." 2>&1; echo $?");
         echo "\n----------\nSetting permission: [$tar_gz]\n$out\n----------\n";
