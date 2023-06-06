@@ -54,9 +54,9 @@ else {
             */
             // /* New: since file_rename() above doesn't work
             if(copy($final_archive_gzip_url, $rename_to)) {}
-            else echo "\nERRORx: cannot copy [$final_archive_gzip_url] to [$rename_to]\n";
+            else echo "\n<br>ERRORx: cannot copy [$final_archive_gzip_url] to [$rename_to]<br>\n";
             if(unlink($final_archive_gzip_url)) {}
-            else echo "\nERRORx: cannot delete [$final_archive_gzip_url]\n";
+            else echo "\n<br>ERRORx: cannot delete [$final_archive_gzip_url]<br>\n";
             // */
 
             $final_archive_gzip_url = $rename_to;
