@@ -56,7 +56,12 @@ else {
             if(copy($final_archive_gzip_url, $rename_to)) {}
             else echo "\n<br>ERRORx: cannot copy [$final_archive_gzip_url] to [$rename_to]<br>\n";
             if(unlink($final_archive_gzip_url)) {}
-            else echo "\n<br>ERRORx: cannot delete [$final_archive_gzip_url]<br>\n";
+            else {
+                echo "\n<br>ERRORx: cannot delete [$final_archive_gzip_url]<br>\n";
+                $out = shell_exec("rm -f ".$final_archive_gzip_url); echo "\nTerminal: [$out]\n";
+                if(is_file($final_archive_gzip_url)) echo "<br>Still not deleted [$final_archive_gzip_url]<br>";
+                else                                 echo "<br>Deleted OK: [$final_archive_gzip_url]<br>";
+            }
             // */
 
             $final_archive_gzip_url = $rename_to;
