@@ -22,6 +22,13 @@ ini_set('memory_limit','7096M');
 require_library('connectors/TaxonomicValidationAPI');
 // $timestart = time_elapsed();
 
+/* tests
+$path = "/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/Taxonomic_Validation/1686044073.tar.gz";
+print_r(pathinfo($path));
+echo "\n[".pathinfo($path, PATHINFO_BASENAME)."]\n";
+exit("\n-end tests-\n");
+*/
+
 $params['jenkins_or_cron']  = @$argv[1];
 $params['filename']         = @$argv[2];
 $params['form_url']         = @$argv[3];

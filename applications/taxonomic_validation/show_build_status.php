@@ -53,16 +53,15 @@ else {
             // $rename_to = CONTENT_RESOURCE_LOCAL_PATH . "Trait_Data_Import/" . $params['Filename_ID'] . ".tar.gz";
             $rename_to = CONTENT_RESOURCE_LOCAL_PATH . "Taxonomic_Validation/" . $params['Filename_ID'] . ".tar.gz";
 
-            /* New: added if-then-else
-            if(Functions::file_rename($final_archive_gzip_url, $rename_to)) {}
-            else echo "\n<br>Investigate: cannot rename [$final_archive_gzip_url] to [$rename_to]<br>\n";
+            /* as much as possible don't use: Functions::file_rename
+            Functions::file_rename($final_archive_gzip_url, $rename_to)
             */
             
-            // /* ========== New: since file_rename() above doesn't work
-            if(copy($final_archive_gzip_url, $rename_to)) echo "<br>Updated OK: [$rename_to]<br>";
+            // /* ========== New: since Functions::file_rename above doesn't work
+            if(copy($final_archive_gzip_url, $rename_to)) echo "<br>Updated OK: [".pathinfo($rename_to, PATHINFO_BASENAME)."]<br>";
             else echo "\n<br>ERRORx: cannot copy [$final_archive_gzip_url] to [$rename_to]<br>Please inform eagbayani@eol.org.<br>\n";
             // ========== */
-            
+
             $final_archive_gzip_url = $rename_to;
             $hash_post = $Filename_ID;
         }
