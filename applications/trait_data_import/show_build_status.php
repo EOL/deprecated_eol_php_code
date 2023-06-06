@@ -55,12 +55,15 @@ else {
 
             // /* ========== New: since file_rename() above doesn't work
             if(copy($final_archive_gzip_url, $rename_to)) echo "<br>Updated OK: [$rename_to]<br>";
-            else echo "\n<br>ERRORx: cannot copy [$final_archive_gzip_url] to [$rename_to]<br>\n";
+            else echo "\n<br>ERRORx: cannot copy [$final_archive_gzip_url] to [$rename_to]<br>Please inform eagbayani@eol.org.<br>\n";
 
+            /* option 1 - worked in local but not in eol-archive
             $rename_tmp = str_replace("/Trait_Data_Import/", "/Trait_Data_Import/tmp_", $final_archive_gzip_url);
             if(rename($final_archive_gzip_url, $rename_tmp)) echo "<br>Renamed OK: [$rename_tmp]<br>";
             else echo "<br>Rename failed: <br>";
+            */
 
+            // option 2 - worked in local but not in eol-archive
             // [/var/www/html/eol_php_code/applications/content_server/resources/Trait_Data_Import/1686023312.tar.gz] -> $final_archive_gzip_url
             // if(unlink($final_archive_gzip_url)) echo "<br>Deleted OK 1: [$tmp]<br>";
             // else {
