@@ -70,6 +70,11 @@ class TraitDataImportAPI
         $input_file = $this->input['path'].$filename; //e.g. $filename is 'input_Eli.xlsx'
         if(file_exists($input_file)) {
             $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME);
+
+            // /* New: --- didn't work -- NEVER USE THIS - IT CAUSED OTHER PROB.
+            // if(@$this->arr_json['Filename_ID']) $this->resource_id = "tmp_".$this->resource_id;
+            // */
+
             self::read_input_file($input_file); //writes to text files for reading in next step.
             // exit("\neli 3\n[$this->resource_id]\n");
             self::create_output_file($timestart); //generates the DwCA
@@ -270,6 +275,8 @@ class TraitDataImportAPI
         // END DATA-1841 terms remapping
         // */
         self::generate_vocabulary(); //print_r($this->vocabulary); exit;
+
+
         self::create_DwCA();
         $this->archive_builder->finalize(TRUE);
         Functions::finalize_dwca_resource($this->resource_id, false, true, $timestart, $path);
