@@ -7,11 +7,52 @@ class TaxonomicValidationRules
     function __construct()
     {
     }
-    function process_user_file($input_file)
+    private function initialize()
+    {   // /*
+        require_library('connectors/RetrieveOrRunAPI');
+        $task2run = 'gnparser';
+        $download_options['expire_seconds'] = false; //doesn't expire
+        $main_path = 'gnparser_cmd';
+        $this->RoR = new RetrieveOrRunAPI($task2run, $download_options, $main_path);
+        // */
+    }
+    function process_user_file($txtfile, $tsvFileYN = true)
     {
         // echo "\n[".$input_file."] [$this->resource_id]\n";
-        
+        self::initialize();
+        if($tsvFileYN) {
+            self::parse_tsv($txtfile);
+        }
         exit("\n-stop muna-\n");
+    }
+    private function parse_tsv($txtfile)
+    {   $i = 0; debug("\n[$txtfile]\n");
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++; if(($i % 100) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line); // print_r($row);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                $k = 0; $rec = array();
+                foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
+            }
+            $rec = array_map('trim', $rec);
+            print_r($rec); //exit("\nstopx\n");
+            /*Array(
+                [taxonID] => Archaea
+                [scientificName] => Archaea
+                [EOLid] => 7920
+            )*/
+
+            $input = array('sciname' => $rec['scientificName']);
+            $json = $this->RoR->retrieve_data($input);
+            $obj = json_decode($json);
+            print_r($obj);
+            break;
+        } //end foreach()
     }
     /*=========================================================================*/ // COPIED TEMPLATE BELOW
     /*=========================================================================*/
