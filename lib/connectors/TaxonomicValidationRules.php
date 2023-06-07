@@ -81,7 +81,8 @@ class TaxonomicValidationRules
             $raw['higherClassification']        = self::build_higherClassification($rec);
 
             print_r($raw);
-            break; //debug only
+            // break; //debug only
+            if($i >= 5) break;
         } //end foreach()
     }
     private function build_higherClassification($rec)
@@ -138,12 +139,15 @@ class TaxonomicValidationRules
         if($val = @$rec['canonicalName']) return $val;
         else {
             // exit("\nparsed: [".$obj->parsed."]\n");
-            if(!$obj->parsed || $obj->parsed === false || $obj->parsed == 'false') return $rec['scientificName'];
-            else { // names that get parsed
+            if($obj->parsed == 1) { // names that get parsed
                 $CanonicalFull = $obj->canonical->full;
                 if(@$obj->hybrid == "NAMED_HYBRID")                 return $CanonicalFull;
                 if(stripos($CanonicalFull, " subgen. ") !== false)  return $CanonicalFull; //found string
                 return $obj->canonical->simple;
+            }
+            else {
+                echo "\ngot entire sciname: for "; print_r($rec);
+                return $rec['scientificName'];
             }
         }
     }
@@ -174,10 +178,6 @@ class TaxonomicValidationRules
     }
     private function can_compute_higherClassification($rec)
     {
-        // print_r($rec); exit;
-        // if(!isset($rec["http://rs.tdwg.org/dwc/terms/taxonID"])) return false;
-        // if(!isset($rec["http://rs.tdwg.org/dwc/terms/scientificName"])) return false;
-        // if(!isset($rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"])) return false;
         if(!isset($rec["taxonID"])) return false;
         if(!isset($rec["scientificName"])) return false;
         if(!isset($rec["parentNameUsageID"])) return false;
