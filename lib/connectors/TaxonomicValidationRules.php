@@ -8,7 +8,7 @@ class TaxonomicValidationRules
     {
     }
     private function initialize()
-    {   // /*
+    {   // /* 1st:
         require_library('connectors/RetrieveOrRunAPI');
         $task2run = 'gnparser';
         $download_options['expire_seconds'] = false; //doesn't expire
@@ -46,13 +46,45 @@ class TaxonomicValidationRules
                 [scientificName] => Archaea
                 [EOLid] => 7920
             )*/
+            $raw = array();
+            $raw['taxonID'] = self::build_taxonID($rec);
+            $raw['scientificName'] = self::build_scientificName($rec);
+            $raw['canonicalName'] = self::build_canonicalName($rec);
 
-            $input = array('sciname' => $rec['scientificName']);
-            $json = $this->RoR->retrieve_data($input);
-            $obj = json_decode($json);
-            print_r($obj);
-            break;
+            break; //debug only
         } //end foreach()
+    }
+    private function build_canonicalName($rec)
+    {   /* If a canonicalName field is available use the value from that field. If not, use the gnparser canonical. 
+        For names that don’t get parsed ("parsed": false), use the full scientificName string as the canonicalName value and 
+        add an unparsed flag to the quality warnings in the report (see below). 
+        For names that do get parsed, use the CanonicalSimple value as the canonicalName value for all taxa except the following:
+        - Use the gnparser CanonicalFull value for hybrids, i.e., if the gnparser report has a "hybrid": "NAMED_HYBRID" statement.
+        - Use the gnparser CanonicalFull value for subgenera, i.e., if the gnparser CanonicalFull value has the string “ subgen. ” in it. */
+        if($val = @$rec['canonicalName']) return $val;
+        else {
+            $input = array('sciname' => $rec['scientificName']);
+            $json = $this->RoR->retrieve_data($input); //call gnparser
+            $obj = json_decode($json); print_r($obj); exit("\n[".$json."]\n");
+
+            // exit("\nparsed: [".$obj->parsed."]\n");
+            if(!$obj->parsed || $obj->parsed === false || $obj->parsed == 'false') return $rec['scientificName'];
+            else { // names that get parsed
+                $CanonicalFull = $obj->canonical->full;
+                if(@$obj->hybrid == "NAMED_HYBRID")                 return $CanonicalFull;
+                if(stripos($CanonicalFull, " subgen. ") !== false)  return $CanonicalFull; //found string
+                return $obj->canonical->simple;
+            }
+        }
+    }
+    private function build_scientificName($rec)
+    {   /* If a scientificName field is available use the value from that field. Every DwC-A or taxa file should have this field. 
+           If the user file is a taxa list, we will interpret the names as scientificName values. */
+        if($val = @$rec['scientificName']) return $val;
+    }
+    private function build_taxonID($rec)
+    {
+        if($val = @$rec['taxonID']) return $val;
     }
     /*=========================================================================*/ // COPIED TEMPLATE BELOW
     /*=========================================================================*/
