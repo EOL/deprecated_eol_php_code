@@ -19,10 +19,6 @@ class RetrieveOrRunAPI
         $json = self::retrieve_data($input, $filename);
         */
     }
-    function test_x()
-    {
-        echo "\neli cha isaiah\n";
-    }
     function retrieve_data($input)
     {   
         $filename = self::generate_path_filename($input);
@@ -35,17 +31,16 @@ class RetrieveOrRunAPI
 
         if(file_exists($filename)) {
             debug("\nCache already exists. [$filename]\n");
-            // $this->dl_options['expire_seconds'] = 60; //debug only - force assign --- test success
             $file_age_in_seconds = time() - filemtime($filename);
             if($file_age_in_seconds < $this->dl_options['expire_seconds']) return self::retrieve_json($filename); //not yet expired
             if($this->dl_options['expire_seconds'] === false)              return self::retrieve_json($filename); //doesn't expire
-            /* At this point, cache is expired already */
+            /* ----- At this point, cache is expired already ----- */
             debug("\nCache expired. Will run task now...\n");
             self::run_task($input, $filename);
             return self::retrieve_json($filename);
         }
         else {
-            debug("\nRun task...\n");
+            debug("\nRun task for the 1st time...\n");
             self::run_task($input, $filename);
             return self::retrieve_json($filename);
         }
@@ -53,12 +48,12 @@ class RetrieveOrRunAPI
     private function retrieve_json($filename)
     {
         $json = file_get_contents($filename);
-        return $json; //json_decode($json, true);
+        return $json;
     }
     private function run_task($input, $filename)
     {   
-        if($this->task2run == 'gnparser') $json = self::task_gnparser($input['sciname']);
-        elseif($this->task2run == 'task_?') {}
+        if($this->task2run == 'gnparser')   $json = self::task_gnparser($input['sciname']);
+        elseif($this->task2run == 'task_?') $json = "whatever...";
         else exit("\nNo defined task2run. Will terminate.\n");
 
         if($json) {
