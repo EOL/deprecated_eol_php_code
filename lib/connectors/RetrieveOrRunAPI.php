@@ -52,8 +52,8 @@ class RetrieveOrRunAPI
     }
     private function run_task($input, $filename)
     {   
-        if($this->task2run == 'gnparser')   $json = self::task_gnparser($input['sciname']);
-        elseif($this->task2run == 'task_?') $json = "whatever...";
+        if    ($this->task2run == 'gnparser')   $json = self::task_gnparser($input['sciname']);
+        elseif($this->task2run == 'task_?')     $json = "whatever...";
         else exit("\nNo defined task2run. Will terminate.\n");
 
         if($json) {
@@ -64,7 +64,7 @@ class RetrieveOrRunAPI
     }
     private function task_gnparser($sciname)
     {   // e.g. gnparser -f pretty "Quadrella steyermarkii (Standl.) Iltis &amp; Cornejo"
-        $cmd = 'gnparser -f pretty "'.$sciname.'"';
+        $cmd = GNPARSER_PATH.' -f pretty "'.$sciname.'"';
         if($json = shell_exec($cmd)) return $json;
         else return false;
 
