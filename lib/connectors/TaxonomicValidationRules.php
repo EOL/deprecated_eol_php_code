@@ -49,7 +49,7 @@ class TaxonomicValidationRules
             // /* for calling gnparser
             $input = array('sciname' => $rec['scientificName']);
             $json = $this->RoR->retrieve_data($input); //call gnparser
-            $obj = json_decode($json); print_r($obj); exit("\n[".$json."]\n");
+            $obj = json_decode($json); print_r($obj); echo("\n[".$json."]\n");
             // */
             $raw = array();
             $raw['taxonID']                     = self::build_taxonID($rec);
@@ -57,9 +57,16 @@ class TaxonomicValidationRules
             $raw['canonicalName']               = self::build_canonicalName($rec, $obj);
             $raw['scientificNameAuthorship']    = self::build_scientificNameAuthorship($rec, $obj);
             $raw['taxonRank']                   = self::build_taxonRank($rec, $obj, $raw['canonicalName']);
-
+            $raw['taxonomicStatus']             = self::build_taxonomicStatus($rec);
+            
+            print_r($raw);
             break; //debug only
         } //end foreach()
+    }
+    private function build_taxonomicStatus($rec)
+    {   /* If there is a taxonomicStatus field, use the value from this field. If not, we infer that all taxa have taxonomicStatus = accepted. */
+        if($val = @$rec['taxonomicStatus']) return $val;
+        else return 'accepted';
     }
     private function build_taxonRank($rec, $obj, $canonicalName)
     {   /* If there is a taxonRank field, use the value from this field. If not, we can to infer the rank for some taxa as follows:
