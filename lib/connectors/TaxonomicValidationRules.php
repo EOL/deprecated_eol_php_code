@@ -58,7 +58,7 @@ class TaxonomicValidationRules
                 if($this->can_compute_higherClassificationYN = self::can_compute_higherClassification($rec)) {
                     if($records = $this->HC->create_records_array($txtfile)) {
                         $this->HC->build_id_name_array($records);
-                        print_r($this->HC->id_name); exit;
+                        // print_r($this->HC->id_name); exit;
                     }
                     else exit("\nNo records\n");
                 }
@@ -90,7 +90,7 @@ class TaxonomicValidationRules
         the taxonomy fields (kingdom|phylum|class|order|family|subfamily|genus|subgenus). Some files will not have any higher classification information at all. */
         if($val = @$rec['higherClassification']) return $val;
         else {
-            // if(isset($rec['parentNameUsageID'])) return self::generate_higherClass_using_parent($rec);
+            if(isset($rec['parentNameUsageID'])) return self::get_higherClassification($rec);
             // $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'subfamily', 'genus', 'subgenus');
             // foreach($ranks as $rank) {
             //     if(isset($rec[$rank])) {
@@ -155,6 +155,22 @@ class TaxonomicValidationRules
     private function build_taxonID($rec)
     {
         if($val = @$rec['taxonID']) return $val;
+    }
+    private function get_higherClassification($rec)
+    {
+        $parent_id = $rec['parentNameUsageID'];
+        $str = "";
+        while($parent_id) {
+            if($parent_id) {
+                $str .= trim(@$this->HC->id_name[$parent_id]['scientificName'])."|";
+                $parent_id = @$this->HC->id_name[$parent_id]['parentNameUsageID'];
+            }
+        }
+        $str = substr($str, 0, strlen($str)-1); // echo "\norig: [$str]";
+        $arr = explode("|", $str);
+        $arr = array_reverse($arr);
+        $str = implode("|", $arr); // echo "\n new: [$str]\n";
+        return $str;
     }
     private function can_compute_higherClassification($rec)
     {
