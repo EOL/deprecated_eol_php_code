@@ -46,15 +46,45 @@ class TaxonomicValidationRules
                 [scientificName] => Archaea
                 [EOLid] => 7920
             )*/
+            // /* for calling gnparser
+            $input = array('sciname' => $rec['scientificName']);
+            $json = $this->RoR->retrieve_data($input); //call gnparser
+            $obj = json_decode($json); print_r($obj); exit("\n[".$json."]\n");
+            // */
             $raw = array();
-            $raw['taxonID'] = self::build_taxonID($rec);
-            $raw['scientificName'] = self::build_scientificName($rec);
-            $raw['canonicalName'] = self::build_canonicalName($rec);
+            $raw['taxonID']                     = self::build_taxonID($rec);
+            $raw['scientificName']              = self::build_scientificName($rec);
+            $raw['canonicalName']               = self::build_canonicalName($rec, $obj);
+            $raw['scientificNameAuthorship']    = self::build_scientificNameAuthorship($rec, $obj);
+            $raw['taxonRank']                   = self::build_taxonRank($rec, $obj, $raw['canonicalName']);
 
             break; //debug only
         } //end foreach()
     }
-    private function build_canonicalName($rec)
+    private function build_taxonRank($rec, $obj, $canonicalName)
+    {   /* If there is a taxonRank field, use the value from this field. If not, we can to infer the rank for some taxa as follows:
+        - It the canonical name is a binomial (gnparser: cardinality=2), infer taxonRank = species
+        - If the canonical name is a trinomial or multinomial (gnparser: cardinality≥3), infer taxonRank = infraspecies
+        - If the canonical name is a uninomial (gnparser cardinality=1) and ends in “idae” or “aceae”, infer taxonRank= family 
+        Whenever a rank is inferred, we’ll want to add a flag to the quality notes in the report (see below). */
+        if($val = @$rec['taxonRank']) return $val;
+        else {
+            if($obj->cardinality == 2) return 'species';
+            if($obj->cardinality >= 3) return 'infraspecies';
+            if($obj->cardinality == 1) {
+                if(substr($canonicalName, -4) == "idae")  return 'family';
+                if(substr($canonicalName, -5) == "aceae") return 'family';
+            }
+        }
+    }
+    private function build_scientificNameAuthorship($rec, $obj)
+    {   /* If there is a scientificNameAuthorship field, use the value from that field. 
+        If not, get the authority data from gnparser ( ​​"authorship">"normalized"). Not all files will have authorship data in the scientificName column, 
+        so scientificNameAuthorship may be empty. */
+        if    ($val = @$rec['scientificNameAuthorship']) return $val;
+        elseif($val = @$obj->authorship->normalized)     return $val;
+    }
+    private function build_canonicalName($rec, $obj)
     {   /* If a canonicalName field is available use the value from that field. If not, use the gnparser canonical. 
         For names that don’t get parsed ("parsed": false), use the full scientificName string as the canonicalName value and 
         add an unparsed flag to the quality warnings in the report (see below). 
@@ -63,10 +93,6 @@ class TaxonomicValidationRules
         - Use the gnparser CanonicalFull value for subgenera, i.e., if the gnparser CanonicalFull value has the string “ subgen. ” in it. */
         if($val = @$rec['canonicalName']) return $val;
         else {
-            $input = array('sciname' => $rec['scientificName']);
-            $json = $this->RoR->retrieve_data($input); //call gnparser
-            $obj = json_decode($json); print_r($obj); exit("\n[".$json."]\n");
-
             // exit("\nparsed: [".$obj->parsed."]\n");
             if(!$obj->parsed || $obj->parsed === false || $obj->parsed == 'false') return $rec['scientificName'];
             else { // names that get parsed
