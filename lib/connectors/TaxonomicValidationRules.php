@@ -6,6 +6,7 @@ class TaxonomicValidationRules
 {
     function __construct()
     {
+        $this->can_compute_higherClassificationYN = false; //default is false
     }
     private function initialize()
     {   // /* 1st:
@@ -14,6 +15,11 @@ class TaxonomicValidationRules
         $download_options['expire_seconds'] = false; //doesn't expire
         $main_path = 'gnparser_cmd';
         $this->RoR = new RetrieveOrRunAPI($task2run, $download_options, $main_path);
+        // */
+
+        // /* 2nd:
+        require_library('connectors/DwCA_Utility');
+        $this->HC = new DwCA_Utility();
         // */
     }
     function process_user_file($txtfile, $tsvFileYN = true)
@@ -46,6 +52,20 @@ class TaxonomicValidationRules
                 [scientificName] => Archaea
                 [EOLid] => 7920
             )*/
+
+            // /* ---------- for higherClassification
+            if($i == 2) {
+                if($this->can_compute_higherClassificationYN = self::can_compute_higherClassification($rec)) {
+                    if($records = $this->HC->create_records_array($txtfile)) {
+                        $this->HC->build_id_name_array($records);
+                        print_r($this->HC->id_name); exit;
+                    }
+                    else exit("\nNo records\n");
+                }
+                else exit("\nCannot compute HC\n");
+            }
+            // ---------- */
+
             // /* for calling gnparser
             $input = array('sciname' => $rec['scientificName']);
             $json = $this->RoR->retrieve_data($input); //call gnparser
@@ -58,10 +78,27 @@ class TaxonomicValidationRules
             $raw['scientificNameAuthorship']    = self::build_scientificNameAuthorship($rec, $obj);
             $raw['taxonRank']                   = self::build_taxonRank($rec, $obj, $raw['canonicalName']);
             $raw['taxonomicStatus']             = self::build_taxonomicStatus($rec);
-            
+            $raw['higherClassification']        = self::build_higherClassification($rec);
+
             print_r($raw);
             break; //debug only
         } //end foreach()
+    }
+    private function build_higherClassification($rec)
+    {   /* If there is a higherClassification field, use the value from this field. 
+        If not construct a pipe-separated list of ancestors based on information in the parentNameUsageID fields or 
+        the taxonomy fields (kingdom|phylum|class|order|family|subfamily|genus|subgenus). Some files will not have any higher classification information at all. */
+        if($val = @$rec['higherClassification']) return $val;
+        else {
+            // if(isset($rec['parentNameUsageID'])) return self::generate_higherClass_using_parent($rec);
+            // $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'subfamily', 'genus', 'subgenus');
+            // foreach($ranks as $rank) {
+            //     if(isset($rec[$rank])) {
+            //         self::generate_higherClass_using_ancestry_fields($rec);
+            //         break;
+            //     }
+            // }
+        }
     }
     private function build_taxonomicStatus($rec)
     {   /* If there is a taxonomicStatus field, use the value from this field. If not, we infer that all taxa have taxonomicStatus = accepted. */
@@ -118,6 +155,17 @@ class TaxonomicValidationRules
     private function build_taxonID($rec)
     {
         if($val = @$rec['taxonID']) return $val;
+    }
+    private function can_compute_higherClassification($rec)
+    {
+        // print_r($rec); exit;
+        // if(!isset($rec["http://rs.tdwg.org/dwc/terms/taxonID"])) return false;
+        // if(!isset($rec["http://rs.tdwg.org/dwc/terms/scientificName"])) return false;
+        // if(!isset($rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"])) return false;
+        if(!isset($rec["taxonID"])) return false;
+        if(!isset($rec["scientificName"])) return false;
+        if(!isset($rec["parentNameUsageID"])) return false;
+        return true;
     }
     /*=========================================================================*/ // COPIED TEMPLATE BELOW
     /*=========================================================================*/
