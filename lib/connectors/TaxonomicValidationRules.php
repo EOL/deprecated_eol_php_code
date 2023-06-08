@@ -46,7 +46,7 @@ class TaxonomicValidationRules
                 foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); //exit("\nstopx\n");
+            echo "\nRAW REC:"; print_r($rec); //exit("\nstopx\n");
             /*Array(
                 [taxonID] => Archaea
                 [scientificName] => Archaea
@@ -82,7 +82,7 @@ class TaxonomicValidationRules
 
             print_r($raw);
             // break; //debug only
-            // if($i >= 5) break;
+            if($i >= 5) break;
         } //end foreach()
     }
     private function build_higherClassification($rec)
@@ -92,15 +92,15 @@ class TaxonomicValidationRules
         if($val = @$rec['higherClassification']) return $val;
         else {
             if(isset($rec['parentNameUsageID'])) return self::get_higherClassification($rec);
-            /* to do:
-            // $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'subfamily', 'genus', 'subgenus');
-            // foreach($ranks as $rank) {
-            //     if(isset($rec[$rank])) {
-            //         self::generate_higherClass_using_ancestry_fields($rec);
-            //         break;
-            //     }
-            // }
-            */
+            // /* to do:
+            $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'subfamily', 'genus', 'subgenus');
+            foreach($ranks as $rank) {
+                if(isset($rec[$rank])) {
+                    return self::generate_higherClass_using_ancestry_fields($rec);
+                    break;
+                }
+            }
+            // */
         }
     }
     private function build_taxonomicStatus($rec)
@@ -161,6 +161,11 @@ class TaxonomicValidationRules
     private function build_taxonID($rec)
     {
         if($val = @$rec['taxonID']) return $val;
+    }
+    private function generate_higherClass_using_ancestry_fields($rec)
+    {
+        $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'subfamily', 'genus', 'subgenus');
+
     }
     private function get_higherClassification($rec)
     {
