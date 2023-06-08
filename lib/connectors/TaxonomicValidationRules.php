@@ -1,12 +1,13 @@
 <?php
 namespace php_active_record;
-/* 
+/*
 */
 class TaxonomicValidationRules
 {
     function __construct()
     {
         $this->can_compute_higherClassificationYN = false; //default is false
+        if(!is_dir($path)) mkdir($path);
     }
     private function initialize()
     {   // /* 1st:
@@ -16,22 +17,47 @@ class TaxonomicValidationRules
         $main_path = 'gnparser_cmd';
         $this->RoR = new RetrieveOrRunAPI($task2run, $download_options, $main_path);
         // */
-
         // /* 2nd:
         require_library('connectors/DwCA_Utility');
-        $this->HC = new DwCA_Utility();
+        $this->HC = new DwCA_Utility(); // HC - higherClassification functions
+        // */
+        // /* 3rd:
+        $this->temp_dir = CONTENT_RESOURCE_LOCAL_PATH . '/Taxonomic_Validation/'.$this->resource_id."/";
+        if(!is_dir($this->temp_dir)) mkdir($this->temp_dir);
         // */
     }
     function process_user_file($txtfile, $tsvFileYN = true)
     {
-        // echo "\n[".$input_file."] [$this->resource_id]\n";
+        // echo "\n[".$txtfile."] [$this->resource_id]\n"; exit;
         self::initialize();
         if($tsvFileYN) {
-            self::parse_tsv($txtfile);
+            self::parse_user_file($txtfile);
+
+            $txtfile = $this->temp_dir."processed.txt";
+            self::parse_processed_file($txtfile);
+            // recursive_rmdir($this->temp_dir);
         }
         exit("\n-stop muna-\n");
     }
-    private function parse_tsv($txtfile)
+    private function parse_processed_file($txtfile)
+    {   $i = 0; debug("\n[$txtfile]\n");
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++; if(($i % 100) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line); // print_r($row);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                $k = 0; $rec = array();
+                foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
+            }
+            $rec = array_map('trim', $rec);
+            echo "\nPROCESSED REC:"; print_r($rec); exit("\nstopx\n");
+        }
+    }
+    private function parse_user_file($txtfile)
     {   $i = 0; debug("\n[$txtfile]\n");
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 100) == 0) echo "\n".number_format($i)." ";
@@ -79,10 +105,10 @@ class TaxonomicValidationRules
             $raw['taxonRank']                   = self::build_taxonRank($rec, $obj, $raw['canonicalName']);
             $raw['taxonomicStatus']             = self::build_taxonomicStatus($rec);
             $raw['higherClassification']        = self::build_higherClassification($rec);
-
-            print_r($raw);
-            break; //debug only
-            if($i >= 5) break;
+            echo "\nPROCESSED REC:"; print_r($raw);
+            self::write_output_rec_2txt($raw, "processed");
+            // break; //debug only
+            if($i >= 5) break; //debug only
         } //end foreach()
     }
     private function build_higherClassification($rec)
@@ -91,16 +117,14 @@ class TaxonomicValidationRules
         the taxonomy fields (kingdom|phylum|class|order|family|subfamily|genus|subgenus). Some files will not have any higher classification information at all. */
         if($val = @$rec['higherClassification']) return $val;
         else {
-            if(isset($rec['parentNameUsageID'])) return self::get_higherClassification($rec);
-            // /* to do:
+            if(isset($rec['parentNameUsageID'])) return self::get_higherClassification($rec); //1st option
             $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'subfamily', 'genus', 'subgenus');
             foreach($ranks as $rank) {
                 if(isset($rec[$rank])) {
-                    return self::generate_higherClass_using_ancestry_fields($rec);
+                    return self::generate_higherClass_using_ancestry_fields($rec); //2nd option
                     break;
                 }
             }
-            // */
         }
     }
     private function build_taxonomicStatus($rec)
@@ -197,17 +221,14 @@ class TaxonomicValidationRules
     }
     /*=========================================================================*/ // COPIED TEMPLATE BELOW
     /*=========================================================================*/
-    private function initialize_file($sheet_name)
+    // private function initialize_file($sheet_name)
+    // {    
+    //     $filename = $this->resources['path'].$this->resource_id."_invalid_values.txt";
+    //     $WRITE = Functions::file_open($filename, "w"); fclose($WRITE);
+    // }
+    private function write_output_rec_2txt($rec, $basename)
     {
-        $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
-        $WRITE = Functions::file_open($filename, "w"); fclose($WRITE);
-        
-        $filename = $this->resources['path'].$this->resource_id."_invalid_values.txt";
-        $WRITE = Functions::file_open($filename, "w"); fclose($WRITE);
-    }
-    private function write_output_rec_2txt($rec, $sheet_name)
-    {
-        $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
+        $filename = $this->temp_dir.$basename.".txt";
         $fields = array_keys($rec);
         $WRITE = Functions::file_open($filename, "a");
         clearstatcache(); //important for filesize()
