@@ -69,7 +69,7 @@ class TaxonomicValidationRules
             // /* for calling gnparser
             $input = array('sciname' => $rec['scientificName']);
             $json = $this->RoR->retrieve_data($input); //call gnparser
-            $obj = json_decode($json); print_r($obj); echo("\n[".$json."]\n");
+            $obj = json_decode($json); //print_r($obj); echo("\n[".$json."]\n");
             // */
             $raw = array();
             $raw['taxonID']                     = self::build_taxonID($rec);
@@ -82,7 +82,7 @@ class TaxonomicValidationRules
 
             print_r($raw);
             // break; //debug only
-            if($i >= 5) break;
+            // if($i >= 5) break;
         } //end foreach()
     }
     private function build_higherClassification($rec)
@@ -92,6 +92,7 @@ class TaxonomicValidationRules
         if($val = @$rec['higherClassification']) return $val;
         else {
             if(isset($rec['parentNameUsageID'])) return self::get_higherClassification($rec);
+            /* to do:
             // $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'subfamily', 'genus', 'subgenus');
             // foreach($ranks as $rank) {
             //     if(isset($rec[$rank])) {
@@ -99,6 +100,7 @@ class TaxonomicValidationRules
             //         break;
             //     }
             // }
+            */
         }
     }
     private function build_taxonomicStatus($rec)
