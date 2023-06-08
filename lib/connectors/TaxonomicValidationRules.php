@@ -62,7 +62,7 @@ class TaxonomicValidationRules
                     }
                     else exit("\nNo records\n");
                 }
-                else exit("\nCannot compute HC\n");
+                // else exit("\nCannot compute HC\n"); //no need to trap, acceptable case
             }
             // ---------- */
 
@@ -81,7 +81,7 @@ class TaxonomicValidationRules
             $raw['higherClassification']        = self::build_higherClassification($rec);
 
             print_r($raw);
-            // break; //debug only
+            break; //debug only
             if($i >= 5) break;
         } //end foreach()
     }
@@ -165,7 +165,12 @@ class TaxonomicValidationRules
     private function generate_higherClass_using_ancestry_fields($rec)
     {
         $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'subfamily', 'genus', 'subgenus');
-
+        $str = "";
+        foreach($ranks as $rank) {
+            if($val = @$rec[$rank]) $str .= $val."|";
+        }
+        $str = substr(trim($str), 0, -1); // remove last char from string
+        return $str;
     }
     private function get_higherClassification($rec)
     {
