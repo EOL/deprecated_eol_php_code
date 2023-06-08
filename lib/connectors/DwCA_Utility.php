@@ -913,7 +913,7 @@ class DwCA_Utility
         } //main loop
         return $count;
     }
-    private function build_id_name_array($records)
+    function build_id_name_array($records)
     {
         foreach($records as $rec) {
             // [http://rs.tdwg.org/dwc/terms/taxonID] => 6de0dc42e8f4fc2610cb4287a4505764
@@ -1019,7 +1019,7 @@ class DwCA_Utility
         else return false;
     }
     
-    private function create_records_array($file)
+    function create_records_array($file)
     {
         $records = array();
         $i = 0;
