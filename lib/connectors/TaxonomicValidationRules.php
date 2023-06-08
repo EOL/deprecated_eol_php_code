@@ -162,16 +162,6 @@ class TaxonomicValidationRules
     {
         if($val = @$rec['taxonID']) return $val;
     }
-    private function generate_higherClass_using_ancestry_fields($rec)
-    {
-        $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'subfamily', 'genus', 'subgenus');
-        $str = "";
-        foreach($ranks as $rank) {
-            if($val = @$rec[$rank]) $str .= $val."|";
-        }
-        $str = substr(trim($str), 0, -1); // remove last char from string
-        return $str;
-    }
     private function get_higherClassification($rec)
     {
         $parent_id = $rec['parentNameUsageID'];
@@ -186,6 +176,16 @@ class TaxonomicValidationRules
         $arr = explode("|", $str);
         $arr = array_reverse($arr);
         $str = implode("|", $arr); // echo "\n new: [$str]\n";
+        return $str;
+    }
+    private function generate_higherClass_using_ancestry_fields($rec)
+    {
+        $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'subfamily', 'genus', 'subgenus');
+        $str = "";
+        foreach($ranks as $rank) {
+            if($val = @$rec[$rank]) $str .= $val."|";
+        }
+        $str = substr(trim($str), 0, -1); // remove last char from string
         return $str;
     }
     private function can_compute_higherClassification($rec)
