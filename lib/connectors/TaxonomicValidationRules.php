@@ -33,17 +33,17 @@ class TaxonomicValidationRules
         if($tsvFileYN) {
             self::parse_user_file($txtfile);
 
-            self::parse_processed_file($this->DH_file, 'load DH file');
+            self::parse_TSV_file($this->DH_file, 'load DH file');
             exit("\nditox 1\n");
-            self::parse_processed_file($this->temp_dir."processed.txt", 'name match and validate');
+            self::parse_TSV_file($this->temp_dir."processed.txt", 'name match and validate');
             // recursive_rmdir($this->temp_dir);
         }
         exit("\n-stop muna-\n");
     }
-    private function parse_processed_file($txtfile, $task)
+    private function parse_TSV_file($txtfile, $task)
     {   $i = 0; debug("\n[$txtfile]\n");
         foreach(new FileIterator($txtfile) as $line_number => $line) {
-            $i++; if(($i % 100) == 0) echo "\n".number_format($i)." ";
+            $i++; if(($i % 1000000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line); // print_r($row);
             if($i == 1) {
                 $fields = $row;
@@ -58,9 +58,8 @@ class TaxonomicValidationRules
             //###############################################################################################
             if($task == "load DH file") {
                 // print_r($rec); exit("\nstopx\n");
-                $taxonID = $rec['taxonID'];
                 $canonicalName = $rec['canonicalName'];
-                $this->DH_info[$taxonID] = '';
+                $this->DH_info[$canonicalName][] = $rec;
             }
             //###############################################################################################
             if($task == "name match and validate") {

@@ -21,7 +21,7 @@ $GLOBALS['ENV_DEBUG'] = true;   //set to true when debugging
 // error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
 ini_set('error_reporting', E_ALL);
 // */
-ini_set('memory_limit','7096M');
+ini_set('memory_limit','14096M');
 require_library('connectors/TaxonomicValidationRules');
 require_library('connectors/TaxonomicValidationAPI');
 // $timestart = time_elapsed();
