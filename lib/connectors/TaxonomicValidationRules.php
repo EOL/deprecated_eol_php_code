@@ -7,7 +7,6 @@ class TaxonomicValidationRules
     function __construct()
     {
         $this->can_compute_higherClassificationYN = false; //default is false
-        if(!is_dir($path)) mkdir($path);
     }
     private function initialize()
     {   // /* 1st:
@@ -25,6 +24,7 @@ class TaxonomicValidationRules
         $this->temp_dir = CONTENT_RESOURCE_LOCAL_PATH . '/Taxonomic_Validation/'.$this->resource_id."/";
         if(!is_dir($this->temp_dir)) mkdir($this->temp_dir);
         // */
+        $this->DH_file = CONTENT_RESOURCE_LOCAL_PATH . '/Taxonomic_Validation/dh21eolid/taxon.tab';
     }
     function process_user_file($txtfile, $tsvFileYN = true)
     {
@@ -33,13 +33,14 @@ class TaxonomicValidationRules
         if($tsvFileYN) {
             self::parse_user_file($txtfile);
 
-            $txtfile = $this->temp_dir."processed.txt";
-            self::parse_processed_file($txtfile);
+            self::parse_processed_file($this->DH_file, 'load DH file');
+            exit("\nditox 1\n");
+            self::parse_processed_file($this->temp_dir."processed.txt", 'name match and validate');
             // recursive_rmdir($this->temp_dir);
         }
         exit("\n-stop muna-\n");
     }
-    private function parse_processed_file($txtfile)
+    private function parse_processed_file($txtfile, $task)
     {   $i = 0; debug("\n[$txtfile]\n");
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 100) == 0) echo "\n".number_format($i)." ";
@@ -54,8 +55,25 @@ class TaxonomicValidationRules
                 foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
             }
             $rec = array_map('trim', $rec);
-            echo "\nPROCESSED REC:"; print_r($rec); exit("\nstopx\n");
-        }
+            //###############################################################################################
+            if($task == "load DH file") {
+                // print_r($rec); exit("\nstopx\n");
+                $taxonID = $rec['taxonID'];
+                $canonicalName = $rec['canonicalName'];
+                $this->DH_info[$taxonID] = '';
+            }
+            //###############################################################################################
+            if($task == "name match and validate") {
+                /* implement this way
+                $arr['Eli'][0] = array()
+                $arr['Cha'][0] = array()
+                $arr['Cha'][1] = array()
+                */
+            }
+            //###############################################################################################
+
+        } //end foreach()
+        echo "\ntotal: ".count($this->DH_info)."\n"; exit;
     }
     private function parse_user_file($txtfile)
     {   $i = 0; debug("\n[$txtfile]\n");
@@ -83,8 +101,7 @@ class TaxonomicValidationRules
             if($i == 2) {
                 if($this->can_compute_higherClassificationYN = self::can_compute_higherClassification($rec)) {
                     if($records = $this->HC->create_records_array($txtfile)) {
-                        $this->HC->build_id_name_array($records);
-                        // print_r($this->HC->id_name); exit;
+                        $this->HC->build_id_name_array($records); //print_r($this->HC->id_name); exit;
                     }
                     else exit("\nNo records\n");
                 }
