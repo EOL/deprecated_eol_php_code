@@ -292,7 +292,7 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	Tue 2022-12-06 06:30:04 PM	    {"media_resource.tab":847228, "taxon.tab":442775, "time_elapsed":{"sec":977.44, "min":16.29, "hr":0.27}}
 80	Sat 2023-02-25 04:30:38 PM	    {"media_resource.tab":847222, "taxon.tab":442796, "time_elapsed":{"sec":1001.36, "min":16.69, "hr":0.28}}
 80	Mon 2023-03-20 09:38:23 AM	    {"media_resource.tab":859348, "taxon.tab":448895, "time_elapsed":{"sec":955.29, "min":15.92, "hr":0.27}}
-
+80	Sun 2023-06-11 05:26:46 AM	    {"media_resource.tab":866565, "taxon.tab":452624, "time_elapsed":{"sec":982.34, "min":16.37, "hr":0.27}}
 
 wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
 wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}

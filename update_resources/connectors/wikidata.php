@@ -110,12 +110,14 @@ wikimedia_comnames	Sat 2022-09-10 04:57:15 PM	{"taxon.tab":154455, "vernacular_n
 wikimedia_comnames	Mon 2022-12-05 07:50:40 PM	{"taxon.tab":153854, "vernacular_name.tab":1004436, "time_elapsed":{"sec":1290.23, "min":21.5, "hr":0.36}}
 wikimedia_comnames	Fri 2023-02-24 06:11:01 PM	{"taxon.tab":154527, "vernacular_name.tab":1004878, "time_elapsed":{"sec":1279.15, "min":21.32, "hr":0.36}}
 wikimedia_comnames	Tue 2023-03-14 07:05:47 PM	{"taxon.tab":166733, "vernacular_name.tab":1051497, "time_elapsed":{"sec":1427.04, "min":23.78, "hr":0.4}}
+wikimedia_comnames	Sat 2023-06-10 04:54:33 AM	{"taxon.tab":168005, "vernacular_name.tab":1060128, "time_elapsed":{"sec":1390.36, "min":23.17, "hr":0.39}}
 
 71_delta	Wed 2022-07-13 10:04:30 PM	{"agent.tab":788702, "media_resource.tab":1248218, "taxon.tab":154018, "time_elapsed":{"sec":1257.01, "min":20.95, "hr":0.35}}
 71_delta	Sat 2022-09-10 05:37:07 PM	{"agent.tab":800385, "media_resource.tab":1263636, "taxon.tab":154455, "time_elapsed":{"sec":1299.87, "min":21.66, "hr":0.36}}
 71_delta	Mon 2022-12-05 09:07:49 PM	{"agent.tab":799148, "media_resource.tab":1263927, "taxon.tab":153854, "time_elapsed":{"sec":3588.89, "min":59.81, "hr":1}}
 71_delta	Fri 2023-02-24 07:29:26 PM	{"agent.tab":808872, "media_resource.tab":1276265, "taxon.tab":154527, "time_elapsed":{"sec":3688.85, "min":61.48, "hr":1.02}}
 71_delta	Tue 2023-03-14 08:32:19 PM	{"agent.tab":838397, "media_resource.tab":1321583, "taxon.tab":166733, "time_elapsed":{"sec":4057.66, "min":67.63, "hr":1.13}}
+71_delta	Sat 2023-06-10 06:19:55 AM	{"agent.tab":851208, "media_resource.tab":1337612, "taxon.tab":168005, "time_elapsed":{"sec":4005.2, "min":66.75, "hr":1.11}}
 
 --------------------------
 wikidata-hierarchy	        Tue 2022-02-08 10:02:56 AM	{"taxon.tab":3365727, "time_elapsed":{"sec":353281.95, "min":5888.03, "hr":98.13, "day":4.09}}
