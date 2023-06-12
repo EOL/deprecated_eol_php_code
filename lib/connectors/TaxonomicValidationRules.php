@@ -33,7 +33,7 @@ class TaxonomicValidationRules
         if($tsvFileYN) {
             self::parse_user_file($txtfile);
 
-            // self::parse_TSV_file($this->DH_file, 'load DH file');
+            self::parse_TSV_file($this->DH_file, 'load DH file');
             // exit("\nditox 1\n");
             self::parse_TSV_file($this->temp_dir."processed.txt", 'name match and validate');
             // recursive_rmdir($this->temp_dir);
@@ -110,8 +110,48 @@ class TaxonomicValidationRules
             [taxonRank] => species
             [taxonomicStatus] => accepted
             [higherClassification] => Plantae|Magnoliopsida|Fabales|Fabaceae|Abrus
-        )*/
-        
+        )
+        For each matched taxon, record the following fields:
+            - taxonID from user file, if available
+            - eolID of matched DH taxon
+            - canonicalName from user file or gnparser
+            - scientificName from user file
+            - scientificName of matched DH taxon
+            - scientificNameAuthorship from user file or gnparser, if available
+            - scientificNameAuthorship of matched DH taxon
+            - taxonRank from user file or inferred, if available
+            - taxonRank of matched DH taxon
+            - taxonomicStatus from user file or inferred
+            - taxonomicStatus of matched DH taxon
+            higherClassification from user file, if available
+            higherClassification of matched DH taxon
+            quality notes, see below */
+        $u_canonicalName = $rec['canonicalName'];
+        if($DH_recs = $this->DH_info[$u_canonicalName]) { //matchedNames
+            foreach($DH_recs as $DH_rec) {
+                $matched = array();
+                $matched['taxonID'] = $rec['taxonID'];
+                $matched['DH_eolID'] = $DH_rec['eolID'];
+                $matched['canonicalName'] = $rec['canonicalName'];
+                $matched['scientificName'] = $rec['scientificName'];
+                $matched['DH_scientificName'] = $DH_rec['scientificName'];
+                $matched['scientificNameAuthorship'] = $rec['scientificNameAuthorship'];
+                $matched['DH_scientificNameAuthorship'] = @$DH_rec['scientificNameAuthorship'];
+                $matched['taxonRank'] = $rec['taxonRank'];
+                $matched['DH_taxonRank'] = $DH_rec['taxonRank'];
+                $matched['taxonomicStatus'] = $rec['taxonomicStatus'];
+                $matched['DH_taxonomicStatus'] = $DH_rec['taxonomicStatus'];
+                $matched['higherClassification'] = $rec['higherClassification'];
+                $matched['DH_higherClassification'] = $DH_rec['higherClassification'];
+                $matched['quality notes'] = self::generate_quality_notes($rec);
+            }
+        }
+        else { //unmatchedNames
+        }
+    }
+    private function generate_quality_notes($rec)
+    {
+
     }
     private function parse_user_file($txtfile)
     {   $i = 0; debug("\n[$txtfile]\n");
