@@ -143,10 +143,30 @@ class TaxonomicValidationRules
                 $matched['DH_taxonomicStatus'] = $DH_rec['taxonomicStatus'];
                 $matched['higherClassification'] = $rec['higherClassification'];
                 $matched['DH_higherClassification'] = $DH_rec['higherClassification'];
-                $matched['quality notes'] = self::generate_quality_notes($rec);
-            }
+                $matched['quality notes'] = self::generate_quality_notes($rec);    
+
+                if(self::excluded_based_on_3($rec, $DH_rec)) { //unmatchedNames based on 3
+                    $unmatched = $matched;
+                    $matched = array();
+                }
+            } //end foreach()
         }
-        else { //unmatchedNames
+        else { //unmatchedNames - blank for DH fields
+            $unmatched = array();
+            $unmatched['taxonID'] = $rec['taxonID'];
+            $unmatched['DH_eolID'] = '';
+            $unmatched['canonicalName'] = $rec['canonicalName'];
+            $unmatched['scientificName'] = $rec['scientificName'];
+            $unmatched['DH_scientificName'] = '';
+            $unmatched['scientificNameAuthorship'] = $rec['scientificNameAuthorship'];
+            $unmatched['DH_scientificNameAuthorship'] = '';
+            $unmatched['taxonRank'] = $rec['taxonRank'];
+            $unmatched['DH_taxonRank'] = '';
+            $unmatched['taxonomicStatus'] = $rec['taxonomicStatus'];
+            $unmatched['DH_taxonomicStatus'] = '';
+            $unmatched['higherClassification'] = $rec['higherClassification'];
+            $unmatched['DH_higherClassification'] = '';
+            $unmatched['quality notes'] = self::generate_quality_notes($rec);    
         }
     }
     private function generate_quality_notes($rec)
