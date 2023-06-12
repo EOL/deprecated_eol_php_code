@@ -25,6 +25,7 @@ class TaxonomicValidationRules
         if(!is_dir($this->temp_dir)) mkdir($this->temp_dir);
         // */
         $this->DH_file = CONTENT_RESOURCE_LOCAL_PATH . '/Taxonomic_Validation/dh21eolid/taxon.tab';
+        $this->IncompatibleAncestors = self::get_IncompatibleAncestors();
     }
     function process_user_file($txtfile, $tsvFileYN = true)
     {
@@ -58,8 +59,7 @@ class TaxonomicValidationRules
             }
             $rec = array_map('trim', $rec);
             //###############################################################################################
-            if($task == "load DH file") {
-                // print_r($rec); exit("\nstopx\n");
+            if($task == "load DH file") { // print_r($rec); exit("\nstopx\n");
                 $canonicalName = $rec['canonicalName'];
                 $this->DH_info[$canonicalName][] = $rec;
                 // print_r($this->DH_info); exit("\nditox 3\n");
@@ -85,13 +85,7 @@ class TaxonomicValidationRules
                 )*/
             }
             //###############################################################################################
-            if($task == "name match and validate") {
-                /* implement this way
-                $arr['Eli'][0] = array()
-                $arr['Cha'][0] = array()
-                $arr['Cha'][1] = array()
-                */
-                // print_r($rec); exit("\nditox 2\n");
+            if($task == "name match and validate") { // print_r($rec); exit("\nditox 2\n");
                 self::name_match_validate($rec);
             }
             //###############################################################################################
@@ -123,9 +117,9 @@ class TaxonomicValidationRules
             - taxonRank of matched DH taxon
             - taxonomicStatus from user file or inferred
             - taxonomicStatus of matched DH taxon
-            higherClassification from user file, if available
-            higherClassification of matched DH taxon
-            quality notes, see below */
+            - higherClassification from user file, if available
+            - higherClassification of matched DH taxon
+            - quality notes, see below */
         $u_canonicalName = $rec['canonicalName'];
         if($DH_recs = $this->DH_info[$u_canonicalName]) { //matchedNames
             foreach($DH_recs as $DH_rec) {
@@ -146,8 +140,11 @@ class TaxonomicValidationRules
                 $matched['quality notes'] = self::generate_quality_notes($rec);    
 
                 if(self::excluded_based_on_3($rec, $DH_rec)) { //unmatchedNames based on 3
-                    $unmatched = $matched;
-                    $matched = array();
+                    $unmatched = $matched; $matched = array();
+                    self::write_output_rec_2txt($unmatched, "unmatched");
+                }
+                else {
+                    self::write_output_rec_2txt($matched, "matched");
                 }
             } //end foreach()
         }
@@ -167,6 +164,7 @@ class TaxonomicValidationRules
             $unmatched['higherClassification'] = $rec['higherClassification'];
             $unmatched['DH_higherClassification'] = '';
             $unmatched['quality notes'] = self::generate_quality_notes($rec);    
+            self::write_output_rec_2txt($unmatched, "unmatched");
         }
     }
     private function excluded_based_on_3($rec, $DH_rec)
@@ -180,11 +178,14 @@ class TaxonomicValidationRules
             }
         }
         if($rec['taxonRank'] && $DH_rec['taxonRank']) { //then check for: Rank Conflicts
-
-
+            if(self::Fatal_rank_mismatch()) {
+                return true;
+            }
+            elseif(self::Non_fatal_rank_mismatch()) {
+                return false;
+            }
         }
         return false;
-
     }
     private function generate_quality_notes($rec)
     {
@@ -350,6 +351,35 @@ class TaxonomicValidationRules
         if(!isset($rec["scientificName"])) return false;
         if(!isset($rec["parentNameUsageID"])) return false;
         return true;
+    }
+    private function get_IncompatibleAncestors()
+    {   // https://docs.google.com/spreadsheets/d/1kAqXnqGMBa3bED3vl1KIL2rPO_ZpmBxqXQYOVqY8-0g/edit?pli=1#gid=0
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1kAqXnqGMBa3bED3vl1KIL2rPO_ZpmBxqXQYOVqY8-0g';
+        $params['range']         = 'Sheet1!A2:B930'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        //start massage array
+        foreach($arr as $item) $final[$item[0]][] = $item[1];
+        // print_r($final); exit;
+        return $final;
+    }
+    private function has_Incompatible_ancestors()
+    {   /*Array(
+            [Acoela] => Array(
+                    [0] => Angiospermae
+                    [1] => Angiosperms
+                    [2] => Archaeplastida
+                    [3] => Bryophyta
+                    [4] => Chlorophyta
+                    [5] => Liliopsida
+                    [6] => Magnoliophyta
+                    [7] => Magnoliopsida
+                    [8] => Plantae
+                    [9] => Rhodophyta
+                    [10] => Viridiplantae
+                )
+        */
     }
     /*=========================================================================*/ // COPIED TEMPLATE BELOW
     /*=========================================================================*/
