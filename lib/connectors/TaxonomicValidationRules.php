@@ -25,7 +25,7 @@ class TaxonomicValidationRules
         if(!is_dir($this->temp_dir)) mkdir($this->temp_dir);
         // */
         $this->DH_file = CONTENT_RESOURCE_LOCAL_PATH . '/Taxonomic_Validation/dh21eolid/taxon.tab';
-        $this->IncompatibleAncestors = self::get_IncompatibleAncestors();
+        self::get_IncompatibleAncestors(); //get from Google Sheets
     }
     function process_user_file($txtfile, $tsvFileYN = true)
     {
@@ -170,7 +170,7 @@ class TaxonomicValidationRules
     private function excluded_based_on_3($rec, $DH_rec)
     {
         if($u_higherClassification = $rec['higherClassification']) { //then check for: Ancestry Conflicts
-            if(self::has_Incompatible_ancestors()) { //Incompatible ancestors
+            if($incompatible_pairs = self::has_Incompatible_ancestors($rec, $DH_rec)) { //Incompatible ancestors
                 return true;
             }
             if(self::has_Family_mismatch()) { //Family mismatch
@@ -361,25 +361,52 @@ class TaxonomicValidationRules
         $arr = $func->access_google_sheet($params);
         //start massage array
         foreach($arr as $item) $final[$item[0]][] = $item[1];
-        // print_r($final); exit;
-        return $final;
+        $this->IncompatibleAncestors_1 = $final;
+
+        $final = array();
+        foreach($arr as $item) $final[$item[1]][] = $item[0];
+        $this->IncompatibleAncestors_2 = $final; // print_r($this->IncompatibleAncestors_2); exit("\nditox 4\n");
     }
-    private function has_Incompatible_ancestors()
-    {   /*Array(
+    private function has_Incompatible_ancestors($rec, $DH_rec)
+    {   /*Array( this->IncompatibleAncestors_1  this->IncompatibleAncestors_2
             [Acoela] => Array(
                     [0] => Angiospermae
                     [1] => Angiosperms
-                    [2] => Archaeplastida
-                    [3] => Bryophyta
-                    [4] => Chlorophyta
-                    [5] => Liliopsida
-                    [6] => Magnoliophyta
-                    [7] => Magnoliopsida
-                    [8] => Plantae
-                    [9] => Rhodophyta
-                    [10] => Viridiplantae
+                    ...
                 )
-        */
+        1. Incompatible ancestors
+        a. We will use the IncompatibleAncestors file for this. This file has pairs of incompatible ancestors. 
+            If any of the listed ancestors (in either column) occur in the higherClassification of a taxon, 
+            that taxon cannot be matched with a taxon that has one of the paired ancestors in its higherClassification. 
+            For example, if a taxon has Acoela as one of its ancestors, it cannot be matched with any taxa that have Angiospermae or Angiosperms or Archaeplastida 
+                or Bryophyta or Chlorophyta or Liliopsida or Magnoliophyta or Magnoliopsida or Plantae or Rhodophyta or Viridiplantae in their higherClassification.
+        b. Make sure to only match full taxon names in higherClassification strings, i.e., “Fungi” should only match Fungi not Fungiidae
+        c. If there are incompatible ancestors, add the data for the taxon match to the unmatchedNames file and 
+            add information about the ancestor incompatibility to the quality notes (see below). */
+        $u_hC = $rec['higherClassification'];       $u_ancestors = explode("|", $u_hC); // print_r($u_ancestors); exit;
+        $DH_hC = $DH_rec['higherClassification'];   $DH_ancestors = explode("|", $DH_hC);
+        /* Array(
+            [0] => Plantae
+            [1] => Magnoliopsida
+            [2] => Fabales
+            [3] => Fabaceae
+            [4] => Abrus
+        ) */
+        $incompatible_pairs = array();
+        foreach($u_ancestors as $u_ancestor) {
+            if($incompatibles = @$this->IncompatibleAncestors_1[$u_ancestor]) {
+                foreach($incompatibles as $incompatible) {
+                    if(in_array($incompatible, $DH_ancestors)) $incompatible_pairs[] = array("A", $u_ancestor, $incompatible);
+                }
+            }
+            //===================
+            if($incompatibles = @$this->IncompatibleAncestors_2[$u_ancestor]) {
+                foreach($incompatibles as $incompatible) {
+                    if(in_array($incompatible, $DH_ancestors)) $incompatible_pairs[] = array("B", $u_ancestor, $incompatible);
+                }
+            }
+        } //end foreach()
+        return $incompatible_pairs;
     }
     /*=========================================================================*/ // COPIED TEMPLATE BELOW
     /*=========================================================================*/
