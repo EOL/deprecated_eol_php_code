@@ -141,10 +141,10 @@ class TaxonomicValidationRules
 
                 if(self::excluded_based_on_3($rec, $DH_rec)) { //unmatchedNames based on 3
                     $unmatched = $matched; $matched = array();
-                    self::write_output_rec_2txt($unmatched, "unmatched");
+                    self::write_output_rec_2txt($unmatched, "unmatchedNames");
                 }
                 else {
-                    self::write_output_rec_2txt($matched, "matched");
+                    self::write_output_rec_2txt($matched, "matchedNames");
                 }
             } //end foreach()
         }
@@ -164,7 +164,7 @@ class TaxonomicValidationRules
             $unmatched['higherClassification'] = $rec['higherClassification'];
             $unmatched['DH_higherClassification'] = '';
             $unmatched['quality notes'] = self::generate_quality_notes($rec);    
-            self::write_output_rec_2txt($unmatched, "unmatched");
+            self::write_output_rec_2txt($unmatched, "unmatchedNames");
         }
     }
     private function excluded_based_on_3($rec, $DH_rec)
