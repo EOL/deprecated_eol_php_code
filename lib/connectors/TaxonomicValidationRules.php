@@ -33,15 +33,17 @@ class TaxonomicValidationRules
         if($tsvFileYN) {
             self::parse_user_file($txtfile);
 
-            self::parse_TSV_file($this->DH_file, 'load DH file');
-            exit("\nditox 1\n");
+            // self::parse_TSV_file($this->DH_file, 'load DH file');
+            // exit("\nditox 1\n");
             self::parse_TSV_file($this->temp_dir."processed.txt", 'name match and validate');
             // recursive_rmdir($this->temp_dir);
         }
         exit("\n-stop muna-\n");
     }
     private function parse_TSV_file($txtfile, $task)
-    {   $i = 0; debug("\n[$txtfile]\n");
+    {   
+        if($task == "load DH file") echo "\nLoading DH 2.1 ";
+        $i = 0; debug("\n[$txtfile]\n");
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 1000000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line); // print_r($row);
@@ -60,6 +62,27 @@ class TaxonomicValidationRules
                 // print_r($rec); exit("\nstopx\n");
                 $canonicalName = $rec['canonicalName'];
                 $this->DH_info[$canonicalName][] = $rec;
+                // print_r($this->DH_info); exit("\nditox 3\n");
+                /*Array(
+                    [Life] => Array(
+                            [0] => Array(
+                                    [taxonID] => EOL-000000000001
+                                    [source] => trunk:4038af35-41da-469e-8806-40e60241bb58
+                                    [furtherInformationURL] => 
+                                    [acceptedNameUsageID] => 
+                                    [parentNameUsageID] => 
+                                    [scientificName] => Life
+                                    [taxonRank] => 
+                                    [taxonomicStatus] => accepted
+                                    [datasetID] => trunk
+                                    [canonicalName] => Life
+                                    [authority] => 
+                                    [eolID] => 2913056
+                                    [Landmark] => 3
+                                    [higherClassification] => 
+                                )
+                        )
+                )*/
             }
             //###############################################################################################
             if($task == "name match and validate") {
@@ -68,11 +91,27 @@ class TaxonomicValidationRules
                 $arr['Cha'][0] = array()
                 $arr['Cha'][1] = array()
                 */
+                // print_r($rec); exit("\nditox 2\n");
+                self::name_match_validate($rec);
             }
             //###############################################################################################
-
         } //end foreach()
-        echo "\ntotal: ".count($this->DH_info)."\n"; exit;
+        if($task == "load DH file") {
+            echo "\nLoaded DH 2.1 DONE.";
+            echo "\ntotal: ".count($this->DH_info)."\n"; //exit;
+        }
+    }
+    private function name_match_validate($rec)
+    {   /*Array(
+            [taxonID] => ABPR3_Abrus_precatorius
+            [scientificName] => Abrus precatorius
+            [canonicalName] => Abrus precatorius
+            [scientificNameAuthorship] => 
+            [taxonRank] => species
+            [taxonomicStatus] => accepted
+            [higherClassification] => Plantae|Magnoliopsida|Fabales|Fabaceae|Abrus
+        )*/
+        
     }
     private function parse_user_file($txtfile)
     {   $i = 0; debug("\n[$txtfile]\n");
