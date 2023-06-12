@@ -170,12 +170,11 @@ class TaxonomicValidationRules
     private function excluded_based_on_3($rec, $DH_rec)
     {
         if($u_higherClassification = $rec['higherClassification']) { //then check for: Ancestry Conflicts
-            if($incompatible_pairs = self::has_Incompatible_ancestors($rec, $DH_rec)) { //Incompatible ancestors
-                return true;
-            }
-            if(self::has_Family_mismatch()) { //Family mismatch
-                return true;
-            }
+            $rec = self::has_Incompatible_ancestors($rec, $DH_rec); //Incompatible ancestors
+            // if($rec['addtl']['incompatible_pairs_arr']) return true;
+
+            $rec = self::has_Family_mismatch($rec, $DH_rec); //Family mismatch
+            // if($rec['addtl']['Family_mismatch_YN']) return true;
         }
         if($rec['taxonRank'] && $DH_rec['taxonRank']) { //then check for: Rank Conflicts
             if(self::Fatal_rank_mismatch()) {
@@ -185,7 +184,7 @@ class TaxonomicValidationRules
                 return false;
             }
         }
-        return false;
+        return $rec;
     }
     private function generate_quality_notes($rec)
     {
@@ -406,7 +405,54 @@ class TaxonomicValidationRules
                 }
             }
         } //end foreach()
-        return $incompatible_pairs;
+        $rec['addtl']['incompatible_pairs_arr'] = $incompatible_pairs;
+        if($incompatible_pairs) $rec['addtl']['quality notes'][] = '';
+        return $rec;
+    }
+    private function has_Family_mismatch($rec, $DH_rec)
+    {   /* Family mismatch
+        - For each taxon match, we also want to check if the family placement of matched taxa is congruent. 
+            We can do this only if both taxa have family information. 
+            We can identify family names in ancestor strings by looking for names ending in “idae” or “aceae”.
+        - If both taxa in a match have family names in their ancestor strings and those family names are different, 
+            the data for that taxon match can still go in the matchedNames file if both families have the same ending, 
+            i.e., if both end in “idae” or “aceae”. However, we will want to add information about the family mismatch to the quality notes (see below).
+        - If both taxa in a match have family names in their ancestor strings and those family names are different and 
+            have different endings, add the data for that taxon match to the unmatchedNames file and 
+            add information about the family mismatch to the quality notes (see below).
+        */
+        print_r($rec); print_r($DH_rec); //exit("\nditox 5\n");
+        $u_family  = self::get_family_from_record($rec);
+        $DH_family = self::get_family_from_record($DH_rec);
+        // echo "\n[$u_family] [$DH_family]\n"; exit("\nditox 6\n");
+        $rec['addtl']['Family_mismatch_YN'] = false;
+        if($u_family && $DH_family) {
+            if($u_family != $DH_family) {
+                if(substr($u_family, -4) == "idae" || substr($DH_family, -4) == "idae") { // matchedNames
+                    $rec['addtl']['Family_mismatch_YN'] = false;
+                    $rec['addtl']['quality notes'][] = '';
+                }
+                elseif(substr($u_family, -5) == "aceae" || substr($DH_family, -5) == "aceae") { // matchedNames
+                    $rec['addtl']['Family_mismatch_YN'] = false;
+                    $rec['addtl']['quality notes'][] = '';
+                }
+                else { // unmatchedNames
+                    $rec['addtl']['Family_mismatch_YN'] = true;
+                    $rec['addtl']['quality notes'][] = '';
+                }
+            }
+        }
+        return $rec;
+    }
+    private function get_family_from_record($rek)
+    {
+        if($val = @$rek['family']) return $val;
+        if($pipe_separated = @$rek['higherClassification']) {
+            $parts = explode("|", $pipe_separated);
+            foreach($parts as $part) { // “idae” or “aceae”
+                if(substr($part, -4) == "idae" || substr($part, -5) == "aceae") return $part;
+            }
+        }
     }
     /*=========================================================================*/ // COPIED TEMPLATE BELOW
     /*=========================================================================*/

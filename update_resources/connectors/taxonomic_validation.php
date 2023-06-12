@@ -27,9 +27,13 @@ require_library('connectors/TaxonomicValidationAPI');
 // $timestart = time_elapsed();
 
 /* tests
-$path = "/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/Taxonomic_Validation/1686044073.tar.gz";
-print_r(pathinfo($path));
-echo "\n[".pathinfo($path, PATHINFO_BASENAME)."]\n";
+// $path = "/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/Taxonomic_Validation/1686044073.tar.gz";
+// print_r(pathinfo($path));
+// echo "\n[".pathinfo($path, PATHINFO_BASENAME)."]\n";
+-------------------------------------
+// $str = "abcdefg";
+// echo("\n".substr($str,0,-3)."\n"); //remove ending strings
+// echo("\n".substr($str, -3)."\n"); //capture/get ending strings
 exit("\n-end tests-\n");
 */
 
