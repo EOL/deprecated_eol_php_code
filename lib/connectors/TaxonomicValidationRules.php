@@ -169,6 +169,23 @@ class TaxonomicValidationRules
             $unmatched['quality notes'] = self::generate_quality_notes($rec);    
         }
     }
+    private function excluded_based_on_3($rec, $DH_rec)
+    {
+        if($u_higherClassification = $rec['higherClassification']) { //then check for: Ancestry Conflicts
+            if(self::has_Incompatible_ancestors()) { //Incompatible ancestors
+                return true;
+            }
+            if(self::has_Family_mismatch()) { //Family mismatch
+                return true;
+            }
+        }
+        if($rec['taxonRank'] && $DH_rec['taxonRank']) { //then check for: Rank Conflicts
+
+
+        }
+        return false;
+
+    }
     private function generate_quality_notes($rec)
     {
 
