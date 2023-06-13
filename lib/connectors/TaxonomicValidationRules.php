@@ -120,6 +120,8 @@ class TaxonomicValidationRules
             - higherClassification from user file, if available
             - higherClassification of matched DH taxon
             - quality notes, see below */
+        if($rec['taxonRank']) $rec = self::Cardinality_Test($rec);
+        
         $u_canonicalName = $rec['canonicalName'];
         if($DH_recs = $this->DH_info[$u_canonicalName]) { //matchedNames
             foreach($DH_recs as $DH_rec) {
@@ -181,7 +183,7 @@ class TaxonomicValidationRules
         if($u_higherClassification = $rec['higherClassification']) { //then check for: Ancestry Conflicts
             $rec = self::has_Incompatible_ancestors($rec, $DH_rec); //Incompatible ancestors
             if($rec['addtl']['incompatible_pairs_arr']) {
-                Incompatible ancestors - If there are any incompatible ancestors, add “Incompatible ancestors” and list the incompatible pairs in parentheses.
+                // Incompatible ancestors - If there are any incompatible ancestors, add “Incompatible ancestors” and list the incompatible pairs in parentheses.
 
             }
 
@@ -197,10 +199,68 @@ class TaxonomicValidationRules
             // if($rec['addtl']['Non_fatal_rank_mismatch_YN']) return true;
         }
 
-        print_r($rec); //exit("\nditox 7\n");
+        // print_r($rec); exit("\nditox 7\n");
         return $rec;
     }
+    private function Cardinality_Test($rec)
+    {   /* Cardinality Test
+        If the user file provides taxonRank data, we will check if the names for certain ranks have the expected name structure using a simple cardinality test.
+        We can get the cardinality data for each name from gnparser.
+        Expected cardinalities:
+            family, genus: 1
+            species: 2
+            infraspecies, subspecies, variety, subvariety, form, forma: ≥3 */
+        
+        // /* for calling gnparser
+        $input = array('sciname' => $rec['scientificName']);
+        $json = $this->RoR->retrieve_data($input); //call gnparser
+        $obj = json_decode($json); print_r($obj); exit("\nditox 8\n"); //echo("\n[".$json."]\n");
+        // */
+        
+        $rank = $rec['taxonRank'];
+        if(in_array($rank, array('family', 'genus'))) {
+            if($obj->cardinality != 1) { //fail
+                $rec['addtl']['quality notes'][] = "Check name structure ($rank names should be a uninomials)"; 
+            }
+        }
+        elseif($rank == 'species') {
+            if($obj->cardinality != 2) { //fail
+                $rec['addtl']['quality notes'][] = "Check name structure (species names should be binomials)";
+            }
+        }
+        elseif(in_array($rank, array('infraspecies', 'subspecies', 'variety', 'subvariety', 'form', 'forma'))) {
+            if($obj->cardinality < 3) { //fail
+                $rec['addtl']['quality notes'][] = "Check name structure ($rank names should have at least 3 parts)";
+            }
+        }
 
+        /* Eli's 1st option, not seem quite right
+        if($obj->cardinality == 1) {
+            if(!in_array($rank, array('family', 'genus'))) { // fail
+                $rec['addtl']['quality notes'][] = "Check name structure ((family|genus) names should be a uninomials)";
+            }
+        }
+        elseif($obj->cardinality == 2) {
+            if($rank != 'species') { // fail
+                $rec['addtl']['quality notes'][] = "Check name structure (species names should be binomials)";
+            }
+        }
+        elseif($obj->cardinality >= 3) {
+            if(!in_array($rank, array('infraspecies', 'subspecies', 'variety', 'subvariety', 'form', 'forma'))) { // fail
+                $rec['addtl']['quality notes'][] = "Check name structure ((infraspecies|subspecies|variety|subvariety|form|forma) names should have at least 3 parts)";
+            }
+        }
+        */
+
+        /* Check name structure - If any of the matched or unmatched names from the user file have an unexpected cardinality, 
+           add “Check name structure” and then in parentheses one of the following remarks depending on the rank of the taxon:
+            (family|genus) names should be a uninomials
+            species names should be binomials
+            (infraspecies|subspecies|variety|subvariety|form|forma) names should have at least 3 parts
+        */
+
+        return $rec;
+    }
     private function generate_quality_notes($rec)
     {
     }
@@ -452,7 +512,7 @@ class TaxonomicValidationRules
                 }
                 else { // unmatchedNames
                     $rec['addtl']['Family_mismatch_YN'] = true;
-                    $rec['addtl']['quality notes'][] = '';
+                    $rec['addtl']['quality notes'][] = "Family mismatch ($u_family, $DH_family)";
                 }
             }
         }
@@ -483,24 +543,36 @@ class TaxonomicValidationRules
         $rec['addtl']['Fatal_rank_mismatch_YN'] = false;
         if($u_rank == 'family' && $DH_rank != 'family') { // unmatchedNames
             $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
+            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
         }
         if($u_rank == 'genus' && $DH_rank != 'genus') { // unmatchedNames
             $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
+            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
         }
         if($u_rank == 'species' && $DH_rank != 'species') { // unmatchedNames
             $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
+            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
         }
         //-----------------------------------------
         if($DH_rank == 'family' && $u_rank != 'family') { // unmatchedNames
             $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
+            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
         }
         if($DH_rank == 'genus' && $u_rank != 'genus') { // unmatchedNames
             $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
+            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
         }
         if($DH_rank == 'species' && $u_rank != 'species') { // unmatchedNames
             $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
+            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
         }
-        
+        //-----------------------------------------
+        if($u_rank != $DH_rank) {
+            if(!in_array($u_rank, array('family', 'genus', 'species')) && !in_array($DH_rank, array('family', 'genus', 'species'))) {
+                $rec['addtl']['Non_fatal_rank_mismatch_YN'] = true;
+                $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
+            }            
+        }        
         return $rec;
     }
     private function Non_fatal_rank_mismatch($rec, $DH_rec)
