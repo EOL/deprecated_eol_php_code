@@ -39,6 +39,8 @@ protisten	Fri 2023-02-10 03:05:54 AM	{"agent.tab":1, "media_resource.tab":2366, 
 protisten	Sun 2023-04-09 11:12:58 PM	{"agent.tab":1, "media_resource.tab":2518, "taxon.tab":1276, "time_elapsed":{"sec":4219.06, "min":70.32, "hr":1.17}}
 protisten	Sun 2023-04-16 10:19:49 PM	{"agent.tab":1, "media_resource.tab":2522, "taxon.tab":1276, "time_elapsed":{"sec":4314.24, "min":71.9, "hr":1.2}}
 protisten	Wed 2023-04-19 08:54:29 AM	{"agent.tab":1, "media_resource.tab":2522, "taxon.tab":1276, "time_elapsed":{"sec":76.89, "min":1.28, "hr":0.02}}
+below: 114 images were excluded; doesn't exist remotely
+protisten	Tue 2023-06-13 02:47:02 AM	{"agent.tab":1, "media_resource.tab":2409, "taxon.tab":1277, "time_elapsed":{"sec":1662.78, "min":27.71, "hr":0.46}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
