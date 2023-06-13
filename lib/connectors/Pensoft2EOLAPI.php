@@ -111,6 +111,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $this->new_patterns_4textmined_resources = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/life_history.txt";
         
         $this->to_delete_file = "";
+        $this->debug = array();
     }
     public function initialize_remaps_deletions_adjustments()
     {
@@ -248,6 +249,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         if(isset($this->debug[$index])) {
             echo "\n$index:\n"; print_r($this->debug[$index]);
         }
+        if(isset($this->debug['counts'])) print_r($this->debug['counts']);
     }
     private function run_utility($resource_id)
     {
@@ -1052,7 +1054,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         // echo "\nfile = [$file]\n"; //good debug
         if(is_file($file)) {
             $json = file_get_contents($file); // echo "\nRetrieved OK [$id]";
-            echo "-R-"; //R for retrieved
+            // echo "-R-"; //R for retrieved
+            @$this->debug['counts']['R']++;
             // echo "\nfile: [$file]\n"; // good debug
             return json_decode($json, true);
         }
@@ -1077,7 +1080,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $cmd = 'curl -s GET "'.$uri.'"';
         $cmd .= " 2>&1";
         // sleep(2); //temporary
-        $json = shell_exec($cmd); echo "-C-"; //C for curl 
+        $json = shell_exec($cmd); //echo "-C-"; //C for curl
+        @$this->debug['counts']['C']++;
         // echo "\n$desc\n---------"; // echo "\n$json\n-------------\n"; //exit("\n111\n");
         return $json;
     }
