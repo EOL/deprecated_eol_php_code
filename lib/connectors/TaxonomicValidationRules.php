@@ -177,18 +177,19 @@ class TaxonomicValidationRules
             // if($rec['addtl']['Family_mismatch_YN']) return true;
         }
         if($rec['taxonRank'] && $DH_rec['taxonRank']) { //then check for: Rank Conflicts
-            if(self::Fatal_rank_mismatch()) {
-                return true;
-            }
-            elseif(self::Non_fatal_rank_mismatch()) {
-                return false;
-            }
+            $rec = self::Fatal_rank_mismatch($rec, $DH_rec);
+            // if($rec['addtl']['Fatal_rank_mismatch_YN']) return true;
         }
+        else {
+            $rec = self::Non_fatal_rank_mismatch($rec, $DH_rec);
+            // if($rec['addtl']['Non_fatal_rank_mismatch_YN']) return true;
+        }
+        print_r($rec); exit("\nditox 7\n");
         return $rec;
     }
+
     private function generate_quality_notes($rec)
     {
-
     }
     private function parse_user_file($txtfile)
     {   $i = 0; debug("\n[$txtfile]\n");
@@ -421,7 +422,7 @@ class TaxonomicValidationRules
             have different endings, add the data for that taxon match to the unmatchedNames file and 
             add information about the family mismatch to the quality notes (see below).
         */
-        print_r($rec); print_r($DH_rec); //exit("\nditox 5\n");
+        // print_r($rec); print_r($DH_rec); //exit("\nditox 5\n");
         $u_family  = self::get_family_from_record($rec);
         $DH_family = self::get_family_from_record($DH_rec);
         // echo "\n[$u_family] [$DH_family]\n"; exit("\nditox 6\n");
@@ -453,6 +454,57 @@ class TaxonomicValidationRules
                 if(substr($part, -4) == "idae" || substr($part, -5) == "aceae") return $part;
             }
         }
+    }
+    /*
+    Rank Conflicts
+    If the user file provides taxonRank data and the matched DH taxon also has a taxonRank value, we will check to see if there is a rank conflict. 
+    For some rank conflicts, we will just add a warning to the quality notes (see below), while others will prevent the matching of taxa.
+    */
+    private function Fatal_rank_mismatch($rec, $DH_rec)
+    {   /* Fatal rank mismatch. Add the data for a taxon match to the unmatchedNames file, if both taxa have a taxonRank value and:
+            One taxonRank value is family and the other is any other rank
+            One taxonRank value is genus and the other is any other rank
+            One taxonRank value is species and the other is any other rank */
+        $u_rank = $rec['taxonRank'];
+        $DH_rank = $DH_rec['taxonRank'];
+        $rec['addtl']['Fatal_rank_mismatch_YN'] = false;
+        if($u_rank == 'family' && $DH_rank != 'family') { // unmatchedNames
+            $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
+        }
+        if($u_rank == 'genus' && $DH_rank != 'genus') { // unmatchedNames
+            $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
+        }
+        if($u_rank == 'species' && $DH_rank != 'species') { // unmatchedNames
+            $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
+        }
+        //-----------------------------------------
+        if($DH_rank == 'family' && $u_rank != 'family') { // unmatchedNames
+            $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
+        }
+        if($DH_rank == 'genus' && $u_rank != 'genus') { // unmatchedNames
+            $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
+        }
+        if($DH_rank == 'species' && $u_rank != 'species') { // unmatchedNames
+            $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
+        }
+        
+        return $rec;
+    }
+    private function Non_fatal_rank_mismatch($rec, $DH_rec)
+    {   /* Non-fatal rank mismatch. Add the data for a taxon match to the matchedNames file, if: 
+            - One or both taxa lack a taxonRank value 
+            - The taxonRank values don’t match but neither is family|genus|species */
+
+        $u_rank = $rec['taxonRank'];
+        $DH_rank = $DH_rec['taxonRank'];
+        if(!$u_rank && !$DH_rank) $rec['addtl']['Non_fatal_rank_mismatch_YN'] = true; //matchedNames
+        if($u_rank && !$DH_rank) {
+            if(!in_array($u_rank, array('family', 'genus', 'species'))) $rec['addtl']['Non_fatal_rank_mismatch_YN'] = true; //matchedNames
+        }
+        if(!$u_rank && $DH_rank) {
+            if(!in_array($DH_rank, array('family', 'genus', 'species'))) $rec['addtl']['Non_fatal_rank_mismatch_YN'] = true; //matchedNames
+        }
+        return $rec;
     }
     /*=========================================================================*/ // COPIED TEMPLATE BELOW
     /*=========================================================================*/
