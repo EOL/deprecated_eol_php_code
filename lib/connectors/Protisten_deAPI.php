@@ -40,6 +40,7 @@ class Protisten_deAPI
             // break; //debug - process only 1 batch.
         }
         $this->archive_builder->finalize(true);
+        if(isset($this->debug)) print_r($this->debug);
     }
     private function process_one_batch($filename)
     {   
@@ -275,7 +276,17 @@ class Protisten_deAPI
         $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
         $mr->language               = 'en';
         $mr->format                 = Functions::get_mimetype($rec['image']);
+        $this->debug['mimetype'][$mr->format] = '';
+
         $mr->accessURI              = self::format_accessURI($this->page['image_page_url'].$rec['image']);
+        
+        // /* New: Jun 13,2023
+        if(!self::image_exists_YN($mr->accessURI)) {
+            $this->debug['does not exist'][$mr->accessURI] = ''
+            return;
+        }
+        // */
+        
         $mr->furtherInformationURL  = self::format_furtherInfoURL($rec['source_url'], $mr->accessURI, $mr);
         $mr->Owner                  = "Wolfgang Bettighofer";
         $mr->UsageTerms             = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
@@ -284,6 +295,17 @@ class Protisten_deAPI
             $this->archive_builder->write_object_to_file($mr);
             $this->obj_ids[$mr->identifier] = '';
         }
+    }
+    private function image_exists_YN($image_url)
+    {   // Initialize cURL
+        $ch = curl_init($image_url);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_exec($ch);
+        $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        // Check the response code
+        if($responseCode == 200) return true;  //echo 'File exists';
+        else                     return false; //echo 'File not found';
     }
     private function format_furtherInfoURL($source_url, $accessURI, $mr) //3rd param for debug only
     {
