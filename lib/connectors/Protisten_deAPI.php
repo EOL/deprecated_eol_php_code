@@ -282,7 +282,7 @@ class Protisten_deAPI
         
         // /* New: Jun 13,2023
         if(!self::image_exists_YN($mr->accessURI)) {
-            $this->debug['does not exist'][$mr->accessURI] = ''
+            $this->debug['does not exist'][$mr->accessURI] = '';
             return;
         }
         // */
