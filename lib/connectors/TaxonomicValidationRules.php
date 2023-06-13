@@ -137,9 +137,13 @@ class TaxonomicValidationRules
                 $matched['DH_taxonomicStatus'] = $DH_rec['taxonomicStatus'];
                 $matched['higherClassification'] = $rec['higherClassification'];
                 $matched['DH_higherClassification'] = $DH_rec['higherClassification'];
-                $matched['quality notes'] = self::generate_quality_notes($rec);    
 
-                if(self::excluded_based_on_3($rec, $DH_rec)) { //unmatchedNames based on 3
+                $rec_new = self::excluded_based_on_3($rec, $DH_rec);
+                $matched['quality notes'] = $rec_new['addtl']['quality notes'];
+
+                if($rec_new['addtl']['incompatible_pairs_arr'] || 
+                   $rec_new['addtl']['Family_mismatch_YN'] === true ||
+                   $rec_new['addtl']['Fatal_rank_mismatch_YN'] === true ) { //unmatchedNames based on 3
                     $unmatched = $matched; $matched = array();
                     self::write_output_rec_2txt($unmatched, "unmatchedNames");
                 }
@@ -149,6 +153,7 @@ class TaxonomicValidationRules
             } //end foreach()
         }
         else { //unmatchedNames - blank for DH fields
+            $rec['addtl']['quality notes'][] = 'No match';
             $unmatched = array();
             $unmatched['taxonID'] = $rec['taxonID'];
             $unmatched['DH_eolID'] = '';
@@ -163,7 +168,7 @@ class TaxonomicValidationRules
             $unmatched['DH_taxonomicStatus'] = '';
             $unmatched['higherClassification'] = $rec['higherClassification'];
             $unmatched['DH_higherClassification'] = '';
-            $unmatched['quality notes'] = self::generate_quality_notes($rec);    
+            $unmatched['quality notes'] = $rec['addtl']['quality notes'];
             self::write_output_rec_2txt($unmatched, "unmatchedNames");
         }
     }
@@ -175,7 +180,10 @@ class TaxonomicValidationRules
 
         if($u_higherClassification = $rec['higherClassification']) { //then check for: Ancestry Conflicts
             $rec = self::has_Incompatible_ancestors($rec, $DH_rec); //Incompatible ancestors
-            // if($rec['addtl']['incompatible_pairs_arr']) return true;
+            if($rec['addtl']['incompatible_pairs_arr']) {
+                Incompatible ancestors - If there are any incompatible ancestors, add “Incompatible ancestors” and list the incompatible pairs in parentheses.
+
+            }
 
             $rec = self::has_Family_mismatch($rec, $DH_rec); //Family mismatch
             // if($rec['addtl']['Family_mismatch_YN']) return true;
@@ -189,7 +197,7 @@ class TaxonomicValidationRules
             // if($rec['addtl']['Non_fatal_rank_mismatch_YN']) return true;
         }
 
-        print_r($rec); exit("\nditox 7\n");
+        print_r($rec); //exit("\nditox 7\n");
         return $rec;
     }
 
@@ -412,7 +420,7 @@ class TaxonomicValidationRules
             }
         } //end foreach()
         $rec['addtl']['incompatible_pairs_arr'] = $incompatible_pairs;
-        if($incompatible_pairs) $rec['addtl']['quality notes'][] = '';
+        if($incompatible_pairs) $rec['addtl']['quality notes'][] = 'Incompatible ancestors';
         return $rec;
     }
     private function has_Family_mismatch($rec, $DH_rec)
