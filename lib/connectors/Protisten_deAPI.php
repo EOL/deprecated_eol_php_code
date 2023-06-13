@@ -297,7 +297,8 @@ class Protisten_deAPI
         }
     }
     private function image_exists_YN($image_url)
-    {   // Initialize cURL
+    {   /*
+        // Initialize cURL
         $ch = curl_init($image_url);
         curl_setopt($ch, CURLOPT_NOBODY, true);
         curl_exec($ch);
@@ -306,6 +307,12 @@ class Protisten_deAPI
         // Check the response code
         if($responseCode == 200) return true;  //echo 'File exists';
         else                     return false; //echo 'File not found';
+        */
+        // Open file
+        $handle = @fopen($image_url, 'r');
+        // Check if file exists
+        if(!$handle) return false; //echo 'File not found';
+        else         return true; //echo 'File exists';
     }
     private function format_furtherInfoURL($source_url, $accessURI, $mr) //3rd param for debug only
     {
