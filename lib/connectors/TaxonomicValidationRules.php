@@ -169,6 +169,10 @@ class TaxonomicValidationRules
     }
     private function excluded_based_on_3($rec, $DH_rec)
     {
+        $rec['addtl']['Family_mismatch_YN']         = '-default-';
+        $rec['addtl']['Fatal_rank_mismatch_YN']     = '-default-';
+        $rec['addtl']['Non_fatal_rank_mismatch_YN'] = '-default-';
+
         if($u_higherClassification = $rec['higherClassification']) { //then check for: Ancestry Conflicts
             $rec = self::has_Incompatible_ancestors($rec, $DH_rec); //Incompatible ancestors
             // if($rec['addtl']['incompatible_pairs_arr']) return true;
@@ -184,6 +188,7 @@ class TaxonomicValidationRules
             $rec = self::Non_fatal_rank_mismatch($rec, $DH_rec);
             // if($rec['addtl']['Non_fatal_rank_mismatch_YN']) return true;
         }
+
         print_r($rec); exit("\nditox 7\n");
         return $rec;
     }
