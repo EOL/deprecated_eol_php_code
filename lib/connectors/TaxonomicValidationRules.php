@@ -200,7 +200,6 @@ class TaxonomicValidationRules
 
         if($u_higherClassification = $rec['higherClassification']) { //then check for: Ancestry Conflicts
             $rec = self::has_Incompatible_ancestors($rec, $DH_rec); //Incompatible ancestors
-
             $rec = self::has_Family_mismatch($rec, $DH_rec); //Family mismatch
             // if($rec['addtl']['Family_mismatch_YN']) return true;
         }
@@ -524,6 +523,10 @@ class TaxonomicValidationRules
         } //end foreach()
 
         /* ----- Incompatible ancestors - If there are any incompatible ancestors, add “Incompatible ancestors” and list the incompatible pairs in parentheses. */
+        $incompatible_pairs = array_map('trim', $incompatible_pairs);
+        $incompatible_pairs = array_filter($incompatible_pairs); //remove null arrays
+        $incompatible_pairs = array_unique($incompatible_pairs); //make unique
+        $incompatible_pairs = array_values($incompatible_pairs); //reindex key
         $rec['addtl']['incompatible_pairs_arr'] = $incompatible_pairs;
         if($incompatible_pairs) {
             echo "\nIncompatible pairs: "; print_r($incompatible_pairs); //exit("\n\n");
@@ -554,12 +557,10 @@ class TaxonomicValidationRules
             if($u_family != $DH_family) {
                 if(substr($u_family, -4) == "idae" && substr($DH_family, -4) == "idae") { // matchedNames
                     $rec['addtl']['Family_mismatch_YN'] = false; //set to false so it goes to matchedNames
-                    // $rec['addtl']['Family_mismatch_YN'] = true;
                     $rec['addtl']['quality notes'][] = "Family mismatch, same ending ($u_family, $DH_family)";
                 }
                 elseif(substr($u_family, -5) == "aceae" && substr($DH_family, -5) == "aceae") { // matchedNames
                     $rec['addtl']['Family_mismatch_YN'] = false; //set to false so it goes to matchedNames
-                    // $rec['addtl']['Family_mismatch_YN'] = true;
                     $rec['addtl']['quality notes'][] = "Family mismatch, same ending ($u_family, $DH_family)";
                 }
                 else { // unmatchedNames
@@ -624,7 +625,7 @@ class TaxonomicValidationRules
         if($u_rank != $DH_rank) {
             if(!in_array($u_rank, array('family', 'genus', 'species')) && !in_array($DH_rank, array('family', 'genus', 'species'))) {
                 $rec['addtl']['Non_fatal_rank_mismatch_YN'] = true;
-                $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
+                $rec['addtl']['quality notes'][] = "Different ranks, non-fatal ($u_rank, $DH_rank)";
             }            
         }        
         return $rec;
