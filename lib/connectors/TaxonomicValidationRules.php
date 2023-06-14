@@ -23,6 +23,13 @@ class TaxonomicValidationRules
         // /* 3rd:
         $this->temp_dir = CONTENT_RESOURCE_LOCAL_PATH . '/Taxonomic_Validation/'.$this->resource_id."/";
         if(!is_dir($this->temp_dir)) mkdir($this->temp_dir);
+        $filenames = array('matchedNames', 'processed', 'unmatchedNames');
+        foreach($filenames as $filename) {
+            $filename = $this->temp_dir.$filename.".txt";
+            echo "\n[$filename]\n";
+            $WRITE = Functions::file_open($filename, "w"); fclose($WRITE);
+        }
+        exit("\nditox 11\n");
         // */
         $this->DH_file = CONTENT_RESOURCE_LOCAL_PATH . '/Taxonomic_Validation/dh21eolid/taxon.tab';
         self::get_IncompatibleAncestors(); //get from Google Sheets
@@ -125,12 +132,14 @@ class TaxonomicValidationRules
 
         $u_canonicalName = $rec['canonicalName'];
         // /* Duplicate canonical - add if there is more than 1 name with the same canonical in the user file
-        if($val = $this->user_canonicalNames[$u_canonicalName]) {
-            if($val > 1) $rec['addtl']['quality notes'][] = 'Duplicate canonical';
+        if($u_canonicalName) {
+            if($val = $this->user_canonicalNames[$u_canonicalName]) {
+                if($val > 1) $rec['addtl']['quality notes'][] = 'Duplicate canonical';
+            }    
         }
         // */
 
-        if($DH_recs = $this->DH_info[$u_canonicalName]) { //matchedNames
+        if($DH_recs = @$this->DH_info[$u_canonicalName]) { //matchedNames
             // /* Multiple DH matches - add if there is more than 1 exact canonical match in the DH
             if(count($DH_recs) > 1) $rec['addtl']['quality notes'][] = 'Multiple DH matches';
             // */
@@ -151,9 +160,9 @@ class TaxonomicValidationRules
                 $matched['DH_higherClassification'] = $DH_rec['higherClassification'];
 
                 $rec_new = self::excluded_based_on_3($rec, $DH_rec);
-                $matched['quality notes'] = $rec_new['addtl']['quality notes'];
+                $matched['quality notes'] = @$rec_new['addtl']['quality notes'];
 
-                if($rec_new['addtl']['incompatible_pairs_arr'] || 
+                if(@$rec_new['addtl']['incompatible_pairs_arr'] || 
                    $rec_new['addtl']['Family_mismatch_YN'] === true ||
                    $rec_new['addtl']['Fatal_rank_mismatch_YN'] === true ) { //unmatchedNames based on 3
                     $unmatched = $matched; $matched = array();
@@ -222,7 +231,7 @@ class TaxonomicValidationRules
             infraspecies, subspecies, variety, subvariety, form, forma: ≥3 */
         
         // /* for calling gnparser
-        $rec['scientificName'] = "Gadus morhua xxx jack and the "; //debug only
+        // $rec['scientificName'] = "Gadus morhua xxx jack and the "; //debug only
         $input = array('sciname' => $rec['scientificName']);
         $json = $this->RoR->retrieve_data($input); //call gnparser
         $obj = json_decode($json); print_r($obj); //exit("\nditox 8\n"); //echo("\n[".$json."]\n");
@@ -240,7 +249,7 @@ class TaxonomicValidationRules
             $csv_str = trim($csv_str);
             $csv_str = substr($csv_str,0,-1); //remove ending strings
             $rec['addtl']['quality notes'][] = $csv_str;
-            print_r($rec); exit("\nditox 9\n");
+            // print_r($rec); exit("\nditox 9\n");
         }
         // */
         /* ----- Check name structure - If any of the matched or unmatched names from the user file have an unexpected cardinality, 
@@ -632,11 +641,6 @@ class TaxonomicValidationRules
     }
     /*=========================================================================*/ // COPIED TEMPLATE BELOW
     /*=========================================================================*/
-    // private function initialize_file($sheet_name)
-    // {    
-    //     $filename = $this->resources['path'].$this->resource_id."_invalid_values.txt";
-    //     $WRITE = Functions::file_open($filename, "w"); fclose($WRITE);
-    // }
     private function write_output_rec_2txt($rec, $basename)
     {
         $filename = $this->temp_dir.$basename.".txt";
@@ -645,8 +649,16 @@ class TaxonomicValidationRules
         clearstatcache(); //important for filesize()
         if(filesize($filename) == 0) fwrite($WRITE, implode("\t", $fields) . "\n");
         $save = array();
-        foreach($fields as $fld) $save[] = $rec[$fld];
-        fwrite($WRITE, implode("\t", $save) . "\n");
+        foreach($fields as $fld) {
+            if(is_array($rec[$fld])) { //if value is array()
+                $rec[$fld] = implode(", ", $rec[$fld]); //convert to string
+                $save[] = trim($rec[$fld]);
+            }
+            else $save[] = $rec[$fld];
+        }
+        $tab_separated = (string) implode("\t", $save); 
+        fwrite($WRITE, $tab_separated . "\n");
+        print_r($save); //echo "\n".implode("\t", $save)."\n"; //exit("\nditox 9\n");
         fclose($WRITE);
     }
 }
