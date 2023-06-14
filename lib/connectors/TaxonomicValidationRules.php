@@ -39,6 +39,7 @@ class TaxonomicValidationRules
             self::parse_TSV_file($this->temp_dir."processed.txt", 'name match and validate');
             // recursive_rmdir($this->temp_dir);
         }
+        print_r($this->user_canonicalNames);
         exit("\n-stop muna-\n");
     }
     private function parse_TSV_file($txtfile, $task)
@@ -307,6 +308,13 @@ class TaxonomicValidationRules
             $raw['taxonID']                     = self::build_taxonID($rec);
             $raw['scientificName']              = self::build_scientificName($rec);
             $raw['canonicalName']               = self::build_canonicalName($rec, $obj);
+
+            // /*
+            if($val = $raw['canonicalName']) {
+                @$this->user_canonicalNames[$val]++;
+            }
+            // */
+
             $raw['scientificNameAuthorship']    = self::build_scientificNameAuthorship($rec, $obj);
             $raw['taxonRank']                   = self::build_taxonRank($rec, $obj, $raw['canonicalName']);
             $raw['taxonomicStatus']             = self::build_taxonomicStatus($rec);
