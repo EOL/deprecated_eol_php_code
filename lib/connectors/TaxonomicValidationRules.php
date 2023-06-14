@@ -225,16 +225,25 @@ class TaxonomicValidationRules
         $rec['scientificName'] = "Gadus morhua xxx jack and the "; //debug only
         $input = array('sciname' => $rec['scientificName']);
         $json = $this->RoR->retrieve_data($input); //call gnparser
-        $obj = json_decode($json); print_r($obj); exit("\nditox 8\n"); //echo("\n[".$json."]\n");
+        $obj = json_decode($json); print_r($obj); //exit("\nditox 8\n"); //echo("\n[".$json."]\n");
         // */
-        // /* Unparsed - add if gnparser  "parsed": false
+        // /* ----- Unparsed - add if gnparser  "parsed": false
         if(!$obj->parsed) $rec['addtl']['quality notes'][] = "Unparsed";
         // */
-        // /* If gnparser provides any qualityWarnings, add the value of each warning, separated by commas. 
+        // /* ----- If gnparser provides any qualityWarnings, add the value of each warning, separated by commas. 
         // If the warning is "Unparsed tail", also add the value of “tail” in parentheses.
-        
+        if($warnings = @$obj->qualityWarnings) { $csv_str = "";
+            foreach($warnings as $w) {
+                if($w->warning == "Unparsed tail") $csv_str .= "$w->warning ($obj->tail), ";
+                else                               $csv_str .= "$w->warning, ";
+            }
+            $csv_str = trim($csv_str);
+            $csv_str = substr($csv_str,0,-1); //remove ending strings
+            $rec['addtl']['quality notes'][] = $csv_str;
+            print_r($rec); exit("\nditox 9\n");
+        }
         // */
-        /* Check name structure - If any of the matched or unmatched names from the user file have an unexpected cardinality, 
+        /* ----- Check name structure - If any of the matched or unmatched names from the user file have an unexpected cardinality, 
            add “Check name structure” and then in parentheses one of the following remarks depending on the rank of the taxon:
             (family|genus) names should be a uninomials
             species names should be binomials
