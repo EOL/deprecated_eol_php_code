@@ -33,9 +33,7 @@ class TaxonomicValidationRules
         self::initialize();
         if($tsvFileYN) {
             self::parse_user_file($txtfile);
-
             self::parse_TSV_file($this->DH_file, 'load DH file');
-            // exit("\nditox 1\n");
             self::parse_TSV_file($this->temp_dir."processed.txt", 'name match and validate');
             // recursive_rmdir($this->temp_dir);
         }
@@ -122,9 +120,18 @@ class TaxonomicValidationRules
             - higherClassification of matched DH taxon
             - quality notes, see below */
         if($rec['taxonRank']) $rec = self::Cardinality_Test($rec);
-        
+
         $u_canonicalName = $rec['canonicalName'];
+        // /* Duplicate canonical - add if there is more than 1 name with the same canonical in the user file
+        if($val = $this->user_canonicalNames[$u_canonicalName]) {
+            if($val > 1) $rec['addtl']['quality notes'][] = 'Duplicate canonical';
+        }
+        // */
+
         if($DH_recs = $this->DH_info[$u_canonicalName]) { //matchedNames
+            // /* Multiple DH matches - add if there is more than 1 exact canonical match in the DH
+            if(count($DH_recs) > 1) $rec['addtl']['quality notes'][] = 'Multiple DH matches';
+            // */
             foreach($DH_recs as $DH_rec) {
                 $matched = array();
                 $matched['taxonID'] = $rec['taxonID'];
