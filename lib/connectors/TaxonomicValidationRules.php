@@ -553,13 +553,13 @@ class TaxonomicValidationRules
         if($u_family && $DH_family) {
             if($u_family != $DH_family) {
                 if(substr($u_family, -4) == "idae" && substr($DH_family, -4) == "idae") { // matchedNames
-                    // $rec['addtl']['Family_mismatch_YN'] = false;
-                    $rec['addtl']['Family_mismatch_YN'] = true;
+                    $rec['addtl']['Family_mismatch_YN'] = false; //set to false so it goes to matchedNames
+                    // $rec['addtl']['Family_mismatch_YN'] = true;
                     $rec['addtl']['quality notes'][] = "Family mismatch, same ending ($u_family, $DH_family)";
                 }
                 elseif(substr($u_family, -5) == "aceae" && substr($DH_family, -5) == "aceae") { // matchedNames
-                    // $rec['addtl']['Family_mismatch_YN'] = false;
-                    $rec['addtl']['Family_mismatch_YN'] = true;
+                    $rec['addtl']['Family_mismatch_YN'] = false; //set to false so it goes to matchedNames
+                    // $rec['addtl']['Family_mismatch_YN'] = true;
                     $rec['addtl']['quality notes'][] = "Family mismatch, same ending ($u_family, $DH_family)";
                 }
                 else { // unmatchedNames
@@ -597,28 +597,28 @@ class TaxonomicValidationRules
         $rec['addtl']['Fatal_rank_mismatch_YN'] = false;
         if($u_rank == 'family' && $DH_rank != 'family') { // unmatchedNames
             $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
-            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
+            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)"; return $rec;
         }
         if($u_rank == 'genus' && $DH_rank != 'genus') { // unmatchedNames
             $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
-            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
+            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)"; return $rec;
         }
         if($u_rank == 'species' && $DH_rank != 'species') { // unmatchedNames
             $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
-            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
+            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)"; return $rec;
         }
         //-----------------------------------------
         if($DH_rank == 'family' && $u_rank != 'family') { // unmatchedNames
             $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
-            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
+            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)"; return $rec;
         }
         if($DH_rank == 'genus' && $u_rank != 'genus') { // unmatchedNames
             $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
-            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
+            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)"; return $rec;
         }
         if($DH_rank == 'species' && $u_rank != 'species') { // unmatchedNames
             $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
-            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
+            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)"; return $rec;
         }
         //-----------------------------------------
         if($u_rank != $DH_rank) {
@@ -633,16 +633,26 @@ class TaxonomicValidationRules
     {   /* Non-fatal rank mismatch. Add the data for a taxon match to the matchedNames file, if: 
             - One or both taxa lack a taxonRank value 
             - The taxonRank values don’t match but neither is family|genus|species */
-
         $u_rank = $rec['taxonRank'];
         $DH_rank = $DH_rec['taxonRank'];
-        if(!$u_rank && !$DH_rank) $rec['addtl']['Non_fatal_rank_mismatch_YN'] = true; //matchedNames
+        if(!$u_rank && !$DH_rank) {
+            $rec['addtl']['Non_fatal_rank_mismatch_YN'] = true; //matchedNames
+        }
         if($u_rank && !$DH_rank) {
-            if(!in_array($u_rank, array('family', 'genus', 'species'))) $rec['addtl']['Non_fatal_rank_mismatch_YN'] = true; //matchedNames
+            $rec['addtl']['Non_fatal_rank_mismatch_YN'] = true; //matchedNames
+            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
         }
         if(!$u_rank && $DH_rank) {
-            if(!in_array($DH_rank, array('family', 'genus', 'species'))) $rec['addtl']['Non_fatal_rank_mismatch_YN'] = true; //matchedNames
+            $rec['addtl']['Non_fatal_rank_mismatch_YN'] = true; //matchedNames
+            $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
         }
+        //-----------------------------------------
+        if($u_rank != $DH_rank) {
+            if(!in_array($u_rank, array('family', 'genus', 'species')) && !in_array($DH_rank, array('family', 'genus', 'species'))) {
+                $rec['addtl']['Non_fatal_rank_mismatch_YN'] = true;
+                $rec['addtl']['quality notes'][] = "Different ranks ($u_rank, $DH_rank)";
+            }            
+        }        
         return $rec;
     }
     /*=========================================================================*/ // COPIED TEMPLATE BELOW
