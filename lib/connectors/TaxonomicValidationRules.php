@@ -229,7 +229,7 @@ class TaxonomicValidationRules
         // $rec['scientificName'] = "Gadus morhua xxx jack and the "; //debug only
         $input = array('sciname' => $rec['scientificName']);
         $json = $this->RoR->retrieve_data($input); //call gnparser
-        $obj = json_decode($json); print_r($obj); //exit("\nditox 8\n"); //echo("\n[".$json."]\n");
+        $obj = json_decode($json); //print_r($obj); //exit("\nditox 8\n"); //echo("\n[".$json."]\n");
         // */
         // /* ----- Unparsed - add if gnparser  "parsed": false
         if(!$obj->parsed) $rec['addtl']['quality notes'][] = "Unparsed";
@@ -343,13 +343,11 @@ class TaxonomicValidationRules
             $raw['taxonID']                     = self::build_taxonID($rec);
             $raw['scientificName']              = self::build_scientificName($rec);
             $raw['canonicalName']               = self::build_canonicalName($rec, $obj);
-
             // /*
             if($val = $raw['canonicalName']) {
                 @$this->user_canonicalNames[$val]++;
             }
             // */
-
             $raw['scientificNameAuthorship']    = self::build_scientificNameAuthorship($rec, $obj);
             $raw['taxonRank']                   = self::build_taxonRank($rec, $obj, $raw['canonicalName']);
             $raw['taxonomicStatus']             = self::build_taxonomicStatus($rec);
