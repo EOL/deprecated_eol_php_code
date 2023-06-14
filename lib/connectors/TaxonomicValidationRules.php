@@ -101,6 +101,8 @@ class TaxonomicValidationRules
             [canonicalName] => Abrus precatorius
             [scientificNameAuthorship] => 
             [taxonRank] => species
+            OR
+            [taxonRank] => species (inferred)
             [taxonomicStatus] => accepted
             [higherClassification] => Plantae|Magnoliopsida|Fabales|Fabaceae|Abrus
         )
@@ -220,12 +222,32 @@ class TaxonomicValidationRules
             infraspecies, subspecies, variety, subvariety, form, forma: ≥3 */
         
         // /* for calling gnparser
+        $rec['scientificName'] = "Gadus morhua xxx jack and the "; //debug only
         $input = array('sciname' => $rec['scientificName']);
         $json = $this->RoR->retrieve_data($input); //call gnparser
         $obj = json_decode($json); print_r($obj); exit("\nditox 8\n"); //echo("\n[".$json."]\n");
         // */
+        // /* Unparsed - add if gnparser  "parsed": false
+        if(!$obj->parsed) $rec['addtl']['quality notes'][] = "Unparsed";
+        // */
+        // /* If gnparser provides any qualityWarnings, add the value of each warning, separated by commas. 
+        // If the warning is "Unparsed tail", also add the value of “tail” in parentheses.
         
+        // */
+        /* Check name structure - If any of the matched or unmatched names from the user file have an unexpected cardinality, 
+           add “Check name structure” and then in parentheses one of the following remarks depending on the rank of the taxon:
+            (family|genus) names should be a uninomials
+            species names should be binomials
+            (infraspecies|subspecies|variety|subvariety|form|forma) names should have at least 3 parts
+        */
         $rank = $rec['taxonRank'];
+        // /* Rank inferred - add if the rank is inferred
+        if(stripos($rank, " (inferred)") !== false) { //found string
+            $rec['addtl']['quality notes'][] = "Rank inferred";
+            $rank = str_replace(" (inferred)", "", $rank);
+            $rec['taxonRank'] = $rank; //remove " (inferred)" substring
+        }
+        // */
         if(in_array($rank, array('family', 'genus'))) {
             if($obj->cardinality != 1) { //fail
                 $rec['addtl']['quality notes'][] = "Check name structure ($rank names should be a uninomials)"; 
@@ -258,13 +280,6 @@ class TaxonomicValidationRules
                 $rec['addtl']['quality notes'][] = "Check name structure ((infraspecies|subspecies|variety|subvariety|form|forma) names should have at least 3 parts)";
             }
         }
-        */
-
-        /* Check name structure - If any of the matched or unmatched names from the user file have an unexpected cardinality, 
-           add “Check name structure” and then in parentheses one of the following remarks depending on the rank of the taxon:
-            (family|genus) names should be a uninomials
-            species names should be binomials
-            (infraspecies|subspecies|variety|subvariety|form|forma) names should have at least 3 parts
         */
 
         return $rec;
@@ -361,11 +376,11 @@ class TaxonomicValidationRules
         Whenever a rank is inferred, we’ll want to add a flag to the quality notes in the report (see below). */
         if($val = @$rec['taxonRank']) return $val;
         else {
-            if($obj->cardinality == 2) return 'species';
-            if($obj->cardinality >= 3) return 'infraspecies';
+            if($obj->cardinality == 2) return 'species (inferred)';
+            if($obj->cardinality >= 3) return 'infraspecies (inferred)';
             if($obj->cardinality == 1) {
-                if(substr($canonicalName, -4) == "idae")  return 'family';
-                if(substr($canonicalName, -5) == "aceae") return 'family';
+                if(substr($canonicalName, -4) == "idae")  return 'family (inferred)';
+                if(substr($canonicalName, -5) == "aceae") return 'family (inferred)';
             }
         }
     }
