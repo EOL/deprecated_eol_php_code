@@ -29,7 +29,6 @@ class TaxonomicValidationRules
             echo "\n[$filename]\n";
             $WRITE = Functions::file_open($filename, "w"); fclose($WRITE);
         }
-        exit("\nditox 11\n");
         // */
         $this->DH_file = CONTENT_RESOURCE_LOCAL_PATH . '/Taxonomic_Validation/dh21eolid/taxon.tab';
         self::get_IncompatibleAncestors(); //get from Google Sheets
@@ -131,7 +130,7 @@ class TaxonomicValidationRules
         if($rec['taxonRank']) $rec = self::Cardinality_Test($rec);
 
         $u_canonicalName = $rec['canonicalName'];
-        // /* Duplicate canonical - add if there is more than 1 name with the same canonical in the user file
+        // /* ----- Duplicate canonical - add if there is more than 1 name with the same canonical in the user file
         if($u_canonicalName) {
             if($val = $this->user_canonicalNames[$u_canonicalName]) {
                 if($val > 1) $rec['addtl']['quality notes'][] = 'Duplicate canonical';
@@ -140,7 +139,7 @@ class TaxonomicValidationRules
         // */
 
         if($DH_recs = @$this->DH_info[$u_canonicalName]) { //matchedNames
-            // /* Multiple DH matches - add if there is more than 1 exact canonical match in the DH
+            // /* ----- Multiple DH matches - add if there is more than 1 exact canonical match in the DH
             if(count($DH_recs) > 1) $rec['addtl']['quality notes'][] = 'Multiple DH matches';
             // */
             foreach($DH_recs as $DH_rec) {
@@ -201,10 +200,6 @@ class TaxonomicValidationRules
 
         if($u_higherClassification = $rec['higherClassification']) { //then check for: Ancestry Conflicts
             $rec = self::has_Incompatible_ancestors($rec, $DH_rec); //Incompatible ancestors
-            if($rec['addtl']['incompatible_pairs_arr']) {
-                // Incompatible ancestors - If there are any incompatible ancestors, add “Incompatible ancestors” and list the incompatible pairs in parentheses.
-
-            }
 
             $rec = self::has_Family_mismatch($rec, $DH_rec); //Family mismatch
             // if($rec['addtl']['Family_mismatch_YN']) return true;
@@ -527,8 +522,15 @@ class TaxonomicValidationRules
                 }
             }
         } //end foreach()
+
+        /* ----- Incompatible ancestors - If there are any incompatible ancestors, add “Incompatible ancestors” and list the incompatible pairs in parentheses. */
         $rec['addtl']['incompatible_pairs_arr'] = $incompatible_pairs;
-        if($incompatible_pairs) $rec['addtl']['quality notes'][] = 'Incompatible ancestors';
+        if($incompatible_pairs) {
+            echo "\nIncompatible pairs: "; print_r($incompatible_pairs); //exit("\n\n");
+            $csv_str = "";
+            foreach($incompatible_pairs as $pair) $csv_str .= "[".implode(",", $pair)."] ";
+            $rec['addtl']['quality notes'][] = "Incompatible ancestors (".trim($csv_str).")";
+        }
         return $rec;
     }
     private function has_Family_mismatch($rec, $DH_rec)
@@ -550,21 +552,25 @@ class TaxonomicValidationRules
         $rec['addtl']['Family_mismatch_YN'] = false;
         if($u_family && $DH_family) {
             if($u_family != $DH_family) {
-                if(substr($u_family, -4) == "idae" || substr($DH_family, -4) == "idae") { // matchedNames
-                    $rec['addtl']['Family_mismatch_YN'] = false;
-                    $rec['addtl']['quality notes'][] = '';
+                if(substr($u_family, -4) == "idae" && substr($DH_family, -4) == "idae") { // matchedNames
+                    // $rec['addtl']['Family_mismatch_YN'] = false;
+                    $rec['addtl']['Family_mismatch_YN'] = true;
+                    $rec['addtl']['quality notes'][] = "Family mismatch, same ending ($u_family, $DH_family)";
                 }
-                elseif(substr($u_family, -5) == "aceae" || substr($DH_family, -5) == "aceae") { // matchedNames
-                    $rec['addtl']['Family_mismatch_YN'] = false;
-                    $rec['addtl']['quality notes'][] = '';
+                elseif(substr($u_family, -5) == "aceae" && substr($DH_family, -5) == "aceae") { // matchedNames
+                    // $rec['addtl']['Family_mismatch_YN'] = false;
+                    $rec['addtl']['Family_mismatch_YN'] = true;
+                    $rec['addtl']['quality notes'][] = "Family mismatch, same ending ($u_family, $DH_family)";
                 }
                 else { // unmatchedNames
                     $rec['addtl']['Family_mismatch_YN'] = true;
-                    $rec['addtl']['quality notes'][] = "Family mismatch ($u_family, $DH_family)";
+                    $rec['addtl']['quality notes'][] = "Family mismatch, diff. ending ($u_family, $DH_family)";
                 }
             }
         }
         return $rec;
+        /* ----- Family mismatch -  If both taxa have families in their higherClassification and there is a family mismatch, 
+        add “Family mismatch” and list the families in parentheses. */
     }
     private function get_family_from_record($rek)
     {
