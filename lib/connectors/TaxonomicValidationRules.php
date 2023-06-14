@@ -357,7 +357,7 @@ class TaxonomicValidationRules
             echo "\nPROCESSED REC:"; print_r($raw);
             self::write_output_rec_2txt($raw, "processed");
             // break; //debug only
-            if($i >= 5) break; //debug only
+            // if($i >= 5) break; //debug only
         } //end foreach()
     }
     private function build_higherClassification($rec)
@@ -367,6 +367,7 @@ class TaxonomicValidationRules
         if($val = @$rec['higherClassification']) return $val;
         else {
             if(isset($rec['parentNameUsageID'])) return self::get_higherClassification($rec); //1st option
+            // /* 2nd option
             $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'subfamily', 'genus', 'subgenus');
             foreach($ranks as $rank) {
                 if(isset($rec[$rank])) {
@@ -374,6 +375,7 @@ class TaxonomicValidationRules
                     break;
                 }
             }
+            // */
         }
     }
     private function build_taxonomicStatus($rec)
