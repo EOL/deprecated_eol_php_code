@@ -724,6 +724,41 @@ class TaxonomicValidationRules
         $this->summary_report['Number of names with multiple matches'] = self::get_names_with_multiple_matches(); // user file taxon matches with DH taxon
         print_r($this->summary_report); //exit("\nditox 20\n");
     }
+    private function get_names_with_multiple_matches()
+    {   
+        // if($u_canonicalName) {
+        //     if($val = $this->user_canonicalNames[$u_canonicalName]) {
+        //         if($val > 1) $rec['addtl']['quality notes'][] = 'Duplicate canonical';
+        //     }    
+        // }
+
+        $final = array(); $grand_total = 0;
+        $user_canonicals = array_keys($this->user_canonicalNames);
+        foreach($user_canonicals as $u_canonicalName) {
+            if($DH_recs = @$this->DH_info[$u_canonicalName]) { //matchedNames
+                // /* ----- Multiple DH matches - add if there is more than 1 exact canonical match in the DH
+                // if(count($DH_recs) > 1) $final[$u_canonicalName] = $DH_recs; //good
+                $total_DH_recs = count($DH_recs);
+                if($total_DH_recs > 1) {
+                    $final[$u_canonicalName] = $total_DH_recs; //good
+                    $grand_total += ($total_DH_recs - 1);
+                }
+
+                // */
+            }
+        }
+        echo "\ngrand_total: [$grand_total]\n";
+        return $final;
+
+        
+        /* wrong
+        $final = array();
+        foreach($this->DH_info as $canonicalName => $duplicates) {
+            if(count($duplicates) > 1) $final[$canonicalName] = $duplicates;
+        }
+        return $final;
+        */
+    }
     private function get_canonical_duplicates()
     {   $final = array();
         /* works for totals only
@@ -733,7 +768,6 @@ class TaxonomicValidationRules
         foreach($this->user_canonicalNames as $sciname => $duplicates) {
             if(count($duplicates) > 1) $final[$sciname] = $duplicates;
         }
-
         return $final;
     }
     private function get_root_from_HC($higherClassification)
