@@ -2,9 +2,9 @@
 namespace php_active_record;
 /*
 /extra/gnparser/gnparser/bin/gnparser -V
-version: v1.6.3
-+ /extra/gnparser/gnparser172/gnparser -V
-version: v1.7.2
+    version: v1.6.3
+/extra/gnparser/gnparser172/gnparser -V
+    version: v1.7.2
 */
 class TaxonomicValidationRules
 {
