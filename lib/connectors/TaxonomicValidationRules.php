@@ -47,7 +47,7 @@ class TaxonomicValidationRules
             self::parse_TSV_file($this->temp_dir."processed.txt", 'name match and validate');
             // recursive_rmdir($this->temp_dir);
         }
-        print_r($this->user_canonicalNames);
+        // print_r($this->user_canonicalNames); //good debug though
         exit("\n-stop muna-\n");
     }
     private function parse_TSV_file($txtfile, $task)
@@ -318,6 +318,7 @@ class TaxonomicValidationRules
                 foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
             }
             $rec = array_map('trim', $rec);
+            if(!$rec['scientificName']) continue;
             echo "\nRAW REC:"; print_r($rec); //exit("\nstopx\n");
             /*Array(
                 [taxonID] => Archaea
