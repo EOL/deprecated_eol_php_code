@@ -353,13 +353,16 @@ class TaxonomicValidationRules
             $raw['canonicalName']               = self::build_canonicalName($rec, $obj);
             // /*
             if($val = $raw['canonicalName']) {
-                @$this->user_canonicalNames[$val]++;
+                // @$this->user_canonicalNames[$val]++; //good for computing totals only
+                @$this->user_canonicalNames[$val][] = array("taxonID" => $raw['taxonID'], "scientificName" => $raw['scientificName']);
             }
             // */
             $raw['scientificNameAuthorship']    = self::build_scientificNameAuthorship($rec, $obj);
             $raw['taxonRank']                   = self::build_taxonRank($rec, $obj, $raw['canonicalName']);
-            @$this->summary_report['ranks'][$raw['taxonRank']]++;
+            @$this->summary_report['Taxon ranks'][$raw['taxonRank']]++;
             $raw['taxonomicStatus']             = self::build_taxonomicStatus($rec);
+            @$this->summary_report['Taxonomic status'][$raw['taxonomicStatus']]++;
+
             $raw['higherClassification']        = self::build_higherClassification($rec);
             if($val = $raw['higherClassification']) {
                 $root = self::get_root_from_HC($val);
@@ -714,9 +717,20 @@ class TaxonomicValidationRules
         9. Number of unmatched name
         */
         $this->summary_report['Number of taxa 2'] = self::total_rows_on_file($this->summary_report['info']['user file']);
+        $this->summary_report['No. of canonical duplicates'] = self::get_canonical_duplicates();
+        print_r($this->summary_report); //exit("\nditox 20\n");
+    }
+    private function get_canonical_duplicates()
+    {   $final = array();
+        /* works for totals only
+        foreach($this->user_canonicalNames as $sciname => $totals) {
+            if($totals > 1) $final[$sciname] = $totals;
+        } */
+        foreach($this->user_canonicalNames as $sciname => $duplicates) {
+            if(count($duplicates) > 1) $final[$sciname] = $duplicates;
+        }
 
-
-        print_r($this->summary_report); exit("\nditox 20\n");
+        return $final;
     }
     private function get_root_from_HC($higherClassification)
     {
@@ -729,6 +743,5 @@ class TaxonomicValidationRules
         $total = trim($total);
         return $total;
     }
-
 }
 ?>
