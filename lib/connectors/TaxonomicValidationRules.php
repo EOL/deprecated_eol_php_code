@@ -661,8 +661,6 @@ class TaxonomicValidationRules
         }        
         return $rec;
     }
-    /*=========================================================================*/ // COPIED TEMPLATE BELOW
-    /*=========================================================================*/
     private function write_output_rec_2txt($rec, $basename)
     {
         $filename = $this->temp_dir.$basename.".txt";
@@ -680,7 +678,7 @@ class TaxonomicValidationRules
         }
         $tab_separated = (string) implode("\t", $save); 
         fwrite($WRITE, $tab_separated . "\n");
-        print_r($save); //echo "\n".implode("\t", $save)."\n"; //exit("\nditox 9\n");
+        echo "\nSaved to [$basename]: "; print_r($save); //echo "\n".implode("\t", $save)."\n"; //exit("\nditox 9\n");
         fclose($WRITE);
     }
 }
