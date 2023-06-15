@@ -172,9 +172,11 @@ class TaxonomicValidationRules
                    $rec_new['addtl']['Fatal_rank_mismatch_YN'] === true ) { //unmatchedNames based on 3
                     $unmatched = $matched; $matched = array();
                     self::write_output_rec_2txt($unmatched, "unmatchedNames");
+                    @$this->summary_report['totals'][unmatchedNames]++;
                 }
                 else {
                     self::write_output_rec_2txt($matched, "matchedNames");
+                    @$this->summary_report['totals'][matchedNames]++;
                 }
             } //end foreach()
         }
@@ -196,6 +198,7 @@ class TaxonomicValidationRules
             $unmatched['DH_higherClassification'] = '';
             $unmatched['quality notes'] = $rec['addtl']['quality notes'];
             self::write_output_rec_2txt($unmatched, "unmatchedNames");
+            @$this->summary_report['totals'][unmatchedNames]++;
         }
     }
     private function excluded_based_on_3($rec, $DH_rec)
@@ -718,6 +721,7 @@ class TaxonomicValidationRules
         */
         $this->summary_report['Number of taxa 2'] = self::total_rows_on_file($this->summary_report['info']['user file']);
         $this->summary_report['No. of canonical duplicates'] = self::get_canonical_duplicates();
+        $this->summary_report['Number of names with multiple matches'] = self::get_names_with_multiple_matches(); // user file taxon matches with DH taxon
         print_r($this->summary_report); //exit("\nditox 20\n");
     }
     private function get_canonical_duplicates()
