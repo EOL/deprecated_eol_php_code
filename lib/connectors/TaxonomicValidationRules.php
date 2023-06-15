@@ -39,12 +39,14 @@ class TaxonomicValidationRules
     }
     function process_user_file($txtfile, $tsvFileYN = true)
     {
+        $this->summary_report['info']['user file'] = $txtfile;
         // echo "\n[".$txtfile."] [$this->resource_id]\n"; exit;
         self::initialize();
         if($tsvFileYN) {
             self::parse_user_file($txtfile);
             self::parse_TSV_file($this->DH_file, 'load DH file');
             self::parse_TSV_file($this->temp_dir."processed.txt", 'name match and validate');
+            self::summary_report();
             // recursive_rmdir($this->temp_dir);
         }
         // print_r($this->user_canonicalNames); //good debug though
@@ -319,6 +321,7 @@ class TaxonomicValidationRules
             }
             $rec = array_map('trim', $rec);
             if(!$rec['scientificName']) continue;
+            @$this->summary_report['Number of taxa']++;
             echo "\nRAW REC:"; print_r($rec); //exit("\nstopx\n");
             /*Array(
                 [taxonID] => Archaea
@@ -681,5 +684,39 @@ class TaxonomicValidationRules
         echo "\nSaved to [$basename]: "; print_r($save); //echo "\n".implode("\t", $save)."\n"; //exit("\nditox 9\n");
         fclose($WRITE);
     }
+    ///============================================== START Summary Report
+    private function summary_report()
+    {   /* File statistics:
+        1. Number of taxa - rows in the taxon file.
+        2. List of fields and their DwC-A mappings - e.g.:
+            col1: http://rs.tdwg.org/dwc/terms/taxonID
+            col2: http://rs.tdwg.org/dwc/terms/scientificName
+            col3: http://rs.tdwg.org/dwc/terms/parentNameUsageID
+            col4: http://rs.tdwg.org/dwc/terms/taxonRank
+            col5: unmapped
+        3. Number of roots - if there is hierarchy information
+        4. Taxon ranks - a breakdown of taxon ranks and the number of taxa that have those ranks (including inferred ranks), e.g.:
+            species: 11,000 taxa
+            genus: 900 taxa
+            no rank value: 700 taxa
+            family: 40 taxa
+            subspecies: 20 taxa
+        5. Taxonomic status - a breakdown of the taxonomicStatus values in the file and the number of taxa that have those values
+        6. Number of canonical duplicates - with a list of those duplicates
+        7. Number of matched names
+        8. Number of names with multiple matches
+        9. Number of unmatched name
+        */
+        $this->summary_report['Number of taxa 2'] = self::total_rows_on_file($this->summary_report['info']['user file']);
+        print_r($this->summary_report); exit("\nditox 20\n");
+
+    }
+    private function total_rows_on_file($file)
+    {
+        $total = shell_exec("wc -l < ".escapeshellarg($file));
+        $total = trim($total);
+        return $total;
+    }
+
 }
 ?>
