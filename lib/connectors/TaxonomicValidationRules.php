@@ -313,6 +313,7 @@ class TaxonomicValidationRules
             if($i == 1) {
                 $fields = $row;
                 $fields = array_filter($fields); //print_r($fields);
+                $this->summary_report['List of fields'] = $fields;
                 continue;
             }
             else {
@@ -357,8 +358,13 @@ class TaxonomicValidationRules
             // */
             $raw['scientificNameAuthorship']    = self::build_scientificNameAuthorship($rec, $obj);
             $raw['taxonRank']                   = self::build_taxonRank($rec, $obj, $raw['canonicalName']);
+            @$this->summary_report['ranks'][$raw['taxonRank']]++;
             $raw['taxonomicStatus']             = self::build_taxonomicStatus($rec);
             $raw['higherClassification']        = self::build_higherClassification($rec);
+            if($val = $raw['higherClassification']) {
+                $root = self::get_root_from_HC($val);
+                $this->summary_report['user file roots'][$root] = '';
+            }
             echo "\nPROCESSED REC:"; print_r($raw);
             self::write_output_rec_2txt($raw, "processed");
             // break; //debug only
@@ -708,8 +714,14 @@ class TaxonomicValidationRules
         9. Number of unmatched name
         */
         $this->summary_report['Number of taxa 2'] = self::total_rows_on_file($this->summary_report['info']['user file']);
-        print_r($this->summary_report); exit("\nditox 20\n");
 
+
+        print_r($this->summary_report); exit("\nditox 20\n");
+    }
+    private function get_root_from_HC($higherClassification)
+    {
+        $ancestors = explode("|", $higherClassification);
+        return $ancestors[0];
     }
     private function total_rows_on_file($file)
     {
