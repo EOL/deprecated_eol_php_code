@@ -723,6 +723,23 @@ class TaxonomicValidationRules
         $this->summary_report['No. of canonical duplicates'] = self::get_canonical_duplicates();
         $this->summary_report['Number of names with multiple matches'] = self::get_names_with_multiple_matches(); // user file taxon matches with DH taxon
         print_r($this->summary_report); //exit("\nditox 20\n");
+        // /* reconcile 
+        if($names = $this->summary_report['Number of names with multiple matches']) {
+            $sum = 0;
+            foreach($names as $name => $total) $sum += ($total - 1);
+        }
+        $totals = $this->summary_report['totals']['matchedNames'] + $this->summary_report['totals']['unmatchedNames'];
+        $diff = $totals - $sum;
+        echo "\nDiff: [$diff] | ".$this->summary_report['Number of taxa']."\n";
+        // */
+        // /* reconcile 2
+        $arrays = array($this->summary_report['Taxon ranks'], $this->summary_report['Taxonomic status']);
+        foreach($arrays as $array) {
+            $sum = 0;
+            foreach($array as $item => $total) $sum += $total;
+            echo "\nShould be equal: [$sum] | ".$this->summary_report['Number of taxa']."\n";
+        }
+        // */
     }
     private function get_names_with_multiple_matches()
     {   
