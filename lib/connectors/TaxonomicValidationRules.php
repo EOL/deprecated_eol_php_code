@@ -57,6 +57,7 @@ class TaxonomicValidationRules
         if($task == "load DH file") echo "\nLoading DH 2.1 ";
         $i = 0; debug("\n[$txtfile]\n");
         foreach(new FileIterator($txtfile) as $line_number => $line) {
+            if(!$line) continue;
             $i++; if(($i % 1000000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line); // print_r($row);
             if($i == 1) {
@@ -284,7 +285,6 @@ class TaxonomicValidationRules
                 $rec['addtl']['quality notes'][] = "Check name structure ($rank names should have at least 3 parts)";
             }
         }
-
         /* Eli's 1st option, not seem quite right
         if($obj->cardinality == 1) {
             if(!in_array($rank, array('family', 'genus'))) { // fail
@@ -302,7 +302,6 @@ class TaxonomicValidationRules
             }
         }
         */
-
         return $rec;
     }
     private function generate_quality_notes($rec)
@@ -311,6 +310,7 @@ class TaxonomicValidationRules
     private function parse_user_file($txtfile)
     {   $i = 0; debug("\n[$txtfile]\n");
         foreach(new FileIterator($txtfile) as $line_number => $line) {
+            if(!$line) continue;
             $i++; if(($i % 100) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line); // print_r($row);
             if($i == 1) {
