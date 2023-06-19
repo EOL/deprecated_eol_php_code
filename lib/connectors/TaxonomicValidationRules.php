@@ -58,9 +58,8 @@ class TaxonomicValidationRules
     private function parse_TSV_file($txtfile, $task)
     {   
         if($task == "load DH file") echo "\nLoading DH 2.1 ";
-        if($task == "name match and validate") echo "\nStart: Name Match and Validate ";
-
-        $i = 0; debug("\n[$txtfile]\n");
+        if($task == "name match and validate") echo "\nName Match and Validate ";
+        $i = 0; debug("\nProcessing: [$txtfile]\n");
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             if(!$line) continue;
             $i++; if(($i % 1000000) == 0) echo "\n".number_format($i)." ";
@@ -715,8 +714,10 @@ class TaxonomicValidationRules
         $destination = str_replace("/$this->resource_id/", "", $this->temp_dir);
         $destination .= "/".$this->resource_id.".zip";
         $source = $this->temp_dir;
-        echo "\nsource: [$source]\n";
-        echo "\ndestination: [$destination]\n";
+        if($GLOBALS['ENV_DEBUG']) {
+            echo "\nsource: [$source]\n";
+            echo "\ndestination: [$destination]\n";    
+        }
         $cmd = "zip -rj $destination $source";
         $out = shell_exec($cmd);
         echo "\n$out\n";
@@ -808,7 +809,9 @@ class TaxonomicValidationRules
         $this->summary_report['Number of taxa 2'] = self::total_rows_on_file($this->summary_report['info']['user file']);
         $this->summary_report['No. of canonical duplicates'] = self::get_canonical_duplicates();
         $this->summary_report['Number of names with multiple matches'] = self::get_names_with_multiple_matches(); // user file taxon matches with DH taxon
-        print_r($this->summary_report); //exit("\nditox 20\n");
+        
+        if($GLOBALS['ENV_DEBUG']) print_r($this->summary_report); //exit("\nditox 20\n");
+
         // /* reconcile 
         if($names = $this->summary_report['Number of names with multiple matches']) {
             $sum = 0;

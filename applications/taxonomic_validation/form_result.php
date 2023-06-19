@@ -78,10 +78,10 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
         }
         $newfile = "temp/" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
 
-        echo "<hr>file_type: [$file_type]";
-        echo "<hr>orig_file: [$orig_file]";
-        echo "<hr>url: [$url]";
-        echo "<hr>newfile: [$newfile]<hr>";
+        // echo "<hr>file_type: [$file_type]";
+        // echo "<hr>orig_file: [$orig_file]";
+        // echo "<hr>url: [$url]";
+        // echo "<hr>newfile: [$newfile]<hr>";
         // exit;
     }
     else exit("<hr>$file_type<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
