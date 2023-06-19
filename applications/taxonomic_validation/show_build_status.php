@@ -83,7 +83,7 @@ else {
             echo "=======================================================<br>";
             echo "The report is now available in <a href='$final_archive_gzip_url'>$final_archive_gzip_url</a><br><br>
                 You can save this file to your computer.<br><br>
-                This file will remain in our server for two (2) weeks.";                
+                This file will remain in our server for two (2) weeks. ";                
                 echo "<a href='main.php'>Back to menu</a>";
             echo "<br>=======================================================<br><br>";
             // echo "<pre>"; print_r($params); echo "</pre>"; //good debug

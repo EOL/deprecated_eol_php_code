@@ -7,6 +7,7 @@ else                      $browser_comment = "Choose File"; //Safari Chrome etc
 ?>
 <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
     <tr align="center"><td><b>Taxonomic Validation Tool</b></td></tr>
+    <!---
     <tr>
         <td>
         <table><tr>
@@ -33,17 +34,19 @@ else                      $browser_comment = "Choose File"; //Safari Chrome etc
         </tr></table>
         </td>
     </tr>
+    --->
     <form action="form_result.php" method="post" enctype="multipart/form-data">
     <tr>
         <td>
-            <font size="3">Upload input Excel file: </font><input type="file" name="file_upload" id="file_upload" size="100">
+            <font size="3">Upload input file: </font><input type="file" name="file_upload" id="file_upload" size="100">
         </td>
     </tr>
     <tr>
         <td>
-            <small>(.xlsx or .xls) OR (.xlsx.zip, .xls.zip)</small>
+            <small>(.tab or .tsv) OR (.tab.zip, .tsv.zip)</small>
         </td>
     </tr>
+    <!---
     <tr>
         <td>
             <table>
@@ -57,6 +60,8 @@ else                      $browser_comment = "Choose File"; //Safari Chrome etc
             </table>
         </td>
     </tr>
+    --->
+    <!---
     <tr>
         <td>
             <table>
@@ -72,15 +77,21 @@ else                      $browser_comment = "Choose File"; //Safari Chrome etc
             </table>
         </td>
     </tr>
+    --->
     <tr align="center">
         <td>
+            <input type='text' name='Filename_ID' hidden>
+            <input type='text' name='Short_Desc' hidden>
             <input type="submit" value="Convert Spreadsheet to DwCA">
             <input type="reset" value="Reset">
         </td>
     </tr>
     </form>
     <tr align="left">
-        <td><?php echo "<a href='https://opendata.eol.org/dataset/trait-spreadsheet-repository'>OpenData Resources For Uploaded Spreadsheets</a>"; ?>
+        <td>
+        <!---
+        <?php echo "<a href='https://opendata.eol.org/dataset/trait-spreadsheet-repository'>OpenData Resources For Uploaded Spreadsheets</a>"; ?>
+        --->
          | <?php echo "<a href='../../../html/tools.html'>Tools</a>"; ?>
         </td>
     </tr>

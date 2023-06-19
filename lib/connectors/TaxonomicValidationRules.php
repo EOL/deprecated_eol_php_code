@@ -58,6 +58,8 @@ class TaxonomicValidationRules
     private function parse_TSV_file($txtfile, $task)
     {   
         if($task == "load DH file") echo "\nLoading DH 2.1 ";
+        if($task == "name match and validate") echo "\nStart: Name Match and Validate ";
+
         $i = 0; debug("\n[$txtfile]\n");
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             if(!$line) continue;
@@ -312,9 +314,10 @@ class TaxonomicValidationRules
     }
     private function parse_user_file($txtfile)
     {   $i = 0; debug("\n[$txtfile]\n");
+        echo "\nReading user file... ";
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             if(!$line) continue;
-            $i++; if(($i % 100) == 0) echo "\n".number_format($i)." ";
+            $i++; if(($i % 1000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line); // print_r($row);
             if($i == 1) {
                 $fields = $row;
@@ -443,7 +446,7 @@ class TaxonomicValidationRules
                 return $obj->canonical->simple;
             }
             else {
-                echo "\ngot entire sciname: for "; print_r($rec);
+                // echo "\ngot entire sciname: for "; print_r($rec);
                 return $rec['scientificName'];
             }
         }
@@ -813,7 +816,7 @@ class TaxonomicValidationRules
         }
         $totals = $this->summary_report['totals']['matchedNames'] + $this->summary_report['totals']['unmatchedNames'];
         $diff = $totals - $sum;
-        echo "\nDiff: [$diff] | ".$this->summary_report['Number of taxa']."\n";
+        echo "\nDiff: [$diff] = $totals - $sum | ".$this->summary_report['Number of taxa']."\n";
         // */
         // /* reconcile 2
         $arrays = array($this->summary_report['Taxon ranks'], $this->summary_report['Taxonomic status']);
@@ -848,7 +851,7 @@ class TaxonomicValidationRules
                 // */
             }
         }
-        echo "\ngrand_total: [$grand_total]\n";
+        // echo "\ngrand_total: [$grand_total]\n";
         return $final;
 
         

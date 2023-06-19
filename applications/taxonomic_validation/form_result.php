@@ -3,17 +3,17 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
-/* normal operation
+// /* normal operation
 ini_set('error_reporting', false);
 ini_set('display_errors', false);
 $GLOBALS['ENV_DEBUG'] = false; //set to false in production
-*/
+// */
 
-// /* during development
+/* during development
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true during development
-// */
+*/
 $time_var = time();
 
 // echo "<pre>"; print_r($_FILES); exit("</pre>");
@@ -47,12 +47,12 @@ if($form_url) { //URL is pasted.
     if(!in_array(pathinfo($form_url, PATHINFO_EXTENSION), array('xls', 'xlsx', 'zip'))) exit("\nERROR: Wrong file format.\n\n");
     // print_r(pathinfo($form_url)); exit;
     
-    // /* good debug
+    /* good debug
     echo "<hr>form_url: [$form_url]";
     echo "<hr>orig_file: [$orig_file]";
     echo "<hr>newfile: [$newfile]<hr>";
     // exit;
-    // */
+    */
 }
 elseif($file_type = @$_FILES["file_upload"]["type"]) {
     debug("<br>orig_file: [".$_FILES["file_upload"]["name"]."]<br>");
