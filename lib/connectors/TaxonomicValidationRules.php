@@ -35,7 +35,29 @@ class TaxonomicValidationRules
         }
         // */
         $this->DH_file = CONTENT_RESOURCE_LOCAL_PATH . '/Taxonomic_Validation/dh21eolid/taxon.tab';
-        self::get_IncompatibleAncestors(); //get from Google Sheets
+        self::get_IncompatibleAncestors(); //get from Google 
+        // /* List of fields:
+        $this->taxon_fields['taxonID']                  = 'http://rs.tdwg.org/dwc/terms/taxonID';
+        $this->taxon_fields['parentNameUsageID']        = 'http://rs.tdwg.org/dwc/terms/parentNameUsageID';
+        $this->taxon_fields['scientificName']           = 'http://rs.tdwg.org/dwc/terms/scientificName';
+        $this->taxon_fields['scientificNameAuthorship'] = 'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship';
+        $this->taxon_fields['taxonomicStatus']          = 'http://rs.tdwg.org/dwc/terms/taxonomicStatus';
+        $this->taxon_fields['taxonRank']                = 'http://rs.tdwg.org/dwc/terms/taxonRank';
+        $this->taxon_fields['source']                   = 'http://purl.org/dc/terms/source';
+        $this->taxon_fields['acceptedNameUsageID']      = 'http://rs.tdwg.org/dwc/terms/acceptedNameUsageID';
+
+        $this->taxon_fields['kingdom']                  = 'http://rs.tdwg.org/dwc/terms/kingdom';
+        $this->taxon_fields['phylum']                   = 'http://rs.tdwg.org/dwc/terms/phylum';
+        $this->taxon_fields['class']                    = 'http://rs.tdwg.org/dwc/terms/class';
+        $this->taxon_fields['order']                    = 'http://rs.tdwg.org/dwc/terms/order';
+        $this->taxon_fields['family']                   = 'http://rs.tdwg.org/dwc/terms/family';
+        $this->taxon_fields['genus']                    = 'http://rs.tdwg.org/dwc/terms/genus';
+        $this->taxon_fields['higherClassification']     = 'http://rs.tdwg.org/dwc/terms/higherClassification';
+        $this->taxon_fields['furtherInformationURL']    = 'http://rs.tdwg.org/ac/terms/furtherInformationURL';
+        $this->taxon_fields['taxonRemarks']             = 'http://rs.tdwg.org/dwc/terms/taxonRemarks';
+        $this->taxon_fields['namePublishedIn']          = 'http://rs.tdwg.org/dwc/terms/namePublishedIn';
+        $this->taxon_fields['referenceID']              = 'http://eol.org/schema/reference/referenceID';
+        // */
     }
     function process_user_file($txtfile, $tsvFileYN = true)
     {
