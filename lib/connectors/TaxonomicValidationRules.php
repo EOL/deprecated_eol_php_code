@@ -35,29 +35,8 @@ class TaxonomicValidationRules
         }
         // */
         $this->DH_file = CONTENT_RESOURCE_LOCAL_PATH . '/Taxonomic_Validation/dh21eolid/taxon.tab';
-        self::get_IncompatibleAncestors(); //get from Google 
-        // /* List of fields:
-        $this->taxon_fields['taxonID']                  = 'http://rs.tdwg.org/dwc/terms/taxonID';
-        $this->taxon_fields['parentNameUsageID']        = 'http://rs.tdwg.org/dwc/terms/parentNameUsageID';
-        $this->taxon_fields['scientificName']           = 'http://rs.tdwg.org/dwc/terms/scientificName';
-        $this->taxon_fields['scientificNameAuthorship'] = 'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship';
-        $this->taxon_fields['taxonomicStatus']          = 'http://rs.tdwg.org/dwc/terms/taxonomicStatus';
-        $this->taxon_fields['taxonRank']                = 'http://rs.tdwg.org/dwc/terms/taxonRank';
-        $this->taxon_fields['source']                   = 'http://purl.org/dc/terms/source';
-        $this->taxon_fields['acceptedNameUsageID']      = 'http://rs.tdwg.org/dwc/terms/acceptedNameUsageID';
-
-        $this->taxon_fields['kingdom']                  = 'http://rs.tdwg.org/dwc/terms/kingdom';
-        $this->taxon_fields['phylum']                   = 'http://rs.tdwg.org/dwc/terms/phylum';
-        $this->taxon_fields['class']                    = 'http://rs.tdwg.org/dwc/terms/class';
-        $this->taxon_fields['order']                    = 'http://rs.tdwg.org/dwc/terms/order';
-        $this->taxon_fields['family']                   = 'http://rs.tdwg.org/dwc/terms/family';
-        $this->taxon_fields['genus']                    = 'http://rs.tdwg.org/dwc/terms/genus';
-        $this->taxon_fields['higherClassification']     = 'http://rs.tdwg.org/dwc/terms/higherClassification';
-        $this->taxon_fields['furtherInformationURL']    = 'http://rs.tdwg.org/ac/terms/furtherInformationURL';
-        $this->taxon_fields['taxonRemarks']             = 'http://rs.tdwg.org/dwc/terms/taxonRemarks';
-        $this->taxon_fields['namePublishedIn']          = 'http://rs.tdwg.org/dwc/terms/namePublishedIn';
-        $this->taxon_fields['referenceID']              = 'http://eol.org/schema/reference/referenceID';
-        // */
+        self::get_IncompatibleAncestors(); //get from Google
+        self::set_taxon_fields();
     }
     function process_user_file($txtfile, $tsvFileYN = true)
     {
@@ -391,7 +370,7 @@ class TaxonomicValidationRules
             $raw['higherClassification']        = self::build_higherClassification($rec);
             if($val = $raw['higherClassification']) {
                 $root = self::get_root_from_HC($val);
-                $this->summary_report['user file roots'][$root] = '';
+                $this->summary_report['Number of roots'][$root] = '';
             }
             echo "\nPROCESSED REC:"; print_r($raw);
             self::write_output_rec_2txt($raw, "processed");
@@ -719,6 +698,61 @@ class TaxonomicValidationRules
         fclose($WRITE);
     }
     ///============================================== START Summary Report
+    private function write_summary_report()
+    {
+        $r = $this->summary_report;
+        $filename = $this->temp_dir."summary_report.txt";
+        $WRITE = Functions::file_open($filename, "w");
+        fwrite($WRITE, "Number of taxa: ".$r['Number of taxa'] . "\n");
+        fwrite($WRITE, "--------------------------------------------------"."\n");
+        $spaces = " _____ ";
+        fwrite($WRITE, "List of fields and their DwC-A mappings: "."\n");
+        foreach($r['List of fields'] as $field) {
+            if($val = $this->taxon_fields[$field]) fwrite($WRITE, "$spaces $field"." -> ".$val."\n");
+            else                                   fwrite($WRITE, "$spaces $field"." -> "."unmapped"."\n");
+        }
+        fwrite($WRITE, "--------------------------------------------------"."\n");
+        fwrite($WRITE, "Number of roots: ".count($r['Number of roots'])."\n");
+        $i = 0;
+        foreach($r['Number of roots'] as $root) { $i++;
+            fwrite($WRITE, "$spaces $i. $root."."\n");
+        }
+        fwrite($WRITE, "--------------------------------------------------"."\n");
+        fwrite($WRITE, "Taxon ranks: "."\n");
+        if($ranks = $r['Taxon ranks']) { $grand_total = 0;
+            foreach($ranks as $rank => $total) { $grand_total += $total;
+                if(!$rank) $rank = "{blank}";
+                fwrite($WRITE, "$spaces $rank -> $total"."\n");
+            }
+            fwrite($WRITE, "$spaces Total -> $grand_total"."\n");
+        }
+        fwrite($WRITE, "--------------------------------------------------"."\n");
+
+        fwrite($WRITE, "Taxonomic status: "."\n");
+        if($ranks = $r['Taxonomic status']) { $grand_total = 0;
+            foreach($ranks as $rank => $total) { $grand_total += $total;
+                if(!$rank) $rank = "{blank}";
+                fwrite($WRITE, "$spaces $rank -> $total"."\n");
+            }
+            fwrite($WRITE, "$spaces Total -> $grand_total"."\n");
+        }
+        fwrite($WRITE, "--------------------------------------------------"."\n");
+
+        $canonical_duplicates = $r['No. of canonical duplicates'];
+        fwrite($WRITE, "Number of canonical duplicates: ".count($canonical_duplicates)."\n");
+        foreach($canonical_duplicates as $sciname => $recs) {
+            fwrite($WRITE, "$spaces $sciname "."\n");
+            foreach($recs as $rec) {
+                foreach($rec as $key => $value) fwrite($WRITE, "$spaces $spaces $key: $value "."\n");
+            }
+
+        }
+
+        fwrite($WRITE, "--------------------------------------------------"."\n");
+
+        fclose($WRITE);
+    }
+
     private function summary_report()
     {   /* File statistics:
         1. Number of taxa - rows in the taxon file.
@@ -739,8 +773,7 @@ class TaxonomicValidationRules
         6. Number of canonical duplicates - with a list of those duplicates
         7. Number of matched names
         8. Number of names with multiple matches
-        9. Number of unmatched name
-        */
+        9. Number of unmatched name */
         $this->summary_report['Number of taxa 2'] = self::total_rows_on_file($this->summary_report['info']['user file']);
         $this->summary_report['No. of canonical duplicates'] = self::get_canonical_duplicates();
         $this->summary_report['Number of names with multiple matches'] = self::get_names_with_multiple_matches(); // user file taxon matches with DH taxon
@@ -762,6 +795,7 @@ class TaxonomicValidationRules
             echo "\nShould be equal: [$sum] | ".$this->summary_report['Number of taxa']."\n";
         }
         // */
+        self::write_summary_report();
     }
     private function get_names_with_multiple_matches()
     {   
@@ -819,6 +853,28 @@ class TaxonomicValidationRules
         $total = shell_exec("wc -l < ".escapeshellarg($file));
         $total = trim($total);
         return $total;
+    }
+    private function set_taxon_fields()
+    {   // /* List of fields:
+        $this->taxon_fields['taxonID']                  = 'http://rs.tdwg.org/dwc/terms/taxonID';
+        $this->taxon_fields['parentNameUsageID']        = 'http://rs.tdwg.org/dwc/terms/parentNameUsageID';
+        $this->taxon_fields['scientificName']           = 'http://rs.tdwg.org/dwc/terms/scientificName';
+        $this->taxon_fields['scientificNameAuthorship'] = 'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship';
+        $this->taxon_fields['taxonomicStatus']          = 'http://rs.tdwg.org/dwc/terms/taxonomicStatus';
+        $this->taxon_fields['taxonRank']                = 'http://rs.tdwg.org/dwc/terms/taxonRank';
+        $this->taxon_fields['source']                   = 'http://purl.org/dc/terms/source';
+        $this->taxon_fields['acceptedNameUsageID']      = 'http://rs.tdwg.org/dwc/terms/acceptedNameUsageID';
+        $this->taxon_fields['kingdom']                  = 'http://rs.tdwg.org/dwc/terms/kingdom';
+        $this->taxon_fields['phylum']                   = 'http://rs.tdwg.org/dwc/terms/phylum';
+        $this->taxon_fields['class']                    = 'http://rs.tdwg.org/dwc/terms/class';
+        $this->taxon_fields['order']                    = 'http://rs.tdwg.org/dwc/terms/order';
+        $this->taxon_fields['family']                   = 'http://rs.tdwg.org/dwc/terms/family';
+        $this->taxon_fields['genus']                    = 'http://rs.tdwg.org/dwc/terms/genus';
+        $this->taxon_fields['higherClassification']     = 'http://rs.tdwg.org/dwc/terms/higherClassification';
+        $this->taxon_fields['furtherInformationURL']    = 'http://rs.tdwg.org/ac/terms/furtherInformationURL';
+        $this->taxon_fields['taxonRemarks']             = 'http://rs.tdwg.org/dwc/terms/taxonRemarks';
+        $this->taxon_fields['namePublishedIn']          = 'http://rs.tdwg.org/dwc/terms/namePublishedIn';
+        $this->taxon_fields['referenceID']              = 'http://eol.org/schema/reference/referenceID';
     }
 }
 ?>
