@@ -49,7 +49,7 @@ class TaxonomicValidationRules
             self::parse_TSV_file($this->temp_dir."processed.txt", 'name match and validate');
             self::summary_report();
             self::prepare_download_link();
-            echo "\n".$this->temp_dir."\n"; echo "\n".$this->resource_id."\n";
+            // echo "\n".$this->temp_dir."\n"; echo "\n".$this->resource_id."\n";
             // recursive_rmdir($this->temp_dir);
         }
         // print_r($this->user_canonicalNames); //good debug though
@@ -534,22 +534,22 @@ class TaxonomicValidationRules
         foreach($u_ancestors as $u_ancestor) {
             if($incompatibles = @$this->IncompatibleAncestors_1[$u_ancestor]) {
                 foreach($incompatibles as $incompatible) {
-                    if(in_array($incompatible, $DH_ancestors)) $incompatible_pairs[] = array("A", $u_ancestor, $incompatible);
+                    if(in_array($incompatible, $DH_ancestors)) $incompatible_pairs[] = array($u_ancestor, $incompatible); //A
                 }
             }
             //===================
             if($incompatibles = @$this->IncompatibleAncestors_2[$u_ancestor]) {
                 foreach($incompatibles as $incompatible) {
-                    if(in_array($incompatible, $DH_ancestors)) $incompatible_pairs[] = array("B", $u_ancestor, $incompatible);
+                    if(in_array($incompatible, $DH_ancestors)) $incompatible_pairs[] = array($u_ancestor, $incompatible); //B
                 }
             }
         } //end foreach()
 
         /* ----- Incompatible ancestors - If there are any incompatible ancestors, add “Incompatible ancestors” and list the incompatible pairs in parentheses. */
         if($incompatible_pairs) {
-            // $incompatible_pairs = array_map('trim', $incompatible_pairs);
+            // $incompatible_pairs = array_map('trim', $incompatible_pairs);                    //cannot do this for array() type
             $incompatible_pairs = array_filter($incompatible_pairs); //remove null arrays
-            $incompatible_pairs = array_unique($incompatible_pairs); //make unique
+            // $incompatible_pairs = array_unique($incompatible_pairs); //make unique           //cannot do this for array() type
             $incompatible_pairs = array_values($incompatible_pairs); //reindex key    
         }
         $rec['addtl']['incompatible_pairs_arr'] = $incompatible_pairs;
@@ -708,7 +708,7 @@ class TaxonomicValidationRules
         $this->temp_dir = "/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3//Taxonomic_Validation/174/";
         $this->resource_id = 174;
         */
-        echo "\n".$this->temp_dir."\n"; echo "\n".$this->resource_id."\n";
+        // echo "\n".$this->temp_dir."\n"; echo "\n".$this->resource_id."\n";
         $destination = str_replace("/$this->resource_id/", "", $this->temp_dir);
         $destination .= "/".$this->resource_id.".zip";
         $source = $this->temp_dir;
