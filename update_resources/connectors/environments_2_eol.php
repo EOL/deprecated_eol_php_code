@@ -153,17 +153,19 @@ These 3 should increment steadily: 80, 617_ENV, wikipedia_en_traits_tmp4
 80	Tue 2022-12-06 06:30:04 PM	{"media_resource.tab":847228, "taxon.tab":442775, "time_elapsed":{"sec":977.44, "min":16.29, "hr":0.27}}
 80	Sat 2023-02-25 04:30:38 PM	{"media_resource.tab":847222, "taxon.tab":442796, "time_elapsed":{"sec":1001.36, "min":16.69, "hr":0.28}}
 80	Mon 2023-03-20 09:38:23 AM	{"media_resource.tab":859348, "taxon.tab":448895, "time_elapsed":{"sec":955.29, "min":15.92, "hr":0.27}}
+80	Sun 2023-06-11 05:26:46 AM	{"media_resource.tab":866565, "taxon.tab":452624, "time_elapsed":{"sec":982.34, "min":16.37, "hr":0.27}}
 
 617_ENV	Wed 2022-10-26 04:22:35 PM	{"measurement_or_fact_specific.tab":234990, "occurrence_specific.tab":234990, "taxon.tab":442781, "time_elapsed":{"sec":31811.18, "min":530.19, "hr":8.84}}
 617_ENV	Fri 2022-11-18 10:58:36 PM	{"measurement_or_fact_specific.tab":218225, "occurrence_specific.tab":218225, "taxon.tab":442781, "time_elapsed":{"sec":2900.23, "min":48.34, "hr":0.81}}
 617_ENV	Sat 2023-03-25 04:38:50 AM	{"measurement_or_fact_specific.tab":224703, "occurrence_specific.tab":224703, "taxon.tab":448895, "time_elapsed":{"sec":7369.04, "min":122.82, "hr":2.05}}
+617_ENV	Thu 2023-06-15 12:14:33 PM	{"measurement_or_fact_specific.tab":228605, "occurrence_specific.tab":228605, "taxon.tab":452624, "time_elapsed":{"sec":254982.44, "min":4249.71, "hr":70.83, "day":2.95}}
 
 wikipedia_en_traits_tmp4	Fri 2022-11-18 11:24:48 PM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162220, "time_elapsed":{"sec":217.87, "min":3.63, "hr":0.06}}
 wikipedia_en_traits_tmp4	Fri 2022-11-18 11:27:53 PM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162221, "time_elapsed":{"sec":402.94, "min":6.72, "hr":0.11}}
 wikipedia_en_traits_tmp4	Mon 2023-03-13 04:05:46 AM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162222, "time_elapsed":{"sec":458.19, "min":7.64, "hr":0.13}}
 wikipedia_en_traits_tmp4	Fri 2023-03-24 10:37:23 AM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162222, "time_elapsed":{"sec":417.4, "min":6.96, "hr":0.12}}
 wikipedia_en_traits_tmp4	Sat 2023-03-25 10:53:43 AM	{"MoF.tab":211080, "occurrence.tab":211080, "taxon.tab":165864, "time_elapsed":{"sec":231.71, "min":3.86, "hr":0.06}}
-
+wikipedia_en_traits_tmp4	Thu 2023-06-15 12:45:10 PM	{"MoF.tab":214707, "occurrence.tab":214707, "taxon.tab":168011, "time_elapsed":{"sec":239.12, "min":3.99, "hr":0.07}}
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
