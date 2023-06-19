@@ -724,6 +724,7 @@ class TaxonomicValidationRules
         if($ranks = $r['Taxon ranks']) { $grand_total = 0;
             foreach($ranks as $rank => $total) { $grand_total += $total;
                 if(!$rank) $rank = "{blank}";
+                $rank = str_pad($rank, 15, " ", STR_PAD_LEFT);
                 fwrite($WRITE, "$spaces $rank -> $total"."\n");
             }
             fwrite($WRITE, "$spaces Total -> $grand_total"."\n");
