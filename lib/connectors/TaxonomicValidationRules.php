@@ -48,10 +48,11 @@ class TaxonomicValidationRules
             self::parse_TSV_file($this->DH_file, 'load DH file');
             self::parse_TSV_file($this->temp_dir."processed.txt", 'name match and validate');
             self::summary_report();
+            echo "\n".$this->temp_dir."\n";
             // recursive_rmdir($this->temp_dir);
         }
         // print_r($this->user_canonicalNames); //good debug though
-        exit("\n-stop muna-\n");
+        // exit("\n-stop muna-\n");
     }
     private function parse_TSV_file($txtfile, $task)
     {   
@@ -327,7 +328,7 @@ class TaxonomicValidationRules
             $rec = array_map('trim', $rec);
             if(!$rec['scientificName']) continue;
             @$this->summary_report['Number of taxa']++;
-            echo "\nRAW REC:"; print_r($rec); //exit("\nstopx\n");
+            // echo "\nRAW REC:"; print_r($rec); //exit("\nstopx\n"); //good debug
             /*Array(
                 [taxonID] => Archaea
                 [scientificName] => Archaea
@@ -372,7 +373,7 @@ class TaxonomicValidationRules
                 $root = self::get_root_from_HC($val);
                 $this->summary_report['Number of roots'][$root] = '';
             }
-            echo "\nPROCESSED REC:"; print_r($raw);
+            // echo "\nPROCESSED REC:"; print_r($raw); //good debug
             self::write_output_rec_2txt($raw, "processed");
             // break; //debug only
             // if($i >= 5) break; //debug only
@@ -544,10 +545,12 @@ class TaxonomicValidationRules
         } //end foreach()
 
         /* ----- Incompatible ancestors - If there are any incompatible ancestors, add “Incompatible ancestors” and list the incompatible pairs in parentheses. */
-        $incompatible_pairs = array_map('trim', $incompatible_pairs);
-        $incompatible_pairs = array_filter($incompatible_pairs); //remove null arrays
-        $incompatible_pairs = array_unique($incompatible_pairs); //make unique
-        $incompatible_pairs = array_values($incompatible_pairs); //reindex key
+        if($incompatible_pairs) {
+            $incompatible_pairs = array_map('trim', $incompatible_pairs);
+            $incompatible_pairs = array_filter($incompatible_pairs); //remove null arrays
+            $incompatible_pairs = array_unique($incompatible_pairs); //make unique
+            $incompatible_pairs = array_values($incompatible_pairs); //reindex key    
+        }
         $rec['addtl']['incompatible_pairs_arr'] = $incompatible_pairs;
         if($incompatible_pairs) {
             echo "\nIncompatible pairs: "; print_r($incompatible_pairs); //exit("\n\n");
@@ -694,7 +697,7 @@ class TaxonomicValidationRules
         }
         $tab_separated = (string) implode("\t", $save); 
         fwrite($WRITE, $tab_separated . "\n");
-        echo "\nSaved to [$basename]: "; print_r($save); //echo "\n".implode("\t", $save)."\n"; //exit("\nditox 9\n");
+        // echo "\nSaved to [$basename]: "; print_r($save); //echo "\n".implode("\t", $save)."\n"; //exit("\nditox 9\n"); //good debug
         fclose($WRITE);
     }
     ///============================================== START Summary Report

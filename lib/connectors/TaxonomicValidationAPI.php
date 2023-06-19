@@ -15,8 +15,6 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
         
         $this->download_options = array('cache' => 1, 'resource_id' => 'MarineGEO_2', 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3); //orig expires quarterly
         // $this->download_options['expire_seconds'] = false; //debug only
-
-        $this->api['coll_num'] = 'http://www.boldsystems.org/index.php/API_Public/specimen?ids=COLL_NUM&format=json';
         
         /* ============================= START for specimen_export ============================= */
         if($app == 'specimen_export') {}
