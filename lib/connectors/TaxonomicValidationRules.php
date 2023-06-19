@@ -715,7 +715,6 @@ class TaxonomicValidationRules
             if($val = $this->taxon_fields[$field]) fwrite($WRITE, "$spaces $field2"." -> ".$val."\n");
             else                                   fwrite($WRITE, "$spaces $field2"." -> "."unmapped"."\n");
         }
-
         fwrite($WRITE, "--------------------------------------------------"."\n");
         fwrite($WRITE, "Number of roots: ".count($r['Number of roots'])."\n");
         $i = 0;
@@ -733,7 +732,6 @@ class TaxonomicValidationRules
             fwrite($WRITE, "$spaces Total -> $grand_total"."\n");
         }
         fwrite($WRITE, "--------------------------------------------------"."\n");
-
         fwrite($WRITE, "Taxonomic status: "."\n");
         if($ranks = $r['Taxonomic status']) { $grand_total = 0;
             foreach($ranks as $rank => $total) { $grand_total += $total;
@@ -743,7 +741,6 @@ class TaxonomicValidationRules
             fwrite($WRITE, "$spaces Total -> $grand_total"."\n");
         }
         fwrite($WRITE, "--------------------------------------------------"."\n");
-
         $canonical_duplicates = $r['No. of canonical duplicates'];
         fwrite($WRITE, "Number of canonical duplicates: ".count($canonical_duplicates)."\n");
         foreach($canonical_duplicates as $sciname => $recs) {
@@ -751,14 +748,9 @@ class TaxonomicValidationRules
             foreach($recs as $rec) {
                 foreach($rec as $key => $value) fwrite($WRITE, "$spaces $spaces $key: $value "."\n");
             }
-
         }
-
         fwrite($WRITE, "--------------------------------------------------"."\n");
-        
         fwrite($WRITE, "Number of matched names: ".$r['totals']['matchedNames']."\n");
-
-
         fwrite($WRITE, "--------------------------------------------------"."\n");
         $multiple_matches = $r['Number of names with multiple matches'];
         asort($multiple_matches);
@@ -766,17 +758,12 @@ class TaxonomicValidationRules
         foreach($multiple_matches as $sciname => $total) {
             fwrite($WRITE, "$spaces $sciname -> $total "."\n");
         }
-
-
         fwrite($WRITE, "--------------------------------------------------"."\n");
         fwrite($WRITE, "Number of unmatched names: ".$r['totals']['unmatchedNames']."\n");
-
         fwrite($WRITE, "--------------------------------------------------"."\n");
         fwrite($WRITE, "-end of report-"."\n");
-
         fclose($WRITE);
     }
-
     private function summary_report()
     {   /* File statistics:
         1. Number of taxa - rows in the taxon file.
