@@ -708,13 +708,15 @@ class TaxonomicValidationRules
         $spaces = " _____ ";
         fwrite($WRITE, "List of fields and their DwC-A mappings: "."\n");
         foreach($r['List of fields'] as $field) {
-            if($val = $this->taxon_fields[$field]) fwrite($WRITE, "$spaces $field"." -> ".$val."\n");
-            else                                   fwrite($WRITE, "$spaces $field"." -> "."unmapped"."\n");
+            $field2 = str_pad($field, 30, " ", STR_PAD_LEFT);
+            if($val = $this->taxon_fields[$field]) fwrite($WRITE, "$spaces $field2"." -> ".$val."\n");
+            else                                   fwrite($WRITE, "$spaces $field2"." -> "."unmapped"."\n");
         }
+
         fwrite($WRITE, "--------------------------------------------------"."\n");
         fwrite($WRITE, "Number of roots: ".count($r['Number of roots'])."\n");
         $i = 0;
-        foreach($r['Number of roots'] as $root) { $i++;
+        foreach(array_keys($r['Number of roots']) as $root) { $i++;
             fwrite($WRITE, "$spaces $i. $root."."\n");
         }
         fwrite($WRITE, "--------------------------------------------------"."\n");
@@ -749,6 +751,24 @@ class TaxonomicValidationRules
         }
 
         fwrite($WRITE, "--------------------------------------------------"."\n");
+        
+        fwrite($WRITE, "Number of matched names: ".$r['totals']['matchedNames']."\n");
+
+
+        fwrite($WRITE, "--------------------------------------------------"."\n");
+        $multiple_matches = $r['Number of names with multiple matches'];
+        asort($multiple_matches);
+        fwrite($WRITE, "Number of names with multiple matches: ".count($multiple_matches)."\n");
+        foreach($multiple_matches as $sciname => $total) {
+            fwrite($WRITE, "$spaces $sciname -> $total "."\n");
+        }
+
+
+        fwrite($WRITE, "--------------------------------------------------"."\n");
+        fwrite($WRITE, "Number of unmatched names: ".$r['totals']['unmatchedNames']."\n");
+
+        fwrite($WRITE, "--------------------------------------------------"."\n");
+        fwrite($WRITE, "-end of report-"."\n");
 
         fclose($WRITE);
     }
