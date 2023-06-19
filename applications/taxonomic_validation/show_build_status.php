@@ -45,13 +45,13 @@ else {
     // /*
     // $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "MarineGEO_sie/" . $params['uuid'] . ".xls";
     // $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "Trait_Data_Import/" . $params['uuid'] . ".tar.gz";
-    $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "Taxonomic_Validation/" . $params['uuid'] . ".tar.gz";
+    $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "Taxonomic_Validation/" . $params['uuid'] . ".zip";
     if(file_exists($final_archive_gzip_url)) {
         
         // /* NEW: to accommodate Filename_ID implementation
         if($Filename_ID = @$params['Filename_ID']) {
             // $rename_to = CONTENT_RESOURCE_LOCAL_PATH . "Trait_Data_Import/" . $params['Filename_ID'] . ".tar.gz";
-            $rename_to = CONTENT_RESOURCE_LOCAL_PATH . "Taxonomic_Validation/" . $params['Filename_ID'] . ".tar.gz";
+            $rename_to = CONTENT_RESOURCE_LOCAL_PATH . "Taxonomic_Validation/" . $params['Filename_ID'] . ".zip";
 
             /* as much as possible don't use: Functions::file_rename
             Functions::file_rename($final_archive_gzip_url, $rename_to)
@@ -68,32 +68,22 @@ else {
         else $hash_post = $params['uuid'];
         // */
         
-        // /* special provision
+        /* special provision : copied template
         $ckan_resource_id = get_ckan_resource_id_given_hash("hash-".$hash_post);
-        // */
+        */
         // echo "\n" . getcwd() . "\n"; exit;
 
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
         
-        if($final_archive_gzip_url && $ckan_resource_id) {
+        // if($final_archive_gzip_url && $ckan_resource_id) {
+        if($final_archive_gzip_url) {        
             $final_archive_gzip_url = str_replace(DOC_ROOT, WEB_ROOT, $final_archive_gzip_url);
-            $opendata = "https://opendata.eol.org/dataset/trait-spreadsheet-repository/resource/".$ckan_resource_id;
+            // $opendata = "https://opendata.eol.org/dataset/trait-spreadsheet-repository/resource/".$ckan_resource_id;
             
             echo "=======================================================<br>";
-            echo "The DwCA is now available in <a href='$final_archive_gzip_url'>$final_archive_gzip_url</a><br><br>
+            echo "The report is now available in <a href='$final_archive_gzip_url'>$final_archive_gzip_url</a><br><br>
                 You can save this file to your computer.<br><br>
-                The OpenData resource for this upload is <a target='$hash_post' href='$opendata'>here</a><br><br>
-                The Upload ID is: <b>$hash_post</b>. You will use this if you want to re-upload an updated spreadsheet.<br><br>";
-                
-                // /* NEW: Feb 21, 2022 --- invalid mValues report
-                // $resources_path = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/";
-                $resources_path = CONTENT_RESOURCE_LOCAL_PATH."Taxonomic_Validation/";
-                $filename = $resources_path.$params['uuid']."_invalid_values.txt";
-                if(file_exists($filename) && filesize($filename) > 0) {
-                    $href = str_replace(DOC_ROOT, WEB_ROOT, $filename);
-                    echo "<a target='".$params['uuid']."'  href='$href'>Invalid measurement values</a><br><br>";
-                }
-                // */
+                This file will remain in our server for two (2) weeks.";                
                 echo "<a href='main.php'>Back to menu</a>";
             echo "<br>=======================================================<br><br>";
             // echo "<pre>"; print_r($params); echo "</pre>"; //good debug
@@ -127,35 +117,35 @@ else {
 if($build_status) {
     if($ctrler->is_build_aborted($build_status)) echo "<p>Process aborted. &nbsp; <a href='main.php'>&lt;&lt; Back to main</a>";
 }
-
+/* copied template
 function get_ckan_resource_id_given_hash($hash)
 {
     $ckan_resources = get_opendata_resources_given_datasetID("trait-spreadsheet-repository");
     // echo "<pre>"; print_r($ckan_resources); echo "<br>[$hash]</pre>"; //good debug
-    /*Array(
-        [0] => stdClass Object(
-                [cache_last_updated] => 
-                [cache_url] => 
-                [mimetype_inner] => 
-                [hash] => cha_02
-                [description] => Updated: 2022-02-02 20:00
-                [format] => Darwin Core Archive
-                [url] => http://localhost/eol_php_code/applications/content_server/resources/Trait_Data_Import/cha_02.tar.gz
-                [created] => 2022-02-03T00:21:26.418199
-                [state] => active
-                [webstore_last_updated] => 
-                [webstore_url] => 
-                [package_id] => dab391f0-7ec0-4055-8ead-66b1dea55f28
-                [last_modified] => 
-                [mimetype] => 
-                [url_type] => 
-                [position] => 0
-                [revision_id] => 52f079cf-fa6f-40ec-a3f2-b826ed3c3885
-                [size] => 
-                [id] => 6f4d804b-6f49-4841-a84e-3e0b02b35043
-                [resource_type] => 
-                [name] => cha_02 name
-            )*/
+    // Array(
+    //     [0] => stdClass Object(
+    //             [cache_last_updated] => 
+    //             [cache_url] => 
+    //             [mimetype_inner] => 
+    //             [hash] => cha_02
+    //             [description] => Updated: 2022-02-02 20:00
+    //             [format] => Darwin Core Archive
+    //             [url] => http://localhost/eol_php_code/applications/content_server/resources/Trait_Data_Import/cha_02.tar.gz
+    //             [created] => 2022-02-03T00:21:26.418199
+    //             [state] => active
+    //             [webstore_last_updated] => 
+    //             [webstore_url] => 
+    //             [package_id] => dab391f0-7ec0-4055-8ead-66b1dea55f28
+    //             [last_modified] => 
+    //             [mimetype] => 
+    //             [url_type] => 
+    //             [position] => 0
+    //             [revision_id] => 52f079cf-fa6f-40ec-a3f2-b826ed3c3885
+    //             [size] => 
+    //             [id] => 6f4d804b-6f49-4841-a84e-3e0b02b35043
+    //             [resource_type] => 
+    //             [name] => cha_02 name
+    //         )
     foreach($ckan_resources as $res) {
         if($res->hash == $hash) return $res->id;
     }
@@ -173,4 +163,5 @@ function get_opendata_resources_given_datasetID($dataset, $all_fields = true)
     else exit("\ncannot lookup\n");
     return array_keys($final);
 }
+*/
 ?>

@@ -48,7 +48,8 @@ class TaxonomicValidationRules
             self::parse_TSV_file($this->DH_file, 'load DH file');
             self::parse_TSV_file($this->temp_dir."processed.txt", 'name match and validate');
             self::summary_report();
-            echo "\n".$this->temp_dir."\n";
+            self::prepare_download_link();
+            echo "\n".$this->temp_dir."\n"; echo "\n".$this->resource_id."\n";
             // recursive_rmdir($this->temp_dir);
         }
         // print_r($this->user_canonicalNames); //good debug though
@@ -326,7 +327,7 @@ class TaxonomicValidationRules
                 foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
             }
             $rec = array_map('trim', $rec);
-            if(!$rec['scientificName']) continue;
+            if(!@$rec['scientificName']) continue;
             @$this->summary_report['Number of taxa']++;
             // echo "\nRAW REC:"; print_r($rec); //exit("\nstopx\n"); //good debug
             /*Array(
@@ -546,7 +547,7 @@ class TaxonomicValidationRules
 
         /* ----- Incompatible ancestors - If there are any incompatible ancestors, add “Incompatible ancestors” and list the incompatible pairs in parentheses. */
         if($incompatible_pairs) {
-            $incompatible_pairs = array_map('trim', $incompatible_pairs);
+            // $incompatible_pairs = array_map('trim', $incompatible_pairs);
             $incompatible_pairs = array_filter($incompatible_pairs); //remove null arrays
             $incompatible_pairs = array_unique($incompatible_pairs); //make unique
             $incompatible_pairs = array_values($incompatible_pairs); //reindex key    
@@ -701,6 +702,22 @@ class TaxonomicValidationRules
         fclose($WRITE);
     }
     ///============================================== START Summary Report
+    function prepare_download_link()
+    {   // zip -r temp.zip Documents
+        /* during dev - force assign
+        $this->temp_dir = "/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3//Taxonomic_Validation/174/";
+        $this->resource_id = 174;
+        */
+        echo "\n".$this->temp_dir."\n"; echo "\n".$this->resource_id."\n";
+        $destination = str_replace("/$this->resource_id/", "", $this->temp_dir);
+        $destination .= "/".$this->resource_id.".zip";
+        $source = $this->temp_dir;
+        echo "\nsource: [$source]\n";
+        echo "\ndestination: [$destination]\n";
+        $cmd = "zip -rj $destination $source";
+        $out = shell_exec($cmd);
+        echo "\n$out\n";
+    }
     private function write_summary_report()
     {
         $r = $this->summary_report;
@@ -712,7 +729,7 @@ class TaxonomicValidationRules
         fwrite($WRITE, "List of fields and their DwC-A mappings: "."\n");
         foreach($r['List of fields'] as $field) {
             $field2 = str_pad($field, 30, " ", STR_PAD_LEFT);
-            if($val = $this->taxon_fields[$field]) fwrite($WRITE, "$spaces $field2"." -> ".$val."\n");
+            if($val = @$this->taxon_fields[$field]) fwrite($WRITE, "$spaces $field2"." -> ".$val."\n");
             else                                   fwrite($WRITE, "$spaces $field2"." -> "."unmapped"."\n");
         }
         fwrite($WRITE, "--------------------------------------------------"."\n");
@@ -726,7 +743,7 @@ class TaxonomicValidationRules
         if($ranks = $r['Taxon ranks']) { $grand_total = 0;
             foreach($ranks as $rank => $total) { $grand_total += $total;
                 if(!$rank) $rank = "{blank}";
-                $rank = str_pad($rank, 15, " ", STR_PAD_LEFT);
+                $rank = str_pad($rank, 30, " ", STR_PAD_LEFT);
                 fwrite($WRITE, "$spaces $rank -> $total"."\n");
             }
             fwrite($WRITE, "$spaces Total -> $grand_total"."\n");
@@ -886,6 +903,7 @@ class TaxonomicValidationRules
         $this->taxon_fields['taxonRemarks']             = 'http://rs.tdwg.org/dwc/terms/taxonRemarks';
         $this->taxon_fields['namePublishedIn']          = 'http://rs.tdwg.org/dwc/terms/namePublishedIn';
         $this->taxon_fields['referenceID']              = 'http://eol.org/schema/reference/referenceID';
+        $this->taxon_fields['EOLid']                    = 'http://eol.org/schema/EOLid';
     }
 }
 ?>

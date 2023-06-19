@@ -62,4 +62,5 @@ $func = new TaxonomicValidationAPI('taxonomic_validation');
 // echo "\n[$timestart]\n"; exit; //[0.035333]
 $func->start($filename, $form_url, $uuid, $json);
 // Functions::get_time_elapsed($timestart);
+// $func->prepare_download_link(); //test only
 ?>
