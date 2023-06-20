@@ -30,7 +30,7 @@ class TaxonomicValidationRules
         $filenames = array('matchedNames', 'processed', 'unmatchedNames');
         foreach($filenames as $filename) {
             $filename = $this->temp_dir.$filename.".txt";
-            echo "\n[$filename]\n";
+            debug("\n[$filename]\n");
             $WRITE = Functions::file_open($filename, "w"); fclose($WRITE);
         }
         // */
@@ -50,10 +50,12 @@ class TaxonomicValidationRules
             self::summary_report();
             self::prepare_download_link();
             // echo "\n".$this->temp_dir."\n"; echo "\n".$this->resource_id."\n";
-            // recursive_rmdir($this->temp_dir);
+            recursive_rmdir($this->temp_dir);
         }
         // print_r($this->user_canonicalNames); //good debug though
         // exit("\n-stop muna-\n");
+        unset($this->DH_info);  unset($this->RoR);  unset($this->HC);
+        unset($this->IncompatibleAncestors_1);      unset($this->IncompatibleAncestors_2);  unset($this->taxon_fields);
     }
     private function parse_TSV_file($txtfile, $task)
     {   
@@ -107,7 +109,7 @@ class TaxonomicValidationRules
             //###############################################################################################
         } //end foreach()
         if($task == "load DH file") {
-            echo "\nLoaded DH 2.1 DONE.";
+            // echo "\nLoaded DH 2.1 DONE.";
             echo "\ntotal: ".count($this->DH_info)."\n"; //exit;
         }
     }
@@ -821,12 +823,14 @@ class TaxonomicValidationRules
         $diff = $totals - $sum;
         echo "\nDiff: [$diff] = $totals - $sum | ".$this->summary_report['Number of taxa']."\n";
         // */
-        // /* reconcile 2
-        $arrays = array($this->summary_report['Taxon ranks'], $this->summary_report['Taxonomic status']);
-        foreach($arrays as $array) {
-            $sum = 0;
-            foreach($array as $item => $total) $sum += $total;
-            echo "\nShould be equal: [$sum] | ".$this->summary_report['Number of taxa']."\n";
+        // /* reconcile 
+        if($GLOBALS['ENV_DEBUG']) {
+            $arrays = array($this->summary_report['Taxon ranks'], $this->summary_report['Taxonomic status']);
+            foreach($arrays as $array) {
+                $sum = 0;
+                foreach($array as $item => $total) $sum += $total;
+                echo "\nShould be equal: [$sum] | ".$this->summary_report['Number of taxa']."\n";
+            }    
         }
         // */
         self::write_summary_report();

@@ -57,7 +57,7 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
         if($form_url && $form_url != '_') $filename = self::process_form_url($form_url, $uuid); //this will download (wget) and save file in /specimen_export/temp/
         // */
         
-        if(pathinfo($filename, PATHINFO_EXTENSION) == "zip") { //e.g. input.xlsx.zip
+        if(pathinfo($filename, PATHINFO_EXTENSION) == "zip") { //e.g. taxon.tab.zip
             $filename = self::process_zip_file($filename);
         }
         
@@ -266,9 +266,9 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
         $test_temp_dir = create_temp_dir();
         $local = Functions::save_remote_file_to_local($this->input['path'].$filename);
         $output = shell_exec("unzip -o $local -d $test_temp_dir");
-        // echo "<hr> [$output] <hr>";
-        $ext = "xls";
-        $new_local = self::get_file_inside_dir_with_this_extension($test_temp_dir."/*.$ext*");
+        echo "<hr> [$output] <hr>";
+        // $ext = "tab"; //not used anymore
+        $new_local = self::get_file_inside_dir_with_this_extension($test_temp_dir."/*.{txt,tsv,tab}");
         $new_local_ext = pathinfo($new_local, PATHINFO_EXTENSION);
         $destination = $this->input['path'].pathinfo($filename, PATHINFO_FILENAME).".$new_local_ext";
         /* debug only
@@ -278,9 +278,10 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
         echo "\nnew_local_ext = [$new_local_ext]\n\n";
         echo "\ndestination = [$destination]\n\n";
         */
-        Functions::file_rename($new_local, $destination);
         if($GLOBALS['ENV_DEBUG']) print_r(pathinfo($destination));
-
+        if(Functions::file_rename($new_local, $destination)) {}
+        else echo "\nERRORx: file_rename failed.\n";
+        // exit("\nditox 100\n");
         //remove these 2 that were used above if file is a zip file
         unlink($local);
         recursive_rmdir($test_temp_dir);
@@ -289,7 +290,8 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
     }
     private function get_file_inside_dir_with_this_extension($files)
     {
-        $arr = glob($files);
+        $arr = glob($files, GLOB_BRACE);
+        echo "\nglob() "; print_r($arr);
         return $arr[0];
         // foreach (glob($files) as $filename) echo "\n- $filename\n";
     }

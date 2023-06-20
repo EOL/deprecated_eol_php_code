@@ -64,7 +64,7 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
     [taxon.csv] [text/csv]
     */
     $allowed_file_types = array("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel", "application/zip");
-    $allowed_file_types = array("application/octet-stream", "text/tab-separated-values", "text/plain", "text/csv");
+    $allowed_file_types = array("application/octet-stream", "text/tab-separated-values", "text/plain", "text/csv", "application/zip"); //
 
     if(in_array($file_type, $allowed_file_types)) {
         if($_FILES["file_upload"]["error"] > 0) {}
@@ -77,16 +77,15 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
             else echo "<br>uploading file - ERROR<br>";
         }
         $newfile = "temp/" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
-
         // echo "<hr>file_type: [$file_type]";
         // echo "<hr>orig_file: [$orig_file]";
         // echo "<hr>url: [$url]";
         // echo "<hr>newfile: [$newfile]<hr>";
         // exit;
     }
-    else exit("<hr>$file_type<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+    else exit("<hr>$file_type<hr>Invalid file type. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 }
-else exit("<hr>Please browse an Excel file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+else exit("<hr>Please select a file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 
 /* replaced by Jenkins call
 print "<br><b>Processing, please wait...</b><br><hr>";
