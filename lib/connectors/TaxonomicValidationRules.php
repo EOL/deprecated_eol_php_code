@@ -740,7 +740,7 @@ class TaxonomicValidationRules
         fwrite($WRITE, "Number of roots: ".count($r['Number of roots'])."\n");
         $i = 0;
         foreach(array_keys($r['Number of roots']) as $root) { $i++;
-            fwrite($WRITE, "$spaces $i. $root."."\n");
+            fwrite($WRITE, "$spaces $i. $root"."\n");
         }
         fwrite($WRITE, "--------------------------------------------------"."\n");
         fwrite($WRITE, "Taxon ranks: "."\n");
