@@ -31,7 +31,7 @@ else {
     // $dirname = $params['true_root'].'applications/specimen_image_export/temp/';
     // $dirname = $params['true_root'].'applications/trait_data_import/temp/';
     $dirname = $params['true_root'].'applications/taxonomic_validation/temp/';
-    $extensions = array('.xlsx', '.xls', '.zip'); //possible extensions
+    $extensions = array('.tab', '.txt', '.tsv', '.zip'); //possible extensions
     foreach($extensions as $ext) {
         $tmp = $dirname.$params['uuid'].$ext;
         if(file_exists($tmp)) {

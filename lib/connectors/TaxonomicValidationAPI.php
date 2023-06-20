@@ -34,10 +34,10 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
 
             $dir = $this->resources['path'];
             if(!is_dir($dir)) mkdir($dir);
-            
+            /*
             $dir = $this->resources['path'].'TSVs';
             if(!is_dir($dir)) mkdir($dir);
-            
+            */
             /* copied template
             $this->input['worksheets'] = array('data', 'references', 'vocabulary'); //'data' is the 1st worksheet from Trait_template.xlsx
             $this->vocabulary_fields = array("predicate label", "predicate uri", "value label", "value uri", "units label", "units uri", "statmeth label", "statmeth uri", "sex label", "sex uri", "lifestage label", "lifestage uri");
