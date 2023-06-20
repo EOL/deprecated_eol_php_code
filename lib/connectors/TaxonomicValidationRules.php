@@ -54,8 +54,12 @@ class TaxonomicValidationRules
         }
         // print_r($this->user_canonicalNames); //good debug though
         // exit("\n-stop muna-\n");
+        $this->DH_info = null;
+        $this->IncompatibleAncestors_1 = null;
+        $this->IncompatibleAncestors_2 = null;
         unset($this->DH_info);  unset($this->RoR);  unset($this->HC);
         unset($this->IncompatibleAncestors_1);      unset($this->IncompatibleAncestors_2);  unset($this->taxon_fields);
+        return;
     }
     private function parse_TSV_file($txtfile, $task)
     {   
@@ -821,7 +825,7 @@ class TaxonomicValidationRules
         }
         $totals = $this->summary_report['totals']['matchedNames'] + $this->summary_report['totals']['unmatchedNames'];
         $diff = $totals - $sum;
-        echo "\nDiff: [$diff] = $totals - $sum | ".$this->summary_report['Number of taxa']."\n";
+        debug("\nDiff: [$diff] = $totals - $sum | ".$this->summary_report['Number of taxa']."\n");
         // */
         // /* reconcile 
         if($GLOBALS['ENV_DEBUG']) {

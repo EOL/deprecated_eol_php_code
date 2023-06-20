@@ -16,15 +16,15 @@ where 1686049284.tab is in /eol_php_code/applications/taxonomic_validation/temp/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;  //set to false in production
-// /* during dev only
+/* during dev only
 $GLOBALS['ENV_DEBUG'] = true;   //set to true when debugging
 // error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
 ini_set('error_reporting', E_ALL);
-// */
+*/
 ini_set('memory_limit','14096M');
 require_library('connectors/TaxonomicValidationRules');
 require_library('connectors/TaxonomicValidationAPI');
-// $timestart = time_elapsed();
+// $timestart = time_elapsed(); //use the one from jenkins_call.php
 
 /* tests
 // $path = "/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/Taxonomic_Validation/1686044073.tar.gz";
@@ -61,6 +61,8 @@ $resource_id = ''; //no longer used from here
 $func = new TaxonomicValidationAPI('taxonomic_validation');
 // echo "\n[$timestart]\n"; exit; //[0.035333]
 $func->start($filename, $form_url, $uuid, $json);
-// Functions::get_time_elapsed($timestart);
 // $func->prepare_download_link(); //test only
+
+$arr = json_decode($json, true); // print_r($arr);
+Functions::get_time_elapsed($arr['timestart']);
 ?>

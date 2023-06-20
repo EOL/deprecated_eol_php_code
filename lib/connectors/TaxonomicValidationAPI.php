@@ -266,7 +266,7 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
         $test_temp_dir = create_temp_dir();
         $local = Functions::save_remote_file_to_local($this->input['path'].$filename);
         $output = shell_exec("unzip -o $local -d $test_temp_dir");
-        echo "<hr> [$output] <hr>";
+        if($GLOBALS['ENV_DEBUG']) echo "<hr> [$output] <hr>";
         // $ext = "tab"; //not used anymore
         $new_local = self::get_file_inside_dir_with_this_extension($test_temp_dir."/*.{txt,tsv,tab}");
         $new_local_ext = pathinfo($new_local, PATHINFO_EXTENSION);
@@ -291,8 +291,9 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
     private function get_file_inside_dir_with_this_extension($files)
     {
         $arr = glob($files, GLOB_BRACE);
-        echo "\nglob() "; print_r($arr);
-        return $arr[0];
+        // echo "\nglob() "; print_r($arr); //good debug
+        if($val = $arr[0]) return $val;
+        else exit("\nERROR: File to process does not exist.\n");
         // foreach (glob($files) as $filename) echo "\n- $filename\n";
     }
     /* =======================================START create DwCA ======================================= */
