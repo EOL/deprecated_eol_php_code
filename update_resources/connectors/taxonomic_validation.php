@@ -64,5 +64,5 @@ $func->start($filename, $form_url, $uuid, $json);
 // $func->prepare_download_link(); //test only
 
 $arr = json_decode($json, true); // print_r($arr);
-Functions::get_time_elapsed($arr['timestart']);
+// Functions::get_time_elapsed($arr['timestart']); //working but not resembling the real run time
 ?>
