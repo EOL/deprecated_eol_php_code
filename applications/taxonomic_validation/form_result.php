@@ -100,12 +100,22 @@ elseif($file_type = @$_FILES["file_upload3"]["type"]) {
         }
         $newfile = "temp/" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
 
-        // /* Added block:
+        // /* ---------- Added block:
         require_library('connectors/TaxonomicValidationRules');
-        $func = new TaxonomicValidationRules();
-        $func->add_header_to_file($newfile, "scientificName"); //exit("\nxxx\n");
-        // */
-        
+        require_library('connectors/TaxonomicValidationAPI');
+        if(pathinfo($newfile, PATHINFO_EXTENSION) == "zip") { //e.g. taxa_list.txt.zip
+            $func1 = new TaxonomicValidationAPI('taxonomic_validation');
+            $newfile = $func1->process_zip_file(str_replace("temp/", "", $newfile)); // exit("\n[$newfile]\n");
+
+            $newfile = "temp/".$newfile;
+            $func2 = new TaxonomicValidationRules();
+            $func2->add_header_to_file($newfile, "scientificName");
+        }
+        else { //e.g. taxa_list.txt
+            $func2 = new TaxonomicValidationRules();
+            $func2->add_header_to_file($newfile, "scientificName");
+        }
+        // ---------- */
     }
     else exit("<hr>$file_type<hr>Invalid file type. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");    
 }

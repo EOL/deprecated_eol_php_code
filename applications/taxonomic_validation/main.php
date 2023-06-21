@@ -60,7 +60,6 @@ else                      $browser_comment = "Choose File"; //Safari Chrome etc
             We will treat the content of this column as a scientificName value. <br><br>
             Upload user file: </font><input type="file" name="file_upload3" id="file_upload3" size="100">
             <br><br><small>(.txt) OR (.txt.zip)</small>
-
     </td></tr>
 
     <!---

@@ -261,7 +261,7 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
         echo "\n---\n".trim($shell_debug)."\n---\n"; //exit;
         return pathinfo($target, PATHINFO_BASENAME);
     }
-    private function process_zip_file($filename)
+    function process_zip_file($filename)
     {
         $test_temp_dir = create_temp_dir();
         $local = Functions::save_remote_file_to_local($this->input['path'].$filename);
