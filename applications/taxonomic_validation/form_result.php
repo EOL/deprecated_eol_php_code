@@ -85,6 +85,30 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
     }
     else exit("<hr>$file_type<hr>Invalid file type. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 }
+elseif($file_type = @$_FILES["file_upload3"]["type"]) {
+    debug("<br>orig_file: [".$_FILES["file_upload"]["name"]."]<br>"); debug("<br>file type: [".$file_type."]<br>");
+    $allowed_file_types = array("text/plain", "application/zip");
+    if(in_array($file_type, $allowed_file_types)) {
+        if($_FILES["file_upload3"]["error"] > 0) {}
+        else {
+            $orig_file = $_FILES["file_upload3"]["name"];
+            $url = "temp/" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
+            if(move_uploaded_file($_FILES["file_upload3"]["tmp_name"] , $url)) {
+                debug("<br>file uploaded - OK<br>");
+            }
+            else echo "<br>uploading file - ERROR<br>";
+        }
+        $newfile = "temp/" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
+
+        // /* Added block:
+        require_library('connectors/TaxonomicValidationRules');
+        $func = new TaxonomicValidationRules();
+        $func->add_header_to_file($newfile, "scientificName"); //exit("\nxxx\n");
+        // */
+        
+    }
+    else exit("<hr>$file_type<hr>Invalid file type. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");    
+}
 else exit("<hr>Please select a file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 
 /* replaced by Jenkins call

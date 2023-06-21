@@ -781,10 +781,12 @@ class TaxonomicValidationRules
             else                                   fwrite($WRITE, "$spaces $field2"." -> "."unmapped"."\n");
         }
         fwrite($WRITE, "--------------------------------------------------"."\n");
-        fwrite($WRITE, "Number of roots: ".count($r['Number of roots'])."\n");
-        $i = 0;
-        foreach(array_keys($r['Number of roots']) as $root) { $i++;
-            fwrite($WRITE, "$spaces $i. $root"."\n");
+        fwrite($WRITE, "Number of roots: ".count(@$r['Number of roots'])."\n");
+        if($roots = @$r['Number of roots']) {
+            $i = 0;
+            foreach(array_keys($roots) as $root) { $i++;
+                fwrite($WRITE, "$spaces $i. $root"."\n");
+            }    
         }
         fwrite($WRITE, "--------------------------------------------------"."\n");
         fwrite($WRITE, "Taxon ranks: "."\n");
@@ -956,6 +958,19 @@ class TaxonomicValidationRules
         $this->taxon_fields['namePublishedIn']          = 'http://rs.tdwg.org/dwc/terms/namePublishedIn';
         $this->taxon_fields['referenceID']              = 'http://eol.org/schema/reference/referenceID';
         $this->taxon_fields['EOLid']                    = 'http://eol.org/schema/EOLid';
+    }
+    function add_header_to_file($file, $string_tobe_added)
+    {
+        echo "<pre>\nuser file: [$file]\n";                             // [temp/1687337313.txt]
+        $needle = pathinfo($file, PATHINFO_FILENAME);                   //       1687337313
+        $tmp_file = str_replace("$needle.txt", "$needle.tmp", $file);   // [temp/1687337313.tmp]
+        echo("\n[$file]\n[$needle]\n[$tmp_file]</pre>\n"); //good debug
+        $WRITE = Functions::file_open($tmp_file, "w");
+        fwrite($WRITE, $string_tobe_added . "\n");
+        $contents = file_get_contents($file);
+        fwrite($WRITE, $contents . "\n");
+        fclose($WRITE);
+        shell_exec("cp $tmp_file $file");
     }
 }
 ?>

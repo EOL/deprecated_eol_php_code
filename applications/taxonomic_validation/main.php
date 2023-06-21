@@ -58,9 +58,7 @@ else                      $browser_comment = "Choose File"; //Safari Chrome etc
             <font size="3">
             <b>Taxa List</b> (plain text, txt): a simple, one column document, with one name per line. 
             We will treat the content of this column as a scientificName value. <br><br>
-            <!---
             Upload user file: </font><input type="file" name="file_upload3" id="file_upload3" size="100">
-            --->
             <br><br><small>(.txt) OR (.txt.zip)</small>
 
     </td></tr>
