@@ -726,8 +726,15 @@ class TaxonomicValidationRules
         }        
         return $rec;
     }
-    private function write_output_rec_2txt($rec, $basename)
+    private function clean_array($arr)
     {
+        $arr = array_filter($arr); //remove null arrays
+        $arr = array_unique($arr); //make unique
+        $arr = array_values($arr); //reindex key
+        return $arr;
+    }
+    private function write_output_rec_2txt($rec, $basename)
+    {   // print_r($rec);
         $filename = $this->temp_dir.$basename.".txt";
         $fields = array_keys($rec);
         $WRITE = Functions::file_open($filename, "a");
@@ -736,6 +743,7 @@ class TaxonomicValidationRules
         $save = array();
         foreach($fields as $fld) {
             if(is_array($rec[$fld])) { //if value is array()
+                $rec[$fld] = self::clean_array($rec[$fld]);
                 $rec[$fld] = implode(", ", $rec[$fld]); //convert to string
                 $save[] = trim($rec[$fld]);
             }

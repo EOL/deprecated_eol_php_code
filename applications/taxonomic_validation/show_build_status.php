@@ -110,9 +110,9 @@ else {
 if($build_status) echo "<hr><b>Build status 3:</b><pre>".$build_status."</pre><hr>";
 else {
     if($ctrler->is_task_in_queue('xls2dwca_job', $params['uuid'].$postfix)) { //job_name = 'specmnXport_job' or 'xls2dwca_job'
-        echo "<hr><b>Build status 2:</b><pre>This job is now in queue...</pre><hr>";
+        echo "<hr><b>Build status 1:</b><pre>This job is now in queue...</pre><hr>";
     }
-    else echo "<hr><b>Build status 1:</b><pre>Preparing files...</pre><hr>";
+    else echo "<hr><b>Build status 2:</b><pre>Preparing files...</pre><hr>";
 }
 if($build_status) {
     if($ctrler->is_build_aborted($build_status)) echo "<p>Process aborted. &nbsp; <a href='main.php'>&lt;&lt; Back to main</a>";
