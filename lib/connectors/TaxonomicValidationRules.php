@@ -150,8 +150,8 @@ class TaxonomicValidationRules
         $u_canonicalName = $rec['canonicalName'];
         // /* ----- Duplicate canonical - add if there is more than 1 name with the same canonical in the user file
         if($u_canonicalName) {
-            if($val = $this->user_canonicalNames[$u_canonicalName]) {
-                if($val > 1) $rec['addtl']['quality notes'][] = 'Duplicate canonical';
+            if($val_arr = $this->user_canonicalNames[$u_canonicalName]) { // print_r($val_arr);
+                if(count($val_arr) > 1) $rec['addtl']['quality notes'][] = 'Duplicate canonical';
             }    
         }
         // */
