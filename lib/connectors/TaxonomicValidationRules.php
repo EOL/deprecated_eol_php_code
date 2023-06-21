@@ -66,7 +66,7 @@ class TaxonomicValidationRules
     {   
         if($task == "load DH file") echo "\nLoading DH 2.1 ";
         if($task == "name match and validate") echo "\nName Match and Validate ";
-        $i = 0; debug("\nProcessing: [$txtfile]\n");
+        $i = 0; debug("\nProcessing: [$txtfile]\n"); //$syn = 0; for stats only
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             if(!$line) continue;
             $i++; if(($i % 1000000) == 0) echo "\n".number_format($i)." ";
@@ -85,6 +85,9 @@ class TaxonomicValidationRules
             if($task == "load DH file") { // print_r($rec); exit("\nstopx\n");
                 $canonicalName = $rec['canonicalName'];
                 $this->DH_info[$canonicalName][] = $rec;
+
+                // @$taxo_status[$rec['taxonomicStatus']]++; //good debug
+                // if($rec['acceptedNameUsageID']) $syn++; //good debug
                 // print_r($this->DH_info); exit("\nditox 3\n");
                 /*Array(
                     [Life] => Array(
@@ -116,6 +119,7 @@ class TaxonomicValidationRules
         if($task == "load DH file") {
             // echo "\nLoaded DH 2.1 DONE.";
             echo "\ntotal: ".count($this->DH_info)."\n"; //exit;
+            // print_r($taxo_status); exit("\n[$syn]\n"); //good debug
         }
     }
     private function name_match_validate($rec)
@@ -163,6 +167,9 @@ class TaxonomicValidationRules
             foreach($DH_recs as $DH_rec) {
                 $matched = array();
                 $matched['taxonID'] = $rec['taxonID'];
+                /* per Katja: Also, I would like to revise the reporting of names matched to a DH synonym. 
+                In those cases, please put the eolID of the synonyms's acceptedNameUsageID taxon in the DH_eolID column 
+                and add a "Synonym match" warning to the quality notes. */
                 $matched['DH_eolID'] = $DH_rec['eolID'];
                 $matched['canonicalName'] = $rec['canonicalName'];
                 $matched['scientificName'] = $rec['scientificName'];
