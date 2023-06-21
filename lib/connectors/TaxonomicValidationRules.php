@@ -188,7 +188,7 @@ class TaxonomicValidationRules
                 and add a "Synonym match" warning to the quality notes. */
                 $Synonym_match_YN = false;
                 if($DH_acceptedNameUsageID = $DH_rec['acceptedNameUsageID']) { //means a synonym with taxonomicStatus = 'not accepted'
-                    if($sought_eolID = $this->DH_taxonID_eolID[DH_acceptedNameUsageID]) {
+                    if($sought_eolID = $this->DH_taxonID_eolID[$DH_acceptedNameUsageID]) {
                         $matched['DH_eolID'] = $sought_eolID;
                         $Synonym_match_YN = true;
                     }
@@ -211,7 +211,7 @@ class TaxonomicValidationRules
                 $rec_new = self::excluded_based_on_3($rec, $DH_rec);
                 $matched['quality notes'] = @$rec_new['addtl']['quality notes'];
 
-                // /* syn part 2
+                // /* syn part 2:
                 if($Synonym_match_YN) $matched['quality notes'][] = 'Synonym match';
                 // */
 
