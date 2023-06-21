@@ -84,11 +84,26 @@ class TaxonomicValidationRules
             //###############################################################################################
             if($task == "load DH file") { // print_r($rec); exit("\nstopx\n");
                 $canonicalName = $rec['canonicalName'];
-                $this->DH_info[$canonicalName][] = $rec;
 
-                // @$taxo_status[$rec['taxonomicStatus']]++; //good debug
-                // if($rec['acceptedNameUsageID']) $syn++; //good debug
+                $save = array();
+                $save['acceptedNameUsageID']      = $rec['acceptedNameUsageID'];
+                $save['eolID']                    = $rec['eolID'];
+                $save['scientificName']           = $rec['scientificName'];
+                $save['scientificNameAuthorship'] = @$rec['scientificNameAuthorship'];
+                $save['taxonRank']                = $rec['taxonRank'];
+                $save['taxonomicStatus']          = $rec['taxonomicStatus'];
+                $save['higherClassification']     = $rec['higherClassification'];
+                $this->DH_info[$canonicalName][] = $save; // $rec is too big in memory
+
+                // @$taxo_status[$rec['taxonomicStatus']]++; //good debug // if($rec['acceptedNameUsageID']) $syn++; //good debug
                 // print_r($this->DH_info); exit("\nditox 3\n");
+
+                // /*
+                $taxonID = $rec['taxonID'];
+                $eolID = $rec['eolID'];
+                $this->DH_taxonID_eolID[$taxonID] = $eolID;
+                // */
+
                 /*Array(
                     [Life] => Array(
                             [0] => Array(
@@ -167,10 +182,20 @@ class TaxonomicValidationRules
             foreach($DH_recs as $DH_rec) {
                 $matched = array();
                 $matched['taxonID'] = $rec['taxonID'];
-                /* per Katja: Also, I would like to revise the reporting of names matched to a DH synonym. 
+
+                /* syn part 1: per Katja: Also, I would like to revise the reporting of names matched to a DH synonym. 
                 In those cases, please put the eolID of the synonyms's acceptedNameUsageID taxon in the DH_eolID column 
                 and add a "Synonym match" warning to the quality notes. */
-                $matched['DH_eolID'] = $DH_rec['eolID'];
+                $Synonym_match_YN = false;
+                if($DH_acceptedNameUsageID = $DH_rec['acceptedNameUsageID']) { //means a synonym with taxonomicStatus = 'not accepted'
+                    if($sought_eolID = $this->DH_taxonID_eolID[DH_acceptedNameUsageID]) {
+                        $matched['DH_eolID'] = $sought_eolID;
+                        $Synonym_match_YN = true;
+                    }
+                    else exit("\nShould not go here. [$DH_acceptedNameUsageID]\n");
+                }
+                else $matched['DH_eolID'] = $DH_rec['eolID']; //regular normal case             
+               
                 $matched['canonicalName'] = $rec['canonicalName'];
                 $matched['scientificName'] = $rec['scientificName'];
                 $matched['DH_scientificName'] = $DH_rec['scientificName'];
@@ -185,6 +210,10 @@ class TaxonomicValidationRules
 
                 $rec_new = self::excluded_based_on_3($rec, $DH_rec);
                 $matched['quality notes'] = @$rec_new['addtl']['quality notes'];
+
+                // /* syn part 2
+                if($Synonym_match_YN) $matched['quality notes'][] = 'Synonym match';
+                // */
 
                 if(@$rec_new['addtl']['incompatible_pairs_arr'] || 
                    $rec_new['addtl']['Family_mismatch_YN'] === true ||
