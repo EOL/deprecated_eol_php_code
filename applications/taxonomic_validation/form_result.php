@@ -56,7 +56,8 @@ if($form_url) { //URL is pasted.
 }
 elseif($file_type = @$_FILES["file_upload"]["type"]) {
     debug("<br>orig_file: [".$_FILES["file_upload"]["name"]."]<br>");
-    debug("<br>file type: [".$file_type."]<br>"); //exit;
+    debug("<br>file type: [".$file_type."]<br>"); 
+    // echo "<pre>"; print_r($_FILES); echo "</pre>"; exit; //good debug
     /*
     [taxon.tab] [application/octet-stream]
     [taxon.tsv] [text/tab-separated-values]
