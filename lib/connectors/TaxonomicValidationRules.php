@@ -288,7 +288,7 @@ class TaxonomicValidationRules
         $obj = json_decode($json); //print_r($obj); //exit("\nditox 8\n"); //echo("\n[".$json."]\n");
         // */
         // /* ----- Unparsed - add if gnparser  "parsed": false
-        if(!$obj->parsed) $rec['addtl']['quality notes'][] = "Unparsed";
+        if(!@$obj->parsed) $rec['addtl']['quality notes'][] = "Unparsed";
         // */
         // /* ----- If gnparser provides any qualityWarnings, add the value of each warning, separated by commas. 
         // If the warning is "Unparsed tail", also add the value of “tail” in parentheses.
@@ -481,7 +481,7 @@ class TaxonomicValidationRules
         if($val = @$rec['canonicalName']) return $val;
         else {
             // exit("\nparsed: [".$obj->parsed."]\n");
-            if($obj->parsed == 1) { // names that get parsed
+            if(@$obj->parsed == 1) { // names that get parsed
                 $CanonicalFull = $obj->canonical->full;
                 if(@$obj->hybrid == "NAMED_HYBRID")                 return $CanonicalFull;
                 if(stripos($CanonicalFull, " subgen. ") !== false)  return $CanonicalFull; //found string
@@ -599,7 +599,9 @@ class TaxonomicValidationRules
         }
         $rec['addtl']['incompatible_pairs_arr'] = $incompatible_pairs;
         if($incompatible_pairs) {
-            echo "\nIncompatible pairs: "; print_r($incompatible_pairs); //exit("\n\n");
+            if($GLOBALS['ENV_DEBUG']) {
+                // echo "\nIncompatible pairs: "; print_r($incompatible_pairs); //exit("\n\n"); //good debug
+            }
             $csv_str = "";
             foreach($incompatible_pairs as $pair) $csv_str .= "[".implode(",", $pair)."] ";
             $rec['addtl']['quality notes'][] = "Incompatible ancestors (".trim($csv_str).")";
@@ -811,6 +813,7 @@ class TaxonomicValidationRules
         if($ranks = $r['Taxonomic status']) { $grand_total = 0;
             foreach($ranks as $rank => $total) { $grand_total += $total;
                 if(!$rank) $rank = "{blank}";
+                $rank = str_pad($rank, 30, " ", STR_PAD_LEFT);
                 fwrite($WRITE, "$spaces $rank -> $total"."\n");
             }
             fwrite($WRITE, "$spaces Total -> $grand_total"."\n");
