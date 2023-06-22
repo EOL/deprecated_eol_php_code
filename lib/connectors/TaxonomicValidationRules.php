@@ -359,7 +359,7 @@ class TaxonomicValidationRules
         echo "\nReading user file... ";
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             if(!$line) continue;
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i)." ";
+            $i++; if(($i % 50000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line); // print_r($row);
             if($i == 1) {
                 $fields = $row;
