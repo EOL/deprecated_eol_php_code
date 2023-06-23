@@ -62,14 +62,27 @@ class TaxonomicValidationRules
         $this->taxon_fields = '';
         return;
     }
+    private function get_modulo($txtfile)
+    {
+        $total = self::total_rows_on_file($txtfile);
+        if($total <= 1000) $modulo = 200;
+        elseif($total > 1000 && $total <= 50000) $modulo = 5000;
+        elseif($total > 50000 && $total <= 100000) $modulo = 5000;
+        elseif($total > 100000 && $total <= 500000) $modulo = 10000;
+        elseif($total > 500000 && $total <= 1000000) $modulo = 10000;
+        elseif($total > 1000000 && $total <= 2000000) $modulo = 10000;
+        elseif($total > 2000000) $modulo = 10000;
+        return $modulo;
+    }
     private function parse_TSV_file($txtfile, $task)
     {   
-        if($task == "load DH file") echo "\nLoading DH 2.1 ";
+        $modulo = self::get_modulo($txtfile);
+        if($task == "load DH file") { echo "\nLoading DH 2.1 "; $modulo = 1000000; }
         if($task == "name match and validate") echo "\nName Match and Validate ";
-        $i = 0; debug("\nProcessing: [$txtfile]\n"); //$syn = 0; for stats only
+        $i = 0; debug("\nProcessing: [$txtfile]\n"); //$syn = 0; for stats only        
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             if(!$line) continue;
-            $i++; if(($i % 1000000) == 0) echo "\n".number_format($i)." ";
+            $i++; if(($i % $modulo) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line); // print_r($row);
             if($i == 1) {
                 $fields = $row;
