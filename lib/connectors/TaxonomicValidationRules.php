@@ -969,6 +969,24 @@ class TaxonomicValidationRules
         $this->taxon_fields['namePublishedIn']          = 'http://rs.tdwg.org/dwc/terms/namePublishedIn';
         $this->taxon_fields['referenceID']              = 'http://eol.org/schema/reference/referenceID';
         $this->taxon_fields['EOLid']                    = 'http://eol.org/schema/EOLid';
+        //below from Katja
+        $this->taxon_fields['scientificNameID']         = 'http://rs.tdwg.org/dwc/terms/scientificNameID';
+        $this->taxon_fields['namePublishedInID']        = 'http://rs.tdwg.org/dwc/terms/namePublishedInID';
+        $this->taxon_fields['acceptedNameUsage']        = 'http://rs.tdwg.org/dwc/terms/acceptedNameUsage';
+        $this->taxon_fields['parentNameUsage']          = 'http://rs.tdwg.org/dwc/terms/parentNameUsage';
+        $this->taxon_fields['namePublishedInYear']      = 'http://rs.tdwg.org/dwc/terms/namePublishedInYear';
+        $this->taxon_fields['subgenus']                 = 'http://rs.tdwg.org/dwc/terms/subgenus';
+        $this->taxon_fields['specificEpithet']          = 'http://rs.tdwg.org/dwc/terms/specificEpithet';
+        $this->taxon_fields['infraspecificEpithet']     = 'http://rs.tdwg.org/dwc/terms/infraspecificEpithet';
+        $this->taxon_fields['nomenclaturalCode']        = 'http://rs.tdwg.org/dwc/terms/nomenclaturalCode';
+        $this->taxon_fields['nomenclaturalStatus']      = 'http://rs.tdwg.org/dwc/terms/nomenclaturalStatus';
+        $this->taxon_fields['modified']                 = 'http://purl.org/dc/terms/modified';
+        $this->taxon_fields['bibliographicCitation']    = 'http://purl.org/dc/terms/bibliographicCitation';
+        $this->taxon_fields['references']               = 'http://purl.org/dc/terms/references';
+        $this->taxon_fields['license']                  = 'http://purl.org/dc/terms/license';
+        $this->taxon_fields['rightsHolder']             = 'http://purl.org/dc/terms/rightsHolder';
+        $this->taxon_fields['datasetName']              = 'http://rs.tdwg.org/dwc/terms/datasetName';
+        $this->taxon_fields['institutionCode']          = 'http://rs.tdwg.org/dwc/terms/institutionCode';
     }
     function add_header_to_file($file, $string_tobe_added)
     {
