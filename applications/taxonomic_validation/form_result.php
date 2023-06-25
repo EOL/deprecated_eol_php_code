@@ -113,16 +113,20 @@ elseif($file_type = @$_FILES["file_upload2"]["type"]) { // Darwin Core Archive
                 $source = $download_directory ."/".$taxon_file;
                 $destination = "temp/" . $time_var . "." . pathinfo($taxon_file, PATHINFO_EXTENSION);
                 echo "<br>source: [$source]<br>destination: [$destination]<br>";
-                if(copy($source, $destination)) $newfile = $destination;
+                if(copy($source, $destination)) $newfile = $destination; //success OK
                 else exit("<br>ERROR: Investigate, file copy failed [$source] [$destination]<br>");
                 // exit("<brstop muna><br>");
             }
-            else exit("<hr>ERROR: Cannot proceed. DwCA doesn't have meta.xml. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+            else exit("<hr>ERROR: Cannot proceed. DwCA doesn't have meta.xml [$download_directory]. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+            // /* deleting temp folder in: eol_php_code/applications/content_server/tmp/
+            $basename = pathinfo($download_directory, PATHINFO_BASENAME); //9f508e44e8038fb56bbc0c9b34eb3ac7
+            if(strlen($basename) == 32 && is_dir($download_directory)) recursive_rmdir($download_directory);
+            // */
         }
-        else exit("<hr>ERROR: Cannot proceed. File is lost. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+        else exit("<hr>ERROR: Cannot proceed. File is lost [$dwca_full_path]. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
         // ---------- */
     }
-    else exit("<hr>$file_type<hr>Invalid file type. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");    
+    else exit("<hr><i>$file_type</i><hr>Invalid file type. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");    
 }
 elseif($file_type = @$_FILES["file_upload3"]["type"]) { // Taxa List
     debug("<br>orig_file: [".$_FILES["file_upload3"]["name"]."]<br>"); debug("<br>file type: [".$file_type."]<br>");
