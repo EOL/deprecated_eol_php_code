@@ -49,9 +49,7 @@ else                      $browser_comment = "Choose File"; //Safari Chrome etc
     <tr><td>
             <font size="3">
             <b>Darwin Core Archive</b> <br><br>
-            <!---
             Upload user file: </font><input type="file" name="file_upload2" id="file_upload2" size="100">
-            --->
             <br><br><small>(.tar.gz or .zip)</small>
     </td></tr>
     <tr><td>

@@ -54,7 +54,7 @@ if($form_url) { //URL is pasted.
     // exit;
     */
 }
-elseif($file_type = @$_FILES["file_upload"]["type"]) {
+elseif($file_type = @$_FILES["file_upload"]["type"]) { //Taxa File
     debug("<br>orig_file: [".$_FILES["file_upload"]["name"]."]<br>");
     debug("<br>file type: [".$file_type."]<br>"); 
     // echo "<pre>"; print_r($_FILES); echo "</pre>"; exit; //good debug
@@ -86,8 +86,46 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
     }
     else exit("<hr>$file_type<hr>Invalid file type. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 }
-elseif($file_type = @$_FILES["file_upload3"]["type"]) {
-    debug("<br>orig_file: [".$_FILES["file_upload"]["name"]."]<br>"); debug("<br>file type: [".$file_type."]<br>");
+elseif($file_type = @$_FILES["file_upload2"]["type"]) { // Darwin Core Archive
+    debug("<br>orig_file: [".$_FILES["file_upload2"]["name"]."]<br>"); debug("<br>file type: [".$file_type."]<br>");
+    $allowed_file_types = array("application/x-gzip", "application/zip"); //.tar.gz and .zip
+    if(in_array($file_type, $allowed_file_types)) {
+        if($_FILES["file_upload2"]["error"] > 0) {}
+        else {
+            $orig_file = $_FILES["file_upload2"]["name"];
+            $url = "temp/" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
+            if(move_uploaded_file($_FILES["file_upload2"]["tmp_name"] , $url)) {
+                debug("<br>file uploaded - OK<br>");
+            }
+            else echo "<br>uploading file - ERROR<br>";
+        }
+        $newfile = "temp/" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION); //e.g. temp/1687711391.gz
+        // exit("\n[$newfile]\n");
+
+        // /* ---------- Added block:
+        $dwca_full_path = DOC_ROOT."/applications/taxonomic_validation/".$newfile;
+        if($download_directory = ContentManager::download_temp_file_and_assign_extension($dwca_full_path, "")) { //added 2nd blank param to suffice: "Warning: Missing argument 2"
+            echo "<br>newfile = [$newfile]<br>download_directory:[$download_directory]<br>";
+            // $download_directory = '/Library/WebServer/Webroot/eol_php_code/applications/content_server/tmp/9f508e44e8038fb56bbc0c9b34eb3ac7';
+            if(is_dir($download_directory) && file_exists($download_directory ."/meta.xml")) {
+                $taxon_file = get_taxon_file($download_directory ."/meta.xml"); //taxon.tab
+                echo("<br>taxon file: [$taxon_file]<br>");
+                $source = $download_directory ."/".$taxon_file;
+                $destination = "temp/" . $time_var . "." . pathinfo($taxon_file, PATHINFO_EXTENSION);
+                echo "<br>source: [$source]<br>destination: [$destination]<br>";
+                if(copy($source, $destination)) $newfile = $destination;
+                else exit("<br>ERROR: Investigate, file copy failed [$source] [$destination]<br>");
+                // exit("<brstop muna><br>");
+            }
+            else exit("<hr>ERROR: Cannot proceed. DwCA doesn't have meta.xml. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+        }
+        else exit("<hr>ERROR: Cannot proceed. File is lost. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+        // ---------- */
+    }
+    else exit("<hr>$file_type<hr>Invalid file type. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");    
+}
+elseif($file_type = @$_FILES["file_upload3"]["type"]) { // Taxa List
+    debug("<br>orig_file: [".$_FILES["file_upload3"]["name"]."]<br>"); debug("<br>file type: [".$file_type."]<br>");
     $allowed_file_types = array("text/plain", "application/zip");
     if(in_array($file_type, $allowed_file_types)) {
         if($_FILES["file_upload3"]["error"] > 0) {}
@@ -150,5 +188,20 @@ function get_val_var($v)
     elseif (isset($_POST["$v"])) $var = $_POST["$v"];
     if(isset($var)) return $var;
     else return NULL;
+}
+function get_taxon_file($meta_xml)
+{   // echo "<br>meta.xml path: [$meta_xml]<br>";
+    $xml = file_get_contents($meta_xml);
+    /* e.g. meta.xml contents:
+    <table encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Taxon">
+    <files>
+      <location>taxon.tab</location>
+    </files>    
+    */
+    // $left = 'rowType="http://eol.org/schema/media/Document"'; //just testing, should get e.g. "media_resource.tab"
+    $left = 'rowType="http://rs.tdwg.org/dwc/terms/Taxon"';
+    if(preg_match("/".preg_quote($left, '/')."(.*?)<\/files>/ims", $xml, $arr)) {
+        if(preg_match("/<location>(.*?)<\/location>/ims", $arr[1], $arr2)) return $arr2[1]; //e.g. "taxon.tab"
+    }
 }
 ?>
