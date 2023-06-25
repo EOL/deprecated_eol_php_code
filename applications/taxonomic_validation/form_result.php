@@ -116,12 +116,15 @@ elseif($file_type = @$_FILES["file_upload2"]["type"]) { // Darwin Core Archive
                 if(copy($source, $destination)) $newfile = $destination; //success OK
                 else exit("<br>ERROR: Investigate, file copy failed [$source] [$destination]<br>");
                 // exit("<brstop muna><br>");
+
+                // /* deleting temp folder in: eol_php_code/applications/content_server/tmp/
+                $basename = pathinfo($download_directory, PATHINFO_BASENAME); //9f508e44e8038fb56bbc0c9b34eb3ac7
+                if(strlen($basename) == 32 && is_dir($download_directory)) recursive_rmdir($download_directory);
+                else exit("<br>ERROR: Cannot delte temporary folder in [/content_server/tmp/]<br>");
+                // */
+
             }
             else exit("<hr>ERROR: Cannot proceed. DwCA doesn't have meta.xml [$download_directory]. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
-            // /* deleting temp folder in: eol_php_code/applications/content_server/tmp/
-            $basename = pathinfo($download_directory, PATHINFO_BASENAME); //9f508e44e8038fb56bbc0c9b34eb3ac7
-            if(strlen($basename) == 32 && is_dir($download_directory)) recursive_rmdir($download_directory);
-            // */
         }
         else exit("<hr>ERROR: Cannot proceed. File is lost [$dwca_full_path]. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
         // ---------- */
