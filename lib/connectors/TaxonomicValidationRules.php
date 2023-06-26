@@ -1018,7 +1018,7 @@ class TaxonomicValidationRules
         fclose($WRITE);
         shell_exec("cp $tmp_file $file");
     }
-    function sort_key_val_array($multi_array, $key_orientation = SORT_ASC, $value_orientation = SORT_DESC)
+    function sort_key_val_array($multi_array, $key_orientation = SORT_ASC, $value_orientation = SORT_ASC)
     {
         $data = array();
         foreach($multi_array as $key => $value) $data[] = array('language' => $key, 'count' => $value);
@@ -1036,8 +1036,8 @@ class TaxonomicValidationRules
 
         // Sort the data with language descending, count ascending
         // Add $data as the last parameter, to sort by the common key
-        array_multisort($count, SORT_ASC, $language, SORT_ASC, $data); // an example run
-        // array_multisort($count, $value_orientation, $language, $key_orientation, $data);
+        // array_multisort($count, SORT_ASC, $language, SORT_ASC, $data); // an example run
+        array_multisort($count, $value_orientation, $language, $key_orientation, $data);
 
         // echo "<pre>"; print_r($data); echo "</pre>"; exit;
         /* Array(
