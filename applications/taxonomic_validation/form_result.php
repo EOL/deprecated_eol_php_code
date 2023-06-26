@@ -120,7 +120,7 @@ elseif($file_type = @$_FILES["file_upload2"]["type"]) { // Darwin Core Archive
                 // /* deleting temp folder in: eol_php_code/applications/content_server/tmp/
                 $basename = pathinfo($download_directory, PATHINFO_BASENAME); //9f508e44e8038fb56bbc0c9b34eb3ac7
                 if(strlen($basename) == 32 && is_dir($download_directory)) recursive_rmdir($download_directory);
-                else exit("<br>ERROR: Cannot delte temporary folder in [/content_server/tmp/]<br>");
+                else exit("<br>ERROR: Cannot delete temporary folder in [/content_server/tmp/]<br>");
                 // */
 
             }
