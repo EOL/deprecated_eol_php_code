@@ -105,14 +105,14 @@ elseif($file_type = @$_FILES["file_upload2"]["type"]) { // Darwin Core Archive
         // /* ---------- Added block:
         $dwca_full_path = DOC_ROOT."/applications/taxonomic_validation/".$newfile;
         if($download_directory = ContentManager::download_temp_file_and_assign_extension($dwca_full_path, "")) { //added 2nd blank param to suffice: "Warning: Missing argument 2"
-            echo "<br>newfile = [$newfile]<br>download_directory:[$download_directory]<br>";
+            debug("<br>newfile = [$newfile]<br>download_directory:[$download_directory]<br>");
             // $download_directory = '/Library/WebServer/Webroot/eol_php_code/applications/content_server/tmp/9f508e44e8038fb56bbc0c9b34eb3ac7';
             if(is_dir($download_directory) && file_exists($download_directory ."/meta.xml")) {
                 $taxon_file = get_taxon_file($download_directory ."/meta.xml"); //taxon.tab
-                echo("<br>taxon file: [$taxon_file]<br>");
+                debug("<br>taxon file: [$taxon_file]<br>");
                 $source = $download_directory ."/".$taxon_file;
                 $destination = "temp/" . $time_var . "." . pathinfo($taxon_file, PATHINFO_EXTENSION);
-                echo "<br>source: [$source]<br>destination: [$destination]<br>";
+                debug("<br>source: [$source]<br>destination: [$destination]<br>");
                 if(copy($source, $destination)) $newfile = $destination; //success OK
                 else exit("<br>ERROR: Investigate, file copy failed [$source] [$destination]<br>");
                 // exit("<brstop muna><br>");
