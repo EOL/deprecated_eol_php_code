@@ -369,10 +369,11 @@ class TaxonomicValidationRules
     }
     private function parse_user_file($txtfile)
     {   $i = 0; debug("\n[$txtfile]\n");
+        $modulo = self::get_modulo($txtfile);
         echo "\nReading user file... ";
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             if(!$line) continue;
-            $i++; if(($i % 10000) == 0) echo "\n".number_format($i)." ";
+            $i++; if(($i % $modulo) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line); // print_r($row);
             if($i == 1) {
                 $fields = $row;
@@ -814,6 +815,7 @@ class TaxonomicValidationRules
         fwrite($WRITE, "--------------------------------------------------"."\n");
         fwrite($WRITE, "Taxon ranks: "."\n");
         if($ranks = $r['Taxon ranks']) { $grand_total = 0;
+            $ranks = self::sort_key_val_array($ranks);
             foreach($ranks as $rank => $total) { $grand_total += $total;
                 if(!$rank) $rank = "{blank}";
                 $rank = str_pad($rank, 30, " ", STR_PAD_LEFT);
@@ -824,6 +826,7 @@ class TaxonomicValidationRules
         fwrite($WRITE, "--------------------------------------------------"."\n");
         fwrite($WRITE, "Taxonomic status: "."\n");
         if($ranks = $r['Taxonomic status']) { $grand_total = 0;
+            $ranks = self::sort_key_val_array($ranks);
             foreach($ranks as $rank => $total) { $grand_total += $total;
                 if(!$rank) $rank = "{blank}";
                 $rank = str_pad($rank, 30, " ", STR_PAD_LEFT);
@@ -844,7 +847,8 @@ class TaxonomicValidationRules
         fwrite($WRITE, "Number of matched names: ".$r['totals']['matchedNames']."\n");
         fwrite($WRITE, "--------------------------------------------------"."\n");
         $multiple_matches = $r['Number of names with multiple matches'];
-        asort($multiple_matches);
+        // asort($multiple_matches);
+        $multiple_matches = self::sort_key_val_array($multiple_matches);
         fwrite($WRITE, "Number of names with multiple matches: ".count($multiple_matches)."\n");
         foreach($multiple_matches as $sciname => $total) {
             fwrite($WRITE, "$spaces $sciname -> $total "."\n");
@@ -1013,6 +1017,42 @@ class TaxonomicValidationRules
         fwrite($WRITE, $contents . "\n");
         fclose($WRITE);
         shell_exec("cp $tmp_file $file");
+    }
+    function sort_key_val_array($multi_array, $key_orientation = SORT_ASC, $value_orientation = SORT_DESC)
+    {
+        $data = array();
+        foreach($multi_array as $key => $value) $data[] = array('language' => $key, 'count' => $value);
+        // Obtain a list of columns
+        /* before PHP 5.5.0
+        foreach ($data as $key => $row) {
+            $language[$key]  = $row['language'];
+            $count[$key] = $row['count'];
+        }
+        */
+        
+        // as of PHP 5.5.0 you can use array_column() instead of the above code
+        $language  = array_column($data, 'language');
+        $count = array_column($data, 'count');
+
+        // Sort the data with language descending, count ascending
+        // Add $data as the last parameter, to sort by the common key
+        array_multisort($count, SORT_ASC, $language, SORT_ASC, $data); // an example run
+        // array_multisort($count, $value_orientation, $language, $key_orientation, $data);
+
+        // echo "<pre>"; print_r($data); echo "</pre>"; exit;
+        /* Array(
+            [0] => Array(
+                    [language] => infraspecies (inferred)
+                    [count] => 42
+                )
+            [1] => Array(
+                    [language] => family (inferred)
+                    [count] => 240
+                )
+        */
+        $final = array();
+        foreach($data as $d) $final[$d['language']] = $d['count'];
+        return $final;
     }
 }
 ?>
