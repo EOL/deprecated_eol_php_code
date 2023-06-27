@@ -59,6 +59,14 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
         
         if(pathinfo($filename, PATHINFO_EXTENSION) == "zip") { //e.g. taxon.tab.zip
             $filename = self::process_zip_file($filename);
+            // /* for csv files - file format: Taxa File
+            if(pathinfo($filename, PATHINFO_EXTENSION) == "csv") { // exit("\n<br>meron csv [$filename]<br>\n");
+                $filename = $this->input['path'].$filename;             // added complete path
+                $filename = self::convert_csv2tsv($filename);
+                $filename = pathinfo($filename, PATHINFO_BASENAME);     // back to just basename, e.g. 1687492564.tsv
+            }
+            // else exit("\n<br>wala daw csv [$filename]<br>\n"); //no need to trap
+            // */            
         }
         
         if(!$filename) exit("\nNo filename: [$filename]. Will terminate.\n");
@@ -268,7 +276,7 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
         $output = shell_exec("unzip -o $local -d $test_temp_dir");
         if($GLOBALS['ENV_DEBUG']) echo "<hr> [$output] <hr>";
         // $ext = "tab"; //not used anymore
-        $new_local = self::get_file_inside_dir_with_this_extension($test_temp_dir."/*.{txt,tsv,tab}");
+        $new_local = self::get_file_inside_dir_with_this_extension($test_temp_dir."/*.{txt,tsv,tab,csv}");
         $new_local_ext = pathinfo($new_local, PATHINFO_EXTENSION);
         $destination = $this->input['path'].pathinfo($filename, PATHINFO_FILENAME).".$new_local_ext";
         /* debug only
@@ -287,6 +295,25 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
         recursive_rmdir($test_temp_dir);
 
         return pathinfo($destination, PATHINFO_BASENAME);
+    }
+    function convert_csv2tsv($csv_file) // temp/1687855441.csv
+    {   // exit("<br>source csv: [$csv_file]<br>");
+        $tsv_file = str_replace(".csv", ".tsv", $csv_file);
+        $WRITE = Functions::file_open($tsv_file, "w");
+        $fp = fopen($csv_file, 'r');
+        $data = array();
+        while (($row = fgetcsv($fp))) { // echo "<pre>"; print_r($row); exit;
+            /* Array(
+                [0] => taxonID
+                [1] => furtherInformationURL
+                [2] => scientificName
+            ) */
+            $tab_separated = implode("\t", $row); 
+            fwrite($WRITE, $tab_separated . "\n");
+        }
+        fclose($fp);
+        fclose($WRITE);
+        return $tsv_file;
     }
     private function get_file_inside_dir_with_this_extension($files)
     {

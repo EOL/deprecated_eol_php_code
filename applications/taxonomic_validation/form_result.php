@@ -81,8 +81,17 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) { //Taxa File
         // echo "<hr>file_type: [$file_type]";
         // echo "<hr>orig_file: [$orig_file]";
         // echo "<hr>url: [$url]";
-        // echo "<hr>newfile: [$newfile]<hr>";
-        // exit;
+        // echo "<hr>newfile: [$newfile]<hr>"; exit;
+        // /* ---------- Added block:
+        if(strtolower(pathinfo($newfile, PATHINFO_EXTENSION)) == 'csv') { // echo "<br>csv nga<br>";
+            require_library('connectors/TaxonomicValidationRules');
+            require_library('connectors/TaxonomicValidationAPI');
+            $func = new TaxonomicValidationAPI('taxonomic_validation');
+            $newfile = $func->convert_csv2tsv($newfile); // exit("\n[$newfile]\n");
+        }
+        // else echo "<br>hindi csv<br>";
+        // print_r(pathinfo($newfile)); exit("<br>$newfile<br>stop 1<br>");
+        // ---------- */
     }
     else exit("<hr>$file_type<hr>Invalid file type. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 }
