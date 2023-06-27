@@ -44,7 +44,7 @@ else                      $browser_comment = "Choose File"; //Safari Chrome etc
             <b>Taxa File</b> (plain text, tsv or csv): a taxa file in Darwin Core Archive format, but without a meta.xml file. 
             In this case, the file should have headers that we can use to infer the mapping for each column. <br><br>
             Upload user file: </font><input type="file" name="file_upload" id="file_upload" size="100">
-            <br><br><small>(.tab or .tsv or .txt) OR (.tab.zip, .tsv.zip, .txt.zip)</small>
+            <br><br><small>(.tab or .tsv or .txt or .csv) OR (.tab.zip, .tsv.zip, .txt.zip, .csv.zip)</small>
     </td></tr>
     <tr><td>
             <font size="3">
