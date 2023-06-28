@@ -619,6 +619,8 @@ class TraitDataImportAPI
         foreach($files as $file) {
             echo "\n $file ";
             $file = pathinfo($file, PATHINFO_FILENAME);
+            echo "\n $file ";
+
             if(!in_array($file, $allowed_filenames)) {
                 echo " - will delete";
             }
