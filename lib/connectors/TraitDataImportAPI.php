@@ -616,16 +616,21 @@ class TraitDataImportAPI
         // Step 2:
         $files = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/*.tar.gz";
         $files = glob($files); echo "\nTotal files in [/resources/]: ".count($files)."\n";
+        $will_delete = 0; $will_not_delete = 0;
         foreach($files as $file) {
             echo "\n $file ";
-            $file = pathinfo($file, PATHINFO_BASENAME);
-            echo "\n $file ";
-
-            if(!in_array($file, $allowed_filenames)) {
-                echo " - will delete";
+            $basename = pathinfo($file, PATHINFO_BASENAME);
+            echo "\n $basename "; // 1677082780.tar.gz
+            if(!in_array($basename, $allowed_filenames)) {
+                echo " - will delete"; $will_delete++;
+                // unlink($file);
             }
-            else echo " - will not delete";
+            else {
+                echo " - will not delete"; $will_not_delete++;
+            }
         }
+        echo "\nWill delete: [$will_delete]";
+        echo "\nWill not delete: [$will_not_delete]\n";
     }
     function test() //very initial stages.
     {
