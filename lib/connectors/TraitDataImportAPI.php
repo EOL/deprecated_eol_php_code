@@ -585,6 +585,44 @@ class TraitDataImportAPI
         fwrite($WRITE, implode("\t", $save) . "\n");
         fclose($WRITE);
     }
+    function clean_up_unused_resources() 
+    {   /* remove files in /resources/, those that are not related to any OpenData resource.
+        found in:  https://opendata.eol.org/dataset/trait-spreadsheet-repository */
+
+        // step 1: get all allowed filenames
+        $url = "https://opendata.eol.org/api/3/action/package_show?id=trait-spreadsheet-repository";
+        $options = $this->download_options;
+        $options['expire_seconds'] = 0; //orig
+        $options['expire_seconds'] = 60*60*60*24; //during dev
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $obj = json_decode($json);
+            // print_r($obj->result->resources); //good debug
+            foreach($obj->result->resources as $r) {
+                echo "\n". $r->url; //https://editors.eol.org/eol_php_code/applications/content_server/resources/Trait_Data_Import/1652964199.tar.gz
+                $left = "/content_server/resources/Trait_Data_Import/";
+                if(preg_match("/".preg_quote($left, '/')."(.*?)elix/ims", $r->url."elix", $arr)) $allowed_filenames[] = $arr[1];
+            }
+            echo "\n\nAllowed filenames: ".count($allowed_filenames)." "; print_r($allowed_filenames);
+        }
+        // /* so we don't indiscriminately delete files.
+        if($allowed_filenames) {}
+        else return;
+        if(count($allowed_filenames) >= 19) {} // 19 resources as of Jun 28, 2023
+        else return;
+        echo "\nCan proceed deleting...\n";
+        // */
+
+        // Step 2:
+        $files = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/*.tar.gz";
+        $files = glob($files); echo "\nTotal files in [/resources/]: ".count($files)."\n";
+        foreach($files as $file) {
+            echo "\n $file ";
+            if(!in_array($file, $allowed_filenames)) {
+                echo " - will delete";
+            }
+            else echo " - will not delete";
+        }
+    }
     function test() //very initial stages.
     {
         /*
