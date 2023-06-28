@@ -602,6 +602,7 @@ class TraitDataImportAPI
                 $left = "/content_server/resources/Trait_Data_Import/";
                 if(preg_match("/".preg_quote($left, '/')."(.*?)elix/ims", $r->url."elix", $arr)) $allowed_filenames[] = $arr[1];
             }
+            echo "\n\nAll resources: ".count($obj->result->resources)." ";
             echo "\n\nAllowed filenames: ".count($allowed_filenames)." "; print_r($allowed_filenames);
         }
         // /* so we don't indiscriminately delete files.
@@ -617,6 +618,7 @@ class TraitDataImportAPI
         $files = glob($files); echo "\nTotal files in [/resources/]: ".count($files)."\n";
         foreach($files as $file) {
             echo "\n $file ";
+            $file = pathinfo($file, PATHINFO_FILENAME);
             if(!in_array($file, $allowed_filenames)) {
                 echo " - will delete";
             }
