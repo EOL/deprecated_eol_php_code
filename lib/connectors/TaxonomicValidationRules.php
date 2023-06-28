@@ -679,8 +679,8 @@ class TaxonomicValidationRules
             One taxonRank value is family and the other is any other rank
             One taxonRank value is genus and the other is any other rank
             One taxonRank value is species and the other is any other rank */
-        $u_rank = $rec['taxonRank'];
-        $DH_rank = $DH_rec['taxonRank'];
+        $u_rank  = strtolower($rec['taxonRank']);
+        $DH_rank = strtolower($DH_rec['taxonRank']);
         $rec['addtl']['Fatal_rank_mismatch_YN'] = false;
         if($u_rank == 'family' && $DH_rank != 'family') { // unmatchedNames
             $rec['addtl']['Fatal_rank_mismatch_YN'] = true;
@@ -720,8 +720,8 @@ class TaxonomicValidationRules
     {   /* Non-fatal rank mismatch. Add the data for a taxon match to the matchedNames file, if: 
             - One or both taxa lack a taxonRank value 
             - The taxonRank values don’t match but neither is family|genus|species */
-        $u_rank = $rec['taxonRank'];
-        $DH_rank = $DH_rec['taxonRank'];
+        $u_rank  = strtolower($rec['taxonRank']);
+        $DH_rank = strtolower($DH_rec['taxonRank']);
         if(!$u_rank && !$DH_rank) {
             $rec['addtl']['Non_fatal_rank_mismatch_YN'] = true; //matchedNames
         }
