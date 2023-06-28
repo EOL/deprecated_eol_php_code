@@ -623,7 +623,7 @@ class TraitDataImportAPI
             echo "\n $basename "; // 1677082780.tar.gz
             if(!in_array($basename, $allowed_filenames)) {
                 echo " - will delete"; $will_delete++;
-                // unlink($file);
+                unlink($file);
             }
             else {
                 echo " - will not delete"; $will_not_delete++;
