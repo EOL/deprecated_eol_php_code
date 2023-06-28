@@ -593,7 +593,7 @@ class TraitDataImportAPI
         $url = "https://opendata.eol.org/api/3/action/package_show?id=trait-spreadsheet-repository";
         $options = $this->download_options;
         $options['expire_seconds'] = 0; //orig
-        $options['expire_seconds'] = 60*60*60*24; //during dev
+        // $options['expire_seconds'] = 60*60*60*24; //during dev
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
             // print_r($obj->result->resources); //good debug
