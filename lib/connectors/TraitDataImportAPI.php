@@ -618,7 +618,7 @@ class TraitDataImportAPI
         $files = glob($files); echo "\nTotal files in [/resources/]: ".count($files)."\n";
         foreach($files as $file) {
             echo "\n $file ";
-            $file = pathinfo($file, PATHINFO_FILENAME);
+            $file = pathinfo($file, PATHINFO_BASENAME);
             echo "\n $file ";
 
             if(!in_array($file, $allowed_filenames)) {
