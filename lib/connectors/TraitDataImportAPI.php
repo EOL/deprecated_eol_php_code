@@ -328,6 +328,11 @@ class TraitDataImportAPI
         foreach($this->input['worksheets'] as $sheet) {
             unlink(CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_".$sheet.".txt");
         }
+        $tmp_file = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_invalid_values.txt";// 1688045311_invalid_values.txt
+        echo "\ntmp_file = [$tmp_file]\n";
+        if(is_file($tmp_file)) {
+            if(filesize($tmp_file) < 1) unlink($tmp_file);
+        }
         // */
     }
     private function generate_vocabulary()
