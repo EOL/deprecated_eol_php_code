@@ -41,11 +41,48 @@ class TraitDataImportAPI
             $this->input['worksheets'] = array('data', 'references', 'vocabulary'); //'data' is the 1st worksheet from Trait_template.xlsx
             $this->vocabulary_fields = array("predicate label", "predicate uri", "value label", "value uri", "units label", "units uri", "statmeth label", "statmeth uri", "sex label", "sex uri", "lifestage label", "lifestage uri");
             $this->opendata_dataset_api = 'https://opendata.eol.org/api/3/action/package_show?id=';
+            $this->reference_schema = 'https://editors.eol.org/other_files/ontology/reference_extension.xml';
         }
         /* ============================= END for image_export ============================= */
     }
+    private function get_ref_fields()
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*60*24;
+        if($xml = Functions::lookup_with_cache($this->reference_schema, $options)) {
+            // <property name="identifier"
+            if(preg_match_all("/<property name=\"(.*?)\"/ims", $xml, $arr)) { // print_r($arr[1]); exit;
+                /* Array(
+                    [0] => identifier
+                    [1] => publicationType
+                    [2] => full_reference
+                    [3] => primaryTitle
+                    [4] => title
+                    [5] => pages
+                    [6] => pageStart
+                    [7] => pageEnd
+                    [8] => volume
+                    [9] => edition
+                    [10] => publisher
+                    [11] => authorList
+                    [12] => editorList
+                    [13] => created
+                    [14] => language
+                    [15] => uri
+                    [16] => doi
+                    [17] => localityName
+                )*/
+                return $arr[1];
+            }
+        }
+    }
+    private function initialize()
+    {
+        $this->reference_fields = self::get_ref_fields();
+    }
     function start($filename = false, $form_url = false, $uuid = false, $json = false)
     {
+        self::initialize();
         /* copied template
         if($this->app == 'trait_data_import') {
             if($json) {
@@ -275,7 +312,7 @@ class TraitDataImportAPI
         // END DATA-1841 terms remapping
         // */
         self::generate_vocabulary(); //print_r($this->vocabulary); exit;
-
+        self::create_Reference(); //generate reference extension
 
         self::create_DwCA();
         $this->archive_builder->finalize(TRUE);
@@ -297,6 +334,11 @@ class TraitDataImportAPI
     {
         $tsv['data'] = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_vocabulary.txt";
         self::parse_tsv($tsv['data'], 'generate_vocabulary');
+    }
+    private function create_Reference()
+    {
+        $tsv['data'] = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/".$this->resource_id."_references.txt";
+        self::parse_tsv($tsv['data'], 'write_reference');
     }
     private function create_DwCA()
     {
@@ -343,6 +385,26 @@ class TraitDataImportAPI
                     $this->archive_builder->write_object_to_file($taxon);
                 }
                 self::write_MoF($rec, $taxon->taxonID);
+            }
+            elseif($task == 'write_reference') { // print_r($rec); exit("\nsample ref record\n");
+                /* Array(
+                    [referenceid] => Agliero-Pelegrin et al. (1999)
+                    [fullreference] => Aguero-Pelegrin, M., M. Ferreras-Romero & P.S. Corbet, 1999. The life cycle of Lestes viridis (Odonata: Lestidae) in two seasonal streams of the Sierra Morena Mountains (Southern Spain). Aquatic Insects 21: 187-196
+                )*/
+                $r = new \eol_schema\Reference();
+                if($val = $rec['referenceid']) $r->identifier = $val;
+                if($val = $rec['fullreference']) $r->full_reference = $val;
+
+                foreach($this->reference_fields as $fld) {
+                    if($val = @$rec[$fld]) $r->$fld = $val;
+                }
+
+                if(!@$r->identifier) continue;
+
+                if(!isset($this->reference_ids[$r->identifier])) {
+                    $this->reference_ids[$r->identifier] = '';
+                    $this->archive_builder->write_object_to_file($r);
+                }
             }
             elseif($task == 'generate_vocabulary') {
                 // print_r($rec); exit("\nstopx\n");
@@ -499,7 +561,7 @@ class TraitDataImportAPI
         }
     }
     /* ========================================END create DwCA ======================================== */
-    private function read_input_file($input_file)
+    private function read_input_file($input_file) //convert sheets to respective tsv files.
     {
         $final = array();
         require_library('XLSParser'); $parser = new XLSParser();

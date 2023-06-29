@@ -110,6 +110,7 @@ else {
                     $href = str_replace(DOC_ROOT, WEB_ROOT, $filename);
                     echo "<a target='".$params['uuid']."'  href='$href'>Invalid measurement values</a><br><br>";
                 }
+                else unlink($filename);
                 // */
                 echo "<a href='main.php'>Back to menu</a>";
             echo "<br>=======================================================<br><br>";
