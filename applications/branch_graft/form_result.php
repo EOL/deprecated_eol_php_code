@@ -82,7 +82,7 @@ if($file_type = @$_FILES["file_upload"]["type"]) { // File A
             require_library('connectors/BranchGraftAPI');
             $func = new BranchGraftAPI('branch_graft');
             $filename_2_unzip = pathinfo($newfile_File_A, PATHINFO_BASENAME); // File_A_1688382076.zip
-            $newfile_File_A = $func->process_zip_file($filename_2_unzip); //exit("\n[$newfile]\n[$filename_2_unzip]\n");
+            $newfile_File_A = "temp/".$func->process_zip_file($filename_2_unzip); //exit("\n[$newfile]\n[$filename_2_unzip]\n");
         }
         // ---------- */
         /* ---------- Added block: should work but not used here.
@@ -123,7 +123,7 @@ if($file_type = @$_FILES["file_upload2"]["type"]) { // File B
             require_library('connectors/BranchGraftAPI');
             $func = new BranchGraftAPI('branch_graft');
             $filename_2_unzip = pathinfo($newfile_File_B, PATHINFO_BASENAME); // File_A_1688382076.zip
-            $newfile_File_B = $func->process_zip_file($filename_2_unzip); //exit("\n[$newfile]\n[$filename_2_unzip]\n");
+            $newfile_File_B = "temp/".$func->process_zip_file($filename_2_unzip); //exit("\n[$newfile]\n[$filename_2_unzip]\n");
         }
         // ---------- */
         /* ---------- Added block: should work but not used here.

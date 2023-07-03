@@ -40,29 +40,22 @@ class BranchGraftAPI extends BranchGraftRules
         }
         /* ============================= END for image_export ============================= */
     }
-    function start($filename = false, $form_url = false, $uuid = false, $json = false)
+    function start($uuid = false, $json = false)
     {
         $this->arr_json = json_decode($json, true);
         if($val = @$this->arr_json['timestart']) $timestart = $val;               //normal operation
         else                                     $timestart = time_elapsed();     //during dev only - command line
         if($GLOBALS['ENV_DEBUG']) print_r($this->arr_json);
+        exit("\nend 100\n");
         
-        // /* for $form_url:
+        /* for $form_url: --- not used here
         if($form_url && $form_url != '_') $filename = self::process_form_url($form_url, $uuid); //this will download (wget) and save file in /specimen_export/temp/
-        // */
-        
+        */
+        /* not needed here anymore
         if(pathinfo($filename, PATHINFO_EXTENSION) == "zip") { //e.g. taxon.tab.zip
             $filename = self::process_zip_file($filename);
-            // /* for csv files - file format: Taxa File
-            if(pathinfo($filename, PATHINFO_EXTENSION) == "csv") { // exit("\n<br>meron csv [$filename]<br>\n");
-                $filename = $this->input['path'].$filename;             // added complete path
-                $filename = self::convert_csv2tsv($filename);
-                $filename = pathinfo($filename, PATHINFO_BASENAME);     // back to just basename, e.g. 1687492564.tsv
-            }
-            // else exit("\n<br>wala daw csv [$filename]<br>\n"); //no need to trap
-            // */            
         }
-        
+        */
         if(!$filename) exit("\nNo filename: [$filename]. Will terminate.\n");
         $input_file = $this->input['path'].$filename; //e.g. $filename is 'input_Eli.xlsx'
         if(file_exists($input_file)) {
