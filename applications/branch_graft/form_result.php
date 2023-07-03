@@ -33,21 +33,20 @@ if($Filename_ID = @get_val_var('Filename_ID')) {
 }
 // */
 
-
+/* not used here
 $form_url = @get_val_var('form_url');
-
 if($form_url) { //URL is pasted.
     $orig_file = pathinfo($form_url, PATHINFO_BASENAME);
     $newfile = $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);    
     if(!in_array(pathinfo($form_url, PATHINFO_EXTENSION), array('xls', 'xlsx', 'zip'))) exit("\nERROR: Wrong file format.\n\n");
     // print_r(pathinfo($form_url)); exit;
-    /* good debug
-    echo "<hr>form_url: [$form_url]";
-    echo "<hr>orig_file: [$orig_file]";
-    echo "<hr>newfile: [$newfile]<hr>";
+    // good debug
+    // echo "<hr>form_url: [$form_url]";
+    // echo "<hr>orig_file: [$orig_file]";
+    // echo "<hr>newfile: [$newfile]<hr>";
     // exit;
-    */
 }
+*/
 
 if($file_type = @$_FILES["file_upload"]["type"]) { // File A
     debug("<br>orig_file: [".$_FILES["file_upload"]["name"]."]<br>");

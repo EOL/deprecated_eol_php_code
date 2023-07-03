@@ -22,7 +22,7 @@ $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $se
 */
 
 $params['true_root'] = $true_DOC_ROOT;
-$params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
+$params['uuid'] = $time_var; //pathinfo($newfile, PATHINFO_FILENAME);
 
 // echo "<pre>"; print_r($form); echo "</pre>"; exit("\neli 100\n");
 /*Array(
@@ -41,13 +41,18 @@ $json = '{"Proj":"'.$form['Proj'].'", "Dept":"'.$dept_map[$form['Dept']].'"
          , "Proj_refresh":"'.$Proj_refresh.'"
          , "timestart":"'.$timestart.'", "Lic_yr":"'.$form['Lic_yr'].'", "Lic_inst":"'.$form['Lic_inst'].'", "Lic_cont":"'.$form['Lic_cont'].'"}';
 */
-$json = '{"Filename_ID":"'.$form['Filename_ID'].'","Short_Desc":"'.$form['Short_Desc'].'" , "timestart":"'.$timestart.'"}';
+$json = '{"Filename_ID":"'.$form['Filename_ID'].'","Short_Desc":"'.$form['Short_Desc'].'" , "timestart":"'.$timestart.'" , 
+          "newfile_File_A":"'.$newfile_File_A.'" , "newfile_File_B":"'.$newfile_File_B.'" , 
+          "fileA_taxonID":"'.$fileA_taxonID.'" , "fileB_taxonID":"'.$fileB_taxonID.'" , "uuid":"'.$time_var.'"
+         }';
 
 $params['json'] = $json;
 // exit("\n$json\n");
 // $params['destination'] = $for_DOC_ROOT . "/applications/specimen_image_export/" . $newfile; --- copied template
 // $params['destination'] = $for_DOC_ROOT . "/applications/trait_data_import/" . $newfile;
-$params['destination'] = $for_DOC_ROOT . "/applications/taxonomic_validation/" . $newfile;
+// $params['destination'] = $for_DOC_ROOT . "/applications/taxonomic_validation/" . $newfile;
+$params['destination'] = $for_DOC_ROOT . "/applications/branch_graft/" . $newfile;
+
 
 //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here. So use $for_DOC_ROOT instead.
 $params['Filename_ID'] = $form['Filename_ID'];
@@ -102,6 +107,7 @@ if(file_exists($params['destination'])) unlink($params['destination']);
 */
 
 // $shell_debug = shell_exec($c); //normal operation
+echo "<pre>"; print_r($params['json']); echo "</pre>";
 exit("\n-stop muna-\n");
 // sleep(10);
 
