@@ -33,19 +33,10 @@ class BranchGraftAPI extends BranchGraftRules
             // $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."Trait_Data_Import/";
             // $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."Taxonomic_Validation/";
             $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."Branch_Graft/";
-
-
             $dir = $this->resources['path'];
             if(!is_dir($dir)) mkdir($dir);
-            /*
-            $dir = $this->resources['path'].'TSVs';
-            if(!is_dir($dir)) mkdir($dir);
-            */
-            /* copied template
-            $this->input['worksheets'] = array('data', 'references', 'vocabulary'); //'data' is the 1st worksheet from Trait_template.xlsx
-            $this->vocabulary_fields = array("predicate label", "predicate uri", "value label", "value uri", "units label", "units uri", "statmeth label", "statmeth uri", "sex label", "sex uri", "lifestage label", "lifestage uri");
-            */
-            $this->opendata_dataset_api = 'https://opendata.eol.org/api/3/action/package_show?id=';
+
+            // $this->opendata_dataset_api = 'https://opendata.eol.org/api/3/action/package_show?id='; // not used here
         }
         /* ============================= END for image_export ============================= */
     }

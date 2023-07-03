@@ -63,21 +63,30 @@ if($file_type = @$_FILES["file_upload"]["type"]) { // File A
     $allowed_file_types = array("application/octet-stream", "text/tab-separated-values", "text/plain", "text/csv", "application/zip"); //
 
     if(in_array($file_type, $allowed_file_types)) {
-        if($_FILES["file_upload"]["error"] > 0) {}
+        $upload_error = $_FILES["file_upload"]["error"];
+        if($upload_error > 0) exit_now("<hr>$upload_error<hr>File A: File upload error.");
         else {
             $orig_file = $_FILES["file_upload"]["name"];
-            $url = "temp/" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
-            if(move_uploaded_file($_FILES["file_upload"]["tmp_name"] , $url)) {
+            $destination = "temp/File_A_" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
+            if(move_uploaded_file($_FILES["file_upload"]["tmp_name"] , $destination)) {
                 debug("<br>file uploaded - OK<br>");
             }
             else echo "<br>uploading file - ERROR<br>";
         }
-        $newfile = "temp/" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
+        $newfile_File_A = $destination;
         // echo "<hr>file_type: [$file_type]";
         // echo "<hr>orig_file: [$orig_file]";
-        // echo "<hr>url: [$url]";
         // echo "<hr>newfile: [$newfile]<hr>"; exit;
         // /* ---------- Added block:
+        if(pathinfo($newfile_File_A, PATHINFO_EXTENSION) == "zip") { //e.g. taxon.tab.zip
+            require_library('connectors/BranchGraftRules');
+            require_library('connectors/BranchGraftAPI');
+            $func = new BranchGraftAPI('branch_graft');
+            $filename_2_unzip = pathinfo($newfile_File_A, PATHINFO_BASENAME); // File_A_1688382076.zip
+            $newfile_File_A = $func->process_zip_file($filename_2_unzip); //exit("\n[$newfile]\n[$filename_2_unzip]\n");
+        }
+        // ---------- */
+        /* ---------- Added block: should work but not used here.
         if(strtolower(pathinfo($newfile, PATHINFO_EXTENSION)) == 'csv') { // echo "<br>csv nga<br>";
             require_library('connectors/TaxonomicValidationRules');
             require_library('connectors/TaxonomicValidationAPI');
@@ -86,38 +95,57 @@ if($file_type = @$_FILES["file_upload"]["type"]) { // File A
         }
         // else echo "<br>hindi csv<br>";
         // print_r(pathinfo($newfile)); exit("<br>$newfile<br>stop 1<br>");
-        // ---------- */
+        ---------- */
     }
-    else exit("<hr>$file_type<hr>Invalid file type. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+    else exit_now("<hr>$file_type<hr>File A: Invalid file type.");
 }
 if($file_type = @$_FILES["file_upload2"]["type"]) { // File B
     debug("<br>orig_file: [".$_FILES["file_upload2"]["name"]."]<br>"); debug("<br>file type: [".$file_type."]<br>");
     $allowed_file_types = array("application/x-gzip", "application/zip"); //.tar.gz and .zip
     $allowed_file_types = array("application/octet-stream", "text/tab-separated-values", "text/plain", "text/csv", "application/zip"); //
     if(in_array($file_type, $allowed_file_types)) {
-        if($_FILES["file_upload2"]["error"] > 0) {}
+        $upload_error = $_FILES["file_upload2"]["error"];
+        if($upload_error > 0) exit_now("<hr>$upload_error<hr>File B: File upload error.");
         else {
             $orig_file = $_FILES["file_upload2"]["name"];
-            $url = "temp/" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
-            if(move_uploaded_file($_FILES["file_upload2"]["tmp_name"] , $url)) {
+            $destination = "temp/File_B_" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
+            if(move_uploaded_file($_FILES["file_upload2"]["tmp_name"] , $destination)) {
                 debug("<br>file uploaded - OK<br>");
             }
             else echo "<br>uploading file - ERROR<br>";
         }
-        $newfile = "temp/" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION); //e.g. temp/1687711391.gz
-        // exit("\n[$newfile]\n");
-
+        $newfile_File_B = $destination;
+        // echo "<hr>file_type: [$file_type]";
+        // echo "<hr>orig_file: [$orig_file]";
+        // echo "<hr>newfile: [$newfile]<hr>"; exit;
         // /* ---------- Added block:
+        if(pathinfo($newfile_File_B, PATHINFO_EXTENSION) == "zip") { //e.g. taxon.tab.zip
+            require_library('connectors/BranchGraftRules');
+            require_library('connectors/BranchGraftAPI');
+            $func = new BranchGraftAPI('branch_graft');
+            $filename_2_unzip = pathinfo($newfile_File_B, PATHINFO_BASENAME); // File_A_1688382076.zip
+            $newfile_File_B = $func->process_zip_file($filename_2_unzip); //exit("\n[$newfile]\n[$filename_2_unzip]\n");
+        }
         // ---------- */
+        /* ---------- Added block: should work but not used here.
+        if(strtolower(pathinfo($newfile, PATHINFO_EXTENSION)) == 'csv') { // echo "<br>csv nga<br>";
+            require_library('connectors/TaxonomicValidationRules');
+            require_library('connectors/TaxonomicValidationAPI');
+            $func = new TaxonomicValidationAPI('taxonomic_validation');
+            $newfile = $func->convert_csv2tsv($newfile); // exit("\n[$newfile]\n");
+        }
+        ---------- */
     }
-    else exit("<hr><i>$file_type</i><hr>Invalid file type. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");    
+    else exit_now("<hr>$file_type<hr>File B: Invalid file type.");
 }
 
 $fileA_taxonID = @get_val_var('fileA_taxonID');
 $fileB_taxonID = @get_val_var('fileB_taxonID');
 if(@$_FILES["file_upload"]["type"] && @$_FILES["file_upload2"]["type"] && $fileA_taxonID) {}
-else exit("<hr>Please select a file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
-
+else {
+    // print_r(@$_FILES["file_upload"]); print_r(@$_FILES["file_upload2"]); //nothing to display
+    exit("<hr>Please select a file to continue. <br><br>Or in the case of very big files, try to zip it.<br><br><a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+}
 
 /* replaced by Jenkins call
 print "<br><b>Processing, please wait...</b><br><hr>";
@@ -138,7 +166,7 @@ else {
 // else            require_once("jenkins_call.php");
 
 $form = $_POST; echo "<pre>";print_r($form);echo "</pre>";
-// require_once("jenkins_call.php"); // normal operation
+require_once("jenkins_call.php"); // normal operation
 
 function get_val_var($v)
 {
@@ -147,7 +175,8 @@ function get_val_var($v)
     if(isset($var)) return $var;
     else return NULL;
 }
-function xxx()
+function exit_now($msg)
 {   
+    exit($msg . " <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 }
 ?>

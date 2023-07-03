@@ -73,11 +73,11 @@ php update_resources/connectors/trait_data_import.php _ _ 'https://github.com/el
 
 $newfile = pathinfo($newfile, PATHINFO_BASENAME);
 /* copied template
-if($form_url) $cmd = PHP_PATH.' trait_data_import.php jenkins _ ' . "'" . $form_url . "' ".$params['uuid']. " '".$params['json']."'"; //no filename but there is form_url and uuid
-else          $cmd = PHP_PATH.' trait_data_import.php jenkins ' . "'" . $newfile . "' _ _ ". "'".$params['json']."'";
-*/
 if($form_url) $cmd = PHP_PATH.' taxonomic_validation.php jenkins _ ' . "'" . $form_url . "' ".$params['uuid']. " '".$params['json']."'"; //no filename but there is form_url and uuid
 else          $cmd = PHP_PATH.' taxonomic_validation.php jenkins ' . "'" . $newfile . "' _ _ ". "'".$params['json']."'";
+*/
+if($form_url) $cmd = PHP_PATH.' branch_graft.php jenkins _ ' . "'" . $form_url . "' ".$params['uuid']. " '".$params['json']."'"; //no filename but there is form_url and uuid
+else          $cmd = PHP_PATH.' branch_graft.php jenkins ' . "'" . $newfile . "' _ _ ". "'".$params['json']."'";
 
 // command: [/opt/homebrew/opt/php@5.6/bin/php taxonomic_validation.php jenkins '1686047624.tab' _ _ '{"Filename_ID":"","Short_Desc":"test" , "timestart":"0.009732"}']
 
@@ -101,7 +101,8 @@ $c = $ctrler->build_curl_cmd_for_jenkins($cmd, $task);
 if(file_exists($params['destination'])) unlink($params['destination']);
 */
 
-$shell_debug = shell_exec($c);
+// $shell_debug = shell_exec($c); //normal operation
+exit("\n-stop muna-\n");
 // sleep(10);
 
 /* for more debugging...
