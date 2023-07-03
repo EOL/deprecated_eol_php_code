@@ -87,23 +87,17 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
     /*=======================================================================================================*/ //COPIED TEMPLATE BELOW
     /*=======================================================================================================*/
     /*=======================================================================================================*/
+    /* working well but not used in TaxonomicValidation.php
     function start_x($filename = false, $form_url = false, $uuid = false, $json = false)
     {
-        /* copied template
-        if($this->app == 'trait_data_import') {
-            if($json) {
-                $this->manual_entry = json_decode($json);
-                self::generate_info_list_tsv($this->manual_entry->Proj);
-            }
-        } */
         $this->arr_json = json_decode($json, true);
         if($val = @$this->arr_json['timestart']) $timestart = $val;               //normal operation
         else                                     $timestart = time_elapsed();     //during dev only - command line
         if($GLOBALS['ENV_DEBUG']) print_r($this->arr_json);
         
-        // /* for $form_url:
+        // for $form_url:
         if($form_url && $form_url != '_') $filename = self::process_form_url($form_url, $uuid); //this will download (wget) and save file in /specimen_export/temp/
-        // */
+        //
         
         if(pathinfo($filename, PATHINFO_EXTENSION) == "zip") { //e.g. input.xlsx.zip
             $filename = self::process_zip_file($filename);
@@ -156,33 +150,33 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
         $output = json_decode($output, true); //print_r($output);
         if($output['success'] == 1) echo "\nOpenData resource UPDATE OK.\n";
         else                        echo "\nERROR: OpenData resource UPDATE failed.\n";
-        /*Array(
-            [help] => https://opendata.eol.org/api/3/action/help_show?name=resource_update
-            [success] => 1
-            [result] => Array(
-                    [cache_last_updated] => 
-                    [cache_url] => 
-                    [mimetype_inner] => 
-                    [hash] => hash-cha_02
-                    [description] => Updated: 2022-02-03 05:36
-                    [format] => Darwin Core Archive
-                    [url] => http://localhost/eol_php_code/applications/content_server/resources/Trait_Data_Import/cha_02.tar.gz
-                    [created] => 2022-02-03T01:40:54.782481
-                    [state] => active
-                    [webstore_last_updated] => 
-                    [webstore_url] => 
-                    [package_id] => dab391f0-7ec0-4055-8ead-66b1dea55f28
-                    [last_modified] => 
-                    [mimetype] => 
-                    [url_type] => 
-                    [position] => 1
-                    [revision_id] => 3c3f2587-c0b3-4fdd-bb5e-c6ae23d79afe
-                    [size] => 
-                    [id] => a4b749ea-1134-4351-9fee-ac1e3df91a4f
-                    [resource_type] => 
-                    [name] => Fishes of Philippines
-                )
-        )*/
+        // Array(
+        //     [help] => https://opendata.eol.org/api/3/action/help_show?name=resource_update
+        //     [success] => 1
+        //     [result] => Array(
+        //             [cache_last_updated] => 
+        //             [cache_url] => 
+        //             [mimetype_inner] => 
+        //             [hash] => hash-cha_02
+        //             [description] => Updated: 2022-02-03 05:36
+        //             [format] => Darwin Core Archive
+        //             [url] => http://localhost/eol_php_code/applications/content_server/resources/Trait_Data_Import/cha_02.tar.gz
+        //             [created] => 2022-02-03T01:40:54.782481
+        //             [state] => active
+        //             [webstore_last_updated] => 
+        //             [webstore_url] => 
+        //             [package_id] => dab391f0-7ec0-4055-8ead-66b1dea55f28
+        //             [last_modified] => 
+        //             [mimetype] => 
+        //             [url_type] => 
+        //             [position] => 1
+        //             [revision_id] => 3c3f2587-c0b3-4fdd-bb5e-c6ae23d79afe
+        //             [size] => 
+        //             [id] => a4b749ea-1134-4351-9fee-ac1e3df91a4f
+        //             [resource_type] => 
+        //             [name] => Fishes of Philippines
+        //         )
+        // )
         // echo "\n$output\n";
     }
     private function CREATE_ckan_resource($resource_id) //https://docs.ckan.org/en/ckan-2.7.3/api/
@@ -217,30 +211,30 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
     {
         $ckan_resources = self::get_opendata_resources_given_datasetID("trait-spreadsheet-repository");
         // echo "<pre>"; print_r($ckan_resources); echo "</pre>";
-        /*Array(
-            [0] => stdClass Object(
-                    [cache_last_updated] => 
-                    [cache_url] => 
-                    [mimetype_inner] => 
-                    [hash] => cha_02
-                    [description] => Updated: 2022-02-02 20:00
-                    [format] => Darwin Core Archive
-                    [url] => http://localhost/eol_php_code/applications/content_server/resources/Trait_Data_Import/cha_02.tar.gz
-                    [created] => 2022-02-03T00:21:26.418199
-                    [state] => active
-                    [webstore_last_updated] => 
-                    [webstore_url] => 
-                    [package_id] => dab391f0-7ec0-4055-8ead-66b1dea55f28
-                    [last_modified] => 
-                    [mimetype] => 
-                    [url_type] => 
-                    [position] => 0
-                    [revision_id] => 52f079cf-fa6f-40ec-a3f2-b826ed3c3885
-                    [size] => 
-                    [id] => 6f4d804b-6f49-4841-a84e-3e0b02b35043
-                    [resource_type] => 
-                    [name] => cha_02 name
-                )*/
+        // Array(
+        //     [0] => stdClass Object(
+        //             [cache_last_updated] => 
+        //             [cache_url] => 
+        //             [mimetype_inner] => 
+        //             [hash] => cha_02
+        //             [description] => Updated: 2022-02-02 20:00
+        //             [format] => Darwin Core Archive
+        //             [url] => http://localhost/eol_php_code/applications/content_server/resources/Trait_Data_Import/cha_02.tar.gz
+        //             [created] => 2022-02-03T00:21:26.418199
+        //             [state] => active
+        //             [webstore_last_updated] => 
+        //             [webstore_url] => 
+        //             [package_id] => dab391f0-7ec0-4055-8ead-66b1dea55f28
+        //             [last_modified] => 
+        //             [mimetype] => 
+        //             [url_type] => 
+        //             [position] => 0
+        //             [revision_id] => 52f079cf-fa6f-40ec-a3f2-b826ed3c3885
+        //             [size] => 
+        //             [id] => 6f4d804b-6f49-4841-a84e-3e0b02b35043
+        //             [resource_type] => 
+        //             [name] => cha_02 name
+        //         )
         foreach($ckan_resources as $res) {
             if($res->hash == $hash) return $res->id;
         }
@@ -257,7 +251,7 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
         }
         return array_keys($final);
     }
-    
+*/    
     private function process_form_url($form_url, $uuid)
     {   //wget -nc https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /Volumes/AKiTiO4/other_files/bundle_images/xxx/740.027116-1.jpg
         $ext = pathinfo($form_url, PATHINFO_EXTENSION);
@@ -323,7 +317,7 @@ class TaxonomicValidationAPI extends TaxonomicValidationRules
         else exit("\nERROR: File to process does not exist.\n");
         // foreach (glob($files) as $filename) echo "\n- $filename\n";
     }
-    /* =======================================START create DwCA ======================================= */
+    /* =======================================START create DwCA ======================================= */ //copied template
     private function create_output_file($timestart)
     {
         // /* initialize DwCA
