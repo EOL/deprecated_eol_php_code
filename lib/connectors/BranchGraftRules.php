@@ -16,10 +16,7 @@ class BranchGraftRules
         */
         // /* 3rd:
         $this->temp_dir = CONTENT_RESOURCE_LOCAL_PATH . '/Branch_Graft/';
-        if(!is_dir($this->temp_dir)) {
-            mkdir($this->temp_dir);
-            exit("\nWill terminate for now. Please try again.\n");
-        }
+        if(!is_dir($this->temp_dir)) mkdir($this->temp_dir);
 
         /*
         print_r($this->input); exit;
@@ -72,16 +69,24 @@ class BranchGraftRules
 
         // step 3: now remove all descendants of fileA_taxonID, and their synonyms
         self::parse_TSV_file($input_fileA, "generate trimmed File A");
+        unset($this->descendants_A);
 
+        /* step 4: If there is no value for yyy, we are ready to create the output file, with the descendants & their synonyms removed 
+        and the note in the notes column added for the basal taxon. */
+        if($fileB_taxonID = $this->arr_json['fileB_taxonID']) {
+
+        }
+        else { // trimmed File A is now the final result
+            self::prepare_download_link();
+        }
 
         exit("\n- exit muna-\n");
     }
     private function parse_TSV_file($txtfile, $task)
     {   
         $modulo = self::get_modulo($txtfile);
-        if($task == "generate parentID_taxonID") { echo "\nLoading [$txtfile] [$task] "; $modulo = 1000000; }
-        if($task == "yyy") echo "\nName Match and Validate ";
-        $i = 0; $final = array(); debug("\nProcessing: [$txtfile]\n"); //$syn = 0; for stats only
+        if($task == "generate parentID_taxonID") { $modulo = 1000000; }
+        $i = 0; $final = array(); debug("\nProcessing: [".pathinfo($txtfile, PATHINFO_BASENAME)."] [$task]\n"); //$syn = 0; for stats only
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             if(!$line) continue;
             $i++; if(($i % $modulo) == 0) echo "\n".number_format($i)." ";
@@ -179,6 +184,26 @@ class BranchGraftRules
     {
         $total = shell_exec("wc -l < ".escapeshellarg($file));
         return trim($total);
+    }
+    private function prepare_download_link()
+    {   // zip -r temp.zip Documents
+        // echo "\n".$this->temp_dir."\n"; echo "\n".$this->resource_id."\n";
+
+        // $this->temp_dir ---> CONTENT_RESOURCE_LOCAL_PATH . '/Branch_Graft/';
+        // $ zip archive.zip file1 file2 file3
+        $files = array();
+        $files[] = $this->trimmed_File_A;
+        $source = implode(" ", $files);
+        $destination = $this->temp_dir.$this->resource_id.".zip";
+
+        if($GLOBALS['ENV_DEBUG']) {
+            echo "\nsource: [$source]\n";
+            echo "\ndestination: [$destination]\n";    
+        }
+        $cmd = "zip -rj $destination $source";
+        $out = shell_exec($cmd);
+        echo "\n$out\n";
+        return;
     }
     private function get_modulo($txtfile)
     {
@@ -797,25 +822,6 @@ class BranchGraftRules
         return $arr;
     }
     ///============================================== START Summary Report
-    function prepare_download_link()
-    {   // zip -r temp.zip Documents
-        /* during dev - force assign
-        $this->temp_dir = "/opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3//Branch_Graft/174/";
-        $this->resource_id = 174;
-        */
-        // echo "\n".$this->temp_dir."\n"; echo "\n".$this->resource_id."\n";
-        $destination = str_replace("/$this->resource_id/", "", $this->temp_dir);
-        $destination .= "/".$this->resource_id.".zip";
-        $source = $this->temp_dir;
-        if($GLOBALS['ENV_DEBUG']) {
-            echo "\nsource: [$source]\n";
-            echo "\ndestination: [$destination]\n";    
-        }
-        $cmd = "zip -rj $destination $source";
-        $out = shell_exec($cmd);
-        echo "\n$out\n";
-        return;
-    }
     private function write_summary_report()
     {
         $r = $this->summary_report;
