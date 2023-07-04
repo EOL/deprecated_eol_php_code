@@ -47,12 +47,22 @@ class BranchGraftRules
         // step 1: generate $parentID_taxonID from File A.
         $parentID_taxonID = self::parse_TSV_file($input_fileA, "generate parentID_taxonID");
 
-        /* step 2: read file A, get all descendants of fileA_taxonID */
+        // step 2: read file A, get all descendants of fileA_taxonID
         $parent_ids = array($this->arr_json['fileA_taxonID']);
         require_library('connectors/PaleoDBAPI_v2');
         $func = new PaleoDBAPI_v2("");
         $descendants_A = $func->get_all_descendants_of_these_parents($parent_ids, $parentID_taxonID); // print_r($descendants_A);
+        unset($parentID_taxonID);
+        unset($func);
+        $this->descendants_A = array_flip($descendants_A); print_r($this->descendants_A); exit;
         echo "\nTotal descendants: [".count($descendants_A)."]\n";
+        echo "\nTotal descendants: [".count($this->descendants_A)."]\n";
+        unset($descendants_A);
+
+        // step 3: now remove all descendants of fileA_taxonID, and their synonyms
+        self::parse_TSV_file($input_fileA, "generate trimmed File A");
+
+
         exit("\n- exit muna-\n");
     }
     private function parse_TSV_file($txtfile, $task)
@@ -96,6 +106,12 @@ class BranchGraftRules
                 if($parent_id && $taxon_id) $final[$parent_id][] = $taxon_id;
             }
             //###############################################################################################
+            if($task == "generate trimmed File A") {
+                $taxonID = $rec['taxonID'];
+                $parentNameUsageID = $rec['parentNameUsageID'];
+                $acceptedNameUsageID = $rec['acceptedNameUsageID'];
+
+            }
             //###############################################################################################
         } //end foreach()
         return $final;
