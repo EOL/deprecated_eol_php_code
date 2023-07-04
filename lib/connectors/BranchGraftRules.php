@@ -149,10 +149,10 @@ class BranchGraftRules
             $orig = self::txtfile_row_count($txtfile);
             $new = self::txtfile_row_count($this->trimmed_File_A);
             $diff = $orig - $new;
-            echo "\n        File A: ".$orig."\n";
-            echo "\nTrimmed File A: ".$new."\n";
-            echo "\n    Difference: ".$diff."\n";
-            echo "\n         Stats: ".$this->debug_rules['deleted']."\n";
+            echo "\n         File A: ".$orig."\n";
+            echo "\n Trimmed File A: ".$new."\n";
+            echo "\n     Difference: ".$diff."\n";
+            echo "\nStats (deleted): ".$this->debug_rules['deleted']."\n";
         }
     }
     private function write_output_rec_2txt($rec, $filename)
