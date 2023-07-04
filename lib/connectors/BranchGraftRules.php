@@ -29,6 +29,7 @@ class BranchGraftRules
         $WRITE = Functions::file_open($this->trimmed_File_A, "w");
         fclose($WRITE);
 
+        $this->debug_rules = array();
         // $filenames = array('matchedNames', 'processed', 'unmatchedNames');
         // foreach($filenames as $filename) {
         //     $filename = $this->temp_dir.$filename.".txt";
@@ -122,9 +123,18 @@ class BranchGraftRules
                 $acceptedNameUsageID = $rec['acceptedNameUsageID'];
                 $fileA_taxonID = $this->arr_json['fileA_taxonID'];
 
-                if(isset($this->descendants_A[$taxonID])) continue;             //delete actual descendants
-                if(isset($this->descendants_A[$acceptedNameUsageID])) continue; //delete synonyms of descendants
-                if(isset($this->descendants_A[$parentNameUsageID])) continue;   //delete children of descendants; may not need this anymore.
+                if(isset($this->descendants_A[$taxonID])) {             //delete actual descendants
+                    @$this->debug_rules['deleted']++;
+                    continue;
+                }
+                if(isset($this->descendants_A[$acceptedNameUsageID])) { //delete synonyms of descendants
+                    @$this->debug_rules['deleted']++;
+                    continue;
+                }
+                if(isset($this->descendants_A[$parentNameUsageID])) {   //delete children of descendants; may not need this anymore.
+                    @$this->debug_rules['deleted']++;
+                    continue;
+                }
 
                 if($taxonID == $fileA_taxonID) $rec['notes'] = "new branch";
                 else                           $rec['notes'] = @$rec['notes'];
@@ -133,7 +143,17 @@ class BranchGraftRules
             }
             //###############################################################################################
         } //end foreach()
-        return $final;
+
+        if($task == "generate parentID_taxonID") return $final;
+        if($task == "generate trimmed File A") {
+            $orig = self::txtfile_row_count($txtfile);
+            $new = self::txtfile_row_count($this->trimmed_File_A);
+            $diff = $orig - $new;
+            echo "\n        File A: ".$orig."\n";
+            echo "\nTrimmed File A: ".$new."\n";
+            echo "\n    Difference: ".$diff."\n";
+            echo "\n         Stats: ".$this->debug_rules['deleted']."\n";
+        }
     }
     private function write_output_rec_2txt($rec, $filename)
     {   // print_r($rec);
@@ -155,6 +175,11 @@ class BranchGraftRules
         // echo "\nSaved to [$basename]: "; print_r($save); //echo "\n".implode("\t", $save)."\n"; //exit("\nditox 9\n"); //good debug
         fclose($WRITE);
     }
+    private function txtfile_row_count($file)
+    {
+        $total = shell_exec("wc -l < ".escapeshellarg($file));
+        return trim($total);
+    }
     private function get_modulo($txtfile)
     {
         $total = self::total_rows_on_file($txtfile);
@@ -167,7 +192,6 @@ class BranchGraftRules
         elseif($total > 2000000) $modulo = 100000;
         return $modulo;
     }
-
     ###################################################### all below is copied tempate
     function main() //copied template
     {
