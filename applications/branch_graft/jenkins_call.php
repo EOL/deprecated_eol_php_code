@@ -85,14 +85,14 @@ else          $cmd = PHP_PATH.' taxonomic_validation.php jenkins ' . "'" . $newf
 if($form_url) $cmd = PHP_PATH.' branch_graft.php jenkins _ ' . "'" . $form_url . "' ".$params['uuid']. " '".$params['json']."'"; //no filename but there is form_url and uuid
 else          $cmd = PHP_PATH.' branch_graft.php jenkins ' . "'".$params['json']."'";
 
-// command: [/opt/homebrew/opt/php@5.6/bin/php branch_graft.php jenkins '{"Filename_ID":"","Short_Desc":"" , "timestart":"0.002263" , "newfile_File_A":"temp/File_A_1688396971.tab" , "newfile_File_B":"temp/File_B_1688396971.tsv" , "fileA_taxonID":"eli01" , "fileB_taxonID":"eli02" , "uuid":"1688396971" }']
-
 // echo "<pre>";print_r($params);echo "</pre>"; //good debug
-/* Array(
+/*
+command: [/opt/homebrew/opt/php@5.6/bin/php branch_graft.php jenkins '{"Filename_ID":"","Short_Desc":"" , "timestart":"0.002263" , "newfile_File_A":"File_A_1688396971.tab" , "newfile_File_B":"File_B_1688396971.tsv" , "fileA_taxonID":"eli01" , "fileB_taxonID":"eli02" , "uuid":"1688396971" }']
+Array(
     [true_root] => /opt/homebrew/var/www/eol_php_code/
     [uuid] => 1688396971
     [json] => {"Filename_ID":"","Short_Desc":"" , "timestart":"0.002263" , 
-          "newfile_File_A":"temp/File_A_1688396971.tab" , "newfile_File_B":"temp/File_B_1688396971.tsv" , 
+          "newfile_File_A":"File_A_1688396971.tab" , "newfile_File_B":"File_B_1688396971.tsv" , 
           "fileA_taxonID":"eli01" , "fileB_taxonID":"eli02" , "uuid":"1688396971"
          }
     [Filename_ID] => 

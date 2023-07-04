@@ -46,7 +46,17 @@ class BranchGraftAPI extends BranchGraftRules
         if($val = @$this->arr_json['timestart']) $timestart = $val;               //normal operation
         else                                     $timestart = time_elapsed();     //during dev only - command line
         if($GLOBALS['ENV_DEBUG']) print_r($this->arr_json);
-        exit("\nend 100\n");
+        // exit("\nend 100\n");
+        /* Array(
+            [Filename_ID] => 
+            [Short_Desc] => 
+            [timestart] => 0.002263
+            [newfile_File_A] => temp/File_A_1688396971.tab
+            [newfile_File_B] => temp/File_B_1688396971.tsv
+            [fileA_taxonID] => eli01
+            [fileB_taxonID] => eli02
+            [uuid] => 1688396971
+        ) */
         
         /* for $form_url: --- not used here
         if($form_url && $form_url != '_') $filename = self::process_form_url($form_url, $uuid); //this will download (wget) and save file in /specimen_export/temp/
@@ -56,11 +66,17 @@ class BranchGraftAPI extends BranchGraftRules
             $filename = self::process_zip_file($filename);
         }
         */
-        if(!$filename) exit("\nNo filename: [$filename]. Will terminate.\n");
-        $input_file = $this->input['path'].$filename; //e.g. $filename is 'input_Eli.xlsx'
-        if(file_exists($input_file)) {
-            $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME); // exit("\nEli is here...\n[".$this->resource_id."]\n");
-            $this->process_user_file($input_file); //calling main program
+        $filename1 = $this->arr_json['newfile_File_A'];
+        $filename2 = $this->arr_json['newfile_File_B'];
+        $fileA_taxonID = $this->arr_json['fileA_taxonID'];
+
+        if(!$filename1 || !$filename2 || !$fileA_taxonID) exit("\nIncomplete required parameters. Program will terminate.\n");
+        $input_file1 = $this->input['path'].$filename1; //e.g. $filename is 'temp/File_A_1688396971.tab'
+        $input_file2 = $this->input['path'].$filename2; //e.g. $filename is 'temp/File_B_1688396971.tsv'
+
+        if(file_exists($input_file1) && file_exists($input_file2)) {
+            $this->resource_id = $this->arr_json['uuid'];
+            $this->start_grafting(); //calling main program
 
             /* copied template from trait_data_import tool
             self::read_input_file($input_file); //writes to text files for reading in next step.
@@ -68,7 +84,7 @@ class BranchGraftAPI extends BranchGraftRules
             self::create_or_update_OpenData_resource();
             */
         }
-        else debug("\nInput file not found: [$input_file]\n");
+        else debug("\nInput files are not complete.\n[$input_file1]\n[$input_file2]\n");
     }
 
     /*=======================================================================================================*/ //COPIED TEMPLATE BELOW

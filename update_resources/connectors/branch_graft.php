@@ -41,7 +41,7 @@ if($GLOBALS['ENV_DEBUG']) {
 }
 /* Array(
     [jenkins_or_cron] => _
-    [json] => {"Filename_ID":"","Short_Desc":"" , "timestart":"0.002263" , "newfile_File_A":"temp/File_A_1688396971.tab" , "newfile_File_B":"temp/File_B_1688396971.tsv" , "fileA_taxonID":"eli01" , "fileB_taxonID":"eli02" , "uuid":"1688396971" }
+    [json] => {"Filename_ID":"","Short_Desc":"" , "timestart":"0.002263" , "newfile_File_A":"File_A_1688396971.tab" , "newfile_File_B":"File_B_1688396971.tsv" , "fileA_taxonID":"eli01" , "fileB_taxonID":"eli02" , "uuid":"1688396971" }
 )*/
 
 if($val = $params['json'])     $json = $val;
@@ -51,8 +51,8 @@ else                           $json = '';
     [Filename_ID] => 
     [Short_Desc] => 
     [timestart] => 0.002263
-    [newfile_File_A] => temp/File_A_1688396971.tab
-    [newfile_File_B] => temp/File_B_1688396971.tsv
+    [newfile_File_A] => File_A_1688396971.tab
+    [newfile_File_B] => File_B_1688396971.tsv
     [fileA_taxonID] => eli01
     [fileB_taxonID] => eli02
     [uuid] => 1688396971

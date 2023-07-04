@@ -6,7 +6,6 @@ class BranchGraftRules
 {
     function __construct()
     {
-        $this->can_compute_higherClassificationYN = false; //default is false
     }
     private function initialize()
     {   
@@ -28,8 +27,12 @@ class BranchGraftRules
         self::get_IncompatibleAncestors(); //get from Google
         self::set_taxon_fields();
     }
-    function process_user_file($txtfile, $tsvFileYN = true)
+    function start_grafting()
     {
+        print_r($this->arr_json);
+        exit("\nend 200\n");
+
+
         $this->summary_report['info']['user file'] = $txtfile;
         // echo "\n[".$txtfile."] [$this->resource_id]\n"; exit;
         self::initialize();
