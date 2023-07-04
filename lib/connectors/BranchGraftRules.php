@@ -110,6 +110,17 @@ class BranchGraftRules
                 $taxonID = $rec['taxonID'];
                 $parentNameUsageID = $rec['parentNameUsageID'];
                 $acceptedNameUsageID = $rec['acceptedNameUsageID'];
+                $fileA_taxonID = $this->arr_json['fileA_taxonID'];
+
+                if(isset($this->descendants_A[$taxonID])) continue;             //delete actual descendants
+                if(isset($this->descendants_A[$acceptedNameUsageID])) continue; //delete synonyms of descendants
+                if(isset($this->descendants_A[$parentNameUsageID])) continue;   //delete children of descendants; may not need this anymore.
+
+                if($taxonID == $fileA_taxonID) $rec['notes'] = "new branch";
+                else                           $rec['notes'] = @$rec['notes'];
+
+                // start writing:
+                
 
             }
             //###############################################################################################
