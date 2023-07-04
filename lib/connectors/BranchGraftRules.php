@@ -9,6 +9,7 @@ class BranchGraftRules
     }
     private function initialize()
     {   
+
         /* 2nd:
         require_library('connectors/DwCA_Utility');
         $this->HC = new DwCA_Utility(); // HC - higherClassification functions
@@ -19,6 +20,15 @@ class BranchGraftRules
             mkdir($this->temp_dir);
             exit("\nWill terminate for now. Please try again.\n");
         }
+
+        /*
+        print_r($this->input); exit;
+        [path] => /opt/homebrew/var/www/eol_php_code//applications/branch_graft/temp/
+        */
+        $this->trimmed_File_A = $this->input['path'] . "trimmed_File_A_" . $this->arr_json['uuid'] . ".txt";
+        $WRITE = Functions::file_open($this->trimmed_File_A, "w");
+        fclose($WRITE);
+
         // $filenames = array('matchedNames', 'processed', 'unmatchedNames');
         // foreach($filenames as $filename) {
         //     $filename = $this->temp_dir.$filename.".txt";
@@ -54,7 +64,7 @@ class BranchGraftRules
         $descendants_A = $func->get_all_descendants_of_these_parents($parent_ids, $parentID_taxonID); // print_r($descendants_A);
         unset($parentID_taxonID);
         unset($func);
-        $this->descendants_A = array_flip($descendants_A); print_r($this->descendants_A); exit;
+        $this->descendants_A = array_flip($descendants_A); //print_r($this->descendants_A); exit;
         echo "\nTotal descendants: [".count($descendants_A)."]\n";
         echo "\nTotal descendants: [".count($this->descendants_A)."]\n";
         unset($descendants_A);
@@ -119,26 +129,42 @@ class BranchGraftRules
                 if($taxonID == $fileA_taxonID) $rec['notes'] = "new branch";
                 else                           $rec['notes'] = @$rec['notes'];
 
-                // start writing:
-                
-
+                self::write_output_rec_2txt($rec, $this->trimmed_File_A); // start writing
             }
             //###############################################################################################
         } //end foreach()
         return $final;
     }
-
-
+    private function write_output_rec_2txt($rec, $filename)
+    {   // print_r($rec);
+        $fields = array_keys($rec);
+        $WRITE = Functions::file_open($filename, "a");
+        clearstatcache(); //important for filesize()
+        if(filesize($filename) == 0) fwrite($WRITE, implode("\t", $fields) . "\n");
+        $save = array();
+        foreach($fields as $fld) {
+            if(is_array($rec[$fld])) { //if value is array()
+                $rec[$fld] = self::clean_array($rec[$fld]);
+                $rec[$fld] = implode(", ", $rec[$fld]); //convert to string
+                $save[] = trim($rec[$fld]);
+            }
+            else $save[] = $rec[$fld];
+        }
+        $tab_separated = (string) implode("\t", $save); 
+        fwrite($WRITE, $tab_separated . "\n");
+        // echo "\nSaved to [$basename]: "; print_r($save); //echo "\n".implode("\t", $save)."\n"; //exit("\nditox 9\n"); //good debug
+        fclose($WRITE);
+    }
     private function get_modulo($txtfile)
     {
         $total = self::total_rows_on_file($txtfile);
         if($total <= 1000) $modulo = 200;
         elseif($total > 1000 && $total <= 50000) $modulo = 5000;
         elseif($total > 50000 && $total <= 100000) $modulo = 5000;
-        elseif($total > 100000 && $total <= 500000) $modulo = 10000;
-        elseif($total > 500000 && $total <= 1000000) $modulo = 10000;
-        elseif($total > 1000000 && $total <= 2000000) $modulo = 10000;
-        elseif($total > 2000000) $modulo = 10000;
+        elseif($total > 100000 && $total <= 500000) $modulo = 50000;
+        elseif($total > 500000 && $total <= 1000000) $modulo = 100000;
+        elseif($total > 1000000 && $total <= 2000000) $modulo = 100000;
+        elseif($total > 2000000) $modulo = 100000;
         return $modulo;
     }
 
@@ -745,27 +771,6 @@ class BranchGraftRules
         $arr = array_unique($arr); //make unique
         $arr = array_values($arr); //reindex key
         return $arr;
-    }
-    private function write_output_rec_2txt($rec, $basename)
-    {   // print_r($rec);
-        $filename = $this->temp_dir.$basename.".txt";
-        $fields = array_keys($rec);
-        $WRITE = Functions::file_open($filename, "a");
-        clearstatcache(); //important for filesize()
-        if(filesize($filename) == 0) fwrite($WRITE, implode("\t", $fields) . "\n");
-        $save = array();
-        foreach($fields as $fld) {
-            if(is_array($rec[$fld])) { //if value is array()
-                $rec[$fld] = self::clean_array($rec[$fld]);
-                $rec[$fld] = implode(", ", $rec[$fld]); //convert to string
-                $save[] = trim($rec[$fld]);
-            }
-            else $save[] = $rec[$fld];
-        }
-        $tab_separated = (string) implode("\t", $save); 
-        fwrite($WRITE, $tab_separated . "\n");
-        // echo "\nSaved to [$basename]: "; print_r($save); //echo "\n".implode("\t", $save)."\n"; //exit("\nditox 9\n"); //good debug
-        fclose($WRITE);
     }
     ///============================================== START Summary Report
     function prepare_download_link()
