@@ -9,30 +9,115 @@ class BranchGraftRules
     }
     private function initialize()
     {   
-        // /* 2nd:
+        /* 2nd:
         require_library('connectors/DwCA_Utility');
         $this->HC = new DwCA_Utility(); // HC - higherClassification functions
-        // */
+        */
         // /* 3rd:
-        $this->temp_dir = CONTENT_RESOURCE_LOCAL_PATH . '/Branch_Graft/'.$this->resource_id."/";
-        if(!is_dir($this->temp_dir)) mkdir($this->temp_dir);
-        $filenames = array('matchedNames', 'processed', 'unmatchedNames');
-        foreach($filenames as $filename) {
-            $filename = $this->temp_dir.$filename.".txt";
-            debug("\n[$filename]\n");
-            $WRITE = Functions::file_open($filename, "w"); fclose($WRITE);
+        $this->temp_dir = CONTENT_RESOURCE_LOCAL_PATH . '/Branch_Graft/';
+        if(!is_dir($this->temp_dir)) {
+            mkdir($this->temp_dir);
+            exit("\nWill terminate for now. Please try again.\n");
         }
+        // $filenames = array('matchedNames', 'processed', 'unmatchedNames');
+        // foreach($filenames as $filename) {
+        //     $filename = $this->temp_dir.$filename.".txt";
+        //     debug("\n[$filename]\n");
+        //     $WRITE = Functions::file_open($filename, "w"); fclose($WRITE);
+        // }
         // */
-        $this->DH_file = CONTENT_RESOURCE_LOCAL_PATH . '/Branch_Graft/dh21eolid/taxon.tab';
-        self::get_IncompatibleAncestors(); //get from Google
-        self::set_taxon_fields();
+        // $this->DH_file = CONTENT_RESOURCE_LOCAL_PATH . '/Branch_Graft/dh21eolid/taxon.tab';
+        // self::get_IncompatibleAncestors(); //get from Google
+        // self::set_taxon_fields();
     }
-    function start_grafting()
+    function start_grafting($input_fileA, $input_fileB)
+    {   self::initialize();
+        /* Array(
+        [Filename_ID] => 
+        [Short_Desc] => 
+        [timestart] => 0.002263
+        [newfile_File_A] => File_A_1688396971.tab
+        [newfile_File_B] => File_B_1688396971.tsv
+        [fileA_taxonID] => EOL-000000095511
+        [fileB_taxonID] => eli02
+        [uuid] => 1688396971
+        ) */
+        // print_r($this->arr_json); exit("\nend 200\n");
+
+        // step 1: generate $parentID_taxonID from File A.
+        $parentID_taxonID = self::parse_TSV_file($input_fileA, "generate parentID_taxonID");
+
+        /* step 2: read file A, get all descendants of fileA_taxonID */
+        $parent_ids = array($this->arr_json['fileA_taxonID']);
+        require_library('connectors/PaleoDBAPI_v2');
+        $func = new PaleoDBAPI_v2("");
+        $descendants_A = $func->get_all_descendants_of_these_parents($parent_ids, $parentID_taxonID); // print_r($descendants_A);
+        echo "\nTotal descendants: [".count($descendants_A)."]\n";
+        exit("\n- exit muna-\n");
+    }
+    private function parse_TSV_file($txtfile, $task)
+    {   
+        $modulo = self::get_modulo($txtfile);
+        if($task == "generate parentID_taxonID") { echo "\nLoading [$txtfile] [$task] "; $modulo = 1000000; }
+        if($task == "yyy") echo "\nName Match and Validate ";
+        $i = 0; $final = array(); debug("\nProcessing: [$txtfile]\n"); //$syn = 0; for stats only
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            if(!$line) continue;
+            $i++; if(($i % $modulo) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line); // print_r($row);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                $k = 0; $rec = array();
+                foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
+            }
+            $rec = array_map('trim', $rec);
+            //###############################################################################################
+            if($task == "generate parentID_taxonID") { //print_r($rec); exit("\nstopx\n");
+                /* Array(
+                    [taxonID] => EOL-000000000001
+                    [source] => trunk:4038af35-41da-469e-8806-40e60241bb58
+                    [furtherInformationURL] => 
+                    [acceptedNameUsageID] => 
+                    [parentNameUsageID] => 
+                    [scientificName] => Life
+                    [taxonRank] => 
+                    [taxonomicStatus] => accepted
+                    [datasetID] => trunk
+                    [canonicalName] => Life
+                    [eolID] => 2913056
+                    [Landmark] => 3
+                )*/
+                $parent_id = @$rec["parentNameUsageID"];
+                $taxon_id = @$rec["taxonID"];
+                if($parent_id && $taxon_id) $final[$parent_id][] = $taxon_id;
+            }
+            //###############################################################################################
+            //###############################################################################################
+        } //end foreach()
+        return $final;
+    }
+
+
+    private function get_modulo($txtfile)
     {
-        print_r($this->arr_json);
-        exit("\nend 200\n");
+        $total = self::total_rows_on_file($txtfile);
+        if($total <= 1000) $modulo = 200;
+        elseif($total > 1000 && $total <= 50000) $modulo = 5000;
+        elseif($total > 50000 && $total <= 100000) $modulo = 5000;
+        elseif($total > 100000 && $total <= 500000) $modulo = 10000;
+        elseif($total > 500000 && $total <= 1000000) $modulo = 10000;
+        elseif($total > 1000000 && $total <= 2000000) $modulo = 10000;
+        elseif($total > 2000000) $modulo = 10000;
+        return $modulo;
+    }
 
-
+    ###################################################### all below is copied tempate
+    function main() //copied template
+    {
         $this->summary_report['info']['user file'] = $txtfile;
         // echo "\n[".$txtfile."] [$this->resource_id]\n"; exit;
         self::initialize();
@@ -54,94 +139,6 @@ class BranchGraftRules
         $this->HC = '';
         $this->taxon_fields = '';
         return;
-    }
-    private function get_modulo($txtfile)
-    {
-        $total = self::total_rows_on_file($txtfile);
-        if($total <= 1000) $modulo = 200;
-        elseif($total > 1000 && $total <= 50000) $modulo = 5000;
-        elseif($total > 50000 && $total <= 100000) $modulo = 5000;
-        elseif($total > 100000 && $total <= 500000) $modulo = 10000;
-        elseif($total > 500000 && $total <= 1000000) $modulo = 10000;
-        elseif($total > 1000000 && $total <= 2000000) $modulo = 10000;
-        elseif($total > 2000000) $modulo = 10000;
-        return $modulo;
-    }
-    private function parse_TSV_file($txtfile, $task)
-    {   
-        $modulo = self::get_modulo($txtfile);
-        if($task == "load DH file") { echo "\nLoading DH 2.1 "; $modulo = 1000000; }
-        if($task == "name match and validate") echo "\nName Match and Validate ";
-        $i = 0; debug("\nProcessing: [$txtfile]\n"); //$syn = 0; for stats only        
-        foreach(new FileIterator($txtfile) as $line_number => $line) {
-            if(!$line) continue;
-            $i++; if(($i % $modulo) == 0) echo "\n".number_format($i)." ";
-            $row = explode("\t", $line); // print_r($row);
-            if($i == 1) {
-                $fields = $row;
-                $fields = array_filter($fields); //print_r($fields);
-                continue;
-            }
-            else {
-                $k = 0; $rec = array();
-                foreach($fields as $fld) { $rec[$fld] = @$row[$k]; $k++; }
-            }
-            $rec = array_map('trim', $rec);
-            //###############################################################################################
-            if($task == "load DH file") { // print_r($rec); exit("\nstopx\n");
-                $canonicalName = $rec['canonicalName'];
-
-                $save = array();
-                $save['acceptedNameUsageID']      = $rec['acceptedNameUsageID'];
-                $save['eolID']                    = $rec['eolID'];
-                $save['scientificName']           = $rec['scientificName'];
-                $save['scientificNameAuthorship'] = @$rec['scientificNameAuthorship'];
-                $save['taxonRank']                = $rec['taxonRank'];
-                $save['taxonomicStatus']          = $rec['taxonomicStatus'];
-                $save['higherClassification']     = $rec['higherClassification'];
-                $this->DH_info[$canonicalName][] = $save; // $rec is too big in memory
-
-                // @$taxo_status[$rec['taxonomicStatus']]++; //good debug // if($rec['acceptedNameUsageID']) $syn++; //good debug
-                // print_r($this->DH_info); exit("\nditox 3\n");
-
-                // /*
-                $taxonID = $rec['taxonID'];
-                $eolID = $rec['eolID'];
-                $this->DH_taxonID_eolID[$taxonID] = $eolID;
-                // */
-
-                /*Array(
-                    [Life] => Array(
-                            [0] => Array(
-                                    [taxonID] => EOL-000000000001
-                                    [source] => trunk:4038af35-41da-469e-8806-40e60241bb58
-                                    [furtherInformationURL] => 
-                                    [acceptedNameUsageID] => 
-                                    [parentNameUsageID] => 
-                                    [scientificName] => Life
-                                    [taxonRank] => 
-                                    [taxonomicStatus] => accepted
-                                    [datasetID] => trunk
-                                    [canonicalName] => Life
-                                    [authority] => 
-                                    [eolID] => 2913056
-                                    [Landmark] => 3
-                                    [higherClassification] => 
-                                )
-                        )
-                )*/
-            }
-            //###############################################################################################
-            if($task == "name match and validate") { // print_r($rec); exit("\nditox 2\n");
-                self::name_match_validate($rec);
-            }
-            //###############################################################################################
-        } //end foreach()
-        if($task == "load DH file") {
-            // echo "\nLoaded DH 2.1 DONE.";
-            echo "\ntotal: ".count($this->DH_info)."\n"; //exit;
-            // print_r($taxo_status); exit("\n[$syn]\n"); //good debug
-        }
     }
     private function name_match_validate($rec)
     {   /*Array(

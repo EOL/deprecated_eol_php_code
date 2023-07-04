@@ -87,13 +87,13 @@ else          $cmd = PHP_PATH.' branch_graft.php jenkins ' . "'".$params['json']
 
 // echo "<pre>";print_r($params);echo "</pre>"; //good debug
 /*
-command: [/opt/homebrew/opt/php@5.6/bin/php branch_graft.php jenkins '{"Filename_ID":"","Short_Desc":"" , "timestart":"0.002263" , "newfile_File_A":"File_A_1688396971.tab" , "newfile_File_B":"File_B_1688396971.tsv" , "fileA_taxonID":"eli01" , "fileB_taxonID":"eli02" , "uuid":"1688396971" }']
+command: [/opt/homebrew/opt/php@5.6/bin/php branch_graft.php jenkins '{"Filename_ID":"","Short_Desc":"" , "timestart":"0.002263" , "newfile_File_A":"File_A_1688396971.tab" , "newfile_File_B":"File_B_1688396971.tsv" , "fileA_taxonID":"EOL-000000095511" , "fileB_taxonID":"eli02" , "uuid":"1688396971" }']
 Array(
     [true_root] => /opt/homebrew/var/www/eol_php_code/
     [uuid] => 1688396971
     [json] => {"Filename_ID":"","Short_Desc":"" , "timestart":"0.002263" , 
           "newfile_File_A":"File_A_1688396971.tab" , "newfile_File_B":"File_B_1688396971.tsv" , 
-          "fileA_taxonID":"eli01" , "fileB_taxonID":"eli02" , "uuid":"1688396971"
+          "fileA_taxonID":"EOL-000000095511" , "fileB_taxonID":"eli02" , "uuid":"1688396971"
          }
     [Filename_ID] => 
     [Short_Desc] => 

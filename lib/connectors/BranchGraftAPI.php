@@ -51,8 +51,8 @@ class BranchGraftAPI extends BranchGraftRules
             [Filename_ID] => 
             [Short_Desc] => 
             [timestart] => 0.002263
-            [newfile_File_A] => temp/File_A_1688396971.tab
-            [newfile_File_B] => temp/File_B_1688396971.tsv
+            [newfile_File_A] => File_A_1688396971.tab
+            [newfile_File_B] => File_B_1688396971.tsv
             [fileA_taxonID] => eli01
             [fileB_taxonID] => eli02
             [uuid] => 1688396971
@@ -71,12 +71,12 @@ class BranchGraftAPI extends BranchGraftRules
         $fileA_taxonID = $this->arr_json['fileA_taxonID'];
 
         if(!$filename1 || !$filename2 || !$fileA_taxonID) exit("\nIncomplete required parameters. Program will terminate.\n");
-        $input_file1 = $this->input['path'].$filename1; //e.g. $filename is 'temp/File_A_1688396971.tab'
-        $input_file2 = $this->input['path'].$filename2; //e.g. $filename is 'temp/File_B_1688396971.tsv'
+        $input_file1 = $this->input['path'].$filename1; //e.g. $filename is 'File_A_1688396971.tab'
+        $input_file2 = $this->input['path'].$filename2; //e.g. $filename is 'File_B_1688396971.tsv'
 
         if(file_exists($input_file1) && file_exists($input_file2)) {
             $this->resource_id = $this->arr_json['uuid'];
-            $this->start_grafting(); //calling main program
+            $this->start_grafting($input_file1, $input_file2); //calling main program
 
             /* copied template from trait_data_import tool
             self::read_input_file($input_file); //writes to text files for reading in next step.
