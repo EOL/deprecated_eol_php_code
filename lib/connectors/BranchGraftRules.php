@@ -209,15 +209,19 @@ class BranchGraftRules
                 $parentNameUsageID = $rec['parentNameUsageID'];
                 $acceptedNameUsageID = $rec['acceptedNameUsageID'];
 
-                // /*
-                // 5. Change the parentNameUsageID of the immediate children of yyy to xxx.
+                // /* 5. Change the parentNameUsageID of the immediate children of yyy to xxx.
                 $fileA_taxonID = $this->arr_json['fileA_taxonID'];  // xxx
                 $fileB_taxonID = $this->arr_json['fileB_taxonID'];  // yyy
-                if($parentNameUsageID == fileB_taxonID) $rec['parentNameUsageID'] = $fileA_taxonID;
+                if($parentNameUsageID == $fileB_taxonID) $rec['parentNameUsageID'] = $fileA_taxonID;
                 // */
 
-                // /* 7.
+                // /* 7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A, 
+                //     if so, add -G to the original ID to make it unique. Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, 
+                //     so they point to the updated taxonID.
                 if(isset($this->File_A_taxonIDs[$taxonID])) $rec['taxonID'] = $taxonID."-G";
+                if($acceptedNameUsageID == $fileB_taxonID) $rec['acceptedNameUsageID'] = $fileA_taxonID;
+                to do:
+                be sure when adding "-G", be sure all parentID and acceptID for this taxa is also updated.
                 // */
 
                 if(isset($this->descendants_B[$taxonID])) {             //get actual descendants
