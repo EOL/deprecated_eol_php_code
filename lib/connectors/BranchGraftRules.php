@@ -27,6 +27,9 @@ class BranchGraftRules
         $this->descendants_File_A = $this->input['path'] . "descendants_File_A_" . $this->arr_json['uuid'] . ".txt";
         $WRITE = Functions::file_open($this->descendants_File_A, "w"); fclose($WRITE);
 
+        $this->descendants_File_B = $this->input['path'] . "descendants_File_B_" . $this->arr_json['uuid'] . ".txt";
+        $WRITE = Functions::file_open($this->descendants_File_B, "w"); fclose($WRITE);
+
         $this->debug_rules = array();
         // $filenames = array('matchedNames', 'processed', 'unmatchedNames');
         // foreach($filenames as $filename) {
@@ -114,8 +117,6 @@ class BranchGraftRules
         // step 3: write descendants of B to text 
         self::parse_TSV_file($input_fileB, "save File B descendants and its synonyms");
         unset($this->descendants_B);
-
-
         ########################################################################## 4. end
 
 
@@ -190,7 +191,25 @@ class BranchGraftRules
             }
             //###############################################################################################
             if($task == "save File B descendants and its synonyms") {
-                
+                $taxonID = $rec['taxonID'];
+                $parentNameUsageID = $rec['parentNameUsageID'];
+                $acceptedNameUsageID = $rec['acceptedNameUsageID'];
+
+                if(isset($this->descendants_B[$taxonID])) {             //get actual descendants
+                    @$this->debug_rules['deleted B']++;
+                    self::write_output_rec_2txt($rec, $this->descendants_File_B);
+                    continue;
+                }
+                if(isset($this->descendants_B[$acceptedNameUsageID])) { //get synonyms of descendants
+                    @$this->debug_rules['deleted B']++;
+                    self::write_output_rec_2txt($rec, $this->descendants_File_B);
+                    continue;
+                }
+                if(isset($this->descendants_B[$parentNameUsageID])) {   //get children of descendants; may not need this anymore.
+                    @$this->debug_rules['deleted B']++;
+                    self::write_output_rec_2txt($rec, $this->descendants_File_B);
+                    continue;
+                }
             }
             //###############################################################################################
         } //end foreach()
@@ -204,9 +223,13 @@ class BranchGraftRules
             echo "\n Trimmed File A: ".$new."\n";
             echo "\n     Difference: ".$diff."\n";
             echo "\nStats (deleted): ".$this->debug_rules['deleted']."\n";
-
             $new = self::txtfile_row_count($this->descendants_File_A);
             echo "\n Removed descendants from File A: ".$new."\n";
+        }
+        if($task == "save File B descendants and its synonyms") {
+            echo "\nStats (created): ".$this->debug_rules['deleted B']."\n";
+            $num = self::txtfile_row_count($this->descendants_File_B);
+            echo "\n Descendants and its synonyms from File B: ".$num."\n";
         }
     }
     private function write_output_rec_2txt($rec, $filename)
