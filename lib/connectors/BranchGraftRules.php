@@ -57,9 +57,11 @@ class BranchGraftRules
         // print_r($this->arr_json); exit("\nend 200\n");
 
         // step 1: generate $parentID_taxonID from File A.
+        /*
         $parentID_taxonID = self::parse_TSV_file($input_fileA, "generate parentID_taxonID");
-
+        */
         // step 2: read file A, get all descendants of fileA_taxonID
+        /*
         $parent_ids = array($this->arr_json['fileA_taxonID']);
         require_library('connectors/PaleoDBAPI_v2');
         $func = new PaleoDBAPI_v2("");
@@ -69,11 +71,12 @@ class BranchGraftRules
         echo "\nFile A total descendants: [".count($descendants_A)."]\n";
         echo "\nFile A total descendants: [".count($this->descendants_A)."]\n";
         unset($descendants_A);
-
+        */
         // step 3: now remove all descendants of fileA_taxonID, and their synonyms
+        /*
         self::parse_TSV_file($input_fileA, "generate trimmed File A");
         unset($this->descendants_A);
-
+        */
         /* step 4: If there is no value for yyy, we are ready to create the output file, with the descendants & their synonyms removed 
         and the note in the notes column added for the basal taxon. */
         if($fileB_taxonID = $this->arr_json['fileB_taxonID']) {
