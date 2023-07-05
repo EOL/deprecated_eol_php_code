@@ -252,8 +252,8 @@ class BranchGraftRules
             if($task == "update parentID and acceptID affected by -G") {
                 $parentNameUsageID = $rec['parentNameUsageID'];
                 $acceptedNameUsageID = $rec['acceptedNameUsageID'];
-                if(isset($this->with_Gs[$parentNameUsageID])) $rec['parentNameUsageID']."-G";
-                if(isset($this->with_Gs[$acceptedNameUsageID])) $rec['acceptedNameUsageID']."-G";
+                if(isset($this->with_Gs[$parentNameUsageID]))   $rec['parentNameUsageID']   = $rec['parentNameUsageID']."-G";
+                if(isset($this->with_Gs[$acceptedNameUsageID])) $rec['acceptedNameUsageID'] = $rec['acceptedNameUsageID']."-G";
                 self::write_output_rec_2txt($rec, $this->descendants_File_B2);
                 // continue; //with or without
             }
