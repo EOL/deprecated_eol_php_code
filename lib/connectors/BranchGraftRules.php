@@ -121,10 +121,16 @@ class BranchGraftRules
         self::parse_TSV_file($input_fileB, "save File B descendants and its synonyms");
         unset($this->descendants_B);
         ########################################################################## 4. end
-        ########################################################################## 5. start
-        // 5. Change the parentNameUsageID of the immediate children of yyy to xxx.
+        ########################################################################## 5.6. start
+        // 5. Change the parentNameUsageID of the immediate children of yyy to xxx.                 --> done already
+        // 6. Copy over all taxa with acceptedNameUsageID values that point to descendants of yyy.  --> done already
+        ########################################################################## 5.6. end
+        ########################################################################## 7. end
+        // 7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A, 
+        //     if so, add -G to the original ID to make it unique. Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, 
+        //     so they point to the updated taxonID.
 
-        ########################################################################## 5. end
+        ########################################################################## 7. end
 
 
         exit("\n- end muna process yyy -\n");
@@ -194,6 +200,7 @@ class BranchGraftRules
                 if($taxonID == $fileA_taxonID) $rec['notes'] = "new branch";
                 else                           $rec['notes'] = @$rec['notes'];
 
+                $this->File_A_taxonIDs[$taxonID] = ''; //to be used in no. 7
                 self::write_output_rec_2txt($rec, $this->trimmed_File_A); // start writing
             }
             //###############################################################################################
@@ -207,6 +214,10 @@ class BranchGraftRules
                 $fileA_taxonID = $this->arr_json['fileA_taxonID'];  // xxx
                 $fileB_taxonID = $this->arr_json['fileB_taxonID'];  // yyy
                 if($parentNameUsageID == fileB_taxonID) $rec['parentNameUsageID'] = $fileA_taxonID;
+                // */
+
+                // /* 7.
+                if(isset($this->File_A_taxonIDs[$taxonID])) $rec['taxonID'] = $taxonID."-G";
                 // */
 
                 if(isset($this->descendants_B[$taxonID])) {             //get actual descendants
