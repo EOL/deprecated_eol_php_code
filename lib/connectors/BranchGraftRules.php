@@ -88,11 +88,35 @@ class BranchGraftRules
         4. Look for the taxon with taxonID yyy in File B and copy all of its descendants to File A.
         5. Change the parentNameUsageID of the immediate children of yyy to xxx.
         6. Copy over all taxa with acceptedNameUsageID values that point to descendants of yyy.
-        7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A, if so, add -G to the original ID to make it unique. Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, so they point to the updated taxonID.
-        8. When copying data from File B to File A, follow the File A column structure. If there are columns in File A that are not in File B, leave those blank. If there are columns in File B that are not in File A, leave those data behind.
+        7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A, 
+            if so, add -G to the original ID to make it unique. Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, 
+            so they point to the updated taxonID.
+        8. When copying data from File B to File A, follow the File A column structure. If there are columns in File A that are not in File B, 
+            leave those blank. If there are columns in File B that are not in File A, leave those data behind.
         9. For all taxa copied from File B to File A, add the filename of File B in the notes column. */
 
+        ########################################################################## 4. start
         // 4. Look for the taxon with taxonID yyy in File B and copy all of its descendants to File A.
+        // step 1: generate $parentID_taxonID from File B.
+        $parentID_taxonID = self::parse_TSV_file($input_fileB, "generate parentID_taxonID");
+
+        // step 2: read file B, get all descendants of fileB_taxonID
+        $parent_ids = array($this->arr_json['fileB_taxonID']);
+        require_library('connectors/PaleoDBAPI_v2');
+        $func = new PaleoDBAPI_v2("");
+        $descendants_B = $func->get_all_descendants_of_these_parents($parent_ids, $parentID_taxonID); // print_r($descendants_A);
+        unset($parentID_taxonID); unset($func);
+        $this->descendants_B = array_flip($descendants_B); //print_r($this->descendants_A); exit;
+        echo "\nFile B total descendants: [".count($descendants_B)."]\n";
+        echo "\nFile B total descendants: [".count($this->descendants_B)."]\n";
+        unset($descendants_B);
+
+        // step 3: write descendants of B to text 
+        self::parse_TSV_file($input_fileB, "save File B descendants and its synonyms");
+        unset($this->descendants_B);
+
+
+        ########################################################################## 4. end
 
 
 
@@ -163,6 +187,10 @@ class BranchGraftRules
                 else                           $rec['notes'] = @$rec['notes'];
 
                 self::write_output_rec_2txt($rec, $this->trimmed_File_A); // start writing
+            }
+            //###############################################################################################
+            if($task == "save File B descendants and its synonyms") {
+                
             }
             //###############################################################################################
         } //end foreach()
