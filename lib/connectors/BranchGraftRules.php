@@ -125,8 +125,9 @@ class BranchGraftRules
         unset($this->descendants_B);
         ########################################################################## 4. end
         ########################################################################## 5.6. start
-        // 5. Change the parentNameUsageID of the immediate children of yyy to xxx.                 --> done already
-        // 6. Copy over all taxa with acceptedNameUsageID values that point to descendants of yyy.  --> done already
+        // 5. Change the parentNameUsageID of the immediate children of yyy to xxx.                         --> done already
+        // 6. Copy over all taxa with acceptedNameUsageID values that point to descendants of yyy.          --> done already
+        // 9. For all taxa copied from File B to File A, add the filename of File B in the notes column.    --> done already
         ########################################################################## 5.6. end
         ########################################################################## 7. end
         // 7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A, 
@@ -230,6 +231,12 @@ class BranchGraftRules
                     $rec['taxonID'] = $taxonID."-G";
                     $this->with_Gs[$taxonID] = '';
                 }
+                // */
+
+                // /* 9. For all taxa copied from File B to File A, add the filename of File B in the notes column.
+                if($notes = @$rec['notes']) $notes .= " | ".$this->arr_json['orig_file_B'];
+                else                        $notes = $this->arr_json['orig_file_B'];
+                $rec['notes'] = $notes;
                 // */
 
                 if(isset($this->descendants_B[$taxonID])) {             //get actual descendants
