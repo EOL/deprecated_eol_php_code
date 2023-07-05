@@ -30,6 +30,9 @@ class BranchGraftRules
         $this->descendants_File_B = $this->input['path'] . "descendants_File_B_" . $this->arr_json['uuid'] . ".txt";
         $WRITE = Functions::file_open($this->descendants_File_B, "w"); fclose($WRITE);
 
+        $this->descendants_File_B2 = $this->input['path'] . "descendants_File_B2_" . $this->arr_json['uuid'] . ".txt";
+        $WRITE = Functions::file_open($this->descendants_File_B2, "w"); fclose($WRITE);
+
         $this->debug_rules = array();
         // $filenames = array('matchedNames', 'processed', 'unmatchedNames');
         // foreach($filenames as $filename) {
@@ -130,6 +133,10 @@ class BranchGraftRules
         //     if so, add -G to the original ID to make it unique. Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, 
         //     so they point to the updated taxonID.
 
+        // Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, so they point to the updated taxonID.
+        self::parse_TSV_file($this->descendants_File_B, "update parentID and acceptID affected by -G");
+        unset($this->with_Gs);
+        // Eli: update parentID and acceptID values where the orig values were added with string "-G".
         ########################################################################## 7. end
 
 
@@ -213,32 +220,42 @@ class BranchGraftRules
                 $fileA_taxonID = $this->arr_json['fileA_taxonID'];  // xxx
                 $fileB_taxonID = $this->arr_json['fileB_taxonID'];  // yyy
                 if($parentNameUsageID == $fileB_taxonID) $rec['parentNameUsageID'] = $fileA_taxonID;
+                if($acceptedNameUsageID == $fileB_taxonID) $rec['acceptedNameUsageID'] = $fileA_taxonID; //Eli's initiative
                 // */
 
                 // /* 7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A, 
                 //     if so, add -G to the original ID to make it unique. Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, 
                 //     so they point to the updated taxonID.
-                if(isset($this->File_A_taxonIDs[$taxonID])) $rec['taxonID'] = $taxonID."-G";
-                if($acceptedNameUsageID == $fileB_taxonID) $rec['acceptedNameUsageID'] = $fileA_taxonID;
-                to do:
-                be sure when adding "-G", be sure all parentID and acceptID for this taxa is also updated.
+                if(isset($this->File_A_taxonIDs[$taxonID])) {
+                    $rec['taxonID'] = $taxonID."-G";
+                    $this->with_Gs[$taxonID] = '';
+                }
                 // */
 
                 if(isset($this->descendants_B[$taxonID])) {             //get actual descendants
-                    @$this->debug_rules['deleted B']++;
+                    @$this->debug_rules['created B']++;
                     self::write_output_rec_2txt($rec, $this->descendants_File_B);
                     continue;
                 }
                 if(isset($this->descendants_B[$acceptedNameUsageID])) { //get synonyms of descendants
-                    @$this->debug_rules['deleted B']++;
+                    @$this->debug_rules['created B']++;
                     self::write_output_rec_2txt($rec, $this->descendants_File_B);
                     continue;
                 }
                 if(isset($this->descendants_B[$parentNameUsageID])) {   //get children of descendants; may not need this anymore.
-                    @$this->debug_rules['deleted B']++;
+                    @$this->debug_rules['created B']++;
                     self::write_output_rec_2txt($rec, $this->descendants_File_B);
                     continue;
                 }
+            }
+            //###############################################################################################
+            if($task == "update parentID and acceptID affected by -G") {
+                $parentNameUsageID = $rec['parentNameUsageID'];
+                $acceptedNameUsageID = $rec['acceptedNameUsageID'];
+                if(isset($this->with_Gs[$parentNameUsageID])) $rec['parentNameUsageID']."-G";
+                if(isset($this->with_Gs[$acceptedNameUsageID])) $rec['acceptedNameUsageID']."-G";
+                self::write_output_rec_2txt($rec, $this->descendants_File_B2);
+                // continue; //with or without
             }
             //###############################################################################################
         } //end foreach()
@@ -256,9 +273,10 @@ class BranchGraftRules
             echo "\n Removed descendants from File A: ".$new."\n";
         }
         if($task == "save File B descendants and its synonyms") {
-            echo "\nStats (created): ".$this->debug_rules['deleted B']."\n";
+            echo "\nStats (created): ".$this->debug_rules['created B']."\n";
             $num = self::txtfile_row_count($this->descendants_File_B);
             echo "\n Descendants and its synonyms from File B: ".$num."\n";
+            echo "\n New taxonIDs with '-G': ".count(@$this->with_Gs)."\n";
         }
     }
     private function write_output_rec_2txt($rec, $filename)
