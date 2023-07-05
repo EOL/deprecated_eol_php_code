@@ -5,11 +5,10 @@ namespace php_active_record;
 class BranchGraftRules
 {
     function __construct()
-    {
+    {   
     }
     private function initialize()
     {   
-
         /* 2nd:
         require_library('connectors/DwCA_Utility');
         $this->HC = new DwCA_Utility(); // HC - higherClassification functions
@@ -74,16 +73,25 @@ class BranchGraftRules
         /* step 4: If there is no value for yyy, we are ready to create the output file, with the descendants & their synonyms removed 
         and the note in the notes column added for the basal taxon. */
         if($fileB_taxonID = $this->arr_json['fileB_taxonID']) {
-
-            $with_yyy = true;
-            self::prepare_download_link($with_yyy);
+            self::process_with_yyy($input_fileB);
+            $with_yyy = true; self::prepare_download_link($with_yyy);
         }
         else { // trimmed File A is now the final result
-            $with_yyy = false;
-            self::prepare_download_link($with_yyy);
+            $with_yyy = false; self::prepare_download_link($with_yyy);
         }
 
         exit("\n- exit muna-\n");
+    }
+    private function process_with_yyy($input_fileB)
+    {   /* If there is a yyy value, add the following steps:
+        4. Look for the taxon with taxonID yyy in File B and copy all of its descendants to File A.
+        5. Change the parentNameUsageID of the immediate children of yyy to xxx.
+        6. Copy over all taxa with acceptedNameUsageID values that point to descendants of yyy.
+        7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A, if so, add -G to the original ID to make it unique. Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, so they point to the updated taxonID.
+        8. When copying data from File B to File A, follow the File A column structure. If there are columns in File A that are not in File B, leave those blank. If there are columns in File B that are not in File A, leave those data behind.
+        9. For all taxa copied from File B to File A, add the filename of File B in the notes column. */
+        
+
     }
     private function parse_TSV_file($txtfile, $task)
     {   
