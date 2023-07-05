@@ -75,9 +75,12 @@ class BranchGraftRules
         and the note in the notes column added for the basal taxon. */
         if($fileB_taxonID = $this->arr_json['fileB_taxonID']) {
 
+            $with_yyy = true;
+            self::prepare_download_link($with_yyy);
         }
         else { // trimmed File A is now the final result
-            self::prepare_download_link();
+            $with_yyy = false;
+            self::prepare_download_link($with_yyy);
         }
 
         exit("\n- exit muna-\n");
@@ -185,19 +188,21 @@ class BranchGraftRules
         $total = shell_exec("wc -l < ".escapeshellarg($file));
         return trim($total);
     }
-    private function prepare_download_link()
+    private function prepare_download_link($with_yyy)
     {   // zip -r temp.zip Documents
         // echo "\n".$this->temp_dir."\n"; echo "\n".$this->resource_id."\n";
 
         // $this->temp_dir ---> CONTENT_RESOURCE_LOCAL_PATH . '/Branch_Graft/';
         // $ zip archive.zip file1 file2 file3
         $files = array();
-        $files[] = $this->trimmed_File_A;
+        if($with_yyy) {
+        }
+        else $files[] = $this->trimmed_File_A;
         $source = implode(" ", $files);
         $destination = $this->temp_dir.$this->resource_id.".zip";
 
         if($GLOBALS['ENV_DEBUG']) {
-            echo "\nsource: [$source]\n";
+            echo "\n     source: [$source]\n";
             echo "\ndestination: [$destination]\n";    
         }
         $cmd = "zip -rj $destination $source";
