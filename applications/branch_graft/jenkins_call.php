@@ -99,7 +99,7 @@ Array(
     [Filename_ID] => 
     [Short_Desc] => 
 )*/
-exit("<br>command: [".$cmd."]<br>");
+// exit("<br>command: [".$cmd."]<br>");
 
 $cmd .= " 2>&1";
 $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
