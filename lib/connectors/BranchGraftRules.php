@@ -81,7 +81,7 @@ class BranchGraftRules
         and the note in the notes column added for the basal taxon. */
         if($fileB_taxonID = $this->arr_json['fileB_taxonID']) {
             self::process_with_yyy($input_fileB);
-            $with_yyy = true; self::prepare_download_link($with_yyy);
+            // $with_yyy = true; self::prepare_download_link($with_yyy);
         }
         else { // trimmed File A is now the final result
             $with_yyy = false; self::prepare_download_link($with_yyy);
@@ -121,9 +121,13 @@ class BranchGraftRules
         self::parse_TSV_file($input_fileB, "save File B descendants and its synonyms");
         unset($this->descendants_B);
         ########################################################################## 4. end
+        ########################################################################## 5. start
+        // 5. Change the parentNameUsageID of the immediate children of yyy to xxx.
+
+        ########################################################################## 5. end
 
 
-
+        exit("\n- end muna process yyy -\n");
     }
     private function parse_TSV_file($txtfile, $task)
     {   
@@ -197,6 +201,13 @@ class BranchGraftRules
                 $taxonID = $rec['taxonID'];
                 $parentNameUsageID = $rec['parentNameUsageID'];
                 $acceptedNameUsageID = $rec['acceptedNameUsageID'];
+
+                // /*
+                // 5. Change the parentNameUsageID of the immediate children of yyy to xxx.
+                $fileA_taxonID = $this->arr_json['fileA_taxonID'];  // xxx
+                $fileB_taxonID = $this->arr_json['fileB_taxonID'];  // yyy
+                if($parentNameUsageID == fileB_taxonID) $rec['parentNameUsageID'] = $fileA_taxonID;
+                // */
 
                 if(isset($this->descendants_B[$taxonID])) {             //get actual descendants
                     @$this->debug_rules['deleted B']++;
