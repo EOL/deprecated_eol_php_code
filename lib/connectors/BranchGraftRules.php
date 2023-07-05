@@ -22,8 +22,10 @@ class BranchGraftRules
         [path] => /opt/homebrew/var/www/eol_php_code//applications/branch_graft/temp/
         */
         $this->trimmed_File_A = $this->input['path'] . "trimmed_File_A_" . $this->arr_json['uuid'] . ".txt";
-        $WRITE = Functions::file_open($this->trimmed_File_A, "w");
-        fclose($WRITE);
+        $WRITE = Functions::file_open($this->trimmed_File_A, "w"); fclose($WRITE);
+
+        $this->descendants_File_A = $this->input['path'] . "descendants_File_A_" . $this->arr_json['uuid'] . ".txt";
+        $WRITE = Functions::file_open($this->descendants_File_A, "w"); fclose($WRITE);
 
         $this->debug_rules = array();
         // $filenames = array('matchedNames', 'processed', 'unmatchedNames');
@@ -59,11 +61,10 @@ class BranchGraftRules
         require_library('connectors/PaleoDBAPI_v2');
         $func = new PaleoDBAPI_v2("");
         $descendants_A = $func->get_all_descendants_of_these_parents($parent_ids, $parentID_taxonID); // print_r($descendants_A);
-        unset($parentID_taxonID);
-        unset($func);
+        unset($parentID_taxonID); unset($func);
         $this->descendants_A = array_flip($descendants_A); //print_r($this->descendants_A); exit;
-        echo "\nTotal descendants: [".count($descendants_A)."]\n";
-        echo "\nTotal descendants: [".count($this->descendants_A)."]\n";
+        echo "\nFile A total descendants: [".count($descendants_A)."]\n";
+        echo "\nFile A total descendants: [".count($this->descendants_A)."]\n";
         unset($descendants_A);
 
         // step 3: now remove all descendants of fileA_taxonID, and their synonyms
@@ -90,7 +91,10 @@ class BranchGraftRules
         7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A, if so, add -G to the original ID to make it unique. Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, so they point to the updated taxonID.
         8. When copying data from File B to File A, follow the File A column structure. If there are columns in File A that are not in File B, leave those blank. If there are columns in File B that are not in File A, leave those data behind.
         9. For all taxa copied from File B to File A, add the filename of File B in the notes column. */
-        
+
+        // 4. Look for the taxon with taxonID yyy in File B and copy all of its descendants to File A.
+
+
 
     }
     private function parse_TSV_file($txtfile, $task)
