@@ -66,8 +66,9 @@ if($file_type = @$_FILES["file_upload"]["type"]) { // File A
         if($upload_error > 0) exit_now("<hr>$upload_error<hr>File A: File upload error.");
         else {
             $orig_file = $_FILES["file_upload"]["name"];
-            $destination = "temp/File_A_" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
-            if(move_uploaded_file($_FILES["file_upload"]["tmp_name"] , $destination)) {
+            $orig_file_A = $orig_file;
+            $destination = "File_A_" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
+            if(move_uploaded_file($_FILES["file_upload"]["tmp_name"] , "temp/".$destination)) {
                 debug("<br>file uploaded - OK<br>");
             }
             else echo "<br>uploading file - ERROR<br>";
@@ -108,8 +109,9 @@ if($file_type = @$_FILES["file_upload2"]["type"]) { // File B
         if($upload_error > 0) exit_now("<hr>$upload_error<hr>File B: File upload error.");
         else {
             $orig_file = $_FILES["file_upload2"]["name"];
-            $destination = "temp/File_B_" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
-            if(move_uploaded_file($_FILES["file_upload2"]["tmp_name"] , $destination)) {
+            $orig_file_B = $orig_file;
+            $destination = "File_B_" . $time_var . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
+            if(move_uploaded_file($_FILES["file_upload2"]["tmp_name"] , "temp/".$destination)) {
                 debug("<br>file uploaded - OK<br>");
             }
             else echo "<br>uploading file - ERROR<br>";

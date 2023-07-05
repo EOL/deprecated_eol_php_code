@@ -43,7 +43,8 @@ $json = '{"Proj":"'.$form['Proj'].'", "Dept":"'.$dept_map[$form['Dept']].'"
 */
 $json = '{"Filename_ID":"'.$form['Filename_ID'].'","Short_Desc":"'.$form['Short_Desc'].'" , "timestart":"'.$timestart.'" , 
           "newfile_File_A":"'.$newfile_File_A.'" , "newfile_File_B":"'.$newfile_File_B.'" , 
-          "fileA_taxonID":"'.$fileA_taxonID.'" , "fileB_taxonID":"'.$fileB_taxonID.'" , "uuid":"'.$time_var.'"
+          "fileA_taxonID":"'.$fileA_taxonID.'" , "fileB_taxonID":"'.$fileB_taxonID.'" , "uuid":"'.$time_var.'" ,
+          "orig_file_A":"'.$orig_file_A.'" , "orig_file_B":"'.$orig_file_B.'" 
          }';
 
 $params['json'] = $json;
@@ -87,7 +88,7 @@ else          $cmd = PHP_PATH.' branch_graft.php jenkins ' . "'".$params['json']
 
 // echo "<pre>";print_r($params);echo "</pre>"; //good debug
 /*
-command: [/opt/homebrew/opt/php@5.6/bin/php branch_graft.php jenkins '{"Filename_ID":"","Short_Desc":"" , "timestart":"0.002263" , "newfile_File_A":"File_A_1688396971.tab" , "newfile_File_B":"File_B_1688396971.tsv" , "fileA_taxonID":"EOL-000000095511" , "fileB_taxonID":"eli02" , "uuid":"1688396971" }']
+command: [/opt/homebrew/opt/php@5.6/bin/php branch_graft.php jenkins '{"Filename_ID":"","Short_Desc":"" , "timestart":"0.001884" , "newfile_File_A":"File_A_1688396971.tab" , "newfile_File_B":"File_B_1688396971.tsv" , "fileA_taxonID":"EOL-000000095511" , "fileB_taxonID":"EOL-000000095511" , "uuid":"1688396971" , "orig_file_A":"taxon.tab.zip" , "orig_file_B":"amoebozoatest.tsv" }']
 Array(
     [true_root] => /opt/homebrew/var/www/eol_php_code/
     [uuid] => 1688396971
@@ -98,7 +99,7 @@ Array(
     [Filename_ID] => 
     [Short_Desc] => 
 )*/
-// exit("<br>command: [".$cmd."]<br>");
+exit("<br>command: [".$cmd."]<br>");
 
 $cmd .= " 2>&1";
 $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
