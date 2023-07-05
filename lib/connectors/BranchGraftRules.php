@@ -145,14 +145,17 @@ class BranchGraftRules
 
                 if(isset($this->descendants_A[$taxonID])) {             //delete actual descendants
                     @$this->debug_rules['deleted']++;
+                    self::write_output_rec_2txt($rec, $this->descendants_File_A);
                     continue;
                 }
                 if(isset($this->descendants_A[$acceptedNameUsageID])) { //delete synonyms of descendants
                     @$this->debug_rules['deleted']++;
+                    self::write_output_rec_2txt($rec, $this->descendants_File_A);
                     continue;
                 }
                 if(isset($this->descendants_A[$parentNameUsageID])) {   //delete children of descendants; may not need this anymore.
                     @$this->debug_rules['deleted']++;
+                    self::write_output_rec_2txt($rec, $this->descendants_File_A);
                     continue;
                 }
 
@@ -167,12 +170,15 @@ class BranchGraftRules
         if($task == "generate parentID_taxonID") return $final;
         if($task == "generate trimmed File A") {
             $orig = self::txtfile_row_count($txtfile);
-            $new = self::txtfile_row_count($this->trimmed_File_A);
+            $new  = self::txtfile_row_count($this->trimmed_File_A);
             $diff = $orig - $new;
             echo "\n         File A: ".$orig."\n";
             echo "\n Trimmed File A: ".$new."\n";
             echo "\n     Difference: ".$diff."\n";
             echo "\nStats (deleted): ".$this->debug_rules['deleted']."\n";
+
+            $new = self::txtfile_row_count($this->descendants_File_A);
+            echo "\n Removed descendants from File A: ".$new."\n";
         }
     }
     private function write_output_rec_2txt($rec, $filename)
@@ -195,10 +201,12 @@ class BranchGraftRules
         // echo "\nSaved to [$basename]: "; print_r($save); //echo "\n".implode("\t", $save)."\n"; //exit("\nditox 9\n"); //good debug
         fclose($WRITE);
     }
-    private function txtfile_row_count($file)
+    private function txtfile_row_count($file, $has_headers_YN = true)
     {
         $total = shell_exec("wc -l < ".escapeshellarg($file));
-        return trim($total);
+        $total = trim($total);
+        if($has_headers_YN) $total = $total - 1;
+        return $total;
     }
     private function prepare_download_link($with_yyy)
     {   // zip -r temp.zip Documents
