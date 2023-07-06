@@ -21,11 +21,12 @@ class BranchGraftRules
         print_r($this->input); exit;
         [path] => /opt/homebrew/var/www/eol_php_code//applications/branch_graft/temp/
         */
-        $this->trimmed_File_A = $this->input['path'] . "trimmed_File_A_" . $this->arr_json['uuid'] . ".txt";
-        $WRITE = Functions::file_open($this->trimmed_File_A, "w"); fclose($WRITE);
 
-        $this->descendants_File_A = $this->input['path'] . "descendants_File_A_" . $this->arr_json['uuid'] . ".txt";
-        $WRITE = Functions::file_open($this->descendants_File_A, "w"); fclose($WRITE);
+        // $this->trimmed_File_A = $this->input['path'] . "trimmed_File_A_" . $this->arr_json['uuid'] . ".txt";
+        // $WRITE = Functions::file_open($this->trimmed_File_A, "w"); fclose($WRITE);
+
+        // $this->descendants_File_A = $this->input['path'] . "descendants_File_A_" . $this->arr_json['uuid'] . ".txt";
+        // $WRITE = Functions::file_open($this->descendants_File_A, "w"); fclose($WRITE);
 
         $this->descendants_File_B = $this->input['path'] . "descendants_File_B_" . $this->arr_json['uuid'] . ".txt";
         $WRITE = Functions::file_open($this->descendants_File_B, "w"); fclose($WRITE);
@@ -33,17 +34,10 @@ class BranchGraftRules
         $this->descendants_File_B2 = $this->input['path'] . "descendants_File_B2_" . $this->arr_json['uuid'] . ".txt";
         $WRITE = Functions::file_open($this->descendants_File_B2, "w"); fclose($WRITE);
 
+        $this->trimmed_File_A2 = $this->input['path'] . "trimmed_File_A2_" . $this->arr_json['uuid'] . ".txt";
+        $WRITE = Functions::file_open($this->trimmed_File_A2, "w"); fclose($WRITE);
+
         $this->debug_rules = array();
-        // $filenames = array('matchedNames', 'processed', 'unmatchedNames');
-        // foreach($filenames as $filename) {
-        //     $filename = $this->temp_dir.$filename.".txt";
-        //     debug("\n[$filename]\n");
-        //     $WRITE = Functions::file_open($filename, "w"); fclose($WRITE);
-        // }
-        // */
-        // $this->DH_file = CONTENT_RESOURCE_LOCAL_PATH . '/Branch_Graft/dh21eolid/taxon.tab';
-        // self::get_IncompatibleAncestors(); //get from Google
-        // self::set_taxon_fields();
     }
     function start_grafting($input_fileA, $input_fileB)
     {   self::initialize();
@@ -59,12 +53,10 @@ class BranchGraftRules
         ) */
         // print_r($this->arr_json); exit("\nend 200\n");
 
-        // step 1: generate $parentID_taxonID from File A.
-        /*
+        // /* step 1: generate $parentID_taxonID from File A.
         $parentID_taxonID = self::parse_TSV_file($input_fileA, "generate parentID_taxonID");
-        */
-        // step 2: read file A, get all descendants of fileA_taxonID
-        /*
+        // */
+        // /* step 2: read file A, get all descendants of fileA_taxonID
         $parent_ids = array($this->arr_json['fileA_taxonID']);
         require_library('connectors/PaleoDBAPI_v2');
         $func = new PaleoDBAPI_v2("");
@@ -74,12 +66,12 @@ class BranchGraftRules
         echo "\nFile A total descendants: [".count($descendants_A)."]\n";
         echo "\nFile A total descendants: [".count($this->descendants_A)."]\n";
         unset($descendants_A);
-        */
-        // step 3: now remove all descendants of fileA_taxonID, and their synonyms
-        /*
+        // */
+        // /* step 3: now remove all descendants of fileA_taxonID, and their synonyms
         self::parse_TSV_file($input_fileA, "generate trimmed File A");
         unset($this->descendants_A);
-        */
+        // */
+
         /* step 4: If there is no value for yyy, we are ready to create the output file, with the descendants & their synonyms removed 
         and the note in the notes column added for the basal taxon. */
         if($fileB_taxonID = $this->arr_json['fileB_taxonID']) {
@@ -139,7 +131,11 @@ class BranchGraftRules
         unset($this->with_Gs);
         // Eli: update parentID and acceptID values where the orig values were added with string "-G".
         ########################################################################## 7. end
-
+        ########################################################################## 8. start
+        // 8. When copying data from File B to File A, follow the File A column structure. If there are columns in File A that are not in File B, 
+        //     leave those blank. If there are columns in File B that are not in File A, leave those data behind.
+        self::parse_TSV_file($this->descendants_File_B2, "copy from File B to File A");
+        ########################################################################## 8. end
 
         exit("\n- end muna process yyy -\n");
     }
@@ -209,6 +205,9 @@ class BranchGraftRules
                 else                           $rec['notes'] = @$rec['notes'];
 
                 $this->File_A_taxonIDs[$taxonID] = ''; //to be used in no. 7
+                // /* to be used in no. 9
+                if($i == 2) $this->trimmed_File_A_headers = array_keys($rec);
+                // */
                 self::write_output_rec_2txt($rec, $this->trimmed_File_A); // start writing
             }
             //###############################################################################################
@@ -265,6 +264,29 @@ class BranchGraftRules
                 // continue; //with or without
             }
             //###############################################################################################
+            if($task == "copy from File B to File A") { // print_r($rec); exit;
+                /* Array( --- sample data from File B
+                    [taxonID] => EOL-000000097774
+                    [source] => https://opendata.eol.org/dataset/mip-eol-microbes-patch
+                    [acceptedNameUsageID] => 
+                    [parentNameUsageID] => EOL-000000095511
+                    [scientificName] => Amylotrogus Roze, 1896
+                    [canonicalName] => Amylotrogus
+                    [authority] => Roze, 1896
+                    [taxonRank] => genus
+                    [taxonomicStatus] => accepted
+                    [furtherInformationURL] => https://eol.org/pages/6795776/names
+                    [higherClassification] => Amoebozoa
+                    [notes] => amoebozoatest.tsv
+                )*/
+                $fields = $this->trimmed_File_A_headers; //fields to use are from File A
+                $save = array();
+                foreach($fields as $fld) {
+                    $save[$fld] = @$rec[$fld];
+                    self::write_output_rec_2txt($save, $this->trimmed_File_A2);                    
+                }
+            }
+            //###############################################################################################
         } //end foreach()
 
         if($task == "generate parentID_taxonID") return $final;
@@ -284,6 +306,14 @@ class BranchGraftRules
             $num = self::txtfile_row_count($this->descendants_File_B);
             echo "\n Descendants and its synonyms from File B: ".$num."\n";
             echo "\n New taxonIDs with '-G': ".count(@$this->with_Gs)."\n";
+        }
+        if($task == "copy from File B to File A") {
+            $orig = self::txtfile_row_count($this->trimmed_File_A);
+            $new  = self::txtfile_row_count($this->trimmed_File_A2);
+            $diff = $orig - $new;
+            echo "\n Trimmed File A: ".$orig."\n";
+            echo "\n   Final File A: ".$new."\n";
+            echo "\n     Difference: ".$diff."\n";
         }
     }
     private function write_output_rec_2txt($rec, $filename)
