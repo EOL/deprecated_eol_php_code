@@ -282,10 +282,8 @@ class BranchGraftRules
                 )*/
                 $fields = $this->trimmed_File_A_headers; //fields to use are from File A
                 $save = array();
-                foreach($fields as $fld) {
-                    $save[$fld] = @$rec[$fld];
-                    self::write_output_rec_2txt($save, $this->trimmed_File_A2);                    
-                }
+                foreach($fields as $fld) $save[$fld] = @$rec[$fld];
+                self::write_output_rec_2txt($save, $this->trimmed_File_A2);
             }
             //###############################################################################################
         } //end foreach()
@@ -319,6 +317,11 @@ class BranchGraftRules
             echo "\n Trimmed File A: ".$orig."\n";
             echo "\n   Final File A: ".$new."\n";
             echo "\n     Difference: ".$diff."\n";
+
+            $num  = self::txtfile_row_count($this->descendants_File_B2);
+            echo "\n Descendants and its synonyms from File B (to be added to A): ".$num."\n";
+
+
         }
     }
     private function write_output_rec_2txt($rec, $filename)
