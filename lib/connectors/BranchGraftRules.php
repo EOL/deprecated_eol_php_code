@@ -307,6 +307,10 @@ class BranchGraftRules
             echo "\n Descendants and its synonyms from File B: ".$num."\n";
             echo "\n New taxonIDs with '-G': ".count(@$this->with_Gs)."\n";
         }
+        if($task == "update parentID and acceptID affected by -G") {
+            $num  = self::txtfile_row_count($this->descendants_File_B2);
+            echo "\n Descendants and its synonyms from File B (updated): ".$num."\n";
+        }
         if($task == "copy from File B to File A") {
             $orig = self::txtfile_row_count($this->trimmed_File_A);
             $new  = self::txtfile_row_count($this->trimmed_File_A2);
@@ -315,6 +319,8 @@ class BranchGraftRules
             echo "\n   Final File A: ".$new."\n";
             echo "\n     Difference: ".$diff."\n";
         }
+        to do:
+        when saving trimmed file A, also start saving to trimmed File A2
     }
     private function write_output_rec_2txt($rec, $filename)
     {   // print_r($rec);
