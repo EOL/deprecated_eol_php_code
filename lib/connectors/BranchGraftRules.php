@@ -22,11 +22,11 @@ class BranchGraftRules
         [path] => /opt/homebrew/var/www/eol_php_code//applications/branch_graft/temp/
         */
 
-        // $this->trimmed_File_A = $this->input['path'] . "trimmed_File_A_" . $this->arr_json['uuid'] . ".txt";
-        // $WRITE = Functions::file_open($this->trimmed_File_A, "w"); fclose($WRITE);
+        $this->trimmed_File_A = $this->input['path'] . "trimmed_File_A_" . $this->arr_json['uuid'] . ".txt";
+        $WRITE = Functions::file_open($this->trimmed_File_A, "w"); fclose($WRITE);
 
-        // $this->descendants_File_A = $this->input['path'] . "descendants_File_A_" . $this->arr_json['uuid'] . ".txt";
-        // $WRITE = Functions::file_open($this->descendants_File_A, "w"); fclose($WRITE);
+        $this->descendants_File_A = $this->input['path'] . "descendants_File_A_" . $this->arr_json['uuid'] . ".txt";
+        $WRITE = Functions::file_open($this->descendants_File_A, "w"); fclose($WRITE);
 
         $this->descendants_File_B = $this->input['path'] . "descendants_File_B_" . $this->arr_json['uuid'] . ".txt";
         $WRITE = Functions::file_open($this->descendants_File_B, "w"); fclose($WRITE);
