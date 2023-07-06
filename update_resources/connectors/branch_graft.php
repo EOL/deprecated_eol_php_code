@@ -4,7 +4,8 @@ namespace php_active_record;
 Instructions here: https://eol-jira.bibalex.org/browse/COLLAB-1004?focusedCommentId=64188&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64188
 */
 /* how to run during dev:
-php update_resources/connectors/branch_graft.php _ '{"Filename_ID":"","Short_Desc":"" , "timestart":"0.002263" , "newfile_File_A":"temp/File_A_1688396971.tab" , "newfile_File_B":"temp/File_B_1688396971.tsv" , "fileA_taxonID":"eli01" , "fileB_taxonID":"eli02" , "uuid":"1688396971" }'
+1st test case by Katja from ticket:
+    php update_resources/connectors/branch_graft.php _ '{"Filename_ID":"","Short_Desc":"" , "timestart":"0.001884" , "newfile_File_A":"File_A_1688396971.tab" , "newfile_File_B":"File_B_1688396971.tsv" , "fileA_taxonID":"EOL-000000095511" , "fileB_taxonID":"EOL-000000095511" , "uuid":"1688396971" , "orig_file_A":"taxon.tab.zip" , "orig_file_B":"amoebozoatest.tsv" }'
 where File_A_1688396971.tab is in /eol_php_code/applications/taxonomic_validation/temp/
 */
 
