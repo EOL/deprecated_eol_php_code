@@ -209,6 +209,7 @@ class BranchGraftRules
                 if($i == 2) $this->trimmed_File_A_headers = array_keys($rec);
                 // */
                 self::write_output_rec_2txt($rec, $this->trimmed_File_A); // start writing
+                self::write_output_rec_2txt($rec, $this->trimmed_File_A2); // start writing
             }
             //###############################################################################################
             if($task == "save File B descendants and its synonyms") {
@@ -319,8 +320,6 @@ class BranchGraftRules
             echo "\n   Final File A: ".$new."\n";
             echo "\n     Difference: ".$diff."\n";
         }
-        to do:
-        when saving trimmed file A, also start saving to trimmed File A2
     }
     private function write_output_rec_2txt($rec, $filename)
     {   // print_r($rec);
