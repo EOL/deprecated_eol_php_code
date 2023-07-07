@@ -122,9 +122,9 @@ class BranchGraftRules
         // 9. For all taxa copied from File B to File A, add the filename of File B in the notes column.    --> done already
         ########################################################################## 5.6. end
         ########################################################################## 7. end
-        // 7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A, 
-        //     if so, add -G to the original ID to make it unique. Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, 
-        //     so they point to the updated taxonID.
+        // 7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A 
+        //    (after the descendants of xxx are removed), if so, add -G to the original ID to make it unique. 
+        //    Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, so they point to the updated taxonID.
 
         // Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, so they point to the updated taxonID.
         self::parse_TSV_file($this->descendants_File_B, "update parentID and acceptID affected by -G");
@@ -222,6 +222,10 @@ class BranchGraftRules
                 $fileB_taxonID = $this->arr_json['fileB_taxonID'];  // yyy
                 if($parentNameUsageID == $fileB_taxonID) $rec['parentNameUsageID'] = $fileA_taxonID;
                 if($acceptedNameUsageID == $fileB_taxonID) $rec['acceptedNameUsageID'] = $fileA_taxonID; //Eli's initiative
+                /* might need this
+                $parentNameUsageID = $rec['parentNameUsageID'];
+                $acceptedNameUsageID = $rec['acceptedNameUsageID'];
+                */
                 // */
 
                 // /* 7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A, 
@@ -231,6 +235,9 @@ class BranchGraftRules
                     $rec['taxonID'] = $taxonID."-G";
                     $this->with_Gs[$taxonID] = '';
                 }
+                /* might need this
+                $taxonID = $rec['taxonID'];
+                */
                 // */
 
                 // /* 9. For all taxa copied from File B to File A, add the filename of File B in the notes column.
