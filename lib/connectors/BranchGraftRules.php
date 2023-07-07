@@ -228,9 +228,9 @@ class BranchGraftRules
                 */
                 // */
 
-                // /* 7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A, 
-                //     if so, add -G to the original ID to make it unique. Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, 
-                //     so they point to the updated taxonID.
+                // /* 7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A 
+                //    (after the descendants of xxx are removed), if so, add -G to the original ID to make it unique. 
+                //    Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, so they point to the updated taxonID.
                 if(isset($this->File_A_taxonIDs[$taxonID])) {
                     $rec['taxonID'] = $taxonID."-G";
                     $this->with_Gs[$taxonID] = '';
