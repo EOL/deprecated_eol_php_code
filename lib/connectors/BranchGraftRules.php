@@ -228,18 +228,6 @@ class BranchGraftRules
                 */
                 // */
 
-                // /* 7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A 
-                //    (after the descendants of xxx are removed), if so, add -G to the original ID to make it unique. 
-                //    Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, so they point to the updated taxonID.
-                if(isset($this->File_A_taxonIDs[$taxonID])) {
-                    $rec['taxonID'] = $taxonID."-G";
-                    $this->with_Gs[$taxonID] = '';
-                }
-                /* might need this
-                $taxonID = $rec['taxonID'];
-                */
-                // */
-
                 // /* 9. For all taxa copied from File B to File A, add the filename of File B in the notes column.
                 if($notes = @$rec['notes']) $notes .= " | ".$this->arr_json['orig_file_B'];
                 else                        $notes = $this->arr_json['orig_file_B'];
@@ -248,16 +236,19 @@ class BranchGraftRules
 
                 if(isset($this->descendants_B[$taxonID])) {             //get actual descendants
                     @$this->debug_rules['created B']++;
+                    $rec = self::step_7_check_taxonID_is_found_inFileA($rec);
                     self::write_output_rec_2txt($rec, $this->descendants_File_B);
                     continue;
                 }
                 if(isset($this->descendants_B[$acceptedNameUsageID])) { //get synonyms of descendants
                     @$this->debug_rules['created B']++;
+                    $rec = self::step_7_check_taxonID_is_found_inFileA($rec);
                     self::write_output_rec_2txt($rec, $this->descendants_File_B);
                     continue;
                 }
                 if(isset($this->descendants_B[$parentNameUsageID])) {   //get children of descendants; may not need this anymore.
                     @$this->debug_rules['created B']++;
+                    $rec = self::step_7_check_taxonID_is_found_inFileA($rec);
                     self::write_output_rec_2txt($rec, $this->descendants_File_B);
                     continue;
                 }
@@ -330,6 +321,19 @@ class BranchGraftRules
 
 
         }
+    }
+    private function step_7_check_taxonID_is_found_inFileA($rec)
+    {
+        // /* 7. Before copying taxa to file A, check if any of the taxonIDs of the descendants & synonyms to be copied are already used in File A 
+        //    (after the descendants of xxx are removed), if so, add -G to the original ID to make it unique. 
+        //    Also, make sure to update any parentNameUsageID or acceptedNameUsageID values, so they point to the updated taxonID.
+        $taxonID = $rec['taxonID'];
+        if(isset($this->File_A_taxonIDs[$taxonID])) {
+            $rec['taxonID'] = $taxonID."-G";
+            $this->with_Gs[$taxonID] = '';
+        }
+        // */
+        return $rec;
     }
     private function write_output_rec_2txt($rec, $filename)
     {   // print_r($rec);
