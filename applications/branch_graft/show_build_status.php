@@ -13,6 +13,7 @@ elseif($ctrler->is_build_currently_running($build_status)) {
     $path = "task_status.php?task=$task&uuid=$params[uuid]&destination=".urlencode($params['destination'])
         ."&true_root=".urlencode($params['true_root'])
         ."&Filename_ID=".urlencode($params['Filename_ID']);
+        // ."&json=".urlencode($params['json']);
     $ctrler->display_message(array('type' => "highlight", 'msg' => "OR you can check back later. &nbsp; You can use this <a href='$path'>link to check status</a> anytime."));
     $actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
     $actual_link = str_ireplace("form_result.php", $path, $actual_link);
@@ -30,7 +31,9 @@ else {
     $dirname = pathinfo($params['destination'], PATHINFO_DIRNAME).'/'; //obsolete
     // $dirname = $params['true_root'].'applications/specimen_image_export/temp/';
     // $dirname = $params['true_root'].'applications/trait_data_import/temp/';
-    $dirname = $params['true_root'].'applications/taxonomic_validation/temp/';
+    // $dirname = $params['true_root'].'applications/taxonomic_validation/temp/';
+    $dirname = $params['true_root'].'applications/branch_graft/temp/';
+
     $extensions = array('.tab', '.txt', '.tsv', '.zip', '.tmp', '.gz', '.csv'); //possible extensions
     foreach($extensions as $ext) {
         $tmp = $dirname.$params['uuid'].$ext;
@@ -45,13 +48,15 @@ else {
     // /*
     // $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "MarineGEO_sie/" . $params['uuid'] . ".xls";
     // $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "Trait_Data_Import/" . $params['uuid'] . ".tar.gz";
-    $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "Taxonomic_Validation/" . $params['uuid'] . ".zip";
+    // $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "Taxonomic_Validation/" . $params['uuid'] . ".zip";
+    $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "Branch_Graft/" . $params['uuid'] . ".zip";
     if(file_exists($final_archive_gzip_url)) {
         
         // /* NEW: to accommodate Filename_ID implementation
         if($Filename_ID = @$params['Filename_ID']) {
             // $rename_to = CONTENT_RESOURCE_LOCAL_PATH . "Trait_Data_Import/" . $params['Filename_ID'] . ".tar.gz";
-            $rename_to = CONTENT_RESOURCE_LOCAL_PATH . "Taxonomic_Validation/" . $params['Filename_ID'] . ".zip";
+            // $rename_to = CONTENT_RESOURCE_LOCAL_PATH . "Taxonomic_Validation/" . $params['Filename_ID'] . ".zip";
+            $rename_to = CONTENT_RESOURCE_LOCAL_PATH . "Branch_Graft/" . $params['Filename_ID'] . ".zip";
 
             /* as much as possible don't use: Functions::file_rename
             Functions::file_rename($final_archive_gzip_url, $rename_to)
@@ -92,6 +97,7 @@ else {
                 [uuid] => 1643726800
                 [destination] => /opt/homebrew/var/www/eol_php_code//applications/trait_data_import/temp/1643726800.xlsx
                 [destination] => /opt/homebrew/var/www/eol_php_code//applications/taxonomic_validation/temp/1643726800.tab
+                [destination] => /opt/homebrew/var/www/eol_php_code//applications/branch_graft/temp/xxx.tab
                 [true_root] => /opt/homebrew/var/www/eol_php_code/
                 [Filename_ID] => 111222
             )*/

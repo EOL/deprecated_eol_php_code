@@ -77,14 +77,17 @@ php update_resources/connectors/trait_data_import.php _ Trait_template.xlsx _ _ 
 php update_resources/connectors/trait_data_import.php _ _ 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Trait_Data_Import/Trait_template.xlsx' uuid001 '{"Filename_ID":"001", "timestart":"0.035333"}'
 */
 
-$newfile = pathinfo($newfile, PATHINFO_BASENAME);
+// $newfile = pathinfo($newfile, PATHINFO_BASENAME);
 $newfile = "-nothing-";
 /* copied template
 if($form_url) $cmd = PHP_PATH.' taxonomic_validation.php jenkins _ ' . "'" . $form_url . "' ".$params['uuid']. " '".$params['json']."'"; //no filename but there is form_url and uuid
 else          $cmd = PHP_PATH.' taxonomic_validation.php jenkins ' . "'" . $newfile . "' _ _ ". "'".$params['json']."'";
 */
+/* since there is no $form_url, not being used for sometime now
 if($form_url) $cmd = PHP_PATH.' branch_graft.php jenkins _ ' . "'" . $form_url . "' ".$params['uuid']. " '".$params['json']."'"; //no filename but there is form_url and uuid
 else          $cmd = PHP_PATH.' branch_graft.php jenkins ' . "'".$params['json']."'";
+*/
+$cmd = PHP_PATH.' branch_graft.php jenkins ' . "'".$params['json']."'";
 
 // echo "<pre>";print_r($params);echo "</pre>"; //good debug
 /*
@@ -106,7 +109,7 @@ $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
 $cmd = $ctrler->generate_exec_command($params['uuid'].$postfix); //pass the desired basename of the .sh filename (e.g. xxx.sh then pass "xxx")
 $c = $ctrler->build_curl_cmd_for_jenkins($cmd, $task);
 
-// $shell_debug = shell_exec($c); //normal operation
+$shell_debug = shell_exec($c); //normal operation
 // echo "<pre>"; print_r($params['json']); echo "<hr>[$c]<hr></pre>"; exit;
 // exit("\n-stop muna-\n");
 // sleep(10);

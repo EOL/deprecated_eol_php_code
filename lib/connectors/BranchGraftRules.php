@@ -82,7 +82,7 @@ class BranchGraftRules
             $with_yyy = false; self::prepare_download_link($with_yyy);
         }
 
-        exit("\n- exit muna-\n");
+        // exit("\n- exit muna-\n");
     }
     private function process_with_yyy($input_fileB)
     {   /* If there is a yyy value, add the following steps:
@@ -388,6 +388,7 @@ class BranchGraftRules
         }
         $source = implode(" ", $files);
         $destination = $this->temp_dir.$this->resource_id.".zip";
+        if(is_file($destination)) unlink($destination);
 
         if($GLOBALS['ENV_DEBUG']) {
             echo "\n     source: [$source]\n";
