@@ -371,12 +371,11 @@ class BranchGraftRules
         // $ zip archive.zip file1 file2 file3
         $files = array();
         if($with_yyy) {
-            $files[] = $this->trimmed_File_A;
+            $files[] = $this->trimmed_File_A2;
 
         }
         else {
-            $files[] = $this->trimmed_File_A2;
-
+            $files[] = $this->trimmed_File_A;
         }
         $source = implode(" ", $files);
         $destination = $this->temp_dir.$this->resource_id.".zip";
