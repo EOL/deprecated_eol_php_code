@@ -297,16 +297,19 @@ class BranchGraftRules
             echo "\nStats (deleted): ".$this->debug_rules['deleted']."\n";
             $new = self::txtfile_row_count($this->descendants_File_A);
             echo "\n Removed descendants from File A: ".$new."\n";
+            echo "------------------------------\n";
         }
         if($task == "save File B descendants and its synonyms") {
             echo "\nStats (created): ".$this->debug_rules['created B']."\n";
             $num = self::txtfile_row_count($this->descendants_File_B);
             echo "\n Descendants and its synonyms from File B: ".$num."\n";
             echo "\n New taxonIDs with '-G': ".count(@$this->with_Gs)."\n";
+            echo "------------------------------\n";
         }
         if($task == "update parentID and acceptID affected by -G") {
             $num  = self::txtfile_row_count($this->descendants_File_B2);
             echo "\n Descendants and its synonyms from File B (updated): ".$num."\n";
+            echo "------------------------------\n";
         }
         if($task == "copy from File B to File A") {
             $orig = self::txtfile_row_count($this->trimmed_File_A);
@@ -315,11 +318,9 @@ class BranchGraftRules
             echo "\n Trimmed File A: ".$orig."\n";
             echo "\n   Final File A: ".$new."\n";
             echo "\n     Difference: ".$diff."\n";
-
             $num  = self::txtfile_row_count($this->descendants_File_B2);
             echo "\n Descendants and its synonyms from File B (to be added to A): ".$num."\n";
-
-
+            echo "------------------------------\n";
         }
     }
     private function step_7_check_taxonID_is_found_inFileA($rec)
