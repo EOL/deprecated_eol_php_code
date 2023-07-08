@@ -223,6 +223,13 @@ class Environments2EOLfinal extends ContributorsMapAPI
             if(@$arr[3] && @$arr[4]) {
                 // /* post legacy filters: start Aug 5, 2020: /DATA-1851?focusedCommentId=65084&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65084
                 $tags_not_to_be_used = array("Playa", "nest", "aquarium", "logged areas", "trenches", "bamboo");
+
+                //new start: customize remove traits per resource:
+                if($this->resource_id == '617_ENV') { //Wikipedia EN traits
+                    $tags_not_to_be_used[] = "ice";
+                }
+                //new end
+
                 if(in_array($arr[3], $tags_not_to_be_used)) continue;
                 // */
                 
