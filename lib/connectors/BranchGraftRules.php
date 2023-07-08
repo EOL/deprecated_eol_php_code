@@ -209,7 +209,7 @@ class BranchGraftRules
                 if($i == 2) $this->trimmed_File_A_headers = array_keys($rec);
                 // */
                 self::write_output_rec_2txt($rec, $this->trimmed_File_A); // start writing
-                self::write_output_rec_2txt($rec, $this->trimmed_File_A2); // start writing
+                if($this->arr_json['fileB_taxonID']) self::write_output_rec_2txt($rec, $this->trimmed_File_A2); // start writing
             }
             //###############################################################################################
             if($task == "save File B descendants and its synonyms") {
@@ -374,7 +374,6 @@ class BranchGraftRules
             $files[] = $this->trimmed_File_A2;
             $files[] = $this->descendants_File_A;
             $files[] = $this->descendants_File_B2;
-
         }
         else {
             $files[] = $this->trimmed_File_A;
