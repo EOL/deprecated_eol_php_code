@@ -25,13 +25,13 @@ class BranchGraftRules
         $this->trimmed_File_A = $this->input['path'] . "trimmed_File_A_" . $this->arr_json['uuid'] . ".txt";
         $WRITE = Functions::file_open($this->trimmed_File_A, "w"); fclose($WRITE);
 
-        $this->descendants_File_A = $this->input['path'] . "descendants_File_A_" . $this->arr_json['uuid'] . ".txt";
+        $this->descendants_File_A = $this->input['path'] . "removed_taxa_File_A_" . $this->arr_json['uuid'] . ".txt";
         $WRITE = Functions::file_open($this->descendants_File_A, "w"); fclose($WRITE);
 
-        $this->descendants_File_B = $this->input['path'] . "descendants_File_B_" . $this->arr_json['uuid'] . ".txt";
+        $this->descendants_File_B = $this->input['path'] . "removed_taxa_File_B_" . $this->arr_json['uuid'] . ".txt";
         $WRITE = Functions::file_open($this->descendants_File_B, "w"); fclose($WRITE);
 
-        $this->descendants_File_B2 = $this->input['path'] . "descendants_File_B2_" . $this->arr_json['uuid'] . ".txt";
+        $this->descendants_File_B2 = $this->input['path'] . "removed_taxa_File_B2_" . $this->arr_json['uuid'] . ".txt";
         $WRITE = Functions::file_open($this->descendants_File_B2, "w"); fclose($WRITE);
 
         $this->trimmed_File_A2 = $this->input['path'] . "trimmed_File_A2_" . $this->arr_json['uuid'] . ".txt";
@@ -76,7 +76,7 @@ class BranchGraftRules
         and the note in the notes column added for the basal taxon. */
         if($fileB_taxonID = $this->arr_json['fileB_taxonID']) {
             self::process_with_yyy($input_fileB);
-            // $with_yyy = true; self::prepare_download_link($with_yyy);
+            $with_yyy = true; self::prepare_download_link($with_yyy);
         }
         else { // trimmed File A is now the final result
             $with_yyy = false; self::prepare_download_link($with_yyy);
@@ -137,7 +137,7 @@ class BranchGraftRules
         self::parse_TSV_file($this->descendants_File_B2, "copy from File B to File A");
         ########################################################################## 8. end
 
-        exit("\n- end muna process yyy -\n");
+        // exit("\n- end muna process yyy -\n");
     }
     private function parse_TSV_file($txtfile, $task)
     {   
@@ -371,8 +371,13 @@ class BranchGraftRules
         // $ zip archive.zip file1 file2 file3
         $files = array();
         if($with_yyy) {
+            $files[] = $this->trimmed_File_A;
+
         }
-        else $files[] = $this->trimmed_File_A;
+        else {
+            $files[] = $this->trimmed_File_A2;
+
+        }
         $source = implode(" ", $files);
         $destination = $this->temp_dir.$this->resource_id.".zip";
 
