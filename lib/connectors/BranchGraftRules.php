@@ -209,7 +209,7 @@ class BranchGraftRules
                 if($i == 2) $this->trimmed_File_A_headers = array_keys($rec);
                 // */
                 self::write_output_rec_2txt($rec, $this->trimmed_File_A); // start writing
-                if($this->arr_json['fileB_taxonID']) self::write_output_rec_2txt($rec, $this->trimmed_File_A2); // start writing
+                // if($this->arr_json['fileB_taxonID']) self::write_output_rec_2txt($rec, $this->trimmed_File_A2); // start writing
             }
             //###############################################################################################
             if($task == "save File B descendants and its synonyms") {
@@ -298,6 +298,13 @@ class BranchGraftRules
             $new = self::txtfile_row_count($this->descendants_File_A);
             echo "\n Removed descendants from File A: ".$new."\n";
             echo "------------------------------\n";
+
+            if($this->arr_json['fileB_taxonID']) {
+                if(copy($this->trimmed_File_A, $this->trimmed_File_A2)) echo "<br>Trimmed File A copied to File A2 OK";
+                else echo "\n<br>ERRORx: cannot copy [$this->trimmed_File_A] to [$this->trimmed_File_A2]<br>Please inform eagbayani@eol.org.<br>\n";
+            }
+
+
         }
         if($task == "save File B descendants and its synonyms") {
             echo "\nStats (created): ".$this->debug_rules['created B']."\n";
