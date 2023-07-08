@@ -372,10 +372,13 @@ class BranchGraftRules
         $files = array();
         if($with_yyy) {
             $files[] = $this->trimmed_File_A2;
+            $files[] = $this->descendants_File_A;
+            $files[] = $this->descendants_File_B2;
 
         }
         else {
             $files[] = $this->trimmed_File_A;
+            $files[] = $this->descendants_File_A;
         }
         $source = implode(" ", $files);
         $destination = $this->temp_dir.$this->resource_id.".zip";
