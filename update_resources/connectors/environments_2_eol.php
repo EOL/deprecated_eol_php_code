@@ -166,6 +166,8 @@ wikipedia_en_traits_tmp4	Mon 2023-03-13 04:05:46 AM	{"MoF.tab":205191, "occurren
 wikipedia_en_traits_tmp4	Fri 2023-03-24 10:37:23 AM	{"MoF.tab":205191, "occurrence.tab":205191, "taxon.tab":162222, "time_elapsed":{"sec":417.4, "min":6.96, "hr":0.12}}
 wikipedia_en_traits_tmp4	Sat 2023-03-25 10:53:43 AM	{"MoF.tab":211080, "occurrence.tab":211080, "taxon.tab":165864, "time_elapsed":{"sec":231.71, "min":3.86, "hr":0.06}}
 wikipedia_en_traits_tmp4	Thu 2023-06-15 12:45:10 PM	{"MoF.tab":214707, "occurrence.tab":214707, "taxon.tab":168011, "time_elapsed":{"sec":239.12, "min":3.99, "hr":0.07}}
+below removed "ice", thus decrease in number.
+wikipedia_en_traits_tmp4	Sat 2023-07-08 04:29:05 PM	{"MoF.tab":213688, "occurrence.tab":213688, "taxon.tab":167897, "time_elapsed":{"sec":233.63, "min":3.89, "hr":0.06}}
 
 ---------------Jenkins entry in eol-archive
 cd /html/eol_php_code/update_resources/connectors
