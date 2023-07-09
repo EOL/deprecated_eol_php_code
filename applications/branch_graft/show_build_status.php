@@ -28,7 +28,7 @@ else {
                [true_root] => /opt/homebrew/var/www/eol_php_code/)
     */
     /* Delete temp files */
-    $dirname = pathinfo($params['destination'], PATHINFO_DIRNAME).'/'; //obsolete
+    // $dirname = pathinfo($params['destination'], PATHINFO_DIRNAME).'/'; //obsolete
     // $dirname = $params['true_root'].'applications/specimen_image_export/temp/';
     // $dirname = $params['true_root'].'applications/trait_data_import/temp/';
     // $dirname = $params['true_root'].'applications/taxonomic_validation/temp/';

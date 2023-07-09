@@ -53,7 +53,7 @@ $params['json'] = $json;
 // $params['destination'] = $for_DOC_ROOT . "/applications/trait_data_import/" . $newfile;
 // $params['destination'] = $for_DOC_ROOT . "/applications/taxonomic_validation/" . $newfile;
 // $params['destination'] = $for_DOC_ROOT . "/applications/branch_graft/" . $newfile;  // not needed for branch graft
-
+$params['destination'] = "";
 
 //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here. So use $for_DOC_ROOT instead.
 $params['Filename_ID'] = $form['Filename_ID'];
@@ -89,9 +89,17 @@ else          $cmd = PHP_PATH.' branch_graft.php jenkins ' . "'".$params['json']
 */
 $cmd = PHP_PATH.' branch_graft.php jenkins ' . "'".$params['json']."'";
 
-// echo "<pre>";print_r($params);echo "</pre>"; //good debug
+echo "<pre>";print_r($params);echo "</pre>"; //good debug
 /*
 command: [/opt/homebrew/opt/php@5.6/bin/php branch_graft.php jenkins '{"Filename_ID":"","Short_Desc":"" , "timestart":"0.001884" , "newfile_File_A":"File_A_1688396971.tab" , "newfile_File_B":"File_B_1688396971.tsv" , "fileA_taxonID":"EOL-000000095511" , "fileB_taxonID":"EOL-000000095511" , "uuid":"1688396971" , "orig_file_A":"taxon.tab.zip" , "orig_file_B":"amoebozoatest.tsv" }']
+command: [/opt/homebrew/opt/php@5.6/bin/php branch_graft.php jenkins '{"Filename_ID":"","Short_Desc":"" , "timestart":"0.001568" , "newfile_File_A":"File_A_1688886859.tab" , "newfile_File_B":"File_B_1688886859.tsv" , "fileA_taxonID":"EOL-000002098554" , "fileB_taxonID":"MC" , "uuid":"1688886859" , "orig_file_A":"taxon.tab.zip" , "orig_file_B":"coltest.tsv.zip" }']
+command: [/opt/homebrew/opt/php@5.6/bin/php branch_graft.php jenkins '{"Filename_ID":"","Short_Desc":"" , "timestart":"0.002422" , "newfile_File_A":"File_A_1688918855.tab" , "newfile_File_B":"File_B_1688918855.tsv" , "fileA_taxonID":"EOL-000000105448" , "fileB_taxonID":"MG" , "uuid":"1688918855" , "orig_file_A":"taxon.tab.zip" , "orig_file_B":"coltest.tsv.zip" }']
+
+Katja's 3 test runs:
+1st: php update_resources/connectors/branch_graft.php _ '{"Filename_ID":"","Short_Desc":"" , "timestart":"0.001884" , "newfile_File_A":"File_A_1688396971.tab" , "newfile_File_B":"File_B_1688396971.tsv" , "fileA_taxonID":"EOL-000000095511" , "fileB_taxonID":"EOL-000000095511" , "uuid":"1688396971" , "orig_file_A":"taxon.tab.zip" , "orig_file_B":"amoebozoatest.tsv" }'
+2nd: php update_resources/connectors/branch_graft.php _ '{"Filename_ID":"","Short_Desc":"" , "timestart":"0.001568" , "newfile_File_A":"File_A_1688886859.tab" , "newfile_File_B":"File_B_1688886859.tsv" , "fileA_taxonID":"EOL-000002098554" , "fileB_taxonID":"MC" , "uuid":"1688886859" , "orig_file_A":"taxon.tab.zip" , "orig_file_B":"coltest.tsv.zip" }'
+3rd: php update_resources/connectors/branch_graft.php _ '{"Filename_ID":"","Short_Desc":"" , "timestart":"0.002422" , "newfile_File_A":"File_A_1688918855.tab" , "newfile_File_B":"File_B_1688918855.tsv" , "fileA_taxonID":"EOL-000000105448" , "fileB_taxonID":"MG" , "uuid":"1688918855" , "orig_file_A":"taxon.tab.zip" , "orig_file_B":"coltest.tsv.zip" }'
+
 Array(
     [true_root] => /opt/homebrew/var/www/eol_php_code/
     [uuid] => 1688396971
