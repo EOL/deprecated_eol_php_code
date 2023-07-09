@@ -34,6 +34,7 @@ else {
     // $dirname = $params['true_root'].'applications/taxonomic_validation/temp/';
     $dirname = $params['true_root'].'applications/branch_graft/temp/';
 
+    /* working but won't use for branch_graft bec. nature of files to be removed
     $extensions = array('.tab', '.txt', '.tsv', '.zip', '.tmp', '.gz', '.csv'); //possible extensions
     foreach($extensions as $ext) {
         $tmp = $dirname.$params['uuid'].$ext;
@@ -42,7 +43,12 @@ else {
             else $ctrler->display_message(array('type' => "error", 'msg' => "ERROR: cannot delete [$tmp]"));
         }
         else {} //$ctrler->display_message(array('type' => "highlight", 'msg' => "Does not exist [$tmp]"));
-    }
+    } */
+    // /* will use this one instead:
+    $files = glob($dirname."*".$params['uuid']."*");
+    foreach($files as $file) unlink($file);
+    // */
+
 
     /* Summary message */
     // /*
