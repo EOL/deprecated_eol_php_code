@@ -308,10 +308,10 @@ class DWCADiagnoseAPI
         }
         return $undefined;
     }
-    
+
     function check_if_all_parents_have_entries($resource_id, $write_2text_file = false, $url = false, $suggested_fields = false, $sought_field = false, $filename = 'taxon.tab')
     {   /* $suggested_fields -> if taxon.tab is BIG and there are alot of fields, you might want to limit the no. of fields e.g. suggested_fields from BOLDS_DumpsServiceAPI.php */
-        echo "\ncheck_if_all_parents_have_entries()...[$resource_id]...\n";
+        // echo "\ncheck_if_all_parents_have_entries()...[$resource_id]...\n"; //kinda redundant
         $compared_field = 'taxonID';
         if(!$sought_field) {
             $what['field'] = "parentNameUsageID";
@@ -360,7 +360,8 @@ class DWCADiagnoseAPI
         return $undefined;
     }
     function get_fields_from_tab_file($resource_id, $cols, $url = false, $suggested_fields = false, $tab_file) //$tab_file e.g. 'taxon.tab'
-    {
+    {   /* sample usage of $suggested_fields: this has to be in perfect order from the source taxon file
+        $suggested_fields = explode("\t", "taxonID	scientificName	taxonRank	parentNameUsageID"); //from BOLDS_DumpsServiceAPI.php */
         if(!$url) $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/".$tab_file;
         if(!file_exists($url)) {
             echo "\nFile does not exist: [$url]\n";
@@ -378,40 +379,29 @@ class DWCADiagnoseAPI
                 //-------------------------------------new
                 if($suggested_fields) { //suggested_fields from BOLDS_DumpsServiceAPI.php
                     $fields = $suggested_fields;
-                    //process even line 1 coz there is no field headers and actual values start from line 1
-                    $rec = array();
-                    $k = 0;
-                    if(!$temp) continue;
-                    foreach($temp as $t) {
-                        $rec[$fields[$k]] = $t;
-                        $k++;
-                    }
-                    $rec = array_map('trim', $rec);
-                    foreach($cols as $col) {
-                        if(@$rec[$col]) $var[$col][@$rec[$col]] = '';
-                    }
                 }
+                if(in_array('taxonID', $temp)) continue;
+                if(in_array('parentNameUsageID', $temp)) continue;
+                if(in_array('acceptedNameUsageID', $temp)) continue;
                 //-------------------------------------new
             }
-            else {
-                $rec = array();
-                $k = 0;
-                if(!$temp) continue;
-                foreach($temp as $t) {
-                    $rec[$fields[$k]] = $t;
-                    $k++;
-                }
-                /* debug only
-                if($rec['taxonID'] == 197230) {
-                    print_r($rec); print_r($cols); exit;
-                }
-                */
-                $rec = array_map('trim', $rec);
-                foreach($cols as $col) {
-                    if(@$rec[$col]) $var[$col][@$rec[$col]] = '';
-                }
+            $rec = array();
+            $k = 0;
+            if(!$temp) continue;
+            foreach($temp as $t) {
+                if($index = @$fields[$k]) $rec[$index] = $t;
+                $k++;
             }
-        }
+            /* debug only
+            if($rec['taxonID'] == 197230) {
+                print_r($rec); print_r($cols); exit;
+            }
+            */
+            $rec = array_map('trim', $rec);
+            foreach($cols as $col) {
+                if(@$rec[$col]) $var[$col][@$rec[$col]] = '';
+            }
+        } //end foreach()
         return $var;
     }
     //============================================================
