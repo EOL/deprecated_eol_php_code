@@ -99,7 +99,6 @@ class DWCADiagnoseAPI
             }
         }
     }
-
     function check_unique_ids($resource_id, $file_extension = ".tab", $ContResLocPath = CONTENT_RESOURCE_LOCAL_PATH)
     {
         echo "\n----------Checking unique IDs [$resource_id]...----------\n";
@@ -308,7 +307,6 @@ class DWCADiagnoseAPI
         }
         return $undefined;
     }
-
     function check_if_all_parents_have_entries($resource_id, $write_2text_file = false, $url = false, $suggested_fields = false, $sought_field = false, $filename = 'taxon.tab')
     {   /* $suggested_fields -> if taxon.tab is BIG and there are alot of fields, you might want to limit the no. of fields e.g. suggested_fields from BOLDS_DumpsServiceAPI.php */
         // echo "\ncheck_if_all_parents_have_entries()...[$resource_id]...\n"; //kinda redundant
@@ -383,6 +381,7 @@ class DWCADiagnoseAPI
                 if(in_array('taxonID', $temp)) continue;
                 if(in_array('parentNameUsageID', $temp)) continue;
                 if(in_array('acceptedNameUsageID', $temp)) continue;
+                if(in_array('parentMeasurementID', $temp)) continue;
                 //-------------------------------------new
             }
             $rec = array();
@@ -445,7 +444,6 @@ class DWCADiagnoseAPI
         if($write_2text_file) fclose($WRITE);
         return array_keys($no_parent);
     }
-    
     function count_rows_in_text_file($local_path = false, $url_path_to_text_file = false)
     {
         if($url_path_to_text_file) $local_path = Functions::save_remote_file_to_local($url_path_to_text_file);
