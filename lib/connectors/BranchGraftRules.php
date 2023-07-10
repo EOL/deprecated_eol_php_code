@@ -53,10 +53,10 @@ class BranchGraftRules
         ) */
         // print_r($this->arr_json); exit("\nend 200\n");
 
-        // /* step 1: generate $parentID_taxonID from File A.
+        // /* ~~~~~~~~~~ step 1: generate $parentID_taxonID from File A.
         $parentID_taxonID = self::parse_TSV_file($input_fileA, "generate parentID_taxonID");
         // */
-        // /* step 2: read file A, get all descendants of fileA_taxonID
+        // /* ~~~~~~~~~~ step 2: read file A, get all descendants of fileA_taxonID
         $parent_ids = array($this->arr_json['fileA_taxonID']);
         require_library('connectors/PaleoDBAPI_v2');
         $func = new PaleoDBAPI_v2("");
@@ -67,13 +67,13 @@ class BranchGraftRules
         echo "\nFile A total descendants: [".count($this->descendants_A)."]\n";
         unset($descendants_A);
         // */
-        // /* step 3: now remove all descendants of fileA_taxonID, and their synonyms
+        // /* ~~~~~~~~~~ step 3: now remove all descendants of fileA_taxonID, and their synonyms
         self::parse_TSV_file($input_fileA, "generate trimmed File A");
         unset($this->descendants_A);
         // */
 
-        /* step 4: If there is no value for yyy, we are ready to create the output file, with the descendants & their synonyms removed 
-        and the note in the notes column added for the basal taxon. */
+        /* ~~~~~~~~~~ step 4: If there is no value for yyy, we are ready to create the output file, with the descendants & their synonyms removed 
+                              and the note in the notes column added for the basal taxon. */
         if($fileB_taxonID = $this->arr_json['fileB_taxonID']) {
             self::process_with_yyy($input_fileB);
             $with_yyy = true; self::prepare_download_link($with_yyy);
@@ -81,6 +81,12 @@ class BranchGraftRules
         else { // trimmed File A is now the final result
             $with_yyy = false; self::prepare_download_link($with_yyy);
         }
+
+        // /* ~~~~~~~~~~ step 5: check parents_ids and/or accept_ids
+        if($with_yyy) $local_path = $this->trimmed_File_A2;
+        else          $local_path = $this->trimmed_File_A;
+        self::check_parentIDs_acceptIDs($local_path);
+        // */ 
 
         // exit("\n- exit muna-\n");
     }
@@ -206,7 +212,10 @@ class BranchGraftRules
 
                 $this->File_A_taxonIDs[$taxonID] = ''; //to be used in no. 7
                 // /* to be used in no. 9
-                if($i == 2) $this->trimmed_File_A_headers = array_keys($rec);
+                if($i == 2) {
+                    $this->trimmed_File_A_headers = array_keys($rec);
+                    print_r($this->trimmed_File_A_headers);
+                }
                 // */
                 self::write_output_rec_2txt($rec, $this->trimmed_File_A); // start writing
                 // if($this->arr_json['fileB_taxonID']) self::write_output_rec_2txt($rec, $this->trimmed_File_A2); // start writing
@@ -278,10 +287,52 @@ class BranchGraftRules
                     [higherClassification] => Amoebozoa
                     [notes] => amoebozoatest.tsv
                 )*/
-                $fields = $this->trimmed_File_A_headers; //fields to use are from File A
+                $fields_A = $this->trimmed_File_A_headers; //fields to use are from File A
+                /* debug
+                print_r($fields_A); print_r(array_keys($rec)); exit("\ninvestigate 01\n");
+                Array
+(
+    [0] => taxonID
+    [1] => source
+    [2] => furtherInformationURL
+    [3] => acceptedNameUsageID
+    [4] => parentNameUsageID
+    [5] => scientificName
+    [6] => taxonRank
+    [7] => taxonomicStatus
+    [8] => datasetID
+    [9] => canonicalName
+    [10] => eolID
+    [11] => Landmark
+    [12] => notes
+)
+Array
+(
+    [0] => taxonID
+    [1] => source
+    [2] => acceptedNameUsageID
+    [3] => parentNameUsageID
+    [4] => scientificName
+    [5] => canonicalName
+    [6] => authority
+    [7] => taxonRank
+    [8] => taxonomicStatus
+    [9] => furtherInformationURL
+    [10] => higherClassification
+    [11] => notes
+)
+
+                */
+                // print_r($rec);
                 $save = array();
-                foreach($fields as $fld) $save[$fld] = @$rec[$fld];
-                self::write_output_rec_2txt($save, $this->trimmed_File_A2);
+                foreach($fields_A as $fld_A) {
+                    /* working
+                    if($val = @$rec[$fld_A]) $save[$fld_A] = $val;
+                    else                     $save[$fld_A] = "";
+                    */
+                    $save[$fld_A] = @$rec[$fld_A]; //seems to be working as well
+                }
+                self::write_output_rec_2txt($save, $this->trimmed_File_A2); // from B copy to File A
             }
             //###############################################################################################
         } //end foreach()
@@ -291,13 +342,13 @@ class BranchGraftRules
             $orig = self::txtfile_row_count($txtfile);
             $new  = self::txtfile_row_count($this->trimmed_File_A);
             $diff = $orig - $new;
-            echo "\n         File A: ".$orig."\n";
-            echo "\n Trimmed File A: ".$new."\n";
-            echo "\n     Difference: ".$diff."\n";
-            echo "\nStats (deleted): ".$this->debug_rules['deleted']."\n";
+            echo "\n         File A: ".$orig."";
+            echo "\n Trimmed File A: ".$new."";
+            echo "\n     Difference: ".$diff."";
+            echo "\nStats (deleted): ".$this->debug_rules['deleted']."";
             $new = self::txtfile_row_count($this->descendants_File_A);
-            echo "\n Removed descendants from File A: ".$new."\n";
-            echo "------------------------------\n";
+            echo "\n Removed descendants from File A: ".$new."";
+            echo "\n------------------------------\n";
 
             if($this->arr_json['fileB_taxonID']) {
                 if(copy($this->trimmed_File_A, $this->trimmed_File_A2)) echo "<br>Trimmed File A copied to File A2 OK";
@@ -307,27 +358,27 @@ class BranchGraftRules
 
         }
         if($task == "save File B descendants and its synonyms") {
-            echo "\nStats (created): ".$this->debug_rules['created B']."\n";
+            echo "\nStats (created): ".$this->debug_rules['created B']."";
             $num = self::txtfile_row_count($this->descendants_File_B);
-            echo "\n Descendants and its synonyms from File B: ".$num."\n";
-            echo "\n New taxonIDs with '-G': ".count(@$this->with_Gs)."\n";
-            echo "------------------------------\n";
+            echo "\n Descendants and its synonyms from File B: ".$num."";
+            echo "\n New taxonIDs with '-G': ".count(@$this->with_Gs)."";
+            echo "\n------------------------------\n";
         }
         if($task == "update parentID and acceptID affected by -G") {
             $num  = self::txtfile_row_count($this->descendants_File_B2);
-            echo "\n Descendants and its synonyms from File B (updated): ".$num."\n";
-            echo "------------------------------\n";
+            echo "\n Descendants and its synonyms from File B (updated): ".$num."";
+            echo "\n------------------------------\n";
         }
         if($task == "copy from File B to File A") {
             $orig = self::txtfile_row_count($this->trimmed_File_A);
             $new  = self::txtfile_row_count($this->trimmed_File_A2);
             $diff = $orig - $new;
-            echo "\n Trimmed File A: ".$orig."\n";
-            echo "\n   Final File A: ".$new."\n";
-            echo "\n     Difference: ".$diff."\n";
+            echo "\n Trimmed File A: ".$orig."";
+            echo "\n   Final File A: ".$new."";
+            echo "\n     Difference: ".$diff."";
             $num  = self::txtfile_row_count($this->descendants_File_B2);
-            echo "\n Descendants and its synonyms from File B (to be added to A): ".$num."\n";
-            echo "------------------------------\n";
+            echo "\n Descendants and its synonyms from File B (to be added to A): ".$num."";
+            echo "\n------------------------------\n";
         }
     }
     private function step_7_check_taxonID_is_found_inFileA($rec)
@@ -397,7 +448,35 @@ class BranchGraftRules
         $cmd = "zip -rj $destination $source";
         $out = shell_exec($cmd);
         echo "\n$out\n";
-        return;
+    }
+    private function check_parentIDs_acceptIDs($local_path)
+    {   require_library('connectors/DWCADiagnoseAPI');
+        $func = new DWCADiagnoseAPI();
+        echo "\n------------------------------ Diagnostics \n";
+        /* check_if_all_parents_have_entries($resource_id, 
+                                             $write_2text_file = false, 
+                                             $url = false, 
+                                             $suggested_fields = false, 
+                                             $sought_field = false, 
+                                             $filename = 'taxon.tab') */
+        $resource_id = "/Branch_Graft/diagnostics_".$this->arr_json['uuid'];
+        $write_2text_file = true;
+        $url = $local_path;
+        $suggested_fields = false; //array('taxonID', 'source', 'furtherInformationURL', 'acceptedNameUsageID', 'parentNameUsageID'); //has to be same perfect order if u want to use suggested_fields
+        $sought_field = false; // false by default it means 'parentNameUsageID'
+        $filename = pathinfo($local_path, PATHINFO_BASENAME); //filename + extension
+
+        $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, $write_2text_file, $url, $suggested_fields, $sought_field, $filename);
+        echo "\nTotal undefined parents:" . count($undefined_parents)."\n";
+
+        $sought_field = 'acceptedNameUsageID';
+        $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, $write_2text_file, $url, $suggested_fields, $sought_field, $filename);
+        echo "\nTotal undefined acceptedNames:" . count($undefined_parents)."\n";
+
+        /* copied template
+        $without = $func->get_all_taxa_without_parent($resource_id, true); //true means output will write to text file
+        echo "\nTotal taxa without parents:" . count($without)."\n"; unset($without);
+        */
     }
     private function get_modulo($txtfile)
     {
