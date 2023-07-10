@@ -63,7 +63,7 @@ class BranchGraftRules
         $descendants_A = $func->get_all_descendants_of_these_parents($parent_ids, $parentID_taxonID); // print_r($descendants_A);
         unset($parentID_taxonID); unset($func);
         $this->descendants_A = array_flip($descendants_A); //print_r($this->descendants_A); exit;
-        echo "\nFile A total descendants: [".count($descendants_A)."]\n";
+        echo "\nFile A total descendants: [".count($descendants_A)."]";
         echo "\nFile A total descendants: [".count($this->descendants_A)."]\n";
         unset($descendants_A);
         // */
@@ -76,17 +76,33 @@ class BranchGraftRules
                               and the note in the notes column added for the basal taxon. */
         if($fileB_taxonID = $this->arr_json['fileB_taxonID']) {
             self::process_with_yyy($input_fileB);
-            $with_yyy = true; self::prepare_download_link($with_yyy);
+            $with_yyy = true;   //trimmed_File_A2 is the final result
         }
-        else { // trimmed File A is now the final result
-            $with_yyy = false; self::prepare_download_link($with_yyy);
-        }
+        else $with_yyy = false; //trimmed_File_A is now the final result
 
-        // /* ~~~~~~~~~~ step 5: check parents_ids and/or accept_ids
+        // /* ~~~~~~~~~~ step 4.1: check parents_ids and/or accept_ids
         if($with_yyy) $local_path = $this->trimmed_File_A2;
         else          $local_path = $this->trimmed_File_A;
         self::check_parentIDs_acceptIDs($local_path);
+
+        $download_links = array();
+        // /* Diagnostics download link(s)
+        $download_links = array();
+        $resource_id = "/Branch_Graft/diagnostics_".$this->arr_json['uuid'];
+        $files = array(); //possible diagnostics reports
+        $files[] = "_undefined_parent_ids.txt";
+        $files[] = "_undefined_acceptedName_ids.txt";
+        foreach($files as $what_filename) {
+            $possible = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . $what_filename;
+            if(file_exists($possible)) $download_links[] = $possible_link;
+        }
+        // */
+
         // */ 
+
+        // /* ~~~~~~~~~~ step 4.2:
+        self::prepare_download_link($with_yyy, $download_links);
+        // */
 
         // exit("\n- exit muna-\n");
     }
@@ -114,7 +130,7 @@ class BranchGraftRules
         $descendants_B = $func->get_all_descendants_of_these_parents($parent_ids, $parentID_taxonID); // print_r($descendants_A);
         unset($parentID_taxonID); unset($func);
         $this->descendants_B = array_flip($descendants_B); //print_r($this->descendants_A); exit;
-        echo "\nFile B total descendants: [".count($descendants_B)."]\n";
+        echo "\nFile B total descendants: [".count($descendants_B)."]";
         echo "\nFile B total descendants: [".count($this->descendants_B)."]\n";
         unset($descendants_B);
 
@@ -214,7 +230,7 @@ class BranchGraftRules
                 // /* to be used in no. 9
                 if($i == 2) {
                     $this->trimmed_File_A_headers = array_keys($rec);
-                    print_r($this->trimmed_File_A_headers);
+                    // print_r($this->trimmed_File_A_headers); //just debug
                 }
                 // */
                 self::write_output_rec_2txt($rec, $this->trimmed_File_A); // start writing
@@ -288,42 +304,7 @@ class BranchGraftRules
                     [notes] => amoebozoatest.tsv
                 )*/
                 $fields_A = $this->trimmed_File_A_headers; //fields to use are from File A
-                /* debug
-                print_r($fields_A); print_r(array_keys($rec)); exit("\ninvestigate 01\n");
-                Array
-(
-    [0] => taxonID
-    [1] => source
-    [2] => furtherInformationURL
-    [3] => acceptedNameUsageID
-    [4] => parentNameUsageID
-    [5] => scientificName
-    [6] => taxonRank
-    [7] => taxonomicStatus
-    [8] => datasetID
-    [9] => canonicalName
-    [10] => eolID
-    [11] => Landmark
-    [12] => notes
-)
-Array
-(
-    [0] => taxonID
-    [1] => source
-    [2] => acceptedNameUsageID
-    [3] => parentNameUsageID
-    [4] => scientificName
-    [5] => canonicalName
-    [6] => authority
-    [7] => taxonRank
-    [8] => taxonomicStatus
-    [9] => furtherInformationURL
-    [10] => higherClassification
-    [11] => notes
-)
-
-                */
-                // print_r($rec);
+                /* print_r($fields_A); print_r(array_keys($rec)); exit("\ninvestigate 01\n"); */ //good debug
                 $save = array();
                 foreach($fields_A as $fld_A) {
                     /* working
@@ -421,7 +402,7 @@ Array
         if($has_headers_YN) $total = $total - 1;
         return $total;
     }
-    private function prepare_download_link($with_yyy)
+    private function prepare_download_link($with_yyy, $download_links)
     {   // zip -r temp.zip Documents
         // echo "\n".$this->temp_dir."\n"; echo "\n".$this->resource_id."\n";
 
@@ -437,6 +418,7 @@ Array
             $files[] = $this->trimmed_File_A;
             $files[] = $this->descendants_File_A;
         }
+        if($download_links) $files = array_merge($files, $download_links);
         $source = implode(" ", $files);
         $destination = $this->temp_dir.$this->resource_id.".zip";
         if(is_file($destination)) unlink($destination);

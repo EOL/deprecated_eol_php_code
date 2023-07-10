@@ -44,7 +44,7 @@ else {
         }
         else {} //$ctrler->display_message(array('type' => "highlight", 'msg' => "Does not exist [$tmp]"));
     } */
-    // /* will use this one instead:
+    // /* will use this one instead: OK good working --- normal operation for Branch Graft
     $files = glob($dirname."*".$params['uuid']."*");
     foreach($files as $file) unlink($file);
     // */
