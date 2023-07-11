@@ -80,13 +80,14 @@ class BranchGraftRules
         }
         else $with_yyy = false; //trimmed_File_A is now the final result
 
-        // /* ~~~~~~~~~~ step 4.1: check parents_ids and/or accept_ids
+        $download_links = array();
+        /* ~~~~~~~~~~ step 4.1: check parents_ids and/or accept_ids
         if($with_yyy) $local_path = $this->trimmed_File_A2;
         else          $local_path = $this->trimmed_File_A;
         self::check_parentIDs_acceptIDs($local_path);
 
         $download_links = array();
-        // /* Diagnostics download link(s)
+        // start - Diagnostics download link(s)
         $download_links = array();
         $resource_id = "/Branch_Graft/diagnostics_".$this->arr_json['uuid'];
         $files = array(); //possible diagnostics reports
@@ -96,9 +97,8 @@ class BranchGraftRules
             $possible = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . $what_filename;
             if(file_exists($possible)) $download_links[] = $possible_link;
         }
-        // */
-
-        // */ 
+        // end -
+        */ 
 
         // /* ~~~~~~~~~~ step 4.2:
         self::prepare_download_link($with_yyy, $download_links);
