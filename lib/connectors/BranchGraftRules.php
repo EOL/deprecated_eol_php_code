@@ -9,11 +9,6 @@ class BranchGraftRules
     }
     private function initialize()
     {   
-        /* 2nd:
-        require_library('connectors/DwCA_Utility');
-        $this->HC = new DwCA_Utility(); // HC - higherClassification functions
-        */
-        // /* 3rd:
         $this->temp_dir = CONTENT_RESOURCE_LOCAL_PATH . '/Branch_Graft/';
         if(!is_dir($this->temp_dir)) mkdir($this->temp_dir);
 
@@ -81,13 +76,13 @@ class BranchGraftRules
         else $with_yyy = false; //trimmed_File_A is now the final result
 
         $download_links = array();
-        /* ~~~~~~~~~~ step 4.1: check parents_ids and/or accept_ids
+        // /* ~~~~~~~~~~ step 4.1: check parents_ids and/or accept_ids
         if($with_yyy) $local_path = $this->trimmed_File_A2;
         else          $local_path = $this->trimmed_File_A;
         self::check_parentIDs_acceptIDs($local_path);
 
         $download_links = array();
-        // start - Diagnostics download link(s)
+        // start - Diagnostics download link(s) -----
         $download_links = array();
         $resource_id = "/Branch_Graft/diagnostics_".$this->arr_json['uuid'];
         $files = array(); //possible diagnostics reports
@@ -97,8 +92,8 @@ class BranchGraftRules
             $possible = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . $what_filename;
             if(file_exists($possible)) $download_links[] = $possible_link;
         }
-        // end -
-        */ 
+        // end - Diagnostics download link(s) -----
+        // */ 
 
         // /* ~~~~~~~~~~ step 4.2:
         self::prepare_download_link($with_yyy, $download_links);
@@ -158,12 +153,10 @@ class BranchGraftRules
         //     leave those blank. If there are columns in File B that are not in File A, leave those data behind.
         self::parse_TSV_file($this->descendants_File_B2, "copy from File B to File A");
         ########################################################################## 8. end
-
         // exit("\n- end muna process yyy -\n");
     }
     private function parse_TSV_file($txtfile, $task)
-    {   
-        $modulo = self::get_modulo($txtfile);
+    {   $modulo = self::get_modulo($txtfile);
         if($task == "generate parentID_taxonID") { $modulo = 1000000; }
         $i = 0; $final = array(); debug("\nProcessing: [".pathinfo($txtfile, PATHINFO_BASENAME)."] [$task]\n"); //$syn = 0; for stats only
         foreach(new FileIterator($txtfile) as $line_number => $line) {
@@ -330,13 +323,11 @@ class BranchGraftRules
             $new = self::txtfile_row_count($this->descendants_File_A);
             echo "\n Removed descendants from File A: ".$new."";
             echo "\n------------------------------\n";
-
+            
             if($this->arr_json['fileB_taxonID']) {
                 if(copy($this->trimmed_File_A, $this->trimmed_File_A2)) echo "<br>Trimmed File A copied to File A2 OK";
                 else echo "\n<br>ERRORx: cannot copy [$this->trimmed_File_A] to [$this->trimmed_File_A2]<br>Please inform eagbayani@eol.org.<br>\n";
             }
-
-
         }
         if($task == "save File B descendants and its synonyms") {
             echo "\nStats (created): ".$this->debug_rules['created B']."";
