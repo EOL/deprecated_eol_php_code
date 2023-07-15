@@ -26,10 +26,10 @@ class BranchGraftRules
         $this->descendants_File_B = $this->input['path'] . "removed_taxa_File_B_" . $this->arr_json['uuid'] . ".txt";
         $WRITE = Functions::file_open($this->descendants_File_B, "w"); fclose($WRITE);
 
-        $this->descendants_File_B2 = $this->input['path'] . "removed_taxa_File_B2_" . $this->arr_json['uuid'] . ".txt";
+        $this->descendants_File_B2 = $this->input['path'] . "grafted_branch_File_B_" . $this->arr_json['uuid'] . ".txt"; //old removed_taxa_File_B2_
         $WRITE = Functions::file_open($this->descendants_File_B2, "w"); fclose($WRITE);
 
-        $this->trimmed_File_A2 = $this->input['path'] . "trimmed_File_A2_" . $this->arr_json['uuid'] . ".txt";
+        $this->trimmed_File_A2 = $this->input['path'] . "revised_File_A_" . $this->arr_json['uuid'] . ".txt"; //old trimmed_File_A2_
         $WRITE = Functions::file_open($this->trimmed_File_A2, "w"); fclose($WRITE);
 
         $this->debug_rules = array();
