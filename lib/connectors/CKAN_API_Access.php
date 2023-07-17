@@ -8,7 +8,10 @@ class CKAN_API_Access
     function __construct($file_type = "EOL resource")
     {
         $this->file_label = self::format_file_label($file_type);
-        $this->date_format = "M d, Y h:i A"; // July 13, 2023 08:30 AM
+        
+        $this->date_format = date("M d, Y h:i A");  //July 13, 2023 08:30 AM
+        $this->date_str    = date("Y-m-d H:i:s");   //for ISO date computation  --- 2010-12-30 23:21:46
+
         $this->api_resource_show = "https://opendata.eol.org/api/3/action/resource_show?id=";
         // e.g. https://opendata.eol.org/api/3/action/resource_show?id=259b34c9-8752-4553-ab37-f85300daf8f2
         $this->download_options = array('cache' => 1, 'resource_id' => 'CKAN', 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 0);
@@ -21,7 +24,7 @@ class CKAN_API_Access
     }
     private function iso_date_format()
     {
-        $date_str = date("Y-m-d H:i:s"); //2010-12-30 23:21:46
+        $date_str = $this->date_str; //date("Y-m-d H:i:s"); //2010-12-30 23:21:46
         $iso_date_str = str_replace(" ", "T", $date_str);
         return $iso_date_str;
         /* not accepted by CKAN API resource_update
@@ -44,7 +47,7 @@ class CKAN_API_Access
     function format_description($desc)
     {
         // ####--- __EOL DwCA resource last updated: Jul 17, 2023 07:41 AM__ ---####
-        // "####--- __"."EOL DwCA resource last updated: ".date($this->date_format)."__ ---####";
+        // "####--- __"."EOL DwCA resource last updated: ".$this->date_format."__ ---####";
 
         $left  = "####--- __";
         $right = "__ ---####";
@@ -55,7 +58,8 @@ class CKAN_API_Access
         if(end($arr) == "") {} //echo "\nlast element is nothing\n";
         else $desc .= chr(13); //add a next line
 
-        $add_str = "####--- __".$this->file_label." last updated: ".date($this->date_format)."__ ---####";
+        // $this->iso_date_str = self::iso_date_format()
+        $add_str = "####--- __".$this->file_label." last updated: ".$this->date_format."__ ---####";
         $desc .= $add_str;
         return $desc;
     }
@@ -105,8 +109,6 @@ class CKAN_API_Access
         // sleep(2); //we only upload one at a time, no need for delay
         $output = shell_exec($cmd);
         $output = json_decode($output, true); //print_r($output);
-
-        echo "\n"."Local time: ".date($this->date_format)."\n";
 
         if($output['success'] == 1) {
             echo "\nOpenData resource UPDATE OK.\n"; //print_r($output);
