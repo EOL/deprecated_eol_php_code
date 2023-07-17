@@ -6,7 +6,10 @@ class CKAN_API_Access
 {
     function __construct()
     {
-        $this->date_format = "M d, Y h:i:s A";
+        $this->date_format = "M d, Y h:i A"; // July 13, 2023 08:30 AM
+        $this->api_resource_show = "https://opendata.eol.org/api/3/action/resource_show?id=";
+        // e.g. https://opendata.eol.org/api/3/action/resource_show?id=259b34c9-8752-4553-ab37-f85300daf8f2
+        $this->download_options = array('cache' => 1, 'resource_id' => 'CKAN', 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 0);
     }
     private function create_or_update_OpenData_resource()
     {
@@ -16,33 +19,84 @@ class CKAN_API_Access
         if($ckan_resource_id = self::get_ckan_resource_id_given_hash("hash-".$resource_id)) self::UPDATE_ckan_resource($resource_id, $ckan_resource_id);
         else self::CREATE_ckan_resource($resource_id);
     }
-    function UPDATE_ckan_resource($ckan_resource_id) //https://docs.ckan.org/en/ckan-2.7.3/api/
+    private function iso_date_format()
     {
+        $date_str = date("Y-m-d H:i:s"); //2010-12-30 23:21:46
+        $iso_date_str = str_replace(" ", "T", $date_str);
+        return $iso_date_str;
+        /* not accepted by CKAN API resource_update
+        $datetime = new \DateTime($date_str);
+        echo "\n".$datetime->format(\DateTime::ATOM); // Updated ISO8601
+        */
+        /* not accepted by CKAN API resource_update
+        echo "\n".date(DATE_ISO8601, strtotime($date_str));
+        */
+    }
+    function retrieve_ckan_resource_using_id($ckan_resource_id)
+    {
+        $options = $this->download_options;
+        // $options['expire_seconds'] = false; //during dev only
+        if($json = Functions::lookup_with_cache($this->api_resource_show.$ckan_resource_id, $options)) {
+            $rec = json_decode($json, true);
+            return $rec;
+        }
+    }
+    function format_description($desc)
+    {
+        // ####--- __EOL DwCA resource last updated: Jul 17, 2023 07:41 AM__ ---####
+        // "####--- __"."EOL DwCA resource last updated: ".date($this->date_format)."__ ---####";
+
+        $left  = "####--- __";
+        $right = "__ ---####";
+        $desc = self::remove_all_in_between_inclusive($left, $right, $desc, $includeRight = true);
+        $arr = explode("\n", $desc);
+        print_r($arr);
+        echo "\nlast element is: [".end($arr)."]\n";
+        if(end($arr) == "") echo "\nlast element is nothing\n";
+        else $desc .= chr(13); //a next line
+
+        $add_str = "####--- __"."EOL DwCA resource last updated: ".date($this->date_format)."__ ---####";
+        $desc .= $add_str;
+        return $desc;
+    }
+    private function remove_all_in_between_inclusive($left, $right, $html, $includeRight = true)
+    {
+        if(preg_match_all("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+            foreach($arr[1] as $str) {
+                if($includeRight) { //original
+                    $substr = $left.$str.$right;
+                    $html = str_ireplace($substr, '', $html);
+                }
+                else { //meaning exclude right
+                    $substr = $left.$str.$right;
+                    $html = str_ireplace($substr, $right, $html);
+                }
+            }
+        }
+        return $html;
+    }
+    function UPDATE_ckan_resource($ckan_resource_id, $field2update) //https://docs.ckan.org/en/ckan-2.7.3/api/
+    {
+
         $rec = array();
         // $rec['package_id'] = "trait-spreadsheet-repository"; // https://opendata.eol.org/dataset/trait-spreadsheet-repository
         // $rec['clear_upload'] = "true";
         // $rec['url'] = "https://editors.eol.org/eol_php_code/applications/content_server/resources/Trait_Data_Import/1689559574.tar.gz";
         
-        // $rec['name'] = $resource_id." name";
-        // $rec['hash'] = "hash-".$resource_id;
-        // $rec['revision_id'] = $resource_id;
         $rec['id'] = $ckan_resource_id; //e.g. a4b749ea-1134-4351-9fee-ac1e3df91a4f
-        $rec['last_modified'] = "2023-07-18T04:36:08";
-        // 2023-07-17T04:36:08-04:00
-        // 2023-07-17T04:36:08-0400
-                         $rec['EOL DwCA resource last updated'] = date($this->date_format); //"July 17, 2023"; //"2023-07-17T03:28:00"; //date("Y-m-d H:s");
-        $rec['description'] = "EOL DwCA resource last updated: ".date($this->date_format);
-
+        if($field2update == "Last updated") $rec['last_modified'] = self::iso_date_format(); //date today in ISO date format
+        $rec['description'] = 
         $json = json_encode($rec);
         
         // $cmd = 'curl https://opendata.eol.org/api/3/action/resource_update';
-        $cmd = 'curl https://opendata.eol.org/api/3/action/resource_patch';
+        $cmd = 'curl https://opendata.eol.org/api/3/action/resource_patch';     // those fields not updated will remain
         $cmd .= " -d '".$json."'";
         $cmd .= ' -H "Authorization: b9187eeb-0819-4ca5-a1f7-2ed97641bbd4"';
 
+        /* can be used for future routines:
+        curl -X POST  -H "Content-Type: multipart/form-data"  -H "Authorization: XXXX"  -F "id=<resource_id>" -F "upload=@updated_file.csv" https://demo.ckan.org/api/3/action/resource_patch
+        */
 
-        // curl -X POST  -H "Content-Type: multipart/form-data"  -H "Authorization: XXXX"  -F "id=<resource_id>" -F "upload=@updated_file.csv" https://demo.ckan.org/api/3/action/resource_patch
-        
         // sleep(2); //we only upload one at a time, no need for delay
         $output = shell_exec($cmd);
         $output = json_decode($output, true); //print_r($output);
@@ -158,85 +212,5 @@ class CKAN_API_Access
         }
         return array_keys($final);
     }
-    private function process_form_url($form_url, $uuid)
-    {   //wget -nc https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /Volumes/AKiTiO4/other_files/bundle_images/xxx/740.027116-1.jpg
-        $ext = pathinfo($form_url, PATHINFO_EXTENSION);
-        $target = $this->input['path'].$uuid.".".$ext;
-        $cmd = WGET_PATH . " $form_url -O ".$target; //wget -nc --> means 'no overwrite'
-        $cmd .= " 2>&1";
-        $shell_debug = shell_exec($cmd);
-        if(stripos($shell_debug, "ERROR 404: Not Found") !== false) exit("\n<i>URL path does not exist.\n$form_url</i>\n\n"); //string is found
-        echo "\n---\n".trim($shell_debug)."\n---\n"; //exit;
-        return pathinfo($target, PATHINFO_BASENAME);
-    }
-    function process_zip_file($filename)
-    {
-        $test_temp_dir = create_temp_dir();
-        $local = Functions::save_remote_file_to_local($this->input['path'].$filename);
-        $output = shell_exec("unzip -o $local -d $test_temp_dir");
-        if($GLOBALS['ENV_DEBUG']) echo "<hr> [$output] <hr>";
-        // $ext = "tab"; //not used anymore
-        $new_local = self::get_file_inside_dir_with_this_extension($test_temp_dir."/*.{txt,tsv,tab,csv}");
-        $new_local_ext = pathinfo($new_local, PATHINFO_EXTENSION);
-        $destination = $this->input['path'].pathinfo($filename, PATHINFO_FILENAME).".$new_local_ext";
-        /* debug only
-        echo "\n\nlocal file = [$local]";
-        echo "\nlocal dir = [$test_temp_dir]";
-        echo "\nnew local file = [$new_local]";
-        echo "\nnew_local_ext = [$new_local_ext]\n\n";
-        echo "\ndestination = [$destination]\n\n";
-        */
-        if($GLOBALS['ENV_DEBUG']) print_r(pathinfo($destination));
-        if(Functions::file_rename($new_local, $destination)) {}
-        else echo "\nERRORx: file_rename failed.\n";
-        // exit("\nditox 100\n");
-        //remove these 2 that were used above if file is a zip file
-        unlink($local);
-        recursive_rmdir($test_temp_dir);
-
-        return pathinfo($destination, PATHINFO_BASENAME);
-    }
-    function convert_csv2tsv($csv_file) // temp/1687855441.csv
-    {   // exit("<br>source csv: [$csv_file]<br>");
-        $tsv_file = str_replace(".csv", ".tsv", $csv_file);
-        $WRITE = Functions::file_open($tsv_file, "w");
-        $fp = fopen($csv_file, 'r');
-        $data = array();
-        while (($row = fgetcsv($fp))) { // echo "<pre>"; print_r($row); exit;
-            /* Array(
-                [0] => taxonID
-                [1] => furtherInformationURL
-                [2] => scientificName
-            ) */
-            $tab_separated = implode("\t", $row); 
-            fwrite($WRITE, $tab_separated . "\n");
-        }
-        fclose($fp);
-        fclose($WRITE);
-        return $tsv_file;
-    }
-    private function get_file_inside_dir_with_this_extension($files)
-    {
-        $arr = glob($files, GLOB_BRACE);
-        // echo "\nglob() "; print_r($arr); //good debug
-        if($val = $arr[0]) return $val;
-        else exit("\nERROR: File to process does not exist.\n");
-        // foreach (glob($files) as $filename) echo "\n- $filename\n";
-    }
-    /* =======================================START create DwCA ======================================= */ //copied template
-    // private function create_output_file($timestart) {}
-    // private function generate_vocabulary() {}
-    // private function create_DwCA() {}
-    // private function parse_tsv($txtfile, $task) {}
-    // private function process_vocab_rec($rec) {}
-    // private function write_MoF($rec, $taxonID) {}
-    // private function create_child_MoF_startstop($rec, $ret, $taxonID) {}
-    // private function log_invalid_values($mType, $mValue, $orig_mType, $orig_mValue) {}
-    /* ========================================END create DwCA ======================================== */
-    // private function read_input_file($input_file) {}
-    // private function read_worksheet($sheet_name, $input_file, $parser) {}
-    // private function initialize_file($sheet_name) {}
-    // private function write_output_rec_2txt($rec, $sheet_name) {}
-    // function test() {}
 }
 ?>

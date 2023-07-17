@@ -21,7 +21,13 @@ $datetime = new \DateTime($date_str);
 echo "\n".$datetime->format(\DateTime::ATOM); // Updated ISO8601
 
 echo "\n".date(DATE_ISO8601, strtotime($date_str));
+$iso_date_str = str_replace(" ", "T", $date_str);
+echo "\n".$iso_date_str;
 
+// 2023-07-17 04:44:59
+// 2023-07-17T04:44:59-04:00
+// 2023-07-17T04:44:59-0400
+// 2020-07-10 15:00:00
 
 exit("\n-end tests-\n");
 */
@@ -44,6 +50,17 @@ else                           $json = '';
 $arr = json_decode($json, true); //print_r($arr); exit("\n-stop muna 1-\n");
 $func = new CKAN_API_Access();
 $ckan_resource_id = "259b34c9-8752-4553-ab37-f85300daf8f2";
-$func->UPDATE_ckan_resource($ckan_resource_id);
+// $func->UPDATE_ckan_resource($ckan_resource_id, "Last updated"); //actual CKAN field is "last_modified"
+
+// /* tests
+$rec = $func->retrieve_ckan_resource_using_id($ckan_resource_id);
+print_r($rec);
+if($rec['success']) {
+    $desc = $rec['result']['description'];
+    $desc = $func->format_description($desc);
+    echo "\n".$desc."\n";
+}
+// */
+
 Functions::get_time_elapsed($timestart);
 ?>
