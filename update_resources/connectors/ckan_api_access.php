@@ -50,9 +50,9 @@ else                           $json = '';
 $arr = json_decode($json, true); //print_r($arr); exit("\n-stop muna 1-\n");
 $func = new CKAN_API_Access();
 $ckan_resource_id = "259b34c9-8752-4553-ab37-f85300daf8f2";
-// $func->UPDATE_ckan_resource($ckan_resource_id, "Last updated"); //actual CKAN field is "last_modified"
+$func->UPDATE_ckan_resource($ckan_resource_id, "Last updated"); //actual CKAN field is "last_modified"
 
-// /* tests
+/* tests
 $rec = $func->retrieve_ckan_resource_using_id($ckan_resource_id);
 print_r($rec);
 if($rec['success']) {
@@ -60,7 +60,7 @@ if($rec['success']) {
     $desc = $func->format_description($desc);
     echo "\n".$desc."\n";
 }
-// */
+*/
 
 Functions::get_time_elapsed($timestart);
 ?>

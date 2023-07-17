@@ -49,11 +49,11 @@ class CKAN_API_Access
         $left  = "####--- __";
         $right = "__ ---####";
         $desc = self::remove_all_in_between_inclusive($left, $right, $desc, $includeRight = true);
-        $arr = explode("\n", $desc);
-        print_r($arr);
-        echo "\nlast element is: [".end($arr)."]\n";
-        if(end($arr) == "") echo "\nlast element is nothing\n";
-        else $desc .= chr(13); //a next line
+
+        $arr = explode("\n", $desc); //print_r($arr);
+        // echo "\nlast element is: [".end($arr)."]\n";
+        if(end($arr) == "") {} //echo "\nlast element is nothing\n";
+        else $desc .= chr(13); //add a next line
 
         $add_str = "####--- __"."EOL DwCA resource last updated: ".date($this->date_format)."__ ---####";
         $desc .= $add_str;
@@ -77,7 +77,17 @@ class CKAN_API_Access
     }
     function UPDATE_ckan_resource($ckan_resource_id, $field2update) //https://docs.ckan.org/en/ckan-2.7.3/api/
     {
+        // /* step 1: retrieve record and update description
+        $rec = self::retrieve_ckan_resource_using_id($ckan_resource_id);
+        print_r($rec);
+        if($rec['success']) {
+            $desc = $rec['result']['description'];
+            $desc = self::format_description($desc);
+            echo "\n".$desc."\n";
+        }
+        // */
 
+        /* step 2: update record */
         $rec = array();
         // $rec['package_id'] = "trait-spreadsheet-repository"; // https://opendata.eol.org/dataset/trait-spreadsheet-repository
         // $rec['clear_upload'] = "true";
@@ -85,7 +95,7 @@ class CKAN_API_Access
         
         $rec['id'] = $ckan_resource_id; //e.g. a4b749ea-1134-4351-9fee-ac1e3df91a4f
         if($field2update == "Last updated") $rec['last_modified'] = self::iso_date_format(); //date today in ISO date format
-        $rec['description'] = 
+        $rec['description'] = $desc;
         $json = json_encode($rec);
         
         // $cmd = 'curl https://opendata.eol.org/api/3/action/resource_update';
