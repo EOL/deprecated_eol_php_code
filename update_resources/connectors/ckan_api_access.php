@@ -1,6 +1,12 @@
 <?php
 namespace php_active_record;
-/* Command-line acces to CKAN API opendata.eol.org  --- for DATA-1885: CKAN metadata display adjustments */
+/* Command-line acces to CKAN API opendata.eol.org  --- for DATA-1885: CKAN metadata display adjustments 
+
+php update_resources/connectors/ckan_api_access.php _ "259b34c9-8752-4553-ab37-f85300daf8f2"
+or 
+php update_resources/connectors/ckan_api_access.php _ "259b34c9-8752-4553-ab37-f85300daf8f2" "06/10/2011 19:00:02"
+*/
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;  //set to false in production
 // /* during dev only
@@ -13,15 +19,15 @@ require_library('connectors/CKAN_API_Access');
 $timestart = time_elapsed();
 
 
-// /* working OK --- good test
-$input = '06/10/2011 19:00:02';
-$input = date("m/d/Y H:i:s"); //must be "H" not "h"
+/* working OK --- good test
+$input = '06/10/2011 19:00:02'; //the date format for force-replace a date
+// $input = date("m/d/Y H:i:s"); //must be "H" not "h" --- '06/10/2011 19:00:02'
 $date = strtotime($input);
 echo "\n".$input;
 echo "\n".date('d/M/Y h:i:s', $date);
 echo "\n".date('M d Y h:i:s', $date);
 exit("\n-end tests-\n");
-// */
+*/
 
 /* tests
 $date_str = date("Y-m-d H:i:s"); //2010-12-30 23:21:46
@@ -43,23 +49,14 @@ echo "\n".$iso_date_str;
 exit("\n-end tests-\n");
 */
 
-$params['jenkins_or_cron']      = @$argv[1];
-$params['ckan_resource_id']     = @$argv[2];
+$params['jenkins_or_cron']  = @$argv[1]; //not needed here
+$ckan_resource_id           = @$argv[2];
+$forced_date                = @$argv[3];
 
-if($GLOBALS['ENV_DEBUG']) { 
-    echo "<pre>"; print_r($params); echo "</pre>"; 
-}
-
-/* Array(
-    [jenkins_or_cron] => _
-    [json] => {"Filename_ID":"","Short_Desc":"" , "timestart":"0.002263" , "newfile_File_A":"File_A_1688396971.tab" , "newfile_File_B":"File_B_1688396971.tsv" , "fileA_taxonID":"EOL-000000095511" , "fileB_taxonID":"eli02" , "uuid":"1688396971" }
-)*/
-
-if($val = $params['ckan_resource_id'])  $ckan_resource_id = $val;
-else                                    exit("\nERROR: Incomplete parameters. No CKAN resource ID.\n");
+if(!$ckan_resource_id) exit("\nERROR: Incomplete parameters. No CKAN resource ID.\n");
 // $ckan_resource_id = "259b34c9-8752-4553-ab37-f85300daf8f2"; //during dev only
 
-$func = new CKAN_API_Access('EOL resource'); //other values: "EOL dump" or "EOL file"
+$func = new CKAN_API_Access('EOL resource', $forced_date); //other values: "EOL dump" or "EOL file"
 $func->UPDATE_ckan_resource($ckan_resource_id, "Last updated"); //actual CKAN field is "last_modified"
 
 /* tests
