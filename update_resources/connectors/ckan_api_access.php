@@ -12,6 +12,17 @@ $GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
 require_library('connectors/CKAN_API_Access');
 $timestart = time_elapsed();
 
+
+// /* working OK --- good test
+$input = '06/10/2011 19:00:02';
+$input = date("m/d/Y H:i:s"); //must be "H" not "h"
+$date = strtotime($input);
+echo "\n".$input;
+echo "\n".date('d/M/Y h:i:s', $date);
+echo "\n".date('M d Y h:i:s', $date);
+exit("\n-end tests-\n");
+// */
+
 /* tests
 $date_str = date("Y-m-d H:i:s"); //2010-12-30 23:21:46
 echo "\n".$date_str;
