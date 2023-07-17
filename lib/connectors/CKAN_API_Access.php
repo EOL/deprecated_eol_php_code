@@ -79,26 +79,22 @@ class CKAN_API_Access
     {
         // /* step 1: retrieve record and update description
         $rec = self::retrieve_ckan_resource_using_id($ckan_resource_id);
-        print_r($rec);
+        // print_r($rec);
         if($rec['success']) {
-            $desc = $rec['result']['description'];
-            $desc = self::format_description($desc);
-            echo "\n".$desc."\n";
+            $desc = $rec['result']['description'];      echo "\nOld description: [".$desc."]\n";
+            $desc = self::format_description($desc);    echo "\nNew description: [".$desc."]\n";
         }
         // */
 
         /* step 2: update record */
         $rec = array();
-        // $rec['package_id'] = "trait-spreadsheet-repository"; // https://opendata.eol.org/dataset/trait-spreadsheet-repository
-        // $rec['clear_upload'] = "true";
-        // $rec['url'] = "https://editors.eol.org/eol_php_code/applications/content_server/resources/Trait_Data_Import/1689559574.tar.gz";
         
         $rec['id'] = $ckan_resource_id; //e.g. a4b749ea-1134-4351-9fee-ac1e3df91a4f
         if($field2update == "Last updated") $rec['last_modified'] = self::iso_date_format(); //date today in ISO date format
         $rec['description'] = $desc;
         $json = json_encode($rec);
         
-        // $cmd = 'curl https://opendata.eol.org/api/3/action/resource_update';
+        // $cmd = 'curl https://opendata.eol.org/api/3/action/resource_update'; // orig but not used here.
         $cmd = 'curl https://opendata.eol.org/api/3/action/resource_patch';     // those fields not updated will remain
         $cmd .= " -d '".$json."'";
         $cmd .= ' -H "Authorization: b9187eeb-0819-4ca5-a1f7-2ed97641bbd4"';
@@ -122,34 +118,36 @@ class CKAN_API_Access
             echo "\nERROR: OpenData resource UPDATE failed.\n";
             print_r($output);
         }
-        // Array(
-        //     [help] => https://opendata.eol.org/api/3/action/help_show?name=resource_update
-        //     [success] => 1
-        //     [result] => Array(
-        //             [cache_last_updated] => 
-        //             [cache_url] => 
-        //             [mimetype_inner] => 
-        //             [hash] => hash-cha_02
-        //             [description] => Updated: 2022-02-03 05:36
-        //             [format] => Darwin Core Archive
-        //             [url] => http://localhost/eol_php_code/applications/content_server/resources/Trait_Data_Import/cha_02.tar.gz
-        //             [created] => 2022-02-03T01:40:54.782481
-        //             [state] => active
-        //             [webstore_last_updated] => 
-        //             [webstore_url] => 
-        //             [package_id] => dab391f0-7ec0-4055-8ead-66b1dea55f28
-        //             [last_modified] => 
-        //             [mimetype] => 
-        //             [url_type] => 
-        //             [position] => 1
-        //             [revision_id] => 3c3f2587-c0b3-4fdd-bb5e-c6ae23d79afe
-        //             [size] => 
-        //             [id] => a4b749ea-1134-4351-9fee-ac1e3df91a4f
-        //             [resource_type] => 
-        //             [name] => Fishes of Philippines
-        //         )
-        // )
         // echo "\n$output\n";
+        /* Array(
+        [help] => https://opendata.eol.org/api/3/action/help_show?name=resource_patch
+        [success] => 1
+        [result] => Array(
+                [cache_last_updated] => 
+                [cache_url] => 
+                [mimetype_inner] => 
+                [hash] => hash-1689582248
+                [description] => AAA is here above.
+                BBB is here below.         
+                ####--- __EOL DwCA resource last updated: Jul 17, 2023 09:31 AM__ ---####
+                [format] => Darwin Core Archive
+                [url] => https://editors.eol.org/eol_php_code/applications/content_server/resources/Trait_Data_Import/1689582248.tar.gz
+                [created] => 2023-07-17T08:24:23.205420
+                [state] => active
+                [webstore_last_updated] => 
+                [webstore_url] => 
+                [package_id] => dab391f0-7ec0-4055-8ead-66b1dea55f28
+                [last_modified] => 2023-07-17T09:31:26
+                [mimetype] => 
+                [url_type] => 
+                [position] => 23
+                [revision_id] => 6c44da2e-384f-4439-a31a-134270e0be94
+                [size] => 
+                [id] => 259b34c9-8752-4553-ab37-f85300daf8f2
+                [resource_type] => 
+                [name] => Eli test Jul 17 05
+            )        
+        )*/
     }
     private function CREATE_ckan_resource($resource_id) //https://docs.ckan.org/en/ckan-2.7.3/api/
     {
