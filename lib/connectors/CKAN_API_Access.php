@@ -5,12 +5,23 @@ https://docs.ckan.org/en/2.9/api/#api-examples
 */
 class CKAN_API_Access
 {
-    function __construct($file_type = "EOL resource")
+    function __construct($file_type = "EOL resource", $forced_date)
     {
         $this->file_label = self::format_file_label($file_type);
-        
-        $this->date_format = date("M d, Y h:i A");  //July 13, 2023 08:30 AM
-        $this->date_str    = date("Y-m-d H:i:s");   //for ISO date computation  --- 2010-12-30 23:21:46
+        if($forced_date) {
+            $date = strtotime($forced_date);
+        }
+        else {
+            $forced_date = date("m/d/Y H:i:s"); //date today
+            $date = strtotime($forced_date);
+        }
+        $this->date_format = date("M d, Y h:i A", $date);  //July 13, 2023 08:30 AM
+        $this->date_str    = date("Y-m-d H:i:s", $date);   //for ISO date computation  --- 2010-12-30 23:21:46    
+
+        echo "\n".$forced_date;
+        echo "\n".$this->date_format;
+        echo "\n".$this->date_str;
+
 
         $this->api_resource_show = "https://opendata.eol.org/api/3/action/resource_show?id=";
         // e.g. https://opendata.eol.org/api/3/action/resource_show?id=259b34c9-8752-4553-ab37-f85300daf8f2
