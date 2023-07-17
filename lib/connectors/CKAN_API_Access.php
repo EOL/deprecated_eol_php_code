@@ -16,69 +16,6 @@ class CKAN_API_Access
         // e.g. https://opendata.eol.org/api/3/action/resource_show?id=259b34c9-8752-4553-ab37-f85300daf8f2
         $this->download_options = array('cache' => 1, 'resource_id' => 'CKAN', 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 0);
     }
-    private function format_file_label($file_type)
-    {
-        if($file_type == "EOL resource") return "EOL DwCA resource";
-        elseif($file_type == "EOL dump") return "EOL dump"; //tentative
-        elseif($file_type == "EOL file") return "EOL file"; //tentative
-    }
-    private function iso_date_format()
-    {
-        $date_str = $this->date_str; //date("Y-m-d H:i:s"); //2010-12-30 23:21:46
-        $iso_date_str = str_replace(" ", "T", $date_str);
-        return $iso_date_str;
-        /* not accepted by CKAN API resource_update
-        $datetime = new \DateTime($date_str);
-        echo "\n".$datetime->format(\DateTime::ATOM); // Updated ISO8601
-        */
-        /* not accepted by CKAN API resource_update
-        echo "\n".date(DATE_ISO8601, strtotime($date_str));
-        */
-    }
-    function retrieve_ckan_resource_using_id($ckan_resource_id)
-    {
-        $options = $this->download_options;
-        // $options['expire_seconds'] = false; //during dev only
-        if($json = Functions::lookup_with_cache($this->api_resource_show.$ckan_resource_id, $options)) {
-            $rec = json_decode($json, true);
-            return $rec;
-        }
-    }
-    function format_description($desc)
-    {
-        // ####--- __EOL DwCA resource last updated: Jul 17, 2023 07:41 AM__ ---####
-        // "####--- __"."EOL DwCA resource last updated: ".$this->date_format."__ ---####";
-
-        $left  = "####--- __";
-        $right = "__ ---####";
-        $desc = self::remove_all_in_between_inclusive($left, $right, $desc, $includeRight = true);
-
-        $arr = explode("\n", $desc); //print_r($arr);
-        // echo "\nlast element is: [".end($arr)."]\n";
-        if(end($arr) == "") {} //echo "\nlast element is nothing\n";
-        else $desc .= chr(13); //add a next line
-
-        // $this->iso_date_str = self::iso_date_format()
-        $add_str = "####--- __".$this->file_label." last updated: ".$this->date_format."__ ---####";
-        $desc .= $add_str;
-        return $desc;
-    }
-    private function remove_all_in_between_inclusive($left, $right, $html, $includeRight = true)
-    {
-        if(preg_match_all("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
-            foreach($arr[1] as $str) {
-                if($includeRight) { //original
-                    $substr = $left.$str.$right;
-                    $html = str_ireplace($substr, '', $html);
-                }
-                else { //meaning exclude right
-                    $substr = $left.$str.$right;
-                    $html = str_ireplace($substr, $right, $html);
-                }
-            }
-        }
-        return $html;
-    }
     function UPDATE_ckan_resource($ckan_resource_id, $field2update) //https://docs.ckan.org/en/ckan-2.7.3/api/
     {
         // /* step 1: retrieve record and update description
@@ -147,6 +84,69 @@ class CKAN_API_Access
                 [name] => Eli test Jul 17 05
             )        
         )*/
+    }
+    private function format_file_label($file_type)
+    {
+        if($file_type == "EOL resource") return "EOL DwCA resource";
+        elseif($file_type == "EOL dump") return "EOL dump"; //tentative
+        elseif($file_type == "EOL file") return "EOL file"; //tentative
+    }
+    private function iso_date_format()
+    {
+        $date_str = $this->date_str; //date("Y-m-d H:i:s"); //2010-12-30 23:21:46
+        $iso_date_str = str_replace(" ", "T", $date_str);
+        return $iso_date_str;
+        /* not accepted by CKAN API resource_update
+        $datetime = new \DateTime($date_str);
+        echo "\n".$datetime->format(\DateTime::ATOM); // Updated ISO8601
+        */
+        /* not accepted by CKAN API resource_update
+        echo "\n".date(DATE_ISO8601, strtotime($date_str));
+        */
+    }
+    function retrieve_ckan_resource_using_id($ckan_resource_id)
+    {
+        $options = $this->download_options;
+        // $options['expire_seconds'] = false; //during dev only
+        if($json = Functions::lookup_with_cache($this->api_resource_show.$ckan_resource_id, $options)) {
+            $rec = json_decode($json, true);
+            return $rec;
+        }
+    }
+    function format_description($desc)
+    {
+        // ####--- __EOL DwCA resource last updated: Jul 17, 2023 07:41 AM__ ---####
+        // "####--- __"."EOL DwCA resource last updated: ".$this->date_format."__ ---####";
+
+        $left  = "####--- __";
+        $right = "__ ---####";
+        $desc = self::remove_all_in_between_inclusive($left, $right, $desc, $includeRight = true);
+
+        $arr = explode("\n", $desc); //print_r($arr);
+        // echo "\nlast element is: [".end($arr)."]\n";
+        if(end($arr) == "") {} //echo "\nlast element is nothing\n";
+        else $desc .= chr(13); //add a next line
+
+        // $this->iso_date_str = self::iso_date_format()
+        $add_str = "####--- __".$this->file_label." last updated: ".$this->date_format."__ ---####";
+        $desc .= $add_str;
+        return $desc;
+    }
+    private function remove_all_in_between_inclusive($left, $right, $html, $includeRight = true)
+    {
+        if(preg_match_all("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+            foreach($arr[1] as $str) {
+                if($includeRight) { //original
+                    $substr = $left.$str.$right;
+                    $html = str_ireplace($substr, '', $html);
+                }
+                else { //meaning exclude right
+                    $substr = $left.$str.$right;
+                    $html = str_ireplace($substr, $right, $html);
+                }
+            }
+        }
+        return $html;
     }
     //========================================================== below copied templates =========================================
     /* copied template
