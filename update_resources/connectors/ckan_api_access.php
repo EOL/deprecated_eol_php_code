@@ -48,7 +48,7 @@ if($val = $params['json'])     $json = $val;
 else                           $json = '';
 
 $arr = json_decode($json, true); //print_r($arr); exit("\n-stop muna 1-\n");
-$func = new CKAN_API_Access();
+$func = new CKAN_API_Access('EOL resource'); //other values: "EOL dump" or "EOL file"
 $ckan_resource_id = "259b34c9-8752-4553-ab37-f85300daf8f2";
 $func->UPDATE_ckan_resource($ckan_resource_id, "Last updated"); //actual CKAN field is "last_modified"
 

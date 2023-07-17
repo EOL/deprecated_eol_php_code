@@ -4,20 +4,19 @@ namespace php_active_record;
 */
 class CKAN_API_Access
 {
-    function __construct()
+    function __construct($file_type = "EOL resource")
     {
+        $this->file_label = self::format_file_label($file_type);
         $this->date_format = "M d, Y h:i A"; // July 13, 2023 08:30 AM
         $this->api_resource_show = "https://opendata.eol.org/api/3/action/resource_show?id=";
         // e.g. https://opendata.eol.org/api/3/action/resource_show?id=259b34c9-8752-4553-ab37-f85300daf8f2
         $this->download_options = array('cache' => 1, 'resource_id' => 'CKAN', 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 0);
     }
-    private function create_or_update_OpenData_resource()
+    private function format_file_label($file_type)
     {
-        if($resource_id = @$this->arr_json['Filename_ID']) {}
-        else $resource_id = $this->resource_id;
-        
-        if($ckan_resource_id = self::get_ckan_resource_id_given_hash("hash-".$resource_id)) self::UPDATE_ckan_resource($resource_id, $ckan_resource_id);
-        else self::CREATE_ckan_resource($resource_id);
+        if($file_type == "EOL resource") return "EOL DwCA resource";
+        elseif($file_type == "EOL dump") return "EOL dump"; //tentative
+        elseif($file_type == "EOL file") return "EOL file"; //tentative
     }
     private function iso_date_format()
     {
@@ -55,7 +54,7 @@ class CKAN_API_Access
         if(end($arr) == "") {} //echo "\nlast element is nothing\n";
         else $desc .= chr(13); //add a next line
 
-        $add_str = "####--- __"."EOL DwCA resource last updated: ".date($this->date_format)."__ ---####";
+        $add_str = "####--- __".$this->file_label." last updated: ".date($this->date_format)."__ ---####";
         $desc .= $add_str;
         return $desc;
     }
@@ -88,7 +87,6 @@ class CKAN_API_Access
 
         /* step 2: update record */
         $rec = array();
-        
         $rec['id'] = $ckan_resource_id; //e.g. a4b749ea-1134-4351-9fee-ac1e3df91a4f
         if($field2update == "Last updated") $rec['last_modified'] = self::iso_date_format(); //date today in ISO date format
         $rec['description'] = $desc;
@@ -110,12 +108,10 @@ class CKAN_API_Access
         echo "\n"."Local time: ".date($this->date_format)."\n";
 
         if($output['success'] == 1) {
-            echo "\nOpenData resource UPDATE OK.\n";
-            print_r($output);
-
+            echo "\nOpenData resource UPDATE OK.\n"; //print_r($output);
         }
         else {
-            echo "\nERROR: OpenData resource UPDATE failed.\n";
+            echo "\nERROR: OpenData resource UPDATE failed.\n"; 
             print_r($output);
         }
         // echo "\n$output\n";
@@ -149,6 +145,8 @@ class CKAN_API_Access
             )        
         )*/
     }
+    //========================================================== below copied templates =========================================
+    /* copied template
     private function CREATE_ckan_resource($resource_id) //https://docs.ckan.org/en/ckan-2.7.3/api/
     {
         $rec = array();
@@ -220,5 +218,14 @@ class CKAN_API_Access
         }
         return array_keys($final);
     }
+    private function create_or_update_OpenData_resource()
+    {
+        if($resource_id = @$this->arr_json['Filename_ID']) {}
+        else $resource_id = $this->resource_id;
+        
+        if($ckan_resource_id = self::get_ckan_resource_id_given_hash("hash-".$resource_id)) self::UPDATE_ckan_resource($resource_id, $ckan_resource_id);
+        else self::CREATE_ckan_resource($resource_id);
+    }
+    */
 }
 ?>
