@@ -4,7 +4,8 @@ namespace php_active_record;
 
 php update_resources/connectors/ckan_api_access.php _ "259b34c9-8752-4553-ab37-f85300daf8f2"
 or 
-php update_resources/connectors/ckan_api_access.php _ "259b34c9-8752-4553-ab37-f85300daf8f2" "06/10/2011 19:00:02"
+php update_resources/connectors/ckan_api_access.php _ "259b34c9-8752-4553-ab37-f85300daf8f2" "06/10/2023 19:30:00"
+                                                                              that is for June 10, 2023 @ 7:30 PM
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
