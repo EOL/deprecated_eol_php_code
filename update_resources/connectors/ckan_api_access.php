@@ -32,11 +32,11 @@ echo "\n".$iso_date_str;
 exit("\n-end tests-\n");
 */
 
-$params['jenkins_or_cron']  = @$argv[1];
-$params['json']             = @$argv[2];
+$params['jenkins_or_cron']      = @$argv[1];
+$params['ckan_resource_id']     = @$argv[2];
 
 if($GLOBALS['ENV_DEBUG']) { 
-    // echo "<pre>"; print_r($params); echo "</pre>"; 
+    echo "<pre>"; print_r($params); echo "</pre>"; 
 }
 
 /* Array(
@@ -44,12 +44,11 @@ if($GLOBALS['ENV_DEBUG']) {
     [json] => {"Filename_ID":"","Short_Desc":"" , "timestart":"0.002263" , "newfile_File_A":"File_A_1688396971.tab" , "newfile_File_B":"File_B_1688396971.tsv" , "fileA_taxonID":"EOL-000000095511" , "fileB_taxonID":"eli02" , "uuid":"1688396971" }
 )*/
 
-if($val = $params['json'])     $json = $val;
-else                           $json = '';
+if($val = $params['ckan_resource_id'])  $ckan_resource_id = $val;
+else                                    exit("\nERROR: Incomplete parameters. No CKAN resource ID.\n");
+// $ckan_resource_id = "259b34c9-8752-4553-ab37-f85300daf8f2"; //during dev only
 
-$arr = json_decode($json, true); //print_r($arr); exit("\n-stop muna 1-\n");
 $func = new CKAN_API_Access('EOL resource'); //other values: "EOL dump" or "EOL file"
-$ckan_resource_id = "259b34c9-8752-4553-ab37-f85300daf8f2";
 $func->UPDATE_ckan_resource($ckan_resource_id, "Last updated"); //actual CKAN field is "last_modified"
 
 /* tests
