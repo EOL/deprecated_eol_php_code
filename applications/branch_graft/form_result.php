@@ -3,11 +3,11 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
-/* normal operation
+// /* normal operation
 ini_set('error_reporting', false);
 ini_set('display_errors', false);
 $GLOBALS['ENV_DEBUG'] = false; //set to false in production
-*/
+// */
 
 /* during development
 ini_set('error_reporting', E_ALL);

@@ -11,11 +11,11 @@ where File_A_1688396971.tab is in /eol_php_code/applications/taxonomic_validatio
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;  //set to false in production
-// /* during dev only
+/* during dev only
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
-// */
+*/
 ini_set('memory_limit','14096M');
 require_library('connectors/BranchGraftRules');
 require_library('connectors/BranchGraftAPI');

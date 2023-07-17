@@ -4,11 +4,11 @@ require_once("../../../FreshData/controllers/other.php");
 require_once("../../../FreshData/controllers/freshdata.php");
 
 $GLOBALS['ENV_DEBUG'] = true;
-// /* during development
+/* during development
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
-// */
+*/
 
 $ctrler = new freshdata_controller(array());
 $job_name = 'xls2dwca_job';
