@@ -140,7 +140,7 @@ class TraitDataImportAPI
         // $rec['revision_id'] = $resource_id;
         $rec['id'] = $ckan_resource_id; //e.g. a4b749ea-1134-4351-9fee-ac1e3df91a4f
         if($val = @$this->arr_json['Short_Desc']) $rec['name'] = $val;
-        $rec['description'] = "Updated: ".date("Y-m-d H:s");
+        $rec['description'] = "Updated: ".date("Y-m-d h:i:s A");
         $rec['format'] = "Darwin Core Archive";
         $json = json_encode($rec);
         
@@ -194,7 +194,7 @@ class TraitDataImportAPI
         $rec['hash'] = "hash-".$resource_id;
         // $rec['revision_id'] = $resource_id;
         if($val = @$this->arr_json['Short_Desc']) $rec['name'] = $val;
-        $rec['description'] = "Created: ".date("Y-m-d H:s");
+        $rec['description'] = "Created: ".date("Y-m-d h:i:s A");
         $rec['format'] = "Darwin Core Archive";
         $json = json_encode($rec);
         
