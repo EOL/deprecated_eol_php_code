@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
-/* Command-line acces to CKAN API opendata.eol.org
-*/
+/* Command-line acces to CKAN API opendata.eol.org  --- for DATA-1885: CKAN metadata display adjustments */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;  //set to false in production
 // /* during dev only
@@ -17,18 +16,19 @@ $timestart = time_elapsed();
 $date_str = date("Y-m-d H:i:s"); //2010-12-30 23:21:46
 echo "\n".$date_str;
 // exit;
-$datetime = new \DateTime($date_str);
-echo "\n".$datetime->format(\DateTime::ATOM); // Updated ISO8601
 
-echo "\n".date(DATE_ISO8601, strtotime($date_str));
-$iso_date_str = str_replace(" ", "T", $date_str);
+$datetime = new \DateTime($date_str);
+echo "\n".$datetime->format(\DateTime::ATOM);       // didn't work for CKAN API
+
+echo "\n".date(DATE_ISO8601, strtotime($date_str)); // didn't work for CKAN API
+
+$iso_date_str = str_replace(" ", "T", $date_str);   // worked OK for CKAN API
 echo "\n".$iso_date_str;
 
 // 2023-07-17 04:44:59
 // 2023-07-17T04:44:59-04:00
 // 2023-07-17T04:44:59-0400
 // 2020-07-10 15:00:00
-
 exit("\n-end tests-\n");
 */
 
