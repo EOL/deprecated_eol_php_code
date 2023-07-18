@@ -6,6 +6,9 @@ php update_resources/connectors/ckan_api_access.php _ "259b34c9-8752-4553-ab37-f
 or 
 php update_resources/connectors/ckan_api_access.php _ "259b34c9-8752-4553-ab37-f85300daf8f2" "06/10/2023 19:30:00"
                                                                               that is for June 10, 2023 @ 7:30 PM
+
+php update_resources/connectors/ckan_api_access.php _ "6e24f0df-56ee-470f-b81e-e5a367a65bfb" "07/08/2023 21:41:00" "EOL file"
+-> All trait dump file.                                                           --- that is Jul 8, 2023 9:41 PM
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -53,11 +56,13 @@ exit("\n-end tests-\n");
 $params['jenkins_or_cron']  = @$argv[1]; //not needed here
 $ckan_resource_id           = @$argv[2];
 $forced_date                = @$argv[3];
+$file_type                  = @$argv[4];
 
 if(!$ckan_resource_id) exit("\nERROR: Incomplete parameters. No CKAN resource ID.\n");
 // $ckan_resource_id = "259b34c9-8752-4553-ab37-f85300daf8f2"; //during dev only
+if(!$file_type) $file_type = "EOL resource"; 
 
-$func = new CKAN_API_Access('EOL resource', $forced_date); //other values: "EOL dump" or "EOL file"
+$func = new CKAN_API_Access($file_type, $forced_date); //other values: "EOL dump" or "EOL file"
 $func->UPDATE_ckan_resource($ckan_resource_id, "Last updated"); //actual CKAN field is "last_modified"
 
 /* tests

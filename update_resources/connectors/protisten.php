@@ -41,6 +41,26 @@ protisten	Sun 2023-04-16 10:19:49 PM	{"agent.tab":1, "media_resource.tab":2522, 
 protisten	Wed 2023-04-19 08:54:29 AM	{"agent.tab":1, "media_resource.tab":2522, "taxon.tab":1276, "time_elapsed":{"sec":76.89, "min":1.28, "hr":0.02}}
 below: 114 images were excluded; doesn't exist remotely
 protisten	Tue 2023-06-13 02:47:02 AM	{"agent.tab":1, "media_resource.tab":2409, "taxon.tab":1277, "time_elapsed":{"sec":1662.78, "min":27.71, "hr":0.46}}
+protisten	Thu 2023-07-06 02:04:24 PM	{"agent.tab":1, "media_resource.tab":2540, "taxon.tab":1278, "time_elapsed":{"sec":5799.56, "min":96.66, "hr":1.61}}
+protisten	Mon 2023-07-10 03:35:10 AM	{"agent.tab":1, "media_resource.tab":2526, "taxon.tab":1278, "time_elapsed":{"sec":5769.99, "min":96.17, "hr":1.6}}
+
+protisten	Mon 2023-07-17 01:25:57 PM	{"agent.tab":1, "media_resource.tab":2526, "taxon.tab":1278, "time_elapsed":{"sec":5850.37, "min":97.51, "hr":1.63}}
+[does not exist] => Array( as of Jul 17, 2023
+            [https://www.protisten.de/gallery-ARCHIVE/pics/Ceramium-spec-Aufwuchs-040-100-P9259693-698-HID.jpg] => 
+            [https://www.protisten.de/gallery-ARCHIVE/pics/Chaetoceros-decipiens-016-100-2098642-649-KIF.jpg] => 
+            [https://www.protisten.de/gallery-ARCHIVE/pics/Chaetoceros-decipiens-025-100-2098650-656-KIF.jpg] => 
+            [https://www.protisten.de/gallery-ARCHIVE/pics/Choanocystis-aculeata-020-200-2-9012767-774-MKH.jpg] => 
+            [https://www.protisten.de/gallery-ARCHIVE/pics/Cyphoderia-ampulla-040-200-CombineZ-025-HVE.jpg] => 
+            [https://www.protisten.de/gallery-ARCHIVE/pics/Ephelota-gemmipara-025-100-A297296-313-1-HID.jpg] => 
+            [https://www.protisten.de/gallery-ARCHIVE/pics/Nuclearia-simplex-063-200-P6122294-297-DOS.jpg] => 
+            [https://www.protisten.de/gallery-ARCHIVE/pics/Polyarthra-remata-020-125-2-B137598-ASW.jpg] => 
+            [https://www.protisten.de/gallery-ARCHIVE/pics/Salpingoeca-amphoridium-040-200-2-9023486-507-1-ASW.jpg] => 
+            [https://www.protisten.de/gallery-ARCHIVE/pics/Salpingoeca-amphoridium-040-200-2-9023486-507-2-ASW.jpg] => 
+            [https://www.protisten.de/gallery-ARCHIVE/pics/Tetmemorus-granulatus-var-granulatus-040-160-2-B172406-427-Zellwand-WPT.jpg] => 
+            [https://www.protisten.de/gallery-ARCHIVE/pics/Tetmemorus-granulatus-var-granulatus-040-160-2-B172406-427-Transversal-WPT.jpg] => 
+            [https://www.protisten.de/gallery-ARCHIVE/pics/Tetmemorus-granulatus-var-granulatus-040-160-2-B172406-427-Kern-WPT.jpg] => 
+            [https://www.protisten.de/gallery-ARCHIVE/pics/Scenedesmus-falcatus-040-160-P6020120-ODB.jpg] => 
+        )
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();

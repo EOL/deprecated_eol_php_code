@@ -22,10 +22,64 @@ class CKAN_API_Access
         echo "\n".$this->date_format;
         echo "\n".$this->date_str;
 
-
         $this->api_resource_show = "https://opendata.eol.org/api/3/action/resource_show?id=";
         // e.g. https://opendata.eol.org/api/3/action/resource_show?id=259b34c9-8752-4553-ab37-f85300daf8f2
         $this->download_options = array('cache' => 1, 'resource_id' => 'CKAN', 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 0);
+
+        // /* for EOL resource mapping with Opendata resource
+        $this->api_package_list = "https://opendata.eol.org/api/3/action/package_list";
+        $this->api_package_show = "https://opendata.eol.org/api/3/action/package_show?id=";
+        // */
+    }
+    function generate_ckan_id_name_list()
+    {   $final = array();
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24*1; //1 day expires
+        if($json = Functions::lookup_with_cache($this->api_package_list, $options)) {
+            $packages = json_decode($json);
+            // print_r($packages); exit;
+            foreach($packages->result as $ckan_resource_id) {
+                $options['expire_seconds'] = 60*60*24*30; //1 month expires
+                if($json = Functions::lookup_with_cache($this->api_package_show.$ckan_resource_id, $options)) {
+                    $obj = json_decode($json);
+                    // print_r($obj->result->resources); exit;
+                    foreach($obj->result->resources as $res) {
+                        $url = $res->url;
+                        if(substr($url, -7) == ".tar.gz") {
+                            // print_r($res); //exit;
+                            $basename = pathinfo($url, PATHINFO_BASENAME);      //cicadellinaemetarecoded.tar.gz
+                            $basename = str_replace(".tar.gz", "", $basename);  //cicadellinaemetarecoded
+                            $final[$basename][] = array($res->name, $res->id, $url);
+                        }
+                    }
+                }
+            }
+        }
+        // print_r($final); echo "\n".count($final)."\n"; //good debug
+        return $final;
+    }
+    function update_CKAN_resource_using_EOL_resourceID($EOL_resource_id)
+    {
+        $id_name_list = self::generate_ckan_id_name_list();
+        if($reks = @$id_name_list[$EOL_resource_id]) { // print_r($reks);
+            /* Array(
+                [0] => Array(
+                        [0] => protisten.tar.gz (DwCA)
+                        [1] => 84c7f07a-8b39-467b-923e-b9e9ef5fa45a
+                        [2] => https://editors.eol.org/eol_php_code/applications/content_server/resources/protisten.tar.gz
+                    )
+            )*/
+            foreach($reks as $rek) { print_r($rek); exit;
+                /* Array(
+                    [0] => protisten.tar.gz (DwCA)
+                    [1] => 84c7f07a-8b39-467b-923e-b9e9ef5fa45a
+                    [2] => https://editors.eol.org/eol_php_code/applications/content_server/resources/protisten.tar.gz
+                )*/
+                if($ckan_resource_id = @$rek[1]) self::UPDATE_ckan_resource($ckan_resource_id, "Last updated"); //actual CKAN field is "last_modified"
+            }
+        }
+        else echo "\nResource ID [$EOL_resource_id] is not hosted in opendata.eol.org.\n";
+        // exit("\n--01\n");
     }
     function UPDATE_ckan_resource($ckan_resource_id, $field2update) //https://docs.ckan.org/en/ckan-2.7.3/api/
     {
