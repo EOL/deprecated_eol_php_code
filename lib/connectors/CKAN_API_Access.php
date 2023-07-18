@@ -69,13 +69,16 @@ class CKAN_API_Access
                         [2] => https://editors.eol.org/eol_php_code/applications/content_server/resources/protisten.tar.gz
                     )
             )*/
-            foreach($reks as $rek) { print_r($rek); exit;
+            foreach($reks as $rek) {
                 /* Array(
                     [0] => protisten.tar.gz (DwCA)
                     [1] => 84c7f07a-8b39-467b-923e-b9e9ef5fa45a
                     [2] => https://editors.eol.org/eol_php_code/applications/content_server/resources/protisten.tar.gz
                 )*/
-                if($ckan_resource_id = @$rek[1]) self::UPDATE_ckan_resource($ckan_resource_id, "Last updated"); //actual CKAN field is "last_modified"
+                if($ckan_resource_id = @$rek[1]) {
+                    print_r($rek);
+                    self::UPDATE_ckan_resource($ckan_resource_id, "Last updated"); //actual CKAN field is "last_modified"
+                }
             }
         }
         else echo "\nResource ID [$EOL_resource_id] is not hosted in opendata.eol.org.\n";
