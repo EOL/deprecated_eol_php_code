@@ -93,6 +93,10 @@ class CKAN_API_Access
             $desc = $rec['result']['description'];      echo "\nOld description: [".$desc."]\n";
             $desc = self::format_description($desc);    echo "\nNew description: [".$desc."]\n";
         }
+        else {
+            echo "\nERROR: Cannot access opendata.eol.org. Cannot update CKAN resource.\n";
+            return;
+        }
         // */
 
         /* step 2: update record */
