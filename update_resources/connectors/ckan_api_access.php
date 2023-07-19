@@ -1,8 +1,8 @@
 <?php
 namespace php_active_record;
 /* Command-line acces to CKAN API opendata.eol.org  --- for DATA-1885: CKAN metadata display adjustments 
-
-php update_resources/connectors/ckan_api_access.php _ "259b34c9-8752-4553-ab37-f85300daf8f2"
+e.g. Protisten.de
+php update_resources/connectors/ckan_api_access.php _ "84c7f07a-8b39-467b-923e-b9e9ef5fa45a"
 or 
 php update_resources/connectors/ckan_api_access.php _ "259b34c9-8752-4553-ab37-f85300daf8f2" "06/10/2023 19:30:00"
                                                                               that is for June 10, 2023 @ 7:30 PM
