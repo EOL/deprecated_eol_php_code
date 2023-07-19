@@ -22,6 +22,7 @@ andreas_kay_flickr	Tue 2022-02-15 06:12:06 PM	    {"agent.tab":1, "media_resourc
 
 andreas_kay_flickr	Mon 2023-04-03 12:19:06 PM	    {"agent.tab":1, "media_resource.tab":27847, "taxon.tab":3543, "time_elapsed":false}
 andreas_kay_flickr	Mon 2023-04-03 12:19:25 PM	    {"agent.tab":1, "media_resource.tab":27847, "taxon.tab":3309, "time_elapsed":{"sec":1842.72, "min":30.71, "hr":0.51}}
+andreas_kay_flickr	Wed 2023-07-19 09:14:22 AM	    {"agent.tab":1, "media_resource.tab":27847, "taxon.tab":3309, "time_elapsed":{"sec":1968.77, "min":32.81, "hr":0.55}}
 */
 
 ini_set('error_reporting', E_ALL);
