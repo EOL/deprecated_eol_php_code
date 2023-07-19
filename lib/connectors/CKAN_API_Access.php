@@ -20,7 +20,7 @@ class CKAN_API_Access
 
         echo "\n".$forced_date;
         echo "\n".$this->date_format;
-        echo "\n".$this->date_str;
+        echo "\n".$this->date_str."\n";
 
         $this->api_resource_show = "https://opendata.eol.org/api/3/action/resource_show?id=";
         // e.g. https://opendata.eol.org/api/3/action/resource_show?id=259b34c9-8752-4553-ab37-f85300daf8f2
@@ -38,7 +38,7 @@ class CKAN_API_Access
         if($json = Functions::lookup_with_cache($this->api_package_list, $options)) {
             $packages = json_decode($json);
             // print_r($packages); exit;
-            foreach($packages->result as $ckan_resource_id) {
+            foreach($packages->result as $ckan_resource_id) { // e.g. wikimedia
                 $options['expire_seconds'] = 60*60*24*30; //1 month expires
                 if($json = Functions::lookup_with_cache($this->api_package_show.$ckan_resource_id, $options)) {
                     $obj = json_decode($json);
@@ -172,7 +172,7 @@ class CKAN_API_Access
         echo "\n".date(DATE_ISO8601, strtotime($date_str));
         */
     }
-    function retrieve_ckan_resource_using_id($ckan_resource_id)
+    function retrieve_ckan_resource_using_id($ckan_resource_id) // e.g. 259b34c9-8752-4553-ab37-f85300daf8f2
     {
         $options = $this->download_options;
         // $options['expire_seconds'] = false; //during dev only
