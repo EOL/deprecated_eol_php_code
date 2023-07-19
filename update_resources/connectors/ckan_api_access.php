@@ -58,6 +58,11 @@ $ckan_resource_id           = @$argv[2];
 $forced_date                = @$argv[3];
 $file_type                  = @$argv[4];
 
+// /* for URL parameters:
+$ckan_resource_id = @get_val_var('ckan_resource_id');
+// https://editors.eol.org/eol_php_code/update_resources/connectors/ckan_api_access.php?ckan_resource_id=84c7f07a-8b39-467b-923e-b9e9ef5fa45a
+// */
+
 if(!$ckan_resource_id) exit("\nERROR: Incomplete parameters. No CKAN resource ID.\n");
 // $ckan_resource_id = "259b34c9-8752-4553-ab37-f85300daf8f2"; //during dev only
 if(!$file_type) $file_type = "EOL resource"; 
@@ -76,4 +81,11 @@ if($rec['success']) {
 */
 
 Functions::get_time_elapsed($timestart);
+function get_val_var($v)
+{
+    if     (isset($_GET["$v"])) $var = $_GET["$v"];
+    elseif (isset($_POST["$v"])) $var = $_POST["$v"];
+    if(isset($var)) return $var;
+    else return NULL;
+}
 ?>
