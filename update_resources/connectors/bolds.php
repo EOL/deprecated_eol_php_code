@@ -14,7 +14,11 @@ estimated execution time: 1 day, 6 hours in eol-archive
 81	Wed 2023-05-10 12:07:12 PM	    {"agent.tab":2824, "measurement_or_fact.tab":55981, "media_resource.tab":533590, "occurrence.tab":55981, "taxon.tab":393644, "time_elapsed":false}
 81	Fri 2023-05-12 10:36:29 PM      {"agent.tab":2833, "measurement_or_fact.tab":55986, "media_resource.tab":534443, "occurrence.tab":55986, "taxon.tab":393675, "time_elapsed":false}
 81	Mon 2023-05-15 04:53:22 PM	    {"agent.tab":2832, "measurement_or_fact.tab":55962, "media_resource.tab":534298, "occurrence.tab":55962, "taxon.tab":393762, "time_elapsed":false}
+Good steady increase:
 81	Mon 2023-05-22 01:35:55 AM	    {"agent.tab":2832, "measurement_or_fact.tab":55962, "media_resource.tab":534298, "occurrence.tab":55962, "taxon.tab":393765, "time_elapsed":false}
+81	Mon 2023-07-10 06:25:17 PM	{"agent.tab":2830, "measurement_or_fact.tab":55984, "media_resource.tab":535170, "occurrence.tab":55984, "taxon.tab":393793, "time_elapsed":false}
+81	Thu 2023-07-20 11:36:14 PM	{"agent.tab":2848, "measurement_or_fact.tab":56010, "media_resource.tab":535432, "occurrence.tab":56010, "taxon.tab":393876, "time_elapsed":false}
+But latest connector logs show some [parents without entries] n=38
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
