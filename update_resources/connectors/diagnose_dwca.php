@@ -130,8 +130,6 @@ print_r($debug);
 exit("\n-end-\n");
 // */
 
-
-
 //=========================================================
 // $func->check_unique_ids($resource_id); return;
 //=========================================================
@@ -143,7 +141,6 @@ exit("\n-end-\n");
 //=========================================================
 // $func->count_rows_in_text_file(DOC_ROOT."applications/genHigherClass/temp/GBIF_Taxa_accepted_pruned_final.tsv"); //2133912 total recs
 // $func->count_rows_in_text_file(DOC_ROOT."applications/genHigherClass/temp/GBIF_Taxa_accepted.tsv"); //3111830 total recs
-
 //=========================================================
 
 $elapsed_time_sec = time_elapsed() - $timestart;
@@ -156,21 +153,17 @@ function names_breakdown($resource_id)
 {
     $filename = CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id/taxon.tab";
     $i = 0;
-    foreach(new FileIterator($filename) as $line_number => $line)
-    {
+    foreach(new FileIterator($filename) as $line_number => $line) {
         $i++;
         $arr = explode("\t", $line);
-        if($i == 1)
-        {
+        if($i == 1) {
             $fields = $arr;
             // print_r($fields);
         }
-        else
-        {
+        else {
             $k = 0;
             $rec = array();
-            foreach($fields as $field)
-            {
+            foreach($fields as $field) {
                 if($val = @$arr[$k]) $rec[$field] = $val;
                 $k++;
             }
