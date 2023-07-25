@@ -843,7 +843,7 @@ class BOLDS_DumpsServiceAPI
     {
         $options = $this->download_options;
         $options['expire_seconds'] = 60*60*24*365; // 1 yr cache
-        if($json = Functions::lookup_with_cache($this->service['taxId2'].$id, $options)) {
+        if($json = Functions::lookup_with_cache($this->service["taxId2"].$id, $options)) {
             // http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic&includeTree=true&taxId=887622 --- e.g.
             $rec = json_decode($json, true);
             // print_r($rec); //exit; //good debug
@@ -871,7 +871,8 @@ class BOLDS_DumpsServiceAPI
                 $indexes = array_keys($rec);
                 foreach($indexes as $index) {
                     if($val = @$rec[$index]['taxid']) {
-                        if(stripos($rec[$index]['taxon'], "incertae") !== false) {} //string is found
+                        if($val == $id) continue;
+                        if(stripos($rec[$index]['taxon'], "incertae") !== false) continue; //string is found
                         else {
                             // /* code here to add taxon entry for parent if it doesn't exist yet 
                             self::add_taxon_if_doesnot_exist($rec[$index]);
