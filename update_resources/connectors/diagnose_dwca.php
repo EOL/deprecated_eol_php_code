@@ -33,6 +33,31 @@ Functions::file_rename($source, $destination);
 exit("\n\n");
 */
 
+/*
+$id = "1256558";
+$url = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic&includeTree=true&taxId=$id";
+if($json = Functions::lookup_with_cache($url)) {
+    $rec = json_decode($json, true);
+    print_r($rec); //exit; //good debug
+    if($val = @$rec[$id]['parentid']) {
+        print_r($rec[$val]); //$val is parent ID
+    }
+}
+exit("\n-end-\n");
+*/
+
+// /* this test assumes that this folder exists: /resources/$resource_id
+$resource_id = 81;
+require_library('connectors/DWCADiagnoseAPI');
+$func = new DWCADiagnoseAPI();
+if($undefined = $func->check_if_all_parents_have_entries($resource_id, true)) { //2nd param True means write to text file
+    $arr['parents without entries'] = $undefined;
+    print_r($arr);
+}
+else echo "\nAll parents have entries OK\n";
+exit("\n-end-\n");
+// */
+
 // /*
 $func = new DWCADiagnoseAPI();
 $resource_id = "71_big"; 
