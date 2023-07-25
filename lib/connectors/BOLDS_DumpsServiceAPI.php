@@ -109,6 +109,11 @@ class BOLDS_DumpsServiceAPI
         $this->tax_ids = array();       //release memory
         $this->img_tax_ids = array();   //release memory
         
+        /* new: Jul 25, 2023 - fo finally fix parents without entries --- can be added
+        $parent_ids = array_keys($this->parents_without_entries);
+        self::create_taxa_for_parents_without_entries($parent_ids);
+        */
+
         $this->archive_builder->finalize(true);
         self::start_print_debug();
         echo "\ncnt = $this->cnt \n";
@@ -313,7 +318,7 @@ class BOLDS_DumpsServiceAPI
     }
     private function add_needed_parent_entries($trials)
     {
-        echo "\nstart add_needed_parent_entries...\n";
+        echo "\nstart {add needed parent entries}...\n";
         require_library('connectors/DWCADiagnoseAPI');
         $func = new DWCADiagnoseAPI();
         $url = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id."_working" . "/taxon_working.tab";
