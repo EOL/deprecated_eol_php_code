@@ -167,7 +167,7 @@ class BOLDS_DumpsServiceAPI
             }
             // if($i >= 1000) break; //debug only
         }
-        // /* we no longer provide the parentNameUsageID
+        // /* if commented, we no longer provide the parentNameUsageID
         if($this->with_parent_id) {
             if($what == "write_taxon_archive") {
                 foreach(array_keys($higher_level_ids) as $taxid) {
