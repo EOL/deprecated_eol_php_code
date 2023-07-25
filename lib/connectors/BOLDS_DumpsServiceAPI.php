@@ -45,7 +45,7 @@ class BOLDS_DumpsServiceAPI
     function get_parents_without_entries()
     {
         $options = $this->download_options;
-        $options['expire_seconds'] = 60*60*24; //1 day
+        $options['expire_seconds'] = 60*60*12; //12 hrs cache
         if($contents = Functions::lookup_with_cache($this->parents_without_entries_file, $options)) {
             $IDs = explode("\n", $contents); //print_r($IDs); exit; 
             $IDs = array_map('trim', $IDs);
