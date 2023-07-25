@@ -64,13 +64,21 @@ class EOLHarvestPublishAPI
     {
         $file = CONTENT_RESOURCE_LOCAL_PATH . "reports/EOL_harvest_list.html";
         $WRITE = Functions::file_open($file, "w");
-        foreach($resource_ids_names_list as $id => $name) {
+        fwrite($WRITE, "EOL Harvested Resources &nbsp;&nbsp; n = ".count($resource_ids_names_list)."<br>\n");
+        $i = 0;
+        foreach($resource_ids_names_list as $id => $name) { $i++;
             // http://content.eol.org/resources/626
-            $row = "<a target='$id $name' href='http://content.eol.org/resources/$id'>$name</a><br>";
+            $num = self::format_number_with_leading_zeros($i, 5);
+            $row = "$num. <a target='$id $name' href='http://content.eol.org/resources/$id'>$name</a><br>";
             fwrite($WRITE, $row."\n");
         }
         fclose($WRITE);
     }
+    private function format_number_with_leading_zeros($num, $padding)
+    {
+        return str_pad($num, $padding, "_", STR_PAD_LEFT);
+    }
+
     /* not used
     private function get_all_in_between_inclusive($left, $right, $html)
     {
