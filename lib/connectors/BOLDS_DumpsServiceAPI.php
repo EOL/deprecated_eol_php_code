@@ -107,14 +107,21 @@ class BOLDS_DumpsServiceAPI
         // /* we no longer provide the parentNameUsageID since it is not scalable when doing thousands of API calls. Doable but not scalable
         if($this->with_parent_id) self::add_needed_parent_entries(1);
         // */
+
+        // /* special adding of parent entries: Jul 26, 2023
+        $special = array(73350, 3296, 26075, 26078, 296383, 413825) //not found in API but found in page.
+        foreach($special as $taxid) { //Result from DWCADiagnoseAPI->check_if_all_parents_have_entries
+            if($taxon_info = self::get_info_from_page($taxid)) {
+                echo "\Finally Scraped taxon info [$taxid]\n";
+                self::create_taxon_archive($taxon_info);
+            }
+            else echo "\nStill Cannot salvage this parent id ($taxid)";    
+        }        
+        // */
+
         $this->tax_ids = array();       //release memory
         $this->img_tax_ids = array();   //release memory
         
-        /* new: Jul 25, 2023 - fo finally fix parents without entries --- can be added
-        $parent_ids = array_keys($this->parents_without_entries);
-        self::create_taxa_for_parents_without_entries($parent_ids);
-        */
-
         $this->archive_builder->finalize(true);
         self::start_print_debug();
         echo "\ncnt = $this->cnt \n";
@@ -220,7 +227,7 @@ class BOLDS_DumpsServiceAPI
         
         /* commented since it still triggers API calls that are not scalable
         //create trait
-        if($json = Functions::lookup_with_cache($this->service['taxId'].$a['taxid'], $this->download_options)) {
+        if($json = Functions::lookup_with_cache($this->service["taxId"].$a['taxid'], $this->download_options)) {
             $rec = json_decode($json, true);
             $rec = @$rec[$taxid]; //needed
             if(@$rec['taxon']) {
@@ -705,7 +712,7 @@ class BOLDS_DumpsServiceAPI
                     [taxonrep] => Mollusca
         [sitemap] => http://www.boldsystems.org/index.php/TaxBrowser_Maps_CollectionSites?taxid=2
         */
-        if($json = Functions::lookup_with_cache($this->service['taxId'].$taxid, $this->download_options)) {
+        if($json = Functions::lookup_with_cache($this->service["taxId"].$taxid, $this->download_options)) {
             $a = json_decode($json, true);
             // print_r($a); echo "\n[$taxid]\n"; //exit;
             $a = @$a[$taxid]; //needed
@@ -819,20 +826,21 @@ class BOLDS_DumpsServiceAPI
         $taxon->scientificName      = $a['taxon'];
         $taxon->taxonRank           = $a['tax_rank'];
         $taxon->parentNameUsageID   = $a['parentid'];
-        if($taxon->parentNameUsageID == 1) {
-            $taxon->parentNameUsageID .= "_".$a['tax_division'];
-        }
-
-        // /* manual 
-        if($taxon->parentNameUsageID == '1_Animalia') $taxon->parentNameUsageID = '1_Animals';
-        if($taxon->parentNameUsageID == '1_Plantae') $taxon->parentNameUsageID = '1_Plants';
-        if($taxon->parentNameUsageID == '1_Protista') $taxon->parentNameUsageID = '1_Protists';
-        // */
         
+        // if($taxon->parentNameUsageID == 1) {
+        //     if($val = @$a['tax_division']) $taxon->parentNameUsageID .= "_".$val;
+        //     else                           $taxon->parentNameUsageID = '';
+        // }
+        // // /* manual 
+        // if($taxon->parentNameUsageID == '1_Animalia') $taxon->parentNameUsageID = '1_Animals';
+        // if($taxon->parentNameUsageID == '1_Plantae') $taxon->parentNameUsageID = '1_Plants';
+        // if($taxon->parentNameUsageID == '1_Protista') $taxon->parentNameUsageID = '1_Protists';
+        // // */
+
         // /* parent id process:
         $parentNameUsageID = (string) $taxon->parentNameUsageID;
         $taxonID           = (string) $taxon->taxonID;
-        $taxon = self::format_parent_id($taxon, $parentNameUsageID, $taxonID);
+        $taxon = self::format_parent_id($taxon, $parentNameUsageID, $taxonID, @$a['tax_division']);
         // */
 
         /* no data for:
@@ -843,14 +851,26 @@ class BOLDS_DumpsServiceAPI
         $this->taxon_ids[$taxon->taxonID] = '';
         $this->archive_builder->write_object_to_file($taxon);
     }
-    private function format_parent_id($taxon, $parentNameUsageID, $taxonID)
+    private function format_parent_id($taxon, $parentNameUsageID, $taxonID, $tax_div = "")
     {
-        if(isset($this->parents_without_entries[$parentNameUsageID])) { //print("\n----- goes here... -----\n");
-            if($val = self::lookup_parentID_using_api($taxonID)) $taxon->parentNameUsageID = $val;
-            else {
-                $taxon->parentNameUsageID = '';
-                $this->debug['no found parent for'][$taxonID] = '';
-            }
+        if($parentNameUsageID == 1) {
+            if($tax_div) $parentNameUsageID .= "_".$tax_div;
+            else         $parentNameUsageID = '';
+        }
+        // /* manual 
+        if($parentNameUsageID == '1_Animalia')  $taxon->parentNameUsageID = '1_Animals';
+        if($parentNameUsageID == '1_Plantae')   $taxon->parentNameUsageID = '1_Plants';
+        if($parentNameUsageID == '1_Protista')  $taxon->parentNameUsageID = '1_Protists';
+        // */
+
+        if($parentNameUsageID) {
+            if(isset($this->parents_without_entries[$parentNameUsageID])) { //print("\n----- goes here... -----\n");
+                if($val = self::lookup_parentID_using_api($taxonID)) $taxon->parentNameUsageID = $val;
+                else {
+                    $taxon->parentNameUsageID = '';
+                    $this->debug['no found parent for'][$taxonID] = '';
+                }
+            }    
         }
         return $taxon;
     }
@@ -909,7 +929,7 @@ class BOLDS_DumpsServiceAPI
         // /* parent id process:
         $parentNameUsageID = (string) $taxon->parentNameUsageID;
         $taxonID           = (string) $taxon->taxonID;
-        $taxon = self::format_parent_id($taxon, $parentNameUsageID, $taxonID);
+        $taxon = self::format_parent_id($taxon, $parentNameUsageID, $taxonID, @$a['tax_division']);
         // */
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->taxon_ids[$taxon->taxonID] = '';
