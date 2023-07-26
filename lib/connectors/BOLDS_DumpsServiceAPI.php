@@ -143,7 +143,10 @@ class BOLDS_DumpsServiceAPI
                     elseif($what == "write_taxon_archive")
                     {
                         if($this->with_parent_id) self::create_taxon_archive($sci);
-                        else                      self::create_taxon_archive_from_dump($sci);
+                        else {
+                            exit("\nWill terminate. Should not go here.\n");
+                            self::create_taxon_archive_from_dump($sci);
+                        }
                     }
                 }
                 // if($what == "write_taxon_archive") self::create_taxon_higher_level_archive($rec); //obsolete
@@ -182,7 +185,7 @@ class BOLDS_DumpsServiceAPI
         // */
         return $txt_file;
     }
-    private function create_taxon_archive_from_dump($a)
+    private function create_taxon_archive_from_dump($a) //does not go here anymore
     {
         /* Array(
             [taxid] => 256937
@@ -199,7 +202,7 @@ class BOLDS_DumpsServiceAPI
             [parentid] => 101071
             [tax_division] => Animals
         )*/
-        $taxon = new \eol_schema\Taxon();
+        $taxon = new \eol_schema\Taxon(); //1 --- does not go here anymore
         $taxon->taxonID             = $a['taxid'];
         $taxon->scientificName      = $a['taxon'];
         $taxon->taxonRank           = $a['tax_rank'];
@@ -811,7 +814,7 @@ class BOLDS_DumpsServiceAPI
         [tax_division] => Animals
         [parentid] => 1
         */
-        $taxon = new \eol_schema\Taxon();
+        $taxon = new \eol_schema\Taxon(); //2
         $taxon->taxonID             = $a['taxid'];
         $taxon->scientificName      = $a['taxon'];
         $taxon->taxonRank           = $a['tax_rank'];
@@ -825,17 +828,12 @@ class BOLDS_DumpsServiceAPI
         if($taxon->parentNameUsageID == '1_Plantae') $taxon->parentNameUsageID = '1_Plants';
         if($taxon->parentNameUsageID == '1_Protista') $taxon->parentNameUsageID = '1_Protists';
         // */
-
+        
+        // /* parent id process:
         $parentNameUsageID = (string) $taxon->parentNameUsageID;
         $taxonID           = (string) $taxon->taxonID;
-        if(isset($this->parents_without_entries[$parentNameUsageID])) { //print("\n----- goes here... -----\n");
-            // print_r($taxon);
-            if($val = self::lookup_parentID_using_api($taxonID)) $taxon->parentNameUsageID = $val;
-            else {
-                $taxon->parentNameUsageID = '';
-                $this->debug['no found parent for'][$taxonID] = '';
-            }
-        }
+        $taxon = self::format_parent_id($taxon, $parentNameUsageID, $taxonID);
+        // */
 
         /* no data for:
         $taxon->taxonomicStatus          = '';
@@ -844,6 +842,17 @@ class BOLDS_DumpsServiceAPI
         if(isset($this->taxon_ids[$taxon->taxonID])) return;
         $this->taxon_ids[$taxon->taxonID] = '';
         $this->archive_builder->write_object_to_file($taxon);
+    }
+    private function format_parent_id($taxon, $parentNameUsageID, $taxonID)
+    {
+        if(isset($this->parents_without_entries[$parentNameUsageID])) { //print("\n----- goes here... -----\n");
+            if($val = self::lookup_parentID_using_api($taxonID)) $taxon->parentNameUsageID = $val;
+            else {
+                $taxon->parentNameUsageID = '';
+                $this->debug['no found parent for'][$taxonID] = '';
+            }
+        }
+        return $taxon;
     }
     function lookup_parentID_using_api($id)
     {
@@ -892,11 +901,16 @@ class BOLDS_DumpsServiceAPI
     }
     private function add_taxon_if_doesnot_exist($a)
     {
-        $taxon = new \eol_schema\Taxon();
+        $taxon = new \eol_schema\Taxon(); //3
         $taxon->taxonID             = $a['taxid'];
         $taxon->scientificName      = $a['taxon'];
         $taxon->taxonRank           = $a['tax_rank'];
         $taxon->parentNameUsageID   = $a['parentid'];
+        // /* parent id process:
+        $parentNameUsageID = (string) $taxon->parentNameUsageID;
+        $taxonID           = (string) $taxon->taxonID;
+        $taxon = self::format_parent_id($taxon, $parentNameUsageID, $taxonID);
+        // */
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->taxon_ids[$taxon->taxonID] = '';
                 $this->archive_builder->write_object_to_file($taxon);
@@ -915,7 +929,7 @@ class BOLDS_DumpsServiceAPI
         $add['1_Fungi'] = 'Fungi';
         $add['1_Protists'] = 'Protista';
         foreach($add as $taxid => $sciname) {
-            $taxon = new \eol_schema\Taxon();
+            $taxon = new \eol_schema\Taxon(); //4
             $taxon->taxonID             = $taxid;
             $taxon->scientificName      = $sciname;
             $taxon->taxonRank           = 'kingdom';
