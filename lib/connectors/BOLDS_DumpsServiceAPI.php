@@ -109,7 +109,7 @@ class BOLDS_DumpsServiceAPI
         // */
 
         // /* special adding of parent entries: Jul 26, 2023
-        $special = array(73350, 3296, 26075, 26078, 296383, 413825) //not found in API but found in page.
+        $special = array(73350, 3296, 26075, 26078, 296383, 413825); //not found in API but found in page.
         foreach($special as $taxid) { //Result from DWCADiagnoseAPI->check_if_all_parents_have_entries
             if($taxon_info = self::get_info_from_page($taxid)) {
                 echo "\Finally Scraped taxon info [$taxid]\n";
