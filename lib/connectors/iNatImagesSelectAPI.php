@@ -405,11 +405,11 @@ class iNatImagesSelectAPI
         )*/
 
         if($arr['score'] >= 2000) { //no need to divide-and-score, big image score is already high
-            echo "-2K-";
+            // echo "-2K-";
             return $arr;
         }
         
-        if(!file_exists(@$arr['local'])) { echo "-R-"; //exit; //Needs to re-download image again...
+        if(!file_exists(@$arr['local'])) { //echo "-R-"; //exit; //Needs to re-download image again...
             if($arr['local'] = self::download_image($arr['url'])) {} // echo "\ndownloaded: [$target]\n";
             else {
                 echo "\nCannot download [$url]. May need to report to iNaturalist 2.\n";
@@ -434,7 +434,7 @@ class iNatImagesSelectAPI
         // convert -crop 25%x25% input.png output.png --- this divides the image input.png into 16 equal parts.
         $cmd = "convert -crop 25%x25% ".$arr['local']." $destination"; //divided by 16
         // $cmd = "convert -crop 50%x50% ".$arr['local']." $destination"; //divided by 4
-        shell_exec($cmd); //generates parts-0.jpg to parts-15.jpg
+        shell_exec($cmd); echo "-I-"; //generates parts-0.jpg to parts-15.jpg
 
         /* step 2: start loop of 16 parts
         // unlink($arr['local']);
@@ -457,12 +457,12 @@ class iNatImagesSelectAPI
     {
         if(!$image_repo) $image_repo = $this->temp_image_repo;
         if($target = self::download_image($url)) { // echo "\ndownloaded: [$target]\n";
-            echo "-*-";
+            // echo "-*-";
             $py_script = str_ireplace("/eol_images", "", $this->temp_image_repo);
             $py_script .= "detect_blur.py";
             $cmd = 'python '.$py_script.' --images '.$image_repo.' --threshold '.$threshold; //with or without threshold since we are just after the score
             // echo "\naccessURI: [$url]\n"; // echo "\ncmd:\n[$cmd]\n";
-            $output = shell_exec($cmd); // echo "\nRequest output:\n$output\n";
+            $output = shell_exec($cmd); echo "-P-"; // echo "\nRequest output:\n$output\n";
             $arr = array("score" => trim($output), "url" => $url, "local" => $target); // print_r($arr);
             /* won't be deleted here anymore:
             unlink($target); //delete temp downloaded image e.g. 17796c5772dbfc3e53d48e881fbb3c1e.jpeg
@@ -479,7 +479,7 @@ class iNatImagesSelectAPI
             $py_script = str_ireplace("/eol_images", "", $this->temp_image_repo);
             $py_script .= "detect_blur.py";
             $cmd = 'python '.$py_script.' --images '.$image_repo.' --threshold '.$threshold; //with or without threshold since we are just after the score
-            $output = shell_exec($cmd); // echo "\nRequest output:\n$output\n";
+            $output = shell_exec($cmd); echo "-P2-"; // echo "\nRequest output:\n$output\n";
             // /* convert string output to array()
             $output = str_ireplace($image_repo, "", $output);
             $arr = explode("\n", $output);
@@ -518,7 +518,7 @@ class iNatImagesSelectAPI
             // sleep(1); //delay for 1 second
             $cmd = WGET_PATH . " $url -O ".$target; //wget -nc --> means 'no overwrite'
             $cmd .= " 2>&1";
-            $shell_debug = shell_exec($cmd);
+            $shell_debug = shell_exec($cmd); echo "-D-";
             if(stripos($shell_debug, "ERROR 404: Not Found") !== false) { //string is found
                 if(file_exists($target)) unlink($target);
                 return false;
