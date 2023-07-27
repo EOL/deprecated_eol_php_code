@@ -892,7 +892,7 @@ class BOLDS_DumpsServiceAPI
             // print_r($rec); //exit; //good debug
             if($val = @$rec[$id]['parentid']) {
                 // /* code here to add taxon entry for parent if it doesn't exist yet 
-                self::add_taxon_if_doesnot_exist($rec[$val]); //$val is parent ID
+                self::add_taxon_if_doesnot_exist(@$rec[$val]); //$val is parent ID
                 // */                
                 return $val;
             }
@@ -928,7 +928,7 @@ class BOLDS_DumpsServiceAPI
         }
     }
     private function add_taxon_if_doesnot_exist($a)
-    {
+    {   if(!$a) return;
         $taxon = new \eol_schema\Taxon(); //3
         $taxon->taxonID             = $a['taxid'];
         $taxon->scientificName      = $a['taxon'];
