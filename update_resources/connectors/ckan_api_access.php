@@ -58,12 +58,25 @@ $ckan_resource_id           = @$argv[2];
 $forced_date                = @$argv[3];
 $file_type                  = @$argv[4];
 
-// /* for URL parameters:
-$ckan_resource_id = @get_val_var('ckan_resource_id');
-// https://editors.eol.org/eol_php_code/update_resources/connectors/ckan_api_access.php?ckan_resource_id=84c7f07a-8b39-467b-923e-b9e9ef5fa45a
-// */
+print_r($argv); //exit("\n");
 
-if(!$ckan_resource_id) exit("\nERROR: Incomplete parameters. No CKAN resource ID.\n");
+// /* for URL parameters:
+if(!$ckan_resource_id) $ckan_resource_id = @get_val_var('ckan_resource_id');
+// */
+/* worked OK using browser access:
+e.g. protisten.de
+https://editors.eol.org/eol_php_code/update_resources/connectors/ckan_api_access.php?ckan_resource_id=84c7f07a-8b39-467b-923e-b9e9ef5fa45a
+e.g. all-trait dump
+https://editors.eol.org/eol_php_code/update_resources/connectors/ckan_api_access.php?ckan_resource_id=6e24f0df-56ee-470f-b81e-e5a367a65bfb
+*/
+/* worked OK using curl in command-line:
+e.g. protisten
+curl https://editors.eol.org/eol_php_code/update_resources/connectors/ckan_api_access.php -d ckan_resource_id=84c7f07a-8b39-467b-923e-b9e9ef5fa45a
+e.g. all-trait dump
+curl https://editors.eol.org/eol_php_code/update_resources/connectors/ckan_api_access.php -d ckan_resource_id=6e24f0df-56ee-470f-b81e-e5a367a65bfb
+*/
+
+if(!$ckan_resource_id) exit("\nERROR: Incomplete parameters. No CKAN resource ID. [$ckan_resource_id]\n");
 // $ckan_resource_id = "259b34c9-8752-4553-ab37-f85300daf8f2"; //during dev only
 if(!$file_type) $file_type = "EOL resource"; 
 
