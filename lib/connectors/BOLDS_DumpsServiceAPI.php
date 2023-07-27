@@ -854,23 +854,27 @@ class BOLDS_DumpsServiceAPI
     private function format_parent_id($taxon, $parentNameUsageID, $taxonID, $tax_div = "")
     {
         if($parentNameUsageID == 1) {
-            if($tax_div) $parentNameUsageID .= "_".$tax_div;
-            else         $parentNameUsageID = '';
+            if($tax_div) {
+                $parentNameUsageID .= "_".$tax_div;
+                if($parentNameUsageID == '1_Animalia')  $taxon->parentNameUsageID = '1_Animals';
+                elseif($parentNameUsageID == '1_Plantae')   $taxon->parentNameUsageID = '1_Plants';
+                elseif($parentNameUsageID == '1_Protista')  $taxon->parentNameUsageID = '1_Protists';
+                else exit("\nUn-initialized Kingdom [$parentNameUsageID]\n");
+            }
+            else $taxon->parentNameUsageID = ''; //change 1 to ''
         }
-        // /* manual 
-        if($parentNameUsageID == '1_Animalia')  $taxon->parentNameUsageID = '1_Animals';
-        if($parentNameUsageID == '1_Plantae')   $taxon->parentNameUsageID = '1_Plants';
-        if($parentNameUsageID == '1_Protista')  $taxon->parentNameUsageID = '1_Protists';
-        // */
-
-        if($parentNameUsageID) {
-            if(isset($this->parents_without_entries[$parentNameUsageID])) { //print("\n----- goes here... -----\n");
-                if($val = self::lookup_parentID_using_api($taxonID)) $taxon->parentNameUsageID = $val;
-                else {
-                    $taxon->parentNameUsageID = '';
-                    $this->debug['no found parent for'][$taxonID] = '';
+        else { //not 1
+            if($parentNameUsageID) {
+                if(isset($this->parents_without_entries[$parentNameUsageID])) { //print("\n----- goes here... -----\n");
+                    if($val = self::lookup_parentID_using_api($taxonID)) $taxon->parentNameUsageID = $val;
+                    else {
+                        $taxon->parentNameUsageID = '';
+                        $this->debug['no found parent for'][$taxonID] = '';
+                    }
                 }
-            }    
+                else $taxon->parentNameUsageID = $parentNameUsageID; //regular assignment
+            }
+            else $taxon->parentNameUsageID = $parentNameUsageID; //assumes $parentNameUsageID is blank or ''    
         }
         return $taxon;
     }
