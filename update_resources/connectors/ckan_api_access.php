@@ -59,6 +59,7 @@ $forced_date                = @$argv[3];
 $file_type                  = @$argv[4];
 
 print_r($argv); //exit("\n");
+if(substr($ckan_resource_id,0,17) == "ckan_resource_id=") $ckan_resource_id = "";
 
 // /* for URL parameters:
 if(!$ckan_resource_id) $ckan_resource_id = @get_val_var('ckan_resource_id');
@@ -72,6 +73,8 @@ https://editors.eol.org/eol_php_code/update_resources/connectors/ckan_api_access
 /* worked OK using curl in command-line:
 e.g. protisten
 curl https://editors.eol.org/eol_php_code/update_resources/connectors/ckan_api_access.php -d ckan_resource_id=84c7f07a-8b39-467b-923e-b9e9ef5fa45a
+curl http://localhost/eol_php_code/update_resources/connectors/ckan_api_access.php -d ckan_resource_id=84c7f07a-8b39-467b-923e-b9e9ef5fa45a
+
 e.g. all-trait dump
 curl https://editors.eol.org/eol_php_code/update_resources/connectors/ckan_api_access.php -d ckan_resource_id=6e24f0df-56ee-470f-b81e-e5a367a65bfb
 */
