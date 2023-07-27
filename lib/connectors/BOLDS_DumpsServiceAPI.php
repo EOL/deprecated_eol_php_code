@@ -911,19 +911,23 @@ class BOLDS_DumpsServiceAPI
                         )
                     ...
                 */
+                /* finally commented it Jul 27, 2023
+                // ===== this block ===== the sought parent of an $id is not available from api. Thus it gets the next...
                 $indexes = array_keys($rec);
                 foreach($indexes as $index) {
                     if($val = @$rec[$index]['taxid']) {
                         if($val == $id) continue;
                         if(stripos($rec[$index]['taxon'], "incertae") !== false) continue; //string is found
                         else {
-                            // /* code here to add taxon entry for parent if it doesn't exist yet 
+                            // code here to add taxon entry for parent if it doesn't exist yet 
                             self::add_taxon_if_doesnot_exist($rec[$index]);
-                            // */
+                            //
                             return $val;
                         }
                     }
                 }
+                // ===== block ends here =====
+                */
             }
         }
     }
