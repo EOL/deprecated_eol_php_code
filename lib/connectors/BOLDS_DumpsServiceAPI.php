@@ -859,6 +859,9 @@ class BOLDS_DumpsServiceAPI
                 if($parentNameUsageID == '1_Animalia')  $taxon->parentNameUsageID = '1_Animals';
                 elseif($parentNameUsageID == '1_Plantae')   $taxon->parentNameUsageID = '1_Plants';
                 elseif($parentNameUsageID == '1_Protista')  $taxon->parentNameUsageID = '1_Protists';
+                elseif($parentNameUsageID == '1_Animals')  $taxon->parentNameUsageID = '1_Animals';
+                elseif($parentNameUsageID == '1_Plants')   $taxon->parentNameUsageID = '1_Plants';
+                elseif($parentNameUsageID == '1_Protists')  $taxon->parentNameUsageID = '1_Protists';
                 else exit("\nUn-initialized Kingdom [$parentNameUsageID]\n");
             }
             else $taxon->parentNameUsageID = ''; //change 1 to ''
