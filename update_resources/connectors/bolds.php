@@ -16,9 +16,11 @@ estimated execution time: 1 day, 6 hours in eol-archive
 81	Mon 2023-05-15 04:53:22 PM	    {"agent.tab":2832, "measurement_or_fact.tab":55962, "media_resource.tab":534298, "occurrence.tab":55962, "taxon.tab":393762, "time_elapsed":false}
 Good steady increase:
 81	Mon 2023-05-22 01:35:55 AM	    {"agent.tab":2832, "measurement_or_fact.tab":55962, "media_resource.tab":534298, "occurrence.tab":55962, "taxon.tab":393765, "time_elapsed":false}
-81	Mon 2023-07-10 06:25:17 PM	{"agent.tab":2830, "measurement_or_fact.tab":55984, "media_resource.tab":535170, "occurrence.tab":55984, "taxon.tab":393793, "time_elapsed":false}
-81	Thu 2023-07-20 11:36:14 PM	{"agent.tab":2848, "measurement_or_fact.tab":56010, "media_resource.tab":535432, "occurrence.tab":56010, "taxon.tab":393876, "time_elapsed":false}
+81	Mon 2023-07-10 06:25:17 PM	    {"agent.tab":2830, "measurement_or_fact.tab":55984, "media_resource.tab":535170, "occurrence.tab":55984, "taxon.tab":393793, "time_elapsed":false}
+81	Thu 2023-07-20 11:36:14 PM	    {"agent.tab":2848, "measurement_or_fact.tab":56010, "media_resource.tab":535432, "occurrence.tab":56010, "taxon.tab":393876, "time_elapsed":false}
 But latest connector logs show some [parents without entries] n=38
+81	Wed 2023-07-26 04:27:03 PM	    {"agent.tab":2848, "measurement_or_fact.tab":56098, "media_resource.tab":535388, "occurrence.tab":56098, "taxon.tab":393945, "time_elapsed":false}
+81	Thu 2023-07-27 12:33:25 PM	    {"agent.tab":2848, "measurement_or_fact.tab":56136, "media_resource.tab":535446, "occurrence.tab":56136, "taxon.tab":393943, "time_elapsed":false}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
