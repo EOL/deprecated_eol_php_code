@@ -45,7 +45,7 @@ inat_images_100limit	Tue 2023-02-28 1{"agent.tab":230904, "media_resource.tab":1
 inat_images_3Mcap_2	Sun 2022-04-24 09:52:43 AM	{"agent.tab":97678, "media_resource.tab":3000000, "taxon.tab":290388, "time_elapsed":{"sec":26738.75, "min":445.65, "hr":7.43}}
 inat_images_3Mcap_2	Mon 2022-04-25 11:35:25 PM	{"agent.tab":97678, "media_resource.tab":3000000, "taxon.tab":290388, "time_elapsed":{"sec":13667.16, "min":227.79, "hr":3.8}}
 inat_images_3Mcap_2	Sun 2023-03-19 11:16:15 PM	{"agent.tab":107373, "media_resource.tab":3000000, "taxon.tab":334729, "time_elapsed":{"sec":1404648.99, "min":23410.82, "hr":390.18, "day":16.26}}
-
+inat_images_3Mcap_2	Thu 2023-07-27 09:32:53 AM	{"agent.tab":111960, "media_resource.tab":3000000, "taxon.tab":352217, "time_elapsed":{"sec":293618.79, "min":4893.65, "hr":81.56, "day":3.4}}
 Size history:
 225159643 Mar 19 23:15 inat_images_3Mcap_2.tar.gz
 */
