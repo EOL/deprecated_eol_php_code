@@ -63,6 +63,7 @@ if(substr($ckan_resource_id,0,17) == "ckan_resource_id=") $ckan_resource_id = ""
 
 // /* for URL parameters:
 if(!$ckan_resource_id) $ckan_resource_id = @get_val_var('ckan_resource_id');
+if(!$file_type)        $file_type        = @get_val_var('file_type');
 // */
 /* worked OK using browser access:
 e.g. protisten.de
@@ -77,6 +78,13 @@ curl http://localhost/eol_php_code/update_resources/connectors/ckan_api_access.p
 
 e.g. all-trait dump
 curl https://editors.eol.org/eol_php_code/update_resources/connectors/ckan_api_access.php -d ckan_resource_id=6e24f0df-56ee-470f-b81e-e5a367a65bfb
+
+below is Somalia
+https://editors.eol.org/eol_php_code/update_resources/connectors/ckan_api_access.php?ckan_resource_id=a7cf949b-3d47-45cb-b24a-50b7c09085e6
+
+another option:
+curl -sS 'https://editors.eol.org/eol_php_code/update_resources/connectors/ckan_api_access.php?ckan_resource_id=a7cf949b-3d47-45cb-b24a-50b7c09085e6&file_type=EOL file'
+
 */
 
 if(!$ckan_resource_id) exit("\nERROR: Incomplete parameters. No CKAN resource ID. [$ckan_resource_id]\n");
