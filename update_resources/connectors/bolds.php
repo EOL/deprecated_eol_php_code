@@ -21,6 +21,7 @@ Good steady increase:
 But latest connector logs show some [parents without entries] n=38
 81	Wed 2023-07-26 04:27:03 PM	    {"agent.tab":2848, "measurement_or_fact.tab":56098, "media_resource.tab":535388, "occurrence.tab":56098, "taxon.tab":393945, "time_elapsed":false}
 81	Thu 2023-07-27 12:33:25 PM	    {"agent.tab":2848, "measurement_or_fact.tab":56136, "media_resource.tab":535446, "occurrence.tab":56136, "taxon.tab":393943, "time_elapsed":false}
+81	Fri 2023-07-28 02:55:13 PM	    {"agent.tab":2848, "measurement_or_fact.tab":56136, "media_resource.tab":535446, "occurrence.tab":56136, "taxon.tab":393943, "time_elapsed":false}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
