@@ -505,6 +505,9 @@ class iNatImagesSelectAPI
     }
     private function download_image($url)
     {   //wget -nc https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /Volumes/AKiTiO4/other_files/bundle_images/xxx/740.027116-1.jpg
+        // /* New: Aug 1, 2023
+        if(isset($this->broken_images[$url])) return false;
+        // */
         $filename = md5($url);
         $ext = pathinfo($url, PATHINFO_EXTENSION);
         if(!$ext) $ext = 'jpg';
