@@ -9,6 +9,8 @@ php update_resources/connectors/ckan_api_access.php _ "259b34c9-8752-4553-ab37-f
 
 php update_resources/connectors/ckan_api_access.php _ "6e24f0df-56ee-470f-b81e-e5a367a65bfb" "07/08/2023 21:41:00" "EOL file"
 -> All trait dump file.                                                           --- that is Jul 8, 2023 9:41 PM
+
+IMPORTANT: ALWAYS "chmod 775 ckan_api_access.php" AFTER UPDATE EOL-ARCHIVE
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
