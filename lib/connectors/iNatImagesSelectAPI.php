@@ -40,7 +40,11 @@ class iNatImagesSelectAPI
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
-    {
+    {   
+        // /* New: Aug 1, 2023: Get list of broken image URLs
+        self::get_inat_broken_images_list(); //generates $this->broken_images
+        // */
+
         $tables = $info['harvester']->tables; // print_r($tables); exit;
         $extensions = array_keys($tables); //print_r($extensions); exit;
         /*Array(
@@ -531,6 +535,19 @@ class iNatImagesSelectAPI
             if(file_exists($target)) unlink($target);
             return false;
         }
+    }
+    private function get_inat_broken_images_list()
+    {
+        $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/iNaturalist/CannotDownloadInatImages.txt";
+        $string = Functions::lookup_with_cache($url);
+        $arr = explode("\n", $string);
+        $arr = array_filter($arr);      //remove null arrays
+        // $arr = array_unique($arr);   //make unique
+        $arr = array_values($arr);      //reindex key
+        echo("\nTotal broken images: ".count($arr)."\n");
+        foreach($arr as $url) $this->broken_images[$url] = '';
+        echo("\nTotal broken images: ".count($this->broken_images)."\n"); // print_r($this->broken_images);
+        // exit("\nelix\n");
     }
 }
 ?>
