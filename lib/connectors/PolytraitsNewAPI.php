@@ -228,18 +228,36 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             // print_r($rec); exit("\n[$mType] [$mValue]\n");
 
             // /* New: filters by Jen - email from Aug 1, 2023. Eli moved it to Jira: https://eol-jira.bibalex.org/browse/DATA-1919?focusedCommentId=67704&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67704
-            $ret = self::format_trait($rec, $mValue, $mType);
-            $rec    = $ret['rec'];
-            $mValue = $ret['mValue'];
-            $mType  = $ret['mType'];
+            if($ret = self::format_trait($rec, $mValue, $mType)) {
+                $rec    = $ret['rec'];
+                $mValue = $ret['mValue'];
+                $mType  = $ret['mType'];    
+            }
+            else continue;
             // */
 
             $this->func->add_string_types($rec, $mValue, $mType, "true");
-        }
+        } //end foreach()
     }
     private function format_trait($rec, $mValue, $mType)
-    {
+    {   
+        /* Array(
+            [taxon_id] => 1960
+            [catnum] => a75b7e956513d683f8a35f774e8d9d55
+            [measurementDeterminedDate] => 2014-02-18 14:51:07
+            [measurementRemarks] => p41:"In Abarenicola pacifica(as Abarenicola claparedii), the males discharge simple spermatophores into the water. These may enter the tube of a female and burst when struck by her chaetae. The fertilised eggs form an "egg tube" around the mid -region of the female"
+            [source] => http://polytraits.lifewatchgreece.eu/taxonpage/1960
+            [bibliographicCitation] => Polytraits Team (2023). Polytraits: A database on biological traits of polychaetes.. LifewatchGreece, Hellenic Centre for Marine Research. Accessed on 2023-05-30. Available from http://polytraits.lifewatchgreece.eu
+            [contributor] => https://orcid.org/0000-0001-6775-530X
+            [referenceID] => 20d61805546c4690300a8051699ec4d4
+        )
+        mType  = [http://purl.obolibrary.org/obo/GO_0060746] 
+        mValue = [http://polytraits.lifewatchgreece.eu/terms/BP_YES] */
 
+        /* measurementTypes
+        http://purl.obolibrary.org/obo/GO_0044402, http://eol.org/schema/terms/preysUpon, http://polytraits.lifewatchgreece.eu/terms/PRED, 
+        http://polytraits.lifewatchgreece.eu/terms/EP_PAR,  http://polytraits.lifewatchgreece.eu/terms/SOC:  filter out; we get these through GloBI */
+        
     }
     function get_name_info($sciname)
     {   if(!$sciname) return;
