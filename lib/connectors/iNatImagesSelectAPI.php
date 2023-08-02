@@ -527,9 +527,21 @@ class iNatImagesSelectAPI
             $cmd .= " 2>&1";
             $shell_debug = shell_exec($cmd); echo "-D-";
             if(stripos($shell_debug, "ERROR 404: Not Found") !== false) { //string is found
-                if(file_exists($target)) unlink($target);
-                return false;
-                exit("\nURL path does not exist.\n$url\n\n");
+                // /* New: Aug 2: try again, switch domain
+                $shell_debug = self::try_download_again_switch_domain($url, $target);
+                // */
+                if($shell_debug) {
+                    if(stripos($shell_debug, "ERROR 404: Not Found") !== false) { //string is found
+                        if(file_exists($target)) unlink($target);
+                        return false;
+                        // exit("\nURL path does not exist.\n$url\n\n");
+                    }
+                    else {} //here means domain switching was successful
+                }
+                else {
+                    if(file_exists($target)) unlink($target);
+                    return false;
+                }
             }
             // echo "\n---\n".trim($shell_debug)."\n---\n"; //exit;
         }
@@ -537,6 +549,33 @@ class iNatImagesSelectAPI
         else {
             if(file_exists($target)) unlink($target);
             return false;
+        }
+    }
+    private function try_download_again_switch_domain($orig_url, $target)
+    {
+        if($new_url = self::switch_domain_on_image_url($orig_url)) {
+            echo "\nOrig:[$orig_url]\nNew:[$new_url]\n";
+            $cmd = WGET_PATH . " $new_url -O ".$target; //wget -nc --> means 'no overwrite'
+            $cmd .= " 2>&1";
+            $shell_debug = shell_exec($cmd); echo "-D2-";
+            return $shell_debug;
+        }
+    }
+    function switch_domain_on_image_url($orig_url)
+    {   // switch from: http://static.inaturalist.org/photos/2535955/original.jpg
+        //          to: https://inaturalist-open-data.s3.amazonaws.com/photos/2535955/original.jpg
+        // switch from: https://static.inaturalist.org/photos/7741420/original.jpg
+        //          to: https://inaturalist-open-data.s3.amazonaws.com/photos/7741420/original.jpg
+        if(strpos($orig_url, "static.inaturalist.org") !== false) { //string is found
+            $new_url = str_replace("http:", "https:", $orig_url);
+            $new_url = str_replace("static.inaturalist.org", "inaturalist-open-data.s3.amazonaws.com", $new_url);
+            return $new_url;
+        }
+    }
+    function get_photo_id_from_url($url) //working but seems not used
+    {    
+        if(preg_match("/\/photos\/(.*?)\//ims", $url, $arr)) {
+            return $arr[1];
         }
     }
     private function get_inat_broken_images_list()

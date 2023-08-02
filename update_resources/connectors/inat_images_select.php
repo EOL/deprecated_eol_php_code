@@ -124,6 +124,18 @@ foreach($uris as $accessURI) {
 exit("\n-end test functions-\n");
 ----------------------------------- */
 
+/* test
+$url = "https://static.inaturalist.org/photos/10116865/original.jpg";
+$url = "http://static.inaturalist.org/photos/2535955/original.jpg";
+$url = "https://static.inaturalist.org/photos/7741420/original.jpg";
+require_library('connectors/iNatImagesSelectAPI');
+$func = new iNatImagesSelectAPI(false, false, false, false);
+// $photo_id = $func->get_photo_id_from_url($url); echo "\n$url\n[$photo_id]\n"; //working but not used.
+$new_url = $func->switch_domain_on_image_url($url); echo "\n[$url]\n[$new_url]\n";
+exit("\n-end test-\n");
+*/
+
+
 /*
 NEED TO INVESTIGATE THIS: https://inaturalist-open-data.s3.amazonaws.com/photos/54776039/original.jpeg --- 127.496908501 | 694.308756733
 
