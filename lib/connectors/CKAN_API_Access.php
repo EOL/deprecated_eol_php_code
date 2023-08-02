@@ -34,12 +34,12 @@ class CKAN_API_Access
     function generate_ckan_id_name_list()
     {   $final = array();
         $options = $this->download_options;
-        $options['expire_seconds'] = 0; //60*60*24*1; //1 day expires
+        $options['expire_seconds'] = 0; //60*60*24*1; //orig 1 day expires
         if($json = Functions::lookup_with_cache($this->api_package_list, $options)) {
             $packages = json_decode($json);
             // print_r($packages); exit;
             foreach($packages->result as $ckan_resource_id) { // e.g. wikimedia
-                $options['expire_seconds'] = 60*60*24*30; //1 month expires
+                $options['expire_seconds'] = 60*60*24*1; //60*60*24*30; //orig 1 month expires
                 if($json = Functions::lookup_with_cache($this->api_package_show.$ckan_resource_id, $options)) {
                     $obj = json_decode($json);
                     // print_r($obj->result->resources); exit;
