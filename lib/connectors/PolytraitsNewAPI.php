@@ -224,12 +224,22 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             $rec['source'] = $this->taxon_page.$obj->taxonID; //"http://polytraits.lifewatchgreece.eu"; //same value for all
             $rec['bibliographicCitation'] = "Polytraits Team (2023). Polytraits: A database on biological traits of polychaetes.. LifewatchGreece, Hellenic Centre for Marine Research. Accessed on 2023-05-30. Available from http://polytraits.lifewatchgreece.eu";
             $rec['contributor'] = self::get_or_add_contributor(trim($t->value_creator), trim($t->text_excerpt_creator)); //e.g. "https://orcid.org/0000-0001-9613-8300"
-
             if($reference_ids = self::get_or_add_reference(trim($t->reference))) $rec['referenceID'] = implode("; ", $reference_ids); //e.g. "1406"
-
             // print_r($rec); exit("\n[$mType] [$mValue]\n");
+
+            // /* New: filters by Jen - email from Aug 1, 2023. Eli moved it to Jira: https://eol-jira.bibalex.org/browse/DATA-1919?focusedCommentId=67704&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67704
+            $ret = self::format_trait($rec, $mValue, $mType);
+            $rec    = $ret['rec'];
+            $mValue = $ret['mValue'];
+            $mType  = $ret['mType'];
+            // */
+
             $this->func->add_string_types($rec, $mValue, $mType, "true");
         }
+    }
+    private function format_trait($rec, $mValue, $mType)
+    {
+
     }
     function get_name_info($sciname)
     {   if(!$sciname) return;
