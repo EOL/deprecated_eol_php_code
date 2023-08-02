@@ -233,7 +233,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
                 $mValue = $ret['mValue'];
                 $mType  = $ret['mType'];    
             }
-            else continue;
+            else continue; //discard record
             // */
 
             $this->func->add_string_types($rec, $mValue, $mType, "true");
@@ -257,7 +257,84 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         /* measurementTypes
         http://purl.obolibrary.org/obo/GO_0044402, http://eol.org/schema/terms/preysUpon, http://polytraits.lifewatchgreece.eu/terms/PRED, 
         http://polytraits.lifewatchgreece.eu/terms/EP_PAR,  http://polytraits.lifewatchgreece.eu/terms/SOC:  filter out; we get these through GloBI */
-        
+        $excluded_mTypes = array('http://purl.obolibrary.org/obo/GO_0044402', 'http://eol.org/schema/terms/preysUpon', 'http://polytraits.lifewatchgreece.eu/terms/PRED', 'http://polytraits.lifewatchgreece.eu/terms/EP_PAR', 'http://polytraits.lifewatchgreece.eu/terms/SOC');
+        if(in_array($mType, $excluded_mTypes)) return false;
+        // ---end---
+        /* measurementTypes
+        http://purl.obolibrary.org/obo/CMO_0000013 -> http://eol.org/schema/terms/SizeClass
+        http://polytraits.lifewatchgreece.eu/terms/EGG -> http://eol.org/schema/terms/SizeClass with lifestage=http://eol.org/schema/terms/eggStage
+        http://polytraits.lifewatchgreece.eu/terms/JMOB -> http://purl.obolibrary.org/obo/GO_0040011 with livestage=http://purl.obolibrary.org/obo/PATO_0001190
+        http://polytraits.lifewatchgreece.eu/terms/FEED -> http://eol.org/schema/terms/TrophicGuild */
+        if($mType == 'http://purl.obolibrary.org/obo/CMO_0000013') $mType = 'http://eol.org/schema/terms/SizeClass';
+        if($mType == 'http://polytraits.lifewatchgreece.eu/terms/EGG') {
+            $mType = 'http://eol.org/schema/terms/SizeClass';
+            $rec['x_lifestage'] = 'http://eol.org/schema/terms/eggStage';
+        }
+        if($mType == 'http://polytraits.lifewatchgreece.eu/terms/JMOB') {
+            $mType = 'http://purl.obolibrary.org/obo/GO_0040011';
+            $rec['x_lifestage'] = 'http://purl.obolibrary.org/obo/PATO_0001190';
+        }
+        if($mType == 'http://polytraits.lifewatchgreece.eu/terms/FEED') $mType = 'http://eol.org/schema/terms/TrophicGuild';
+        // ---end---
+        /* measurementValues
+        http://purl.obolibrary.org/obo/ENVO_00000054 -> http://purl.obolibrary.org/obo/ENVO_01000022
+        http://polytraits.lifewatchgreece.eu/terms/HAB_ALG -> https://www.wikidata.org/entity/Q37868
+        http://purl.obolibrary.org/obo/ENVO_00000045 -> http://purl.obolibrary.org/obo/ENVO_01000020
+        http://purl.obolibrary.org/obo/ENVO_01000122 -> http://purl.obolibrary.org/obo/ENVO_01000030
+        http://eol.org/schema/terms/predator -> https://www.wikidata.org/entity/Q170430
+        http://purl.bioontology.org/ontology/MESH/D060434 -> https://www.wikidata.org/entity/Q59099
+        http://polytraits.lifewatchgreece.eu/terms/EP -> http://purl.obolibrary.org/obo/ENVO_03600009
+        http://polytraits.lifewatchgreece.eu/terms/SM_YES ->  http://eol.org/schema/terms/yes
+        http://polytraits.lifewatchgreece.eu/terms/SM_NO -> http://eol.org/schema/terms/no */
+        $mValue = self::format_mValue($mValue);
+        // ---end---
+        /* http://polytraits.lifewatchgreece.eu/terms/MOB_SESS -> http://www.wikidata.org/entity/Q1759860
+        ^ this value term is extra finicky, and I don't think we were doing it quite right before. 
+        It will, I think, come with measurementType=  http://purl.obolibrary.org/obo/GO_0040011 (or JMOB, to be mapped to GO_0040011). 
+        For this value only, the measurementType should be changed to http://www.wikidata.org/entity/Q33596. 
+        (Motility is a yes/no, motile or sessile. If you ARE motile, locomotion is HOW you get around. I know, picky picky...) */
+        if($mValue == "http://polytraits.lifewatchgreece.eu/terms/MOB_SESS") {
+            if($mType == "http://purl.obolibrary.org/obo/GO_0040011") {
+                $mValue = 'http://www.wikidata.org/entity/Q1759860';
+                $mType = 'http://www.wikidata.org/entity/Q33596';
+            }
+        }
+        // ---end---
+        /* http://polytraits.lifewatchgreece.eu/terms/RW
+        ^ this measurementType has records we keep and records we discard. 
+        We keep their records with more specific values, eg: http://polytraits.lifewatchgreece.eu/terms/RW_DIFF, 
+        but we discard records with these two (less useful?) values:
+        http://polytraits.lifewatchgreece.eu/terms/RW_YES and http://polytraits.lifewatchgreece.eu/terms/RW_NO */
+        if($mType == 'http://polytraits.lifewatchgreece.eu/terms/RW') {
+            if(in_array($mValue, array('http://polytraits.lifewatchgreece.eu/terms/RW_YES', 'http://polytraits.lifewatchgreece.eu/terms/RW_NO'))) return false;
+        }
+        // ---end---
+        return array('rec' => $rec, 'mValue' => $mValue, 'mType' => $mType);
+    }
+    private function format_mValue($mValue)
+    {   switch ($mValue) {
+            case "http://purl.obolibrary.org/obo/ENVO_00000054":
+                return 'http://purl.obolibrary.org/obo/ENVO_01000022';
+            case "http://polytraits.lifewatchgreece.eu/terms/HAB_ALG":
+                return 'https://www.wikidata.org/entity/Q37868';
+            case "http://purl.obolibrary.org/obo/ENVO_00000045":
+                return 'http://purl.obolibrary.org/obo/ENVO_01000020';
+            case "http://purl.obolibrary.org/obo/ENVO_01000122":
+                return 'http://purl.obolibrary.org/obo/ENVO_01000030';
+            case "http://eol.org/schema/terms/predator":
+                return 'https://www.wikidata.org/entity/Q170430';
+            case "http://purl.bioontology.org/ontology/MESH/D060434":
+                return 'https://www.wikidata.org/entity/Q59099';                
+            case "http://polytraits.lifewatchgreece.eu/terms/EP":
+                return 'http://purl.obolibrary.org/obo/ENVO_03600009';
+            case "http://polytraits.lifewatchgreece.eu/terms/SM_YES":
+                return 'http://eol.org/schema/terms/yes';
+            case "http://polytraits.lifewatchgreece.eu/terms/SM_NO":
+                return 'http://eol.org/schema/terms/no';
+            default:
+                return $mValue;
+        }
+        return $mValue;
     }
     function get_name_info($sciname)
     {   if(!$sciname) return;
