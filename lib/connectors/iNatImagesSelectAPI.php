@@ -43,6 +43,7 @@ class iNatImagesSelectAPI
     {   
         // /* New: Aug 1, 2023: Get list of broken image URLs
         $this->broken_images = self::get_inat_broken_images_list();
+        $this->broken_images = array(); //un-comment for now, until a new list of broken images is generated.
         // */
 
         $tables = $info['harvester']->tables; // print_r($tables); exit;
