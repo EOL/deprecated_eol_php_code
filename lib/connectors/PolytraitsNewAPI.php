@@ -77,6 +77,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         $this->archive_builder->finalize(true);
         // Functions::start_print_debug();
         print_r($this->debug);
+        print_r($this->contributor_mappings);
     }
     private function main()
     {   $pageID = 0;
