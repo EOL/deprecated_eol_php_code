@@ -42,20 +42,25 @@ php inat_images_select.php _ '{"taxonID":"e4fdd48749104fcd0c01c1ae79eed4ce"}'
 -> 	https://www.inaturalist.org/taxa/129115	Knautia arvensis (L.) Coult.	Plantae	Tracheophyta	Magnoliopsida	Dipsacales	
 
 $ nohup php inat_images_select.php _ > terminal_inat_images_select.out
+  nohup php inat_images_select.php _ > terminal_inat_images_select_Aug7.out
+
 -> use 'nohup' so it continues even after logging out of the terminal
 
 For diagnostics:
     ps --help simple
     ps -r 
         -> very helpful, if u want to check current running processes
+        -> e.g. 462805 pts/0    R+     0:16 php inat_images_select.php _
     
     cd /var/www/html/eol_php_code/update_resources/connectors/
     tail terminal_inat_images_select.out
+    tail terminal_inat_images_select_Aug7.out
+
     cat terminal_inat_images_select.out
         -> to see progress, very convenient
-    ps -p 319348
+    ps -p 462805
         -> to investigate a running PID
-    kill -9 319348
+    kill -9 462805
         -> to kill a running PID
     cat /var/www/html/eol_php_code/update_resources/connectors/terminal_inat_images_select.out
         -> to monitor runtime
