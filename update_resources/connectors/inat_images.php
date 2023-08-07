@@ -46,8 +46,10 @@ inat_images_3Mcap_2	Sun 2022-04-24 09:52:43 AM	{"agent.tab":97678, "media_resour
 inat_images_3Mcap_2	Mon 2022-04-25 11:35:25 PM	{"agent.tab":97678, "media_resource.tab":3000000, "taxon.tab":290388, "time_elapsed":{"sec":13667.16, "min":227.79, "hr":3.8}}
 inat_images_3Mcap_2	Sun 2023-03-19 11:16:15 PM	{"agent.tab":107373, "media_resource.tab":3000000, "taxon.tab":334729, "time_elapsed":{"sec":1404648.99, "min":23410.82, "hr":390.18, "day":16.26}}
 inat_images_3Mcap_2	Thu 2023-07-27 09:32:53 AM	{"agent.tab":111960, "media_resource.tab":3000000, "taxon.tab":352217, "time_elapsed":{"sec":293618.79, "min":4893.65, "hr":81.56, "day":3.4}}
+inat_images_3Mcap_2	Thu 2023-08-03 01:07:05 PM	{"agent.tab":111960, "media_resource.tab":3000000, "taxon.tab":352217, "time_elapsed":{"sec":20479.95, "min":341.33, "hr":5.69}}
 Size history:
 225159643 Mar 19 23:15 inat_images_3Mcap_2.tar.gz
+226334890 Aug  3 13:06 inat_images_3Mcap_2.tar.gz
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

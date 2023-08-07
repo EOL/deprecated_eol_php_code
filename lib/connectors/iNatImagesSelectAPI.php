@@ -581,7 +581,7 @@ class iNatImagesSelectAPI
     }
     private function get_inat_broken_images_list()
     {
-        $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/iNaturalist/CannotDownloadInatImages.txt";
+        $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/iNaturalist/CannotDownloadInatImages_v2.txt";
         $string = Functions::lookup_with_cache($url, array('expire_seconds' => 60*60*24*1)); //expires in a day
         $arr = explode("\n", $string);
         $arr = array_filter($arr);      //remove null arrays
