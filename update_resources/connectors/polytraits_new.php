@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
 /*
+reharvest -> http://content.eol.org/resources/53
 polytraits_new	Wed 2023-05-31 11:48:07 AM	{"measurement_or_fact_specific.tab":23209, "occurrence_specific.tab":23209, "reference.tab":996, "taxon.tab":1030, "time_elapsed":false}
 polytraits_new	Thu 2023-06-01 10:54:09 AM	{"measurement_or_fact_specific.tab":5148, "occurrence_specific.tab":5148, "reference.tab":240, "taxon.tab":1030, "time_elapsed":false} - limited mTypes to use
 polytraits_new	Thu 2023-06-01 11:03:09 AM	{"measurement_or_fact_specific.tab":23209, "occurrence_specific.tab":23209, "reference.tab":996, "taxon.tab":1030, "time_elapsed":false} - use all mTypes
