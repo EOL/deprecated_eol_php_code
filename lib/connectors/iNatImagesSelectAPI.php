@@ -563,13 +563,20 @@ class iNatImagesSelectAPI
         }
     }
     function switch_domain_on_image_url($orig_url)
-    {   // switch from: http://static.inaturalist.org/photos/2535955/original.jpg
-        //          to: https://inaturalist-open-data.s3.amazonaws.com/photos/2535955/original.jpg
-        // switch from: https://static.inaturalist.org/photos/7741420/original.jpg
-        //          to: https://inaturalist-open-data.s3.amazonaws.com/photos/7741420/original.jpg
+    {   
         if(strpos($orig_url, "static.inaturalist.org") !== false) { //string is found
+            // switch from: http://static.inaturalist.org/photos/2535955/original.jpg
+            //          to: https://inaturalist-open-data.s3.amazonaws.com/photos/2535955/original.jpg
+            // switch from: https://static.inaturalist.org/photos/7741420/original.jpg
+            //          to: https://inaturalist-open-data.s3.amazonaws.com/photos/7741420/original.jpg
             $new_url = str_replace("http:", "https:", $orig_url);
             $new_url = str_replace("static.inaturalist.org", "inaturalist-open-data.s3.amazonaws.com", $new_url);
+            return $new_url;
+        }
+        elseif(strpos($orig_url, "inaturalist-open-data.s3.amazonaws.com") !== false) { //string is found
+            // switch from: https://inaturalist-open-data.s3.amazonaws.com/photos/500730/original.jpg
+            //          to: https://inaturalist-open-data.s3.amazonaws.com/photos/500730/medium.jpg
+            $new_url = str_replace("/original.", "/medium.", $orig_url);
             return $new_url;
         }
     }
