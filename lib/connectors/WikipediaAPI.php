@@ -264,6 +264,14 @@ class WikipediaAPI extends WikiHTMLAPI
             }
             */
             
+            /* New: revision maintenance --- Aug 8, 2023
+            $params = array();
+            $params['title'] = $title;
+            $params['language'] = $this->language_code;
+            $params['download_options'] = $options;
+            $options = self::xxx()
+            */
+
             if($html = Functions::lookup_with_cache($url, $options)) { //preferabley monthly expires
                 if(self::bot_inspired($html)) {
                     // echo("\nbot inspired: [$url]\n");
