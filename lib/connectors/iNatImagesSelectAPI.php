@@ -417,7 +417,7 @@ class iNatImagesSelectAPI
         if(!file_exists(@$arr['local'])) { //echo "-R-"; //exit; //Needs to re-download image again...
             if($arr['local'] = self::download_image($arr['url'])) {} // echo "\ndownloaded: [$target]\n";
             else {
-                echo "\nCannot download [$url]. May need to report to iNaturalist 2.\n";
+                echo "\nCannot download [".$arr['url']."]. May need to report to iNaturalist 2.\n";
                 $arr['local'] = '';
                 $arr['score'] = 0;
                 return $arr;
