@@ -2,7 +2,7 @@
 /*
     get_pages_revisions.php
     from: https://www.mediawiki.org/wiki/API:Revisions
-    MediaWiki API Demos
+    https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles=Ocean sunfish&rvlimit=1&rvslots=main&formatversion=2&format=json
 */
 
 $endPoint = "https://en.wikipedia.org/w/api.php";
