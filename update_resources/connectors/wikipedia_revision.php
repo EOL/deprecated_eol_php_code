@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
 /*
-git clone --branch new_terms https://github.com/EOL/eol_terms.git
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -22,14 +21,14 @@ require_library('connectors/WikipediaRevisionsAPI');
 $func = new WikipediaRevisionsAPI($params);
 
 /* step 1: get page latest revision record */
-$latest_rev_obj = $func->get_page_latest_revision(); print_r($latest_rev_obj); exit;
+$latest_rev_rec = $func->get_page_latest_revision(); print_r($latest_rev_rec); exit;
 /*
 step 2: check if revision history already exists:
     if not: create the cache ---> proceed with downloading the page
     if yes: get the revision history record
         compare the old and new timestamp:
             if timestamps are equal     ---> set $options['expire_seconds'] = false;
-            if timestamps are now equal ---> set $options['expire_seconds] = 0;
+            if timestamps are not equal ---> set $options['expire_seconds] = 0;
 */
 if($rev_history = $func->get_page_revision_history($params['title'], $params['language'])) {
     echo "\nHas page revision history already.\n";
