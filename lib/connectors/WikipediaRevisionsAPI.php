@@ -39,7 +39,7 @@ class WikipediaRevisionsAPI
         if($arr = self::retrieve_cache($title, $language)) return $arr;
         else {
             if($arr = self::run_revision_query($title, $language)) return $arr;
-            else exit("\nERROR: Should not go here.\n");
+            else exit("\nERROR: Should not go here.\ntitle and language don't match: [$title] [$language]\n\n");
         }
     }
     private function retrieve_cache($title, $language)

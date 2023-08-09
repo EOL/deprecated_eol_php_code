@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
 /*
+git clone --branch new_terms https://github.com/EOL/eol_terms.git
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -8,8 +9,8 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
-$title      = "Atlantic cod"; //"Mola mola"; //"Ocean sunfish";
-$language   = "en";
+$title      = "Ocean sunfish"; //"Ocean sunfish" en; //"Atlantic cod"; //"Mola mola" es ; //;
+$language   = "en"; //"en";
 $options    = array('resource_id' => 'wikipedia_revisions', 'expire_seconds' => 60*60*24*10, //10 days cache
                     'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1);
 $params = array();
