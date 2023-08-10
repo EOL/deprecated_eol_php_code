@@ -48,7 +48,7 @@ class WikipediaRevisionsAPI
                 $expire_seconds = 0; //expires now    
             }
             else {
-                debug("\nNo wikipedia page for this title and language~~.\n");
+                echo "\nNo wikipedia page for this title and language [".$params['title']."][".$params['language']."].\n"; //maybe doesn't go here as well.
                 $expire_seconds = "do not proceed";
             }
         }

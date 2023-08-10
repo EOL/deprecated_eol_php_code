@@ -264,7 +264,7 @@ class WikipediaAPI extends WikiHTMLAPI
             }
             */
             
-            // /* ========== New: revision maintenance --- Aug 8, 2023
+            // /* ========== New: revision maintenance --- Aug 10, 2023 ==========
             $params = array();
             $params['title'] = $title;
             $params['language'] = $this->language_code;
@@ -276,7 +276,7 @@ class WikipediaAPI extends WikiHTMLAPI
             if($expire_seconds === 0)                   {$options['expire_seconds'] = $expire_seconds; @$this->debug['rev']['expires now']++;}     //debug("\nExpires now.");
             elseif($expire_seconds === false)           {$options['expire_seconds'] = $expire_seconds; @$this->debug['rev']['does not expire']++;} //debug("\nSame timestamp, does not expire.");
             elseif($expire_seconds == "do not proceed") {@$this->debug['rev']['Wikipedia not found']++; return $rek;}                              //debug("\nWikipedia not found.");
-            // ========== */
+            // ========== end ========== */
 
             if($html = Functions::lookup_with_cache($url, $options)) { //preferabley monthly expires
                 if(self::bot_inspired($html)) {
