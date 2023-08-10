@@ -33,11 +33,16 @@ if($rev_history = $func->get_page_revision_history($params['title'], $params['la
     $rev_latest = $func->get_page_latest_revision($params['title'], $params['language']);
     echo "\nrev_history"; print_r($rev_history);
     echo "\nrev_latest"; print_r($rev_latest);
+    $history_last_edited = $rev_history['timestamp'];
+    $latest_last_edited = $rev_latest['timestamp'];
+    if($history_last_edited == $latest_last_edited) return false; //does not expire
+    else                                            return 0;     //expires now
 }
 else { //revision history not found; create one
     echo "\nNo page revision history yet.\n";
-    $rev = $func->get_page_latest_revision($params['title'], $params['language']);
-    $func->save_to_history($rev, $params['title'], $params['language']);
+    $rev_initial = $func->get_page_latest_revision($params['title'], $params['language']);
+    $func->save_to_history($rev_initial, $params['title'], $params['language']);
+    echo "\nInitial rev history saved."; print_r($rev_initial);
     return 0; //expires now
 }
 
