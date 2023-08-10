@@ -46,8 +46,8 @@ else { //revision history not found; create one
     $expire_seconds = 0; //expires now
 }
 
-if($expire_seconds === 0)           echo "\nexpires now\n";
-elseif($expire_seconds === false)   echo "\ndoes not expire\n";
+if($expire_seconds === 0)           echo "\nDifferent timestamp, expires now.\n";
+elseif($expire_seconds === false)   echo "\nSame timestamp, does not expire.\n";
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
