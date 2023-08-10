@@ -255,7 +255,7 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
     }
     else {
         echo "\n===== A one-connector run =====\n";
-        /* new block --- Aug 10, 2023 un-comment in real operation
+        // /* new block --- Aug 10, 2023 un-comment in real operation
         if(!$func_wp->is_this_wikipedia_lang_old_YN($language)) exit("\nSeems already recently generated (single) [$language]\n");
         else { //needs refresh of dwca, but must need to check first if 'Y' and not "6c"
             $info = $func_wp->get_language_info_from_TSV($language);
@@ -264,7 +264,7 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
             if($status == 'Y' && $six_conn != '6c') echo "\n=PROCEEDy WITH HARVEST for [$language]=\n";
             else exit("\n===CANNOT PROCEEDy [$language], Because it is 6c or with status equal to 'N'===\n");
         }
-        */
+        // */
     }
 }
 // ************************************************************** */
