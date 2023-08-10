@@ -10,6 +10,7 @@ polytraits_new	Thu 2023-06-01 11:30:25 AM	{"measurement_or_fact_specific.tab":51
 polytraits_new	Thu 2023-06-01 11:35:22 AM	{"measurement_or_fact_specific.tab":23209, "occurrence_specific.tab":23209, "reference.tab":996, "taxon.tab":1030, "time_elapsed":false}
 below after Jen's instructions: https://eol-jira.bibalex.org/browse/DATA-1919?focusedCommentId=67704&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67704
 polytraits_new	Thu 2023-08-03 11:08:32 AM	{"measurement_or_fact_specific.tab":21403, "occurrence_specific.tab":21403, "reference.tab":996, "taxon.tab":1030, "time_elapsed":false}
+polytraits_new	Thu 2023-08-10 09:43:19 AM	{"measurement_or_fact_specific.tab":21403, "occurrence_specific.tab":21403, "reference.tab":996, "taxon.tab":1030, "time_elapsed":false}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
