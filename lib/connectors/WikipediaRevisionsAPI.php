@@ -30,7 +30,6 @@ class WikipediaRevisionsAPI
             if($obj) return $obj;
         }
         return false;
-
     }
     function get_page_latest_revision()
     {
@@ -86,8 +85,8 @@ class WikipediaRevisionsAPI
             $arr = json_decode($json, true); // print_r($arr);
             $arr = @$arr['query']['pages'][0]['revisions'][0];
             if(!$arr) return false;
-            $latest_rev_json = json_encode($arr);
             // /* writing...
+            $latest_rev_json = json_encode($arr);
             $filename = self::get_filename($title, $language);
             $WRITE = Functions::file_open($filename, "w");
             fwrite($WRITE, $latest_rev_json . "\n");
