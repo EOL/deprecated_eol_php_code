@@ -20,11 +20,9 @@ $params['download_options'] = $options;
 require_library('connectors/WikipediaRevisionsAPI');
 $func = new WikipediaRevisionsAPI($params);
 
-/* step 1: get page latest revision record */
-$latest_rev_rec = $func->get_page_latest_revision(); print_r($latest_rev_rec); exit;
 /*
-step 2: check if revision history already exists:
-    if not: create the cache ---> proceed with downloading the page
+check if revision history already exists:
+    if not: create rev history ---> proceed with downloading the page
     if yes: get the revision history record
         compare the old and new timestamp:
             if timestamps are equal     ---> set $options['expire_seconds'] = false;
@@ -32,9 +30,15 @@ step 2: check if revision history already exists:
 */
 if($rev_history = $func->get_page_revision_history($params['title'], $params['language'])) {
     echo "\nHas page revision history already.\n";
+    $rev_latest = $func->get_page_latest_revision();
+    echo "\nrev_history"; print_r($rev_history);
+    echo "\nrev_latest"; print_r($rev_latest);
 }
 else { //revision history not found; create one
     echo "\nNo page revision history yet.\n";
+    $arr = $func->run_revision_query($params['title'], $params['language']);
+    $func->save_to_history($arr, $params['title'], $params['language']);
+    return 0; //expires now
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;

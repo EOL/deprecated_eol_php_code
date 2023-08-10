@@ -19,27 +19,8 @@ class WikipediaRevisionsAPI
 
     function get_page_revision_history($title, $language)
     {
-        $main_path = $this->cache_path;
-        $md5 = md5($title.$language);
-        $cache1 = substr($md5, 0, 2);
-        $cache2 = substr($md5, 2, 2);
-        $filename = $main_path . "$cache1/$cache2/$md5.json";
-        if(file_exists($filename)) {
-            $json = file_get_contents($filename);
-            $obj = json_decode($json, true);
-            if($obj) return $obj;
-        }
-        return false;
-    }
-    function get_page_latest_revision()
-    {
-        $title = $this->params['title'];
-        $language = $this->params['language'];
         if($arr = self::retrieve_cache($title, $language)) return $arr;
-        else {
-            if($arr = self::run_revision_query($title, $language)) return $arr;
-            else exit("\nERROR: Should not go here.\ntitle and language don't match: [$title] [$language]\n\n");
-        }
+        else return false;
     }
     private function retrieve_cache($title, $language)
     {
@@ -61,7 +42,14 @@ class WikipediaRevisionsAPI
         $filename = $main_path . "$cache1/$cache2/$md5.json";
         return $filename;
     }
-
+    function get_page_latest_revision($title, $language)
+    {
+        if($arr = self::run_revision_query($title, $language)) return $arr;
+        else {
+            echo "\nERROR: Should not go here.\ntitle and language don't match: [$title] [$language]\n\n";
+            return false;
+        }
+    }
     private function run_revision_query($title, $language)
     {
         $i = 0; $str = "";
@@ -85,16 +73,16 @@ class WikipediaRevisionsAPI
             $arr = json_decode($json, true); // print_r($arr);
             $arr = @$arr['query']['pages'][0]['revisions'][0];
             if(!$arr) return false;
-            // /* writing...
-            $latest_rev_json = json_encode($arr);
-            $filename = self::get_filename($title, $language);
-            $WRITE = Functions::file_open($filename, "w");
-            fwrite($WRITE, $latest_rev_json . "\n");
-            fclose($WRITE);
-            // */
             return $arr;
         }
     }
-
+    function save_to_history($arr, $title, $language)
+    {
+        $latest_rev_json = json_encode($arr);
+        $filename = self::get_filename($title, $language);
+        $WRITE = Functions::file_open($filename, "w");
+        fwrite($WRITE, $latest_rev_json . "\n");
+        fclose($WRITE);
+    }
 }
 ?>
