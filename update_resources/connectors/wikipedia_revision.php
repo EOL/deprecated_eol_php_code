@@ -40,7 +40,7 @@ if($rev_history = $func->get_page_revision_history($params['title'], $params['la
     }
     else {
         echo "\nNo wikipedia page for this title and language**.\n"; //Does not go here actually.
-        return;
+        return; //don't proceed
     }
 }
 else { //revision history not found; create one
@@ -52,7 +52,7 @@ else { //revision history not found; create one
     }
     else {
         echo "\nNo wikipedia page for this title and language~~.\n";
-        return;
+        return; //don't proceed
     }
 }
 
