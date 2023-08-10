@@ -9,20 +9,19 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
 $title      = "Ocean sunfish"; //"Ocean sunfish" en; //"Atlantic cod"; //"Mola mola" es ; //;
-$language   = "es"; //"en";
+$language   = "en"; //"en";
 $options    = array('resource_id' => 'wikipedia_revisions', 'expire_seconds' => 60*60*24*10, //10 days cache
                     'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1);
 $params = array();
 $params['title'] = $title;
 $params['language'] = $language;
-$params['download_options'] = $options;
 
 require_library('connectors/WikipediaRevisionsAPI');
 $func = new WikipediaRevisionsAPI($params);
 
 /*
 check if revision history already exists:
-    if not: create rev history ---> proceed with downloading the page
+    if not: create rev history ---> proceed with downloading the page; expires now
     if yes: get the revision history record
         compare the old and new timestamp:
             if timestamps are equal     ---> set $options['expire_seconds'] = false;
@@ -36,11 +35,14 @@ if($rev_history = $func->get_page_revision_history($params['title'], $params['la
         $history_last_edited = $rev_history['timestamp'];
         $latest_last_edited = $rev_latest['timestamp'];
         if($history_last_edited == $latest_last_edited) $expire_seconds = false; //does not expire
-        else                                            $expire_seconds = 0;     //expires now    
+        else {
+                                                        $expire_seconds = 0;     //expires now
+                                                        echo "\nDifferent timestamp.";
+        }
     }
     else {
         echo "\nNo wikipedia page for this title and language**.\n"; //Does not go here actually.
-        return; //don't proceed
+        $expire_seconds = "do not proceed";
     }
 }
 else { //revision history not found; create one
@@ -52,12 +54,15 @@ else { //revision history not found; create one
     }
     else {
         echo "\nNo wikipedia page for this title and language~~.\n";
-        return; //don't proceed
+        $expire_seconds = "do not proceed";
     }
 }
 
-if($expire_seconds === 0)           echo "\nDifferent timestamp, expires now.\n";
-elseif($expire_seconds === false)   echo "\nSame timestamp, does not expire.\n";
+if($expire_seconds === 0)                   echo "\nExpires now.\n";
+elseif($expire_seconds === false)           echo "\nSame timestamp, does not expire.\n";
+elseif($expire_seconds == "do not proceed") echo "\nWikipedia not found.\n";
+else exit("\nInvestigate: this case is not captured.\n");
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

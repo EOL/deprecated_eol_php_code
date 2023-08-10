@@ -56,7 +56,7 @@ class WikipediaRevisionsAPI
     private function run_revision_query($title, $language)
     {
         $i = 0; $str = "";
-        $params = [
+        $parameters = [
             "action" => "query",
             "prop" => "revisions",
             "titles" => $title, //"Ocean sunfish", //"Mola mola",
@@ -65,7 +65,7 @@ class WikipediaRevisionsAPI
             "formatversion" => "2",
             "format" => "json",
         ];
-        foreach($params as $key => $value) { $i++;
+        foreach($parameters as $key => $value) { $i++;
             if($i == 1) $str .= "?$key=$value";
             else        $str .= "&$key=$value";
         }

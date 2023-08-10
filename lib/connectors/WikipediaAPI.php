@@ -268,8 +268,7 @@ class WikipediaAPI extends WikiHTMLAPI
             $params = array();
             $params['title'] = $title;
             $params['language'] = $this->language_code;
-            $params['download_options'] = $options;
-            $options = self::xxx()
+            $ret = self::wikipedia_revision($params);
             */
 
             if($html = Functions::lookup_with_cache($url, $options)) { //preferabley monthly expires
