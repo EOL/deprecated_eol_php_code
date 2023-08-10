@@ -1511,6 +1511,7 @@ wikipedia-gu	Friday 2020-04-17 03:46:59 AM	{"media_resource.tab":506, "taxon.tab
 wikipedia-gu	Monday 2020-04-27 04:58:33 AM	{"media_resource.tab":506, "taxon.tab":963, "time_elapsed":{"sec":800.33, "min":13.34, "hr":0.22}}
 wikipedia-gu	Monday 2020-05-11 08:48:52 AM	{"media_resource.tab":500, "taxon.tab":961, "time_elapsed":{"sec":850.02, "min":14.17, "hr":0.24}}
 wikipedia-gu	Friday 2020-08-14 04:51:24 PM	{"media_resource.tab":364, "taxon.tab":963, "time_elapsed":{"sec":1341.71, "min":22.36, "hr":0.37}}
+wikipedia-gu	Thu 2023-08-10 11:38:21 AM	    {"media_resource.tab":371, "taxon.tab":997, "time_elapsed":{"sec":3, "min":0.05, "hr":0}}
 
 wikipedia-nap	Thursday 2020-04-23 07:48:58 PM	{"media_resource.tab":319, "taxon.tab":658, "time_elapsed":{"sec":1087.06, "min":18.12, "hr":0.3}}
 wikipedia-nap	Friday 2020-04-24 11:04:38 AM	  {"media_resource.tab":302, "taxon.tab":655, "time_elapsed":{"sec":817.96, "min":13.63, "hr":0.23}}
