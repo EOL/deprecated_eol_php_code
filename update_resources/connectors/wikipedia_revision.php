@@ -30,14 +30,14 @@ check if revision history already exists:
 */
 if($rev_history = $func->get_page_revision_history($params['title'], $params['language'])) {
     echo "\nHas page revision history already.\n";
-    $rev_latest = $func->get_page_latest_revision();
+    $rev_latest = $func->get_page_latest_revision($params['title'], $params['language']);
     echo "\nrev_history"; print_r($rev_history);
     echo "\nrev_latest"; print_r($rev_latest);
 }
 else { //revision history not found; create one
     echo "\nNo page revision history yet.\n";
-    $arr = $func->run_revision_query($params['title'], $params['language']);
-    $func->save_to_history($arr, $params['title'], $params['language']);
+    $rev = $func->get_page_latest_revision($params['title'], $params['language']);
+    $func->save_to_history($rev, $params['title'], $params['language']);
     return 0; //expires now
 }
 
