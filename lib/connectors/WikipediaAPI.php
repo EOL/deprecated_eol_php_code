@@ -266,7 +266,7 @@ class WikipediaAPI extends WikiHTMLAPI
             
             // /* ========== New: revision maintenance --- Aug 10, 2023 ==========
             $params = array();
-            $params['title'] = $title;
+            $params['title'] = urlencode($title);
             $params['language'] = $this->language_code;
             if(!isset($this->rev_func)) {
                 require_library('connectors/WikipediaRevisionsAPI');
