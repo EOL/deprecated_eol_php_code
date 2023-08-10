@@ -3,7 +3,7 @@ namespace php_active_record;
 /**/
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // ini_set('memory_limit','7096M');
-// $GLOBALS['ENV_DEBUG'] = true;
+$GLOBALS['ENV_DEBUG'] = false; //true;
 $timestart = time_elapsed();
 
 $title      = "Ocean sunfish"; //"Ocean sunfish" en; //"Atlantic cod"; //"Mola mola" es ; //;
@@ -16,8 +16,12 @@ $params['language'] = $language;
 
 require_library('connectors/WikipediaRevisionsAPI');
 $func = new WikipediaRevisionsAPI($params);
-$ret = $func->wikipedia_revision($params);
-echo "\nret = [$ret]\n";
+$expire_seconds = $func->wikipedia_revision($params);
+
+if($expire_seconds === 0)                   {} //debug("\nExpires now.");
+elseif($expire_seconds === false)           {} //debug("\nSame timestamp, does not expire.");
+elseif($expire_seconds == "do not proceed") {} //debug("\nWikipedia not found.");
+echo "\nexpire_seconds = [$expire_seconds]\n";
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

@@ -52,9 +52,9 @@ class WikipediaRevisionsAPI
                 $expire_seconds = "do not proceed";
             }
         }
-        if($expire_seconds === 0)                   echo "\nExpires now.";
-        elseif($expire_seconds === false)           echo "\nSame timestamp, does not expire.";
-        elseif($expire_seconds == "do not proceed") echo "\nWikipedia not found.";
+        if($expire_seconds === 0)                   debug("\nExpires now.");
+        elseif($expire_seconds === false)           debug("\nSame timestamp, does not expire.");
+        elseif($expire_seconds == "do not proceed") debug("\nWikipedia not found.");
         else exit("\nInvestigate: this case is not captured.\n");
         return $expire_seconds;
     }
