@@ -656,7 +656,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
     {
         $reference_ids = array();
         $r = new \eol_schema\Reference();
-        $r->full_reference = $reference;
+        $r->full_reference = self::clean_text($reference);
         $r->identifier = md5($r->full_reference);
         // $r->uri = '';
         $reference_ids[] = $r->identifier;
