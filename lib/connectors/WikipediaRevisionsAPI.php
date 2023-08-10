@@ -12,6 +12,7 @@ class WikipediaRevisionsAPI
         $this->debug = array();
         $this->api['endPoint'] = "https://".$params['language'].".wikipedia.org/w/api.php"; //"https://en.wikipedia.org/w/api.php";
         $this->cache_path = DOC_ROOT . $GLOBALS['MAIN_CACHE_PATH'] . 'wikipedia_revisions/';
+        if(!is_dir($this->cache_path)) mkdir($this->cache_path);
     }
     function wikipedia_revision($params)
     {   /* check if revision history already exists:

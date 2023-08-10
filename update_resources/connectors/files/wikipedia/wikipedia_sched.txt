@@ -1216,7 +1216,6 @@ wikipedia-rue	Friday 2020-08-14 04:06:50 PM	{"media_resource.tab":262, "taxon.ta
 wikipedia-sh	Friday 2020-08-14 04:18:42 PM	{"media_resource.tab":4065, "taxon.tab":4032, "time_elapsed":{"sec":3744.61, "min":62.41, "hr":1.04}}
 wikipedia-mt	Friday 2020-08-14 04:28:55 PM	{"media_resource.tab":742, "taxon.tab":606, "time_elapsed":{"sec":1317.38, "min":21.96, "hr":0.37}}
 wikipedia-sr	Friday 2020-08-14 04:40:01 PM	{"media_resource.tab":12402, "taxon.tab":15822, "time_elapsed":{"sec":15619.19, "min":260.32, "hr":4.34}}
-wikipedia-gu	Friday 2020-08-14 04:51:24 PM	{"media_resource.tab":364, "taxon.tab":963, "time_elapsed":{"sec":1341.71, "min":22.36, "hr":0.37}}
 wikipedia-ia	Friday 2020-08-14 05:07:42 PM	{"media_resource.tab":1694, "taxon.tab":2422, "time_elapsed":{"sec":2934.48, "min":48.91, "hr":0.82}}
 wikipedia-vls	Friday 2020-08-14 05:15:15 PM	{"media_resource.tab":776, "taxon.tab":910, "time_elapsed":{"sec":1422.7, "min":23.71, "hr":0.4}}
 wikipedia-rw	Friday 2020-08-14 05:25:29 PM	{"media_resource.tab":219, "taxon.tab":681, "time_elapsed":{"sec":1061.14, "min":17.69, "hr":0.29}}
@@ -1511,6 +1510,7 @@ wikipedia-mt	Monday 2020-05-11 08:34:36 AM	{"media_resource.tab":740, "taxon.tab
 wikipedia-gu	Friday 2020-04-17 03:46:59 AM	{"media_resource.tab":506, "taxon.tab":963, "time_elapsed":{"sec":1316.73, "min":21.95, "hr":0.37}}
 wikipedia-gu	Monday 2020-04-27 04:58:33 AM	{"media_resource.tab":506, "taxon.tab":963, "time_elapsed":{"sec":800.33, "min":13.34, "hr":0.22}}
 wikipedia-gu	Monday 2020-05-11 08:48:52 AM	{"media_resource.tab":500, "taxon.tab":961, "time_elapsed":{"sec":850.02, "min":14.17, "hr":0.24}}
+wikipedia-gu	Friday 2020-08-14 04:51:24 PM	{"media_resource.tab":364, "taxon.tab":963, "time_elapsed":{"sec":1341.71, "min":22.36, "hr":0.37}}
 
 wikipedia-nap	Thursday 2020-04-23 07:48:58 PM	{"media_resource.tab":319, "taxon.tab":658, "time_elapsed":{"sec":1087.06, "min":18.12, "hr":0.3}}
 wikipedia-nap	Friday 2020-04-24 11:04:38 AM	  {"media_resource.tab":302, "taxon.tab":655, "time_elapsed":{"sec":817.96, "min":13.63, "hr":0.23}}
