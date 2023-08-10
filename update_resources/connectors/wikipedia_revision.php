@@ -9,7 +9,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
 $title      = "Ocean sunfish"; //"Ocean sunfish" en; //"Atlantic cod"; //"Mola mola" es ; //;
-$language   = "en"; //"en";
+$language   = "es"; //"en";
 $options    = array('resource_id' => 'wikipedia_revisions', 'expire_seconds' => 60*60*24*10, //10 days cache
                     'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1);
 $params = array();
@@ -30,20 +30,30 @@ check if revision history already exists:
 */
 if($rev_history = $func->get_page_revision_history($params['title'], $params['language'])) {
     echo "\nHas page revision history already.\n";
-    $rev_latest = $func->get_page_latest_revision($params['title'], $params['language']);
-    echo "\nrev_history"; print_r($rev_history);
-    echo "\nrev_latest"; print_r($rev_latest);
-    $history_last_edited = $rev_history['timestamp'];
-    $latest_last_edited = $rev_latest['timestamp'];
-    if($history_last_edited == $latest_last_edited) $expire_seconds = false; //does not expire
-    else                                            $expire_seconds = 0;     //expires now
+    if($rev_latest = $func->get_page_latest_revision($params['title'], $params['language'])) {
+        echo "\nrev_history"; print_r($rev_history);
+        echo "\nrev_latest"; print_r($rev_latest);
+        $history_last_edited = $rev_history['timestamp'];
+        $latest_last_edited = $rev_latest['timestamp'];
+        if($history_last_edited == $latest_last_edited) $expire_seconds = false; //does not expire
+        else                                            $expire_seconds = 0;     //expires now    
+    }
+    else {
+        echo "\nNo wikipedia page for this title and language**.\n"; //Does not go here actually.
+        return;
+    }
 }
 else { //revision history not found; create one
     echo "\nNo page revision history yet.\n";
-    $rev_initial = $func->get_page_latest_revision($params['title'], $params['language']);
-    $func->save_to_history($rev_initial, $params['title'], $params['language']);
-    echo "\nInitial rev history saved."; print_r($rev_initial);
-    $expire_seconds = 0; //expires now
+    if($rev_initial = $func->get_page_latest_revision($params['title'], $params['language'])) {
+        $func->save_to_history($rev_initial, $params['title'], $params['language']);
+        echo "\nInitial rev history saved."; print_r($rev_initial);
+        $expire_seconds = 0; //expires now    
+    }
+    else {
+        echo "\nNo wikipedia page for this title and language~~.\n";
+        return;
+    }
 }
 
 if($expire_seconds === 0)           echo "\nDifferent timestamp, expires now.\n";
