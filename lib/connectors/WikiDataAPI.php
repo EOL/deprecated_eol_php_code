@@ -416,6 +416,10 @@ class WikiDataAPI extends WikipediaAPI
         self::write_2file_debug_contents(); //write to file $this->debug contents
 
         print_r($this->count); //just a debug print of values
+
+        if($this->what == "wikipedia") {
+            if($val = @$this->debug['rev']) print_r($val);
+        }
         
         // if(($this->what == "wikimedia") || ($this->what == "wikipedia" && $this->language_code == "en")) return array(true, true);
         return array(true, true); //all that reaches this point will return true true
