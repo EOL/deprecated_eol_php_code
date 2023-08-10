@@ -87,7 +87,7 @@ class WikipediaRevisionsAPI
             return $arr;
         }
         else {
-            echo "\nERROR: Should not go here.\ntitle and language don't match: [$title] [$language]\n\n";
+            echo "\n[title] and [language] don't match: [$title] [$language]\n\n";
             return false;
         }
     }
