@@ -221,7 +221,7 @@ class PolytraitsNewAPI extends ContributorsMapAPI
             $json = json_encode($t); // exit("\n$json\n");
             $rec["catnum"] = md5($json);
             $rec['measurementDeterminedDate'] = $t->value_creation_date;
-            $rec['measurementRemarks'] = $t->text_excerpt;
+            $rec['measurementRemarks'] = self::clean_text($t->text_excerpt);
             $rec['source'] = $this->taxon_page.$obj->taxonID; //"http://polytraits.lifewatchgreece.eu"; //same value for all
             $rec['bibliographicCitation'] = "Polytraits Team (2023). Polytraits: A database on biological traits of polychaetes.. LifewatchGreece, Hellenic Centre for Marine Research. Accessed on 2023-05-30. Available from http://polytraits.lifewatchgreece.eu";
             $rec['contributor'] = self::get_or_add_contributor(trim($t->value_creator), trim($t->text_excerpt_creator)); //e.g. "https://orcid.org/0000-0001-9613-8300"
@@ -239,6 +239,11 @@ class PolytraitsNewAPI extends ContributorsMapAPI
 
             $this->func->add_string_types($rec, $mValue, $mType, "true");
         } //end foreach()
+    }
+    private function clean_text($str)
+    {
+        $str = str_replace('\"', '"', $str);
+        return $str;
     }
     private function format_trait($rec, $mValue, $mType)
     {   
