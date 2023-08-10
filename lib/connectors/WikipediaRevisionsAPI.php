@@ -44,7 +44,10 @@ class WikipediaRevisionsAPI
     }
     function get_page_latest_revision($title, $language)
     {
-        if($arr = self::run_revision_query($title, $language)) return $arr;
+        if($arr = self::run_revision_query($title, $language)) {
+            // print_r($arr); exit;
+            return $arr;
+        }
         else {
             echo "\nERROR: Should not go here.\ntitle and language don't match: [$title] [$language]\n\n";
             return false;
