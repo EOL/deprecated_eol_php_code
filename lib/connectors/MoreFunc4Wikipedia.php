@@ -21,7 +21,7 @@ class MoreFunc4Wikipedia
         date_sub($today, date_interval_create_from_date_string('1 month')); //previously '2 months'
         $minus_2_months = date_format($today, 'Y-m-d');
         // compare
-        echo "minus 2 months: " .$minus_2_months. "\n";
+        echo "minus 1 month: " .$minus_2_months. "\n";
         echo "\n$lang_date < $minus_2_months \n";
         if($lang_date < $minus_2_months) return true;
         else return false;
