@@ -293,6 +293,7 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	Sat 2023-02-25 04:30:38 PM	    {"media_resource.tab":847222, "taxon.tab":442796, "time_elapsed":{"sec":1001.36, "min":16.69, "hr":0.28}}
 80	Mon 2023-03-20 09:38:23 AM	    {"media_resource.tab":859348, "taxon.tab":448895, "time_elapsed":{"sec":955.29, "min":15.92, "hr":0.27}}
 80	Sun 2023-06-11 05:26:46 AM	    {"media_resource.tab":866565, "taxon.tab":452624, "time_elapsed":{"sec":982.34, "min":16.37, "hr":0.27}}
+80	Sat 2023-08-12 07:55:08 PM	    {"media_resource.tab":866552, "taxon.tab":452618, "time_elapsed":{"sec":966.59, "min":16.11, "hr":0.27}}
 
 wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
 wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
@@ -321,7 +322,7 @@ wikipedia-es	Fri 2022-07-15 10:14:26 AM	    {"media_resource.tab":368519, "taxon
 wikipedia-es	Fri 2022-09-09 09:23:54 AM	    {"media_resource.tab":371980, "taxon.tab":202391, "time_elapsed":{"sec":815.61, "min":13.59, "hr":0.23}} consistent OK
 wikipedia-es	Wed 2022-12-07 05:21:02 AM	    {"media_resource.tab":371978, "taxon.tab":202388, "time_elapsed":{"sec":788.44, "min":13.14, "hr":0.22}}
 wikipedia-es	Sun 2023-02-26 03:13:54 AM	    {"media_resource.tab":371975, "taxon.tab":202417, "time_elapsed":{"sec":776.41, "min":12.94, "hr":0.22}}
-
+wikipedia-es	Sun 2023-06-11 05:48:17 PM	    {"media_resource.tab":390352, "taxon.tab":211921, "time_elapsed":{"sec":860.42, "min":14.34, "hr":0.24}}
 
 wikipedia-it	Tuesday 2017-11-14 04:48:25 AM	{"media_resource.tab":64723,"taxon.tab":39992}
 wikipedia-it	Monday 2017-12-04 05:16:39 AM	{"media_resource.tab":64861,"taxon.tab":40069}
@@ -400,6 +401,7 @@ wikipedia-fr	Sun 2022-05-29 08:04:12 AM	      {"media_resource.tab":256192, "tax
 wikipedia-fr	Thu 2022-06-30 06:10:12 PM	      {"media_resource.tab":256606, "taxon.tab":144956, "time_elapsed":{"sec":784.96, "min":13.08, "hr":0.22}}
 wikipedia-fr	Sat 2022-09-10 11:26:25 AM	      {"media_resource.tab":258657, "taxon.tab":145955, "time_elapsed":{"sec":894.77, "min":14.91, "hr":0.25}} consistent inc. OK
 wikipedia-fr	Thu 2022-12-08 03:05:53 AM	      {"media_resource.tab":258694, "taxon.tab":145955, "time_elapsed":{"sec":872.41, "min":14.54, "hr":0.24}}
+wikipedia-fr	Mon 2023-06-12 01:48:03 PM	      {"media_resource.tab":266414, "taxon.tab":150032, "time_elapsed":{"sec":888.62, "min":14.81, "hr":0.25}} good steady inc.
 
 wikipedia-ja	Friday 2017-11-10 08:35:41 AM	{"media_resource.tab":26208,"taxon.tab":20431}
 wikipedia-ja	Saturday 2017-12-02 10:53:40 PM	{"media_resource.tab":26264,"taxon.tab":20475}
