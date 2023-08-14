@@ -28,9 +28,20 @@ class MoreFunc4Wikipedia
     }
     private function get_date_of_this_wikipedia_lang($lang)
     {
+        /* NEW:
+            if($lang == "en") $file = CONTENT_RESOURCE_LOCAL_PATH.'80.tar.gz';
+        elseif($lang == "xx") $file = CONTENT_RESOURCE_LOCAL_PATH.'xx.tar.gz';
+        else { //rest goes here
+            $file = CONTENT_RESOURCE_LOCAL_PATH.'wikipedia-'.$lang.'.tar.gz';
+        }
+        if(file_exists($file)) return date("Y-m-d", filemtime($file));
+        else                   return date("Y-m-d", false);
+        */
+        // /* OLD:
         $file = CONTENT_RESOURCE_LOCAL_PATH.'wikipedia-'.$lang.'.tar.gz';
         if(file_exists($file)) return date("Y-m-d", filemtime($file));
         else                   return date("Y-m-d", false);
+        // */
     }
     function get_language_info_from_TSV($needle)
     {
