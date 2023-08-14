@@ -743,11 +743,11 @@ class WikiDataAPI extends WikipediaAPI
                              // print_r($rek['sitelinks']); exit; good debug --- only for wikipedia resource
                              $i++;
 
-                             /* debug only
+                            //  /* debug only
                              if($this->language_code == 'en') {
-                                 if($i >= 1000) break;
+                                 if($i >= 2000) break;
                              }
-                             */
+                            //  */
 
                              $rek['rank'] = self::get_taxon_rank($arr->claims); //echo "\nrank OK";
                              $rek['author'] = self::get_authorship($arr->claims); //echo "\nauthorship OK";
