@@ -269,7 +269,7 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
 }
 // ************************************************************** */
 
-$langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh"); //1st batch | single connectors: ko, ja, ru
+$langs_with_multiple_connectors = array("es", "fr", "de", "it", "pt", "zh"); //1st batch | single connectors: ko, ja, ru
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch Dutch Polish Swedish Vietnamese
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("ce", "tr", "pl", "sv")); //3rd batch ... th also
 $all_6c = $func_wp->get_all_6_connectors(); //from all_wikipedias_main.tsv
