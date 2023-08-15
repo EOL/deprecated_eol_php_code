@@ -8,7 +8,7 @@ class WikipediaRevisionsAPI
         $this->download_options = array('cache' => 1, 'resource_id' => 'wikipedia_revisions', 'expire_seconds' => 60*60*24*10, //10 days cache
         'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1);
         // $this->download_options['expire_seconds'] = false;
-        if(Functions::is_production()) $this->download_options['download_wait_time'] = 1000000; //1 sec.
+        if(Functions::is_production()) $this->download_options['download_wait_time'] = 500000; //half a sec.
         $this->api['endPoint'] = "https://".$params['language'].".wikipedia.org/w/api.php"; //"https://en.wikipedia.org/w/api.php";
         $this->cache_path = DOC_ROOT . $GLOBALS['MAIN_CACHE_PATH'] . 'wikipedia_revisions/';
         if(!is_dir($this->cache_path)) mkdir($this->cache_path);
