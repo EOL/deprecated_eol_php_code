@@ -274,11 +274,11 @@ class PolytraitsNewAPI extends ContributorsMapAPI
         if($mType == 'http://purl.obolibrary.org/obo/CMO_0000013') $mType = 'http://eol.org/schema/terms/SizeClass';
         if($mType == 'http://polytraits.lifewatchgreece.eu/terms/EGG') {
             $mType = 'http://eol.org/schema/terms/SizeClass';
-            $rec['x_lifestage'] = 'http://eol.org/schema/terms/eggStage';
+            $rec['occur']['lifeStage'] = 'http://eol.org/schema/terms/eggStage';
         }
         if($mType == 'http://polytraits.lifewatchgreece.eu/terms/JMOB') {
             $mType = 'http://purl.obolibrary.org/obo/GO_0040011';
-            $rec['x_lifestage'] = 'http://purl.obolibrary.org/obo/PATO_0001190';
+            $rec['occur']['lifeStage'] = 'http://purl.obolibrary.org/obo/PATO_0001190';
         }
         if($mType == 'http://polytraits.lifewatchgreece.eu/terms/FEED') $mType = 'http://eol.org/schema/terms/TrophicGuild';
         // ---end---
