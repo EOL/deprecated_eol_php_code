@@ -375,7 +375,7 @@ function inject_MultipleConnJenkinsAPI($language, $six_coverage)
     require_library('connectors/MultipleConnJenkinsAPI');
     $funcj = new MultipleConnJenkinsAPI();
     echo "\ntry to finalize now...\n";
-    $total_count = 3448535; //2700000; //2500000 old value
+    $total_count = 3448535; //2700000; //2500000 old values --- seems this value need not be updated, since jenkins_call is now to "finalize"
     $arr_info = array();
     $arr_info['finalize_now'] = true;
     $arr_info['langx'] = $language;
