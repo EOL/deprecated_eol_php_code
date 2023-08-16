@@ -477,9 +477,9 @@ class Functions
         if(is_dir($ContResLocPath . $resource_id . "_previous")) recursive_rmdir($ContResLocPath . $resource_id . "_previous");
 
         // /* as of Jul 18, 2023: snippet to update CKAN "Life updated" metadata in opendata.eol.org
-        require_library('connectors/CKAN_API_Access');
+        require_library('connectors/CKAN_API_AccessAPI');
         $forced_date = "";
-        $func = new CKAN_API_Access('EOL resource', $forced_date); //other values: "EOL dump" or "EOL file"
+        $func = new CKAN_API_AccessAPI('EOL resource', $forced_date); //other values: "EOL dump" or "EOL file"
         $func->update_CKAN_resource_using_EOL_resourceID($resource_id);
         // */
     }
