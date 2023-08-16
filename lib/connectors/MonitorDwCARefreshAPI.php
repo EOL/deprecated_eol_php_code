@@ -22,7 +22,7 @@ class MonitorDwCARefreshAPI
         else {
                                      $sep = "<br>";
                                     //  echo "<font face='Courier' size='small'>";
-                                     echo '<p style="font-size:15px; font-family:Courier New">';
+                                     echo '<p style="font-size:13px; font-family:Courier New">';
         }
         $options = $this->download_options;
         if($html = Functions::lookup_with_cache($this->harvest_dump, $options)) {
