@@ -11,6 +11,7 @@ php update_resources/connectors/ckan_api_access.php _ "6e24f0df-56ee-470f-b81e-e
 -> All trait dump file.                                                           --- that is Jul 8, 2023 9:41 PM
 
 IMPORTANT: ALWAYS "chmod 775 ckan_api_access.php" AFTER UPDATE EOL-ARCHIVE
+                  "chmod 775 CKAN_API_AccessAPI.php" AFTER UPDATE EOL-ARCHIVE
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -21,7 +22,7 @@ ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
 // */
 // ini_set('memory_limit','14096M');
-require_library('connectors/CKAN_API_Access');
+require_library('connectors/CKAN_API_AccessAPI');
 $timestart = time_elapsed();
 
 
@@ -90,7 +91,7 @@ if(!$ckan_resource_id) exit("\nERROR: Incomplete parameters. No CKAN resource ID
 // $ckan_resource_id = "259b34c9-8752-4553-ab37-f85300daf8f2"; //during dev only
 if(!$file_type) $file_type = "EOL resource"; 
 
-$func = new CKAN_API_Access($file_type, $forced_date); //other values: "EOL dump" or "EOL file"
+$func = new CKAN_API_AccessAPI($file_type, $forced_date); //other values: "EOL dump" or "EOL file"
 $func->UPDATE_ckan_resource($ckan_resource_id, "Last updated"); //actual CKAN field is "last_modified"
 
 /* tests

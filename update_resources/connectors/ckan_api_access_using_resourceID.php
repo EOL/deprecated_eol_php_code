@@ -13,7 +13,7 @@ ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
 // */
 // ini_set('memory_limit','14096M');
-require_library('connectors/CKAN_API_Access');
+require_library('connectors/CKAN_API_AccessAPI');
 $timestart = time_elapsed();
 
 
@@ -24,7 +24,7 @@ if(!$eol_resource_id) exit("\nERROR: Incomplete parameters. No EOL resource ID.\
 // $ckan_resource_id = "protisten"; //during dev only
 
 $forced_date = "";
-$func = new CKAN_API_Access('EOL resource', $forced_date); //other values: "EOL dump" or "EOL file"
+$func = new CKAN_API_AccessAPI('EOL resource', $forced_date); //other values: "EOL dump" or "EOL file"
 $func->update_CKAN_resource_using_EOL_resourceID($eol_resource_id);
 
 Functions::get_time_elapsed($timestart);
