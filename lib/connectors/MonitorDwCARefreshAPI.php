@@ -144,15 +144,25 @@ class MonitorDwCARefreshAPI
                 foreach($lookup_ids as $lookup_id) self::display($id, $lookup_id);
             }
         }
-        else echo $this->sep."Nothing found. Please try another ID.".$this->sep;
         echo $this->sep."--end-- <a href='https://opendata.eol.org'>CKAN lookup</a>".$this->sep;
+        if(!$final) echo $this->sep."Nothing found. Please try another ID.".$this->sep;
         return $final;
     }
     private function display($id, $lookup_id)
     {
         if(isset($this->info_basename_to_ckan_resource_id)) $ckan_resource_id = $this->info_basename_to_ckan_resource_id[$lookup_id];
         else                                                $ckan_resource_id = '';
-        echo " ".$this->sep . self::format_str($id, 20) . " " . self::format_str($ckan_resource_id, 20) . " <a href='".$this->lookup_url . $lookup_id."'>$lookup_id</a>";
+
+        if(isset($this->info_basename_to_ckan_resource_id)) {
+            $url = "https://opendata.eol.org/dataset/" . $ckan_resource_id;
+            $href = " <a href='$url'>OpenData</a>";
+            echo " ".$this->sep . self::format_str($id, 20) . " " . self::format_str($ckan_resource_id, 60) . $href . " <a href='".$this->lookup_url . $lookup_id."'>$lookup_id</a>";
+        }
+        else {
+            echo " ".$this->sep . self::format_str($id, 20) . " " . self::format_str($ckan_resource_id, 20) . " <a href='".$this->lookup_url . $lookup_id."'>$lookup_id</a>";
+        }
+        
+
     }
     private function format_str($str, $padding)
     {

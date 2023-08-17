@@ -42,7 +42,8 @@ $func = new MonitorDwCARefreshAPI();
 $found_hits_YN = $func->start($dwca_id, "1st");
 if(!$found_hits_YN) {
     $possible_IDs = $func->start($dwca_id, "2nd");
-    if(!$possible_IDs) $func->lookup_CKAN_for_DwCA_ID($dwca_id);
+    // if(!$possible_IDs) $func->lookup_CKAN_for_DwCA_ID($dwca_id);
+    $func->lookup_CKAN_for_DwCA_ID($dwca_id); //continue always, not dependent of $possible_IDs
 }
 
 // Functions::get_time_elapsed($timestart);
