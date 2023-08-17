@@ -12,18 +12,24 @@ class MonitorDwCARefreshAPI
         $this->harvest_dump = "https://editors.eol.org/eol_php_code/applications/content_server/resources/EOL_FreshData_connectors.txt";
         $this->fields = array("ID", "Date", "Stats");
     }
-    function start($dwca_id)
+    function start($dwca_id, $series)
     {   
         if($dwca_id == 'wikipedia-en') $dwca_id = 80;
         if($dwca_id == 'wikipedia-de') $dwca_id = 957;
 
         // echo "\n".php_sapi_name(); exit("\n");
-        if(php_sapi_name() == "cli") $sep = "\n";
+        if(php_sapi_name() == "cli") {
+            $sep = "\n";
+            $pre_tag = "";
+        }
         else {
                                      $sep = "<br>";
+                                     $pre_tag = "<pre>";
                                     //  echo "<font face='Courier' size='small'>";
                                      echo '<p style="font-size:13px; font-family:Courier New">';
         }
+        $found_hits_YN = false; //for series 1
+        $possible_IDs = false; //for series 2
         $options = $this->download_options;
         if($html = Functions::lookup_with_cache($this->harvest_dump, $options)) {
             $rows = explode("\n", $html);
@@ -51,17 +57,35 @@ class MonitorDwCARefreshAPI
                     [Date] => Wed 2023-08-16 09:27:06 AM
                     [Stats] => {"media_resource.tab":270, "taxon.tab":744, "time_elapsed":{"sec":2.49, "min":0.04, "hr":0}}
                 ) */
-                if($rek['ID'] == $dwca_id) {
-                    if(!$id_shown_YN) {
-                        echo "\n".$rek['ID'];
-                        $id_shown_YN = true;
-                    }
-                    echo $sep.self::format_str($rek['Date'], 35);
-                    echo      self::format_str($rek['Stats'], 100);
+                //--------------------------------------------------------------------
+                if($series == "1st") {
+                    if($rek['ID'] == $dwca_id) { $found_hits_YN = true;
+                        if(!$id_shown_YN) {
+                            echo "\n".$rek['ID'];
+                            $id_shown_YN = true;
+                        }
+                        echo $sep.self::format_str($rek['Date'], 35);
+                        echo      self::format_str($rek['Stats'], 100);
+                    }    
                 }
-            }
+                //--------------------------------------------------------------------
+                if($series == "2nd") {
+                    if(stripos($rek['ID'], $dwca_id) !== false) { $found_hits_YN = true; //string is found
+                        $possible_IDs[$rek['ID']] = '';
+                    }    
+                }
+                //--------------------------------------------------------------------
+
+            } //end foreach()
             echo $sep."--end--";
         }
+        if($series == "2nd") {
+            if($possible_IDs) {
+                echo $pre_tag;
+                echo $sep."Possible IDs to use: "; print_r($possible_IDs);
+            }
+        }
+        return $found_hits_YN;
     }
     private function format_str($str, $padding)
     {

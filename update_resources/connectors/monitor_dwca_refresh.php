@@ -42,7 +42,8 @@ https://editors.eol.org/eol_php_code/update_resources/connectors/monitor_dwca_re
 // if(!$dwca_id) exit("\nERROR: Incomplete parameters. No DwCA ID. [$dwca_id]\n");
 
 $func = new MonitorDwCARefreshAPI();
-$func->start($dwca_id);
+$found_hits_YN = $func->start($dwca_id, "1st");
+if(!$found_hits_YN) $func->start($dwca_id, "2nd");
 
 // Functions::get_time_elapsed($timestart);
 function get_val_var($v)
