@@ -106,15 +106,14 @@ class MonitorDwCARefreshAPI
             $packages = json_decode($json);
             // print_r($packages); exit;
             foreach($packages->result as $ckan_resource_id) { // e.g. wikimedia
-
                 $dwca_id = (string) $dwca_id;
                 $ckan_resource_id = (string) $ckan_resource_id;
 
-                // echo $this->sep . "[$dwca_id][$ckan_resource_id]";
+                // echo $this->sep . "[$dwca_id][$ckan_resource_id]"; exit;
                 if(stripos($ckan_resource_id, $dwca_id) !== false) { //string is found
                     // exit("\n-found-\n");
                     $options['expire_seconds'] = 60*60*24*1; //orig 1 day expires
-                    if($json = Functions::lookup_with_cache($this->api_package_show.$dwca_id, $options)) {
+                    if($json = Functions::lookup_with_cache($this->api_package_show.$ckan_resource_id, $options)) {
                         $obj = json_decode($json);
                         // print_r($obj->result->resources); exit;
                         foreach($obj->result->resources as $res) {
@@ -124,6 +123,9 @@ class MonitorDwCARefreshAPI
                                 $basename = pathinfo($url, PATHINFO_BASENAME);      //cicadellinaemetarecoded.tar.gz
                                 $basename = str_replace(".tar.gz", "", $basename);  //cicadellinaemetarecoded
                                 $final[$dwca_id][] = $basename;
+                                // /* new
+                                $this->info_basename_to_ckan_resource_id[$basename] = $ckan_resource_id; //for lookup below
+                                // */
                             }
                         }
                     }    
@@ -143,7 +145,9 @@ class MonitorDwCARefreshAPI
     }
     private function display($id, $lookup_id)
     {
-        echo " ".$this->sep . self::format_str($id, 20) . " <a href='".$this->lookup_url . $lookup_id."'>$lookup_id</a>";
+        if(isset($this->info_basename_to_ckan_resource_id)) $ckan_resource_id = $this->info_basename_to_ckan_resource_id[$lookup_id];
+        else                                                $ckan_resource_id = '';
+        echo " ".$this->sep . self::format_str($id, 20) . " " . self::format_str($ckan_resource_id, 20) . " <a href='".$this->lookup_url . $lookup_id."'>$lookup_id</a>";
     }
     private function format_str($str, $padding)
     {
