@@ -81,16 +81,21 @@ class MonitorDwCARefreshAPI
                 //--------------------------------------------------------------------
 
             } //end foreach()
-            echo $this->sep."--end--";
+            // echo $this->sep."--end--".$this->sep;
         }
         if($series == "2nd") {
             if($possible_IDs) {
                 echo $pre_tag;
                 echo $this->sep."Possible IDs to use: "; //print_r($possible_IDs);
-                foreach(array_keys($possible_IDs) as $lookup_id) self::display($dwca_id, $lookup_id);
+                foreach(array_keys($possible_IDs) as $lookup_id) {                    
+                    if(stripos($lookup_id, "of6") !== false) continue; //string is found
+                    self::display($dwca_id, $lookup_id);
+                }
             }
+            echo $this->sep."--end--".$this->sep;
             return $possible_IDs;
         }
+        echo $this->sep."--end--".$this->sep;
         return $found_hits_YN;
     }
     function lookup_CKAN_for_DwCA_ID($dwca_id)
@@ -133,7 +138,7 @@ class MonitorDwCARefreshAPI
             }
         }
         else echo $this->sep."Nothing found. Please try another ID.".$this->sep;
-        echo $this->sep."--end--";
+        echo $this->sep."--end--".$this->sep;
         return $final;
     }
     private function display($id, $lookup_id)
