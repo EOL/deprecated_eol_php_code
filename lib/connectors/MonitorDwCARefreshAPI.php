@@ -8,7 +8,7 @@ class MonitorDwCARefreshAPI
     {
         $this->download_options = array('cache' => 1, 'resource_id' => 'dwca_monitor', 'timeout' => 3600, 'download_attempts' => 1, 
         'expire_seconds' => 60*60*1*1); // ideal 1 hr cache
-        $this->download_options['expire_seconds'] = false; //during dev only
+        // $this->download_options['expire_seconds'] = false; //during dev only
         $this->harvest_dump = "https://editors.eol.org/eol_php_code/applications/content_server/resources/EOL_FreshData_connectors.txt";
         $this->fields = array("ID", "Date", "Stats");
         $this->api_package_list = "https://opendata.eol.org/api/3/action/package_list";
@@ -65,11 +65,11 @@ class MonitorDwCARefreshAPI
                 if($series == "1st") {
                     if($rek['ID'] == $dwca_id) { $found_hits_YN = true;
                         if(!$id_shown_YN) {
-                            echo "\n".$rek['ID'];
+                            echo $this->sep . $rek['ID'];
                             $id_shown_YN = true;
                         }
                         echo $this->sep.self::format_str($rek['Date'], 35);
-                        echo      self::format_str($rek['Stats'], 100);
+                        echo                             $rek['Stats']; //self::format_str($rek['Stats'], 150);
                     }    
                 }
                 //--------------------------------------------------------------------
