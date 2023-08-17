@@ -11,6 +11,10 @@ class MonitorDwCARefreshAPI
         $this->download_options['expire_seconds'] = false; //during dev only
         $this->harvest_dump = "https://editors.eol.org/eol_php_code/applications/content_server/resources/EOL_FreshData_connectors.txt";
         $this->fields = array("ID", "Date", "Stats");
+        $this->api_package_list = "https://opendata.eol.org/api/3/action/package_list";
+        $this->api_package_show = "https://opendata.eol.org/api/3/action/package_show?id=";
+        if(Functions::is_production()) $this->lookup_url = "https://editors.eol.org/eol_php_code/update_resources/connectors/monitor_dwca_refresh.php?dwca_id=";
+        else                           $this->lookup_url = "http://localhost/eol_php_code/update_resources/connectors/monitor_dwca_refresh.php?dwca_id=";        
     }
     function start($dwca_id, $series)
     {   
@@ -19,11 +23,11 @@ class MonitorDwCARefreshAPI
 
         // echo "\n".php_sapi_name(); exit("\n");
         if(php_sapi_name() == "cli") {
-            $sep = "\n";
+            $this->sep = "\n";
             $pre_tag = "";
         }
         else {
-                                     $sep = "<br>";
+                                     $this->sep = "<br>";
                                      $pre_tag = "<pre>";
                                     //  echo "<font face='Courier' size='small'>";
                                      echo '<p style="font-size:13px; font-family:Courier New">';
@@ -64,7 +68,7 @@ class MonitorDwCARefreshAPI
                             echo "\n".$rek['ID'];
                             $id_shown_YN = true;
                         }
-                        echo $sep.self::format_str($rek['Date'], 35);
+                        echo $this->sep.self::format_str($rek['Date'], 35);
                         echo      self::format_str($rek['Stats'], 100);
                     }    
                 }
@@ -77,15 +81,64 @@ class MonitorDwCARefreshAPI
                 //--------------------------------------------------------------------
 
             } //end foreach()
-            echo $sep."--end--";
+            echo $this->sep."--end--";
         }
         if($series == "2nd") {
             if($possible_IDs) {
                 echo $pre_tag;
-                echo $sep."Possible IDs to use: "; print_r($possible_IDs);
+                echo $this->sep."Possible IDs to use: "; //print_r($possible_IDs);
+                foreach(array_keys($possible_IDs) as $lookup_id) self::display($dwca_id, $lookup_id);
             }
+            return $possible_IDs;
         }
         return $found_hits_YN;
+    }
+    function lookup_CKAN_for_DwCA_ID($dwca_id)
+    {   $final = array();
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*1*1; //orig 1 hr expires
+        if($json = Functions::lookup_with_cache($this->api_package_list, $options)) {
+            $packages = json_decode($json);
+            // print_r($packages); exit;
+            foreach($packages->result as $ckan_resource_id) { // e.g. wikimedia
+
+                $dwca_id = (string) $dwca_id;
+                $ckan_resource_id = (string) $ckan_resource_id;
+
+                // echo $this->sep . "[$dwca_id][$ckan_resource_id]";
+                if(stripos($ckan_resource_id, $dwca_id) !== false) { //string is found
+                    // exit("\n-found-\n");
+                    $options['expire_seconds'] = 60*60*24*1; //orig 1 day expires
+                    if($json = Functions::lookup_with_cache($this->api_package_show.$dwca_id, $options)) {
+                        $obj = json_decode($json);
+                        // print_r($obj->result->resources); exit;
+                        foreach($obj->result->resources as $res) {
+                            $url = $res->url;
+                            if(substr($url, -7) == ".tar.gz") {
+                                // print_r($res); //exit;
+                                $basename = pathinfo($url, PATHINFO_BASENAME);      //cicadellinaemetarecoded.tar.gz
+                                $basename = str_replace(".tar.gz", "", $basename);  //cicadellinaemetarecoded
+                                $final[$dwca_id][] = $basename;
+                            }
+                        }
+                    }    
+                } //end if()
+                // else echo " - not found";
+            }
+        }
+        // print_r($final); echo "\n".count($final)."\n"; //good debug
+        if($final) {
+            foreach($final as $id => $lookup_ids) {
+                foreach($lookup_ids as $lookup_id) self::display($id, $lookup_id);
+            }
+        }
+        else echo $this->sep."Nothing found. Please try another ID.".$this->sep;
+        echo $this->sep."--end--";
+        return $final;
+    }
+    private function display($id, $lookup_id)
+    {
+        echo " ".$this->sep . self::format_str($id, 20) . " <a href='".$this->lookup_url . $lookup_id."'>$lookup_id</a>";
     }
     private function format_str($str, $padding)
     {

@@ -43,7 +43,10 @@ https://editors.eol.org/eol_php_code/update_resources/connectors/monitor_dwca_re
 
 $func = new MonitorDwCARefreshAPI();
 $found_hits_YN = $func->start($dwca_id, "1st");
-if(!$found_hits_YN) $func->start($dwca_id, "2nd");
+if(!$found_hits_YN) {
+    $possible_IDs = $func->start($dwca_id, "2nd");
+    if(!$possible_IDs) $func->lookup_CKAN_for_DwCA_ID($dwca_id);
+}
 
 // Functions::get_time_elapsed($timestart);
 function get_val_var($v)
