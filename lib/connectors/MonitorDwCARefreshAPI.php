@@ -32,6 +32,8 @@ class MonitorDwCARefreshAPI
                                     //  echo "<font face='Courier' size='small'>";
                                      echo '<p style="font-size:13px; font-family:Courier New">';
         }
+        if(strlen($dwca_id) < 3) exit($this->sep."Parameter must me at least three (3) characters long.");
+
         $found_hits_YN = false; //for series 1
         $possible_IDs = false; //for series 2
         $options = $this->download_options;
@@ -92,10 +94,10 @@ class MonitorDwCARefreshAPI
                     self::display($dwca_id, $lookup_id);
                 }
             }
-            echo $this->sep."--end--".$this->sep;
+            echo $this->sep."--end-- <a href='$this->harvest_dump'>DwCA logs</a>".$this->sep;
             return $possible_IDs;
         }
-        echo $this->sep."--end--".$this->sep;
+        echo $this->sep."--end-- <a href='$this->harvest_dump'>DwCA logs</a>".$this->sep;
         return $found_hits_YN;
     }
     function lookup_CKAN_for_DwCA_ID($dwca_id)
@@ -108,10 +110,9 @@ class MonitorDwCARefreshAPI
             foreach($packages->result as $ckan_resource_id) { // e.g. wikimedia
                 $dwca_id = (string) $dwca_id;
                 $ckan_resource_id = (string) $ckan_resource_id;
-
                 // echo $this->sep . "[$dwca_id][$ckan_resource_id]"; exit;
+                
                 if(stripos($ckan_resource_id, $dwca_id) !== false) { //string is found
-                    // exit("\n-found-\n");
                     $options['expire_seconds'] = 60*60*24*1; //orig 1 day expires
                     if($json = Functions::lookup_with_cache($this->api_package_show.$ckan_resource_id, $options)) {
                         $obj = json_decode($json);
@@ -130,7 +131,11 @@ class MonitorDwCARefreshAPI
                         }
                     }    
                 } //end if()
-                // else echo " - not found";
+                /*
+                to do: is to search the CKAN name/label e.g. "FishBase". 
+                    - 1st create a tsv file of all labels|ckan_resource_id
+                    - 2nd search substr from string label 
+                */
             }
         }
         // print_r($final); echo "\n".count($final)."\n"; //good debug
@@ -140,7 +145,7 @@ class MonitorDwCARefreshAPI
             }
         }
         else echo $this->sep."Nothing found. Please try another ID.".$this->sep;
-        echo $this->sep."--end--".$this->sep;
+        echo $this->sep."--end-- <a href='https://opendata.eol.org'>CKAN lookup</a>".$this->sep;
         return $final;
     }
     private function display($id, $lookup_id)
