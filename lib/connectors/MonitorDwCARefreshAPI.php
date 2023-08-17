@@ -27,10 +27,9 @@ class MonitorDwCARefreshAPI
             $pre_tag = "";
         }
         else {
-                                     $this->sep = "<br>";
-                                     $pre_tag = "<pre>";
-                                    //  echo "<font face='Courier' size='small'>";
-                                     echo '<p style="font-size:13px; font-family:Courier New">';
+            $this->sep = "<br>";
+            $pre_tag = "<pre>";
+            echo '<p style="font-size:13px; font-family:Courier New">';
         }
         if(strlen($dwca_id) < 3) exit($this->sep."Parameter must me at least three (3) characters long.");
 
@@ -158,11 +157,7 @@ class MonitorDwCARefreshAPI
             $href = " <a href='$url'>OpenData</a>";
             echo " ".$this->sep . self::format_str($id, 20) . " " . self::format_str($ckan_resource_id, 60) . $href . " <a href='".$this->lookup_url . $lookup_id."'>$lookup_id</a>";
         }
-        else {
-            echo " ".$this->sep . self::format_str($id, 20) . " " . self::format_str($ckan_resource_id, 20) . " <a href='".$this->lookup_url . $lookup_id."'>$lookup_id</a>";
-        }
-        
-
+        else echo " ".$this->sep . self::format_str($id, 20) . " " . self::format_str($ckan_resource_id, 20) . " <a href='".$this->lookup_url . $lookup_id."'>$lookup_id</a>";
     }
     private function format_str($str, $padding)
     {
