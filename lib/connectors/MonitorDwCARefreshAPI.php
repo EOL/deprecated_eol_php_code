@@ -31,7 +31,9 @@ class MonitorDwCARefreshAPI
             $pre_tag = "<pre>";
             echo '<p style="font-size:13px; font-family:Courier New">';
         }
-        if(strlen($dwca_id) < 3) exit($this->sep."Parameter must me at least three (3) characters long.");
+        if(!is_numeric($dwca_id)) {
+            if(strlen($dwca_id) < 3) exit($this->sep."Parameter must me at least three (3) characters long.");
+        }
 
         $found_hits_YN = false; //for series 1
         $possible_IDs = false; //for series 2
@@ -90,6 +92,8 @@ class MonitorDwCARefreshAPI
                 echo $this->sep."Possible IDs to use: "; //print_r($possible_IDs);
                 foreach(array_keys($possible_IDs) as $lookup_id) {                    
                     if(stripos($lookup_id, "of6") !== false) continue; //string is found
+                    if(strpos($lookup_id, "_ELI") !== false) continue; //string is found
+
                     self::display($dwca_id, $lookup_id);
                 }
             }
@@ -144,7 +148,7 @@ class MonitorDwCARefreshAPI
             }
         }
         echo $this->sep."--end-- <a href='https://opendata.eol.org'>CKAN lookup</a>".$this->sep;
-        if(!$final) echo $this->sep."Nothing found. Please try another ID.".$this->sep;
+        // if(!$final) echo $this->sep."Nothing found. Please try another ID.".$this->sep;
         return $final;
     }
     private function display($id, $lookup_id)
