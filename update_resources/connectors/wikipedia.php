@@ -281,7 +281,7 @@ $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, a
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("tr", "ro", "cs")); //4th batch Turkish Romanian Czech
 */
 
-$use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id"); //first client for MultipleConnJenkinsAPI | , "cy", "az", "ast", "bg" "ceb"
+$use_MultipleConnJenkinsAPI = array("min", "id"); //first client for MultipleConnJenkinsAPI | , "cy", "az", "ast", "bg" "ceb" "war"
 
 /* No longer have multiple connectors
 $use_MultipleConnJenkinsAPI = array_merge($use_MultipleConnJenkinsAPI, array("szl", "af", "ka", "lt"));
