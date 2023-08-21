@@ -1,4 +1,6 @@
 en	Y	
+zh	Y	
+
 es	Y	6c
 it	Y	6c
 de	Y	6c
@@ -7,7 +9,6 @@ ja	Y	6c
 ko	Y	6c
 ru	Y	6c
 pt	Y	6c
-zh	Y	
 nl	Y	6c
 pl	Y	6c
 vi	Y	6c
@@ -55,7 +56,6 @@ sl	Y	6c
 is	Y	6c
 nv	Y	6c
 bs	Y	6c
-sh	Y	
 kk	Y	6c
 br	Y	6c
 hi	Y	6c
@@ -70,9 +70,14 @@ fy	Y	6c
 ba	Y	6c
 sw	Y	6c
 mrj	Y	6c
+ne	Y	6c
+ce	Y	6c
+ceb	N	6c
+war	N	6c
+-----	-----	-----
+sh	Y	
 as	Y	
 ky	Y	
-ne	Y	6c
 sco	Y	
 nds	Y	
 tl	Y	
@@ -84,9 +89,6 @@ mr	Y
 tt	Y	
 an	Y	
 ku	Y	
-ce	Y	6c
-ceb	N	6c
-war	N	6c
 -----	-----	-----
 be-x-old	Y	
 gu	Y	
