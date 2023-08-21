@@ -72,8 +72,8 @@ sw	Y	6c
 mrj	Y	6c
 ne	Y	6c
 ce	Y	6c
-ceb	N	6c
-war	N	6c
+ceb	Y	6c
+war	Y	6c
 -----	-----	-----
 sh	Y	
 as	Y	
