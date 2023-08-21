@@ -14,7 +14,9 @@ class MonitorDwCARefreshAPI
         $this->api_package_list = "https://opendata.eol.org/api/3/action/package_list";
         $this->api_package_show = "https://opendata.eol.org/api/3/action/package_show?id=";
         if(Functions::is_production()) $this->lookup_url = "https://editors.eol.org/eol_php_code/update_resources/connectors/monitor_dwca_refresh.php?dwca_id=";
-        else                           $this->lookup_url = "http://localhost/eol_php_code/update_resources/connectors/monitor_dwca_refresh.php?dwca_id=";        
+        else                           $this->lookup_url = "http://localhost/eol_php_code/update_resources/connectors/monitor_dwca_refresh.php?dwca_id=";
+        $this->prev_date = "";
+        $this->color = 'lightyellow';
     }
     function start($dwca_id, $series)
     {   
@@ -71,8 +73,15 @@ class MonitorDwCARefreshAPI
                             echo $this->sep . $rek['ID'];
                             $id_shown_YN = true;
                         }
+                        $date = self::get_date_from_date_string($rek['Date']);
+                        if($date != $this->prev_date) self::toggle_color();
+                            
+                        echo "<span style='background-color:".$this->color.";'>";
+                        $this->prev_date = $date;
+                        // echo $date;
                         echo $this->sep.self::format_str($rek['Date'], 35);
                         echo                             $rek['Stats']; //self::format_str($rek['Stats'], 150);
+                        echo "</span>";
                     }    
                 }
                 //--------------------------------------------------------------------
@@ -102,6 +111,17 @@ class MonitorDwCARefreshAPI
         }
         echo $this->sep."--end-- <a href='$this->harvest_dump'>DwCA logs</a>".$this->sep;
         return $found_hits_YN;
+    }
+    private function get_date_from_date_string($str)
+    {
+        $arr = explode(" ", $str);
+        // print_r($arr); exit;
+        return $arr[1];
+    }
+    private function toggle_color()
+    {
+        if($this->color == 'aqua')       $this->color = 'lightyellow';
+        elseif($this->color == 'lightyellow') $this->color = 'aqua';
     }
     function lookup_CKAN_for_DwCA_ID($dwca_id)
     {   $final = array();
