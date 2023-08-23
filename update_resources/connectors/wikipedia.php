@@ -155,6 +155,14 @@ $debug_taxon                = @$argv[7];
 $six_coverage               = @$argv[8];
 */
 
+/*
+to generate stats: 'en' here can be any language... use lang that hasn't been refreshed yet.
+php update_resources/connectors/wikipedia.php _ en taxon_wiki_per_language_stats
+-> obsolete now
+php5.6                          wikipedia.php _ '{"language":"en", "task":"taxon_wiki_per_language_stats"}'
+-> use this moving forward...
+*/
+
 // /* new
 $params['json']              = @$argv[2]; //useful here
 if(substr($params['json'],0,1) == "{") { //a real json param
@@ -179,8 +187,11 @@ else { // the lone param is the language code e.g. php5.6 wikipedia.php jenkins 
 }
 // */
 
-if(!$six_coverage) $six_coverage = "1st";
-$params['six_coverage'] = $six_coverage;
+if($params['task'] == "taxon_wiki_per_language_stats") {}
+else { //orig, rest goes here
+    if(!$six_coverage) $six_coverage = "1st";
+    $params['six_coverage'] = $six_coverage;    
+}
 
 // /*
 // So that these two becomes equal:
