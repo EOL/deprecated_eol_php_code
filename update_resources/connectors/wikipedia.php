@@ -190,7 +190,7 @@ else { // the lone param is the language code e.g. php5.6 wikipedia.php jenkins 
 
 
 if($params['task'] == "taxon_wiki_per_language_stats") {
-    $GLOBALS['ENV_DEBUG'] = true;
+    // $GLOBALS['ENV_DEBUG'] = true;
 }
 else { //orig, rest goes here
     if(!$six_coverage) $six_coverage = "1st";
