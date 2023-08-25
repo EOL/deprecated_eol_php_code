@@ -709,7 +709,7 @@ class WikiDataAPI extends WikipediaAPI
                     */
                     if($val = @$arr->sitelinks) {
                         self::taxon_wiki_per_language_stats_f((array) $val);
-                        if($k >= 1000) break; //debug only
+                        // if($k >= 1000) break; //debug only
                     }
                     // exit("\ndapat dito...\n");
                     continue;
