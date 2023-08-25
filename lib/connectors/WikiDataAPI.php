@@ -336,8 +336,11 @@ class WikiDataAPI extends WikipediaAPI
         if(!in_array($task, array("taxon_wiki_per_language_stats"))) self::initialize_files();
         */
         if($task == "generate_wikidata_taxonomy") self::initialize_files($this->language_code."_xtra");
-        elseif($task == "taxon_wiki_per_language_stats") {}
+        elseif($task == "taxon_wiki_per_language_stats") {
+            self::parse_wiki_data_json($task);
+        }
         else self::initialize_files($this->language_code); //the rest goes here
+
         
         if    ($this->what == "wikipedia") $what_generation_status = "wikipedia_generation_status_".$this->language_code."_";
         elseif($this->what == "wikimedia") $what_generation_status = "wikimedia_generation_status_";
