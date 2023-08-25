@@ -711,7 +711,7 @@ class WikiDataAPI extends WikipediaAPI
                         self::taxon_wiki_per_language_stats_f((array) $val);
                         // if($k >= 10) break; //debug only
                     }
-                    exit("\ndapat dito...\n");
+                    // exit("\ndapat dito...\n");
                     continue;
                 }
                 // */
