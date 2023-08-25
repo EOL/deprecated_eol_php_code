@@ -671,17 +671,17 @@ class WikiDataAPI extends WikipediaAPI
             }
             // */
 
-            // /* force use of API - March 12, 2023
+            /* force use of API - March 12, 2023 --- customize
             if($Q_id == 'Q1130386') {
                 $arr = self::get_object($Q_id);
                 $arr = $arr->entities->$Q_id; $Q_id = $arr->id;
                 $instance_of = trim((string) @$arr->claims->P31[0]->mainsnak->datavalue->value->id); //should be of 'taxon' Q16521
                 $taxon_name  = trim((string) @$arr->claims->P225[0]->mainsnak->datavalue->value); //has a taxon name
             }
-            // */
+            */
             
             // echo("\ninstance_of: [$instance_of]\n"); //debug only
-            $taxonRank = self::get_taxon_rank(@$arr->claims); //use @ bec. needed for last rec
+            if($instance_of == "Q16521") $taxonRank = self::get_taxon_rank(@$arr->claims); //use @ bec. needed for last rec
             if($instance_of == "Q16521" && self::valid_sciname($taxon_name, $taxonRank) ) { @$taxa_count++;
                 // debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
                 // $Q_id = $arr->id; --- transferred up
@@ -705,7 +705,7 @@ class WikiDataAPI extends WikipediaAPI
                     $arr = $arr->entities->$Q_id;
                     */
                     if($val = @$arr->sitelinks) {
-                        self::taxon_wiki_per_language_stats((array) $val);
+                        self::taxon_wiki_per_language_stats_f((array) $val);
                         // if($k >= 10) break; //debug only
                     }
                     continue;
@@ -3180,10 +3180,10 @@ class WikiDataAPI extends WikipediaAPI
         }
         // */
 
-        // /* manual - force expire e.g. Q1130386 - Jen's new vernacular - https://eol-jira.bibalex.org/browse/DATA-1919?focusedCommentId=67367&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67367
+        /* customize manual - force expire e.g. Q1130386 - Jen's new vernacular - https://eol-jira.bibalex.org/browse/DATA-1919?focusedCommentId=67367&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67367
         // https://www.wikidata.org/wiki/Special:EntityData/Q1130386.json
         if($id == 'Q1130386') $options['expire_seconds'] = 0; //expires now
-        // */
+        */
 
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);

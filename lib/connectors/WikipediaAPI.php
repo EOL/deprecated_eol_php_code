@@ -44,7 +44,7 @@ class WikipediaAPI extends WikiHTMLAPI
         }
         $this->trans['editors'][$this->language_code] = $this->pre_trans['Wikipedia authors and editors'];
     }
-    function taxon_wiki_per_language_stats($sitelinks)
+    function taxon_wiki_per_language_stats_f($sitelinks)
     {
         // print_r($sitelinks); exit;
         /* 1st version: OK but triggers API calls. Better to use what the json dump gives.
