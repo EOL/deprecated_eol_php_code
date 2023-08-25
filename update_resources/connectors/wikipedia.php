@@ -355,7 +355,7 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
 }
 else { //orig - just one connector
     echo "\n===== Goes to the one-connector run =====\n";
-    $func->generate_resource();
+    $func->generate_resource($params['task']);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means delete working folder
     // /*
     $tmp = array('resource_id' => $resource_id);
