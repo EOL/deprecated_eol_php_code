@@ -285,8 +285,8 @@ else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
 // ************************************************************** */
 
 $langs_with_multiple_connectors = array("es", "fr", "de", "it", "pt"); //1st batch | single connectors: ko, ja, ru | removed "zh" 18Aug2023
-$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch Dutch Polish Swedish Vietnamese
-$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("ce", "tr", "pl", "sv")); //3rd batch ... th also
+$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "vi")); //2nd batch Dutch Polish Swedish Vietnamese "sv"
+$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("ce", "tr", "pl")); //3rd batch ... th also "sv"
 $all_6c = $func_wp->get_all_6_connectors(); //from all_wikipedias_main.tsv
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $all_6c);
 
@@ -296,7 +296,7 @@ $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, a
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("tr", "ro", "cs")); //4th batch Turkish Romanian Czech
 */
 
-$use_MultipleConnJenkinsAPI = array("min", "id"); //first client for MultipleConnJenkinsAPI | , "cy", "az", "ast", "bg" "ceb" "war"
+$use_MultipleConnJenkinsAPI = array(); //first client for MultipleConnJenkinsAPI | , "cy", "az", "ast", "bg" "ceb" "war" "min", "id"
 
 /* No longer have multiple connectors
 $use_MultipleConnJenkinsAPI = array_merge($use_MultipleConnJenkinsAPI, array("szl", "af", "ka", "lt"));
