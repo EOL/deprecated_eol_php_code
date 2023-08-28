@@ -1,5 +1,3 @@
-en	Y	
-zh	Y	
 es	Y	6c
 it	Y	6c
 de	Y	6c
@@ -12,8 +10,6 @@ nl	Y	6c
 pl	Y	6c
 vi	Y	6c
 -----	-----	-----
-no	Y	6c
-tr	Y	6c
 th	Y	6c
 szl	Y	6c
 az	Y	6c
@@ -53,9 +49,11 @@ sw	Y	6c
 mrj	Y	6c
 ne	Y	6c
 ce	Y	6c
-ceb	Y	
-war	Y	
 -----	-----	-----
+en	Y	
+zh	Y	
+no	Y	
+tr	Y	
 ca	Y	
 uk	Y	
 sv	Y	
@@ -202,4 +200,6 @@ zh-classical	Y
 kl	Y	
 vo	Y	
 ab	Y
+ceb	Y	
+war	Y	
 -----	-----	-----
