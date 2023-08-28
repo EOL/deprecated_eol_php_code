@@ -80,10 +80,13 @@ class WikipediaHtmlAPI
                 }
                 $rec = array_map('trim', $rec);
                 self::save_to_html($rec['description'], $filename);
-                // print_r($rec); break; //exit;
-                break;
+                // print_r($rec); //break; //exit;
+                @$debug[$rec['CVterm']] = '';
+                // break;
+                if($i >= 1000) break;
             }
         }
+        print_r($debug); exit("\n[$i]\n");
     }
     private function save_to_html($desc, $filename)
     {
