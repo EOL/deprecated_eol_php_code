@@ -59,8 +59,9 @@ class WikipediaHtmlAPI
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
         $index = array_keys($tables);
-        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
-            debug("Invalid archive file. Program will terminate.");
+        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields) ||
+           !($tables["http://eol.org/schema/media/document"][0]->fields)) { // take note the index key is all lower case
+            debug("Invalid archive file. Program will terminate. [$dwca]");
             return false;
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);

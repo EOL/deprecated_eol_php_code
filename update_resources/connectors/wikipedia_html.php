@@ -8,7 +8,7 @@ require_library('connectors/WikipediaHtmlAPI');
 $timestart = time_elapsed();
 
 $filenames = array("80", "wikipedia-es");
-$filenames = array("957");
+$filenames = array("be-x-old", "zh-min-nan");
 
 $func = new WikipediaHtmlAPI();
 
