@@ -18,14 +18,59 @@ class WikipediaHtmlAPI
     }
     function start()
     {
-        $txt_file = self::get_languages_list();
-        exit("\n$txt_file\n");
-
+        $txt_file = self::get_languages_list(); // exit("\n$txt_file\n");
+        $i = 0;
+        foreach(new FileIterator($txt_file) as $line => $row) { $i++; 
+            if($i == 1) $fields = explode("\t", $row);
+            else {
+                if(!$row) continue;
+                $tmp = explode("\t", $row);
+                $rec = array(); $k = 0;
+                foreach($fields as $field) {
+                    $rec[$field] = $tmp[$k];
+                    $k++;
+                }
+                $rec = array_map('trim', $rec); //print_r($rec); exit;
+                /* Array(
+                    [language] => ceb
+                    [count] => 1729986
+                ) */
+                if($rec['language'] == "en")        $filename = "80";
+                elseif($rec['language'] == "de")    $filename = "957";
+                else                                $filename = "wikipedia-".$rec['language']; //mostly goes here
+                self::save_text_to_html($filename);
+            }
+        }
+        print_r($this->debug);
+        // self::generate_main_html_page();
+    }
+    private function generate_main_html_page()
+    {
+        $dir = CONTENT_RESOURCE_LOCAL_PATH."reports/wikipedia_html/";
+        $files = glob($dir . "*.html");
+        if($files) {
+            $filecount = count($files); echo "\nHTML count: [$filecount]\n";
+            // print_r($files);
+            /* Array(
+                [0] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/wikipedia_html/80.html
+                [1] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/wikipedia_html/wikipedia-ceb.html
+                [2] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/wikipedia_html/wikipedia-nl.html
+            )*/
+            $main_html = $dir."main.html";
+            foreach($files as $file) {
+                if(Functions::is_production())  $path = "https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/wikipedia_html/";
+                else                            $path = "http://localhost/eol_php_code/applications/content_server/resources_3/reports/wikipedia_html/";
+                
+            }
+        }
     }
     function save_text_to_html($filename)
     {
-        $results = array();
         $dwca = CONTENT_RESOURCE_LOCAL_PATH . "/$filename".".tar.gz";
+        if(!file_exists($dwca)) {
+            $this->debug['No DwcA'][$filename] = '';
+            return;
+        }
         // /* un-comment in real operation
         if(!($info = self::prepare_archive_for_access($dwca))) return;
         $temp_dir = $info['temp_dir'];
@@ -40,7 +85,7 @@ class WikipediaHtmlAPI
             $taxon_tab = $tbl["file_uri"];
             if(file_exists($taxon_tab)) self::process_extension($taxon_tab, $filename);    
             else {
-                $results['media does not exist'][$filename] = '';
+                $this->debug['media does not exist'][$filename] = '';
             }
 
         }
@@ -55,8 +100,6 @@ class WikipediaHtmlAPI
         self::process_extension($taxon_tab, $filename);
         */
 
-        print_r($results);
-        print_r($this->debug);
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
@@ -106,10 +149,11 @@ class WikipediaHtmlAPI
                 // if($i >= 1000) break; //debug only
             }
         }
-        if(!$savedYN) $this->debug['no HTML page'][$filename];
+        if(!$savedYN) $this->debug['no HTML page generated'][$filename];
     }
     private function save_to_html($desc, $filename)
     {
+        $filename = str_replace("wikipedia-","",$filename);
         $html_file = $this->html_path.$filename.".html";
         $WRITE = fopen($html_file, "w");
         fwrite($WRITE, $desc);
