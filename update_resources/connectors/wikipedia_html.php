@@ -1,12 +1,11 @@
 <?php
 namespace php_active_record;
-/* 
-*/
+/**/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikipediaHtmlAPI');
+$GLOBALS['ENV_DEBUG'] = false;
 $timestart = time_elapsed();
-
 
 $func = new WikipediaHtmlAPI();
 $func->start();
