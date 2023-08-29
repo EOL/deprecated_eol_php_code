@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* connector: [wikipedia_html.php] */
+/* connector: [wikipedia_html.php]
+This generates a single HTML page for every wikipedia-xxx.tar.gz. It gets one text object and generates an HTML page for it.
+The subject used is ---> CVterm == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description"
+*/
 class WikipediaHtmlAPI
 {
     function __construct()
@@ -104,12 +107,11 @@ class WikipediaHtmlAPI
             // print_r($tbl); exit;
             // [location] => media_resource.tab
             // [file_uri] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_41336//media_resource.tab
-            $taxon_tab = $tbl["file_uri"];
-            if(file_exists($taxon_tab)) self::process_extension($taxon_tab, $filename);    
+            $media_tab = $tbl["file_uri"];
+            if(file_exists($media_tab)) self::process_extension($media_tab, $filename);    
             else {
-                $this->debug['media does not exist'][$filename] = '';
+                $this->debug['media tab does not exist'][$filename] = '';
             }
-
         }
         // */
 
@@ -117,9 +119,9 @@ class WikipediaHtmlAPI
         $tbl = array();
         $tbl["location"] = "media_resource.tab";
         $tbl["file_uri"] = "/Volumes/AKiTiO4/eol_php_code_tmp/dir_41651";
-        $taxon_tab = $tbl["file_uri"]."/".$tbl["location"];
+        $media_tab = $tbl["file_uri"]."/".$tbl["location"];
         echo "\n -- Processing [$tbl[location]]...\n";
-        self::process_extension($taxon_tab, $filename);
+        self::process_extension($media_tab, $filename);
         */
 
         // remove temp dir
@@ -143,10 +145,10 @@ class WikipediaHtmlAPI
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
-    private function process_extension($taxon_tab, $filename)
+    private function process_extension($media_tab, $filename)
     {
         $i = 0; $savedYN = false;
-        foreach(new FileIterator($taxon_tab) as $line => $row) { $i++; 
+        foreach(new FileIterator($media_tab) as $line => $row) { $i++; 
             if($i == 1) $fields = explode("\t", $row);
             else {
                 if(!$row) continue;
