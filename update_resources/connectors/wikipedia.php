@@ -168,13 +168,13 @@ $params['json']              = @$argv[2]; //useful here
 if(substr($params['json'],0,1) == "{") { //a real json param
     $vparams = json_decode($params['json'], true);
     print_r($vparams);
-    $params['language']     = $vparams['language']        ;
-    $params['task']         = $vparams['task']            ;
-    $params['range_from']   = $vparams['range_from']      ;
-    $params['range_to']     = $vparams['range_to']        ;
-    $params['actual']       = $vparams['actual']          ;
-    $debug_taxon            = $vparams['debug_taxon']     ;
-    $six_coverage           = $vparams['six_coverage']    ;
+    $params['language']     = $vparams['language']      ;
+    $params['task']         = $vparams['task']          ;
+    $params['range_from']   = @$vparams['range_from']   ;   //taxon_wiki_per_language_stats doesn't have this field
+    $params['range_to']     = @$vparams['range_to']     ;   //taxon_wiki_per_language_stats doesn't have this field
+    $params['actual']       = @$vparams['actual']       ;   //taxon_wiki_per_language_stats doesn't have this field
+    $debug_taxon            = @$vparams['debug_taxon']  ;   //taxon_wiki_per_language_stats doesn't have this field
+    $six_coverage           = @$vparams['six_coverage'] ;   //taxon_wiki_per_language_stats doesn't have this field
 }
 else { // the lone param is the language code e.g. php5.6 wikipedia.php jenkins chy #Cheyenne
     $params['language']     = $params['json'];
