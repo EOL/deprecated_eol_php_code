@@ -18,6 +18,7 @@ class WikipediaHtmlAPI
 
         //https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/taxon_wiki_per_language_count_2023_08.txt
         $this->source_languages = CONTENT_RESOURCE_LOCAL_PATH."reports/taxon_wiki_per_language_count_YYYY_MM.txt";
+        // used as list of langs to generate HTML for
     }
     function start()
     {
@@ -45,7 +46,7 @@ class WikipediaHtmlAPI
             }
         }
         print_r($this->debug);
-        self::generate_main_html_page();
+        self::generate_main_html_page(); //uses wikipedia*.tar.gz in eol-archive to select HTML to be included in main.html.
     }
     private function generate_main_html_page()
     {
@@ -59,7 +60,6 @@ class WikipediaHtmlAPI
                 [1] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/wikipedia_html/ceb.html
                 [2] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/wikipedia_html/nl.html
             )*/
-
 
             if(Functions::is_production())  $path = "https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/wikipedia_html/";
             else                            $path = "http://localhost/eol_php_code/applications/content_server/resources_3/reports/wikipedia_html/";
