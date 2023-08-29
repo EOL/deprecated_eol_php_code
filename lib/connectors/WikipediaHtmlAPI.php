@@ -42,7 +42,7 @@ class WikipediaHtmlAPI
             }
         }
         print_r($this->debug);
-        // self::generate_main_html_page();
+        self::generate_main_html_page();
     }
     private function generate_main_html_page()
     {
@@ -50,19 +50,41 @@ class WikipediaHtmlAPI
         $files = glob($dir . "*.html");
         if($files) {
             $filecount = count($files); echo "\nHTML count: [$filecount]\n";
-            // print_r($files);
+            print_r($files);
             /* Array(
                 [0] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/wikipedia_html/80.html
-                [1] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/wikipedia_html/wikipedia-ceb.html
-                [2] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/wikipedia_html/wikipedia-nl.html
+                [1] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/wikipedia_html/ceb.html
+                [2] => /opt/homebrew/var/www/eol_php_code/applications/content_server/resources_3/reports/wikipedia_html/nl.html
             )*/
+
+
+            if(Functions::is_production())  $path = "https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/wikipedia_html/";
+            else                            $path = "http://localhost/eol_php_code/applications/content_server/resources_3/reports/wikipedia_html/";
+
             $main_html = $dir."main.html";
+
+            $OUT = fopen($main_html, "w");
+            $first = self::get_first_part_of_html();
+            fwrite($OUT, $first);
+
             foreach($files as $file) {
-                if(Functions::is_production())  $path = "https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/wikipedia_html/";
-                else                            $path = "http://localhost/eol_php_code/applications/content_server/resources_3/reports/wikipedia_html/";
-                
+                $filename = pathinfo($file, PATHINFO_FILENAME); //e.g. be-x-old for be-x-old.html
+                if($filename == "main") continue;
+                $href = $path.$filename.".html";
+                $anchor = "<a href = '$href'>$filename</a> | ";
+                fwrite($OUT, $anchor);
             }
+            fwrite($OUT, "</body></html>");
+            fclose($OUT);
         }
+    }
+    private function get_first_part_of_html()
+    {
+        return '<!DOCTYPE html>
+        <html><head>
+            <meta http-equiv="content-type" content="text/html; charset=utf-8">
+            <title>Wikipedia Languages Test HTML</title>
+        </head><body>';
     }
     function save_text_to_html($filename)
     {
@@ -156,7 +178,11 @@ class WikipediaHtmlAPI
         $filename = str_replace("wikipedia-","",$filename);
         $html_file = $this->html_path.$filename.".html";
         $WRITE = fopen($html_file, "w");
+
+        $first = self::get_first_part_of_html();
+        fwrite($WRITE, $first);
         fwrite($WRITE, $desc);
+        fwrite($WRITE, "</body></html>");
         fclose($WRITE);
     }
     private function get_languages_list()
