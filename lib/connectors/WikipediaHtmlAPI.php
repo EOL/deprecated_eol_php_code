@@ -12,10 +12,19 @@ class WikipediaHtmlAPI
         
         $this->html_path = CONTENT_RESOURCE_LOCAL_PATH . "/reports/wikipedia_html/";
         if(!is_dir($this->html_path)) mkdir($this->html_path);
-    }
 
+        //https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/taxon_wiki_per_language_count_2023_08.txt
+        $this->source_languages = CONTENT_RESOURCE_LOCAL_PATH."reports/taxon_wiki_per_language_count_YYYY_MM.txt";
+    }
+    function start()
+    {
+        $txt_file = self::get_languages_list();
+        exit("\n$txt_file\n");
+
+    }
     function save_text_to_html($filename)
     {
+        $results = array();
         $dwca = CONTENT_RESOURCE_LOCAL_PATH . "/$filename".".tar.gz";
         // /* un-comment in real operation
         if(!($info = self::prepare_archive_for_access($dwca))) return;
@@ -30,7 +39,10 @@ class WikipediaHtmlAPI
             // [file_uri] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_41336//media_resource.tab
             $taxon_tab = $tbl["file_uri"];
             if(file_exists($taxon_tab)) self::process_extension($taxon_tab, $filename);    
-            else echo "\nERROR: Does not exist [$taxon_tab]\n";
+            else {
+                $results['media does not exist'][$filename] = '';
+            }
+
         }
         // */
 
@@ -43,6 +55,8 @@ class WikipediaHtmlAPI
         self::process_extension($taxon_tab, $filename);
         */
 
+        print_r($results);
+        print_r($this->debug);
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
@@ -66,7 +80,7 @@ class WikipediaHtmlAPI
     }
     private function process_extension($taxon_tab, $filename)
     {
-        $i = 0;
+        $i = 0; $savedYN = false;
         foreach(new FileIterator($taxon_tab) as $line => $row) { $i++; 
             if($i == 1) $fields = explode("\t", $row);
             else {
@@ -77,21 +91,22 @@ class WikipediaHtmlAPI
                     $rec[$field] = $tmp[$k];
                     $k++;
                 }
-                $rec = array_map('trim', $rec);
+                $rec = array_map('trim', $rec); // print_r($rec); exit;
             
-                if($rec['CVterm'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description") self::save_to_html($rec['description'], $filename);
+                if($rec['CVterm'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description") {
+                    self::save_to_html($rec['description'], $filename);
+                    $savedYN = true;
+                }
                 else continue;
                 /* the shorter text object
                 if($rec['CVterm'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology") self::save_to_html($rec['description'], $filename);
                 else continue;
                 */
-                // print_r($rec); //exit;
-                @$debug[$rec['CVterm']] = '';
                 break; //part of main operation, process only 1 record.
                 // if($i >= 1000) break; //debug only
             }
         }
-        // print_r($debug); //exit("\n[$i]\n"); //during dev only
+        if(!$savedYN) $this->debug['no HTML page'][$filename];
     }
     private function save_to_html($desc, $filename)
     {
@@ -99,6 +114,23 @@ class WikipediaHtmlAPI
         $WRITE = fopen($html_file, "w");
         fwrite($WRITE, $desc);
         fclose($WRITE);
+    }
+    private function get_languages_list()
+    {
+        $ym = date("Y_m"); //2023_08 for Aug 2023 --- current month
+        $txt_file = str_replace("YYYY_MM", $ym, $this->source_languages);
+        if(file_exists($txt_file)) return $txt_file;
+        else {
+            $minus_1_month = date("Y_m", strtotime("-1 months")); //minus 1 month --- 2023_07
+            $txt_file = str_replace("YYYY_MM", $minus_1_month, $this->source_languages);
+            if(file_exists($txt_file)) return $txt_file;
+            else {
+                $minus_2_month2 = date("Y_m", strtotime("-2 months")); //minus 2 month2 --- 2023_06
+                $txt_file = str_replace("YYYY_MM", $minus_2_month2, $this->source_languages);
+                if(file_exists($txt_file)) return $txt_file;
+                else exit("\nInvestigate: No source text file for list of languages [$txt_file].\n");
+            }
+        }
     }
 }
 ?>
