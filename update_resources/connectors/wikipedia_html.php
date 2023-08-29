@@ -7,18 +7,20 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikipediaHtmlAPI');
 $timestart = time_elapsed();
 
-$filenames = array("80", "es", "957");
-$filenames = array("be-x-old", "zh-min-nan");
-// $filenames = array("80");
 
 $func = new WikipediaHtmlAPI();
+$func->start();
 
+/* working OK
+$filenames = array("80", "es", "957");
+$filenames = array("be-x-old", "zh-min-nan");
+$filenames = array("80");
 foreach($filenames as $filename) {
     $file = "wikipedia-".$filename;
     if(in_array($filename, array("80", "957"))) $file = $filename;
     $func->save_text_to_html($file);
-    // break;
 }
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
