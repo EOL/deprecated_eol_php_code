@@ -866,9 +866,9 @@ class WikiDataAPI extends WikipediaAPI
             $arr = array('language', 'count', 'with DwCA Y/N');
             fwrite($handle, implode("\t", $arr) . "\n");
             foreach($a as $rec) {
-                if($rec['language'] == "en") $dwca_path = CONTENT_RESOURCE_LOCAL_PATH."/80.tar.gz";
+                if($rec['language'] == "en")     $dwca_path = CONTENT_RESOURCE_LOCAL_PATH."/80.tar.gz";
                 elseif($rec['language'] == "de") $dwca_path = CONTENT_RESOURCE_LOCAL_PATH."/957.tar.gz";
-                else $dwca_path = CONTENT_RESOURCE_LOCAL_PATH."/wikipedia-".$rec['language'].".tar.gz";
+                else                             $dwca_path = CONTENT_RESOURCE_LOCAL_PATH."/wikipedia-".$rec['language'].".tar.gz";
                 if(file_exists($dwca_path)) $withDwCA = "Y";
                 else                        $withDwCA = "N";
                 $arr = array($rec['language'], $rec['count'], $withDwCA);
