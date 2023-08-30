@@ -79,7 +79,7 @@ class WikipediaHtmlAPI
                 $filename = pathinfo($file, PATHINFO_FILENAME); //e.g. be-x-old for be-x-old.html
                 if($filename == "main") continue;
                 $href = $path.$filename.".html";
-                $anchor = "<a href = '$href'>$filename</a> | ";
+                $anchor = "<a href = '$href'>$filename</a> &nbsp;|&nbsp; ";
                 fwrite($OUT, $anchor);
             }
             fwrite($OUT, "</body></html>");
