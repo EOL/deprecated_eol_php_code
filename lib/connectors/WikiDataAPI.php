@@ -863,10 +863,15 @@ class WikiDataAPI extends WikipediaAPI
             */
             $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "/reports/taxon_wiki_per_language_count_" . date("Y_m") . ".txt"; //previously Y_m_d
             $handle = fopen($txtfile, "w");
-            $arr = array('language', 'count');
+            $arr = array('language', 'count', 'with DwCA Y/N');
             fwrite($handle, implode("\t", $arr) . "\n");
             foreach($a as $rec) {
-                $arr = array($rec['language'], $rec['count']);
+                if($rec['language'] == "en") $dwca_path = CONTENT_RESOURCE_LOCAL_PATH."/80.tar.gz";
+                elseif($rec['language'] == "de") $dwca_path = CONTENT_RESOURCE_LOCAL_PATH."/957.tar.gz";
+                else $dwca_path = CONTENT_RESOURCE_LOCAL_PATH."/wikipedia-".$rec['language'].".tar.gz";
+                if(file_exists($dwca_path)) $withDwCA = "Y";
+                else                        $withDwCA = "N";
+                $arr = array($rec['language'], $rec['count'], $withDwCA);
                 fwrite($handle, implode("\t", $arr) . "\n");
             }
             fclose($handle);
