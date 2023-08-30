@@ -42,11 +42,16 @@ class WikipediaHtmlAPI
                 if($rec['language'] == "en")        $filename = "80";
                 elseif($rec['language'] == "de")    $filename = "957";
                 else                                $filename = "wikipedia-".$rec['language']; //mostly goes here
-                self::save_text_to_html($filename);
+                self::save_taxon_text_to_html($filename);
             }
         }
+        echo "\nNo DwCA: ".count($this->debug['[No DwcA]'])."\n";
         print_r($this->debug);
-        self::generate_main_html_page(); //uses wikipedia*.tar.gz in eol-archive to select HTML to be included in main.html.
+        self::generate_main_html_page(); //uses ["reports/wikipedia_html/*.html"] in eol-archive to select HTML to be included in main.html.
+        /* To do:
+        self::generate_main_html_page2(); //uses [taxon_wiki_per_language_count_2023_08.txt] to select HTML to be included in main.html.
+        That is to have a descending order of total taxa in main.html.
+        */
     }
     private function generate_main_html_page()
     {
@@ -89,7 +94,7 @@ class WikipediaHtmlAPI
             <title>Wikipedia Languages Test HTML</title>
         </head><body>';
     }
-    function save_text_to_html($filename)
+    function save_taxon_text_to_html($filename)
     {
         $dwca = CONTENT_RESOURCE_LOCAL_PATH . "/$filename".".tar.gz";
         if(!file_exists($dwca)) {
