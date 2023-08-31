@@ -41,6 +41,7 @@ class Protisten_deAPI
         }
         $this->archive_builder->finalize(true);
         if(isset($this->debug)) print_r($this->debug);
+        if(!@$this->debug['does not exist']) echo "\n--No broken images!--\n";
     }
     private function process_one_batch($filename)
     {   
