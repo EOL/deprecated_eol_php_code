@@ -49,6 +49,10 @@ sw	Y	6c
 mrj	Y	6c
 ne	Y	6c
 ce	Y	6c
+sv	Y	6c
+ceb	Y	6c
+sv	Y	6c
+war	Y	6c
 -----	-----	-----
 en	Y	
 zh	Y	
@@ -56,7 +60,6 @@ no	Y
 tr	Y	
 ca	Y	
 uk	Y	
-sv	Y	
 hu	Y	
 cs	Y	
 ast	Y	
@@ -200,6 +203,4 @@ zh-classical	Y
 kl	Y	
 vo	Y	
 ab	Y
-ceb	Y	
-war	Y	
 -----	-----	-----

@@ -5,7 +5,7 @@ $job['es']['next']['it'];
 
                                 no* ro      tr*       uk
                                 |   |       |         |
-                                sv  |       zh        |
+                                |   |       zh        |
                                 ka  hr      th        hy
                                 lt  la      kk        mrj
                                 et  da      lv        pms
