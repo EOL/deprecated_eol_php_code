@@ -35,7 +35,8 @@ $main_urls = array( "http://160.111.248.39:8081/job/EOL_Connectors/",
                     "http://160.111.248.39:8081/job/images_Inaturalist/", 
                     "http://160.111.248.39:8081/job/NMNH_images/", 
                     "http://160.111.248.39:8081/job/Wikimedia%20Commons/", 
-                    "http://160.111.248.39:8081/job/Wikipedia%20in%20different%20languages/");
+                    "http://160.111.248.39:8081/job/Wikipedia%20in%20different%20languages/",
+                    "http://160.111.248.39:8081/job/08%20Routine%20Utilities/");
 
 // $main_urls = array("http://localhost:8080/job/EOL_Connectors/", "http://localhost:8080/job/Backup%20Activities/"); //during dev only
 
