@@ -1,6 +1,12 @@
 <?php
 namespace php_active_record;
-/* standalone, no class or library to call */
+/* standalone, no class or library to call 
+
+php update_resources/connectors/resource_refresh_sched.php _ 1
+-> cache expires now
+php update_resources/connectors/resource_refresh_sched.php
+-> cache expires after 11 hours
+*/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;  //set to false in production
@@ -9,9 +15,14 @@ ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
 */
-// ini_set('memory_limit','14096M');
 require_library('connectors/CKAN_API_AccessAPI');
 $timestart = time_elapsed();
+
+$params['jenkins_or_cron']  = @$argv[1]; //not needed here
+$expire_now_YN              = @$argv[2];
+
+if($expire_now_YN) $GLOBALS['expire_seconds'] = 0;          // expires now
+else               $GLOBALS['expire_seconds'] = 60*60*11;   // 11 hours cache bec it is designed to run every 12 hours. Unless on-demand, which can expire now.
 
 $main_urls = array( "http://160.111.248.39:8081/job/EOL_Connectors/", 
                     "http://160.111.248.39:8081/job/Environmental%20tagger%20for%20EOL%20resources/", 
@@ -57,13 +68,12 @@ foreach($main_urls as $main_url) { $final = array();
                         $date_last_successful_build = convert_timestamp($obj3->timestamp);
                         echo "\n --- date_last_successful_build: [$date_last_successful_build]\n"; 
                         $final[$date_last_successful_build] = $job->name;
-                        // exit;
                     }                        
                 }
             }
         } //end foreach()
         // print_r($final);
-        krsort($final);
+        krsort($final); 
         // print_r($final); //good debug
     }
     $main_final[$main_name] = $final;
@@ -71,7 +81,7 @@ foreach($main_urls as $main_url) { $final = array();
 print_r($main_final);
 write_to_text_file($main_final);
 
-
+/* Functions below: */
 function write_to_text_file($arr)
 {
     $report = CONTENT_RESOURCE_LOCAL_PATH."reports/jenkins_refresh_status.txt";
@@ -94,7 +104,6 @@ function format_name($main_url)
     }
     return $main_url;
 }
-
 function transform_url_2_api_call($url)
 {
     $new_url = str_replace('http://', "http://".JENKINS_USER_TOKEN."@", $url);
@@ -102,7 +111,7 @@ function transform_url_2_api_call($url)
 }
 function call_jenkins_api($url)
 {
-    if($json = Functions::lookup_with_cache($url, array('expire_seconds' => 60*60*11))) { //12 hrs cache, designed to run 2 times a day. Every 12 hours. Thus using *11 (12-1).
+    if($json = Functions::lookup_with_cache($url, array('expire_seconds' => $GLOBALS['expire_seconds']))) { //12 hrs cache, designed to run 2 times a day. Every 12 hours. Thus using *11 (12-1).
         return json_decode($json);
     }
 }
