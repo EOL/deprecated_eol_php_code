@@ -26,6 +26,11 @@ $timestart = time_elapsed();
 
 $url = "http://localhost:8080/job/EOL_Connectors/";
 $url = "http://160.111.248.39:8081/job/EOL_Connectors/";
+/*
+http://160.111.248.39:8081/job/Environmental%20tagger%20for%20EOL%20resources/
+http://160.111.248.39:8081/job/13_TreatmentBank/
+*/
+$url = "http://160.111.248.39:8081/job/13_TreatmentBank/";
 
 // $url = "http://".JENKINS_USER_TOKEN."@".JENKINS_DOMAIN."/job/"."EOL_Connectors"."/api/json"; //working
 $url = transform_url_2_api_call($url);
