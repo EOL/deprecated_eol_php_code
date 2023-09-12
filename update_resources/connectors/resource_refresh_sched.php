@@ -111,7 +111,7 @@ function transform_url_2_api_call($url)
 }
 function call_jenkins_api($url)
 {
-    if($json = Functions::lookup_with_cache($url)) {
+    if($json = Functions::lookup_with_cache($url, array('expire_seconds' => 60*60*7))) { //8 hrs cache, designed to run 3 times a day. Every 8 hours. Thus using *7.
         return json_decode($json);
     }
 }
