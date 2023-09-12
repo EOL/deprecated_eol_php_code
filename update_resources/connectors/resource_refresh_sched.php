@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* */
+/* standalone, no class or library to call */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;  //set to false in production
@@ -12,16 +12,6 @@ $GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
 // ini_set('memory_limit','14096M');
 require_library('connectors/CKAN_API_AccessAPI');
 $timestart = time_elapsed();
-
-
-// http://160.111.248.39:8081/job/EOL_Connectors/api/xml
-
-// define('JENKINS_DOMAIN2', '160.111.248.39:8081');  //for archive; should point to port 8080
-// define('JENKINS_CRUMB2', 'Jenkins-Crumb:4f08be4deb91302e9eb9c79f16b9ad77');  //for archive
-// define('JENKINS_USER_TOKEN2', 'archive_admin:11f778fbb21fda8ffe3bea628f5d49d936');  //for archive
-
-
-// $url = "http://".JENKINS_USER_TOKEN."@".JENKINS_DOMAIN."/job/"."EOL_Connectors"."/api/json"; //working
 
 $main_urls = array( "http://160.111.248.39:8081/job/EOL_Connectors/", 
                     "http://160.111.248.39:8081/job/Environmental%20tagger%20for%20EOL%20resources/", 
@@ -41,6 +31,7 @@ $main_urls = array( "http://160.111.248.39:8081/job/EOL_Connectors/",
 $main_final = array();
 foreach($main_urls as $main_url) { $final = array();
     $main_url = transform_url_2_api_call($main_url);
+    // $main_url = "http://".JENKINS_USER_TOKEN."@".JENKINS_DOMAIN."/job/"."EOL_Connectors"."/api/json"; //working //during dev only
     $main_name = format_name($main_url);
     if($obj = call_jenkins_api($main_url)) { // print_r($obj->jobs); //exit;
         $total = count($obj->jobs); echo "\nTotal [$main_name]: [$total]\n";
