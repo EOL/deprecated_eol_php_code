@@ -12,6 +12,7 @@ php update_resources/connectors/ckan_api_access.php _ "6e24f0df-56ee-470f-b81e-e
 
 IMPORTANT: ALWAYS "chmod 775 ckan_api_access.php" AFTER UPDATE EOL-ARCHIVE
                   "chmod 775 CKAN_API_AccessAPI.php" AFTER UPDATE EOL-ARCHIVE
+                  "chmod 775 resource_refresh_sched.php" AFTER UPDATE EOL-ARCHIVE
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

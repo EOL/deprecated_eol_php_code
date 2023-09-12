@@ -2,6 +2,9 @@
 namespace php_active_record;
 /* DATA-1885: CKAN metadata display adjustments
 https://docs.ckan.org/en/2.9/api/#api-examples
+This class is client for:
+    ckan_api_access.php
+    ckan_api_acccess_using_resourceID.php
 */
 class CKAN_API_AccessAPI
 {
