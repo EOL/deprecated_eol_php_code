@@ -36,7 +36,7 @@ $main_urls = array( "http://160.111.248.39:8081/job/EOL_Connectors/",
                     "http://160.111.248.39:8081/job/Wikimedia%20Commons/", 
                     "http://160.111.248.39:8081/job/Wikipedia%20in%20different%20languages/");
 
-// $main_urls = array("http://localhost:8080/job/EOL_Connectors/"); //during dev only
+// $main_urls = array("http://localhost:8080/job/EOL_Connectors/", "http://localhost:8080/job/Backup%20Activities/"); //during dev only
 
 $main_final = array();
 foreach($main_urls as $main_url) { $final = array();
@@ -73,15 +73,34 @@ foreach($main_urls as $main_url) { $final = array();
         } //end foreach()
         // print_r($final);
         krsort($final);
-        print_r($final);
+        // print_r($final); //good debug
     }
     $main_final[$main_name] = $final;
 } //end main foreach()
 print_r($main_final);
+write_to_text_file($main_final);
 
+
+function write_to_text_file($arr)
+{
+    $report = CONTENT_RESOURCE_LOCAL_PATH."reports/jenkins_refresh_status.txt";
+    $WRITE = fopen($report, "w");
+    fwrite($WRITE, "Generated on: ".date("Y-m-d h:i A")."\n\n");
+
+    foreach($arr as $name => $recs) {
+        fwrite($WRITE, $name."\n");
+        foreach($recs as $date => $task_name) {
+            fwrite($WRITE, "--- ".$date." -> ".$task_name."\n");
+        }
+        fwrite($WRITE, "\n");
+    }
+    fclose($WRITE);
+}
 function format_name($main_url)
 {   // [http://eli:110b974f5af197e940eeded9b5b19efe22@localhost:8080/job/EOL_Connectors/api/json]
-    if(preg_match("/\/job\/(.*?)\/api\/json/ims", $main_url, $arr)) return $arr[1];
+    if(preg_match("/\/job\/(.*?)\/api\/json/ims", $main_url, $arr)) {
+        return str_replace("%20", "_", $arr[1]);
+    }
     return $main_url;
 }
 
