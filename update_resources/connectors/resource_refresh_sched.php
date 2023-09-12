@@ -14,65 +14,76 @@ require_library('connectors/CKAN_API_AccessAPI');
 $timestart = time_elapsed();
 
 
-// $func = new CKAN_API_AccessAPI(false, false);
-// $func->show_resources_last_refresh();
-
 // http://160.111.248.39:8081/job/EOL_Connectors/api/xml
-
 
 // define('JENKINS_DOMAIN2', '160.111.248.39:8081');  //for archive; should point to port 8080
 // define('JENKINS_CRUMB2', 'Jenkins-Crumb:4f08be4deb91302e9eb9c79f16b9ad77');  //for archive
 // define('JENKINS_USER_TOKEN2', 'archive_admin:11f778fbb21fda8ffe3bea628f5d49d936');  //for archive
 
-$url = "http://localhost:8080/job/EOL_Connectors/";
-$url = "http://160.111.248.39:8081/job/EOL_Connectors/";
-/*
-http://160.111.248.39:8081/job/Environmental%20tagger%20for%20EOL%20resources/
-http://160.111.248.39:8081/job/13_TreatmentBank/
-*/
-$url = "http://160.111.248.39:8081/job/13_TreatmentBank/";
 
 // $url = "http://".JENKINS_USER_TOKEN."@".JENKINS_DOMAIN."/job/"."EOL_Connectors"."/api/json"; //working
-$url = transform_url_2_api_call($url);
-if($obj = call_jenkins_api($url)) {
-    // print_r($obj->jobs); //exit;
-    $total = count($obj->jobs); echo "\nTotal: [$total]\n";
-    $i = 0;
-    foreach($obj->jobs as $job) { $i++; echo "\n$i of $total\n";
-        // print_r($job); //exit;
-        echo "\nName: ".$job->name."\n";
-        /* stdClass Object(
-            [_class] => hudson.model.FreeStyleProject
-            [name] => 24
-            [url] => http://localhost:8080/job/EOL_Connectors/job/24/
-            [color] => red
-        )*/
-        $new_url = transform_url_2_api_call($job->url);
-        if($obj2 = call_jenkins_api($new_url)) {
-            // print_r($obj); exit;
-            if($o = @$obj2->lastSuccessfulBuild) { // print_r($o); 
-                /* stdClass Object(
-                    [_class] => hudson.model.FreeStyleBuild
-                    [number] => 1
-                    [url] => http://localhost:8080/job/EOL_Connectors/job/42/1/
-                )*/
-                $new_url = transform_url_2_api_call($o->url);
-                if($obj3 = call_jenkins_api($new_url)) {
-                    // print_r($obj); exit;
-                    $date_last_successful_build = convert_timestamp($obj3->timestamp);
-                    echo "\n --- date_last_successful_build: [$date_last_successful_build]\n"; 
-                    $final[$date_last_successful_build] = $job->name;
-                    // exit;
-                }
-                        
-            }
-        }
-    } //end foreach()
-    print_r($final);
-    krsort($final);
-    print_r($final);
 
-} 
+$main_urls = array( "http://160.111.248.39:8081/job/EOL_Connectors/", 
+                    "http://160.111.248.39:8081/job/Environmental%20tagger%20for%20EOL%20resources/", 
+                    "http://160.111.248.39:8081/job/13_TreatmentBank/", 
+                    "http://160.111.248.39:8081/job/14_Kubitzki_et_al/", 
+                    "http://160.111.248.39:8081/job/Flickr%20connectors/", 
+                    "http://160.111.248.39:8081/job/GBIF%20Countries%20Download/", 
+                    "http://160.111.248.39:8081/job/GBIF%20Country%20Nodes/", 
+                    "http://160.111.248.39:8081/job/GBIF%20map%20data%20harvest/", 
+                    "http://160.111.248.39:8081/job/images_Inaturalist/", 
+                    "http://160.111.248.39:8081/job/NMNH_images/", 
+                    "http://160.111.248.39:8081/job/Wikimedia%20Commons/", 
+                    "http://160.111.248.39:8081/job/Wikipedia%20in%20different%20languages/");
+
+// $main_urls = array("http://localhost:8080/job/EOL_Connectors/"); //during dev only
+
+$main_final = array();
+foreach($main_urls as $main_url) { $final = array();
+    $main_url = transform_url_2_api_call($main_url);
+    $main_name = format_name($main_url);
+    if($obj = call_jenkins_api($main_url)) { // print_r($obj->jobs); //exit;
+        $total = count($obj->jobs); echo "\nTotal [$main_name]: [$total]\n";
+        $i = 0;
+        foreach($obj->jobs as $job) { $i++; echo "\n[$main_name] $i of $total\n"; // print_r($job); //exit;
+            echo "\nName: ".$job->name."\n";
+            /* stdClass Object(
+                [_class] => hudson.model.FreeStyleProject
+                [name] => 24
+                [url] => http://localhost:8080/job/EOL_Connectors/job/24/
+                [color] => red
+            )*/
+            $new_url = transform_url_2_api_call($job->url);
+            if($obj2 = call_jenkins_api($new_url)) { // print_r($obj2); exit;
+                if($o = @$obj2->lastSuccessfulBuild) { // print_r($o); 
+                    /* stdClass Object(
+                        [_class] => hudson.model.FreeStyleBuild
+                        [number] => 1
+                        [url] => http://localhost:8080/job/EOL_Connectors/job/42/1/
+                    )*/
+                    $new_url = transform_url_2_api_call($o->url);
+                    if($obj3 = call_jenkins_api($new_url)) { // print_r($obj3); exit;
+                        $date_last_successful_build = convert_timestamp($obj3->timestamp);
+                        echo "\n --- date_last_successful_build: [$date_last_successful_build]\n"; 
+                        $final[$date_last_successful_build] = $job->name;
+                        // exit;
+                    }                        
+                }
+            }
+        } //end foreach()
+        // print_r($final);
+        krsort($final);
+        print_r($final);
+    }
+    $main_final[$main_name] = $final;
+} //end main foreach()
+print_r($main_final);
+
+function format_name($main_url)
+{   // [http://eli:110b974f5af197e940eeded9b5b19efe22@localhost:8080/job/EOL_Connectors/api/json]
+    if(preg_match("/\/job\/(.*?)\/api\/json/ims", $main_url, $arr)) return $arr[1];
+    return $main_url;
+}
 
 function transform_url_2_api_call($url)
 {
@@ -90,6 +101,5 @@ function convert_timestamp($timestamp)
     // return date("M.d.Y h:i:s A", ($timestamp/1000));
     return date("Y-m-d h:i:s A", ($timestamp/1000));
 }
-
 Functions::get_time_elapsed($timestart);
 ?>
