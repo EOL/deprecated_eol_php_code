@@ -28,14 +28,15 @@ define('JENKINS_USER_TOKEN2', 'archive_admin:11f778fbb21fda8ffe3bea628f5d49d936'
 
 $url = "http://".JENKINS_USER_TOKEN2."@".JENKINS_DOMAIN2."/job/"."EOL_Connectors"."/api/xml";
 if($xml = Functions::lookup_with_cache($url)) {
-    print_r($xml);
+    echo "\n$xml\n";
+    // print_r($xml);
 } 
 
 // http://160.111.248.39:8081/job/EOL_Connectors/api/xml
-$c = '/usr/bin/curl -I -X POST -H "'.JENKINS_CRUMB2.'" http://'.JENKINS_USER_TOKEN2.'@'.JENKINS_DOMAIN2.'/job/'.'EOL_Connectors'.'/job/xml';
-$c .= " 2>&1";
-$out = shell_exec($c);
-echo "\n$out\n";
+// $c = '/usr/bin/curl -I -X POST -H "'.JENKINS_CRUMB2.'" http://'.JENKINS_USER_TOKEN2.'@'.JENKINS_DOMAIN2.'/job/'.'EOL_Connectors'.'/job/xml';
+// $c .= " 2>&1";
+// $out = shell_exec($c);
+// echo "\n$out\n";
 
 
 Functions::get_time_elapsed($timestart);
