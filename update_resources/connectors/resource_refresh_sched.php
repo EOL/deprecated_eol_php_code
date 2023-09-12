@@ -4,11 +4,11 @@ namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;  //set to false in production
-// /* during dev only
+/* during dev only
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
-// */
+*/
 // ini_set('memory_limit','14096M');
 require_library('connectors/CKAN_API_AccessAPI');
 $timestart = time_elapsed();
