@@ -12,25 +12,16 @@ class XenoCantoAPI
         $this->download_options = array(
             'resource_id'        => $this->resource_id,  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30*3, //expires quarterly
-            'download_wait_time' => 2000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'cache' => 1);
+            'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->domain = 'https://www.xeno-canto.org';
-        $this->species_list     = $this->domain.'/collection/species/all';
-        $this->api['query']     = $this->domain.'/api/2/recordings?query=';
-        $this->api['query']     = $this->domain.'/api/2/recordings?query=';
-        $this->recorders_list   = $this->domain.'/contributors?q=all';
-        $this->recorder_url     = "https://xeno-canto.org/contributor/"; //append the recorder id e.g. "NQMGMOJOHV"
+        $this->species_list = $this->domain.'/collection/species/all';
     }
     function start()
-    {
-        $this->recorders_info = self::buildup_recorders_list();
-        // print_r($this->recorders_info); exit;
-        self::main(); //main operation
-    }
-    function main()
     {   
         if($html = Functions::lookup_with_cache($this->species_list, $this->download_options)) {
             // echo $html;
-            if(preg_match_all("/<tr class(.*?)<\/tr>/ims", $html, $arr)) { // print_r($arr[1]);
+            if(preg_match_all("/<tr class(.*?)<\/tr>/ims", $html, $arr)) {
+                // print_r($arr[1]);
                 $i = 0;
                 foreach($arr[1] as $r) {
                     /*[0] => ='new-species'>
@@ -50,35 +41,15 @@ class XenoCantoAPI
                     if(preg_match_all("/<td>(.*?)<\/td>/ims", $r, $arr)) {
                         $rec['sciname'] = $arr[1][1];
                     }
-                    $rec = array_map('trim', $rec); //print_r($rec); exit;
-                    /*Array(
-                        [comname] => Common Ostrich
-                        [url] => https://xeno-canto.org/species/Struthio-camelus
-                        [sciname] => Struthio camelus
-                    )*/
+                    $rec = array_map('trim', $rec);
                     if($rec['sciname'] && $rec['url']) {
-                        /* ---------- ver. 1
                         $ret = self::prepare_media_records($rec);
                         self::write_taxon($ret['orig_rec']);
                         if($val = $ret['media']) self::write_media($val);
                         else continue; //didn't get anything for media
-                        ---------- end ver. 1 */
-
-                        // /* ---------- ver. 2
-                        $rec = self::parse_order_family($rec);
-
-                        $ret = self::prepare_media_records($rec);
-                        // self::write_taxon($ret['orig_rec']);
-                        // if($val = $ret['media']) self::write_media($val);
-                        // else continue; //didn't get anything for media
-
-
-                        print_r($rec); exit("\nstop muna\n");
-                        // ---------- end ver. 2 */
                     }
                     $i++;
                     // if($i >= 10) break;
-                    break;
                 }
             }
             else echo "\nnothing found...\n";
@@ -87,95 +58,71 @@ class XenoCantoAPI
         // exit("\n111\n");
         $this->archive_builder->finalize(TRUE);
     }
-    private function parse_order_family($orig_rec)
+    private function parse_order_family($html, $orig_rec)
     {
-        if($html = Functions::lookup_with_cache($orig_rec['url'], $this->download_options)) {
-            /*
-            <li>Order: <a href='https://xeno-canto.org/explore/taxonomy?ord=STRUTHIONIFORMES'>STRUTHIONIFORMES</a></li>
-            <ul class='family'>
-            <li>Family: <a href='https://xeno-canto.org/explore/taxonomy?fam=Struthionidae'>Struthionidae</a> (Ostriches)</li>
-            */
-            if(preg_match("/taxonomy\?ord\=(.*?)\'/ims", $html, $arr)) {
-                $orig_rec['order'] = ucfirst(strtolower($arr[1]));
+        // Order: <a href='/explore/taxonomy?o=STRUTHIONIFORMES'>STRUTHIONIFORMES</a>
+        if(preg_match("/Order:(.*?)<\/a>/ims", $html, $arr)) {
+            if(preg_match("/o=(.*?)\'/ims", $arr[1], $arr2)) {
+                $orig_rec['order'] = ucfirst(strtolower($arr2[1]));
             }
-            if(preg_match("/taxonomy\?fam\=(.*?)\'/ims", $html, $arr)) {
-                $orig_rec['family'] = ucfirst(strtolower($arr[1]));
-            }
-            $orig_rec['taxonID'] = strtolower(str_replace(" ", "-", $orig_rec['sciname']));
-            return $orig_rec;
         }
+        // Family: <a href='/explore/taxonomy?f=Struthionidae'>Struthionidae</a> (Ostriches)
+        if(preg_match("/Family:(.*?)<\/a>/ims", $html, $arr)) {
+            if(preg_match("/\?f=(.*?)\'/ims", $arr[1], $arr2)) {
+                $orig_rec['family'] = ucfirst($arr2[1]);
+            }
+        }
+        $orig_rec['taxonID'] = strtolower(str_replace(" ", "-", $orig_rec['sciname']));
+        // print_r($orig_rec); exit;
+        return $orig_rec;
     }
-    private function prepare_media_records($rec) //$rec is $orig_rec
+    private function prepare_media_records($rec)
     {
+        $orig_rec = $rec;
         $final = array();
-        // $rec['sciname'] = 'Troglodytes troglodytes'; //debug only
-        $url = $this->api['query'].urlencode($rec['sciname']).'&page=1';
-        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-            $obj = json_decode($json); // print_r($obj); exit;
-            for($page = 1; $page <= $obj->numPages; $page++) { // echo "\nPage: $page\n";
-                $url = $this->api['query'].urlencode($rec['sciname'])."&page=$page";
-                if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-                    $o = json_decode($json); //print_r($o); exit;
-                    $final = array();
-                    foreach($o->recordings as $r) { print_r($o);
-                        $rek = array();
-                        $rek['identifier']              = $r->id;
-                        $rek['taxonID']                 = $rec['taxonID'];
-                        $rek['accessURI']               = $r->file;
-                        $rek['format']                  = Functions::get_mimetype($r->{'file-name'});
-                        $rek['type']                    = Functions::get_datatype_given_mimetype($rek['format']);
-                        $rek['furtherInformationURL']   = $rec['url'];
-                        $rek['LocationCreated']         = $r->loc;
-                        $rek['lat']                     = $r->lat;
-                        $rek['long']                    = $r->lng;
-                        $rek['description']             = $r->rmk;
-                        if($val = $r->lic) $rek['UsageTerms'] = "https:".$val;
-                        if($val = $r->rec) {
-                            $rek['agentID'] = self::format_agent_id($val);
-                            $rek['Owner'] = $val;
-                        }
-                        
-                        $final[] = $rek;
-                        print_r($rek); exit;
+        if($html = Functions::lookup_with_cache($this->domain.$rec['url'], $this->download_options)) {
+            // echo $html;
+            $orig_rec = self::parse_order_family($html, $orig_rec);
+            if(preg_match("/<table class=\"results\">(.*?)<\/table>/ims", $html, $arr)) {
+                // echo $arr[1]; exit;
+                $str = $arr[1];
+                if(preg_match("/<thead>(.*?)<\/thead>/ims", $str, $arr2)) {
+                    if(preg_match_all("/<th>(.*?)<\/th>/ims", $arr2[1], $arr)) {
+                        // print_r($arr[1]);
+                        $fields = array_map('strip_tags', $arr[1]);
+                        $fields = array_map('trim', $fields);
+                        $fields[0] = 'download';
+                        $fields[1] = 'sciname';
+                        // print_r($fields);
                     }
-                    print_r($final); exit;
+                }
+                
+                if(preg_match_all("/<tr (.*?)<\/tr>/ims", $str, $arr)) {
+                    // print_r($arr);
+                    $final = array();
+                    foreach($arr[1] as $r) {
+                        if(preg_match_all("/<td(.*?)<\/td>/ims", $r, $arr)) {
+                            $values = array_map('trim', $arr[1]);
+                            // print_r($values); exit;
+
+                            $rek = array();
+                            $i = -1;
+                            foreach($fields as $f) { $i++;
+                                $rek[$f] = $values[$i];
+                            }
+                            // print_r($rek); exit;
+                            $rek['taxonID'] = $orig_rec['taxonID'];
+                            $rek['furtherInformationURL'] = $this->domain.$orig_rec['url'];
+                            
+                            $final[] = $rek;
+                        }
+                    }
                 }
             }
         }
         // print_r($final); exit;
-        return array('orig_rec' => $rec, 'media' => $final);
+        return array('orig_rec' => $orig_rec, 'media' => $final);
     }
-    private function format_agent_id($recorder_name)
-    {
-        if($recorder_id = $this->recorders_info[$recorder_name]) {
-            $rec = array();
-            $rec['fullName'] = $recorder_name;
-            $rec['role'] = "recorder";
-            $rec['homepage'] = $this->recorder_url.$recorder_id;
-            if($agent_ids = self::create_agents(array($rec))) return implode("; ", $agent_ids);
-        }
-        else exit("\nInvestigate: Recorder name not initialized: [$recorder_name]\n");
-    }
-    private function create_agents($agents)
-    {
-        $agent_ids = array();
-        foreach($agents as $rec){
-            if($agent = trim($rec["fullName"])){
-                $r = new \eol_schema\Agent();
-                $r->term_name       = $agent;
-                $r->identifier      = md5("$agent|" . $rec["role"]. $rec['homepage']);
-                $r->agentRole       = $rec["role"];
-                $r->term_homepage   = $rec["homepage"];
-                $agent_ids[] = $r->identifier;
-                if(!isset($this->resource_agent_ids[$r->identifier])) {
-                   $this->resource_agent_ids[$r->identifier] = '';
-                   $this->archive_builder->write_object_to_file($r);
-                }
-            }
-        }
-        return $agent_ids;
-    }
-
     private function write_media($records)
     {
         foreach($records as $rec) {
@@ -195,6 +142,7 @@ class XenoCantoAPI
                 [11] => Actions
                 [12] => Cat.nr.
             )*/
+            $ret1 = self::parse_location_lat_long($rec['Location']);
             $agent_id = '';
             if($ret2 = self::parse_recordist($rec['Recordist'])) $agent_id = self::write_agent($ret2);
             
@@ -224,10 +172,10 @@ class XenoCantoAPI
             $mr->furtherInformationURL = $furtherInformationURL;
             $mr->accessURI      = $accessURI;
             $mr->Owner          = $ret2['agent'];
-            // $mr->UsageTerms     = $UsageTerms;
-            // $mr->LocationCreated = @$ret1['location'];
-            // $mr->lat             = @$ret1['lat'];
-            // $mr->long            = @$ret1['long'];
+            $mr->UsageTerms     = $UsageTerms;
+            $mr->LocationCreated = @$ret1['location'];
+            $mr->lat             = @$ret1['lat'];
+            $mr->long            = @$ret1['long'];
             $mr->description    = self::parse_description($rec['Remarks']);
             $mr->CreateDate     = self::parse_CreateDate($rec);
             $mr->agentID        = $agent_id;
@@ -246,26 +194,6 @@ class XenoCantoAPI
                 $this->object_ids[$mr->identifier] = '';
             }
         }
-    }
-    private function buildup_recorders_list()
-    {
-        $final = array();
-        if($html = Functions::lookup_with_cache($this->recorders_list, $this->download_options)) {
-            /* <a href='https://xeno-canto.org/contributor/NQMGMOJOHV'>A Edwar H Guarín</a> */
-            $left = 'https://xeno-canto.org/contributor/';
-            if(preg_match_all("/".preg_quote($left, '/')."(.*?)<\/a>/ims", $html, $arr)) { // print_r($arr[1]); exit;
-                /*  [2453] => ETASOPNTYI'>wisconaowl
-                    [2454] => ELJNEGDKGC'>Wolbert Hermus
-                    [2455] => BYQQJILIAR'>Wolfgang Henkes */
-                foreach($arr[1] as $str) {
-                    $rek = array();
-                    if(preg_match("/elicha(.*?)\'/ims", "elicha".$str, $arr2)) $rek['id'] = $arr2[1];
-                    if(preg_match("/\>(.*?)elicha/ims", $str."elicha", $arr2)) $rek['name'] = $arr2[1];
-                    if(@$rek['id'] && @$rek['name']) $final[$rek['name']] = $rek['id'];
-                }
-            }
-        }
-        return $final;
     }
     private function parse_citation($rec, $owner, $accessURI, $furtherInformationURL)
     {
@@ -379,46 +307,5 @@ class XenoCantoAPI
         }
         return $r->identifier;
     }
-    /* as of Sep 14, 2023
-    The following is a detailed description of the fields of this object:
-
-    id: the catalogue number of the recording on xeno-canto
-    gen: the generic name of the species
-    sp: the specific name (epithet) of the species
-    ssp: the subspecies name (subspecific epithet)
-    group: the group to which the species belongs (birds, grasshoppers, bats)
-    en: the English name of the species
-    rec: the name of the recordist
-    cnt: the country where the recording was made
-    loc: the name of the locality
-    lat: the latitude of the recording in decimal coordinates
-    lng: the longitude of the recording in decimal coordinates
-    type: the sound type of the recording (combining both predefined terms such as 'call' or 'song' and additional free text options)
-    sex: the sex of the animal
-    stage: the life stage of the animal (adult, juvenile, etc.)
-    method: the recording method (field recording, in the hand, etc.)
-    url: the URL specifying the details of this recording
-    file: the URL to the audio file
-    file-name: the original file name of the audio file
-    sono: an object with the urls to the four versions of sonograms
-    osci: an object with the urls to the three versions of oscillograms
-    lic: the URL describing the license of this recording
-    q: the current quality rating for the recording
-    length: the length of the recording in minutes
-    time: the time of day that the recording was made
-    date: the date that the recording was made
-    uploaded: the date that the recording was uploaded to xeno-canto
-    also: an array with the identified background species in the recording
-    rmk: additional remarks by the recordist
-    bird-seen: despite the field name (which was kept to ensure backwards compatibility), this field indicates whether the recorded animal was seen
-    animal-seen: was the recorded animal seen?
-    playback-used: was playback used to lure the animal?
-    temperature: temperature during recording (applicable to specific groups only)
-    regnr: registration number of specimen (when collected)
-    auto: automatic (non-supervised) recording?
-    dvc: recording device used
-    mic: microphone used
-    smp: sample rate    
-    */
 }
 ?>
