@@ -124,17 +124,23 @@ class XenoCantoAPI
                         $rek['accessURI']               = $r->file;
                         $rek['format']                  = Functions::get_mimetype($r->{'file-name'});
                         $rek['type']                    = Functions::get_datatype_given_mimetype($rek['format']);
+                        if(!$rek['type']) exit("\nInvestigate: DataType must be present [".$rek['format']."]\n");
+
                         $rek['furtherInformationURL']   = $rec['url'];
                         $rek['LocationCreated']         = $r->loc;
                         $rek['lat']                     = $r->lat;
                         $rek['long']                    = $r->lng;
                         $rek['description']             = $r->rmk;
-                        if($val = $r->lic) $rek['UsageTerms'] = "https:".$val;
+                        $rek['CreateDate']              = $r->date;
+
+                        if($rek['UsageTerms'] = self::parse_usageTerms($r->lic)) {}
+                        else continue; //invalid license
+
                         if($val = $r->rec) {
                             $rek['agentID'] = self::format_agent_id($val);
                             $rek['Owner'] = $val;
                         }
-                        
+                        $rek['bibliographicCitation'] = self::parse_citation($rec, $rek['Owner'], $r->{'file-name'}, $rek['furtherInformationURL']);
                         $final[] = $rek;
                         print_r($rek); exit;
                     }
@@ -180,28 +186,6 @@ class XenoCantoAPI
     {
         foreach($records as $rec) {
             // print_r($rec); exit;
-            /*Array(
-                [0] => download
-                [1] => sciname
-                [2] => Length
-                [3] => Recordist
-                [4] => Date
-                [5] => Time
-                [6] => Country
-                [7] => Location
-                [8] => Elev. (m)
-                [9] => Type
-                [10] => Remarks
-                [11] => Actions
-                [12] => Cat.nr.
-            )*/
-            $agent_id = '';
-            if($ret2 = self::parse_recordist($rec['Recordist'])) $agent_id = self::write_agent($ret2);
-            
-            
-            if($UsageTerms = self::parse_usageTerms($rec['Cat.nr.'])) {}
-            else continue;
-            
             
             if($ret = self::parse_accessURI($rec['download'])) {
                 if($val = $ret['accessURI']) $accessURI = $val;
@@ -211,29 +195,9 @@ class XenoCantoAPI
             else continue;
             
             $mr = new \eol_schema\MediaResource();
-            $mr->taxonID        = $rec['taxonID'];
-            $mr->identifier     = md5($accessURI);
-            $mr->format         = Functions::get_mimetype($accessURI);
-            $mr->type           = Functions::get_datatype_given_mimetype($mr->format);
-            if(!$mr->type) {
-                echo "\nMessage: DataType must be present\n";
-                print_r($rec);
-                continue;
-            }
-            
-            $mr->furtherInformationURL = $furtherInformationURL;
-            $mr->accessURI      = $accessURI;
-            $mr->Owner          = $ret2['agent'];
-            // $mr->UsageTerms     = $UsageTerms;
-            // $mr->LocationCreated = @$ret1['location'];
-            // $mr->lat             = @$ret1['lat'];
-            // $mr->long            = @$ret1['long'];
-            $mr->description    = self::parse_description($rec['Remarks']);
-            $mr->CreateDate     = self::parse_CreateDate($rec);
-            $mr->agentID        = $agent_id;
-            $mr->bibliographicCitation = self::parse_citation($rec, $mr->Owner, $mr->accessURI, $mr->furtherInformationURL);
+            // build here...
 
-            /*
+            /* copied template
             // $mr->thumbnailURL   = ''
             // $mr->CVterm         = ''
             // $mr->rights         = ''
@@ -267,13 +231,12 @@ class XenoCantoAPI
         }
         return $final;
     }
-    private function parse_citation($rec, $owner, $accessURI, $furtherInformationURL)
+    private function parse_citation($rec, $owner, $file_name, $furtherInformationURL)
     {
         // print_r($rec); //exit;
         // citation e.g.: Ralf Wendt, XC356323. Accessible at www.xeno-canto.org/356323.
-        $filename = pathinfo($accessURI, PATHINFO_FILENAME);
         //e.g. XC207312-Apteryx%20australis141122_T1460
-        $arr = explode('-', $filename);
+        $arr = explode('-', $file_name);
         return "$owner, $arr[0]. Accessible at " . str_replace('https://', '', $furtherInformationURL).".";
     }
     private function parse_CreateDate($rec)
@@ -296,12 +259,10 @@ class XenoCantoAPI
     }
     private function parse_usageTerms($str)
     {
-        //[Cat.nr.] => style='white-space: nowrap;'><a href="/46725">XC46725 <span title="Creative Commons Attribution-NonCommercial-NoDerivs 2.5">
-        // <a href="//creativecommons.org/licenses/by-nc-nd/2.5/"><img class='icon' width='14' height='14' src='/static/img/cc.png'></a></span>
-        if(preg_match("/href=\"\/\/creativecommons.org(.*?)\"/ims", $str, $arr)) {
-            if(stripos($arr[1], "by-nc-nd") !== false) return false; //invalid license
-            return 'http://creativecommons.org'.$arr[1];
-        }
+        if(!$str) return false;
+        if(stripos($str, "by-nc-nd") !== false) return false; //invalid license
+        return "https:".$str;
+
     }
     private function parse_accessURI($str)
     {
