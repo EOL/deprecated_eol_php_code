@@ -72,16 +72,9 @@ class XenoCantoAPI
                         [sciname] => Struthio camelus
                     )*/
                     if($rec['sciname'] && $rec['url']) {
-                        /* ---------- ver. 1
-                        $ret = self::prepare_media_records($rec);
-                        self::write_taxon($ret['orig_rec']);
-                        if($val = $ret['media']) self::write_media($val);
-                        else continue; //didn't get anything for media
-                        ---------- end ver. 1 */
 
                         // /* ---------- ver. 2
                         $rec = self::parse_order_family($rec); // print_r($rec); exit;
-
                         $ret = self::prepare_media_records($rec);
                         // print_r($ret); exit;
                         self::write_taxon($ret['orig_rec']);
@@ -237,9 +230,6 @@ class XenoCantoAPI
         $rec['role'] = "recorder";
         $rec['homepage'] = '';
         if($agent_ids = self::create_agents(array($rec))) return implode("; ", $agent_ids);
-
-
-
     }
     private function create_agents($agents)
     {
@@ -332,57 +322,11 @@ class XenoCantoAPI
         $arr = explode('-', $file_name);
         return "$owner, $arr[0]. Accessible at " . str_replace('https://', '', $furtherInformationURL).".";
     }
-    private function parse_CreateDate($rec)
-    {
-        // [Date] => >2010-02-09
-        // [Time] => > 07:00
-        $str = $rec['Date'].' '.$rec['Time'];
-        $str = str_replace('>', '', $str);
-        $str = Functions::remove_whitespace($str);
-        return $str;
-    }
-    private function parse_description($str)
-    {
-        $str = Functions::remove_whitespace(strip_tags($str));
-        $str = str_replace('[sono]', '', $str);
-        $str = str_replace('[also]', '', $str);
-        $str = trim(substr($str,1,strlen($str)));
-        // echo "\n$str\n";
-        return $str;
-    }
     private function parse_usageTerms($str)
     {
         if(!$str) return false;
         if(stripos($str, "by-nc-nd") !== false) return false; //invalid license
         return "http:".$str;
-    }
-    private function parse_accessURI($str)
-    {
-        $ret = array();
-        // data-xc-filepath='//www.xeno-canto.org/sounds/uploaded/DNKBTPCMSQ/Ostrich%20RV%202-10.mp3'>
-        if(preg_match("/filepath='(.*?)'/ims", $str, $arr)) $ret['accessURI'] = 'https:'.$arr[1];
-        // data-xc-id='46725'
-        if(preg_match("/data-xc-id='(.*?)'/ims", $str, $arr)) $ret['furtherInfoURL'] = $this->domain.'/'.$arr[1];
-        return $ret;
-    }
-    private function parse_recordist($str)
-    {
-        //<a href='/contributor/DNKBTPCMSQ'>Derek Solomon</a>
-        $val = array();
-        if(preg_match("/href='(.*?)\'/ims", $str, $arr)) $val['homepage'] = $arr[1];
-        if(preg_match("/\'>(.*?)<\/a>/ims", $str, $arr)) $val['agent'] = $arr[1];
-        // print_r($val); //exit;
-        return $val;
-    }
-    private function parse_location_lat_long($str)
-    {
-        //<a href="/location/map?lat=-24.3834&long=30.9334&loc=Hoedspruit">Hoedspruit</a>
-        $val = array();
-        if(preg_match("/lat=(.*?)&/ims", $str, $arr)) $val['lat'] = $arr[1];
-        if(preg_match("/long=(.*?)&/ims", $str, $arr)) $val['long'] = $arr[1];
-        if(preg_match("/\">(.*?)<\/a>/ims", $str, $arr)) $val['location'] = $arr[1];
-        // print_r($val); //exit;
-        return $val;
     }
     private function write_taxon($rec)
     {   // print_r($rec); exit;
@@ -417,20 +361,6 @@ class XenoCantoAPI
                 $this->common_names[$unique] = '';
             }    
         }
-    }
-    private function write_agent($a)
-    {
-        // print_r($a); exit;
-        $r = new \eol_schema\Agent();
-        $r->term_name       = $a['agent'];
-        $r->agentRole       = 'recorder';
-        $r->term_homepage   = $this->domain.$a['homepage'];
-        $r->identifier      = md5("$r->term_name|$r->agentRole|$r->term_homepage");
-        if(!isset($this->agent_ids[$r->identifier])) {
-           $this->agent_ids[$r->identifier] = '';
-           $this->archive_builder->write_object_to_file($r);
-        }
-        return $r->identifier;
     }
     /* as of Sep 14, 2023
     The following is a detailed description of the fields of this object:
