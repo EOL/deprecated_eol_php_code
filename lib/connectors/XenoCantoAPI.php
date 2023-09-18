@@ -25,12 +25,12 @@ class XenoCantoAPI
     function start()
     {
         $this->recorders_info = self::buildup_recorders_list();
-        // Rosendo Manuel Fraga ---> found in all members list page, https://xeno-canto.org/contributors?q=all
-        // Rosendo Fraga
+        /* Additional */
+        $this->recorders_info["Tony Archer"] = $this->recorders_info["Tony Archer †"];
         $this->recorders_info["Rosendo Fraga"] = "JQSYKZHEMB"; //written only as "Rosendo Fraga", in media object 
         $this->recorders_info["Lars Lachmann"] = "HEYJSRUDZZ";
-        $this->recorders_info["Juan Pablo Culasso"] = $this->recorders_info["juan Pablo Culasso"];
-        $this->recorders_info["Nunes D´Acosta"] = $this->recorders_info["Juvêncio da Costa Nunes Neto"];
+        // $this->recorders_info["Juan Pablo Culasso"] = $this->recorders_info["juan Pablo Culasso"];
+        // $this->recorders_info["Nunes D´Acosta"] = $this->recorders_info["Juvêncio da Costa Nunes Neto"];
         $this->recorders_info["Rafael Martos Martins"] = "VXDVESQDET";
         $this->recorders_info["Joao Menezes"] = "BEYMZHZHIB";
         $this->recorders_info["João Menezes"] = "BEYMZHZHIB";        
@@ -218,16 +218,13 @@ class XenoCantoAPI
     }
     private function format_agent_id($recorder_name, $r)
     {
-        $possible_names = array($recorder_name, $recorder_name." †"); //did this because some names are RIP e.g. "Tony Archer †"
-        foreach($possible_names as $possible) {
-            if($recorder_id = @$this->recorders_info[$possible]) {
-                $rec = array();
-                $rec['identifier'] = $recorder_id;
-                $rec['fullName'] = $recorder_name;
-                $rec['role'] = "recorder";
-                $rec['homepage'] = $this->recorder_url.$recorder_id;
-                if($agent_ids = self::create_agents(array($rec))) return implode("; ", $agent_ids);
-            }
+        if($recorder_id = @$this->recorders_info[$recorder_name]) {
+            $rec = array();
+            $rec['identifier'] = $recorder_id;
+            $rec['fullName'] = $recorder_name;
+            $rec['role'] = "recorder";
+            $rec['homepage'] = $this->recorder_url.$recorder_id;
+            if($agent_ids = self::create_agents(array($rec))) return implode("; ", $agent_ids);
         }
         print_r($r);
         exit("\nInvestigate: Recorder name not initialized: [$recorder_name]\n");
