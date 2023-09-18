@@ -316,8 +316,8 @@ class XenoCantoAPI
                     [2455] => BYQQJILIAR'>Wolfgang Henkes */
                 foreach($arr[1] as $str) {
                     $rek = array();
-                    if(preg_match("/elicha(.*?)\'/ims", "elicha".$str, $arr2)) $rek['id'] = $arr2[1];
-                    if(preg_match("/\>(.*?)elicha/ims", $str."elicha", $arr2)) $rek['name'] = $arr2[1];
+                    if(preg_match("/elicha(.*?)\'/ims", "elicha".$str, $arr2)) $rek['id'] = trim($arr2[1]);
+                    if(preg_match("/\>(.*?)elicha/ims", $str."elicha", $arr2)) $rek['name'] = trim($arr2[1]);
                     if(@$rek['id'] && @$rek['name']) $final[$rek['name']] = $rek['id'];
                 }
             }
