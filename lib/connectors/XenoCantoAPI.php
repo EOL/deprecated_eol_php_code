@@ -19,6 +19,7 @@ class XenoCantoAPI
         $this->api['query']     = $this->domain.'/api/2/recordings?query=';
         $this->recorders_list   = $this->domain.'/contributors?q=all';
         $this->recorder_url     = "https://xeno-canto.org/contributor/"; //append the recorder id e.g. "NQMGMOJOHV"
+        $this->sound_file_url   = "https://xeno-canto.org/sounds/uploaded/"; //first part of the accessURI
     }
     function start()
     {
@@ -65,12 +66,13 @@ class XenoCantoAPI
                         ---------- end ver. 1 */
 
                         // /* ---------- ver. 2
-                        $rec = self::parse_order_family($rec);
+                        $rec = self::parse_order_family($rec); // print_r($rec); exit;
 
                         $ret = self::prepare_media_records($rec);
-                        // self::write_taxon($ret['orig_rec']);
-                        // if($val = $ret['media']) self::write_media($val);
-                        // else continue; //didn't get anything for media
+                        // print_r($ret); exit;
+                        self::write_taxon($ret['orig_rec']);
+                        if($val = $ret['media']) self::write_media($val);
+                        else continue; //didn't get anything for media
 
 
                         print_r($rec); exit("\nstop muna\n");
@@ -117,15 +119,32 @@ class XenoCantoAPI
                 if($json = Functions::lookup_with_cache($url, $this->download_options)) {
                     $o = json_decode($json); //print_r($o); exit;
                     $final = array();
-                    foreach($o->recordings as $r) { print_r($o);
+                    foreach($o->recordings as $r) { //print_r($o); exit;
                         $rek = array();
                         $rek['identifier']              = $r->id;
                         $rek['taxonID']                 = $rec['taxonID'];
-                        $rek['accessURI']               = $r->file;
+
+                        /*
+                        [file] => https://xeno-canto.org/563003/download
+                        [file-name] => XC563003-Common Ostrich chicks.mp3
+                        https://xeno-canto.org/sounds/uploaded/DNKBTPCMSQ/Ostrich%20RV%202-10.mp3
+                        https://xeno-canto.org/sounds/uploaded/YTUXOCTUEM/XC516153-Struthio_camelus_australis-FL%20quiet%20calls%20imm%20Polokwane%20GameRes%2030Oct19%208.05am%20LS115271a.mp3
+
+
+                        https://xeno-canto.org/sounds/uploaded/SGLTZLDXYI/XC563003-Common Ostrich chicks.mp3
+                        [rec] => Lynette Rudman
+                        [file] => https://xeno-canto.org/563003/download
+                        [file-name] => XC563003-Common Ostrich chicks.mp3
+                        */
+
+                        if($val = $r->rec) {
+                            $rek['agentID'] = self::format_agent_id($val);
+                            $rek['Owner'] = $val;
+                        }
+                        $rek['accessURI']               = self::format_accessURI($r, $rek['agentID']);
                         $rek['format']                  = Functions::get_mimetype($r->{'file-name'});
                         $rek['type']                    = Functions::get_datatype_given_mimetype($rek['format']);
                         if(!$rek['type']) exit("\nInvestigate: DataType must be present [".$rek['format']."]\n");
-
                         $rek['furtherInformationURL']   = $rec['url'];
                         $rek['LocationCreated']         = $r->loc;
                         $rek['lat']                     = $r->lat;
@@ -136,31 +155,43 @@ class XenoCantoAPI
                         if($rek['UsageTerms'] = self::parse_usageTerms($r->lic)) {}
                         else continue; //invalid license
 
-                        if($val = $r->rec) {
-                            $rek['agentID'] = self::format_agent_id($val);
-                            $rek['Owner'] = $val;
-                        }
                         $rek['bibliographicCitation'] = self::parse_citation($rec, $rek['Owner'], $r->{'file-name'}, $rek['furtherInformationURL']);
                         $final[] = $rek;
-                        print_r($rek); exit;
+                        // print_r($final); exit;
                     }
-                    print_r($final); exit;
+                    // print_r($final); exit;
                 }
             }
         }
-        // print_r($final); exit;
+        // print_r($final); exit("\nfinal\n");
         return array('orig_rec' => $rec, 'media' => $final);
+    }
+    private function format_accessURI($r, $agentID)
+    {
+        if($agentID && $r->{"file-name"}) return $this->sound_file_url . $agentID . "/" . $r->{'file-name'};
+        else {
+            print_r($r);
+            exit("\nInvestigate accessURI: [$agentID]\n");
+            return false;
+        }
+        // exit("\n$agentID\n");
+        // https://xeno-canto.org/sounds/uploaded/SGLTZLDXYI/XC563003-Common Ostrich chicks.mp3
+        // [file-name] => XC563003-Common Ostrich chicks.mp3
     }
     private function format_agent_id($recorder_name)
     {
-        if($recorder_id = $this->recorders_info[$recorder_name]) {
-            $rec = array();
-            $rec['fullName'] = $recorder_name;
-            $rec['role'] = "recorder";
-            $rec['homepage'] = $this->recorder_url.$recorder_id;
-            if($agent_ids = self::create_agents(array($rec))) return implode("; ", $agent_ids);
+        $possible_names = array($recorder_name, $recorder_name." †"); //did this because some names are RIP e.g. "Tony Archer †"
+        foreach($possible_names as $possible) {
+            if($recorder_id = @$this->recorders_info[$possible]) {
+                $rec = array();
+                $rec['identifier'] = $recorder_id;
+                $rec['fullName'] = $recorder_name;
+                $rec['role'] = "recorder";
+                $rec['homepage'] = $this->recorder_url.$recorder_id;
+                if($agent_ids = self::create_agents(array($rec))) return implode("; ", $agent_ids);
+            }
         }
-        else exit("\nInvestigate: Recorder name not initialized: [$recorder_name]\n");
+        exit("\nInvestigate: Recorder name not initialized: [$recorder_name]\n");
     }
     private function create_agents($agents)
     {
@@ -169,7 +200,8 @@ class XenoCantoAPI
             if($agent = trim($rec["fullName"])){
                 $r = new \eol_schema\Agent();
                 $r->term_name       = $agent;
-                $r->identifier      = md5("$agent|" . $rec["role"]. $rec['homepage']);
+                // $r->identifier      = md5("$agent|" . $rec["role"]. $rec['homepage']);
+                $r->identifier      = $rec["identifier"];
                 $r->agentRole       = $rec["role"];
                 $r->term_homepage   = $rec["homepage"];
                 $agent_ids[] = $r->identifier;
@@ -185,7 +217,26 @@ class XenoCantoAPI
     private function write_media($records)
     {
         foreach($records as $rec) {
-            // print_r($rec); exit;
+            print_r($rec); exit("\nstop muna: obj\n");
+            /* Array(
+                [identifier] => 208209
+                [taxonID] => struthio-camelus
+                [accessURI] => https://xeno-canto.org/208209/download
+                               https://xeno-canto.org/sounds/uploaded/DNKBTPCMSQ/Ostrich%20RV%202-10.mp3
+                [format] => audio/mpeg
+                [type] => http://purl.org/dc/dcmitype/Sound
+                [furtherInformationURL] => https://xeno-canto.org/species/Struthio-camelus
+                [LocationCreated] => Mmabolela Reserve, Limpopo
+                [lat] => -22.677
+                [long] => 28.2629
+                [description] => Recording modified: Frequencies above 640hz reduced by 12db and frequencies below 320 amplified as well. The overall recording has been amplified significantly by around 30db as well.
+            Part of a 13 hour recording session where the microphones were left by a waterhole overnight.
+                [CreateDate] => 2014-11-20
+                [UsageTerms] => https://creativecommons.org/licenses/by-nc-sa/4.0/
+                [agentID] => ab41bfe2ef8ff66df33f377c9673dc29
+                [Owner] => Jeremy Hegge
+                [bibliographicCitation] => Jeremy Hegge, XC208209. Accessible at xeno-canto.org/species/Struthio-camelus.
+            )*/
             
             if($ret = self::parse_accessURI($rec['download'])) {
                 if($val = $ret['accessURI']) $accessURI = $val;
@@ -262,7 +313,6 @@ class XenoCantoAPI
         if(!$str) return false;
         if(stripos($str, "by-nc-nd") !== false) return false; //invalid license
         return "https:".$str;
-
     }
     private function parse_accessURI($str)
     {
@@ -293,14 +343,14 @@ class XenoCantoAPI
         return $val;
     }
     private function write_taxon($rec)
-    {
-        // print_r($rec); exit;
+    {   // print_r($rec); exit;
         /*Array(
             [comname] => Common Ostrich
-            [url] => /species/Struthio-camelus
+            [url] => https://xeno-canto.org/species/Struthio-camelus
             [sciname] => Struthio camelus
             [order] => Struthioniformes
             [family] => Struthionidae
+            [taxonID] => struthio-camelus
         )*/
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $rec['taxonID'];
@@ -308,22 +358,22 @@ class XenoCantoAPI
         $taxon->taxonRank       = 'species';
         $taxon->order           = $rec['order'];
         $taxon->family          = $rec['family'];
-        // $taxon->source          = $this->domain.$rec['url'];
-        $taxon->furtherInformationURL = $this->domain.$rec['url'];
-        
+        $taxon->furtherInformationURL = $rec['url'];
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
         }
         
-        $v = new \eol_schema\VernacularName();
-        $v->taxonID         = $rec['taxonID'];
-        $v->vernacularName  = $rec['comname'];
-        $v->language        = 'en';
-        $unique = md5($v->taxonID.$v->vernacularName);
-        if(!isset($this->common_names[$unique])) {
-            $this->archive_builder->write_object_to_file($v);
-            $this->common_names[$unique] = '';
+        if($rec['comname']) {
+            $v = new \eol_schema\VernacularName();
+            $v->taxonID         = $rec['taxonID'];
+            $v->vernacularName  = $rec['comname'];
+            $v->language        = 'en';
+            $unique = md5($v->taxonID.$v->vernacularName);
+            if(!isset($this->common_names[$unique])) {
+                $this->archive_builder->write_object_to_file($v);
+                $this->common_names[$unique] = '';
+            }    
         }
     }
     private function write_agent($a)
