@@ -13,7 +13,7 @@ class XenoCantoAPI
             'resource_id'        => $this->resource_id,  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30*3, //expires quarterly
             'download_wait_time' => 2000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'cache' => 1);
-        $this->domain = 'https://www.xeno-canto.org';
+        $this->domain = 'https://www.xeno-canto.org';        
         $this->species_list     = $this->domain.'/collection/species/all';
         $this->api['query']     = $this->domain.'/api/2/recordings?query=';
         $this->api['query']     = $this->domain.'/api/2/recordings?query=';
@@ -75,7 +75,7 @@ class XenoCantoAPI
                         else continue; //didn't get anything for media
 
 
-                        print_r($rec); exit("\nstop muna\n");
+                        // print_r($rec); exit("\nstop muna\n");
                         // ---------- end ver. 2 */
                     }
                     $i++;
@@ -123,20 +123,6 @@ class XenoCantoAPI
                         $rek = array();
                         $rek['identifier']              = $r->id;
                         $rek['taxonID']                 = $rec['taxonID'];
-
-                        /*
-                        [file] => https://xeno-canto.org/563003/download
-                        [file-name] => XC563003-Common Ostrich chicks.mp3
-                        https://xeno-canto.org/sounds/uploaded/DNKBTPCMSQ/Ostrich%20RV%202-10.mp3
-                        https://xeno-canto.org/sounds/uploaded/YTUXOCTUEM/XC516153-Struthio_camelus_australis-FL%20quiet%20calls%20imm%20Polokwane%20GameRes%2030Oct19%208.05am%20LS115271a.mp3
-
-
-                        https://xeno-canto.org/sounds/uploaded/SGLTZLDXYI/XC563003-Common Ostrich chicks.mp3
-                        [rec] => Lynette Rudman
-                        [file] => https://xeno-canto.org/563003/download
-                        [file-name] => XC563003-Common Ostrich chicks.mp3
-                        */
-
                         if($val = $r->rec) {
                             $rek['agentID'] = self::format_agent_id($val);
                             $rek['Owner'] = $val;
@@ -145,7 +131,7 @@ class XenoCantoAPI
                         $rek['format']                  = Functions::get_mimetype($r->{'file-name'});
                         $rek['type']                    = Functions::get_datatype_given_mimetype($rek['format']);
                         if(!$rek['type']) exit("\nInvestigate: DataType must be present [".$rek['format']."]\n");
-                        $rek['furtherInformationURL']   = $rec['url'];
+                        $rek['furtherInformationURL']   = self::format_furtherInfoURL($r, $rec['url']); //$rec['url'];
                         $rek['LocationCreated']         = $r->loc;
                         $rek['lat']                     = $r->lat;
                         $rek['long']                    = $r->lng;
@@ -159,24 +145,37 @@ class XenoCantoAPI
                         $final[] = $rek;
                         // print_r($final); exit;
                     }
-                    // print_r($final); exit;
+                    // print_r($final); exit("\nits final\n");
                 }
             }
         }
         // print_r($final); exit("\nfinal\n");
         return array('orig_rec' => $rec, 'media' => $final);
     }
+    private function format_furtherInfoURL($r, $last_option)
+    {   /*
+        [file-name] => XC563003-Common Ostrich chicks.mp3
+        https://xeno-canto.org/673753
+        */
+        $arr = explode("-", $r->{'file-name'});
+        if(count($arr) >= 2) {
+            if($tmp = $arr[0]) {
+                if($basename = trim(substr($tmp, 2, strlen(trim($tmp))))) return $this->domain."/".$basename;
+            }    
+        }
+        return $last_option;
+    }
     private function format_accessURI($r, $agentID)
     {
+        /* sound_file_url + agentID + file-name 
+        https://xeno-canto.org/sounds/uploaded/ +   SGLTZLDXYI  +   /   +   XC563003-Common Ostrich chicks.mp3
+        */
         if($agentID && $r->{"file-name"}) return $this->sound_file_url . $agentID . "/" . $r->{'file-name'};
         else {
             print_r($r);
             exit("\nInvestigate accessURI: [$agentID]\n");
             return false;
         }
-        // exit("\n$agentID\n");
-        // https://xeno-canto.org/sounds/uploaded/SGLTZLDXYI/XC563003-Common Ostrich chicks.mp3
-        // [file-name] => XC563003-Common Ostrich chicks.mp3
     }
     private function format_agent_id($recorder_name)
     {
@@ -217,15 +216,16 @@ class XenoCantoAPI
     private function write_media($records)
     {
         foreach($records as $rec) {
-            print_r($rec); exit("\nstop muna: obj\n");
+            // print_r($rec); //exit("\nstop muna: obj\n");
             /* Array(
                 [identifier] => 208209
                 [taxonID] => struthio-camelus
-                [accessURI] => https://xeno-canto.org/208209/download
-                               https://xeno-canto.org/sounds/uploaded/DNKBTPCMSQ/Ostrich%20RV%202-10.mp3
+                [agentID] => XKXDFWNSPA
+                [Owner] => Jeremy Hegge
+                [accessURI] => https://xeno-canto.org/sounds/uploaded/XKXDFWNSPA/XC208209-Common Ostrich 2.mp3
                 [format] => audio/mpeg
                 [type] => http://purl.org/dc/dcmitype/Sound
-                [furtherInformationURL] => https://xeno-canto.org/species/Struthio-camelus
+                [furtherInformationURL] => https://www.xeno-canto.org/208209
                 [LocationCreated] => Mmabolela Reserve, Limpopo
                 [lat] => -22.677
                 [long] => 28.2629
@@ -233,27 +233,20 @@ class XenoCantoAPI
             Part of a 13 hour recording session where the microphones were left by a waterhole overnight.
                 [CreateDate] => 2014-11-20
                 [UsageTerms] => https://creativecommons.org/licenses/by-nc-sa/4.0/
-                [agentID] => ab41bfe2ef8ff66df33f377c9673dc29
-                [Owner] => Jeremy Hegge
-                [bibliographicCitation] => Jeremy Hegge, XC208209. Accessible at xeno-canto.org/species/Struthio-camelus.
+                [bibliographicCitation] => Jeremy Hegge, XC208209. Accessible at www.xeno-canto.org/208209.
             )*/
-            
-            if($ret = self::parse_accessURI($rec['download'])) {
-                if($val = $ret['accessURI']) $accessURI = $val;
-                else continue;
-                $furtherInformationURL = $ret['furtherInfoURL'];
-            }
-            else continue;
-            
+                        
             $mr = new \eol_schema\MediaResource();
-            // build here...
+            foreach(array_keys($rec) as $fld) {
+                $mr->$fld = $rec[$fld];
+            }
 
             /* copied template
-            // $mr->thumbnailURL   = ''
-            // $mr->CVterm         = ''
-            // $mr->rights         = ''
-            // $mr->title          = ''
-            // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
+            $mr->thumbnailURL   = ''
+            $mr->CVterm         = ''
+            $mr->rights         = ''
+            $mr->title          = ''
+            if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
             */
             
             if(!isset($this->object_ids[$mr->identifier])) {
@@ -312,7 +305,7 @@ class XenoCantoAPI
     {
         if(!$str) return false;
         if(stripos($str, "by-nc-nd") !== false) return false; //invalid license
-        return "https:".$str;
+        return "http:".$str;
     }
     private function parse_accessURI($str)
     {
