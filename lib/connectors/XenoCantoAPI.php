@@ -54,8 +54,8 @@ class XenoCantoAPI
                     // /* ---------- during caching only
                     $m = $total/4;
                     // if($i >= 1    && $i <= $m   ) {$k=$m;}   else continue;
-                    // if($i >= $m   && $i <= $m*2 ) {$k=$m*2;} else continue;
-                    if($i >= $m*2 && $i <= $m*3 ) {$k=$m*3;} else continue;
+                    if($i >= $m   && $i <= $m*2 ) {$k=$m*2;} else continue;
+                    // if($i >= $m*2 && $i <= $m*3 ) {$k=$m*3;} else continue;
                     // if($i >= $m*3 && $i <= $m*4 ) {$k=$m*4;} else continue;
                     echo "\n$i of $total [$k]\n";
                     // ---------- */
