@@ -12,11 +12,11 @@ class XenoCantoAPI
         $this->download_options = array(
             'resource_id'        => $this->resource_id,  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30*3, //expires quarterly
-            'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'cache' => 1);
+            'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->domain = 'https://www.xeno-canto.org';        
         $this->species_list     = $this->domain.'/collection/species/all';
         $this->api['query']     = $this->domain.'/api/2/recordings?query=';
-        $this->api['query']     = $this->domain.'/api/2/recordings?query=';
+        $this->api['query']     = $this->domain.'/api/2/recordings?query=q:A+';
         $this->recorders_list   = $this->domain.'/contributors?q=all';
         $this->recorder_url     = "https://xeno-canto.org/contributor/"; //append the recorder id e.g. "NQMGMOJOHV"
         $this->sound_file_url   = "https://xeno-canto.org/sounds/uploaded/"; //first part of the accessURI
@@ -146,7 +146,7 @@ class XenoCantoAPI
     {
         $final = array();
         // $rec['sciname'] = 'Troglodytes troglodytes'; //debug only
-        $url = $this->api['query'].urlencode($rec['sciname']).'&page=1';
+        $url = $this->api['query'].urlencode($rec['sciname'])."&page=1";
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $obj = json_decode($json); // print_r($obj); exit;
             for($page = 1; $page <= $obj->numPages; $page++) { // echo "\nPage: $page\n";
