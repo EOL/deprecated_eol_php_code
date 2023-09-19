@@ -47,7 +47,10 @@ class XenoCantoAPI
             // echo $html;
             if(preg_match_all("/<tr class(.*?)<\/tr>/ims", $html, $arr)) { // print_r($arr[1]);
                 $i = 0;
-                foreach($arr[1] as $r) {
+                $total = count($arr[1]);
+                foreach($arr[1] as $r) { $i++; 
+                    if(($i % 100) == 0) echo "\n$i of $total\n";
+
                     /*[0] => ='new-species'>
                         <td>
                         <span clas='common-name'>
@@ -85,7 +88,6 @@ class XenoCantoAPI
                         // print_r($rec); exit("\nstop muna\n");
                         // ---------- end ver. 2 */
                     }
-                    $i++;
                     // if($i >= 10) break;
                     // break;
                 }
