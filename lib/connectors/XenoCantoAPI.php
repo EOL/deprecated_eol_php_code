@@ -49,7 +49,8 @@ class XenoCantoAPI
                 $i = 0;
                 $total = count($arr[1]);
                 foreach($arr[1] as $r) { $i++; 
-                    if(($i % 100) == 0) echo "\n$i of $total\n";
+                    // if(($i % 100) == 0) 
+                    echo "\n$i of $total\n";
 
                     /*[0] => ='new-species'>
                         <td>
