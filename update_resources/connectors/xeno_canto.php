@@ -10,7 +10,7 @@ xeno_canto	Wednesday 2019-09-18 01:45:48 AM{"agent.tab":3482,"media_resource.tab
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-// $GLOBALS['ENV_DEBUG'] = false;
+$GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 $resource_id = 'xeno_canto';
 require_library('connectors/XenoCantoAPI');

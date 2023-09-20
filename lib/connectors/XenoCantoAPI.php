@@ -100,7 +100,7 @@ class XenoCantoAPI
                         // print_r($rec); exit("\nstop muna\n");
                         // ---------- end ver. 2 */
                     }
-                    // if($i >= 10) break;
+                    if($i >= 5) break;
                     // break;
                 }
             }
