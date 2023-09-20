@@ -10,7 +10,7 @@ class XenoCantoAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
         $this->download_options = array(
-            'resource_id'        => $this->resource_id,  //resource_id here is just a folder name in cache
+            'resource_id'        => "xeno_c", //$this->resource_id,  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30*3, //expires quarterly
             'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->domain = 'https://www.xeno-canto.org';        
