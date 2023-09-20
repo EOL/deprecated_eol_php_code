@@ -177,6 +177,7 @@ class XenoCantoAPI
                             $rek['Owner'] = $val;
                         }
                         $rek['accessURI']               = self::format_accessURI($r, $rek['agentID']);
+                        if(!$rek['accessURI']) continue;
                         $rek['format']                  = Functions::get_mimetype($r->{'file-name'});
                         $rek['type']                    = Functions::get_datatype_given_mimetype($rek['format']);
                         if(!$rek['type']) exit("\nInvestigate: DataType must be present [".$rek['format']."]\n");
@@ -222,7 +223,9 @@ class XenoCantoAPI
         if($agentID && $r->{"file-name"}) return $this->sound_file_url . $agentID . "/" . $r->{'file-name'};
         else {
             print_r($r);
-            exit("\nInvestigate accessURI: [$agentID]\n");
+            // exit("\nInvestigate accessURI: [$agentID]\n");
+            if(!$agentID)           $this->debug["Investigate accessURI"]["no agentID"][$r->{'file-name'}] = '';
+            if(!$r->{"file-name"})  $this->debug["Investigate accessURI"]["no file-name"]["$agentID - ".$r->gen." ".$r->sp." - $r->id"] = '';
             return false;
         }
     }
