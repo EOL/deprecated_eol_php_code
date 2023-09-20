@@ -38,9 +38,46 @@ class XenoCantoAPI
         $this->recorders_info["Elisa Huanca"] = "GHVLJLRSAL";
         $this->recorders_info["James Lidster"] = "NRUIFMFTXY";
         // print_r($this->recorders_info); exit;
+
+        // /* for Traits
+        self::initialize_mapping();
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        // */
+
         self::main(); //main operation
-        print_r($this->debug); exit("\ntry bringing in these recorders...\n");
+        print_r($this->debug); //exit("\ntry bringing in these recorders...\n");
     }
+    private function initialize_mapping()
+    {
+        // // /* seems not getting things anymore: Sep 20, 2023
+        // $mappings = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        // echo "\n".count($mappings). " - default URIs from EOL registry.";
+        // // */
+        // // $mappings = array();
+        // $this->uris = Functions::additional_mappings($mappings, 60*60*24); //add more mappings used in the past
+        // // echo("\n Philippines: ".$this->uris['Philippines']."\n");
+        // // echo("\n Brazil: ".$this->uris['Brazil']."\n"); exit;
+
+
+        require_library('connectors/EOLterms_ymlAPI');
+        $func = new EOLterms_ymlAPI($this->resource_id, $this->archive_builder);
+        $ret = $func->get_terms_yml('value'); //sought_type is 'value'
+        foreach($ret as $label => $uri) $this->uris[$label] = $uri;
+
+        // echo("\n Philippines: ".$this->uris['Philippines']."\n");
+        // echo("\n Brazil: ".$this->uris['Brazil']."\n");
+        // echo("\n juvenile: ".$this->uris['juvenile']."\n");
+        // echo("\n adult: ".$this->uris['adult']."\n");
+        // echo("\n undetermined: ".@$this->uris['undetermined']."\n");
+        // echo("\n uncertain: ".@$this->uris['uncertain']."\n");
+        // echo("\n not sure: ".@$this->uris['not sure']."\n");
+        // echo("\n no sex: ".@$this->uris['no sex']."\n");
+        // exit;
+
+
+    }
+
     function main()
     {   
         if($html = Functions::lookup_with_cache($this->species_list, $this->download_options)) {
@@ -96,11 +133,10 @@ class XenoCantoAPI
                         if($val = $ret['media']) self::write_media($val);
                         else continue; //didn't get anything for media
 
-
                         // print_r($rec); exit("\nstop muna\n");
                         // ---------- end ver. 2 */
                     }
-                    // if($i >= 15) break;
+                    if($i >= 800) break;
                     // break;
                 }
             }
@@ -168,6 +204,7 @@ class XenoCantoAPI
                     $o = json_decode($json); //print_r($o); exit;
                     $final = array();
                     foreach($o->recordings as $r) { //print_r($o); exit;
+
                         $rek = array();
                         $rek['identifier']              = $r->id;
                         $rek['taxonID']                 = $rec['taxonID'];
@@ -180,7 +217,12 @@ class XenoCantoAPI
                         if(!$rek['accessURI']) continue;
                         $rek['format']                  = Functions::get_mimetype($r->{'file-name'});
                         $rek['type']                    = Functions::get_datatype_given_mimetype($rek['format']);
-                        if(!$rek['type']) exit("\nInvestigate: DataType must be present [".$rek['format']."]\n");
+                        if(!$rek['type']) {
+                            // print_r($r);
+                            // exit("\nInvestigate: DataType must be present [".$rek['format']."]\n");
+                            // e.g. https://xeno-canto.org/395166
+                            continue;
+                        }
                         $rek['furtherInformationURL']   = self::format_furtherInfoURL($r, $rec['url']); //$rec['url'];
                         $rek['LocationCreated']         = $r->loc;
                         $rek['lat']                     = $r->lat;
@@ -194,6 +236,13 @@ class XenoCantoAPI
                         $rek['bibliographicCitation'] = self::parse_citation($rec, $rek['Owner'], $r->{'file-name'}, $rek['furtherInformationURL']);
                         $final[] = $rek;
                         // print_r($final); exit;
+
+                        // /* for Traits
+                        if($r->cnt) self::process_trait_data($r, $rek);
+                        // */
+
+
+
                     }
                     // print_r($final); exit("\nits final\n");
                 }
@@ -202,6 +251,51 @@ class XenoCantoAPI
         // print_r($final); exit("\nfinal\n");
         return array('orig_rec' => $rec, 'media' => $final);
     }
+    private function process_trait_data($r, $rek) //$rek is media object
+    {   // print_r($rek); exit;
+
+        $mtype = "http://eol.org/schema/terms/Present";
+
+        $rec = array();
+        $rec["taxon_id"]      = $rek['taxonID'];
+        $rec["catnum"]        = $r->cnt .'_'. $rek['taxonID'];
+        $rec['measurementID'] = md5($rec['catnum']); //a special case to generate measurementID here and not in TraitGeneric. Bec. it generates a taxon [Present] in a place multiple times.
+
+        $string_val = $r->cnt; //country name
+        if($string_uri = self::get_string_uri($string_val)) {
+            $rec['measurementRemarks']      = $string_val; //country name
+            $rec['bibliographicCitation']   = $rek['bibliographicCitation'];
+            $rec['source']                  = $rek['furtherInformationURL'];
+
+            // sex: the sex of the animal
+            // stage: the life stage of the animal (adult, juvenile, etc.)
+            if($sex = trim(@$r->sex)) {
+                if($sex_uri = self::get_string_uri($sex)) $rec['occur']['sex'] = $sex_uri;
+                else $this->debug['No sex uri for this string'][$sex] = '';
+            }
+            if($lifeStage = trim(@$r->stage)) {
+                if($lifeStage_uri = self::get_string_uri($lifeStage)) $rec['occur']['lifeStage'] = $lifeStage_uri;
+                else $this->debug['No lifeStage uri for this string'][$lifeStage] = '';
+            }
+            $this->func->add_string_types($rec, $string_uri, $mtype, "true");
+        }
+        else $this->debug["Country with no URI map"][$string_val] = '';
+    }
+    private function get_string_uri($string)
+    {
+        switch ($string) { //put here customized mapping
+            case "Netherlands":                 return @$this->uris["The Netherlands"];
+            case "Trinidad & Tobago":           return @$this->uris["Trinidad And Tobago"];
+            case "Congo (Democratic Republic)": return @$this->uris["Democratic Republic Of The Congo"];
+            case "Western Samoa":               return @$this->uris["Samoa"];
+            case "St Lucia":                    return @$this->uris["Saint Lucia"];
+            case "Russian Federation":          return @$this->uris["Russia"];
+
+            // case "United States of America":    return "http://www.wikidata.org/entity/Q30";
+        }
+        if($string_uri = @$this->uris[$string]) return $string_uri;
+    }
+
     private function format_furtherInfoURL($r, $last_option)
     {   /*
         [file-name] => XC563003-Common Ostrich chicks.mp3
