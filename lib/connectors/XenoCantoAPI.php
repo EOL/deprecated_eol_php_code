@@ -11,9 +11,9 @@ class XenoCantoAPI
 
         $this->download_options = array(
             'resource_id'        => "xeno_c", //$this->resource_id,  //resource_id here is just a folder name in cache
-            'expire_seconds'     => 60*60*24*30*3, //expires quarterly
+            'expire_seconds'     => false, //60*60*24*30*3, //expires quarterly
             'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
-        $this->domain = 'https://www.xeno-canto.org';        
+        $this->domain = 'https://xeno-canto.org';        
         $this->species_list     = $this->domain.'/collection/species/all';
         $this->api['query']     = $this->domain.'/api/2/recordings?query=';
         // $this->api['query']     = $this->domain.'/api/2/recordings?query=q:A+';
@@ -39,7 +39,7 @@ class XenoCantoAPI
         $this->recorders_info["James Lidster"] = "NRUIFMFTXY";
         // print_r($this->recorders_info); exit;
         self::main(); //main operation
-        print_r($this->debug);
+        print_r($this->debug); exit("\ntry bringing in these recorders...\n");
     }
     function main()
     {   
@@ -100,7 +100,7 @@ class XenoCantoAPI
                         // print_r($rec); exit("\nstop muna\n");
                         // ---------- end ver. 2 */
                     }
-                    if($i >= 5) break;
+                    // if($i >= 15) break;
                     // break;
                 }
             }
@@ -173,6 +173,7 @@ class XenoCantoAPI
                         $rek['taxonID']                 = $rec['taxonID'];
                         if($val = $r->rec) {
                             $rek['agentID'] = self::format_agent_id($val, $r);
+                            if(!$rek['agentID']) continue; //recorder can't be initialized. Needs manual massaging or scrape e.g. https://xeno-canto.org/species/Tinamus-tao?pg=2
                             $rek['Owner'] = $val;
                         }
                         $rek['accessURI']               = self::format_accessURI($r, $rek['agentID']);
@@ -235,9 +236,10 @@ class XenoCantoAPI
             $rec['homepage'] = $this->recorder_url.$recorder_id;
             if($agent_ids = self::create_agents(array($rec))) return implode("; ", $agent_ids);
         }
-        print_r($r);
-        exit("\nInvestigate: Recorder name not initialized: [$recorder_name]\n");
+        // print_r($r);
+        // exit("\nInvestigate: Recorder name not initialized: [$recorder_name]\n");
         $this->debug["Recorder name not initialized"][$recorder_name] = '';
+        return false;
 
         /* For those recorders not found in members list */
         $rec = array();
