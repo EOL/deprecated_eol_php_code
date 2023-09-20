@@ -80,7 +80,7 @@ class XenoCantoAPI
                     if(preg_match_all("/<td>(.*?)<\/td>/ims", $r, $arr)) {
                         $rec['sciname'] = $arr[1][1];
                     }
-                    $rec = array_map('trim', $rec); //print_r($rec); exit;
+                    $rec = array_map('trim', $rec); print_r($rec); //exit;
                     /*Array(
                         [comname] => Common Ostrich
                         [url] => https://xeno-canto.org/species/Struthio-camelus
