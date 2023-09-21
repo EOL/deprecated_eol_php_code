@@ -11,7 +11,7 @@ class XenoCantoAPI
 
         $this->download_options = array(
             'resource_id'        => "xeno_c", //$this->resource_id,  //resource_id here is just a folder name in cache
-            'expire_seconds'     => false, //60*60*24*30*3, //expires quarterly
+            'expire_seconds'     => 60*60*24*30*6, //expires every 6 months - half year
             'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->domain = 'https://xeno-canto.org';        
         $this->species_list     = $this->domain.'/collection/species/all';
@@ -131,8 +131,8 @@ class XenoCantoAPI
                         // print_r($rec); exit("\nstop muna\n");
                         // ---------- end ver. 2 */
                     }
-                    // if($i >= 992) break;
-                    break;
+                    if($i >= 992) break;
+                    // break;
                 }
             }
             else echo "\nnothing found...\n";
@@ -143,8 +143,8 @@ class XenoCantoAPI
     }
     private function parse_order_family($orig_rec)
     {   
-        $orig_rec['url'] = "https://xeno-canto.org/species/Tinamus-tao"; //debug only during dev
-        $orig_rec['url'] = "https://xeno-canto.org/species/Tangara-chilensis"; //debug only during dev
+        // $orig_rec['url'] = "https://xeno-canto.org/species/Tinamus-tao"; //debug only during dev
+        // $orig_rec['url'] = "https://xeno-canto.org/species/Tangara-chilensis"; //debug only during dev
         if($html = Functions::lookup_with_cache($orig_rec['url'], $this->download_options)) {
             /*
             <li>Order: <a href='https://xeno-canto.org/explore/taxonomy?ord=STRUTHIONIFORMES'>STRUTHIONIFORMES</a></li>
@@ -195,7 +195,7 @@ class XenoCantoAPI
             // print_r($this->recorders_info); exit("\nno results-pages\n");
         }
         echo "\nEND total recorders: ".count($this->recorders_info)."\n";
-        exit("\nend test recorders\n");
+        // exit("\nend test recorders\n");
     }
     private function get_recorders_from_html($html)
     {   // <a href="https://xeno-canto.org/contributor/NRUIFMFTXY">James Lidster</a>
