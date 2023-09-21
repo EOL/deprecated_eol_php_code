@@ -74,31 +74,28 @@ class XenoCantoAPI
         // echo("\n not sure: ".@$this->uris['not sure']."\n");
         // echo("\n no sex: ".@$this->uris['no sex']."\n");
         // exit;
-
-
     }
 
     function main()
     {   
-        if($html = Functions::lookup_with_cache($this->species_list, $this->download_options)) {
-            // echo $html;
+        if($html = Functions::lookup_with_cache($this->species_list, $this->download_options)) { // echo $html;
             if(preg_match_all("/<tr class(.*?)<\/tr>/ims", $html, $arr)) { // print_r($arr[1]);
                 $i = 0;
                 $total = count($arr[1]);
                 foreach($arr[1] as $r) { $i++; 
-                    // if(($i % 100) == 0)
+                    // if(($i % 100) == 0) echo "\n$i of $total\n";
 
-                    // /* ---------- during caching only
+                    /* ---------- during caching only
                     $m = $total/4;
                     if($i >= 1    && $i <= $m   ) {$k=$m;}   else continue;
                     // if($i >= $m   && $i <= $m*2 ) {$k=$m*2;} else continue;
                     // if($i >= $m*2 && $i <= $m*3 ) {$k=$m*3;} else continue;
                     // if($i >= $m*3 && $i <= $m*4 ) {$k=$m*4;} else continue;
                     echo "\n$i of $total [$k]\n";
-                    // ---------- */
-                    /*
+                    ---------- */
+                    // /*
                     echo "\n$i of $total\n"; //normal operation
-                    */
+                    // */
 
                     /*[0] => ='new-species'>
                         <td>
@@ -136,8 +133,8 @@ class XenoCantoAPI
                         // print_r($rec); exit("\nstop muna\n");
                         // ---------- end ver. 2 */
                     }
-                    if($i >= 992) break;
-                    // break;
+                    // if($i >= 992) break;
+                    break;
                 }
             }
             else echo "\nnothing found...\n";
@@ -147,7 +144,8 @@ class XenoCantoAPI
         $this->archive_builder->finalize(TRUE);
     }
     private function parse_order_family($orig_rec)
-    {
+    {   
+        // $orig_rec['url'] = "https://xeno-canto.org/species/Tinamus-tao"; //debug only
         if($html = Functions::lookup_with_cache($orig_rec['url'], $this->download_options)) {
             /*
             <li>Order: <a href='https://xeno-canto.org/explore/taxonomy?ord=STRUTHIONIFORMES'>STRUTHIONIFORMES</a></li>
@@ -164,29 +162,66 @@ class XenoCantoAPI
 
 
             // /* --------------- special search for recorders info
-            // <a href="https://xeno-canto.org/contributor/NRUIFMFTXY">James Lidster</a>
-            if(preg_match_all("/xeno\-canto\.org\/contributor\/(.*?)<\/a>/ims", $html, $arr)) { // print_r($arr[1]); exit;
-                /* Array(
-                    [0] => YTUXOCTUEM'>Frank Lambert
-                    [1] => XKXDFWNSPA'>Jeremy Hegge
-                    [2] => XKXDFWNSPA'>Jeremy Hegge
-                    [3] => DNKBTPCMSQ'>Derek Solomon
-                    [4] => HMBDEWEZVS'>Tony Archer
-                    [5] => SGLTZLDXYI'>Lynette Rudman
-                )*/
-                foreach($arr[1] as $str) {
-                    if(preg_match("/elicha(.*?)\'/ims", "elicha".$str, $arr2)) {
-                        $index = $arr2[1];
-                        if(preg_match("/>(.*?)elicha/ims", $str."elicha", $arr2)) {
-                            $name = $arr2[1];
-                            $this->recorders_info[$name] = $index;
-                        }
+            self::build_up_more_recorders($html, $orig_rec['url']);
+            // --------------- */
+            return $orig_rec;
+        }
+    }
+    private function build_up_more_recorders($html, $url)
+    {   /* <nav class="results-pages">
+            <ul>
+                <li class="selected"><span>1</span></li>
+                <li><a href="?pg=2">2</a></li>
+                <li><a href="?pg=3">3</a></li>
+            <li><a href="?pg=2">Next
+            <img width="14" height="14" src="/static/img/next.png"></a>
+            </li>
+        </ul>
+        </nav>*/
+        echo "\ntotal recorders: ".count($this->recorders_info)."\n";
+        if(preg_match("/<nav class=\"results\-pages\">(.*?)<\/nav>/ims", $html, $arr)) {
+            // print_r($arr[1]); exit("\nmeron results-pages\n");
+            if(preg_match_all("/\?pg\=(.*?)\"/ims", $arr[1], $arr2)) {
+                $total_pages = max($arr2[1]);
+                print_r($arr2[1]); 
+                echo "\ntotal pages: [$total_pages]\ntest\n";
+                if($total_pages >= 2) {
+                    for($i = 2; $i <= $total_pages; $i++) {                
+                        // https://xeno-canto.org/species/Tinamus-tao?pg=2
+                        if($html = Functions::lookup_with_cache($url."?pg=$i", $this->download_options)) self::get_recorders_from_html($html);
+                    }    
+                }
+            }
+            echo "\ntotal recorders: ".count($this->recorders_info)."\n";
+            exit("\nwith results-pages\n");
+        }
+        else { //meaning only 1 page for recorders
+            self::get_recorders_from_html($html);
+            // print_r($this->recorders_info);
+            echo "\ntotal recorders: ".count($this->recorders_info)."\n";
+            exit("\nno results-pages\n");
+        }
+    }
+    private function get_recorders_from_html($html)
+    {   // <a href="https://xeno-canto.org/contributor/NRUIFMFTXY">James Lidster</a>
+        if(preg_match_all("/xeno\-canto\.org\/contributor\/(.*?)<\/a>/ims", $html, $arr)) { //print_r($arr[1]); exit;
+            /* Array(
+                [0] => YTUXOCTUEM'>Frank Lambert
+                [1] => XKXDFWNSPA'>Jeremy Hegge
+                [2] => XKXDFWNSPA'>Jeremy Hegge
+                [3] => DNKBTPCMSQ'>Derek Solomon
+                [4] => HMBDEWEZVS'>Tony Archer
+                [5] => SGLTZLDXYI'>Lynette Rudman
+            )*/
+            foreach($arr[1] as $str) {
+                if(preg_match("/elicha(.*?)\'/ims", "elicha".$str, $arr2)) {
+                    $index = $arr2[1];
+                    if(preg_match("/>(.*?)elicha/ims", $str."elicha", $arr2)) {
+                        $name = $arr2[1];
+                        $this->recorders_info[$name] = $index;
                     }
                 }
             }
-            // exit("\n-wip-\n");
-            // --------------- end */
-            return $orig_rec;
         }
     }
     private function prepare_media_records($rec) //$rec is $orig_rec
