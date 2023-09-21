@@ -37,7 +37,7 @@ class XenoCantoAPI
         $this->recorders_info["Elisa M. Huanca Plata - Universidad Técnica de Oruro"] = "GHVLJLRSAL";
         $this->recorders_info["Elisa Huanca"] = "GHVLJLRSAL";
         $this->recorders_info["James Lidster"] = "NRUIFMFTXY";
-        // print_r($this->recorders_info); exit;
+        // print_r($this->recorders_info); exit("\ntotal: ".count($this->recorders_info)."\n");
 
         // /* for Traits
         self::initialize_mapping(); //exit;
@@ -131,7 +131,7 @@ class XenoCantoAPI
                         // print_r($rec); exit("\nstop muna\n");
                         // ---------- end ver. 2 */
                     }
-                    if($i >= 992) break;
+                    if($i >= 100) break;
                     // break;
                 }
             }
@@ -160,6 +160,7 @@ class XenoCantoAPI
             $orig_rec['taxonID'] = strtolower(str_replace(" ", "-", $orig_rec['sciname']));
 
             // /* --------------- special search for recorders info
+            $this->taxon_recorders = array();
             self::build_up_more_recorders($html, $orig_rec['url']);
             // --------------- */
             return $orig_rec;
@@ -181,6 +182,7 @@ class XenoCantoAPI
             if(preg_match_all("/\?pg\=(.*?)\"/ims", $arr[1], $arr2)) { // print_r($arr2[1]);
                 $total_pages = max($arr2[1]);
                 echo "\ntotal pages: [$total_pages]\n";
+                self::get_recorders_from_html($html); //process 1st page
                 if($total_pages >= 2) {
                     for($i = 2; $i <= $total_pages; $i++) {                
                         // https://xeno-canto.org/species/Tinamus-tao?pg=2
@@ -214,6 +216,7 @@ class XenoCantoAPI
                     if(preg_match("/>(.*?)elicha/ims", $str."elicha", $arr2)) {
                         $name = $arr2[1];
                         $this->recorders_info[$name] = $index;
+                        $this->taxon_recorders[$name] = $index;
                     }
                 }
             }
@@ -360,8 +363,10 @@ class XenoCantoAPI
             $rec['homepage'] = $this->recorder_url.$recorder_id;
             if($agent_ids = self::create_agents(array($rec))) return implode("; ", $agent_ids);
         }
-        // print_r($r);
-        // exit("\nInvestigate: Recorder name not initialized: [$recorder_name]\n");
+        // print_r($this->recorders_info);
+        print_r($this->taxon_recorders);
+        print_r($r);
+        exit("\nInvestigate: Recorder name not initialized: [$recorder_name]\n");
         $this->debug["Recorder name not initialized"][$recorder_name] = '';
         return false;
 
