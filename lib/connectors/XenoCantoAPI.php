@@ -40,7 +40,7 @@ class XenoCantoAPI
         // print_r($this->recorders_info); exit;
 
         // /* for Traits
-        self::initialize_mapping();
+        self::initialize_mapping(); //exit;
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         // */
@@ -59,7 +59,6 @@ class XenoCantoAPI
         // // echo("\n Philippines: ".$this->uris['Philippines']."\n");
         // // echo("\n Brazil: ".$this->uris['Brazil']."\n"); exit;
 
-
         require_library('connectors/EOLterms_ymlAPI');
         $func = new EOLterms_ymlAPI($this->resource_id, $this->archive_builder);
         $ret = $func->get_terms_yml('value'); //sought_type is 'value'
@@ -75,7 +74,6 @@ class XenoCantoAPI
         // echo("\n no sex: ".@$this->uris['no sex']."\n");
         // exit;
     }
-
     function main()
     {   
         if($html = Functions::lookup_with_cache($this->species_list, $this->download_options)) { // echo $html;
@@ -145,7 +143,8 @@ class XenoCantoAPI
     }
     private function parse_order_family($orig_rec)
     {   
-        // $orig_rec['url'] = "https://xeno-canto.org/species/Tinamus-tao"; //debug only
+        $orig_rec['url'] = "https://xeno-canto.org/species/Tinamus-tao"; //debug only during dev
+        $orig_rec['url'] = "https://xeno-canto.org/species/Tangara-chilensis"; //debug only during dev
         if($html = Functions::lookup_with_cache($orig_rec['url'], $this->download_options)) {
             /*
             <li>Order: <a href='https://xeno-canto.org/explore/taxonomy?ord=STRUTHIONIFORMES'>STRUTHIONIFORMES</a></li>
@@ -159,7 +158,6 @@ class XenoCantoAPI
                 $orig_rec['family'] = ucfirst(strtolower($arr[1]));
             }
             $orig_rec['taxonID'] = strtolower(str_replace(" ", "-", $orig_rec['sciname']));
-
 
             // /* --------------- special search for recorders info
             self::build_up_more_recorders($html, $orig_rec['url']);
@@ -178,13 +176,11 @@ class XenoCantoAPI
             </li>
         </ul>
         </nav>*/
-        echo "\ntotal recorders: ".count($this->recorders_info)."\n";
-        if(preg_match("/<nav class=\"results\-pages\">(.*?)<\/nav>/ims", $html, $arr)) {
-            // print_r($arr[1]); exit("\nmeron results-pages\n");
-            if(preg_match_all("/\?pg\=(.*?)\"/ims", $arr[1], $arr2)) {
+        echo "\nSTART total recorders: ".count($this->recorders_info)."\n";
+        if(preg_match("/<nav class=\"results\-pages\">(.*?)<\/nav>/ims", $html, $arr)) { // print_r($arr[1]); exit("\nmeron results-pages\n");
+            if(preg_match_all("/\?pg\=(.*?)\"/ims", $arr[1], $arr2)) { // print_r($arr2[1]);
                 $total_pages = max($arr2[1]);
-                print_r($arr2[1]); 
-                echo "\ntotal pages: [$total_pages]\ntest\n";
+                echo "\ntotal pages: [$total_pages]\n";
                 if($total_pages >= 2) {
                     for($i = 2; $i <= $total_pages; $i++) {                
                         // https://xeno-canto.org/species/Tinamus-tao?pg=2
@@ -192,15 +188,14 @@ class XenoCantoAPI
                     }    
                 }
             }
-            echo "\ntotal recorders: ".count($this->recorders_info)."\n";
-            exit("\nwith results-pages\n");
+            // print_r($this->recorders_info); exit("\nwith results-pages\n");
         }
         else { //meaning only 1 page for recorders
             self::get_recorders_from_html($html);
-            // print_r($this->recorders_info);
-            echo "\ntotal recorders: ".count($this->recorders_info)."\n";
-            exit("\nno results-pages\n");
+            // print_r($this->recorders_info); exit("\nno results-pages\n");
         }
+        echo "\nEND total recorders: ".count($this->recorders_info)."\n";
+        exit("\nend test recorders\n");
     }
     private function get_recorders_from_html($html)
     {   // <a href="https://xeno-canto.org/contributor/NRUIFMFTXY">James Lidster</a>
@@ -275,9 +270,6 @@ class XenoCantoAPI
                         // /* for Traits
                         if($r->cnt) self::process_trait_data($r, $rek);
                         // */
-
-
-
                     }
                     // print_r($final); exit("\nits final\n");
                 }
@@ -401,7 +393,6 @@ class XenoCantoAPI
         }
         return $agent_ids;
     }
-
     private function write_media($records)
     {
         foreach($records as $rec) {
