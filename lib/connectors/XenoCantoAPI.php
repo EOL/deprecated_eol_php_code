@@ -131,7 +131,7 @@ class XenoCantoAPI
                         // print_r($rec); exit("\nstop muna\n");
                         // ---------- end ver. 2 */
                     }
-                    if($i >= 100) break;
+                    // if($i >= 100) break;
                     // break;
                 }
             }
@@ -364,9 +364,11 @@ class XenoCantoAPI
             if($agent_ids = self::create_agents(array($rec))) return implode("; ", $agent_ids);
         }
         // print_r($this->recorders_info);
+        /* good debug for not initialized recorders
         print_r($this->taxon_recorders);
         print_r($r);
         exit("\nInvestigate: Recorder name not initialized: [$recorder_name]\n");
+        */
         $this->debug["Recorder name not initialized"][$recorder_name] = '';
         return false;
 
