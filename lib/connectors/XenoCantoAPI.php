@@ -20,6 +20,7 @@ class XenoCantoAPI
         $this->recorders_list   = $this->domain.'/contributors?q=all';
         $this->recorder_url     = "https://xeno-canto.org/contributor/"; //append the recorder id e.g. "NQMGMOJOHV"
         $this->sound_file_url   = "https://xeno-canto.org/sounds/uploaded/"; //first part of the accessURI
+        $this->total_pages_2scrape = 10; //this limits the no. of recordings per taxon. We scrape bec. the recorder name from API is different from recorder name in website. And we need the recorder ID for the accessURI.
         $this->debug = array();
     }
     function start()
@@ -131,7 +132,7 @@ class XenoCantoAPI
                         // print_r($rec); exit("\nstop muna\n");
                         // ---------- end ver. 2 */
                     }
-                    // if($i >= 100) break;
+                    // if($i >= 3000) break;
                     // break;
                 }
             }
@@ -182,6 +183,11 @@ class XenoCantoAPI
             if(preg_match_all("/\?pg\=(.*?)\"/ims", $arr[1], $arr2)) { // print_r($arr2[1]);
                 $total_pages = max($arr2[1]);
                 echo "\ntotal pages: [$total_pages]\n";
+                if($total_pages > $this->total_pages_2scrape) {
+                    $total_pages = $this->total_pages_2scrape;
+                    echo "\ntotal pages (adjusted): [$total_pages]\n";
+                }
+
                 self::get_recorders_from_html($html); //process 1st page
                 if($total_pages >= 2) {
                     for($i = 2; $i <= $total_pages; $i++) {                
@@ -237,7 +243,7 @@ class XenoCantoAPI
                     $o = json_decode($json); //print_r($o); exit;
                     $final = array();
                     foreach($o->recordings as $r) { //print_r($o); exit;
-
+                        if($r->q != "A") continue;
                         $rek = array();
                         $rek['identifier']              = $r->id;
                         $rek['taxonID']                 = $rec['taxonID'];
@@ -320,12 +326,11 @@ class XenoCantoAPI
             case "Western Samoa":               return @$this->uris["Samoa"];
             case "St Lucia":                    return @$this->uris["Saint Lucia"];
             case "Russian Federation":          return @$this->uris["Russia"];
-
-            // case "United States of America":    return "http://www.wikidata.org/entity/Q30";
+            case "St Vincent & Grenadines":     return @$this->uris["Saint Vincent And The Grenadines"];
+            case "Bosnia Herzegovina":          return @$this->uris["Bosnia & Herzegovina"];
         }
         if($string_uri = @$this->uris[$string]) return $string_uri;
     }
-
     private function format_furtherInfoURL($r, $last_option)
     {   /*
         [file-name] => XC563003-Common Ostrich chicks.mp3
@@ -364,12 +369,14 @@ class XenoCantoAPI
             if($agent_ids = self::create_agents(array($rec))) return implode("; ", $agent_ids);
         }
         // print_r($this->recorders_info);
+        
         /* good debug for not initialized recorders
         print_r($this->taxon_recorders);
         print_r($r);
         exit("\nInvestigate: Recorder name not initialized: [$recorder_name]\n");
         */
-        $this->debug["Recorder name not initialized"][$recorder_name] = '';
+
+        @$this->debug["Recorder name not initialized"][$recorder_name]++;
         return false;
 
         /* For those recorders not found in members list */
