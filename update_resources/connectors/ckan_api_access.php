@@ -10,6 +10,10 @@ php update_resources/connectors/ckan_api_access.php _ "259b34c9-8752-4553-ab37-f
 php update_resources/connectors/ckan_api_access.php _ "6e24f0df-56ee-470f-b81e-e5a367a65bfb" "07/08/2023 21:41:00" "EOL file"
 -> All trait dump file.                                                           --- that is Jul 8, 2023 9:41 PM
 
+e.g. xeno-canto
+php update_resources/connectors/ckan_api_access.php _ "09844d24-5880-41aa-a031-b19f688185cb" "09/25/2023 7:30:00"
+                                                                              that is for Sep 25, 2023 @ 7:30 AM
+
 IMPORTANT: ALWAYS "chmod 775 ckan_api_access.php" AFTER UPDATE EOL-ARCHIVE
                   "chmod 775 CKAN_API_AccessAPI.php" AFTER UPDATE EOL-ARCHIVE
                   "chmod 775 resource_refresh_sched.php" AFTER UPDATE EOL-ARCHIVE
