@@ -12,7 +12,7 @@ class XenoCantoAPI
         $this->download_options = array(
             'resource_id'        => "xeno_c", //$this->resource_id,  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30*6, //expires every 6 months - half year
-            'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
+            'download_wait_time' => 2000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->domain = 'https://xeno-canto.org';        
         $this->species_list     = $this->domain.'/collection/species/all';
         $this->api['query']     = $this->domain.'/api/2/recordings?query=';
@@ -20,11 +20,14 @@ class XenoCantoAPI
         $this->recorders_list   = $this->domain.'/contributors?q=all';
         $this->recorder_url     = "https://xeno-canto.org/contributor/"; //append the recorder id e.g. "NQMGMOJOHV"
         $this->sound_file_url   = "https://xeno-canto.org/sounds/uploaded/"; //first part of the accessURI
-        $this->total_pages_2scrape = 10; //orig is 10; //this limits the no. of recordings per taxon. We scrape bec. the recorder name from API is different from recorder name in website. And we need the recorder ID for the accessURI.
+        $this->total_pages_2scrape = 40; //ideal is 10 for q = A; 40 is ideal for q = A or B //this limits the no. of recordings per taxon. We scrape bec. the recorder name from API is different from recorder name in website. And we need the recorder ID for the accessURI.
         $this->debug = array();
         /*
         5       -   114862 audio objects (q = A)
-        >= 10   -   114873 audio objects (q = A)
+        >= 10   -   114873 audio objects (q = A)        ideal
+
+        35      -   262899 audio objects (q = A or B)
+        >= 40   -   262901 audio objects (q = A or B)   ideal
         */
     }
     function start()
@@ -137,7 +140,7 @@ class XenoCantoAPI
                         // print_r($rec); exit("\nstop muna\n");
                         // ---------- end ver. 2 */
                     }
-                    if($i >= 10) break;
+                    // if($i >= 10) break;
                     // break;
                 }
             }
@@ -248,7 +251,9 @@ class XenoCantoAPI
                     $o = json_decode($json); //print_r($o); exit;
                     $final = array();
                     foreach($o->recordings as $r) { //print_r($o); exit;
-                        if($r->q != "A") continue;
+
+                        if(!in_array($r->q, array("A", "B"))) continue;
+
                         $rek = array();
                         $rek['identifier']              = $r->id;
                         $rek['taxonID']                 = $rec['taxonID'];
@@ -359,7 +364,9 @@ class XenoCantoAPI
             print_r($r);
             // exit("\nInvestigate accessURI: [$agentID]\n");
             if(!$agentID)           $this->debug["Investigate accessURI"]["no agentID"][$r->{'file-name'}] = '';
+            /* good legit debug
             if(!$r->{"file-name"})  $this->debug["Investigate accessURI"]["no file-name"]["$agentID - ".$r->gen." ".$r->sp." - $r->id"] = '';
+            */
             return false;
         }
     }
