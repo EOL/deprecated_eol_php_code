@@ -20,8 +20,12 @@ class XenoCantoAPI
         $this->recorders_list   = $this->domain.'/contributors?q=all';
         $this->recorder_url     = "https://xeno-canto.org/contributor/"; //append the recorder id e.g. "NQMGMOJOHV"
         $this->sound_file_url   = "https://xeno-canto.org/sounds/uploaded/"; //first part of the accessURI
-        $this->total_pages_2scrape = 10; //this limits the no. of recordings per taxon. We scrape bec. the recorder name from API is different from recorder name in website. And we need the recorder ID for the accessURI.
+        $this->total_pages_2scrape = 10; //orig is 10; //this limits the no. of recordings per taxon. We scrape bec. the recorder name from API is different from recorder name in website. And we need the recorder ID for the accessURI.
         $this->debug = array();
+        /*
+        5       -   114862 audio objects (q = A)
+        >= 10   -   114873 audio objects (q = A)
+        */
     }
     function start()
     {
@@ -38,6 +42,7 @@ class XenoCantoAPI
         $this->recorders_info["Elisa M. Huanca Plata - Universidad Técnica de Oruro"] = "GHVLJLRSAL";
         $this->recorders_info["Elisa Huanca"] = "GHVLJLRSAL";
         $this->recorders_info["James Lidster"] = "NRUIFMFTXY";
+        $this->recorders_info["David Melichar"] = "LUETWTUDBG";        
         // print_r($this->recorders_info); exit("\ntotal: ".count($this->recorders_info)."\n");
 
         // /* for Traits
@@ -132,7 +137,7 @@ class XenoCantoAPI
                         // print_r($rec); exit("\nstop muna\n");
                         // ---------- end ver. 2 */
                     }
-                    // if($i >= 3000) break;
+                    if($i >= 10) break;
                     // break;
                 }
             }
