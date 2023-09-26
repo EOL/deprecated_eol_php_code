@@ -47,7 +47,9 @@ minimum cols on a child record in MoF
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-ini_set('memory_limit','12096M'); //needed so it can process checking of identifier uniqueness in measurement and occurrence extensions.
+// ini_set('memory_limit','12096M'); //needed so it can process checking of identifier uniqueness in measurement and occurrence extensions.
+ini_set('memory_limit','15096M'); //needed so it can process checking of identifier uniqueness in measurement and occurrence extensions.
+
 
 /* just a utility - this is already inside -> Functions::finalize_dwca_resource($resource_id);
 require_library('connectors/DWCADiagnoseAPI');
@@ -72,6 +74,7 @@ if(Functions::is_production()) {
     $params["dwca_file"]    = "https://collections.mnh.si.edu/ipt/archive.do?r=nmnhdwca"; //obsolete
     $params["dwca_file"]    = ""; // e.g. "https://collections.nmnh.si.edu/ipt/archive.do?r=nmnh_extant_dwc-a&v=1.8"; 
                                   // latest as of 25-Oct-2017. From https://eol-jira.bibalex.org/browse/DATA-1711
+                                  // e.g. "https://collections.nmnh.si.edu/ipt/archive.do?r=nmnh_extant_dwc-a&v=1.72" as of Sep 26,2023
                                   // will be generated below get_dwca_download_url()
     $params["uri_file"]     = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/NMNH/type_specimen_resource/nmnh-mappings.xlsx";
 }
