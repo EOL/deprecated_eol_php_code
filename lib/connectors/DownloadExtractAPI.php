@@ -101,17 +101,23 @@ class DownloadExtractAPI
             [extension] => zip
             [filename] => dwca-nmnh_extant_dwc-a-v1.8
         )*/
-        $path_info = pathinfo($params['url']);
+
+        print_r($params);
+        $path_info = pathinfo($params['url']); //print_r($path_info);
         if($val = @$params['force_extension']) {
             $extension = $val;
             $basename = $path_info['filename'].".".$extension;
         }
         else $basename = $path_info['basename'];
+
+        $basename = urlencode($basename);
+        // print_r(pathinfo($basename));
         // exit("\n[$basename]\n");
 
         $temp_dir = create_temp_dir() . "/";
         $destination = $temp_dir . $basename;
-        $cmd = "wget -O '$destination $params[url]'"; //echo("\n[$cmd]\n");
+        $cmd = 'wget -O "'.$destination.'" '.$params['url']; //echo("\n[$cmd]\n");
+        echo "\ncmd: [$cmd]\n";
         // $cmd .= " 2>&1"; //commented bec. I want to see the progress indicator.
         $shell_debug = shell_exec($cmd);
         // echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
