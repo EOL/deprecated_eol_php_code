@@ -47,9 +47,7 @@ minimum cols on a child record in MoF
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-// ini_set('memory_limit','12096M'); //needed so it can process checking of identifier uniqueness in measurement and occurrence extensions.
-ini_set('memory_limit','15096M'); //needed so it can process checking of identifier uniqueness in measurement and occurrence extensions.
-
+ini_set('memory_limit','12096M'); //needed so it can process checking of identifier uniqueness in measurement and occurrence extensions.
 
 /* just a utility - this is already inside -> Functions::finalize_dwca_resource($resource_id);
 require_library('connectors/DWCADiagnoseAPI');
