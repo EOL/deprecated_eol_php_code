@@ -47,6 +47,7 @@ class NMNHTypeRecordAPI
 {
     function __construct($folder)
     {
+        exit("\nObsolete: NMNHTypeRecordAPI.php\n");
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
