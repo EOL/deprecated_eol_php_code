@@ -98,6 +98,7 @@ class NMNHTypeRecordAPI_v2
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", $this->download_options, "zip"); 
+        print_r($paths);
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $this->harvester = new ContentArchiveReader(NULL, $archive_path);
@@ -106,7 +107,9 @@ class NMNHTypeRecordAPI_v2
             debug("Invalid archive file. Program will terminate.");
             return false;
         }
+        else echo "\nExtraction OK.\n";
         //start type specimen data
+        echo "\nStart: process_row_type()\n";
         self::process_row_type($params);
 
         /* media objects where removed per Katja: https://eol-jira.bibalex.org/browse/DATA-1711?focusedCommentId=62350&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62350
