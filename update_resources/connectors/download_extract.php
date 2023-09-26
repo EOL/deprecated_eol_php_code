@@ -20,6 +20,9 @@ $func = new DownloadExtractAPI($resource_id);
 $params['url'] = "http://localhost/cp_new/NMNH/type_specimen_resource/dwca-nmnh_extant_dwc-a-v1.8.zip";
 $params['url'] = "http://localhost/eol_php_code//applications/content_server/resources_3/xeno_canto.tar.gz";
 // $params['url'] = "http://localhost/eol_php_code//applications/content_server/resources_3/37.tar.gz";
+$params['url'] = "http://localhost/eol_php_code//applications/content_server/resources_3/sample.zip";
+$params['url'] = "http://localhost/eol_php_code//applications/content_server/resources_3/sample_no_folder.zip";
+
 $paths = $func->download_and_extract($params);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
