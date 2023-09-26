@@ -111,7 +111,7 @@ class DownloadExtractAPI
 
         $temp_dir = create_temp_dir() . "/";
         $destination = $temp_dir . $basename;
-        $cmd = "wget -O $destination $params[url]"; //echo("\n[$cmd]\n");
+        $cmd = "wget -O '$destination $params[url]'"; //echo("\n[$cmd]\n");
         // $cmd .= " 2>&1"; //commented bec. I want to see the progress indicator.
         $shell_debug = shell_exec($cmd);
         // echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
