@@ -40,7 +40,7 @@ class DownloadExtractAPI
             $extracted_already_YN = true;
             $cur_dir = getcwd();
             chdir($destination_path);
-            shell_exec("tar -zxvf $dwca_file");
+            shell_exec("tar -zxf $dwca_file"); //removed 'v' verbose
             chdir($cur_dir);
             // */
         }
@@ -97,9 +97,10 @@ class DownloadExtractAPI
 
         $temp_dir = create_temp_dir() . "/";
         $destination = $temp_dir . $basename;
-        $cmd = 'wget -O "'.$destination.'" '.$params['url']; //echo("\n[$cmd]\n");
-        echo "\ncmd: [$cmd]\n";
-        $cmd .= " 2>&1"; //comment if u want to see the progress indicator.
+        // --progress=bar:force:noscroll
+        $cmd = 'wget -O "'.$destination.'" '.$params['url'].' -q --show-progress --progress=bar:force:noscroll'; //echo("\n[$cmd]\n");
+        echo "\nDownloading...cmd: [$cmd]\n";
+        $cmd .= " 2>&1"; //comment if u want to see the long rows of progress indicator.
         $shell_debug = shell_exec($cmd);
         // echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //for debug only
 
