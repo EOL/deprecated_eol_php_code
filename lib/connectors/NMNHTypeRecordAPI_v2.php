@@ -95,12 +95,21 @@ class NMNHTypeRecordAPI_v2
         
         $this->uris = self::get_uris($params);
         // print_r($this->uris); exit;
+
+        /* having probs.
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", $this->download_options, "zip"); 
         print_r($paths);
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
+        */
+
+        // /* temporary sol'n
+        $archive_path = "/extra/dumps/NMNH/temp/";
+        $temp_dir = "/extra/dumps/NMNH/temp/";
+        // */
+
         $this->harvester = new ContentArchiveReader(NULL, $archive_path);
         if(!(@$this->harvester->tables["http://rs.tdwg.org/dwc/terms/occurrence"][0]->fields)) // take note the index key is all lower case
         {
