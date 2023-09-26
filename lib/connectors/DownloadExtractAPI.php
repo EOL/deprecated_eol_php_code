@@ -33,13 +33,25 @@ class DownloadExtractAPI
         $last_8_chars = substr($dwca_file, -8); // .tar.bz2
 
         if($last_8_chars == ".tar.bz2")                             $cmd = "tar -jxf $dwca_file --directory $destination_path";
-        if($last_7_chars == ".tar.gz" || $last_4_chars == ".tgz")   $cmd = "tar -xvzf $dwca_file --directory $destination_path";
+        if($last_7_chars == ".tar.gz" || $last_4_chars == ".tgz")   {
+            /* doesn't work
+            $cmd = "tar -zxf $dwca_file --directory $destination_path";
+            */
+            // /* works OK
+            $cur_dir = getcwd();
+            chdir($destination_path);
+            shell_exec("tar -zxvf $dwca_file");
+            chdir($cur_dir);
+            // */
+        }
         if($last_7_chars == ".tar.xz")                              $cmd = "tar -Jxvf $dwca_file --directory $destination_path";
         if($last_5_chars == ".gzip" || $last_3_chars == ".gz")      $cmd = "gunzip -cvf $dwca_file > $destination_path"; // v - verbose; f - force overwrite
         if($last_4_chars == ".tar")                                 $cmd = "tar xf $dwca_file --directory $destination_path";
         if($last_4_chars == ".zip")                                 $cmd = "unzip -ad $destination_path $dwca_file";
 
-        
+        echo "\ndwca_file: [$dwca_file]\n";
+        echo "\ndestination_path: [$destination_path]\n";
+
         /*
         https://www.cyberciti.biz/faq/howto-extract-tar-file-to-specific-directory-on-unixlinux/
         x : Extract files
