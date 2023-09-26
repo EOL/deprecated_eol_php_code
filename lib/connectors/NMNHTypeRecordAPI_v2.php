@@ -102,12 +102,23 @@ class NMNHTypeRecordAPI_v2
         $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", $this->download_options, "zip"); 
         print_r($paths);
         $archive_path = $paths['archive_path'];
-        $temp_dir = $paths['temp_dir'];
+        $temp_dir     = $paths['temp_dir'];
         */
 
-        // /* temporary sol'n
+        /* temporary sol'n
         $archive_path = "/extra/dumps/NMNH/temp/";
         $temp_dir = "/extra/dumps/NMNH/temp/";
+        */
+
+        // /* new Sep 26, 2023
+        require_library('connectors/DownloadExtractAPI');
+        $DE = new DownloadExtractAPI($resource_id);
+        $props['url'] = "https://collections.nmnh.si.edu/ipt/archive.do?r=nmnh_extant_dwc-a&v=1.72";
+        $props['url'] = $params["dwca_file"];
+        $props['force_extension'] = 'zip'; //this param is required here
+        $path = $DE->download_and_extract($props);
+        $archive_path = $path['archive_path'];
+        $temp_dir     = $path['archive_path'];
         // */
 
         $this->harvester = new ContentArchiveReader(NULL, $archive_path);

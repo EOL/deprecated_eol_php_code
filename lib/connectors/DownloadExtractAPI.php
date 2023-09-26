@@ -15,9 +15,7 @@ class DownloadExtractAPI
                 [temp_dir] => /Volumes/AKiTiO4/eol_php_code_tmp/dir_95886/
             )*/
             $paths = self::decompress_file($ret['downloaded_file'], $ret['temp_dir']);
-
-
-
+            return $paths;
             /* be responsible, don't forget to delete the temp folder
             recursive_rmdir($ret['temp_dir']);
             */
@@ -32,12 +30,14 @@ class DownloadExtractAPI
         $last_7_chars = substr($dwca_file, -7); // exit("\n[$last_7_chars]\n"); // .tag.gz | .tar.xz
         $last_8_chars = substr($dwca_file, -8); // .tar.bz2
 
+        $extracted_already_YN = false;
         if($last_8_chars == ".tar.bz2")                             $cmd = "tar -jxf $dwca_file --directory $destination_path";
         if($last_7_chars == ".tar.gz" || $last_4_chars == ".tgz")   {
             /* doesn't work
             $cmd = "tar -zxf $dwca_file --directory $destination_path";
             */
             // /* works OK
+            $extracted_already_YN = true;
             $cur_dir = getcwd();
             chdir($destination_path);
             shell_exec("tar -zxvf $dwca_file");
@@ -64,28 +64,9 @@ class DownloadExtractAPI
         -v : Verbose output i.e. show progress on screen
         */
 
-        shell_exec($cmd);
-
+        if(!$extracted_already_YN) shell_exec($cmd);
+        return array('archive_path' => $destination_path);
         exit("\n-exit muna-\n");
-        /*
-        if(preg_match("/^(.*)\.(tar.gz|tgz)$/", $dwca_file, $arr)) {
-            $archive_path = str_ireplace(".tar.gz", "", $temp_file_path);
-            $archive_path = str_ireplace(".tgz", "", $temp_file_path);
-        }
-        elseif(preg_match("/^(.*)\.(gz|gzip)$/", $dwca_file, $arr)) {
-            $archive_path = str_ireplace(".gz", "", $temp_file_path);
-        }
-        elseif(preg_match("/^(.*)\.(zip)$/", $dwca_file, $arr) || preg_match("/mcz_for_eol(.*?)/ims", $dwca_file, $arr)) {
-            shell_exec("unzip -ad $temp_dir $temp_file_path");
-            $archive_path = str_ireplace(".zip", "", $temp_file_path);
-        } 
-        else {
-            debug("-- archive not gzip or zip. [$dwca_file]");
-            return;
-        }
-        */
-
-
     }
     function download_file_using_wget($params)
     {   /*
@@ -118,9 +99,9 @@ class DownloadExtractAPI
         $destination = $temp_dir . $basename;
         $cmd = 'wget -O "'.$destination.'" '.$params['url']; //echo("\n[$cmd]\n");
         echo "\ncmd: [$cmd]\n";
-        // $cmd .= " 2>&1"; //commented bec. I want to see the progress indicator.
+        $cmd .= " 2>&1"; //comment if u want to see the progress indicator.
         $shell_debug = shell_exec($cmd);
-        // echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
+        // echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //for debug only
 
         if(filesize($destination)) return array('downloaded_file' => $destination, 'temp_dir' => $temp_dir);
     }
