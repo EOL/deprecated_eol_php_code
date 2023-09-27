@@ -103,7 +103,7 @@ class DownloadExtractAPI
         $cmd = 'wget -O "'.$destination.'" '.$params['url'].' -q'; //echo("\n[$cmd]\n");
 
         echo "\nDownloading...cmd: [$cmd]\n";
-        $cmd .= " 2>&1"; //comment if u want to see the long rows of progress indicator.
+        // $cmd .= " 2>&1"; //comment if u want to see the long rows of progress indicator.
         $shell_debug = shell_exec($cmd);
         // echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //for debug only
 
