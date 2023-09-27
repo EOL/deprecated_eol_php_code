@@ -98,7 +98,10 @@ class DownloadExtractAPI
         $temp_dir = create_temp_dir() . "/";
         $destination = $temp_dir . $basename;
         // --progress=bar:force:noscroll
-        $cmd = 'wget -O "'.$destination.'" '.$params['url'].' -q --show-progress --progress=bar:force:noscroll'; //echo("\n[$cmd]\n");
+        
+        // $cmd = 'wget -O "'.$destination.'" '.$params['url'].' -q --show-progress --progress=bar:force:noscroll'; //echo("\n[$cmd]\n");
+        $cmd = 'wget -O "'.$destination.'" '.$params['url'].' -q'; //echo("\n[$cmd]\n");
+
         echo "\nDownloading...cmd: [$cmd]\n";
         $cmd .= " 2>&1"; //comment if u want to see the long rows of progress indicator.
         $shell_debug = shell_exec($cmd);
