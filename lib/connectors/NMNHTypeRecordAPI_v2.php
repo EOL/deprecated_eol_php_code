@@ -112,7 +112,7 @@ class NMNHTypeRecordAPI_v2
 
         // /* new Sep 26, 2023
         require_library('connectors/DownloadExtractAPI');
-        $DE = new DownloadExtractAPI($resource_id);
+        $DE = new DownloadExtractAPI();
         $props['url'] = "https://collections.nmnh.si.edu/ipt/archive.do?r=nmnh_extant_dwc-a&v=1.72";
         $props['url'] = $params["dwca_file"];
         $props['force_extension'] = 'zip'; //this param is required here
