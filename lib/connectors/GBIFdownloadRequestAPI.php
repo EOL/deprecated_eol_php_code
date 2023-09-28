@@ -332,7 +332,16 @@ class GBIFdownloadRequestAPI
     private function create_bash_file($taxon_group, $downloadLink)
     {
         $row1 = "#!/bin/sh";
-        $row2 = "curl -L -o -S '".$taxon_group."_DwCA.zip' $downloadLink";   //this worked OK as of Oct 17, 2021 (as of Sep 28, 2023)
+        /* worked for the longest time. But started having this error msg: 
+        "curl: (33) HTTP server doesn't seem to support byte ranges. Cannot resume."
+        So I now removed the "-C"
+        $row2 = "curl -L -o '".$taxon_group."_DwCA.zip' -C - $downloadLink";
+        */
+        $row2 = "curl --insecure -L -o '".$taxon_group."_DwCA.zip' $downloadLink";   //this worked OK as of Oct 17, 2021 (as of Sep 28, 2023)
+        /* for some reason this -sS is causing error. BETTER TO NOT USE IT.
+        -s is "silent"
+        -S is show errors when it is "silent"
+        */
         $file = $this->destination_path.'/run_'.$taxon_group.'.sh';
         $fhandle = Functions::file_open($file, "w");
         fwrite($fhandle, $row1."\n");
