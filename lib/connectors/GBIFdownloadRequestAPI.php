@@ -337,7 +337,7 @@ class GBIFdownloadRequestAPI
         So I now removed the "-C"
         $row2 = "curl -L -o '".$taxon_group."_DwCA.zip' -C - $downloadLink";
         */
-        $row2 = "curl --insecure -LsS -o '".$taxon_group."_DwCA.zip' $downloadLink";   //this worked OK as of Oct 17, 2021
+        $row2 = "curl -L -o '".$taxon_group."_DwCA.zip' $downloadLink";   //this worked OK as of Oct 17, 2021 (as of Sep 28, 2023)
         /* for some reason this -sS is causing error. BETTER TO NOT USE IT.
         -s is "silent"
         -S is show errors when it is "silent"
