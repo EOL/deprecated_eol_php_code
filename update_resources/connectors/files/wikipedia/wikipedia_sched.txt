@@ -1289,8 +1289,11 @@ wikipedia-vo	Monday 2020-05-11 10:43:57 AM	  {"media_resource.tab":28, "taxon.ta
 wikipedia-sv	Tuesday 2019-04-30 09:04:30 PM	{"media_resource.tab":80151,"taxon.tab":51485}
 wikipedia-sv	Friday 2019-08-16 04:32:53 PM	{"media_resource.tab":80428,"taxon.tab":51666} OK
 wikipedia-sv	Tuesday 2020-02-25 10:36:42 PM	{"media_resource.tab":92614, "taxon.tab":59816,"time_elapsed":{"sec":129981.75,"min":2166.36,"hr":36.11,"day":1.5}}
-wikipedia-sv	Monday 2020-04-27 11:53:07 AM	  {"media_resource.tab":92824, "taxon.tab":59964, "time_elapsed":{"sec":125043.33, "min":2084.06, "hr":34.73, "day":1.45}}
+wikipedia-sv	Monday 2020-04-27 11:53:07 AM	{"media_resource.tab":92824, "taxon.tab":59964, "time_elapsed":{"sec":125043.33, "min":2084.06, "hr":34.73, "day":1.45}}
 wikipedia-sv	Tuesday 2020-05-12 09:30:22 PM	{"media_resource.tab":92802, "taxon.tab":60010, "time_elapsed":{"sec":141545.55, "min":2359.09, "hr":39.32, "day":1.64}}
+                Fri 2023-03-24 12:58:48 AM______{"media_resource.tab":104618, "taxon.tab":67168, "time_elapsed":{"sec":331.95, "min":5.53, "hr":0.09}}
+                Mon 2023-06-19 10:00:07 PM______{"media_resource.tab":106454, "taxon.tab":68523, "time_elapsed":{"sec":355.82, "min":5.93, "hr":0.1}}
+                Wed 2023-09-20 09:06:14 AM______{"media_resource.tab":2449311, "taxon.tab":1350919, "time_elapsed":{"sec":1932.19, "min":32.2, "hr":0.54}}
 
 Not yet with multiple connectors: "no", "fi", "ca", "uk", "tr", "ro", "cs"
 
@@ -1378,6 +1381,7 @@ wikipedia-war	Thu 2020-10-29 04:32:09 PM	    {"media_resource.tab":2201405, "tax
 wikipedia-war	Sun 2022-06-19 11:41:31 PM	    {"media_resource.tab":2201405, "taxon.tab":1188396, "time_elapsed":{"sec":4365.99, "min":72.77, "hr":1.21}}
 ->no refresh yet
 wikipedia-war	Wed 2022-06-29 09:53:21 PM	    {"media_resource.tab":2178767, "taxon.tab":1176953, "time_elapsed":{"sec":4281.7, "min":71.36, "hr":1.19}}
+                Sun 2023-09-24 12:50:35 AM______{"media_resource.tab":2178939, "taxon.tab":1177550, "time_elapsed":{"sec":4125.17, "min":68.75, "hr":1.15}}
 -> finally refreshed here.
 
 wikipedia-ceb	Thursday 2019-11-21 02:50:18 AM	{"media_resource.tab":235,"taxon.tab":500,"time_elapsed":{"sec":92347.22,"min":1539.12,"hr":25.65,"day":1.07}}
@@ -1387,8 +1391,10 @@ wikipedia-ceb	Friday 2020-05-01 06:42:16 PM	  {"media_resource.tab":254, "taxon.
 wikipedia-ceb	Mon 2020-12-28 06:16:37 AM	    {"media_resource.tab":248, "taxon.tab":612, "time_elapsed":{"sec":123460.09, "min":2057.67, "hr":34.29, "day":1.43}}
 wikipedia-ceb	Sun 2022-06-19 09:56:12 PM	    {"media_resource.tab":248, "taxon.tab":612, "time_elapsed":{"sec":14.82, "min":0.25, "hr":0}}
 ->no refresh yet
-wikipedia-ceb	Sat 2022-06-25 02:42:11 PM	    {"media_resource.tab":929, "taxon.tab":1143, "time_elapsed":{"sec":3.32, "min":0.06, "hr":0}}
--> finrally refreshed after a long time
+wikipedia-ceb	Sat 2022-06-25 02:42:11 PM	       {"media_resource.tab":929, "taxon.tab":1143, "time_elapsed":{"sec":3.32, "min":0.06, "hr":0}}
+                Thu 2022-12-08 12:18:10 PM_________{"media_resource.tab":1120, "taxon.tab":1551, "time_elapsed":{"sec":3.18, "min":0.05, "hr":0}}
+                Sat 2023-09-16 07:23:30 AM_________{"media_resource.tab":3248827, "taxon.tab":1786971, "time_elapsed":{"sec":2573.77, "min":42.9, "hr":0.71}}
+-> finally refreshed after a long time, but my have prob. with bots.
 
 wikipedia-ta	Thursday 2020-03-05 05:14:42 AM	{"media_resource.tab":5129, "taxon.tab":5541, "time_elapsed":{"sec":5169.46, "min":86.16, "hr":1.44}}
 wikipedia-ta	Friday 2020-03-06 02:59:05 AM	  {"media_resource.tab":5129, "taxon.tab":5541, "time_elapsed":{"sec":1735.28, "min":28.92, "hr":0.48}}
