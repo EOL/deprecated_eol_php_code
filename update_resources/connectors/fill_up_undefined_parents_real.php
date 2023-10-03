@@ -30,6 +30,8 @@ php5.6 fill_up_undefined_parents.php jenkins '{"resource_id": "wikipedia_en_trai
 
 ------------------------------------ 3rd client: same as 2nd client. For all text wikipedia languages (es, de, etc.)
 php fill_up_undefined_parents.php _ '{"resource_id": "80", "source_dwca": "80", "resource": "fillup_missing_parents"}'
+php fill_up_undefined_parents.php _ '{"resource_id": "wikipedia-sv", "source_dwca": "wikipedia-sv", "resource": "fillup_missing_parents"}'
+
 # generates 80.tar.gz
 
 For diagnostics:
@@ -73,14 +75,14 @@ exit("\nFile permission update: [$status]\n");
 */
 
 if(Functions::is_production()) $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz';
-else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$source_dwca.'.tar.gz';
+else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_3/'.$source_dwca.'.tar.gz';
 
 $ctr = 1;
 $undefined = process_resource_url($dwca_file, $resource_id, $timestart, $ctr, $param);
 
 while($undefined) { $ctr++;
     if(Functions::is_production()) $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
-    else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
+    else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_3/'.$resource_id.'.tar.gz';
     $undefined = process_resource_url($dwca_file, $resource_id, $timestart, $ctr, $param);
 }
 echo "\n--------------------END: fillup missing parent entries--------------------\n";
@@ -93,7 +95,9 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $ctr, $param
     /* Orig in meta.xml has capital letters. Just a note reminder. */
     $preferred_rowtypes = false;
     $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
-    if($resource_id == 'wikipedia-war') $excluded_rowtypes[] = 'http://eol.org/schema/media/document'; //bec war has a big media tab
+    if(in_array($resource_id, array("wikipedia-war", "wikipedia-ceb", "wikipedia-sv"))) {
+        $excluded_rowtypes[] = 'http://eol.org/schema/media/document'; //bec war, ceb, sv have a big media tab
+    }
     
     /* This will be processed in FillUpMissingParentsAPI.php which will be called from DwCA_Utility.php */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
