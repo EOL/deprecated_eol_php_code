@@ -50,9 +50,9 @@ class FillUpMissingParentsAPI
         // */
         
         /* start customize */
-        if($this->resource_id == 'wikipedia-war') {
-            self::carry_over($tables['http://eol.org/schema/media/document'][0], 'document');
-        }
+        // if($this->resource_id == 'wikipedia-war') {
+            self::carry_over($tables['http://eol.org/schema/media/document'][0], 'document'); //now available for all resources not just the big ones like war, etc.
+        // }
         /* end customize */
         
         

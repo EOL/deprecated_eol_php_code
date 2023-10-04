@@ -95,9 +95,14 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $ctr, $param
     /* Orig in meta.xml has capital letters. Just a note reminder. */
     $preferred_rowtypes = false;
     $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
+
+    /* works but decided to have all resources to carry_over the media document
     if(in_array($resource_id, array("wikipedia-war", "wikipedia-ceb", "wikipedia-sv"))) {
         $excluded_rowtypes[] = 'http://eol.org/schema/media/document'; //bec war, ceb, sv have a big media tab
     }
+    */
+    $excluded_rowtypes[] = 'http://eol.org/schema/media/document'; //now for all resources, not just the big ones like ceb, war, sv
+
     
     /* This will be processed in FillUpMissingParentsAPI.php which will be called from DwCA_Utility.php */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
