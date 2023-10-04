@@ -172,7 +172,7 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
             // run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"ce", "cont_2next_lang":"Y"}'
             $langx = $arr_info['langx'];
             $cont_2next_lang = $arr_info['cont_2next_lang'];
-            $json = '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"'.$langx.'", "cont_2next_lang":"'.$cont_2next_lang.'"}';
+            $json = '{"connector":"gen_wikipedia_by_lang", "divisor":10, "task":"initial", "langx":"'.$langx.'", "cont_2next_lang":"'.$cont_2next_lang.'"}';
             $cmd = PHP_PATH.' run.php jenkins ' . "'" . $json . "'";
         }
         //==========================================================================================================
