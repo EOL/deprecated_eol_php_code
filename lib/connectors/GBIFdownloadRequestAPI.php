@@ -147,8 +147,12 @@ class GBIFdownloadRequestAPI
             $taxon = $this->taxon;
             
             if($taxon_group == 'Other7Groups')  $taxon_array = Array("type" => "in", "key" => "TAXON_KEY", "values" => Array(0 => $taxon['Fungi'],
-                1 => $taxon['Chromista'], 2 => $taxon['Bacteria'], 3 => $taxon['Protozoa'], 4 => $taxon['incertae sedis'], 5 => $taxon['Archaea'],
-                6 => $taxon['Viruses']));
+                1 => $taxon['Chromista'], 2 => $taxon['Bacteria'], 3 => $taxon['Protozoa'], 
+                4 => $taxon['Archaea'], 5 => $taxon['Viruses']));
+                /* as of Oct 5, 2023, removed 'incertae sedis'. It was included from the beginning though.
+                4 => $taxon['incertae sedis']
+                */
+
             else $taxon_array = Array("type" => "equals", "key" => "TAXON_KEY", "value" => $taxon[$taxon_group]);
             
             $param = Array( 'creator' => $this->gbif_username,
