@@ -493,7 +493,12 @@ function aggregate_6partial_wikipedias($timestart, $resource_id)
     // */
     
     //string generate the partials 1-6:
+    /* original
     for ($i = 1; $i <= 6; $i++) $langs[] = $resource_id."_".$i."of6";
+    */
+    // /* new: as of Oct 7 2023
+    for ($i = 1; $i <= 10; $i++) $langs[] = $resource_id."_".$i."of*";
+    // */
     print_r($langs);
 
     // $resource_id .= '_ELI'; //debug only
