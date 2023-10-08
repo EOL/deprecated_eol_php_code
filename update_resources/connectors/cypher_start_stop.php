@@ -54,13 +54,13 @@ $input["params"] = array("resource_id" => 753); // 753-Flora do Brasil | 822-Kub
 $input["type"] = "wikidata_base_qry_resourceID";
 */
 
-// /* 2nd client
-$input["params"] = array("source" => "https://doi.org/10.1007/s13127-017-0350-6"); // 
-$input["type"] = "wikidata_base_qry_source";
-// */
+// /* 3rd client
+// $input["params"] = array("source" => "https://doi.org/10.1007/s13127-017-0350-6"); 		// not needed for 3rd client
+// $input["params"] = array("resource_id" => 753); // 753-Flora do Brasil | 822-Kubitzki	// not needed for 3rd client
 
-$input["per_page"] = 1000;
-$input["trait kind"] = "trait"; //print_r($input); exit;
+$input["type"] = "katja_start_stop_nodes";
+$input["trait kind"] = "reg_report";
+$input["per_page"] = 50;
 $func->query_trait_db($input);
 // */
 

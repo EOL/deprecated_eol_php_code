@@ -42,7 +42,7 @@ class CypherQueryAPI_StartStop
     }
     function query_trait_db($input)
     {        
-        if($input['params']['source'] == "https://doi.org/10.1007/s13127-017-0350-6") $this->with_DISTINCT_YN = false;
+        if(@$input['params']['source'] == "https://doi.org/10.1007/s13127-017-0350-6") $this->with_DISTINCT_YN = false;
 
         print_r($input); //exit;
         self::initialize_path($input);
@@ -68,8 +68,8 @@ class CypherQueryAPI_StartStop
             print("\n No. of rows: ".$total." | $skip | row#: ".@$this->real_row."\n");
             $skip += $this->per_page;
             if($total < $this->per_page) break;
-            // break; //debug only
-            // if($skip == 2000) break; //debug only
+            break; //debug only
+            // if($skip == 200) break; //debug only
         }
         print("\n-----Processing ends-----\n");
         // print_r($input); //good debug
@@ -79,136 +79,44 @@ class CypherQueryAPI_StartStop
     {
         $skip = $input['skip'];
         $limit = $input['limit'];
-        if($input['type'] == "wikidata_base_qry_citation") {
-            $citation = urlencode($input['params']['citation']);
-            // /* new
-            if(    $input['trait kind'] == 'trait') {
-                $qry = 'MATCH (t:Trait)<-[:trait]-(p:Page), ';
-            $qry .= '(t)-[:predicate]->(pred:Term)
-            WHERE t.citation = "'.$citation.'"
-            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
-            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
-            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
-            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
-            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
-            ORDER BY p.canonical 
-            SKIP '.$skip.' LIMIT '.$limit;    
-            }
-            elseif($input['trait kind'] == 'inferred_trait') {
-                $qry = 'MATCH (t:Trait)<-[:inferred_trait]-(p:Page), ';
-            $qry .= '(t)-[:predicate]->(pred:Term)
-            WHERE t.citation = "'.$citation.'"
-            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
-            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
-            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
-            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
-            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-            RETURN DISTINCT p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
-            ORDER BY p.canonical 
-            SKIP '.$skip.' LIMIT '.$limit;
-            } //t.eol_pk, p.rank,
-            // */
-        }
-        elseif($input['type'] == "wikidata_base_qry_source") { //exit("\ngoes here...\n");
-            // /* new block
-            if($input['params']['source'] == "https://doi.org/10.1007/s13127-017-0350-6") $obj_name_uri = "obj.name, obj.uri,"; //pnas
-            else                                                                          $obj_name_uri = "obj.name,"; //orig
-            // */
-    
-            $source = urlencode($input['params']['source']);
-            // $qry = 'MATCH (t:Trait)<-[:trait|inferred_trait]-(p:Page),
-            if(    $input['trait kind'] == 'trait') { //exit("\ngoes here2...\n");
-                $qry = 'MATCH (t:Trait)<-[:trait]-(p:Page), ';
-            // /* ORIG CACHED
-            $qry .= '(t)-[:predicate]->(pred:Term)
-            WHERE t.source = "'.$source.'"
-            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
-            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
-            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
-            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
-            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-            RETURN DISTINCT p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, '.$obj_name_uri.' t.measurement, units.name, t.source, t.citation, ref.literal
-            ORDER BY p.canonical 
-            SKIP '.$skip.' LIMIT '.$limit;
-            // */
-            }
-            elseif($input['trait kind'] == 'inferred_trait') {
-                $qry = 'MATCH (t:Trait)<-[:inferred_trait]-(p:Page), ';
-            // /* ORIG CACHED - recently added t.eol_pk, p.rank
-
+        if($input['type'] == "katja_start_stop_nodes") {
+            $this->with_DISTINCT_YN = true;
             if($this->with_DISTINCT_YN) {
-            $qry .= '(t)-[:predicate]->(pred:Term)
-            WHERE t.source = "'.$source.'"
-            OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-            OPTIONAL MATCH (t)-[:units_term]->(units:Term)
-            OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
-            OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
-            OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
-            OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-            RETURN DISTINCT p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, obj.name, t.measurement, units.name, t.source, t.citation, ref.literal
-            ORDER BY p.canonical 
-            SKIP '.$skip.' LIMIT '.$limit;
-            // */ //t.eol_pk, p.rank,    
+                $qry = 'MATCH (p:Page)-[:trait]->(t:Trait)-[:metadata]->(MetaData)-[:predicate]->(:Term {uri:"https://eol.org/schema/terms/starts_at"}),
+                (t)-[:supplier]->(res:Resource)
+                OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+                OPTIONAL MATCH (t)-[:normal_units_term]->(units:Term)
+                RETURN DISTINCT p.canonical, p.page_id, t.scientificname, t.predicate, obj.uri, obj.name, t.normal_measurement, units.uri, units.name, 
+                t.normal_units,res.resource_id, res.name, t.starts_at, t.stops_at
+                ORDER BY t.starts_at DESC ';
+
+                // ORDER BY p.canonical ';
+                // /*
+                $qry = 'MATCH (p:Page)-[:trait]->(t:Trait)-[:metadata]->(m1:MetaData)-[:predicate]->(:Term {uri:"https://eol.org/schema/terms/starts_at"}),
+                                                       (t)-[:metadata]->(m2:MetaData)-[:predicate]->(:Term {uri:"https://eol.org/schema/terms/stops_at"}),
+                                    (t)-[:supplier]->(res:Resource)
+                                    OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+                                    OPTIONAL MATCH (t)-[:normal_units_term]->(units:Term)
+                                    RETURN DISTINCT p.canonical, p.page_id, t.scientificname, t.predicate, obj.uri, obj.name, t.normal_measurement, units.uri, units.name, 
+                                    t.normal_units,res.resource_id, res.name, 
+                                    m1.measurement,m2.measurement
+                                    ORDER BY p.canonical ';
+                    
+                                    // RETURN DISTINCT m1.measurement,m2.measurement ';
+                // */
+                $qry .= 'SKIP '.$skip.' LIMIT '.$limit;
             }
             else { //print_r($input); exit("\ngoes here\n"); //good debug
-                $qry .= '(t)-[:predicate]->(pred:Term)
-                WHERE t.source = "'.$source.'"
+                exit("\nnot here...\n");
+                $qry = 'MATCH (p:Page)-[:trait]->(t:Trait)-[:metadata]->(MetaData)-[:predicate]->(:Term {uri:"https://eol.org/schema/terms/starts_at"}),
+                (t)-[:supplier]->(res:Resource)
                 OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-                OPTIONAL MATCH (t)-[:units_term]->(units:Term)
-                OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
-                OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
-                OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
-                OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-                RETURN p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, '.$obj_name_uri.' t.measurement, units.name, t.source, t.citation, ref.literal
+                OPTIONAL MATCH (t)-[:normal_units_term]->(units:Term)
+                RETURN p.canonical, p.page_id, t.scientificname, t.predicate, obj.uri, obj.name, t.normal_measurement, units.uri, units.name, t.normal_units,res.resource_id, res.name
                 ORDER BY p.canonical 
                 SKIP '.$skip.' LIMIT '.$limit; // no DISTINCT
-                // */ //t.eol_pk, p.rank,    
-            }
-
-            }
-
-        }
-        elseif($input['type'] == "traits_stop_at") {
-            $qry = 'MATCH (t)-[:metadata]->(stopNode:MetaData)-[:predicate]->(stop:Term {name:"stops at"})
-            RETURN DISTINCT t.eol_pk, stop.name SKIP '.$skip.' LIMIT '.$limit;
-        }
-
-        elseif($input['type'] == "wikidata_base_qry_resourceID") {
-            $this->with_DISTINCT_YN = false;
-
-            $resource_id = urlencode($input['params']['resource_id']);
-            if($input['trait kind'] == 'trait') {
-                $qry = 'MATCH (t:Trait)<-[:trait]-(p:Page), (t)-[:supplier]->(:Resource {resource_id: '.$resource_id.'}), ';
-                $qry .= '(t)-[:predicate]->(pred:Term)
-                OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-                OPTIONAL MATCH (t)-[:units_term]->(units:Term)
-                OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
-                OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
-                OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
-                OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-                RETURN p.canonical, p.page_id, pred.name, stage.name, sex.name, stat.name, obj.name, obj.uri, t.measurement, units.name, t.source, t.citation, ref.literal
-                ORDER BY p.canonical 
-                SKIP '.$skip.' LIMIT '.$limit;
-            }
-            elseif($input['trait kind'] == 'inferred_trait') {
-                $qry = 'MATCH (t:Trait)<-[:inferred_trait]-(p:Page), (t)-[:supplier]->(:Resource {resource_id: '.$resource_id.'}), ';
-                $qry .= '(t)-[:predicate]->(pred:Term)
-                OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-                OPTIONAL MATCH (t)-[:units_term]->(units:Term)
-                OPTIONAL MATCH (t)-[:lifestage_term]->(stage:Term)
-                OPTIONAL MATCH (t)-[:sex_term]->(sex:Term)
-                OPTIONAL MATCH (t)-[:statistical_method_term]->(stat:Term)
-                OPTIONAL MATCH (t)-[:metadata]->(ref:MetaData)-[:predicate]->(:Term {name:"reference"})
-                RETURN p.canonical, p.page_id, t.eol_pk, p.rank, pred.name, stage.name, sex.name, stat.name, obj.name, obj.uri, t.measurement, units.name, t.source, t.citation, ref.literal
-                ORDER BY p.canonical 
-                SKIP '.$skip.' LIMIT '.$limit;
             }
         }
-
         else exit("\nERROR: Undefiend query.\n");
         $input['query'] = $qry;
         return $input;
@@ -282,7 +190,9 @@ class CypherQueryAPI_StartStop
         $cmd = WGET_PATH.' -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
         
         // $cmd .= ' 2>/dev/null'; //this will throw away the output
-        $secs = 60*2; echo "\nSleep $secs secs..."; sleep($secs); echo " Continue...\n"; //delay 2 seconds
+        $secs = 60*2; 
+        $secs = 1; //30;
+        echo "\nSleep $secs secs..."; sleep($secs); echo " Continue...\n"; //delay 2 seconds
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
         // echo "\nTerminal out: [$output]\n"; //good debug
         $json = file_get_contents($destination);
