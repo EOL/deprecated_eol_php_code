@@ -12,7 +12,6 @@ class CypherQueryAPI
 {
     function __construct($folder = null, $query = null)
     {
-        /* add: 'resource_id' => "eol_api_v3" ;if you want to add the cache inside a folder [eol_api_v3] inside [eol_cache] */
         $this->download_options = array(
             'resource_id'        => 'cypher_query',  //resource_id here is just a folder name in cache
             'expire_seconds'     => false, //60*60*24*30, //maybe 1 month to expire
@@ -33,8 +32,8 @@ class CypherQueryAPI
         */
 
         $this->basename = "cypher_".date('Y_m_d_His');
-        $this->per_page = 500; //100;
-        $this->per_page_2 = 1000;
+        $this->per_page = 500; //100;                       //per page with DISTINCT
+        $this->per_page_2 = 1000;                           //per page without DISTINCT
         $this->debug = array();
     }
     private function initialize_path($input)
