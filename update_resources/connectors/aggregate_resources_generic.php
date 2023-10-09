@@ -23,7 +23,8 @@ $DwCAs[] = 'wikipedia-ceb_10of10';
 $DwCAs[] = 'wikipedia-ceb_3of10';
 print_r($DwCAs);
 
-$func = new DwCA_Aggregator("wikipedia-ceb");
+$resource_id = "wikipedia-ceb";
+$func = new DwCA_Aggregator($resource_id);
 $func->combine_DwCAs($DwCAs);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>
