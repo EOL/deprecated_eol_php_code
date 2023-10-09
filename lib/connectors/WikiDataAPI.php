@@ -74,13 +74,13 @@ class WikiDataAPI extends WikipediaAPI
         
         if($this->what == "wikipedia") { //80 - wikipedia-en | 957 - wikipedia-de
             $lang_1st_batch = array('80','wikipedia-es','wikipedia-it','957','wikipedia-fr','wikipedia-zh','wikipedia-ru','wikipedia-pt','wikipedia-ja','wikipedia-ko','wikipedia-nl');
-            // /* for ver2, so it does not create a folder in cache_path like "wikipedia-zh_1of6" but just: "wikipedia-zh"
-            $tmp_resource_id = str_replace("_1of6", "", $this->resource_id);
-            $tmp_resource_id = str_replace("_2of6", "", $tmp_resource_id);
-            $tmp_resource_id = str_replace("_3of6", "", $tmp_resource_id);
-            $tmp_resource_id = str_replace("_4of6", "", $tmp_resource_id);
-            $tmp_resource_id = str_replace("_5of6", "", $tmp_resource_id);
-            $tmp_resource_id = str_replace("_6of6", "", $tmp_resource_id);
+            // /* for ver2, so it does not create a folder in cache_path like "wikipedia-zh_1of10" but just: "wikipedia-zh"
+            $tmp_resource_id = str_replace("_1of10", "", $this->resource_id);
+            $tmp_resource_id = str_replace("_2of10", "", $tmp_resource_id);
+            $tmp_resource_id = str_replace("_3of10", "", $tmp_resource_id);
+            $tmp_resource_id = str_replace("_4of10", "", $tmp_resource_id);
+            $tmp_resource_id = str_replace("_5of10", "", $tmp_resource_id);
+            $tmp_resource_id = str_replace("_6of10", "", $tmp_resource_id);
             // */
             if(!in_array($tmp_resource_id, $lang_1st_batch)) $this->download_options['resource_id'] = $tmp_resource_id;
             if(in_array($this->language_code, array('sv', 'ceb', 'war', 'min'))) $this->download_options['expire_seconds'] = 60*60*24*30*6; //6 months expiration

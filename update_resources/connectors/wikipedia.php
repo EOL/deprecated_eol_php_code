@@ -116,7 +116,7 @@ $func = new WikiDataAPI($resource_id, "en", "wikimedia");   //done - Used for Co
 // Wikipedia German is EOL resource_id = 957
 
 // print_r($argv);
-// php5.6 wikipedia.php jenkins en generate_resource 1 300000 1of6
+// php5.6 wikipedia.php jenkins en generate_resource 1 300000 1of10
 // php5.6 wikipedia.php jenkins de #German
 /* 
 to test locall when developing:
@@ -204,7 +204,7 @@ else { //orig, rest goes here
 // -> orig 1 connector run
 if(@$params['task']) { //there is value
     if($params['task'] == "generate_resource") {
-        if($params['range_from'] && $params['range_to']) {} //wikipedia.php jenkins es generate_resource 1 416666 1of6
+        if($params['range_from'] && $params['range_to']) {} //wikipedia.php jenkins es generate_resource 1 416666 1of10
         else $params['task'] = "generate_resource_force";   //wikipedia.php jenkins es generate_resource
     }
 }
@@ -237,23 +237,23 @@ if($resource_id == "wikipedia-be-tarask") $resource_id = "wikipedia-be-x-old";
 $func_wp = new MoreFunc4Wikipedia($six_coverage);
 $actual = @$params['actual'];
 if($actual) $resource_id .= "_".$actual;
-else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
+else { //meaning ready to finalize DwCA. Series 1of10, 2of10 - 10of10 are now done.
     
-    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_4of6.tar.gz
-    // -rw-r--r-- 1 root root 1332048 Jul 19 10:50 wikipedia-be-x-old_2of6.tar.gz
-    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_1of6.tar.gz
-    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_5of6.tar.gz
-    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_3of6.tar.gz
-    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_6of6.tar.gz
+    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_4of10.tar.gz
+    // -rw-r--r-- 1 root root 1332048 Jul 19 10:50 wikipedia-be-x-old_2of10.tar.gz
+    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_1of10.tar.gz
+    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_5of10.tar.gz
+    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_3of10.tar.gz
+    // -rw-r--r-- 1 root root 1332053 Jul 19 10:50 wikipedia-be-x-old_10of10.tar.gz
     // -rwxrwxr-x 1 root root 1320102 Jun  8 11:34 wikipedia-be-x-old.tar.gz
     
-    $test_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id."_1of6.tar.gz";
+    $test_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id."_1of10.tar.gz";
     if(file_exists($test_file)) { //ready to aggregate
-        echo "\n----------\nMeaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.\n----------\n";
+        echo "\n----------\nMeaning ready to finalize DwCA. Series 1of10, 2of10 - 10of10 are now done.\n----------\n";
         aggregate_6partial_wikipedias($timestart, $resource_id);
         echo "\nFinished aggregate_6partial_wikipedias()...\n";
         echo "\nLet us see if we can still delete files here:\n";
-        delete_temp_files_and_others($language, $resource_id); //2nd param $resource_id is for eventually 80_1of6 80_2of6
+        delete_temp_files_and_others($language, $resource_id); //2nd param $resource_id is for eventually 80_1of10 80_2of10
         $tmp = array('resource_id' => $resource_id);
         inject_jenkins_run($tmp, 'fill_up_undefined_parents');
         
@@ -309,7 +309,7 @@ $func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multip
 // 6th param false -> default false for archive_builder param
 // 7th param is false means running ver2
 
-if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id, "of6") !== false) { //uncomment in real operation
+if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id, "of10") !== false) { //uncomment in real operation
 // if(false) { //*** use this when developing to process language e.g. 'en' for one taxon only
     
     // /* new block
@@ -344,7 +344,7 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
                 $what_generation_status = "wikipedia_generation_status_".$language."_";
                 if($func->finalize_media_filenames_ready($what_generation_status)) inject_MultipleConnJenkinsAPI($language, $six_coverage);
                 // */
-            } // 1of6, 2of6, etc -> don't delete temp files yet
+            } // 1of10, 2of10, etc -> don't delete temp files yet
             else delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
         }
         else {
@@ -461,17 +461,17 @@ function delete_temp_files_and_others($language, $resource_id = false)
     -rw-r--r-- 1 root      root              0 Apr 18 14:59 wikipedia_pl_2019-04-18_14_11.tmp
     -rw-r--r-- 1 root      root              0 Apr 18 14:56 wikipedia_pl_2019-04-18_14_07.tmp
     
-    -rw-r--r-- 1 root root  76296 Jun  6 05:45 wikipedia-ce_1of6.tar.gz
-    -rw-r--r-- 1 root root  84669 Jun  6 05:45 wikipedia-ce_4of6.tar.gz
-    -rw-r--r-- 1 root root  58418 Jun  6 05:44 wikipedia-ce_6of6.tar.gz
-    -rw-r--r-- 1 root root  79654 Jun  6 05:44 wikipedia-ce_5of6.tar.gz
-    -rw-r--r-- 1 root root  87294 Jun  6 05:44 wikipedia-ce_2of6.tar.gz
-    -rw-r--r-- 1 root root  46594 Jun  6 05:44 wikipedia-ce_3of6.tar.gz
+    -rw-r--r-- 1 root root  76296 Jun  6 05:45 wikipedia-ce_1of10.tar.gz
+    -rw-r--r-- 1 root root  84669 Jun  6 05:45 wikipedia-ce_4of10.tar.gz
+    -rw-r--r-- 1 root root  58418 Jun  6 05:44 wikipedia-ce_10of10.tar.gz
+    -rw-r--r-- 1 root root  79654 Jun  6 05:44 wikipedia-ce_5of10.tar.gz
+    -rw-r--r-- 1 root root  87294 Jun  6 05:44 wikipedia-ce_2of10.tar.gz
+    -rw-r--r-- 1 root root  46594 Jun  6 05:44 wikipedia-ce_3of10.tar.gz
     */
     $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia_generation_status_".$language."_*.txt";
     $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia_".$language."_*.tmp";
-    $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia-".$language."_*of6.tar.gz";
-    if($resource_id) $paths[] = CONTENT_RESOURCE_LOCAL_PATH . $resource_id."_*of6.tar.gz"; //e.g. 80_1of6.tar.gz 
+    $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia-".$language."_*of10.tar.gz";
+    if($resource_id) $paths[] = CONTENT_RESOURCE_LOCAL_PATH . $resource_id."_*of10.tar.gz"; //e.g. 80_1of10.tar.gz 
     foreach($paths as $path) {
         foreach(glob($path) as $filename) {
             echo "\n[$filename] [".filesize($filename)."] - ";
@@ -485,8 +485,8 @@ function aggregate_6partial_wikipedias($timestart, $resource_id)
     require_library('connectors/DwCA_Aggregator_Functions');
     require_library('connectors/DwCA_Aggregator');
     $langs = array();
-    //wikipedia-nl_1of6... and so on
-    //80_1of6 ... and so on
+    //wikipedia-nl_1of10... and so on
+    //80_1of10 ... and so on
     
     // /* customize for those with language redirects
     if($resource_id == "wikipedia-be-tarask") $resource_id = "wikipedia-be-x-old";
@@ -494,7 +494,7 @@ function aggregate_6partial_wikipedias($timestart, $resource_id)
     
     //string generate the partials 1-6:
     /* original
-    for ($i = 1; $i <= 6; $i++) $langs[] = $resource_id."_".$i."of6";
+    for ($i = 1; $i <= 10; $i++) $langs[] = $resource_id."_".$i."of10";
     */
     // /* new: as of Oct 7 2023
     for ($i = 1; $i <= 10; $i++) $langs[] = $resource_id."_".$i."of*";

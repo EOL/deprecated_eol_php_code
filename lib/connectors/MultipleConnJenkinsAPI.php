@@ -104,14 +104,14 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
                     /* orig
                     $cmd = PHP_PATH." wikipedia.php jenkins $lang generate_resource ".$param['range'][0]." ".$param['range'][1]." ".$param['ctr']."of".$param['divisor']." '' ".$six_coverage;
                     */
-                    // wikipedia.php jenkins es generate_resource 1 416666 1of6
+                    // wikipedia.php jenkins es generate_resource 1 416666 1of10
                     // wikipedia.php jenkins es generate_resource
                 }
             }
             elseif($connector == "gen_wikimedia") {
                 /* orig
-                php5.6 wikidata.php jenkins generate_resource 1 524435 1of6
-                php5.6 wikidata.php jenkins generate_resource 2622175 3450000 6of6 
+                php5.6 wikidata.php jenkins generate_resource 1 524435 1of10
+                php5.6 wikidata.php jenkins generate_resource 2622175 3450000 10of10 
                 */
                 // /* new
                 $vparams = array();

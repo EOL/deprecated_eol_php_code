@@ -68,7 +68,7 @@ class CypherQueryAPI_StartStop
             print("\n No. of rows: ".$total." | $skip | row#: ".@$this->real_row."\n");
             $skip += $this->per_page;
             if($total < $this->per_page) break;
-            break; //debug only
+            // break; //debug only
             // if($skip == 200) break; //debug only
         }
         print("\n-----Processing ends-----\n");
@@ -87,34 +87,12 @@ class CypherQueryAPI_StartStop
                 OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
                 OPTIONAL MATCH (t)-[:normal_units_term]->(units:Term)
                 RETURN DISTINCT p.canonical, p.page_id, t.scientificname, t.predicate, obj.uri, obj.name, t.normal_measurement, units.uri, units.name, 
-                t.normal_units,res.resource_id, res.name, t.starts_at, t.stops_at
-                ORDER BY t.starts_at DESC ';
-
-                // ORDER BY p.canonical ';
-                // /*
-                $qry = 'MATCH (p:Page)-[:trait]->(t:Trait)-[:metadata]->(m1:MetaData)-[:predicate]->(:Term {uri:"https://eol.org/schema/terms/starts_at"}),
-                                                       (t)-[:metadata]->(m2:MetaData)-[:predicate]->(:Term {uri:"https://eol.org/schema/terms/stops_at"}),
-                                    (t)-[:supplier]->(res:Resource)
-                                    OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-                                    OPTIONAL MATCH (t)-[:normal_units_term]->(units:Term)
-                                    RETURN DISTINCT p.canonical, p.page_id, t.scientificname, t.predicate, obj.uri, obj.name, t.normal_measurement, units.uri, units.name, 
-                                    t.normal_units,res.resource_id, res.name, 
-                                    m1.measurement,m2.measurement
-                                    ORDER BY p.canonical ';
-                    
-                                    // RETURN DISTINCT m1.measurement,m2.measurement ';
-                // */
+                t.normal_units,res.resource_id, res.name 
+                ORDER BY p.canonical ';
                 $qry .= 'SKIP '.$skip.' LIMIT '.$limit;
             }
             else { //print_r($input); exit("\ngoes here\n"); //good debug
                 exit("\nnot here...\n");
-                $qry = 'MATCH (p:Page)-[:trait]->(t:Trait)-[:metadata]->(MetaData)-[:predicate]->(:Term {uri:"https://eol.org/schema/terms/starts_at"}),
-                (t)-[:supplier]->(res:Resource)
-                OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
-                OPTIONAL MATCH (t)-[:normal_units_term]->(units:Term)
-                RETURN p.canonical, p.page_id, t.scientificname, t.predicate, obj.uri, obj.name, t.normal_measurement, units.uri, units.name, t.normal_units,res.resource_id, res.name
-                ORDER BY p.canonical 
-                SKIP '.$skip.' LIMIT '.$limit; // no DISTINCT
             }
         }
         else exit("\nERROR: Undefiend query.\n");
@@ -191,7 +169,7 @@ class CypherQueryAPI_StartStop
         
         // $cmd .= ' 2>/dev/null'; //this will throw away the output
         $secs = 60*2; 
-        $secs = 1; //30;
+        $secs = 30;
         echo "\nSleep $secs secs..."; sleep($secs); echo " Continue...\n"; //delay 2 seconds
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
         // echo "\nTerminal out: [$output]\n"; //good debug
