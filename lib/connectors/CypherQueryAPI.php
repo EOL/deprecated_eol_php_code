@@ -235,6 +235,27 @@ class CypherQueryAPI
             }
         }
 
+        if($input['type'] == "katja_start_stop_nodes") {
+            $this->with_DISTINCT_YN = true;
+            if($this->with_DISTINCT_YN) {
+                $qry = 'MATCH (p:Page)-[:trait]->(t:Trait)-[:metadata]->(MetaData)-[:predicate]->(:Term {uri:"https://eol.org/schema/terms/starts_at"}),
+                (t)-[:supplier]->(res:Resource)
+                OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+                OPTIONAL MATCH (t)-[:normal_units_term]->(units:Term)
+                RETURN DISTINCT p.canonical, p.page_id, t.scientificname, t.predicate, obj.uri, obj.name, t.normal_measurement, units.uri, units.name, 
+                t.normal_units,res.resource_id, res.name 
+                ORDER BY p.canonical ';
+                $qry .= 'SKIP '.$skip.' LIMIT '.$limit;
+            }
+            else { //print_r($input); exit("\ngoes here\n"); //good debug
+                exit("\nnot here...\n");
+            }
+        }
+
+
+
+
+
         else exit("\nERROR: Undefiend query.\n");
         $input['query'] = $qry;
         return $input;
@@ -308,7 +329,8 @@ class CypherQueryAPI
         $cmd = WGET_PATH.' -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
         
         // $cmd .= ' 2>/dev/null'; //this will throw away the output
-        $secs = 60*2; echo "\nSleep $secs secs..."; sleep($secs); echo " Continue...\n"; //delay 2 seconds
+        $secs = 60*2; //orig 
+        $secs = 30; echo "\nSleep $secs secs..."; sleep($secs); echo " Continue...\n"; //delay 2 seconds
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
         // echo "\nTerminal out: [$output]\n"; //good debug
         $json = file_get_contents($destination);

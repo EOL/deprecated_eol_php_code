@@ -16,9 +16,16 @@ $params['json']              = @$argv[2]; //useful here
 $arr = json_decode($params['json'], true);
 ====================================================
 */
+
+/* also works here: which is a copied template from 'connectors/CypherQueryAPI'
 require_library('connectors/CypherQueryAPI_StartStop');
 $resource_id = 'eol';
 $func = new CypherQueryAPI_StartStop();
+*/
+
+require_library('connectors/CypherQueryAPI');
+$resource_id = 'eol';
+$func = new CypherQueryAPI();
 
 /* with resource_id --- query has an error
 $input = array();

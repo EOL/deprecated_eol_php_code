@@ -41,7 +41,7 @@ class CypherQueryAPI_StartStop
         if(!is_dir($this->report_path)) mkdir($this->report_path);
     }
     function query_trait_db($input)
-    {        
+    {   exit("\nWorks OK but I maintained to use the orig lib in ['connectors/CypherQueryAPI']\n");
         if(@$input['params']['source'] == "https://doi.org/10.1007/s13127-017-0350-6") $this->with_DISTINCT_YN = false;
 
         print_r($input); //exit;
@@ -223,4 +223,25 @@ class CypherQueryAPI_StartStop
         fclose($WRITE);
     }
 }
+/* On Mon, Oct 9, 2023 at 3:59 AM Katja Schulz <eolspecies@gmail.com> wrote:
+Hi Eli,
+
+I have added Jen's suggestions to the Need a better way to get a list of all start & stop nodes for inferred records doc. I have tested these two queries:
+
+MATCH (p:Page)-[:trait]->(t:Trait)-[:metadata]->(MetaData)-[:predicate]->(:Term {uri:"https://eol.org/schema/terms/starts_at"}),
+(t)-[:supplier]->(res:Resource)
+OPTIONAL MATCH (t)-[:object_term]->(obj:Term)
+OPTIONAL MATCH (t)-[:normal_units_term]->(units:Term)
+RETURN DISTINCT p.canonical, p.page_id, t.scientificname, t.predicate, obj.uri, obj.name, t.normal_measurement, units.uri, units.name, t.normal_units,res.resource_id, res.name
+LIMIT 50
+
+MATCH (t:Trait)-[:metadata]->(m1:MetaData)-[:predicate]->(:Term {uri:"https://eol.org/schema/terms/starts_at"}),
+(t)-[:metadata]->(m2:MetaData)-[:predicate]->(:Term {uri:"https://eol.org/schema/terms/stops_at"})
+RETURN DISTINCT m1.measurement,m2.measurement
+LIMIT 50
+
+The first one gives me everything I need, except for the stop nodes (which I can get with the second query) and the predicate, which is not a huge deal. I may still try to fiddle with the query to figure out how to get the predicates, but even if I can't manage that, I can get an idea of the predicate by looking at the values.
+
+Thanks, Katja
+*/
 ?>
