@@ -65,8 +65,15 @@ $input["type"] = "wikidata_base_qry_resourceID";
 // $input["params"] = array("source" => "https://doi.org/10.1007/s13127-017-0350-6"); 		// not needed for 3rd client
 // $input["params"] = array("resource_id" => 753); // 753-Flora do Brasil | 822-Kubitzki	// not needed for 3rd client
 
+/*
 $input["type"] = "katja_start_stop_nodes";
 $input["trait kind"] = "reg_report";
+*/
+
+$input["type"] = "katja_m1_m2";
+$input["trait kind"] = "reg_report_m1m2";
+
+
 $input["per_page"] = 50;
 $func->query_trait_db($input);
 // */

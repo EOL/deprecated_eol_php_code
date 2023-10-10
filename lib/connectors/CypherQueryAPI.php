@@ -251,10 +251,18 @@ class CypherQueryAPI
                 exit("\nnot here...\n");
             }
         }
-
-
-
-
+        elseif($input['type'] == "katja_m1_m2") {
+            $this->with_DISTINCT_YN = true;
+            if($this->with_DISTINCT_YN) {
+                $qry = 'MATCH (t:Trait)-[:metadata]->(m1:MetaData)-[:predicate]->(:Term {uri:"https://eol.org/schema/terms/starts_at"}),
+                (t)-[:metadata]->(m2:MetaData)-[:predicate]->(:Term {uri:"https://eol.org/schema/terms/stops_at"})
+                RETURN DISTINCT m1.measurement,m2.measurement ';
+                $qry .= 'SKIP '.$skip.' LIMIT '.$limit;
+            }
+            else { //print_r($input); exit("\ngoes here\n"); //good debug
+                exit("\nnot here...\n");
+            }
+        }
 
         else exit("\nERROR: Undefiend query.\n");
         $input['query'] = $qry;
