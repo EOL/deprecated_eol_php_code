@@ -186,6 +186,7 @@ class WikipediaRegionalAPI
     private function is_orientation_right2left($html)
     {
         if(stripos($html, 'dir="rtl" class="mw-content-rtl"') !== false) return true; //string is found
+        if(stripos($html, 'dir="rtl">') !== false) return true; //string is found
         return false;
     }
     function get_comprehensive_desc($html)
