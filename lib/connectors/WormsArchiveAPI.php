@@ -1269,6 +1269,7 @@ class WormsArchiveAPI extends ContributorsMapAPI
     }
     private function get_objects($records)
     {   foreach($records as $rec) {
+            $rec = array_map('trim', $rec);
             $identifier = (string) $rec["http://purl.org/dc/terms/identifier"];
             $type       = (string) $rec["http://purl.org/dc/terms/type"];
 
@@ -1314,7 +1315,7 @@ class WormsArchiveAPI extends ContributorsMapAPI
             if(stripos($description, "tropical") !== false) self::additional_traits_DATA_1767($rec, 'http://eol.org/schema/terms/TropicalOcean', 'http://purl.obolibrary.org/obo/RO_0002303'); //string is found
             if(stripos($description, "temperate") !== false) self::additional_traits_DATA_1767($rec, 'http://eol.org/schema/terms/TemperateOcean', 'http://purl.obolibrary.org/obo/RO_0002303'); //string is found
             // */
-            
+
             if($type == "http://purl.org/dc/dcmitype/StillImage") {
                 // WoRMS:image:10299_106331
                 $temp = explode("_", $identifier);
@@ -1363,6 +1364,12 @@ class WormsArchiveAPI extends ContributorsMapAPI
             if($mr->type != "http://purl.org/dc/dcmitype/Text") {
                 $mr->accessURI      = self::complete_url((string) $rec["http://rs.tdwg.org/ac/terms/accessURI"]);
                 $mr->thumbnailURL   = (string) $rec["http://eol.org/schema/media/thumbnailURL"];
+                // below as of Oct 12, 2023
+                if(!$mr->subtype) $mr->subtype = Functions::get_mimetype($mr->accessURI);
+                if(!$mr->subtype) {
+                    $this->debug['media with no mimetype, excluded'][$mr->accessURI] = '';
+                    continue;
+                }
             }
             
             if($source = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"]) $mr->furtherInformationURL = self::complete_url($source);
