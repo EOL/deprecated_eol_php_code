@@ -1365,8 +1365,8 @@ class WormsArchiveAPI extends ContributorsMapAPI
                 $mr->accessURI      = self::complete_url((string) $rec["http://rs.tdwg.org/ac/terms/accessURI"]);
                 $mr->thumbnailURL   = (string) $rec["http://eol.org/schema/media/thumbnailURL"];
                 // below as of Oct 12, 2023
-                if(!$mr->subtype) $mr->subtype = Functions::get_mimetype($mr->accessURI);
-                if(!$mr->subtype) {
+                if(!$mr->format) $mr->format = Functions::get_mimetype($mr->accessURI);
+                if(!$mr->format) {
                     $this->debug['media with no mimetype, excluded'][$mr->accessURI] = '';
                     continue;
                 }
