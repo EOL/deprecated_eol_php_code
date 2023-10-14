@@ -11,19 +11,23 @@ $timestart = time_elapsed();
 require_library('connectors/DwCA_Aggregator_Functions');
 require_library('connectors/DwCA_Aggregator');
 
+$res = "wikipedia-ceb";
+$res = "wikipedia-sv";
+
 $DwCAs = array();
-$DwCAs[] = 'wikipedia-ceb_5of10';
-$DwCAs[] = 'wikipedia-ceb_1of10';
-$DwCAs[] = 'wikipedia-ceb_2of10';
-$DwCAs[] = 'wikipedia-ceb_9of10';
-$DwCAs[] = 'wikipedia-ceb_8of10';
-$DwCAs[] = 'wikipedia-ceb_4of10';
-$DwCAs[] = 'wikipedia-ceb_6of10';
-$DwCAs[] = 'wikipedia-ceb_10of10';
-$DwCAs[] = 'wikipedia-ceb_3of10';
+$DwCAs[] = $res.'_1of10';
+$DwCAs[] = $res.'_2of10';
+$DwCAs[] = $res.'_3of10';
+$DwCAs[] = $res.'_4of10';
+$DwCAs[] = $res.'_5of10';
+$DwCAs[] = $res.'_6of10';
+$DwCAs[] = $res.'_7of10';
+$DwCAs[] = $res.'_8of10';
+$DwCAs[] = $res.'_9of10';
+$DwCAs[] = $res.'_10of10';
 print_r($DwCAs);
 
-$resource_id = "wikipedia-ceb";
+$resource_id = $res;
 $func = new DwCA_Aggregator($resource_id);
 $func->combine_DwCAs($DwCAs);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
