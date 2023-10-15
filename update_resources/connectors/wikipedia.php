@@ -234,6 +234,11 @@ exit("\nend test\n");
 if($resource_id == "wikipedia-be-tarask") $resource_id = "wikipedia-be-x-old";
 // */
 
+echo "\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*start\n";
+print_r($params);
+echo "\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*end\n";
+
+
 $func_wp = new MoreFunc4Wikipedia($six_coverage);
 $actual = @$params['actual'];
 if($actual) $resource_id .= "_".$actual;
@@ -248,6 +253,12 @@ else { //meaning ready to finalize DwCA. Series 1of10, 2of10 - 10of10 are now do
     // -rwxrwxr-x 1 root root 1320102 Jun  8 11:34 wikipedia-be-x-old.tar.gz
     
     $test_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id."_1of10.tar.gz";
+                                         //    wikipedia-su_1of10.tar.gz
+    echo "\n-=-=-=-=-=-=-=-=-=-=-=-start\n";
+    print_r($params);
+    echo "\nresource_id: [$resource_id]\n";
+    echo "\ntest_file: [$test_file]\n";
+    echo "\n-=-=-=-=-=-=-=-=-=-=-=-end\n";
     if(file_exists($test_file)) { //ready to aggregate
         echo "\n----------\nMeaning ready to finalize DwCA. Series 1of10, 2of10 - 10of10 are now done.\n----------\n";
         aggregate_6partial_wikipedias($timestart, $resource_id);
