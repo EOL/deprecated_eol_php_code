@@ -356,7 +356,16 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
             if($params['actual']) {
                 // /* check here if u can now run finalize
                 $what_generation_status = "wikipedia_generation_status_".$language."_";
-                if($func->finalize_media_filenames_ready($what_generation_status)) inject_MultipleConnJenkinsAPI($language, $six_coverage);
+                // /* get divisor from params['actual] e.g. 1of10 get 10
+                $tmp_arr = explode("of", $params['actual']);
+                $div = intval($tmp_arr[1]);
+                echo "\ndiv: [$div]\n";
+                // */
+                if($func->finalize_media_filenames_ready($what_generation_status, $div)) {
+                    echo "\nFinalize: Yes\n";
+                    inject_MultipleConnJenkinsAPI($language, $six_coverage, $div);
+                }
+                else echo "\nFinalize: No\n";
                 // */
             } // 1of10, 2of10, etc -> don't delete temp files yet
             else delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
@@ -396,8 +405,12 @@ echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
 
-function inject_MultipleConnJenkinsAPI($language, $six_coverage)
-{
+function inject_MultipleConnJenkinsAPI($language, $six_coverage, $div = 6)
+{   
+    echo "\n@#@#@#@#@#@#@# start\n";
+    print_r(array("language" => $language, "six_coverage" => $six_coverage, "div" => $div));
+    echo "\n@#@#@#@#@#@#@# end\n";
+
     /* START continue lifeline of Jenkins event --------------------------------------------- 
     run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"sh"}'
     */
@@ -415,6 +428,7 @@ function inject_MultipleConnJenkinsAPI($language, $six_coverage)
     $batches = array();
     $batches[] = array(1, $total_count);
     $arr_info['batches'] = $batches;
+    print_r($arr_info);
     $funcj->jenkins_call($arr_info, "finalize"); //finally make the call
     /* END continue lifeline of Jenkins event ----------------------------------------------- */
 }
