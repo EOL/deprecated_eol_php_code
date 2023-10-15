@@ -525,7 +525,7 @@ function aggregate_6partial_wikipedias($timestart, $resource_id)
     for ($i = 1; $i <= 10; $i++) $langs[] = $resource_id."_".$i."of10";
     */
     // /* new: as of Oct 7 2023
-    for ($i = 1; $i <= 10; $i++) $langs[] = $resource_id."_".$i."of*";
+    for ($i = 1; $i <= 10; $i++) $langs[] = $resource_id."_".$i."of10";
     // */
     print_r($langs);
 
