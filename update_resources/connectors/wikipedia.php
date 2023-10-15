@@ -349,6 +349,9 @@ if(in_array($language, $langs_with_multiple_connectors) || stripos($resource_id,
         echo "\n".$params['actual']." -- finished\n";
         if($status_arr[1]) {
             echo "\n---Can now proceed - finalize dwca...---\n\n";
+            print_r($params);
+            echo "\nlanguage: [$language]\n";
+            echo "\nsix_coverage: [$six_coverage]\n";
             Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //2nd param true means big file; 3rd param true means will delete working folder
             if($params['actual']) {
                 // /* check here if u can now run finalize
