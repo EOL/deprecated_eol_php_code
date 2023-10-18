@@ -1341,7 +1341,9 @@ class WormsArchiveAPI extends ContributorsMapAPI
             $mr->rights         = (string) $rec["http://purl.org/dc/terms/rights"];
             $mr->UsageTerms     = (string) $rec["http://ns.adobe.com/xap/1.0/rights/UsageTerms"];
             $mr->description    = (string) $rec["http://purl.org/dc/terms/description"];
+            /* removed bibCite Oct 18, 2023
             $mr->bibliographicCitation = (string) $rec["http://purl.org/dc/terms/bibliographicCitation"];
+            */
             $mr->derivedFrom     = (string) $rec["http://rs.tdwg.org/ac/terms/derivedFrom"];
             $mr->LocationCreated = (string) $rec["http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/LocationCreated"];
             $mr->spatial         = (string) $rec["http://purl.org/dc/terms/spatial"];
@@ -1585,7 +1587,9 @@ class WormsArchiveAPI extends ContributorsMapAPI
             $m->measurementOfTaxon = 'true';
             $m->measurementRemarks = '';
             $m->source = (string) $rec["http://rs.tdwg.org/ac/terms/accessURI"]; // http://www.marinespecies.org/aphia.php?p=distribution&id=274241
+            /* removed bibCite Oct 18, 2023
             $m->bibliographicCitation = (string) $rec["http://purl.org/dc/terms/bibliographicCitation"];
+            */
             $m->contributor = (string) $rec["http://purl.org/dc/terms/contributor"];
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) {
                 $m->referenceID = self::use_correct_separator($referenceID);
