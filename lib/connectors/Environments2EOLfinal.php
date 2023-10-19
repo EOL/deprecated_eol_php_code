@@ -73,7 +73,10 @@ class Environments2EOLfinal extends ContributorsMapAPI
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
-    {   echo "\nresource_id is [$this->resource_id]\n";
+    {   
+        require_library('connectors/RemoveHTMLTagsAPI');
+        
+        echo "\nresource_id is [$this->resource_id]\n";
         if(in_array($this->resource_id, array('21_ENV'))) {
             $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'expire_seconds' => 60*60*1);
             $this->contributor_mappings = $this->get_contributor_mappings($this->resource_id, $options); // print_r($this->contributor_mappings);
@@ -528,6 +531,11 @@ class Environments2EOLfinal extends ContributorsMapAPI
                 foreach($uris as $uri) {
                     $field = pathinfo($uri, PATHINFO_BASENAME);
                     $o->$field = $rec[$uri];
+
+                    // /* new: Oct 19, 2023
+                    if(in_array($field, array("full_reference", "primaryTitle", "title", "description", "bibliographicCitation"))) $o->$field = RemoveHTMLTagsAPI::remove_html_tags($o->$field);
+                    // */
+
                 }
                 $this->archive_builder->write_object_to_file($o);
             }
