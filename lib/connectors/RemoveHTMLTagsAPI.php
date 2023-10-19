@@ -7,23 +7,43 @@ class RemoveHTMLTagsAPI
     function __construct($folder = null)
     {
     }
+
     public static function remove_html_tags($str)
     {
         $orig_str = $str;
+
+        $input = array();
+        $input[] = array("tag_name" => "a", "prop_name" => "href");
+        $input[] = array("tag_name" => "img", "prop_name" => "src");
+        foreach($input as $in) {
+            $str = self::process_input($in, $str);
+        } //end foreach() main
+        
+        // $str = strip_tags($str);
+        return $str;
+        // $left = '<table role="presentation">'; $right = '</table>';
+        // $desc = self::remove_all_in_between_inclusive($left, $right, $desc);
+
+    }
+    private static function process_input($in, $str)
+    {
+        $tag = $in['tag_name']; $prop = $in['prop_name'];
         // step 1: replace <a> tags
-        if(preg_match_all("/<a (.*?)<\/a>/ims", $str, $arr)) { // print_r($arr[1]);
+        if(preg_match_all("/<".$tag." (.*?)<\/".$tag.">/ims", $str, $arr)) { print_r($arr[1]); //exit("\nstop muna...\n");
             /*Array(
                 [0] => href='http://eol.org/page/173'>jumps over
+            )Array(
+                [0] => src='https://mydomain.com/eli.jpg'>My picture.
             )*/
             if($lines = $arr[1]) {
                 foreach($lines as $line) { //echo "\n[$line]\n";
                     $href = false;
                     $link_txt = false;
-                    if(preg_match("/href=\'(.*?)\'/ims", $line, $arr2)) {
+                    if(preg_match("/".$prop."=\'(.*?)\'/ims", $line, $arr2)) {
                         $href = $arr2[1];
                         if(preg_match("/\'>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
                     }
-                    elseif(preg_match("/href=\"(.*?)\"/ims", $line, $arr2)) {
+                    elseif(preg_match("/".$prop."=\"(.*?)\"/ims", $line, $arr2)) {
                         $href = $arr2[1];
                         if(preg_match("/\">(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
                     }
@@ -32,19 +52,14 @@ class RemoveHTMLTagsAPI
                     $link_txt = trim($link_txt);
                     if($href && $link_txt) {
                         // echo "\n[$href][$link_txt]\n";
-                        $str = self::remove_anchor_tags($href, $link_txt, $str, $line);
+                        $str = self::remove_anchor_tags($href, $link_txt, $str, $line, $tag);
                     }
-                } //end foreach()
+                } //end foreach() line
             }
-
         }
-        $str = strip_tags($str);
         return $str;
-        // $left = '<table role="presentation">'; $right = '</table>';
-        // $desc = self::remove_all_in_between_inclusive($left, $right, $desc);
-
     }
-    private static function remove_anchor_tags($href, $link_txt, $str, $line)
+    private static function remove_anchor_tags($href, $link_txt, $str, $line, $tag)
     {   /* [http://eol.org/page/173] [jumps over] */
         echo "\nline: [$line]\n";
         echo "\n[$href][$link_txt]\n";
@@ -58,7 +73,9 @@ class RemoveHTMLTagsAPI
             $target = "$link_txt ($href)$last_char";
         }
 
-        $line = "<a $line</a>";
+        $line = "<$tag $line</$tag>";
+        echo "\nline: [$line]\n";
+        echo "\ntarget: [$target]\n";
         $str = str_replace($line, $target, $str);
         return $str;
     }
