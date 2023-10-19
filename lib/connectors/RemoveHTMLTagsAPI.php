@@ -65,12 +65,13 @@ class RemoveHTMLTagsAPI
         echo "\n[$href][$link_txt]\n";
         $last_char = substr($link_txt, -1);
         echo "\nlast char: [$last_char]\n";
-        if(self::is_a_letter($last_char)) { echo "\nLetter OK\n";
-            $target = "$link_txt ($href)";
-        }
-        else  { echo "\nNot a letter\n";
+
+        if(in_array($last_char, array(".", ",", ";", "-"))) {
             $link_txt = substr($link_txt,0,strlen($link_txt)-1);
             $target = "$link_txt ($href)$last_char";
+        }
+        else { //the rest goes here...
+            $target = "$link_txt ($href)";
         }
 
         $line = "<$tag $line</$tag>";
