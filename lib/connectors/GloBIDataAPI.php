@@ -938,6 +938,12 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 if($field == 'schema#localityName') $field = 'localityName'; //just a correction
                 $o->$field = $rec[$uri];
+
+                // /* new: Oct 19, 2023
+                if(in_array($field, array("full_reference", "primaryTitle", "title", "doi", "localityName"))) $o->$field = RemoveHTMLTagsAPI::remove_html_tags($o->$field);
+                // */
+
+
             }
             $this->archive_builder->write_object_to_file($o);
             // */

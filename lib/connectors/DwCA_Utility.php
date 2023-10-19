@@ -201,6 +201,7 @@ class DwCA_Utility
         if($this->resource_id == 'globi_associations') {
             require_library('connectors/Globi_Refuted_Records');
             require_library('connectors/GloBIDataAPI');
+            require_library('connectors/RemoveHTMLTagsAPI');
             $func = new GloBIDataAPI($this->archive_builder, 'globi');
             $func->start($info); //didn't use like above bec. memory can't handle 'occurrence' and 'association' TSV files
         }
