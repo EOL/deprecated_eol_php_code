@@ -291,6 +291,10 @@ class WormsArchiveAPI extends ContributorsMapAPI
 
                 $c->$field = $rec[$key];
                 if($field == "taxonID") $c->$field = self::get_worms_taxon_id($c->$field);
+
+                // /* new: Oct 19, 2023
+                if(in_array($field, array("full_reference", "primaryTitle", "title", "doi", "localityName"))) $c->$field = RemoveHTMLTagsAPI::remove_html_tags($c->$field);
+                // */
             }
             
             // /* remove [source] == 'DEU' per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=67026&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67026
@@ -1340,7 +1344,7 @@ class WormsArchiveAPI extends ContributorsMapAPI
             $mr->Owner          = (string) $rec["http://ns.adobe.com/xap/1.0/rights/Owner"];
             $mr->rights         = (string) $rec["http://purl.org/dc/terms/rights"];
             $mr->UsageTerms     = (string) $rec["http://ns.adobe.com/xap/1.0/rights/UsageTerms"];
-            $mr->description    = (string) $rec["http://purl.org/dc/terms/description"];
+            $mr->description    = RemoveHTMLTagsAPI::remove_html_tags((string) $rec["http://purl.org/dc/terms/description"]);
             /* removed bibCite Oct 18, 2023
             $mr->bibliographicCitation = (string) $rec["http://purl.org/dc/terms/bibliographicCitation"];
             */

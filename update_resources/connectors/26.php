@@ -270,6 +270,8 @@ $cmdline_params['what']             = @$argv[2]; //useful here
 
 require_library('connectors/ContributorsMapAPI');
 require_library('connectors/WormsArchiveAPI');
+require_library('connectors/RemoveHTMLTagsAPI');
+
 $timestart = time_elapsed();
 ini_set('memory_limit','10096M'); //required. From 7096M
 
