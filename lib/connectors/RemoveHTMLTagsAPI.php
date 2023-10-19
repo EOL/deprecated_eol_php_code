@@ -11,6 +11,7 @@ class RemoveHTMLTagsAPI
     public static function remove_html_tags($str)
     {
         $orig_str = $str;
+        $str = Functions::remove_whitespace($str);
         $str = strip_tags($str, "<a> <img>");
 
         $input = array();
@@ -37,7 +38,6 @@ class RemoveHTMLTagsAPI
             )*/
             if($lines = $arr[1]) {
                 foreach($lines as $line) { //echo "\n[$line]\n";
-                    $line = Functions::remove_whitespace($line);
                     $href = false;
                     $link_txt = false;
                     if(preg_match("/".$prop."=\'(.*?)\'/ims", $line, $arr2)) {
