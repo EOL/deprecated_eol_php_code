@@ -11,6 +11,7 @@ class RemoveHTMLTagsAPI
     public static function remove_html_tags($str)
     {
         $orig_str = $str;
+        $str = strip_tags($str, "<a> <img>");
 
         $input = array();
         $input[] = array("tag_name" => "a", "prop_name" => "href");
@@ -19,7 +20,6 @@ class RemoveHTMLTagsAPI
             $str = self::process_input($in, $str);
         } //end foreach() main
         
-        $str = strip_tags($str);
         return $str;
         // $left = '<table role="presentation">'; $right = '</table>';
         // $desc = self::remove_all_in_between_inclusive($left, $right, $desc);
