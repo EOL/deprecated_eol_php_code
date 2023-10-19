@@ -67,15 +67,15 @@ class RemoveHTMLTagsAPI
     }
     private static function remove_anchor_tags($href, $link_txt, $str, $line, $tag)
     {   /* [http://eol.org/page/173] [jumps over] */
-        echo "\nline: [$line]\n";
-        echo "\n[$href][$link_txt]\n";
+        debug("\nline: [$line]\n");
+        debug("\n[$href][$link_txt]\n");
         $last_char = substr($link_txt, -1);
-        echo "\nlast char: [$last_char]\n";
+        debug("\nlast char: [$last_char]\n");
 
         if(in_array($last_char, array(".", ",", ";"))) {
             $link_txt = substr($link_txt,0,strlen($link_txt)-1);
             if($link_txt != $href)  $target = "$link_txt ($href)$last_char";    //regular assumption
-            else                    $target =  "($link_txt)".$last_char;            // e.g. <a href="https://eol.org/page/173" >https://eol.org/page/173;</a>
+            else                    $target =  "($link_txt)".$last_char;        // e.g. <a href="https://eol.org/page/173" >https://eol.org/page/173;</a>
         }
         else { //the rest goes here...
             if($link_txt != $href) $target = "$link_txt ($href)";   //regular assumption
@@ -83,7 +83,7 @@ class RemoveHTMLTagsAPI
         }
 
         $line = "<$tag $line</$tag>";
-        echo "\nline: [$line]\n";
+        echo "\nline: [$line]";
         echo "\ntarget: [$target]\n";
         $str = str_replace($line, $target, $str);
         return $str;
