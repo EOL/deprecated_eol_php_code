@@ -21,6 +21,7 @@ $str = file_get_contents(CONTENT_RESOURCE_LOCAL_PATH."test.txt");
 
 // $str = "<a href=javascript:openNewWindow('http://content.lib.utah.edu/w/d.php?d')>Hear Northern Cricket Frog calls at the Western Sound Archive.</a>";
 
+$str = "<a target=_blank href=https://doi.org/10.1371/journal.pone.0151781>Senevirathne et al. (2016)</a> ";
 $new = RemoveHTMLTagsAPI::remove_html_tags($str);
 echo "\norig: [$str]\n";
 echo "\nnew: [$new]\n";

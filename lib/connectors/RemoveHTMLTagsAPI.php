@@ -24,10 +24,10 @@ class RemoveHTMLTagsAPI
         // $input[] = array("tag_name" => "img", "prop_name" => "src"); //was handled separately
         foreach($input as $in) {
             $str = self::process_input($in, $str);
-        } //end foreach() main
+        }
         // */
 
-
+        $str = strip_tags($str); //deletes all tags, and those that are not written properly. e.g. href=http:eol.org/pages/173 -> without quotes
         return $str;
         // $left = '<table role="presentation">'; $right = '</table>';
         // $desc = self::remove_all_in_between_inclusive($left, $right, $desc);
@@ -47,8 +47,9 @@ class RemoveHTMLTagsAPI
                 elseif(preg_match("/src=\'(.*?)\'/ims", $line, $arr2)) $src = $arr2[1];
                 else exit("\n-ERROR: src not found-\n");
                 if($src) {
-                    $target = "(image, $src)";
+                    $target = " (image, $src) ";
                     $str = str_replace($orig, $target, $str);
+                    $str = Functions::remove_whitespace($str);
                 }
             }
         }
