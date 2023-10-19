@@ -37,15 +37,20 @@ class RemoveHTMLTagsAPI
             )*/
             if($lines = $arr[1]) {
                 foreach($lines as $line) { //echo "\n[$line]\n";
+                    $line = Functions::remove_whitespace($line);
                     $href = false;
                     $link_txt = false;
                     if(preg_match("/".$prop."=\'(.*?)\'/ims", $line, $arr2)) {
                         $href = $arr2[1];
                         if(preg_match("/\'>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
+                        elseif(preg_match("/\' >(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
+                        else exit("\nInvestigate 1 cannot get link_txt\n");
                     }
                     elseif(preg_match("/".$prop."=\"(.*?)\"/ims", $line, $arr2)) {
                         $href = $arr2[1];
                         if(preg_match("/\">(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
+                        elseif(preg_match("/\" >(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
+                        else exit("\nInvestigate 2 cannot get link_txt\n");
                     }
                     else continue;
                     $href = trim($href);
@@ -56,6 +61,7 @@ class RemoveHTMLTagsAPI
                     }
                 } //end foreach() line
             }
+            // else exit("\nnandito pala...\n");
         }
         return $str;
     }
@@ -66,12 +72,14 @@ class RemoveHTMLTagsAPI
         $last_char = substr($link_txt, -1);
         echo "\nlast char: [$last_char]\n";
 
-        if(in_array($last_char, array(".", ",", ";", "-"))) {
+        if(in_array($last_char, array(".", ",", ";"))) {
             $link_txt = substr($link_txt,0,strlen($link_txt)-1);
-            $target = "$link_txt ($href)$last_char";
+            if($link_txt != $href)  $target = "$link_txt ($href)$last_char";    //regular assumption
+            else                    $target =  "($link_txt)".$last_char;            // e.g. <a href="https://eol.org/page/173" >https://eol.org/page/173;</a>
         }
         else { //the rest goes here...
-            $target = "$link_txt ($href)";
+            if($link_txt != $href) $target = "$link_txt ($href)";   //regular assumption
+            else                   $target = "($link_txt)";         // e.g. <a href="https://eol.org/page/173" >https://eol.org/page/173</a>
         }
 
         $line = "<$tag $line</$tag>";
