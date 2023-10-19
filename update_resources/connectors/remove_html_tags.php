@@ -4,7 +4,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
 require_library('connectors/RemoveHTMLTagsAPI');
-$str = "the quick brows fox <a class='myclass' href='http://eol.org/page/173' target='mytarget'>jumps over</a> the lazy dog. <img src='https://mydomain.com/eli.jpg'>My picture </img>";
+$str = "the <span>quick brows</span> fox <a class='myclass' href='http://eol.org/page/173' target='mytarget'>jumps over</a> the lazy dog. <b>This is bold text</b>. <img src='https://mydomain.com/eli.jpg'>My picture </img> in Manila.";
 $new = RemoveHTMLTagsAPI::remove_html_tags($str);
 echo "\norig: [$str]\n";
 echo "\nnew: [$new]\n";

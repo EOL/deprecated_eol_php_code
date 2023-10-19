@@ -19,7 +19,7 @@ class RemoveHTMLTagsAPI
             $str = self::process_input($in, $str);
         } //end foreach() main
         
-        // $str = strip_tags($str);
+        $str = strip_tags($str);
         return $str;
         // $left = '<table role="presentation">'; $right = '</table>';
         // $desc = self::remove_all_in_between_inclusive($left, $right, $desc);
