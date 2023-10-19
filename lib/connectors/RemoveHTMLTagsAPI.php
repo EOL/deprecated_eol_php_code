@@ -12,19 +12,47 @@ class RemoveHTMLTagsAPI
     {
         $orig_str = $str;
         $str = Functions::remove_whitespace($str);
-        $str = strip_tags($str, "<a> <img>");
+        $str = strip_tags($str, "<a><img>");
 
+        // /* for <img> tags
+        $str = self::remove_img_tags($str);
+        // */
+        
+        // /* for <a> tags
         $input = array();
         $input[] = array("tag_name" => "a", "prop_name" => "href");
-        $input[] = array("tag_name" => "img", "prop_name" => "src");
+        // $input[] = array("tag_name" => "img", "prop_name" => "src"); //was handled separately
         foreach($input as $in) {
             $str = self::process_input($in, $str);
         } //end foreach() main
-        
+        // */
+
+
         return $str;
         // $left = '<table role="presentation">'; $right = '</table>';
         // $desc = self::remove_all_in_between_inclusive($left, $right, $desc);
 
+    }
+    private static function remove_img_tags($str)
+    {
+        if(preg_match_all("/<img (.*?)>/ims", $str, $arr)) { print_r($arr[1]); //exit("\nstop muna...\n");
+            /*Array(
+                [0] => class="class ko" src="https://mydomain.com/eli.jpg" style="..."
+            )*/
+            $lines = $arr[1];
+            foreach($lines as $line) {
+                $orig = "<img $line>";
+                $src = false;
+                if    (preg_match("/src=\"(.*?)\"/ims", $line, $arr2)) $src = $arr2[1];
+                elseif(preg_match("/src=\'(.*?)\'/ims", $line, $arr2)) $src = $arr2[1];
+                else exit("\n-ERROR: src not found-\n");
+                if($src) {
+                    $target = "(image, $src)";
+                    $str = str_replace($orig, $target, $str);
+                }
+            }
+        }
+        return $str;
     }
     private static function process_input($in, $str)
     {
@@ -33,8 +61,9 @@ class RemoveHTMLTagsAPI
         if(preg_match_all("/<".$tag." (.*?)<\/".$tag.">/ims", $str, $arr)) { print_r($arr[1]); //exit("\nstop muna...\n");
             /*Array(
                 [0] => href='http://eol.org/page/173'>jumps over
-            )Array(
-                [0] => src='https://mydomain.com/eli.jpg'>My picture.
+            )
+            Array(
+                [0] => href=javascript:openNewWindow('http://content.lib.utah.edu/w/d.php?d')>Hear Northern Cricket Frog calls at the Western Sound Archive.
             )*/
             if($lines = $arr[1]) {
                 foreach($lines as $line) { //echo "\n[$line]\n";
@@ -44,13 +73,17 @@ class RemoveHTMLTagsAPI
                         $href = $arr2[1];
                         if(preg_match("/\'>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
                         elseif(preg_match("/\' >(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
-                        else exit("\nInvestigate 1 cannot get link_txt\n");
+                        else exit("\nInvestigate 1 cannot get link_txt\n");    
                     }
                     elseif(preg_match("/".$prop."=\"(.*?)\"/ims", $line, $arr2)) {
                         $href = $arr2[1];
                         if(preg_match("/\">(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
                         elseif(preg_match("/\" >(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
                         else exit("\nInvestigate 2 cannot get link_txt\n");
+                    }
+                    elseif(preg_match("/".$prop."=java(.*?)>/ims", $line, $arr2)) {
+                        $href = "xxx";
+                        if(preg_match("/\>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
                     }
                     else continue;
                     $href = trim($href);
@@ -81,6 +114,9 @@ class RemoveHTMLTagsAPI
             if($link_txt != $href) $target = "$link_txt ($href)";   //regular assumption
             else                   $target = "($link_txt)";         // e.g. <a href="https://eol.org/page/173" >https://eol.org/page/173</a>
         }
+        // /* special
+        if($href == "xxx") $target = $link_txt;
+        // */
 
         $line = "<$tag $line</$tag>";
         echo "\nline: [$line]";
