@@ -652,7 +652,8 @@ class WormsArchiveAPI extends ContributorsMapAPI
             @$this->debug["count"][$taxon->taxonomicStatus]++;
             @$this->debug["count"]["count"]++;
             // */
-            $taxon->namePublishedIn = (string) $rec["http://rs.tdwg.org/dwc/terms/namePublishedIn"];
+
+            $taxon->namePublishedIn = RemoveHTMLTagsAPI::remove_html_tags((string) $rec["http://rs.tdwg.org/dwc/terms/namePublishedIn"]);
             $taxon->rightsHolder    = (string) $rec["http://purl.org/dc/terms/rightsHolder"];
             $taxon->source = $this->taxon_page . $taxon->taxonID;
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/media/referenceID"])) $taxon->referenceID = self::use_correct_separator($referenceID);
@@ -1336,20 +1337,20 @@ class WormsArchiveAPI extends ContributorsMapAPI
             if($val = trim((string) $rec["http://purl.org/dc/terms/language"])) $mr->language = $val;
             else                                                                $mr->language = "en";
             $mr->format         = (string) $rec["http://purl.org/dc/terms/format"];
-            $mr->title          = (string) $rec["http://purl.org/dc/terms/title"];
+            $mr->title          = RemoveHTMLTagsAPI::remove_html_tags((string) $rec["http://purl.org/dc/terms/title"]);
             $mr->CVterm         = (string) $rec["http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm"];
             $mr->creator        = (string) $rec["http://purl.org/dc/terms/creator"];
             $mr->CreateDate     = (string) $rec["http://ns.adobe.com/xap/1.0/CreateDate"];
             $mr->modified       = (string) $rec["http://purl.org/dc/terms/modified"];
             $mr->Owner          = (string) $rec["http://ns.adobe.com/xap/1.0/rights/Owner"];
-            $mr->rights         = (string) $rec["http://purl.org/dc/terms/rights"];
+            $mr->rights         = RemoveHTMLTagsAPI::remove_html_tags((string) $rec["http://purl.org/dc/terms/rights"]);
             $mr->UsageTerms     = (string) $rec["http://ns.adobe.com/xap/1.0/rights/UsageTerms"];
             $mr->description    = RemoveHTMLTagsAPI::remove_html_tags((string) $rec["http://purl.org/dc/terms/description"]);
             /* removed bibCite Oct 18, 2023
             $mr->bibliographicCitation = (string) $rec["http://purl.org/dc/terms/bibliographicCitation"];
             */
             $mr->derivedFrom     = (string) $rec["http://rs.tdwg.org/ac/terms/derivedFrom"];
-            $mr->LocationCreated = (string) $rec["http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/LocationCreated"];
+            $mr->LocationCreated = RemoveHTMLTagsAPI::remove_html_tags((string) $rec["http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/LocationCreated"]);
             $mr->spatial         = (string) $rec["http://purl.org/dc/terms/spatial"];
             $mr->lat             = (string) $rec["http://www.w3.org/2003/01/geo/wgs84_pos#lat"];
             $mr->long            = (string) $rec["http://www.w3.org/2003/01/geo/wgs84_pos#long"];

@@ -82,8 +82,8 @@ class DwCA_Utility
     }    
     function convert_archive($preferred_rowtypes = false, $excluded_rowtypes = false) //same as convert_archive_by_adding_higherClassification(); just doesn't generate higherClassification
     {   /* param $preferred_rowtypes is the option to include-only those row_types you want on your final DwCA. 1st client was DATA-1770 */
+        require_library('connectors/RemoveHTMLTagsAPI');
         echo "\nConverting archive to EOL DwCA...\n";
-        
         //placeholder for customized resources with respective download_options
         
         // /* from Smithsonian Contribution to ???
@@ -882,6 +882,10 @@ class DwCA_Utility
                 //#################### end some validations ----------------------------  #########################################################################
 
                 $c->$field = $rec[$key];
+
+                // /* new: Oct 19, 2023
+                if(in_array($field, array("full_reference", "primaryTitle", "title", "doi", "localityName", "description", "bibliographicCitation", "rights", "title", "namePublishedIn"))) $c->$field = RemoveHTMLTagsAPI::remove_html_tags($c->$field);
+                // */
                 
                 // /* ----------------- customized: start to remove specific fields here -----------------
                 

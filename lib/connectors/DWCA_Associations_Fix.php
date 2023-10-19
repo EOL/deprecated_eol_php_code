@@ -139,6 +139,10 @@ class DWCA_Associations_Fix
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
+                
+                // /* new: Oct 19, 2023
+                if(in_array($field, array("full_reference", "primaryTitle", "title", "doi", "localityName"))) $o->$field = RemoveHTMLTagsAPI::remove_html_tags($o->$field);
+                // */
             }
             $this->archive_builder->write_object_to_file($o);
         }
