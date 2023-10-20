@@ -72,15 +72,17 @@ class RemoveHTMLTagsAPI
                     $link_txt = false;
                     if(preg_match("/".$prop."=\'(.*?)\'/ims", $line, $arr2)) {
                         $href = $arr2[1];
-                        if(preg_match("/\'>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
+                        if    (preg_match("/\'>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
                         elseif(preg_match("/\' >(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
-                        else exit("\nInvestigate 1 cannot get link_txt\n");    
+                        elseif(preg_match("/>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
+                        else exit("\nInvestigate 1 cannot get link_txt:\n[$line]\n");    
                     }
                     elseif(preg_match("/".$prop."=\"(.*?)\"/ims", $line, $arr2)) {
                         $href = $arr2[1];
-                        if(preg_match("/\">(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
+                        if    (preg_match("/\">(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
                         elseif(preg_match("/\" >(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
-                        else exit("\nInvestigate 2 cannot get link_txt\n");
+                        elseif(preg_match("/>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
+                        else exit("\nInvestigate 2 cannot get link_txt:\n[$line]\n");
                     }
                     elseif(preg_match("/".$prop."=java(.*?)>/ims", $line, $arr2)) {
                         $href = "xxx";

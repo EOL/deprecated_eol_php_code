@@ -22,6 +22,9 @@ $str = file_get_contents(CONTENT_RESOURCE_LOCAL_PATH."test.txt");
 // $str = "<a href=javascript:openNewWindow('http://content.lib.utah.edu/w/d.php?d')>Hear Northern Cricket Frog calls at the Western Sound Archive.</a>";
 
 $str = "<a target=_blank href=https://doi.org/10.1371/journal.pone.0151781>Senevirathne et al. (2016)</a> ";
+$str = 'Amphitrite rosea Sowerby, 1806, <a href="http://biodiversitylibrary.org/page/28913955" >original plate at BHL</a>	';
+$str = "<a href='http://www.fishbase.org/Summary/SpeciesSummary.cfm?Genusname=Albula&speciesname=glossodonta' target=_fishbase>FishBase</a>";
+
 $new = RemoveHTMLTagsAPI::remove_html_tags($str);
 echo "\norig: [$str]\n";
 echo "\nnew: [$new]\n";
