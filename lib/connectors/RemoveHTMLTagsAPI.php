@@ -35,7 +35,7 @@ class RemoveHTMLTagsAPI
     }
     private static function remove_img_tags($str)
     {
-        if(preg_match_all("/<img (.*?)>/ims", $str, $arr)) { print_r($arr[1]); //exit("\nstop muna...\n");
+        if(preg_match_all("/<img (.*?)>/ims", $str, $arr)) { //print_r($arr[1]); //exit("\nstop muna...\n");
             /*Array(
                 [0] => class="class ko" src="https://mydomain.com/eli.jpg" style="..."
             )*/
@@ -59,7 +59,7 @@ class RemoveHTMLTagsAPI
     {
         $tag = $in['tag_name']; $prop = $in['prop_name'];
         // step 1: replace <a> tags
-        if(preg_match_all("/<".$tag." (.*?)<\/".$tag.">/ims", $str, $arr)) { print_r($arr[1]); //exit("\nstop muna...\n");
+        if(preg_match_all("/<".$tag." (.*?)<\/".$tag.">/ims", $str, $arr)) { //print_r($arr[1]); //exit("\nstop muna...\n");
             /*Array(
                 [0] => href='http://eol.org/page/173'>jumps over
             )
@@ -84,10 +84,26 @@ class RemoveHTMLTagsAPI
                         elseif(preg_match("/>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
                         else exit("\nInvestigate 2 cannot get link_txt:\n[$line]\n");
                     }
-                    elseif(preg_match("/".$prop."=java(.*?)>/ims", $line, $arr2)) {
-                        $href = "xxx";
-                        if(preg_match("/\>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
+                    // elseif(preg_match("/".$prop."=java(.*?)>/ims", $line, $arr2)) {
+                    //     $href = "xxx";
+                    //     if(preg_match("/\>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
+                    // }
+                    
+                    /* "<a href=javascript:openNewWindow('http://fishbase.org')>FishBase</a>" */
+                    elseif(preg_match("/".$prop."=javascript:openNewWindow\(\'(.*?)\'\)/ims", $line, $arr2)) {
+                        $href = $arr2[1];
+                        if(preg_match("/\'\)>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
+                        else exit("\nInvestigate 2 cannot get link_txt:\n[$line]\n");
+
                     }
+                    /* '<a href=javascript:openNewWindow("http://fishbase.org")>FishBase</a>' */
+                    elseif(preg_match("/".$prop."=javascript:openNewWindow\(\"(.*?)\"\)/ims", $line, $arr2)) {
+                        $href = $arr2[1];
+                        if(preg_match("/\"\)>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
+                        else exit("\nInvestigate 2 cannot get link_txt:\n[$line]\n");
+
+                    }
+
                     else continue;
                     $href = trim($href);
                     $link_txt = trim($link_txt);
@@ -118,12 +134,15 @@ class RemoveHTMLTagsAPI
             else                   $target = "($link_txt)";         // e.g. <a href="https://eol.org/page/173" >https://eol.org/page/173</a>
         }
         // /* special
+        if(strtolower(substr($href,0,4)) != 'http') $href = "xxx"; //e.g. <a href='elicha'>http://zoologi.snm.ku.dk</a>
         if($href == "xxx") $target = $link_txt;
         // */
 
         $line = "<$tag $line</$tag>";
-        echo "\nline: [$line]";
-        echo "\ntarget: [$target]\n";
+        if($GLOBALS['ENV_DEBUG']) {
+            echo "\nline: [$line]";
+            echo "\ntarget: [$target]\n";    
+        }
         $str = str_replace($line, $target, $str);
         return $str;
     }
