@@ -23,7 +23,7 @@ $str = file_get_contents(CONTENT_RESOURCE_LOCAL_PATH."test.txt");
 
 $str = '<a href=javascript:openNewWindow("http://fishbase.org")>FishBase</a>';
 $str = '<a href=javascript:openNewWindow("fishbase.org")>FishBase</a>';
-
+$str = "<a href=javascript:openNewWindow('https://sites.google.com/view/debanlab/movies');>here.</a>";
 
 $new = RemoveHTMLTagsAPI::remove_html_tags($str);
 echo "\norig: [$str]\n";

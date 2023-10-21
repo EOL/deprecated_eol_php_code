@@ -90,16 +90,18 @@ class RemoveHTMLTagsAPI
                     // }
                     
                     /* "<a href=javascript:openNewWindow('http://fishbase.org')>FishBase</a>" */
+                    /* [href=javascript:openNewWindow('https://sites.google.com/view/debanlab/movies');>here.] */
                     elseif(preg_match("/".$prop."=javascript:openNewWindow\(\'(.*?)\'\)/ims", $line, $arr2)) {
                         $href = $arr2[1];
                         if(preg_match("/\'\)>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
-                        else exit("\nInvestigate 2 cannot get link_txt:\n[$line]\n");
+                        if(preg_match("/>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
+                        else exit("\nInvestigate 3 cannot get link_txt:\n[$line]\n");
                     }
                     /* '<a href=javascript:openNewWindow("http://fishbase.org")>FishBase</a>' */
                     elseif(preg_match("/".$prop."=javascript:openNewWindow\(\"(.*?)\"\)/ims", $line, $arr2)) {
                         $href = $arr2[1];
                         if(preg_match("/\"\)>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
-                        else exit("\nInvestigate 2 cannot get link_txt:\n[$line]\n");
+                        else exit("\nInvestigate 4 cannot get link_txt:\n[$line]\n");
                     }
 
                     else continue;

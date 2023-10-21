@@ -26,6 +26,10 @@ $arr[] = '<a href=javascript:openNewWindow("http://fishbase.org")>FishBase</a>';
 $arr[] = '<a href=javascript:openNewWindow("fishbase.org")>FishBase</a>';
 $str = file_get_contents(CONTENT_RESOURCE_LOCAL_PATH."test.txt");
 $arr[] = $str;
+
+$str = "<a href=javascript:openNewWindow('https://sites.google.com/view/debanlab/movies');>here.</a>";
+$arr[] = $str;
+
 // print_r($arr); exit;
 $i = -1;
 foreach($arr as $str) { $i++;
@@ -33,23 +37,25 @@ foreach($arr as $str) { $i++;
     // echo "\n $i. orig: [$str]\n";
     // echo "\n $i. x new: [$new]\n";
 
-    if($i == 0) if($new == "the quick brown fox (http://eol.org/page/173). Bold text. (image, https://mydomain.com/eli.jpg) My picture in Manila.") echo "\n$i OK";  else errorx($i);
-    if($i == 1) if($new == "the quick brown fox (http://eol.org/page/173). Bold text. (image, https://mydomain.com/eli.jpg) My picture in Manila.") echo "\n$i OK";  else errorx($i); 
-    if($i == 2) if($new == "Fortin, Masson et Cie, Paris. link to Plates (https://biodiversitylibrary.org/page/37029493).") echo "\n$i OK";  else errorx($i);   
-    if($i == 3) if($new == "Michel, A. 1909 espèce (Syllis cirropunctata, n.sp.) Syllis amica Qfg") echo "\n$i OK";  else errorx($i);   
-    if($i == 4) if($new == 'Linnaeus (1787: 202 vol 3 of "Amoenitates academicae") (https://biodiversitylibrary.org/page/55937709) on Noctiluca') echo "\n$i OK";  else errorx($i);   
-    if($i == 5) if($new == "Hear Northern Cricket Frog calls at the Western Sound Archive (http://content.lib.utah.edu/w/d.php?d).") echo "\n$i OK";  else errorx($i);      
-    if($i == 6) if($new == "Senevirathne et al. (2016)") echo "\n$i OK";  else errorx($i);
-    if($i == 7) if($new == "Amphitrite rosea Sowerby, 1806, original plate at BHL (http://biodiversitylibrary.org/page/28913955)") echo "\n$i OK";  else errorx($i);
-    if($i == 8) if($new == "FishBase (http://www.fishbase.org/Summary/SpeciesSummary.cfm?Genusname=Albula&speciesname=glossodonta)") echo "\n$i OK";  else errorx($i);
-    if($i == 9) if($new == "Personal communication, available as .pdf file from http://zoologi.snm.ku.dk (english/staff/schiøtz/list of publications).") echo "\n$i OK";  else errorx($i);
-    if($i == 10) if($new == "Personal communication, available as .pdf file from http://zoologi.snm.ku.dk (english).") echo "\n$i OK";  else errorx($i);
-    if($i == 11) if($new == "Personal communication, available as .pdf file from http://zoologi.snm.ku.dk (english).") echo "\n$i OK";  else errorx($i);
-    if($i == 12) if($new == "FishBase (http://fishbase.org)") echo "\n$i OK";  else errorx($i);
-    if($i == 13) if($new == "FishBase") echo "\n$i OK";  else errorx($i);
-    if($i == 14) if($new == "FishBase (http://fishbase.org)") echo "\n$i OK";  else errorx($i);   
-    if($i == 15) if($new == "FishBase") echo "\n$i OK";  else errorx($i);
-    if($i == 16) if($new == "Annélides règne l'histoire. Paris. Plates (https://biodiversitylibrary.org). (Stebbins 2003).(image, http://amp.org/s.gif) hyperlink (http://content.edu).") echo "\n$i OK";  else errorx($i);
+    if    ($i == 0) if($new == "the quick brown fox (http://eol.org/page/173). Bold text. (image, https://mydomain.com/eli.jpg) My picture in Manila.") echo "\n$i OK";  else errorx($i);
+    elseif($i == 1) if($new == "the quick brown fox (http://eol.org/page/173). Bold text. (image, https://mydomain.com/eli.jpg) My picture in Manila.") echo "\n$i OK";  else errorx($i); 
+    elseif($i == 2) if($new == "Fortin, Masson et Cie, Paris. link to Plates (https://biodiversitylibrary.org/page/37029493).") echo "\n$i OK";  else errorx($i);   
+    elseif($i == 3) if($new == "Michel, A. 1909 espèce (Syllis cirropunctata, n.sp.) Syllis amica Qfg") echo "\n$i OK";  else errorx($i);   
+    elseif($i == 4) if($new == 'Linnaeus (1787: 202 vol 3 of "Amoenitates academicae") (https://biodiversitylibrary.org/page/55937709) on Noctiluca') echo "\n$i OK";  else errorx($i);   
+    elseif($i == 5) if($new == "Hear Northern Cricket Frog calls at the Western Sound Archive (http://content.lib.utah.edu/w/d.php?d).") echo "\n$i OK";  else errorx($i);      
+    elseif($i == 6) if($new == "Senevirathne et al. (2016)") echo "\n$i OK";  else errorx($i);
+    elseif($i == 7) if($new == "Amphitrite rosea Sowerby, 1806, original plate at BHL (http://biodiversitylibrary.org/page/28913955)") echo "\n$i OK";  else errorx($i);
+    elseif($i == 8) if($new == "FishBase (http://www.fishbase.org/Summary/SpeciesSummary.cfm?Genusname=Albula&speciesname=glossodonta)") echo "\n$i OK";  else errorx($i);
+    elseif($i == 9) if($new == "Personal communication, available as .pdf file from http://zoologi.snm.ku.dk (english/staff/schiøtz/list of publications).") echo "\n$i OK";  else errorx($i);
+    elseif($i == 10) if($new == "Personal communication, available as .pdf file from http://zoologi.snm.ku.dk (english).") echo "\n$i OK";  else errorx($i);
+    elseif($i == 11) if($new == "Personal communication, available as .pdf file from http://zoologi.snm.ku.dk (english).") echo "\n$i OK";  else errorx($i);
+    elseif($i == 12) if($new == "FishBase (http://fishbase.org)") echo "\n$i OK";  else errorx($i);
+    elseif($i == 13) if($new == "FishBase") echo "\n$i OK";  else errorx($i);
+    elseif($i == 14) if($new == "FishBase (http://fishbase.org)") echo "\n$i OK";  else errorx($i);   
+    elseif($i == 15) if($new == "FishBase") echo "\n$i OK";  else errorx($i);
+    elseif($i == 16) if($new == "Annélides règne l'histoire. Paris. Plates (https://biodiversitylibrary.org). (Stebbins 2003).(image, http://amp.org/s.gif) hyperlink (http://content.edu).") echo "\n$i OK";  else errorx($i);
+    elseif($i == 17) if($new == "here (https://sites.google.com/view/debanlab/movies).") echo "\n$i OK";  else errorx($i);
+    else echo "\nERROR: $i - not initialized.\n";
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;
