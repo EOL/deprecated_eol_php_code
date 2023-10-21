@@ -94,7 +94,6 @@ class RemoveHTMLTagsAPI
                         $href = $arr2[1];
                         if(preg_match("/\'\)>(.*?)elicha/ims", $line."elicha", $arr3)) $link_txt = $arr3[1];
                         else exit("\nInvestigate 2 cannot get link_txt:\n[$line]\n");
-
                     }
                     /* '<a href=javascript:openNewWindow("http://fishbase.org")>FishBase</a>' */
                     elseif(preg_match("/".$prop."=javascript:openNewWindow\(\"(.*?)\"\)/ims", $line, $arr2)) {
