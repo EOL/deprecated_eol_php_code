@@ -1,6 +1,11 @@
 <?php
 namespace php_active_record;
 /*
+https://eol-jira.bibalex.org/browse/DATA-1767   WoRMS text objects- attribution data?
+https://eol-jira.bibalex.org/browse/DATA-1827   updated WoRMS resource- traits have been added
+https://eol-jira.bibalex.org/browse/DATA-1870   textmined habitat for additional resources
+https://eol-jira.bibalex.org/browse/TRAM-520    Fresh copy of WoRMS DwCA
+
 WORMS archive
 Now partner provides/hosts a DWC-A file. Connector also converts Distribution text into structured data.
 estimated execution time: 30 mins, excluding download time of the archive file from partner's server
