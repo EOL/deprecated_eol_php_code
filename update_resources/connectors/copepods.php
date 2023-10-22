@@ -11,6 +11,7 @@ copepods	Thursday 2019-07-11 08:30:46 AM	{"measurement_or_fact_specific.tab":213
 // return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MarineCopepodsAPI');
+require_library('connectors/RemoveHTMLTagsAPI');
 $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 

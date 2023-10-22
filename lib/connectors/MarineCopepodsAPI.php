@@ -434,7 +434,7 @@ class MarineCopepodsAPI
         if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
         if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
         if($val = @$rec['measurementAccuracy'])   $m->measurementAccuracy = $val;
-        if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
+        if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = RemoveHTMLTagsAPI::remove_html_tags($val);
         
         /* Adjustment Jul 11, 2019 */ //based here: https://eol-jira.bibalex.org/browse/DATA-1734?focusedCommentId=63397&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63397
         if($m->measurementType == 'http://purl.obolibrary.org/obo/CMO_0000013') $m->lifeStage = 'http://www.ebi.ac.uk/efo/EFO_0001272';
@@ -469,7 +469,7 @@ class MarineCopepodsAPI
             if($fullref = self::get_fullreference_by_refno($refno)) {
                 $fullref = implode(". - ", $fullref);
                 $r = new \eol_schema\Reference();
-                $r->full_reference = $fullref;
+                $r->full_reference = RemoveHTMLTagsAPI::remove_html_tags($fullref);
                 $r->identifier = $refno;
                 // $r->uri = '';
                 $refids[] = $refno;
