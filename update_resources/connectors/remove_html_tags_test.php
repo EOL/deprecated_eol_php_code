@@ -36,6 +36,11 @@ foreach($arr as $str) { $i++;
     $new = RemoveHTMLTagsAPI::remove_html_tags($str);
     // echo "\n $i. orig: [$str]\n";
     // echo "\n $i. x new: [$new]\n";
+    
+    /* Running it several times... */
+    $new = RemoveHTMLTagsAPI::remove_html_tags($new);
+    $new = RemoveHTMLTagsAPI::remove_html_tags($new);
+    $new = RemoveHTMLTagsAPI::remove_html_tags($new);
 
     if    ($i == 0) if($new == "the quick brown fox (http://eol.org/page/173). Bold text. (image, https://mydomain.com/eli.jpg) My picture in Manila.") echo "\n$i OK";  else errorx($i);
     elseif($i == 1) if($new == "the quick brown fox (http://eol.org/page/173). Bold text. (image, https://mydomain.com/eli.jpg) My picture in Manila.") echo "\n$i OK";  else errorx($i); 

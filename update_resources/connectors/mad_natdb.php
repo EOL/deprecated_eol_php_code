@@ -49,6 +49,7 @@ php5.6 resource_utility.php jenkins '{"resource_id": "natdb_meta_recoded", "task
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MADtoolNatDBAPI');
+require_library('connectors/RemoveHTMLTagsAPI');
 $timestart = time_elapsed();
 
 /*

@@ -25,6 +25,12 @@ class TraitGeneric
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
         $this->is_long_type = $is_long_type;
+
+        if(method_exists('RemoveHTMLTagsAPI','remove_html_tags')) echo "\nRemove lib already set.\n";
+        else {
+            echo "\nRemove lib not yet set.\n";
+            require_library('connectors/RemoveHTMLTagsAPI');
+        }
     }
     public function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
@@ -79,7 +85,7 @@ class TraitGeneric
         if($val = @$rec['measurementUnit'])         $m->measurementUnit = $val;
         if($val = @$rec['measurementMethod'])       $m->measurementMethod = $val;
         if($val = @$rec['statisticalMethod'])       $m->statisticalMethod = $val;
-        if($val = @$rec['measurementRemarks'])      $m->measurementRemarks = $val;
+        if($val = @$rec['measurementRemarks'])      $m->measurementRemarks = RemoveHTMLTagsAPI::remove_html_tags($val);
         if($val = @$rec['parentMeasurementID'])     $m->parentMeasurementID = $val;
 
         if($measurementOfTaxon == "true") {
@@ -88,7 +94,7 @@ class TraitGeneric
             if($val = @$rec['source'])                  $m->source = $val;
             if($val = @$rec['associationID'])           $m->associationID = $val;
             if($val = @$rec['measurementAccuracy'])     $m->measurementAccuracy = $val;
-            if($val = @$rec['bibliographicCitation'])   $m->bibliographicCitation = $val;
+            if($val = @$rec['bibliographicCitation'])   $m->bibliographicCitation = RemoveHTMLTagsAPI::remove_html_tags($val);
             if($val = @$rec['contributor'])             $m->contributor = $val;
             if($val = @$rec['referenceID'])             $m->referenceID = $val;
         }
@@ -149,10 +155,10 @@ class TraitGeneric
         if($val = @$rec['occur']['reproductiveCondition']) $o->reproductiveCondition = $val;
         if($val = @$rec['occur']['behavior'])            $o->behavior = $val;
         if($val = @$rec['occur']['establishmentMeans'])  $o->establishmentMeans = $val;
-        if($val = @$rec['occur']['occurrenceRemarks'])   $o->occurrenceRemarks = $val;
+        if($val = @$rec['occur']['occurrenceRemarks'])   $o->occurrenceRemarks = RemoveHTMLTagsAPI::remove_html_tags($val);
         if($val = @$rec['occur']['individualCount'])     $o->individualCount = $val;
         if($val = @$rec['occur']['preparations'])        $o->preparations = $val;
-        if($val = @$rec['occur']['fieldNotes'])          $o->fieldNotes = $val;
+        if($val = @$rec['occur']['fieldNotes'])          $o->fieldNotes = RemoveHTMLTagsAPI::remove_html_tags($val);
         if($val = @$rec['occur']['samplingProtocol'])    $o->samplingProtocol = $val;
         if($val = @$rec['occur']['samplingEffort'])      $o->samplingEffort = $val;
         if($val = @$rec['occur']['recordedBy'])          $o->recordedBy = $val;
@@ -160,7 +166,7 @@ class TraitGeneric
         if($val = @$rec['occur']['dateIdentified'])      $o->dateIdentified = $val;
         if($val = @$rec['occur']['eventDate'])           $o->eventDate = $val;
         if($val = @$rec['occur']['modified'])            $o->modified = $val;
-        if($val = @$rec['occur']['locality'])            $o->locality = $val;
+        if($val = @$rec['occur']['locality'])            $o->locality = RemoveHTMLTagsAPI::remove_html_tags($val);
         if($val = @$rec['occur']['decimalLatitude'])     $o->decimalLatitude = $val;
         if($val = @$rec['occur']['decimalLongitude'])    $o->decimalLongitude = $val;
         if($val = @$rec['occur']['verbatimLatitude'])    $o->verbatimLatitude = $val;

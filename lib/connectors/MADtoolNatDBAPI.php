@@ -830,12 +830,12 @@ class MADtoolNatDBAPI
             if($ref_id = @$ref['author_year']) {
                 $r = new \eol_schema\Reference();
                 $r->identifier = $ref_id;
-                $r->full_reference = $ref['full_ref'];
+                $r->full_reference = RemoveHTMLTagsAPI::remove_html_tags($ref['full_ref']);
                 $r->uri = $ref['URL.to.paper'];
                 $r->doi = $ref['DOI'];
-                $r->publisher = $ref['Publisher'];
-                $r->title = $ref['Title'];
-                $r->authorList = $ref['Author'];
+                $r->publisher = RemoveHTMLTagsAPI::remove_html_tags($ref['Publisher']);
+                $r->title = RemoveHTMLTagsAPI::remove_html_tags($ref['Title']);
+                $r->authorList = RemoveHTMLTagsAPI::remove_html_tags($ref['Author']);
                 if(!isset($this->reference_ids[$ref_id])) {
                     $this->reference_ids[$ref_id] = '';
                     $this->archive_builder->write_object_to_file($r);
