@@ -509,7 +509,7 @@ http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution: 44
 ===================================================================================================================== Pensoft journals END
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-$GLOBALS['ENV_DEBUG'] = true;
+$GLOBALS['ENV_DEBUG'] = false; //true;
 ini_set('memory_limit','8096M'); //required
 
 $timestart = time_elapsed();
