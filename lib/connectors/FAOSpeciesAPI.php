@@ -180,9 +180,9 @@ class FAOSpeciesAPI
         // $mr->title          = $o['dc_title'];
         $mr->UsageTerms     = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
         // $mr->audience       = 'Everyone';
-        $mr->description    = $txt;
+        $mr->description    = RemoveHTMLTagsAPI::remove_html_tags($txt);
         // $mr->LocationCreated = $o['location'];
-        $mr->bibliographicCitation = $rec['biblio'];
+        $mr->bibliographicCitation = RemoveHTMLTagsAPI::remove_html_tags($rec['biblio']);
         if($reference_ids = self::create_references($rec))  $mr->referenceID = implode("; ", $reference_ids);
         if($agent_ids     = self::create_agents())          $mr->agentID     = implode("; ", $agent_ids);
         if(!isset($this->object_ids[$mr->identifier])) {
@@ -211,7 +211,7 @@ class FAOSpeciesAPI
         $reference_ids = array();
         foreach($refs as $ref) {
             $r = new \eol_schema\Reference();
-            $r->full_reference = $ref;
+            $r->full_reference = RemoveHTMLTagsAPI::remove_html_tags($ref);
             $r->identifier = md5($r->full_reference);
             // $r->uri = '';
             $reference_ids[] = $r->identifier;
