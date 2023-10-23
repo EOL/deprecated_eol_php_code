@@ -237,7 +237,7 @@ ls -lt WoRMS.tar.gz
 rm -f 26_MoF_normalized.tar.gz
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-$GLOBALS['ENV_DEBUG'] = false; //true;
+// $GLOBALS['ENV_DEBUG'] = false; //true;
 
 // $a['eli'] = '222';
 // // $a[201306015586596728] = "http://purl.jp/bio/4/id/201306015586596728";
