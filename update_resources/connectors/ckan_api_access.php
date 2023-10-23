@@ -17,6 +17,11 @@ php update_resources/connectors/ckan_api_access.php _ "09844d24-5880-41aa-a031-b
 IMPORTANT: ALWAYS "chmod 775 ckan_api_access.php" AFTER UPDATE EOL-ARCHIVE
                   "chmod 775 CKAN_API_AccessAPI.php" AFTER UPDATE EOL-ARCHIVE
                   "chmod 775 resource_refresh_sched.php" AFTER UPDATE EOL-ARCHIVE
+
+                  
+
+WoRMS - will work only if you set the CKAN resource to public. Then just toggle it back to private after update.
+php update_resources/connectors/ckan_api_access.php _ "a74bcc92-d2a2-4a7b-b18f-b5fd2e3a5b5c"                  
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
