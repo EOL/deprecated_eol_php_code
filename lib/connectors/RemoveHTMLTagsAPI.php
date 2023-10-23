@@ -6,11 +6,12 @@ class RemoveHTMLTagsAPI
 {
     function __construct($folder = null)
     {
-        $this->debug_YN = false;
     }
 
     public static function remove_html_tags($str)
-    {
+    {   
+        $GLOBALS['debug_YN'] = false;
+
         $orig_str = $str;
         $str = Functions::remove_whitespace($str);
         $str = strip_tags($str, "<a><img>");
@@ -120,7 +121,7 @@ class RemoveHTMLTagsAPI
     }
     private static function remove_anchor_tags($href, $link_txt, $str, $line, $tag)
     {   /* [http://eol.org/page/173] [jumps over] */
-        if($this->debug_YN) {
+        if($GLOBALS['debug_YN']) {
             echo "\nline: [$line]\n";
             echo "\n[$href][$link_txt]\n";    
         }
@@ -142,7 +143,7 @@ class RemoveHTMLTagsAPI
         // */
 
         $line = "<$tag $line</$tag>";
-        if($this->debug_YN) {
+        if($GLOBALS['debug_YN']) {
             echo "\nline: [$line]";
             echo "\ntarget: [$target]\n";    
         }
