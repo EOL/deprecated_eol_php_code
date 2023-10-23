@@ -8,8 +8,8 @@ fao_species	Sunday 2019-02-03 08:48:02 PM	{"agent.tab":1,"media_resource.tab":24
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
-exit("\nIt seems an obsolete connector. Last refreshed was 25Feb2019 [orig DwCA: fao_species.tar.gz].\n
-Legacy DwCA saved as [fao_species_25Feb2019.tar.gz].\n
+exit("\nIt seems an obsolete connector. Last refreshed was 24Feb2019 [orig DwCA: fao_species.tar.gz].\n
+Legacy DwCA saved as [fao_species_24Feb2019.tar.gz].\n
 Source service from partner no longer accessible.\n\n
 The legacy DwCA was then adjusted to remove HTML tags.\n
 Final DwCA to date as of Oct 23, 2023 is: [fao_species-adjusted.tar.gz]. \n
