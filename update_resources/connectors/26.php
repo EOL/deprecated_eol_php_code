@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
 /*
+http://content.eol.org/resources/533
 https://eol-jira.bibalex.org/browse/DATA-1767   WoRMS text objects- attribution data?
 https://eol-jira.bibalex.org/browse/DATA-1827   updated WoRMS resource- traits have been added
 https://eol-jira.bibalex.org/browse/DATA-1870   textmined habitat for additional resources
