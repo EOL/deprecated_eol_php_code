@@ -13,8 +13,9 @@ class FAOSpeciesAPI
             'expire_seconds'     => false,
             'download_wait_time' => 500000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->debug = array();
-        $this->species_list = "http://www.fao.org/figis/ws/factsheets/domain/species/";
-        $this->factsheet_page = "http://www.fao.org/fishery/species/the_id/en";
+        $this->species_list    = "http://www.fao.org/figis/ws/factsheets/domain/species/"; //obsolete
+        $this->species_list_v2 = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FAO_species_catalog/www.fao.org/fishery/FAO_species_list_from_EOL.tab";
+        $this->factsheet_page  = "http://www.fao.org/fishery/species/the_id/en";
         // $this->local_species_page = "http://localhost/cp_new/FAO_species_catalog/www.fao.org/fishery/species/the_id/en.html";
         $this->local_species_page = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FAO_species_catalog/www.fao.org/fishery/species/the_id/en.html";
     }
@@ -25,11 +26,14 @@ class FAOSpeciesAPI
         $func = new FetchRemoteData();
         $this->country_codes = $func->get_country_codes();
         // print_r($this->country_codes); exit;
+        echo "\nCountry codes: ".count($this->country_codes)."\n";
     }
     function start()
     {
         self::initialize();
-        $ids = self::get_ids(); echo "\n".count($ids)."\n";
+        // $ids = self::get_ids(); obsolete
+        $ids = self::get_ids_from_EOL_taxon_tab();
+        echo "\nIDs:".count($ids)."\n";
         $i = 0;
         foreach($ids as $id) {
             $i++;
@@ -54,6 +58,35 @@ class FAOSpeciesAPI
         $this->debug = array();
         foreach($items as $c) $this->debug['country for common names that need language code'][$c] = '';
         Functions::start_print_debug($this->debug, $this->resource_id."_b");
+    }
+    private function get_ids_from_EOL_taxon_tab()
+    {
+        $local = Functions::save_remote_file_to_local($this->species_list_v2, $this->download_options);
+        $i = 0;
+        foreach(new FileIterator($local) as $line_number => $line) {
+            $line = explode("\t", $line); $i++;
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = -1;
+                foreach($fields as $fld) { $k++;
+                    $rec[$fld] = $line[$k];
+                }
+                $rec = array_map('trim', $rec);
+                // print_r($rec); exit;
+                /* Array(
+                    [taxonID] => 1070700101
+                    [furtherInformationURL] => http://www.fao.org/fishery/species/11432/en
+                    [scientificName] => Cirrhoscyllium expolitum (Smith &amp; Radcliffe, 1913)
+                    [taxonRank] => species
+                )*/
+                if(preg_match("/\/species\/(.*?)\//ims", $rec['furtherInformationURL'], $arr)) $final[$arr[1]] = '';
+
+            }
+        }
+        unlink($local);
+        // print_r($final); exit;
+        return array_keys($final);
     }
     private function create_archive($rec)
     {
@@ -182,7 +215,7 @@ class FAOSpeciesAPI
         // $mr->audience       = 'Everyone';
         $mr->description    = RemoveHTMLTagsAPI::remove_html_tags($txt);
         // $mr->LocationCreated = $o['location'];
-        $mr->bibliographicCitation = RemoveHTMLTagsAPI::remove_html_tags($rec['biblio']);
+        $mr->bibliographicCitation = strip_tags($rec['biblio']);
         if($reference_ids = self::create_references($rec))  $mr->referenceID = implode("; ", $reference_ids);
         if($agent_ids     = self::create_agents())          $mr->agentID     = implode("; ", $agent_ids);
         if(!isset($this->object_ids[$mr->identifier])) {
