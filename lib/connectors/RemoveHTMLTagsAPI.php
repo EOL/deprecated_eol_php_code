@@ -6,6 +6,7 @@ class RemoveHTMLTagsAPI
 {
     function __construct($folder = null)
     {
+        exit("\nDoes not go here... [__construct]\n");
     }
 
     public static function remove_html_tags($str)

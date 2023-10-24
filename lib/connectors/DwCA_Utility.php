@@ -884,7 +884,10 @@ class DwCA_Utility
                 $c->$field = $rec[$key];
 
                 // /* new: Oct 19, 2023
-                if(in_array($field, array("full_reference", "primaryTitle", "title", "doi", "localityName", "description", "bibliographicCitation", "rights", "title", "namePublishedIn"))) $c->$field = RemoveHTMLTagsAPI::remove_html_tags($c->$field);
+                if(in_array($field, array("full_reference", "primaryTitle", "title", "doi", "localityName", "description", "bibliographicCitation", "rights", "title", "namePublishedIn"))) {
+                    if(in_array($this->resource_id, array("some_resource_id"))) $c->$field = strip_tags($c->$field);
+                    else                                                        $c->$field = RemoveHTMLTagsAPI::remove_html_tags($c->$field);
+                }
                 // */
                 
                 // /* ----------------- customized: start to remove specific fields here -----------------
