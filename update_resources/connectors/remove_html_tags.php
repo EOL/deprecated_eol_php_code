@@ -25,6 +25,9 @@ $str = file_get_contents(CONTENT_RESOURCE_LOCAL_PATH."test.txt");
 $str = '<a href=javascript:openNewWindow("http://fishbase.org")>FishBase</a>';
 $str = '<a href=javascript:openNewWindow("fishbase.org")>FishBase</a>';
 $str = "<a href=javascript:openNewWindow('https://sites.google.com/view/debanlab/movies');>here.</a>";
+$str = '<a href="http://www.fao.org/fi/eims_search/advanced_s_result.asp?JOB_NO=T0725" target="_blank">Marine mammals of the world. </a>Jefferson, T.A., S. Leatherwood &amp; M.A. Webber - 1993. FAO species identification guide. Rome, FAO. 320 p. 587 figs. .&nbsp;';
+
+
 
 $new = RemoveHTMLTagsAPI::remove_html_tags($str);
 echo "\norig: [$str]\n";

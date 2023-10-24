@@ -11,6 +11,7 @@ class RemoveHTMLTagsAPI
     public static function remove_html_tags($str)
     {   
         $GLOBALS['debug_YN'] = false;
+        // $GLOBALS['debug_YN'] = true;
 
         $orig_str = $str;
         $str = Functions::remove_whitespace($str);
@@ -132,6 +133,7 @@ class RemoveHTMLTagsAPI
             $link_txt = substr($link_txt,0,strlen($link_txt)-1);
             if($link_txt != $href)  $target = "$link_txt ($href)$last_char";    //regular assumption
             else                    $target =  "($link_txt)".$last_char;        // e.g. <a href="https://eol.org/page/173" >https://eol.org/page/173;</a>
+            $target .= " ";
         }
         else { //the rest goes here...
             if($link_txt != $href) $target = "$link_txt ($href)";   //regular assumption
@@ -148,6 +150,7 @@ class RemoveHTMLTagsAPI
             echo "\ntarget: [$target]\n";    
         }
         $str = str_replace($line, $target, $str);
+        $str = Functions::remove_whitespace($str);
         return $str;
     }
     private static function is_a_letter($char)
