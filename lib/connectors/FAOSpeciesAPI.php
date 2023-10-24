@@ -206,7 +206,12 @@ class FAOSpeciesAPI
         $mr->type           = 'http://purl.org/dc/dcmitype/Text';
         $mr->language       = 'en';
         $mr->format         = 'text/html';
-        $mr->furtherInformationURL = $rec['furtherInformationURL'];
+
+        // /* per Jen: Oct 24, 2023
+        $mr->furtherInformationURL = "https://www.fao.org/fishery/en/topic/18073"; //Jen's suggestion makes sense.
+        //we used this before $rec['furtherInformationURL']; e.g. "http://www.fao.org/fishery/species/18206/en"
+        // */
+
         $mr->CVterm         = $subject;
         // $mr->Owner          = '';
         // $mr->rights         = $o['dc_rights'];
