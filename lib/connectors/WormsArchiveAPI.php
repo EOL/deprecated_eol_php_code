@@ -1346,7 +1346,11 @@ class WormsArchiveAPI extends ContributorsMapAPI
             $mr->rights         = RemoveHTMLTagsAPI::remove_html_tags((string) $rec["http://purl.org/dc/terms/rights"]);
             $mr->UsageTerms     = (string) $rec["http://ns.adobe.com/xap/1.0/rights/UsageTerms"];
             $mr->description    = RemoveHTMLTagsAPI::remove_html_tags((string) $rec["http://purl.org/dc/terms/description"]);
-            if(!$mr->description) continue;
+
+            if($mr->format == "text/html") {
+                if(!$mr->description) continue;
+            }
+            
             /* removed bibCite Oct 18, 2023
             $mr->bibliographicCitation = (string) $rec["http://purl.org/dc/terms/bibliographicCitation"];
             */
