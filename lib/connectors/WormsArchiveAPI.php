@@ -139,7 +139,18 @@ class WormsArchiveAPI extends ContributorsMapAPI
         $ret = $this->format_remove_middle_initial("de Voogd, Nicole J."); exit("\nfinal = [$ret]\n");
         */
         // /* New: Jun 7, 2021 - get contributor mapping list: http://www.marinespecies.org/imis.php?module=person&show=search
-        $this->contributor_id_name_info = $this->get_WoRMS_contributor_id_name_info(); //print_r($this->contributor_id_name_info); exit;
+        $this->contributor_id_name_info = $this->get_WoRMS_contributor_id_name_info(); //print_r($this->contributor_id_name_info); exit("\nstop muna...\n");
+
+        // Oct 25, 2023 - added EOL Terms file as source for URIs - works OK!
+        require_library('connectors/EOLterms_ymlAPI');
+        $func = new EOLterms_ymlAPI($this->resource_id, $this->archive_builder);
+        $ret = $func->get_terms_yml('value'); //sought_type is 'value'
+        foreach($ret as $label => $uri) {
+            // uri: https://www.marinespecies.org/imis.php?module=person&persid=31659
+            if(substr($uri,0,25) == "https://www.marinespecies") $this->contributor_id_name_info[$label] = $uri;
+        }
+        echo "\nTesting URI [Whipps, Christopher]: ".$this->contributor_id_name_info['Whipps, Christopher']."\n";
+        unset($func); unset($ret); //exit;
         // */
         
         $temp = CONTENT_RESOURCE_LOCAL_PATH . "26_files";
@@ -1350,7 +1361,7 @@ class WormsArchiveAPI extends ContributorsMapAPI
             if($mr->format == "text/html") {
                 if(!$mr->description) continue;
             }
-            
+
             /* removed bibCite Oct 18, 2023
             $mr->bibliographicCitation = (string) $rec["http://purl.org/dc/terms/bibliographicCitation"];
             */
