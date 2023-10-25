@@ -44,8 +44,9 @@ class EOLterms_ymlAPI
                         [type] => value
                         [uri] => https://www.wikidata.org/entity/Q747463
                     )*/
-                    if($sought_type == 'ALL')               $final[$rek['name']] = $rek['uri'];
-                    elseif(@$rek['type'] == $sought_type)   $final[$rek['name']] = $rek['uri'];
+                    $name = self::remove_quote_delimiters($rek['name']);
+                    if($sought_type == 'ALL')               $final[$name] = $rek['uri'];
+                    elseif(@$rek['type'] == $sought_type)   $final[$name] = $rek['uri'];
                     @$this->debug['EOL terms type'][@$rek['type']]++; //just for stats
                     /*
                     else {
@@ -64,5 +65,16 @@ class EOLterms_ymlAPI
         print_r($this->debug); //just for stats
         return $final;
     } //end get_terms_yml()
+    private function remove_quote_delimiters($str)
+    {
+        // $str = "'123456'"; // $str = '"123456"';
+        $str = trim($str); // echo("\norig: [$str]\n");
+        $first = substr($str,0,1);
+        $last = substr($str, -1); // echo("\n[$first] [$last]\n");
+        if($first == "'" && $last == "'") $str = substr($str, 1, strlen($str)-2);
+        if($first == '"' && $last == '"') $str = substr($str, 1, strlen($str)-2);
+        // exit("\nfinal: [$str]\n");
+        return $str;
+    }
 }
 ?>

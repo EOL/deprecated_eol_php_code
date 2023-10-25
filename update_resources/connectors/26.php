@@ -240,15 +240,6 @@ rm -f 26_MoF_normalized.tar.gz
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false; //true;
 
-// $a['eli'] = '222';
-// // $a[201306015586596728] = "http://purl.jp/bio/4/id/201306015586596728";
-// $b['eli'] = '2s2s2s';
-// // $b['kk'] = 'kkk';
-// // $b[2] = '333';
-// // $c = $a + $b;
-// $c = array_merge($a, $b);
-// print_r($c); exit("\n-end-\n");
-
 /* testing...
 $id = 1;
 $id = 607688;

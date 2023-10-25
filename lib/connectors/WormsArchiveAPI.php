@@ -144,13 +144,14 @@ class WormsArchiveAPI extends ContributorsMapAPI
         // Oct 25, 2023 - added EOL Terms file as source for URIs - works OK!
         require_library('connectors/EOLterms_ymlAPI');
         $func = new EOLterms_ymlAPI($this->resource_id, $this->archive_builder);
-        $ret = $func->get_terms_yml('value'); //sought_type is 'value'
-        foreach($ret as $label => $uri) {
+        $this->eol_terms = $func->get_terms_yml('value'); //sought_type is 'value'
+        foreach($this->eol_terms as $label => $uri) {
             // uri: https://www.marinespecies.org/imis.php?module=person&persid=31659
             if(substr($uri,0,25) == "https://www.marinespecies") $this->contributor_id_name_info[$label] = $uri;
         }
-        echo "\nTesting URI [Whipps, Christopher]: ".$this->contributor_id_name_info['Whipps, Christopher']."\n";
-        unset($func); unset($ret); //exit;
+        echo "\nTesting URI [Whipps, Christopher]: ".@$this->contributor_id_name_info['Whipps, Christopher']."\n";
+        echo "\nTesting URI [Wayland, Matthew]: ".@$this->contributor_id_name_info['Wayland, Matthew']."\n";
+        unset($func); //exit;
         // */
         
         $temp = CONTENT_RESOURCE_LOCAL_PATH . "26_files";
@@ -1625,7 +1626,10 @@ class WormsArchiveAPI extends ContributorsMapAPI
                     $new_val = $this->format_remove_middle_initial($val);
                     if($uri = @$this->contributor_id_name_info[$new_val])   $m->measurementDeterminedBy = $uri;
                     else {
-                        if(!isset($this->contributor_id_name_info[$val])) $this->debug['neglect uncooperative: DeterminedBy'][$val][$new_val] = '';
+
+                        if($uri = self::last_chance_to_get_contributor_uri($val, $new_val)) $m->measurementDeterminedBy = $uri;
+
+                        $this->debug['neglect uncooperative: DeterminedBy'][$val][$new_val] = '';
                         /* neglect the most uncooperative strings in any resource for contributor, compiler or determinedBy: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66158&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66158
                         $m->measurementDeterminedBy = $val;
                         */
@@ -1647,6 +1651,30 @@ class WormsArchiveAPI extends ContributorsMapAPI
 
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
+    }
+    private function last_chance_to_get_contributor_uri($val, $new_val)
+    {
+        $strings[$val] = '';
+        $strings[$new_val] = '';
+        $strings = array_keys($strings); //make it unique
+        foreach($strings as $str) {
+            if(strlen($str) >= 10) {
+                foreach($this->eol_terms as $label => $uri) {
+                    if($str == substr($label,0,strlen($str))) return $uri;
+                }
+            }
+        }
+        return false;
+        /* From EOL Terms file:
+        name: Vanhoorne, Bart, B.
+        type: value
+        uri: https://www.marinespecies.org/imis.php?module=person&persid=8162
+        */
+        // Left is from WoRMS; Right is from: EOL Terms file.
+        // Vonk, Ronald        name: Vonk, Ronald, R.
+        // van Haaren, Ton     name: van Haaren, Ton, T.
+        // Vanhoorne, Bart     name: Vanhoorne, Bart, B.
+        // Walter, T. Chad     name: Walter, T. Chad, T.C.
     }
     private function use_correct_separator($str)
     {
