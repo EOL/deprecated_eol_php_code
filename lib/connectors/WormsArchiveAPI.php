@@ -1628,8 +1628,7 @@ class WormsArchiveAPI extends ContributorsMapAPI
                     else {
 
                         if($uri = self::last_chance_to_get_contributor_uri($val, $new_val)) $m->measurementDeterminedBy = $uri;
-
-                        $this->debug['neglect uncooperative: DeterminedBy'][$val][$new_val] = '';
+                        else $this->debug['neglect uncooperative: DeterminedBy'][$val][$new_val] = '';
                         /* neglect the most uncooperative strings in any resource for contributor, compiler or determinedBy: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66158&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66158
                         $m->measurementDeterminedBy = $val;
                         */
