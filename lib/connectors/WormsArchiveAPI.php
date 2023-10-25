@@ -149,7 +149,7 @@ class WormsArchiveAPI extends ContributorsMapAPI
             // uri: https://www.marinespecies.org/imis.php?module=person&persid=31659
             if(substr($uri,0,25) == "https://www.marinespecies") $this->contributor_id_name_info[$label] = $uri;
         }
-        echo "\nTesting URI [Whipps, Christopher]: ".@$this->contributor_id_name_info['Whipps, Christopher']."\n";
+        echo "\nTesting URI [Whipps, Christopher]: ".@$this->contributor_id_name_info['Whipps, Christopher'];
         echo "\nTesting URI [Wayland, Matthew]: ".@$this->contributor_id_name_info['Wayland, Matthew']."\n";
         unset($func); //exit;
         // */
