@@ -240,6 +240,14 @@ rm -f 26_MoF_normalized.tar.gz
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false; //true;
 
+// $str = "Verleye, Thomas";
+// if(stripos($str, ",") !== false) {
+//     $parts = explode(",", $str);
+//     $parts = array_map('trim', $parts);
+//     $possible = $parts[1]." ".$parts[0];
+// }
+// exit("\n[$str]\n[$possible]\n");
+
 /* testing...
 $id = 1;
 $id = 607688;

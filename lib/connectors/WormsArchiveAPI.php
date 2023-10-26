@@ -1652,7 +1652,7 @@ class WormsArchiveAPI extends ContributorsMapAPI
         $this->archive_builder->write_object_to_file($m);
     }
     private function last_chance_to_get_contributor_uri($val, $new_val)
-    {
+    {   // 1st manual adjustment
         $strings[$val] = '';
         $strings[$new_val] = '';
         $strings = array_keys($strings); //make it unique
@@ -1663,7 +1663,6 @@ class WormsArchiveAPI extends ContributorsMapAPI
                 }
             }
         }
-        return false;
         /* From EOL Terms file:
         name: Vanhoorne, Bart, B.
         type: value
@@ -1674,6 +1673,21 @@ class WormsArchiveAPI extends ContributorsMapAPI
         // van Haaren, Ton     name: van Haaren, Ton, T.
         // Vanhoorne, Bart     name: Vanhoorne, Bart, B.
         // Walter, T. Chad     name: Walter, T. Chad, T.C.
+
+        /* 2nd manual adjustment
+        from WoRMS          : Verleye, Thomas
+        from EOL Terms file : Thomas Verleye
+        */
+        foreach($strings as $str) {
+            if(stripos($str, ",") !== false) {
+                $parts = explode(",", $str);
+                $parts = array_map('trim', $parts);
+                $possible = $parts[1]." ".$parts[0];
+                if($uri = @$this->contributor_id_name_info[$possible]) return $uri;
+            }
+        }
+
+        return false;
     }
     private function use_correct_separator($str)
     {
