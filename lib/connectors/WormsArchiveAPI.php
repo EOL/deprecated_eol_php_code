@@ -1659,7 +1659,12 @@ class WormsArchiveAPI extends ContributorsMapAPI
         foreach($strings as $str) {
             if(strlen($str) >= 10) {
                 foreach($this->eol_terms as $label => $uri) {
+                    // WoRMS: Vonk, Ronald        
+                    // EOL Terms: Vonk, Ronald, R.
                     if($str == substr($label,0,strlen($str))) return $uri;
+                    /*  WoRMS       : Saraiva De Oliveira, Jessica
+                        EOL Terms   : Saraiva de Oliveira, Jessica */
+                    if(strtolower($str) == strtolower($label)) return $uri;
                 }
             }
         }
@@ -1686,7 +1691,6 @@ class WormsArchiveAPI extends ContributorsMapAPI
                 if($uri = @$this->contributor_id_name_info[$possible]) return $uri;
             }
         }
-
         return false;
     }
     private function use_correct_separator($str)
