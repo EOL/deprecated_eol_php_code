@@ -166,9 +166,17 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             */
             $photo_record_ids = array();
             $photo_ids = array();
-            foreach($ret_photo_record_ids as $r) {
-                $photo_record_ids[] = $r['iNat_item_id'];
-                $photo_ids[] = $r['photo_id'];
+            if($val = @$ret_photo_record_ids) {
+                // echo "\n---y---\n"; print_r($arr); echo "\n---y---\n";
+                echo "\nWith photos at this point OK.\n";
+                foreach($val as $r) {
+                    $photo_record_ids[] = $r['iNat_item_id'];
+                    $photo_ids[] = $r['photo_id'];
+                }    
+            }
+            else {
+                echo "\n---x---\n"; print_r($arr); echo "\n---x---\n";
+                echo "\nNo photos at this point.\n";
             }
             
             $imploded_image_urls = '';
@@ -397,6 +405,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
                 )
         )*/
         $ret_photo_record_ids = array();
+        echo "\n---info start---\n"; print_r($info); echo "\n---info end---\n";
         foreach($info as $r) {
             /*curl --verbose \
               --header 'Authorization: YOUR_JWT' \
@@ -443,13 +452,14 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
                 https://api.inaturalist.org/v1/observation_photos";
 
             $cmd .= " 2>&1";
-            // echo "\n$cmd\n"; //good debug
+            // echo "\ncmd: [$cmd]\n"; //good debug
             
             // /*
             sleep(1);
             $shell_debug = shell_exec($cmd);
-            // echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
-            if(stripos($shell_debug, '{"error":{"original":{"error"') !== false) echo("\n<i>Has error: Invetigate build no. in Jenkins.</i>\n\n"); //string is found
+            echo "\n*---shell debug start---*\n".trim($shell_debug)."\n*---shell debug end---*\n"; //good debug
+            if(stripos($shell_debug, '{"error":{"original":{"error') !== false) echo("\n<i>Has error: Invetigate build no. in Jenkins.</i>\n\n"); //string is found
+                                 //   {"error":{"original":{"errors":"Observation hasn't been added to iNaturalist"}},"status":422}
             else {
                 $ret = self::parse_shell_debug($shell_debug);
                 if(isset($ret->error)) return false;
@@ -583,7 +593,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         // /*
         sleep(1);
         $shell_debug = shell_exec($cmd);
-        echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
+        echo "\n*---start---*\n".trim($shell_debug)."\n*---end---*\n"; //good debug
         if(stripos($shell_debug, '{"error":{"original":{"error"') !== false) echo("\n<i>Has error: Invetigate build no. in Jenkins.</i>\n\n"); //string is found
         else {
             $ret = self::parse_shell_debug($shell_debug);
@@ -625,7 +635,10 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             // print_r($arr); //debug only
             return $arr;
         }
-        else exit("\nInvestigate: iNat API result is invalid json string.\n");
+        else {
+            echo "\n------Error------\n"; echo "\n[$json]\n"; print_r($arr);
+            exit("\nInvestigate: iNat API result is invalid json string.\n");
+        }
 
     }
     private function flag_local_sys_this_item_was_saved_in_iNat($iNat_item_id, $local_item_id, $what)
@@ -683,22 +696,28 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
     {
         $options['cache_path'] = $this->path['image_folder'];
         $filename = pathinfo($url, PATHINFO_BASENAME);
+        $filename = urlencode($filename); //new
         
         // /* for bold2inat_csv
         if($this->app == 'bold2inat_csv') {
             $extension = @$rek['image_urls_ext'];
             // exit("\n[".pathinfo($url, PATHINFO_EXTENSION)."]\n");
-            if(pathinfo($url, PATHINFO_EXTENSION) == '' && $extension) $filename .= ".$extension";
+            $pathinfo_extension = pathinfo($url, PATHINFO_EXTENSION);
+            echo "\nextension: [$extension]"; echo "\npathinfo_extension: [$pathinfo_extension]\n";
+            if($pathinfo_extension == '' && $extension) $filename .= ".$extension";
         }
         // */
         
         $md5 = md5($filename);
+        echo "\nfilename is: [$filename]";
+        // echo "\nmd5 is: [$md5]\n";
+
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
         if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
         if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
         $cache_path = $options['cache_path'] . "$cache1/$cache2/$filename";
-        if(file_exists($cache_path)) {} //echo("\nFile already exists\n");
+        if(file_exists($cache_path)) echo("\nPhoto already cached to local...[$cache_path]\n");
         else {
             echo("\nSaving photo to local...[$cache_path]\n");
             self::save_image($url, $cache_path);
@@ -708,8 +727,9 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
     }
     private function save_image($url, $target)
     {   //wget -nc http://www.boldsystems.org/pics/KANB/USNM_442211_photograph_KB17_037_155mmSL_LRP_17_07+1507842962.JPG -O /Volumes/AKiTiO4/other_files/xxx/file.ext
-        $cmd = WGET_PATH . " $url -O ".$target; //wget -nc --> means 'no overwrite'
+        $cmd = WGET_PATH . " '$url' -O "."'$target'"; //wget -nc --> means 'no overwrite'
         $cmd .= " 2>&1";
+        echo "\nurl: [$url]";   echo "\ntarget: [$target]"; echo "\ncmd: [$cmd]\n";
         $shell_debug = shell_exec($cmd);
         if(stripos($shell_debug, "ERROR 404: Not Found") !== false) echo("\n<i>URL path does not exist.\n$url</i>\n\n"); //string is found
         echo "\n---\n".trim($shell_debug)."\n---\n";
