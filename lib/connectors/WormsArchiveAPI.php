@@ -148,6 +148,9 @@ class WormsArchiveAPI extends ContributorsMapAPI
         foreach($this->eol_terms as $label => $uri) {
             // uri: https://www.marinespecies.org/imis.php?module=person&persid=31659
             if(substr($uri,0,25) == "https://www.marinespecies") $this->contributor_id_name_info[$label] = $uri;
+            // /*
+            $this->eol_terms_uri_value[$uri] = '';
+            // */
         }
         echo "\nTesting URI [Whipps, Christopher]: ".@$this->contributor_id_name_info['Whipps, Christopher'];
         echo "\nTesting URI [Wayland, Matthew]: ".@$this->contributor_id_name_info['Wayland, Matthew']."\n";
@@ -1621,14 +1624,25 @@ class WormsArchiveAPI extends ContributorsMapAPI
             
             // /* New: Jun 7, 2021
             if($val = trim(@$rec['http://purl.org/dc/terms/creator'])) {
-                if($uri = @$this->contributor_id_name_info[$val])           $m->measurementDeterminedBy = $uri;
+                if($uri = @$this->contributor_id_name_info[$val]) {
+                    if(isset($this->eol_terms_uri_value[$uri])) $m->measurementDeterminedBy = $uri;
+                    else $this->debug['not yet in EOL Terms file'][$uri] = '';
+                }
                 else {
                     $new_val = $this->format_remove_middle_initial($val);
-                    if($uri = @$this->contributor_id_name_info[$new_val])   $m->measurementDeterminedBy = $uri;
+                    if($uri = @$this->contributor_id_name_info[$new_val]) {
+                        if(isset($this->eol_terms_uri_value[$uri])) $m->measurementDeterminedBy = $uri;
+                        else $this->debug['not yet in EOL Terms file'][$uri] = '';
+                    }
                     else {
-
-                        if($uri = self::last_chance_to_get_contributor_uri($val, $new_val)) $m->measurementDeterminedBy = $uri;
-                        else $this->debug['neglect uncooperative: DeterminedBy'][$val][$new_val] = '';
+                        if($uri = self::last_chance_to_get_contributor_uri($val, $new_val)) {
+                            if(isset($this->eol_terms_uri_value[$uri])) $m->measurementDeterminedBy = $uri;
+                            else $this->debug['not yet in EOL Terms file'][$uri] = '';
+                        }
+                        else {
+                            $this->debug['neglect uncooperative: DeterminedBy'][$val] = '';
+                            $this->debug['neglect uncooperative: DeterminedBy'][$new_val] = '';
+                        }
                         /* neglect the most uncooperative strings in any resource for contributor, compiler or determinedBy: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66158&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66158
                         $m->measurementDeterminedBy = $val;
                         */
