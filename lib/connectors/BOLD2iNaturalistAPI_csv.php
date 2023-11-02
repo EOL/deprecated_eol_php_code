@@ -50,7 +50,7 @@ class BOLD2iNaturalistAPI_csv
     function process_KatieO_csv($filename)
     {
         $csv_file = $this->input['path'].$filename; //exit("\n[$csv_file]\n");
-        $i = 0;
+        $i = 0; $valid_records = 0;
         $file = Functions::file_open($csv_file, "r");
         while(!feof($file)) {
             $row = fgetcsv($file);
@@ -98,7 +98,12 @@ class BOLD2iNaturalistAPI_csv
                     [relevantMedia] => https://photos.geome-db.org/44/Sample_Photo/GOM_BB_MarGEO_TXS_MinucaRapax_img_046_1024.4.jpg
                     [notes] => NA
                 )*/
-                if(!self::valid_record($rec)) continue;
+                if(!self::valid_record($rec)) {
+                    echo "\nNOT valid record.\n";
+                    print_r($rec);
+                    continue;
+                }
+                echo "\nA valid record at this point.\n"; $valid_records++;
                 $OFields = array();
                 foreach($this->observation_fields as $field) {
                     if($val = @$rec[$field]) $OFields[] = array('id' => $this->OField_ID[$field], 'value' => $val);
@@ -144,7 +149,8 @@ class BOLD2iNaturalistAPI_csv
                 }
                 // */
             }
-        }
+        } //end while()
+        echo "\nValid records: [$valid_records]\n";
     }
     private function get_urls_using_flickr_ids($pipe_delim_flickr_ids) //return pipe-delimited URLs
     {

@@ -123,6 +123,10 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             $this->OField_ID['sex']             = '5';
             $this->OField_ID['aliveOrDead']     = '10751';
             $this->OField_ID['recordedBy']      = '453';
+
+            $this->api['inat_observation'] = "https://api.inaturalist.org/v1/observations/OBSERVATION_ID";
+            $this->api['inat_photo'][0] = "https://static.inaturalist.org/photos/PHOTO_ID/small.jpg";
+            $this->api['inat_photo'][1] = "https://inaturalist-open-data.s3.amazonaws.com/photos/PHOTO_ID/small.jpeg";
         }
         /* ============================= END for bold2inat_csv ============================= */
     }
@@ -458,7 +462,7 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             sleep(1);
             $shell_debug = shell_exec($cmd);
             echo "\n*---shell debug start---*\n".trim($shell_debug)."\n*---shell debug end---*\n"; //good debug
-            if(stripos($shell_debug, '{"error":{"original":{"error') !== false) echo("\n<i>Has error: Invetigate build no. in Jenkins.</i>\n\n"); //string is found
+            if(stripos($shell_debug, '{"error":{"original":{"error') !== false) echo("\n<i>ERROR: Image upload failed. Invetigate build no. in Jenkins.</i>\n\n"); //string is found
                                  //   {"error":{"original":{"errors":"Observation hasn't been added to iNaturalist"}},"status":422}
             else {
                 $ret = self::parse_shell_debug($shell_debug);
@@ -470,7 +474,8 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
                         self::flag_local_sys_this_item_was_saved_in_iNat($ret, $photo_local_id, 'photo');
                         /* return $ret->id; */ //Fatal to do a return here. It will break the loop.
                         $ret_arr = array();
-                        $ret_arr['iNat_item_id'] = $ret->id;
+                        // $ret_arr['iNat_item_id'] = $ret->id; //old
+                        $ret_arr['iNat_item_id'] = $ret->photo_id; //new
                         $ret_arr['photo_id'] = $ret->photo_id;
                         $ret_photo_record_ids[] = $ret_arr;
                         continue;
@@ -568,7 +573,9 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
         $json = self::customize_json_encode_observation($id_arr);
         // echo "\njson = [$json]\n";  exit;
         $observation_local_id = md5($json);
-        // echo "\nobservation_local_id: [$observation_local_id]";
+        echo "\nobservation_local_id: [$observation_local_id]";
+
+
         if($iNat_observation_id = self::item_already_saved_in_iNat($observation_local_id, 'observation')) {
             echo " --> Observation ALREADY saved in iNat. iNat Observation ID:[$iNat_observation_id]\n";
             return $iNat_observation_id;
@@ -654,15 +661,20 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             $json = json_encode($arr);
         }
         $path = self::build_path($local_item_id);
-        if(!file_exists($path)) { //should not exist at this point
+        // if(!file_exists($path)) { //should not exist at this point
             if($FILE = Functions::file_open($path, 'w')) {
                 fwrite($FILE, $json); fclose($FILE);
                 debug("\nLocal sys flagged: [$path]\n");
             }
-        }
-        else exit("\nInvestigate went here [$iNat_item_id] [$local_item_id]\n");
+        // }
+        // else exit("\nInvestigate went here [$path] [$iNat_item_id] [$local_item_id]\n");
         // $iNat_observ_id, $local_observation_id
     }
+
+    /*
+    https://api.inaturalist.org/v1/observations/189724152
+    https://static.inaturalist.org/photos/332427927/small.jpg
+    */
     private function item_already_saved_in_iNat($item_id, $what)
     {
         $path = self::build_path($item_id);
@@ -672,10 +684,37 @@ class BOLD2iNaturalistAPI extends BOLD2iNaturalistAPI_csv
             $json = trim(file_get_contents($path));
             $arr = json_decode($json, true);
             if($what == 'observation') {
+                /* return $arr['iNat_item_id']; */ //orig
+
+                // /* new: Nov 2, 2023
+                $iNat_observation_id = $arr['iNat_item_id'];
+                $url = str_replace("OBSERVATION_ID", $iNat_observation_id, $this->api['inat_observation']);
+                $options = $this->download_options;
+                $options['expire_seconds'] = 0; //expires now
+                echo "\nsougth iNat_observation_id A: [$iNat_observation_id]\n";
+                if($json = Functions::lookup_with_cache($url, $options)) {
+                    echo "\nobservation json: [$json] [$iNat_observation_id] [$url]\n";
+                    if(stripos($json, '{"error":') !== false)           return false; /* {"error":"Error","status":422} */
+                    if(stripos($json, '{"total_results":0') !== false)  return false; /* {"total_results":0,"page":1,"per_page":1,"results":[]} */
+                }
+                echo "\nsougth iNat_observation_id B: [$iNat_observation_id]\n";
                 return $arr['iNat_item_id'];
+                // */
             }
             elseif($what == 'photo') {
-                return $arr; //array('iNat_item_id' => xx, 'photo_id' => yy)
+                /* return $arr; */ //orig //array('iNat_item_id' => xx, 'photo_id' => yy)
+                print_r($arr);
+                // /* new: Nov 2, 2023
+                // $iNat_photo_id = $arr['iNat_item_id']; //wrong
+                $iNat_photo_id = $arr['photo_id']; //correct
+                foreach($this->api['inat_photo'] as $url) {
+                    $url = str_replace("PHOTO_ID", $iNat_photo_id, $url);
+                    echo "\nping url: [$url]\n";
+                    if(Functions::ping_v2($url)) return $arr;
+                }
+                return false;
+                // */
+
             }
         }
         return false;
