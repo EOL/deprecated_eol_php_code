@@ -1580,9 +1580,13 @@ class WormsArchiveAPI extends ContributorsMapAPI
             // /* New: Jun 7, 2021
             $location_uri = self::get_uri_from_value($location, 'mValue', 'NativeRange');
             // */
-            self::add_string_types($rec, "true", $location_uri, "http://eol.org/schema/terms/NativeRange");
-            if($establishmentMeans == "Native - Endemic")         self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Endemic", "http://rs.tdwg.org/dwc/terms/measurementRemarks");
-            // elseif($establishmentMeans == "Native - Non-endemic") //no metadata -> https://jira.eol.org/browse/DATA-1522?focusedCommentId=59715&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-59715
+
+            if(isset($this->eol_terms_uri_value[$location_uri])) {
+                self::add_string_types($rec, "true", $location_uri, "http://eol.org/schema/terms/NativeRange");
+                if($establishmentMeans == "Native - Endemic")         self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Endemic", "http://rs.tdwg.org/dwc/terms/measurementRemarks");
+                // elseif($establishmentMeans == "Native - Non-endemic") //no metadata -> https://jira.eol.org/browse/DATA-1522?focusedCommentId=59715&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-59715    
+            }
+            else $this->debug['Not found in EOL Terms file']['NativeRange'][$location_uri] = '';
         }
         
         /*
@@ -1598,10 +1602,14 @@ class WormsArchiveAPI extends ContributorsMapAPI
             // /* New: Jun 7, 2021
             $location_uri = self::get_uri_from_value($location, 'mValue', 'IntroducedRange');
             // */
-            self::add_string_types($rec, "true", $location_uri, "http://eol.org/schema/terms/IntroducedRange");
-            /* removed Feb 11, 2020 per: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=64538&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64538
-            if($occurrenceStatus == "doubtful") self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable", "http://rs.tdwg.org/dwc/terms/measurementAccuracy");
-            */
+
+            if(isset($this->eol_terms_uri_value[$location_uri])) {
+                self::add_string_types($rec, "true", $location_uri, "http://eol.org/schema/terms/IntroducedRange");
+                /* removed Feb 11, 2020 per: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=64538&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64538
+                if($occurrenceStatus == "doubtful") self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable", "http://rs.tdwg.org/dwc/terms/measurementAccuracy");
+                */    
+            }
+            else $this->debug['Not found in EOL Terms file']['IntroducedRange'][$location_uri] = '';
         }
     }
     private function add_string_types($rec, $label, $value, $measurementType)
@@ -1626,18 +1634,18 @@ class WormsArchiveAPI extends ContributorsMapAPI
             if($val = trim(@$rec['http://purl.org/dc/terms/creator'])) {
                 if($uri = @$this->contributor_id_name_info[$val]) {
                     if(isset($this->eol_terms_uri_value[$uri])) $m->measurementDeterminedBy = $uri;
-                    else $this->debug['not yet in EOL Terms file'][$uri] = '';
+                    else $this->debug['Not found in EOL Terms file']['measurementDeterminedBy'][$uri] = '';
                 }
                 else {
                     $new_val = $this->format_remove_middle_initial($val);
                     if($uri = @$this->contributor_id_name_info[$new_val]) {
                         if(isset($this->eol_terms_uri_value[$uri])) $m->measurementDeterminedBy = $uri;
-                        else $this->debug['not yet in EOL Terms file'][$uri] = '';
+                        else $this->debug['Not found in EOL Terms file']['measurementDeterminedBy'][$uri] = '';
                     }
                     else {
                         if($uri = self::last_chance_to_get_contributor_uri($val, $new_val)) {
                             if(isset($this->eol_terms_uri_value[$uri])) $m->measurementDeterminedBy = $uri;
-                            else $this->debug['not yet in EOL Terms file'][$uri] = '';
+                            else $this->debug['Not found in EOL Terms file']['measurementDeterminedBy'][$uri] = '';
                         }
                         else {
                             $this->debug['neglect uncooperative: DeterminedBy'][$val] = '';
