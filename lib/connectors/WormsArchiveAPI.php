@@ -1590,7 +1590,9 @@ class WormsArchiveAPI extends ContributorsMapAPI
                 if($establishmentMeans == "Native - Endemic")         self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Endemic", "http://rs.tdwg.org/dwc/terms/measurementRemarks");
                 // elseif($establishmentMeans == "Native - Non-endemic") //no metadata -> https://jira.eol.org/browse/DATA-1522?focusedCommentId=59715&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-59715    
             }
-            else $this->debug['Not found in EOL Terms file']['NativeRange'][$location_uri] = '';
+            else {
+                if(substr($location_uri,0,4) == 'http') $this->debug['Not found in EOL Terms file']['NativeRange'][$location_uri] = '';
+            }
         }
         
         /*
@@ -1613,7 +1615,9 @@ class WormsArchiveAPI extends ContributorsMapAPI
                 if($occurrenceStatus == "doubtful") self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable", "http://rs.tdwg.org/dwc/terms/measurementAccuracy");
                 */    
             }
-            else $this->debug['Not found in EOL Terms file']['IntroducedRange'][$location_uri] = '';
+            else {
+                if(substr($location_uri,0,4) == 'http') $this->debug['Not found in EOL Terms file']['IntroducedRange'][$location_uri] = '';
+            }
         }
     }
     private function add_string_types($rec, $label, $value, $measurementType)
