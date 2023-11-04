@@ -1656,7 +1656,9 @@ class WormsArchiveAPI extends ContributorsMapAPI
                             else $this->debug['Not found in EOL Terms file']['measurementDeterminedBy'][$uri] = '';
                         }
                         else {
-                            $this->debug['neglect uncooperative: DeterminedBy'][$val] = $rec;         //this one should be reported
+                            $this->debug['neglect uncooperative: DeterminedBy'][$val] = '';            //this one should be reported
+                            // $this->debug['neglect uncooperative: DeterminedBy'][$val] = $rec;       //with metadata - per Jen's request
+
                             // $this->debug['neglect uncooperative: DeterminedBy'][$new_val] = '';  //no need to report this
                         }
                         /* neglect the most uncooperative strings in any resource for contributor, compiler or determinedBy: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66158&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66158
