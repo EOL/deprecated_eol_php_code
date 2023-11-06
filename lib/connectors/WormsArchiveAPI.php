@@ -1656,8 +1656,9 @@ class WormsArchiveAPI extends ContributorsMapAPI
                             else $this->debug['Not found in EOL Terms file']['measurementDeterminedBy'][$uri] = '';
                         }
                         else {
-                            $this->debug['neglect uncooperative: DeterminedBy'][$val] = '';            //this one should be reported
+                            // $this->debug['neglect uncooperative: DeterminedBy'][$val] = '';            //this one should be reported
                             // $this->debug['neglect uncooperative: DeterminedBy'][$val] = $rec;       //with metadata - per Jen's request
+                            $this->debug['neglect uncooperative: DeterminedBy'][$val][$measurementType][$value] = $rec;       //with metadata - per Jen's request
 
                             // $this->debug['neglect uncooperative: DeterminedBy'][$new_val] = '';  //no need to report this
                         }
