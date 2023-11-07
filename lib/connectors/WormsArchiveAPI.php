@@ -1621,7 +1621,12 @@ class WormsArchiveAPI extends ContributorsMapAPI
         }
     }
     private function add_string_types($rec, $label, $value, $measurementType)
-    {   $m = new \eol_schema\MeasurementOrFact_specific();
+    {   
+        // /* new by Eli: Nov 7, 2023 ---> value must be a URI if mType == Present
+        if($measurementType == "http://eol.org/schema/terms/Present" && substr($value, 0, 4) != "http") return;
+        // */
+        
+        $m = new \eol_schema\MeasurementOrFact_specific();
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"]);
         $m->occurrenceID = $occurrence_id;
         if($label == "Distribution" || $label == "true") { // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
