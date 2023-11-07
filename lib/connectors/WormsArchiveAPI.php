@@ -1661,6 +1661,10 @@ class WormsArchiveAPI extends ContributorsMapAPI
                             $this->debug['neglect uncooperative: DeterminedBy'][$val][$measurementType][$value] = $rec;       //with metadata - per Jen's request
 
                             // $this->debug['neglect uncooperative: DeterminedBy'][$new_val] = '';  //no need to report this
+
+                            // these 2 are not worth reporting:
+                            $this->debug['neglect uncooperative: DeterminedBy']['db_admin'] = '';
+                            $this->debug['neglect uncooperative: DeterminedBy']['Demo, Account (TE)'] = '';
                         }
                         /* neglect the most uncooperative strings in any resource for contributor, compiler or determinedBy: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66158&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66158
                         $m->measurementDeterminedBy = $val;
@@ -1670,6 +1674,16 @@ class WormsArchiveAPI extends ContributorsMapAPI
             }
             // */
         }
+
+        /* from Jen: Nov 6, 2023
+        For trait records based on photo captions
+        if the Creator is an identified WoRMS editor, that can continue to go to measurementDeterminedBy. 
+        if the Creator cannot be mapped to an identified WoRMS editor, we'll have to send that string to a more appropriate field. 
+            Let's do this: construct a reference, using the text "Observation photo published by [creator]"
+        the sourceURL should point to the photo, from their furtherInformationURL, eg: https://www.marinespecies.org/aphia.php?p=image&pic=127205 . 
+            I think you may already be doing this, but given that I totally forgot about this part of the connector, I thought I should make sure.
+        */
+
         $m->measurementType = $measurementType;
         $m->measurementValue = (string) $value;
         $m->measurementMethod = '';
