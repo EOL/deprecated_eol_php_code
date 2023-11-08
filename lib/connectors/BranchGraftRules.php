@@ -17,7 +17,7 @@ class BranchGraftRules
         [path] => /opt/homebrew/var/www/eol_php_code//applications/branch_graft/temp/
         */
 
-        $this->trimmed_File_A = $this->input['path'] . "trimmed_File_A_" . $this->arr_json['uuid'] . ".txt";
+        $this->trimmed_File_A = $this->input['path'] . "branch_removed_File_A_" . $this->arr_json['uuid'] . ".txt"; //old trimmed_File_A_
         $WRITE = Functions::file_open($this->trimmed_File_A, "w"); fclose($WRITE);
 
         $this->descendants_File_A = $this->input['path'] . "removed_taxa_File_A_" . $this->arr_json['uuid'] . ".txt";
@@ -404,6 +404,7 @@ class BranchGraftRules
             $files[] = $this->trimmed_File_A2;
             $files[] = $this->descendants_File_A;
             $files[] = $this->descendants_File_B2;
+            $files[] = $this->trimmed_File_A; //newly added per Katja Nov 8, 2023
         }
         else {
             $files[] = $this->trimmed_File_A;

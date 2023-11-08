@@ -46,6 +46,7 @@ else {
     } */
     // /* will use this one instead: OK good working --- normal operation for Branch Graft
     $files = glob($dirname."*".$params['uuid']."*");
+    // echo "\nTemp files to delete: \n"; echo "<pre>"; print_r($files); echo "</pre>"; //good debug
     foreach($files as $file) unlink($file);
     // */
 
