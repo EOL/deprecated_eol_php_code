@@ -107,6 +107,28 @@ echo "\n$url\n";
 exit("\n-end test-\n");
 */
 
+/* test only
+$arr = array();
+$arr[] = "May 31, 2021";
+$arr[] = '31/05/2021';
+$arr[] = '31-05-2021';
+$arr[] = '31/05/21';
+$arr[] = '31-05-21';
+$arr[] = '05/31/21';
+$arr[] = '05-31-21';
+$arr[] = "31-May-21";
+$arr[] = "31/May/21";
+$arr[] = "31-May-2021";
+$arr[] = "31/May/2021";
+foreach($arr as $str) {
+    $new = $func->format_inat_date($str);
+    if($new == "05/31/2021")        echo "\n[$str][$new] OK";
+    elseif($new == "05/31/21")      echo "\n[$str][$new] OK";
+    else                            echo "\n[$str][$new] error";
+}
+exit("\n-end test-\n");
+*/
+
 $func->start($filename, $form_url, $uuid, $json);
 // Functions::get_time_elapsed($timestart);
 ?>

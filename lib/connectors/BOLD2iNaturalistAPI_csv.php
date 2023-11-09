@@ -129,7 +129,7 @@ class BOLD2iNaturalistAPI_csv
                     $rek['image_urls'] = self::get_arr_from_pipe_delimited_string($rec['relevantMedia']);
                     $rek['image_urls_ext'] = $rec['relevantMedia_ext'];
 
-                    $rek['date_collected'] = $rec['date'];
+                    $rek['date_collected'] = self::format_inat_date($rec['date']);
                     $rek['OFields'] = $OFields;
                     
                     /* Ken-ichi's way for Flickr is not working
@@ -152,6 +152,15 @@ class BOLD2iNaturalistAPI_csv
         } //end while()
         echo "\nValid records: [$valid_records]\n";
     }
+
+    function format_inat_date($str)
+    {
+        $date = str_replace('/', '-', $str);
+        $new = date('m/d/Y', strtotime($date));
+        if($new == "12/31/1969") return str_replace('-', '/', $str);
+        else return $new;
+    }
+    
     private function get_urls_using_flickr_ids($pipe_delim_flickr_ids) //return pipe-delimited URLs
     {
         $flickr_ids = self::get_arr_from_pipe_delimited_string($pipe_delim_flickr_ids);
