@@ -109,21 +109,31 @@ exit("\n-end test-\n");
 
 /* test only
 $arr = array();
-$arr[] = "May 31, 2021";
-$arr[] = '31/05/2021';
-$arr[] = '31-05-2021';
-$arr[] = '31/05/21';
-$arr[] = '31-05-21';
-$arr[] = '05/31/21';
-$arr[] = '05-31-21';
-$arr[] = "31-May-21";
-$arr[] = "31/May/21";
-$arr[] = "31-May-2021";
-$arr[] = "31/May/2021";
+$arr[] = "May 1, 2021";
+$arr[] = '01/05/2021';
+$arr[] = '01-05-2021';
+$arr[] = '01/05/21';
+$arr[] = '01-05-21';
+$arr[] = '05/01/21';
+$arr[] = '05-01-21';
+$arr[] = "01-May-21";
+$arr[] = "01/May/21";
+$arr[] = "01-May-2021";
+$arr[] = "01/May/2021";
+$arr[] = '05/01/2021';
+$arr[] = '05-01-2021';
+$arr[] = '05-01-21';
+$arr[] = '05-01-2021';
+$arr[] = '5/1/2021';
+$arr[] = '5-1-2021';
+$arr[] = '5-1-21';
+$arr[] = '5/1/21';
 foreach($arr as $str) {
     $new = $func->format_inat_date($str);
-    if($new == "05/31/2021")        echo "\n[$str][$new] OK";
-    elseif($new == "05/31/21")      echo "\n[$str][$new] OK";
+    if($new == "05/01/2021")        echo "\n[$str][$new] OK";
+    elseif($new == "5/1/2021")      echo "\n[$str][$new] OK";
+    elseif($new == "05/01/21")      echo "\n[$str][$new] OK";
+    elseif($new == "5/1/21")        echo "\n[$str][$new] OK";
     else                            echo "\n[$str][$new] error";
 }
 exit("\n-end test-\n");
@@ -131,4 +141,26 @@ exit("\n-end test-\n");
 
 $func->start($filename, $form_url, $uuid, $json);
 // Functions::get_time_elapsed($timestart);
+
+/*
+Hi Kelly,
+Sorry, correction.
+These are the only possible date formats: e.g. May 1, 2021:
+May 1, 2021
+05/01/21
+05-01-21
+01-May-21
+01/May/21
+01-May-2021
+01/May/2021
+05/01/2021
+05-01-2021
+05-01-21
+05-01-2021
+5/1/2021
+5-1-2021
+5-1-21
+5/1/21
+*/
+
 ?>

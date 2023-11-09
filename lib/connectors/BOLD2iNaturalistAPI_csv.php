@@ -156,9 +156,26 @@ class BOLD2iNaturalistAPI_csv
     function format_inat_date($str)
     {
         $date = str_replace('/', '-', $str);
-        $new = date('m/d/Y', strtotime($date));
-        if($new == "12/31/1969") return str_replace('-', '/', $str);
-        else return $new;
+        //step 1
+        $parts = explode("-", $date);
+        if(is_numeric(@$parts[0]) && is_numeric(@$parts[1]) && is_numeric($parts[2])) {
+            return str_replace('-', '/', $date);
+        }
+        else {
+            $new = date('m/d/Y', strtotime($date));
+            if($new == "12/31/1969") return str_replace('-', '/', $str);
+            else return $new;    
+        }
+
+        /* These are the only possible date formats: e.g. May 1, 2021:
+            May 1, 2021
+            01/05/2021
+            01-05-2021
+            01-May-21
+            01/May/21
+            01-May-2021
+            01/May/2021
+        */
     }
     
     private function get_urls_using_flickr_ids($pipe_delim_flickr_ids) //return pipe-delimited URLs
