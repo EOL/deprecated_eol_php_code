@@ -109,21 +109,20 @@ exit("\n-end test-\n");
 
 /* test only
 $arr = array();
-$arr[] = "May 1, 2021";
 $arr[] = '01/05/2021';
 $arr[] = '01-05-2021';
 $arr[] = '01/05/21';
 $arr[] = '01-05-21';
-$arr[] = '05/01/21';
-$arr[] = '05-01-21';
+
+$arr[] = "May 1, 2021";
 $arr[] = "01-May-21";
 $arr[] = "01/May/21";
 $arr[] = "01-May-2021";
 $arr[] = "01/May/2021";
 $arr[] = '05/01/2021';
 $arr[] = '05-01-2021';
+$arr[] = '05/01/21';
 $arr[] = '05-01-21';
-$arr[] = '05-01-2021';
 $arr[] = '5/1/2021';
 $arr[] = '5-1-2021';
 $arr[] = '5-1-21';
@@ -144,23 +143,21 @@ $func->start($filename, $form_url, $uuid, $json);
 
 /*
 Hi Kelly,
-Sorry, correction.
-These are the only possible date formats: e.g. May 1, 2021:
+Last iteration.
+Sorry, it has to be backward compatible.
+These are the possible date formats: e.g. May 1, 2021:
 May 1, 2021
-05/01/21
-05-01-21
 01-May-21
 01/May/21
 01-May-2021
 01/May/2021
 05/01/2021
 05-01-2021
+05/01/21
 05-01-21
-05-01-2021
 5/1/2021
 5-1-2021
 5-1-21
 5/1/21
 */
-
 ?>
