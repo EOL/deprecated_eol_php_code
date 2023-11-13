@@ -1674,8 +1674,8 @@ class WormsArchiveAPI extends ContributorsMapAPI
                             // /* generate a reference for a creator without URI - per Jen https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=67726&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67726
                             $addtl_reference_id = self::create_reference_for_this_MoF_using_creator($val); //$val is creator
                             if($addtl_reference_id) {
-                                if($m->referenceID) $m->referenceID .= "|" . $addtl_reference_id;
-                                else                $m->referenceID        = $addtl_reference_id;
+                                if(@$m->referenceID) $m->referenceID .= "|" . $addtl_reference_id;
+                                else                 $m->referenceID        = $addtl_reference_id;
                             }
                             // */
                         }
