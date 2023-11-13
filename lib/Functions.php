@@ -532,14 +532,10 @@ class Functions
         $ret = self::manual_fix_uris($ret);
         return $ret;
         // */
-        
+
+        /* obsolete
         $url = "http://beta-repo.eol.org/terms?per_page=1000&page=";
         if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 500000, 'timeout' => 900, 'expire_seconds' => 60*60*24, 'download_attempts' => 1);
-        /*
-        <li class='last'>
-        <a href="/terms?page=10">Last &raquo;</a>
-        </li>
-        */
         //get total no. of pages
         if($html = Functions::lookup_with_cache($url."1", $download_options)) {
             if(preg_match("/<li class=\'last\'>(.*?)<\/li>/ims", $html, $arr)) {
@@ -555,11 +551,6 @@ class Functions
             return array();
         }
         //start loop
-        /*
-        <dt>abdomen length</dt>
-        <dd>
-        <div class='uk-text-muted uk-text-small'>http://eol.org/schema/terms/AbdomenLength</div>
-        */
         $final = array();
         for ($i = 1; $i <= $pages; $i++) {
             if($html = Functions::lookup_with_cache($url.$i, $download_options)) {
@@ -581,6 +572,7 @@ class Functions
             }
         }
         return $final;
+        */
     }
     private static function manual_fix_uris($arr)
     {
@@ -656,14 +648,10 @@ class Functions
         else return array("beta-repo.eol.org" => "is down");
     }
     public static function get_eol_defined_uris_v2($download_options = false, $directionOpposite = false)
-    {
+    {   return array(); //obsolete function
+        /*
         $url = "http://beta-repo.eol.org/terms?per_page=1000&page=";
         if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 500000, 'timeout' => 900, 'expire_seconds' => 60*60*24, 'download_attempts' => 1);
-        /*
-        <span class="last">
-        <a href="/terms?page=8&amp;per_page=1000">Last &raquo;</a>
-        </span>
-        */
         //get total no. of pages
         $pages = 0;
         if($html = Functions::lookup_with_cache($url."1", $download_options)) {
@@ -676,26 +664,12 @@ class Functions
             }
         }
         //start loop
-        /*
-        <div class='item'>
-        <a href="/terms/2993">calcium carbonate</a>
-        (
-        <a href="/terms/2993">http://purl.obolibrary.org/obo/CHEBI_3311</a>
-        )
-        </div>
-        */
         $final = array();
         for ($i = 1; $i <= $pages; $i++) {
             if($html = Functions::lookup_with_cache($url.$i, $download_options)) {
                 if(preg_match_all("/<div class='item'>(.*?)<\/div>/ims", $html, $arr)) {
                     // print_r($arr[1]); exit;
                     foreach($arr[1] as $temp) {
-                        /*
-                        <a href="/terms/16349"> AMPLEXUS</a>
-                        (
-                        <a href="/terms/16349">; AMPLEXUS</a>
-                        )
-                        */
                         if(preg_match_all("/\">(.*?)<\/a>/ims", $temp, $arr)) {
                             if(count($arr[1]) == 2) {
                                 // print_r($arr[1]); exit;
@@ -715,6 +689,7 @@ class Functions
             }
         }
         return $final;
+        */
     }
     public static function get_eol_defined_uris_v1($download_options = false, $directionOpposite = false)
     {
