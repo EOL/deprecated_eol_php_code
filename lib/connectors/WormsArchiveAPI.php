@@ -1661,20 +1661,36 @@ class WormsArchiveAPI extends ContributorsMapAPI
                             else $this->debug['Not found in EOL Terms file']['measurementDeterminedBy'][$uri] = '';
                         }
                         else {
-                            // $this->debug['neglect uncooperative: DeterminedBy'][$val] = '';            //this one should be reported
-                            // $this->debug['neglect uncooperative: DeterminedBy'][$val] = $rec;       //with metadata - per Jen's request
-                            $this->debug['neglect uncooperative: DeterminedBy'][$val][$measurementType][$value] = $rec;       //with metadata - per Jen's request
+                            // $this->debug['neglect uncooperative: DeterminedBy'][$val] = '';          //this one should be reported
+                            // $this->debug['neglect uncooperative: DeterminedBy'][$val] = $rec;        //with metadata - per Jen's request. Just one-time
+                            $this->debug['neglect uncooperative: DeterminedBy'][$val][$measurementType][$value] = $rec;       //with metadata - per Jen's request. Just one-time
 
                             // $this->debug['neglect uncooperative: DeterminedBy'][$new_val] = '';  //no need to report this
 
                             // these 2 are not worth reporting:
                             $this->debug['neglect uncooperative: DeterminedBy']['db_admin'] = '';
                             $this->debug['neglect uncooperative: DeterminedBy']['Demo, Account (TE)'] = '';
+
+                            // /* generate a reference for a creator without URI - per Jen https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=67726&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67726
+                            $addtl_reference_id = self::create_reference_for_this_MoF_using_creator($val); //$val is creator
+                            if($addtl_reference_id) {
+                                if($m->referenceID) $m->referenceID .= "|" . $addtl_reference_id;
+                                else                $m->referenceID        = $addtl_reference_id;
+                            }
+                            // */
                         }
                         /* neglect the most uncooperative strings in any resource for contributor, compiler or determinedBy: per https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=66158&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66158
                         $m->measurementDeterminedBy = $val;
                         */
                     }
+                }
+                if($rec['http://purl.org/dc/terms/type'] == "http://purl.org/dc/dcmitype/StillImage") {
+                    $m->source = $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"];
+                    /*
+                    [http://purl.org/dc/terms/identifier] => WoRMS:image:127205
+                    [http://purl.org/dc/terms/type] => http://purl.org/dc/dcmitype/StillImage
+                    [http://rs.tdwg.org/ac/terms/furtherInformationURL] => https://www.marinespecies.org/aphia.php?p=image&pic=127205
+                    */    
                 }
             }
             // */
@@ -1702,6 +1718,17 @@ class WormsArchiveAPI extends ContributorsMapAPI
 
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
+    }
+    private function create_reference_for_this_MoF_using_creator($creator_str)
+    {
+        $r = new \eol_schema\Reference();
+        $r->identifier      = "c_".md5($creator_str);
+        $r->full_reference  = "Observation photo published by ".$creator_str;
+        if(!isset($this->resource_reference_ids[$r->identifier])) {
+            $this->resource_reference_ids[$r->identifier] = '';
+            $this->archive_builder->write_object_to_file($r);
+        }
+        return $r->identifier;
     }
     private function last_chance_to_get_contributor_uri($val, $new_val)
     {   // 1st manual adjustment
