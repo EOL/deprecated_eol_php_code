@@ -148,16 +148,30 @@ class WormsArchiveAPI extends ContributorsMapAPI
         // Oct 25, 2023 - added EOL Terms file as source for URIs - works OK!
         require_library('connectors/EOLterms_ymlAPI');
         $func = new EOLterms_ymlAPI($this->resource_id, $this->archive_builder);
-        $this->eol_terms = $func->get_terms_yml('value'); //sought_type is 'value'
-        foreach($this->eol_terms as $label => $uri) {
+        $this->eol_terms_label_uri = $func->get_terms_yml('value'); //sought_type is 'value' --- REMINDER: labels can have the same value but different uri
+        foreach($this->eol_terms_label_uri as $label => $uri) {
             // uri: https://www.marinespecies.org/imis.php?module=person&persid=31659
             if(substr($uri,0,25) == "https://www.marinespecies") $this->contributor_id_name_info[$label] = $uri;
-            // /*
-            $this->eol_terms_uri_value[$uri] = '';
-            // */
         }
         echo "\nTesting URI [Whipps, Christopher]: ".@$this->contributor_id_name_info['Whipps, Christopher'];
         echo "\nTesting URI [Wayland, Matthew]: ".@$this->contributor_id_name_info['Wayland, Matthew']."\n";
+
+        // /* new Nov 15, 2023
+        $uri_label = $func->get_terms_yml('WoRMS value'); //sought_type is 'WoRMS value' --- REMINDER: this one is better since uri is unique.
+        foreach($uri_label as $uri => $label) $this->eol_terms_uri_value[$uri] = '';
+        // */
+
+        /* good debug only
+        if(isset($this->eol_terms_uri_value["http://www.geonames.org/6640368"])) echo "\nOk test for eol_terms_uri_value\n";
+        else {
+            echo "\n-------------- error, will stop --------------\n";
+            echo "\nEOL term file: ".count($this->eol_terms_uri_value)."\n";
+            print_r($this->eol_terms_uri_value);
+            exit("\nSomething is wrong with lookup to EOL Terms file.\n");
+        }
+        exit("\n- stop evaluate muna -\n");
+        */
+
         unset($func); //exit;
         // */
         
@@ -1737,7 +1751,7 @@ class WormsArchiveAPI extends ContributorsMapAPI
         $strings = array_keys($strings); //make it unique
         foreach($strings as $str) {
             if(strlen($str) >= 10) {
-                foreach($this->eol_terms as $label => $uri) {
+                foreach($this->eol_terms_label_uri as $label => $uri) {
                     // WoRMS: Vonk, Ronald        
                     // EOL Terms: Vonk, Ronald, R.
                     if($str == substr($label,0,strlen($str))) return $uri;

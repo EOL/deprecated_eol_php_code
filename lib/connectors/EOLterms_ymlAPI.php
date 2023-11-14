@@ -17,7 +17,7 @@ class EOLterms_ymlAPI
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
         $this->EOL_terms_yml_url = "https://raw.githubusercontent.com/EOL/eol_terms/main/resources/terms.yml";
     }
-    function get_terms_yml($sought_type = 'ALL') //possible values: 'measurement', 'value', 'ALL'
+    function get_terms_yml($sought_type = 'ALL') //possible values: 'measurement', 'value', 'ALL', 'WoRMS value'
     {                                            //output structure: $final[label] = URI;
         $final = array();
         if($yml = Functions::lookup_with_cache($this->EOL_terms_yml_url, $this->download_options)) { //orig 1 day cache
@@ -46,6 +46,9 @@ class EOLterms_ymlAPI
                     )*/
                     $name = self::remove_quote_delimiters($rek['name']);
                     if($sought_type == 'ALL')               $final[$name] = $rek['uri'];
+                    elseif($sought_type == 'WoRMS value') {
+                        if(@$rek['type'] == 'value') $final[$rek['uri']] = $name;
+                    }
                     elseif(@$rek['type'] == $sought_type)   $final[$name] = $rek['uri'];
                     @$this->debug['EOL terms type'][@$rek['type']]++; //just for stats
                     /*
