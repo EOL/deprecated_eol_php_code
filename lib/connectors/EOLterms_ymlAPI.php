@@ -7,7 +7,9 @@ https://github.com/EOL/eol_terms/blob/main/resources/terms.yml
 -> Github entry
 
 1st client: [USDAPlants2019.php] -> called by [727.php] -> [USDAPlants.tmproj]
-2nd client: [Trait spreadsheet to DwC-A Tool] -> [http://localhost/eol_php_code/applications/trait_data_import/] - DID NOT MATERIALIZE
+2nd client: [XenoCantoAPI.php]
+3rd client: [WormsArchiveAPI]
+4th client*: [Trait spreadsheet to DwC-A Tool] -> [http://localhost/eol_php_code/applications/trait_data_import/] - DID NOT MATERIALIZE
 */
 class EOLterms_ymlAPI
 {
