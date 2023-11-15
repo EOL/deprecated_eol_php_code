@@ -179,6 +179,14 @@ class DwCA_Rem_Taxa_Adjust_MoF_API
             $o = $this->func->given_m_update_mType_mValue($o);
             // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
             */
+
+            // /* Nov 15, 2023: "linn" -> http://purl.obolibrary.org/obo/ENVO_00000040 
+            // Any output from this source string should be discarded. It's a common form of the author string "Linnaeus"
+            // https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=67722&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67722
+            // http://purl.obolibrary.org/obo/ENVO_00000040	source text: "linn"
+            if($o->measurementValue == "http://purl.obolibrary.org/obo/ENVO_00000040" || @$o->measurementRemarks == 'source text: "linn"') continue;
+            // */
+    
             /* END DATA-1841 terms remapping */
             // $o->measurementID = Functions::generate_measurementID($o, $this->resource_id); //copied template
             $this->archive_builder->write_object_to_file($o);
