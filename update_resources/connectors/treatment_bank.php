@@ -24,15 +24,28 @@ php update_resources/connectors/treatment_bank.php _ '{"task": "generate_single_
 -> generates TreatmentBank.tar.gz
 
 STEP 4:
-php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank", "subjects":"Uses"}'
+php update_resources/connectors/environments_2_eol.php _       '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank", "subjects":"Uses"}'
+                         php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"all_BHL", "resource_id":"TreatmentBank", "subjects":"Uses"}'
 -> generates TreatmentBank_ENV.tar.gz
 
 STEP 5: adjustments starting here: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=66874&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66874
 php update_resources/connectors/treatmentbank_adjust.php _
+                         php5.6 treatmentbank_adjust.php jenkins
 -> generates TreatmentBank_adjustment_01.tar.gz
--> last step, for now
 
-*Then the mv part where we rename TreatmentBank_adjustment_01.tar.gz -> TreatmentBank_traits.tar.gz
+STEP 6:
+php5.6 clade_filters_4_habitats.php jenkins '{"resource_id":"TreatmentBank_adjustment_01"}'
+#-> generates TreatmentBank_adjustment_02.tar.gz
+
+# === LAST STEP: copy TreatmentBank_adjustment_02.tar.gz to TreatmentBank_final.tar.gz OK
+cd /html/eol_php_code/applications/content_server/resources
+cp TreatmentBank_adjustment_02.tar.gz TreatmentBank_final.tar.gz
+ls -lt TreatmentBank_adjustment_02.tar.gz
+ls -lt TreatmentBank_final.tar.gz
+# then delete TreatmentBank_adjustment_02.tar.gz
+rm -f TreatmentBank_adjustment_02.tar.gz
+
+*Then the mv part where we rename TreatmentBank_adjustment_02.tar.gz -> TreatmentBank_final.tar.gz
 
 ================== STATS ==================
 TreatmentBank	    Wed 2021-09-08 04:23:09 PM	{                                                   "media.tab":596261, "taxon.tab":597054, "time_elapsed":{"sec":66673.13, "min":1111.22, "hr":18.52}}
