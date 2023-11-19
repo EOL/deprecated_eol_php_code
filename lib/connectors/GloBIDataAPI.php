@@ -111,7 +111,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
         foreach($excluded_unidentified_taxa as $id) $this->exclude_taxonIDs[$id] = '';
         // */
 
-        // /* remove scinames Animalia & Metazoa: Eli found manually 8 scientificNames:
+        // /* remove scinames Animalia & Metazoa: Eli found manually 8 scientificNames: (n=8)
         // taxonID|furtherInformationURL|referenceID|parentNameUsageID|scientificName
         // http://taxon-concept.plazi.org/id/Metazoa/Pseudevoplitusroraimensis_Grazia_2002|http://taxon-concept.plazi.org/id/Metazoa/Pseudevoplitusroraimensis_Grazia_2002|||Metazoa||Metazoa||||||||
         // NCBI:33208|https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=33208|||Metazoa||Metazoa||||||kingdom||
@@ -124,6 +124,15 @@ class GloBIDataAPI extends Globi_Refuted_Records
         $excluded_unidentified_taxa = array("http://taxon-concept.plazi.org/id/Metazoa/Pseudevoplitusroraimensis_Grazia_2002", "NCBI:33208", "http://taxon-concept.plazi.org/id/Animalia/Sympetrum_Newman_1833", "EOL:1", "ITIS:202423", "GBIF:1", "INAT_TAXON:1", "NBN:NBNSYS0100001342");
         foreach($excluded_unidentified_taxa as $id) $this->exclude_taxonIDs[$id] = '';
         // */
+        
+        /* Animalia & Metazoa entries as of Nov 20, 2023 (n=6)
+        EOL:1	http://eol.org/pages/1			Animalia
+        ITIS:202423	http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=202423			Animalia
+        GBIF:1	http://www.gbif.org/species/1			Animalia
+        NBN:NBNSYS0100001342	https://data.nbn.org.uk/Taxa/NBNSYS0100001342			Animalia
+        http://taxon-concept.plazi.org/id/Metazoa/Pseudevoplitusroraimensis_Grazia_2002	http://taxon-concept.plazi.org/id/Metazoa/Pseudevoplitusroraimensis_Grazia_2002			Metazoa
+        NCBI:33208	https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=33208			Metazoa
+        */
 
         // /* New per Jen:
         echo "\nexclude_taxonIDs 1: ".count($this->exclude_taxonIDs)."\n";
@@ -399,6 +408,14 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 */
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002454'))) { //plants having animals as hosts
                     $taxonID = self::get_taxonID_given_occurID($occurrenceID, 'source');
+
+                    // /* new: Nov 20, 2023: per Jen: "I think we have a new source of high rank GloBI records, eg: https://eol.org/records/R20-PK113723253" 
+                    // https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=67738&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67738
+                    if(isset($this->exclude_taxonIDs[$taxonID])) $this->toDeleteOccurrenceIDS_Jen[$occurrenceID] = '';
+                    $tmpID = self::get_taxonID_given_occurID($targetOccurrenceID, 'target');
+                    if(isset($this->exclude_taxonIDs[$tmpID])) $this->toDeleteOccurrenceIDS_Jen[$targetOccurrenceID] = '';
+                    // */
+
                     if(!in_array($taxonID, self::special_list_of_not_plantae())) {
                         $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
                         if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
