@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
-/* this is a utility to test Pensoft annotation
-*/
+/* this is a utility to test Pensoft annotation */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
 
@@ -32,7 +31,7 @@ $arr = $func->retrieve_annotation($basename, $desc); //it is in this routine whe
 print_r($arr);
 */
 
-// /* option 2 from AntWebAPI.php --- worked OK
+// /* option 2 from AntWebAPI.php --- worked OK!
 // /* This is used for accessing Pensoft annotator to get ENVO URI given habitat string.
 $param['resource_id'] = 24; //AntWeb resource ID
 require_library('connectors/Functions_Pensoft');
@@ -47,7 +46,6 @@ echo("\n delete_MoF_with_these_labels: ".count($pensoft->delete_MoF_with_these_l
 echo("\n delete_MoF_with_these_uris: "  .count($pensoft->delete_MoF_with_these_uris)."\n");
 // exit;
 $final = array();
-// $desc = str_replace(":", "\n", $desc);
 $basename = md5($desc);
 $desc = strip_tags($desc);
 $desc = trim(Functions::remove_whitespace($desc));
@@ -56,8 +54,6 @@ if($arr = $pensoft->retrieve_annotation($basename, $desc)) {
     print_r($arr);
 }
 // */
-
-
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
