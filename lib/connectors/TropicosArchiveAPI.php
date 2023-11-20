@@ -779,7 +779,7 @@ class TropicosArchiveAPI
         $options = $this->download_options;
         $options['cache'] = 1;
         $options['expire_seconds'] = $expire_seconds; //25 days
-        $options['expire_seconds'] = 3; //3 seconds
+        // $options['expire_seconds'] = 3; //3 seconds //debug only
 
         ini_set('error_reporting', E_ALL);
         ini_set('display_errors', true);
