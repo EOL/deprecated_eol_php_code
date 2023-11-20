@@ -724,6 +724,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             
             // /* sub main operation
             $str = utf8_encode($str);
+            $str = self::format_str($str);
             if($this->includeOntologiesYN)  $id = md5($str.$this->ontologies); //for now only for those SI PDFs/epubs
             else                            $id = md5($str); //orig, the rest goes here...
             if($str) self::retrieve_partial($id, $str, $loop);
@@ -734,6 +735,16 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             $batch_length = $orig_batch_length;
         } //end outer for loop
         if(isset($this->results)) return $this->results; //the return value is used in AntWebAPI.php
+    }
+    private function format_str($str)
+    {   /* per: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=67728&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67728
+        I've only seen this in TreatmentBank. It would be a problem in any connector, but I'll bet there's something about the format of their service that makes 
+        TreatmentBank vulnerable: multiword terms should not be found where the words are separated by punctuation: ( or ) or / or , or ;
+        eg: http://treatment.plazi.org/id/F7AB94E4F5B59F2C76DF9B7856BDFA5C "field soil"
+            http://treatment.plazi.org/id/216FC728FFC5EF2A738326C8AB1BCD40 "river island" */
+        $separators = array("(", ")", "/", ",", ";", ":");
+        foreach($separators as $separator) $str = str_replace($separator, "\n", $str);
+        return $str;
     }
     private function retrieve_partial($id, $desc, $loop)
     {   // echo "\n[$id]\n";
