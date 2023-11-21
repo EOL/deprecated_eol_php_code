@@ -723,7 +723,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             }
             
             // /* sub main operation
-            $str = utf8_encode($str);
+            // $str = utf8_encode($str);            // commented Nov 20, 2023
+            $str = Functions::conv_to_utf8($str);   // added Nov 20, 2023
             $str = self::format_str($str);
             if($this->includeOntologiesYN)  $id = md5($str.$this->ontologies); //for now only for those SI PDFs/epubs
             else                            $id = md5($str); //orig, the rest goes here...
@@ -742,6 +743,9 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         TreatmentBank vulnerable: multiword terms should not be found where the words are separated by punctuation: ( or ) or / or , or ;
         eg: http://treatment.plazi.org/id/F7AB94E4F5B59F2C76DF9B7856BDFA5C "field soil"
             http://treatment.plazi.org/id/216FC728FFC5EF2A738326C8AB1BCD40 "river island" */
+
+        $str = str_replace("š", "s", $str); //Strangely Pensoft converts Košice to Koš<b>ice</b>
+
         $separators = array("(", ")", "/", ",", ";", ":");
         foreach($separators as $separator) $str = str_replace($separator, "\n", $str);
         return $str;
@@ -751,7 +755,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         // echo("\nstrlen: ".strlen($desc)."\n"); // good debug
         if($arr = self::retrieve_json($id, 'partial', $desc)) {
             // if($loop == 29) { print_r($arr['data']); //exit; }
-            
+            // print_r($arr); //exit; //good debug
             if(isset($arr['data'])) self::select_envo($arr['data']);
             else {
                 echo "\n-=-=-=-=-=-=-=111\n[".$this->to_delete_file."]\n";
@@ -1151,7 +1155,16 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         else return false;
     }
     private function John_Hill_vs_hill_mountain($rek) // accept small case 'hill', ignore upper case 'Hill'. Latter can be a person's name.
-    {   /*
+    {   
+        // /* new: Nov 20, 2023
+        if($rek['lbl'] == "lete") { //strangely Pensoft's context generates: "соmр<b>lete</b>"
+            if    (strpos($rek['context'], " <b>lete</b>") !== false) {} //string is found, case sensitive
+            elseif(strpos($rek['context'], " lete ")       !== false) {} //string is found, case sensitive
+            else return false;
+        }
+        // */
+        
+        /*
         "id": "http://purl.obolibrary.org/obo/ENVO_00000083",
         "lbl": "hill",
         "context": "the river and next to the <b>hill</b>",
