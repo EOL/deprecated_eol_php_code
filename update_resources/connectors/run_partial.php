@@ -28,6 +28,12 @@ $arr = $func->retrieve_annotation($basename, $desc); //it is in this routine whe
 print_r($arr);
 */
 
+/*
+$sciname = "Gadur morhuaspp.";
+if(Functions::valid_sciname_for_traits($sciname)) exit("\n[$sciname] valid\n");
+else                                              exit("\n[$sciname] invalid\n");
+*/
+
 // /* option 3 from AntWebAPI.php --- worked OK!
 // /* This is used for accessing Pensoft annotator to get ENVO URI given habitat string.
 $param['resource_id'] = 24; //AntWeb resource ID
