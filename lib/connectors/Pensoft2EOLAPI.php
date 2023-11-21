@@ -483,7 +483,13 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                     [http://rs.tdwg.org/dwc/terms/lifeStage] => 
                     [http://rs.tdwg.org/dwc/terms/sex] => 
                 )*/
-                $this->occurrenceID_taxonID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+
+                if(!isset($this->exclude_taxonIDs[$taxonID])) {
+                    $this->occurrenceID_taxonID[$occurrenceID] = $taxonID;
+                }
+
             }
             elseif($what == 'annotate') { //MoF extension
                 /*Array(
@@ -504,13 +510,17 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                     [http://purl.org/dc/terms/contributor] => 
                     [http://eol.org/schema/reference/referenceID] => 
                 )*/
-                if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'http://eol.org/schema/terms/Present' && $rec['http://rs.tdwg.org/dwc/terms/measurementValue']) {
-                    if($taxonID = $this->occurrenceID_taxonID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']]) {}
-                    else exit("\nShould not go here\n");
-                    $this->ontologies = "eol-geonames";
-                    // print_r($rec); exit("\nfound 1\n");
-                    $this->results = array();
-                    self::save_article_2_txtfile_MoF($rec, $taxonID);
+                $measurementType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
+                $measurementValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                if($measurementType == 'http://eol.org/schema/terms/Present' && $measurementValue) {
+                    if($taxonID = @$this->occurrenceID_taxonID[$occurrenceID]) {
+                        $this->ontologies = "eol-geonames";
+                        // print_r($rec); exit("\nfound 1\n");
+                        $this->results = array();
+                        self::save_article_2_txtfile_MoF($rec, $taxonID);    
+                    }
+                    // else exit("\nShould not go here\n"); //can definitely possibly go here...
                 }
             }
         }
