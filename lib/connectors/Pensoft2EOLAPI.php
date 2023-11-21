@@ -354,7 +354,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
-    private function process_table($meta) //generates individual text files & runs environment tagger
+    private function process_table($meta) //parses document extension //generates individual text files & runs environment tagger
     {   //print_r($meta);
         echo "\nprocess ".$meta->file_uri."...\n";
         echo "\nRun Pensoft annotator...\n";
