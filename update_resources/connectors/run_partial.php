@@ -58,19 +58,20 @@ $descs[] = " ; Mutìnice, J. Myślenice distr.  Slovakia: Košice, 1924";
 $descs[] = "usuаllу with соmрlete mediаn саrinа hаving а соmрletelу sсulрtured sсrоbаl а соmрlete mediаn саrinа";
 $descs[] = "Male genitalia: DISTINCTLY SHApED ( FIgS. 2E, f  ). TEgmEN ( FIg. 2E ) RATHER WIDE, WIDEST AT mIDDLE, mEDIAL DISTAL EXCISION DEEp, V-SHApED (RATIO DTIN/LETE = 0.32–0.33), INNER mARgINS WITHOUT ANY pROJECTION; RATIO LETE/WITE = 1.19–1.20. RATIO THLE/LETE = 0.21. MEDIAN LObE Of AEDEAgUS mODERATELY ELONgATE, RATIO LEAE/WIAE = 1.90– 1.95, EXHIbITINg mAXImUm WIDTH NEARLY AT DISTAL THIRD, WITH NARROWLY AND ObTUSELY SpATULATE ApEX ( FIg. 2f  ). MAIN SCLERITES Of INTERNAL SAC (ENDOpHALLUS) LONg AND ROD-SHApED IN bOTH DORSAL AND LATERAL vIEW.";
 
-$i = 0;
+$i = 0; $errors = 0;
 foreach($descs as $desc) { $i++;
     $ret = run_desc($desc, $pensoft);
     echo "\n[$i] - "; echo("[$ret]");
-    if($i == 1) { if($ret == "mud|orchard|soil|dune")           echo " -OK-"; else echo " -ERROR-"; }
-    if($i == 2) { if($ret == "island|river")                    echo " -OK-"; else echo " -ERROR-"; }
-    if($i == 3) { if($ret == "glacier|valley|cave|pass|river")  echo " -OK-"; else echo " -ERROR-"; }
-    if($i == 4) { if($ret == "")                                echo " -OK-"; else echo " -ERROR-"; }
-    if($i == 5) { if($ret == "")                                echo " -OK-"; else echo " -ERROR-"; }
-    if($i == 6) { if($ret == "")                                echo " -OK-"; else echo " -ERROR-"; }
-    if($i == 7) { if($ret == "")                                echo " -OK-"; else echo " -ERROR-"; }
-    if($i == 8) { if($ret == "")                                echo " -OK-"; else echo " -ERROR-"; }
+    if($i == 1) { if($ret == "mud|orchard|soil|dune")           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+    if($i == 2) { if($ret == "island|river")                    echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+    if($i == 3) { if($ret == "glacier|valley|cave|pass|river")  echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+    if($i == 4) { if($ret == "")                                echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+    if($i == 5) { if($ret == "")                                echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+    if($i == 6) { if($ret == "")                                echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+    if($i == 7) { if($ret == "")                                echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+    if($i == 8) { if($ret == "")                                echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
 }
+echo "\nerrors: [$errors]";
 echo "\n-end tests-\n";
 // */
 function run_desc($desc, $pensoft) {
