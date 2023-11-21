@@ -152,9 +152,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
 
         // /* ------------------------- customize -------------------------
         $this->exclude_taxonIDs = array(); //initialize
-        if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN - remove traits for specified ranks
-            self::process_table_taxa($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], "617_ENV"); //this will gen. $this->exclude_taxonIDs
-        }
+        self::process_table_taxa($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]); //this will gen. $this->exclude_taxonIDs
         // ------------------------- end customize ------------------------- */
         
         // /* this is used to apply all the remaps, deletions, adjustments:
@@ -544,7 +542,17 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             )*/
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             $taxonRank = $rec['http://rs.tdwg.org/dwc/terms/taxonRank'];
-            if(in_array($taxonRank, $this->excluded_ranks)) $this->exclude_taxonIDs[$taxonID] = '';
+
+            if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN - remove traits for specified ranks
+                if(in_array($taxonRank, $this->excluded_ranks)) $this->exclude_taxonIDs[$taxonID] = '';
+            }
+
+            // /* new: Nov 21, 2023:
+            if($scientificName = @$rec["http://rs.tdwg.org/dwc/terms/scientificName"]) {
+                if(!Functions::valid_sciname_for_traits($scientificName)) $this->exclude_taxonIDs[$taxonID] = '';
+            }
+            // */
+
         }
         echo "\nexclude_taxonIDs: ".count($this->exclude_taxonIDs)."\n";
     }
