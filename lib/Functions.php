@@ -7,14 +7,12 @@ class Functions
     public static function is_utf8($string) {
         return mb_check_encoding($string, 'UTF-8');
     }
-
     public static function is_ascii($string)
     {
         return preg_match('%^(?:
               [\x09\x0A\x0D\x20-\x7E]            # ASCII
         )*$%xs', $string);
     }
-
     public function to_camel_case($str)
     {
         $str = str_replace('_', ' ', $str);
@@ -22,47 +20,35 @@ class Functions
         $str = str_replace(' ', '', $str);
         return $str;
     }
-
     public static function array_to_xml($array, $prefix = "  ")
     {
         $xml = "";
-
-        foreach($array as $key => $val)
-        {
+        foreach($array as $key => $val) {
             if(is_int($key)) $key = "value";
-
-            if(is_array($val))
-            {
+            if(is_array($val)) {
                 $xml = $prefix."<".$key.">\n";
                 $xml .= self::array_to_xml($val, $prefix."  ");
                 $xml .= $prefix."</".$key.">\n";
-            }else
-            {
+            }
+            else {
                 $xml .= $prefix."<".$key.">".htmlspecialchars($val)."</".$key.">\n";
             }
         }
-
         return $xml;
     }
-
     public static function log($string)
     {
-        if(isset($GLOBALS['log_file']) && $GLOBALS['ENV_NAME'] != 'test')
-        {
+        if(isset($GLOBALS['log_file']) && $GLOBALS['ENV_NAME'] != 'test') {
             fwrite($GLOBALS['log_file'], date('H:i:s m.d.Y').": $string\n");
         }
     }
-
     public static function file_hours_since_modified($path)
     {
         if(!file_exists($path)) return false;
-
         $stat = stat($path);
         $hours = ceil(((time() - $stat['mtime']) / 60) / 60);
-
         return $hours;
     }
-
     public static function grep_processlist($string)
     {
         $count = 0;
@@ -72,23 +58,19 @@ class Functions
         } else {
           @exec('ps -ef', $ps);
         }
-        foreach($ps as $process)
-        {
+        foreach($ps as $process) {
             if(preg_match("/".preg_quote($string, '/')."/", $process)) $count++;
         }
         return $count;
     }
-
     public static function can_this_connector_run($resource_id)
     {
-        if(($count = Functions::grep_processlist("$resource_id.php")) > 1)
-        {
+        if(($count = Functions::grep_processlist("$resource_id.php")) > 1) {
           error_log("!! ERROR: This connector [$resource_id.php] is already running. Exiting.");
           return false;
         }
         return true;
     }
-
     public static function get_remote_file($remote_url, $options = array())
     {
         if(!isset($options['download_wait_time'])) $options['download_wait_time'] = DOWNLOAD_WAIT_TIME;
@@ -99,22 +81,18 @@ class Functions
         $remote_url = str_replace(" ", "%20", $remote_url);
 
         $attempts = 1;
-        while($attempts <= $options['download_attempts'])
-        {
+        while($attempts <= $options['download_attempts']) {
             $file = @self::fake_user_agent_http_get($remote_url, $options);
             usleep($options['download_wait_time']);
-            if($file || strval($file) == "0") // e.g. file is valid with value of '0' http://api.gbif.org/v0.9/occurrence/count?taxonKey=4896414
-            {
+            if($file || strval($file) == "0") { // e.g. file is valid with value of '0' http://api.gbif.org/v0.9/occurrence/count?taxonKey=4896414
                 return $file;
             }
 
             debug("attempt $attempts failed, will try again after " . ($options['download_wait_time']/1000000) . " seconds");
             $attempts++;
 
-            if($attempts > $options['download_attempts'])
-            {
-                if($options['delay_in_minutes'])
-                {
+            if($attempts > $options['download_attempts']) {
+                if($options['delay_in_minutes']) {
                     debug("Will delay for " . $options['delay_in_minutes'] . " minute(s), then will try again. Number of attempts will be reset.");
                     debug("Will delay for " . $options['delay_in_minutes'] * 60 . " seconds, then will try again. Number of attempts will be reset.");
                     sleep($options['delay_in_minutes'] * 60);
@@ -122,13 +100,10 @@ class Functions
                     $options['delay_in_minutes'] = false;
                 }
             }
-
         }
-
         debug("failed download file after " . ($attempts-1) . " attempts");
         return false;
     }
-
     public static function is_production()
     {
         if(in_array($GLOBALS['ENV_NAME'], array('production', 'jenkins_production'))) return true;
@@ -145,8 +120,7 @@ class Functions
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
 
-        if($resource_id = @$options['resource_id'])
-        {
+        if($resource_id = @$options['resource_id']) {
             $options['cache_path'] .= "$resource_id/";
             if(!file_exists($options['cache_path'])) mkdir($options['cache_path']);
         }
@@ -154,16 +128,13 @@ class Functions
         if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
         if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
         $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.cache";
-        if(file_exists($cache_path))
-        {
+        if(file_exists($cache_path)) {
             $file_contents = file_get_contents($cache_path);
             $cache_is_valid = true;
-            if(@$options['validation_regex'] && !preg_match("/". $options['validation_regex'] ."/ims", $file_contents))
-            {
+            if(@$options['validation_regex'] && !preg_match("/". $options['validation_regex'] ."/ims", $file_contents)) {
                 $cache_is_valid = false;
             }
-            if(($file_contents && $cache_is_valid) || (strval($file_contents) == "0" && $cache_is_valid))
-            {
+            if(($file_contents && $cache_is_valid) || (strval($file_contents) == "0" && $cache_is_valid)) {
                 $file_age_in_seconds = time() - filemtime($cache_path);
                 if($file_age_in_seconds < $options['expire_seconds']) return $file_contents;
                 if($options['expire_seconds'] === false) return $file_contents;
@@ -171,20 +142,17 @@ class Functions
             @unlink($cache_path);
         }
         $file_contents = Functions::get_remote_file($url, $options);
-        if($FILE = Functions::file_open($cache_path, 'w+')) // normal
-        {
+        if($FILE = Functions::file_open($cache_path, 'w+')) { // normal
             fwrite($FILE, $file_contents);
             fclose($FILE);
         }
-        else // can happen when cache_path is from external drive with corrupt dir/file
-        {
+        else { // can happen when cache_path is from external drive with corrupt dir/file
             if(!($h = Functions::file_open(DOC_ROOT . "/public/tmp/cant_delete.txt", 'a'))) return;
             fwrite($h, $cache_path . "\n");
             fclose($h);
         }
         return $file_contents;
     }
-
     public static function url_already_cached($url, $options = array())
     {
         // default expire time is 30 days
@@ -198,14 +166,12 @@ class Functions
         if(!file_exists($cache_path)) return false;
         $file_age_in_seconds = time() - filemtime($cache_path);
         if($file_age_in_seconds >= $options['expire_seconds']) return false;
-        if($options['validation_regex'])
-        {
+        if($options['validation_regex']) {
             $file_contents = file_get_contents($cache_path);
             if(!preg_match("/". $options['validation_regex'] ."/ims", $file_contents)) return false;
         }
         return true;
     }
-
     public static function get_remote_file_fake_browser($remote_url, $options = array())
     {
         if(!isset($options['download_wait_time'])) $options['download_wait_time'] = DOWNLOAD_WAIT_TIME;
@@ -218,33 +184,27 @@ class Functions
         usleep($options['download_wait_time']);
 
         $attempts = 1;
-        while(!$file && $attempts < $options['download_attempts'])
-        {
+        while(!$file && $attempts < $options['download_attempts']) {
             debug("Grabbing $remote_url: attempt ".($attempts+1));
-
             $file = @self::fake_user_agent_http_get($remote_url, $options);
             usleep($options['download_wait_time']);
             $attempts++;
         }
         debug("received file");
-
         return $file;
     }
-
     public static function get_hashed_response($url, $options = array())
     {
         $response = self::get_remote_file($url, $options);
         $hash = simplexml_load_string($response);
         return $hash;
     }
-
     public static function get_hashed_response_fake_browser($url, $options = array())
     {
         $response = self::get_remote_file_fake_browser($url, $options);
         $hash = simplexml_load_string($response);
         return $hash;
     }
-
     public static function save_remote_file_to_local($url, $options = array())
     {
         if(!isset($options['download_wait_time'])) $options['download_wait_time'] = DOWNLOAD_WAIT_TIME;
@@ -256,8 +216,7 @@ class Functions
         debug("\n\n Temporary file: " . $temp_path);
         if(@$options['cache']) $file_contents = self::lookup_with_cache($url, $options);
         else $file_contents = self::get_remote_file($url, $options);
-        if($file_contents)
-        {
+        if($file_contents) {
             if(!($file = Functions::file_open($temp_path, "w"))) return;
             fwrite($file, $file_contents);
             fclose($file);
@@ -265,13 +224,11 @@ class Functions
         }
         return false;
     }
-
     public static function gzip_resource_xml($resource_id)
     {
         $command_line = "gzip -c " . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml >" . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml.gz";
         $output = shell_exec($command_line);
     }
-
     public static function count_resource_tab_files($resource_id, $file_extension = ".tab", $ignoreFirstRowYN = true)
     {
         $arr = array();
@@ -282,22 +239,18 @@ class Functions
         }
         return $arr;
     }
-
     public static function remove_resource_working_dir($resource_id = false)
     {
         if(!$resource_id) return;
         $working_dir = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working";
         if(is_dir($working_dir)) recursive_rmdir($working_dir);
     }
-
     public static function count_rows_from_text_file($file, $ignoreFirstRowYN = true)
     {
         debug("\n counting: [$file]");
         $i = 0;
-        if($handle = Functions::file_open($file, "r"))
-        {
-            while(!feof($handle))
-            {
+        if($handle = Functions::file_open($file, "r")) {
+            while(!feof($handle)) {
                 if($line = fgets($handle)) $i++;
             }
             fclose($handle);
@@ -306,7 +259,6 @@ class Functions
         debug("\n total: [$i]\n");
         return $i;
     }
-    
     public static function remove_row_number_from_text_file($txtfile, $row_no)
     {
         $temp_file = DOC_ROOT . "temp/" . date("Y-m-d H:i:s");
@@ -318,23 +270,19 @@ class Functions
         }
         if(copy($temp_file, $txtfile)) unlink($temp_file);
     }
-    
     public static function tar_gz_resource_folder($resource_id)
     {
         $command_line = "tar -czf " . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz --directory=" . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . " .";
         $output = shell_exec($command_line);
     }
-
     public static function file_open($file_path, $mode)
     {
         if($handle = fopen($file_path, $mode)) return $handle;
-        else
-        {
+        else {
             self::debug_line("Couldn't open file: [$file_path]");
             return false;
         }
     }
-
     public static function file_rename($oldname, $newname)
     {
         if($oldname == $newname) return false;
@@ -346,58 +294,46 @@ class Functions
         if(is_file($newname)) unlink($newname);
         elseif(is_dir($newname)) recursive_rmdir($newname);
 
-        if(is_dir($oldname))
-        {
+        if(is_dir($oldname)) {
             if(self::recursive_copy($oldname, $newname)) recursive_rmdir($oldname);
             else return false;
         }
-        elseif(is_file($oldname))
-        {
+        elseif(is_file($oldname)) {
             if(copy($oldname, $newname)) unlink($oldname);
             else return false;
         }
-        else
-        {
+        else {
             self::debug_line("Source file does not exist: [$oldname]");
             return false;
         }
         return true;
     }
-
     public static function is_within_folders_where_file_change_is_allowed($file)
     {
         $allowed_folders = array('eol_php_code/tmp/', 'eol_php_code/temp/', 'eol_php_code/public/tmp/', 'eol_php_code/applications/content_server/resources/', 'eol_php_code/applications/content_server/tmp', '/opt/resources'
         , '/Volumes/AKiTiO4/d_w_h/', 'eol_php_code/applications/content_server/resources_2/', '/Volumes/AKiTiO4/eol_php_code_tmp/', '/extra/eol_php_code_tmp/', 'temp/'
         , 'eol_php_code/applications/content_server/resources_3/'); //allowed folders so far; we can add more.
-        foreach($allowed_folders as $folder)
-        {
+        foreach($allowed_folders as $folder) {
             if(strpos($file, $folder) !== false) return true;
         }
         self::debug_line("File change is not allowed here: [$file]");
         return false;
     }
-
     public static function recursive_copy($source_dir, $destination_dir) //copy entire directory
     {
         if(strpos($source_dir, $destination_dir."/") !== false) return false; //cannot recursive_copy if destination is already within source path
         if(strpos($destination_dir, $source_dir."/") !== false) return false; //cannot recursive_copy if source is already within destination path
 
-        if($dir = opendir($source_dir))
-        {
+        if($dir = opendir($source_dir)) {
             if(!self::is_within_folders_where_file_change_is_allowed($destination_dir)) return false;
             @mkdir($destination_dir);
-            while(false !== ($file = readdir($dir)))
-            {
-                if(($file != '.') && ($file != '..'))
-                {
-                    if(is_dir($source_dir . '/' . $file) )
-                    {
+            while(false !== ($file = readdir($dir))) {
+                if(($file != '.') && ($file != '..')) {
+                    if(is_dir($source_dir . '/' . $file) ) {
                         if(!self::recursive_copy($source_dir.'/'.$file, $destination_dir.'/'.$file)) return false;
                     }
-                    else
-                    {
-                        if(!copy($source_dir."/".$file, $destination_dir."/".$file))
-                        {
+                    else {
+                        if(!copy($source_dir."/".$file, $destination_dir."/".$file)) {
                             self::debug_line("Copy file failed. source:[$source_dir/$file] destination:[$destination_dir/$file]");
                             return false;
                         }
@@ -410,20 +346,17 @@ class Functions
         self::debug_line("Permission restriction or filesystem error for: [$source_dir]");
         return false;
     }
-
     public static function debug_line($msg)
     {
         $callers = array_reverse(debug_backtrace());
         foreach($callers as $caller) debug($caller['file'] . ":" . $caller['line']);
         debug($msg);
     }
-
     public static function fromJenkinsYN()
     {
         if(DOC_ROOT == "/html/eol_php_code/") return true;
         else return false;
     }
-    
     public static function delete_if_exists($file_path)
     {
         if(file_exists($file_path)) unlink($file_path);
@@ -508,7 +441,6 @@ class Functions
         fwrite($WRITE, $resource_folder . "\t" . date('D Y-m-d h:i:s A') . "\t" . $rows . "\n"); //date('l jS \of F Y h:i:s A')
         fclose($WRITE);
     }
-    
     public static function get_fields_of_this_extension($archive_path, $extension)
     {   /* e.g. self::get_fields_of_this_extension(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, "http://rs.tdwg.org/dwc/terms/measurementorfact"); */
         $harvester = new ContentArchiveReader(NULL, $archive_path);
@@ -724,20 +656,17 @@ class Functions
         }
         return $rec;
     }
-
     public static function remove_invalid_bytes_in_XML($string)
     {
         $string = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $string);
         return $string;
     }
-    
     public static function remove_utf8_bom($text)
     {
         $bom = pack('H*','EFBBBF');
         $text = preg_replace("/^$bom/", '', $text);
         return $text;
     }
-
     // see http://www.php.net/manual/en/function.filesize.php#92462
     public static function remote_file_size($uri)
     {
@@ -751,19 +680,16 @@ class Functions
         if ($data === false) return null;
 
         $content_length = null;
-        if(preg_match('/Content-Length: (\d+)/', $data, $matches))
-        {
+        if(preg_match('/Content-Length: (\d+)/', $data, $matches)) {
             $content_length = ((int) $matches[1]) / 1024;
         }
 
         return $content_length;
     }
-
     public static function ping($uri)
     {
         return (self::remote_file_size($uri) !== null);
     }
-
     public static function curl_post_request($url, $parameters_array = array())
     {
         $ch = curl_init();
@@ -790,7 +716,6 @@ class Functions
         echo "Curl error ($url): " . curl_error($ch);
         return false;
     }
-
     // NOTE - This isn't a fake get, it's a fake user agent.  ;)
     public static function fake_user_agent_http_get($url, $options = array())
     {
@@ -821,28 +746,23 @@ class Functions
 
         if(@$options['return_error_no']) return curl_errno($ch);
 
-        if(0 == curl_errno($ch))
-        {
+        if(0 == curl_errno($ch)) {
             curl_close($ch);
             return $result;
         }
         debug("Curl error ($url): " . curl_error($ch));
         return false;
     }
-
-
     public static function cmp_hierarchy_entries($a, $b)
     {
         if ($a->name->string == $b->name->string) return 0;
         return ($a->name->string < $b->name->string) ? -1 : 1;
     }
-
     public static function cmp_references($a, $b)
     {
         if ($a->fullReference == $b->fullReference) return 0;
         return ($a->fullReference < $b->fullReference) ? -1 : 1;
     }
-
     public static function cmp_references_arkive($a, $b)
     {
         if ($a->fullReference == $b->fullReference) return 0;
@@ -855,13 +775,11 @@ class Functions
 
         return ($match1 < $match2) ? -1 : 1;
     }
-
     public static function cmp_nodes($a, $b)
     {
         if ($a->name == $b->name) return 0;
         return ($a->name < $b->name) ? -1 : 1;
     }
-
     public static function canonical_form($string)
     {
         self::sci_parts();
@@ -887,8 +805,7 @@ class Functions
         $words[0] = str_replace("[","",$words[0]);
         $words[0] = str_replace("]","",$words[0]);
         $return_string = $words[0];
-        if(@preg_match("/^([".LOWER."].*)\)$/u",$words[1],$arr))
-        {
+        if(@preg_match("/^([".LOWER."].*)\)$/u",$words[1],$arr)) {
             $words[1] = $arr[1];
             if(preg_match("/^(.*)\?$/",$words[1],$arr)) $words[1] = $arr[1];
             if(preg_match("/^[^".UPPER.LOWER."]*([".UPPER.LOWER."]*)[^".UPPER.LOWER."]*$/u",$words[1],$arr)) $words[1] = $arr[1];
@@ -896,8 +813,7 @@ class Functions
             return $return_string;
         }
 
-        for($i=1 ; $i<$num ; $i++)
-        {
+        for($i=1 ; $i<$num ; $i++) {
             if(preg_match("/^[".UPPER."\(]/u",$words[$i])) continue;
             if(preg_match("/[0-9]/",$words[$i]) && !preg_match("/^[1-2]?[0-9]?\-?[".LOWER."]+$/u",$words[$i])) continue;
 
@@ -917,7 +833,6 @@ class Functions
         unset($words);
         return trim($return_string);
     }
-
     public static function ranked_canonical_form($string)
     {
         require_library('RubyNameParserClient');
@@ -925,15 +840,11 @@ class Functions
         if(!isset($GLOBALS['NAME_PARSER_CLIENT'])) $GLOBALS['NAME_PARSER_CLIENT'] = new RubyNameParserClient();
         return $GLOBALS['NAME_PARSER_CLIENT']->lookup_string($string);
     }
-
     public static function italicized_form($string)
     {
         $canonical_form = self::canonical_form($string);
-
         $words = explode(" ",$canonical_form);
-
-        foreach($words as $w)
-        {
+        foreach($words as $w) {
             $string = preg_replace("/(^|[^0-9".UPPER.LOWER."])".preg_quote($w, "/")."([^0-9".UPPER.LOWER."]|$)/","\\1|-n-|".$w."|-/n-|\\2",$string);
         }
         unset($words);
@@ -948,7 +859,6 @@ class Functions
         unset($canonical_form);
         return $string;
     }
-
     public static function fix_italics($italicized)
     {
         $modified_italicized = $italicized;
@@ -956,129 +866,104 @@ class Functions
         $modified_italicized = str_replace("<i><i>", "<i>", $modified_italicized);
         $modified_italicized = str_replace("</i></i>", "</i>", $modified_italicized);
         $modified_italicized = str_replace("</i></i>", "</i>", $modified_italicized);
-        if(preg_match_all("/(<i>(.*?))<i>/", $modified_italicized, $matches, PREG_SET_ORDER))
-        {
-            foreach($matches as $match)
-            {
-                if(strpos($match[0], "</i>") === false)
-                {
+        if(preg_match_all("/(<i>(.*?))<i>/", $modified_italicized, $matches, PREG_SET_ORDER)) {
+            foreach($matches as $match) {
+                if(strpos($match[0], "</i>") === false) {
                     $modified_italicized = str_replace($match[0], $match[1], $modified_italicized);
                 }
             }
         }
-        if(preg_match_all("/<\/i>((.*?)<\/i>)/", $modified_italicized, $matches, PREG_SET_ORDER))
-        {
-            foreach($matches as $match)
-            {
-                if(strpos($match[0], "<i>") === false)
-                {
+        if(preg_match_all("/<\/i>((.*?)<\/i>)/", $modified_italicized, $matches, PREG_SET_ORDER)) {
+            foreach($matches as $match) {
+                if(strpos($match[0], "<i>") === false) {
                     $modified_italicized = str_replace($match[0], $match[1], $modified_italicized);
                 }
             }
         }
         return $modified_italicized;
     }
-
     public static function class_name($path)
     {
-        if(SYSTEM_OS == "Windows")
-        {
+        if(SYSTEM_OS == "Windows") {
             if(preg_match("/\\\([^\\\]+)\.php$/", $path, $arr)) $path = $arr[1];
-        }elseif(preg_match("/\/([^\/]+)\.php$/", $path, $arr)) $path = $arr[1];
+        }
+        elseif(preg_match("/\/([^\/]+)\.php$/", $path, $arr)) $path = $arr[1];
         return strtolower(preg_replace("/([a-z])([A-Z])/", "\\1_".strtolower("\\2"), $path));
     }
-
     public static function generate_guid()
     {
         return md5(uniqid("eol".rand(), true));
     }
-
     public static function mock_object($class, $params)
     {
         $mock_object = new $class(false);
-        foreach($params as $k => $v)
-        {
+        foreach($params as $k => $v) {
             $mock_object->$k = $v;
         }
         unset($params);
-
         return $mock_object;
     }
-
     public static function get_last_function($index)
     {
         if(!$index) $index = 2;
         $backtrace = debug_backtrace();
         return @$backtrace[$index]['class'].": ".@$backtrace[$index]['function'];
     }
-
     public static function stacktrace()
     {
         return "<pre>".print_r(debug_backtrace(), 1)."</pre>";
     }
-
-
-
     public static function common_names_are_same($cn1, $cn2)
     {
         if(!$cn1 && !$cn2) return true;
         if(!$cn1 || !$cn2) return false;
 
         $common_names_1 = array();
-        foreach($cn1 as $k)
-        {
+        foreach($cn1 as $k) {
             $common_names_1[] = $k->common_name."|".$k->language_id;
         }
 
         $common_names_2 = array();
-        foreach($cn2 as $k)
-        {
+        foreach($cn2 as $k) {
             $common_names_2[] = $k->common_name."|".$k->language_id;
         }
 
         if (array_diff($common_names_1, $common_names_2)) return false;
         return true;
     }
-
     public static function references_are_same($refs1, $refs2)
     {
         if(!$refs1 && !$refs2) return true;
         if(!$refs1 || !$refs2) return false;
 
         $references_1 = array();
-        foreach($refs1 as $k)
-        {
+        foreach($refs1 as $k) {
             $references_1[] = $k->id;
         }
 
         $references_2 = array();
-        foreach($refs2 as $k)
-        {
+        foreach($refs2 as $k) {
             $references_2[] = $k->id;
         }
 
         if (array_diff($references_1, $references_2)) return false;
         return true;
     }
-
     public static function agents_are_same($agents1, $agents2)
     {
         $agents_1 = array();
-        foreach($agents1 as $k)
-        {
+        foreach($agents1 as $k) {
             $agents_1[] = $k->full_name;
         }
 
         $agents_2 = array();
-        foreach($agents2 as $k)
-        {
+        foreach($agents2 as $k) {
             $agents_2[] = $k->full_name;
         }
 
         if (array_diff($agents_1, $agents_2)) return false;
         return true;
     }
-
     public static function get_accesspoint_url_if_available($resource_id, $backup_accesspoint_url)
     {
         if(self::fromJenkinsYN()) return $backup_accesspoint_url;
@@ -1090,48 +975,34 @@ class Functions
         if($backup_accesspoint_url != $new_resource_path && $new_resource_path) return $new_resource_path;
         else return $backup_accesspoint_url;
     }
-
     public static function create_fixture($table)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
-
         $return = "";
-
         $i = 1;
         $result = $mysqli->query("SELECT * FROM $table");
-        while($result && $row=$result->fetch_assoc())
-        {
+        while($result && $row=$result->fetch_assoc()) {
             $return .= $table."_$i:\n";
-            foreach($row as $k => $v)
-            {
+            foreach($row as $k => $v) {
                 if($v != '') $return .= "    $k: $v\n";
             }
             $return .= "\n";
-
             $i++;
         }
-
         return $return;
     }
-
     public static function load_fixtures($environment = "test")
     {
         if($GLOBALS['ENV_NAME']!=$environment) return false;
-
         $mysqli =& $GLOBALS['mysqli_connection'];
-
         $files = Functions::get_fixture_files();
-
         $fixture_data = (object) array();
-
         $mysqli->begin_transaction();
-        foreach($files as $table)
-        {
+        foreach($files as $table) {
             $fixture_data->$table = (object) array();
 
             $rows = Spyc::YAMLLoad(DOC_ROOT."tests/fixtures/$table.yml");
-            foreach($rows as $id => $row)
-            {
+            foreach($rows as $id => $row) {
                 $fixture_data->$table->$id = (object) array();
 
                 $query = "INSERT INTO $table (`";
@@ -1142,51 +1013,40 @@ class Functions
 
                 $mysqli->insert($query);
 
-                foreach($row as $k => $v)
-                {
+                foreach($row as $k => $v) {
                     $fixture_data->$table->$id->$k = $v;
                 }
             }
         }
         $mysqli->end_transaction();
-
         return $fixture_data;
     }
-
     public static function get_files_in_dir($dir)
     {
         $files = array();
 
-        if($handle = opendir($dir))
-        {
-           while(false !== ($file = readdir($handle)))
-           {
-               if(substr($file, 0, 1) != "." && $file != '__MACOSX')
-               {
+        if($handle = opendir($dir)) {
+           while(false !== ($file = readdir($handle))) {
+               if(substr($file, 0, 1) != "." && $file != '__MACOSX') {
                    $files[] = $file;
                }
            }
            closedir($handle);
         }
-
         return $files;
     }
-
     public static function get_single_xml_file_in_directory($dir)
     {
         $files = Functions::get_files_in_dir($dir);
         $single_xml_path = null;
-        foreach($files as $file)
-        {
+        foreach($files as $file) {
             if($single_xml_path) return null;
-            if(preg_match("/\.xml$/i", $file))
-            {
+            if(preg_match("/\.xml$/i", $file)) {
                 $single_xml_path = $dir."/".$file;
             }else return null;
         }
         return $single_xml_path;
     }
-
     public static function get_fixture_files()
     {
         $files = array();
@@ -2764,6 +2624,23 @@ class Functions
             if(preg_match($regex, $user_agent)) $browser = $value;
         }
         return $browser;
-    }    
+    }
+    public static function valid_sciname_for_traits($sciname)
+    {   /* Taxon names ending in "sp." "spp.", or "morphospecies" whether or not followed by an identifier
+           Taxon names beginning "cf." or "aff." 
+           https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=67740&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67740 */
+        $hits = array("sp.", "spp.", "morphospecies", "cf.", "aff.", " sp ", " spp ", " cf ", " aff ");
+        foreach($hits as $hit) {
+            if(stripos($sciname, $hit) !== false) return false; //string is found
+        }
+        $hits = array(" sp", " spp", " cf", " aff");
+        foreach($hits as $hit) {
+            if(stripos($sciname, $hit) !== false) { //string is found
+                if(substr($sciname, -(strlen($hit))) == $hit) return false; // "Gadus morhua sp" is invalid
+            }
+
+        }
+        return true;
+    }
 }
 ?>
