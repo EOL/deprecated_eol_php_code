@@ -94,6 +94,13 @@ class DwCA_Rem_Taxa_Adjust_MoF_API
                 if($class == 'Gastropoda'   && $phylum == 'Chordata') $this->taxonIDs_to_delete[$taxonID] = '';
                 if($class == 'Hexanauplia'  && $phylum == 'Chordata') $this->taxonIDs_to_delete[$taxonID] = '';
                 if($class == 'Insecta'      && $phylum == 'Chordata') $this->taxonIDs_to_delete[$taxonID] = '';
+
+                // /* new: Nov 21, 2023:
+                if($scientificName = @$rec["http://rs.tdwg.org/dwc/terms/scientificName"]) {
+                    if(!Functions::valid_sciname_for_traits($scientificName)) $this->taxonIDs_to_delete[$taxonID] = '';
+                }
+                // */
+
             } //end what == 'info'
             //===========================================================================================================================================================
             if($what == 'write_taxa') {
