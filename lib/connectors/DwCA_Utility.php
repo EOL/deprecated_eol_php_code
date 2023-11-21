@@ -979,29 +979,6 @@ class DwCA_Utility
     }
     //ends here 
     
-    /* not used at the moment...
-    private function create_taxa($taxa)
-    {
-        foreach($taxa as $t)
-        {   
-            $taxon = new \eol_schema\Taxon();
-            $taxon->taxonID         = $t['AphiaID'];
-            $taxon->scientificName  = trim($t['scientificname'] . " " . $t['authority']);
-            $taxon->taxonRank       = $t['rank'];
-            $taxon->taxonomicStatus = $t['status'];
-            $taxon->source          = $this->taxon_page . $t['AphiaID'];
-            $taxon->parentNameUsageID = $t['parent_id'];
-            $taxon->acceptedNameUsageID     = $t['valid_AphiaID'];
-            $taxon->bibliographicCitation   = $t['citation'];
-            if(!isset($this->taxon_ids[$taxon->taxonID]))
-            {
-                $this->taxon_ids[$taxon->taxonID] = '';
-                $this->archive_builder->write_object_to_file($taxon);
-            }
-        }
-    }
-    */
-    
     //=====================================================================================================================
     //start functions for the interface tool "genHigherClass"
     //=====================================================================================================================
