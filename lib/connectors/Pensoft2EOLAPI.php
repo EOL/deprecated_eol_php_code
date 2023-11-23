@@ -102,8 +102,12 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $this->another_set_exclude_URIs = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/terms_implying_missing_filter.txt';
         $this->another_set_exclude_URIs_02 = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/terms_to_remove.txt';
         $this->another_set_exclude_URIs_03 = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/geo_synonyms.txt';
+        $this->labels_to_remove_file = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/labels_to_remove.txt';
+
+
         $this->pensoft_run_cnt = 0;
-        $this->ontologies = "envo";
+        if($val = @$param['ontologies']) $this->ontologies = $val;      // 1st client is the utility run_partial.php
+        else                             $this->ontologies = "envo";    // orig
         /* from DATA-1853 - exclude ranks */
         $this->excluded_ranks = array('class', 'infraclass', 'infrakingdom', 'infraorder', 'infraphylum', 'kingdom', 'order', 'phylum', 'subclass', 'subkingdom', 'suborder', 'subphylum', 'subtribe', 'superclass', 'superfamily', 'superkingdom', 'superorder', 'superphylum', 'division', 'domain', 'grandorder', 'parvorder', 'realm', 'subdivision', 'tribe');
         $this->pensoft_service = "https://api.pensoft.net/annotator?text=MY_DESC&ontologies=MY_ONTOLOGIES";
@@ -124,7 +128,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         echo("\n mRemarks: "                    .count($this->mRemarks)."\n");
         echo("\n delete_MoF_with_these_labels: ".count($this->delete_MoF_with_these_labels)."\n");
         echo("\n delete_MoF_with_these_uris: "  .count($this->delete_MoF_with_these_uris)."\n");
-        exit("\nditox eli\n");
+        exit("\n---\n");
         */
         $this->initialize_new_patterns();         //generates $this->new_patterns   -> used in xxx() --- DATA-1893
         // echo("\n new_patterns: "  .count($this->new_patterns)."\n"); print_r($this->new_patterns); exit;
@@ -441,7 +445,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 if($this->param['resource'] == 'Pensoft_journals')      $this->ontologies = "envo,eol-geonames"; //DATA-1897 Pensoft journals (textmining)
                 // */
                 
-                // exit("\n[$this->ontologies]\n");
+                // exit("\nontologies: [$this->ontologies]\n");
                 // ---------------------- end customize ----------------------*/
                 
                 // print_r($rec); exit("\n[2]\n");
@@ -705,6 +709,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     */
     public function retrieve_annotation($id, $desc)
     {
+        // exit("\nontologies retrieve_annotation(): [$this->ontologies]\n");
         $desc = str_replace("....", "", $desc);
         $desc = str_replace("----", "", $desc);
         $desc = str_replace("????", "", $desc);
@@ -773,7 +778,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         // echo("\nstrlen: ".strlen($desc)."\n"); // good debug
         if($arr = self::retrieve_json($id, 'partial', $desc)) {
             // if($loop == 29) { print_r($arr['data']); //exit; }
-            // print_r($arr); //exit; //good debug
+            // print_r($arr); //exit; //good debug ***** this is the orig annotator output
             if(isset($arr['data'])) self::select_envo($arr['data']);
             else {
                 echo "\n-=-=-=-=-=-=-=111\n[".$this->to_delete_file."]\n";
@@ -836,10 +841,30 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         */
         foreach($arr as $rek) {
             // /* general for all:
+            
+            // /* new: Nov 22, 2023 - Eli's initiative -- never use this
+            // if($rek['is_word'] != "1") continue;
+            // if($rek['is_synonym'] == "1") continue;
+            // */
+
+            // /* new: Nov 22, 2023 - Eli's initiative. Until a better sol'n is found. e.g. "Cueva de Altamira"
+            if(stripos($rek['lbl'], " de ") !== false) continue; //string is found
+            // */
+
+            // print_r($this->param); //exit;
+            // /* new Nov 23, 2023 per https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=67733&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67733
+            if(in_array($this->param['resource_id'], array('617_ENV', 'TreatmentBank_ENV'))) { //Wikipedia EN & TreatmentBank for now
+                if(isset($this->labels_to_remove[$rek['lbl']])) continue;
+            }
+            // */
+
             $rek['id'] = self::WoRMS_URL_format($rek['id']); # can be general, for all resources
+            // echo "\nGoes- 80\n"; print_r($rek);
 
             if($rek['ontology'] == "eol-geonames") { //per https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65861&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65861
+                // echo "\nGoes- 81\n";
                 if(stripos($rek['id'], "ENVO_") !== false) continue; //string is found
+                // echo "\nGoes- 82\n";
                 if(in_array($rek['lbl'], array('jordan', 'guinea', 'washington'))) continue; //always remove
                 if(in_array($rek['id'], array('http://www.geonames.org/1327132',                //https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66190&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66190
                                               'https://www.geonames.org/3463504'))) continue;   //https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66197&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66197
@@ -855,7 +880,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 // */
             }
             // */
-            
+            // echo "\nGoes- 100\n";
             // /*
             if($rek['ontology'] == "envo") { //ontology habitat
                 if(in_array($rek['lbl'], array('mesa', 'laguna'))) continue; //https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65899&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65899
@@ -866,8 +891,12 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 // */
                 
                 // /* per: https://eol-jira.bibalex.org/browse/DATA-1914 - as of Sep 20, 2022
-                if(in_array($rek['lbl'], array('organ', 'field', 'well', 'adhesive', 'quarry', 'reservoir', 'umbrella', 'plantation', 'bar'))) continue;
+                if(in_array($rek['lbl'], array('organ', 'field', 'well', 'adhesive', 'quarry', 'reservoir', 'umbrella', 'plantation', 'bar', 'planktonic material'))) continue;
                 // */
+
+                /* exclude per: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=67731&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67731
+                planktonic material
+                */
             }
             // */
             
@@ -885,7 +914,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             }
             if(in_array($rek['id'], $this->remove_across_all_resources)) continue; //remove 'cloud', 'cut' for all resources
             // */
-            
+            // echo "\nGoes- 101\n";
+
             // /* customize: remove all records with measurementValue = http://purl.obolibrary.org/obo/ENVO_00000447
             // for all resources of: Memoirs of the American Entomological Society
             if(in_array($this->param['resource_id'], array("118935_ENV", "120081_ENV", "120082_ENV", "118986_ENV", "118920_ENV", 
@@ -987,6 +1017,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 }
             }
             // */
+            // echo "\nGoes- 102\n";
 
             // /* ----- New: Nov 8, 2022 - EOL Terms file ----- START
             // print_r($this->results);
@@ -1019,7 +1050,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             else { //rest of the resources --> Just be sure the citation, reference, biblio parts of text is not included as input to Pensoft
                 $this->results[$rek['id']] = array("lbl" => $rek['lbl'], "ontology" => $rek['ontology']);
             }
-            
+            // echo "\nGoes- 103\n";
+
         } //end foreach()
     }
     private function is_valid_taxon($str)
@@ -1821,6 +1853,14 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             $this->delete_MoF_with_these_uris['http://purl.obolibrary.org/obo/ENVO_00000182'] = '';
         }
         // */
+
+        // /* remove list of labels
+        $str = file_get_contents($this->labels_to_remove_file);
+        $arr = explode("\n", $str);
+        $arr = array_map('trim', $arr);
+        foreach($arr as $label) if($label) $this->labels_to_remove[$label] = '';
+        // print_r($this->labels_to_remove); exit("\nlabels_to_remove: ".count($this->labels_to_remove)."\n");
+        // */        
     }
     private function filter_out_from_entities()
     {   //from: https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=65359&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65359
