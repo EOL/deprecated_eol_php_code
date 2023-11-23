@@ -883,20 +883,19 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             // echo "\nGoes- 100\n";
             // /*
             if($rek['ontology'] == "envo") { //ontology habitat
+                /* all legit combined below
                 if(in_array($rek['lbl'], array('mesa', 'laguna'))) continue; //https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65899&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65899
                 if(in_array($rek['lbl'], array('rapids'))) continue; //118950_ENV https://eol-jira.bibalex.org/browse/DATA-1887?focusedCommentId=66259&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66259
-                // /* remove 'ocean' (measurementValue = http://purl.obolibrary.org/obo/ENVO_00000447) for all resources. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1897?focusedCommentId=66613&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66613
+                // remove 'ocean' (measurementValue = http://purl.obolibrary.org/obo/ENVO_00000447) for all resources. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1897?focusedCommentId=66613&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66613
                 if(in_array($rek['lbl'], array('ocean', 'sea'))) continue;
-                if($rek['id'] == 'http://purl.obolibrary.org/obo/ENVO_00000447') continue;
-                // */
-                
-                // /* per: https://eol-jira.bibalex.org/browse/DATA-1914 - as of Sep 20, 2022
+                if($rek['id'] == 'http://purl.obolibrary.org/obo/ENVO_00000447') continue;                
+                // per: https://eol-jira.bibalex.org/browse/DATA-1914 - as of Sep 20, 2022
                 if(in_array($rek['lbl'], array('organ', 'field', 'well', 'adhesive', 'quarry', 'reservoir', 'umbrella', 'plantation', 'bar', 'planktonic material'))) continue;
-                // */
-
-                /* exclude per: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=67731&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67731
-                planktonic material
+                // exclude per: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=67731&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67731
+                // planktonic material
                 */
+                if($rek['id'] == 'http://purl.obolibrary.org/obo/ENVO_00000447') continue;                
+                if(in_array($rek['lbl'], array('mesa', 'laguna', 'rapids', 'ocean', 'sea', 'organ', 'field', 'well', 'adhesive', 'quarry', 'reservoir', 'umbrella', 'plantation', 'bar', 'planktonic material'))) continue;
             }
             // */
             
