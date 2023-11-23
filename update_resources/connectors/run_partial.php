@@ -49,6 +49,8 @@ $descs[] = "We wish to thank A.I. Golykov and B.I. Sirenko of the Institute of Z
 $descs[] = "Spain, Santander, Santillana del Mar, Cueva de Altamira. in the valley of the dead found in Philippines.";
 $descs[] = 'scientificNameAuthorship: Théel, 1882; ';
 $descs[] = "linn city house cliff pass ice mud transportation railroad cline biofilm sediment";
+$descs[] = "mesa laguna rapids ocean sea organ field well adhesive quarry reservoir umbrella plantation bar planktonic material";
+
 // $descs = array();
 // $descs[] = "Panthea guatemala and Enoplochiton niger with Pseudomorpha patagonia.";
 // $descs[] = "Enoplochiton niger";
@@ -85,7 +87,8 @@ foreach($IDs as $resource_id) {
             if($i == 9) { if($ret == "russia|russia|russia")                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 10) { if($ret == "philippines|valley|spain")                   echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 11) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            if($i == 12) { if($ret == "biofilm|transportation|mud|ice|sediment|railroad|cliff|house|cline|city|pass") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }    
+            if($i == 12) { if($ret == "biofilm|transportation|mud|ice|sediment|railroad|cliff|house|cline|city|pass") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 13) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
         if($resource_id == '617_ENV') {
             if($i == 1) { if($ret == "orchard|soil|dune")                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
@@ -99,7 +102,8 @@ foreach($IDs as $resource_id) {
             if($i == 9) { if($ret == "russia|russia|russia")                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 10) { if($ret == "philippines|valley|spain")                   echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 11) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            if($i == 12) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }    
+            if($i == 12) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 13) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
     }
     echo "\nerrors: [$errors]";
