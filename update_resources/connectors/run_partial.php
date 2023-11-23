@@ -50,8 +50,8 @@ $descs[] = "Spain, Santander, Santillana del Mar, Cueva de Altamira. in the vall
 $descs[] = 'scientificNameAuthorship: Théel, 1882; ';
 $descs[] = "linn city house cliff pass ice mud transportation railroad cline biofilm sediment";
 // $descs = array();
-// $descs[] = "linn   city  house  cliff  pass  ice   mud  transportation railroad   cline   biofilm sediment";
-
+// $descs[] = "Panthea guatemala and Enoplochiton niger with Pseudomorpha patagonia.";
+// $descs[] = "Enoplochiton niger";
 
 $IDs = array('24', '617_ENV'); //617_ENV -> Wikipedia EN //24 -> AntWeb resource ID
 // $IDs = array('24');
