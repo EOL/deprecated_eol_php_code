@@ -172,8 +172,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         
         // /* NEW: for WoRMS only: annotate WoRMS orig strings for MoF with mType = Present. Basically convert them to URIs
         if($this->param['resource_id'] == '26_ENV') {
-            self::process_table_v2($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], "info_list");
-            self::process_table_v2($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], "annotate"); // exit("\nelix 3\n");
+            self::process_table_v2_WoRMS($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], "info_list");
+            self::process_table_v2_WoRMS($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], "annotate"); // exit("\nelix 3\n");
         }
         // */
         
@@ -463,9 +463,9 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         } //end loop
         if($this->param['resource_id'] == '26_ENV') echo("\n text_that_are_habitat: ".$this->text_that_are_habitat."\n");
     }
-    private function process_table_v2($meta, $what)
+    private function process_table_v2_WoRMS($meta, $what)
     {   //print_r($meta);
-        echo "\n process_table_v2 ".$meta->file_uri."...\n";
+        echo "\n process_table_v2_WoRMS ".$meta->file_uri."...\n";
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
