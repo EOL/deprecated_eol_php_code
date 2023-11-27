@@ -90,7 +90,6 @@ class Functions_Pensoft
         }
         return $ret;
     }
-
     function WoRMS_URL_format($path) # called from Pensoft2EOLAPI.php for now.
     {
         if(stripos($path, "marineregions.org/gazetteer.php?p=details&id=") !== false) { //string is found
@@ -105,6 +104,36 @@ class Functions_Pensoft
             }
         }
         return $path;
+    }
+    function format_TreatmentBank_desc($desc)
+    {
+        $desc = '\n'.$desc.'\n';
+        $desc = str_replace('\n', ' elicha ', $desc);
+        $desc = Functions::remove_whitespace($desc);
+        $parts = explode("elicha", $desc); // print_r($parts); //exit;
+        $final = array();
+        foreach($parts as $part) {
+            if($first_word = self::get_first_word_of_string($part)) {
+                $this->debug['detected_first_words'][$first_word] = '';
+                if(!isset($this->exclude_first_words[$first_word])) $final[] = $part;    
+            }
+        }
+
+        /* debug only
+        ksort($this->debug['detected_first_words']);
+        echo "\ndetected_first_words: ";
+        print_r($this->debug['detected_first_words']); 
+        print_r($this->exclude_first_words);
+        // exit("\n-stop muna-\n");
+        */
+
+        // return implode("\n----------\n", $final); //debug only
+        return implode("\n", $final);
+    }
+    private function get_first_word_of_string($str)
+    {
+        $arr = explode(' ', trim($str)); 
+        return strtolower($arr[0]); 
     }
 }
 ?>

@@ -13,6 +13,14 @@ $param = array("task" => "generate_eol_tags_pensoft", "resource" => "all_BHL", "
 
 $func = new Pensoft2EOLAPI($param);
 
+// /* independent test: Nov 27, 2023
+$str = file_get_contents(DOC_ROOT."sample_treatment.txt");
+$ret = $func->format_TreatmentBank_desc($str);
+echo "\n[$ret]\n";
+exit("\n--end test--\n");
+// */
+
+
 /* option 1 works, but it skips a lot of steps that is needed in real-world connector run.
 $json = $func->run_partial($desc);
 $arr = json_decode($json); print_r($arr);

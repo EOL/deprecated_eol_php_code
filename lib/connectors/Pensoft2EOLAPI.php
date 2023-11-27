@@ -116,6 +116,17 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         
         $this->to_delete_file = "";
         $this->debug = array();
+
+        // /* TreatmentBank only: exclude first words:
+        $words = array('diagrammatic', 'diagram', 'diagrams', 'fig', 'figs', 'figure', 'figures', 'ref', 'refs', 'ref.:', 'reference', 'references', 'table', 'tables', 'images.', 'image.');
+        foreach($words as $word) {
+            $arr[$word] = '';
+            $arr[$word."."] = '';
+        }
+        ksort($arr);
+        $this->exclude_first_words = $arr;
+        $this->debug['detected_first_words'] = array();
+        // */        
     }
     public function initialize_remaps_deletions_adjustments()
     {
@@ -249,9 +260,11 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         if($val = @$this->debug[$index]) echo "\n$index : [$val]\n";
         $index = "NOT FOUND IN EOL TERMS FILE";
         if(isset($this->debug[$index])) {
-            echo "\n$index:\n"; print_r($this->debug[$index]);
+            echo "\n$index: "; print_r($this->debug[$index]);
         }
         if(isset($this->debug['counts'])) print_r($this->debug['counts']);
+
+        if($val = @$this->debug['detected_first_words']) {ksort($val); echo "\ndetected_first_words: "; print_r($val);} //for TreatmentBank only
     }
     private function run_utility($resource_id)
     {
@@ -590,6 +603,12 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $basename = $rec['http://rs.tdwg.org/dwc/terms/taxonID']."_-_".$rec['http://purl.org/dc/terms/identifier'];
         $desc = strip_tags($rec['http://purl.org/dc/terms/description']);
         $desc = trim(Functions::remove_whitespace($desc));
+
+        // /* new: massage description for TreatmentBank (Nov 27, 2023)
+        if($this->param['resource_id'] == "TreatmentBank_ENV") $desc = $this->format_TreatmentBank_desc($desc);
+        // return; //during dev only
+        // */
+
         self::retrieve_annotation($basename, $desc); //it is in this routine where the pensoft annotator is called/run
         self::write_to_pensoft_tags($basename);
     }
