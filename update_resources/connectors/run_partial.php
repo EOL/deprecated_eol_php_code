@@ -13,7 +13,7 @@ $param = array("task" => "generate_eol_tags_pensoft", "resource" => "all_BHL", "
 
 $func = new Pensoft2EOLAPI($param);
 
-// /* independent test: Nov 27, 2023
+// /* independent test: Nov 27, 2023 --- separate sections of Treatment text
 $str = file_get_contents(DOC_ROOT."sample_treatment.txt");
 $ret = $func->format_TreatmentBank_desc($str);
 echo "\n[$ret]\n";
