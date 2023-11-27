@@ -13,12 +13,12 @@ $param = array("task" => "generate_eol_tags_pensoft", "resource" => "all_BHL", "
 
 $func = new Pensoft2EOLAPI($param);
 
-// /* independent test: Nov 27, 2023 --- separate sections of Treatment text
+/* independent test: Nov 27, 2023 --- separate sections of Treatment text
 $str = file_get_contents(DOC_ROOT."/tmp2/sample_treatment.txt");
 $ret = $func->format_TreatmentBank_desc($str);
 echo "\n[$ret]\n";
 exit("\n--end test--\n");
-// */
+*/
 
 
 /* option 1 works, but it skips a lot of steps that is needed in real-world connector run.
@@ -58,10 +58,13 @@ $descs[] = "Spain, Santander, Santillana del Mar, Cueva de Altamira. in the vall
 $descs[] = 'scientificNameAuthorship: Théel, 1882; ';
 $descs[] = "linn city house cliff pass ice mud transportation railroad cline biofilm sediment";
 $descs[] = "mesa laguna rapids ocean sea organ field well adhesive quarry reservoir umbrella plantation bar planktonic material";
+$descs[] = "Almost all of these are incorrect: e.g., (1) ‘‘fen. ov.’’ (fenestra ovalis, = f. vestibuli)";
 
 // $descs = array();
 // $descs[] = "Panthea guatemala and Enoplochiton niger with Pseudomorpha patagonia.";
-// $descs[] = "Enoplochiton niger";
+// $descs[] = file_get_contents(DOC_ROOT."/tmp2/sample_treatment.txt");
+// $descs[] = "Spain, Santander, Santillana del Mar, Cueva de Altamira. in the valley of the dead found in Philippines.";
+
 
 $IDs = array('24', '617_ENV'); //617_ENV -> Wikipedia EN //24 -> AntWeb resource ID
 // $IDs = array('24');
@@ -97,6 +100,7 @@ foreach($IDs as $resource_id) {
             if($i == 11) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 12) { if($ret == "biofilm|transportation|mud|ice|sediment|railroad|cliff|house|cline|city|pass") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 13) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 14) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
         if($resource_id == '617_ENV') {
             if($i == 1) { if($ret == "orchard|soil|dune")                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
@@ -112,6 +116,7 @@ foreach($IDs as $resource_id) {
             if($i == 11) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 12) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 13) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 14) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
     }
     echo "\nerrors: [$errors]";
@@ -127,7 +132,7 @@ function run_desc($desc, $pensoft) {
     $pensoft->results = array();
     $final = array();
     if($arr = $pensoft->retrieve_annotation($basename, $desc)) {
-        // print_r($arr); --- search ***** in Pensoft2EOLAPI.php
+        // print_r($arr); //--- search ***** in Pensoft2EOLAPI.php
         foreach($arr as $uri => $rek) $final[] = $rek['lbl'];
     }
     return implode("|", $final);    

@@ -135,5 +135,9 @@ class Functions_Pensoft
         $arr = explode(' ', trim($str)); 
         return strtolower($arr[0]); 
     }
+    function substri_count($haystack, $needle) //a case-insensitive substr_count()
+    {
+        return substr_count(strtoupper($haystack), strtoupper($needle));
+    }
 }
 ?>

@@ -468,9 +468,15 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 // $saved++; //debug only
                 $this->results = array();
                 // $this->eli = array(); //good debug
+
+                /* debug only; during dev only --- force assignment of string to textmine
+                $rec['http://purl.org/dc/terms/description'] = file_get_contents(DOC_ROOT."/tmp2/sample_treatment.txt");
+                */
+
                 self::save_article_2_txtfile($rec);
                 // exit("\nstop muna\n");
             }
+            // break; //get only 1 record, during dev only
             // if($i >= 10) break; //debug only         --- limit the no. of records processed
             // if($saved >= 20) break; //debug only     --- limit the no. of records processed
         } //end loop
@@ -864,6 +870,15 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             // /* new: Nov 22, 2023 - Eli's initiative -- never use this
             // if($rek['is_word'] != "1") continue;
             // if($rek['is_synonym'] == "1") continue;
+            // */
+
+            // /* should not get 'fen' --- [context] => Almost all of these are incorrect e.g. 1 ‘‘<b>fen</b>. ov.’’ fenestra ovalis
+            //    but should get 'philippines'       => in the valley of the dead found in <b>Philippines</b>.
+            $needle = "<b>".$rek['lbl']."</b>.";
+            if(stripos($rek['context'], $needle) !== false) { //string is found
+                $needle = $rek['lbl'];
+                if($this->substri_count($rek['context'], $needle) > 1) continue; //meaning an abbreviation and the whole word was also found inside the context.
+            }
             // */
 
             // /* new: Nov 22, 2023 - Eli's initiative. Until a better sol'n is found. e.g. "Cueva de Altamira"
