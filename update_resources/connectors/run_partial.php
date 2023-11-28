@@ -59,12 +59,12 @@ $descs[] = 'scientificNameAuthorship: Théel, 1882; ';
 $descs[] = "linn city house cliff pass ice mud transportation railroad cline biofilm sediment";
 $descs[] = "mesa laguna rapids ocean sea organ field well adhesive quarry reservoir umbrella plantation bar planktonic material";
 $descs[] = "Almost all of these are incorrect: e.g., (1) ‘‘fen. ov.’’ (fenestra ovalis, = f. vestibuli)";
+$descs[] = "Atlantic blanket bogs and fen";
 
 // $descs = array();
 // $descs[] = "Panthea guatemala and Enoplochiton niger with Pseudomorpha patagonia.";
 // $descs[] = file_get_contents(DOC_ROOT."/tmp2/sample_treatment.txt");
-// $descs[] = "Spain, Santander, Santillana del Mar, Cueva de Altamira. in the valley of the dead found in Philippines.";
-
+// $descs[] = "Atlantic blanket bogs and fen";
 
 $IDs = array('24', '617_ENV'); //617_ENV -> Wikipedia EN //24 -> AntWeb resource ID
 // $IDs = array('24');
@@ -101,6 +101,7 @@ foreach($IDs as $resource_id) {
             if($i == 12) { if($ret == "biofilm|transportation|mud|ice|sediment|railroad|cliff|house|cline|city|pass") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 13) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 14) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 15) { if($ret == "fen")                                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
         if($resource_id == '617_ENV') {
             if($i == 1) { if($ret == "orchard|soil|dune")                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
@@ -117,12 +118,12 @@ foreach($IDs as $resource_id) {
             if($i == 12) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 13) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 14) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 15) { if($ret == "fen")                                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
     }
     echo "\nerrors: [$errors]";
     // ************************************
 } //end foreach()
-
 echo "\n-end tests-\n";
 // */
 function run_desc($desc, $pensoft) {
@@ -176,5 +177,4 @@ fen: we are getting it correctly in MoF
 e.g. http://purl.obolibrary.org/obo/RO_0002303	http://purl.obolibrary.org/obo/ENVO_00000232	source text: "fen"	http://treatment.plazi.org/id/03DC9141FF89F95C520D57A5EC7AF82D
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 */
-
 ?>
