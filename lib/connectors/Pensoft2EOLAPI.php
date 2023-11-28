@@ -118,7 +118,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $this->debug = array();
 
         // /* TreatmentBank only: exclude first words:
-        $words = array('diagrammatic', 'diagram', 'diagrams', 'fig', 'figs', 'figure', 'figures', 'ref', 'refs', 'ref.:', 'reference', 'references', 'table', 'tables', 'images.', 'image.');
+        $words = array('diagrammatic', 'diagram', 'diagrams', 'fig', 'figs', 'figure', 'figures', 'ref', 'refs', 'ref.:', 'reference', 'references', 
+                       'table', 'tables', 'image.', 'images.', 'copyright', 'abbreviation', 'abbreviations', 'image', 'images');
         foreach($words as $word) {
             $arr[$word] = '';
             $arr[$word."."] = '';
