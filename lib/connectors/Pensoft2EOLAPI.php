@@ -128,6 +128,15 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $this->exclude_first_words = $arr;
         $this->debug['detected_first_words'] = array();
         // */        
+
+        // /* soil compositions
+        $labels = array('sandy soil', 'clay soil', 'dry soil', 'garden soil', 'forest soil', 'muddy soil', 'red soil', 'field soil', 'volcanic soil', 'surface soil', 
+        'dune soil', 'arable soil', 'agricultural soil', 'meadow soil', 'orchard soil', 'alluvial soil', 'grassland soil', 'pasture soil', 'peat soil', 'steppe soil', 
+        'farm soil', 'alpine soil', 'roadside soil', 'tropical soil', 'beech forest soil', 'fluvisol', 'luvisol', 'cambisol', 'regosol', 'leptosol', 'gleysol', 'vertisol');
+        foreach($labels as $label) $this->soil_compositions[$label] = '';
+        // */
+
+
     }
     public function initialize_remaps_deletions_adjustments()
     {
@@ -650,23 +659,6 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                      [http://purl.obolibrary.org/obo/ENVO_00000026] => well
             )*/
             // print_r($this->eli); //good debug
-            /* OLD
-            foreach($this->results as $uri => $label) {
-                if($ret = self::apply_adjustments($uri, $label)) {
-                    $uri = $ret['uri'];
-                    $label = $ret['label'];
-                    $this->all_envo_terms[$uri] = $label; //for stats only - report for Jen
-                }
-                else continue;
-                
-                if(stripos($uri, "ENVO_") !== false) { //string is found
-                    $arr = array($basename, '', '', $label, pathinfo($uri, PATHINFO_FILENAME));
-                }
-                else $arr = array($basename, '', '', $label, $uri);
-                
-                fwrite($f, implode("\t", $arr)."\n");
-            }
-            */
             // /* NEW
             foreach($this->results as $uri => $rek) {
                 if($ret = self::apply_adjustments($uri, $rek['lbl'])) {
@@ -692,6 +684,12 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 }
                 // */
                 
+                // /* implement soil composition
+                if(in_array($this->param['resource_id'], array('617_ENV', 'TreatmentBank_ENV'))) { //Wikipedia EN & TreatmentBank
+                    if($possible_mtype = @$rek['mtype']) $arr[6] = $possible_mtype;
+                }
+                // */
+
                 $uri = self::WoRMS_URL_format($uri); # can be general, for all resources
 
                 // /* for all resources: exclude terms not in EOL terms file
@@ -869,14 +867,6 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             // /* new: Nov 22, 2023 - Eli's initiative -- never use this
             // if($rek['is_word'] != "1") continue;
             // if($rek['is_synonym'] == "1") continue;
-            // */
-
-            // /* Eli's initiative: applied this one early on. Before, it was applied later on the process.
-            if($ret = self::apply_adjustments($rek['id'], $rek['lbl'])) {
-                $rek['id'] = $ret['uri'];
-                $rek['lbl'] = $ret['label'];
-            }
-            else continue;
             // */
 
             // /* should not get 'fen' --- [context] => Almost all of these are incorrect e.g. 1 ‘‘<b>fen</b>. ov.’’ fenestra ovalis
@@ -1080,15 +1070,32 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             if($rek['id'] == "http://purl.obolibrary.org/obo/ENVO_00000040" || $rek['lbl'] == "linn") continue;
             // */
 
+            // /* Eli's initiative: applied this one early on. Before, it was applied later on the process.
+            if($ret = self::apply_adjustments($rek['id'], $rek['lbl'])) {
+                $rek['id'] = $ret['uri'];
+                $rek['lbl'] = $ret['label'];
+            }
+            else continue;
+            // */
+
+            // /* soil composition https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=67736&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67736
+            // These terms tend to be used for plants, though not always. I've never been very happy with the term "habitat" for them. 
+            // I think I have a better idea now. Let me know if this is not practical: I'd like to keep their measurementValue mappings as they are, 
+            // but change their measurementType to http://purl.obolibrary.org/obo/ENVO_09200008 (soil composition), for TreatmentBank and wikipedia textmining.
+            if(in_array($this->param['resource_id'], array('617_ENV', 'TreatmentBank_ENV'))) { //Wikipedia EN & TreatmentBank
+                if(isset($this->soil_compositions[$rek['lbl']])) $rek['mtype'] = "http://purl.obolibrary.org/obo/ENVO_09200008";
+            }
+            // */
+            
             //============= below this point is where $this->results is populated =============
             if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN
                 if(ctype_lower(substr($rek['lbl'],0,1))) { //bec. references has a lot like 'Urban C.' which are authors.
-                    $this->results[$rek['id']] = array("lbl" => $rek['lbl'], "ontology" => $rek['ontology']);
+                    $this->results[$rek['id']] = array("lbl" => $rek['lbl'], "ontology" => $rek['ontology'], "mtype" => @$rek['mtype']);
                     // $this->eli[$rek['id']][] = $rek['lbl']; //good debug
                 }
             }
             else { //rest of the resources --> Just be sure the citation, reference, biblio parts of text is not included as input to Pensoft
-                $this->results[$rek['id']] = array("lbl" => $rek['lbl'], "ontology" => $rek['ontology']);
+                $this->results[$rek['id']] = array("lbl" => $rek['lbl'], "ontology" => $rek['ontology'], "mtype" => @$rek['mtype']);
             }
             // echo "\nGoes- 103\n";
 
