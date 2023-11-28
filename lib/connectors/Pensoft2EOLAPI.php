@@ -135,13 +135,13 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         self::initialize_mRemark_assignments(); //generates $this->mRemarks                     -> used in apply_adjustments()
         self::initialize_delete_mRemarks();     //generates $this->delete_MoF_with_these_labels -> used in apply_adjustments()
         self::initialize_delete_uris();         //generates $this->delete_MoF_with_these_uris   -> used in apply_adjustments()
-        /* to test if these 4 variables are populated.
-        echo("\n remapped_terms: "              .count($this->remapped_terms)."\n");
-        echo("\n mRemarks: "                    .count($this->mRemarks)."\n");
-        echo("\n delete_MoF_with_these_labels: ".count($this->delete_MoF_with_these_labels)."\n");
-        echo("\n delete_MoF_with_these_uris: "  .count($this->delete_MoF_with_these_uris)."\n");
-        exit("\n---\n");
-        */
+        // /* 
+        echo "\nto test if these 4 variables are populated: ";
+        echo("\n remapped_terms: "              .count($this->remapped_terms)."");
+        echo("\n mRemarks: "                    .count($this->mRemarks)."");
+        echo("\n delete_MoF_with_these_labels: ".count($this->delete_MoF_with_these_labels)."");
+        echo("\n delete_MoF_with_these_uris: "  .count($this->delete_MoF_with_these_uris).""); echo("\n---------------\n");
+        // */
         $this->initialize_new_patterns();         //generates $this->new_patterns   -> used in xxx() --- DATA-1893
         // echo("\n new_patterns: "  .count($this->new_patterns)."\n"); print_r($this->new_patterns); exit;
         $this->allowed_terms_URIs = self::get_allowed_value_type_URIs_from_EOL_terms_file(); //print_r($this->allowed_terms_URIs);
@@ -873,6 +873,14 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             // if($rek['is_synonym'] == "1") continue;
             // */
 
+            // /* Eli's initiative: applied this one early on. Before, it was applied later on the process.
+            if($ret = self::apply_adjustments($rek['id'], $rek['lbl'])) {
+                $rek['id'] = $ret['uri'];
+                $rek['lbl'] = $ret['label'];
+            }
+            else continue;
+            // */
+
             // /* should not get 'fen' --- [context] => Almost all of these are incorrect e.g. 1 ‘‘<b>fen</b>. ov.’’ fenestra ovalis
             //    but should get 'philippines'       => in the valley of the dead found in <b>Philippines</b>.
             $needle = "<b>".$rek['lbl']."</b>.";
@@ -1566,6 +1574,11 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     public function apply_adjustments($uri, $label) //apply it here: ALL_remap_replace_remove.txt
     {
         if(in_array($uri, array("http://purl.obolibrary.org/obo/ENVO_00000029", "http://purl.obolibrary.org/obo/ENVO_00000104")) && $label == 'ravine') $uri = "http://purl.obolibrary.org/obo/ENVO_00000100";
+            
+        // /* Eli's initiative: mountain should take ENVO_00000081 and not ENVO_00000264
+        if(in_array($uri, array("http://purl.obolibrary.org/obo/ENVO_00000264")) && in_array($label, array('mountain', 'mountains'))) $uri = "http://purl.obolibrary.org/obo/ENVO_00000081";
+        // */
+                
         if($new_uri = @$this->mRemarks[$label]) $uri = $new_uri;
         if($new_uri = @$this->remapped_terms[$uri]) $uri = $new_uri;
         if(isset($this->delete_MoF_with_these_labels[$label])) return false;
@@ -1741,7 +1754,10 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $mRemarks["agricultural sites"] = "http://purl.obolibrary.org/obo/ENVO_00000077";
         $mRemarks["open-water"] = "http://purl.obolibrary.org/obo/ENVO_00002030";
         $mRemarks["open water"] = "http://purl.obolibrary.org/obo/ENVO_00002030";
+
         $mRemarks["mountains"] = "http://purl.obolibrary.org/obo/ENVO_00000081";
+        $mRemarks["nunatak"] = "http://purl.obolibrary.org/obo/ENVO_00000181";
+
         $mRemarks["hills"] = "http://purl.obolibrary.org/obo/ENVO_00000083";
         $mRemarks["rainforests"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
         $mRemarks["rainforest"] = "http://purl.obolibrary.org/obo/ENVO_01000228";

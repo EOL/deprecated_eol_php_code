@@ -60,11 +60,11 @@ $descs[] = "linn city house cliff pass ice mud transportation railroad cline bio
 $descs[] = "mesa laguna rapids ocean sea organ field well adhesive quarry reservoir umbrella plantation bar planktonic material";
 $descs[] = "Almost all of these are incorrect: e.g., (1) ‘‘fen. ov.’’ (fenestra ovalis, = f. vestibuli)";
 $descs[] = "Atlantic blanket bogs and fen";
+$descs[] = "I live in the mountains over the nunatak valley.";
 
 // $descs = array();
-// $descs[] = "Panthea guatemala and Enoplochiton niger with Pseudomorpha patagonia.";
 // $descs[] = file_get_contents(DOC_ROOT."/tmp2/sample_treatment.txt");
-// $descs[] = "Atlantic blanket bogs and fen";
+// $descs[] = "We wish to thank A.I. Golykov and B.I. Sirenko of the Institute of Zoology, Russian Academy of Science, for the planktonic material upon which this study was partially based and for the environmental data presented in station data herein. Also, we appreciate the comments and criticism of the manuscript by reviewers, especially by M.V. Angel and R. Matzke-Karasz, which helped us a lot. Beside, we wish to thank G.G. Stovbun (A.V. Zhirmunsky Institute of Marine Biology, Far East Branch of Russian Academy of Science, Vladivostok, Russia) for technical preparation of manuscript.";
 
 $IDs = array('24', '617_ENV'); //617_ENV -> Wikipedia EN //24 -> AntWeb resource ID
 // $IDs = array('24');
@@ -86,39 +86,50 @@ foreach($IDs as $resource_id) {
     foreach($descs as $desc) { $i++;
         $ret = run_desc($desc, $pensoft);
         echo "\n[$resource_id $i] - "; echo("[$ret]");
+        // $i = 9; //force-assign
         if($resource_id == '24') {
-            if($i == 1) { if($ret == "mud|orchard|soil|dune")                       echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            if($i == 2) { if($ret == "mozambique|island|river|zambezi")             echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            if($i == 3) { if($ret == "pakistan|glacier|valley|river|india|pass")    echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            if($i == 4) { if($ret == "slovakia|romania|russia|russia|russia")       echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            // if($i == 1) { if($ret == "mud|orchard|soil|dune")                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 1) { if($ret == "mud|orchard|dune")                                echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            // if($i == 2) { if($ret == "mozambique|island|river|zambezi")              echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 2) { if($ret == "mozambique|zambezi")                              echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            // if($i == 3) { if($ret == "pakistan|glacier|valley|river|india|pass")     echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 3) { if($ret == "pakistan|glacier|valley|india|pass")              echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            // if($i == 4) { if($ret == "slovakia|romania|russia|russia|russia")        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 4) { if($ret == "slovakia|romania|russia")                         echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 5) { if($ret == "")                                            echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 6) { if($ret == "slovakia")                                    echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 7) { if($ret == "")                                            echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 8) { if($ret == "")                                            echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            if($i == 9) { if($ret == "russia|russia|russia")                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 9) { if($ret == "russia")                                      echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 10) { if($ret == "philippines|valley|spain")                   echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 11) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 12) { if($ret == "biofilm|transportation|mud|ice|sediment|railroad|cliff|house|cline|city|pass") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 13) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 14) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 15) { if($ret == "fen")                                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 16) { if($ret == "mountains|nunatak|valley")                   echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
         if($resource_id == '617_ENV') {
-            if($i == 1) { if($ret == "orchard|soil|dune")                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            if($i == 2) { if($ret == "mozambique|island|river|zambezi")             echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            if($i == 3) { if($ret == "pakistan|valley|river|india")                 echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            if($i == 4) { if($ret == "slovakia|romania|russia|russia|russia")       echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            // if($i == 1) { if($ret == "orchard|soil|dune")                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 1) { if($ret == "orchard|dune")                                echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            // if($i == 2) { if($ret == "mozambique|island|river|zambezi")          echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 2) { if($ret == "mozambique|zambezi")                          echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            // if($i == 3) { if($ret == "pakistan|valley|river|india")              echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 3) { if($ret == "pakistan|valley|india")                       echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            // if($i == 4) { if($ret == "slovakia|romania|russia|russia|russia")    echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 4) { if($ret == "slovakia|romania|russia")                     echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 5) { if($ret == "")                                            echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 6) { if($ret == "slovakia")                                    echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 7) { if($ret == "")                                            echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 8) { if($ret == "")                                            echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            if($i == 9) { if($ret == "russia|russia|russia")                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 9) { if($ret == "russia")                                      echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 10) { if($ret == "philippines|valley|spain")                   echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 11) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 12) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 13) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 14) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 15) { if($ret == "fen")                                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 16) { if($ret == "mountains|nunatak|valley")                   echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
     }
     echo "\nerrors: [$errors]";
