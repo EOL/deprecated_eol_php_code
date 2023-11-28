@@ -61,10 +61,10 @@ $descs[] = "mesa laguna rapids ocean sea organ field well adhesive quarry reserv
 $descs[] = "Almost all of these are incorrect: e.g., (1) ‘‘fen. ov.’’ (fenestra ovalis, = f. vestibuli)";
 $descs[] = "Atlantic blanket bogs and fen";
 $descs[] = "I live in the mountains over the nunatak valley.";
+$descs[] = "I live in a sandy soil";
 
 // $descs = array();
 // $descs[] = file_get_contents(DOC_ROOT."/tmp2/sample_treatment.txt");
-// $descs[] = "I live in a sandy soil";
 
 $IDs = array('24', '617_ENV'); //617_ENV -> Wikipedia EN //24 -> AntWeb resource ID
 // $IDs = array('24');
@@ -108,6 +108,7 @@ foreach($IDs as $resource_id) {
             if($i == 14) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 15) { if($ret == "fen-ENVO_00000232")                          echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 16) { if($ret == "mountains-ENVO_00000081|nunatak-ENVO_00000181|valley-ENVO_00000100") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 17) { if($ret == "sandy soil-ENVO_00002229")                   echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
         if($resource_id == '617_ENV') {
             // if($i == 1) { if($ret == "orchard|soil|dune")                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
@@ -130,6 +131,7 @@ foreach($IDs as $resource_id) {
             if($i == 14) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 15) { if($ret == "fen-ENVO_00000232")                          echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 16) { if($ret == "mountains-ENVO_00000081|nunatak-ENVO_00000181|valley-ENVO_00000100") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 17) { if($ret == "sandy soil-ENVO_00002229-ENVO_09200008")     echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
     }
     echo "\nerrors: [$errors]";
@@ -147,7 +149,9 @@ function run_desc($desc, $pensoft) {
         // print_r($arr); //--- search ***** in Pensoft2EOLAPI.php
         foreach($arr as $uri => $rek) {
             $filename = pathinfo($uri, PATHINFO_FILENAME);
-            $final[] = $rek['lbl']."-$filename";
+            $tmp = $rek['lbl']."-$filename";
+            if($mtype = @$rek['mtype']) $tmp .= "-".pathinfo($mtype, PATHINFO_FILENAME);
+            $final[] = $tmp;
         }
     }
     return implode("|", $final);    
