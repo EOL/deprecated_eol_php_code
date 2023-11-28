@@ -64,11 +64,11 @@ $descs[] = "I live in the mountains over the nunatak valley.";
 
 // $descs = array();
 // $descs[] = file_get_contents(DOC_ROOT."/tmp2/sample_treatment.txt");
-// $descs[] = "We wish to thank A.I. Golykov and B.I. Sirenko of the Institute of Zoology, Russian Academy of Science, for the planktonic material upon which this study was partially based and for the environmental data presented in station data herein. Also, we appreciate the comments and criticism of the manuscript by reviewers, especially by M.V. Angel and R. Matzke-Karasz, which helped us a lot. Beside, we wish to thank G.G. Stovbun (A.V. Zhirmunsky Institute of Marine Biology, Far East Branch of Russian Academy of Science, Vladivostok, Russia) for technical preparation of manuscript.";
+// $descs[] = "I live in a sandy soil";
 
 $IDs = array('24', '617_ENV'); //617_ENV -> Wikipedia EN //24 -> AntWeb resource ID
 // $IDs = array('24');
-// $IDs = array('617_ENV');
+// $IDs = array('617_ENV'); //or TreatmentBank
 foreach($IDs as $resource_id) {
     $param['resource_id'] = $resource_id;
     require_library('connectors/Functions_Pensoft');
