@@ -135,8 +135,6 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         'farm soil', 'alpine soil', 'roadside soil', 'tropical soil', 'beech forest soil', 'fluvisol', 'luvisol', 'cambisol', 'regosol', 'leptosol', 'gleysol', 'vertisol');
         foreach($labels as $label) $this->soil_compositions[$label] = '';
         // */
-
-
     }
     public function initialize_remaps_deletions_adjustments()
     {
