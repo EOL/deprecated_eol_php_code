@@ -130,7 +130,7 @@ class BioImagesAPI
                         //---------------------------
                         $agent_ids = array();
                         $r = new \eol_schema\Agent();
-                        $r->term_name = $do->agent;
+                        $r->term_name = str_replace('"', "", $do->agent);
                         $r->identifier = md5("$do->agent|$do->agent['role']");
                         $r->agentRole = $do->agent['role'];
                         $r->term_homepage = "http://www.bioimages.org.uk/index.htm";
@@ -205,7 +205,7 @@ class BioImagesAPI
             $agent = (string)trim($agent);
             if(!$agent) continue;
             $r = new \eol_schema\Agent();
-            $r->term_name = $agent;
+            $r->term_name = str_replace('"', "", $agent);
             $r->identifier = md5("$agent|compiler");
             $r->agentRole = "compiler";
             $agent_ids[] = $r->identifier;
@@ -307,8 +307,10 @@ class BioImagesAPI
         $description .= $row[$col['Country']] != "" ? "Country: " . $row[$col['Country']] . ". " : "";
         $description .= $row[$col['Stage']] != "" ? "Stage: " . $row[$col['Stage']] . ". " : "";
         $description .= $row[$col['Associated species']] != "" ? "Associated species: " . $row[$col['Associated species']] . ". " : "";
+
         $description .= $row[$col['Identified by']] != "" ? "Identified by: " . $row[$col['Identified by']] . ". " : "";
         $description .= $row[$col['Confirmed by']] != "" ? "Confirmed by: " . $row[$col['Confirmed by']] . ". " : "";
+        
         $description .= $row[$col['Photo summary']] != "" ? "Photo summary: " . $row[$col['Photo summary']] . ". " : "";
         $description .= $row[$col['Record summary']] != "" ? "Comment: " . $row[$col['Record summary']] . ". " : "";
         //image details
