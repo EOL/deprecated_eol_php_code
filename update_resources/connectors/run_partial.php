@@ -134,7 +134,7 @@ foreach($IDs as $resource_id) {
             if($i == 17) { if($ret == "sandy soil-ENVO_00002229-ENVO_09200008")     echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
     }
-    echo "\nerrors: [$errors]";
+    echo "\nerrors: [$resource_id][$errors]";
     // ************************************
 } //end foreach()
 echo "\n-end tests-\n";
