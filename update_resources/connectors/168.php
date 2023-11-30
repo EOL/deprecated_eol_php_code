@@ -25,6 +25,26 @@ Below removed < 200 bytes size images (blank images) - Eli's initiative.
 168_meta_recoded	Wed 2023-02-22 06:40:06 AM	{"agent.tab":121, "media_resource.tab":144699, "taxon.tab":22937, "time_elapsed":{"sec":71.15, "min":1.19, "hr":0.02}}
 */
 
+/* Jenkins entry:
+cd /html/eol_php_code/update_resources/connectors
+
+### this will generate 168.tar.gz
+php5.6 168.php jenkins
+
+### this will generate 168_meta_recoded.tar.gz
+php5.6 resource_utility.php jenkins '{"resource_id": "168_meta_recoded", "task": "metadata_recoding"}'
+
+#LAST STEP: copy last transactional DwCA to Bioimages.tar.gz OK
+cd /html/eol_php_code/applications/content_server/resources
+cp 168_meta_recoded.tar.gz Bioimages.tar.gz
+ls -lt 168_meta_recoded.tar.gz
+ls -lt Bioimages.tar.gz
+rm -f 168_meta_recoded.tar.gz
+
+cd /html/eol_php_code/update_resources/connectors
+php5.6 ckan_api_access.php jenkins "5b1ebec7-efd0-47b5-860e-5c841d88d366"
+*/
+
 /*
 These 2 images should now be for BI-taxon-118153 and not BI-taxon-127589. If so you are using the latest dump file from Malcolm Storey.
 BI-image-58316	BI-taxon-127589	http://purl.org/dc/dcmitype/StillImage	image/jpeg		Dorsal view	Longitude (deg): -1.2. Latitude (deg): 51.4. Longitude (deg/min): 1Â° 10' W. Latitude (deg/min): 51Â° 20' N. Vice county name: Berks. Vice county no.: 22. Country: England. Stage: Imago. Identified by: Malcolm Storey. Comment: Entered house on hot sunny day. Category: standard photograph or close-up. Photographic equipment used: Nikon D100 dSLR with Tamron SP T90 AF Macro 1:1 lens.	http://www.discoverlife.org/mp/20p?img=I_MWS60624&res=mx	http://www.bioimages.org.uk/html/../image.php?id=58316			en	Everyone	http://creativecommons.org/licenses/by-nc-sa/3.0/			fd27e41d78ff05c48d1f010deaaf3cde
