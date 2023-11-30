@@ -308,6 +308,7 @@ class BioImagesAPI
         $description .= $row[$col['Stage']] != "" ? "Stage: " . $row[$col['Stage']] . ". " : "";
         $description .= $row[$col['Associated species']] != "" ? "Associated species: " . $row[$col['Associated species']] . ". " : "";
 
+        $description .= $row[$col['Recorded/Collected by']] != "" ? "Recorded/Collected by: " . $row[$col['Recorded/Collected by']] . ". " : "";
         $description .= $row[$col['Identified by']] != "" ? "Identified by: " . $row[$col['Identified by']] . ". " : "";
         $description .= $row[$col['Confirmed by']] != "" ? "Confirmed by: " . $row[$col['Confirmed by']] . ". " : "";
         
