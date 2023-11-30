@@ -7,6 +7,11 @@ php update_resources/connectors/treatment_bank.php _ '{"range_from": "1", "range
 php update_resources/connectors/treatment_bank.php _ '{"range_from": "100000", "range_to":"200000"}'
 {total of 6 ranges, see jenkins}
 
+as of Nov 30, 2023
+1-50        all fr
+100-150     all de
+25000-25050 all en
+
 6 ranges in jenkins:
 php5.6 treatment_bank.php jenkins '{"range_from": "1", "range_to":"100000"}'
 php5.6 treatment_bank.php jenkins '{"range_from": "100000", "range_to":"200000"}'

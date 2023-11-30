@@ -39,7 +39,9 @@ class TreatmentBankAPI
         $this->service['Plazi Treatments'] = "http://tb.plazi.org/GgServer/xml.rss.xml";
         $this->service['DwCA zip download'] = "tb.plazi.org/GgServer/dwca/masterDocId.zip";
         if(Functions::is_production()) $this->path['main'] = '/extra/dumps/TreatmentBank/';
-        else                           $this->path['main'] = '/Volumes/AKiTiO4/other_files/dumps/TreatmentBank/';
+        // else                        $this->path['main'] = '/Volumes/AKiTiO4/other_files/dumps/TreatmentBank/';       //old
+        else                           $this->path['main'] = '/Volumes/Crucial_2TB/other_files2/dumps/TreatmentBank/';  //new
+
         $this->path['xml.rss'] = $this->path['main']."xml.rss.xml";
         // $this->path['xml.rss'] = $this->path['main']."xml.rss_OK.xml";
         
@@ -118,13 +120,21 @@ class TreatmentBankAPI
             [link] => http://tb.plazi.org/GgServer/xml/03FA87C50911FFB0FC2DFC79FB4AD551
             [pubDate] => 2021-08-29T02:36:49-02:00
             [guid] => 03FA87C50911FFB0FC2DFC79FB4AD551.xml
+        )
+        as of Nov 30, 2023:
+        SimpleXMLElement Object(
+            [title] => Erro Darby 2017
+            [description] => Erro Darby 2017 (pages 10-10) in Darby, Michael 2019, New Ptiliidae (Coleoptera) from Sarawak in the spirit collection of the Natural History Museum, London, European Journal of Taxonomy 512, pages 1-50
+            [link] => http://tb.plazi.org/GgServer/xml/BE2487B5FF9AFFDD6D847C934E85FD2C
+            [pubDate] => 2019-04-04T16:06:30-02:00
+            [guid] => BE2487B5FF9AFFDD6D847C934E85FD2C.xml
         )*/
         $url = $xml->link.".xml";
         debug("".$url."");
         $xml_string = Functions::lookup_with_cache($url, $this->download_options);
         $hash = simplexml_load_string($xml_string); // print_r($hash); 
         
-        if($hash{"docType"} == "treatment" && $hash{"masterDocId"}) {
+        if($hash{"docType"} == "treatment" && $hash{"masterDocId"} && $hash{"docLanguage"} == "en") {
             // echo "\ndocType: [".$hash{"docType"}."]";
             // echo "\nmasterDocId: [".$hash{"masterDocId"}."]\n";
             $this->stats['masterDocId'][(string) $hash{"masterDocId"}] = '';
