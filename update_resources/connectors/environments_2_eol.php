@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
-/* DATA-1851: reconstructing the Environments-EOL resource
+/* https://eol-jira.bibalex.org/browse/DATA-1739
+DATA-1851: reconstructing the Environments-EOL resource
 Next step now is to combine all the steps within a general connector:
 1. read any EOL DwCA resource (with text objects)
 2. generate individual txt files for the articles with filename convention.
