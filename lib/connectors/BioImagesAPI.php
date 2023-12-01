@@ -201,6 +201,13 @@ class BioImagesAPI
     {
         $agent_ids = array();
         $agents_array = explode(",", $row[$col['Recorded/Collected by']]);
+        $agents_array[] = "Malcolm Storey";
+        $agents_array = array_map('trim', $agents_array);
+
+        $agents_array = array_filter($agents_array); //remove null arrays
+        $agents_array = array_unique($agents_array); //make unique
+        $agents_array = array_values($agents_array); //reindex key
+
         foreach($agents_array as $agent) {
             $agent = (string)trim($agent);
             if(!$agent) continue;
@@ -292,7 +299,7 @@ class BioImagesAPI
         $mr->creator = '';
         $mr->CreateDate = '';
         $mr->modified = '';
-        $mr->Owner = '';
+        $mr->Owner = $row[$col['Recorded/Collected by']] != "" ? "Recorded/Collected by: " . self::format_person_by($row[$col['Recorded/Collected by']]) : "";
         $mr->publisher = '';
         // $mr->audience = 'Everyone';
         $mr->bibliographicCitation = '';
@@ -308,9 +315,9 @@ class BioImagesAPI
         $description .= $row[$col['Stage']] != "" ? "Stage: " . $row[$col['Stage']] . ". " : "";
         $description .= $row[$col['Associated species']] != "" ? "Associated species: " . $row[$col['Associated species']] . ". " : "";
 
-        $description .= $row[$col['Recorded/Collected by']] != "" ? "Recorded/Collected by: " . $row[$col['Recorded/Collected by']] . ". " : "";
-        $description .= $row[$col['Identified by']] != "" ? "Identified by: " . $row[$col['Identified by']] . ". " : "";
-        $description .= $row[$col['Confirmed by']] != "" ? "Confirmed by: " . $row[$col['Confirmed by']] . ". " : "";
+        $description .= $row[$col['Recorded/Collected by']] != "" ? "Recorded/Collected by: " . self::format_person_by($row[$col['Recorded/Collected by']]) . ". " : "";
+        $description .= $row[$col['Identified by']] != "" ? "Identified by: " . self::format_person_by($row[$col['Identified by']]) . ". " : "";
+        $description .= $row[$col['Confirmed by']] != "" ? "Confirmed by: " . self::format_person_by($row[$col['Confirmed by']]) . ". " : "";
         
         $description .= $row[$col['Photo summary']] != "" ? "Photo summary: " . $row[$col['Photo summary']] . ". " : "";
         $description .= $row[$col['Record summary']] != "" ? "Comment: " . $row[$col['Record summary']] . ". " : "";
@@ -341,7 +348,12 @@ class BioImagesAPI
         $mr->description = utf8_encode($description);
         $this->archive_builder->write_object_to_file($mr);
     }
-
+    private function format_person_by($str)
+    {
+        $str = str_replace('"', "", trim($str));
+        $str = str_replace(",", ", ", $str);
+        return Functions::remove_whitespace($str);
+    }
     private function create_instances_from_taxon_object($row, $col, $reference_ids)
     {
         $taxon = new \eol_schema\Taxon();
