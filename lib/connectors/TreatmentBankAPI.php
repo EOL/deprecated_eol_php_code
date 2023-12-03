@@ -111,13 +111,11 @@ class TreatmentBankAPI
                         // */
 
                         /* debug only , during dev only
-                        $from = 25000; //range with many en
-                        $to = 30000;
+                        $from = 25000; $to = 30000; //range with many en
                         if($i >= $from && $i <= $to) {
                             self::process_item_buildup_list($xml);
                         }
                         */                        
-
                     }
                 }
             }
