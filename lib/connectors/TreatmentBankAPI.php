@@ -47,6 +47,8 @@ class TreatmentBankAPI
         
         if(!is_dir($this->path['main'])) mkdir($this->path['main']);
         if(!is_dir($this->path['main']."DwCA/")) mkdir($this->path['main']."DwCA/");
+
+        $this->dwca_list_txt = CONTENT_RESOURCE_LOCAL_PATH."/reports/Plazi_DwCA_list.txt";
         
         /* Some notes:
         From XML rss:
@@ -102,9 +104,20 @@ class TreatmentBankAPI
                         else continue;
                     }
                     elseif($purpose == "build-up local dwca list") {
+                        // /* main operation - uncommentn in real operation
                         if(($i % 5000) == 0) echo "[$i] ";
                         self::process_item_buildup_list($xml);
-                        // if($i == 10) break; //debug only
+                        // if($i == 10) break; //debug only                        
+                        // */
+
+                        /* debug only , during dev only
+                        $from = 25000; //range with many en
+                        $to = 30000;
+                        if($i >= $from && $i <= $to) {
+                            self::process_item_buildup_list($xml);
+                        }
+                        */                        
+
                     }
                 }
             }
@@ -137,17 +150,27 @@ class TreatmentBankAPI
         if($hash{"docType"} == "treatment" && $hash{"masterDocId"} && $hash{"docLanguage"} == "en") {
             // echo "\ndocType: [".$hash{"docType"}."]";
             // echo "\nmasterDocId: [".$hash{"masterDocId"}."]\n";
-            $this->stats['masterDocId'][(string) $hash{"masterDocId"}] = '';
-            $source = str_replace("masterDocId", $hash{"masterDocId"}, $this->service['DwCA zip download']);
-            $temp_path = $this->path['main']."DwCA/".substr($hash{"masterDocId"},0,2)."/";
-            if(!is_dir($temp_path)) mkdir($temp_path);
-            $destination = $temp_path.$hash{"masterDocId"}.".zip";
+
+            $masterDocId = (string) $hash{"masterDocId"};
+            $this->stats['masterDocId'][$masterDocId] = '';
+            // ---------------------
+            $ret = self::generate_source_destination($masterDocId);
+            $source = $ret['source']; $destination = $ret['destination'];
+            // ---------------------
             self::run_wget_download($source, $destination, $url);
         }
         else {
             // print_r($xml); echo("\nInvestigate, docType not a 'treatment'\n");
         }
         // exit("\n-exit hash-\n");
+    }
+    private function generate_source_destination($masterDocId)
+    {
+            $source = str_replace("masterDocId", $masterDocId, $this->service['DwCA zip download']);
+            $temp_path = $this->path['main']."DwCA/".substr($masterDocId,0,2)."/";
+            if(!is_dir($temp_path)) mkdir($temp_path);
+            $destination = $temp_path.$masterDocId.".zip";
+            return array('source' => $source, 'destination' => $destination);
     }
     private function download_XML_treatments_list()
     {
@@ -173,9 +196,8 @@ class TreatmentBankAPI
         }
     }
     function build_up_dwca_list() //main 2nd step
-    {
-        $dwca_list_txt = CONTENT_RESOURCE_LOCAL_PATH."/reports/Plazi_DwCA_list.txt";
-        $this->WRITE = fopen($dwca_list_txt, "w"); //initialize
+    {        
+        $this->WRITE = fopen($this->dwca_list_txt, "w"); //initialize
         self::read_xml_rss(false, false, "build-up local dwca list");
         fclose($this->WRITE);
     }
@@ -191,14 +213,14 @@ class TreatmentBankAPI
         $url = $xml->link.".xml"; // debug("".$url."");
         $xml_string = Functions::lookup_with_cache($url, $this->download_options);
         $hash = simplexml_load_string($xml_string); // print_r($hash); 
-        if($hash{"docType"} == "treatment" && $hash{"masterDocId"}) {
+        if($hash{"docType"} == "treatment" && $hash{"masterDocId"} && $hash{"docLanguage"} == "en") {
             // echo "\ndocType: [".$hash{"docType"}."]";
             // echo "\nmasterDocId: [".$hash{"masterDocId"}."]\n";
             $masterDocId = (string) $hash{"masterDocId"};
-            $source = str_replace("masterDocId", $masterDocId, $this->service['DwCA zip download']);
-            $temp_path = $this->path['main']."DwCA/".substr($hash{"masterDocId"},0,2)."/";
-            if(!is_dir($temp_path)) mkdir($temp_path);
-            $destination = $temp_path.$masterDocId.".zip";
+            // ---------------------
+            $ret = self::generate_source_destination($masterDocId);
+            $source = $ret['source']; $destination = $ret['destination'];
+            // ---------------------
             if(file_exists($destination) && filesize($destination) && !isset($this->stats['masterDocId'][$masterDocId])) {
                 $this->stats['masterDocId'][$masterDocId] = '';
                 debug("\n$destination -- [".filesize($destination)."]");
@@ -207,7 +229,7 @@ class TreatmentBankAPI
         }
         // else { print_r($xml); echo("\nInvestigate, docType not a 'treatment'\n"); }
     }
-    
+
     /* copied template
     private function create_taxon($rec)
     {
