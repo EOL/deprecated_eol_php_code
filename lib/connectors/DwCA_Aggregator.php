@@ -94,11 +94,12 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
     }
     function combine_Plazi_Treatment_DwCAs()
     {
-        $tsv = CONTENT_RESOURCE_LOCAL_PATH."reports/Plazi_DwCA_list.txt";
+        $tsv = CONTENT_RESOURCE_LOCAL_PATH."reports/TreatmentBank/Plazi_DwCA_list.txt";
         $DwCAs = file($tsv);
         $DwCAs = array_map('trim', $DwCAs); //print_r($DwCAs); exit;
         $no_of_lines = count($DwCAs); 
         $preferred_rowtypes = array("http://rs.tdwg.org/dwc/terms/taxon", "http://eol.org/schema/media/document");
+        $preferred_rowtypes[] = "http://rs.gbif.org/terms/1.0/description"; //added Dec 4, 2023. To get the better quality text for textmining.
         $ret = array(); $i = 0;
         foreach($DwCAs as $dwca_file) { $i++; echo "\n$i of $no_of_lines -> ".pathinfo($dwca_file, PATHINFO_BASENAME);
             if(file_exists($dwca_file)) {
@@ -106,6 +107,8 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                 self::convert_archive($preferred_rowtypes, $dwca_file, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //30 days
             }
             else $ret['DwCA file does not exist'][$dwca_file] = '';
+            // break; //debug only
+            // if($i >= 5) break; //debug only
         }
         if($ret) print_r($ret);
         $this->archive_builder->finalize(TRUE);
@@ -127,6 +130,7 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
             [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
         */
         // print_r($index); //exit; //good debug to see the all-lower case URIs
+        $index = $this->let_media_document_go_first_over_description($index); // print_r($index); exit;
         foreach($index as $row_type) {
             /* ----------customized start------------ */
             if($this->resource_id == 'wikipedia_combined_languages') break; //all extensions will be processed elsewhere.
@@ -143,7 +147,7 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                 /* not used - copied template
                 self::process_fields($harvester->process_row_type($row_type), $extension_row_type);
                 */
-                self::process_table($tables[$row_type][0], $extension_row_type);
+                self::process_table($tables[$row_type][0], $extension_row_type, $row_type);
             }
             else echo "\nun-initialized: [$row_type]: ".$extension_row_type."\n";
             // */
@@ -201,8 +205,7 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
     {
         $v = trim($v);
         if(!$v) return true;
-        $return = Functions::is_utf8($v);
-        return $return;
+        return Functions::is_utf8($v);
     }
     private function adjust_meta_value($meta, $what)
     {
@@ -235,7 +238,7 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
         }
         return $meta;
     }
-    private function process_table($meta, $what)
+    private function process_table($meta, $what, $row_type = "")
     {   //print_r($meta);
         $meta = self::adjust_meta_value($meta, $what); //only client for now is resource "TreatmentBank" from treatment_bank.php
         // echo "\nprocessing [$what]...\n";
@@ -284,6 +287,9 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
             }
             $rec = array_map('trim', $rec);
             // print_r($rec); exit("\ndebug...\n");
+
+            // if($what == "document") { print_r($rec); exit("\n111\n"); }
+
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/taxonID] => Q140
                 [http://purl.org/dc/terms/source] => http://ta.wikipedia.org/w/index.php?title=%E0%AE%9A%E0%AE%BF%E0%AE%99%E0%AF%8D%E0%AE%95%E0%AE%AE%E0%AF%8D&oldid=2702618
@@ -329,6 +335,50 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
             }
 
             if($what == "document") {
+
+                if($this->resource_id == "TreatmentBank") {
+                    $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                    if($row_type == 'http://eol.org/schema/media/document') { //not http://rs.gbif.org/terms/1.0/description
+                        $this->info_taxonID_mediaRec[$taxon_id] = array('UsageTerms'    => $rec['http://ns.adobe.com/xap/1.0/rights/UsageTerms'],
+                                                                        'rights'        => $rec['http://purl.org/dc/terms/rights'],
+                                                                        'Owner'         => $rec['http://ns.adobe.com/xap/1.0/rights/Owner'],
+                                                                        'contributor'   => $rec['http://purl.org/dc/terms/contributor'],
+                                                                        'creator'       => $rec['http://purl.org/dc/terms/creator'],
+                                                                        'bibliographicCitation' => $rec['http://purl.org/dc/terms/bibliographicCitation']);
+                    }
+                    elseif($row_type == 'http://rs.gbif.org/terms/1.0/description') { //not http://eol.org/schema/media/document
+                        /* Array( print_r($rec);
+                            [http://rs.tdwg.org/dwc/terms/taxonID] => 03C44153FFA9FFABFF77F9DFFADFFA97.taxon
+                            [http://purl.org/dc/terms/type] => description
+                            [http://purl.org/dc/terms/description] => Immature stages Egg. Eggs elongate oval to somewhat cylindrical, chorion with distinct microsculpture in Chilocorus (Figs 4 a, 5 a), Brumoides (Fig. 4 b), and Priscibrumus Kovář. Eggs laid singly or in small groups on or in the vicinity of prey. Chilocorus spp. have a characteristic and peculiar habit of laying eggs on sibling larvae, pupae, and exuviae besides the host colony (Fig. 4 c – e). Larva. Larvae of Chilocorini have a nearly cylindrical or broadly fusiform body with the dorsal and lateral surfaces covered with setose projections (“ senti ”) or prominent parascoli (Figs 4 f, g; 5 b – e). After completing their development, the mature larvae of Chilocorini, particularly armoured-scale feeders, pass 1 – 2 days in an immobile, prepupal stage (Fig. 5 f). Pupa. Pupae are exarate and enclosed in longitudinally and medially split open larval exuvium (Figs 4 h, i; 5 g). In many Chilocorus spp., larvae congregate in small or large clusters on the lower side of branches or on the tree trunk for pupation (Drea & Gordon 1990). It is common to see large congregations of pupae in Indian species such as Chilocorus circumdatus (Gyllenhal) (Fig. 6 a, b), C. nigrita (Fig. 6 c, d) and C. infernalis Mulsant on various host plants.
+                            [http://purl.org/dc/terms/language] => en
+                            [http://purl.org/dc/terms/source] => POORANI, J. (2023): An illustrated guide to the lady beetles (Coleoptera: Coccinellidae) of the Indian Subcontinent. Part II. Tribe Chilocorini. Zootaxa 5378 (1): 1-108, DOI: 10.11646/zootaxa.5378.1.1, URL: https://www.mapress.com/zt/article/download/zootaxa.5378.1.1/52353
+                        ) */
+                        // if($rec['http://purl.org/dc/terms/type'] == 'type_taxon') { print_r($rec); exit; } //debug only good debug
+                        $this->debug[$this->resource_id]['text type'][$rec['http://purl.org/dc/terms/type']] = '';
+                        $json = json_encode($rec);
+                        $rec['http://purl.org/dc/terms/identifier'] = md5($json);
+                        $rec['http://rs.tdwg.org/ac/terms/additionalInformation'] = $rec['http://purl.org/dc/terms/type'];
+                        $rec['http://purl.org/dc/terms/type'] = "http://purl.org/dc/dcmitype/Text";
+                        $rec['http://purl.org/dc/terms/format'] = "text/html";
+                        $rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses";
+                        $rec['http://purl.org/dc/terms/title'] = "";
+                        $rec['http://rs.tdwg.org/ac/terms/furtherInformationURL'] = "https://treatment.plazi.org/id/".str_replace(".taxon", "", $rec['http://rs.tdwg.org/dwc/terms/taxonID']);
+                        $rec['http://purl.org/dc/terms/bibliographicCitation'] = $rec['http://purl.org/dc/terms/source'];
+                        unset($rec['http://purl.org/dc/terms/source']);
+                        // /* supplement with data from media row_type
+                        if($val = $this->info_taxonID_mediaRec[$taxon_id]) {
+                            $rec['http://ns.adobe.com/xap/1.0/rights/UsageTerms']   = $val['UsageTerms']; //Public Domain
+                            $rec['http://purl.org/dc/terms/rights']                 = $val['rights']; //No known copyright restrictions apply. See Agosti, D., Egloff, W., 2009. Taxonomic information exchange and copyright: the Plazi approach. BMC Research Notes 2009, 2:53 for further explanation.
+                            $rec['http://ns.adobe.com/xap/1.0/rights/Owner']        = $val['Owner'];
+                            $rec['http://purl.org/dc/terms/contributor']            = $val['contributor']; //MagnoliaPress via Plazi
+                            $rec['http://purl.org/dc/terms/creator']                = $val['creator']; //POORANI, J.
+                            $rec['http://purl.org/dc/terms/bibliographicCitation']  = $val['bibliographicCitation']; //POORANI, J. (2023): An illustrated guide to the lady beetles (Coleoptera: Coccinellidae) of the Indian Subcontinent. Part II. Tribe Chilocorini. Zootaxa 5378 (1): 1-108, DOI: 10.11646/zootaxa.5378.1.1, URL: https://www.mapress.com/zt/article/download/zootaxa.5378.1.1/52353
+                        }
+                        // */                        
+                    }
+                }
+
                 //identifier must be unique
                 $identifier = $rec['http://purl.org/dc/terms/identifier'];
                 if(!isset($this->object_ids[$identifier])) $this->object_ids[$identifier] = '';
@@ -435,6 +485,24 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                         }
                         */
                     }
+                    // print_r($rec); exit("\nexit muna...\n");
+                    /* Array( --- as of Dec 4, 2023
+                        [http://purl.org/dc/terms/identifier] => 03C44153FFA9FFABFF77F9DFFADFFA97.text
+                        [http://rs.tdwg.org/dwc/terms/taxonID] => 03C44153FFA9FFABFF77F9DFFADFFA97.taxon
+                        [http://purl.org/dc/terms/type] => http://purl.org/dc/dcmitype/Text
+                        [http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses
+                        [http://purl.org/dc/terms/format] => text/html
+                        [http://purl.org/dc/terms/language] => en
+                        [http://purl.org/dc/terms/title] => Chilocorini Mulsant 1846
+                        [http://purl.org/dc/terms/description] => Form circular, broadly oval, or distinctly elongate oval (Fig. 2); dorsum often dome-shaped and strongly convex or moderately convex, shiny and glabrous (at the most only head and anterolateral flanks of pronotum with hairs), or with sparse, short and suberect pubescence on elytral disc and more visibly on lateral margins, or with distinct dorsal pubescence (Fig. 2g, i). Head capsule with anterior clypeal margin laterally strongly expanded over eyes, medially emarginate, rounded or laterally truncate (Fig. 3a–c). Anterior margin of pronotum deeply and trapezoidally excavate, lateral margins strongly descending below; anterior angles usually strongly produced anteriorly. Elytra basally much broader than pronotum. Antennae short (7–10 segmented) (Fig. 3g –j), shorter than half the width of head; antennal insertions hidden and broadly separated. Terminal maxillary palpomere (Fig. 3d–f) parallel-sided and apically obliquely transverse or securiform or elongate, slender, subcylindrical to tapered with oblique apex, or somewhat swollen with subtruncate apex. Prosternal intercoxal process without carinae (Fig. 3k). Elytral epipleura broad, sometimes strongly descending externally with inner carina reaching elytral apex or not. Legs often with strongly angulate tibiae; tarsal formula 4–4–4 (Fig. 3o, p); tarsal claws simple (Fig. 3u) or appendiculate (Fig. 3v). Abdominal postcoxal line incomplete (Fig. 3l, n) or complete (Fig. 3m). Female genitalia with elongate triangular or transverse coxites (Fig. 3q, r); spermatheca with (Fig. 3t) or without (Fig. 3s, w) a membranous, beak-like projection at apex; sperm duct between bursa copulatrix and spermatheca most often composed of two or three parts of different diameters (Fig. 3w); infundibulum present (Fig. 3w) or absent...
+                        [http://rs.tdwg.org/ac/terms/furtherInformationURL] => https://treatment.plazi.org/id/03C44153FFA9FFABFF77F9DFFADFFA97
+                        [http://ns.adobe.com/xap/1.0/rights/UsageTerms] => Public Domain
+                        [http://purl.org/dc/terms/rights] => No known copyright restrictions apply. See Agosti, D., Egloff, W., 2009. Taxonomic information exchange and copyright: the Plazi approach. BMC Research Notes 2009, 2:53 for further explanation.
+                        [http://ns.adobe.com/xap/1.0/rights/Owner] => 
+                        [http://purl.org/dc/terms/contributor] => MagnoliaPress via Plazi
+                        [http://purl.org/dc/terms/creator] => POORANI, J.
+                        [http://purl.org/dc/terms/bibliographicCitation] => POORANI, J. (2023): An illustrated guide to the lady beetles (Coleoptera: Coccinellidae) of the Indian Subcontinent. Part II. Tribe Chilocorini. Zootaxa 5378 (1): 1-108, DOI: 10.11646/zootaxa.5378.1.1, URL: https://www.mapress.com/zt/article/download/zootaxa.5378.1.1/52353
+                    ) */
                 }
                 // */
                 
@@ -487,13 +555,15 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
             // /* new: add a new text object using <title> tag from eml.xml. Will practically double the no. of text objects. Per https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=66921&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66921
             if($this->resource_id == "TreatmentBank") {
                 if($what == "document") {
-                    if($title = self::get_title_from_eml_xml()) {
-                        $o->identifier = md5($o->identifier.$title);
-                        $o->title = 'Title for eol-geonames';
-                        $o->description = $title;
-                        $o->bibliographicCitation = '';
-                        $this->archive_builder->write_object_to_file($o);
-                    }
+                    if($row_type == 'http://eol.org/schema/media/document') { //not for http://rs.gbif.org/terms/1.0/description
+                        if($title = self::get_title_from_eml_xml()) {
+                            $o->identifier = md5($o->identifier.$title);
+                            $o->title = 'Title for eol-geonames';
+                            $o->description = $title;
+                            $o->bibliographicCitation = '';
+                            $this->archive_builder->write_object_to_file($o);
+                        }    
+                    }                
                 }
             }
             // */
