@@ -456,8 +456,10 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 
                 // /* DATA-1897: Pensoft journals (textmining)
                 if($this->param['resource_id'] == "TreatmentBank_ENV") {
-                    $this->ontologies = "envo,eol-geonames";
-                    if($rec['http://purl.org/dc/terms/title'] == 'Title for eol-geonames') $this->ontologies = "eol-geonames";
+                    // $this->ontologies = "envo,eol-geonames"; //orig
+                    if($rec['http://purl.org/dc/terms/title'] == 'Title for eol-geonames')              $this->ontologies = "eol-geonames";
+                    elseif($rec['http://rs.tdwg.org/ac/terms/additionalInformation'] == 'distribution') $this->ontologies = "eol-geonames";
+                    else                                                                                $this->ontologies = "envo"; //the rest
                 }
                 if($this->param['resource_id'] == "20_ENV")             $this->ontologies = "envo,eol-geonames"; //ZooKeys
                 if($this->param['resource_id'] == "832_ENV")            $this->ontologies = "envo,eol-geonames"; //Subterranean Biology
