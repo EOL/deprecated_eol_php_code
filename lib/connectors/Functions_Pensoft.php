@@ -119,6 +119,10 @@ class Functions_Pensoft
             }
         }
 
+        /* utility, for Jen. Get "\nCommon names." OR "\nNames.". For decision making by Jen.
+        we may not need this anymore...
+        */
+
         /* debug only
         ksort($this->debug['detected_first_words']);
         echo "\ndetected_first_words: ";
