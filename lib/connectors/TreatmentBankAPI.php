@@ -48,7 +48,9 @@ class TreatmentBankAPI
         if(!is_dir($this->path['main'])) mkdir($this->path['main']);
         if(!is_dir($this->path['main']."DwCA/")) mkdir($this->path['main']."DwCA/");
 
-        $this->dwca_list_txt = CONTENT_RESOURCE_LOCAL_PATH."/reports/Plazi_DwCA_list.txt";
+        $path = CONTENT_RESOURCE_LOCAL_PATH."/reports/TreatmentBank";
+        if(!is_dir($path)) mkdir($path);
+        $this->dwca_list_txt = $path . "/Plazi_DwCA_list.txt";
         
         /* Some notes:
         From XML rss:
