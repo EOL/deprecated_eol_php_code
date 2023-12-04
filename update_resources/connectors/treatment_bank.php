@@ -12,17 +12,21 @@ as of Nov 30, 2023
 100-150     all de
 25000-25050 all en
 
-6 ranges in jenkins:
+8 ranges in jenkins:
 php5.6 treatment_bank.php jenkins '{"range_from": "1", "range_to":"100000"}'
 php5.6 treatment_bank.php jenkins '{"range_from": "100000", "range_to":"200000"}'
 php5.6 treatment_bank.php jenkins '{"range_from": "200000", "range_to":"300000"}'
 php5.6 treatment_bank.php jenkins '{"range_from": "300000", "range_to":"400000"}'
 php5.6 treatment_bank.php jenkins '{"range_from": "400000", "range_to":"500000"}'
-php5.6 treatment_bank.php jenkins '{"range_from": "500000", "range_to":"612000"}'
+php5.6 treatment_bank.php jenkins '{"range_from": "500000", "range_to":"600000"}'
+php5.6 treatment_bank.php jenkins '{"range_from": "600000", "range_to":"700000"}'
+php5.6 treatment_bank.php jenkins '{"range_from": "700000", "range_to":"779000"}' //778,468
 
 STEP 2:
 php update_resources/connectors/treatment_bank.php _ '{"task": "build_up_dwca_list"}'
 -> generates /resources/reports/Plazi_DwCA_list.txt
+
+STEP 2.1: Utility: report for Jen to get document type for all DwCAs
 
 STEP 3:
 php update_resources/connectors/treatment_bank.php _ '{"task": "generate_single_dwca"}'
