@@ -299,7 +299,19 @@ class BioImagesAPI
         $mr->creator = '';
         $mr->CreateDate = '';
         $mr->modified = '';
+        
+        // /* Always add Malcolm Storey as Owner:
+        $owner_array = explode(",", $row[$col['Recorded/Collected by']]);
+        $owner_array[] = "Malcolm Storey";
+        $owner_array = array_map('trim', $owner_array);
+        $owner_array = array_filter($owner_array); //remove null arrays
+        $owner_array = array_unique($owner_array); //make unique
+        $owner_array = array_values($owner_array); //reindex key
+        $row[$col['Recorded/Collected by']] = Functions::remove_whitespace(implode(", ", $owner_array));
+        // */
+
         $mr->Owner = $row[$col['Recorded/Collected by']] != "" ? "Recorded/Collected by: " . self::format_person_by($row[$col['Recorded/Collected by']]) : "";
+
         $mr->publisher = '';
         // $mr->audience = 'Everyone';
         $mr->bibliographicCitation = '';
