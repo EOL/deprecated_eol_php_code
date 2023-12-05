@@ -5,7 +5,8 @@ as of Sep 1, 2021 = 611,618 items
 STEP 1:
 php update_resources/connectors/treatment_bank.php _ '{"range_from": "1", "range_to":"100000"}'
 php update_resources/connectors/treatment_bank.php _ '{"range_from": "100000", "range_to":"200000"}'
-{total of 6 ranges, see jenkins}
+php update_resources/connectors/treatment_bank.php _ '{"range_from": "700000", "range_to":"700050"}'
+{total of 8 ranges, see jenkins}
 
 as of Nov 30, 2023
 1-50        all fr
@@ -20,7 +21,7 @@ php5.6 treatment_bank.php jenkins '{"range_from": "300000", "range_to":"400000"}
 php5.6 treatment_bank.php jenkins '{"range_from": "400000", "range_to":"500000"}'
 php5.6 treatment_bank.php jenkins '{"range_from": "500000", "range_to":"600000"}'
 php5.6 treatment_bank.php jenkins '{"range_from": "600000", "range_to":"700000"}'
-php5.6 treatment_bank.php jenkins '{"range_from": "700000", "range_to":"779000"}' //778,468
+php5.6 treatment_bank.php jenkins '{"range_from": "700000", "range_to":"779000"}' //actual 778,468 as of Dec 4, 2023
 
 STEP 2:
 php update_resources/connectors/treatment_bank.php _ '{"task": "build_up_dwca_list"}'
