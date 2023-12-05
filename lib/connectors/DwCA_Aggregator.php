@@ -558,11 +558,14 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                 if($what == "document") {
                     if($row_type == 'http://eol.org/schema/media/document') { //not for http://rs.gbif.org/terms/1.0/description
                         if($title = self::get_title_from_eml_xml()) {
-                            $o->identifier = md5($o->identifier.$title);
+                            $o->identifier = md5($title.$o->taxonID);
                             $o->title = 'Title for eol-geonames';
                             $o->description = $title;
                             $o->bibliographicCitation = '';
-                            $this->archive_builder->write_object_to_file($o);
+                            if(!isset($this->data_objects[$o->identifier])) {
+                                $this->archive_builder->write_object_to_file($o);
+                                $this->data_objects[$o->identifier] = '';
+                            }
                             continue;
                         }    
                     }                
