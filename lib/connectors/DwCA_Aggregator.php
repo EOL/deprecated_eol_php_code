@@ -339,6 +339,7 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                 if($this->resource_id == "TreatmentBank") {
                     $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                     if($row_type == 'http://eol.org/schema/media/document') { //not http://rs.gbif.org/terms/1.0/description
+                        // build-up an info list
                         $this->info_taxonID_mediaRec[$taxon_id] = array('UsageTerms'    => $rec['http://ns.adobe.com/xap/1.0/rights/UsageTerms'],
                                                                         'rights'        => $rec['http://purl.org/dc/terms/rights'],
                                                                         'Owner'         => $rec['http://ns.adobe.com/xap/1.0/rights/Owner'],
@@ -550,9 +551,9 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                 
                 $o->$field = $rec[$uri];
             }
-            $this->archive_builder->write_object_to_file($o);
             
             // /* new: add a new text object using <title> tag from eml.xml. Will practically double the no. of text objects. Per https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=66921&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66921
+            // Dec 4, 2023: Moved up. This will no longer double the no. of text objects but will overwrite the original text object we use to textmine.
             if($this->resource_id == "TreatmentBank") {
                 if($what == "document") {
                     if($row_type == 'http://eol.org/schema/media/document') { //not for http://rs.gbif.org/terms/1.0/description
@@ -562,12 +563,15 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                             $o->description = $title;
                             $o->bibliographicCitation = '';
                             $this->archive_builder->write_object_to_file($o);
+                            continue;
                         }    
                     }                
                 }
             }
             // */
-            
+
+            $this->archive_builder->write_object_to_file($o);
+
             // if($i >= 2) break; //debug only
         } //end foreach()
     }
