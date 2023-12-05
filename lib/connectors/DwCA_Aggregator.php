@@ -355,7 +355,9 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                             [http://purl.org/dc/terms/language] => en
                             [http://purl.org/dc/terms/source] => POORANI, J. (2023): An illustrated guide to the lady beetles (Coleoptera: Coccinellidae) of the Indian Subcontinent. Part II. Tribe Chilocorini. Zootaxa 5378 (1): 1-108, DOI: 10.11646/zootaxa.5378.1.1, URL: https://www.mapress.com/zt/article/download/zootaxa.5378.1.1/52353
                         ) */
-                        // if($rec['http://purl.org/dc/terms/type'] == 'type_taxon') { print_r($rec); exit; } //debug only good debug
+                        $description_type = $rec['http://purl.org/dc/terms/type'];
+                        if(in_array($description_type, array('etymology', 'discussion', 'type_taxon'))) continue;                        
+                        // if($description_type == 'type_taxon') { print_r($rec); exit; } //debug only good debug
                         $this->debug[$this->resource_id]['text type'][$rec['http://purl.org/dc/terms/type']] = '';
                         $json = json_encode($rec);
                         $rec['http://purl.org/dc/terms/identifier'] = md5($json);
@@ -454,11 +456,11 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                     }
                     // */
                     
-                    // /* remove taxonomic/nomenclature line from description
+                    /* Used by our original text object.
+                    // remove taxonomic/nomenclature line from description
                     if($description = @$rec['http://purl.org/dc/terms/description']) {
                         $rec['http://purl.org/dc/terms/description'] = $this->remove_taxon_lines_from_desc($description);
-                    }
-                    // */
+                    } */
                     
                 }
                 
