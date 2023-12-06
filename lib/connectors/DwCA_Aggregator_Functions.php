@@ -28,7 +28,8 @@ class DwCA_Aggregator_Functions
         // exit("\nstop muna\n");
         return $bibliographicCitation;
     }
-    function remove_taxon_lines_from_desc($html) /* created for TreatmentBank - https://eol-jira.bibalex.org/browse/DATA-1916 */
+    /* Used by our original text object.
+    function remove_taxon_lines_from_desc($html) // created for TreatmentBank - https://eol-jira.bibalex.org/browse/DATA-1916
     {
         if(preg_match_all("/<p>(.*?)<\/p>/ims", $html, $arr)) {
             $rows = $arr[1];
@@ -56,7 +57,7 @@ class DwCA_Aggregator_Functions
             }
         }
         return $html;
-    }
+    } */
     function let_media_document_go_first_over_description($index)
     {   /* Array(
             [0] => http://rs.tdwg.org/dwc/terms/taxon
