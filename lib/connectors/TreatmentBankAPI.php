@@ -9,7 +9,7 @@ http://tb.plazi.org/GgServer/xml.rss.xml
 
     - this XML is too big to load in browser for investigation
     - download it locally using: wget http://tb.plazi.org/GgServer/xml.rss.xml
-    - it lists 611,618 treatments and the corresponding metadata file
+    - it lists 611,618 (778,468) (779,222) treatments and the corresponding metadata file
     e.g. metadata http://tb.plazi.org/GgServer/xml/03FA87C50911FFB0FC2DFC79FB4AD551.xml
     From this metadata XML you can filter docType="treatment".
     And get the masterDocId="FFC3FFBD0912FFB9FF8BFFEAFFFDD364".
