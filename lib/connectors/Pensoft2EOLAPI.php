@@ -458,8 +458,22 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 if($this->param['resource_id'] == "TreatmentBank_ENV") {
                     // $this->ontologies = "envo,eol-geonames"; //orig
                     if($rec['http://purl.org/dc/terms/title'] == 'Title for eol-geonames')              $this->ontologies = "eol-geonames";
-                    elseif($rec['http://rs.tdwg.org/ac/terms/additionalInformation'] == 'distribution') $this->ontologies = "eol-geonames";
-                    else                                                                                $this->ontologies = "envo"; //the rest
+                    elseif($rec['http://rs.tdwg.org/ac/terms/additionalInformation'] == 'distribution') $this->ontologies = "envo,eol-geonames";
+                    else {
+                        /* per Jen: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=67753&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67753
+                        Actually, let's make one change; let's try them both in [distribution]. 
+                        Habitat does seem to be described pretty often in that section. 
+                        When I've mulled over the next draft, if coverage for geographic records seems thin, we might try geonames also in [materials examined], 
+                        but that section might also be a minefield of specimen-holding institution names, so it'll depend on whether we have succeeded in 
+                        dealing with those elsewhere. Anyway, in general locality text strings seem to appear many times, so it may not be necessary. 
+                            [description]           "envo"
+                            [biology_ecology]       "envo"
+                            [diagnosis]             "envo"
+                            [materials_examined]    "envo"
+                            [distribution]          "envo,eol-geonames"
+                        */
+                        $this->ontologies = "envo"; //the rest
+                    }
                 }
                 if($this->param['resource_id'] == "20_ENV")             $this->ontologies = "envo,eol-geonames"; //ZooKeys
                 if($this->param['resource_id'] == "832_ENV")            $this->ontologies = "envo,eol-geonames"; //Subterranean Biology
