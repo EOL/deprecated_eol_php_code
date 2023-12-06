@@ -63,15 +63,11 @@ $descs[] = "Atlantic blanket bogs and fen";
 $descs[] = "I live in the mountains over the nunatak valley.";
 $descs[] = "I live in a sandy soil";
 $descs[] = "Distribution. Sri Lanka.";
+$descs[] = "Notes. In Poorani’s (2002) checklist of the Indian Subcontinent, Brumus ceylonicus was listed with a note that ‘ it might be a Brumoides ’. Images of the two syntypes of ‘ Brumus ceylonicus ’ deposited at SDEI (obtained through the courtesy of Kevin Weissing, SDEI) below the valley show that this species indeed is a Brumoides and it is transferred here to Brumoides (comb. n.). The male syntype (abdomen and genitalia dissected and glued to a card) is hereby designated as a lectotype to ensure stability of nomenclature (lectotype designation). This is likely to be a synonym of either B. suturalis or B. lineatus, both of which are found in South India. The male genitalia could not be examined in detail for confirmation. yz";
 
 /*
 $descs = array();
 // $descs[] = file_get_contents(DOC_ROOT."/tmp2/sample_treatment.txt");
-// $descs[] = "Notes. In Poorani’s (2002) checklist of the Indian Subcontinent, Brumus ceylonicus was listed with a note that ‘ it might be a Brumoides ’. 
-// Images of the two syntypes of ‘ Brumus ceylonicus ’ deposited at SDEI (obtained through the courtesy of Kevin Weissing, SDEI) below the valley show that this species indeed is a Brumoides 
-// and it is transferred here to Brumoides (comb. n.). The male syntype (abdomen and genitalia dissected and glued to a card) is hereby designated as a lectotype to ensure 
-// stability of nomenclature (lectotype designation). This is likely to be a synonym of either B. suturalis or B. lineatus, both of which are found in South India. 
-// The male genitalia could not be examined in detail for confirmation.";
 */
 
 $final = array();
@@ -119,6 +115,7 @@ foreach($IDs as $resource_id) {
             if($i == 16) { if($ret == "mountains-ENVO_00000081|nunatak-ENVO_00000181|valley-ENVO_00000100") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 17) { if($ret == "sandy soil-ENVO_00002229")                   echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 18) { if($ret == "Sri Lanka-1227603")                          echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 19) { if($ret == "india-1269750|valley-ENVO_00000100")         echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
         if(in_array($resource_id, array('TreatmentBank_ENV', '617_ENV'))) {
             // if($i == 1) { if($ret == "orchard|soil|dune")                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
@@ -144,10 +141,12 @@ foreach($IDs as $resource_id) {
             if($i == 17) { if($ret == "sandy soil-ENVO_00002229-ENVO_09200008")     echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
         if($resource_id == '617_ENV') {
-            if($i == 18) { if($ret == "")                       echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 18) { if($ret == "")                                   echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 19) { if($ret == "india-1269750|valley-ENVO_00000100") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
         if($resource_id == 'TreatmentBank_ENV') {
-            if($i == 18) { if($ret == "Sri Lanka-1227603")      echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 18) { if($ret == "Sri Lanka-1227603")                  echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 19) { if($ret == "india-1269750")                      echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
     }
     echo "\nerrors: [$resource_id][$errors errors]";
@@ -165,7 +164,7 @@ function run_desc($desc, $pensoft) {
     $final = array();
     if($arr = $pensoft->retrieve_annotation($basename, $desc)) {
         // echo "\n---start---\n";
-        print_r($arr); //--- search ***** in Pensoft2EOLAPI.php
+        // print_r($arr); //--- search ***** in Pensoft2EOLAPI.php
         // echo "\n---end---\n";
         foreach($arr as $uri => $rek) {
             $filename = pathinfo($uri, PATHINFO_FILENAME);
