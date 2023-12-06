@@ -62,13 +62,22 @@ $descs[] = "Almost all of these are incorrect: e.g., (1) ‘‘fen. ov.’’ (f
 $descs[] = "Atlantic blanket bogs and fen";
 $descs[] = "I live in the mountains over the nunatak valley.";
 $descs[] = "I live in a sandy soil";
+$descs[] = "Distribution. Sri Lanka.";
 
-// $descs = array();
+/*
+$descs = array();
 // $descs[] = file_get_contents(DOC_ROOT."/tmp2/sample_treatment.txt");
+// $descs[] = "Notes. In Poorani’s (2002) checklist of the Indian Subcontinent, Brumus ceylonicus was listed with a note that ‘ it might be a Brumoides ’. 
+// Images of the two syntypes of ‘ Brumus ceylonicus ’ deposited at SDEI (obtained through the courtesy of Kevin Weissing, SDEI) below the valley show that this species indeed is a Brumoides 
+// and it is transferred here to Brumoides (comb. n.). The male syntype (abdomen and genitalia dissected and glued to a card) is hereby designated as a lectotype to ensure 
+// stability of nomenclature (lectotype designation). This is likely to be a synonym of either B. suturalis or B. lineatus, both of which are found in South India. 
+// The male genitalia could not be examined in detail for confirmation.";
+*/
 
-$IDs = array('24', '617_ENV'); //617_ENV -> Wikipedia EN //24 -> AntWeb resource ID
+$final = array();
+$IDs = array('24', '617_ENV', 'TreatmentBank_ENV'); //617_ENV -> Wikipedia EN //24 -> AntWeb resource ID
 // $IDs = array('24');
-// $IDs = array('617_ENV'); //or TreatmentBank
+// $IDs = array('TreatmentBank_ENV'); //or TreatmentBank
 foreach($IDs as $resource_id) {
     $param['resource_id'] = $resource_id;
     require_library('connectors/Functions_Pensoft');
@@ -109,8 +118,9 @@ foreach($IDs as $resource_id) {
             if($i == 15) { if($ret == "fen-ENVO_00000232")                          echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 16) { if($ret == "mountains-ENVO_00000081|nunatak-ENVO_00000181|valley-ENVO_00000100") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 17) { if($ret == "sandy soil-ENVO_00002229")                   echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+            if($i == 18) { if($ret == "Sri Lanka-1227603")                          echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
-        if($resource_id == '617_ENV') {
+        if(in_array($resource_id, array('TreatmentBank_ENV', '617_ENV'))) {
             // if($i == 1) { if($ret == "orchard|soil|dune")                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 1) { if($ret == "orchard-ENVO_00000115|dune-ENVO_00000170")    echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             // if($i == 2) { if($ret == "mozambique|island|river|zambezi")          echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
@@ -133,10 +143,18 @@ foreach($IDs as $resource_id) {
             if($i == 16) { if($ret == "mountains-ENVO_00000081|nunatak-ENVO_00000181|valley-ENVO_00000100") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 17) { if($ret == "sandy soil-ENVO_00002229-ENVO_09200008")     echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
+        if($resource_id == '617_ENV') {
+            if($i == 18) { if($ret == "")                       echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+        }
+        if($resource_id == 'TreatmentBank_ENV') {
+            if($i == 18) { if($ret == "Sri Lanka-1227603")      echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+        }
     }
-    echo "\nerrors: [$resource_id][$errors]";
+    echo "\nerrors: [$resource_id][$errors errors]";
+    $final[] =     "[$resource_id][$errors errors]";
     // ************************************
 } //end foreach()
+print_r($final);
 echo "\n-end tests-\n";
 // */
 function run_desc($desc, $pensoft) {
@@ -146,7 +164,9 @@ function run_desc($desc, $pensoft) {
     $pensoft->results = array();
     $final = array();
     if($arr = $pensoft->retrieve_annotation($basename, $desc)) {
-        // print_r($arr); //--- search ***** in Pensoft2EOLAPI.php
+        // echo "\n---start---\n";
+        print_r($arr); //--- search ***** in Pensoft2EOLAPI.php
+        // echo "\n---end---\n";
         foreach($arr as $uri => $rek) {
             $filename = pathinfo($uri, PATHINFO_FILENAME);
             $tmp = $rek['lbl']."-$filename";
@@ -154,6 +174,7 @@ function run_desc($desc, $pensoft) {
             $final[] = $tmp;
         }
     }
+    // else echo "\n-No Results-\n";
     return implode("|", $final);    
 }
 /*
