@@ -618,11 +618,6 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $desc = strip_tags($rec['http://purl.org/dc/terms/description']);
         $desc = trim(Functions::remove_whitespace($desc));
 
-        // /* new: massage description for TreatmentBank (Nov 27, 2023)
-        if($this->param['resource_id'] == "TreatmentBank_ENV") $desc = $this->format_TreatmentBank_desc($desc);
-        // return; //during dev only
-        // */
-
         self::retrieve_annotation($basename, $desc); //it is in this routine where the pensoft annotator is called/run
         self::write_to_pensoft_tags($basename);
     }
@@ -731,6 +726,11 @@ class Pensoft2EOLAPI extends Functions_Pensoft
     */
     public function retrieve_annotation($id, $desc)
     {
+        // /* new: massage description for TreatmentBank (Nov 27, 2023)
+        if($this->param['resource_id'] == "TreatmentBank_ENV") $desc = $this->format_TreatmentBank_desc($desc);
+        // return; //during dev only
+        // */
+
         // exit("\nontologies retrieve_annotation(): [$this->ontologies]\n");
         $desc = str_replace("....", "", $desc);
         $desc = str_replace("----", "", $desc);
