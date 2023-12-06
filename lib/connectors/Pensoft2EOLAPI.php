@@ -1093,6 +1093,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                     $this->results[$rek['id']] = array("lbl" => $rek['lbl'], "ontology" => $rek['ontology'], "mtype" => @$rek['mtype']);
                     // $this->eli[$rek['id']][] = $rek['lbl']; //good debug
                 }
+                // else exit("\nWent here...\n"); //means Wikipedia EN is strict. "Sri Lanka" will be excluded.
             }
             else { //rest of the resources --> Just be sure the citation, reference, biblio parts of text is not included as input to Pensoft
                 $this->results[$rek['id']] = array("lbl" => $rek['lbl'], "ontology" => $rek['ontology'], "mtype" => @$rek['mtype']);
