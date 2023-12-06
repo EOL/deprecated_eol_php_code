@@ -138,6 +138,10 @@ class Functions_Pensoft
             $substr = $arr[1];
             $desc = str_replace($substr, "", $desc);
         }
+        if(preg_match("/References: (.*?)elicha/ims", $desc."elicha", $arr)) { //no tests yet, to do:
+            $substr = $arr[1];
+            $desc = str_replace($substr, "", $desc);
+        }
         return $desc;
         // */
     }
