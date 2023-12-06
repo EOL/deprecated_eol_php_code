@@ -106,7 +106,7 @@ class Functions_Pensoft
         return $path;
     }
     function format_TreatmentBank_desc($desc)
-    {
+    {   /* working Ok with our original text from extension: http://eol.org/schema/media/Document
         $desc = '\n'.$desc.'\n';
         $desc = str_replace('\n', ' elicha ', $desc);
         $desc = Functions::remove_whitespace($desc);
@@ -117,7 +117,9 @@ class Functions_Pensoft
                 $this->debug['detected_first_words'][$first_word] = '';
                 if(!isset($this->exclude_first_words[$first_word])) $final[] = $part;    
             }
-        }
+        } 
+        return implode("\n", $final);
+        */
 
         /* utility, for Jen. Get "\nCommon names." OR "\nNames.". For decision making by Jen.
         we may not need this anymore...
@@ -131,8 +133,13 @@ class Functions_Pensoft
         // exit("\n-stop muna-\n");
         */
 
-        // return implode("\n----------\n", $final); //debug only
-        return implode("\n", $final);
+        // /* now using the extension: http://rs.gbif.org/terms/1.0/Description
+        if(preg_match("/deposited (.*?)\. /ims", $desc, $arr)) {
+            $substr = $arr[1];
+            $desc = str_replace($substr, "", $desc);
+        }
+        return $desc;
+        // */
     }
     private function get_first_word_of_string($str)
     {
