@@ -117,7 +117,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         $this->to_delete_file = "";
         $this->debug = array();
 
-        // /* TreatmentBank only: exclude first words:
+        /* TreatmentBank only: exclude first words: not used anymore
         $words = array('diagrammatic', 'diagram', 'diagrams', 'fig', 'figs', 'figure', 'figures', 'ref', 'refs', 'ref.:', 'reference', 'references', 
                        'table', 'tables', 'image.', 'images.', 'copyright', 'abbreviation', 'abbreviations', 'image', 'images', 'acknowledgement', 'acknowledgements');
         foreach($words as $word) {
@@ -127,7 +127,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         ksort($arr);
         $this->exclude_first_words = $arr;
         $this->debug['detected_first_words'] = array();
-        // */        
+        */
 
         // /* soil compositions
         $labels = array('sandy soil', 'clay soil', 'dry soil', 'garden soil', 'forest soil', 'muddy soil', 'red soil', 'field soil', 'volcanic soil', 'surface soil', 
