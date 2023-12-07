@@ -695,7 +695,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 
                 // /* implement soil composition
                 if(in_array($this->param['resource_id'], array('617_ENV', 'TreatmentBank_ENV'))) { //Wikipedia EN & TreatmentBank
-                    if($possible_mtype = @$rek['mtype']) $arr[6] = $possible_mtype;
+                    if($possible_mtype = @$rek['mtype']) $arr[6] = $possible_mtype; //7th param is mType
                 }
                 // */
 
