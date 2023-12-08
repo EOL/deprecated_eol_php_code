@@ -15,7 +15,7 @@ class DwCA_Aggregator_Functions
                 if($t = $xml->additionalMetadata->metadata->plaziMods) {
                     $mods = $t->children("http://www.loc.gov/mods/v3"); // xmlns:mods="http://www.loc.gov/mods/v3"
                     // echo "\n[".$mods->mods->typeOfResource."]\n"; //prints e.g. "text"
-                    $subset = trim((string) $mods->mods->relatedItem->part->detail->title);
+                    $subset = trim((string) @$mods->mods->relatedItem->part->detail->title);
                     if($subset) {
                         // echo "\nmay subset:\n[".$subset."]\n"; //prints the subset of the bibliographicCitation --- good debug
                         $shortened = str_ireplace("($subset)", "", $bibliographicCitation);
