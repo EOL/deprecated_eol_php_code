@@ -112,6 +112,7 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
         }
         if($ret) print_r($ret);
         $this->archive_builder->finalize(TRUE);
+        if($this->debug) print_r($this->debug);
     }
     private function convert_archive($preferred_rowtypes = false, $dwca_file, $download_options = array('timeout' => 172800, 'expire_seconds' => 0))
     {   /* param $preferred_rowtypes is the option to include-only those row_types you want on your final DwCA.*/
@@ -170,7 +171,6 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
         // */
-        if($this->debug) print_r($this->debug);
     } //end convert_archive()
     private function start($dwca_file = false, $download_options = array('timeout' => 172800, 'expire_seconds' => false)) //probably default expires in a month 60*60*24*30. Not false.
     {
