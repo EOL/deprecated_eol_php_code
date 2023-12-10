@@ -90,5 +90,36 @@ class DwCA_Aggregator_Functions
             if($count <= 100) $this->debug[$this->resource_id]['type e.g.'][$description_type][$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = '';
         }
     }
+    function format_field($rec)
+    {
+        /* furtherInformationURL
+        File: media_resource.tab
+        Line: 338149
+        URI: http://rs.tdwg.org/ac/terms/furtherInformationURL
+        Message: Invalid URL
+        Line Value: |https://treatment.plazi.org/id/E97287E44C427A0C1FEAFB6CFADACDC2        
+
+        File: media_resource.tab
+        Line: 1782706
+        URI: http://rs.tdwg.org/ac/terms/furtherInformationURL
+        Message: Invalid URL
+        Line Value: Jonsell, B., Karlsson (2005): Chenopodiaceae - Fumariaceae (Chenopodium). Flora Nordica 2: 4-31, URL: http://antbase.org/ants/publications/FlNordica_chenop/FlNordica_chenop.pdf
+        */
+        $furtherInformationURL = str_replace("|", "", $rec['http://rs.tdwg.org/ac/terms/furtherInformationURL']);
+        if(substr($furtherInformationURL,0,4) != "http") $furtherInformationURL = ""; //invalid data, maybe due to erroneous tab count.
+        $rec['http://rs.tdwg.org/ac/terms/furtherInformationURL'] = $furtherInformationURL;
+
+        /* http://purl.org/dc/terms/type
+        File: media_resource.tab
+        Line: 1782706
+        URI: http://purl.org/dc/terms/type
+        Message: Invalid DataType
+        Line Value: https://treatment.plazi.org/id/01660DF93D09DB09C986CB2380FAB116
+        */
+        $type = $rec['http://purl.org/dc/terms/type'];
+        if($type != "http://purl.org/dc/dcmitype/Text") $rec['http://purl.org/dc/terms/type'] = false;
+        
+        return $rec;
+    }
 }
 ?>
