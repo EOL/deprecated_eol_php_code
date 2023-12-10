@@ -358,7 +358,9 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                         $description_type = $rec['http://purl.org/dc/terms/type'];
                         if(in_array($description_type, array('etymology', 'discussion', 'type_taxon'))) continue;                        
                         // if($description_type == 'type_taxon') { print_r($rec); exit; } //debug only good debug
-                        $this->debug[$this->resource_id]['text type'][$rec['http://purl.org/dc/terms/type']] = '';
+
+                        $this->TreatmentBank_stats($rec, $description_type); // stat only purposes
+
                         $json = json_encode($rec);
                         $rec['http://purl.org/dc/terms/identifier'] = md5($json);
                         $rec['http://rs.tdwg.org/ac/terms/additionalInformation'] = $rec['http://purl.org/dc/terms/type'];

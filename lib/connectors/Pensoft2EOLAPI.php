@@ -471,6 +471,18 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                             [diagnosis]             "envo"
                             [materials_examined]    "envo"
                             [distribution]          "envo,eol-geonames"
+                            Additional:
+                            [synonymic_list] => 
+                            [vernacular_names] => 
+                            [conservation] => 
+                            [food_feeding] => 
+                            [breeding] => 
+                            [activity] => 
+                            [use] => 
+                            [ecology] => 
+                            [] => 
+                            [biology] => 
+                            [material] => 
                         */
                         $this->ontologies = "envo"; //the rest
                     }
