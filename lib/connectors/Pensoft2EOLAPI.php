@@ -405,7 +405,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             // if($taxonID != 'Q1000262') continue; //debug only
             
             // /* debug only --- range ranges caching cache
-            if($this->param['resource_id'] == "617_ENV") { //total 1135562 objects in media tab 'TreatmentBank_ENV $m = 378521;
+            if($this->param['resource_id'] == "617_ENV") { //total 1135562 objects in media tab 'TreatmentBank_ENV $m = 378,521; 2,108,851
                                                            //total 841539                       '617_ENV'          $m = 284000;
                 $m = 284000; # can run 3 connectors. Comment 2 rows and un-comment 1 row.
                 // if($i >= 1 &&    $i < $m) {}
@@ -488,7 +488,15 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                         */
                         $this->ontologies = "envo"; //the rest
                     }
-                }
+
+                    // /* temporary filter until Jen decides on the new set of text types
+                    $description_type = $rec['http://rs.tdwg.org/ac/terms/additionalInformation'];
+                    if    (in_array($description_type, array("synonymic_list", "vernacular_names", ""))) continue;
+                    elseif(in_array($description_type, array("material", "conservation", "food_feeding", "breeding", "activity", "use", "ecology", "biology"))) continue;
+                    elseif(!$description_type) continue;
+                    // */
+
+                } //end TreatmentBank_ENV
                 if($this->param['resource_id'] == "20_ENV")             $this->ontologies = "envo,eol-geonames"; //ZooKeys
                 if($this->param['resource_id'] == "832_ENV")            $this->ontologies = "envo,eol-geonames"; //Subterranean Biology
                 if($this->param['resource'] == 'Pensoft_journals')      $this->ontologies = "envo,eol-geonames"; //DATA-1897 Pensoft journals (textmining)
