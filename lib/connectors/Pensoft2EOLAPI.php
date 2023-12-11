@@ -405,13 +405,19 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             // if($taxonID != 'Q1000262') continue; //debug only
             
             // /* debug only --- range ranges caching cache
-            if($this->param['resource_id'] == "617_ENV") { //total 1135562 objects in media tab 'TreatmentBank_ENV $m = 378,521; 2,108,851
-                                                           //total 841539                       '617_ENV'          $m = 284000;
-                $m = 284000; # can run 3 connectors. Comment 2 rows and un-comment 1 row.
+            if($this->param['resource_id'] == "617_ENV") { //total 841539 objects in media tab '617_ENV'
+                $m = 841539/3; # can run 3 connectors. Comment 2 rows and un-comment 1 row.
                 // if($i >= 1 &&    $i < $m) {}
                 // if($i >= $m &&   $i < $m*2) {}
                 // if($i >= $m*2 && $i < $m*3) {}
                 if($i >= 480000) {}
+                else continue; 
+            }
+            if($this->param['resource_id'] == "TreatmentBank_ENV") { //total 1135562 objects in media tab ' $m = 2,108,851
+                $m = 2108851/3; # can run 3 connectors. Comment 2 rows and un-comment 1 row.
+                if($i >= 1 &&    $i < $m) {}
+                // if($i >= $m &&   $i < $m*2) {}
+                // if($i >= $m*2 && $i < $m*3) {}
                 else continue; 
             }
             // */
