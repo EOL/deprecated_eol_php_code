@@ -357,10 +357,15 @@ class DwCA_Aggregator extends DwCA_Aggregator_Functions
                         ) */
                         if(!$rec['http://purl.org/dc/terms/description']) continue; //description cannot be blank
                         $description_type = $rec['http://purl.org/dc/terms/type'];
-                        if(in_array($description_type, array('etymology', 'discussion', 'type_taxon'))) continue;                        
+                        
+                        if(in_array($description_type, array('etymology', 'discussion', 'type_taxon'))) continue;
+                        // Additional text types:
+                        elseif(in_array($description_type, array("synonymic_list", "vernacular_names", ""))) continue;
+                        elseif(in_array($description_type, array("material", "conservation", "food_feeding", "breeding", "activity", "use", "ecology", "biology"))) continue;
+                        elseif(!$description_type) continue;
                         // if($description_type == 'type_taxon') { print_r($rec); exit; } //debug only good debug
 
-                        $this->TreatmentBank_stats($rec, $description_type); // stat only purposes
+                        $this->TreatmentBank_stats($rec, $description_type); // stat only purposes, good report.
 
                         $json = json_encode($rec);
                         $rec['http://purl.org/dc/terms/identifier'] = md5($json);
