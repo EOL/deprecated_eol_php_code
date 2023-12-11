@@ -851,8 +851,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 echo("\n[".$arr['text'][0]."]\n");
                 echo("\nInvestigate: might need to decrease orig_batch_length variable.\n strlen: ".strlen($desc)."\n");
                 return;
-            }
-            
+            }    
             // echo("\nretrieved partial OK\n"); //good debug
         }
         else {
@@ -879,11 +878,12 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 }
             }
             else {
+                /* working; good debug. I assume these cases are network hiccups from Pensoft.
                 echo("\n================\n -- nothing to save A...\n[$id]\n[$desc]\n[$loop] strlen: ".strlen($desc)."\n".$this->ontologies); //doesn't go here. Previously exit()
-                // /* for debug only: to investigate further
+                //for debug only: to investigate further
                 $file = self::build_path($id, 'partial');
-                echo "\nfile: [$file]\n================\n";
-                // */
+                echo "\nfile: [$file]\n================\n"; */
+                @$this->debug['nothing to save A...']++;
             }
         }
     }
