@@ -879,10 +879,10 @@ class Pensoft2EOLAPI extends Functions_Pensoft
                 }
             }
             else {
-                echo("\n================\n -- nothing to save A...\n[$id]\n[$desc]\n[$loop] strlen: ".strlen($desc)."\n================\n"); //doesn't go here. Previously exit()
+                echo("\n================\n -- nothing to save A...\n[$id]\n[$desc]\n[$loop] strlen: ".strlen($desc)."\n".$this->ontologies); //doesn't go here. Previously exit()
                 // /* for debug only: to investigate further
                 $file = self::build_path($id, 'partial');
-                echo "\nfile: [$file]\n";
+                echo "\nfile: [$file]\n================\n";
                 // */
             }
         }
