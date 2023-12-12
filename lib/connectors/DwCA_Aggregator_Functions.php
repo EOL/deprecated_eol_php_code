@@ -125,10 +125,12 @@ class DwCA_Aggregator_Functions
         
         return $rec;
     }
-    function process_table_TreatmentBank($rec, $row_type)
+    function process_table_TreatmentBank_document($rec, $row_type, $meta)
     {
+
         $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
         if($row_type == 'http://eol.org/schema/media/document') { //not http://rs.gbif.org/terms/1.0/description
+            if(!$rec['http://ns.adobe.com/xap/1.0/rights/UsageTerms']) return false; //continue; //exclude with blank license
             // build-up an info list
             $this->info_taxonID_mediaRec[$taxon_id] = array('UsageTerms'    => $rec['http://ns.adobe.com/xap/1.0/rights/UsageTerms'],
                                                             'rights'        => $rec['http://purl.org/dc/terms/rights'],
@@ -145,14 +147,14 @@ class DwCA_Aggregator_Functions
                 [http://purl.org/dc/terms/language] => en
                 [http://purl.org/dc/terms/source] => POORANI, J. (2023): An illustrated guide to the lady beetles (Coleoptera: Coccinellidae) of the Indian Subcontinent. Part II. Tribe Chilocorini. Zootaxa 5378 (1): 1-108, DOI: 10.11646/zootaxa.5378.1.1, URL: https://www.mapress.com/zt/article/download/zootaxa.5378.1.1/52353
             ) */
-            if(!$rec['http://purl.org/dc/terms/description']) continue; //description cannot be blank
+            if(!$rec['http://purl.org/dc/terms/description']) return false; //continue; //description cannot be blank
             $description_type = $rec['http://purl.org/dc/terms/type'];
             
-            if(in_array($description_type, array('etymology', 'discussion', 'type_taxon'))) continue;
+            if(in_array($description_type, array('etymology', 'discussion', 'type_taxon'))) return false; //continue;
             // Additional text types:
-            elseif(in_array($description_type, array("synonymic_list", "vernacular_names", ""))) continue;
-            elseif(in_array($description_type, array("material", "conservation", "food_feeding", "breeding", "activity", "use", "ecology", "biology"))) continue;
-            elseif(!$description_type) continue;
+            elseif(in_array($description_type, array("synonymic_list", "vernacular_names", ""))) return false; //continue;
+            elseif(in_array($description_type, array("material", "conservation", "food_feeding", "breeding", "activity", "use", "ecology", "biology"))) return false; //continue;
+            elseif(!$description_type) return false; //continue;
             // if($description_type == 'type_taxon') { print_r($rec); exit; } //debug only good debug
 
             $this->TreatmentBank_stats($rec, $description_type); // stat only purposes, good report.
@@ -178,6 +180,79 @@ class DwCA_Aggregator_Functions
             }
             // */                        
         }
+        // ===================== 2nd part TreatmentBank customization
+        $rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses";
+                    
+        // /* New: exclude non-English text
+        if($lang = @$rec['http://purl.org/dc/terms/language']) {
+            if($lang && $lang != "en") return false; //continue;
+        }
+        // */
+        
+        /* Used by our original text object.
+        // remove taxonomic/nomenclature line from description
+        if($description = @$rec['http://purl.org/dc/terms/description']) {
+            $rec['http://purl.org/dc/terms/description'] = $this->remove_taxon_lines_from_desc($description);
+        } */
+
+        $rec = $this->format_field($rec);
+        if(!$rec['http://purl.org/dc/terms/type']) return false; //continue;
+
+        // /* shorten the bibliographicCitation: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=66418&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66418
+        if($bibliographicCitation = @$rec['http://purl.org/dc/terms/bibliographicCitation']) {
+            $rec['http://purl.org/dc/terms/bibliographicCitation'] = $this->shorten_bibliographicCitation($meta, $bibliographicCitation);
+            /* good debug
+            if(true) {
+            //if(stripos($bibliographicCitation, "Hespenheide, Henry A. (2019): A Review of the Genus Laemosaccus Schönherr, 1826 (Coleoptera: Curculionidae: Mesoptiliinae) from Baja California and America North of Mexico: Diversity and Mimicry") !== false) { //string is found
+            //if(stripos($bibliographicCitation, "Grismer, L. Lee, Wood, Perry L., Jr, Lim, Kelvin K. P. (2012): Cyrtodactylus Majulah") !== false) { //string is found
+                echo "\n===============================start\n";
+                // print_r($meta); echo "\nwhat: [$what]\n";
+                print_r($rec); //echo "\nresource_id: [$this->resource_id_current]\n";
+                echo "\n===============================end\n";
+                // exit("\n");
+            } */
+        }
+        // print_r($rec); exit("\nexit muna...\n");
+        /* Array( --- as of Dec 4, 2023
+            [http://purl.org/dc/terms/identifier] => 03C44153FFA9FFABFF77F9DFFADFFA97.text
+            [http://rs.tdwg.org/dwc/terms/taxonID] => 03C44153FFA9FFABFF77F9DFFADFFA97.taxon
+            [http://purl.org/dc/terms/type] => http://purl.org/dc/dcmitype/Text
+            [http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#Uses
+            [http://purl.org/dc/terms/format] => text/html
+            [http://purl.org/dc/terms/language] => en
+            [http://purl.org/dc/terms/title] => Chilocorini Mulsant 1846
+            [http://purl.org/dc/terms/description] => Form circular, broadly oval, or distinctly elongate oval (Fig. 2); dorsum often dome-shaped and strongly convex or moderately convex, shiny and glabrous (at the most only head and anterolateral flanks of pronotum with hairs), or with sparse, short and suberect pubescence on elytral disc and more visibly on lateral margins, or with distinct dorsal pubescence (Fig. 2g, i). Head capsule with anterior clypeal margin laterally strongly expanded over eyes, medially emarginate, rounded or laterally truncate (Fig. 3a–c). Anterior margin of pronotum deeply and trapezoidally excavate, lateral margins strongly descending below; anterior angles usually strongly produced anteriorly. Elytra basally much broader than pronotum. Antennae short (7–10 segmented) (Fig. 3g –j), shorter than half the width of head; antennal insertions hidden and broadly separated. Terminal maxillary palpomere (Fig. 3d–f) parallel-sided and apically obliquely transverse or securiform or elongate, slender, subcylindrical to tapered with oblique apex, or somewhat swollen with subtruncate apex. Prosternal intercoxal process without carinae (Fig. 3k). Elytral epipleura broad, sometimes strongly descending externally with inner carina reaching elytral apex or not. Legs often with strongly angulate tibiae; tarsal formula 4–4–4 (Fig. 3o, p); tarsal claws simple (Fig. 3u) or appendiculate (Fig. 3v). Abdominal postcoxal line incomplete (Fig. 3l, n) or complete (Fig. 3m). Female genitalia with elongate triangular or transverse coxites (Fig. 3q, r); spermatheca with (Fig. 3t) or without (Fig. 3s, w) a membranous, beak-like projection at apex; sperm duct between bursa copulatrix and spermatheca most often composed of two or three parts of different diameters (Fig. 3w); infundibulum present (Fig. 3w) or absent...
+            [http://rs.tdwg.org/ac/terms/furtherInformationURL] => https://treatment.plazi.org/id/03C44153FFA9FFABFF77F9DFFADFFA97
+            [http://ns.adobe.com/xap/1.0/rights/UsageTerms] => Public Domain
+            [http://purl.org/dc/terms/rights] => No known copyright restrictions apply. See Agosti, D., Egloff, W., 2009. Taxonomic information exchange and copyright: the Plazi approach. BMC Research Notes 2009, 2:53 for further explanation.
+            [http://ns.adobe.com/xap/1.0/rights/Owner] => 
+            [http://purl.org/dc/terms/contributor] => MagnoliaPress via Plazi
+            [http://purl.org/dc/terms/creator] => POORANI, J.
+            [http://purl.org/dc/terms/bibliographicCitation] => POORANI, J. (2023): An illustrated guide to the lady beetles (Coleoptera: Coccinellidae) of the Indian Subcontinent. Part II. Tribe Chilocorini. Zootaxa 5378 (1): 1-108, DOI: 10.11646/zootaxa.5378.1.1, URL: https://www.mapress.com/zt/article/download/zootaxa.5378.1.1/52353
+        ) */
+
+        return $rec;
+    }
+    function process_table_TreatmentBank_taxon($rec)
+    {   // ancestry fields must not have separators: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=66656&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-66656
+        $ancestors = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
+        foreach($ancestors as $ancestor) {
+            if($val = trim(@$rec["http://rs.tdwg.org/dwc/terms/".$ancestor])) {
+                if(stripos($val, ";") !== false) $rec["http://rs.tdwg.org/dwc/terms/".$ancestor] = ""; //string is found
+                elseif(stripos($val, ",") !== false) $rec["http://rs.tdwg.org/dwc/terms/".$ancestor] = ""; //string is found
+                elseif(stripos($val, " ") !== false) $rec["http://rs.tdwg.org/dwc/terms/".$ancestor] = ""; //string is found
+            }
+        }
+        if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == "03A487F05711FB7CFECA8E029F9BA19D.taxon") return false; //continue;
+        if(stripos($rec['http://rs.tdwg.org/dwc/terms/scientificName'], "Acrididae;") !== false) return false; //continue; //string is found
+        if(stripos(@$rec['http://rs.gbif.org/terms/1.0/canonicalName'], "Acrididae;") !== false) return false; //continue; //string is found
+
+        // /* new: Nov 21, 2023:
+        if($scientificName = @$rec["http://rs.tdwg.org/dwc/terms/scientificName"]) {
+            if(!Functions::valid_sciname_for_traits($scientificName)) return false; //continue;
+        }
+        return $rec;
+        // */
     }
 }
 ?>
