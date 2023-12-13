@@ -94,13 +94,9 @@ foreach($IDs as $resource_id) {
         echo "\n[$resource_id $i] - "; echo("[$ret]");
         // $i = 9; //force-assign
         if($resource_id == '24') {            
-            // if($i == 1) { if($ret == "mud|orchard|soil|dune")                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 1) { if($ret == "mud-ENVO_01000001|orchard-ENVO_00000115|dune-ENVO_00000170")          echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            // if($i == 2) { if($ret == "mozambique|island|river|zambezi")              echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 2) { if($ret == "mozambique-1036973|zambezi-Zambezi")          echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            // if($i == 3) { if($ret == "pakistan|glacier|valley|river|india|pass")     echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 3) { if($ret == "pakistan-1168579|glacier-ENVO_00000133|valley-ENVO_00000100|india-1269750|pass-ENVO_00000084")    echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            // if($i == 4) { if($ret == "slovakia|romania|russia|russia|russia")        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 4) { if($ret == "slovakia-3057568|romania-798549|russia-2017370")                      echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 5) { if($ret == "")                                            echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 6) { if($ret == "slovakia-3057568")                            echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
@@ -120,13 +116,9 @@ foreach($IDs as $resource_id) {
             if($i == 20) { if($ret == "valley-ENVO_00000100")                       echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
         }
         if(in_array($resource_id, array('TreatmentBank_ENV', '617_ENV'))) {
-            // if($i == 1) { if($ret == "orchard|soil|dune")                        echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 1) { if($ret == "orchard-ENVO_00000115|dune-ENVO_00000170")    echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            // if($i == 2) { if($ret == "mozambique|island|river|zambezi")          echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 2) { if($ret == "mozambique-1036973|zambezi-Zambezi")          echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            // if($i == 3) { if($ret == "pakistan|valley|river|india")              echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 3) { if($ret == "pakistan-1168579|valley-ENVO_00000100|india-1269750")                echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
-            // if($i == 4) { if($ret == "slovakia|romania|russia|russia|russia")    echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 4) { if($ret == "slovakia-3057568|romania-798549|russia-2017370")                     echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 5) { if($ret == "")                                            echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 6) { if($ret == "slovakia-3057568")                            echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
