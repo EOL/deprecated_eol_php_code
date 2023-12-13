@@ -900,7 +900,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             if($rek['ontology'] == "eol-geonames") { //per https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65861&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65861
                 // echo "\nGoes- 81\n";
                 
-                // /* this has now been commented. Part of initial temporary strategy. We will allow it now.
+                // /* this now allows a number of terms (n=4). It was in the past totally disallowing terms in geonames that have ENVO uri.
                 if(stripos($rek['id'], "ENVO_") !== false) { //string is found
                     if(in_array($rek['lbl'], array('forest', 'woodland', 'grassland', 'savanna'))) {} //accepts these terms, and maybe more once allowed by Jen.
                     else continue;

@@ -67,11 +67,13 @@ $descs[] = "Notes. In Poorani’s (2002) checklist of the Indian Subcontinent, B
 $descs[] = "the quick References: valley in the north.";
 $descs[] = "I drive to the forest, just around the woodland trees.";
 $descs[] = "I drive to the savanna, just around the grassland.";
+$descs[] = "I work in the Marine Institue of Technology. This is a marine species.";
+
 
 /*
 $descs = array();
 // $descs[] = file_get_contents(DOC_ROOT."/tmp2/sample_treatment.txt");
-$descs[] = "I drive to the savanna, just around the grassland.";
+$descs[] = "I work in the Marine Institue of Technology.";
 */
 
 $final = array();
@@ -119,6 +121,8 @@ foreach($IDs as $resource_id) {
             if($i == 20) { if($ret == "valley-ENVO_00000100")                       echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 21) { if($ret == "woodland-ENVO_01000175|forest-ENVO_01000174") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 22) { if($ret == "grassland-ENVO_01000177|savanna-ENVO_01000178") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }            
+            if($i == 23) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+
         }
         if(in_array($resource_id, array('TreatmentBank_ENV', '617_ENV'))) {
             if($i == 1) { if($ret == "woodland-ENVO_01000175|orchard-ENVO_00000115|dune-ENVO_00000170")    echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
@@ -139,7 +143,9 @@ foreach($IDs as $resource_id) {
             if($i == 16) { if($ret == "mountains-ENVO_00000081|nunatak-ENVO_00000181|valley-ENVO_00000100") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 17) { if($ret == "sandy soil-ENVO_00002229-ENVO_09200008")     echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
             if($i == 21) { if($ret == "woodland-ENVO_01000175|forest-ENVO_01000174") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }            
-            if($i == 22) { if($ret == "grassland-ENVO_01000177|savanna-ENVO_01000178") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }            
+            if($i == 22) { if($ret == "grassland-ENVO_01000177|savanna-ENVO_01000178") echo " -OK-"; else {echo " -ERROR-"; $errors++;} }      
+            if($i == 23) { if($ret == "")                                           echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
+      
         }
         if($resource_id == '617_ENV') {
             if($i == 18) { if($ret == "")                                   echo " -OK-"; else {echo " -ERROR-"; $errors++;} }
