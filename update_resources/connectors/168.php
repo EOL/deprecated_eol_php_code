@@ -56,6 +56,20 @@ require_library('connectors/BioImagesAPI');
 $timestart = time_elapsed();
 $resource_id = 168;
 $func = new BioImagesAPI($resource_id, false, true);
+
+/* test only
+// Always add Malcolm Storey as Owner:
+$owner_array = explode(",", "Malcolm Storey, Eli Agbayani");
+$owner_array[] = "Malcolm Storey";
+$owner_array = array_map('trim', $owner_array);
+$owner_array = array_filter($owner_array); //remove null arrays
+$owner_array = array_unique($owner_array); //make unique
+$owner_array = array_values($owner_array); //reindex key
+$ret = Functions::remove_whitespace(implode(", ", $owner_array));
+echo "\n[$ret]\n";
+exit("\nend tests\n");
+*/
+
 // /* main operation
 $func->get_all_taxa();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //2nd param False - not a big file | 3rd param True - can delete working folder
