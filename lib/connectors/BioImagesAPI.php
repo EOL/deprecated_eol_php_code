@@ -302,7 +302,7 @@ class BioImagesAPI
         
 
         // /* debug only - during investigation...
-        $recorded_collected = $row[$col['Recorded/Collected by']];
+        $recorded_collected = self::format_person_by($row[$col['Recorded/Collected by']]);
         if(stripos($recorded_collected, "Mark Spencer") !== false) { //string is found
             if(stripos($recorded_collected, "Malcolm") !== false) { //string is found
                 echo "\n#####got you\n[$recorded_collected]\n#####\n";
