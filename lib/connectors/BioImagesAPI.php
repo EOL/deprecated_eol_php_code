@@ -300,8 +300,18 @@ class BioImagesAPI
         $mr->CreateDate = '';
         $mr->modified = '';
         
+
+        // /* debug only - during investigation...
+        $recorded_collected = $row[$col['Recorded/Collected by']];
+        if(stripos($recorded_collected, "Mark Spencer") !== false) { //string is found
+            if(stripos($recorded_collected, "Malcolm") !== false) { //string is found
+                echo "\n#####got you\n[$recorded_collected]\n#####\n";
+            }
+        }
+        // */
+
         // /* Always add Malcolm Storey as Owner:
-        $owner_array = explode(",", $row[$col['Recorded/Collected by']]);
+        $owner_array = explode(",", $recorded_collected);
         $owner_array[] = "Malcolm Storey";
         $owner_array = array_map('trim', $owner_array);
         $owner_array = array_filter($owner_array); //remove null arrays
@@ -309,6 +319,15 @@ class BioImagesAPI
         $owner_array = array_values($owner_array); //reindex key
         $row[$col['Recorded/Collected by']] = Functions::remove_whitespace(implode(", ", $owner_array));
         // */
+
+        // /* debug only - during investigation...
+        if(stripos($recorded_collected, "Mark Spencer") !== false) { //string is found
+            if(stripos($recorded_collected, "Malcolm") !== false) { //string is found
+                echo "\n#####got you 2\n[".$row[$col['Recorded/Collected by']]."]\n#####\n";
+            }
+        }
+        // */
+
 
         $mr->Owner = $row[$col['Recorded/Collected by']] != "" ? "Recorded/Collected by: " . self::format_person_by($row[$col['Recorded/Collected by']]) : "";
 
