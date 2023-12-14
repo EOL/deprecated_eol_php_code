@@ -324,6 +324,7 @@ class BioImagesAPI
         if(stripos($recorded_collected, "Mark Spencer") !== false) { //string is found
             if(stripos($recorded_collected, "Malcolm") !== false) { //string is found
                 echo "\n#####got you 2\n[".$row[$col['Recorded/Collected by']]."]\n#####\n";
+                exit;
             }
         }
         // */
