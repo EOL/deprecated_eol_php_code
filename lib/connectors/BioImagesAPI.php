@@ -172,7 +172,7 @@ class BioImagesAPI
                         // $mr->accessURI      = $source;
 
                         $description = (string) $t_dc2->description;
-                        $description = trim(self::clean_str(utf8_encode($description)));
+                        $description = trim(self::clean_str(Functions::conv_to_utf8($description)));
                         if(!$description) continue;
                         else
                         {
@@ -289,7 +289,7 @@ class BioImagesAPI
         $mr->format = 'image/jpeg';
         $mr->furtherInformationURL = $row[$col['BioImages image page']];
         $mr->CVterm = '';
-        $mr->title = (string) self::clean_str(utf8_encode($row[$col['Title']]));
+        $mr->title = (string) self::clean_str(Functions::conv_to_utf8($row[$col['Title']]));
         $mr->UsageTerms = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
         // /*
         if($val = self::download_img_then_use_local_file_as_path($row[$col['DiscoverLife URL']])) $mr->accessURI = $val;
@@ -364,7 +364,7 @@ class BioImagesAPI
         $description = str_replace("...", ".", $description);
         $description = str_replace("..", ".", $description);
         
-        $mr->description = utf8_encode($description);
+        $mr->description = Functions::conv_to_utf8($description);
         $this->archive_builder->write_object_to_file($mr);
     }
     private function format_person_by($str)
@@ -381,7 +381,7 @@ class BioImagesAPI
         $taxon->taxonID = "BI-taxon-" . $taxon_id;
         $rank = (string)trim($row[$col['Rank']]);
         if(self::valid_rank($rank)) $taxon->taxonRank = $rank;
-        $scientificName = (string)utf8_encode($row[$col['Taxon']]);
+        $scientificName = (string)Functions::conv_to_utf8($row[$col['Taxon']]);
         if(!$scientificName) return; //blank
         $taxon->scientificName              = $scientificName;
         $taxon->kingdom                     = (string)$row[$col['Kingdom']];
