@@ -156,44 +156,47 @@ class Functions_Pensoft
     }
     function process_table_TreatmentBank_ENV($rec)
     {
+        $description_type = $rec['http://rs.tdwg.org/ac/terms/additionalInformation'];
+        $title            = $rec['http://purl.org/dc/terms/title'];
         // $this->ontologies = "envo,eol-geonames"; //orig
-        if($rec['http://purl.org/dc/terms/title'] == 'Title for eol-geonames')              $this->ontologies = "eol-geonames";
-        elseif($rec['http://rs.tdwg.org/ac/terms/additionalInformation'] == 'distribution') $this->ontologies = "envo,eol-geonames";
-        else {
-            /* per Jen: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=67753&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67753
-            Actually, let's make one change; let's try them both in [distribution]. 
-            Habitat does seem to be described pretty often in that section. 
-            When I've mulled over the next draft, if coverage for geographic records seems thin, we might try geonames also in [materials examined], 
-            but that section might also be a minefield of specimen-holding institution names, so it'll depend on whether we have succeeded in 
-            dealing with those elsewhere. Anyway, in general locality text strings seem to appear many times, so it may not be necessary. 
+        if($title == 'Title for eol-geonames')                                      $this->ontologies = "eol-geonames";
+        elseif(in_array($description_type, array("distribution", "conservation")))  $this->ontologies = "envo,eol-geonames";
+        elseif(in_array($description_type, array("description", "biology_ecology", "diagnosis", "materials_examined"))) $this->ontologies = "envo"; //the rest
+        else return false;
+
+        /* per Jen: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=67753&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67753
+                    https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=67763&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67763
+        Actually, let's make one change; let's try them both in [distribution]. 
+        Habitat does seem to be described pretty often in that section. 
+        When I've mulled over the next draft, if coverage for geographic records seems thin, we might try geonames also in [materials examined], 
+        but that section might also be a minefield of specimen-holding institution names, so it'll depend on whether we have succeeded in 
+        dealing with those elsewhere. Anyway, in general locality text strings seem to appear many times, so it may not be necessary. 
+            INCLUDED:
                 [description]           "envo"
                 [biology_ecology]       "envo"
                 [diagnosis]             "envo"
                 [materials_examined]    "envo"
                 [distribution]          "envo,eol-geonames"
+                [conservation] =>       "envo,eol-geonames"
 
-                Additional text types:
+            Additional text types: EXCLUDED
                 [synonymic_list] => 
                 [vernacular_names] =>
                 [] => 
                 [material] => 
+                [ecology] => 
+                [biology] => 
 
-                [conservation] => 
+            Future considerations: EXCLUDED
                 [food_feeding] => 
                 [breeding] => 
                 [activity] => 
                 [use] => 
-                [ecology] => 
-                [biology] => 
-            */
-            $this->ontologies = "envo"; //the rest
-        }
+        */
 
-        // /* temporary filter until Jen decides on the new set of text types
-        $description_type = $rec['http://rs.tdwg.org/ac/terms/additionalInformation'];
-        if    (in_array($description_type, array("synonymic_list", "vernacular_names", ""))) return false; //continue;
-        elseif(in_array($description_type, array("material", "conservation", "food_feeding", "breeding", "activity", "use", "ecology", "biology"))) return false; //continue;
-        elseif(!$description_type) return false; //continue;
+        // /* current filters
+        if    (in_array($description_type, array("synonymic_list", "vernacular_names", "", "material", "ecology", "biology"))) return false; //continue;
+        elseif(in_array($description_type, array("food_feeding", "breeding", "activity", "use"))) return false; //continue; //Future considerations
         // */  
 
         return $rec;      

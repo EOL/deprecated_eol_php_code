@@ -152,8 +152,8 @@ class DwCA_Aggregator_Functions
             
             if(in_array($description_type, array('etymology', 'discussion', 'type_taxon'))) return false; //continue;
             // Additional text types:
-            elseif(in_array($description_type, array("synonymic_list", "vernacular_names", ""))) return false; //continue;
-            elseif(in_array($description_type, array("material", "conservation", "food_feeding", "breeding", "activity", "use", "ecology", "biology"))) return false; //continue;
+            elseif(in_array($description_type, array("synonymic_list", "vernacular_names", "ecology", "biology", "material"))) return false; //continue;
+            elseif(in_array($description_type, array("food_feeding", "breeding", "activity", "use"))) return false; //continue;
             elseif(!$description_type) return false; //continue;
             // if($description_type == 'type_taxon') { print_r($rec); exit; } //debug only good debug
 
