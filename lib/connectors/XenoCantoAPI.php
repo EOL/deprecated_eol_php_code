@@ -70,7 +70,7 @@ class XenoCantoAPI
 
         require_library('connectors/EOLterms_ymlAPI');
         $func = new EOLterms_ymlAPI($this->resource_id, $this->archive_builder);
-        $ret = $func->get_terms_yml('value'); //sought_type is 'value'
+        $ret = $func->get_terms_yml('value'); //sought_type is 'value' --- REMINDER: labels can have the same value but different uri
         foreach($ret as $label => $uri) $this->uris[$label] = $uri;
 
         // echo("\n Philippines: ".$this->uris['Philippines']."\n");

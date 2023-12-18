@@ -127,39 +127,8 @@ class USDAPlants2019
     {
         require_library('connectors/EOLterms_ymlAPI');
         $func = new EOLterms_ymlAPI($this->resource_id, $this->archive_builder);
-        $ret = $func->get_terms_yml('value'); //sought_type is 'value'
+        $ret = $func->get_terms_yml('value'); //sought_type is 'value' --- REMINDER: labels can have the same value but different uri
         foreach($ret as $label => $uri) $this->uris[$label] = $uri;
-
-        /* moved to lib [EOLterms_ymlAPI.php]
-        $url = "https://raw.githubusercontent.com/EOL/eol_terms/main/resources/terms.yml";
-        if($yml = Functions::lookup_with_cache($url, array("expire_seconds" => 60*60*24*1))) { //1 day cache
-            $yml .= "alias: ";
-            if(preg_match_all("/name\:(.*?)alias\:/ims", $yml, $a)) {
-                $arr = array_map('trim', $a[1]);
-                foreach($arr as $block) { // echo "\n$block\n"; exit;
-                    // [10713] => verbatim coordinates
-                    // type: measurement
-                    // uri: http://rs.tdwg.org/dwc/terms/verbatimCoordinates
-                    // parent_uris:
-                    // synonym_of_uri: []
-                    // units_term_uri:
-                    $rek = array();
-                    if(preg_match("/elicha(.*?)\n/ims", "elicha".$block, $a)) $rek['name'] = trim($a[1]);
-                    if(preg_match("/type\: (.*?)\n/ims", $block, $a)) $rek['type'] = trim($a[1]);
-                    if(preg_match("/uri\: (.*?)\n/ims", $block, $a)) $rek['uri'] = trim($a[1]); //https://eol.org/schema/terms/thallus_length
-                    $rek = array_map('trim', $rek);
-                    // print_r($rek);
-                    // Array(
-                    //     [name] => compound fruit
-                    //     [type] => value
-                    //     [uri] => https://www.wikidata.org/entity/Q747463
-                    // )
-                    if(@$rek['type'] == 'value') $this->uris[$rek['name']] = $rek['uri'];
-                }
-            }
-            else exit("\nInvestigate: EOL terms file structure had changed.\n");
-        }
-        */
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
