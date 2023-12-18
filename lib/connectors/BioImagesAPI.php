@@ -233,6 +233,14 @@ class BioImagesAPI
                $this->archive_builder->write_object_to_file($r);
             }
         }
+
+        // /* maybe an overkill but to make sure no duplicates
+        $agent_ids = array_map('trim', $agent_ids);
+        $agent_ids = array_filter($agent_ids); //remove null arrays
+        $agent_ids = array_unique($agent_ids); //make unique
+        $agent_ids = array_values($agent_ids); //reindex key
+        // */
+
         return $agent_ids;
     }
     function download_img_then_use_local_file_as_path($url)
