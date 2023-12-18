@@ -131,7 +131,7 @@ class BioImagesAPI
                         $agent_ids = array();
                         $r = new \eol_schema\Agent();
                         $r->term_name = str_replace('"', "", $do->agent);
-                        $r->identifier = md5("$do->agent|$do->agent['role']");
+                        $r->identifier = md5("$r->term_name|$do->agent['role']");
                         $r->agentRole = $do->agent['role'];
                         $r->term_homepage = "http://www.bioimages.org.uk/index.htm";
                         $agent_ids[] = $r->identifier;
@@ -213,7 +213,7 @@ class BioImagesAPI
             if(!$agent) continue;
             $r = new \eol_schema\Agent();
             $r->term_name = str_replace('"', "", $agent);
-            $r->identifier = md5("$agent|compiler");
+            $r->identifier = md5($r->term_name."|compiler");
             $r->agentRole = "compiler";
             $agent_ids[] = $r->identifier;
             if(!in_array($r->identifier, $this->resource_agent_ids)) {
