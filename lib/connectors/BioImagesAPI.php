@@ -45,10 +45,10 @@ class BioImagesAPI
             $Recorded_Collected_by  = @$row[$col['Recorded/Collected by']];
             $Identified_by          = @$row[$col['Identified by']];
             $Confirmed_by           = @$row[$col['Confirmed by']];
-            $this->debug['agent']['Photographer'][$Photographer]++;
-            $this->debug['agent']['Recorded/Collected by'][$Recorded_Collected_by]++;
-            $this->debug['agent']['Identified by'][$Identified_by]++;
-            $this->debug['agent']['Confirmed by'][$Confirmed_by]++;           
+            @$this->debug['agent']['Photographer'][$Photographer]++;
+            @$this->debug['agent']['Recorded/Collected by'][$Recorded_Collected_by]++;
+            @$this->debug['agent']['Identified by'][$Identified_by]++;
+            @$this->debug['agent']['Confirmed by'][$Confirmed_by]++;           
             // */
 
             // echo "\n" . " - " . $sciname . " - " . $taxon_id;
