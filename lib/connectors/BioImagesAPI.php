@@ -40,6 +40,17 @@ class BioImagesAPI
         $taxon_id = @$row[$col['NWB taxon id']];
         if($sciname && $taxon_id)
         {
+            // /* for stats only
+            $Photographer           = @$row[$col['Photographer']];
+            $Recorded_Collected_by  = @$row[$col['Recorded/Collected by']];
+            $Identified_by          = @$row[$col['Identified by']];
+            $Confirmed_by           = @$row[$col['Confirmed by']];
+            $this->debug['agent']['Photographer'][$Photographer]++;
+            $this->debug['agent']['Recorded/Collected by'][$Recorded_Collected_by]++;
+            $this->debug['agent']['Identified by'][$Identified_by]++;
+            $this->debug['agent']['Confirmed by'][$Confirmed_by]++;           
+            // */
+
             // echo "\n" . " - " . $sciname . " - " . $taxon_id;
             $reference_ids = array(); // no taxon references yet
             $ref_ids = array(); // no data_object references yet
@@ -84,6 +95,7 @@ class BioImagesAPI
             $this->create_archive();
         }
         else echo "\n Remote file not ready. Will terminate.";
+        print_r($this->debug);
     }
 
     private function get_texts()
