@@ -416,8 +416,8 @@ class Pensoft2EOLAPI extends Functions_Pensoft
             if($this->param['resource_id'] == "TreatmentBank_ENV") { //total rows in media tab -> $m = 2,083,549 -> as of 19Dec2023, rounded to 2083600
                 $m = 2083600/3; # rounded . can run 3 connectors. Comment 2 rows and un-comment 1 row.
                 // if($i >= 1 &&    $i < $m) {}
-                if($i >= $m &&   $i < $m*2) {}
-                // if($i >= $m*2 && $i < $m*3) {}
+                // if($i >= $m &&   $i < $m*2) {}
+                if($i >= $m*2 && $i < $m*3) {}
                 else continue; 
             }
             // */
