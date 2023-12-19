@@ -83,7 +83,7 @@ class DwCA_Aggregator_Functions
     {
         @$this->debug[$this->resource_id]['text type'][$rec['http://purl.org/dc/terms/type']]++;
         // save examples for Jen's investigation:
-        $sought = array("synonymic_list", "vernacular_names", "conservation", "food_feeding", "breeding", "activity", "use", "ecology", "", "biology", "material");
+        $sought = array("synonymic_list", "vernacular_names", "food_feeding", "breeding", "activity", "use", "ecology", "", "biology", "material");
         // $sought = array('distribution'); //debug only
         if(in_array($description_type, $sought)) {
             $count = count(@$this->debug[$this->resource_id]['type e.g.'][$description_type]);
