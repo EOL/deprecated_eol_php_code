@@ -38,17 +38,23 @@ class BioImagesAPI
     {
         $sciname = @$row[$col['Taxon']];
         $taxon_id = @$row[$col['NWB taxon id']];
-        if($sciname && $taxon_id)
-        {
+        if($sciname && $taxon_id) {
+            // /* format for uniformity
+            if($val = @$row[$col['Photographer']])          $row[$col['Photographer']]          = self::format_person_by($val);
+            if($val = @$row[$col['Recorded/Collected by']]) $row[$col['Recorded/Collected by']] = self::format_person_by($val);
+            if($val = @$row[$col['Identified by']])         $row[$col['Identified by']]         = self::format_person_by($val);
+            if($val = @$row[$col['Confirmed by']])          $row[$col['Confirmed by']]          = self::format_person_by($val);
+            // */
+
             // /* for stats only
             $Photographer           = @$row[$col['Photographer']];
             $Recorded_Collected_by  = @$row[$col['Recorded/Collected by']];
             $Identified_by          = @$row[$col['Identified by']];
             $Confirmed_by           = @$row[$col['Confirmed by']];
-            @$this->debug['agent']['Photographer'][$Photographer]++;
-            @$this->debug['agent']['Recorded/Collected by'][$Recorded_Collected_by]++;
-            @$this->debug['agent']['Identified by'][$Identified_by]++;
-            @$this->debug['agent']['Confirmed by'][$Confirmed_by]++;           
+            @$this->debug['agent breakdown']['Photographer'][$Photographer]++;
+            @$this->debug['agent breakdown']['Recorded/Collected by'][$Recorded_Collected_by]++;
+            @$this->debug['agent breakdown']['Identified by'][$Identified_by]++;
+            @$this->debug['agent breakdown']['Confirmed by'][$Confirmed_by]++;           
             // */
 
             // echo "\n" . " - " . $sciname . " - " . $taxon_id;
@@ -211,28 +217,44 @@ class BioImagesAPI
 
     private function get_object_agents($row, $col)
     {
-        $agent_ids = array();
-        $agents_array = explode(",", $row[$col['Recorded/Collected by']]);
-        $agents_array[] = "Malcolm Storey";
-        $agents_array = array_map('trim', $agents_array);
+        // /*
+        // https://eol-jira.bibalex.org/browse/DATA-1878?focusedCommentId=67762&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67762
+        $agents_array = array();
+            if($val = @$row[$col['Photographer']])          $agents_array = explode(",", $val);
+        elseif($val = @$row[$col['Recorded/Collected by']]) $agents_array = explode(",", $val);
+        else                                                $agents_array[] = "Malcolm Storey";
+        // */
 
+        $agents_array = array_map('trim', $agents_array);
         $agents_array = array_filter($agents_array); //remove null arrays
         $agents_array = array_unique($agents_array); //make unique
         $agents_array = array_values($agents_array); //reindex key
 
+        $agent_ids = array();
         foreach($agents_array as $agent) {
             $agent = (string)trim($agent);
-            if(!$agent) continue;
             $r = new \eol_schema\Agent();
-            $r->term_name = str_replace('"', "", $agent);
-            $r->identifier = md5($r->term_name."|compiler");
-            $r->agentRole = "compiler";
+            $r->term_name = $agent;
+            $r->agentRole = "photographer";
+            $r->identifier = md5($r->term_name."|".$r->agentRole);
             $agent_ids[] = $r->identifier;
             if(!in_array($r->identifier, $this->resource_agent_ids)) {
                $this->resource_agent_ids[] = $r->identifier;
                $this->archive_builder->write_object_to_file($r);
             }
         }
+
+        // /* add Malcolm as compiler
+        $r = new \eol_schema\Agent();
+        $r->term_name = "Malcolm Storey";
+        $r->agentRole = "compiler";
+        $r->identifier = md5($r->term_name."|".$r->agentRole);
+        $agent_ids[] = $r->identifier;
+        if(!in_array($r->identifier, $this->resource_agent_ids)) {
+            $this->resource_agent_ids[] = $r->identifier;
+            $this->archive_builder->write_object_to_file($r);
+        }        
+        // */
 
         // /* maybe an overkill but to make sure no duplicates
         $agent_ids = array_map('trim', $agent_ids);
@@ -320,24 +342,18 @@ class BioImagesAPI
         $mr->CreateDate = '';
         $mr->modified = '';
         
-        // /* ---------- Always add Malcolm Storey as Owner:
-        $recorded_collected = self::format_person_by($row[$col['Recorded/Collected by']]);
-        /* debug only - during investigation...
-        if(stripos($recorded_collected, "Mark Spencer") !== false) { //string is found
-            if(stripos($recorded_collected, "Malcolm") !== false) { //string is found
-                echo "\n#####got you\n[$recorded_collected]\n#####\n";
-            }
-        }*/
-        $owner_array = explode(",", $recorded_collected);
-        $owner_array[] = "Malcolm Storey";
+        // /* ---------- Always add Malcolm Storey as Owner: https://eol-jira.bibalex.org/browse/DATA-1878?focusedCommentId=67762&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67762
+            if($val = @$row[$col['Photographer']])          $owner = self::format_person_by($val);
+        elseif($val = @$row[$col['Recorded/Collected by']]) $owner = self::format_person_by($val);
+        else                                                $owner = "Malcolm Storey";
+        $owner_array = explode(",", $owner);
         $owner_array = array_map('trim', $owner_array);
         $owner_array = array_filter($owner_array); //remove null arrays
         $owner_array = array_unique($owner_array); //make unique
         $owner_array = array_values($owner_array); //reindex key
-        $row[$col['Recorded/Collected by']] = Functions::remove_whitespace(implode(", ", $owner_array));
+        $owner_final = Functions::remove_whitespace(implode(", ", $owner_array));
         // ---------- */
-
-        $mr->Owner = $row[$col['Recorded/Collected by']] != "" ? "Recorded/Collected by: " . self::format_person_by($row[$col['Recorded/Collected by']]) : "";
+        $mr->Owner = self::format_person_by(owner_final); //always has a value
 
         $mr->publisher = '';
         // $mr->audience = 'Everyone';
@@ -353,8 +369,9 @@ class BioImagesAPI
         $description .= $row[$col['Country']] != "" ? "Country: " . $row[$col['Country']] . ". " : "";
         $description .= $row[$col['Stage']] != "" ? "Stage: " . $row[$col['Stage']] . ". " : "";
         $description .= $row[$col['Associated species']] != "" ? "Associated species: " . $row[$col['Associated species']] . ". " : "";
-
+        /* I think this is removed already.
         $description .= $row[$col['Recorded/Collected by']] != "" ? "Recorded/Collected by: " . self::format_person_by($row[$col['Recorded/Collected by']]) . ". " : "";
+        */
         $description .= $row[$col['Identified by']] != "" ? "Identified by: " . self::format_person_by($row[$col['Identified by']]) . ". " : "";
         $description .= $row[$col['Confirmed by']] != "" ? "Confirmed by: " . self::format_person_by($row[$col['Confirmed by']]) . ". " : "";
         
