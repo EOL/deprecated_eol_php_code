@@ -353,7 +353,7 @@ class BioImagesAPI
         $owner_array = array_values($owner_array); //reindex key
         $owner_final = Functions::remove_whitespace(implode(", ", $owner_array));
         // ---------- */
-        $mr->Owner = self::format_person_by(owner_final); //always has a value
+        $mr->Owner = self::format_person_by($owner_final); //always has a value
 
         $mr->publisher = '';
         // $mr->audience = 'Everyone';
