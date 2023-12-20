@@ -26,13 +26,14 @@ class TraitGeneric
         $this->archive_builder = $archive_builder;
         $this->is_long_type = $is_long_type;
 
-        // /*
+        /*
         if(method_exists('RemoveHTMLTagsAPI','remove_html_tags')) echo "\nRemoveHTMLTagsAPI lib already set.\n";
         else {
             echo "\nRemoveHTMLTagsAPI lib not yet set.\n";
             require_library('connectors/RemoveHTMLTagsAPI');
         }
-        // */
+        */
+        require_library('connectors/RemoveHTMLTagsAPI');
     }
     public function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
@@ -198,14 +199,6 @@ class TraitGeneric
         debug("\n(TraitGeneric.php) remapped_terms lib: ".count($this->remapped_terms)."\n");
         return $this->remapped_terms;
         /* END DATA-1841 terms remapping */
-
-        // /*
-        if(method_exists('RemoveHTMLTagsAPI','remove_html_tags')) echo "\nRemoveHTMLTagsAPI lib already set.\n";
-        else {
-            echo "\nRemoveHTMLTagsAPI lib not yet set.\n";
-            require_library('connectors/RemoveHTMLTagsAPI');
-        }
-        // */
     }
     public function pre_add_string_types($rec, $value, $measurementType, $measurementOfTaxon)
     {
