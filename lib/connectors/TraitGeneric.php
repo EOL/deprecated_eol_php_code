@@ -26,11 +26,14 @@ class TraitGeneric
         $this->archive_builder = $archive_builder;
         $this->is_long_type = $is_long_type;
 
+        /*
         if(method_exists('RemoveHTMLTagsAPI','remove_html_tags')) echo "\nRemoveHTMLTagsAPI lib already set.\n";
         else {
             echo "\nRemoveHTMLTagsAPI lib not yet set.\n";
             require_library('connectors/RemoveHTMLTagsAPI');
         }
+        */
+        require_library('connectors/RemoveHTMLTagsAPI');
     }
     public function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
