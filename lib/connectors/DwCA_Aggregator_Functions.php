@@ -127,7 +127,6 @@ class DwCA_Aggregator_Functions
     }
     function process_table_TreatmentBank_document($rec, $row_type, $meta)
     {
-
         $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
         if($row_type == 'http://eol.org/schema/media/document') { //not http://rs.gbif.org/terms/1.0/description
             if(!$rec['http://ns.adobe.com/xap/1.0/rights/UsageTerms']) return false; //continue; //exclude with blank license

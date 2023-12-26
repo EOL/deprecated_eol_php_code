@@ -1,6 +1,11 @@
 <?php
 namespace php_active_record;
-/* connector: [wikipedia_revision.php] */
+/* connector during dev: [wikipedia_revision.php] 
+   normal operation: is called from WikipediaAPI
+
+   it is a lib. that detects if a page (will expire) (does not expire) (ignored)
+
+*/
 class WikipediaRevisionsAPI
 {
     function __construct($params)
