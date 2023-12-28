@@ -217,6 +217,12 @@ class DwCA_Utility
             $func = new DWCA_Associations_Fix($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+        if($this->resource_id == 'globi_associations_tmp1') {
+            require_library('connectors/ResourceUtility');
+            $func = new ResourceUtility($this->archive_builder, $this->resource_id);
+            $func->remove_unused_references($info, "GloBI");
+        }
+
         if(in_array($this->resource_id, array('final_SC_unitedstates')) || @$this->params['resource'] == 'MoF_normalized') {
             require_library('connectors/DWCA_Measurements_Fix');
             $func = new DWCA_Measurements_Fix($this->archive_builder, $this->resource_id);
