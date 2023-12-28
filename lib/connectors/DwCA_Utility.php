@@ -100,8 +100,8 @@ class DwCA_Utility
         elseif(in_array($this->resource_id, array("wikimedia_comnames", "71_new", "368_removed_aves", "itis_2019-08-28", "itis_2020-07-28", 
             "itis_2020-12-01", "itis_2022-02-28_all_nodes", "368_final"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array("wiki_en_report"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
-        elseif(in_array($this->resource_id, array("globi_associations_final", "final_SC_unitedstates"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
-        elseif(in_array($this->resource_id, array("globi_associations"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24*1)); //expires 1 day
+        elseif(in_array($this->resource_id, array("globi_associations", "globi_associations_final", "final_SC_unitedstates"))) $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0)); //expires now
+        elseif(in_array($this->resource_id, array("xxx")))                                $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 60*60*24*1)); //expires 1 day
         elseif(in_array($this->resource_id, array("gbif_classification", "gbif_classification_without_ancestry", "gbif_classification_final", 
                                                   "26", "368_removed_aves", "617_ENV", "wikipedia_en_traits_FTG", "wikipedia_en_traits_tmp1", "wikipedia_en_traits_tmp2", "wikipedia_en_traits", 
                                                   "10088_5097_ENV", "10088_6943_ENV", 
