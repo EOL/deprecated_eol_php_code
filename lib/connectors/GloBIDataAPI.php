@@ -122,6 +122,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
         // INAT_TAXON:1|https://inaturalist.org/taxa/1|||Animalia||Animalia||||||kingdom||
         // NBN:NBNSYS0100001342|https://data.nbn.org.uk/Taxa/NBNSYS0100001342|||Animalia||Animalia||||||kingdom||
         $excluded_unidentified_taxa = array("http://taxon-concept.plazi.org/id/Metazoa/Pseudevoplitusroraimensis_Grazia_2002", "NCBI:33208", "http://taxon-concept.plazi.org/id/Animalia/Sympetrum_Newman_1833", "EOL:1", "ITIS:202423", "GBIF:1", "INAT_TAXON:1", "NBN:NBNSYS0100001342");
+        $excluded_unidentified_taxa[] = "WORMS:2"; //newly added Dec 28, 2023
+
         foreach($excluded_unidentified_taxa as $id) $this->exclude_taxonIDs[$id] = '';
         // */
         
@@ -132,6 +134,16 @@ class GloBIDataAPI extends Globi_Refuted_Records
         NBN:NBNSYS0100001342	https://data.nbn.org.uk/Taxa/NBNSYS0100001342			Animalia
         http://taxon-concept.plazi.org/id/Metazoa/Pseudevoplitusroraimensis_Grazia_2002	http://taxon-concept.plazi.org/id/Metazoa/Pseudevoplitusroraimensis_Grazia_2002			Metazoa
         NCBI:33208	https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=33208			Metazoa
+
+        as of Dec 28, 2023
+        GBIF:1	http://www.gbif.org/species/1			Animalia	
+        NBN:NBNSYS0100001342	https://data.nbn.org.uk/Taxa/NBNSYS0100001342			Animalia	
+        EOL:1	http://eol.org/pages/1			Animalia	
+        ITIS:202423	http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=202423			Animalia	
+        WORMS:2	https://www.marinespecies.org/aphia.php?p=taxdetails&id=2			Animalia	
+
+        NCBI:33208	https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=33208			Metazoa	
+        http://taxon-concept.plazi.org/id/Metazoa/Pseudevoplitusroraimensis_Grazia_2002	http://taxon-concept.plazi.org/id/Metazoa/Pseudevoplitusroraimensis_Grazia_2002			Metazoa	
         */
 
         // /* New per Jen:
