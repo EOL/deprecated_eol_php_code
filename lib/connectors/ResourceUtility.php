@@ -4,6 +4,9 @@ namespace php_active_record;
 first client: called from DwCA_Utility.php, which is called from remove_taxa_without_MoF.php
 2nd client  : add canonical_name inside taxon.tab using gnparser command-line
             : called from DwCA_Utility.php, which is called from add_canonical_in_taxa.php
+3rd client: report_4_Wikipedia_EN_traits()
+4th client: remove_contradicting_traits_fromMoF()
+5th client: remove_unused_references() -- called DwCA_Utility.php, which is called from remove_unused_references.php            
 */
 class ResourceUtility
 {
@@ -19,6 +22,59 @@ class ResourceUtility
         /* For environments_names.tsv processing */
         $this->ontology['env_names'] = "https://github.com/eliagbayani/vangelis_tagger/raw/master/eol_tagger/environments_names.tsv";
     }
+    /*============================================================ STARTS remove_unused_references =================================================*/
+    function remove_unused_references($info, $resource_name) //Func5
+    {
+        $tables = $info['harvester']->tables; // print_r($tables); exit;
+        // step 1: get all referenceIDs from all extensions with referenceID
+        if(in_array($resource_name, array('GloBI'))) self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'build-up ref info');
+        if(in_array($resource_name, array('GloBI'))) self::process_generic_table($tables['http://eol.org/schema/association'][0], 'build-up ref info');
+        // step 2: create reference extension only for those used referenceIDs
+        self::process_generic_table($tables['http://eol.org/schema/reference/reference'][0], 'create');
+    }
+    private function process_generic_table($meta, $what)
+    {   //print_r($meta);
+        echo "\nResourceUtility...read $meta->row_type ...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit("\ndebug...\n");
+            if($what == 'build-up ref info') {
+                if($val = @$rec['http://eol.org/schema/reference/referenceID']) $this->referenceIDs[$val] = '';
+            }
+            elseif($what == 'create') {
+                $referenceID = $rec['http://purl.org/dc/terms/identifier'];
+                if(isset($this->referenceIDs[$referenceID])) { //start saving
+                    $uris = array_keys($rec);
+                    // print_r($uris); exit;
+                    $o = new \eol_schema\Reference();
+                    foreach($uris as $uri) {
+                        $field = pathinfo($uri, PATHINFO_BASENAME);
+
+                        // /* some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName"
+                        $parts = explode("#", $field);
+                        if($parts[0]) $field = $parts[0];
+                        if(@$parts[1]) $field = $parts[1];
+                        // */
+
+                        $o->$field = $rec[$uri];
+                    }
+                    $this->archive_builder->write_object_to_file($o);        
+                }
+            }
+        }
+    }
+    /*============================================================= ENDS remove_unused_references ==================================================*/
+
     /*============================================================ STARTS add_canonical_in_taxa =================================================*/
     function add_canonical_in_taxa($info) //Func2
     {
@@ -345,7 +401,7 @@ class ResourceUtility
     /*================================================== ENDS report_4_Wikipedia_EN_traits =================================================*/
 
     /*=================================================== STARTS remove_contradicting_traits_fromMoF =======================================*/
-    function remove_contradicting_traits_fromMoF($info) //FuncX
+    function remove_contradicting_traits_fromMoF($info) //Func4
     {   
         $tables = $info['harvester']->tables;
         self::process_MoF_contradict($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], "step_1"); //generate $this->mIDs_2delete
