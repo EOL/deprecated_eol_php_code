@@ -38,7 +38,7 @@ class ResourceUtility
     }
     private function process_generic_table($meta, $what)
     {   //print_r($meta);
-        echo "\nResourceUtility...process_generic_table $meta->row_type ...\n"; $i = 0;
+        echo "\nResourceUtility...process_generic_table ($what) $meta->row_type ...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
