@@ -53,7 +53,7 @@ function process_resource_url($dwca_file, $resource_id)
     */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     // Functions::finalize_dwca_resource($resource_id);
-    Functions::finalize_dwca_resource($resource_id, false, false); //3rd param false means don't delete working folder yet
+    Functions::finalize_dwca_resource($resource_id, false, true); //3rd param false means don't delete working folder yet
     
     /* copied template
     New: important to check if all parents have entries.
