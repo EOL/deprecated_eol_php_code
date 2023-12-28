@@ -543,19 +543,20 @@ class ResourceUtility
             elseif($class == "reference")           $o = new \eol_schema\Reference();
             elseif($class == "taxon")               $o = new \eol_schema\Taxon();
             elseif($class == "document")            $o = new \eol_schema\MediaResource();
-            elseif($class == "occurrence")          $o = new \eol_schema\Occurrence();
+            // elseif($class == "occurrence")          $o = new \eol_schema\Occurrence();
+            elseif($class == "occurrence")          $o = new \eol_schema\Occurrence_specific();
             elseif($class == "measurementorfact")   $o = new \eol_schema\MeasurementOrFact();
             elseif($class == "association")         $o = new \eol_schema\Association();
 
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
 
-                // /*
+                /*
                 if($class == "occurrence") {
-                    $remove = array('bodyPart', 'basisOfRecord', 'physiologicalState');
+                    $remove = array('bodyPart', 'basisOfRecord', 'physiologicalState'); //available in occurrence_specific schema
                     if(in_array($field, $remove)) continue;
                 }    
-                // */
+                */
 
                 $o->$field = $rec[$uri];
             }
