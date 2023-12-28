@@ -5,7 +5,7 @@ task originated from: https://eol-jira.bibalex.org/browse/DATA-1917
 First client is: TreatmentBank
 
 php update_resources/connectors/clade_filters_4_habitats.php _ '{"resource_id":"TreatmentBank_adjustment_01"}'
--> generates TreatmentBank_adjustment_02
+-> generates TreatmentBank_adjustment_02.tar.gz
 -> in Jenkins it is renamed to TreatmentBank_final.tar.gz
 
 TreatmentBank_adjustment_02	Thu 2022-11-17 09:46:02 AM	{"MoF.tab":1673761, "occurrence_specific.tab":1673761, "taxon.tab":470607, "time_elapsed":{"sec":2142.42, "min":35.71, "hr":0.6}} mac mini
