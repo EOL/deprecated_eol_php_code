@@ -40,10 +40,8 @@ function process_resource_url($dwca_file, $resource_id)
     $func = new DwCA_Utility($resource_id, $dwca_file);
     $preferred_rowtypes = array(); //best to set this to array() and just set $excluded_rowtypes to reference
 
-    /* main operation
-    $excluded_rowtypes = array('http://eol.org/schema/reference/reference');
-    */
-    // /* during dev
+    // /* main operation. Cannot run [taxon], [occurrence] and [association] in DwCA_Utility bec it has too many records (memory leak). These 3 extensions will just carry-over.
+    // Only the [reference] will be updated.
     $excluded_rowtypes = array("http://eol.org/schema/reference/reference", "http://rs.tdwg.org/dwc/terms/taxon", 
                                "http://rs.tdwg.org/dwc/terms/occurrence", "http://eol.org/schema/association");
     // */
@@ -52,7 +50,6 @@ function process_resource_url($dwca_file, $resource_id)
     http://eol.org/schema/reference/reference
     */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
-    // Functions::finalize_dwca_resource($resource_id);
     Functions::finalize_dwca_resource($resource_id, false, true); //3rd param false means don't delete working folder yet
     
     /* copied template
