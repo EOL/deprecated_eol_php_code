@@ -17,7 +17,7 @@ class Protisten_deAPI
         $this->download_options = array('cache' => 1, 'resource_id' => $this->resource_id, 'download_wait_time' => 1000000, 'timeout' => 1200, 
         // 'download_attempts' => 1, 'delay_in_minutes' => 2, 
                                         'expire_seconds' => 60*60*24*1); //jenkins harvest monthly, but set to expire every day.
-        $this->download_options['expire_seconds'] = 60*60*24; // 1 day due to recent updates by Wolfgang, harvest upon request.
+        $this->download_options['expire_seconds'] = 60*60*12; // half day due to recent updates by Wolfgang, almost harvest upon request.
         // $this->download_options['user_agent'] = 'User-Agent: curl/7.39.0'; // did not work here, but worked OK in USDAfsfeisAPI.php
         $this->download_options['user_agent'] = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'; //worked OK!!!
         
