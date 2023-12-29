@@ -328,12 +328,16 @@ class Protisten_deAPI
         */
         if($final = @$this->stable_urls_info[$accessURI]) return $final;
         else {
-            echo "\n----------not found in Wolfgang's spreadsheet\n";
+            // echo "\n----------not found in Wolfgang's spreadsheet\n";
             // print_r($mr);
             // print_r($this->stable_urls_info); //good debug
-            echo "\n[".$accessURI."]\n";
-            echo "\n[".$mr->accessURI."]\n";
-            echo "\n----------\n"; //exit;
+            // echo "\n[".$accessURI."]\n";
+            // echo "\n[".$mr->accessURI."]\n";
+            // echo "\n----------\n"; //exit;
+
+            $this->debug['not found in Wolfgang spreadsheet'][$accessURI] = '';
+            $this->debug['not found in Wolfgang spreadsheet'][$mr->accessURI] = '';
+
             return $source_url; //return the non-stable URL but currently working
         }
     }
