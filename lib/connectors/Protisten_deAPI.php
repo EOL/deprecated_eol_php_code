@@ -348,6 +348,30 @@ class Protisten_deAPI
         $url = str_replace("/gallery-ALL/..", "", $url);
         $url = str_replace("http://", "https://", $url);
         $url = str_replace(" ", "", $url);
+        // return $url;
+        // at this point $url is: https://www.protisten.de/gallery-ARCHIVE/pics/micrasterias-truncata3-jwbw.jpg
+
+        /* as of Dec 29, 2023
+        Hi Eli, 
+        (only) in the part "gallery-ARCHIVE/pics/" all images now have the trailer "_NEW", e.g.
+        https://www.protisten.de/gallery-ARCHIVE/pics/Acineta-flava-025-100-5308794-812-ODB_NEW.jpg
+        and all the html pages in https://www.protisten.de/gallery-ARCHIVE/ address the new filenames:
+        <td colspan="2"  align="left" width="400"><img src="../gallery-ARCHIVE/pics/Acineta-flava-025-100-5308794-812-ODB_NEW.jpg"></td>
+        Can you work with this?
+        Wolfgang */
+        $url = self::add_NEW_if_needed($url);
+        return $url;
+    }
+    private function add_NEW_if_needed($url)
+    {
+        if(stripos($url, "gallery-ARCHIVE/pics/") !== false) { //string is found
+            $filename = pathinfo($url, PATHINFO_FILENAME);
+            $last_4chars = substr($filename, -4);
+            if($last_4chars != "_NEW") {
+                $new_filename = $filename."_NEW";
+                $url = str_replace($filename, $new_filename, $url);
+            }
+        }
         return $url;
     }
     function get_stable_urls_info()
