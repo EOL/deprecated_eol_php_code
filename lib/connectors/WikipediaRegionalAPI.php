@@ -192,7 +192,10 @@ class WikipediaRegionalAPI
     function get_comprehensive_desc($html)
     {
         $lang = $this->language_code;
-        if(self::is_orientation_right2left($html)) exit("\nWikipedia language ($lang) is right-to-left. Will stop here.\n\n");
+        if(self::is_orientation_right2left($html)) {
+            echo "\n$html\n";
+            exit("\nWikipedia language ($lang) is right-to-left. Will stop here.\n\n");
+        }
         if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
                      // <div id="mw-content-text" lang="fr" dir="ltr" class="mw-content-ltr">
                      // <div id="mw-navigation">
