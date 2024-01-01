@@ -195,26 +195,8 @@ class WikipediaRegionalAPI
             // echo "\n$html\n";
             exit("\nWikipedia language ($lang) is right-to-left. Will stop here.\n\n");
         }
-        if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-                     // <div id="mw-content-text" lang="fr" dir="ltr" class="mw-content-ltr">
-                     // <div id="mw-navigation">
-        elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-                         // <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
-                         // <div id='mw-data-after-content'>
-        elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-                         // <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
-                         // <div id="mw-navigation">
-        elseif(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-                         // <div id="mw-content-text" lang="fr" dir="ltr" class="mw-content-ltr">
-                         // <div id='mw-data-after-content'>
 
-        /* fr, ko and pt and probably more use this section below: */
-        elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div class=\"mw-workspace-container mw-footer-container\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-                         // <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
-                         // <div class="mw-workspace-container mw-footer-container">
-        elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<footer id=\"footer\" class=\"mw-footer\" role=\"contentinfo\" >/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-                         // <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
-                         // <footer id="footer" class="mw-footer" role="contentinfo" >
+        if($val = self::try_2get_desc($lang, $html)) return $val;
         else {
             if($lang == 'no')               $lang = 'nb'; //2nd option for 'no' Norwegian is to use 'nb'.
             elseif($lang == 'zh-min-nan')   $lang = 'nan';
@@ -227,13 +209,8 @@ class WikipediaRegionalAPI
             elseif($lang == 'roa-rup')      $lang = 'rup';
             elseif($lang == 'nrm')          $lang = 'nrf';
             else echo("\nInvestigate WikipediaRegionalAPI 1st try [$lang]...if-then-else not yet setup\n");
-            
-            if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-            elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-            elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-            elseif(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-            elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div class=\"mw-workspace-container mw-footer-container\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-            elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<footer id=\"footer\" class=\"mw-footer\" role=\"contentinfo\" >/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+
+            if($val = self::try_2get_desc($lang, $html)) return $val;
             else {
                 // /* for future investigation. Initial finding is that the article is not worthy to publish
                 // echo "\n$html\n";
@@ -244,7 +221,38 @@ class WikipediaRegionalAPI
                 // */
                 return false;
             }
-        }
+        }        
+    }
+    private function try_2get_desc($lang, $html)
+    {   /* ---------- Jan 1, 2024 START new batches ---------- */
+        /*  <div id="mw-content-text" class="mw-body-content">
+            <div class="mw-footer-container">
+        */
+        if(preg_match("/<div id=\"mw-content-text\"(.*?)mw-footer-container\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+        /* ---------- Jan 1, 2024 END new batches ---------- */
+
+        // /* old legacy batches:
+        if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+                     // <div id="mw-content-text" lang="fr" dir="ltr" class="mw-content-ltr">
+                     // <div id="mw-navigation">
+        elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+                         // <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
+                         // <div id='mw-data-after-content'>
+        elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+                         // <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
+                         // <div id="mw-navigation">
+        elseif(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+                         // <div id="mw-content-text" lang="fr" dir="ltr" class="mw-content-ltr">
+                         // <div id='mw-data-after-content'>
+        // fr, ko and pt and probably more use this section below:
+        elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<div class=\"mw-workspace-container mw-footer-container\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+                         // <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
+                         // <div class="mw-workspace-container mw-footer-container">
+        elseif(preg_match("/<div id=\"mw-content-text\" class=\"mw-body-content mw-content-ltr\" lang=\"$lang\" dir=\"ltr\">(.*?)<footer id=\"footer\" class=\"mw-footer\" role=\"contentinfo\" >/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+                         // <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="fr" dir="ltr">
+                         // <footer id="footer" class="mw-footer" role="contentinfo" >
+        // */
+        return false;        
     }
     function get_domain_name($url)
     {
