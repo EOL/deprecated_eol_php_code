@@ -138,6 +138,40 @@ https://eol.org/pages/46566400/data?predicate_id=696
 Do we need to truncate this resource before reharvest-republish steps?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end
 
+----------------------------------------------------------------- Jenkins entry: as of Jan 2, 2024
+cd /html/eol_php_code/update_resources/connectors
+
+# step 1: OK
+php5.6 globi_data.php jenkins
+# generates globi_associations.tar.gz
+# then also...
+# generates globi_associations_final.tar.gz
+#exit 1 #during tests
+
+# step 2: OK - part of main operation. Temporarily commented as I'm fixing above script.
+php5.6 make_hash_IDs_4Deltas.php jenkins '{"task": "", "resource":"Deltas_4hashing", "resource_id":"globi_associations_final"}'
+# generates globi_associations_delta.tar.gz
+
+# step 3: OK remove unused Reference entries
+php5.6 remove_unused_references.php jenkins '{"resource_id": "globi_associations_delta", "resource": "remove_unused_references", "resource_name": "GloBI"}'
+# generates globi_associations_tmp1.tar.gz
+
+# step 4: OK remove unused Occurrence entries
+php5.6 remove_unused_occurrences.php jenkins '{"resource_id": "globi_associations_tmp1", "resource": "remove_unused_occurrences", "resource_name": "GloBI"}'
+# generates globi_associations_tmp2.tar.gz
+
+# === LAST STEP: copy globi_associations_tmp2.tar.gz to globi_assoc.tar.gz OK
+cd /html/eol_php_code/applications/content_server/resources
+cp globi_associations_tmp2.tar.gz globi_assoc.tar.gz
+ls -lt globi_associations_tmp2.tar.gz
+ls -lt globi_assoc.tar.gz
+# then delete globi_associations_tmp2.tar.gz
+rm -f globi_associations_tmp2.tar.gz
+
+cd /html/eol_php_code/update_resources/connectors
+php5.6 ckan_api_access.php jenkins "c8392978-16c2-453b-8f0e-668fbf284b61"
+----------------------------------------------------------------- Jenkins entry end
+
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020
