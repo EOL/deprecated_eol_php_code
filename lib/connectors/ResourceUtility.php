@@ -26,16 +26,14 @@ class ResourceUtility
     function remove_unused_occurrences($info, $resource_name) //Func6
     {
         $tables = $info['harvester']->tables; // print_r($tables); exit;
-
-        // step 3: remaining carry over extensions:
-        self::carry_over_extension($tables['http://eol.org/schema/reference/reference'][0], 'reference');
-        self::carry_over_extension($tables['http://eol.org/schema/association'][0], 'association');
-        self::carry_over_extension($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'taxon');
-        
         // step 1: get all occurrenceIDs & targetOccurrenceIDs from all extensions with occurrence IDs
         if(in_array($resource_name, array('GloBI'))) self::process_generic_table($tables['http://eol.org/schema/association'][0], 'build-up occur info');
         // step 2: create occurrence extension only for those used occurrence IDs
         self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'create_occurrence');
+        // step 3: remaining carry over extensions:
+        self::carry_over_extension($tables['http://eol.org/schema/reference/reference'][0], 'reference');
+        self::carry_over_extension($tables['http://eol.org/schema/association'][0], 'association');
+        self::carry_over_extension($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'taxon');
     }
     /*============================================================= ENDS remove_unused_occurrences ==================================================*/
     /*============================================================ STARTS remove_unused_references =================================================*/

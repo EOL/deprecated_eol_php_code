@@ -217,15 +217,17 @@ class DwCA_Utility
             $func = new DWCA_Associations_Fix($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+
         // if($this->resource_id == 'globi_associations_tmp1') { //working OK but was changed to below: more maintainable moving forward
-        if(@$this->params['resource'] == 'remove_unused_references') {
-            // /* customize part:
-            if($this->resource_id == 'globi_associations_tmp1') $resource_name = "GloBI";
-            else exit("\nResource name not yet initialized (remove_unused_references).\n");
-            // */
+        if(@$this->params['resource'] == 'remove_unused_references') { //1st client GloBI
             require_library('connectors/ResourceUtility');
             $func = new ResourceUtility($this->archive_builder, $this->resource_id);
-            $func->remove_unused_references($info, $resource_name);
+            $func->remove_unused_references($info, $this->params['resource_name']);
+        }
+        if(@$this->params['resource'] == 'remove_unused_occurrences') { //1st client GloBI
+            require_library('connectors/ResourceUtility');
+            $func = new ResourceUtility($this->archive_builder, $this->resource_id);
+            $func->remove_unused_occurrences($info, $this->params['resource_name']);
         }
 
         if(in_array($this->resource_id, array('final_SC_unitedstates')) || @$this->params['resource'] == 'MoF_normalized') {
