@@ -118,6 +118,26 @@ globi_associations	        Fri 2023-02-17 03:31:23 PM	{"association.tab":3638127
 globi_associations_final	Fri 2023-02-17 08:10:50 PM	{"association.tab":3496568, "occurrence_specific.tab":13046567, "reference.tab":10506147, "taxon.tab":336533, "time_elapsed":{"sec":34766.06, "min":579.43, "hr":9.66}}
 globi_associations_delta	Sat 2023-02-18 01:12:12 AM	{"association.tab":3496568, "occurrence_specific.tab":13046567, "reference.tab":10151728, "taxon.tab":336533, "time_elapsed":{"sec":17500.48, "min":291.67, "hr":4.86}}
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ one time reported to Jeremy:
+I've just republished [Global Biotic Interactions] https://eol.org/resources/396
+But the published version doesn't seem reflective of what we have in the DwCA.
+In the DwCA this taxon (GBIF:2411317) only eats (RO_0002470) these 3 taxa: Gobiosoma bosc, Gammarus mucronatus, Rhithropanopeus harrisii.
+As reflected in DwCA:
+occurrence.tab
+805b5b8a5129e4d85b1b2cc4fcb90cfd	GBIF:2411317																											
+association.tab
+    9971bf75a540c936fc080c9c58c9e7e3	805b5b8a5129e4d85b1b2cc4fcb90cfd	http://purl.obolibrary.org/obo/RO_0002470	40713ccda0816ad2d6d5ed35c8343451					http://gomexsi.tamucc.edu			b4ff2dd97e8a3c5920ba1bc6c8db779b
+    246a137556bdcc3aaa1e9fee552bbc5e	805b5b8a5129e4d85b1b2cc4fcb90cfd	http://purl.obolibrary.org/obo/RO_0002470	e4ca6a35d15f33153700d48b6be93e25					http://gomexsi.tamucc.edu			b4ff2dd97e8a3c5920ba1bc6c8db779b
+    349f0542f1568988f7af4da5ce086d9b	805b5b8a5129e4d85b1b2cc4fcb90cfd	http://purl.obolibrary.org/obo/RO_0002470	63752c1bb58d07ef9b22d366339e74da					http://gomexsi.tamucc.edu			b4ff2dd97e8a3c5920ba1bc6c8db779b
+taxon.tab
+    NCBI:203314	https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=203314			Gobiosoma bosc		Metazoa	Chordata	Actinopteri	Gobiiformes	Gobiidae	Gobiosoma	species		
+    EOL_V2:344200	https://doi.org/10.5281/zenodo.1495266#344200			Gammarus mucronatus		Animalia	Arthropoda	Malacostraca	Amphipoda	Gammaridae	Gammarus	species		
+    FBC:SLB:SpecCode:25697	https://sealifebase.org/summary/25697			Rhithropanopeus harrisii				Malacostraca	Decapoda	Panopeidae	Rhithropanopeus	species		
+But in eol.org this taxon eats a lot of higher-level taxa including Metazoa:
+https://eol.org/pages/46566400/data?predicate_id=696
+Do we need to truncate this resource before reharvest-republish steps?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end
+
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020
