@@ -219,9 +219,13 @@ class DwCA_Utility
         }
         // if($this->resource_id == 'globi_associations_tmp1') { //working OK but was changed to below: more maintainable moving forward
         if(@$this->params['resource'] == 'remove_unused_references') {
+            // /* customize part:
+            if($this->resource_id == 'globi_associations_tmp1') $resource_name = "GloBI";
+            else exit("\nResource name not yet initialized (remove_unused_references).\n");
+            // */
             require_library('connectors/ResourceUtility');
             $func = new ResourceUtility($this->archive_builder, $this->resource_id);
-            $func->remove_unused_references($info, "GloBI");
+            $func->remove_unused_references($info, $resource_name);
         }
 
         if(in_array($this->resource_id, array('final_SC_unitedstates')) || @$this->params['resource'] == 'MoF_normalized') {
