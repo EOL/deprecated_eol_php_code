@@ -216,7 +216,7 @@ class WikipediaRegionalAPI
                 // echo "\n$html\n";
                 echo("\nInvestigate WikipediaRegionalAPI 2nd try [$lang] [".strlen($html)."]...\n"); //just ignore it.
                 @$this->debug["2nd try - [$lang]"]++;
-                if($this->debug["2nd try - [$lang]"] > 50) exit("\nMore than 50 cases. Will exit now.\n");
+                if($this->debug["2nd try - [$lang]"] > 50) exit("\nMore than 50 cases. [$lang] Will exit now.\n");
                 // echo "\n[$html]\n"; exit(-1); //un-comment this to debug and see the problem.
                 // */
                 return false;
