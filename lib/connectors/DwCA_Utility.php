@@ -217,7 +217,8 @@ class DwCA_Utility
             $func = new DWCA_Associations_Fix($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        if($this->resource_id == 'globi_associations_tmp1') {
+        // if($this->resource_id == 'globi_associations_tmp1') { //working OK but was changed to below: more maintainable moving forward
+        if(@$this->params['resource'] == 'remove_unused_references') {
             require_library('connectors/ResourceUtility');
             $func = new ResourceUtility($this->archive_builder, $this->resource_id);
             $func->remove_unused_references($info, "GloBI");

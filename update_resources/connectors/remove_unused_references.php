@@ -2,7 +2,7 @@
 namespace php_active_record;
 /* This is generic way of removing unused references.
 first client: GloBI 
-    php update_resources/connectors/remove_unused_references.php _ '{"resource_id": "globi_associations_delta"}'
+    php update_resources/connectors/remove_unused_references.php _ '{"resource_id": "globi_associations_delta", "resource": "remove_unused_references"}'
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

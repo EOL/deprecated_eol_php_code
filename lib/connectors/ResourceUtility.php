@@ -31,7 +31,7 @@ class ResourceUtility
         if(in_array($resource_name, array('GloBI'))) self::process_generic_table($tables['http://eol.org/schema/association'][0], 'build-up ref info');
         // step 2: create reference extension only for those used referenceIDs
         self::process_generic_table($tables['http://eol.org/schema/reference/reference'][0], 'create');
-
+        // step 3: remaining carry over extensions:
         self::carry_over_extension($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'occurrence');
         self::carry_over_extension($tables['http://eol.org/schema/association'][0], 'association');
         self::carry_over_extension($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'taxon');
