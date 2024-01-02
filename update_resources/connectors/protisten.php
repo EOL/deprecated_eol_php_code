@@ -1,23 +1,8 @@
 <?php
 namespace php_active_record;
 /* Protisten.de gallery - https://eol-jira.bibalex.org/browse/DATA-1802
-protisten	Thursday 2019-03-21 11:05:34 AM	{"agent.tab":1,"media_resource.tab":1587,"taxon.tab":556}
-protisten	Thursday 2019-03-28 09:40:16 PM	{"agent.tab":1,"media_resource.tab":1587,"taxon.tab":556}
-protisten	Monday 2019-04-15 12:53:10 AM	{"agent.tab":1,"media_resource.tab":1587,"taxon.tab":1050}
-protisten	Thursday 2019-09-19 11:49:40 PM	{"agent.tab":1,"media_resource.tab":1701,"taxon.tab":1089}
-protisten	Monday 2019-11-04 03:23:38 AM	{"agent.tab":1,"media_resource.tab":1701,"taxon.tab":1089,"time_elapsed":false}
-protisten	Monday 2019-11-11 10:05:34 AM	{"agent.tab":1,"media_resource.tab":1701,"taxon.tab":1089,"time_elapsed":{"sec":19.97,"min":0.33,"hr":0.01}}
-            Monday 2019-11-11 10:40:00 AM	{"agent.tab":1,"media_resource.tab":1705,"taxon.tab":1093} consistent OK
-protisten	Monday 2020-02-10 02:20:24 AM	{"agent.tab":1, "media_resource.tab":1708, "taxon.tab":1092, "time_elapsed":{"sec":1283.94,"min":21.4,"hr":0.36}} consistent OK
-protisten	Monday 2020-04-13 12:07:10 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1125, "time_elapsed":{"sec":1345.06, "min":22.42, "hr":0.37}} re-harvested upon request, consistent OK
-protisten	Sun 2020-05-10 01:59:33 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1125, "time_elapsed":{"sec":32.79, "min":0.55, "hr":0.01}}
-protisten	Wed 2020-06-10 02:27:23 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":1701.28, "min":28.35, "hr":0.47}}
-protisten	Fri 2020-07-10 01:59:33 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":32.95, "min":0.55, "hr":0.01}}
-protisten	Mon 2020-08-10 02:22:28 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":1408.54, "min":23.48, "hr":0.39}}
-protisten	Sat 2020-08-29 11:32:40 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":1389.91, "min":23.17, "hr":0.39}}
-protisten	Tue 2020-12-01 10:10:58 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":1443.34, "min":24.06, "hr":0.4}}
-protisten	Mon 2020-12-07 06:22:08 PM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1125, "time_elapsed":{"sec":1424.74, "min":23.75, "hr":0.4}}
-protisten	Sun 2021-01-10 02:33:53 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1125, "time_elapsed":{"sec":2093.39, "min":34.89, "hr":0.58}}
+https://editors.eol.org/eol_php_code/update_resources/connectors/monitor_dwca_refresh.php?dwca_id=protisten
+
 after fixing sciname inclusion
 protisten	Wed 2021-02-03 02:37:37 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":2337.88, "min":38.96, "hr":0.65}}
 protisten	Mon 2021-02-08 04:43:22 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":2379.84, "min":39.66, "hr":0.66}}
@@ -26,24 +11,9 @@ protisten	Mon 2021-02-08 05:04:23 AM	{"agent.tab":1, "media_resource.tab":1841, 
 should add 1 taxon and 1 image
 protisten	Tue 2021-02-09 08:46:28 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1125, "time_elapsed":{"sec":2386.3, "min":39.77, "hr":0.66}}
 protisten	Mon 2021-02-22 11:49:41 AM	{"agent.tab":1, "media_resource.tab":1894, "taxon.tab":1136, "time_elapsed":{"sec":2389.3, "min":39.82, "hr":0.66}}
-protisten	Tue 2021-03-16 02:08:00 AM	{"agent.tab":1, "media_resource.tab":1894, "taxon.tab":1135, "time_elapsed":{"sec":2361.42, "min":39.36, "hr":0.66}}
-protisten	Wed 2021-03-24 12:53:16 PM	{"agent.tab":1, "media_resource.tab":1930, "taxon.tab":1136, "time_elapsed":{"sec":2416.13, "min":40.27, "hr":0.67}}
-protisten	Wed 2021-11-10 02:44:59 AM	{"agent.tab":1, "media_resource.tab":1976, "taxon.tab":1148, "time_elapsed":{"sec":2758, "min":45.97, "hr":0.77}}
-protisten	Wed 2021-11-24 11:05:53 AM	{"agent.tab":1, "media_resource.tab":2078, "taxon.tab":1165, "time_elapsed":{"sec":2740.74, "min":45.68, "hr":0.76}}
-protisten	Thu 2022-11-10 02:57:43 AM	{"agent.tab":1, "media_resource.tab":2079, "taxon.tab":1165, "time_elapsed":{"sec":3523.42, "min":58.72, "hr":0.98}}
-protisten	Mon 2023-01-02 08:47:01 AM	{"agent.tab":1, "media_resource.tab":2366, "taxon.tab":1249, "time_elapsed":{"sec":4037.13, "min":67.29, "hr":1.12}}
-protisten	Thu 2023-01-05 01:54:01 PM	{"agent.tab":1, "media_resource.tab":2366, "taxon.tab":1249, "time_elapsed":{"sec":3988.45, "min":66.47, "hr":1.11}}
-protisten	Tue 2023-01-10 03:05:43 AM	{"agent.tab":1, "media_resource.tab":2366, "taxon.tab":1249, "time_elapsed":{"sec":4002.4, "min":66.71, "hr":1.11}}
-protisten	Tue 2023-02-07 02:39:14 AM	{"agent.tab":1, "media_resource.tab":2366, "taxon.tab":1249, "time_elapsed":{"sec":3984.28, "min":66.4, "hr":1.11}}
-protisten	Fri 2023-02-10 03:05:54 AM	{"agent.tab":1, "media_resource.tab":2366, "taxon.tab":1249, "time_elapsed":{"sec":4013.86, "min":66.9, "hr":1.11}}
-protisten	Sun 2023-04-09 11:12:58 PM	{"agent.tab":1, "media_resource.tab":2518, "taxon.tab":1276, "time_elapsed":{"sec":4219.06, "min":70.32, "hr":1.17}}
-protisten	Sun 2023-04-16 10:19:49 PM	{"agent.tab":1, "media_resource.tab":2522, "taxon.tab":1276, "time_elapsed":{"sec":4314.24, "min":71.9, "hr":1.2}}
-protisten	Wed 2023-04-19 08:54:29 AM	{"agent.tab":1, "media_resource.tab":2522, "taxon.tab":1276, "time_elapsed":{"sec":76.89, "min":1.28, "hr":0.02}}
 below: 114 images were excluded; doesn't exist remotely
 protisten	Tue 2023-06-13 02:47:02 AM	{"agent.tab":1, "media_resource.tab":2409, "taxon.tab":1277, "time_elapsed":{"sec":1662.78, "min":27.71, "hr":0.46}}
 protisten	Thu 2023-07-06 02:04:24 PM	{"agent.tab":1, "media_resource.tab":2540, "taxon.tab":1278, "time_elapsed":{"sec":5799.56, "min":96.66, "hr":1.61}}
-protisten	Mon 2023-07-10 03:35:10 AM	{"agent.tab":1, "media_resource.tab":2526, "taxon.tab":1278, "time_elapsed":{"sec":5769.99, "min":96.17, "hr":1.6}}
-
 protisten	Mon 2023-07-17 01:25:57 PM	{"agent.tab":1, "media_resource.tab":2526, "taxon.tab":1278, "time_elapsed":{"sec":5850.37, "min":97.51, "hr":1.63}}
 [does not exist] => Array( as of Jul 17, 2023
             [https://www.protisten.de/gallery-ARCHIVE/pics/Ceramium-spec-Aufwuchs-040-100-P9259693-698-HID.jpg] => 
@@ -62,7 +32,17 @@ protisten	Mon 2023-07-17 01:25:57 PM	{"agent.tab":1, "media_resource.tab":2526, 
             [https://www.protisten.de/gallery-ARCHIVE/pics/Scenedesmus-falcatus-040-160-P6020120-ODB.jpg] => 
         )
 protisten	Thu 2023-08-10 03:34:46 AM	{"agent.tab":1, "media_resource.tab":2540, "taxon.tab":1279, "time_elapsed":{"sec":5745.96, "min":95.77, "hr":1.6}}
-*/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ one time reported to Jeremy:
+protisten.de has been republished
+e.g. This taxon (Closterium incurvum) has 3 images in DwCA
+f4686d1cb464e70572f0d58ec00364c3 d4103073fb6feb109949bc120a73997f https://www.protisten.de/gallery-ARCHIVE/pics/Closterium-incurvum-063-200-2-7054999-HHW_NEW.jpg 
+9fb3519c03d86ca5ee6895ff18803596 d4103073fb6feb109949bc120a73997f https://www.protisten.de/gallery-ARCHIVE/pics/Closterium-incurvum-040-100-P9274176-HID-INET800_NEW.jpg 
+ffa94aed4fcd6977064ab7280635cdb3 d4103073fb6feb109949bc120a73997f https://www.protisten.de/gallery-ARCHIVE/pics/Closterium-spec-063-200-P8173128-145-grau-RLW-INET800_NEW.jpg 
+Correctly listed in its media page:
+https://eol.org/pages/920788/media?resource_id=697
+BUT only one image is showing.
+Do we need to truncate this resource before reharvest-republish steps?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ end */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = "protisten";
