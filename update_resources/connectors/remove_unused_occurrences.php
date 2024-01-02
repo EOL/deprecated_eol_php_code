@@ -2,7 +2,7 @@
 namespace php_active_record;
 /* This is generic way of removing unused occurrences.
 first client: GloBI 
-    php update_resources/connectors/remove_unused_occurrences.php _ '{"resource_id": "globi_associations_tmp1", "resource": "remove_unused_occurrences"}'
+    php update_resources/connectors/remove_unused_occurrences.php _ '{"resource_id": "globi_associations_tmp1", "resource": "remove_unused_occurrences", "resource_name": "GloBI"}'
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -25,7 +25,7 @@ else                           $dwca_file = 'http://localhost/eol_php_code/appli
 elseif($resource_id == 'the source')                $resource_id = "final dwca"; //add other resources here...
 else exit("\nERROR: resource_id not yet initialized. Will terminate.\n");
 // ----------------------------------------*/
-process_resource_url($dwca_file, $resource_id);
+process_resource_url($dwca_file, $resource_id, $param);
 
 
 $elapsed_time_sec = time_elapsed() - $timestart;
@@ -34,10 +34,10 @@ echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
 
-function process_resource_url($dwca_file, $resource_id)
+function process_resource_url($dwca_file, $resource_id, $param)
 {
     require_library('connectors/DwCA_Utility');
-    $func = new DwCA_Utility($resource_id, $dwca_file);
+    $func = new DwCA_Utility($resource_id, $dwca_file, $param);
     $preferred_rowtypes = array(); //best to set this to array() and just set $excluded_rowtypes to occurrence
 
     // /* main operation. Cannot run [taxon], [reference] and [association] in DwCA_Utility bec it has too many records (memory leak). These 3 extensions will just carry-over.

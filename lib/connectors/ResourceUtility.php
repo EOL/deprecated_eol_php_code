@@ -22,6 +22,22 @@ class ResourceUtility
         /* For environments_names.tsv processing */
         $this->ontology['env_names'] = "https://github.com/eliagbayani/vangelis_tagger/raw/master/eol_tagger/environments_names.tsv";
     }
+    /*============================================================ STARTS remove_unused_occurrences =================================================*/
+    function remove_unused_occurrences($info, $resource_name) //Func6
+    {
+        $tables = $info['harvester']->tables; // print_r($tables); exit;
+
+        // step 3: remaining carry over extensions:
+        self::carry_over_extension($tables['http://eol.org/schema/reference/reference'][0], 'reference');
+        self::carry_over_extension($tables['http://eol.org/schema/association'][0], 'association');
+        self::carry_over_extension($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'taxon');
+        
+        // step 1: get all occurrenceIDs & targetOccurrenceIDs from all extensions with occurrence IDs
+        if(in_array($resource_name, array('GloBI'))) self::process_generic_table($tables['http://eol.org/schema/association'][0], 'build-up occur info');
+        // step 2: create occurrence extension only for those used occurrence IDs
+        self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'create_occurrence');
+    }
+    /*============================================================= ENDS remove_unused_occurrences ==================================================*/
     /*============================================================ STARTS remove_unused_references =================================================*/
     function remove_unused_references($info, $resource_name) //Func5
     {
@@ -30,7 +46,7 @@ class ResourceUtility
         if(in_array($resource_name, array('GloBI'))) self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'build-up ref info');
         if(in_array($resource_name, array('GloBI'))) self::process_generic_table($tables['http://eol.org/schema/association'][0], 'build-up ref info');
         // step 2: create reference extension only for those used referenceIDs
-        self::process_generic_table($tables['http://eol.org/schema/reference/reference'][0], 'create');
+        self::process_generic_table($tables['http://eol.org/schema/reference/reference'][0], 'create_reference');
         // step 3: remaining carry over extensions:
         self::carry_over_extension($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'occurrence');
         self::carry_over_extension($tables['http://eol.org/schema/association'][0], 'association');
@@ -52,30 +68,46 @@ class ResourceUtility
                 $k++;
             }
             // print_r($rec); exit("\ndebug...\n");
-            if($what == 'build-up ref info') {
+            if($what == 'build-up ref info') { //for remove_unused_references()
                 if($val = @$rec['http://eol.org/schema/reference/referenceID']) $this->referenceIDs[$val] = '';
             }
-            elseif($what == 'create') {
+            elseif($what == 'create_reference') { //for remove_unused_references()
                 $referenceID = $rec['http://purl.org/dc/terms/identifier'];
                 if(isset($this->referenceIDs[$referenceID])) { //start saving
-                    $uris = array_keys($rec);
-                    // print_r($uris); exit;
                     $o = new \eol_schema\Reference();
-                    foreach($uris as $uri) {
-                        $field = pathinfo($uri, PATHINFO_BASENAME);
-
-                        // /* some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName"
-                        $parts = explode("#", $field);
-                        if($parts[0]) $field = $parts[0];
-                        if(@$parts[1]) $field = $parts[1];
-                        // */
-
-                        $o->$field = $rec[$uri];
-                    }
-                    $this->archive_builder->write_object_to_file($o);        
+                    self::loop_write($o, $rec);
                 }
             }
+
+            if($what == 'build-up occur info') { //for remove_unused_occurrences()
+                if($val = @$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']) $this->all_occurrenced_IDs[$val] = '';
+                if($val = @$rec['http://eol.org/schema/targetOccurrenceID']) $this->all_occurrenced_IDs[$val] = '';
+            }
+            elseif($what == 'create_occurrence') { //for remove_unused_occurrences()
+                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                if(isset($this->all_occurrenced_IDs[$occurrenceID])) { //start saving
+                    $o = new \eol_schema\Occurrence_specific();
+                    self::loop_write($o, $rec);
+                }
+            }
+
         }
+    }
+    private function loop_write($o, $rec)
+    {
+        $uris = array_keys($rec); //print_r($uris); exit;
+        foreach($uris as $uri) {
+            $field = pathinfo($uri, PATHINFO_BASENAME);
+
+            // /* some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName"
+            $parts = explode("#", $field);
+            if($parts[0]) $field = $parts[0];
+            if(@$parts[1]) $field = $parts[1];
+            // */
+
+            $o->$field = $rec[$uri];
+        }
+        $this->archive_builder->write_object_to_file($o);        
     }
     /*============================================================= ENDS remove_unused_references ==================================================*/
 
@@ -551,12 +583,24 @@ class ResourceUtility
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
 
-                /*
+                /* not used anymore...
                 if($class == "occurrence") {
                     $remove = array('bodyPart', 'basisOfRecord', 'physiologicalState'); //available in occurrence_specific schema
                     if(in_array($field, $remove)) continue;
                 }    
                 */
+
+                // /* some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName"
+                $parts = explode("#", $field);
+                if($parts[0]) $field = $parts[0];
+                if(@$parts[1]) $field = $parts[1];
+                // */
+
+                // /* ignore certain fields for certain extensions: e.g. schema#localityName in Reference() schema
+                if($class == "reference") {
+                    if($field == "localityName") continue;
+                }
+                // */
 
                 $o->$field = $rec[$uri];
             }
