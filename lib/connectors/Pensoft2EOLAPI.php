@@ -787,14 +787,19 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         } //end outer for loop
         if(isset($this->results)) return $this->results; //the return value is used in AntWebAPI.php
     }
-    private function format_str($str)
+    private function format_str($str) //manual intervention
     {   /* per: https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=67728&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67728
         I've only seen this in TreatmentBank. It would be a problem in any connector, but I'll bet there's something about the format of their service that makes 
         TreatmentBank vulnerable: multiword terms should not be found where the words are separated by punctuation: ( or ) or / or , or ;
         eg: http://treatment.plazi.org/id/F7AB94E4F5B59F2C76DF9B7856BDFA5C "field soil"
             http://treatment.plazi.org/id/216FC728FFC5EF2A738326C8AB1BCD40 "river island" */
 
-        $str = str_replace("š", "s", $str); //Strangely Pensoft converts Košice to Koš<b>ice</b>
+        $str = str_replace("š", "s", $str);     //Strangely Pensoft converts Košice to "Koš<b>ice</b>"  -> erroneously creates "ice"
+        $str = str_ireplace("ď", "d", $str);    //Strangely Pensoft converts Fenďa to "<b>Fen</b>ďa"    -> erroneously creates "fen"
+
+        // /* false-positive: https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65818&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65818
+        $str = str_ireplace("United States National Museum", "", $str);
+        // */
 
         $separators = array("(", ")", "/", ",", ";", ":");
         foreach($separators as $separator) $str = str_replace($separator, "\n", $str);
@@ -1199,11 +1204,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         http://api.pensoft.net/annotator?text=West Sahara woodlands&ontologies=eol-geonames
         http://api.pensoft.net/annotator?text=ocean marine sanctuary&ontologies=envo
         */
-        
-        // /* false-positive: https://eol-jira.bibalex.org/browse/DATA-1877?focusedCommentId=65818&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65818
-        $desc = str_ireplace("United States National Museum", "", $desc);
-        // */
-        
+                
         $this->pensoft_run_cnt++;
         $uri = str_replace("MY_DESC", urlencode($desc), $this->pensoft_service);
         $uri = str_replace("MY_ONTOLOGIES", $this->ontologies, $uri);
