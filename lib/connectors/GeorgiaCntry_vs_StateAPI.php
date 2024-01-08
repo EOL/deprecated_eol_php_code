@@ -18,7 +18,7 @@ class GeorgiaCntry_vs_StateAPI
         $this->ontology['env_names'] = "https://github.com/eliagbayani/vangelis_tagger/raw/master/eol_tagger/environments_names.tsv";
     }
     /*============================================================ STARTS Georgia case =================================================*/
-    function start($info, $resource_name) //Func6
+    function start($info)
     {
         /* Here's a more complex case: source text: "Georgia"
 
@@ -30,24 +30,16 @@ class GeorgiaCntry_vs_StateAPI
         using https://www.geonames.org/4197000 if any are present: America, United States, USA, Canada, Mexico, Carolina, Florida, Mississippi, Tennessee. 
         If it's practical to be fancy about it, we could also use a list of eastern cues, and if both sets are represented, discard the record- but I don't 
         think there will be that many such records. */
+
         $tables = $info['harvester']->tables; // print_r($tables); exit;
         self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'round 1');
-
-
-        /*
-        // step 1: get all occurrenceIDs & targetOccurrenceIDs from all extensions with occurrence IDs
-        if(in_array($resource_name, array('GloBI'))) self::process_generic_table($tables['http://eol.org/schema/association'][0], 'build-up occur info');
-        // step 2: create occurrence extension only for those used occurrence IDs
-        self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'create_occurrence');
-        // step 3: remaining carry over extensions:
-        self::carry_over_extension($tables['http://eol.org/schema/reference/reference'][0], 'reference');
-        self::carry_over_extension($tables['http://eol.org/schema/association'][0], 'association');
+        self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'round 2');
+        self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'round 3');
+        // remaining carry over extensions:
+        self::carry_over_extension($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'occurrence');
         self::carry_over_extension($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'taxon');
-        */
     }
     /*============================================================= ENDS Georgia case ==================================================*/
-
-    
     private function process_generic_table($meta, $what)
     {   //print_r($meta);
         echo "\nResourceUtility...process_generic_table ($what) $meta->row_type ...\n"; $i = 0;
@@ -87,18 +79,19 @@ class GeorgiaCntry_vs_StateAPI
             }
             if($what == 'round 3') { // write
                 if($mremarks == 'source text: "georgia"') {
-                    $source_texts = array_keys($this->source_texts_for_source[$source]);
-                    print_r($source_texts);
+                    $source_texts = array_keys($this->source_texts_for_source[$source]); // print_r($source_texts); //good debug
                     $rec['http://rs.tdwg.org/dwc/terms/measurementValue'] = self::evaluate_entry($rec, $source_texts);
                 }
-                $o = new \eol_schema\Occurrence_specific();
+                $o = new \eol_schema\MeasurementOrFact();
                 self::loop_write($o, $rec);
             }
         }
     }
     private function evaluate_entry($rec, $source_texts)
     {
-        $locations = array("America", "United States", "USA", "Canada", "Mexico", "Carolina", "Florida", "Mississippi", "Tennessee");
+        $locations = array("America", "United States", "USA", "Canada", "Mexico", "Carolina", "Florida", "Mississippi", "Tennessee",        //Jen's list
+        "massachusetts", "iowa", "wisconsin", "minnesota", "jersey", "kansas", "nebraska", "illinois", "delaware", "maryland", "virginia",  //Eli's addition
+        "missouri", "oklahoma", "Dakota");                                                                                                  //Eli's addition
         foreach($source_texts as $source_text) {
             foreach($locations as $location) {
                 if(stripos($source_text, $location) !== false) { //string is found
@@ -154,13 +147,6 @@ class GeorgiaCntry_vs_StateAPI
 
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
-
-                /* not used anymore...
-                if($class == "occurrence") {
-                    $remove = array('bodyPart', 'basisOfRecord', 'physiologicalState'); //available in occurrence_specific schema
-                    if(in_array($field, $remove)) continue;
-                }    
-                */
 
                 // /* some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName"
                 $parts = explode("#", $field);

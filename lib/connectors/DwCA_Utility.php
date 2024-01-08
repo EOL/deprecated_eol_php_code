@@ -384,6 +384,11 @@ class DwCA_Utility
             $func = new CladeSpecificFilters4Habitats_API($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+        if(in_array($this->resource_id, array('TreatmentBank_adjustment_03'))) {
+            require_library('connectors/GeorgiaCntry_vs_StateAPI');
+            $func = new GeorgiaCntry_vs_StateAPI($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
         // */
         
         // /* ====================== parts of a whole: will run one after the other ======================

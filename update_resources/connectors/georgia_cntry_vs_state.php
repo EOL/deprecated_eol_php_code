@@ -1,11 +1,12 @@
 <?php
-namespace php_active_record;
-/* This is generic way of removing unused references.
+namespace php_active_record; 
+/* This is generic way of...
 first client: TreatmentBank 
     Differentiate Georgia country vs state. Described here:
     https://eol-jira.bibalex.org/browse/DATA-1896?focusedCommentId=67771&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67771
 
     php update_resources/connectors/georgia_cntry_vs_state.php _ '{"resource_id": "TreatmentBank_adjustment_02"}'
+    -> generates TreatmentBank_adjustment_03.tar.gz
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -18,10 +19,12 @@ $param                     = json_decode(@$argv[2], true);
 $resource_id = $param['resource_id'];
 print_r($param);
 
-// /*
+/*
 if(Functions::is_production()) $dwca_file = CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id" . ".tar.gz";
 else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_3/'.$resource_id.'.tar.gz';
-// */
+*/
+$dwca_file = CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id" . ".tar.gz";
+
 
 // /* ---------- customize here ----------
     if($resource_id == 'TreatmentBank_adjustment_02')  $resource_id = "TreatmentBank_adjustment_03";
@@ -45,13 +48,11 @@ function process_resource_url($dwca_file, $resource_id)
 
     // /* main operation. Cannot run [taxon], [occurrence] and [association] in DwCA_Utility bec it has too many records (memory leak). These 3 extensions will just carry-over.
     // Only the [reference] will be updated.
-    $excluded_rowtypes = array("http://eol.org/schema/reference/reference", "http://rs.tdwg.org/dwc/terms/taxon", 
-                               "http://rs.tdwg.org/dwc/terms/occurrence", "http://eol.org/schema/association");
+    $excluded_rowtypes = array("http://rs.tdwg.org/dwc/terms/measurementorfact", "http://rs.tdwg.org/dwc/terms/taxon", 
+                               "http://rs.tdwg.org/dwc/terms/occurrence");
     // */
 
-    /* These below will be processed in ResourceUtility.php which will be called from DwCA_Utility.php
-    http://eol.org/schema/reference/reference
-    */
+    /* These below will be processed in GeorgiaCntry_vs_StateAPI.php which will be called from DwCA_Utility.php */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, true); //3rd param false means don't delete working folder yet
     
