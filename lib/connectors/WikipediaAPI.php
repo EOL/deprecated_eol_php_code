@@ -2434,12 +2434,8 @@ class WikipediaAPI extends WikiHTMLAPI
         
         return $html;
     } //end remove_infobox()
-    private function remove_categories_section($html, $url, $language_code)
-    {   /* should end here:
-        <noscript><img src="//nl.wikipedia.org/wiki/Special:CentralAutoLogin            ---> orig when doing view source html
-        <noscript><img src="https://nl.wikipedia.org/wiki/Special:CentralAutoLogin      ---> actual value of $html (IMPORTANT REMINDER)
-        */
-        $limit = '<noscript><img src="https://'.$language_code.'.wikipedia.org/wiki/Special:CentralAutoLogin';
+    private function remove_category_main($limit, $html)
+    {
         if(stripos($html, $limit) !== false) { //string is found
             if(preg_match("/xxx(.*?)".preg_quote($limit,'/')."/ims", "xxx".$html, $arr)) {
                 $final = $arr[1];
@@ -2448,12 +2444,30 @@ class WikipediaAPI extends WikiHTMLAPI
                 echo "\n end div: ".substr_count($final, '</div')."\n"; exit;
                 */
                 $html = $final; //since there are additional steps below
+                return $html;
             }
+            else return false;
         }
+        else return false;
+    }
+    private function remove_categories_section($html, $url, $language_code)
+    {   /* should end here:
+        <noscript><img src="//nl.wikipedia.org/wiki/Special:CentralAutoLogin            ---> orig when doing view source html
+        <noscript><img src="https://nl.wikipedia.org/wiki/Special:CentralAutoLogin      ---> actual value of $html (IMPORTANT REMINDER)
+        */
+        $limit = '<noscript><img src="https://'.$language_code.'.wikipedia.org/wiki/Special:CentralAutoLogin';
+        if($val = self::remove_category_main($limit, $html)) $html = $val;
         else {
-            // echo "\n--- $html ---\n";
-            echo("\n-----\nNot found, investigate [$language_code]\n[$url]\n[$limit]\nstrlen HTML = ".count($html)."\n-----\n"); //Previously exits here.
-            // Cause for investigation, check final wiki if OK, since we continued process for now.
+            $limit = '<noscript><img src="https://login.wikimedia.org/wiki/Special:CentralAutoLogin';
+            if($val = self::remove_category_main($limit, $html)) $html = $val;
+            else {
+                // echo "\n--- $html ---\n";
+                echo("\n-----\nNot found, investigate [$language_code]\n[$url]\n[$limit]\nstrlen HTML = ".count($html)."\n-----\n"); //Previously exits here.
+                // Cause for investigation, check final wiki if OK, since we continued process for now.
+
+                @$this->debug["not found category limit"]++;
+                if($this->debug["not found category limit"] > 20) exit("\nToo many cases where category section not detected.\n");
+            }
         }
         
         // /* remove - general purpose sections: Eli updates: 11-04-2019 
