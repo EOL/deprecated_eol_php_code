@@ -614,7 +614,11 @@ class QuaardvarkAPI
     $this->values['Behavior'] = Array(
             'Key Behaviors' => Array(
                     'aestivation' => 'DISCARD',
-                    'arboreal' => 'http://purl.obolibrary.org/obo/RO_0002303,http://purl.obolibrary.org/obo/NBO_0000364',
+                    
+                    // 'arboreal' => 'http://purl.obolibrary.org/obo/RO_0002303,http://purl.obolibrary.org/obo/NBO_0000364',
+                    'arboreal' => 'http://purl.obolibrary.org/obo/RO_0002303,http://purl.obolibrary.org/obo/ENVO_00000571',
+                    // per: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=67779&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-67779
+
                     'colonial' => 'http://eol.org/schema/terms/SocialSystem,http://eol.org/schema/terms/socialGroupLiving',
                     'crepuscular' => 'http://purl.obolibrary.org/obo/VT_0001502, http://purl.obolibrary.org/obo/ECOCORE_00000078',
                     'cursorial' => 'http://purl.obolibrary.org/obo/GO_0040011,http://purl.obolibrary.org/obo/NBO_0000055',
