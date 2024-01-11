@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record; 
-/* DATA-1896: TreatmentBank
+/* DATA-1896: TreatmentBank - http://content.eol.org/resources/562
 as of Sep 1, 2021 = 611,618 items
 STEP 1:
 php update_resources/connectors/treatment_bank.php _ '{"range_from": "1", "range_to":"100000"}'
