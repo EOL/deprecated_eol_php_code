@@ -3,6 +3,11 @@ namespace php_active_record;
 /* Protisten.de gallery - https://eol-jira.bibalex.org/browse/DATA-1802
 https://editors.eol.org/eol_php_code/update_resources/connectors/monitor_dwca_refresh.php?dwca_id=protisten
 
+php update_resources/connectors/protisten.php _ '{"expire_seconds": "1"}'       --- expires now, expires in 1 sec.
+php update_resources/connectors/protisten.php _ '{"expire_seconds": "false"}'   --- doesn't expire
+php update_resources/connectors/protisten.php _ '{"expire_seconds": "86400"}'   --- 60*60*24    = 1 day   = expires in 86400 seconds
+php update_resources/connectors/protisten.php _ '{"expire_seconds": "2592000"}' --- 60*60*24*30 = 30 days = expires in 2592000 seconds
+
 after fixing sciname inclusion
 protisten	Wed 2021-02-03 02:37:37 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":2337.88, "min":38.96, "hr":0.65}}
 protisten	Mon 2021-02-08 04:43:22 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":2379.84, "min":39.66, "hr":0.66}}
@@ -46,9 +51,18 @@ Do we need to truncate this resource before reharvest-republish steps?
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = "protisten";
+
+print_r($argv);
+$params['jenkins_or_cron'] = @$argv[1]; //not needed here
+$param                     = json_decode(@$argv[2], true);
+// print_r($param); exit;
+/* Array(
+    [expire_seconds] => 86400
+)*/
+
 // /* un-comment in real operation
 require_library('connectors/Protisten_deAPI');
-$func = new Protisten_deAPI($resource_id);
+$func = new Protisten_deAPI($resource_id, $param);
 $func->start();
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param true means to delete working resource folder
 // */
