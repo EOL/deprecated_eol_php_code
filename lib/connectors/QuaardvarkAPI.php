@@ -12,6 +12,8 @@ class QuaardvarkAPI
 
         $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 1);
         $this->download_options["expire_seconds"] = 60*60*24*30; //false orig
+        $this->download_options["expire_seconds"] = false; //false orig
+
         $this->debug = array();
         $this->url['Habitat'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E268FDE-F3B2-0001-913C-B28812191D82/?start=';
         $this->url['Geographic Range'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E269055-F07D-0001-79AC-D4E055D018F4/?start=';

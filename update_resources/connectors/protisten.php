@@ -8,6 +8,11 @@ php update_resources/connectors/protisten.php _ '{"expire_seconds": "false"}'   
 php update_resources/connectors/protisten.php _ '{"expire_seconds": "86400"}'   --- 60*60*24    = 1 day   = expires in 86400 seconds
 php update_resources/connectors/protisten.php _ '{"expire_seconds": "2592000"}' --- 60*60*24*30 = 30 days = expires in 2592000 seconds
 
+php5.6 protisten.php jenkins '{"expire_seconds": "1"}'       #--- expires now, expires in 1 sec.
+php5.6 protisten.php jenkins '{"expire_seconds": "false"}'   #--- doesn't expire
+php5.6 protisten.php jenkins '{"expire_seconds": "86400"}'   #--- 60*60*24    = 1 day   = expires in 86400 seconds
+php5.6 protisten.php jenkins '{"expire_seconds": "2592000"}' #--- 60*60*24*30 = 30 days = expires in 2592000 seconds
+
 after fixing sciname inclusion
 protisten	Wed 2021-02-03 02:37:37 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":2337.88, "min":38.96, "hr":0.65}}
 protisten	Mon 2021-02-08 04:43:22 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":2379.84, "min":39.66, "hr":0.66}}
