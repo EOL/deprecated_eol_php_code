@@ -91,6 +91,10 @@ class Functions
             debug("attempt $attempts failed, will try again after " . ($options['download_wait_time']/1000000) . " seconds");
             $attempts++;
 
+            // /* new Jan 12, 2024
+            if($options['download_attempts'] == 1) break;
+            // */
+
             if($attempts > $options['download_attempts']) {
                 if($options['delay_in_minutes']) {
                     debug("Will delay for " . $options['delay_in_minutes'] . " minute(s), then will try again. Number of attempts will be reset.");
