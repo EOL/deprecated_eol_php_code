@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
 /* connector:
+http://content.eol.org/resources/640
+http://content.eol.org/resources/30
 */
 class QuaardvarkAPI
 {
