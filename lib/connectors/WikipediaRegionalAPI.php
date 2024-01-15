@@ -229,6 +229,12 @@ class WikipediaRegionalAPI
             <div class="mw-footer-container">
         */
         if(preg_match("/<div id=\"mw-content-text\"(.*?)mw-footer-container\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+
+        /* uk wikipedia
+        <footer id="footer" class="mw-footer" role="contentinfo">
+        */
+        if(preg_match("/<div id=\"mw-content-text\"(.*?)<footer id=\"footer\" class=\"mw-footer\"/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+
         /* ---------- Jan 1, 2024 END new batches ---------- */
 
         // /* old legacy batches:
