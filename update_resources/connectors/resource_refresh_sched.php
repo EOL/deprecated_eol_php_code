@@ -6,6 +6,9 @@ php update_resources/connectors/resource_refresh_sched.php _ 1
 -> cache expires now
 php update_resources/connectors/resource_refresh_sched.php
 -> cache expires after 11 hours
+
+Final report:
+https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/jenkins_refresh_status.txt
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
