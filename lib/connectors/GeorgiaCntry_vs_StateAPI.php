@@ -80,22 +80,40 @@ class GeorgiaCntry_vs_StateAPI
             if($what == 'round 3') { // write
                 if($mremarks == 'source text: "georgia"') {
                     $source_texts = array_keys($this->source_texts_for_source[$source]); // print_r($source_texts); //good debug
-                    $rec['http://rs.tdwg.org/dwc/terms/measurementValue'] = self::evaluate_entry($rec, $source_texts);
+                    if($val = self::evaluate_entry($rec, $source_texts)) $rec['http://rs.tdwg.org/dwc/terms/measurementValue'] = $val;
+                    else continue;
                 }
                 $o = new \eol_schema\MeasurementOrFact();
                 self::loop_write($o, $rec);
             }
+        } //end foreach()
+    }
+    private function has_Eastern_cues_YN($source_texts)
+    {   
+        $locations = array("Asia", "Europe", "Russia", "Middle East", "Caucasus", "Armenia", "Azerbaijan", "Turkey", "Iran");
+        foreach($source_texts as $source_text) {
+            foreach($locations as $location) {
+                if(stripos($source_text, $location) !== false) { //string is found
+                    return true;
+                }
+            }
         }
+        return false;
     }
     private function evaluate_entry($rec, $source_texts)
     {
+        // /* new: Eastern cues:
+        $Eastern_cues_present_YN = self::has_Eastern_cues_YN($source_texts);
+        // */
+
         $locations = array("America", "United States", "USA", "Canada", "Mexico", "Carolina", "Florida", "Mississippi", "Tennessee",        //Jen's list
         "massachusetts", "iowa", "wisconsin", "minnesota", "jersey", "kansas", "nebraska", "illinois", "delaware", "maryland", "virginia",  //Eli's addition
         "missouri", "oklahoma", "Dakota");                                                                                                  //Eli's addition
         foreach($source_texts as $source_text) {
             foreach($locations as $location) {
                 if(stripos($source_text, $location) !== false) { //string is found
-                    return "https://www.geonames.org/4197000"; //Georgia the US state.
+                    if($Eastern_cues_present_YN) return false;
+                    else                         return "https://www.geonames.org/4197000"; //Georgia the US state.
                 }
             }
         }
