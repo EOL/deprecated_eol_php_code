@@ -505,6 +505,7 @@ class DwCA_Utility
     }
     function convert_archive_files($lifedesks) //used by: connectors/lifedesk_eol_export.php
     {
+        require_library('connectors/RemoveHTMLTagsAPI');
         foreach($lifedesks as $ld) //e.g. $ld = "LD_afrotropicalbirds" or "LD_afrotropicalbirds_multimedia"
         {
             $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$ld.".tar.gz";
@@ -550,6 +551,7 @@ class DwCA_Utility
     
     function convert_archive_by_adding_higherClassification()
     {
+        require_library('connectors/RemoveHTMLTagsAPI');
         echo "\ndoing this: convert_archive_by_adding_higherClassification()\n";
         $info = self::start();
         $temp_dir = $info['temp_dir'];
@@ -586,6 +588,7 @@ class DwCA_Utility
 
     function convert_archive_normalized() //this same as above two, but this removes taxa that don't have objects. Only taxa with objects will remain in taxon.tab.
     {
+        require_library('connectors/RemoveHTMLTagsAPI');
         echo "\ndoing this: convert_archive_normalized()\n";
         $info = self::start(false, array("timeout" => 172800, 'expire_seconds' => 0));
         $temp_dir = $info['temp_dir'];
@@ -685,6 +688,7 @@ class DwCA_Utility
     }
     function convert_archive_customize_tab($options) //first clients are DATA-1779, DATA-1799. This will customize DwCA extension(s).
     {
+        require_library('connectors/RemoveHTMLTagsAPI');
         echo "\ndoing this: convert_archive_customize_tab()\n";
         $info = self::start(); $temp_dir = $info['temp_dir']; $harvester = $info['harvester']; $tables = $info['tables']; $index = $info['index'];
         
