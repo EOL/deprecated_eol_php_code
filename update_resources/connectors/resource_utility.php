@@ -35,6 +35,7 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "42_meta
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "727_meta_recoded", "task": "metadata_recoding"}'
 
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "707_meta_recoded", "task": "metadata_recoding"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "try_dbase_2024_meta_recoded", "task": "metadata_recoding"}'
 -> case where lifeStage is a col in MoF => move to a col in occurrence.
 
 ----------start Coral traits
@@ -225,15 +226,15 @@ if($resource_id == 'col_meta_recoded') ini_set('memory_limit','15096M'); //15096
 
 if($task == 'remove_taxa_without_MoF') {
     if(Functions::is_production()) $dwca_file = '/u/scripts/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
-    else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
+    else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_3/'.$resource_id.'.tar.gz';
     // /* ---------- customize here ----------
     if($resource_id == '617_final') $resource_id = "wikipedia_en_traits";
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
     // ----------------------------------------*/
 }
 elseif($task == 'report_4_Wikipedia_EN_traits') { //for Jen: https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=65155&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65155
-    $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/wikipedia_en_traits.tar.gz';
-    // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/708.tar.gz'; //testing investigation only
+    $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_3/wikipedia_en_traits.tar.gz';
+    // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_3/708.tar.gz'; //testing investigation only
 }
 elseif($task == 'add_canonical_in_taxa') {
     if($resource_id == 'WoRMS2EoL_zip') {
@@ -246,18 +247,18 @@ elseif($task == 'add_canonical_in_taxa') {
 elseif($task == 'change_measurementIDs') {
     if($resource_id == '26_ENV_final') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/26_ENV.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26_ENV.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/26_ENV.tar.gz";
     }
 }
 
 elseif($task == 'metadata_recoding') {
     if($resource_id == '692_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/692.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/692.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/692.tar.gz";
     }
     elseif($resource_id == '201_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/201.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/201.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/201.tar.gz";
     }
     elseif($resource_id == '201_meta_recoded_2') {
         $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/201_meta_recoded.tar.gz";
@@ -265,72 +266,81 @@ elseif($task == 'metadata_recoding') {
 
     elseif($resource_id == '726_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/726.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/726.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/726.tar.gz";
     }
     elseif($resource_id == 'griis_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/griis.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/griis.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/griis.tar.gz";
     }
     elseif($resource_id == '770_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/770.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/770.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/770.tar.gz";
     }
 
     elseif($resource_id == 'natdb_meta_recoded_1') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/natdb.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/natdb.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/natdb.tar.gz";
     }
     elseif($resource_id == 'natdb_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/natdb_meta_recoded_1.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/natdb_meta_recoded_1.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/natdb_meta_recoded_1.tar.gz";
     }
 
     elseif($resource_id == 'copepods_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/copepods.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/copepods.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/copepods.tar.gz";
     }
     elseif($resource_id == '42_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/42.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/42.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/42.tar.gz";
     }
     elseif($resource_id == '727_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/727.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/727.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/727.tar.gz";
     }
+
     elseif($resource_id == '707_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/707.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/707.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/707.tar.gz";
     }
+    
+    elseif($resource_id == 'try_dbase_2024_meta_recoded') {
+        if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/try_dbase_2024.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/try_dbase_2024.tar.gz";
+    }
+
+
+
     elseif($resource_id == 'cotr_meta_recoded_1') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/cotr.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/cotr.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/cotr.tar.gz";
     }
     elseif($resource_id == 'cotr_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/cotr_meta_recoded_1.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/cotr_meta_recoded_1.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/cotr_meta_recoded_1.tar.gz";
     }
     elseif($resource_id == 'cotr_meta_recoded_final') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/cotr_meta_recoded.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/cotr_meta_recoded.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/cotr_meta_recoded.tar.gz";
     }
 
     elseif($resource_id == 'test_meta_recoded') { //task_45: no actual resource atm.
-        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/test_mUnit_sMethod.zip";
+        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/test_mUnit_sMethod.zip";
     }
     elseif($resource_id == 'test2_meta_recoded') { //task_45: first client is WorMS (26).
-        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/test_mUnit_sMethod_asChildInMoF.zip";
+        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/test_mUnit_sMethod_asChildInMoF.zip";
     }
     elseif($resource_id == 'test3_meta_recoded') { //task_67: first client is WorMS (26).
-        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/test_lifeStage_sex_asChildInMoF.zip";
+        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/test_lifeStage_sex_asChildInMoF.zip";
     }
 
     elseif($resource_id == '26_meta_recoded_1') { //task_45: statisticalMethod | measurementUnit
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/26.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/26.tar.gz";
     }
     elseif($resource_id == '26_meta_recoded') { //task_67: lifeStage | sex
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/26_meta_recoded_1.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26_meta_recoded_1.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/26_meta_recoded_1.tar.gz";
     }
 
     // /* Unrecognized_fields
@@ -370,14 +380,14 @@ elseif($task == 'metadata_recoding') {
     elseif($resource_id == 'plant_growth_form_meta_recoded') { //task_move_col_in_occurrence_to_MoF_row_with_MeasurementOfTaxon_false
         exit("\nThis was fixed already as of Sep 29, 2022 (fix_MoF_child_records). Unless will be reported with new issues.\n");
         $dwca_file = "https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/plantgrowthformmetarecoded.tar.gz";
-        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/plantgrowthformmetarecoded.tar.gz";
+        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/plantgrowthformmetarecoded.tar.gz";
         // https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/c89bb549-12de-437d-821e-fe92c2829854/download/copy-of-new-full-habit-sheet.xlsx
         // https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/8f244e41-2ed8-48dd-9dd0-8e1338d4d77b/download/nmnhplantgrowthformdata.xlsx
         // https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/plantgrowthformmetarecoded.tar.gz
     }
     elseif($resource_id == 'circa_meta_recoded') { //CCP and occurrence2MoF
         // $dwca_file = "https://opendata.eol.org/dataset/b4a77ad4-7f80-434f-a68f-aaabdfda3bb8/resource/9bc2fcb5-61c9-44d1-a691-df5287218ed8/download/archive.zip";
-        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/local_circa.tar.gz";
+        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/local_circa.tar.gz";
         exit("\nObsolete anyway. Replaced by [https://opendata.eol.org/dataset/harvard-museum-of-comparative-zoology/resource/c70577a3-7ba7-472f-b3de-bf3043beebfd]\n");
     }
     // */
@@ -389,7 +399,7 @@ elseif($task == 'fix_MoF_child_records') { // 1st client for this task
     if($resource_id == 'Plant_Growth_Form') {
         exit("\nThis was fixed already as of Sep 29, 2022. Unless will be reported with new issues.\n");
         if(Functions::is_production())  $dwca_file = "https://opendata.eol.org/dataset/f86b9ed4-770c-4d15-af55-46cfd86a3f39/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59/download/plantgrowthformmetarecoded.tar.gz";
-        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/plantgrowthformmetarecoded.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources_3/plantgrowthformmetarecoded.tar.gz";
         /* I just ran this locally. And uploaded the local result (Plant_Growth_Form.tar.gz) to: https://opendata.eol.org/dataset/habitdata/resource/7a6fb0ff-5f99-47ee-8177-78c69a6b9c59
         Interestingly CKAN renamed the filename to: "plantgrowthform.tar.gz".
         */
