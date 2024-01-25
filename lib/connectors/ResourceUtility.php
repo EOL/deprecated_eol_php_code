@@ -22,8 +22,15 @@ class ResourceUtility
         /* For environments_names.tsv processing */
         $this->ontology['env_names'] = "https://github.com/eliagbayani/vangelis_tagger/raw/master/eol_tagger/environments_names.tsv";
     }
+    /*============================================================ STARTS remove_MoF_for_taxonID =================================================*/
+    function remove_MoF_for_taxonID($info, $resource_name) //Func #7
+    {
+        exit("\nthis resource id: $this->resource_id\n");
+    }
+
+    /*============================================================= ENDS remove_MoF_for_taxonID ==================================================*/
     /*============================================================ STARTS remove_unused_occurrences =================================================*/
-    function remove_unused_occurrences($info, $resource_name) //Func6
+    function remove_unused_occurrences($info, $resource_name) //Func #6
     {
         $tables = $info['harvester']->tables; // print_r($tables); exit;
         // step 1: get all occurrenceIDs & targetOccurrenceIDs from all extensions with occurrence IDs
@@ -37,7 +44,7 @@ class ResourceUtility
     }
     /*============================================================= ENDS remove_unused_occurrences ==================================================*/
     /*============================================================ STARTS remove_unused_references =================================================*/
-    function remove_unused_references($info, $resource_name) //Func5
+    function remove_unused_references($info, $resource_name) //Func #5
     {
         $tables = $info['harvester']->tables; // print_r($tables); exit;
         // step 1: get all referenceIDs from all extensions with referenceID
@@ -110,7 +117,7 @@ class ResourceUtility
     /*============================================================= ENDS remove_unused_references ==================================================*/
 
     /*============================================================ STARTS add_canonical_in_taxa =================================================*/
-    function add_canonical_in_taxa($info) //Func2
+    function add_canonical_in_taxa($info) //Func #2
     {
         //step 1: build-up sciname-canonical info list
         $file_cnt = 0;
@@ -262,7 +269,7 @@ class ResourceUtility
     /*============================================================ ENDS add_canonical_in_taxa ===================================================*/
     
     /*============================================================ STARTS remove_taxa_without_MoF =================================================*/
-    function remove_taxa_without_MoF($info) //Func1
+    function remove_taxa_without_MoF($info) //Func #1
     {   
         $tables = $info['harvester']->tables;
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);                //build $this->taxon_ids
@@ -330,7 +337,7 @@ class ResourceUtility
     }
     /*============================================================ ENDS remove_taxa_without_MoF ==================================================*/
     /*================================================== STARTS report_4_Wikipedia_EN_traits ===============================================*/
-    function report_4_Wikipedia_EN_traits($info) //Func3
+    function report_4_Wikipedia_EN_traits($info) //Func #3
     {
         self::get_env_names_info_list(); // print_r($env_names_info_list); exit("\nstop munax\n");
         $tables = $info['harvester']->tables;
@@ -435,7 +442,7 @@ class ResourceUtility
     /*================================================== ENDS report_4_Wikipedia_EN_traits =================================================*/
 
     /*=================================================== STARTS remove_contradicting_traits_fromMoF =======================================*/
-    function remove_contradicting_traits_fromMoF($info) //Func4
+    function remove_contradicting_traits_fromMoF($info) //Func #4
     {   
         $tables = $info['harvester']->tables;
         self::process_MoF_contradict($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], "step_1"); //generate $this->mIDs_2delete
