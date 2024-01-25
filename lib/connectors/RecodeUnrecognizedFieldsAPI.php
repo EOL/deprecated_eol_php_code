@@ -380,7 +380,8 @@ class RecodeUnrecognizedFieldsAPI
         /*
         OCCURRENCES
         Recode as MoF records of with MeasurementOfTaxon=false: */
-        $this->sought['OCCURRENCES'] = array('http://rs.tdwg.org/dwc/terms/basisOfRecord', 'http://rs.tdwg.org/dwc/terms/catalogNumber', 'http://rs.tdwg.org/dwc/terms/collectionCode', 'http://rs.tdwg.org/dwc/terms/countryCode', 'http://rs.tdwg.org/dwc/terms/institutionCode');
+        $this->sought['OCCURRENCES'] = array('http://rs.tdwg.org/dwc/terms/basisOfRecord', 'http://rs.tdwg.org/dwc/terms/catalogNumber', 'http://rs.tdwg.org/dwc/terms/collectionCode', 
+                                             'http://rs.tdwg.org/dwc/terms/countryCode', 'http://rs.tdwg.org/dwc/terms/institutionCode');
         /*
         Discard. But alert me if you find a resource with an actual Events file. Its contents will need recoding too: */
         $this->sought['OCCURRENCES'][] = 'http://rs.tdwg.org/dwc/terms/eventID';
