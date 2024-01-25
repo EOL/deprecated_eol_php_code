@@ -26,7 +26,7 @@ else                           $dwca_file = 'http://localhost/eol_php_code/appli
 // */
 
 // /* ---------- customize here ----------
-    if($resource_id == 'TRY_temp2')         $resource_id = "try_database";
+    if($resource_id == 'TRY_temp2')         $resource_id = "try_dbase_2024";
 elseif($resource_id == 'the source')        $resource_id = "final dwca"; //add other resources here...
 else exit("\nERROR: resource_id not yet initialized. Will terminate.\n");
 // ----------------------------------------*/
@@ -45,7 +45,7 @@ function process_resource_url($dwca_file, $resource_id, $param)
     $func = new DwCA_Utility($resource_id, $dwca_file, $param);
     $preferred_rowtypes = array(); //best to set this to array() and just set $excluded_rowtypes
 
-    if($resource_id == "try_database") {
+    if($resource_id == "try_dbase_2024") {
         // /* main operation. MoF and occurrence will be updated in ResourceUtility. taxon and reference will be updated in DwCA_Utility's built-in carry-over
         $excluded_rowtypes = array("http://rs.tdwg.org/dwc/terms/measurementorfact", "http://rs.tdwg.org/dwc/terms/occurrence");
         // "http://eol.org/schema/reference/reference"

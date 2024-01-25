@@ -24,10 +24,10 @@ class ResourceUtility
     }
     /*============================================================ STARTS remove_MoF_for_taxonID =================================================*/
     function remove_MoF_for_taxonID($info, $resource_name) //Func #7
-    {   // exit("\nthis resource id: $this->resource_id\n"); this resource id: try_database
+    {   // exit("\nthis resource id: $this->resource_id\n"); this resource id: try_dbase_2024
         
         // /* Customize here:
-        if($this->resource_id == "try_database") $this->taxonIDs_in_question = array("Phymatodes sp");
+        if($this->resource_id == "try_dbase_2024") $this->taxonIDs_in_question = array("Phymatodes sp");
         else exit("\nResourceUtility: not yet setup.\n");
         // */
 
