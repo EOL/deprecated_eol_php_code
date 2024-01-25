@@ -37,7 +37,7 @@ class ResourceUtility
         // step 2: write MoF not in the list of occur ids from step 1.
         self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write MoF not of this taxonID');
 
-        print_r($this->debug);
+        if(isset($this->debug)) print_r($this->debug);
     }
 
     /*============================================================= ENDS remove_MoF_for_taxonID ==================================================*/
@@ -653,11 +653,11 @@ class ResourceUtility
             // /* used when running Try DBase -- stats only
             if(in_array($field, array('lifeStage', 'bodyPart'))) {
                 @$this->debug['Try DBase'][$field][$rec[$uri]]++;
-                continue; //Try database
+                // continue; //Try database, we've adjusted MeasurementOrFact_specific to accomodate these fields
             }
             if(in_array($field, array('meanlog10', 'SDlog10', 'SampleSize'))) {
                 if (trim($rec[$uri])) @$this->debug['Try DBase'][$field]++;
-                continue; //Try database
+                // continue; //Try database, we've adjusted MeasurementOrFact_specific to accomodate these fields
             }
             // */
 
