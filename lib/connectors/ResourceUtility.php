@@ -651,13 +651,15 @@ class ResourceUtility
             // */
 
             // /* used when running Try DBase -- stats only
-            if(in_array($field, array('lifeStage', 'bodyPart'))) {
-                @$this->debug['Try DBase'][$field][$rec[$uri]]++;
-                // continue; //Try database, we've adjusted MeasurementOrFact_specific to accomodate these fields
-            }
-            if(in_array($field, array('meanlog10', 'SDlog10', 'SampleSize'))) {
-                if (trim($rec[$uri])) @$this->debug['Try DBase'][$field]++;
-                // continue; //Try database, we've adjusted MeasurementOrFact_specific to accomodate these fields
+            if($this->resource_id == "try_dbase_2024") {
+                if(in_array($field, array('lifeStage', 'bodyPart'))) {
+                    @$this->debug['Try DBase'][$field][$rec[$uri]]++;
+                    // continue; //Try database, we've adjusted MeasurementOrFact_specific to accomodate these fields
+                }
+                if(in_array($field, array('meanlog10', 'SDlog10', 'SampleSize'))) {
+                    if (trim($rec[$uri])) @$this->debug['Try DBase'][$field]++;
+                    // continue; //Try database, we've adjusted MeasurementOrFact_specific to accomodate these fields
+                }    
             }
             // */
 
