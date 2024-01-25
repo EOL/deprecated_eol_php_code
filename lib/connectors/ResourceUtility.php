@@ -24,8 +24,20 @@ class ResourceUtility
     }
     /*============================================================ STARTS remove_MoF_for_taxonID =================================================*/
     function remove_MoF_for_taxonID($info, $resource_name) //Func #7
-    {
-        exit("\nthis resource id: $this->resource_id\n");
+    {   // exit("\nthis resource id: $this->resource_id\n"); this resource id: try_database
+        
+        // /* Customize here:
+        if($this->resource_id == "try_database") $this->taxonIDs_in_question = array("Phymatodes sp");
+        else exit("\nResourceUtility: not yet setup.\n");
+        // */
+
+        $tables = $info['harvester']->tables; // print_r($tables); exit;
+        // step 1: get all occurrence ids with this taxon ID. Then write occurrence for those that are not of this taxon ID.
+        self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'get occur recs for this taxonID');
+        // step 2: write MoF not in the list of occur ids from step 1.
+        self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write MoF not of this taxonID');
+
+        print_r($this->debug);
     }
 
     /*============================================================= ENDS remove_MoF_for_taxonID ==================================================*/
@@ -73,6 +85,35 @@ class ResourceUtility
                 $k++;
             }
             // print_r($rec); exit("\ndebug...\n");
+
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            if($what == 'get occur recs for this taxonID') {
+                /*  Array(
+                        [http://rs.tdwg.org/dwc/terms/occurrenceID] => TRY_Adenogramma glomerata
+                        [http://rs.tdwg.org/dwc/terms/taxonID] => Adenogramma glomerata
+                    )*/
+                if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonID'], $this->taxonIDs_in_question)) {
+                    $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                    $this->occurrence_IDs_2delete[$occurrenceID] = '';
+                    continue;
+                }
+                else {
+                    $o = new \eol_schema\Occurrence_specific();
+                    self::loop_write($o, $rec);
+                }
+            }
+            elseif($what == 'write MoF not of this taxonID') {
+                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                if(isset($this->occurrence_IDs_2delete[$occurrenceID])) continue;
+                else {
+                    $o = new \eol_schema\MeasurementOrFact_specific();
+                    self::loop_write($o, $rec);
+                }
+            }
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
             if($what == 'build-up ref info') { //for remove_unused_references()
                 if($val = @$rec['http://eol.org/schema/reference/referenceID']) $this->referenceIDs[$val] = '';
             }
@@ -97,22 +138,6 @@ class ResourceUtility
             }
 
         }
-    }
-    private function loop_write($o, $rec)
-    {
-        $uris = array_keys($rec); //print_r($uris); exit;
-        foreach($uris as $uri) {
-            $field = pathinfo($uri, PATHINFO_BASENAME);
-
-            // /* some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName"
-            $parts = explode("#", $field);
-            if($parts[0]) $field = $parts[0];
-            if(@$parts[1]) $field = $parts[1];
-            // */
-
-            $o->$field = $rec[$uri];
-        }
-        $this->archive_builder->write_object_to_file($o);        
     }
     /*============================================================= ENDS remove_unused_references ==================================================*/
 
@@ -557,6 +582,7 @@ class ResourceUtility
     
     /*=================================================== ENDS remove_contradicting_traits_fromMoF =======================================*/
 
+    /* ######################################### Generic functions below: ######################################### */
     private function carry_over_extension($meta, $class)
     {   //print_r($meta);
         echo "\nResourceUtility...carry_over_extension ($class)...\n"; $i = 0;
@@ -611,6 +637,33 @@ class ResourceUtility
             }
             $this->archive_builder->write_object_to_file($o);
         }
+    }
+    private function loop_write($o, $rec)
+    {
+        $uris = array_keys($rec); //print_r($uris); exit;
+        foreach($uris as $uri) {
+            $field = pathinfo($uri, PATHINFO_BASENAME);
+
+            // /* some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName"
+            $parts = explode("#", $field);
+            if($parts[0]) $field = $parts[0];
+            if(@$parts[1]) $field = $parts[1];
+            // */
+
+            // /* used when running Try DBase -- stats only
+            if(in_array($field, array('lifeStage', 'bodyPart'))) {
+                @$this->debug['Try DBase'][$field][$rec[$uri]]++;
+                continue; //Try database
+            }
+            if(in_array($field, array('meanlog10', 'SDlog10', 'SampleSize'))) {
+                if (trim($rec[$uri])) @$this->debug['Try DBase'][$field]++;
+                continue; //Try database
+            }
+            // */
+
+            $o->$field = $rec[$uri];
+        }
+        $this->archive_builder->write_object_to_file($o);        
     }
 
 }

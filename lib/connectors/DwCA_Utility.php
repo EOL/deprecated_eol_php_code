@@ -230,6 +230,12 @@ class DwCA_Utility
             $func->remove_unused_occurrences($info, $this->params['resource_name']);
         }
 
+        if(@$this->params['resource'] == 'remove_MoF_for_taxonID') { //1st client TRY database
+            require_library('connectors/ResourceUtility');
+            $func = new ResourceUtility($this->archive_builder, $this->resource_id);
+            $func->remove_MoF_for_taxonID($info, $this->params['resource_name']);
+        }
+
         if(in_array($this->resource_id, array('final_SC_unitedstates')) || @$this->params['resource'] == 'MoF_normalized') {
             require_library('connectors/DWCA_Measurements_Fix');
             $func = new DWCA_Measurements_Fix($this->archive_builder, $this->resource_id);
