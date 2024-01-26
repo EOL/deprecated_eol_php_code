@@ -6,7 +6,8 @@ first client: called from DwCA_Utility.php, which is called from remove_taxa_wit
             : called from DwCA_Utility.php, which is called from add_canonical_in_taxa.php
 3rd client: report_4_Wikipedia_EN_traits()
 4th client: remove_contradicting_traits_fromMoF()
-5th client: remove_unused_references() -- called DwCA_Utility.php, which is called from remove_unused_references.php            
+5th client: remove_unused_references() -- called from DwCA_Utility.php, which is called from remove_unused_references.php
+6th? client: remove_MoF_for_taxonID() -- called from DwCA_Utility.php, which is called from remove_MoF_for_taxonID.php
 */
 class ResourceUtility
 {
