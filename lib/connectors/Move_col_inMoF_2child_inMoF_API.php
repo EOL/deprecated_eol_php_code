@@ -15,6 +15,7 @@ class Move_col_inMoF_2child_inMoF_API
         /* For TRY database these MoF columns will become child records in MoF: SampleSize and bodyPart */
 
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'build_info_list');
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_MoF');
         
         if(isset($this->debug)) print_r($this->debug);
     }
@@ -37,23 +38,6 @@ class Move_col_inMoF_2child_inMoF_API
         }
     }
     /*================================================================== ENDS HERE =======================================================================*/
-    // below this point are copied templates... 
-    function start_x($info)
-    {           
-        $tables = $info['harvester']->tables;
-        // if(in_array($this->resource_id, array('some resource id'))) {
-        if(true) {
-            self::fix_child_records_if_needed($tables);
-        }
-        
-        if(isset($this->debug)) print_r($this->debug);
-    }
-    private function fix_child_records_if_needed($tables)
-    {
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'build_info_list');
-            // generates $this->oID_with_True_mOfTaxon_mID[$occurrenceID] = $measurementID
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'check_all_rows');
-    }
     private function process_measurementorfact($meta, $what)
     {   //print_r($meta);
         echo "\nprocess_measurementorfact...[$what]\n"; $i = 0;
@@ -104,7 +88,7 @@ class Move_col_inMoF_2child_inMoF_API
                 if($bodyPart) $this->mID_with_bodyPart[$measurementID] = $bodyPart;
             }
             //===========================================================================================================================================================
-            if($what == 'check_all_rows') {
+            if($what == 'write_MoF') {
                 /*
                 child record in MoF:
                     - doesn't have: occurrenceID | measurementOfTaxon
@@ -121,31 +105,13 @@ class Move_col_inMoF_2child_inMoF_API
                     $parentMeasurementID = $measurementID;
                     self::write_child($measurementType, $measurementValue, $parentMeasurementID);
                 }
-
-
-                
-                if($measurementOfTaxon != 'true') { // criteria to fix child record
-                    if($parentMeasurementID = @$this->oID_with_True_mOfTaxon_mID[$occurrenceID]) {
-                        $m2 = new \eol_schema\MeasurementOrFact_specific();
-                        $rek = array();
-                        $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$measurementType|$measurementValue|$measurementID|$parentMeasurementID");
-                        $rek['http://rs.tdwg.org/dwc/terms/measurementType'] = $measurementType;
-                        $rek['http://rs.tdwg.org/dwc/terms/measurementValue'] = $measurementValue;
-                        $rek['http://eol.org/schema/parentMeasurementID'] = $parentMeasurementID;
-                        $uris = array_keys($rek);
-                        foreach($uris as $uri) {
-                            $field = pathinfo($uri, PATHINFO_BASENAME);
-                            $m2->$field = $rek[$uri];
-                        }
-                        $this->archive_builder->write_object_to_file($m2);
-                        @$this->debug['fxMoFchild']++;
-                    }
-                    else {
-                        print_r($rec);
-                        exit("\nparentID not found.\n");
-                    }
+                if($measurementValue = @$this->mID_with_bodyPart[$measurementID]) {
+                    $measurementType = "http://eol.org/schema/terms/bodyPart";
+                    $parentMeasurementID = $measurementID;
+                    self::write_child($measurementType, $measurementValue, $parentMeasurementID);
                 }
-                else $m = self::write_MoF_rec($rec); // rest of the un-changed carry-over MoF records
+
+                self::write_MoF_rec($rec); // rest of the un-changed carry-over MoF records
             }
             //===========================================================================================================================================================
             // if($i >= 10) break; //debug only
@@ -153,7 +119,6 @@ class Move_col_inMoF_2child_inMoF_API
     }
     private function write_MoF_rec($rec)
     {
-        if(@$rec['http://eol.org/schema/parentMeasurementID']) $rec['http://eol.org/schema/measurementOfTaxon'] = ''; //means a child record
         
         $m = new \eol_schema\MeasurementOrFact_specific();
         $uris = array_keys($rec);
@@ -162,21 +127,20 @@ class Move_col_inMoF_2child_inMoF_API
             $m->$field = $rec[$uri];
         }
 
-        // /* add measurementID if missing
+        // /* add measurementID if missing. Fist client TRY dbase has measurementID, anyway we leave this block for future clients.
         if(!isset($m->measurementID)) {
             $m->measurementID = Functions::generate_measurementID($m, $this->resource_id); //3rd param is optional. If blank then it will consider all properties of the extension
         }
         // */
 
         // /* measurementValue should not be blank
-        if(!$m->measurementValue) return $m;
+        if(!$m->measurementValue) return;
         // */
         
         if(!isset($this->measurementIDs[$m->measurementID])) {
             $this->measurementIDs[$m->measurementID] = '';
             $this->archive_builder->write_object_to_file($m);
         }
-        return $m;
     }
 }
 ?>
