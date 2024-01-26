@@ -54,9 +54,9 @@ function process_resource_url($dwca_file, $resource_id, $param)
         // "http://rs.tdwg.org/dwc/terms/taxon"
         // "http://rs.tdwg.org/dwc/terms/occurrence"
         // */
-        // /* during dev only -- comment in real operation
+        /* during dev only -- comment in real operation
         $excluded_rowtypes = array("http://rs.tdwg.org/dwc/terms/measurementorfact", "http://rs.tdwg.org/dwc/terms/occurrence", "http://eol.org/schema/reference/reference", "http://rs.tdwg.org/dwc/terms/taxon");
-        // */
+        */
     }
     else exit("\n[$resource_id]: resource_id not yet set up.\n");
 

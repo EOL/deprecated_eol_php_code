@@ -102,8 +102,7 @@ class Move_col_inMoF_2child_inMoF_API
     private function write_MoF_rec($rec)
     {   
         $m = new \eol_schema\MeasurementOrFact_specific();
-        $uris = array_keys($rec);
-        print_r($uris); exit;
+        $uris = array_keys($rec); // print_r($uris); exit;
         foreach($uris as $uri) {
             $field = pathinfo($uri, PATHINFO_BASENAME);
             if(in_array($field, array("meanlog10", "SDlog10", "SampleSize", "bodyPart"))) continue;
