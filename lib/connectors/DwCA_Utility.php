@@ -236,6 +236,12 @@ class DwCA_Utility
             $func->remove_MoF_for_taxonID($info, $this->params['resource_name']);
         }
 
+        if(@$this->params['resource'] == 'move_MoF_col_2childMoF') { //1st client TRY database
+            require_library('connectors/Move_col_inMoF_2child_inMoF_API');
+            $func = new Move_col_inMoF_2child_inMoF_API($this->archive_builder, $this->resource_id);
+            $func->start($info, $this->params['resource_name']);
+        }
+
         if(in_array($this->resource_id, array('final_SC_unitedstates')) || @$this->params['resource'] == 'MoF_normalized') {
             require_library('connectors/DWCA_Measurements_Fix');
             $func = new DWCA_Measurements_Fix($this->archive_builder, $this->resource_id);
