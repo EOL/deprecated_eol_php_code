@@ -19,24 +19,6 @@ class Move_col_inMoF_2child_inMoF_API
         
         if(isset($this->debug)) print_r($this->debug);
     }
-    private function write_child($measurementType, $measurementValue, $parentMeasurementID)
-    {
-        $m2 = new \eol_schema\MeasurementOrFact_specific();
-        $rek = array();
-        $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$measurementType|$measurementValue|$parentMeasurementID");
-        $rek['http://rs.tdwg.org/dwc/terms/measurementType'] = $measurementType;
-        $rek['http://rs.tdwg.org/dwc/terms/measurementValue'] = $measurementValue;
-        $rek['http://eol.org/schema/parentMeasurementID'] = $parentMeasurementID;
-        $uris = array_keys($rek);
-        foreach($uris as $uri) {
-            $field = pathinfo($uri, PATHINFO_BASENAME);
-            $m2->$field = $rek[$uri];
-        }
-        if(!isset($this->measurementIDs[$m2->measurementID])) {
-            $this->measurementIDs[$m2->measurementID] = '';
-            $this->archive_builder->write_object_to_file($m2);
-        }
-    }
     /*================================================================== ENDS HERE =======================================================================*/
     private function process_measurementorfact($meta, $what)
     {   //print_r($meta);
@@ -118,12 +100,13 @@ class Move_col_inMoF_2child_inMoF_API
         }
     }
     private function write_MoF_rec($rec)
-    {
-        
+    {   
         $m = new \eol_schema\MeasurementOrFact_specific();
         $uris = array_keys($rec);
+        print_r($uris); exit;
         foreach($uris as $uri) {
             $field = pathinfo($uri, PATHINFO_BASENAME);
+            if(in_array($field, array("meanlog10", "SDlog10", "SampleSize", "bodyPart"))) continue;
             $m->$field = $rec[$uri];
         }
 
@@ -140,6 +123,24 @@ class Move_col_inMoF_2child_inMoF_API
         if(!isset($this->measurementIDs[$m->measurementID])) {
             $this->measurementIDs[$m->measurementID] = '';
             $this->archive_builder->write_object_to_file($m);
+        }
+    }
+    private function write_child($measurementType, $measurementValue, $parentMeasurementID)
+    {
+        $m2 = new \eol_schema\MeasurementOrFact_specific();
+        $rek = array();
+        $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$measurementType|$measurementValue|$parentMeasurementID");
+        $rek['http://rs.tdwg.org/dwc/terms/measurementType'] = $measurementType;
+        $rek['http://rs.tdwg.org/dwc/terms/measurementValue'] = $measurementValue;
+        $rek['http://eol.org/schema/parentMeasurementID'] = $parentMeasurementID;
+        $uris = array_keys($rek);
+        foreach($uris as $uri) {
+            $field = pathinfo($uri, PATHINFO_BASENAME);
+            $m2->$field = $rek[$uri];
+        }
+        if(!isset($this->measurementIDs[$m2->measurementID])) {
+            $this->measurementIDs[$m2->measurementID] = '';
+            $this->archive_builder->write_object_to_file($m2);
         }
     }
 }
