@@ -52,7 +52,7 @@ elseif($file_type = @$_FILES["dwca_upload"]["type"]) {
 else exit("<hr>File missing or maybe too big for the system. Please browse a new file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 
 
-if(Functions::is_production()) $for_DOC_ROOT = '/html/eol_php_code/';
+if(Functions::is_production()) $for_DOC_ROOT =  '/var/www/html/eol_php_code/'; //'/html/eol_php_code/';
 else                           $for_DOC_ROOT = DOC_ROOT;
 
 $newfile = $for_DOC_ROOT . "applications/dwc_validator_jenkins/" . $newfile;

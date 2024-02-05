@@ -83,7 +83,7 @@ exit;
 */
 
 if(Functions::is_production()) {
-    $for_DOC_ROOT = '/html/eol_php_code/';
+    $for_DOC_ROOT =  '/var/www/html/eol_php_code/'; //'/html/eol_php_code/';
     $true_DOC_ROOT = DOC_ROOT;
 }
 else {
