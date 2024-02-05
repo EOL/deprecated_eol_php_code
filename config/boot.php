@@ -147,8 +147,11 @@ function prepare_jenkins($argv, $root)
             if($root != "/opt/homebrew/var/www/eol_php_code/") { //means Jenkins in eol-archive is running
                 // echo "\ngoes here 03\n";
                 $GLOBALS['ENV_NAME'] = 'jenkins_production';
-                $cache_path = '/html/cache_LiteratureEditor/';  //for archive
-                $root = '/html/eol_php_code/';
+                // $cache_path = '/html/cache_LiteratureEditor/';  //for archive
+                // $root = '/html/eol_php_code/';
+                $cache_path = '/var/www/html/cache_LiteratureEditor/';  //for archive
+                $root = '/var/www/html/eol_php_code/';
+
             }
             else { //means Jenkins in Mac mini is running
                 $GLOBALS['ENV_NAME'] = 'jenkins_development';
