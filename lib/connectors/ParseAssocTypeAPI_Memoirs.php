@@ -16,7 +16,7 @@ class ParseAssocTypeAPI_Memoirs
     private function initialize()
     {
         // /* for gnfinder
-        if(Functions::is_production()) $this->json_path = '/html/gnfinder/';
+        if(Functions::is_production()) $this->json_path = '/var/www/html/gnfinder/'; //'/html/gnfinder/';
         else                           $this->json_path = '/Volumes/AKiTiO4/other_files/gnfinder/';
         // */
         require_library('connectors/Functions_Memoirs');

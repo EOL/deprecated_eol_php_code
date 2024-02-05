@@ -269,6 +269,8 @@ class BioImagesAPI
     {   // "http://www.discoverlife.org/mp/20p?img=I_MWS10894&res=mx"
         $destination_folder = "/Volumes/Crucial_2TB/DiscoverLife_images/";  //local Mac Studio
         $destination_folder = "/html/other_files/DiscoverLife_images/";     //eol-archive
+        $destination_folder = "/var/www/html/other_files/DiscoverLife_images/";     //eol-archive
+
         if(preg_match("/discoverlife.org\/mp\/20p\?img\=I_MWS(.*?)\&res\=mx/ims", $url, $arr)) {
             $img_id = $arr[1];
             $filename = self::generate_path_filename($url, $destination_folder, $img_id); debug("\nlocal: [$filename]\n");

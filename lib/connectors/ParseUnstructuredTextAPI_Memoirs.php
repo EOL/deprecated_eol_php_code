@@ -68,7 +68,7 @@ class ParseUnstructuredTextAPI_Memoirs extends ParseListTypeAPI_Memoirs
         $this->chars_that_can_be_nos_but_became_letters_due2OCR = array("S", "s", "I", "i", "l", "O"); //chars that can be numbers but became letters due to OCR issue.
         
         // /* for gnfinder
-        if(Functions::is_production()) $this->json_path = '/html/gnfinder/';
+        if(Functions::is_production()) $this->json_path =  '/var/www/html/gnfinder/'; //'/html/gnfinder/';
         else                           $this->json_path = '/Volumes/AKiTiO4/other_files/gnfinder/';
         // */
     }

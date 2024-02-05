@@ -58,7 +58,7 @@ class Pensoft2EOLAPI extends Functions_Pensoft
         http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology: 382437
         */
         /*-----------------------Paths----------------------*/
-        if(Functions::is_production()) $this->root_path = '/html/Pensoft_annotator/';
+        if(Functions::is_production()) $this->root_path = '/var/www/html/Pensoft_annotator/'; //'/html/Pensoft_annotator/';
         else                           $this->root_path = '/opt/homebrew/var/www/Pensoft_annotator/';
         
         if($this->param['resource_id'] == '617_ENV') {} //Wikipedia EN

@@ -22,7 +22,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
         else                           $this->root_path = '/opt/homebrew/var/www/vangelis_tagger/';
         */
         // /* NEW - Pensoft
-        if(Functions::is_production()) $this->root_path = '/html/Pensoft_annotator/';
+        if(Functions::is_production()) $this->root_path = '/var/www/html/Pensoft_annotator/'; //'/html/Pensoft_annotator/';
         else                           $this->root_path = '/opt/homebrew/var/www/Pensoft_annotator/';
         
         if($resource_id == '617_ENV') {} //Wikipedia EN
@@ -40,7 +40,7 @@ class Environments2EOLfinal extends ContributorsMapAPI
         else                                $this->modulo = 2000;
         
         // /* Utility: reports for WoRMS
-        if(Functions::is_production()) $this->source_tsv = '/html/Pensoft_annotator/26/eol_tags/eol_tags_noParentTerms.tsv';
+        if(Functions::is_production()) $this->source_tsv = '/var/www/html/Pensoft_annotator/26/eol_tags/eol_tags_noParentTerms.tsv'; //'/html/Pensoft_annotator/26/eol_tags/eol_tags_noParentTerms.tsv';
         else                           $this->source_tsv = '/opt/homebrew/var/www/Pensoft_annotator/26/eol_tags/eol_tags_noParentTerms.tsv';
         // */
     }

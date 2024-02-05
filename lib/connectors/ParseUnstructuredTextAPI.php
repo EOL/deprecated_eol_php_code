@@ -41,7 +41,7 @@ class ParseUnstructuredTextAPI extends ParseListTypeAPI
         $this->assoc_prefixes = array("HOSTS", "HOST", "PARASITOIDS", "PARASITOID");
         
         // /* for gnfinder
-        if(Functions::is_production()) $this->json_path = '/html/gnfinder/';
+        if(Functions::is_production()) $this->json_path = '/var/www/html/gnfinder/'; //'/html/gnfinder/';
         else                           $this->json_path = '/Volumes/AKiTiO4/other_files/gnfinder/';
         // */
     }
