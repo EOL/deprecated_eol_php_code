@@ -6,7 +6,7 @@ class Data_OpenTraits
     function __construct()
     {   //60*60*24 orig expire_seconds
         $this->download_options = array('resource_id' => 'opendata', 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        $this->opendata_api['tag taxonomic inference'] = 'https://opendata.eol.org/api/3/action/package_search?q=tags:%22taxonomic%20inference%22+license_id:%22notspecified%22+organization:%22eol-content-partners%22&start=START_NUM&rows=ROWS_PER_CALL&&sort=score+desc%2C+metadata_modified+desc';
+        $this->opendata_api['tag taxonomic inference'] = 'https://opendata.eol.org/api/3/action/package_search?q=tags:%22taxonomic%20inference%22+license_id:%22notspecified%22+organization:%22eol-content-partners%22&start=START_NUM&rows=ROWS_PER_CALL&&sort=metadata_modified+desc';
         $this->opendata_page['package_id'] = 'https://opendata.eol.org/dataset/';
         // https://opendata.eol.org/dataset/owens-and-lewis-2018
         // https://opendata.eol.org/dataset/mcdermott-1964
@@ -227,7 +227,7 @@ class Data_OpenTraits
                 $i = 0;
                 foreach($obj->result->results as $rec) { $i++; $rek = array();
                     // print(" ".count($rec->resources));
-                    if(count($rec->resources) == 1) {
+                    if(count($rec->resources) == 1) { //with new CKAN this part is ToDo: will need to query all resources per dataset_id
                         // print("\n $i. ".$rec->resources[0]->name."\n"); # resource name
                         $rek['OpenData'] = self::get_rec_metadata($rec);
                         self::process_rec($rec, $i); // generates $this->batch
