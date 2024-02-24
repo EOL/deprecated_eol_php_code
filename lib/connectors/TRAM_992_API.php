@@ -27,11 +27,23 @@ class TRAM_992_API
             foreach($obj->result->results as $rec) { //loop all resources with tags = 'taxonomic inference'
                 // print_r($rec); exit("\n001\n");
                 // print_r($rec->tags); exit;
+                // ----- for old CKAN: ----- start
                 if(@$rec->tags{0}->name == 'taxonomic inference') { $count++;
                     self::process_rec($rec, $count);
                     $i++;
                     // if($i > 5) break; //debug only
                 }
+                // ----- for old CKAN: ----- end
+
+                /*
+                // ----- for new CKAN: ----- start : no need to test the tag, all returned records have the sought tag
+                self::process_rec($rec, $count);
+                $i++;
+                // if($i > 5) break; //debug only
+                // ----- for new CKAN: ----- end
+                */
+
+ 
             }
             echo "\nResources: [$i]\n";
             // print_r($this->package); echo " - package"; //exit("exit 2"); //good debug
@@ -91,6 +103,8 @@ class TRAM_992_API
         [name] => lewis-and-taylor-1965
         */
         
+        /* for new CKAN this is ToDo: will need to query all resources per dataset_id */
+
         // if(in_array($rec->name, array('mineralogy', 'marine-ecology-literature'))) {}
         // else {
             if(count($rec->resources) > 1) { //print_r($rec);
