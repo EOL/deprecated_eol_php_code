@@ -131,7 +131,11 @@ class TraitDataImportAPI
     {
         $rec = array();
         $rec['package_id'] = "trait-spreadsheet-repository"; // https://opendata.eol.org/dataset/trait-spreadsheet-repository
-        $rec['clear_upload'] = "true";
+        
+        $rec['clear_upload'] = "true"; //comment this line once new CKAN is installed.
+         
+        $rec['url_type'] = 'entered'; //newly added: Feb 25, 2024, during new CKAN development.
+
         if(Functions::is_production()) $domain = "https://editors.eol.org";
         else                           $domain = "http://localhost";
         $rec['url'] = $domain.'/eol_php_code/applications/content_server/resources/Trait_Data_Import/'.$resource_id.'.tar.gz';
@@ -144,9 +148,17 @@ class TraitDataImportAPI
         $rec['format'] = "Darwin Core Archive";
         $json = json_encode($rec);
         
+        /* for old CKAN
         $cmd = 'curl https://opendata.eol.org/api/3/action/resource_update';
         $cmd .= " -d '".$json."'";
         $cmd .= ' -H "Authorization: b9187eeb-0819-4ca5-a1f7-2ed97641bbd4"';
+        */
+
+        // /* for new CKAN
+        $cmd = 'curl http://localhost/api/action/resource_update'; //for new CKAN only
+        $cmd .= " -d '".$json."'";
+        $cmd .= ' -H "Bearer: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjNjc2NmYyZDQ4OTFlNGZkMjY5NGUwMTBhOGY5NjdjIiwidXNlcm5hbWUiOiJpc2FpYWgiLCJmdWxsbmFtZSI6IklzYWlhaCBQLiBBZ2JheWFuaSIsInN5c2FkbWluIjoidCIsImlhdCI6MTcwODY1MTE0OH0.iuQyRMFKx5V7ffQY1IN6y_-irHfIzP8xoK-QojVXQI0"';
+        // */
         
         // sleep(2); //we only upload one at a time, no need for delay
         $output = shell_exec($cmd);
