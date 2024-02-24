@@ -6,7 +6,7 @@ class TRAM_992_API
     function __construct()
     {   //60*60*24 orig expire_seconds
         $this->download_options = array('resource_id' => 'opendata', 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        $this->opendata_api['tag taxonomic inference'] = 'https://opendata.eol.org/api/3/action/package_search?q=taxonomic+inference&start=0&rows=200&&sort=metadata_modified+desc';
+        $this->opendata_api['tag taxonomic inference'] = 'https://opendata.eol.org/api/3/action/package_search?q=tags:%22taxonomic%20inference%22&start=0&rows=500&&sort=metadata_modified+desc';
         $this->opendata_page['package_id'] = 'https://opendata.eol.org/dataset/';
         // https://opendata.eol.org/dataset/owens-and-lewis-2018
         // https://opendata.eol.org/dataset/mcdermott-1964
