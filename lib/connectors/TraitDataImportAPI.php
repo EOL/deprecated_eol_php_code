@@ -134,7 +134,10 @@ class TraitDataImportAPI
         
         $rec['clear_upload'] = "true"; //comment this line once new CKAN is installed.
          
-        $rec['url_type'] = 'entered'; //newly added: Feb 25, 2024, during new CKAN development.
+        // /* newly added: Feb 25, 2024, during new CKAN development.
+        $rec['url_type'] = 'entered';
+        $rec['state'] = 'active';
+        // */
 
         if(Functions::is_production()) $domain = "https://editors.eol.org";
         else                           $domain = "http://localhost";
@@ -199,6 +202,9 @@ class TraitDataImportAPI
         $rec = array();
         $rec['package_id'] = "trait-spreadsheet-repository"; // https://opendata.eol.org/dataset/trait-spreadsheet-repository
         $rec['clear_upload'] = "true";
+
+        $rec['url_type'] = 'entered'; //newly added: Feb 25, 2024, during new CKAN development.
+        
         if(Functions::is_production()) $domain = "https://editors.eol.org";
         else                           $domain = "http://localhost";
         $rec['url'] = $domain.'/eol_php_code/applications/content_server/resources/Trait_Data_Import/'.$resource_id.'.tar.gz';
