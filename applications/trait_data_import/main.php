@@ -9,9 +9,11 @@ $GLOBALS['ENV_DEBUG'] = true; //set to true during development
 // */
 
 
-$browser = Functions::getBrowser(); // echo "Browser: " . $browser;
-if($browser == 'Firefox') $browser_comment = "Browse...";
-else                      $browser_comment = "Choose File"; //Safari Chrome
+// $browser = Functions::getBrowser(); // echo "Browser: " . $browser;
+// if($browser == 'Firefox') $browser_comment = "Browse...";
+// else                      $browser_comment = "Choose File"; //Safari Chrome
+$browser_comment = "Choose File"; //Safari Chrome
+
 ?>
 <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
     <tr align="center">
