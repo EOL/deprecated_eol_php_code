@@ -182,8 +182,6 @@ function get_opendata_resources_given_datasetID($dataset, $all_fields = true)
 {
     // $options = $this->download_options;
     $options['expire_seconds'] = 0;
-    // if($json = Functions::lookup_with_cache("https://opendata.eol.org/api/3/action/package_show?id=".$dataset, $options)) {
-
     $domain = "https://opendata.eol.org/api/3";     //for old CKAN
     // $domain = "http://localhost:8800/api";          //for new CKAN
 

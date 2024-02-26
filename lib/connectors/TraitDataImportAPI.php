@@ -8,6 +8,9 @@ class TraitDataImportAPI
 {
     function __construct($app)
     {
+        $this->pre_ckan_api = "https://opendata.eol.org/api/3"; //old CKAN
+        // $this->pre_ckan_api = "http://localhost:8800/api"; //new CKAN
+
         $this->resource_id = ''; //will be initialized in start()
         $this->app = $app;
         // $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
@@ -41,8 +44,7 @@ class TraitDataImportAPI
             $this->input['worksheets'] = array('data', 'references', 'vocabulary'); //'data' is the 1st worksheet from Trait_template.xlsx
             $this->vocabulary_fields = array("predicate label", "predicate uri", "value label", "value uri", "units label", "units uri", "statmeth label", "statmeth uri", "sex label", "sex uri", "lifestage label", "lifestage uri");
             
-            $this->opendata_dataset_api = 'https://opendata.eol.org/api/3/action/package_show?id=';     //old CKAN
-            // $this->opendata_dataset_api = 'http://localhost:8800/api/action/package_show?id=';          //new CKAN
+            $this->opendata_dataset_api = $this->pre_ckain_api.'/action/package_show?id=';
 
             $this->reference_schema = 'https://editors.eol.org/other_files/ontology/reference_extension.xml';
         }
@@ -155,13 +157,13 @@ class TraitDataImportAPI
         $json = json_encode($rec);
         
         // /* for old CKAN
-        $cmd = 'curl https://opendata.eol.org/api/3/action/resource_update';
+        $cmd = 'curl '.$this->pre_ckan_api.'/action/resource_update';
         $cmd .= " -d '".$json."'";
         $cmd .= ' -H "Authorization: b9187eeb-0819-4ca5-a1f7-2ed97641bbd4"';
         // */
 
         /* for new CKAN
-        $cmd = 'curl -X PUT http://localhost:8800/api/action/resource_update';
+        $cmd = 'curl -X PUT '.$this->pre_ckan_api.'/action/resource_update';
         $cmd .= ' -H "Content-Type: application/json"';
         $cmd .= " -d '".$json."'";
         $cmd .= ' -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjNjc2NmYyZDQ4OTFlNGZkMjY5NGUwMTBhOGY5NjdjIiwidXNlcm5hbWUiOiJpc2FpYWgiLCJmdWxsbmFtZSI6IklzYWlhaCBQLiBBZ2JheWFuaSIsInN5c2FkbWluIjoidCIsImlhdCI6MTcwODY1MTE0OH0.iuQyRMFKx5V7ffQY1IN6y_-irHfIzP8xoK-QojVXQI0"';
@@ -228,16 +230,13 @@ class TraitDataImportAPI
         $json = json_encode($rec);
         
         // /* -------------------------- for old CKAN --------------------------
-        $cmd = 'curl https://opendata.eol.org/api/3/action/resource_create';
+        $cmd = 'curl '.$this->pre_ckan_api.'/action/resource_create';
         $cmd .= " -d '".$json."'";
         $cmd .= ' -H "Authorization: b9187eeb-0819-4ca5-a1f7-2ed97641bbd4"';
         // -------------------------- end --------------------------*/
 
-        /* -------------------------- for new CKAN --------------------------
-        // curl -X POST https://reqbin.com/echo/post/json 
-        // -H "Content-Type: application/json"
-        // -d '{"Id": 79, "status": 3}'  
-        $cmd = 'curl -X POST http://localhost:8800/api/action/resource_create'; //for new CKAN only
+        /* -------------------------- for new CKAN -------------------------- https://reqbin.com/req/c-hlt4gkzd/curl-bearer-token-authorization-header-example
+        $cmd = 'curl -X POST '.$this->pre_ckan_api.'/action/resource_create'; //for new CKAN only
         $cmd .= ' -H "Content-Type: application/json"';
         $cmd .= " -d '".$json."'";
         $cmd .= ' -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjNjc2NmYyZDQ4OTFlNGZkMjY5NGUwMTBhOGY5NjdjIiwidXNlcm5hbWUiOiJpc2FpYWgiLCJmdWxsbmFtZSI6IklzYWlhaCBQLiBBZ2JheWFuaSIsInN5c2FkbWluIjoidCIsImlhdCI6MTcwODY1MTE0OH0.iuQyRMFKx5V7ffQY1IN6y_-irHfIzP8xoK-QojVXQI0"';
@@ -702,8 +701,7 @@ class TraitDataImportAPI
         found in:  https://opendata.eol.org/dataset/trait-spreadsheet-repository */
 
         // step 1: get all allowed filenames
-        $url = "https://opendata.eol.org/api/3/action/package_show?id=trait-spreadsheet-repository";    //old CKAN
-        // $url = "http://localhost:8800/api/action/package_show?id=trait-spreadsheet-repository";         //new CKAN
+        $url = $this->pre_ckan_api."/action/package_show?id=trait-spreadsheet-repository";
 
         $options = $this->download_options;
         $options['expire_seconds'] = 0; //orig
