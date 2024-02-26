@@ -166,7 +166,7 @@ class TraitDataImportAPI
         $cmd = 'curl -X PUT '.$this->pre_ckan_api.'/action/resource_update';
         $cmd .= ' -H "Content-Type: application/json"';
         $cmd .= " -d '".$json."'";
-        $cmd .= ' -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjNjc2NmYyZDQ4OTFlNGZkMjY5NGUwMTBhOGY5NjdjIiwidXNlcm5hbWUiOiJpc2FpYWgiLCJmdWxsbmFtZSI6IklzYWlhaCBQLiBBZ2JheWFuaSIsInN5c2FkbWluIjoidCIsImlhdCI6MTcwODY1MTE0OH0.iuQyRMFKx5V7ffQY1IN6y_-irHfIzP8xoK-QojVXQI0"';
+        $cmd .= ' -H "Authorization: Bearer '+NEW_CKAN_TOKEN+'"';
         */
 
         // sleep(2); //we only upload one at a time, no need for delay
@@ -239,7 +239,7 @@ class TraitDataImportAPI
         $cmd = 'curl -X POST '.$this->pre_ckan_api.'/action/resource_create'; //for new CKAN only
         $cmd .= ' -H "Content-Type: application/json"';
         $cmd .= " -d '".$json."'";
-        $cmd .= ' -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjNjc2NmYyZDQ4OTFlNGZkMjY5NGUwMTBhOGY5NjdjIiwidXNlcm5hbWUiOiJpc2FpYWgiLCJmdWxsbmFtZSI6IklzYWlhaCBQLiBBZ2JheWFuaSIsInN5c2FkbWluIjoidCIsImlhdCI6MTcwODY1MTE0OH0.iuQyRMFKx5V7ffQY1IN6y_-irHfIzP8xoK-QojVXQI0"';
+        $cmd .= ' -H "Authorization: Bearer '+NEW_CKAN_TOKEN+'"';
         -------------------------- end --------------------------*/
 
         // sleep(2); //we only upload one at a time, no need for delay
