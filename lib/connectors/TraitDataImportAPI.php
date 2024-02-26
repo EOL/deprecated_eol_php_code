@@ -40,7 +40,10 @@ class TraitDataImportAPI
             
             $this->input['worksheets'] = array('data', 'references', 'vocabulary'); //'data' is the 1st worksheet from Trait_template.xlsx
             $this->vocabulary_fields = array("predicate label", "predicate uri", "value label", "value uri", "units label", "units uri", "statmeth label", "statmeth uri", "sex label", "sex uri", "lifestage label", "lifestage uri");
-            $this->opendata_dataset_api = 'https://opendata.eol.org/api/3/action/package_show?id=';
+            
+            $this->opendata_dataset_api = 'https://opendata.eol.org/api/3/action/package_show?id=';     //old CKAN
+            // $this->opendata_dataset_api = 'http://localhost:8800/api/action/package_show?id=';          //new CKAN
+
             $this->reference_schema = 'https://editors.eol.org/other_files/ontology/reference_extension.xml';
         }
         /* ============================= END for image_export ============================= */
@@ -134,10 +137,10 @@ class TraitDataImportAPI
         
         $rec['clear_upload'] = "true"; //comment this line once new CKAN is installed.
          
-        // /* newly added: Feb 25, 2024, during new CKAN development.
+        /* ---------- for new CKAN ---------- start
         $rec['url_type'] = 'entered';
         $rec['state'] = 'active';
-        // */
+        ---------- for new CKAN ---------- end */
 
         if(Functions::is_production()) $domain = "https://editors.eol.org";
         else                           $domain = "http://localhost";
@@ -151,23 +154,28 @@ class TraitDataImportAPI
         $rec['format'] = "Darwin Core Archive";
         $json = json_encode($rec);
         
-        /* for old CKAN
+        // /* for old CKAN
         $cmd = 'curl https://opendata.eol.org/api/3/action/resource_update';
         $cmd .= " -d '".$json."'";
         $cmd .= ' -H "Authorization: b9187eeb-0819-4ca5-a1f7-2ed97641bbd4"';
+        // */
+
+        /* for new CKAN
+        $cmd = 'curl -X PUT http://localhost:8800/api/action/resource_update';
+        $cmd .= ' -H "Content-Type: application/json"';
+        $cmd .= " -d '".$json."'";
+        $cmd .= ' -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjNjc2NmYyZDQ4OTFlNGZkMjY5NGUwMTBhOGY5NjdjIiwidXNlcm5hbWUiOiJpc2FpYWgiLCJmdWxsbmFtZSI6IklzYWlhaCBQLiBBZ2JheWFuaSIsInN5c2FkbWluIjoidCIsImlhdCI6MTcwODY1MTE0OH0.iuQyRMFKx5V7ffQY1IN6y_-irHfIzP8xoK-QojVXQI0"';
         */
 
-        // /* for new CKAN
-        $cmd = 'curl http://localhost/api/action/resource_update'; //for new CKAN only
-        $cmd .= " -d '".$json."'";
-        $cmd .= ' -H "Bearer: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjNjc2NmYyZDQ4OTFlNGZkMjY5NGUwMTBhOGY5NjdjIiwidXNlcm5hbWUiOiJpc2FpYWgiLCJmdWxsbmFtZSI6IklzYWlhaCBQLiBBZ2JheWFuaSIsInN5c2FkbWluIjoidCIsImlhdCI6MTcwODY1MTE0OH0.iuQyRMFKx5V7ffQY1IN6y_-irHfIzP8xoK-QojVXQI0"';
-        // */
-        
         // sleep(2); //we only upload one at a time, no need for delay
-        $output = shell_exec($cmd);
-        $output = json_decode($output, true); //print_r($output);
-        if($output['success'] == 1) echo "\nOpenData resource UPDATE OK.\n";
-        else                        echo "\nERROR: OpenData resource UPDATE failed.\n";
+        $output1 = shell_exec($cmd);
+        $output2 = json_decode($output1, true); //print_r($output);
+        if($output2['success'] == 1) echo "\nOpenData resource UPDATE OK.\n";
+        else{
+            echo "\n-----------\n"; echo($output1); echo "\n-----------\n";        
+            echo "\n-----------\n"; print_r($output2); echo "\n-----------\n";        
+            echo "\nERROR: OpenData resource UPDATE failed xxx.\n";
+        }
         /*Array(
             [help] => https://opendata.eol.org/api/3/action/help_show?name=resource_update
             [success] => 1
@@ -203,7 +211,10 @@ class TraitDataImportAPI
         $rec['package_id'] = "trait-spreadsheet-repository"; // https://opendata.eol.org/dataset/trait-spreadsheet-repository
         $rec['clear_upload'] = "true";
 
-        $rec['url_type'] = 'entered'; //newly added: Feb 25, 2024, during new CKAN development.
+        /* for new CKAN only ---         //newly added: Feb 25, 2024, during new CKAN development.
+        $rec['url_type'] = 'entered';
+        $rec['state'] = 'active';        
+        */
         
         if(Functions::is_production()) $domain = "https://editors.eol.org";
         else                           $domain = "http://localhost";
@@ -216,15 +227,31 @@ class TraitDataImportAPI
         $rec['format'] = "Darwin Core Archive";
         $json = json_encode($rec);
         
+        // /* -------------------------- for old CKAN --------------------------
         $cmd = 'curl https://opendata.eol.org/api/3/action/resource_create';
         $cmd .= " -d '".$json."'";
         $cmd .= ' -H "Authorization: b9187eeb-0819-4ca5-a1f7-2ed97641bbd4"';
-        
+        // -------------------------- end --------------------------*/
+
+        /* -------------------------- for new CKAN --------------------------
+        // curl -X POST https://reqbin.com/echo/post/json 
+        // -H "Content-Type: application/json"
+        // -d '{"Id": 79, "status": 3}'  
+        $cmd = 'curl -X POST http://localhost:8800/api/action/resource_create'; //for new CKAN only
+        $cmd .= ' -H "Content-Type: application/json"';
+        $cmd .= " -d '".$json."'";
+        $cmd .= ' -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdjNjc2NmYyZDQ4OTFlNGZkMjY5NGUwMTBhOGY5NjdjIiwidXNlcm5hbWUiOiJpc2FpYWgiLCJmdWxsbmFtZSI6IklzYWlhaCBQLiBBZ2JheWFuaSIsInN5c2FkbWluIjoidCIsImlhdCI6MTcwODY1MTE0OH0.iuQyRMFKx5V7ffQY1IN6y_-irHfIzP8xoK-QojVXQI0"';
+        -------------------------- end --------------------------*/
+
         // sleep(2); //we only upload one at a time, no need for delay
-        $output = shell_exec($cmd);
-        $output = json_decode($output, true);
-        if($output['success'] == 1) echo "\nOpenData resource CREATE OK.\n";
-        else                        echo "\nERROR: OpenData resource CREATE failed.\n";
+        $output1 = shell_exec($cmd);
+        $output2 = json_decode($output1, true);
+        if($output2['success'] == 1) echo "\nOpenData resource CREATE OK.\n";
+        else {
+            echo "\n-----------\n"; echo($output1); echo "\n-----------\n";        
+            echo "\n-----------\n"; print_r($output2); echo "\n-----------\n";        
+            echo "\nERROR: OpenData resource CREATE failed Elix2.\n";
+        }
     }
     function get_ckan_resource_id_given_hash($hash)
     {
@@ -675,7 +702,9 @@ class TraitDataImportAPI
         found in:  https://opendata.eol.org/dataset/trait-spreadsheet-repository */
 
         // step 1: get all allowed filenames
-        $url = "https://opendata.eol.org/api/3/action/package_show?id=trait-spreadsheet-repository";
+        $url = "https://opendata.eol.org/api/3/action/package_show?id=trait-spreadsheet-repository";    //old CKAN
+        // $url = "http://localhost:8800/api/action/package_show?id=trait-spreadsheet-repository";         //new CKAN
+
         $options = $this->download_options;
         $options['expire_seconds'] = 0; //orig
         // $options['expire_seconds'] = 60*60*60*24; //during dev

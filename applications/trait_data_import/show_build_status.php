@@ -182,12 +182,20 @@ function get_opendata_resources_given_datasetID($dataset, $all_fields = true)
 {
     // $options = $this->download_options;
     $options['expire_seconds'] = 0;
-    if($json = Functions::lookup_with_cache("https://opendata.eol.org/api/3/action/package_show?id=".$dataset, $options)) {
+    // if($json = Functions::lookup_with_cache("https://opendata.eol.org/api/3/action/package_show?id=".$dataset, $options)) {
+
+    $domain = "https://opendata.eol.org/api/3";     //for old CKAN
+    // $domain = "http://localhost:8800/api";          //for new CKAN
+
+    if($json = Functions::lookup_with_cache($domain."/action/package_show?id=".$dataset, $options)) {    
         $o = json_decode($json);
         if($all_fields) return $o->result->resources;
         foreach($o->result->resources as $res) $final[$res->url] = '';
     }
-    else exit("\ncannot lookup\n");
+    else {
+        echo "\nError message:\n$json\n";
+        exit("\nCannot lookup: [$dataset]\n");
+    }
     return array_keys($final);
 }
 ?>
