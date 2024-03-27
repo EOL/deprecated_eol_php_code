@@ -419,6 +419,8 @@ else { //old - manually picked the URL
     $dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.1-SNAPSHOT-darwin-core-aggregated.zip'; //started using 21Jan2022
 }
 
+echo ("\nWill eventually proceed with this file: [$dwca]\n");
+
 /* if u want to overwrite and run locally: only during dev
 $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.1-SNAPSHOT-darwin-core-aggregated.zip';
